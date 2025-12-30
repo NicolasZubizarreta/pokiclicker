@@ -131,7 +131,7 @@
         <h1 class="text-3xl md:text-5xl text-yellow-400 mb-2 pixel-font drop-shadow-lg">POKÉ CLICKER</h1>
         <p class="text-gray-400 text-sm tracking-widest">KANTO ORIGINS</p>
     </div>
-    <div class="bg-slate-800/80 p-8 rounded-3xl border-4 border-slate-600 shadow-2xl max-w-4xl w-full backdrop-blur-sm">
+    <div class="bg-slate-800/80 p-8 rounded-3xl border-4 border-slate-600 shadow-2xl max-w-4xl w-full backdrop-blur-sm max-h-[90vh] overflow-y-auto custom-scroll">
         <h2 class="text-center text-white mb-8 pixel-font text-lg">CHOISIS TON STARTER</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="group relative bg-gradient-to-br from-green-900 to-slate-900 border-2 border-green-600 hover:border-green-400 rounded-xl p-6 cursor-pointer transition-all hover:-translate-y-2 text-center" onclick="startGame(1)">
@@ -157,7 +157,7 @@
 <div class="fixed inset-0 z-50 bg-slate-900/95 flex flex-col items-center justify-center p-4 hidden" id="pokedex-modal">
     <div class="bg-slate-800 border-4 border-slate-600 rounded-xl w-full max-w-5xl h-[90vh] flex flex-col shadow-2xl relative">
         <button onclick="togglePokedex()" class="absolute top-4 right-4 text-red-500 hover:text-white material-symbols-outlined text-4xl z-10">close</button>
-        <div class="p-4 border-b border-slate-700 bg-slate-900 rounded-t-xl flex justify-between items-center pr-20">
+        <div class="p-4 border-b border-slate-700 bg-slate-900 rounded-t-xl flex flex-col md:flex-row justify-between items-center pr-4 md:pr-20 gap-4">
             <div>
                 <h2 class="text-yellow-400 pixel-font text-xl">POKÉDEX</h2>
                 <p class="text-xs text-gray-400 mt-1">CAPTUREZ-LES TOUS POUR DES BONUS !</p>
@@ -180,9 +180,9 @@
     <div class="bg-slate-800 border-4 border-slate-600 rounded-xl w-full max-w-3xl aspect-video flex flex-col shadow-2xl relative overflow-hidden">
         <button onclick="toggleMap()" class="absolute top-4 right-4 text-red-500 hover:text-white material-symbols-outlined text-4xl z-20 bg-slate-900 rounded-full">close</button>
         <div class="relative w-full h-full bg-[#70A8C0]" id="map-container">
-            <img src="kanto.png" class="absolute inset-0 w-full h-full object-fill opacity-90" alt="Carte de Kanto">
+            <img src="img/kanto.png" class="absolute inset-0 w-full h-full object-fill opacity-90" alt="Carte de Kanto">
             <svg id="map-svg" class="absolute inset-0 w-full h-full" preserveAspectRatio="none"></svg>
-            <img id="fly-trainer" src="https://raw.githubusercontent.com/msikma/pokesprite/master/trainers/firered-leafgreen/back/red.png" class="absolute z-30 hidden" style="height: 120px; image-rendering: pixelated; transform: translate(-50%, -50%);">
+            <img id="fly-trainer" src="img/SpriteFly1.png" class="absolute z-30 hidden" style="height: 100px; image-rendering: pixelated; transform: translate(-50%, -50%);">
             <div id="gen1-fly-overlay" class="hidden">
                 <div class="fly-track">
                     <div class="fly-speed-lines"></div>
@@ -233,13 +233,14 @@
     </div>
 </div>
 
-<div class="flex-1 flex h-full opacity-0 transition-opacity duration-1000 hidden" id="game-ui">
+<div class="flex-1 flex flex-col lg:flex-row h-full opacity-0 transition-opacity duration-1000 hidden" id="game-ui">
     
-    <div class="w-72 md:w-80 flex-shrink-0 bg-slate-900 border-r border-slate-700 flex flex-col z-20 shadow-2xl">
-        <div class="flex-1 flex flex-col min-h-0 bg-slate-800/50">
+    <div id="sidebar-left" class="w-full lg:w-1/5 flex-shrink-0 bg-slate-900 border-r border-slate-700 flex-col z-20 shadow-2xl hidden lg:flex">
+        <button onclick="closeMobileView()" class="lg:hidden w-full bg-slate-800 text-white p-3 border-b border-slate-600 font-bold flex items-center justify-center gap-2 hover:bg-slate-700"><span class="material-symbols-outlined">arrow_back</span> RETOUR</button>
+        <div id="team-container" class="flex-1 flex flex-col min-h-0 bg-slate-800/50">
             <div class="p-3 bg-gradient-to-r from-red-700 to-red-800 shadow-lg z-10 flex justify-between items-center border-b border-red-900">
                 <div>
-                    <span class="pixel-font text-[10px] text-white block tracking-wide">ÉQUIPE (<span id="team-count">1</span>/6)</span>
+                    <span class="pixel-font text-xs text-white block tracking-wide">ÉQUIPE (<span id="team-count">1</span>/6)</span>
                     <span class="text-[9px] text-red-200 font-mono">DPS: <span class="font-bold text-white" id="total-dps">15</span></span>
                 </div>
                 <div class="flex items-center">
@@ -257,43 +258,70 @@
             <div class="flex-1 overflow-y-auto p-2 space-y-2 custom-scroll" id="team-list">
                 </div>
         </div>
-        <div class="h-1/4 flex-shrink-0 bg-slate-800 border-t border-slate-700 flex flex-col">
+        <div id="bag-container" class="h-1/4 flex-shrink-0 bg-slate-800 border-t border-slate-700 flex flex-col min-h-0">
             <div class="p-2 bg-slate-700 text-center shadow-md border-b border-slate-600">
-                <span class="pixel-font text-[10px] text-yellow-300 tracking-wider">SAC À DOS</span>
+                <span class="pixel-font text-xs text-yellow-300 tracking-wider">SAC À DOS</span>
             </div>
             <div class="flex-1 overflow-y-auto p-2 grid grid-cols-2 gap-2 custom-scroll" id="bag-content">
                 </div>
         </div>
     </div>
 
-    <div class="flex-1 relative flex flex-col overflow-hidden bg-black">
+    <div class="flex-1 relative flex flex-col overflow-hidden bg-black w-full lg:w-3/5 h-[70vh] lg:h-full order-1 lg:order-none">
         <div id="bg-layer" style="background-image: url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png');"></div>
         <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-slate-900/50 pointer-events-none z-0"></div>
 
-        <div class="absolute top-0 w-full p-4 flex justify-between items-start z-30 pointer-events-none">
-            <div class="flex flex-col gap-2 pointer-events-auto">
+        <div class="absolute top-0 w-full p-4 lg:pt-8 z-30 pointer-events-none lg:flex lg:items-center lg:justify-between">
+            <!-- Money & Mobile Controls (Left) -->
+            <div class="pointer-events-auto absolute left-4 top-4 z-40 flex flex-col gap-2 lg:static lg:flex-row">
                 <div class="glass-panel px-4 py-2 rounded-full flex items-center gap-3 shadow-lg transform hover:scale-105 transition-transform">
-                    <span class="material-symbols-outlined text-yellow-400">radio_button_unchecked</span>
-                    <span class="text-xl font-bold pixel-font text-white text-shadow" id="money-display">0</span>
+                    <span class="material-symbols-outlined text-yellow-400">attach_money</span>
+                    <span class="text-sm lg:text-xl font-bold pixel-font text-white text-shadow" id="money-display">0</span>
                 </div>
+                <div class="flex gap-1 lg:hidden">
+                    <button class="bg-gray-800 text-gray-400 border border-gray-600 px-2 py-1 rounded text-[10px] font-bold hover:bg-gray-700 transition-all opacity-50 hover:opacity-100" id="mobile-cheat-btn" onclick="toggleCheat()">CHEAT</button>
+                    <button class="bg-red-800 text-red-200 border border-red-600 px-2 py-1 rounded text-[10px] font-bold hover:bg-red-700 transition-all shadow-lg" onclick="resetSave()">RESET</button>
+                </div>
+            </div>
+
+            <!-- Map (Desktop Right) -->
+            <div class="pointer-events-auto absolute right-4 top-4 z-40 hidden lg:block lg:static">
                 <button onclick="toggleMap()" class="w-12 h-12 bg-slate-800 rounded-full border-2 border-blue-400 hover:bg-slate-700 shadow-lg flex items-center justify-center transition-all hover:scale-110 group" title="Ouvrir la Carte">
                     <span class="material-symbols-outlined text-blue-200 group-hover:text-white text-2xl">map</span>
                 </button>
             </div>
-            <div class="glass-panel px-6 py-2 rounded-xl text-right shadow-lg pointer-events-auto min-w-[200px]">
-                <div class="text-[10px] text-blue-400 uppercase tracking-widest font-bold">Zone <span id="zone-id">1</span></div>
-                <div class="text-lg font-bold pixel-font text-white leading-snug mb-1 truncate" id="zone-name">Route 1</div>
-                <div class="flex items-center justify-end gap-2">
-                    <div class="w-24 h-2 bg-slate-700 rounded-full overflow-hidden">
-                        <div class="h-full bg-blue-500 transition-all duration-300 w-1/10" id="zone-progress" style="width: 10%;"></div>
+
+            <!-- Zone Info (Desktop: Center, Mobile: Right) -->
+            <div class="pointer-events-auto absolute right-4 top-4 lg:left-1/2 lg:-translate-x-1/2 lg:right-auto lg:top-1/2 lg:-translate-y-1/2 flex items-center gap-4 z-40">
+                <button id="prev-zone-btn-d" onclick="changeZone(-1)" class="hidden lg:flex w-10 h-10 rounded-full bg-slate-800 border-2 border-slate-600 text-white items-center justify-center hover:bg-slate-700 transition disabled:opacity-50 shadow-lg">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                </button>
+                <div class="glass-panel px-6 py-2 rounded-xl text-right lg:text-center shadow-lg min-w-[200px]">
+                    <div class="text-xs text-blue-400 uppercase tracking-widest font-bold">Zone <span id="zone-id">1</span></div>
+                    <div class="text-xs md:text-lg font-bold pixel-font text-white leading-snug mb-1 truncate" id="zone-name">Route 1</div>
+                    <div class="flex items-center justify-end lg:justify-center gap-2">
+                        <div class="w-24 h-2 bg-slate-700 rounded-full overflow-hidden">
+                            <div class="h-full bg-blue-500 transition-all duration-300 w-1/10" id="zone-progress" style="width: 10%;"></div>
+                        </div>
+                        <span class="text-xs text-gray-400 font-mono" id="stage-text">1/10</span>
                     </div>
-                    <span class="text-xs text-gray-400 font-mono" id="stage-text">1/10</span>
                 </div>
+                <button id="next-zone-btn-d" onclick="changeZone(1)" class="hidden lg:flex w-10 h-10 rounded-full bg-slate-800 border-2 border-slate-600 text-white items-center justify-center hover:bg-slate-700 transition disabled:opacity-50 shadow-lg">
+                    <span class="material-symbols-outlined">arrow_forward</span>
+                </button>
             </div>
         </div>
 
-        <div class="relative flex-1 flex flex-col items-center justify-center z-20 select-none">
-            <div class="relative w-96 h-96 flex items-center justify-center group">
+        <div class="relative flex-1 flex flex-col items-center justify-end pb-4 lg:pb-6 z-20 select-none pt-24">
+            <div class="w-full flex justify-between px-4 lg:px-20 mb-2 pointer-events-none lg:hidden">
+                <button class="pointer-events-auto w-12 h-12 rounded-full bg-slate-800/70 hover:bg-slate-700 border-2 border-slate-600 text-white shadow-xl flex items-center justify-center transition disabled:opacity-50" id="prev-zone-btn" onclick="changeZone(-1)" disabled>
+                    <span class="material-symbols-outlined">arrow_back</span>
+                </button>
+                <button class="pointer-events-auto w-12 h-12 rounded-full bg-slate-800/70 hover:bg-slate-700 border-2 border-slate-600 text-white shadow-xl flex items-center justify-center transition disabled:opacity-50" id="next-zone-btn" onclick="changeZone(1)" disabled>
+                    <span class="material-symbols-outlined">arrow_forward</span>
+                </button>
+            </div>
+            <div class="relative w-80 h-80 lg:w-96 lg:h-96 flex items-center justify-center group">
                 <div class="absolute -top-20 left-0 w-full text-center hidden pointer-events-none z-50" id="feedback-msg">
                     <span class="text-yellow-400 font-bold text-2xl pixel-font text-shadow-lg drop-shadow-lg">CAPTURED!</span>
                 </div>
@@ -301,11 +329,11 @@
                 <div class="hidden absolute top-0 right-10 bg-red-600 text-white font-bold text-[10px] px-3 py-1 rounded border border-white shadow-lg animate-bounce" id="boss-badge" style="display: none;">BOSS</div>
             </div>
             
-            <div class="w-80 md:w-96 mt-4 bg-slate-900/80 rounded-xl border-2 border-slate-600 p-2 shadow-2xl backdrop-blur-md relative">
-                <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white text-[10px] font-bold px-3 py-0.5 rounded-full border border-slate-500 shadow-md">
+            <div class="w-72 md:w-96 mt-2 bg-slate-900/80 rounded-xl border-2 border-slate-600 p-2 shadow-2xl backdrop-blur-md relative">
+                <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white text-xs font-bold px-3 py-0.5 rounded-full border border-slate-500 shadow-md">
                     <span id="enemy-level">Lv. 2</span>
                 </div>
-                <div class="flex justify-between text-[11px] font-bold px-2 mb-1 mt-1">
+                <div class="flex justify-between text-xs font-bold px-2 mb-1 mt-1">
                     <span class="text-white truncate max-w-[60%]" id="enemy-name">...</span>
                     <span class="text-white font-mono" id="hp-text">...</span>
                 </div>
@@ -317,27 +345,17 @@
                 </div>
             </div>
 
-            <button class="absolute bottom-4 left-4 z-40 bg-gray-800 text-gray-400 border border-gray-600 px-3 py-1 rounded text-xs font-bold hover:bg-gray-700 transition-all opacity-50 hover:opacity-100" id="cheat-btn" onclick="toggleCheat()" title="Active le mode triche : Dégâts massifs et objets à 1$">CHEAT</button>
-
-            <div class="absolute bottom-4 right-4 z-40 grid grid-cols-2 gap-2 justify-items-end">
-                <button class="col-start-1 row-start-1 bg-blue-800 text-blue-200 border border-blue-600 px-3 py-1 rounded text-xs font-bold hover:bg-blue-700 transition-all flex items-center gap-1 shadow-lg" onclick="exportSave()">
-                    <span class="material-symbols-outlined text-[14px]">save</span> SAUVER
-                </button>
-                <button class="col-start-1 row-start-2 bg-red-800 text-red-200 border border-red-600 px-3 py-1 rounded text-xs font-bold hover:bg-red-700 transition-all flex items-center gap-1 shadow-lg" onclick="resetSave()">
+            <div class="absolute bottom-4 left-4 z-40 hidden lg:flex gap-2">
+                <button class="bg-gray-800 text-gray-400 border border-gray-600 px-3 py-1 rounded text-xs font-bold hover:bg-gray-700 transition-all opacity-50 hover:opacity-100" id="cheat-btn" onclick="toggleCheat()" title="Active le mode triche">CHEAT</button>
+                <button class="bg-red-800 text-red-200 border border-red-600 px-3 py-1 rounded text-xs font-bold hover:bg-red-700 transition-all shadow-lg flex items-center gap-1" onclick="resetSave()">
                     <span class="material-symbols-outlined text-[14px]">delete</span> RESET
-                </button>
-                <button class="col-start-2 row-start-2 bg-slate-800 text-yellow-400 border border-yellow-600 px-3 py-1 rounded-full text-xs font-bold hover:bg-slate-700 transition-all shadow-lg flex items-center gap-1" onclick="toggleBadges()" title="Voir les Badges">
-                    <span class="material-symbols-outlined text-[16px]">military_tech</span> BADGES
-                </button>
-                <button class="col-start-2 row-start-1 bg-red-700 text-white border border-red-500 px-3 py-1 rounded text-xs font-bold hover:bg-red-600 transition-all flex items-center gap-1 shadow-lg" onclick="togglePokedex()">
-                    <span class="material-symbols-outlined text-[14px]">book</span> POKÉDEX
                 </button>
             </div>
 
-            <div class="mt-8 flex flex-row items-center gap-4">
-                <button class="group relative bg-slate-100 hover:bg-white text-red-600 font-bold py-3 px-8 rounded-full shadow-lg active:translate-y-1 transition-all flex items-center gap-2 border-2 border-slate-300" id="catch-btn" onclick="attemptCatch('poke')">
+            <div class="mt-4 flex flex-row items-center gap-4">
+                <button class="group relative bg-slate-100 hover:bg-white text-red-600 font-bold py-3 px-4 md:px-8 rounded-full shadow-lg active:translate-y-1 transition-all flex items-center gap-2 border-2 border-slate-300" id="catch-btn" onclick="attemptCatch('poke')">
                     <img class="w-6 h-6 group-hover:rotate-12 transition-transform" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png">
-                    <span class="pixel-font text-xs tracking-wide">CAPTURER</span>
+                    <span class="pixel-font text-xs tracking-wide hidden md:inline">CAPTURER</span>
                     <div class="absolute -top-2 -right-2 bg-blue-600 text-white text-[10px] w-6 h-6 rounded-full flex items-center justify-center border-2 border-white shadow-md font-bold" id="ball-count-btn">0</div>
                 </button>
                 <button class="hidden group relative bg-blue-100 hover:bg-blue-50 text-blue-800 font-bold py-3 px-4 rounded-full shadow-lg active:translate-y-1 transition-all flex items-center gap-2 border-2 border-blue-400" id="super-catch-btn" onclick="attemptCatch('super')" title="3x Chances" style="display: none;">
@@ -354,21 +372,13 @@
                 </button>
             </div>
         </div>
-
-        <div class="absolute bottom-8 w-full flex justify-center gap-6 z-30 pointer-events-none">
-            <button class="pointer-events-auto w-12 h-12 rounded-full bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 text-white shadow-xl flex items-center justify-center transition disabled:opacity-50" id="prev-zone-btn" onclick="changeZone(-1)" disabled>
-                <span class="material-symbols-outlined">arrow_back</span>
-            </button>
-            <button class="pointer-events-auto w-14 h-14 rounded-full bg-slate-800 border-4 border-slate-600 text-gray-500 shadow-none flex items-center justify-center cursor-not-allowed opacity-50" id="next-zone-btn" onclick="changeZone(1)" disabled>
-                <span class="material-symbols-outlined text-2xl">arrow_forward</span>
-            </button>
-        </div>
     </div>
 
-    <div class="w-72 md:w-80 flex-shrink-0 bg-slate-900 border-l border-slate-700 flex flex-col z-20 shadow-2xl">
-        <div class="h-1/2 flex flex-col relative border-b border-slate-700">
+    <div id="sidebar-right" class="w-full lg:w-1/5 flex-shrink-0 bg-slate-900 border-l border-slate-700 flex-col z-20 shadow-2xl hidden lg:flex">
+        <button onclick="closeMobileView()" class="lg:hidden w-full bg-slate-800 text-white p-3 border-b border-slate-600 font-bold flex items-center justify-center gap-2 hover:bg-slate-700"><span class="material-symbols-outlined">arrow_back</span> RETOUR</button>
+        <div id="shop-container" class="h-1/2 flex flex-col relative border-b border-slate-700 min-h-0">
             <div class="p-2 bg-slate-800 text-center shadow-md border-b border-slate-600 z-10">
-                <span class="pixel-font text-[10px] text-blue-300 tracking-wider">BOUTIQUE</span>
+                <span class="pixel-font text-xs text-blue-300 tracking-wider">POKÉSHOP</span>
             </div>
             <div class="absolute inset-0 bg-slate-900/90 z-20 flex flex-col items-center justify-center text-center p-4" id="shop-locked">
                 <span class="material-symbols-outlined text-gray-500 text-3xl mb-2">lock</span>
@@ -377,16 +387,66 @@
             <div class="flex-1 overflow-y-auto p-3 space-y-3 custom-scroll locked-blur" id="shop-content">
                 </div>
         </div>
-        <div class="h-1/2 flex flex-col relative bg-slate-900">
-            <div class="p-2 bg-green-900/50 text-center shadow-md border-b border-green-800 z-10">
-                <span class="pixel-font text-[10px] text-green-300 tracking-wider">PC DE LÉO</span>
+        <div id="pc-container" class="h-1/2 flex flex-col relative bg-slate-900 min-h-0 border-t border-slate-700">
+            <!-- Menu View -->
+            <div id="right-menu-view" class="flex-1 flex flex-col p-6 gap-3 justify-center items-stretch">
+                <h3 class="text-center text-yellow-400 pixel-font text-xs mb-2 tracking-widest">MENU</h3>
+                <button onclick="showPC()" class="bg-slate-800 hover:bg-slate-700 text-green-300 border border-slate-600 p-3 rounded flex items-center justify-center gap-2 font-bold text-xs transition-all shadow-lg group">
+                    <span class="material-symbols-outlined group-hover:scale-110 transition-transform">computer</span> PC DE LÉO
+                </button>
+                <button onclick="togglePokedex()" class="bg-slate-800 hover:bg-slate-700 text-red-300 border border-slate-600 p-3 rounded flex items-center justify-center gap-2 font-bold text-xs transition-all shadow-lg group">
+                    <span class="material-symbols-outlined group-hover:scale-110 transition-transform">book</span> POKÉDEX
+                </button>
+                <button onclick="toggleBadges()" class="bg-slate-800 hover:bg-slate-700 text-yellow-300 border border-slate-600 p-3 rounded flex items-center justify-center gap-2 font-bold text-xs transition-all shadow-lg group">
+                    <span class="material-symbols-outlined group-hover:scale-110 transition-transform">military_tech</span> BADGES
+                </button>
+                <button onclick="exportSave()" class="bg-slate-800 hover:bg-slate-700 text-blue-300 border border-slate-600 p-3 rounded flex items-center justify-center gap-2 font-bold text-xs transition-all shadow-lg group">
+                    <span class="material-symbols-outlined group-hover:scale-110 transition-transform">save</span> SAUVER
+                </button>
             </div>
-            <div class="absolute inset-0 bg-slate-900/95 z-20 flex flex-col items-center justify-center text-center p-4" id="pc-locked">
-                <span class="material-symbols-outlined text-gray-600 text-3xl mb-2">computer</span>
-                <p class="text-xs text-gray-500 font-bold">DÉBLOQUÉ ZONE 4</p>
+
+            <!-- PC View -->
+            <div id="pc-view" class="absolute inset-0 flex flex-col bg-slate-900 hidden z-20">
+                <div class="p-2 bg-green-900/50 text-center shadow-md border-b border-green-800 z-10 flex justify-between items-center">
+                    <button onclick="hidePC()" class="text-green-300 hover:text-white material-symbols-outlined text-lg bg-green-900/50 rounded-full w-6 h-6 flex items-center justify-center">arrow_back</button>
+                    <span class="pixel-font text-[10px] text-green-300 tracking-wider">PC DE LÉO</span>
+                    <div class="w-6"></div>
+                </div>
+                <div class="absolute inset-0 top-9 bg-slate-900/95 z-20 flex flex-col items-center justify-center text-center p-4" id="pc-locked">
+                    <span class="material-symbols-outlined text-gray-600 text-3xl mb-2">computer</span>
+                    <p class="text-xs text-gray-500 font-bold">DÉBLOQUÉ ZONE 4</p>
+                </div>
+                <div class="flex-1 overflow-y-auto p-2 pc-screen custom-scroll bg-black" id="pc-content"></div>
             </div>
-            <div class="flex-1 overflow-y-auto p-2 pc-screen custom-scroll bg-black" id="pc-content"></div>
         </div>
+    </div>
+
+    <!-- Mobile Nav -->
+    <div id="mobile-nav" class="lg:hidden h-[30vh] bg-slate-900 border-t-4 border-slate-700 grid grid-cols-4 grid-rows-2 gap-2 p-2 z-40 shrink-0 order-2">
+        <button onclick="openMobileView('team')" class="bg-slate-800 rounded flex flex-col items-center justify-center text-xs font-bold text-white border border-slate-600 active:bg-slate-700">
+            <span class="material-symbols-outlined mb-1">group</span> ÉQUIPE
+        </button>
+        <button onclick="openMobileView('bag')" class="bg-slate-800 rounded flex flex-col items-center justify-center text-xs font-bold text-white border border-slate-600 active:bg-slate-700">
+            <span class="material-symbols-outlined mb-1">backpack</span> SAC
+        </button>
+        <button onclick="openMobileView('shop')" class="bg-slate-800 rounded flex flex-col items-center justify-center text-xs font-bold text-blue-300 border border-slate-600 active:bg-slate-700">
+            <span class="material-symbols-outlined mb-1">storefront</span> SHOP
+        </button>
+        <button onclick="openMobileView('pc')" class="bg-slate-800 rounded flex flex-col items-center justify-center text-xs font-bold text-green-300 border border-slate-600 active:bg-slate-700">
+            <span class="material-symbols-outlined mb-1">computer</span> PC
+        </button>
+        <button onclick="toggleMap()" class="bg-slate-800 rounded flex flex-col items-center justify-center text-xs font-bold text-yellow-400 border border-slate-600 active:bg-slate-700">
+            <span class="material-symbols-outlined mb-1">map</span> CARTE
+        </button>
+        <button onclick="togglePokedex()" class="bg-slate-800 rounded flex flex-col items-center justify-center text-xs font-bold text-red-400 border border-slate-600 active:bg-slate-700">
+            <span class="material-symbols-outlined mb-1">book</span> POKÉDEX
+        </button>
+        <button onclick="toggleBadges()" class="bg-slate-800 rounded flex flex-col items-center justify-center text-xs font-bold text-yellow-600 border border-slate-600 active:bg-slate-700">
+            <span class="material-symbols-outlined mb-1">military_tech</span> BADGES
+        </button>
+        <button onclick="exportSave()" class="bg-slate-800 rounded flex flex-col items-center justify-center text-xs font-bold text-blue-200 border border-slate-600 active:bg-slate-700">
+            <span class="material-symbols-outlined mb-1">save</span> SAUVER
+        </button>
     </div>
 </div>
 
@@ -677,14 +737,14 @@ const ID_MAP_FALLBACK = {
 };
 
 const BADGES = [
-    {id:1, zoneIdx:2, name:"Roche", desc:"Dégâts Clic x1.5", img:"boulder-badge"},
-    {id:2, zoneIdx:4, name:"Cascade", desc:"DPS Équipe x1.5", img:"cascade-badge"},
-    {id:3, zoneIdx:6, name:"Foudre", desc:"Dégâts Totaux +20%", img:"thunder-badge"},
-    {id:4, zoneIdx:10, name:"Prisme", desc:"Or gagné x1.5", img:"rainbow-badge"},
-    {id:5, zoneIdx:12, name:"Âme", desc:"XP gagnée x1.5", img:"soul-badge"},
-    {id:6, zoneIdx:14, name:"Marais", desc:"Taux Capture +20%", img:"marsh-badge"},
-    {id:7, zoneIdx:16, name:"Volcan", desc:"Dégâts Totaux x2", img:"volcano-badge"},
-    {id:8, zoneIdx:17, name:"Terre", desc:"Vitesse de spawn +20%", img:"earth-badge"}
+    {id:1, zoneIdx:2, name:"Roche", desc:"Dégâts Clic x1.5"},
+    {id:2, zoneIdx:4, name:"Cascade", desc:"DPS Équipe x1.5"},
+    {id:3, zoneIdx:6, name:"Foudre", desc:"Dégâts Totaux +20%"},
+    {id:4, zoneIdx:10, name:"Prisme", desc:"Or gagné x1.5"},
+    {id:5, zoneIdx:12, name:"Âme", desc:"XP gagnée x1.5"},
+    {id:6, zoneIdx:14, name:"Marais", desc:"Taux Capture +20%"},
+    {id:7, zoneIdx:16, name:"Volcan", desc:"Dégâts Totaux x2"},
+    {id:8, zoneIdx:17, name:"Terre", desc:"Vitesse de spawn +20%"}
 ];
 
 const MAP_DATA = [
@@ -1113,12 +1173,16 @@ function getClick() {
 
 function toggleCheat() {
     state.cheat = !state.cheat;
-    const b = document.getElementById('cheat-btn');
-    const base = "absolute bottom-4 left-4 z-40 px-3 py-1 rounded text-xs font-bold transition-all";
-    b.className = state.cheat ? 
-        `${base} bg-red-600 text-white border-red-400 cheat-active` : 
-        `${base} bg-gray-800 text-gray-400 border border-gray-600 hover:bg-gray-700 opacity-50 hover:opacity-100`;
-    b.innerText = state.cheat ? "CHEAT: ON" : "CHEAT: OFF";
+    const updateBtn = (id, baseClass) => {
+        const b = document.getElementById(id);
+        if(!b) return;
+        b.className = state.cheat ? 
+            `${baseClass} bg-red-600 text-white border-red-400 cheat-active` : 
+            `${baseClass} bg-gray-800 text-gray-400 border border-gray-600 hover:bg-gray-700 opacity-50 hover:opacity-100`;
+        b.innerText = state.cheat ? "CHEAT: ON" : "CHEAT: OFF";
+    };
+    updateBtn('cheat-btn', "px-3 py-1 rounded text-xs font-bold transition-all hidden lg:block");
+    updateBtn('mobile-cheat-btn', "px-2 py-1 rounded text-[10px] font-bold transition-all");
     renderShop();
     updateZone();
 }
@@ -1751,6 +1815,15 @@ function flyToZone(zoneId) {
     trainer.style.left = `${(centerX / mapImg.naturalWidth) * 100}%`;
     trainer.style.top = `${(centerY / mapImg.naturalHeight) * 100}%`;
     trainer.classList.remove('hidden');
+    
+    // Animation SpriteFly (1 à 5)
+    let frame = 1;
+    trainer.src = `img/SpriteFly${frame}.png`;
+    const animInterval = setInterval(() => {
+        frame++;
+        if(frame <= 5) trainer.src = `img/SpriteFly${frame}.png`;
+        else clearInterval(animInterval);
+    }, 150); // 150ms par frame
 
     // 2. Wait a bit, then start the fly animation
     setTimeout(() => {
@@ -1781,7 +1854,7 @@ function flyToZone(zoneId) {
                 trainer.classList.add('hidden');
             }, 500);
         }, 2500); // 2.5s animation
-    }, 600); // Wait for trainer to appear and pose
+    }, 800); // Wait for trainer to appear and pose
 }
 
 function renderMap() {
@@ -1871,9 +1944,9 @@ function renderBadges() {
     BADGES.forEach(b => {
         const unlocked = state.badges.includes(b.name);
         const div = document.createElement('div');
-        div.className = `aspect-square rounded-full border-4 flex items-center justify-center relative transition-all group ${unlocked ? 'bg-slate-700 border-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.5)]' : 'bg-slate-900 border-slate-700 grayscale opacity-50'}`;
+        div.className = `aspect-square rounded-full border-4 flex items-center justify-center relative transition-all group ${unlocked ? 'bg-[#E6E6E6] border-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.5)]' : 'bg-slate-900 border-slate-700 grayscale opacity-50'}`;
         div.innerHTML = `
-            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/${b.img}.png" class="w-16 h-16 object-contain ${unlocked?'':'brightness-0 invert opacity-30'}">
+            <img src="img/${b.name}.png" class="w-24 h-24 object-contain ${unlocked?'':'brightness-0 invert opacity-30'}">
         `;
         div.onmouseenter = () => document.getElementById('badge-tooltip').innerHTML = `<span class="text-yellow-400 font-bold">${b.name}</span>: ${b.desc}`;
         div.onmouseleave = () => document.getElementById('badge-tooltip').innerText = "Survolez un badge pour voir son effet";
@@ -1949,11 +2022,24 @@ function updateZone() {
     document.getElementById('stage-text').innerText = state.subStage+"/10";
     document.getElementById('zone-progress').style.width = (state.subStage*10)+"%";
     
-    document.getElementById('prev-zone-btn').disabled = state.zoneIdx===0;
-    const next = document.getElementById('next-zone-btn');
+    // Mobile Arrows
+    const prevM = document.getElementById('prev-zone-btn');
+    if(prevM) prevM.disabled = state.zoneIdx===0;
+    const nextM = document.getElementById('next-zone-btn');
     const canNext = (state.zoneIdx < state.unlockedZone || state.cheat) && state.zoneIdx < ZONES.length-1;
-    next.disabled = !canNext;
-    next.className = canNext ? "pointer-events-auto w-14 h-14 rounded-full bg-blue-600 hover:bg-blue-500 border-4 border-blue-400 text-white shadow-2xl flex items-center justify-center transition transform hover:scale-105 animate-pulse" : "pointer-events-auto w-14 h-14 rounded-full bg-slate-800 border-4 border-slate-600 text-gray-500 shadow-none flex items-center justify-center cursor-not-allowed opacity-50";
+    if(nextM) {
+        nextM.disabled = !canNext;
+        nextM.className = canNext ? "pointer-events-auto w-12 h-12 rounded-full bg-blue-600/80 hover:bg-blue-500 border-2 border-blue-400 text-white shadow-xl flex items-center justify-center transition transform hover:scale-105 animate-pulse" : "pointer-events-auto w-12 h-12 rounded-full bg-slate-800/70 hover:bg-slate-700 border-2 border-slate-600 text-white shadow-xl flex items-center justify-center transition disabled:opacity-50";
+    }
+    
+    // Desktop Arrows
+    const prevD = document.getElementById('prev-zone-btn-d');
+    if(prevD) prevD.disabled = state.zoneIdx===0;
+    const nextD = document.getElementById('next-zone-btn-d');
+    if(nextD) {
+        nextD.disabled = !canNext;
+        nextD.className = canNext ? "hidden lg:flex w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-500 border-2 border-blue-400 text-white items-center justify-center transition transform hover:scale-105 animate-pulse shadow-lg" : "hidden lg:flex w-10 h-10 rounded-full bg-slate-800 border-2 border-slate-600 text-white items-center justify-center hover:bg-slate-700 transition disabled:opacity-50 shadow-lg";
+    }
 }
 
 function updateBg() {
@@ -2031,8 +2117,8 @@ function renderTeam() {
         <div onclick="${isInteractive ? `handleTeamClick(${i})` : ''}" class="flex items-center p-2 rounded border ${isInteractive?'border-blue-400 bg-blue-900/30 cursor-pointer animate-pulse':'border-slate-600 bg-slate-700/40'} hover:bg-slate-700 transition">
             <img src="${p.img}" class="w-10 h-10 mr-3 ${shinyClass}">
             <div class="flex-1 min-w-0">
-                <div class="text-[10px] font-bold text-gray-200 truncate">${typeIcon}${p.name}${shinyIcon}</div>
-                <div class="text-[9px] text-yellow-500">DPS: ${(rawDmg*mult*shinyDpsMult).toFixed(1)} <span class="${multColor} text-[8px]">x${mult}</span></div>
+                <div class="text-xs font-bold text-gray-200 truncate">${typeIcon}${p.name}${shinyIcon}</div>
+                <div class="text-[10px] text-yellow-500">DPS: ${(rawDmg*mult*shinyDpsMult).toFixed(1)} <span class="${multColor} text-[8px]">x${mult}</span></div>
             </div>
             ${!swapMode ? `
             ${isCandyTarget ? `
@@ -2085,59 +2171,59 @@ function renderBag() {
     document.getElementById('bag-content').innerHTML = `
     <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600">
         <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" class="w-6 h-6">
-        <div><div class="text-[9px] text-gray-400">Pokéball</div><div class="text-xs font-bold">x${state.inv.balls}</div></div>
+        <div><div class="text-xs text-gray-400">Pokéball</div><div class="text-sm font-bold">x${state.inv.balls}</div></div>
     </div>
     <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 ${state.inv.candy>0?'cursor-pointer hover:bg-slate-600':''}" ${state.inv.candy>0?'onclick="initCandyUse()"':''}>
         <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rare-candy.png" class="w-6 h-6">
-        <div><div class="text-[9px] text-gray-400">Super Bonbon</div><div class="text-xs font-bold">x${state.inv.candy} ${state.inv.candy>0?'<span class="text-[8px] text-yellow-500">UTILISER</span>':''}</div></div>
+        <div><div class="text-xs text-gray-400">Super Bonbon</div><div class="text-sm font-bold">x${state.inv.candy} ${state.inv.candy>0?'<span class="text-[8px] text-yellow-500">UTILISER</span>':''}</div></div>
     </div>
     ${state.inv.repel>0 ? `
     <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 cursor-pointer hover:bg-slate-600" onclick="useRepel()">
         <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/repel.png" class="w-6 h-6">
-        <div><div class="text-[9px] text-gray-400">Repousse</div><div class="text-xs font-bold">x${state.inv.repel} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
+        <div><div class="text-xs text-gray-400">Repousse</div><div class="text-sm font-bold">x${state.inv.repel} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
     </div>`:''}
     ${state.inv.superRepel>0 ? `
     <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 cursor-pointer hover:bg-slate-600" onclick="useSuperRepel()">
         <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/super-repel.png" class="w-6 h-6">
-        <div><div class="text-[9px] text-gray-400">Superepousse</div><div class="text-xs font-bold">x${state.inv.superRepel} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
+        <div><div class="text-xs text-gray-400">Superepousse</div><div class="text-sm font-bold">x${state.inv.superRepel} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
     </div>`:''}
     ${state.inv.xAttack>0 ? `
     <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 cursor-pointer hover:bg-slate-600" onclick="useXAttack()">
         <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/x-attack.png" class="w-6 h-6">
-        <div><div class="text-[9px] text-gray-400">Attaque +</div><div class="text-xs font-bold">x${state.inv.xAttack} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
+        <div><div class="text-xs text-gray-400">Attaque +</div><div class="text-sm font-bold">x${state.inv.xAttack} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
     </div>`:''}
     ${state.inv.xSpecial>0 ? `
     <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 cursor-pointer hover:bg-slate-600" onclick="useXSpecial()">
         <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/x-sp-atk.png" class="w-6 h-6">
-        <div><div class="text-[9px] text-gray-400">Attaque Spé +</div><div class="text-xs font-bold">x${state.inv.xSpecial} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
+        <div><div class="text-xs text-gray-400">Attaque Spé +</div><div class="text-sm font-bold">x${state.inv.xSpecial} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
     </div>`:''}
     ${state.inv.pokeDoll>0 ? `
     <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 cursor-pointer hover:bg-slate-600" onclick="usePokeDoll()">
         <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-doll.png" class="w-6 h-6">
-        <div><div class="text-[9px] text-gray-400">Poké Poupée</div><div class="text-xs font-bold">x${state.inv.pokeDoll} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
+        <div><div class="text-xs text-gray-400">Poké Poupée</div><div class="text-sm font-bold">x${state.inv.pokeDoll} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
     </div>`:''}
     ${state.inv.superballs>0 || state.unlockedZone>=4 || state.zoneIdx>=4 ? `
     <div class="bg-blue-900/40 p-2 rounded flex items-center gap-2 border border-blue-500">
         <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png" class="w-6 h-6">
-        <div><div class="text-[9px] text-blue-300">Superball</div><div class="text-xs font-bold">x${state.inv.superballs}</div></div>
+        <div><div class="text-xs text-blue-300">Superball</div><div class="text-sm font-bold">x${state.inv.superballs}</div></div>
     </div>`:''}
     ${state.inv.hyperballs>0 || state.unlockedZone>=9 || state.zoneIdx>=9 ? `
     <div class="bg-yellow-900/40 p-2 rounded flex items-center gap-2 border border-yellow-500">
         <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png" class="w-6 h-6">
-        <div><div class="text-[9px] text-yellow-300">Hyperball</div><div class="text-xs font-bold">x${state.inv.hyperballs}</div></div>
+        <div><div class="text-xs text-yellow-300">Hyperball</div><div class="text-sm font-bold">x${state.inv.hyperballs}</div></div>
     </div>`:''}
     ${state.inv.masterball>0 ? `
     <div class="bg-purple-900/40 p-2 rounded flex items-center gap-2 border border-purple-500">
         <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/master-ball.png" class="w-6 h-6">
-        <div><div class="text-[9px] text-purple-300">Masterball</div><div class="text-xs font-bold">x${state.inv.masterball}</div></div>
+        <div><div class="text-xs text-purple-300">Masterball</div><div class="text-sm font-bold">x${state.inv.masterball}</div></div>
     </div>`:''}
     ${state.inv.shinyToken>0 ? `
     <div class="bg-yellow-900/40 p-2 rounded flex items-center gap-2 border border-yellow-500">
         <div class="w-6 h-6 rounded-full bg-yellow-400 border-2 border-white flex items-center justify-center text-[10px] text-black font-bold">★</div>
-        <div><div class="text-[9px] text-yellow-300">Jeton Shiny</div><div class="text-xs font-bold">x${state.inv.shinyToken}</div></div>
+        <div><div class="text-xs text-yellow-300">Jeton Shiny</div><div class="text-sm font-bold">x${state.inv.shinyToken}</div></div>
     </div>`:''}
     ${state.inv.omniXp>0 ? `
-    <div class="bg-indigo-900/40 p-2 rounded flex items-center gap-2 border border-indigo-500"><span class="material-symbols-outlined text-indigo-300">auto_awesome</span><div><div class="text-[9px] text-indigo-300">Omni XP</div><div class="text-xs font-bold">x${state.inv.omniXp}</div></div></div>`:''}
+    <div class="bg-indigo-900/40 p-2 rounded flex items-center gap-2 border border-indigo-500"><span class="material-symbols-outlined text-indigo-300">auto_awesome</span><div><div class="text-xs text-indigo-300">Omni XP</div><div class="text-sm font-bold">x${state.inv.omniXp}</div></div></div>`:''}
     `;
 }
 
@@ -2155,7 +2241,7 @@ function renderShop() {
     const header = c.previousElementSibling.querySelector('span');
     if(header) header.innerText = "POKÉSHOP";
 
-    let html = `<div class="text-[9px] font-bold text-gray-400 mb-1 uppercase tracking-wider border-b border-gray-700 pb-1">Consommables</div>`;
+    let html = `<div class="text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider border-b border-gray-700 pb-1">Consommables</div>`;
     
     // Consumables
     for (const [id, item] of Object.entries(ITEMS)) {
@@ -2174,14 +2260,14 @@ function renderShop() {
         html += `
         <div class="bg-slate-800 p-2 rounded border ${id==='superball'?'border-blue-600 bg-blue-900/30':'border-slate-700'} hover:border-blue-500 cursor-pointer flex items-center gap-2" onclick="buyItem('${id}')" title="${item.desc}">
             ${iconHtml}
-            <div class="flex-1 text-[10px] ${id==='superball'?'text-blue-200':''}">${item.name}</div>
+            <div class="flex-1 text-xs ${id==='superball'?'text-blue-200':''}">${item.name}</div>
             <div class="text-yellow-400 text-xs">${getPrice(item.price)}$</div>
             ${stockDisplay}
         </div>`;
     }
 
     // Upgrades
-    html += `<div class="text-[9px] font-bold text-gray-400 mb-1 mt-3 uppercase tracking-wider border-b border-gray-700 pb-1">Améliorations</div>`;
+    html += `<div class="text-xs font-bold text-gray-400 mb-1 mt-3 uppercase tracking-wider border-b border-gray-700 pb-1">Améliorations</div>`;
     
     for (const [id, item] of Object.entries(ITEMS)) {
         if (item.type !== 'upgrade') continue;
@@ -2195,8 +2281,8 @@ function renderShop() {
         html += `
         <div class="bg-slate-800 p-2 rounded border ${owned?'border-green-600 opacity-50':'border-slate-700 hover:border-blue-500 cursor-pointer'} flex items-center gap-2" ${!owned?`onclick="buyItem('${id}')"`:''} title="${item.desc}">
             ${iconHtml}
-            <div class="flex-1 text-[10px]">${item.name}</div>
-            ${owned ? `<div class="text-[9px] text-green-400 font-bold">ACQUIS</div>` : `<div class="text-yellow-400 text-xs">${getPrice(item.price)}$</div>`}
+            <div class="flex-1 text-xs">${item.name}</div>
+            ${owned ? `<div class="text-xs text-green-400 font-bold">ACQUIS</div>` : `<div class="text-yellow-400 text-xs">${getPrice(item.price)}$</div>`}
         </div>`;
     }
 
@@ -2320,6 +2406,69 @@ function shakeBtn(id) {
     setTimeout(()=>b.classList.remove('animate-pulse'), 300);
 }
 
+function showPC() {
+    document.getElementById('right-menu-view').classList.add('hidden');
+    document.getElementById('pc-view').classList.remove('hidden');
+}
+
+function hidePC() {
+    document.getElementById('pc-view').classList.add('hidden');
+    document.getElementById('right-menu-view').classList.remove('hidden');
+}
+
+function openMobileView(view) {
+    closeMobileView();
+    
+    let sidebar = null;
+    let containerToShow = null;
+    let containersToHide = [];
+
+    if(view === 'team') {
+        sidebar = document.getElementById('sidebar-left');
+        containerToShow = document.getElementById('team-container');
+        containersToHide = [document.getElementById('bag-container')];
+    } else if(view === 'bag') {
+        sidebar = document.getElementById('sidebar-left');
+        containerToShow = document.getElementById('bag-container');
+        containersToHide = [document.getElementById('team-container')];
+    } else if(view === 'shop') {
+        sidebar = document.getElementById('sidebar-right');
+        containerToShow = document.getElementById('shop-container');
+        containersToHide = [document.getElementById('pc-container')];
+    } else if(view === 'pc') {
+        sidebar = document.getElementById('sidebar-right');
+        containerToShow = document.getElementById('pc-container');
+        containersToHide = [document.getElementById('shop-container')];
+        showPC(); // Force PC view on mobile
+    }
+
+    if(sidebar && containerToShow) {
+        sidebar.classList.remove('hidden');
+        sidebar.classList.add('fixed', 'bottom-0', 'left-0', 'z-50', 'flex', 'flex-col', 'w-full', 'h-[30vh]');
+        containerToShow.classList.remove('h-1/4', 'h-1/2');
+        containerToShow.classList.add('flex-1');
+        containerToShow.classList.remove('hidden');
+        containersToHide.forEach(c => {
+            c.classList.add('hidden');
+            c.classList.remove('flex-1');
+        });
+    }
+}
+
+function closeMobileView() {
+    const left = document.getElementById('sidebar-left');
+    left.classList.add('hidden');
+    left.classList.remove('fixed', 'bottom-0', 'left-0', 'z-50', 'flex', 'flex-col', 'w-full', 'h-[30vh]');
+    const right = document.getElementById('sidebar-right');
+    right.classList.add('hidden');
+    right.classList.remove('fixed', 'bottom-0', 'left-0', 'z-50', 'flex', 'flex-col', 'w-full', 'h-[30vh]');
+
+    const team = document.getElementById('team-container'); team.classList.remove('hidden', 'flex-1'); team.classList.add('flex-1');
+    const bag = document.getElementById('bag-container'); bag.classList.remove('hidden', 'flex-1'); bag.classList.add('h-1/4');
+    const shop = document.getElementById('shop-container'); shop.classList.remove('hidden', 'flex-1'); shop.classList.add('h-1/2');
+    const pc = document.getElementById('pc-container'); pc.classList.remove('hidden', 'flex-1'); pc.classList.add('h-1/2');
+}
+
 // --- GAME LOOP & START ---
 setInterval(() => {
     if(state.auto && state.team.length>0 && !enemy.dead) {
@@ -2332,4 +2481,21 @@ window.onload = init;
 
 </script>
 </body>
+</html>;
+
+// Launch
+window.onload = init;
+
+</script>
+</body>
+</html>
+</html>
+</html>;
+
+// Launch
+window.onload = init;
+
+</script>
+</body>
+</html>
 </html>
