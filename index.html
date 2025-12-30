@@ -63,6 +63,65 @@
         /* Shiny Effect */
         .shiny-filter { filter: hue-rotate(150deg) saturate(150%) brightness(1.1) drop-shadow(0 0 5px gold); }
         .grayscale { filter: grayscale(100%) opacity(0.3); }
+
+        /* Gen 1 Fly Animation */
+        #gen1-fly-overlay {
+            display: none;
+            position: absolute;
+            inset: 0;
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+        .fly-track {
+            width: 100%;
+            height: 180px;
+            background: #000;
+            position: relative;
+            overflow: hidden;
+            border-top: 20px solid black;
+            border-bottom: 20px solid black;
+            clip-path: inset(50% 0 50% 0);
+            transition: clip-path 0.8s ease-in-out;
+        }
+        .fly-speed-lines {
+            position: absolute; inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='180'%3E%3Crect width='400' height='180' fill='black'/%3E%3Crect x='25' y='15' width='8' height='2' fill='white'/%3E%3Crect x='150' y='30' width='12' height='2' fill='white'/%3E%3Crect x='80' y='100' width='10' height='2' fill='white'/%3E%3Crect x='300' y='80' width='8' height='2' fill='white'/%3E%3Crect x='350' y='20' width='9' height='2' fill='white'/%3E%3Crect x='220' y='90' width='11' height='2' fill='white'/%3E%3Crect x='20' y='70' width='7' height='2' fill='white'/%3E%3Crect x='250' y='50' width='9' height='2' fill='white'/%3E%3Crect x='120' y='5' width='8' height='2' fill='white'/%3E%3Crect x='380' y='110' width='10' height='2' fill='white'/%3E%3Crect x='50' y='85' width='9' height='2' fill='white'/%3E%3Crect x='180' y='60' width='12' height='2' fill='white'/%3E%3Crect x='100' y='140' width='10' height='2' fill='white'/%3E%3Crect x='320' y='160' width='8' height='2' fill='white'/%3E%3Crect x='200' y='130' width='12' height='2' fill='white'/%3E%3C/svg%3E");
+        }
+        .fly-bird-sprite {
+            position: absolute; top: 50%; left: 150%;
+            transform: translate(-50%, -50%) scale(2.2);
+            image-rendering: pixelated;
+        }
+        #gen1-fly-overlay.active .fly-speed-lines,
+        #gen1-fly-overlay.closing .fly-speed-lines { animation: move-lines 0.2s linear infinite; }
+        #gen1-fly-overlay.active .fly-track { 
+            clip-path: inset(0 0 0 0);
+            animation: track-open 0.4s ease-out forwards; 
+        }
+        #gen1-fly-overlay.active .fly-bird-sprite { 
+            animation: bird-fly-sequence 2.5s ease-in-out forwards; 
+        }
+        #gen1-fly-overlay.closing .fly-track {
+            animation: track-close 0.4s ease-in-out forwards;
+        }
+        @keyframes move-lines { from { background-position: 0 0; } to { background-position: -400px 0; } }
+        @keyframes track-open {
+            0% { clip-path: inset(48% 0 48% 100%); } /* Trait fin à droite */
+            50% { clip-path: inset(48% 0 48% 0); }   /* Trait fin toute largeur */
+            100% { clip-path: inset(0 0 0 0); }      /* Pleine hauteur */
+        }
+        @keyframes track-close {
+            0% { clip-path: inset(0 0 0 0); }
+            100% { clip-path: inset(50% 0 50% 0); }
+        }
+        @keyframes bird-fly-sequence {
+            0% { left: 150%; }
+            10% { left: 150%; } /* Attente ouverture */
+            30% { left: 50%; }  /* Arrivée au centre (Rapide) */
+            60% { left: 50%; }  /* Pause */
+            100% { left: -50%; } /* Départ vers la gauche (Lent) */
+        }
     </style>
 </head>
 <body class="h-screen flex flex-col selection:bg-red-500 selection:text-white">
@@ -113,6 +172,23 @@
         </div>
         <div class="flex-1 overflow-y-auto p-4 custom-scroll">
             <div class="grid grid-cols-4 md:grid-cols-8 lg:grid-cols-10 gap-2" id="pokedex-grid"></div>
+        </div>
+    </div>
+</div>
+
+<div class="fixed inset-0 z-50 bg-slate-900/95 flex flex-col items-center justify-center p-4 hidden" id="map-modal">
+    <div class="bg-slate-800 border-4 border-slate-600 rounded-xl w-full max-w-3xl aspect-video flex flex-col shadow-2xl relative overflow-hidden">
+        <button onclick="toggleMap()" class="absolute top-4 right-4 text-red-500 hover:text-white material-symbols-outlined text-4xl z-20 bg-slate-900 rounded-full">close</button>
+        <div class="relative w-full h-full bg-[#70A8C0]" id="map-container">
+            <img src="kanto.png" class="absolute inset-0 w-full h-full object-fill opacity-90" alt="Carte de Kanto">
+            <svg id="map-svg" class="absolute inset-0 w-full h-full" preserveAspectRatio="none"></svg>
+            <img id="fly-trainer" src="https://raw.githubusercontent.com/msikma/pokesprite/master/trainers/firered-leafgreen/back/red.png" class="absolute z-30 hidden" style="height: 120px; image-rendering: pixelated; transform: translate(-50%, -50%);">
+            <div id="gen1-fly-overlay" class="hidden">
+                <div class="fly-track">
+                    <div class="fly-speed-lines"></div>
+                    <img src="https://img.pokemondb.net/sprites/black-white/anim/normal/pidgeot.gif" class="fly-bird-sprite">
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -195,9 +271,14 @@
         <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-slate-900/50 pointer-events-none z-0"></div>
 
         <div class="absolute top-0 w-full p-4 flex justify-between items-start z-30 pointer-events-none">
-            <div class="glass-panel px-4 py-2 rounded-full flex items-center gap-3 shadow-lg pointer-events-auto transform hover:scale-105 transition-transform">
-                <span class="material-symbols-outlined text-yellow-400">radio_button_unchecked</span>
-                <span class="text-xl font-bold pixel-font text-white text-shadow" id="money-display">0</span>
+            <div class="flex flex-col gap-2 pointer-events-auto">
+                <div class="glass-panel px-4 py-2 rounded-full flex items-center gap-3 shadow-lg transform hover:scale-105 transition-transform">
+                    <span class="material-symbols-outlined text-yellow-400">radio_button_unchecked</span>
+                    <span class="text-xl font-bold pixel-font text-white text-shadow" id="money-display">0</span>
+                </div>
+                <button onclick="toggleMap()" class="w-12 h-12 bg-slate-800 rounded-full border-2 border-blue-400 hover:bg-slate-700 shadow-lg flex items-center justify-center transition-all hover:scale-110 group" title="Ouvrir la Carte">
+                    <span class="material-symbols-outlined text-blue-200 group-hover:text-white text-2xl">map</span>
+                </button>
             </div>
             <div class="glass-panel px-6 py-2 rounded-xl text-right shadow-lg pointer-events-auto min-w-[200px]">
                 <div class="text-[10px] text-blue-400 uppercase tracking-widest font-bold">Zone <span id="zone-id">1</span></div>
@@ -606,6 +687,33 @@ const BADGES = [
     {id:8, zoneIdx:17, name:"Terre", desc:"Vitesse de spawn +20%", img:"earth-badge"}
 ];
 
+const MAP_DATA = [
+    { type: "rect", coords: [300,694,359,762], name: "Route 1", zoneId: 0, color: "orange" },
+    { type: "rect", coords: [308,486,352,533], name: "Forêt de Jade", zoneId: 1, color: "blue" },
+    { type: "circle", coords: [331,391,37], name: "Arène d'Argenta", zoneId: 2, color: "red" },
+    { type: "polygon", coords: [607,307,652,307,652,353,607,353], name: "Mont Sélénite", zoneId: 3, color: "blue" },
+    { type: "circle", coords: [931,331,38], name: "Arène d'Azuria", zoneId: 4, color: "red" },
+    { type: "rect", coords: [900,248,961,287], name: "Pont Pépite", zoneId: 5, color: "orange" },
+    { type: "circle", coords: [931,690,38], name: "Arène de Carmin", zoneId: 6, color: "red" },
+    { type: "rect", coords: [968,666,1013,713], name: "Cave Taupiqueur", zoneId: 7, color: "blue" },
+    { type: "rect", coords: [1147,307,1193,353], name: "Tunnel Rocheux", zoneId: 8, color: "blue" },
+    { type: "circle", coords: [1171,511,38], name: "Lavanville", zoneId: null, color: "gray" }, // Non jouable
+    { type: "rect", coords: [1163,502,1209,548], name: "Tour Pokémon", zoneId: 9, color: "blue" },
+    { type: "circle", coords: [751,510,38], name: "Arène de Céladopole", zoneId: 10, color: "red" },
+    { type: "rect", coords: [1147,367,1193,413], name: "Centrale", zoneId: 11, color: "blue" },
+    { type: "circle", coords: [810,870,38], name: "Arène de Parmanie", zoneId: 12, color: "red" },
+    { type: "rect", coords: [923,503,969,548], name: "Sylphe SARL", zoneId: 13, color: "blue" },
+    { type: "circle", coords: [931,509,37], name: "Arène de Safrania", zoneId: 14, color: "red" },
+    { type: "rect", coords: [547,967,593,1013], name: "Îles Écume", zoneId: 15, color: "blue" },
+    { type: "circle", coords: [331,992,37], name: "Arène Cramois'Île", zoneId: 16, color: "red" },
+    { type: "circle", coords: [331,630,37], name: "Arène de Jadielle", zoneId: 17, color: "red" },
+    { type: "polygon", coords: [917,180,917,153,927,153,927,146,956,145,956,152,966,152,966,180,956,180,950,167,934,166,927,180], name: "Caverne Azurée", zoneId: 18, color: "cyan" },
+    { type: "rect", coords: [186,368,232,412], name: "Route Victoire", zoneId: 19, color: "blue" },
+    { type: "circle", coords: [210,331,37], name: "Ligue Pokémon", zoneId: 20, color: "red" },
+    { type: "circle", coords: [331,811,35], name: "Bourg Palette", zoneId: null, color: "gray" },
+    { type: "rect", coords: [308,428,352,474], name: "Daran Ass", zoneId: null, color: "gray" }
+];
+
 // ZONE CONFIGURATION (Updated with explicit IDs)
 const ZONES = [
   // --- DÉBUT DE L'AVENTURE ---
@@ -702,7 +810,7 @@ const ZONES = [
    ], boss:{name:"Ectoplasma", id:94, level:36, catchRate:0}},
 
   // BADGE 4 : PRISME
-  {id:11, name:"Arène Céladopole", bg:"linear-gradient(to bottom, #32CD32 0%, #98FB98 100%)", minLevel:30, maxLevel:35,
+  {id:11, name:"Arène de Céladopole", bg:"linear-gradient(to bottom, #32CD32 0%, #98FB98 100%)", minLevel:30, maxLevel:35,
    pokemons:[
      {name:"Goupix", id:37, rarity:"Commun", spawnRate:0.25, catchRate:190},
      {name:"Caninos", id:58, rarity:"Commun", spawnRate:0.25, catchRate:190},
@@ -722,7 +830,7 @@ const ZONES = [
    ], boss:{name:"Électhor", id:145, level:45, catchRate:0}},
 
   // BADGE 5 : ÂME (Mix Parmanie + Safari pour tout avoir)
-  {id:13, name:"Arène Parmanie", bg:"linear-gradient(to bottom, #800080 0%, #556B2F 100%)", minLevel:35, maxLevel:40,
+  {id:13, name:"Arène de Parmanie", bg:"linear-gradient(to bottom, #800080 0%, #556B2F 100%)", minLevel:35, maxLevel:40,
    pokemons:[
      {name:"Nidorino", id:33, rarity:"Commun", spawnRate:0.2, catchRate:120},
      {name:"Nidorina", id:30, rarity:"Commun", spawnRate:0.2, catchRate:120},
@@ -745,7 +853,7 @@ const ZONES = [
    ], boss:{name:"Giovanni (Persian)", id:53, level:47, catchRate:0}},
 
   // BADGE 6 : MARAIS
-  {id:15, name:"Arène Safrania", bg:"linear-gradient(to bottom, #FF1493 0%, #FF69B4 100%)", minLevel:40, maxLevel:45,
+  {id:15, name:"Arène de Safrania", bg:"linear-gradient(to bottom, #FF1493 0%, #FF69B4 100%)", minLevel:40, maxLevel:45,
    pokemons:[
      {name:"Abra", id:63, rarity:"Commun", spawnRate:0.3, catchRate:200},
      {name:"Kadabra", id:64, rarity:"Peu Commun", spawnRate:0.2, catchRate:100},
@@ -767,7 +875,7 @@ const ZONES = [
    ], boss:{name:"Artikodin", id:144, level:50, catchRate:0}},
 
   // BADGE 7 : VOLCAN
-  {id:17, name:"Arène Cramois'Île", bg:"linear-gradient(to bottom, #FF4500 0%, #FFA07A 100%)", minLevel:45, maxLevel:50,
+  {id:17, name:"Arène de Cramois'Île", bg:"linear-gradient(to bottom, #FF4500 0%, #FFA07A 100%)", minLevel:45, maxLevel:50,
    pokemons:[
      {name:"Ponyta", id:77, rarity:"Commun", spawnRate:0.2, catchRate:190},
      {name:"Goupix", id:37, rarity:"Commun", spawnRate:0.2, catchRate:190},
@@ -778,7 +886,7 @@ const ZONES = [
    ], boss:{name:"Blaine (Arcanin)", id:59, level:54, catchRate:0, badge:"Volcan"}},
 
   // BADGE 8 : TERRE (Jadielle déplacée avant Azurée)
-  {id:18, name:"Arène Jadielle", bg:"linear-gradient(to bottom, #DEB887 0%, #F5DEB3 100%)", minLevel:50, maxLevel:58,
+  {id:18, name:"Arène de Jadielle", bg:"linear-gradient(to bottom, #DEB887 0%, #F5DEB3 100%)", minLevel:50, maxLevel:58,
    pokemons:[
      {name:"Nidorino", id:33, rarity:"Commun", spawnRate:0.25, catchRate:120},
      {name:"Nidorina", id:30, rarity:"Commun", spawnRate:0.25, catchRate:120},
@@ -1012,6 +1120,7 @@ function toggleCheat() {
         `${base} bg-gray-800 text-gray-400 border border-gray-600 hover:bg-gray-700 opacity-50 hover:opacity-100`;
     b.innerText = state.cheat ? "CHEAT: ON" : "CHEAT: OFF";
     renderShop();
+    updateZone();
 }
 
 function startBossTimer() {
@@ -1594,6 +1703,145 @@ function toggleMilestones() {
     }
 }
 
+function toggleMap() {
+    const m = document.getElementById('map-modal');
+    if(m.classList.contains('hidden')) {
+        m.classList.remove('hidden');
+        renderMap();
+    } else {
+        m.classList.add('hidden');
+    }
+}
+
+function flyToZone(zoneId) {
+    const overlay = document.getElementById('gen1-fly-overlay');
+    const trainer = document.getElementById('fly-trainer');
+    const mapModal = document.getElementById('map-modal');
+    const mapContainer = document.getElementById('map-container');
+    const mapImg = mapContainer.querySelector('img');
+
+    // Prevent multiple clicks during animation
+    if (overlay.style.display === 'flex') return;
+
+    // 1. Find current zone coordinates to position the trainer
+    const currentArea = MAP_DATA.find(a => a.zoneId === state.zoneIdx);
+    if (!currentArea) return;
+
+    let centerX, centerY;
+    const coords = currentArea.coords;
+    if (currentArea.type === 'circle') {
+        centerX = coords[0];
+        centerY = coords[1];
+    } else if (currentArea.type === 'rect') {
+        centerX = (coords[0] + coords[2]) / 2;
+        centerY = (coords[1] + coords[3]) / 2;
+    } else if (currentArea.type === 'polygon') {
+        let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+        for (let i = 0; i < coords.length; i += 2) {
+            minX = Math.min(minX, coords[i]);
+            maxX = Math.max(maxX, coords[i]);
+            minY = Math.min(minY, coords[i+1]);
+            maxY = Math.max(maxY, coords[i+1]);
+        }
+        centerX = (minX + maxX) / 2;
+        centerY = (minY + maxY) / 2;
+    }
+
+    // Convert to percentage for absolute positioning
+    trainer.style.left = `${(centerX / mapImg.naturalWidth) * 100}%`;
+    trainer.style.top = `${(centerY / mapImg.naturalHeight) * 100}%`;
+    trainer.classList.remove('hidden');
+
+    // 2. Wait a bit, then start the fly animation
+    setTimeout(() => {
+        // Show overlay (Black Band)
+        overlay.style.display = 'flex';
+        
+        setTimeout(() => {
+            overlay.classList.add('active');
+        }, 50);
+
+        // 3. Set timeout for the duration of the fly animation
+        setTimeout(() => {
+            // Execute the zone change
+            if(state.cheat && zoneId > state.unlockedZone) state.unlockedZone = zoneId;
+            state.zoneIdx = zoneId; 
+            state.subStage = 1; 
+            updateBg(); renderShop(); renderBag(); renderPC(); spawnEnemy(); 
+            
+            // Close map and hide/reset animation overlay
+            overlay.classList.remove('active');
+            overlay.classList.add('closing');
+            
+            setTimeout(() => {
+                mapModal.classList.add('hidden');
+                overlay.style.display = 'none';
+                overlay.classList.remove('closing');
+                
+                trainer.classList.add('hidden');
+            }, 500);
+        }, 2500); // 2.5s animation
+    }, 600); // Wait for trainer to appear and pose
+}
+
+function renderMap() {
+    const img = document.querySelector('#map-container img');
+    const c = document.getElementById('map-svg');
+    
+    if (!img.complete || img.naturalWidth === 0) {
+        img.onload = () => renderMap();
+        return;
+    }
+    
+    c.setAttribute('viewBox', `0 0 ${img.naturalWidth} ${img.naturalHeight}`);
+    c.innerHTML = "";
+    
+    MAP_DATA.forEach(area => {
+        const isUnlocked = area.zoneId !== null && (area.zoneId <= state.unlockedZone || state.cheat);
+        const isCurrent = area.zoneId === state.zoneIdx;
+        
+        // Determine Color
+        let fillClass = "fill-gray-600/50"; // Default Locked/Placeholder
+        if (isUnlocked) {
+            if (area.color === "red") fillClass = "fill-red-500/50";
+            else if (area.color === "orange") fillClass = "fill-amber-500/50";
+            else if (area.color === "cyan") fillClass = "fill-cyan-400/50";
+            else fillClass = "fill-blue-500/50";
+        }
+        if (isCurrent) fillClass = "fill-green-400/70 animate-pulse";
+
+        // Create SVG Element
+        let el = document.createElementNS("http://www.w3.org/2000/svg", area.type);
+        
+        if (area.type === "rect") {
+            el.setAttribute("x", area.coords[0]);
+            el.setAttribute("y", area.coords[1]);
+            el.setAttribute("width", area.coords[2] - area.coords[0]);
+            el.setAttribute("height", area.coords[3] - area.coords[1]);
+        } else if (area.type === "circle") {
+            el.setAttribute("cx", area.coords[0]);
+            el.setAttribute("cy", area.coords[1]);
+            el.setAttribute("r", area.coords[2]);
+        } else if (area.type === "polygon") {
+            el.setAttribute("points", area.coords.join(" "));
+        }
+
+        el.setAttribute("class", `${fillClass} stroke-white stroke-2 transition-all duration-300 hover:stroke-yellow-400 hover:fill-opacity-80 cursor-pointer`);
+        
+        // Tooltip Title
+        let title = document.createElementNS("http://www.w3.org/2000/svg", "title");
+        title.textContent = area.zoneId !== null ? `${area.name} (Zone ${area.zoneId + 1})` : area.name;
+        el.appendChild(title);
+
+        if (isUnlocked) {
+            el.onclick = () => { 
+                flyToZone(area.zoneId);
+            };
+        }
+        c.appendChild(el);
+    });
+}
+
 function renderMilestones() {
     const l = document.getElementById('milestones-list');
     l.innerHTML = "";
@@ -1703,7 +1951,7 @@ function updateZone() {
     
     document.getElementById('prev-zone-btn').disabled = state.zoneIdx===0;
     const next = document.getElementById('next-zone-btn');
-    const canNext = state.zoneIdx < state.unlockedZone && state.zoneIdx < ZONES.length-1;
+    const canNext = (state.zoneIdx < state.unlockedZone || state.cheat) && state.zoneIdx < ZONES.length-1;
     next.disabled = !canNext;
     next.className = canNext ? "pointer-events-auto w-14 h-14 rounded-full bg-blue-600 hover:bg-blue-500 border-4 border-blue-400 text-white shadow-2xl flex items-center justify-center transition transform hover:scale-105 animate-pulse" : "pointer-events-auto w-14 h-14 rounded-full bg-slate-800 border-4 border-slate-600 text-gray-500 shadow-none flex items-center justify-center cursor-not-allowed opacity-50";
 }
@@ -2058,7 +2306,8 @@ function showFeedback(t,c) {
 
 function changeZone(d) {
     const n = state.zoneIdx + d;
-    if(n>=0 && n<=state.unlockedZone && n<ZONES.length) {
+    if(n>=0 && (n<=state.unlockedZone || state.cheat) && n<ZONES.length) {
+        if(state.cheat && n > state.unlockedZone) state.unlockedZone = n;
         state.zoneIdx = n; 
         state.subStage = 1;
         updateBg(); renderShop(); renderBag(); renderPC(); spawnEnemy();
