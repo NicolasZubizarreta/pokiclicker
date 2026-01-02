@@ -35,12 +35,27 @@
 
         @keyframes evolution-flash {
             0% { filter: brightness(1); transform: scale(1); }
-            25% { filter: brightness(100); transform: scale(1.3); }
-            50% { filter: brightness(0); transform: scale(0.7); }
-            75% { filter: brightness(100); transform: scale(1.3); }
+            5% { filter: brightness(100); transform: scale(0.5); }
+            10% { filter: brightness(100); transform: scale(1.2); }
+            15% { filter: brightness(100); transform: scale(0.5); }
+            20% { filter: brightness(100); transform: scale(1.2); }
+            25% { filter: brightness(100); transform: scale(0.5); }
+            30% { filter: brightness(100); transform: scale(1.2); }
+            35% { filter: brightness(100); transform: scale(0.5); }
+            40% { filter: brightness(100); transform: scale(1.2); }
+            45% { filter: brightness(100); transform: scale(0.5); }
+            50% { filter: brightness(100); transform: scale(1.2); }
+            55% { filter: brightness(100); transform: scale(0.5); }
+            60% { filter: brightness(100); transform: scale(1.2); }
+            65% { filter: brightness(100); transform: scale(0.5); }
+            70% { filter: brightness(100); transform: scale(1.2); }
+            75% { filter: brightness(100); transform: scale(0.5); }
+            80% { filter: brightness(100); transform: scale(1.2); }
+            85% { filter: brightness(100); transform: scale(0.5); }
+            90% { filter: brightness(100); transform: scale(1.5); }
             100% { filter: brightness(1); transform: scale(1); }
         }
-        .evolving { animation: evolution-flash 1s ease-in-out; }
+        .evolving { animation: evolution-flash 3s linear forwards; }
 
         /* Custom Scrollbar */
         .custom-scroll::-webkit-scrollbar { width: 4px; }
@@ -61,7 +76,7 @@
             z-index: 0;
             position: absolute;
             inset: 0;
-            opacity: 0.4;
+            opacity: 1;
         }
         
         .cheat-active { box-shadow: 0 0 15px #ef4444; border-color: #ef4444; color: #ef4444; background: #450a0a !important; }
@@ -157,7 +172,7 @@
         }
     </style>
 </head>
-<body class="h-screen flex flex-col selection:bg-red-500 selection:text-white">
+<body class="h-screen flex flex-col selection:bg-red-500 selection:text-white select-none">
 
 <div class="fixed inset-0 z-50 bg-slate-900 flex flex-col items-center justify-center p-4 hidden" id="starter-modal">
     <div class="text-center mb-10 animate-bounce">
@@ -325,7 +340,6 @@
 
     <div id="main-game-view" class="w-[60%] relative flex flex-col h-full bg-black overflow-hidden shrink-0">
         <div id="bg-layer" style="background-image: url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png');"></div>
-        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-slate-900/50 pointer-events-none z-0"></div>
 
         <!-- Content Container (Z-10) -->
         <div class="relative z-10 flex flex-col h-full w-full">
@@ -471,7 +485,24 @@
         <!-- Sub-views Container -->
         <div id="mobile-subview-container" class="relative h-full w-full hidden">
             <div id="mobile-team-view" class="h-full w-full flex-col hidden bg-slate-800 absolute inset-0">
-                <div class="p-2 bg-slate-700 flex items-center gap-2 border-b border-slate-600 shrink-0"><button onclick="closeMobileSubViews()" class="material-symbols-outlined text-white hover:text-yellow-400">arrow_back</button><h3 class="pixel-font text-xs text-white">ÉQUIPE</h3></div>
+                <div class="p-2 bg-slate-700 flex items-center justify-between gap-2 border-b border-slate-600 shrink-0">
+                    <div class="flex items-center gap-2">
+                        <button onclick="closeMobileSubViews()" class="material-symbols-outlined text-white hover:text-yellow-400">arrow_back</button>
+                        <h3 class="pixel-font text-xs text-white">ÉQUIPE</h3>
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <div class="flex items-stretch">
+                            <button id="auto-stop-btn-m" onclick="toggleStopOnRare()" title="Activer/Désactiver la sécurité d'arrêt auto" class="justify-center text-[9px] font-bold p-1.5 rounded-l-md shadow-md flex items-center gap-1 transition-all">
+                                <span class="material-symbols-outlined text-sm">front_hand</span>
+                            </button>
+                            <button onclick="toggleAutoStopSettingsModal()" title="Configurer la sécurité" class="justify-center bg-slate-600 hover:bg-slate-500 text-white text-[9px] font-bold p-1.5 rounded-r-md shadow-md border-y border-r border-slate-500 flex items-center transition-all">
+                                <span class="material-symbols-outlined text-sm">settings</span>
+                            </button>
+                        </div>
+                        <button id="auto-attack-btn-m" onclick="toggleAutoAttack()" title="Auto Attaque" class="justify-center text-[9px] font-bold p-1.5 rounded shadow-md flex items-center gap-1 transition-all"><span class="material-symbols-outlined text-sm">swords</span></button>
+                        <button id="auto-click-btn-m" onclick="toggleAutoClicker()" title="Auto Click (Restes)" class="justify-center text-[9px] font-bold p-1.5 rounded shadow-md flex items-center gap-1 transition-all hidden"><span class="material-symbols-outlined text-sm">ads_click</span></button>
+                    </div>
+                </div>
                 <div id="mobile-team-list" class="flex-1 overflow-y-auto p-2 space-y-2 custom-scroll"></div>
             </div>
             <div id="mobile-bag-view" class="h-full w-full flex-col hidden bg-slate-800 absolute inset-0">
@@ -1045,10 +1076,10 @@ const ZONES = [
   {id:20, name:"Route Victoire", bg:"img/background/Zone 20.png", minLevel:60, maxLevel:70,
    pokemons:[
      {name:"Machopeur", id:67, rarity:"Commun", spawnRate:0.3, catchRate:90},
-     {name:"Gravalanch", id:75, rarity:"Commun", spawnRate:0.3, catchRate:120},
-     {name:"Nosferalto", id:42, rarity:"Commun", spawnRate:0.25, catchRate:90},
+     {name:"Gravalanch", id:75, rarity:"Peu Commun", spawnRate:0.3, catchRate:120},
+     {name:"Nosferalto", id:42, rarity:"Rare", spawnRate:0.25, catchRate:90},
      {name:"Sulfura", id:146, rarity:"Légendaire", spawnRate:0.02, catchRate:3}, // OISEAU 3
-     {name:"Dracolosse", id:149, rarity:"Rare", spawnRate:0.05, catchRate:45}
+     {name:"Dracolosse", id:149, rarity:"Très Rare", spawnRate:0.05, catchRate:45}
    ], boss:{name:"Sulfura", id:146, level:75, catchRate:0}},
 
   // LA LIGUE (Final Boss)
@@ -1105,7 +1136,8 @@ let state = {
     swapIdx: null,
     candyMode: false,
     candyTargetIdx: null,
-    candyAmount: 1
+    candyAmount: 1,
+    editingNameIdx: null
 };
 
 // Runtime variables (not saved)
@@ -1114,7 +1146,8 @@ let audioCtx = false, synth = null;
 let bossTimer = null;
 let autoSaveInterval = null;
 let autoClickerInterval = null;
-let evolvingPokemon = { uid: null, endTime: 0 };
+let evolvingPokemon = { uid: null, endTime: 0, oldId: null, newId: null };
+let evolutionInterval = null;
 
 // --- INIT ---
 function init() {
@@ -1314,6 +1347,7 @@ function spawnEnemy() {
     document.getElementById('enemy-sprite').classList.remove('hidden');
 
     enemy.dead = false;
+    enemy.isCatching = false;
     enemy.uid = Date.now(); // Unique ID to prevent race conditions
     const z = ZONES[state.zoneIdx];
     enemy.isBoss = (state.subStage === 10);
@@ -1482,12 +1516,16 @@ function killEnemy() {
 
 function attemptCatch(type) {
     if(enemy.dead || enemy.catchRate === 0) { showFeedback("IMPOSSIBLE !", "red"); return; }
+    if(enemy.isCatching) return;
+
     if(type === 'poke' && state.inv.balls <= 0) { showFeedback("PLUS DE BALLS !", "red"); return; }
     if(type === 'super' && state.inv.superballs <= 0) { showFeedback("PLUS DE SUPERBALLS !", "red"); return; }
     if(type === 'hyper' && state.inv.hyperballs <= 0) { showFeedback("PLUS D'HYPERBALLS !", "red"); return; }
     if(type === 'master' && state.inv.masterball <= 0) { showFeedback("PLUS DE MASTERBALLS !", "red"); return; }
 
     const captureUid = enemy.uid; // Capture current enemy ID
+    enemy.isCatching = true;
+
     if(type === 'poke') state.inv.balls--; 
     else if(type === 'super') state.inv.superballs--;
     else if(type === 'hyper') state.inv.hyperballs--;
@@ -1522,6 +1560,7 @@ function attemptCatch(type) {
     img.classList.add('catching');
 
     setTimeout(() => {
+        enemy.isCatching = false;
         if(enemy.uid !== captureUid) return; // Timer killed enemy during animation
         if(Math.random() < chance) {
             stopBossTimer();
@@ -1763,11 +1802,23 @@ function evolve(uid) {
     let p = state.team.find(x=>x.uid===uid);
     let ed = EVOLUTIONS[p.id];
     if(p && ed && p.level>=ed.lvl) { 
+        const oldId = p.id;
         let newId, newName;
         if(Array.isArray(ed.id)) {
-            const r = Math.floor(Math.random() * ed.id.length);
-            newId = ed.id[r];
-            newName = ed.name[r];
+            // Eevee Easter Egg (Renaming)
+            if (p.id === 133) {
+                const n = p.name.trim().toLowerCase();
+                if (n === "jolteon") { newId = 135; newName = "Voltali"; }
+                else if (n === "vaporeon") { newId = 134; newName = "Aquali"; }
+                else if (n === "flareon") { newId = 136; newName = "Pyroli"; }
+                else {
+                    const r = Math.floor(Math.random() * ed.id.length);
+                    newId = ed.id[r]; newName = ed.name[r];
+                }
+            } else {
+                const r = Math.floor(Math.random() * ed.id.length);
+                newId = ed.id[r]; newName = ed.name[r];
+            }
         } else {
             newId = ed.id;
             newName = ed.name;
@@ -1776,7 +1827,20 @@ function evolve(uid) {
         p.name = newName;
         p.img=getSprite(p.id); 
         addToPokedex(p.id);
-        evolvingPokemon = { uid: uid, endTime: Date.now() + 1000 };
+        
+        evolvingPokemon = { uid: uid, endTime: Date.now() + 3000, oldId: oldId, newId: newId };
+        
+        if(evolutionInterval) clearInterval(evolutionInterval);
+        evolutionInterval = setInterval(() => {
+            if(Date.now() > evolvingPokemon.endTime) {
+                clearInterval(evolutionInterval);
+                evolutionInterval = null;
+                renderTeam();
+            } else {
+                renderTeam();
+            }
+        }, 50);
+
         renderTeam(); 
         playTone('up'); 
         showFeedback("ÉVOLUTION !", "purple");
@@ -1851,6 +1915,7 @@ function loadData(data) {
     state.candyMode = false;
     state.candyTargetIdx = null;
     state.candyAmount = 1;
+    state.editingNameIdx = null;
     if(state.starterId === undefined) state.starterId = null;
     if(!state.pokedex) state.pokedex = [];
     if(!state.milestones) state.milestones = [];
@@ -2202,6 +2267,7 @@ function updateUI() {
     if(document.getElementById('shop-stock-hyperball')) document.getElementById('shop-stock-hyperball').innerText = state.inv.hyperballs;
     if(document.getElementById('shop-stock-masterball')) document.getElementById('shop-stock-masterball').innerText = state.inv.masterball;
     if(document.getElementById('shop-stock-repel')) document.getElementById('shop-stock-repel').innerText = state.inv.repel;
+    updateAutoBtn();
     updateAutoStopBtn();
 }
 
@@ -2261,7 +2327,9 @@ function updateEnemyUI() {
     document.getElementById('enemy-name').innerHTML = enemy.name + typeHtml;
     
     const hasLeftovers = state.upgrades.leftovers;
-    document.getElementById('auto-click-btn').classList.toggle('hidden', !hasLeftovers);
+    ['auto-click-btn', 'auto-click-btn-m'].forEach(id => {
+        document.getElementById(id)?.classList.toggle('hidden', !hasLeftovers);
+    });
     updateAutoClickerBtn();
     
     updateHp();
@@ -2327,12 +2395,38 @@ function renderTeam() {
         
         const isEvolving = p.uid === evolvingPokemon.uid && Date.now() < evolvingPokemon.endTime;
         const animClass = isEvolving ? "evolving" : "";
+        
+        let displayImg = p.img;
+        if(isEvolving) {
+            const timeLeft = evolvingPokemon.endTime - Date.now();
+            // Swap every 150ms (sync with CSS 5% steps of 3000ms)
+            if (Math.floor(timeLeft / 150) % 2 === 0) {
+                displayImg = getSprite(evolvingPokemon.oldId);
+            }
+        }
+
+        const isEditing = state.editingNameIdx === i;
+        let nameDisplay;
+        if (isEditing) {
+            nameDisplay = `
+            <div class="flex items-center gap-1 relative z-50" onclick="event.stopPropagation()">
+                <input type="text" id="rename-input-${i}" value="${p.name}" class="w-20 text-[10px] text-black px-1 py-0.5 rounded border border-blue-400 focus:outline-none select-text" onkeydown="if(event.key==='Enter') confirmRename(${i})">
+                <button onclick="confirmRename(${i})" class="text-green-400 hover:text-green-300 material-symbols-outlined text-[14px] bg-slate-800 rounded-full">check</button>
+                <button onclick="cancelRename()" class="text-red-400 hover:text-red-300 material-symbols-outlined text-[14px] bg-slate-800 rounded-full">close</button>
+            </div>`;
+        } else {
+            nameDisplay = `
+            <div class="flex items-center gap-1 min-w-0 relative z-10">
+                <div class="text-xs font-bold text-gray-200 truncate">${typeIcon}${p.name}${shinyIcon}</div>
+                ${!isInteractive ? `<button onclick="startRename(${i}, event)" class="material-symbols-outlined text-[12px] text-gray-500 hover:text-white cursor-pointer opacity-50 hover:opacity-100 transition-opacity ml-1 bg-transparent border-none p-0" title="Renommer">edit</button>` : ''}
+            </div>`;
+        }
 
         html += `
-        <div onclick="${isInteractive ? `handleTeamClick(${i})` : ''}" class="flex items-center p-2 rounded border ${isInteractive?'border-blue-400 bg-blue-900/30 cursor-pointer animate-pulse':'border-slate-600 bg-slate-700/40'} hover:bg-slate-700 transition">
-            <img src="${p.img}" class="w-10 h-10 mr-3 ${shinyClass} ${animClass}">
+        <div onclick="${isInteractive ? `handleTeamClick(${i})` : ''}" class="flex items-center p-2 rounded border ${isInteractive?'border-blue-400 bg-blue-900/30 cursor-pointer animate-pulse':'border-slate-600 bg-slate-700/40'} hover:bg-slate-700 transition group">
+            <img src="${displayImg}" class="w-10 h-10 mr-3 ${shinyClass} ${animClass}">
             <div class="flex-1 min-w-0">
-                <div class="text-xs font-bold text-gray-200 truncate">${typeIcon}${p.name}${shinyIcon}</div>
+                ${nameDisplay}
                 <div class="text-[10px] text-yellow-500">DPS: ${(rawDmg*mult*shinyDpsMult).toFixed(1)} <span class="${multColor} text-[8px]">x${mult}</span></div>
             </div>
             ${!swapMode ? `
@@ -2575,8 +2669,19 @@ function toggleAutoAttack() {
 }
 
 function updateAutoBtn() {
-    const b = document.getElementById('auto-attack-btn');
-    b.className = state.auto ? "flex-1 justify-center bg-green-600 hover:bg-green-500 text-white text-[9px] font-bold py-1 px-1 rounded shadow-md border border-green-400 flex items-center gap-1 transition-all" : "flex-1 justify-center bg-red-600 hover:bg-red-500 text-white text-[9px] font-bold py-1 px-1 rounded shadow-md border border-red-400 flex items-center gap-1 transition-all";
+    ['auto-attack-btn', 'auto-attack-btn-m'].forEach(id => {
+        const b = document.getElementById(id);
+        if (!b) return;
+
+        const isDesktop = id === 'auto-attack-btn';
+        let baseClass = "justify-center text-[9px] font-bold flex items-center gap-1 transition-all rounded shadow-md";
+        baseClass += isDesktop ? " flex-1 py-1 px-1" : " p-1.5";
+
+        const colorClass = state.auto 
+            ? "bg-green-600 hover:bg-green-500 text-white border border-green-400" 
+            : "bg-red-600 hover:bg-red-500 text-white border border-red-400";
+        b.className = `${baseClass} ${colorClass}`;
+    });
 }
 
 function toggleAutoClicker() {
@@ -2585,9 +2690,19 @@ function toggleAutoClicker() {
 }
 
 function updateAutoClickerBtn() {
-    const b = document.getElementById('auto-click-btn');
-    const baseClass = "flex-1 justify-center text-[9px] font-bold py-1 px-1 rounded shadow-md flex items-center gap-1 transition-all";
-    b.className = state.autoClicker ? `${baseClass} bg-green-600 hover:bg-green-500 text-white border border-green-400` : `${baseClass} bg-red-600 hover:bg-red-500 text-white border border-red-400`;
+    ['auto-click-btn', 'auto-click-btn-m'].forEach(id => {
+        const b = document.getElementById(id);
+        if (!b) return;
+
+        const isDesktop = id === 'auto-click-btn';
+        let baseClass = "justify-center text-[9px] font-bold flex items-center gap-1 transition-all rounded shadow-md";
+        baseClass += isDesktop ? " flex-1 py-1 px-1" : " p-1.5";
+
+        const colorClass = state.autoClicker 
+            ? "bg-green-600 hover:bg-green-500 text-white border border-green-400" 
+            : "bg-red-600 hover:bg-red-500 text-white border border-red-400";
+        b.className = `${baseClass} ${colorClass}`;
+    });
 }
 
 function startAutoClicker() {
@@ -2606,9 +2721,19 @@ function toggleStopOnRare() {
 }
 
 function updateAutoStopBtn() {
-    const b = document.getElementById('auto-stop-btn');
-    const baseClass = "flex-grow justify-center text-[9px] font-bold py-1 px-1 rounded-l-md shadow-md flex items-center gap-1 transition-all";
-    b.className = state.stopOnRare ? `${baseClass} bg-green-600 hover:bg-green-500 text-white border border-green-400` : `${baseClass} bg-gray-600 hover:bg-gray-500 text-gray-300 border border-gray-400`;
+    ['auto-stop-btn', 'auto-stop-btn-m'].forEach(id => {
+        const b = document.getElementById(id);
+        if (!b) return;
+
+        const isDesktop = id === 'auto-stop-btn';
+        let baseClass = "justify-center text-[9px] font-bold flex items-center gap-1 transition-all rounded-l-md shadow-md";
+        baseClass += isDesktop ? " flex-grow py-1 px-1" : " p-1.5";
+
+        const classTrue = `${baseClass} bg-green-600 hover:bg-green-500 text-white border border-green-400`;
+        const classFalse = `${baseClass} bg-gray-600 hover:bg-gray-500 text-gray-300 border border-gray-400`;
+
+        b.className = state.stopOnRare ? classTrue : classFalse;
+    });
 }
 
 function showFeedback(t,c) {
