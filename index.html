@@ -445,6 +445,7 @@
                     <span class="pixel-font text-[10px] text-green-300 tracking-wider">PC DE LÉO</span>
                     <div class="w-6"></div>
                 </div>
+                <div id="pc-content" class="flex-1 overflow-y-auto p-2 pc-screen custom-scroll bg-black"></div>
                 <div class="absolute inset-0 top-9 bg-slate-900/95 z-20 flex flex-col items-center justify-center text-center p-4" id="pc-locked">
                     <span class="material-symbols-outlined text-gray-600 text-3xl mb-2">computer</span>
                     <p class="text-xs text-gray-500 font-bold">DÉBLOQUÉ ZONE 4</p>
@@ -493,11 +494,11 @@
 // --- CONSTANTS ---
 const ITEMS = {
     // Consommables
-    pokeball: { name: "Pokéball", price: 100, desc: "Capture des Pokémon (Faible chance)", type: "consumable", zone: 0, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png", invKey: "balls" },
-    superball: { name: "Superball", price: 300, desc: "Capture des Pokémon (Moyenne chance x2)", type: "consumable", zone: 4, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png", invKey: "superballs" },
-    hyperball: { name: "Hyperball", price: 800, desc: "Capture des Pokémon (Haute chance x4)", type: "consumable", zone: 9, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png", invKey: "hyperballs" },
+    pokeball: { name: "Pokéball", price: 200, desc: "Capture des Pokémon (Faible chance)", type: "consumable", zone: 0, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png", invKey: "balls" },
+    superball: { name: "Superball", price: 600, desc: "Capture des Pokémon (Moyenne chance x2)", type: "consumable", zone: 4, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png", invKey: "superballs" },
+    hyperball: { name: "Hyperball", price: 1500, desc: "Capture des Pokémon (Haute chance x4)", type: "consumable", zone: 9, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png", invKey: "hyperballs" },
     candy: { name: "Bonbon", price: 2000, desc: "Fait monter un Pokémon de niveau", type: "consumable", zone: 4, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rare-candy.png", invKey: "candy" },
-    masterball: { name: "Master Ball", price: 100000, desc: "Capture à coup sûr (100%)", type: "consumable", zone: 16, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/master-ball.png", invKey: "masterball" },
+    masterball: { name: "Master Ball", price: 200000, desc: "Capture à coup sûr (100%)", type: "consumable", zone: 16, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/master-ball.png", invKey: "masterball" },
     repel: { name: "Repousse", price: 2000, desc: "Empêche les Pokémon communs d'apparaître pendant 30s", type: "consumable", zone: 5, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/repel.png", invKey: "repel" },
     xAttack: { name: "Attaque +", price: 5000, desc: "Dégâts/clic x2 (60s)", type: "consumable", zone: 8, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/x-attack.png", invKey: "xAttack" },
     xSpecial: { name: "Attaque Spé +", price: 7500, desc: "DPS Équipe x2 (60s)", type: "consumable", zone: 11, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/x-sp-atk.png", invKey: "xSpecial" },
@@ -505,13 +506,13 @@ const ITEMS = {
     pokeDoll: { name: "Poké Poupée", price: 7500, desc: "Invoque le Boss (Si déjà vaincu)", type: "consumable", zone: 15, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-doll.png", invKey: "pokeDoll" },
     // Améliorations
     runningShoes: { name: "Chaussures Sport", price: 1000, desc: "Divise le temps d'apparition des ennemis par 1.5", type: "upgrade", zone: 1, icon: "sprint", iconColor: "text-orange-400" },
-    amuletCoin: { name: "Pièce Rune", price: 1500, desc: "Augmente les gains d'argent de +50%", type: "upgrade", zone: 2, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/amulet-coin.png" },
-    protein: { name: "Protéine", price: 3000, desc: "Augmente les dégâts du clic de +50%", type: "upgrade", zone: 3, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/protein.png" },
-    expShare: { name: "Multi Exp", price: 5000, desc: "Augmente les dégâts de l'équipe de +50%", type: "upgrade", zone: 4, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-share.png" },
+    amuletCoin: { name: "Pièce Rune", price: 3000, desc: "Augmente les gains d'argent de +50%", type: "upgrade", zone: 2, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/amulet-coin.png" },
+    protein: { name: "Protéine", price: 5000, desc: "Augmente les dégâts du clic de +50%", type: "upgrade", zone: 3, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/protein.png" },
+    expShare: { name: "Multi Exp", price: 8000, desc: "Augmente les dégâts de l'équipe de +50%", type: "upgrade", zone: 4, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-share.png" },
     hardStone: { name: "Pierre Dure", price: 10000, desc: "Augmente les dégâts du clic de +30%", type: "upgrade", zone: 6, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/hard-stone.png" },
     bicycle: { name: "Bicyclette", price: 20000, desc: "Vitesse de spawn x3 (Remplace Chaussures)", type: "upgrade", zone: 7, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/bicycle.png" },
     luckyEgg: { name: "Oeuf Chance", price: 50000, desc: "XP gagnée x1.5", type: "upgrade", zone: 10, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lucky-egg.png" },
-    leftovers: { name: "Restes", price: 100000, desc: "Auto-click 4 clics/sec", type: "upgrade", zone: 12, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/leftovers.png" }
+    leftovers: { name: "Restes", price: 125000, desc: "Auto-click 4 clics/sec", type: "upgrade", zone: 12, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/leftovers.png" }
 };
 const EVOLUTIONS = {
     1:{id:2,lvl:16,name:"Herbizarre"}, 2:{id:3,lvl:32,name:"Florizarre"},
@@ -852,7 +853,7 @@ const MAP_DATA = [
 // ZONE CONFIGURATION (Updated with explicit IDs)
 const ZONES = [
   // --- DÉBUT DE L'AVENTURE ---
-  {id:1, name:"Route 1", bg:"linear-gradient(to bottom, #87CEEB 0%, #90EE90 100%)", minLevel:2, maxLevel:5,
+  {id:1, name:"Route 1", bg:"img/background/Zone 1.png", minLevel:2, maxLevel:5,
    pokemons:[
      {name:"Rattata", id:19, rarity:"Commun", spawnRate:0.4, catchRate:255},
      {name:"Roucool", id:16, rarity:"Commun", spawnRate:0.4, catchRate:255},
@@ -861,7 +862,7 @@ const ZONES = [
      {name:"Bulbizarre", id:1, rarity:"Très Rare", spawnRate:0.05, catchRate:45} // STARTER 1
    ], boss:{name:"Rattata (Géant)", id:19, level:6, catchRate:0}},
   
-  {id:2, name:"Forêt de Jade", bg:"linear-gradient(to bottom, #006400 0%, #228B22 100%)", minLevel:5, maxLevel:8,
+  {id:2, name:"Forêt de Jade", bg:"img/background/Zone 2.png", minLevel:5, maxLevel:8,
    pokemons:[
      {name:"Chenipan", id:10, rarity:"Commun", spawnRate:0.25, catchRate:255},
      {name:"Aspicot", id:13, rarity:"Commun", spawnRate:0.25, catchRate:255},
@@ -872,7 +873,7 @@ const ZONES = [
    ], boss:{name:"Papilusion", id:12, level:10, catchRate:0}},
 
   // BADGE 1 : ROCHE
-  {id:3, name:"Arène d'Argenta", bg:"linear-gradient(to bottom, #696969 0%, #A9A9A9 100%)", minLevel:9, maxLevel:12,
+  {id:3, name:"Arène d'Argenta", bg:"img/background/Zone 3.png", minLevel:9, maxLevel:12,
    pokemons:[
      {name:"Racaillou", id:74, rarity:"Commun", spawnRate:0.3, catchRate:255},
      {name:"Sabelette", id:27, rarity:"Commun", spawnRate:0.25, catchRate:255},
@@ -882,7 +883,7 @@ const ZONES = [
      {name:"Carapuce", id:7, rarity:"Très Rare", spawnRate:0.05, catchRate:45} // STARTER 3
    ], boss:{name:"Pierre (Onix)", id:95, level:14, catchRate:0, badge:"Roche"}},
 
-  {id:4, name:"Mont Sélénite", bg:"linear-gradient(to bottom, #2F4F4F 0%, #708090 100%)", minLevel:12, maxLevel:15,
+  {id:4, name:"Mont Sélénite", bg:"img/background/Zone 4.png", minLevel:12, maxLevel:15,
    pokemons:[
      {name:"Nosferapti", id:41, rarity:"Commun", spawnRate:0.4, catchRate:255},
      {name:"Paras", id:46, rarity:"Commun", spawnRate:0.25, catchRate:190},
@@ -892,7 +893,7 @@ const ZONES = [
    ], boss:{name:"Mélodelfe", id:36, level:16, catchRate:0}},
 
   // BADGE 2 : CASCADE
-  {id:5, name:"Arène d'Azuria", bg:"linear-gradient(to bottom, #00BFFF 0%, #1E90FF 100%)", minLevel:15, maxLevel:18,
+  {id:5, name:"Arène d'Azuria", bg:"img/background/Zone 5.png", minLevel:15, maxLevel:18,
    pokemons:[
      {name:"Mystherbe", id:43, rarity:"Commun", spawnRate:0.25, catchRate:255},
      {name:"Chétiflor", id:69, rarity:"Commun", spawnRate:0.25, catchRate:255},
@@ -902,7 +903,7 @@ const ZONES = [
    ], boss:{name:"Ondine (Staross)", id:121, level:21, catchRate:0, badge:"Cascade"}},
 
   // ZONE SPÉCIALE MEW
-  {id:6, name:"Pont Pépite", bg:"linear-gradient(to bottom, #DAA520 0%, #87CEFA 100%)", minLevel:17, maxLevel:20,
+  {id:6, name:"Pont Pépite", bg:"img/background/Zone 6.png", minLevel:17, maxLevel:20,
    pokemons:[
      {name:"Abra", id:63, rarity:"Commun", spawnRate:0.3, catchRate:200},
      {name:"Roucoups", id:17, rarity:"Commun", spawnRate:0.3, catchRate:120},
@@ -912,7 +913,7 @@ const ZONES = [
    ], boss:{name:"Rival (Roucarnage)", id:18, level:23, catchRate:0}},
 
   // BADGE 3 : FOUDRE
-  {id:7, name:"Arène de Carmin", bg:"linear-gradient(to bottom, #FFD700 0%, #DAA520 100%)", minLevel:20, maxLevel:25,
+  {id:7, name:"Arène de Carmin", bg:"img/background/Zone 7.png", minLevel:20, maxLevel:25,
    pokemons:[
      {name:"Voltorbe", id:100, rarity:"Commun", spawnRate:0.3, catchRate:190},
      {name:"Magnéti", id:81, rarity:"Commun", spawnRate:0.3, catchRate:190},
@@ -921,14 +922,14 @@ const ZONES = [
      {name:"Pikachu", id:25, rarity:"Rare", spawnRate:0.1, catchRate:190}
    ], boss:{name:"Major Bob (Raichu)", id:26, level:26, catchRate:0, badge:"Foudre"}},
 
-  {id:8, name:"Cave Taupiqueur", bg:"linear-gradient(to bottom, #8B4513 0%, #A0522D 100%)", minLevel:23, maxLevel:27,
+  {id:8, name:"Cave Taupiqueur", bg:"img/background/Zone 8.png", minLevel:23, maxLevel:27,
    pokemons:[
      {name:"Taupiqueur", id:50, rarity:"Commun", spawnRate:0.8, catchRate:255},
      {name:"Triopikeur", id:51, rarity:"Très Rare", spawnRate:0.1, catchRate:50},
      {name:"Osselait", id:104, rarity:"Rare", spawnRate:0.1, catchRate:190}
    ], boss:{name:"Triopikeur", id:51, level:29, catchRate:0}},
 
-  {id:9, name:"Tunnel Rocheux", bg:"linear-gradient(to bottom, #000000 0%, #483D8B 100%)", minLevel:25, maxLevel:30,
+  {id:9, name:"Tunnel Rocheux", bg:"img/background/Zone 9.png", minLevel:25, maxLevel:30,
    pokemons:[
      {name:"Machoc", id:66, rarity:"Commun", spawnRate:0.4, catchRate:180},
      {name:"Férosinge", id:56, rarity:"Commun", spawnRate:0.4, catchRate:190},
@@ -936,7 +937,7 @@ const ZONES = [
      {name:"Onix", id:95, rarity:"Très Rare", spawnRate:0.05, catchRate:45}
    ], boss:{name:"Grolem", id:76, level:33, catchRate:0}},
 
-  {id:10, name:"Tour Pokémon", bg:"linear-gradient(to bottom, #4B0082 0%, #800080 100%)", minLevel:28, maxLevel:33,
+  {id:10, name:"Tour Pokémon", bg:"img/background/Zone 10.png", minLevel:28, maxLevel:33,
    pokemons:[
      {name:"Fantominus", id:92, rarity:"Commun", spawnRate:0.6, catchRate:190},
      {name:"Spectrum", id:93, rarity:"Peu Commun", spawnRate:0.25, catchRate:90},
@@ -945,7 +946,7 @@ const ZONES = [
    ], boss:{name:"Ectoplasma", id:94, level:36, catchRate:0}},
 
   // BADGE 4 : PRISME
-  {id:11, name:"Arène de Céladopole", bg:"linear-gradient(to bottom, #32CD32 0%, #98FB98 100%)", minLevel:30, maxLevel:35,
+  {id:11, name:"Arène de Céladopole", bg:"img/background/Zone 11.png", minLevel:30, maxLevel:35,
    pokemons:[
      {name:"Goupix", id:37, rarity:"Commun", spawnRate:0.25, catchRate:190},
      {name:"Caninos", id:58, rarity:"Commun", spawnRate:0.25, catchRate:190},
@@ -955,7 +956,7 @@ const ZONES = [
    ], boss:{name:"Erika (Empiflor)", id:71, level:39, catchRate:0, badge:"Prisme"}},
 
   // ZONE LÉGENDAIRE 1
-  {id:12, name:"Centrale", bg:"linear-gradient(to bottom, #708090 0%, #FFFF00 100%)", minLevel:32, maxLevel:38,
+  {id:12, name:"Centrale", bg:"img/background/Zone 12.png", minLevel:32, maxLevel:38,
    pokemons:[
      {name:"Voltorbe", id:100, rarity:"Commun", spawnRate:0.3, catchRate:190},
      {name:"Magnéti", id:81, rarity:"Commun", spawnRate:0.3, catchRate:190},
@@ -965,7 +966,7 @@ const ZONES = [
    ], boss:{name:"Électhor", id:145, level:45, catchRate:0}},
 
   // BADGE 5 : ÂME (Mix Parmanie + Safari pour tout avoir)
-  {id:13, name:"Arène de Parmanie", bg:"linear-gradient(to bottom, #800080 0%, #556B2F 100%)", minLevel:35, maxLevel:40,
+  {id:13, name:"Arène de Parmanie", bg:"img/background/Zone 13.png", minLevel:35, maxLevel:40,
    pokemons:[
      {name:"Nidorino", id:33, rarity:"Commun", spawnRate:0.2, catchRate:120},
      {name:"Nidorina", id:30, rarity:"Commun", spawnRate:0.2, catchRate:120},
@@ -978,7 +979,7 @@ const ZONES = [
      {name:"Minidraco", id:147, rarity:"Très Rare", spawnRate:0.05, catchRate:45} // SAFARI
    ], boss:{name:"Koga (Smogogo)", id:110, level:45, catchRate:0, badge:"Âme"}},
 
-  {id:14, name:"Sylphe SARL", bg:"linear-gradient(to bottom, #708090 0%, #B0C4DE 100%)", minLevel:38, maxLevel:43,
+  {id:14, name:"Sylphe SARL", bg:"img/background/Zone 14.png", minLevel:38, maxLevel:43,
    pokemons:[
      {name:"Abo", id:23, rarity:"Commun", spawnRate:0.2, catchRate:255},
      {name:"Smogo", id:109, rarity:"Commun", spawnRate:0.2, catchRate:190},
@@ -988,7 +989,7 @@ const ZONES = [
    ], boss:{name:"Giovanni (Persian)", id:53, level:47, catchRate:0}},
 
   // BADGE 6 : MARAIS
-  {id:15, name:"Arène de Safrania", bg:"linear-gradient(to bottom, #FF1493 0%, #FF69B4 100%)", minLevel:40, maxLevel:45,
+  {id:15, name:"Arène de Safrania", bg:"img/background/Zone 15.png", minLevel:40, maxLevel:45,
    pokemons:[
      {name:"Abra", id:63, rarity:"Commun", spawnRate:0.3, catchRate:200},
      {name:"Kadabra", id:64, rarity:"Peu Commun", spawnRate:0.2, catchRate:100},
@@ -999,7 +1000,7 @@ const ZONES = [
    ], boss:{name:"Sabrina (Alakazam)", id:65, level:48, catchRate:0, badge:"Marais"}},
 
   // ZONE LÉGENDAIRE 2
-  {id:16, name:"Îles Écume", bg:"linear-gradient(to bottom, #00CED1 0%, #E0FFFF 100%)", minLevel:43, maxLevel:48,
+  {id:16, name:"Îles Écume", bg:"img/background/Zone 16.png", minLevel:43, maxLevel:48,
    pokemons:[
      {name:"Otaria", id:86, rarity:"Commun", spawnRate:0.25, catchRate:190},
      {name:"Kokiyas", id:90, rarity:"Commun", spawnRate:0.25, catchRate:190},
@@ -1010,7 +1011,7 @@ const ZONES = [
    ], boss:{name:"Artikodin", id:144, level:50, catchRate:0}},
 
   // BADGE 7 : VOLCAN
-  {id:17, name:"Arène de Cramois'Île", bg:"linear-gradient(to bottom, #FF4500 0%, #FFA07A 100%)", minLevel:45, maxLevel:50,
+  {id:17, name:"Arène de Cramois'Île", bg:"img/background/Zone 17.png", minLevel:45, maxLevel:50,
    pokemons:[
      {name:"Ponyta", id:77, rarity:"Commun", spawnRate:0.2, catchRate:190},
      {name:"Goupix", id:37, rarity:"Commun", spawnRate:0.2, catchRate:190},
@@ -1021,7 +1022,7 @@ const ZONES = [
    ], boss:{name:"Blaine (Arcanin)", id:59, level:54, catchRate:0, badge:"Volcan"}},
 
   // BADGE 8 : TERRE (Jadielle déplacée avant Azurée)
-  {id:18, name:"Arène de Jadielle", bg:"linear-gradient(to bottom, #DEB887 0%, #F5DEB3 100%)", minLevel:50, maxLevel:58,
+  {id:18, name:"Arène de Jadielle", bg:"img/background/Zone 18.png", minLevel:50, maxLevel:58,
    pokemons:[
      {name:"Nidorino", id:33, rarity:"Commun", spawnRate:0.25, catchRate:120},
      {name:"Nidorina", id:30, rarity:"Commun", spawnRate:0.25, catchRate:120},
@@ -1031,7 +1032,7 @@ const ZONES = [
    ], boss:{name:"Giovanni (Rhinoféros)", id:112, level:60, catchRate:0, badge:"Terre"}},
 
   // ZONE LÉGENDAIRE 3 + MEWTWO (Votre demande spécifique)
-  {id:19, name:"Caverne Azurée", bg:"linear-gradient(to bottom, #4B0082 0%, #9370DB 100%)", minLevel:55, maxLevel:65,
+  {id:19, name:"Caverne Azurée", bg:"img/background/Zone 19.png", minLevel:55, maxLevel:65,
    pokemons:[
      {name:"Parasect", id:47, rarity:"Commun", spawnRate:0.2, catchRate:75},
      {name:"Kadabra", id:64, rarity:"Commun", spawnRate:0.2, catchRate:100},
@@ -1041,7 +1042,7 @@ const ZONES = [
    ], boss:{name:"Mewtwo", id:150, level:70, catchRate:0}},
 
   // ROUTE VICTOIRE
-  {id:20, name:"Route Victoire", bg:"linear-gradient(to bottom, #8B0000 0%, #CD5C5C 100%)", minLevel:60, maxLevel:70,
+  {id:20, name:"Route Victoire", bg:"img/background/Zone 20.png", minLevel:60, maxLevel:70,
    pokemons:[
      {name:"Machopeur", id:67, rarity:"Commun", spawnRate:0.3, catchRate:90},
      {name:"Gravalanch", id:75, rarity:"Commun", spawnRate:0.3, catchRate:120},
@@ -1051,7 +1052,7 @@ const ZONES = [
    ], boss:{name:"Sulfura", id:146, level:75, catchRate:0}},
 
   // LA LIGUE (Final Boss)
-  {id:21, name:"Ligue Pokémon", bg:"linear-gradient(to bottom, #191970 0%, #FFD700 100%)", minLevel:70, maxLevel:90,
+  {id:21, name:"Ligue Pokémon", bg:"img/background/Zone 21.png", minLevel:70, maxLevel:90,
    pokemons:[
      // OLGA (Glace/Eau)
      {name:"Lokhlass", id:131, rarity:"Conseil 4", spawnRate:0.1, catchRate:45},
@@ -1190,7 +1191,23 @@ function getPower(id) {
 function calcMaxXp(id, level) {
     const power = getPower(id);
     let tier = (power < 100) ? 0.8 : (power > 180) ? 1.25 : 1.0;
-    return Math.floor((((4 * Math.pow(level, 3)) * tier * 5) / 3) / 2);
+    return Math.floor((((4 * Math.pow(level, 3)) * tier * 5) / 3) / 4);
+}
+
+function calculateGoldReward(enemy) {
+    // Formule : Base linéaire + légère courbe.
+    // Niv 5 = ~25$ | Niv 20 = ~120$ | Niv 50 = ~500$
+    let baseReward = (enemy.level * 4) + Math.pow(enemy.level, 1.4);
+    
+    // Bonus de rareté
+    if (enemy.isBoss) baseReward *= 10;
+    else if (enemy.rarity === "Rare" || enemy.rarity === "Très Rare") baseReward *= 3;
+    else if (enemy.rarity === "Légendaire") baseReward *= 20;
+
+    // Bonus Item (Pièce Rune)
+    if (state.upgrades.amuletCoin) baseReward *= 1.5;
+
+    return Math.floor(baseReward);
 }
 
 function getTypes(id) {
@@ -1392,12 +1409,8 @@ function killEnemy() {
     enemy.dead = true;
     state.stats.kills++;
     
-    let baseGold = 10 * Math.pow(1.5, state.zoneIdx);
-    let variance = 0.8 + (Math.random() * 0.4); // +/- 20%
-    let gold = Math.floor(baseGold * variance);
+    let gold = calculateGoldReward(enemy);
 
-    if(enemy.isBoss) gold*=5;
-    if(state.upgrades.amuletCoin) gold = Math.floor(gold * 1.5);
     if(hasBadge("Prisme")) gold = Math.floor(gold * 1.5);
     if(enemy.isShiny) {
         gold *= 5;
@@ -2178,7 +2191,7 @@ function releasePokemon(idx) {
 }
 
 function updateUI() {
-    document.getElementById('money-display').innerText = state.money;
+    document.getElementById('money-display').innerText = state.money.toLocaleString('de-DE');
     document.getElementById('total-dps').innerText = getDPS(enemy.dead ? null : enemy.id).toFixed(1);
     document.getElementById('team-count').innerText = state.team.length;
     
@@ -2214,9 +2227,10 @@ function updateZone() {
 function updateBg() {
     const bg = ZONES[state.zoneIdx].bg;
     const layer = document.getElementById('bg-layer');
-    if(bg.includes("http")) {
+    if(bg.includes("http") || bg.includes("img/")) {
         layer.style.backgroundImage = `url('${bg}')`;
         layer.style.background = ""; 
+        layer.style.backgroundImage = `url('${encodeURI(bg)}')`;
     } else {
         layer.style.backgroundImage = "";
         layer.style.background = bg; // Use gradient
@@ -2475,7 +2489,7 @@ function renderShop() {
         <div class="bg-slate-800 p-2 rounded border ${id==='superball'?'border-blue-600 bg-blue-900/30':'border-slate-700'} hover:border-blue-500 cursor-pointer flex items-center gap-2" onclick="buyItem('${id}')" title="${item.desc}">
             ${iconHtml}
             <div class="flex-1 text-xs ${id==='superball'?'text-blue-200':''}">${item.name}</div>
-            <div class="text-yellow-400 text-xs">${getPrice(item.price)}$</div>
+            <div class="text-yellow-400 text-xs">${getPrice(item.price).toLocaleString('de-DE')}$</div>
             ${stockDisplay}
         </div>`;
     }
@@ -2496,7 +2510,7 @@ function renderShop() {
         <div class="bg-slate-800 p-2 rounded border ${owned?'border-green-600 opacity-50':'border-slate-700 hover:border-blue-500 cursor-pointer'} flex items-center gap-2" ${!owned?`onclick="buyItem('${id}')"`:''} title="${item.desc}">
             ${iconHtml}
             <div class="flex-1 text-xs">${item.name}</div>
-            ${owned ? `<div class="text-xs text-green-400 font-bold">ACQUIS</div>` : `<div class="text-yellow-400 text-xs">${getPrice(item.price)}$</div>`}
+            ${owned ? `<div class="text-xs text-green-400 font-bold">ACQUIS</div>` : `<div class="text-yellow-400 text-xs">${getPrice(item.price).toLocaleString('de-DE')}$</div>`}
         </div>`;
     }
 
@@ -2748,7 +2762,7 @@ function renderStats() {
         </div>
         <div class="bg-slate-800 rounded p-3 border border-slate-700 mb-4">
             <div class="text-[10px] text-gray-400">ARGENT TOTAL</div>
-            <div class="text-xl font-bold text-yellow-400 pixel-font">${state.stats.totalMoney || state.money} $</div>
+            <div class="text-xl font-bold text-yellow-400 pixel-font">${(state.stats.totalMoney || state.money).toLocaleString('de-DE')} $</div>
         </div>
         
         ${statBlock("DÉGÂTS CLIC", baseClick, clickMults, currentClick, "touch_app", "red", "Base (5+0.2% DPS)")}
