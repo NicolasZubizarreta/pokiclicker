@@ -369,13 +369,13 @@
             </div>
 
             <!-- Middle (Pokemon) - Adjusted padding for mobile top bar -->
-            <div class="flex-1 flex flex-col items-center justify-center min-h-0 relative group">
+            <div class="flex-1 flex flex-col items-center justify-center min-h-0 relative group select-none">
                 <div class="absolute -top-20 left-0 w-full text-center hidden pointer-events-none z-50" id="feedback-msg">
                     <span class="text-yellow-400 font-bold text-2xl pixel-font text-shadow-lg drop-shadow-lg">CAPTURED!</span>
                 </div>
                 <div id="catch-tooltip" class="hidden absolute top-4 right-4 bg-black/90 border border-slate-500 p-3 rounded-lg text-xs text-white z-50 pointer-events-none shadow-xl backdrop-blur-sm min-w-[120px]"></div>
                 <div id="searching-msg" class="hidden text-white pixel-font text-sm animate-pulse tracking-widest z-20">RECHERCHE EN COURS...</div>
-                <img class="w-48 h-48 lg:w-72 lg:h-72 object-contain pokemon-float drop-shadow-2xl transition-all duration-100 cursor-pointer active:scale-95" id="enemy-sprite" onclick="clickAttack(event)" onmouseenter="showCatchTooltip()" onmouseleave="hideCatchTooltip()" src="">
+                <img class="w-48 h-48 lg:w-72 lg:h-72 object-contain pokemon-float drop-shadow-2xl transition-all duration-100 cursor-pointer active:scale-95" id="enemy-sprite" onclick="clickAttack(event)" onmouseenter="showCatchTooltip()" onmouseleave="hideCatchTooltip()" src="" draggable="false">
                 <div class="hidden absolute top-0 right-10 bg-red-600 text-white font-bold text-[10px] px-3 py-1 rounded border border-white shadow-lg animate-bounce" id="boss-badge" style="display: none;">BOSS</div>
             </div>
             
