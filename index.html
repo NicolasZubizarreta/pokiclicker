@@ -543,7 +543,7 @@ const ITEMS = {
     hardStone: { name: "Pierre Dure", price: 10000, desc: "Augmente les dégâts du clic de +30%", type: "upgrade", zone: 6, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/hard-stone.png" },
     bicycle: { name: "Bicyclette", price: 20000, desc: "Vitesse de spawn x3 (Remplace Chaussures)", type: "upgrade", zone: 7, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/bicycle.png" },
     luckyEgg: { name: "Oeuf Chance", price: 50000, desc: "XP gagnée x1.5", type: "upgrade", zone: 10, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lucky-egg.png" },
-    leftovers: { name: "Restes", price: 125000, desc: "Auto-click 4 clics/sec", type: "upgrade", zone: 12, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/leftovers.png" }
+    leftovers: { name: "Restes", price: 125000, desc: "Auto-click 6 clics/sec", type: "upgrade", zone: 12, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/leftovers.png" }
 };
 const EVOLUTIONS = {
     1:{id:2,lvl:16,name:"Herbizarre"}, 2:{id:3,lvl:32,name:"Florizarre"},
@@ -826,7 +826,7 @@ const MILESTONES = [
     {count:10, title:"Débutant", desc:"Dégâts Clic x2"},
     {count:20, title:"Amateur", desc:"+2,500 $P"},
     {count:30, title:"Collectionneur", desc:"DPS Équipe x2"},
-    {count:40, title:"Dresseur", desc:"Omni XP (Sac)"},
+    {count:40, title:"Dresseur", desc:"Omni XP (XP x1.5)"},
     {count:50, title:"Expert", desc:"Spawn +20%"},
     {count:70, title:"Champion", desc:"Shop -15%"},
     {count:90, title:"Maître", desc:"Dégâts Totaux x3"},
@@ -1280,7 +1280,6 @@ function getDPS(targetId) {
     if(hasBadge("Cascade")) dps *= 1.5;
     if(hasBadge("Foudre")) dps *= 1.2;
     if(hasBadge("Volcan")) dps *= 2;
-    dps *= (1 + state.unlockedZone * 0.1);
     if(Date.now() < state.dpsBoostEndTime) dps *= 2;
     return dps;
 }
@@ -1294,7 +1293,6 @@ function getClick() {
     if(hasBadge("Roche")) dmg = Math.floor(dmg * 1.5);
     if(hasBadge("Foudre")) dmg = Math.floor(dmg * 1.2);
     if(hasBadge("Volcan")) dmg *= 2;
-    dmg = Math.floor(dmg * (1 + state.unlockedZone * 0.1));
     if(Date.now() < state.attackBoostEndTime) dmg *= 2;
     return state.cheat ? 99999 : dmg; 
 }
@@ -1578,7 +1576,11 @@ function attemptCatch(type) {
                 showFeedback("ENVOYÉ AU PC", "blue"); 
             }
             
-            state.money += Math.floor(enemy.maxHp/5) * (enemy.isShiny ? 5 : 1);
+            let gold = calculateGoldReward(enemy);
+            if(hasBadge("Prisme")) gold = Math.floor(gold * 1.5);
+            if(enemy.isShiny) gold *= 5;
+            state.money += gold * 2;
+
             if(enemy.isShiny) {
                 state.inv.candy += 5;
                 showFeedback("SHINY! +5 BONBONS", "purple");
@@ -1643,7 +1645,8 @@ function hideCatchTooltip() {
 }
 
 // --- HELPERS ---
-function getSprite(id) {
+function getSprite(id, isShiny) {
+    if(isShiny) return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${id}.png`;
     return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`;
 }
 function getArtwork(id, isShiny) {
@@ -1655,12 +1658,12 @@ function getArtwork(id, isShiny) {
 
 function addToTeam(id,n,l,s) { 
     const maxXp = calcMaxXp(id, l);
-    state.team.push({id:id, name:n, level:l, isShiny:s, xp:0, maxXp:maxXp, uid:Date.now() + Math.random(), img:getSprite(id)}); 
+    state.team.push({id:id, name:n, level:l, isShiny:s, xp:0, maxXp:maxXp, uid:Date.now() + Math.random(), img:getSprite(id, s)}); 
     renderTeam(); 
 }
 function addToPC(id,n,l,s) { 
     const maxXp = calcMaxXp(id, l);
-    state.pc.push({id:id, name:n, level:l, isShiny:s, xp:0, maxXp:maxXp, uid:Date.now() + Math.random(), img:getSprite(id)}); 
+    state.pc.push({id:id, name:n, level:l, isShiny:s, xp:0, maxXp:maxXp, uid:Date.now() + Math.random(), img:getSprite(id, s)}); 
     renderPC(); 
 }
 
@@ -1674,7 +1677,7 @@ function addToPokedex(id) {
 function useShinyToken(uid) {
     let p = state.team.find(x=>x.uid===uid);
     if(p && !p.isShiny && state.inv.shinyToken > 0) {
-        state.inv.shinyToken--; p.isShiny = true;
+        state.inv.shinyToken--; p.isShiny = true; p.img = getSprite(p.id, true);
         playTone('up'); showFeedback("SHINY !!!", "purple");
         renderTeam(); renderBag();
     }
@@ -1825,7 +1828,7 @@ function evolve(uid) {
         }
         p.id = newId;
         p.name = newName;
-        p.img=getSprite(p.id); 
+        p.img=getSprite(p.id, p.isShiny); 
         addToPokedex(p.id);
         
         evolvingPokemon = { uid: uid, endTime: Date.now() + 3000, oldId: oldId, newId: newId };
@@ -1943,7 +1946,7 @@ function loadData(data) {
     
     // Re-bind images and init XP if missing (for old saves)
     const initP = (p) => {
-        if(!p.img) p.img = getSprite(p.id);
+        p.img = getSprite(p.id, p.isShiny);
         if(p.xp === undefined) p.xp = 0;
         if(p.maxXp === undefined) p.maxXp = calcMaxXp(p.id, p.level);
     };
@@ -2386,7 +2389,7 @@ function renderTeam() {
         const mult = !enemy.dead ? getMultiplier(p.id, enemy.id) : 1;
         const multColor = mult > 1 ? "text-green-400" : mult < 1 ? "text-red-400" : "text-gray-400";
         const typeIcon = `<div class="w-2 h-2 rounded-full inline-block mr-1" style="background:${TYPE_COLORS[getTypes(p.id)[0]]}"></div>`;
-        const shinyClass = p.isShiny ? "shiny-filter" : "";
+        const shinyClass = p.isShiny ? "shiny-glow" : "";
         const shinyIcon = p.isShiny ? "<span class='text-yellow-400 ml-1'>★</span>" : "";
         const shinyDpsMult = p.isShiny ? 2 : 1;
         let baseStat = BASE_STATS[p.id] || 40;
@@ -2401,7 +2404,7 @@ function renderTeam() {
             const timeLeft = evolvingPokemon.endTime - Date.now();
             // Swap every 150ms (sync with CSS 5% steps of 3000ms)
             if (Math.floor(timeLeft / 150) % 2 === 0) {
-                displayImg = getSprite(evolvingPokemon.oldId);
+                displayImg = getSprite(evolvingPokemon.oldId, p.isShiny);
             }
         }
 
@@ -2467,7 +2470,7 @@ function renderPC() {
 
     let html = state.pc.length===0 ? `<div class="text-center text-green-500 text-xs mt-10">VIDE</div>` : "";
     state.pc.forEach((p,i) => {
-        const shinyClass = p.isShiny ? "shiny-filter" : "";
+        const shinyClass = p.isShiny ? "shiny-glow" : "";
         html += `
         <div class="flex justify-between items-center bg-gray-900/80 p-2 mb-1 border-b border-green-900">
             <div class="flex items-center gap-2">
@@ -2490,61 +2493,61 @@ function renderBag() {
     const mobileBag = document.getElementById('mobile-bag-content');
 
     let html = `
-    <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 cursor-pointer hover:bg-slate-600" onclick="attemptCatch('poke')">
+    <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 cursor-pointer hover:bg-slate-600" onclick="attemptCatch('poke')" title="${ITEMS.pokeball.desc}">
         <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" class="w-6 h-6">
         <div><div class="text-xs text-gray-400">Pokéball</div><div class="text-sm font-bold">x${state.inv.balls} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
     </div>
-    <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 ${state.inv.candy>0?'cursor-pointer hover:bg-slate-600':''}" ${state.inv.candy>0?'onclick="initCandyUse()"':''}>
+    <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 ${state.inv.candy>0?'cursor-pointer hover:bg-slate-600':''}" ${state.inv.candy>0?'onclick="initCandyUse()"':''} title="${ITEMS.candy.desc}">
         <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rare-candy.png" class="w-6 h-6">
         <div><div class="text-xs text-gray-400">Super Bonbon</div><div class="text-sm font-bold">x${state.inv.candy} ${state.inv.candy>0?'<span class="text-[8px] text-yellow-500">UTILISER</span>':''}</div></div>
     </div>
     ${state.inv.repel>0 ? `
-    <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 cursor-pointer hover:bg-slate-600" onclick="useRepel()">
+    <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 cursor-pointer hover:bg-slate-600" onclick="useRepel()" title="${ITEMS.repel.desc}">
         <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/repel.png" class="w-6 h-6">
         <div><div class="text-xs text-gray-400">Repousse</div><div class="text-sm font-bold">x${state.inv.repel} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
     </div>`:''}
     ${state.inv.superRepel>0 ? `
-    <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 cursor-pointer hover:bg-slate-600" onclick="useSuperRepel()">
+    <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 cursor-pointer hover:bg-slate-600" onclick="useSuperRepel()" title="${ITEMS.superRepel.desc}">
         <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/super-repel.png" class="w-6 h-6">
         <div><div class="text-xs text-gray-400">Superepousse</div><div class="text-sm font-bold">x${state.inv.superRepel} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
     </div>`:''}
     ${state.inv.xAttack>0 ? `
-    <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 cursor-pointer hover:bg-slate-600" onclick="useXAttack()">
+    <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 cursor-pointer hover:bg-slate-600" onclick="useXAttack()" title="${ITEMS.xAttack.desc}">
         <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/x-attack.png" class="w-6 h-6">
         <div><div class="text-xs text-gray-400">Attaque +</div><div class="text-sm font-bold">x${state.inv.xAttack} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
     </div>`:''}
     ${state.inv.xSpecial>0 ? `
-    <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 cursor-pointer hover:bg-slate-600" onclick="useXSpecial()">
+    <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 cursor-pointer hover:bg-slate-600" onclick="useXSpecial()" title="${ITEMS.xSpecial.desc}">
         <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/x-sp-atk.png" class="w-6 h-6">
         <div><div class="text-xs text-gray-400">Attaque Spé +</div><div class="text-sm font-bold">x${state.inv.xSpecial} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
     </div>`:''}
     ${state.inv.pokeDoll>0 ? `
-    <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 cursor-pointer hover:bg-slate-600" onclick="usePokeDoll()">
+    <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 cursor-pointer hover:bg-slate-600" onclick="usePokeDoll()" title="${ITEMS.pokeDoll.desc}">
         <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-doll.png" class="w-6 h-6">
         <div><div class="text-xs text-gray-400">Poké Poupée</div><div class="text-sm font-bold">x${state.inv.pokeDoll} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
     </div>`:''}
     ${state.inv.superballs>0 || state.unlockedZone>=4 || state.zoneIdx>=4 ? `
-    <div class="bg-blue-900/40 p-2 rounded flex items-center gap-2 border border-blue-500 cursor-pointer hover:bg-blue-800/40" onclick="attemptCatch('super')">
+    <div class="bg-blue-900/40 p-2 rounded flex items-center gap-2 border border-blue-500 cursor-pointer hover:bg-blue-800/40" onclick="attemptCatch('super')" title="${ITEMS.superball.desc}">
         <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png" class="w-6 h-6">
         <div><div class="text-xs text-blue-300">Superball</div><div class="text-sm font-bold">x${state.inv.superballs} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
     </div>`:''}
     ${state.inv.hyperballs>0 || state.unlockedZone>=9 || state.zoneIdx>=9 ? `
-    <div class="bg-yellow-900/40 p-2 rounded flex items-center gap-2 border border-yellow-500 cursor-pointer hover:bg-yellow-800/40" onclick="attemptCatch('hyper')">
+    <div class="bg-yellow-900/40 p-2 rounded flex items-center gap-2 border border-yellow-500 cursor-pointer hover:bg-yellow-800/40" onclick="attemptCatch('hyper')" title="${ITEMS.hyperball.desc}">
         <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png" class="w-6 h-6">
         <div><div class="text-xs text-yellow-300">Hyperball</div><div class="text-sm font-bold">x${state.inv.hyperballs} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
     </div>`:''}
     ${state.inv.masterball>0 ? `
-    <div class="bg-purple-900/40 p-2 rounded flex items-center gap-2 border border-purple-500 cursor-pointer hover:bg-purple-800/40" onclick="attemptCatch('master')">
+    <div class="bg-purple-900/40 p-2 rounded flex items-center gap-2 border border-purple-500 cursor-pointer hover:bg-purple-800/40" onclick="attemptCatch('master')" title="${ITEMS.masterball.desc}">
         <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/master-ball.png" class="w-6 h-6">
         <div><div class="text-xs text-purple-300">Masterball</div><div class="text-sm font-bold">x${state.inv.masterball} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
     </div>`:''}
     ${state.inv.shinyToken>0 ? `
-    <div class="bg-yellow-900/40 p-2 rounded flex items-center gap-2 border border-yellow-500">
+    <div class="bg-yellow-900/40 p-2 rounded flex items-center gap-2 border border-yellow-500" title="Transforme un Pokémon de l'équipe en Shiny">
         <div class="w-6 h-6 rounded-full bg-yellow-400 border-2 border-white flex items-center justify-center text-[10px] text-black font-bold">★</div>
         <div><div class="text-xs text-yellow-300">Jeton Shiny</div><div class="text-sm font-bold">x${state.inv.shinyToken}</div></div>
     </div>`:''}
     ${state.inv.omniXp>0 ? `
-    <div class="bg-indigo-900/40 p-2 rounded flex items-center gap-2 border border-indigo-500"><span class="material-symbols-outlined text-indigo-300">auto_awesome</span><div><div class="text-xs text-indigo-300">Omni XP</div><div class="text-sm font-bold">x${state.inv.omniXp}</div></div></div>`:''}
+    <div class="bg-indigo-900/40 p-2 rounded flex items-center gap-2 border border-indigo-500" title="XP gagnée x1.5 (Passif)"><span class="material-symbols-outlined text-indigo-300">auto_awesome</span><div><div class="text-xs text-indigo-300">Omni XP</div><div class="text-sm font-bold">x${state.inv.omniXp}</div></div></div>`:''}
     `;
 
     if(desktopBag) desktopBag.innerHTML = html;
@@ -2707,12 +2710,12 @@ function updateAutoClickerBtn() {
 
 function startAutoClicker() {
     if(autoClickerInterval) clearInterval(autoClickerInterval);
-    // 4 clicks per second = 250ms
+    // 6 clicks per second = ~166ms
     autoClickerInterval = setInterval(() => {
         if(state.autoClicker && !enemy.dead && state.upgrades.leftovers) {
             damageEnemy(getClick());
         }
-    }, 250);
+    }, 166);
 }
 
 function toggleStopOnRare() {
@@ -2823,7 +2826,6 @@ function renderStats() {
     if(hasBadge("Cascade")) dpsMults.push("Badge Cascade (x1.5)");
     if(hasBadge("Foudre")) dpsMults.push("Badge Foudre (x1.2)");
     if(hasBadge("Volcan")) dpsMults.push("Badge Volcan (x2)");
-    if(state.unlockedZone > 0) dpsMults.push(`Zones (x${(1 + state.unlockedZone * 0.1).toFixed(1)})`);
     if(Date.now() < state.dpsBoostEndTime) dpsMults.push("Attaque Spé + (x2)");
 
     // Base Click est calculé sur le DPS TOTAL (currentDps), pas le DPS de base
@@ -2838,7 +2840,6 @@ function renderStats() {
     if(hasBadge("Roche")) currentClick = Math.floor(currentClick * 1.5);
     if(hasBadge("Foudre")) currentClick = Math.floor(currentClick * 1.2);
     if(hasBadge("Volcan")) currentClick *= 2;
-    currentClick = Math.floor(currentClick * (1 + state.unlockedZone * 0.1));
     if(Date.now() < state.attackBoostEndTime) currentClick *= 2;
 
     let clickMults = [];
@@ -2849,7 +2850,6 @@ function renderStats() {
     if(hasBadge("Roche")) clickMults.push("Badge Roche (x1.5)");
     if(hasBadge("Foudre")) clickMults.push("Badge Foudre (x1.2)");
     if(hasBadge("Volcan")) clickMults.push("Badge Volcan (x2)");
-    if(state.unlockedZone > 0) clickMults.push(`Zones (x${(1 + state.unlockedZone * 0.1).toFixed(1)})`);
     if(Date.now() < state.attackBoostEndTime) clickMults.push("Attaque + (x2)");
 
     let moneyMults = [];
