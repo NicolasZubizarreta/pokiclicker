@@ -304,6 +304,15 @@
     </div>
 </div>
 
+<div class="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 hidden" id="item-info-modal" onclick="this.classList.add('hidden')">
+    <div class="bg-slate-800 border-2 border-slate-500 p-4 rounded-xl shadow-2xl max-w-[280px] w-full text-center relative" onclick="event.stopPropagation()">
+        <button onclick="document.getElementById('item-info-modal').classList.add('hidden')" class="absolute top-2 right-2 text-gray-400 hover:text-white material-symbols-outlined text-sm">close</button>
+        <h3 class="text-yellow-400 font-bold mb-3 pixel-font text-xs tracking-wide" id="info-title">ITEM</h3>
+        <div class="flex justify-center mb-3" id="info-icon-container"></div>
+        <p class="text-gray-200 text-xs leading-relaxed font-medium" id="info-desc">Description</p>
+    </div>
+</div>
+
 <div class="flex h-full w-full opacity-0 transition-opacity duration-1000 hidden" id="game-ui">
     
     <div id="sidebar-left" class="w-[20%] flex flex-col h-full bg-slate-900 border-r border-slate-700 z-20 shadow-2xl shrink-0">
@@ -1871,6 +1880,21 @@ function evolve(uid) {
     }
 }
 
+function showItemInfo(id, e) {
+    e.stopPropagation();
+    const item = ITEMS[id];
+    if(!item) return;
+    
+    document.getElementById('info-title').innerText = item.name.toUpperCase();
+    document.getElementById('info-desc').innerText = item.desc;
+    
+    let iconHtml = item.img ? `<img src="${item.img}" class="w-12 h-12 object-contain">` : 
+                   item.icon ? `<span class="material-symbols-outlined text-4xl ${item.iconColor || 'text-white'}">${item.icon}</span>` : '';
+    document.getElementById('info-icon-container').innerHTML = iconHtml;
+    
+    document.getElementById('item-info-modal').classList.remove('hidden');
+}
+
 function getPrice(base) {
     if(state.cheat) return 1;
     if(hasMilestone(70)) return Math.floor(base * 0.85);
@@ -2605,11 +2629,12 @@ function renderShop() {
         else if (item.icon) iconHtml = `<span class="material-symbols-outlined ${item.iconColor || 'text-gray-400'}">${item.icon}</span>`;
 
         html += `
-        <div class="bg-slate-800 p-2 rounded border ${id==='superball'?'border-blue-600 bg-blue-900/30':'border-slate-700'} hover:border-blue-500 cursor-pointer flex items-center gap-2" onclick="buyItem('${id}')" title="${item.desc}">
+        <div class="bg-slate-800 p-2 rounded border ${id==='superball'?'border-blue-600 bg-blue-900/30':'border-slate-700'} hover:border-blue-500 cursor-pointer flex items-center gap-2 relative group" onclick="buyItem('${id}')" title="${item.desc}">
             ${iconHtml}
             <div class="flex-1 text-xs ${id==='superball'?'text-blue-200':''}">${item.name}</div>
             <div class="text-yellow-400 text-xs">${getPrice(item.price).toLocaleString('de-DE')}$</div>
             ${stockDisplay}
+            <button onclick="showItemInfo('${id}', event)" class="w-4 h-4 rounded-full bg-slate-600 hover:bg-slate-500 text-white text-[8px] flex items-center justify-center border border-slate-500 shrink-0 z-10 ml-1" title="Info">i</button>
         </div>`;
     }
 
@@ -2626,10 +2651,11 @@ function renderShop() {
         else if (item.icon) iconHtml = `<span class="material-symbols-outlined ${item.iconColor || 'text-white'}">${item.icon}</span>`;
 
         html += `
-        <div class="bg-slate-800 p-2 rounded border ${owned?'border-green-600 opacity-50':'border-slate-700 hover:border-blue-500 cursor-pointer'} flex items-center gap-2" ${!owned?`onclick="buyItem('${id}')"`:''} title="${item.desc}">
+        <div class="bg-slate-800 p-2 rounded border ${owned?'border-green-600 opacity-50':'border-slate-700 hover:border-blue-500 cursor-pointer'} flex items-center gap-2 relative group" ${!owned?`onclick="buyItem('${id}')"`:''} title="${item.desc}">
             ${iconHtml}
             <div class="flex-1 text-xs">${item.name}</div>
             ${owned ? `<div class="text-xs text-green-400 font-bold">ACQUIS</div>` : `<div class="text-yellow-400 text-xs">${getPrice(item.price).toLocaleString('de-DE')}$</div>`}
+            <button onclick="showItemInfo('${id}', event)" class="w-4 h-4 rounded-full bg-slate-600 hover:bg-slate-500 text-white text-[8px] flex items-center justify-center border border-slate-500 shrink-0 z-10 ml-1" title="Info">i</button>
         </div>`;
     }
 
