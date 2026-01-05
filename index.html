@@ -304,6 +304,23 @@
     </div>
 </div>
 
+<div class="fixed inset-0 z-[100] bg-black/95 flex flex-col items-center justify-center p-4 hidden" id="victory-modal">
+    <div id="confetti-container" class="absolute inset-0 overflow-hidden pointer-events-none"></div>
+    <div class="relative z-10 text-center flex flex-col items-center animate-bounce">
+        <img src="img/Bravo.png" class="w-64 h-64 md:w-80 md:h-80 object-contain mb-6 drop-shadow-[0_0_30px_rgba(255,215,0,0.6)]">
+        <h1 class="text-2xl md:text-4xl text-yellow-400 mb-6 pixel-font drop-shadow-lg tracking-widest leading-relaxed">FÉLICITATIONS !</h1>
+        <div class="bg-slate-800/90 p-6 rounded-xl border-4 border-yellow-500 shadow-2xl backdrop-blur-sm max-w-2xl mb-8">
+            <p class="text-white text-xs md:text-base font-bold pixel-font leading-loose">
+                TU ES MAINTENANT LE<br>
+                <span class="text-yellow-400 text-lg md:text-2xl">MAÎTRE DE LA LIGUE DE KANTO !</span>
+            </p>
+        </div>
+        <button onclick="closeVictory()" class="bg-gradient-to-r from-yellow-600 to-yellow-400 hover:from-yellow-500 hover:to-yellow-300 text-black font-bold py-3 px-8 rounded-full text-sm md:text-base shadow-[0_0_20px_rgba(234,179,8,0.8)] transition-all transform hover:scale-110 pixel-font border-2 border-white">
+            CONTINUER
+        </button>
+    </div>
+</div>
+
 <div class="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 hidden" id="item-info-modal" onclick="this.classList.add('hidden')">
     <div class="bg-slate-800 border-2 border-slate-500 p-4 rounded-xl shadow-2xl max-w-[280px] w-full text-center relative" onclick="event.stopPropagation()">
         <button onclick="document.getElementById('item-info-modal').classList.add('hidden')" class="absolute top-2 right-2 text-gray-400 hover:text-white material-symbols-outlined text-sm">close</button>
@@ -1164,6 +1181,8 @@ let autoSaveInterval = null;
 let autoClickerInterval = null;
 let evolvingPokemon = { uid: null, endTime: 0, oldId: null, newId: null };
 let evolutionInterval = null;
+let victoryInterval = null;
+let fireworkInterval = null;
 
 // --- INIT ---
 function init() {
@@ -1480,8 +1499,8 @@ function killEnemy() {
     
     // XP Logic
     const baseHp = BASE_HP[enemy.id] || 40;
-    // MODIFICATION : Équilibrage (* 1.2)
-    let xpGain = Math.floor((baseHp * enemy.level) * 1.2);
+    // MODIFICATION : Équilibrage (* 1.6)
+    let xpGain = Math.floor((baseHp * enemy.level) * 1.6);
     
     // Bonus Boss (x5) pour motiver à finir la zone
     if (enemy.isBoss) xpGain *= 5;
@@ -1518,6 +1537,11 @@ function killEnemy() {
             state.subStage = 1; 
         } else {
              state.subStage = 1;
+        }
+
+        // VICTOIRE LIGUE (Zone 21 = Index 20)
+        if(state.zoneIdx === 20) {
+            showVictory();
         }
     } else {
         if(state.subStage < 10) state.subStage++;
@@ -1893,6 +1917,70 @@ function showItemInfo(id, e) {
     document.getElementById('info-icon-container').innerHTML = iconHtml;
     
     document.getElementById('item-info-modal').classList.remove('hidden');
+}
+
+function showVictory() {
+    document.getElementById('victory-modal').classList.remove('hidden');
+    startVictoryAnimation();
+    playTone('pc'); // Son de victoire (réutilisation du son PC pour l'instant)
+}
+
+function closeVictory() {
+    document.getElementById('victory-modal').classList.add('hidden');
+    stopVictoryAnimation();
+}
+
+function startVictoryAnimation() {
+    const container = document.getElementById('confetti-container');
+    container.innerHTML = '';
+    
+    // Confetti
+    victoryInterval = setInterval(() => {
+        const c = document.createElement('div');
+        c.className = 'absolute w-2 h-2 rounded-sm';
+        c.style.left = Math.random() * 100 + 'vw';
+        c.style.top = '-10px';
+        c.style.backgroundColor = `hsl(${Math.random()*360}, 100%, 50%)`;
+        c.style.transform = `rotate(${Math.random()*360}deg)`;
+        c.style.transition = `top ${Math.random()*2+2}s linear, transform ${Math.random()*2+2}s linear`;
+        container.appendChild(c);
+        
+        requestAnimationFrame(() => {
+            c.style.top = '110vh';
+            c.style.transform = `rotate(${Math.random()*720}deg)`;
+        });
+        
+        setTimeout(() => c.remove(), 4000);
+    }, 50);
+
+    // Fireworks (Cercles qui s'agrandissent)
+    fireworkInterval = setInterval(() => {
+        const f = document.createElement('div');
+        f.className = 'absolute rounded-full border-2 opacity-0';
+        f.style.width = '10px';
+        f.style.height = '10px';
+        f.style.left = Math.random() * 80 + 10 + 'vw';
+        f.style.top = Math.random() * 60 + 10 + 'vh';
+        const color = `hsl(${Math.random()*360}, 100%, 50%)`;
+        f.style.borderColor = color;
+        f.style.boxShadow = `0 0 20px ${color}, inset 0 0 20px ${color}`;
+        f.style.transition = 'all 1s ease-out';
+        container.appendChild(f);
+        
+        requestAnimationFrame(() => {
+            f.style.transform = `scale(${Math.random()*15+10})`;
+            f.style.opacity = '0';
+            f.style.borderWidth = '0px';
+        });
+        
+        setTimeout(() => f.remove(), 1000);
+    }, 400);
+}
+
+function stopVictoryAnimation() {
+    if(victoryInterval) clearInterval(victoryInterval);
+    if(fireworkInterval) clearInterval(fireworkInterval);
+    document.getElementById('confetti-container').innerHTML = '';
 }
 
 function getPrice(base) {
