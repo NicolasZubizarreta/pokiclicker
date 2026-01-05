@@ -304,6 +304,22 @@
     </div>
 </div>
 
+<div class="fixed inset-0 z-50 bg-slate-900/95 flex flex-col items-center justify-center p-4 hidden" id="radar-modal">
+    <div class="bg-slate-800 border-4 border-slate-600 rounded-xl w-full max-w-2xl flex flex-col shadow-2xl relative p-6 max-h-[80vh]">
+        <button onclick="toggleRadarModal()" class="absolute top-4 right-4 text-red-500 hover:text-white material-symbols-outlined text-3xl z-10">close</button>
+        <div class="flex items-center justify-center gap-2 mb-1">
+            <span class="material-symbols-outlined text-green-400">radar</span>
+            <h2 class="text-center text-yellow-400 pixel-font text-xl">POKÉ-RADAR</h2>
+        </div>
+        <p class="text-center text-xs text-gray-400 mb-6" id="radar-zone-name">Zone Actuelle</p>
+        <div class="flex-1 overflow-y-auto custom-scroll p-1">
+            <div class="grid grid-cols-3 md:grid-cols-5 gap-4" id="radar-grid">
+                <!-- Pokémon will be rendered here -->
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="fixed inset-0 z-[100] bg-black/95 flex flex-col items-center justify-center p-4 hidden" id="victory-modal">
     <div id="confetti-container" class="absolute inset-0 overflow-hidden pointer-events-none"></div>
     <div class="relative z-10 text-center flex flex-col items-center animate-bounce">
@@ -444,6 +460,11 @@
                     <span class="material-symbols-outlined text-[14px]">delete</span> RESET
                 </button>
             </div>
+
+            <button id="radar-btn" onclick="toggleRadarModal()" title="Poké-Radar" class="absolute bottom-4 right-4 w-12 h-12 bg-slate-800 rounded-full border-2 border-slate-600 flex items-center justify-center shadow-lg transition-all group disabled:opacity-50 disabled:cursor-not-allowed z-20" disabled>
+                <span id="radar-icon-lock" class="material-symbols-outlined text-slate-500 text-2xl">lock</span>
+                <span id="radar-icon-active" class="material-symbols-outlined text-green-400 text-2xl hidden group-hover:scale-125 transition-transform">radar</span>
+            </button>
         </div>
     </div>
 
@@ -563,12 +584,13 @@ const ITEMS = {
     pokeDoll: { name: "Poké Poupée", price: 7500, desc: "Invoque le Boss (Si déjà vaincu)", type: "consumable", zone: 15, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-doll.png", invKey: "pokeDoll" },
     // Améliorations
     runningShoes: { name: "Chaussures Sport", price: 1000, desc: "Divise le temps d'apparition des ennemis par 1.5", type: "upgrade", zone: 1, icon: "sprint", iconColor: "text-orange-400" },
-    amuletCoin: { name: "Pièce Rune", price: 3000, desc: "Augmente les gains d'argent de +50%", type: "upgrade", zone: 2, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/amulet-coin.png" },
+    amuletCoin: { name: "Pièce Rune", price: 3000, desc: "Gains d'argent +30%", type: "upgrade", zone: 2, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/amulet-coin.png" },
     protein: { name: "Protéine", price: 5000, desc: "Augmente les dégâts du clic de +50%", type: "upgrade", zone: 3, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/protein.png" },
-    expShare: { name: "Multi Exp", price: 8000, desc: "Augmente les dégâts de l'équipe de +50%", type: "upgrade", zone: 4, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-share.png" },
+    expShare: { name: "Multi Exp", price: 8000, desc: "XP gagnée +50%", type: "upgrade", zone: 4, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-share.png" },
     hardStone: { name: "Pierre Dure", price: 10000, desc: "Augmente les dégâts du clic de +30%", type: "upgrade", zone: 6, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/hard-stone.png" },
     bicycle: { name: "Bicyclette", price: 20000, desc: "Vitesse de spawn x3 (Remplace Chaussures)", type: "upgrade", zone: 7, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/bicycle.png" },
     luckyEgg: { name: "Oeuf Chance", price: 50000, desc: "XP gagnée x1.5", type: "upgrade", zone: 10, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lucky-egg.png" },
+    pokeradar: { name: "Poké-Radar", price: 35000, desc: "Affiche les Pokémon trouvables dans la zone actuelle.", type: "upgrade", zone: 8, icon: "radar", iconColor: "text-green-400" },
     leftovers: { name: "Restes", price: 125000, desc: "Auto-click 6 clics/sec", type: "upgrade", zone: 12, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/leftovers.png" }
 };
 const EVOLUTIONS = {
@@ -851,11 +873,11 @@ const TYPE_COLORS = {
 const MILESTONES = [
     {count:10, title:"Débutant", desc:"Dégâts Clic x2"},
     {count:20, title:"Amateur", desc:"+2,500 $P"},
-    {count:30, title:"Collectionneur", desc:"DPS Équipe x2"},
+    {count:30, title:"Collectionneur", desc:"DPS Équipe +50%"},
     {count:40, title:"Dresseur", desc:"Omni XP (XP x1.5)"},
     {count:50, title:"Expert", desc:"Spawn +20%"},
     {count:70, title:"Champion", desc:"Shop -15%"},
-    {count:90, title:"Maître", desc:"Dégâts Totaux x3"},
+    {count:90, title:"Maître", desc:"Dégâts Totaux +100%"},
     {count:110, title:"Légende", desc:"Jeton Brillant"},
     {count:130, title:"Mythique", desc:"Master Ball + 10 Bonbons"},
     {count:151, title:"Kanto Master", desc:"Shiny Chance x2"}
@@ -870,13 +892,13 @@ const ID_MAP_FALLBACK = {
 };
 
 const BADGES = [
-    {id:1, zoneIdx:2, name:"Roche", desc:"Dégâts Clic x1.5"},
-    {id:2, zoneIdx:4, name:"Cascade", desc:"DPS Équipe x1.5"},
+    {id:1, zoneIdx:2, name:"Roche", desc:"Dégâts Clic +50%"},
+    {id:2, zoneIdx:4, name:"Cascade", desc:"DPS Équipe +30%"},
     {id:3, zoneIdx:6, name:"Foudre", desc:"Dégâts Totaux +20%"},
-    {id:4, zoneIdx:10, name:"Prisme", desc:"Or gagné x1.5"},
-    {id:5, zoneIdx:12, name:"Âme", desc:"XP gagnée x1.5"},
-    {id:6, zoneIdx:14, name:"Marais", desc:"Taux Capture +20%"},
-    {id:7, zoneIdx:16, name:"Volcan", desc:"Dégâts Totaux x2"},
+    {id:4, zoneIdx:10, name:"Prisme", desc:"Or gagné +20%"},
+    {id:5, zoneIdx:12, name:"Âme", desc:"XP gagnée +50%"},
+    {id:6, zoneIdx:14, name:"Marais", desc:"Taux Capture +30%"},
+    {id:7, zoneIdx:16, name:"Volcan", desc:"Dégâts Totaux +50%"},
     {id:8, zoneIdx:17, name:"Terre", desc:"Vitesse de spawn +20%"}
 ];
 
@@ -1032,13 +1054,17 @@ const ZONES = [
   // BADGE 5 : ÂME (Mix Parmanie + Safari pour tout avoir)
   {id:13, name:"Arène de Parmanie", bg:"img/background/Zone 13.png", minLevel:35, maxLevel:40,
    pokemons:[
-     {name:"Nidorino", id:33, rarity:"Commun", spawnRate:0.15, catchRate:120},
-     {name:"Nidorina", id:30, rarity:"Commun", spawnRate:0.15, catchRate:120},
-     {name:"Doduo", id:84, rarity:"Peu Commun", spawnRate:0.15, catchRate:190}, // NOUVEAU
-     {name:"Tentacool", id:72, rarity:"Peu Commun", spawnRate:0.15, catchRate:190}, // NOUVEAU (Surf)
-     {name:"Kangourex", id:115, rarity:"Rare", spawnRate:0.1, catchRate:45},
-     {name:"Insécateur", id:123, rarity:"Rare", spawnRate:0.1, catchRate:45},
-     {name:"Tauros", id:128, rarity:"Rare", spawnRate:0.1, catchRate:45},
+     {name:"Nidorino", id:33, rarity:"Commun", spawnRate:0.12, catchRate:120},
+     {name:"Nidorina", id:30, rarity:"Commun", spawnRate:0.12, catchRate:120},
+     {name:"Doduo", id:84, rarity:"Peu Commun", spawnRate:0.12, catchRate:190},
+     {name:"Tentacool", id:72, rarity:"Peu Commun", spawnRate:0.12, catchRate:190},
+     // Les Rares du Safari
+     {name:"Kangourex", id:115, rarity:"Rare", spawnRate:0.08, catchRate:45},
+     {name:"Insécateur", id:123, rarity:"Rare", spawnRate:0.08, catchRate:45},
+     {name:"Scarabrute", id:127, rarity:"Rare", spawnRate:0.08, catchRate:45},
+     {name:"Tauros", id:128, rarity:"Rare", spawnRate:0.08, catchRate:45},
+     {name:"Saquedeneu", id:114, rarity:"Rare", spawnRate:0.1, catchRate:45},
+     // Le Très Rare
      {name:"Minidraco", id:147, rarity:"Très Rare", spawnRate:0.1, catchRate:45}
    ], boss:{name:"Koga (Smogogo)", id:110, level:45, catchRate:0, badge:"Âme"}},
 
@@ -1066,11 +1092,17 @@ const ZONES = [
   // ZONE LÉGENDAIRE 2
   {id:16, name:"Îles Écume", bg:"img/background/Zone 16.png", minLevel:43, maxLevel:48,
    pokemons:[
-     {name:"Otaria", id:86, rarity:"Commun", spawnRate:0.25, catchRate:190},
-     {name:"Kokiyas", id:90, rarity:"Commun", spawnRate:0.25, catchRate:190},
-     {name:"Krabby", id:98, rarity:"Peu Commun", spawnRate:0.2, catchRate:225},
-     {name:"Tentacruel", id:73, rarity:"Rare", spawnRate:0.15, catchRate:60}, // NOUVEAU (Shield Rare)
-     {name:"Lamantine", id:87, rarity:"Très Rare", spawnRate:0.1, catchRate:75}, // NOUVEAU (Shield Très Rare)
+     // Les Communs 
+     {name:"Otaria", id:86, rarity:"Commun", spawnRate:0.2, catchRate:190},
+     {name:"Kokiyas", id:90, rarity:"Commun", spawnRate:0.2, catchRate:190},
+     
+     // Les Peu Communs
+     {name:"Krabby", id:98, rarity:"Peu Commun", spawnRate:0.15, catchRate:225},
+     {name:"Hypotrempe", id:116, rarity:"Peu Commun", spawnRate:0.15, catchRate:190},
+     {name:"Tentacruel", id:73, rarity:"Rare", spawnRate:0.15, catchRate:60},
+     {name:"Lamantine", id:87, rarity:"Très Rare", spawnRate:0.1, catchRate:75},
+     
+     // Le Boss Légendaire
      {name:"Artikodin", id:144, rarity:"Légendaire", spawnRate:0.05, catchRate:3}
    ], boss:{name:"Artikodin", id:144, level:50, catchRate:0}},
 
@@ -1145,7 +1177,7 @@ const ZONES = [
 let state = {
     money: 0, 
     inv: { balls: 5, superballs: 0, hyperballs: 0, candy: 0, omniXp: 0, shinyToken: 0, masterball: 0, repel: 0, xAttack: 0, xSpecial: 0, superRepel: 0, pokeDoll: 0 },
-    upgrades: { runningShoes: false, amuletCoin: false, protein: false, expShare: false, hardStone: false, bicycle: false, luckyEgg: false, leftovers: false },
+    upgrades: { runningShoes: false, amuletCoin: false, protein: false, expShare: false, hardStone: false, bicycle: false, luckyEgg: false, leftovers: false, pokeradar: false },
     team: [], 
     pc: [],
     pokedex: [],
@@ -1274,7 +1306,7 @@ function calculateGoldReward(enemy) {
     else if (enemy.rarity === "Légendaire") baseReward *= 20;
 
     // Bonus Item (Pièce Rune)
-    if (state.upgrades.amuletCoin) baseReward *= 1.5;
+    if (state.upgrades.amuletCoin) baseReward *= 1.3;
 
     return Math.floor(baseReward);
 }
@@ -1310,12 +1342,11 @@ function getDPS(targetId) {
         return s + (rawDmg * m * shinyBonus);
     }, 0); 
     
-    if(hasMilestone(30)) dps *= 2;
-    if(hasMilestone(90)) dps *= 3;
-    if(state.upgrades.expShare) dps *= 1.5;
-    if(hasBadge("Cascade")) dps *= 1.5;
+    if(hasMilestone(30)) dps *= 1.5;
+    if(hasMilestone(90)) dps *= 2;
+    if(hasBadge("Cascade")) dps *= 1.3;
     if(hasBadge("Foudre")) dps *= 1.2;
-    if(hasBadge("Volcan")) dps *= 2;
+    if(hasBadge("Volcan")) dps *= 1.5;
     if(Date.now() < state.dpsBoostEndTime) dps *= 2;
     return dps;
 }
@@ -1323,12 +1354,12 @@ function getDPS(targetId) {
 function getClick() { 
     let dmg = 5 + Math.floor(getDPS(enemy.id)*0.002);
     if(hasMilestone(10)) dmg *= 2;
-    if(hasMilestone(90)) dmg *= 3;
+    if(hasMilestone(90)) dmg *= 2;
     if(state.upgrades.protein) dmg = Math.floor(dmg * 1.5);
     if(state.upgrades.hardStone) dmg = Math.floor(dmg * 1.3);
     if(hasBadge("Roche")) dmg = Math.floor(dmg * 1.5);
     if(hasBadge("Foudre")) dmg = Math.floor(dmg * 1.2);
-    if(hasBadge("Volcan")) dmg *= 2;
+    if(hasBadge("Volcan")) dmg *= 1.5;
     if(Date.now() < state.attackBoostEndTime) dmg *= 2;
     return state.cheat ? 999999 : dmg; 
 }
@@ -1486,7 +1517,7 @@ function killEnemy() {
     
     let gold = calculateGoldReward(enemy);
 
-    if(hasBadge("Prisme")) gold = Math.floor(gold * 1.5);
+    if(hasBadge("Prisme")) gold = Math.floor(gold * 1.2);
     if(enemy.isShiny) {
         gold *= 5;
         state.inv.candy += 5;
@@ -1600,7 +1631,7 @@ function attemptCatch(type) {
     // 4. Calcul Final
     let chance = (baseChance * hpFactor * ballMult) / levelPenalty;
 
-    if(hasBadge("Marais")) chance *= 1.2;
+    if(hasBadge("Marais")) chance *= 1.3;
 
     // 5. Vérification Masterball
     if (ballMult >= 255) chance = 1;
@@ -1631,7 +1662,7 @@ function attemptCatch(type) {
             }
             
             let gold = calculateGoldReward(enemy);
-            if(hasBadge("Prisme")) gold = Math.floor(gold * 1.5);
+            if(hasBadge("Prisme")) gold = Math.floor(gold * 1.2);
             if(enemy.isShiny) gold *= 5;
             state.money += gold * 2;
 
@@ -1677,7 +1708,7 @@ function getCatchChance(ballType) {
     let levelPenalty = 1 + (enemy.level / 25);
     let chance = (baseChance * hpFactor * ballMult) / levelPenalty;
 
-    if(hasBadge("Marais")) chance *= 1.2;
+    if(hasBadge("Marais")) chance *= 1.3;
     if (ballMult >= 255) chance = 1;
     return Math.min(chance, 1) * 100;
 }
@@ -2068,7 +2099,7 @@ function loadData(data) {
     if(!state.attackBoostEndTime) state.attackBoostEndTime = 0;
     if(!state.dpsBoostEndTime) state.dpsBoostEndTime = 0;
     if(!state.superRepelEndTime) state.superRepelEndTime = 0;
-    if(!state.upgrades) state.upgrades = { runningShoes: false, amuletCoin: false, protein: false, expShare: false };
+    if(!state.upgrades) state.upgrades = { runningShoes: false, amuletCoin: false, protein: false, expShare: false, pokeradar: false };
     if(!state.repelEndTime) state.repelEndTime = 0;
     if(state.stopOnRare === undefined) state.stopOnRare = true;
     if(state.autoStopSettings === undefined) {
@@ -2088,7 +2119,7 @@ function loadData(data) {
     state.pc.forEach(initP);
     
     initAudio();
-    updateUI(); renderTeam(); renderBag(); renderShop(); renderPC(); updateZone(); updateBg();
+    updateUI(); renderTeam(); renderBag(); renderShop(); renderPC(); updateZone(); updateBg(); updateRadarButton();
     spawnEnemy(); startAutoClicker();
     startAutoSave();
 }
@@ -2169,6 +2200,53 @@ function toggleMap() {
     } else {
         m.classList.add('hidden');
     }
+}
+
+function updateRadarButton() {
+    const btn = document.getElementById('radar-btn');
+    const lockIcon = document.getElementById('radar-icon-lock');
+    const activeIcon = document.getElementById('radar-icon-active');
+    if(!btn) return;
+
+    if (state.upgrades.pokeradar) {
+        btn.disabled = false;
+        btn.classList.remove('disabled:opacity-50', 'disabled:cursor-not-allowed');
+        lockIcon.classList.add('hidden');
+        activeIcon.classList.remove('hidden');
+    } else {
+        btn.disabled = true;
+        btn.classList.add('disabled:opacity-50', 'disabled:cursor-not-allowed');
+        lockIcon.classList.remove('hidden');
+        activeIcon.classList.add('hidden');
+    }
+}
+
+function toggleRadarModal() {
+    if (!state.upgrades.pokeradar) return;
+    const modal = document.getElementById('radar-modal');
+    if (modal.classList.contains('hidden')) {
+        renderRadar();
+        modal.classList.remove('hidden');
+    } else {
+        modal.classList.add('hidden');
+    }
+}
+
+function renderRadar() {
+    const zone = ZONES[state.zoneIdx];
+    const grid = document.getElementById('radar-grid');
+    document.getElementById('radar-zone-name').innerText = zone.name;
+    grid.innerHTML = '';
+
+    const rarityColors = { "Commun": "bg-slate-500 text-white", "Peu Commun": "bg-green-600 text-white", "Rare": "bg-blue-600 text-white", "Très Rare": "bg-purple-600 text-white", "Légendaire": "bg-yellow-500 text-black", "Boss": "bg-red-600 text-white", "Conseil 4": "bg-indigo-600 text-white", "Maître": "bg-black text-yellow-300" };
+
+    zone.pokemons.forEach(p => {
+        const caught = state.pokedex.includes(p.id);
+        const imgSrc = getSprite(p.id, false);
+        const imgClass = caught ? '' : 'grayscale brightness-0';
+        const colorClasses = rarityColors[p.rarity] || "bg-gray-500 text-white";
+        grid.innerHTML += `<div class="aspect-square bg-slate-900/50 rounded-lg flex flex-col items-center justify-center p-2 relative border border-slate-700"><img src="${imgSrc}" class="w-20 h-20 object-contain ${imgClass}" title="${p.name}"><div class="absolute bottom-1 right-1 text-[9px] font-bold px-1.5 py-0.5 rounded shadow-md ${colorClasses}">${p.rarity}</div></div>`;
+    });
 }
 
 function flyToZone(zoneId) {
@@ -2404,6 +2482,7 @@ function updateUI() {
     if(document.getElementById('shop-stock-masterball')) document.getElementById('shop-stock-masterball').innerText = state.inv.masterball;
     if(document.getElementById('shop-stock-repel')) document.getElementById('shop-stock-repel').innerText = state.inv.repel;
     updateAutoBtn();
+    updateRadarButton();
     updateAutoStopBtn();
 }
 
@@ -2956,12 +3035,11 @@ function renderStats() {
     let currentDps = getDPS(null);
     
     let dpsMults = [];
-    if(hasMilestone(30)) dpsMults.push("Collectionneur (x2)");
-    if(hasMilestone(90)) dpsMults.push("Maître (x3)");
-    if(state.upgrades.expShare) dpsMults.push("Multi Exp (x1.5)");
-    if(hasBadge("Cascade")) dpsMults.push("Badge Cascade (x1.5)");
+    if(hasMilestone(30)) dpsMults.push("Collectionneur (+50%)");
+    if(hasMilestone(90)) dpsMults.push("Maître (+100%)");
+    if(hasBadge("Cascade")) dpsMults.push("Badge Cascade (+30%)");
     if(hasBadge("Foudre")) dpsMults.push("Badge Foudre (x1.2)");
-    if(hasBadge("Volcan")) dpsMults.push("Badge Volcan (x2)");
+    if(hasBadge("Volcan")) dpsMults.push("Badge Volcan (+50%)");
     if(Date.now() < state.dpsBoostEndTime) dpsMults.push("Attaque Spé + (x2)");
 
     // Base Click est calculé sur le DPS TOTAL (currentDps), pas le DPS de base
@@ -2970,38 +3048,38 @@ function renderStats() {
     // Recalcul pour affichage neutre (sans dépendre de l'ennemi actuel)
     let currentClick = baseClick;
     if(hasMilestone(10)) currentClick *= 2;
-    if(hasMilestone(90)) currentClick *= 3;
+    if(hasMilestone(90)) currentClick *= 2;
     if(state.upgrades.protein) currentClick = Math.floor(currentClick * 1.5);
     if(state.upgrades.hardStone) currentClick = Math.floor(currentClick * 1.3);
     if(hasBadge("Roche")) currentClick = Math.floor(currentClick * 1.5);
     if(hasBadge("Foudre")) currentClick = Math.floor(currentClick * 1.2);
-    if(hasBadge("Volcan")) currentClick *= 2;
+    if(hasBadge("Volcan")) currentClick *= 1.5;
     if(Date.now() < state.attackBoostEndTime) currentClick *= 2;
 
     let clickMults = [];
     if(hasMilestone(10)) clickMults.push("Débutant (x2)");
-    if(hasMilestone(90)) clickMults.push("Maître (x3)");
+    if(hasMilestone(90)) clickMults.push("Maître (+100%)");
     if(state.upgrades.protein) clickMults.push("Protéine (x1.5)");
     if(state.upgrades.hardStone) clickMults.push("Pierre Dure (x1.3)");
-    if(hasBadge("Roche")) clickMults.push("Badge Roche (x1.5)");
+    if(hasBadge("Roche")) clickMults.push("Badge Roche (+50%)");
     if(hasBadge("Foudre")) clickMults.push("Badge Foudre (x1.2)");
-    if(hasBadge("Volcan")) clickMults.push("Badge Volcan (x2)");
+    if(hasBadge("Volcan")) clickMults.push("Badge Volcan (+50%)");
     if(Date.now() < state.attackBoostEndTime) clickMults.push("Attaque + (x2)");
 
     let moneyMults = [];
-    if(state.upgrades.amuletCoin) moneyMults.push("Pièce Rune (x1.5)");
-    if(hasBadge("Prisme")) moneyMults.push("Badge Prisme (x1.5)");
-    let moneyTotalMult = (state.upgrades.amuletCoin?1.5:1) * (hasBadge("Prisme")?1.5:1);
+    if(state.upgrades.amuletCoin) moneyMults.push("Pièce Rune (+30%)");
+    if(hasBadge("Prisme")) moneyMults.push("Badge Prisme (+20%)");
+    let moneyTotalMult = (state.upgrades.amuletCoin?1.3:1) * (hasBadge("Prisme")?1.2:1);
 
     let xpMults = [];
-    if(state.upgrades.expShare) xpMults.push("Multi Exp (x1.5)");
+    if(state.upgrades.expShare) xpMults.push("Multi Exp (+50%)");
     if(state.upgrades.luckyEgg) xpMults.push("Oeuf Chance (x1.5)");
     if(state.inv.omniXp > 0) xpMults.push("Omni XP (x1.5)");
-    if(hasBadge("Âme")) xpMults.push("Badge Âme (x1.5)");
+    if(hasBadge("Âme")) xpMults.push("Badge Âme (+50%)");
     let xpTotalMult = (state.upgrades.expShare?1.5:1) * (state.upgrades.luckyEgg?1.5:1) * (state.inv.omniXp>0?1.5:1) * (hasBadge("Âme")?1.5:1);
 
     let catchMults = [];
-    if(hasBadge("Marais")) catchMults.push("Badge Marais (x1.2)");
+    if(hasBadge("Marais")) catchMults.push("Badge Marais (+30%)");
 
     const statBlock = (title, base, mults, total, icon, color, baseLabel="Base") => `
         <div class="bg-slate-800 rounded p-3 border border-slate-700">
