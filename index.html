@@ -886,11 +886,12 @@ const ZONES = [
   // --- DÉBUT DE L'AVENTURE ---
   {id:1, name:"Route 1", bg:"img/background/Zone 1.png", minLevel:2, maxLevel:5,
    pokemons:[
-     {name:"Rattata", id:19, rarity:"Commun", spawnRate:0.4, catchRate:255},
-     {name:"Roucool", id:16, rarity:"Commun", spawnRate:0.4, catchRate:255},
+     {name:"Rattata", id:19, rarity:"Commun", spawnRate:0.3, catchRate:255},
+     {name:"Roucool", id:16, rarity:"Commun", spawnRate:0.3, catchRate:255},
+     {name:"Piafabec", id:21, rarity:"Commun", spawnRate:0.2, catchRate:255}, // NOUVEAU
      {name:"Rattatac", id:20, rarity:"Peu Commun", spawnRate:0.1, catchRate:127},
      {name:"Roucoups", id:17, rarity:"Peu Commun", spawnRate:0.05, catchRate:120},
-     {name:"Bulbizarre", id:1, rarity:"Très Rare", spawnRate:0.05, catchRate:45} // STARTER 1
+     {name:"Bulbizarre", id:1, rarity:"Très Rare", spawnRate:0.05, catchRate:45}
    ], boss:{name:"Rattata (Géant)", id:19, level:6, catchRate:0}},
   
   {id:2, name:"Forêt de Jade", bg:"img/background/Zone 2.png", minLevel:5, maxLevel:8,
@@ -900,7 +901,7 @@ const ZONES = [
      {name:"Chrysacier", id:11, rarity:"Peu Commun", spawnRate:0.15, catchRate:120},
      {name:"Coconfort", id:14, rarity:"Peu Commun", spawnRate:0.15, catchRate:120},
      {name:"Pikachu", id:25, rarity:"Rare", spawnRate:0.15, catchRate:190},
-     {name:"Salamèche", id:4, rarity:"Très Rare", spawnRate:0.05, catchRate:45} // STARTER 2
+     {name:"Salamèche", id:4, rarity:"Très Rare", spawnRate:0.05, catchRate:45}
    ], boss:{name:"Papilusion", id:12, level:10, catchRate:0}},
 
   // BADGE 1 : ROCHE
@@ -911,16 +912,17 @@ const ZONES = [
      {name:"Nidoran♀", id:29, rarity:"Peu Commun", spawnRate:0.15, catchRate:235},
      {name:"Nidoran♂", id:32, rarity:"Peu Commun", spawnRate:0.15, catchRate:235},
      {name:"Onix", id:95, rarity:"Rare", spawnRate:0.1, catchRate:45},
-     {name:"Carapuce", id:7, rarity:"Très Rare", spawnRate:0.05, catchRate:45} // STARTER 3
+     {name:"Carapuce", id:7, rarity:"Très Rare", spawnRate:0.05, catchRate:45}
    ], boss:{name:"Pierre (Onix)", id:95, level:14, catchRate:0, badge:"Roche"}},
 
   {id:4, name:"Mont Sélénite", bg:"img/background/Zone 4.png", minLevel:12, maxLevel:15,
    pokemons:[
      {name:"Nosferapti", id:41, rarity:"Commun", spawnRate:0.4, catchRate:255},
-     {name:"Paras", id:46, rarity:"Commun", spawnRate:0.25, catchRate:190},
-     {name:"Mélofée", id:35, rarity:"Rare", spawnRate:0.15, catchRate:150},
-     {name:"Rondoudou", id:39, rarity:"Rare", spawnRate:0.15, catchRate:170},
-     {name:"Leveinard", id:113, rarity:"Très Rare", spawnRate:0.05, catchRate:30} // LE TANK
+     {name:"Paras", id:46, rarity:"Commun", spawnRate:0.2, catchRate:190},
+     {name:"Magicarpe", id:129, rarity:"Commun", spawnRate:0.2, catchRate:255}, // NOUVEAU (Le fameux vendeur)
+     {name:"Mélofée", id:35, rarity:"Rare", spawnRate:0.1, catchRate:150},
+     {name:"Rondoudou", id:39, rarity:"Rare", spawnRate:0.05, catchRate:170},
+     {name:"Leveinard", id:113, rarity:"Très Rare", spawnRate:0.05, catchRate:30}
    ], boss:{name:"Mélodelfe", id:36, level:16, catchRate:0}},
 
   // BADGE 2 : CASCADE
@@ -928,19 +930,21 @@ const ZONES = [
    pokemons:[
      {name:"Mystherbe", id:43, rarity:"Commun", spawnRate:0.25, catchRate:255},
      {name:"Chétiflor", id:69, rarity:"Commun", spawnRate:0.25, catchRate:255},
-     {name:"Stari", id:120, rarity:"Peu Commun", spawnRate:0.2, catchRate:225},
-     {name:"Poissirène", id:118, rarity:"Peu Commun", spawnRate:0.2, catchRate:225},
-     {name:"Psykokwak", id:54, rarity:"Rare", spawnRate:0.1, catchRate:190}
+     {name:"Ptitard", id:60, rarity:"Peu Commun", spawnRate:0.2, catchRate:255}, // NOUVEAU
+     {name:"Stari", id:120, rarity:"Peu Commun", spawnRate:0.15, catchRate:225},
+     {name:"Poissirène", id:118, rarity:"Peu Commun", spawnRate:0.1, catchRate:225},
+     {name:"Psykokwak", id:54, rarity:"Rare", spawnRate:0.05, catchRate:190}
    ], boss:{name:"Ondine (Staross)", id:121, level:21, catchRate:0, badge:"Cascade"}},
 
   // ZONE SPÉCIALE MEW
   {id:6, name:"Pont Pépite", bg:"img/background/Zone 6.png", minLevel:17, maxLevel:20,
    pokemons:[
      {name:"Abra", id:63, rarity:"Commun", spawnRate:0.3, catchRate:200},
-     {name:"Roucoups", id:17, rarity:"Commun", spawnRate:0.3, catchRate:120},
+     {name:"Roucoups", id:17, rarity:"Commun", spawnRate:0.2, catchRate:120},
      {name:"Mimitoss", id:48, rarity:"Peu Commun", spawnRate:0.2, catchRate:190},
-     {name:"Ramoloss", id:79, rarity:"Peu Commun", spawnRate:0.19, catchRate:190},
-     {name:"Mew", id:151, rarity:"Légendaire", spawnRate:0.01, catchRate:45} // GLITCH
+     {name:"Ramoloss", id:79, rarity:"Peu Commun", spawnRate:0.15, catchRate:190},
+     {name:"Rapasdepic", id:22, rarity:"Rare", spawnRate:0.14, catchRate:90}, // NOUVEAU (Le "Shield" anti-Mew)
+     {name:"Mew", id:151, rarity:"Légendaire", spawnRate:0.01, catchRate:45}
    ], boss:{name:"Rival (Roucarnage)", id:18, level:23, catchRate:0}},
 
   // BADGE 3 : FOUDRE
@@ -956,23 +960,24 @@ const ZONES = [
   {id:8, name:"Cave Taupiqueur", bg:"img/background/Zone 8.png", minLevel:23, maxLevel:27,
    pokemons:[
      {name:"Taupiqueur", id:50, rarity:"Commun", spawnRate:0.8, catchRate:255},
-     {name:"Triopikeur", id:51, rarity:"Très Rare", spawnRate:0.1, catchRate:50},
-     {name:"Osselait", id:104, rarity:"Rare", spawnRate:0.1, catchRate:190}
+     {name:"Osselait", id:104, rarity:"Rare", spawnRate:0.1, catchRate:190},
+     {name:"Triopikeur", id:51, rarity:"Très Rare", spawnRate:0.1, catchRate:50}
    ], boss:{name:"Triopikeur", id:51, level:29, catchRate:0}},
 
   {id:9, name:"Tunnel Rocheux", bg:"img/background/Zone 9.png", minLevel:25, maxLevel:30,
    pokemons:[
-     {name:"Machoc", id:66, rarity:"Commun", spawnRate:0.4, catchRate:180},
-     {name:"Férosinge", id:56, rarity:"Commun", spawnRate:0.4, catchRate:190},
-     {name:"Gravalanch", id:75, rarity:"Rare", spawnRate:0.15, catchRate:120},
-     {name:"Onix", id:95, rarity:"Très Rare", spawnRate:0.05, catchRate:45}
+     {name:"Machoc", id:66, rarity:"Commun", spawnRate:0.35, catchRate:180},
+     {name:"Férosinge", id:56, rarity:"Commun", spawnRate:0.35, catchRate:190},
+     {name:"Gravalanch", id:75, rarity:"Rare", spawnRate:0.2, catchRate:120},
+     {name:"Onix", id:95, rarity:"Très Rare", spawnRate:0.1, catchRate:45}
    ], boss:{name:"Grolem", id:76, level:33, catchRate:0}},
 
   {id:10, name:"Tour Pokémon", bg:"img/background/Zone 10.png", minLevel:28, maxLevel:33,
    pokemons:[
-     {name:"Fantominus", id:92, rarity:"Commun", spawnRate:0.6, catchRate:190},
+     {name:"Fantominus", id:92, rarity:"Commun", spawnRate:0.5, catchRate:190},
      {name:"Spectrum", id:93, rarity:"Peu Commun", spawnRate:0.25, catchRate:90},
-     {name:"Soporifik", id:96, rarity:"Rare", spawnRate:0.1, catchRate:190},
+     {name:"Têtarte", id:61, rarity:"Peu Commun", spawnRate:0.15, catchRate:120}, // NOUVEAU (Pour faire évoluer en Tartard)
+     {name:"Soporifik", id:96, rarity:"Rare", spawnRate:0.05, catchRate:190},
      {name:"Ossatueur", id:105, rarity:"Très Rare", spawnRate:0.05, catchRate:75}
    ], boss:{name:"Ectoplasma", id:94, level:36, catchRate:0}},
 
@@ -981,9 +986,10 @@ const ZONES = [
    pokemons:[
      {name:"Goupix", id:37, rarity:"Commun", spawnRate:0.25, catchRate:190},
      {name:"Caninos", id:58, rarity:"Commun", spawnRate:0.25, catchRate:190},
-     {name:"Ortide", id:44, rarity:"Peu Commun", spawnRate:0.2, catchRate:120},
-     {name:"Boustiflor", id:70, rarity:"Peu Commun", spawnRate:0.2, catchRate:120},
-     {name:"Évoli", id:133, rarity:"Rare", spawnRate:0.1, catchRate:45} // CADEAU
+     {name:"Noeunoeuf", id:102, rarity:"Peu Commun", spawnRate:0.2, catchRate:90}, // NOUVEAU
+     {name:"Ortide", id:44, rarity:"Peu Commun", spawnRate:0.1, catchRate:120},
+     {name:"Boustiflor", id:70, rarity:"Peu Commun", spawnRate:0.1, catchRate:120},
+     {name:"Évoli", id:133, rarity:"Rare", spawnRate:0.1, catchRate:45}
    ], boss:{name:"Erika (Empiflor)", id:71, level:39, catchRate:0, badge:"Prisme"}},
 
   // ZONE LÉGENDAIRE 1
@@ -991,32 +997,33 @@ const ZONES = [
    pokemons:[
      {name:"Voltorbe", id:100, rarity:"Commun", spawnRate:0.3, catchRate:190},
      {name:"Magnéti", id:81, rarity:"Commun", spawnRate:0.3, catchRate:190},
-     {name:"Élektek", id:125, rarity:"Rare", spawnRate:0.15, catchRate:45},
-     {name:"Électrode", id:101, rarity:"Peu Commun", spawnRate:0.2, catchRate:60},
-     {name:"Électhor", id:145, rarity:"Légendaire", spawnRate:0.05, catchRate:3} // OISEAU 1
+     {name:"Élektek", id:125, rarity:"Rare", spawnRate:0.2, catchRate:45}, // Sert de shield Rare
+     {name:"Électrode", id:101, rarity:"Peu Commun", spawnRate:0.15, catchRate:60},
+     {name:"Ronflex", id:143, rarity:"Très Rare", spawnRate:0.05, catchRate:25}, // NOUVEAU (Shield Très Rare)
+     {name:"Électhor", id:145, rarity:"Légendaire", spawnRate:0.02, catchRate:3}
    ], boss:{name:"Électhor", id:145, level:45, catchRate:0}},
 
   // BADGE 5 : ÂME (Mix Parmanie + Safari pour tout avoir)
   {id:13, name:"Arène de Parmanie", bg:"img/background/Zone 13.png", minLevel:35, maxLevel:40,
    pokemons:[
-     {name:"Nidorino", id:33, rarity:"Commun", spawnRate:0.2, catchRate:120},
-     {name:"Nidorina", id:30, rarity:"Commun", spawnRate:0.2, catchRate:120},
-     {name:"Rhinocorne", id:111, rarity:"Peu Commun", spawnRate:0.2, catchRate:120},
-     {name:"Kangourex", id:115, rarity:"Rare", spawnRate:0.05, catchRate:45},
-     {name:"Insécateur", id:123, rarity:"Rare", spawnRate:0.05, catchRate:45},
-     {name:"Scarhino", id:127, rarity:"Rare", spawnRate:0.05, catchRate:45}, // Scarabrute
-     {name:"Tauros", id:128, rarity:"Rare", spawnRate:0.05, catchRate:45},
-     {name:"Saquedeneu", id:114, rarity:"Rare", spawnRate:0.1, catchRate:45},
-     {name:"Minidraco", id:147, rarity:"Très Rare", spawnRate:0.05, catchRate:45} // SAFARI
+     {name:"Nidorino", id:33, rarity:"Commun", spawnRate:0.15, catchRate:120},
+     {name:"Nidorina", id:30, rarity:"Commun", spawnRate:0.15, catchRate:120},
+     {name:"Doduo", id:84, rarity:"Peu Commun", spawnRate:0.15, catchRate:190}, // NOUVEAU
+     {name:"Tentacool", id:72, rarity:"Peu Commun", spawnRate:0.15, catchRate:190}, // NOUVEAU (Surf)
+     {name:"Kangourex", id:115, rarity:"Rare", spawnRate:0.1, catchRate:45},
+     {name:"Insécateur", id:123, rarity:"Rare", spawnRate:0.1, catchRate:45},
+     {name:"Tauros", id:128, rarity:"Rare", spawnRate:0.1, catchRate:45},
+     {name:"Minidraco", id:147, rarity:"Très Rare", spawnRate:0.1, catchRate:45}
    ], boss:{name:"Koga (Smogogo)", id:110, level:45, catchRate:0, badge:"Âme"}},
 
   {id:14, name:"Sylphe SARL", bg:"img/background/Zone 14.png", minLevel:38, maxLevel:43,
    pokemons:[
      {name:"Abo", id:23, rarity:"Commun", spawnRate:0.2, catchRate:255},
      {name:"Smogo", id:109, rarity:"Commun", spawnRate:0.2, catchRate:190},
-     {name:"Tadmorv", id:88, rarity:"Peu Commun", spawnRate:0.15, catchRate:190},
-     {name:"Porygon", id:137, rarity:"Très Rare", spawnRate:0.05, catchRate:45}, // CASINO
-     {name:"Lokhlass", id:131, rarity:"Très Rare", spawnRate:0.05, catchRate:45} // CADEAU
+     {name:"Tadmorv", id:88, rarity:"Peu Commun", spawnRate:0.2, catchRate:190},
+     {name:"Porygon", id:137, rarity:"Rare", spawnRate:0.2, catchRate:45}, // Passé en Rare
+     {name:"Métamorph", id:132, rarity:"Très Rare", spawnRate:0.1, catchRate:35}, // NOUVEAU (Le clone raté)
+     {name:"Lokhlass", id:131, rarity:"Très Rare", spawnRate:0.1, catchRate:45}
    ], boss:{name:"Giovanni (Persian)", id:53, level:47, catchRate:0}},
 
   // BADGE 6 : MARAIS
@@ -1024,7 +1031,7 @@ const ZONES = [
    pokemons:[
      {name:"Abra", id:63, rarity:"Commun", spawnRate:0.3, catchRate:200},
      {name:"Kadabra", id:64, rarity:"Peu Commun", spawnRate:0.2, catchRate:100},
-     {name:"M. Mime", id:122, rarity:"Rare", spawnRate:0.1, catchRate:45},
+     {name:"M. Mime", id:122, rarity:"Rare", spawnRate:0.15, catchRate:45},
      {name:"Kicklee", id:106, rarity:"Rare", spawnRate:0.1, catchRate:45},
      {name:"Tygnon", id:107, rarity:"Rare", spawnRate:0.1, catchRate:45},
      {name:"Excelangue", id:108, rarity:"Rare", spawnRate:0.15, catchRate:45}
@@ -1036,9 +1043,9 @@ const ZONES = [
      {name:"Otaria", id:86, rarity:"Commun", spawnRate:0.25, catchRate:190},
      {name:"Kokiyas", id:90, rarity:"Commun", spawnRate:0.25, catchRate:190},
      {name:"Krabby", id:98, rarity:"Peu Commun", spawnRate:0.2, catchRate:225},
-     {name:"Hypotrempe", id:116, rarity:"Peu Commun", spawnRate:0.15, catchRate:190},
-     {name:"Lippoutou", id:124, rarity:"Très Rare", spawnRate:0.04, catchRate:45},
-     {name:"Artikodin", id:144, rarity:"Légendaire", spawnRate:0.05, catchRate:3} // OISEAU 2
+     {name:"Tentacruel", id:73, rarity:"Rare", spawnRate:0.15, catchRate:60}, // NOUVEAU (Shield Rare)
+     {name:"Lamantine", id:87, rarity:"Très Rare", spawnRate:0.1, catchRate:75}, // NOUVEAU (Shield Très Rare)
+     {name:"Artikodin", id:144, rarity:"Légendaire", spawnRate:0.05, catchRate:3}
    ], boss:{name:"Artikodin", id:144, level:50, catchRate:0}},
 
   // BADGE 7 : VOLCAN
@@ -1046,10 +1053,10 @@ const ZONES = [
    pokemons:[
      {name:"Ponyta", id:77, rarity:"Commun", spawnRate:0.2, catchRate:190},
      {name:"Goupix", id:37, rarity:"Commun", spawnRate:0.2, catchRate:190},
-     {name:"Magmar", id:126, rarity:"Rare", spawnRate:0.1, catchRate:45},
-     {name:"Amonita", id:138, rarity:"Très Rare", spawnRate:0.1, catchRate:45},
-     {name:"Kabuto", id:140, rarity:"Très Rare", spawnRate:0.1, catchRate:45},
-     {name:"Ptéra", id:142, rarity:"Très Rare", spawnRate:0.1, catchRate:45}
+     {name:"Magmar", id:126, rarity:"Rare", spawnRate:0.15, catchRate:45},
+     {name:"Amonita", id:138, rarity:"Très Rare", spawnRate:0.15, catchRate:45},
+     {name:"Kabuto", id:140, rarity:"Très Rare", spawnRate:0.15, catchRate:45},
+     {name:"Ptéra", id:142, rarity:"Très Rare", spawnRate:0.15, catchRate:45}
    ], boss:{name:"Blaine (Arcanin)", id:59, level:54, catchRate:0, badge:"Volcan"}},
 
   // BADGE 8 : TERRE (Jadielle déplacée avant Azurée)
@@ -1059,7 +1066,7 @@ const ZONES = [
      {name:"Nidorina", id:30, rarity:"Commun", spawnRate:0.25, catchRate:120},
      {name:"Rhinocorne", id:111, rarity:"Peu Commun", spawnRate:0.2, catchRate:120},
      {name:"Triopikeur", id:51, rarity:"Rare", spawnRate:0.15, catchRate:50},
-     {name:"Rhinoféros", id:112, rarity:"Rare", spawnRate:0.1, catchRate:60}
+     {name:"Rhinoféros", id:112, rarity:"Rare", spawnRate:0.15, catchRate:60}
    ], boss:{name:"Giovanni (Rhinoféros)", id:112, level:60, catchRate:0, badge:"Terre"}},
 
   // ZONE LÉGENDAIRE 3 + MEWTWO (Votre demande spécifique)
@@ -1067,9 +1074,9 @@ const ZONES = [
    pokemons:[
      {name:"Parasect", id:47, rarity:"Commun", spawnRate:0.2, catchRate:75},
      {name:"Kadabra", id:64, rarity:"Commun", spawnRate:0.2, catchRate:100},
-     {name:"Raichu", id:26, rarity:"Rare", spawnRate:0.15, catchRate:75},
-     {name:"Draco", id:148, rarity:"Rare", spawnRate:0.1, catchRate:45},
-     {name:"Mewtwo", id:150, rarity:"Légendaire", spawnRate:0.01, catchRate:3} // MEWTWO EST ICI
+     {name:"Raichu", id:26, rarity:"Rare", spawnRate:0.25, catchRate:75}, // Shield Rare
+     {name:"Draco", id:148, rarity:"Très Rare", spawnRate:0.3, catchRate:45}, // Shield Très Rare (Haut taux pour compenser Mewtwo)
+     {name:"Mewtwo", id:150, rarity:"Légendaire", spawnRate:0.05, catchRate:3}
    ], boss:{name:"Mewtwo", id:150, level:70, catchRate:0}},
 
   // ROUTE VICTOIRE
@@ -1077,9 +1084,9 @@ const ZONES = [
    pokemons:[
      {name:"Machopeur", id:67, rarity:"Commun", spawnRate:0.3, catchRate:90},
      {name:"Gravalanch", id:75, rarity:"Peu Commun", spawnRate:0.3, catchRate:120},
-     {name:"Nosferalto", id:42, rarity:"Rare", spawnRate:0.25, catchRate:90},
-     {name:"Sulfura", id:146, rarity:"Légendaire", spawnRate:0.02, catchRate:3}, // OISEAU 3
-     {name:"Dracolosse", id:149, rarity:"Très Rare", spawnRate:0.05, catchRate:45}
+     {name:"Nosferalto", id:42, rarity:"Rare", spawnRate:0.25, catchRate:90}, // Shield Rare
+     {name:"Dracolosse", id:149, rarity:"Très Rare", spawnRate:0.1, catchRate:45}, // Shield Très Rare
+     {name:"Sulfura", id:146, rarity:"Légendaire", spawnRate:0.05, catchRate:3}
    ], boss:{name:"Sulfura", id:146, level:75, catchRate:0}},
 
   // LA LIGUE (Final Boss)
@@ -1464,8 +1471,8 @@ function killEnemy() {
     
     // XP Logic
     const baseHp = BASE_HP[enemy.id] || 40;
-    // MODIFICATION : Équilibrage Moyen (* 0.8)
-    let xpGain = Math.floor((baseHp * enemy.level) * 0.8);
+    // MODIFICATION : Équilibrage (* 1.2)
+    let xpGain = Math.floor((baseHp * enemy.level) * 1.2);
     
     // Bonus Boss (x5) pour motiver à finir la zone
     if (enemy.isBoss) xpGain *= 5;
