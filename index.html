@@ -1299,6 +1299,13 @@ function getClick() {
 }
 
 function toggleCheat() {
+    if (!state.cheat) {
+        const pwd = prompt("Mot de passe requis pour activer la triche :");
+        if (pwd !== "peter2005") {
+            alert("Mot de passe incorrect !");
+            return;
+        }
+    }
     state.cheat = !state.cheat;
     const updateBtn = (id, baseClass) => {
         const b = document.getElementById(id);
@@ -2334,6 +2341,7 @@ function updateEnemyUI() {
     const types = getTypes(enemy.id);
     let typeHtml = types.map(t => `<span style="background:${TYPE_COLORS[t]}" class="text-[9px] px-1.5 py-0.5 rounded text-white shadow-sm ml-1 uppercase">${t}</span>`).join("");
     if(enemy.isShiny) typeHtml += `<span class="text-[9px] px-1.5 py-0.5 rounded bg-yellow-400 text-black font-bold shadow-sm ml-1">★</span>`;
+    if(state.pokedex.includes(enemy.id)) typeHtml += `<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" class="w-3 h-3 inline-block ml-1" title="Déjà capturé">`;
     document.getElementById('enemy-name').innerHTML = enemy.name + typeHtml;
     
     const hasLeftovers = state.upgrades.leftovers;
