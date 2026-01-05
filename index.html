@@ -1223,8 +1223,9 @@ function getPower(id) {
 
 function calcMaxXp(id, level) {
     const power = getPower(id);
-    let tier = (power < 100) ? 0.8 : (power > 180) ? 1.25 : 1.0;
-    return Math.floor((((4 * Math.pow(level, 3)) * tier * 5) / 3) / 4);
+    // Tier : Faible (0.8), Fort (1.2), Moyen (1.0)
+    let tier = (power < 100) ? 0.8 : (power > 180) ? 1.2 : 1.0;
+    return Math.floor(50 * Math.pow(level, 2.2) * tier);
 }
 
 function calculateGoldReward(enemy) {
@@ -1294,7 +1295,7 @@ function getClick() {
     if(hasBadge("Foudre")) dmg = Math.floor(dmg * 1.2);
     if(hasBadge("Volcan")) dmg *= 2;
     if(Date.now() < state.attackBoostEndTime) dmg *= 2;
-    return state.cheat ? 99999 : dmg; 
+    return state.cheat ? 999999 : dmg; 
 }
 
 function toggleCheat() {
@@ -1456,7 +1457,9 @@ function killEnemy() {
     
     // XP Logic
     const baseHp = BASE_HP[enemy.id] || 40;
-    let xpGain = Math.floor((baseHp * enemy.level) / 2);
+    // APRÈS : Beaucoup plus lent (divisé par 4)
+    let xpGain = Math.floor((baseHp * enemy.level) / 4);
+    if (xpGain < 1) xpGain = 1;
     if (state.upgrades.expShare) xpGain = Math.floor(xpGain * 1.5);
     if (state.upgrades.luckyEgg) xpGain = Math.floor(xpGain * 1.5);
     if (state.inv.omniXp > 0) xpGain = Math.floor(xpGain * 1.5);
