@@ -591,7 +591,7 @@ const ITEMS = {
     bicycle: { name: "Bicyclette", price: 20000, desc: "Vitesse de spawn x3 (Remplace Chaussures)", type: "upgrade", zone: 7, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/bicycle.png" },
     luckyEgg: { name: "Oeuf Chance", price: 50000, desc: "XP gagnée x1.5", type: "upgrade", zone: 10, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lucky-egg.png" },
     pokeradar: { name: "Poké-Radar", price: 35000, desc: "Affiche les Pokémon trouvables dans la zone actuelle.", type: "upgrade", zone: 8, icon: "radar", iconColor: "text-green-400" },
-    leftovers: { name: "Restes", price: 125000, desc: "Auto-click 6 clics/sec", type: "upgrade", zone: 12, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/leftovers.png" }
+    leftovers: { name: "Restes", price: 125000, desc: "Auto-click 9 clics/sec", type: "upgrade", zone: 12, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/leftovers.png" }
 };
 const EVOLUTIONS = {
     1:{id:2,lvl:16,name:"Herbizarre"}, 2:{id:3,lvl:32,name:"Florizarre"},
@@ -874,10 +874,10 @@ const MILESTONES = [
     {count:10, title:"Débutant", desc:"Dégâts Clic x2"},
     {count:20, title:"Amateur", desc:"+2,500 $P"},
     {count:30, title:"Collectionneur", desc:"DPS Équipe +50%"},
-    {count:40, title:"Dresseur", desc:"Omni XP (XP x1.5)"},
+    {count:40, title:"Dresseur", desc:"Omni XP (XP +100%)"},
     {count:50, title:"Expert", desc:"Spawn +20%"},
     {count:70, title:"Champion", desc:"Shop -15%"},
-    {count:90, title:"Maître", desc:"Dégâts Totaux +100%"},
+    {count:90, title:"Maître", desc:"Dégâts Totaux +50%"},
     {count:110, title:"Légende", desc:"Jeton Brillant"},
     {count:130, title:"Mythique", desc:"Master Ball + 10 Bonbons"},
     {count:151, title:"Kanto Master", desc:"Shiny Chance x2"}
@@ -1145,7 +1145,7 @@ const ZONES = [
      {name:"Nosferalto", id:42, rarity:"Rare", spawnRate:0.25, catchRate:90}, // Shield Rare
      {name:"Dracolosse", id:149, rarity:"Très Rare", spawnRate:0.1, catchRate:45}, // Shield Très Rare
      {name:"Sulfura", id:146, rarity:"Légendaire", spawnRate:0.05, catchRate:3}
-   ], boss:{name:"Sulfura", id:146, level:75, catchRate:0}},
+   ], boss:{name:"Sulfura", id:146, level:80, catchRate:0}},
 
   // LA LIGUE (Final Boss)
   {id:21, name:"Ligue Pokémon", bg:"img/background/Zone 21.png", minLevel:70, maxLevel:90,
@@ -1343,7 +1343,7 @@ function getDPS(targetId) {
     }, 0); 
     
     if(hasMilestone(30)) dps *= 1.5;
-    if(hasMilestone(90)) dps *= 2;
+    if(hasMilestone(90)) dps *= 1.5;
     if(hasBadge("Cascade")) dps *= 1.3;
     if(hasBadge("Foudre")) dps *= 1.2;
     if(hasBadge("Volcan")) dps *= 1.5;
@@ -1354,7 +1354,7 @@ function getDPS(targetId) {
 function getClick() { 
     let dmg = 5 + Math.floor(getDPS(enemy.id)*0.002);
     if(hasMilestone(10)) dmg *= 2;
-    if(hasMilestone(90)) dmg *= 2;
+    if(hasMilestone(90)) dmg *= 1.5;
     if(state.upgrades.protein) dmg = Math.floor(dmg * 1.5);
     if(state.upgrades.hardStone) dmg = Math.floor(dmg * 1.3);
     if(hasBadge("Roche")) dmg = Math.floor(dmg * 1.5);
@@ -1530,8 +1530,8 @@ function killEnemy() {
     
     // XP Logic
     const baseHp = BASE_HP[enemy.id] || 40;
-    // MODIFICATION : Équilibrage (* 1.6)
-    let xpGain = Math.floor((baseHp * enemy.level) * 1.6);
+    // MODIFICATION : Équilibrage (* 2.2)
+    let xpGain = Math.floor((baseHp * enemy.level) * 2.2);
     
     // Bonus Boss (x5) pour motiver à finir la zone
     if (enemy.isBoss) xpGain *= 5;
@@ -1539,7 +1539,7 @@ function killEnemy() {
     if (xpGain < 1) xpGain = 1;
     if (state.upgrades.expShare) xpGain = Math.floor(xpGain * 1.5);
     if (state.upgrades.luckyEgg) xpGain = Math.floor(xpGain * 1.5);
-    if (state.inv.omniXp > 0) xpGain = Math.floor(xpGain * 1.5);
+    if (state.inv.omniXp > 0) xpGain = Math.floor(xpGain * 2);
     if(hasBadge("Âme")) xpGain = Math.floor(xpGain * 1.5);
     
     state.team.forEach(p => {
@@ -2760,7 +2760,7 @@ function renderBag() {
         <div><div class="text-xs text-yellow-300">Jeton Shiny</div><div class="text-sm font-bold">x${state.inv.shinyToken}</div></div>
     </div>`:''}
     ${state.inv.omniXp>0 ? `
-    <div class="bg-indigo-900/40 p-2 rounded flex items-center gap-2 border border-indigo-500" title="XP gagnée x1.5 (Passif)"><span class="material-symbols-outlined text-indigo-300">auto_awesome</span><div><div class="text-xs text-indigo-300">Omni XP</div><div class="text-sm font-bold">x${state.inv.omniXp}</div></div></div>`:''}
+    <div class="bg-indigo-900/40 p-2 rounded flex items-center gap-2 border border-indigo-500" title="XP gagnée +100% (Passif)"><span class="material-symbols-outlined text-indigo-300">auto_awesome</span><div><div class="text-xs text-indigo-300">Omni XP</div><div class="text-sm font-bold">x${state.inv.omniXp}</div></div></div>`:''}
     `;
 
     if(desktopBag) desktopBag.innerHTML = html;
@@ -2925,12 +2925,12 @@ function updateAutoClickerBtn() {
 
 function startAutoClicker() {
     if(autoClickerInterval) clearInterval(autoClickerInterval);
-    // 6 clicks per second = ~166ms
+    // 9 clicks per second = ~111ms
     autoClickerInterval = setInterval(() => {
         if(state.autoClicker && !enemy.dead && state.upgrades.leftovers) {
             damageEnemy(getClick());
         }
-    }, 166);
+    }, 111);
 }
 
 function toggleStopOnRare() {
@@ -3035,11 +3035,11 @@ function renderStats() {
     let currentDps = getDPS(null);
     
     let dpsMults = [];
-    if(hasMilestone(30)) dpsMults.push("Collectionneur (+50%)");
-    if(hasMilestone(90)) dpsMults.push("Maître (+100%)");
-    if(hasBadge("Cascade")) dpsMults.push("Badge Cascade (+30%)");
+    if(hasMilestone(30)) dpsMults.push("Collectionneur (x1.5)");
+    if(hasMilestone(90)) dpsMults.push("Maître (x1.5)");
+    if(hasBadge("Cascade")) dpsMults.push("Badge Cascade (x1.3)");
     if(hasBadge("Foudre")) dpsMults.push("Badge Foudre (x1.2)");
-    if(hasBadge("Volcan")) dpsMults.push("Badge Volcan (+50%)");
+    if(hasBadge("Volcan")) dpsMults.push("Badge Volcan (x1.5)");
     if(Date.now() < state.dpsBoostEndTime) dpsMults.push("Attaque Spé + (x2)");
 
     // Base Click est calculé sur le DPS TOTAL (currentDps), pas le DPS de base
@@ -3048,7 +3048,7 @@ function renderStats() {
     // Recalcul pour affichage neutre (sans dépendre de l'ennemi actuel)
     let currentClick = baseClick;
     if(hasMilestone(10)) currentClick *= 2;
-    if(hasMilestone(90)) currentClick *= 2;
+    if(hasMilestone(90)) currentClick *= 1.5;
     if(state.upgrades.protein) currentClick = Math.floor(currentClick * 1.5);
     if(state.upgrades.hardStone) currentClick = Math.floor(currentClick * 1.3);
     if(hasBadge("Roche")) currentClick = Math.floor(currentClick * 1.5);
@@ -3058,28 +3058,28 @@ function renderStats() {
 
     let clickMults = [];
     if(hasMilestone(10)) clickMults.push("Débutant (x2)");
-    if(hasMilestone(90)) clickMults.push("Maître (+100%)");
+    if(hasMilestone(90)) clickMults.push("Maître (x1.5)");
     if(state.upgrades.protein) clickMults.push("Protéine (x1.5)");
     if(state.upgrades.hardStone) clickMults.push("Pierre Dure (x1.3)");
-    if(hasBadge("Roche")) clickMults.push("Badge Roche (+50%)");
+    if(hasBadge("Roche")) clickMults.push("Badge Roche (x1.5)");
     if(hasBadge("Foudre")) clickMults.push("Badge Foudre (x1.2)");
-    if(hasBadge("Volcan")) clickMults.push("Badge Volcan (+50%)");
+    if(hasBadge("Volcan")) clickMults.push("Badge Volcan (x1.5)");
     if(Date.now() < state.attackBoostEndTime) clickMults.push("Attaque + (x2)");
 
     let moneyMults = [];
-    if(state.upgrades.amuletCoin) moneyMults.push("Pièce Rune (+30%)");
-    if(hasBadge("Prisme")) moneyMults.push("Badge Prisme (+20%)");
+    if(state.upgrades.amuletCoin) moneyMults.push("Pièce Rune (x1.3)");
+    if(hasBadge("Prisme")) moneyMults.push("Badge Prisme (x1.2)");
     let moneyTotalMult = (state.upgrades.amuletCoin?1.3:1) * (hasBadge("Prisme")?1.2:1);
 
     let xpMults = [];
-    if(state.upgrades.expShare) xpMults.push("Multi Exp (+50%)");
+    if(state.upgrades.expShare) xpMults.push("Multi Exp (x1.5)");
     if(state.upgrades.luckyEgg) xpMults.push("Oeuf Chance (x1.5)");
-    if(state.inv.omniXp > 0) xpMults.push("Omni XP (x1.5)");
-    if(hasBadge("Âme")) xpMults.push("Badge Âme (+50%)");
-    let xpTotalMult = (state.upgrades.expShare?1.5:1) * (state.upgrades.luckyEgg?1.5:1) * (state.inv.omniXp>0?1.5:1) * (hasBadge("Âme")?1.5:1);
+    if(state.inv.omniXp > 0) xpMults.push("Omni XP (x2)");
+    if(hasBadge("Âme")) xpMults.push("Badge Âme (x1.5)");
+    let xpTotalMult = (state.upgrades.expShare?1.5:1) * (state.upgrades.luckyEgg?1.5:1) * (state.inv.omniXp>0?2:1) * (hasBadge("Âme")?1.5:1);
 
     let catchMults = [];
-    if(hasBadge("Marais")) catchMults.push("Badge Marais (+30%)");
+    if(hasBadge("Marais")) catchMults.push("Badge Marais (x1.3)");
 
     const statBlock = (title, base, mults, total, icon, color, baseLabel="Base") => `
         <div class="bg-slate-800 rounded p-3 border border-slate-700">
