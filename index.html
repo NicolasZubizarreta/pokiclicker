@@ -584,8 +584,8 @@ const ITEMS = {
     candy: { name: "Bonbon", price: 5000, desc: "Fait monter un Pokémon de niveau", type: "consumable", zone: 4, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rare-candy.png", invKey: "candy" },
     masterball: { name: "Master Ball", price: 200000, desc: "Capture à coup sûr (100%)", type: "consumable", zone: 16, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/master-ball.png", invKey: "masterball" },
     repel: { name: "Repousse", price: 2000, desc: "Empêche les Pokémon communs d'apparaître pendant 30s", type: "consumable", zone: 5, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/repel.png", invKey: "repel" },    
-    xAttack: { name: "Attaque +", price: 7500, desc: "Dégâts/clic x2 (30s)", type: "consumable", zone: 8, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/x-attack.png", invKey: "xAttack" },
-    xSpecial: { name: "Attaque Spé +", price: 10000, desc: "DPS Équipe x2 (30s)", type: "consumable", zone: 11, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/x-sp-atk.png", invKey: "xSpecial" },
+    xAttack: { name: "Attaque +", price: 7500, desc: "Dégâts/clic +50% (30s)", type: "consumable", zone: 8, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/x-attack.png", invKey: "xAttack" },
+    xSpecial: { name: "Attaque Spé +", price: 10000, desc: "DPS Équipe +50% (30s)", type: "consumable", zone: 11, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/x-sp-atk.png", invKey: "xSpecial" },
     superRepel: { name: "Superepousse", price: 12000, desc: "Bloque Communs/Peu Communs (30s)", type: "consumable", zone: 13, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/super-repel.png", invKey: "superRepel" },
     pokeDoll: { name: "Poké Poupée", price: 7500, desc: "Invoque le Boss (Si déjà vaincu)", type: "consumable", zone: 15, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-doll.png", invKey: "pokeDoll" },
     // Améliorations
@@ -1081,12 +1081,13 @@ const ZONES = [
   // BADGE 2 : CASCADE
   {id:5, name:"Arène d'Azuria", bg:"img/background/Zone 5.png", minLevel:15, maxLevel:18,
    pokemons:[
-     {name:"Mystherbe", id:43, rarity:"Commun", spawnRate:0.25, catchRate:255},
-     {name:"Chétiflor", id:69, rarity:"Commun", spawnRate:0.25, catchRate:255},
-     {name:"Ptitard", id:60, rarity:"Peu Commun", spawnRate:0.2, catchRate:255}, // NOUVEAU
+     {name:"Mystherbe", id:43, rarity:"Commun", spawnRate:0.21, catchRate:255},
+     {name:"Chétiflor", id:69, rarity:"Commun", spawnRate:0.21, catchRate:255},
+     {name:"Ptitard", id:60, rarity:"Peu Commun", spawnRate:0.18, catchRate:255}, // NOUVEAU
      {name:"Stari", id:120, rarity:"Peu Commun", spawnRate:0.15, catchRate:225},
      {name:"Poissirène", id:118, rarity:"Peu Commun", spawnRate:0.1, catchRate:225},
-     {name:"Psykokwak", id:54, rarity:"Rare", spawnRate:0.05, catchRate:190}
+     {name:"Psykokwak", id:54, rarity:"Rare", spawnRate:0.1, catchRate:190},
+     {name:"Lippoutou", id:124, rarity:"Très Rare", spawnRate:0.05, catchRate:45},
    ], boss:{name:"Ondine (Staross)", id:121, level:21, catchRate:0, badge:"Cascade"}},
 
   // ZONE SPÉCIALE MEW
@@ -1256,23 +1257,23 @@ const ZONES = [
   {id:21, name:"Ligue Pokémon", bg:"img/background/Zone 21.png", minLevel:70, maxLevel:90,
    pokemons:[
      // OLGA (Glace/Eau)
-     {name:"Lokhlass", id:131, rarity:"Conseil 4", spawnRate:0.1, catchRate:45},
-     {name:"Lippoutou", id:124, rarity:"Conseil 4", spawnRate:0.1, catchRate:45},
+     {name:"Lokhlass", id:131, level:74, catchRate:0},
+     {name:"Lippoutou", id:124, level:76, catchRate:0},
      
      // ALDO (Combat/Roche)
-     {name:"Mackogneur", id:68, rarity:"Conseil 4", spawnRate:0.1, catchRate:45},
-     {name:"Onix", id:95, rarity:"Conseil 4", spawnRate:0.1, catchRate:45},
+     {name:"Mackogneur", id:68, level:78, catchRate:0},
+     {name:"Onix", id:95, level:80, catchRate:0},
      
      // AGATHA (Spectre/Poison)
-     {name:"Ectoplasma", id:94, rarity:"Conseil 4", spawnRate:0.1, catchRate:45},
-     {name:"Arbok", id:24, rarity:"Conseil 4", spawnRate:0.1, catchRate:90},
+     {name:"Ectoplasma", id:94, level:82, catchRate:0},
+     {name:"Arbok", id:24, level:84, catchRate:0},
      
      // PETER (Dragon)
-     {name:"Dracolosse", id:149, rarity:"Conseil 4", spawnRate:0.1, catchRate:45},
-     {name:"Léviator", id:130, rarity:"Conseil 4", spawnRate:0.1, catchRate:45},
+     {name:"Dracolosse", id:149, level:86, catchRate:0},
+     {name:"Léviator", id:130, level:88, catchRate:0},
 
      // MAÎTRE BLUE (Son 1er Pokémon)
-     {name:"Roucarnage", id:18, rarity:"Maître", spawnRate:0.1, catchRate:45}
+     {name:"Roucarnage", id:18, level:92, catchRate:0}
    ], 
    // Le Boss est défini dynamiquement
    boss:{name:"Maître Blue", id:9, level:100, catchRate:0}}
@@ -1459,7 +1460,7 @@ function getDPS(targetId) {
     if(hasBadge("Cascade")) dps *= 1.3;
     if(hasBadge("Foudre")) dps *= 1.2;
     if(hasBadge("Volcan")) dps *= 1.5;
-    if(Date.now() < state.dpsBoostEndTime) dps *= 2;
+    if(Date.now() < state.dpsBoostEndTime) dps *= 1.5;
     return dps;
 }
 
@@ -1472,7 +1473,7 @@ function getClick() {
     if(hasBadge("Roche")) dmg = Math.floor(dmg * 1.5);
     if(hasBadge("Foudre")) dmg = Math.floor(dmg * 1.2);
     if(hasBadge("Volcan")) dmg *= 1.5;
-    if(Date.now() < state.attackBoostEndTime) dmg *= 2;
+    if(Date.now() < state.attackBoostEndTime) dmg *= 1.5;
     return state.cheat ? 999999 : dmg; 
 }
 
@@ -1511,7 +1512,11 @@ function startBossTimer() {
         if(t<=0) {
             stopBossTimer();
             showFeedback("TEMPS ÉCOULÉ !", "red");
-            state.subStage = 9;
+            if (state.zoneIdx === 20) { // League penalty: reset to start
+                state.subStage = 1;
+            } else {
+                state.subStage = 9;
+            }
             updateZone();
             spawnEnemy();
         }
@@ -1534,55 +1539,69 @@ function spawnEnemy() {
     enemy.isCatching = false;
     enemy.uid = Date.now(); // Unique ID to prevent race conditions
     const z = ZONES[state.zoneIdx];
-    enemy.isBoss = (state.subStage === 10);
-    
-    let shinyChance = hasMilestone(151) ? (1/128) : (1/256);
-    if(state.cheat) shinyChance = 1;
-    enemy.isShiny = !enemy.isBoss && Math.random() < shinyChance; 
-    
-    if(enemy.isBoss) {
-        enemy.name = z.boss.name; 
-        enemy.level = z.boss.level; 
-        enemy.catchRate = z.boss.catchRate;
-        enemy.id = z.boss.id;
 
-        // --- LOGIQUE BOSS FINAL (MAÎTRE BLUE) ---
-        // Zone 21 est à l'index 20
-        if (state.zoneIdx === 20) { 
-            if (state.starterId === 1) { // Joueur a Bulbizarre -> Rival a Dracaufeu
-                enemy.id = 6; 
-            } else if (state.starterId === 4) { // Joueur a Salamèche -> Rival a Tortank
-                enemy.id = 9;
-            } else if (state.starterId === 7) { // Joueur a Carapuce -> Rival a Florizarre
-                enemy.id = 3;
-            }
+    // --- LEAGUE REWORK: All encounters are bosses ---
+    if (state.zoneIdx === 20) {
+        enemy.isBoss = true;
+        const leaguePokemons = z.pokemons;
+        let sel;
+
+        if (state.subStage <= 9) {
+            sel = leaguePokemons[state.subStage - 1];
+        } else { // subStage 10 is the final boss
+            sel = { ...z.boss }; // Clone to avoid modifying the constant
+            if (state.starterId === 1) { sel.id = 6; sel.name = "Dracaufeu"; }
+            else if (state.starterId === 4) { sel.id = 9; sel.name = "Tortank"; }
+            else if (state.starterId === 7) { sel.id = 3; sel.name = "Florizarre"; }
         }
-        enemy.rarity = "Boss";
-        startBossTimer();
-    } else {
-        const r = Math.random(); 
-        let acc = 0; 
         
-        // Repel Logic
-        let pool = z.pokemons;
-        if(Date.now() < state.superRepelEndTime) {
-            const filtered = pool.filter(p => p.rarity !== "Commun" && p.rarity !== "Peu Commun");
-            if(filtered.length > 0) pool = filtered;
-        } else if(Date.now() < state.repelEndTime) {
-            const filtered = pool.filter(p => p.rarity !== "Commun");
-            if(filtered.length > 0) pool = filtered;
-        }
+        enemy.name = sel.name;
+        enemy.rarity = "Boss";
+        enemy.id = sel.id;
+        enemy.catchRate = 0;
+        enemy.level = sel.level;
+        enemy.isShiny = false;
+        startBossTimer();
 
-        let sel = pool[0];
-        for(let p of pool) { 
-            acc += p.spawnRate; 
-            if(r <= acc) { sel = p; break; } 
+    } else {
+        enemy.isBoss = (state.subStage === 10);
+        
+        let shinyChance = hasMilestone(151) ? (1/128) : (1/256);
+        if(state.cheat) shinyChance = 1;
+        enemy.isShiny = !enemy.isBoss && Math.random() < shinyChance; 
+        
+        if(enemy.isBoss) {
+            enemy.name = z.boss.name; 
+            enemy.level = z.boss.level; 
+            enemy.catchRate = z.boss.catchRate;
+            enemy.id = z.boss.id;
+            enemy.rarity = "Boss";
+            startBossTimer();
+        } else {
+            const r = Math.random(); 
+            let acc = 0; 
+            
+            // Repel Logic
+            let pool = z.pokemons;
+            if(Date.now() < state.superRepelEndTime) {
+                const filtered = pool.filter(p => p.rarity !== "Commun" && p.rarity !== "Peu Commun");
+                if(filtered.length > 0) pool = filtered;
+            } else if(Date.now() < state.repelEndTime) {
+                const filtered = pool.filter(p => p.rarity !== "Commun");
+                if(filtered.length > 0) pool = filtered;
+            }
+
+            let sel = pool[0];
+            for(let p of pool) { 
+                acc += p.spawnRate; 
+                if(r <= acc) { sel = p; break; } 
+            }
+            enemy.name = sel.name; 
+            enemy.rarity = sel.rarity;
+            enemy.id = sel.id || ID_MAP_FALLBACK[sel.name] || 25; 
+            enemy.catchRate = sel.catchRate;
+            enemy.level = Math.floor(Math.random()*(z.maxLevel-z.minLevel+1))+z.minLevel;
         }
-        enemy.name = sel.name; 
-        enemy.rarity = sel.rarity;
-        enemy.id = sel.id || ID_MAP_FALLBACK[sel.name] || 25; 
-        enemy.catchRate = sel.catchRate;
-        enemy.level = Math.floor(Math.random()*(z.maxLevel-z.minLevel+1))+z.minLevel;
     }
 
     // Stop auto battle for rares
