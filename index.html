@@ -351,6 +351,66 @@
     </div>
 </div>
 
+<div class="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 hidden" id="pokemon-summary-modal" onclick="hidePokemonSummary()">
+    <div class="glass-panel w-11/12 max-w-2xl rounded-2xl flex flex-col md:flex-row p-4 gap-4 relative" onclick="event.stopPropagation()">
+        <button onclick="hidePokemonSummary()" class="absolute top-2 right-2 text-gray-400 hover:text-white material-symbols-outlined z-50">close</button>
+        <!-- Left: Sprite -->
+        <div class="w-full md:w-1/2 bg-slate-900/50 rounded-xl flex items-center justify-center p-4 border border-slate-700 h-40 md:h-auto aspect-auto md:aspect-square">
+            <img id="summary-sprite" src="" class="h-32 w-32 md:h-64 md:w-64 object-contain pokemon-float drop-shadow-2xl">
+        </div>
+        <!-- Right: Info -->
+        <div class="w-full md:w-1/2 flex flex-col">
+            <div class="flex flex-col gap-2 pr-6">
+                <!-- Name Row -->
+                <div class="flex items-center gap-2">
+                    <div id="summary-name-display" class="flex items-center gap-2">
+                        <h3 id="summary-name" class="pixel-font text-sm md:text-lg text-white truncate">POKEMON</h3>
+                        <button id="summary-rename-btn" onclick="startSummaryRename()" class="material-symbols-outlined text-sm text-gray-400 hover:text-white transition-colors">edit</button>
+                    </div>
+                    <div id="summary-rename-input-container" class="hidden items-center gap-1">
+                        <input type="text" id="summary-rename-input" maxlength="12" class="w-24 text-xs text-black px-1 py-0.5 rounded border border-blue-400 focus:outline-none select-text">
+                        <button onclick="confirmSummaryRename()" class="text-green-400 material-symbols-outlined text-sm">check</button>
+                        <button onclick="cancelSummaryRename()" class="text-red-400 material-symbols-outlined text-sm">close</button>
+                    </div>
+                </div>
+
+                <!-- Types -->
+                <div id="summary-types" class="flex items-center gap-1 flex-wrap"></div>
+                
+                <!-- Level & XP -->
+                <div class="flex items-center gap-3 mt-1">
+                    <span id="summary-level" class="font-bold text-blue-300 text-sm">Lv.5</span>
+                    <span id="summary-xp-text" class="font-mono text-[10px] text-gray-400">100/200</span>
+                    <div class="w-24 h-2 bg-slate-800 rounded-full overflow-hidden border border-slate-600">
+                        <div id="summary-xp-bar" class="h-full bg-blue-500 transition-all duration-300" style="width: 40%;"></div>
+                    </div>
+                </div>
+
+                <!-- DPS -->
+                <div class="text-xs mt-1"><span class="text-yellow-400 font-bold">DPS: </span><span id="summary-dps" class="font-mono text-white">123</span></div>
+            </div>
+            
+            <!-- Happiness Ring -->
+            <div class="flex-1 flex items-center justify-center py-2">
+                <div class="flex flex-col items-center group relative" title="Le bonheur augmente en battant des ennemis (+1 par victoire)">
+                    <div class="relative w-16 h-16 rounded-full bg-slate-700 shadow-inner">
+                        <div class="absolute inset-0 rounded-full transition-all duration-500" id="summary-happy-progress" style="background: conic-gradient(#fbbf24 0%, #334155 0%);"></div>
+                        <div class="absolute inset-1 bg-slate-900 rounded-full flex items-center justify-center z-10">
+                            <span class="text-[10px] font-bold text-white font-mono" id="summary-happy-val">0/255</span>
+                        </div>
+                    </div>
+                    <div class="text-[9px] text-yellow-400 mt-1 font-bold" id="summary-happy-bonus">+0.0% Dégâts</div>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-2 mt-4">
+                <button id="summary-move-btn" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold py-2 px-4 rounded shadow-md transition-colors">Envoyer au PC</button>
+                <button id="summary-release-btn" class="bg-red-800 hover:bg-red-700 text-white text-xs font-bold py-2 px-4 rounded shadow-md transition-colors">Relâcher</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="flex h-full w-full opacity-0 transition-opacity duration-1000 hidden" id="game-ui">
     
     <div id="sidebar-left" class="w-[20%] flex flex-col h-full bg-slate-900 border-r border-slate-700 z-20 shadow-2xl shrink-0">
@@ -572,6 +632,12 @@
             </div>
         </div>
     </div>
+</div>
+
+<div id="custom-context-menu" class="fixed bg-slate-800 border border-slate-600 rounded shadow-2xl z-[100] hidden flex-col w-32 overflow-hidden">
+    <button onclick="onSummaryClick()" class="text-left px-4 py-3 text-xs font-bold text-white hover:bg-slate-700 w-full flex items-center gap-2 transition-colors">
+        <span class="material-symbols-outlined text-sm">info</span> Résumé
+    </button>
 </div>
 
 <script>
@@ -1257,23 +1323,23 @@ const ZONES = [
   {id:21, name:"Ligue Pokémon", bg:"img/background/Zone 21.png", minLevel:70, maxLevel:90,
    pokemons:[
      // OLGA (Glace/Eau)
-     {name:"Lokhlass", id:131, level:74, catchRate:0},
-     {name:"Lippoutou", id:124, level:76, catchRate:0},
+     {name:"Olga (Lokhlass)", id:131, level:74, catchRate:0},
+     {name:"Olga (Lippoutou)", id:124, level:76, catchRate:0},
      
      // ALDO (Combat/Roche)
-     {name:"Mackogneur", id:68, level:78, catchRate:0},
-     {name:"Onix", id:95, level:80, catchRate:0},
+     {name:"Aldo (Mackogneur)", id:68, level:78, catchRate:0},
+     {name:"Aldo (Onix)", id:95, level:80, catchRate:0},
      
      // AGATHA (Spectre/Poison)
-     {name:"Ectoplasma", id:94, level:82, catchRate:0},
-     {name:"Arbok", id:24, level:84, catchRate:0},
+     {name:"Agatha (Ectoplasma)", id:94, level:82, catchRate:0},
+     {name:"Agatha (Arbok)", id:24, level:84, catchRate:0},
      
      // PETER (Dragon)
-     {name:"Dracolosse", id:149, level:86, catchRate:0},
-     {name:"Léviator", id:130, level:88, catchRate:0},
+     {name:"Peter (Dracolosse)", id:149, level:86, catchRate:0},
+     {name:"Peter (Léviator)", id:130, level:88, catchRate:0},
 
      // MAÎTRE BLUE (Son 1er Pokémon)
-     {name:"Roucarnage", id:18, level:92, catchRate:0}
+     {name:"Maître Blue (Roucarnage)", id:18, level:92, catchRate:0}
    ], 
    // Le Boss est défini dynamiquement
    boss:{name:"Maître Blue", id:9, level:100, catchRate:0}}
@@ -1308,8 +1374,8 @@ let state = {
     candyMode: false,
     candyTargetIdx: null,
     candyAmount: 1,
-    editingTeamIdx: null,
-    editingPcIdx: null
+    summaryPokemon: null,
+    contextTarget: null
 };
 
 // Runtime variables (not saved)
@@ -1339,7 +1405,7 @@ function init() {
 function startGame(starterId) {
     state.starterId = starterId;
     let name = starterId===1?"Bulbizarre":starterId===4?"Salamèche":"Carapuce";
-    addToTeam(starterId, name, 5, false);
+    addToTeam(starterId, name, 5, false, Math.random() < 0.5 ? 'male' : 'female');
     addToPokedex(starterId);
     
     document.getElementById('starter-modal').classList.add('hidden');
@@ -1424,16 +1490,22 @@ function getTypes(id) {
 
 function getMultiplier(atkId, defId) {
     if(!defId) return 1;
-    const atkType = getTypes(atkId)[0]; // Primary type attacks
+    const atkTypes = getTypes(atkId); // Check all attack types
     const defTypes = getTypes(defId);
-    let mult = 1;
     
-    defTypes.forEach(dt => {
-        if(TYPE_CHART[atkType] && TYPE_CHART[atkType][dt] !== undefined) {
-            mult *= TYPE_CHART[atkType][dt];
-        }
+    // On prend le meilleur multiplicateur parmi les types de l'attaquant (Simule le choix de la meilleure attaque)
+    let bestMult = 0;
+    
+    atkTypes.forEach(aType => {
+        let currentMult = 1;
+        defTypes.forEach(dType => {
+            if(TYPE_CHART[aType] && TYPE_CHART[aType][dType] !== undefined) {
+                currentMult *= TYPE_CHART[aType][dType];
+            }
+        });
+        if(currentMult > bestMult) bestMult = currentMult;
     });
-    return mult;
+    return bestMult;
 }
 
 function hasBadge(name) { return state.badges.includes(name); }
@@ -1450,9 +1522,10 @@ function getDPS(targetId) {
         }
 
         let shinyBonus = p.isShiny ? 2 : 1; // Shiny deals x2 damage
+        let happyMult = 1 + ((p.happiness || 0) * 0.001); // +0.1% per happiness
         let baseStat = BASE_STATS[p.id] || 40; // Fallback if ID missing
         let rawDmg = (baseStat * p.level) / 5;
-        return s + (rawDmg * m * shinyBonus);
+        return s + (rawDmg * m * shinyBonus * happyMult);
     }, 0); 
     
     if(hasMilestone(30)) dps *= 1.5;
@@ -1538,6 +1611,7 @@ function spawnEnemy() {
     enemy.dead = false;
     enemy.isCatching = false;
     enemy.uid = Date.now(); // Unique ID to prevent race conditions
+    enemy.gender = Math.random() < 0.5 ? 'male' : 'female';
     const z = ZONES[state.zoneIdx];
 
     // --- LEAGUE REWORK: All encounters are bosses ---
@@ -1550,9 +1624,9 @@ function spawnEnemy() {
             sel = leaguePokemons[state.subStage - 1];
         } else { // subStage 10 is the final boss
             sel = { ...z.boss }; // Clone to avoid modifying the constant
-            if (state.starterId === 1) { sel.id = 6; sel.name = "Dracaufeu"; }
-            else if (state.starterId === 4) { sel.id = 9; sel.name = "Tortank"; }
-            else if (state.starterId === 7) { sel.id = 3; sel.name = "Florizarre"; }
+            if (state.starterId === 1) { sel.id = 6; sel.name = "Maître Blue (Dracaufeu)"; }
+            else if (state.starterId === 4) { sel.id = 9; sel.name = "Maître Blue (Tortank)"; }
+            else if (state.starterId === 7) { sel.id = 3; sel.name = "Maître Blue (Florizarre)"; }
         }
         
         enemy.name = sel.name;
@@ -1619,6 +1693,9 @@ function spawnEnemy() {
         setTimeout(()=>a.classList.add('hidden'), 3000);
     }
 
+    // Exception for genderless Pokémon
+    if (enemy.id === 132) enemy.gender = 'genderless';
+
     // HP Scaling
     const baseHp = BASE_HP[enemy.id] || 40;
     const zoneMult = ZONE_MULT[state.zoneIdx] || (6 + (state.zoneIdx - 4) * 2.5);
@@ -1684,6 +1761,10 @@ function killEnemy() {
                 if(p.level >= 100) { p.level = 100; p.xp = 0; p.maxXp = 0; }
             }
         }
+        
+        // Happiness Gain
+        if (p.happiness === undefined) p.happiness = 0;
+        if (p.happiness < 255) p.happiness++;
     });
 
     playTone('coin');
@@ -1790,10 +1871,10 @@ function attemptCatch(type) {
             addToPokedex(enemy.id);
             
             if(state.team.length < 6) { 
-                addToTeam(enemy.id, cleanName, enemy.level, enemy.isShiny); 
+                addToTeam(enemy.id, cleanName, enemy.level, enemy.isShiny, enemy.gender); 
                 showFeedback("CAPTURÉ !", "yellow"); 
             } else { 
-                addToPC(enemy.id, cleanName, enemy.level, enemy.isShiny); 
+                addToPC(enemy.id, cleanName, enemy.level, enemy.isShiny, enemy.gender); 
                 showFeedback("ENVOYÉ AU PC", "blue"); 
             }
             
@@ -1877,14 +1958,14 @@ function getArtwork(id, isShiny) {
     return `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
 }
 
-function addToTeam(id,n,l,s) { 
+function addToTeam(id,n,l,s,g) { 
     const maxXp = calcMaxXp(id, l);
-    state.team.push({id:id, name:n, level:l, isShiny:s, xp:0, maxXp:maxXp, uid:Date.now() + Math.random(), img:getSprite(id, s)}); 
+    state.team.push({id:id, name:n, level:l, isShiny:s, gender:g, happiness:0, xp:0, maxXp:maxXp, uid:Date.now() + Math.random(), img:getSprite(id, s)}); 
     renderTeam(); 
 }
-function addToPC(id,n,l,s) { 
+function addToPC(id,n,l,s,g) { 
     const maxXp = calcMaxXp(id, l);
-    state.pc.push({id:id, name:n, level:l, isShiny:s, xp:0, maxXp:maxXp, uid:Date.now() + Math.random(), img:getSprite(id, s)}); 
+    state.pc.push({id:id, name:n, level:l, isShiny:s, gender:g, happiness:0, xp:0, maxXp:maxXp, uid:Date.now() + Math.random(), img:getSprite(id, s)}); 
     renderPC(); 
 }
 
@@ -2022,68 +2103,6 @@ function cancelCandyUse() {
     renderTeam();
 }
 
-function startTeamRename(index, event) {
-    event.stopPropagation();
-    state.editingPcIdx = null; // Close any open PC rename
-    state.editingTeamIdx = index;
-    renderTeam();
-    setTimeout(() => {
-        const input = document.getElementById(`rename-input-team-${index}`);
-        if (input) {
-            input.focus();
-            input.select();
-        }
-    }, 0);
-}
-
-function confirmTeamRename(index) {
-    const input = document.getElementById(`rename-input-team-${index}`);
-    if (input) {
-        const newName = input.value.trim();
-        if (newName && newName.length > 0 && newName.length <= 12) {
-            state.team[index].name = newName;
-        }
-    }
-    state.editingTeamIdx = null;
-    renderTeam();
-}
-
-function cancelTeamRename() {
-    state.editingTeamIdx = null;
-    renderTeam();
-}
-
-function startPcRename(index, event) {
-    event.stopPropagation();
-    state.editingTeamIdx = null; // Close any open team rename
-    state.editingPcIdx = index;
-    renderPC();
-    setTimeout(() => {
-        const input = document.getElementById(`rename-input-pc-${index}`);
-        if (input) {
-            input.focus();
-            input.select();
-        }
-    }, 0);
-}
-
-function confirmPcRename(index) {
-    const input = document.getElementById(`rename-input-pc-${index}`);
-    if (input) {
-        const newName = input.value.trim();
-        if (newName && newName.length > 0 && newName.length <= 12) {
-            state.pc[index].name = newName;
-        }
-    }
-    state.editingPcIdx = null;
-    renderPC();
-}
-
-function cancelPcRename() {
-    state.editingPcIdx = null;
-    renderPC();
-}
-
 function evolve(uid) {
     let p = state.team.find(x=>x.uid===uid);
     let ed = EVOLUTIONS[p.id];
@@ -2131,6 +2150,173 @@ function evolve(uid) {
         playTone('up'); 
         showFeedback("ÉVOLUTION !", "purple");
     }
+}
+
+function getPokemonDps(p, targetId) {
+    if (!p) return 0;
+    let m = targetId ? getMultiplier(p.id, targetId) : 1;
+    
+    if (targetId && p.name === "Johnny" && getTypes(targetId).includes("Dark")) {
+        m *= 1.5;
+    }
+
+    let shinyBonus = p.isShiny ? 2 : 1;
+    let happyMult = 1 + ((p.happiness || 0) * 0.001);
+    let baseStat = BASE_STATS[p.id] || 40;
+    let rawDmg = (baseStat * p.level) / 5;
+    return rawDmg * m * shinyBonus * happyMult;
+}
+
+function showPokemonSummary(location, index, event) {
+    if(event) event.preventDefault();
+    const p = state[location][index];
+    if (!p) return;
+
+    state.summaryPokemon = { location, index };
+
+    document.getElementById('summary-sprite').src = getArtwork(p.id, p.isShiny);
+    document.getElementById('summary-name').innerText = p.name;
+    
+    const pTypes = getTypes(p.id);
+    let genderSymbol = '';
+    if (p.gender === 'male') genderSymbol = '<span class="text-blue-400 text-lg ml-1 font-bold">♂</span>';
+    else if (p.gender === 'female') genderSymbol = '<span class="text-pink-400 text-lg ml-1 font-bold">♀</span>';
+    document.getElementById('summary-types').innerHTML = pTypes.map(t => `<span style="background:${TYPE_COLORS[t]}" class="text-xs px-2 py-1 rounded text-white shadow-sm uppercase">${t}</span>`).join("") + genderSymbol;
+
+    document.getElementById('summary-level').innerText = `Lv.${p.level}`;
+    const xpPct = p.level >= 100 ? 100 : Math.min(100, (p.xp / p.maxXp) * 100);
+    document.getElementById('summary-xp-bar').style.width = `${xpPct}%`;
+    document.getElementById('summary-xp-text').innerText = p.level >= 100 ? "MAX" : `${Math.floor(p.xp)}/${p.maxXp}`;
+
+    const dps = getPokemonDps(p, enemy.dead ? null : enemy.id);
+    document.getElementById('summary-dps').innerText = dps.toFixed(1);
+
+    // Happiness Ring Update
+    const happyVal = p.happiness || 0;
+    const happyPct = (happyVal / 255) * 100;
+    document.getElementById('summary-happy-progress').style.background = `conic-gradient(#fbbf24 ${happyPct}%, #334155 ${happyPct}%)`;
+    document.getElementById('summary-happy-val').innerText = `${happyVal}/255`;
+    document.getElementById('summary-happy-bonus').innerText = `+${(happyVal * 0.1).toFixed(1)}% Dégâts`;
+
+    const moveBtn = document.getElementById('summary-move-btn');
+    const releaseBtn = document.getElementById('summary-release-btn');
+
+    if (location === 'team') {
+        moveBtn.innerText = "Envoyer au PC";
+        moveBtn.disabled = state.team.length <= 1;
+    } else {
+        moveBtn.innerText = "Placer dans l'équipe";
+        moveBtn.disabled = false;
+    }
+    releaseBtn.disabled = (location === 'team' && state.team.length <= 1);
+
+    moveBtn.onclick = () => movePokemonFromSummary();
+    releaseBtn.onclick = () => releasePokemonFromSummary();
+
+    document.getElementById('pokemon-summary-modal').classList.remove('hidden');
+}
+
+function hidePokemonSummary() {
+    document.getElementById('pokemon-summary-modal').classList.add('hidden');
+    cancelSummaryRename();
+    state.summaryPokemon = null;
+}
+
+function openContextMenu(loc, idx, e) {
+    e.preventDefault();
+    e.stopPropagation();
+    state.contextTarget = { location: loc, index: idx };
+    const menu = document.getElementById('custom-context-menu');
+    
+    // Position logic
+    let x = e.clientX;
+    let y = e.clientY;
+    
+    // Adjust if close to edge (basic)
+    if (x + 150 > window.innerWidth) x -= 130;
+    if (y + 100 > window.innerHeight) y -= 100;
+
+    menu.style.left = `${x}px`;
+    menu.style.top = `${y}px`;
+    menu.classList.remove('hidden');
+    menu.classList.add('flex');
+}
+
+function onSummaryClick() {
+    if(state.contextTarget) {
+        showPokemonSummary(state.contextTarget.location, state.contextTarget.index);
+        document.getElementById('custom-context-menu').classList.add('hidden');
+    }
+}
+
+function movePokemonFromSummary() {
+    if (!state.summaryPokemon) return;
+    const { location, index } = state.summaryPokemon;
+
+    if (location === 'team') {
+        if (state.team.length <= 1) { showFeedback("DERNIER POKÉMON !", "red"); return; }
+        const p = state.team.splice(index, 1)[0];
+        state.pc.push(p);
+        playTone('pc');
+    } else {
+        if (state.team.length < 6) {
+            const p = state.pc.splice(index, 1)[0];
+            state.team.push(p);
+            playTone('pc');
+        } else { initSwap(index); }
+    }
+    hidePokemonSummary();
+    renderTeam();
+    renderPC();
+}
+
+function releasePokemonFromSummary() {
+    if (!state.summaryPokemon) return;
+    const { location, index } = state.summaryPokemon;
+    const p = state[location][index];
+
+    if (location === 'team' && state.team.length <= 1) { showFeedback("IMPOSSIBLE !", "red"); return; }
+
+    if (confirm(`Voulez-vous vraiment relâcher ${p.name} ?`)) {
+        state[location].splice(index, 1);
+        hidePokemonSummary();
+        renderTeam();
+        renderPC();
+    }
+}
+
+function startSummaryRename() {
+    document.getElementById('summary-name-display').classList.add('hidden');
+    const inputContainer = document.getElementById('summary-rename-input-container');
+    inputContainer.classList.remove('hidden');
+    inputContainer.classList.add('flex');
+    const input = document.getElementById('summary-rename-input');
+    const { location, index } = state.summaryPokemon;
+    input.value = state[location][index].name;
+    input.focus();
+    input.select();
+}
+
+function confirmSummaryRename() {
+    if (!state.summaryPokemon) return;
+    const { location, index } = state.summaryPokemon;
+    const input = document.getElementById('summary-rename-input');
+    const newName = input.value.trim();
+
+    if (newName && newName.length > 0 && newName.length <= 12) {
+        state[location][index].name = newName;
+        document.getElementById('summary-name').innerText = newName;
+        renderTeam();
+        renderPC();
+    }
+    cancelSummaryRename();
+}
+
+function cancelSummaryRename() {
+    document.getElementById('summary-name-display').classList.remove('hidden');
+    const inputContainer = document.getElementById('summary-rename-input-container');
+    inputContainer.classList.add('hidden');
+    inputContainer.classList.remove('flex');
 }
 
 function showItemInfo(id, e) {
@@ -2290,8 +2476,8 @@ function loadData(data) {
     state.candyMode = false;
     state.candyTargetIdx = null;
     state.candyAmount = 1;
-    state.editingTeamIdx = null;
-    state.editingPcIdx = null;
+    state.summaryPokemon = null;
+    state.contextTarget = null;
     if(state.starterId === undefined) state.starterId = null;
     if(!state.pokedex) state.pokedex = [];
     if(!state.milestones) state.milestones = [];
@@ -2322,6 +2508,14 @@ function loadData(data) {
         p.img = getSprite(p.id, p.isShiny);
         if(p.xp === undefined) p.xp = 0;
         if(p.maxXp === undefined) p.maxXp = calcMaxXp(p.id, p.level);
+        if(p.happiness === undefined) p.happiness = 0;
+        if(!p.gender) {
+            if (p.id === 132) {
+                p.gender = 'genderless';
+            } else {
+                p.gender = Math.random() < 0.5 ? 'male' : 'female';
+            }
+        }
     };
     
     state.team.forEach(initP);
@@ -2749,9 +2943,12 @@ function updateEnemyUI() {
     // Show Types
     const types = getTypes(enemy.id);
     let typeHtml = types.map(t => `<span style="background:${TYPE_COLORS[t]}" class="text-[9px] px-1.5 py-0.5 rounded text-white shadow-sm ml-1 uppercase">${t}</span>`).join("");
+    let genderHtml = '';
+    if (enemy.gender === 'male') genderHtml = `<span class="text-blue-400 ml-1 font-bold text-sm">♂</span>`;
+    else if (enemy.gender === 'female') genderHtml = `<span class="text-pink-400 ml-1 font-bold text-sm">♀</span>`;
     if(enemy.isShiny) typeHtml += `<span class="text-[9px] px-1.5 py-0.5 rounded bg-yellow-400 text-black font-bold shadow-sm ml-1">★</span>`;
     if(state.pokedex.includes(enemy.id)) typeHtml += `<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" class="w-3 h-3 inline-block ml-1" title="Déjà capturé">`;
-    document.getElementById('enemy-name').innerHTML = enemy.name + typeHtml;
+    document.getElementById('enemy-name').innerHTML = enemy.name + genderHtml + typeHtml;
     
     const hasLeftovers = state.upgrades.leftovers;
     ['auto-click-btn', 'auto-click-btn-m'].forEach(id => {
@@ -2812,7 +3009,8 @@ function renderTeam() {
         const isInteractive = swapMode || candyMode;
         const mult = !enemy.dead ? getMultiplier(p.id, enemy.id) : 1;
         const multColor = mult > 1 ? "text-green-400" : mult < 1 ? "text-red-400" : "text-gray-400";
-        const typeIcon = `<div class="w-2 h-2 rounded-full inline-block mr-1" style="background:${TYPE_COLORS[getTypes(p.id)[0]]}"></div>`;
+        const pTypes = getTypes(p.id);
+        const typeIcon = pTypes.map(t => `<div class="w-2 h-2 rounded-full inline-block mr-1" style="background:${TYPE_COLORS[t]}" title="${t}"></div>`).join("");
         const shinyClass = p.isShiny ? "shiny-glow" : "";
         const shinyIcon = p.isShiny ? "<span class='text-yellow-400 ml-1'>★</span>" : "";
         const shinyDpsMult = p.isShiny ? 2 : 1;
@@ -2837,29 +3035,19 @@ function renderTeam() {
         if (p.name === "Dinnerbone" || p.name === "Grumm") specialClass = "upside-down";
         if (p.name === "jeb_") specialClass = "rainbow-anim";
 
-        const isEditing = state.editingTeamIdx === i;
-        let nameDisplay;
-        if (isEditing) {
-            nameDisplay = `
-            <div class="flex items-center gap-1 relative z-50" onclick="event.stopPropagation()">
-                <input type="text" id="rename-input-team-${i}" value="${p.name}" maxlength="12" class="w-20 text-[10px] text-black px-1 py-0.5 rounded border border-blue-400 focus:outline-none select-text" onkeydown="if(event.key==='Enter') confirmTeamRename(${i})">
-                <button onclick="confirmTeamRename(${i})" class="text-green-400 hover:text-green-300 material-symbols-outlined text-[14px] bg-slate-800 rounded-full">check</button>
-                <button onclick="cancelTeamRename()" class="text-red-400 hover:text-red-300 material-symbols-outlined text-[14px] bg-slate-800 rounded-full">close</button>
-            </div>`;
-        } else {
-            nameDisplay = `
-            <div class="flex items-center gap-1 min-w-0 relative z-10">
-                <div class="text-xs font-bold text-gray-200 truncate">${typeIcon}${p.name}${shinyIcon}</div>
-                ${!isInteractive ? `<button onclick="startTeamRename(${i}, event)" class="material-symbols-outlined text-[12px] text-gray-500 hover:text-white cursor-pointer opacity-50 hover:opacity-100 transition-opacity ml-1 bg-transparent border-none p-0" title="Renommer">edit</button>` : ''}
-            </div>`;
-        }
+        const genderSymbol = p.gender === 'male' ? '<span class="text-blue-400 text-[10px] ml-1 font-bold">♂</span>' : (p.gender === 'female' ? '<span class="text-pink-400 text-[10px] ml-1 font-bold">♀</span>' : '');
+
+        const nameDisplay = `
+        <div class="flex items-center gap-1 min-w-0 relative z-10">
+            <div class="text-xs font-bold text-gray-200 truncate">${typeIcon}${p.name}${shinyIcon}</div>
+        </div>`;
 
         html += `
-        <div onclick="${isInteractive ? `handleTeamClick(${i})` : ''}" class="flex items-center p-2 rounded border ${isInteractive?'border-blue-400 bg-blue-900/30 cursor-pointer animate-pulse':'border-slate-600 bg-slate-700/40'} hover:bg-slate-700 transition group">
+        <div oncontextmenu="openContextMenu('team', ${i}, event)" onclick="${isInteractive ? `handleTeamClick(${i})` : `openContextMenu('team', ${i}, event)`}" class="flex items-center p-2 rounded border ${isInteractive?'border-blue-400 bg-blue-900/30 cursor-pointer animate-pulse':'border-slate-600 bg-slate-700/40'} hover:bg-slate-700 transition group">
             <img src="${displayImg}" class="w-10 h-10 mr-3 ${shinyClass} ${animClass} ${specialClass}">
             <div class="flex-1 min-w-0">
                 ${nameDisplay}
-                <div class="text-[10px] text-yellow-500">DPS: ${(rawDmg*mult*shinyDpsMult).toFixed(1)} <span class="${multColor} text-[8px]">x${mult}</span></div>
+                <div class="text-[10px] text-yellow-500">DPS: ${(rawDmg*mult*shinyDpsMult).toFixed(1)} <span class="${multColor} text-[8px]">x${mult}</span>${genderSymbol}</div>
             </div>
             ${!swapMode ? `
             ${isCandyTarget ? `
@@ -2900,36 +3088,17 @@ function renderPC() {
     let html = state.pc.length===0 ? `<div class="text-center text-green-500 text-xs mt-10">VIDE</div>` : "";
     state.pc.forEach((p,i) => {
         const shinyClass = p.isShiny ? "shiny-glow" : "";
-        const isEditing = state.editingPcIdx === i;
-
-        let nameDisplay;
-        if (isEditing) {
-            nameDisplay = `
-            <div class="flex items-center gap-1" onclick="event.stopPropagation()">
-                <input type="text" id="rename-input-pc-${i}" value="${p.name}" maxlength="12" class="w-24 text-[10px] text-black px-1 py-0.5 rounded border border-blue-400 focus:outline-none select-text" onkeydown="if(event.key==='Enter') confirmPcRename(${i})">
-                <button onclick="confirmPcRename(${i})" class="text-green-400 hover:text-green-300 material-symbols-outlined text-[14px] bg-slate-800 rounded-full">check</button>
-                <button onclick="cancelPcRename()" class="text-red-400 hover:text-red-300 material-symbols-outlined text-[14px] bg-slate-800 rounded-full">close</button>
-            </div>`;
-        } else {
-            nameDisplay = `
-            <div class="flex items-center gap-1">
-                <div class="text-[10px] text-green-400 truncate max-w-[100px]">${p.name}${p.isShiny?"★":""}</div>
-                <button onclick="startPcRename(${i}, event)" class="material-symbols-outlined text-[12px] text-gray-500 hover:text-white cursor-pointer opacity-50 hover:opacity-100 transition-opacity shrink-0" title="Renommer">edit</button>
-            </div>`;
-        }
+        const genderSymbol = p.gender === 'male' ? '<span class="text-blue-400 text-[8px] ml-1 font-bold">♂</span>' : (p.gender === 'female' ? '<span class="text-pink-400 text-[8px] ml-1 font-bold">♀</span>' : '');
+        const nameDisplay = `<div class="text-[10px] text-green-400 truncate max-w-[100px]">${p.name}${p.isShiny?"★":""}</div>`;
 
         html += `
-        <div class="flex justify-between items-center bg-gray-900/80 p-2 mb-1 border-b border-green-900">
+        <div oncontextmenu="openContextMenu('pc', ${i}, event)" onclick="openContextMenu('pc', ${i}, event)" class="flex justify-between items-center bg-gray-900/80 p-2 mb-1 border-b border-green-900 cursor-pointer hover:bg-gray-800/80">
             <div class="flex items-center gap-2">
                 <img src="${p.img}" class="w-8 h-8 ${shinyClass}">
                 <div>
                     ${nameDisplay}
-                    <div class="text-[8px] text-green-600">Lv.${p.level}</div>
+                    <div class="text-[8px] text-green-600">Lv.${p.level}${genderSymbol}</div>
                 </div>
-            </div>
-            <div class="flex gap-1">
-                <button onclick="initSwap(${i})" class="text-[8px] bg-green-700 text-white px-2 py-1 rounded">IN</button>
-                <button onclick="releasePokemon(${i})" class="text-[8px] bg-red-900 text-white px-2 py-1 rounded">X</button>
             </div>
         </div>`;
     });
@@ -3384,6 +3553,12 @@ setInterval(() => {
     }
     updateActiveEffects();
 }, 100);
+
+// Global click to close context menu
+window.addEventListener('click', () => {
+    const menu = document.getElementById('custom-context-menu');
+    if(menu) menu.classList.add('hidden');
+});
 
 // Launch
 window.onload = init;
