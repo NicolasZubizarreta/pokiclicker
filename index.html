@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="utf-8">
-    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
     <title>Poké-Clicker: Kanto Origins</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -13,7 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0" rel="stylesheet">
     
     <style>
-        body { font-family: 'Open Sans', sans-serif; background: #0f172a; color: white; overflow: hidden; }
+        body { font-family: 'Open Sans', sans-serif; background: #0f172a; color: white; overflow: hidden; touch-action: manipulation; }
         h1, h2, h3, .pixel-font { font-family: 'Press Start 2P', cursive; }
         
         /* Animations */
@@ -175,6 +175,36 @@
         @keyframes rainbow { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } }
         .rainbow-anim { animation: rainbow 2s linear infinite; }
         .upside-down { transform: rotate(180deg); }
+        
+        @keyframes float-upside-down {
+            0% { transform: translateY(0px) rotate(180deg); }
+            50% { transform: translateY(-10px) rotate(180deg); }
+            100% { transform: translateY(0px) rotate(180deg); }
+        }
+        .pokemon-float.upside-down { animation: float-upside-down 3s ease-in-out infinite; }
+
+        /* Badge Animation */
+        @keyframes badge-slam {
+            0% { transform: scale(5); opacity: 0; }
+            50% { transform: scale(1); opacity: 1; }
+            70% { transform: scale(1.4); }
+            100% { transform: scale(1); }
+        }
+        .badge-slam { animation: badge-slam 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; z-index: 50; }
+
+        @keyframes flash-green-strong {
+            0%, 100% { fill: rgba(22, 163, 74, 0.4); stroke: rgba(134, 239, 172, 0.9); }
+            50% { fill: rgba(74, 222, 128, 0.9); stroke: rgba(255, 255, 255, 1); }
+        }
+        .flash-green-strong { animation: flash-green-strong 0.8s infinite; }
+        .pixelated { image-rendering: pixelated; }
+        
+        @keyframes break-lock {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2) rotate(10deg); }
+            100% { transform: scale(2); opacity: 0; }
+        }
+        .breaking-lock { animation: break-lock 0.5s forwards; }
     </style>
 </head>
 <body class="h-screen flex flex-col selection:bg-red-500 selection:text-white select-none">
@@ -184,24 +214,17 @@
         <h1 class="text-3xl md:text-5xl text-yellow-400 mb-2 pixel-font drop-shadow-lg">POKÉ CLICKER</h1>
         <p class="text-gray-400 text-sm tracking-widest">KANTO ORIGINS</p>
     </div>
-    <div class="bg-slate-800/80 p-8 rounded-3xl border-4 border-slate-600 shadow-2xl max-w-4xl w-full backdrop-blur-sm max-h-[90vh] overflow-y-auto custom-scroll">
-        <h2 class="text-center text-white mb-8 pixel-font text-lg">CHOISIS TON STARTER</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="group relative bg-gradient-to-br from-green-900 to-slate-900 border-2 border-green-600 hover:border-green-400 rounded-xl p-6 cursor-pointer transition-all hover:-translate-y-2 text-center" onclick="startGame(1)">
-                <img class="w-32 h-32 mx-auto mb-4 object-contain group-hover:scale-110 transition-transform" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png">
-                <div class="pixel-font text-green-400 text-sm">BULBIZARRE</div>
-            </div>
-            <div class="group relative bg-gradient-to-br from-red-900 to-slate-900 border-2 border-red-600 hover:border-red-400 rounded-xl p-6 cursor-pointer transition-all hover:-translate-y-2 text-center" onclick="startGame(4)">
-                <img class="w-32 h-32 mx-auto mb-4 object-contain group-hover:scale-110 transition-transform" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/4.png">
-                <div class="pixel-font text-red-400 text-sm">SALAMÈCHE</div>
-            </div>
-            <div class="group relative bg-gradient-to-br from-blue-900 to-slate-900 border-2 border-blue-600 hover:border-blue-400 rounded-xl p-6 cursor-pointer transition-all hover:-translate-y-2 text-center" onclick="startGame(7)">
-                <img class="w-32 h-32 mx-auto mb-4 object-contain group-hover:scale-110 transition-transform" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/7.png">
-                <div class="pixel-font text-blue-400 text-sm">CARAPUCE</div>
-            </div>
-        </div>
-        <div class="mt-8 text-center">
-            <button onclick="loadSaveFile()" class="text-xs text-gray-500 hover:text-white underline">Importer une sauvegarde (JSON)</button>
+    <div class="bg-slate-800/80 p-8 rounded-3xl border-4 border-slate-600 shadow-2xl max-w-md w-full backdrop-blur-sm">
+        <div class="flex flex-col gap-6 items-center">
+            <button onclick="startGame()" class="bg-yellow-500 hover:bg-yellow-400 text-black font-bold py-4 px-12 rounded-xl text-xl pixel-font shadow-[0_0_20px_rgba(234,179,8,0.5)] transform transition hover:scale-105 border-4 border-yellow-600">
+                JOUER
+            </button>
+            
+            <div class="w-full border-t border-slate-600 my-2"></div>
+            
+            <button onclick="loadSaveFile()" class="text-xs text-gray-400 hover:text-white underline flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm">upload</span> Importer une sauvegarde (JSON)
+            </button>
             <input type="file" id="file-input" class="hidden" accept=".json" onchange="handleFileSelect(event)">
         </div>
     </div>
@@ -366,6 +389,7 @@
                     <div id="summary-name-display" class="flex items-center gap-2">
                         <h3 id="summary-name" class="pixel-font text-sm md:text-lg text-white truncate">POKEMON</h3>
                         <button id="summary-rename-btn" onclick="startSummaryRename()" class="material-symbols-outlined text-sm text-gray-400 hover:text-white transition-colors">edit</button>
+                        <span id="summary-shiny-icon" class="text-yellow-400 text-lg hidden">✦</span>
                     </div>
                     <div id="summary-rename-input-container" class="hidden items-center gap-1">
                         <input type="text" id="summary-rename-input" maxlength="12" class="w-24 text-xs text-black px-1 py-0.5 rounded border border-blue-400 focus:outline-none select-text">
@@ -436,9 +460,13 @@
             <div class="flex-1 overflow-y-auto p-2 space-y-2 custom-scroll" id="team-list">
                 </div>
         </div>
-        <div id="bag-container" class="h-[38%] flex flex-col min-h-0 bg-slate-800 border-t border-slate-700 shrink-0">
-            <div class="p-2 bg-slate-700 text-center shadow-md border-b border-slate-600">
+        <div id="bag-container" class="h-[38%] flex flex-col min-h-0 bg-slate-800 border-t border-slate-700 shrink-0 relative">
+            <div class="p-2 bg-slate-700 text-center shadow-md border-b border-slate-600 z-10">
                 <span class="pixel-font text-xs text-yellow-300 tracking-wider">SAC À DOS</span>
+            </div>
+            <div class="absolute inset-0 bg-slate-900/90 z-20 flex flex-col items-center justify-center text-center p-4 hidden" id="bag-locked">
+                <span class="material-symbols-outlined text-gray-500 text-3xl mb-2">lock</span>
+                <p class="text-xs text-gray-400 font-bold">BLOQUÉ</p>
             </div>
             <div class="flex-1 overflow-y-auto p-2 grid grid-cols-2 gap-2 custom-scroll" id="bag-content">
                 </div>
@@ -446,12 +474,16 @@
     </div>
 
     <div id="main-game-view" class="w-[60%] relative flex flex-col h-full bg-black overflow-hidden shrink-0">
-        <div id="bg-layer" style="background-image: url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png');"></div>
+        <div id="bg-layer" class="absolute inset-0 z-0">
+            <div id="bg-image-div" class="absolute inset-0 bg-cover bg-center no-repeat pixelated" style="background-image: url('https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png');"></div>
+            <img id="bg-img-element" class="absolute inset-0 w-full h-full object-cover hidden" draggable="false">
+            <svg id="bg-overlay-svg" class="absolute inset-0 w-full h-full hidden pointer-events-auto" preserveAspectRatio="xMidYMid slice"></svg>
+        </div>
 
         <!-- Content Container (Z-10) -->
-        <div class="relative z-10 flex flex-col h-full w-full">
+        <div class="relative z-10 flex flex-col h-full w-full pointer-events-none">
             <!-- Top Bar -->
-            <div class="flex-none w-full p-2 flex flex-wrap lg:flex-nowrap items-center gap-y-2 lg:gap-1">
+            <div class="flex-none w-full p-2 flex flex-wrap lg:flex-nowrap items-center gap-y-2 lg:gap-1 pointer-events-auto">
                 
                 <!-- Zone Info (Mobile: Top Full / Desktop: Center) -->
                 <div class="w-full lg:w-[50%] order-1 lg:order-2 flex justify-center items-center gap-1">
@@ -475,33 +507,40 @@
 
                 <!-- Money (Mobile: Left Below / Desktop: Left) -->
                 <div class="w-1/2 lg:w-[25%] order-2 lg:order-1 flex justify-start">
-                    <div class="glass-panel px-2 py-1 rounded-full flex items-center gap-1 shadow-lg max-w-full">
-                        <span class="material-symbols-outlined text-yellow-400 text-xs">attach_money</span>
-                        <span class="text-[10px] font-bold pixel-font text-white text-shadow truncate" id="money-display">0</span>
+                    <div class="glass-panel px-4 rounded-full flex items-center justify-center gap-2 shadow-lg h-12 lg:h-16 min-w-[120px]">
+                        <span class="material-symbols-outlined text-yellow-400 text-base lg:text-xl">attach_money</span>
+                        <span class="text-xs lg:text-sm font-bold pixel-font text-white text-shadow truncate" id="money-display">0</span>
                     </div>
                 </div>
 
                 <!-- Map (Mobile: Right Below / Desktop: Right) -->
                 <div class="w-1/2 lg:w-[25%] order-3 lg:order-3 flex justify-end">
-                    <button onclick="toggleMap()" class="w-8 h-8 lg:w-10 lg:h-10 bg-slate-800 rounded-full border border-blue-400 hover:bg-slate-700 shadow-lg flex items-center justify-center transition-all hover:scale-110 group" title="Ouvrir la Carte">
-                        <span class="material-symbols-outlined text-blue-200 group-hover:text-white text-sm lg:text-base">map</span>
+                    <button id="map-btn" onclick="toggleMap()" class="w-12 h-12 lg:w-16 lg:h-16 bg-slate-800 rounded-full border-2 border-slate-600 flex items-center justify-center shadow-lg transition-all group disabled:opacity-50 disabled:cursor-not-allowed" title="Ouvrir la Carte" disabled>
+                        <span id="map-icon-lock" class="material-symbols-outlined text-slate-500 text-2xl">lock</span>
+                        <img id="map-icon-active" src="img/Carte.png" class="w-8 h-8 lg:w-10 lg:h-10 object-contain hidden opacity-80 group-hover:opacity-100 transition-all group-hover:scale-110">
                     </button>
                 </div>
             </div>
 
             <!-- Middle (Pokemon) - Adjusted padding for mobile top bar -->
             <div class="flex-1 flex flex-col items-center justify-center min-h-0 relative group select-none">
-                <div class="absolute -top-20 left-0 w-full text-center hidden pointer-events-none z-50" id="feedback-msg">
+                <div class="absolute top-12 left-0 w-full text-center hidden pointer-events-none z-50" id="feedback-msg">
                     <span class="text-yellow-400 font-bold text-2xl pixel-font text-shadow-lg drop-shadow-lg">CAPTURED!</span>
+                </div>
+                <div id="mom-speech" class="absolute bottom-4 left-1/2 -translate-x-1/2 w-auto max-w-[90%] bg-white/90 text-black p-4 rounded-lg border-4 border-blue-500 pixel-font text-xs z-50 hidden shadow-xl text-center pointer-events-none">
+                    Il n'y a rien à faire ici, sortons.
+                </div>
+                <div id="blue-speech" class="absolute bottom-4 left-1/2 -translate-x-1/2 w-auto max-w-[90%] bg-white/90 text-black p-4 rounded-lg border-4 border-blue-500 pixel-font text-xs z-50 hidden shadow-xl text-center pointer-events-none">
+                    Eh pourquoi il a le droit à une maison en 3D lui ?
                 </div>
                 <div id="catch-tooltip" class="hidden absolute top-4 right-4 bg-black/90 border border-slate-500 p-3 rounded-lg text-xs text-white z-50 pointer-events-none shadow-xl backdrop-blur-sm min-w-[120px]"></div>
                 <div id="searching-msg" class="hidden text-white pixel-font text-sm animate-pulse tracking-widest z-20">RECHERCHE EN COURS...</div>
-                <img class="w-48 h-48 lg:w-72 lg:h-72 object-contain pokemon-float drop-shadow-2xl transition-all duration-100 cursor-pointer active:scale-95" id="enemy-sprite" onclick="clickAttack(event)" onmouseenter="showCatchTooltip()" onmouseleave="hideCatchTooltip()" src="" draggable="false">
+                <img class="w-48 h-48 lg:w-72 lg:h-72 object-contain pokemon-float drop-shadow-2xl transition-all duration-100 cursor-pointer active:scale-95 pointer-events-auto" id="enemy-sprite" onclick="clickAttack(event)" onmouseenter="showCatchTooltip()" onmouseleave="hideCatchTooltip()" src="" draggable="false">
                 <div class="hidden absolute top-0 right-10 bg-red-600 text-white font-bold text-[10px] px-3 py-1 rounded border border-white shadow-lg animate-bounce" id="boss-badge" style="display: none;">BOSS</div>
             </div>
             
             <!-- HP Bar Area -->
-            <div class="flex-none w-[80%] max-w-md mb-4 bg-slate-900/80 rounded-xl border-2 border-slate-600 p-2 shadow-2xl backdrop-blur-md relative mx-auto">
+            <div id="enemy-info-panel" class="flex-none w-[80%] max-w-md mb-4 bg-slate-900/80 rounded-xl border-2 border-slate-600 p-2 shadow-2xl backdrop-blur-md relative mx-auto pointer-events-auto">
                 <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white text-xs font-bold px-3 py-0.5 rounded-full border border-slate-500 shadow-md">
                     <span id="enemy-level">Lv. 2</span>
                 </div>
@@ -519,17 +558,59 @@
             </div>
 
             <!-- Bottom Controls -->
-            <div class="flex-none p-2 flex justify-start gap-2">
+            <div class="flex-none p-2 flex justify-start gap-2 pointer-events-auto">
                 <button class="bg-gray-800 text-gray-400 border border-gray-600 px-2 py-1 rounded text-[10px] font-bold hover:bg-gray-700 transition-all opacity-50 hover:opacity-100" id="cheat-btn" onclick="toggleCheat()" title="Active le mode triche">CHEAT</button>
                 <button class="bg-red-800 text-red-200 border border-red-600 px-2 py-1 rounded text-[10px] font-bold hover:bg-red-700 transition-all shadow-lg flex items-center gap-1" onclick="resetSave()">
                     <span class="material-symbols-outlined text-[14px]">delete</span> RESET
                 </button>
             </div>
 
-            <button id="radar-btn" onclick="toggleRadarModal()" title="Poké-Radar" class="absolute bottom-4 right-4 w-12 h-12 bg-slate-800 rounded-full border-2 border-slate-600 flex items-center justify-center shadow-lg transition-all group disabled:opacity-50 disabled:cursor-not-allowed z-20" disabled>
+            <button id="radar-btn" onclick="toggleRadarModal()" title="Poké-Radar" class="absolute bottom-4 right-4 w-12 h-12 lg:w-16 lg:h-16 bg-slate-800 hover:bg-slate-700 rounded-full border-2 border-slate-600 flex items-center justify-center shadow-lg transition-all group disabled:opacity-50 disabled:cursor-not-allowed z-20 pointer-events-auto" disabled>
                 <span id="radar-icon-lock" class="material-symbols-outlined text-slate-500 text-2xl">lock</span>
-                <span id="radar-icon-active" class="material-symbols-outlined text-green-400 text-2xl hidden group-hover:scale-125 transition-transform">radar</span>
+                <img id="radar-icon-active" src="img/PokeRadar.png" class="w-8 h-8 lg:w-10 lg:h-10 object-contain hidden opacity-80 group-hover:opacity-100 transition-all group-hover:scale-110">
             </button>
+            <div id="map-tooltip" class="fixed z-[100] bg-slate-900 border-2 border-yellow-400 text-yellow-400 text-xs font-bold px-3 py-2 rounded-lg shadow-[0_0_10px_rgba(250,204,21,0.5)] pointer-events-none hidden transition-opacity duration-200 pixel-font tracking-wide"></div>
+        </div>
+    </div>
+
+    <!-- Intro Overlay (Inside Game View) -->
+    <div id="intro-overlay" class="absolute inset-0 z-50 hidden flex flex-col items-center justify-end pb-2 md:pb-4 overflow-hidden pointer-events-auto">
+        <!-- Professor Sprite -->
+        <img id="intro-prof" src="img/sprites/SpriteChen1.png" class="absolute bottom-[25%] md:bottom-[30%] right-0 h-[45%] md:h-[60%] object-contain transition-all duration-[1500ms] ease-out pixelated translate-x-full">
+
+        <!-- Dialog Box -->
+        <div id="intro-dialog-box" class="w-[95%] md:w-[50%] bg-white border-4 border-blue-800 rounded-lg p-3 md:p-4 mb-2 md:mb-4 min-h-[6rem] md:min-h-[8rem] h-auto hidden flex-col cursor-pointer shadow-xl z-20 relative mx-auto" onclick="advanceIntro()">
+            <p id="intro-text" class="text-black pixel-font text-[10px] md:text-xs leading-loose select-none break-words" style="word-spacing: 6px; letter-spacing: 1px;"></p>
+            <div id="intro-arrow" class="absolute bottom-2 right-2 text-red-500 animate-bounce hidden text-xl">▼</div>
+        </div>
+
+        <!-- Selection Area -->
+        <div id="intro-selection" class="hidden flex-col items-center gap-4 z-30 w-full mb-10 px-4">
+            <h2 class="text-lg text-white pixel-font mb-2 text-shadow text-center bg-black/50 p-2 rounded">CHOISIS TON PARTENAIRE</h2>
+            <div class="flex justify-center gap-4 w-full">
+                <div class="group flex flex-col items-center cursor-pointer transition-transform hover:scale-110" onclick="selectStarter(1)">
+                    <div class="w-20 h-20 relative flex items-center justify-center">
+                        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" class="w-full h-full object-contain transition-opacity duration-300" id="ball-1">
+                        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png" class="w-full h-full object-contain absolute inset-0 opacity-0 transition-opacity duration-300 scale-0 group-hover:scale-100" id="poke-1">
+                    </div>
+                    <div class="mt-2 bg-slate-800 text-white px-2 py-1 rounded pixel-font text-[10px] opacity-0 group-hover:opacity-100 transition-opacity">BULBIZARRE</div>
+                </div>
+                <div class="group flex flex-col items-center cursor-pointer transition-transform hover:scale-110" onclick="selectStarter(4)">
+                    <div class="w-20 h-20 relative flex items-center justify-center">
+                        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" class="w-full h-full object-contain transition-opacity duration-300" id="ball-4">
+                        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/4.png" class="w-full h-full object-contain absolute inset-0 opacity-0 transition-opacity duration-300 scale-0 group-hover:scale-100" id="poke-4">
+                    </div>
+                    <div class="mt-2 bg-slate-800 text-white px-2 py-1 rounded pixel-font text-[10px] opacity-0 group-hover:opacity-100 transition-opacity">SALAMÈCHE</div>
+                </div>
+                <div class="group flex flex-col items-center cursor-pointer transition-transform hover:scale-110" onclick="selectStarter(7)">
+                    <div class="w-20 h-20 relative flex items-center justify-center">
+                        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" class="w-full h-full object-contain transition-opacity duration-300" id="ball-7">
+                        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/7.png" class="w-full h-full object-contain absolute inset-0 opacity-0 transition-opacity duration-300 scale-0 group-hover:scale-100" id="poke-7">
+                    </div>
+                    <div class="mt-2 bg-slate-800 text-white px-2 py-1 rounded pixel-font text-[10px] opacity-0 group-hover:opacity-100 transition-opacity">CARAPUCE</div>
+                </div>
+            </div>
+            <button id="intro-confirm-btn" class="bg-yellow-500 text-black px-6 py-2 rounded-xl font-bold pixel-font hidden hover:bg-yellow-400 border-4 border-yellow-600 shadow-lg transition-all transform hover:scale-105 text-xs" onclick="confirmStarter()">CHOISIR</button>
         </div>
     </div>
 
@@ -569,7 +650,12 @@
                 <div class="p-2 bg-green-900/50 text-center shadow-md border-b border-green-800 z-10 flex justify-between items-center">
                     <button onclick="hidePC()" class="text-green-300 hover:text-white material-symbols-outlined text-lg bg-green-900/50 rounded-full w-6 h-6 flex items-center justify-center">arrow_back</button>
                     <span class="pixel-font text-[10px] text-green-300 tracking-wider">PC DE LÉO</span>
-                    <div class="w-6"></div>
+                    <select onchange="sortPC(this.value)" class="bg-green-900 text-green-300 text-[8px] border border-green-700 rounded focus:outline-none cursor-pointer">
+                        <option value="id">ID</option>
+                        <option value="name">NOM</option>
+                        <option value="level">LVL</option>
+                        <option value="favorite">FAVORI</option>
+                    </select>
                 </div>
                 <div id="pc-content" class="flex-1 overflow-y-auto p-2 pc-screen custom-scroll bg-black"></div>
                 <div class="absolute inset-0 top-9 bg-slate-900/95 z-20 flex flex-col items-center justify-center text-center p-4" id="pc-locked">
@@ -586,8 +672,8 @@
         <div id="mobile-main-menu" class="grid grid-cols-4 grid-rows-2 gap-2 p-2 h-full">
             <button onclick="openMobileSubView('mobile-team-view')" class="bg-slate-800 rounded flex flex-col items-center justify-center text-xs font-bold text-white border border-slate-600 active:bg-slate-700"><span class="material-symbols-outlined mb-1">group</span>ÉQUIPE</button>
             <button onclick="openMobileSubView('mobile-bag-view')" class="bg-slate-800 rounded flex flex-col items-center justify-center text-xs font-bold text-white border border-slate-600 active:bg-slate-700"><span class="material-symbols-outlined mb-1">backpack</span>SAC</button>
-            <button onclick="openMobileSubView('mobile-shop-view')" class="bg-slate-800 rounded flex flex-col items-center justify-center text-xs font-bold text-blue-300 border border-slate-600 active:bg-slate-700"><span class="material-symbols-outlined mb-1">storefront</span>SHOP</button>
-            <button onclick="openMobileSubView('mobile-pc-view')" class="bg-slate-800 rounded flex flex-col items-center justify-center text-xs font-bold text-green-300 border border-slate-600 active:bg-slate-700"><span class="material-symbols-outlined mb-1">computer</span>PC</button>
+            <button id="mobile-btn-shop" onclick="openMobileSubView('mobile-shop-view')" class="bg-slate-800 rounded flex flex-col items-center justify-center text-xs font-bold text-blue-300 border border-slate-600 active:bg-slate-700"><span class="material-symbols-outlined mb-1">storefront</span>SHOP</button>
+            <button id="mobile-btn-pc" onclick="openMobileSubView('mobile-pc-view')" class="bg-slate-800 rounded flex flex-col items-center justify-center text-xs font-bold text-green-300 border border-slate-600 active:bg-slate-700"><span class="material-symbols-outlined mb-1">computer</span>PC</button>
             <button onclick="togglePokedex()" class="bg-slate-800 rounded flex flex-col items-center justify-center text-xs font-bold text-red-400 border border-slate-600 active:bg-slate-700"><span class="material-symbols-outlined mb-1">book</span>POKÉDEX</button>
             <button onclick="toggleBadges()" class="bg-slate-800 rounded flex flex-col items-center justify-center text-xs font-bold text-yellow-500 border border-slate-600 active:bg-slate-700"><span class="material-symbols-outlined mb-1">military_tech</span>BADGES</button>
             <button onclick="showStats()" class="bg-slate-800 rounded flex flex-col items-center justify-center text-xs font-bold text-purple-400 border border-slate-600 active:bg-slate-700"><span class="material-symbols-outlined mb-1">bar_chart</span>STATS</button>
@@ -627,9 +713,35 @@
                 <div id="mobile-shop-content" class="flex-1 overflow-y-auto p-3 space-y-3 custom-scroll"></div>
             </div>
             <div id="mobile-pc-view" class="h-full w-full flex-col hidden bg-slate-900 absolute inset-0">
-                <div class="p-2 bg-green-900/50 flex items-center gap-2 border-b border-green-800 shrink-0"><button onclick="closeMobileSubViews()" class="material-symbols-outlined text-green-300 hover:text-white">arrow_back</button><h3 class="pixel-font text-xs text-green-300">PC DE LÉO</h3></div>
+                <div class="p-2 bg-green-900/50 flex items-center justify-between gap-2 border-b border-green-800 shrink-0">
+                    <div class="flex items-center gap-2">
+                        <button onclick="closeMobileSubViews()" class="material-symbols-outlined text-green-300 hover:text-white">arrow_back</button><h3 class="pixel-font text-xs text-green-300">PC DE LÉO</h3>
+                    </div>
+                    <select onchange="sortPC(this.value)" class="bg-green-900 text-green-300 text-[8px] border border-green-700 rounded focus:outline-none cursor-pointer">
+                        <option value="id">ID</option>
+                        <option value="name">NOM</option>
+                        <option value="level">LVL</option>
+                        <option value="favorite">FAVORI</option>
+                    </select>
+                </div>
                 <div id="mobile-pc-content" class="flex-1 overflow-y-auto p-2 pc-screen custom-scroll bg-black"></div>
             </div>
+        </div>
+    </div>
+</div>
+
+<div class="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 hidden" id="zone-info-modal" onclick="closeZoneInfo()">
+    <div class="bg-slate-800 border-2 border-slate-500 p-4 rounded-xl shadow-2xl max-w-sm w-full relative flex gap-4 items-center" onclick="event.stopPropagation()">
+        <button onclick="closeZoneInfo()" class="absolute top-2 right-2 text-gray-400 hover:text-white material-symbols-outlined text-sm">close</button>
+        <div class="w-24 h-24 shrink-0 rounded-lg border-2 border-slate-600 overflow-hidden relative shadow-inner bg-black">
+             <div id="zone-info-bg" class="w-full h-full bg-cover bg-center transition-transform hover:scale-110 duration-700"></div>
+        </div>
+        <div class="flex flex-col justify-center flex-1 gap-3">
+            <div>
+                <h3 class="text-yellow-400 font-bold mb-0.5 pixel-font text-xs tracking-wide uppercase" id="zone-info-name">ZONE NAME</h3>
+                <div class="text-[10px] text-blue-300 font-bold" id="zone-info-desc">Zone X</div>
+            </div>
+            <button id="zone-info-go-btn" class="w-full py-2 rounded font-bold text-[10px] flex items-center justify-center gap-2 transition-all shadow-lg uppercase tracking-wider"><span>Y ALLER</span></button>
         </div>
     </div>
 </div>
@@ -647,13 +759,13 @@ const ITEMS = {
     pokeball: { name: "Pokéball", price: 200, desc: "Capture des Pokémon (Faible chance)", type: "consumable", zone: 0, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png", invKey: "balls" },
     superball: { name: "Superball", price: 600, desc: "Capture des Pokémon (Moyenne chance x2)", type: "consumable", zone: 4, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png", invKey: "superballs" },
     hyperball: { name: "Hyperball", price: 1500, desc: "Capture des Pokémon (Haute chance x4)", type: "consumable", zone: 9, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png", invKey: "hyperballs" },
-    candy: { name: "Bonbon", price: 5000, desc: "Fait monter un Pokémon de niveau", type: "consumable", zone: 4, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rare-candy.png", invKey: "candy" },
-    masterball: { name: "Master Ball", price: 200000, desc: "Capture à coup sûr (100%)", type: "consumable", zone: 16, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/master-ball.png", invKey: "masterball" },
-    repel: { name: "Repousse", price: 2000, desc: "Empêche les Pokémon communs d'apparaître pendant 30s", type: "consumable", zone: 5, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/repel.png", invKey: "repel" },    
+    candy: { name: "Bonbon", price: 5000, desc: "Fait monter un Pokémon de niveau", type: "consumable", zone: 8, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rare-candy.png", invKey: "candy" },
+    masterball: { name: "Master Ball", price: 150000, desc: "Capture à coup sûr (100%)", type: "consumable", zone: 16, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/master-ball.png", invKey: "masterball" },
+    repel: { name: "Repousse", price: 2000, desc: "Empêche les Pokémon communs d'apparaître pendant 30s", type: "consumable", zone: 6, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/repel.png", invKey: "repel" },    
     xAttack: { name: "Attaque +", price: 7500, desc: "Dégâts/clic +50% (30s)", type: "consumable", zone: 8, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/x-attack.png", invKey: "xAttack" },
-    xSpecial: { name: "Attaque Spé +", price: 10000, desc: "DPS Équipe +50% (30s)", type: "consumable", zone: 11, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/x-sp-atk.png", invKey: "xSpecial" },
+    xSpecial: { name: "Attaque Spé +", price: 10000, desc: "DPS Équipe +50% (30s)", type: "consumable", zone: 12, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/x-sp-atk.png", invKey: "xSpecial" },
     superRepel: { name: "Superepousse", price: 12000, desc: "Bloque Communs/Peu Communs (30s)", type: "consumable", zone: 13, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/super-repel.png", invKey: "superRepel" },
-    pokeDoll: { name: "Poké Poupée", price: 7500, desc: "Invoque le Boss (Si déjà vaincu)", type: "consumable", zone: 15, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-doll.png", invKey: "pokeDoll" },
+    pokeDoll: { name: "Poké Poupée", price: 7500, desc: "Invoque le Boss (Si déjà vaincu)", type: "consumable", zone: 16, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-doll.png", invKey: "pokeDoll" },
     // Améliorations
     runningShoes: { name: "Chaussures Sport", price: 2000, desc: "Divise le temps d'apparition des ennemis par 1.5", type: "upgrade", zone: 1, icon: "sprint", iconColor: "text-orange-400" },
     amuletCoin: { name: "Pièce Rune", price: 4000, desc: "Gains d'argent +30%", type: "upgrade", zone: 2, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/amulet-coin.png" },
@@ -663,7 +775,7 @@ const ITEMS = {
     bicycle: { name: "Bicyclette", price: 30000, desc: "Vitesse de spawn x3 (Remplace Chaussures)", type: "upgrade", zone: 7, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/bicycle.png" },
     luckyEgg: { name: "Oeuf Chance", price: 75000, desc: "XP gagnée x1.5", type: "upgrade", zone: 10, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lucky-egg.png" },
     pokeradar: { name: "Poké-Radar", price: 45000, desc: "Affiche les Pokémon trouvables dans la zone actuelle.", type: "upgrade", zone: 8, icon: "radar", iconColor: "text-green-400" },
-    leftovers: { name: "Restes", price: 150000, desc: "Auto-click 9 clics/sec", type: "upgrade", zone: 12, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/leftovers.png" }
+    leftovers: { name: "Restes", price: 150000, desc: "Auto-click 9 clics/sec", type: "upgrade", zone: 14, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/leftovers.png" }
 };
 const EVOLUTIONS = {
     1:{id:2,lvl:16,name:"Herbizarre"}, 2:{id:3,lvl:32,name:"Florizarre"},
@@ -923,7 +1035,7 @@ const BASE_HP = {
     "151": 100                     // Mew
 };
 
-const ZONE_MULT = [1, 1.5, 2.2, 3.5, 6];
+const ZONE_MULT = [1, 1, 1.5, 2.2, 3.5, 6];
 
 const TYPES = {
     NORMAL:"Normal", FIRE:"Fire", WATER:"Water", GRASS:"Grass", ELECTRIC:"Electric", ICE:"Ice", 
@@ -1063,46 +1175,49 @@ const ID_MAP_FALLBACK = {
 };
 
 const BADGES = [
-    {id:1, zoneIdx:2, name:"Roche", desc:"Dégâts Clic +50%"},
-    {id:2, zoneIdx:4, name:"Cascade", desc:"DPS Équipe +30%"},
-    {id:3, zoneIdx:6, name:"Foudre", desc:"Dégâts Totaux +20%"},
-    {id:4, zoneIdx:10, name:"Prisme", desc:"Or gagné +20%"},
-    {id:5, zoneIdx:12, name:"Âme", desc:"XP gagnée +50%"},
-    {id:6, zoneIdx:14, name:"Marais", desc:"Taux Capture +30%"},
-    {id:7, zoneIdx:16, name:"Volcan", desc:"Dégâts Totaux +50%"},
-    {id:8, zoneIdx:17, name:"Terre", desc:"Vitesse de spawn +20%"}
+    {id:1, zoneIdx:3, name:"Roche", desc:"Dégâts Clic +50%"},
+    {id:2, zoneIdx:5, name:"Cascade", desc:"DPS Équipe +30%"},
+    {id:3, zoneIdx:7, name:"Foudre", desc:"Dégâts Totaux +20%"},
+    {id:4, zoneIdx:11, name:"Prisme", desc:"Or gagné +20%"},
+    {id:5, zoneIdx:13, name:"Âme", desc:"XP gagnée +50%"},
+    {id:6, zoneIdx:15, name:"Marais", desc:"Taux Capture +30%"},
+    {id:7, zoneIdx:17, name:"Volcan", desc:"Dégâts Totaux +50%"},
+    {id:8, zoneIdx:18, name:"Terre", desc:"Vitesse de spawn +20%"}
 ];
 
 const MAP_DATA = [
-    { type: "rect", coords: [300,694,359,762], name: "Route 1", zoneId: 0, color: "orange" },
-    { type: "rect", coords: [308,486,352,533], name: "Forêt de Jade", zoneId: 1, color: "blue" },
-    { type: "circle", coords: [331,391,37], name: "Arène d'Argenta", zoneId: 2, color: "red" },
-    { type: "polygon", coords: [607,307,652,307,652,353,607,353], name: "Mont Sélénite", zoneId: 3, color: "blue" },
-    { type: "circle", coords: [931,331,38], name: "Arène d'Azuria", zoneId: 4, color: "red" },
-    { type: "rect", coords: [900,248,961,287], name: "Pont Pépite", zoneId: 5, color: "orange" },
-    { type: "circle", coords: [931,690,38], name: "Arène de Carmin", zoneId: 6, color: "red" },
-    { type: "rect", coords: [968,666,1013,713], name: "Cave Taupiqueur", zoneId: 7, color: "blue" },
-    { type: "rect", coords: [1147,307,1193,353], name: "Tunnel Rocheux", zoneId: 8, color: "blue" },
+    { type: "rect", coords: [300,694,359,762], name: "Route 1", zoneId: 1, color: "orange" },
+    { type: "rect", coords: [308,486,352,533], name: "Forêt de Jade", zoneId: 2, color: "blue" },
+    { type: "circle", coords: [331,391,37], name: "Arène d'Argenta", zoneId: 3, color: "red" },
+    { type: "polygon", coords: [607,307,652,307,652,353,607,353], name: "Mont Sélénite", zoneId: 4, color: "blue" },
+    { type: "circle", coords: [931,331,38], name: "Arène d'Azuria", zoneId: 5, color: "red" },
+    { type: "rect", coords: [900,248,961,287], name: "Pont Pépite", zoneId: 6, color: "orange" },
+    { type: "circle", coords: [931,690,38], name: "Arène de Carmin", zoneId: 7, color: "red" },
+    { type: "rect", coords: [968,666,1013,713], name: "Cave Taupiqueur", zoneId: 8, color: "blue" },
+    { type: "rect", coords: [1147,307,1193,353], name: "Tunnel Rocheux", zoneId: 9, color: "blue" },
     { type: "circle", coords: [1171,511,38], name: "Lavanville", zoneId: null, color: "gray" }, // Non jouable
-    { type: "rect", coords: [1163,502,1209,548], name: "Tour Pokémon", zoneId: 9, color: "blue" },
-    { type: "circle", coords: [751,510,38], name: "Arène de Céladopole", zoneId: 10, color: "red" },
-    { type: "rect", coords: [1147,367,1193,413], name: "Centrale", zoneId: 11, color: "blue" },
-    { type: "circle", coords: [810,870,38], name: "Arène de Parmanie", zoneId: 12, color: "red" },
-    { type: "rect", coords: [923,503,969,548], name: "Sylphe SARL", zoneId: 13, color: "blue" },
-    { type: "circle", coords: [931,509,37], name: "Arène de Safrania", zoneId: 14, color: "red" },
-    { type: "rect", coords: [547,967,593,1013], name: "Îles Écume", zoneId: 15, color: "blue" },
-    { type: "circle", coords: [331,992,37], name: "Arène Cramois'Île", zoneId: 16, color: "red" },
-    { type: "circle", coords: [331,630,37], name: "Arène de Jadielle", zoneId: 17, color: "red" },
-    { type: "polygon", coords: [917,180,917,153,927,153,927,146,956,145,956,152,966,152,966,180,956,180,950,167,934,166,927,180], name: "Caverne Azurée", zoneId: 18, color: "cyan" },
-    { type: "rect", coords: [186,368,232,412], name: "Route Victoire", zoneId: 19, color: "blue" },
-    { type: "circle", coords: [210,331,37], name: "Ligue Pokémon", zoneId: 20, color: "red" },
-    { type: "circle", coords: [331,811,35], name: "Bourg Palette", zoneId: null, color: "gray" },
+    { type: "rect", coords: [1163,502,1209,548], name: "Tour Pokémon", zoneId: 10, color: "blue" },
+    { type: "circle", coords: [751,510,38], name: "Arène de Céladopole", zoneId: 11, color: "red" },
+    { type: "rect", coords: [1147,367,1193,413], name: "Centrale", zoneId: 12, color: "blue" },
+    { type: "circle", coords: [810,870,38], name: "Arène de Parmanie", zoneId: 13, color: "red" },
+    { type: "rect", coords: [923,503,969,548], name: "Sylphe SARL", zoneId: 14, color: "blue" },
+    { type: "circle", coords: [931,509,37], name: "Arène de Safrania", zoneId: 15, color: "red" },
+    { type: "rect", coords: [547,967,593,1013], name: "Îles Écume", zoneId: 16, color: "blue" },
+    { type: "circle", coords: [331,992,37], name: "Arène Cramois'Île", zoneId: 17, color: "red" },
+    { type: "circle", coords: [331,630,37], name: "Arène de Jadielle", zoneId: 18, color: "red" },
+    { type: "polygon", coords: [917,180,917,153,927,153,927,146,956,145,956,152,966,152,966,180,956,180,950,167,934,166,927,180], name: "Caverne Azurée", zoneId: 19, color: "cyan" },
+    { type: "rect", coords: [186,368,232,412], name: "Route Victoire", zoneId: 20, color: "blue" },
+    { type: "circle", coords: [210,331,37], name: "Ligue Pokémon", zoneId: 21, color: "red" },
+    { type: "circle", coords: [331,811,35], name: "Bourg Palette", zoneId: 0, color: "purple" },
     { type: "rect", coords: [308,428,352,474], name: "Daran Ass", zoneId: null, color: "gray" }
 ];
 
 // ZONE CONFIGURATION (Updated with explicit IDs)
 const ZONES = [
   // --- DÉBUT DE L'AVENTURE ---
+  {id:0, name:"Bourg Palette", bg:"img/background/Zone 0.png", minLevel:0, maxLevel:0,
+   pokemons:[], boss:{name:"", id:0, level:0, catchRate:0}},
+
   {id:1, name:"Route 1", bg:"img/background/Zone 1.png", minLevel:2, maxLevel:5,
    pokemons:[
      {name:"Rattata", id:19, rarity:"Commun", spawnRate:0.3, catchRate:255},
@@ -1345,12 +1460,20 @@ const ZONES = [
    boss:{name:"Maître Blue", id:9, level:100, catchRate:0}}
 ];
 
+ZONES[-4] = {id:-4, name:"Chez Maman", bg:"img/background/Chez Maman.png", minLevel:0, maxLevel:0, pokemons:[], boss:{name:"", id:0, level:0, catchRate:0}};
+ZONES[-3] = {id:-3, name:"Chez Blue", bg:"img/background/Chez Blue.png", minLevel:0, maxLevel:0, pokemons:[], boss:{name:"", id:0, level:0, catchRate:0}};
+ZONES[-2] = {id:-2, name:"Labo Pokémon du Prof. Chen", bg:"img/background/LaboPokemon.png", minLevel:0, maxLevel:0, pokemons:[], boss:{name:"", id:0, level:0, catchRate:0}};
+
 // --- STATE ---
 let state = {
     money: 0, 
-    inv: { balls: 5, superballs: 0, hyperballs: 0, candy: 0, omniXp: 0, shinyToken: 0, masterball: 0, repel: 0, xAttack: 0, xSpecial: 0, superRepel: 0, pokeDoll: 0 },
+    inv: { balls: 0, superballs: 0, hyperballs: 0, candy: 0, omniXp: 0, shinyToken: 0, masterball: 0, repel: 0, xAttack: 0, xSpecial: 0, superRepel: 0, pokeDoll: 0 },
     upgrades: { runningShoes: false, amuletCoin: false, protein: false, expShare: false, hardStone: false, bicycle: false, luckyEgg: false, leftovers: false, pokeradar: false },
     team: [], 
+    introBagUnlocked: false,
+    introMapUnlocked: false,
+    hasExitedLab: false,
+    hasVisitedRoute1: false,
     pc: [],
     pokedex: [],
     badges: [],
@@ -1359,7 +1482,7 @@ let state = {
     attackBoostEndTime: 0,
     dpsBoostEndTime: 0,
     superRepelEndTime: 0,
-    zoneIdx: 0, 
+    zoneIdx: -4, 
     subStage: 1, 
     unlockedZone: 0,
     auto: true, 
@@ -1368,14 +1491,15 @@ let state = {
     cheat: false,
     stats: { kills: 0, totalMoney: 0 },
     stopOnRare: true,
-    autoStopSettings: { 'Commun': false, 'Peu Commun': false, 'Rare': true, 'Très Rare': true, 'Légendaire': true, 'Shiny': true },
+    autoStopSettings: { 'Commun': false, 'Peu Commun': false, 'Rare': true, 'Très Rare': true, 'Légendaire': true, 'Shiny': true, 'Nouveau': true },
     interruptedState: null,
     swapIdx: null,
     candyMode: false,
     candyTargetIdx: null,
     candyAmount: 1,
     summaryPokemon: null,
-    contextTarget: null
+    contextTarget: null,
+    visitedLab: false
 };
 
 // Runtime variables (not saved)
@@ -1388,6 +1512,19 @@ let evolvingPokemon = { uid: null, endTime: 0, oldId: null, newId: null };
 let evolutionInterval = null;
 let victoryInterval = null;
 let fireworkInterval = null;
+let feedbackTimer = null;
+let introDialogs = [
+    "Salutations ! Bienvenue dans le monde merveilleux des Pokémon !",
+    "Mon nom est Chen. Les gens m'appellent souvent le Professeur Pokémon.",
+    "Ce monde est peuplé de créatures appelées Pokémon. Pour certains, ce sont des animaux domestiques, pour d'autres, des partenaires de combat.",
+    "Pour les apprivoiser il ne suffit pas de les regarder... Il faut les capturer ! Tiens, voici 5 Pokéballs pour te lancer.",
+    "Quant à moi... J'étudie les Pokémon comme profession. Mais je suis trop vieux maintenant. J'ai besoin de toi pour compléter le Pokédex !",
+    "Le monde est vaste. Pour t'aider à te repérer entre les différentes zones, je te confie aussi cette Carte de la Région.",
+    "Mais c'est dangereux de partir dans les hautes herbes sans protection ! J'ai ici trois Pokémon rares. Choisis-en un, il t'accompagnera dans ton voyage."
+];
+let introIndex = 0;
+let introTyping = false;
+let selectedStarterId = null;
 
 // --- INIT ---
 function init() {
@@ -1402,13 +1539,168 @@ function init() {
     }
 }
 
-function startGame(starterId) {
-    state.starterId = starterId;
-    let name = starterId===1?"Bulbizarre":starterId===4?"Salamèche":"Carapuce";
-    addToTeam(starterId, name, 5, false, Math.random() < 0.5 ? 'male' : 'female');
-    addToPokedex(starterId);
-    
+function startGame() {
     document.getElementById('starter-modal').classList.add('hidden');
+    launchGameLoop();
+}
+
+function startIntro() {
+    // Reset state
+    introIndex = 0;
+    introTyping = false;
+    selectedStarterId = null;
+
+    const overlay = document.getElementById('intro-overlay');
+    const prof = document.getElementById('intro-prof');
+    const box = document.getElementById('intro-dialog-box');
+    const selection = document.getElementById('intro-selection');
+    
+    overlay.classList.remove('hidden');
+    
+    // Reset DOM
+    prof.classList.add('translate-x-full');
+    prof.style.right = "0";
+    prof.style.transform = ""; // Reset transform
+    prof.src = "img/sprites/SpriteChen1.png";
+    prof.classList.remove('opacity-0');
+    box.classList.add('hidden');
+    selection.classList.add('hidden');
+    selection.classList.remove('flex');
+    
+    // Phase 1: Enter Professor (Animated)
+    requestAnimationFrame(() => {
+        prof.classList.remove('translate-x-full');
+        prof.style.right = "50%";
+        prof.style.transform = "translateX(50%)"; // Centre parfaitement
+        
+        setTimeout(() => {
+            box.classList.remove('hidden');
+            box.classList.add('flex');
+            nextDialog();
+        }, 1600);
+    });
+}
+
+function nextDialog() {
+    const currentIndex = introIndex; // Capture l'index actuel pour éviter le bug du saut
+    if (currentIndex >= introDialogs.length) {
+        // Phase 4: Selection
+        document.getElementById('intro-prof').classList.add('opacity-0');
+        document.getElementById('intro-dialog-box').classList.add('hidden');
+        setTimeout(() => {
+            document.getElementById('intro-selection').classList.remove('hidden');
+            document.getElementById('intro-selection').classList.add('flex');
+        }, 500);
+        return;
+    }
+
+    // Phase 3: Sprite Change
+    const prof = document.getElementById('intro-prof');
+    if (currentIndex === 2) {
+        prof.classList.add('opacity-0');
+        setTimeout(() => {
+            prof.src = "img/sprites/SpriteChen2.png";
+            prof.classList.remove('opacity-0');
+        }, 500);
+    }
+    if (currentIndex === 4) {
+        prof.classList.add('opacity-0');
+        setTimeout(() => {
+            prof.src = "img/sprites/SpriteChen3.png";
+            prof.classList.remove('opacity-0');
+        }, 500);
+    }
+    
+    // Unlocks
+    if (currentIndex === 3 && !state.introBagUnlocked) {
+        state.introBagUnlocked = true;
+        state.inv.balls += 5;
+        const lock = document.getElementById('bag-locked');
+        if(lock) lock.classList.add('breaking-lock');
+        setTimeout(() => {
+            if(lock) lock.classList.remove('breaking-lock');
+            renderBag();
+        }, 500);
+        showFeedback("+5 POKÉBALLS !", "blue");
+    }
+    
+    if (currentIndex === 5 && !state.introMapUnlocked) {
+        state.introMapUnlocked = true;
+        updateMapButton();
+        const btn = document.getElementById('map-btn');
+        if(btn) {
+            btn.classList.add('animate-bounce');
+            setTimeout(() => btn.classList.remove('animate-bounce'), 1000);
+        }
+        showFeedback("CARTE DÉBLOQUÉE !", "yellow");
+    }
+
+    // Phase 2: Typewriter
+    const text = introDialogs[currentIndex];
+    const el = document.getElementById('intro-text');
+    const arrow = document.getElementById('intro-arrow');
+    
+    el.textContent = "";
+    arrow.classList.add('hidden');
+    introTyping = true;
+    
+    let i = 0;
+    const speed = 30; 
+    
+    function type() {
+        if (i < text.length) {
+            el.textContent += text.charAt(i);
+            i++;
+            setTimeout(type, speed);
+        } else {
+            introTyping = false;
+            arrow.classList.remove('hidden');
+        }
+    }
+    type();
+    introIndex++;
+}
+
+function advanceIntro() {
+    if (!introTyping) {
+        nextDialog();
+    }
+}
+
+function selectStarter(id) {
+    selectedStarterId = id;
+    const btn = document.getElementById('intro-confirm-btn');
+    const name = id===1?"BULBIZARRE":id===4?"SALAMÈCHE":"CARAPUCE";
+    
+    // Reset visuals
+    [1,4,7].forEach(i => {
+        document.getElementById(`ball-${i}`).style.opacity = i===id ? '0' : '1';
+        document.getElementById(`poke-${i}`).style.opacity = i===id ? '1' : '0';
+        document.getElementById(`poke-${i}`).style.transform = i===id ? 'scale(1.5)' : 'scale(0)';
+    });
+
+    btn.innerText = `CHOISIR ${name}`;
+    btn.classList.remove('hidden');
+}
+
+function confirmStarter() {
+    if(!selectedStarterId) return;
+    let name = selectedStarterId===1?"Bulbizarre":selectedStarterId===4?"Salamèche":"Carapuce";
+    state.starterId = selectedStarterId;
+    addToTeam(selectedStarterId, name, 5, false, Math.random() < 0.5 ? 'male' : 'female');
+    addToPokedex(selectedStarterId);
+    
+    if(state.unlockedZone < 1) state.unlockedZone = 1;
+    
+    document.getElementById('intro-overlay').classList.add('hidden');
+    state.visitedLab = true;
+    renderBag();
+    updateZone();
+    updateUI();
+    updateBg();
+}
+
+function launchGameLoop() {
     document.getElementById('game-ui').classList.remove('hidden');
     
     // Fade in
@@ -1419,6 +1711,7 @@ function startGame(starterId) {
     updateBg(); 
     updateUI(); 
     renderShop(); 
+    renderPC();
     renderBag();
     startAutoClicker();
     startAutoSave();
@@ -1521,7 +1814,7 @@ function getDPS(targetId) {
             m *= 1.5;
         }
 
-        let shinyBonus = p.isShiny ? 2 : 1; // Shiny deals x2 damage
+        let shinyBonus = p.isShiny ? 1.5 : 1; // Shiny deals x1.5 damage
         let happyMult = 1 + ((p.happiness || 0) * 0.001); // +0.1% per happiness
         let baseStat = BASE_STATS[p.id] || 40; // Fallback if ID missing
         let rawDmg = (baseStat * p.level) / 5;
@@ -1614,8 +1907,22 @@ function spawnEnemy() {
     enemy.gender = Math.random() < 0.5 ? 'male' : 'female';
     const z = ZONES[state.zoneIdx];
 
+    if (z.pokemons.length === 0) {
+        // Zone Pacifique (Bourg Palette)
+        document.getElementById('enemy-sprite').classList.add('hidden');
+        document.getElementById('enemy-info-panel').classList.add('hidden');
+        document.getElementById('boss-badge').style.display = 'none';
+        enemy.dead = true;
+        updateZone();
+        updateUI();
+        return;
+    } else {
+        document.getElementById('enemy-sprite').classList.remove('hidden');
+        document.getElementById('enemy-info-panel').classList.remove('hidden');
+    }
+
     // --- LEAGUE REWORK: All encounters are bosses ---
-    if (state.zoneIdx === 20) {
+    if (state.zoneIdx === 21) {
         enemy.isBoss = true;
         const leaguePokemons = z.pokemons;
         let sel;
@@ -1679,7 +1986,8 @@ function spawnEnemy() {
     }
 
     // Stop auto battle for rares
-    const shouldStop = state.stopOnRare && (state.autoStopSettings[enemy.rarity] || (enemy.isShiny && state.autoStopSettings.Shiny));
+    const isNew = !state.pokedex.includes(enemy.id);
+    const shouldStop = state.stopOnRare && (state.autoStopSettings[enemy.rarity] || (enemy.isShiny && state.autoStopSettings.Shiny) || (isNew && state.autoStopSettings.Nouveau));
 
     if(shouldStop && (state.auto || state.autoClicker)) {
         state.interruptedState = { auto: state.auto, autoClicker: state.autoClicker };
@@ -1687,7 +1995,11 @@ function spawnEnemy() {
         state.autoClicker = false;
         updateAutoBtn(); updateAutoClickerBtn();
         const a = document.getElementById('rare-alert'); 
-        const msg = enemy.isShiny ? "SHINY APPARU ! AUTO STOPPÉ !" : `${enemy.rarity.toUpperCase()} APPARU ! AUTO STOPPÉ !`;
+        
+        let msg = `${enemy.rarity.toUpperCase()} APPARU ! AUTO STOPPÉ !`;
+        if (enemy.isShiny) msg = "SHINY APPARU ! AUTO STOPPÉ !";
+        else if (isNew && state.autoStopSettings.Nouveau) msg = "NOUVEAU POKÉMON ! AUTO STOPPÉ !";
+        
         a.firstElementChild.innerHTML = `<span class="material-symbols-outlined">warning</span> ${msg}`;
         a.classList.remove('hidden');
         setTimeout(()=>a.classList.add('hidden'), 3000);
@@ -1695,6 +2007,8 @@ function spawnEnemy() {
 
     // Exception for genderless Pokémon
     if (enemy.id === 132) enemy.gender = 'genderless';
+    if ([32, 33, 34].includes(enemy.id)) enemy.gender = 'male';
+    if ([29, 30, 31].includes(enemy.id)) enemy.gender = 'female';
 
     // HP Scaling
     const baseHp = BASE_HP[enemy.id] || 40;
@@ -1764,14 +2078,14 @@ function killEnemy() {
         
         // Happiness Gain
         if (p.happiness === undefined) p.happiness = 0;
-        if (p.happiness < 255) p.happiness++;
+        if (p.happiness < 255 && (p.level - enemy.level <= 20)) p.happiness++;
     });
 
     playTone('coin');
 
     if(enemy.isBoss) {
         checkBadges();
-        if (state.zoneIdx === 20) {
+        if (state.zoneIdx === 21) {
             // Logique Spéciale Ligue : On avance de stade en stade (tous des Boss)
             if (state.subStage < 10) {
                 state.subStage++;
@@ -1783,7 +2097,29 @@ function killEnemy() {
             // Logique Boss Classique (Fin de zone)
             if(state.zoneIdx === state.unlockedZone && state.zoneIdx < ZONES.length-1) {
                 state.unlockedZone++;
-                showFeedback("ZONE DÉBLOQUÉE !", "yellow");
+                showFeedback("ZONE DÉBLOQUÉE !", "yellow", 2500);
+                
+                let delay = 2500;
+
+                if(state.unlockedZone === 2) {
+                    setTimeout(() => showFeedback("POKÉSHOP DÉBLOQUÉ !", "blue", 3000), delay);
+                    delay += 3000;
+                }
+                if(state.unlockedZone === 3) {
+                    setTimeout(() => showFeedback("PC DE LÉO DÉBLOQUÉ !", "green", 3000), delay);
+                    delay += 3000;
+                }
+
+                for(const key in ITEMS) {
+                    if(ITEMS[key].zone === state.unlockedZone) {
+                        const iName = ITEMS[key].name;
+                        setTimeout(() => {
+                            showFeedback(`<span class="text-xs md:text-xl">Vous avez débloqué ${iName} dans le PokéShop !</span>`, "blue", 3000);
+                        }, delay);
+                        delay += 3000;
+                    }
+                }
+
                 renderShop(); 
                 renderPC();
                 state.subStage = 1; 
@@ -1960,12 +2296,12 @@ function getArtwork(id, isShiny) {
 
 function addToTeam(id,n,l,s,g) { 
     const maxXp = calcMaxXp(id, l);
-    state.team.push({id:id, name:n, level:l, isShiny:s, gender:g, happiness:0, xp:0, maxXp:maxXp, uid:Date.now() + Math.random(), img:getSprite(id, s)}); 
+    state.team.push({id:id, name:n, level:l, isShiny:s, gender:g, happiness:0, xp:0, maxXp:maxXp, uid:Date.now() + Math.random(), img:getSprite(id, s), isFavorite:false}); 
     renderTeam(); 
 }
 function addToPC(id,n,l,s,g) { 
     const maxXp = calcMaxXp(id, l);
-    state.pc.push({id:id, name:n, level:l, isShiny:s, gender:g, happiness:0, xp:0, maxXp:maxXp, uid:Date.now() + Math.random(), img:getSprite(id, s)}); 
+    state.pc.push({id:id, name:n, level:l, isShiny:s, gender:g, happiness:0, xp:0, maxXp:maxXp, uid:Date.now() + Math.random(), img:getSprite(id, s), isFavorite:false}); 
     renderPC(); 
 }
 
@@ -2160,7 +2496,7 @@ function getPokemonDps(p, targetId) {
         m *= 1.5;
     }
 
-    let shinyBonus = p.isShiny ? 2 : 1;
+    let shinyBonus = p.isShiny ? 1.5 : 1;
     let happyMult = 1 + ((p.happiness || 0) * 0.001);
     let baseStat = BASE_STATS[p.id] || 40;
     let rawDmg = (baseStat * p.level) / 5;
@@ -2174,14 +2510,26 @@ function showPokemonSummary(location, index, event) {
 
     state.summaryPokemon = { location, index };
 
-    document.getElementById('summary-sprite').src = getArtwork(p.id, p.isShiny);
+    const sprite = document.getElementById('summary-sprite');
+    sprite.src = getArtwork(p.id, p.isShiny);
+    
+    sprite.classList.remove('rainbow-anim', 'upside-down');
+    if (p.name === "Dinnerbone" || p.name === "Grumm") sprite.classList.add('upside-down');
+    if (p.name === "jeb_") sprite.classList.add('rainbow-anim');
+
     document.getElementById('summary-name').innerText = p.name;
+    document.getElementById('summary-shiny-icon').classList.toggle('hidden', !p.isShiny);
     
     const pTypes = getTypes(p.id);
     let genderSymbol = '';
     if (p.gender === 'male') genderSymbol = '<span class="text-blue-400 text-lg ml-1 font-bold">♂</span>';
     else if (p.gender === 'female') genderSymbol = '<span class="text-pink-400 text-lg ml-1 font-bold">♀</span>';
-    document.getElementById('summary-types').innerHTML = pTypes.map(t => `<span style="background:${TYPE_COLORS[t]}" class="text-xs px-2 py-1 rounded text-white shadow-sm uppercase">${t}</span>`).join("") + genderSymbol;
+    
+    let favIcon = p.isFavorite ? 'star' : 'star_border';
+    let favClass = p.isFavorite ? 'text-yellow-400' : 'text-gray-400 hover:text-white';
+    let favHtml = `<span class="material-symbols-outlined cursor-pointer ml-2 text-lg ${favClass}" onclick="toggleSummaryFavorite()" title="Favori">${favIcon}</span>`;
+
+    document.getElementById('summary-types').innerHTML = pTypes.map(t => `<span style="background:${TYPE_COLORS[t]}" class="text-xs px-2 py-1 rounded text-white shadow-sm uppercase">${t}</span>`).join("") + genderSymbol + favHtml;
 
     document.getElementById('summary-level').innerText = `Lv.${p.level}`;
     const xpPct = p.level >= 100 ? 100 : Math.min(100, (p.xp / p.maxXp) * 100);
@@ -2214,6 +2562,24 @@ function showPokemonSummary(location, index, event) {
     releaseBtn.onclick = () => releasePokemonFromSummary();
 
     document.getElementById('pokemon-summary-modal').classList.remove('hidden');
+}
+
+function toggleSummaryFavorite() {
+    if (!state.summaryPokemon) return;
+    const { location, index } = state.summaryPokemon;
+    const p = state[location][index];
+    p.isFavorite = !p.isFavorite;
+    
+    // Refresh just the types/gender/fav line
+    const pTypes = getTypes(p.id);
+    let genderSymbol = p.gender === 'male' ? '<span class="text-blue-400 text-lg ml-1 font-bold">♂</span>' : (p.gender === 'female' ? '<span class="text-pink-400 text-lg ml-1 font-bold">♀</span>' : '');
+    let favIcon = p.isFavorite ? 'star' : 'star_border';
+    let favClass = p.isFavorite ? 'text-yellow-400' : 'text-gray-400 hover:text-white';
+    let favHtml = `<span class="material-symbols-outlined cursor-pointer ml-2 text-lg ${favClass}" onclick="toggleSummaryFavorite()" title="Favori">${favIcon}</span>`;
+    document.getElementById('summary-types').innerHTML = pTypes.map(t => `<span style="background:${TYPE_COLORS[t]}" class="text-xs px-2 py-1 rounded text-white shadow-sm uppercase">${t}</span>`).join("") + genderSymbol + favHtml;
+
+    renderTeam();
+    renderPC();
 }
 
 function hidePokemonSummary() {
@@ -2306,6 +2672,12 @@ function confirmSummaryRename() {
     if (newName && newName.length > 0 && newName.length <= 12) {
         state[location][index].name = newName;
         document.getElementById('summary-name').innerText = newName;
+        
+        const sprite = document.getElementById('summary-sprite');
+        sprite.classList.remove('rainbow-anim', 'upside-down');
+        if (newName === "Dinnerbone" || newName === "Grumm") sprite.classList.add('upside-down');
+        if (newName === "jeb_") sprite.classList.add('rainbow-anim');
+        
         renderTeam();
         renderPC();
     }
@@ -2478,9 +2850,15 @@ function loadData(data) {
     state.candyAmount = 1;
     state.summaryPokemon = null;
     state.contextTarget = null;
+    if(state.introBagUnlocked === undefined) state.introBagUnlocked = false;
+    if(state.introMapUnlocked === undefined) state.introMapUnlocked = false;
+    if(state.visitedLab === undefined) state.visitedLab = false;
+    if(state.hasExitedLab === undefined) state.hasExitedLab = false;
+    if(state.hasVisitedRoute1 === undefined) state.hasVisitedRoute1 = false;
     if(state.starterId === undefined) state.starterId = null;
     if(!state.pokedex) state.pokedex = [];
     if(!state.milestones) state.milestones = [];
+    if(state.unlockedZone === undefined) state.unlockedZone = 0;
     if(!state.badges) state.badges = [];
     if(state.inv.omniXp === undefined) state.inv.omniXp = 0;
     if(state.inv.shinyToken === undefined) state.inv.shinyToken = 0;
@@ -2500,6 +2878,7 @@ function loadData(data) {
     if(state.autoStopSettings === undefined) {
         state.autoStopSettings = { 'Commun': false, 'Peu Commun': false, 'Rare': true, 'Très Rare': true, 'Légendaire': true, 'Shiny': true };
     }
+    if(state.autoStopSettings.Nouveau === undefined) state.autoStopSettings.Nouveau = true;
     state.interruptedState = null; // Always reset on load
     if(state.stats.totalMoney === undefined) state.stats.totalMoney = state.money;
     
@@ -2512,10 +2891,15 @@ function loadData(data) {
         if(!p.gender) {
             if (p.id === 132) {
                 p.gender = 'genderless';
+            } else if ([32, 33, 34].includes(p.id)) {
+                p.gender = 'male';
+            } else if ([29, 30, 31].includes(p.id)) {
+                p.gender = 'female';
             } else {
                 p.gender = Math.random() < 0.5 ? 'male' : 'female';
             }
         }
+        if(p.isFavorite === undefined) p.isFavorite = false;
     };
     
     state.team.forEach(initP);
@@ -2545,12 +2929,34 @@ function checkMilestones() {
     });
 }
 
+function enterLab() {
+    changeZone(-2);
+    if (!state.visitedLab) {
+        setTimeout(startIntro, 1000);
+    }
+}
+
 function checkBadges() {
     BADGES.forEach(b => {
         if(state.zoneIdx === b.zoneIdx && !state.badges.includes(b.name)) {
             state.badges.push(b.name);
             showFeedback(`BADGE ${b.name.toUpperCase()} OBTENU !`, "yellow");
             playTone('up');
+
+            // Open Badge Menu & Animate
+            setTimeout(() => {
+                const m = document.getElementById('badges-modal');
+                m.classList.remove('hidden');
+                renderBadges();
+                const el = document.getElementById(`badge-slot-${b.name}`);
+                if(el) {
+                    el.style.opacity = '0';
+                    setTimeout(() => {
+                        el.style.opacity = '';
+                        el.classList.add('badge-slam');
+                    }, 800);
+                }
+            }, 1200);
         }
     });
 }
@@ -2592,6 +2998,31 @@ function toggleAutoStopSettingsModal() {
         m.classList.remove('hidden');
     } else {
         m.classList.add('hidden');
+    }
+}
+
+function updateMapButton() {
+    const btn = document.getElementById('map-btn');
+    const lockIcon = document.getElementById('map-icon-lock');
+    const activeIcon = document.getElementById('map-icon-active');
+    if(!btn) return;
+
+    btn.classList.remove('animate-bounce', 'ring-4', 'ring-green-500', 'bg-green-900');
+
+    if (state.unlockedZone >= 1 || state.cheat || state.introMapUnlocked) {
+        btn.disabled = false;
+        btn.classList.remove('disabled:opacity-50', 'disabled:cursor-not-allowed');
+        lockIcon.classList.add('hidden');
+        activeIcon.classList.remove('hidden');
+        
+        if (state.zoneIdx === 0 && state.unlockedZone === 1 && state.stats.kills === 0 && !state.hasVisitedRoute1) {
+            btn.classList.add('animate-bounce', 'ring-4', 'ring-green-500', 'bg-green-900');
+        }
+    } else {
+        btn.disabled = true;
+        btn.classList.add('disabled:opacity-50', 'disabled:cursor-not-allowed');
+        lockIcon.classList.remove('hidden');
+        activeIcon.classList.add('hidden');
     }
 }
 
@@ -2732,6 +3163,84 @@ function flyToZone(zoneId) {
     }, 800); // Wait for trainer to appear and pose
 }
 
+function showZoneInfo(zoneId) {
+    const zone = ZONES[zoneId];
+    if (!zone) return;
+
+    const isUnlocked = zoneId <= state.unlockedZone || state.cheat;
+    
+    document.getElementById('zone-info-name').innerText = zone.name;
+    if (zoneId <= 0) {
+        document.getElementById('zone-info-desc').innerText = "";
+    } else {
+        document.getElementById('zone-info-desc').innerText = `Zone ${zoneId}`;
+    }
+    
+    const bgUrl = zone.bg.includes("http") || zone.bg.includes("img/") ? `url('${encodeURI(zone.bg)}')` : '';
+    const bgEl = document.getElementById('zone-info-bg');
+    bgEl.style.backgroundImage = bgUrl;
+    if (!bgUrl) bgEl.style.background = zone.bg;
+
+    const btn = document.getElementById('zone-info-go-btn');
+    const newBtn = btn.cloneNode(true);
+    btn.parentNode.replaceChild(newBtn, btn);
+    
+    if (isUnlocked) {
+        newBtn.className = "w-full py-2 rounded font-bold text-[10px] flex items-center justify-center gap-2 transition-all shadow-lg uppercase tracking-wider bg-blue-600 hover:bg-blue-500 text-white border border-blue-400 hover:scale-105";
+        newBtn.innerHTML = `<span class="material-symbols-outlined text-sm">flight_takeoff</span> Y ALLER`;
+        newBtn.onclick = () => {
+            closeZoneInfo();
+            flyToZone(zoneId);
+        };
+        newBtn.disabled = false;
+    } else {
+        newBtn.className = "w-full py-2 rounded font-bold text-[10px] flex items-center justify-center gap-2 transition-all shadow-lg uppercase tracking-wider bg-slate-700 text-gray-500 border border-slate-600 cursor-not-allowed opacity-70";
+        newBtn.innerHTML = `<span class="material-symbols-outlined text-sm">lock</span> BLOQUÉ`;
+        newBtn.onclick = null;
+        newBtn.disabled = true;
+    }
+
+    document.getElementById('zone-info-modal').classList.remove('hidden');
+}
+
+function closeZoneInfo() {
+    document.getElementById('zone-info-modal').classList.add('hidden');
+}
+
+function showMapTooltip(text, e, color='yellow') {
+    if (window.innerWidth < 1024) return;
+    const t = document.getElementById('map-tooltip');
+    t.innerText = text;
+    
+    // Reset classes
+    t.className = "fixed z-[100] bg-slate-900 border-2 text-xs font-bold px-3 py-2 rounded-lg pointer-events-none hidden transition-opacity duration-200 pixel-font tracking-wide";
+    
+    // Apply color
+    const colors = {
+        red: { text: 'text-red-400', border: 'border-red-400', shadow: 'rgba(248, 113, 113, 0.5)' },
+        blue: { text: 'text-blue-400', border: 'border-blue-400', shadow: 'rgba(96, 165, 250, 0.5)' },
+        amber: { text: 'text-amber-400', border: 'border-amber-400', shadow: 'rgba(251, 191, 36, 0.5)' },
+        green: { text: 'text-green-400', border: 'border-green-400', shadow: 'rgba(74, 222, 128, 0.5)' },
+        gray: { text: 'text-gray-400', border: 'border-gray-400', shadow: 'rgba(156, 163, 175, 0.5)' },
+        yellow: { text: 'text-yellow-400', border: 'border-yellow-400', shadow: 'rgba(250, 204, 21, 0.5)' }
+    };
+    const c = colors[color] || colors.yellow;
+    
+    t.classList.add(c.text, c.border);
+    t.style.boxShadow = `0 0 10px ${c.shadow}`;
+    
+    t.classList.remove('hidden');
+    moveMapTooltip(e);
+}
+function moveMapTooltip(e) {
+    const t = document.getElementById('map-tooltip');
+    t.style.left = (e.clientX + 15) + 'px';
+    t.style.top = (e.clientY + 15) + 'px';
+}
+function hideMapTooltip() {
+    document.getElementById('map-tooltip').classList.add('hidden');
+}
+
 function renderMap() {
     const img = document.querySelector('#map-container img');
     const c = document.getElementById('map-svg');
@@ -2758,6 +3267,10 @@ function renderMap() {
         }
         if (isCurrent) fillClass = "fill-green-400/70 animate-pulse";
 
+        if (area.zoneId === 1 && state.zoneIdx === 0 && state.unlockedZone === 1 && state.stats.kills === 0) {
+            fillClass = "flash-green-strong";
+        }
+
         // Create SVG Element
         let el = document.createElementNS("http://www.w3.org/2000/svg", area.type);
         
@@ -2778,12 +3291,17 @@ function renderMap() {
         
         // Tooltip Title
         let title = document.createElementNS("http://www.w3.org/2000/svg", "title");
-        title.textContent = area.zoneId !== null ? `${area.name} (Zone ${area.zoneId + 1})` : area.name;
+        if (area.zoneId !== null && area.zoneId >= 1) {
+            title.textContent = `${area.name} (Zone ${area.zoneId})`;
+        } else {
+            title.textContent = area.name;
+        }
         el.appendChild(title);
 
-        if (isUnlocked) {
-            el.onclick = () => { 
-                flyToZone(area.zoneId);
+        if (area.zoneId !== null) {
+            el.onclick = (e) => { 
+                e.stopPropagation();
+                showZoneInfo(area.zoneId);
             };
         }
         c.appendChild(el);
@@ -2819,6 +3337,7 @@ function renderBadges() {
     BADGES.forEach(b => {
         const unlocked = state.badges.includes(b.name);
         const div = document.createElement('div');
+        div.id = `badge-slot-${b.name}`;
         div.className = `aspect-square rounded-full border-4 flex items-center justify-center relative transition-all group ${unlocked ? 'bg-[#E6E6E6] border-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.5)]' : 'bg-slate-900 border-slate-700 grayscale opacity-50'}`;
         div.innerHTML = `
             <img src="img/badges/${b.name}.png" class="w-3/4 h-3/4 object-contain ${unlocked?'':'brightness-0 invert opacity-30'}">
@@ -2889,37 +3408,194 @@ function updateUI() {
     updateAutoBtn();
     updateRadarButton();
     updateAutoStopBtn();
+    updateMapButton();
+    updateAutoClickerBtn();
+    updateMobileMenuButtons();
 }
 
 function updateZone() {
     const z = ZONES[state.zoneIdx];
     document.getElementById('zone-name').innerText = z.name;
-    document.getElementById('zone-id').innerText = state.zoneIdx+1;
-    document.getElementById('stage-text').innerText = state.subStage+"/10";
-    document.getElementById('zone-progress').style.width = (state.subStage*10)+"%";
+    
+    const zoneIdEl = document.getElementById('zone-id');
+    const stageTextEl = document.getElementById('stage-text');
+    const zoneProgressEl = document.getElementById('zone-progress');
+    const zoneIdContainer = zoneIdEl.parentElement;
+
+    if (state.zoneIdx <= 0) {
+        zoneIdContainer.style.visibility = 'hidden';
+        stageTextEl.style.display = 'none';
+        zoneProgressEl.parentElement.style.display = 'none';
+    } else {
+        zoneIdContainer.style.visibility = 'visible';
+        zoneIdEl.innerText = state.zoneIdx;
+        stageTextEl.style.display = 'inline';
+        zoneProgressEl.parentElement.style.display = 'block';
+        stageTextEl.innerText = state.subStage+"/10";
+        zoneProgressEl.style.width = (state.subStage*10)+"%";
+    }
     
     // Arrows
     const canNext = (state.zoneIdx < state.unlockedZone || state.cheat) && state.zoneIdx < ZONES.length-1;
     
     const prevD = document.getElementById('prev-zone-btn-d');
-    if(prevD) prevD.disabled = state.zoneIdx===0;
     const nextD = document.getElementById('next-zone-btn-d');
-    if(nextD) {
-        nextD.disabled = !canNext;
-        nextD.className = canNext ? "w-6 h-6 lg:w-8 lg:h-8 rounded-full bg-blue-600 hover:bg-blue-500 border border-blue-400 text-white flex items-center justify-center transition transform hover:scale-105 animate-pulse shadow-lg shrink-0" : "w-6 h-6 lg:w-8 lg:h-8 rounded-full bg-slate-800 border border-slate-600 text-white flex items-center justify-center hover:bg-slate-700 transition disabled:opacity-50 shadow-lg shrink-0";
+    
+    if (state.zoneIdx <= 0) {
+        if(prevD) prevD.style.display = 'none';
+        if(nextD) nextD.style.display = 'none';
+    } else {
+        if(prevD) {
+            prevD.style.display = 'flex';
+            prevD.disabled = state.zoneIdx <= 1;
+        }
+        if(nextD) {
+            nextD.style.display = 'flex';
+            nextD.disabled = !canNext;
+            nextD.className = canNext ? "w-6 h-6 lg:w-8 lg:h-8 rounded-full bg-blue-600 hover:bg-blue-500 border border-blue-400 text-white flex items-center justify-center transition transform hover:scale-105 animate-pulse shadow-lg shrink-0" : "w-6 h-6 lg:w-8 lg:h-8 rounded-full bg-slate-800 border border-slate-600 text-white flex items-center justify-center hover:bg-slate-700 transition disabled:opacity-50 shadow-lg shrink-0";
+        }
     }
 }
 
 function updateBg() {
     const bg = ZONES[state.zoneIdx].bg;
-    const layer = document.getElementById('bg-layer');
-    if(bg.includes("http") || bg.includes("img/")) {
-        layer.style.backgroundImage = `url('${bg}')`;
-        layer.style.background = ""; 
-        layer.style.backgroundImage = `url('${encodeURI(bg)}')`;
+    const bgDiv = document.getElementById('bg-image-div');
+    const bgImg = document.getElementById('bg-img-element');
+    const bgSvg = document.getElementById('bg-overlay-svg');
+
+    // Reset styles that might be changed by mobile specific hacks
+    bgImg.style.cssText = '';
+    bgSvg.style.cssText = '';
+
+    // Hide speech bubble by default
+    document.getElementById('mom-speech').classList.add('hidden');
+    document.getElementById('blue-speech').classList.add('hidden');
+
+    // Zone 0 Special Handling (Interactive Map)
+    if (state.zoneIdx === -4) {
+        bgDiv.classList.add('hidden');
+        bgImg.classList.remove('hidden');
+        bgSvg.classList.remove('hidden');
+        document.getElementById('mom-speech').classList.remove('hidden');
+        
+        bgImg.classList.remove('object-cover');
+        bgImg.classList.add('object-contain');
+        bgSvg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+
+        bgImg.src = bg;
+        bgImg.onload = () => {
+            const labClass = state.visitedLab ? "transition-all hover:brightness-150 cursor-pointer" : "flash-green-strong cursor-pointer";
+            bgSvg.setAttribute('viewBox', `0 0 ${bgImg.naturalWidth} ${bgImg.naturalHeight}`);
+            bgSvg.innerHTML = `
+                <a href="#" onclick="event.preventDefault()">
+                    <rect x="262" y="181" width="7" height="6" fill="transparent" class="cursor-pointer"></rect>
+                </a>
+                <a href="#" onclick="event.preventDefault()">
+                    <rect x="121" y="106" width="147" height="70" fill="transparent" class="cursor-pointer"></rect>
+                </a>
+                <a href="#" onclick="event.preventDefault()">
+                    <rect x="284" y="571" width="138" height="69" fill="rgba(0, 255, 0, 0.3)" class="animate-pulse cursor-pointer lg:hover:fill-green-400/50 transition-colors" onmouseenter="showMapTooltip('Sortie', event, 'green')" onmousemove="moveMapTooltip(event)" onmouseleave="hideMapTooltip()" onclick="changeZone(4)"></rect>
+                </a>
+            `;
+        };
+    } else if (state.zoneIdx === -2) {
+        // Labo Prof Chen
+        bgDiv.classList.add('hidden');
+        bgImg.classList.remove('hidden');
+        bgSvg.classList.remove('hidden');
+        
+        bgImg.classList.remove('object-cover');
+        bgImg.classList.add('object-contain');
+        bgSvg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+
+        bgImg.src = bg;
+        bgImg.onload = () => {
+            let exitRect;
+            if (state.visitedLab && !state.hasExitedLab) {
+                exitRect = `<rect x="882" y="1815" width="282" height="123" class="flash-green-strong cursor-pointer transition-colors" onmouseenter="showMapTooltip('Sortie', event, 'green')" onmousemove="moveMapTooltip(event)" onmouseleave="hideMapTooltip()" onclick="changeZone(2)"></rect>`;
+            } else {
+                exitRect = `<rect x="882" y="1815" width="282" height="123" fill="rgba(0, 255, 0, 0.3)" class="animate-pulse cursor-pointer lg:hover:fill-green-400/50 transition-colors" onmouseenter="showMapTooltip('Sortie', event, 'green')" onmousemove="moveMapTooltip(event)" onmouseleave="hideMapTooltip()" onclick="changeZone(2)"></rect>`;
+            }
+            bgSvg.setAttribute('viewBox', `0 0 ${bgImg.naturalWidth} ${bgImg.naturalHeight}`);
+            bgSvg.innerHTML = `
+                <a href="#" onclick="event.preventDefault()">
+                    ${exitRect}
+                </a>
+            `;
+        };
+    } else if (state.zoneIdx === -3) {
+        // Chez Blue
+        bgDiv.classList.add('hidden');
+        bgImg.classList.remove('hidden');
+        bgSvg.classList.remove('hidden');
+        document.getElementById('blue-speech').classList.remove('hidden');
+        
+        bgImg.classList.remove('object-cover');
+        bgImg.classList.add('object-contain');
+        bgSvg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+
+        bgImg.src = bg;
+        bgImg.onload = () => {
+            const labClass = state.visitedLab ? "transition-all hover:brightness-150 cursor-pointer" : "flash-green-strong cursor-pointer";
+            bgSvg.setAttribute('viewBox', `0 0 ${bgImg.naturalWidth} ${bgImg.naturalHeight}`);
+            bgSvg.innerHTML = `
+                <a href="#" onclick="event.preventDefault()">
+                    <polygon points="205,572 155,597 235,642 283,614" fill="rgba(0, 255, 0, 0.3)" class="animate-pulse cursor-pointer lg:hover:fill-green-400/50 transition-colors" onmouseenter="showMapTooltip('Sortie', event, 'green')" onmousemove="moveMapTooltip(event)" onmouseleave="hideMapTooltip()" onclick="changeZone(3)"></polygon>
+                </a>
+            `;
+        };
+    } else if (state.zoneIdx === 0) {
+        // Bourg Palette
+        bgDiv.classList.add('hidden');
+        bgImg.classList.remove('hidden');
+        bgSvg.classList.remove('hidden');
+        
+        bgImg.classList.remove('object-contain', 'object-cover');
+        
+        if (window.innerWidth < 1024) {
+            bgImg.classList.add('object-contain');
+            bgSvg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+        } else {
+            bgImg.classList.add('object-cover');
+            bgImg.style.objectPosition = "center";
+            bgSvg.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+        }
+
+        bgImg.src = bg;
+        bgImg.onload = () => {
+            const labClass = state.visitedLab ? "transition-all lg:hover:brightness-150 cursor-pointer" : "flash-green-strong cursor-pointer";
+            bgSvg.setAttribute('viewBox', `0 0 ${bgImg.naturalWidth} ${bgImg.naturalHeight}`);
+            bgSvg.innerHTML = `
+                <a href="#" onclick="event.preventDefault()">
+                    <rect x="226" y="691" width="81" height="87" fill="rgba(220, 38, 38, 0.4)" stroke="rgba(252, 165, 165, 0.9)" stroke-width="3" class="transition-all lg:hover:brightness-150 cursor-pointer" onmouseenter="showMapTooltip('Chez Maman', event, 'red')" onmousemove="moveMapTooltip(event)" onmouseleave="hideMapTooltip()" onclick="changeZone(-4)"></rect>
+                </a>
+                <a href="#" onclick="event.preventDefault()">
+                    <rect x="667" y="692" width="80" height="85" fill="rgba(37, 99, 235, 0.4)" stroke="rgba(147, 197, 253, 0.9)" stroke-width="3" class="transition-all lg:hover:brightness-150 cursor-pointer" onmouseenter="showMapTooltip('Chez Blue', event, 'blue')" onmousemove="moveMapTooltip(event)" onmouseleave="hideMapTooltip()" onclick="changeZone(-3)"></rect>
+                </a>
+                <a href="#" onclick="event.preventDefault()">
+                    <rect x="392" y="1293" width="82" height="91" fill="rgba(146, 64, 14, 0.4)" stroke="rgba(251, 191, 36, 0.9)" stroke-width="3" class="transition-all lg:hover:brightness-150 cursor-pointer" onmouseenter="showMapTooltip('Pension Pokémon', event, 'amber')" onmousemove="moveMapTooltip(event)" onmouseleave="hideMapTooltip()"></rect>
+                </a>
+                <a href="#" onclick="event.preventDefault()">
+                    <rect x="1327" y="836" width="96" height="96" fill="rgba(22, 163, 74, 0.4)" stroke="rgba(134, 239, 172, 0.9)" stroke-width="3" class="${labClass}" onmouseenter="showMapTooltip('Labo Pokémon du Prof. Chen', event, 'green')" onmousemove="moveMapTooltip(event)" onmouseleave="hideMapTooltip()" onclick="enterLab()"></rect>
+                </a>
+                <a href="#" onclick="event.preventDefault()">
+                    <rect x="638" y="1806" width="230" height="239" fill="rgba(75, 85, 99, 0.4)" stroke="rgba(209, 213, 219, 0.9)" stroke-width="3" class="transition-all lg:hover:brightness-150 cursor-pointer" onmouseenter="showMapTooltip('Bateau en direction de Johto', event, 'gray')" onmousemove="moveMapTooltip(event)" onmouseleave="hideMapTooltip()"></rect>
+                </a>
+            `;
+        };
     } else {
-        layer.style.backgroundImage = "";
-        layer.style.background = bg; // Use gradient
+        bgDiv.classList.remove('hidden');
+        bgImg.classList.add('hidden');
+        bgSvg.classList.add('hidden');
+        
+        if(bg.includes("http") || bg.includes("img/")) {
+            bgDiv.style.backgroundImage = `url('${encodeURI(bg)}')`;
+            bgDiv.style.background = ""; 
+            bgDiv.style.backgroundImage = `url('${encodeURI(bg)}')`;
+        } else {
+            bgDiv.style.backgroundImage = "";
+            bgDiv.style.background = bg; 
+        }
     }
 }
 
@@ -2942,18 +3618,17 @@ function updateEnemyUI() {
     
     // Show Types
     const types = getTypes(enemy.id);
-    let typeHtml = types.map(t => `<span style="background:${TYPE_COLORS[t]}" class="text-[9px] px-1.5 py-0.5 rounded text-white shadow-sm ml-1 uppercase">${t}</span>`).join("");
+    let typeHtml = types.map(t => 
+        `<span style="background:${TYPE_COLORS[t]}" class="hidden lg:inline-block text-[9px] px-1.5 py-0.5 rounded text-white shadow-sm ml-1 uppercase">${t}</span>` +
+        `<div class="w-3 h-3 rounded-full inline-block lg:hidden ml-1 shadow-sm border border-white/30" style="background:${TYPE_COLORS[t]}" title="${t}"></div>`
+    ).join("");
     let genderHtml = '';
     if (enemy.gender === 'male') genderHtml = `<span class="text-blue-400 ml-1 font-bold text-sm">♂</span>`;
     else if (enemy.gender === 'female') genderHtml = `<span class="text-pink-400 ml-1 font-bold text-sm">♀</span>`;
-    if(enemy.isShiny) typeHtml += `<span class="text-[9px] px-1.5 py-0.5 rounded bg-yellow-400 text-black font-bold shadow-sm ml-1">★</span>`;
+    if(enemy.isShiny) typeHtml += `<span class="text-yellow-400 ml-1 font-bold text-sm">✦</span>`;
     if(state.pokedex.includes(enemy.id)) typeHtml += `<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" class="w-3 h-3 inline-block ml-1" title="Déjà capturé">`;
     document.getElementById('enemy-name').innerHTML = enemy.name + genderHtml + typeHtml;
     
-    const hasLeftovers = state.upgrades.leftovers;
-    ['auto-click-btn', 'auto-click-btn-m'].forEach(id => {
-        document.getElementById(id)?.classList.toggle('hidden', !hasLeftovers);
-    });
     updateAutoClickerBtn();
     
     updateHp();
@@ -3012,8 +3687,9 @@ function renderTeam() {
         const pTypes = getTypes(p.id);
         const typeIcon = pTypes.map(t => `<div class="w-2 h-2 rounded-full inline-block mr-1" style="background:${TYPE_COLORS[t]}" title="${t}"></div>`).join("");
         const shinyClass = p.isShiny ? "shiny-glow" : "";
-        const shinyIcon = p.isShiny ? "<span class='text-yellow-400 ml-1'>★</span>" : "";
-        const shinyDpsMult = p.isShiny ? 2 : 1;
+        const shinyIcon = p.isShiny ? "<span class='text-yellow-400 ml-1'>✦</span>" : "";
+        const shinyDpsMult = p.isShiny ? 1.5 : 1;
+        const happyMult = 1 + ((p.happiness || 0) * 0.001);
         let baseStat = BASE_STATS[p.id] || 40;
         let rawDmg = (baseStat * p.level) / 5;
         const xpPct = p.level >= 100 ? 100 : Math.min(100, (p.xp / p.maxXp) * 100);
@@ -3039,7 +3715,7 @@ function renderTeam() {
 
         const nameDisplay = `
         <div class="flex items-center gap-1 min-w-0 relative z-10">
-            <div class="text-xs font-bold text-gray-200 truncate">${typeIcon}${p.name}${shinyIcon}</div>
+            <div class="text-xs font-bold text-gray-200 truncate">${typeIcon}${p.name}${shinyIcon}${p.isFavorite?"<span class='text-yellow-400 text-[10px] ml-1'>★</span>":""}</div>
         </div>`;
 
         html += `
@@ -3047,7 +3723,7 @@ function renderTeam() {
             <img src="${displayImg}" class="w-10 h-10 mr-3 ${shinyClass} ${animClass} ${specialClass}">
             <div class="flex-1 min-w-0">
                 ${nameDisplay}
-                <div class="text-[10px] text-yellow-500">DPS: ${(rawDmg*mult*shinyDpsMult).toFixed(1)} <span class="${multColor} text-[8px]">x${mult}</span>${genderSymbol}</div>
+                <div class="text-[10px] text-yellow-500">DPS: ${(rawDmg*mult*shinyDpsMult*happyMult).toFixed(1)} <span class="${multColor} text-[8px]">x${mult}</span>${genderSymbol}</div>
             </div>
             ${!swapMode ? `
             ${isCandyTarget ? `
@@ -3065,7 +3741,7 @@ function renderTeam() {
                 </div>
                 <span class="text-[10px] text-blue-300 mr-1">Lv.${p.level}</span>
                 ${evo ? `<button onclick="evolve(${p.uid}); event.stopPropagation();" class="bg-purple-600 text-white text-[9px] px-2 py-1 rounded animate-pulse">EVO</button>` : ''}
-                ${!p.isShiny && state.inv.shinyToken>0 ? `<button onclick="useShinyToken(${p.uid}); event.stopPropagation();" class="bg-yellow-400 text-black text-[9px] px-1.5 py-1 rounded font-bold" title="Utiliser Jeton Shiny">★</button>` : ''}
+                ${!p.isShiny && state.inv.shinyToken>0 ? `<button onclick="useShinyToken(${p.uid}); event.stopPropagation();" class="bg-yellow-400 text-black text-[9px] px-1.5 py-1 rounded font-bold" title="Utiliser Jeton Shiny">✦</button>` : ''}
             </div>`}
             ` : `<div class="text-[9px] text-blue-300 font-bold">REMPLACER</div>`}
         </div>`;
@@ -3089,7 +3765,7 @@ function renderPC() {
     state.pc.forEach((p,i) => {
         const shinyClass = p.isShiny ? "shiny-glow" : "";
         const genderSymbol = p.gender === 'male' ? '<span class="text-blue-400 text-[8px] ml-1 font-bold">♂</span>' : (p.gender === 'female' ? '<span class="text-pink-400 text-[8px] ml-1 font-bold">♀</span>' : '');
-        const nameDisplay = `<div class="text-[10px] text-green-400 truncate max-w-[100px]">${p.name}${p.isShiny?"★":""}</div>`;
+        const nameDisplay = `<div class="text-[10px] text-green-400 truncate max-w-[100px]">${p.name}${p.isShiny?"✦":""}${p.isFavorite?"<span class='text-yellow-400 text-[8px] ml-1'>★</span>":""}</div>`;
 
         html += `
         <div oncontextmenu="openContextMenu('pc', ${i}, event)" onclick="openContextMenu('pc', ${i}, event)" class="flex justify-between items-center bg-gray-900/80 p-2 mb-1 border-b border-green-900 cursor-pointer hover:bg-gray-800/80">
@@ -3107,9 +3783,31 @@ function renderPC() {
     if(mobileContent) mobileContent.innerHTML = html;
 }
 
+function sortPC(method) {
+    if (method === 'id') {
+        state.pc.sort((a, b) => a.id - b.id || b.level - a.level);
+    } else if (method === 'name') {
+        state.pc.sort((a, b) => a.name.localeCompare(b.name) || b.level - a.level);
+    } else if (method === 'level') {
+        state.pc.sort((a, b) => b.level - a.level || a.id - b.id);
+    } else if (method === 'favorite') {
+        state.pc.sort((a, b) => (b.isFavorite === a.isFavorite) ? (a.id - b.id) : (b.isFavorite ? 1 : -1));
+    }
+    renderPC();
+}
+
 function renderBag() {
     const desktopBag = document.getElementById('bag-content');
     const mobileBag = document.getElementById('mobile-bag-content');
+    const bagLocked = document.getElementById('bag-locked');
+
+    if((state.unlockedZone < 1 && state.zoneIdx < 1) && !state.introBagUnlocked) { 
+        if(bagLocked) bagLocked.classList.remove('hidden'); 
+        if(desktopBag) desktopBag.classList.add('locked-blur'); 
+    } else { 
+        if(bagLocked && !bagLocked.classList.contains('breaking-lock')) bagLocked.classList.add('hidden'); 
+        if(desktopBag) desktopBag.classList.remove('locked-blur'); 
+    }
 
     let html = `
     <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 cursor-pointer hover:bg-slate-600" onclick="attemptCatch('poke')" title="${ITEMS.pokeball.desc}">
@@ -3162,7 +3860,7 @@ function renderBag() {
     </div>`:''}
     ${state.inv.shinyToken>0 ? `
     <div class="bg-yellow-900/40 p-2 rounded flex items-center gap-2 border border-yellow-500" title="Transforme un Pokémon de l'équipe en Shiny">
-        <div class="w-6 h-6 rounded-full bg-yellow-400 border-2 border-white flex items-center justify-center text-[10px] text-black font-bold">★</div>
+        <div class="w-6 h-6 rounded-full bg-yellow-400 border-2 border-white flex items-center justify-center text-[10px] text-black font-bold">✦</div>
         <div><div class="text-xs text-yellow-300">Jeton Shiny</div><div class="text-sm font-bold">x${state.inv.shinyToken}</div></div>
     </div>`:''}
     ${state.inv.omniXp>0 ? `
@@ -3177,7 +3875,7 @@ function renderShop() {
     const desktopShop = document.getElementById('shop-content');
     const mobileShop = document.getElementById('mobile-shop-content');
 
-    if(state.unlockedZone<1 && state.zoneIdx<1) { 
+    if(state.unlockedZone<2 && state.zoneIdx<2) { 
         document.getElementById('shop-locked').classList.remove('hidden'); 
         if(desktopShop) desktopShop.classList.add('locked-blur'); 
     } else { 
@@ -3320,18 +4018,31 @@ function toggleAutoClicker() {
 }
 
 function updateAutoClickerBtn() {
+    const hasLeftovers = state.upgrades.leftovers;
     ['auto-click-btn', 'auto-click-btn-m'].forEach(id => {
         const b = document.getElementById(id);
         if (!b) return;
+
+        b.classList.remove('hidden');
 
         const isDesktop = id === 'auto-click-btn';
         let baseClass = "justify-center text-[9px] font-bold flex items-center gap-1 transition-all rounded shadow-md";
         baseClass += isDesktop ? " flex-1 py-1 px-1" : " p-1.5";
 
-        const colorClass = state.autoClicker 
-            ? "bg-green-600 hover:bg-green-500 text-white border border-green-400" 
-            : "bg-red-600 hover:bg-red-500 text-white border border-red-400";
-        b.className = `${baseClass} ${colorClass}`;
+        if (!hasLeftovers) {
+            b.className = `${baseClass} bg-slate-700 text-gray-500 border border-slate-600 cursor-not-allowed opacity-50`;
+            b.innerHTML = `<span class="material-symbols-outlined text-[12px]">lock</span>`;
+            b.disabled = true;
+            b.title = "Auto Click (Nécessite l'objet Restes)";
+        } else {
+            b.disabled = false;
+            b.title = "Auto Click (Restes)";
+            b.innerHTML = `<span class="material-symbols-outlined text-[12px]">ads_click</span>`;
+            const colorClass = state.autoClicker 
+                ? "bg-green-600 hover:bg-green-500 text-white border border-green-400" 
+                : "bg-red-600 hover:bg-red-500 text-white border border-red-400";
+            b.className = `${baseClass} ${colorClass}`;
+        }
     });
 }
 
@@ -3366,17 +4077,23 @@ function updateAutoStopBtn() {
     });
 }
 
-function showFeedback(t,c) {
+function showFeedback(t,c,d=1200) {
     const e = document.getElementById('feedback-msg');
+    if(feedbackTimer) clearTimeout(feedbackTimer);
     e.innerHTML = `<span class="text-${c}-400 font-bold text-2xl pixel-font text-shadow-lg">${t}</span>`;
     e.classList.remove('hidden'); 
+    e.classList.remove('animate-bounce');
+    void e.offsetWidth; // Trigger reflow
     e.classList.add('animate-bounce');
-    setTimeout(()=>e.classList.add('hidden'), 1200);
+    feedbackTimer = setTimeout(()=>e.classList.add('hidden'), d);
 }
 
 function changeZone(d) {
+    hideMapTooltip();
     const n = state.zoneIdx + d;
-    if(n>=0 && (n<=state.unlockedZone || state.cheat) && n<ZONES.length) {
+    if(ZONES[n] && (n<=state.unlockedZone || state.cheat || n < 0)) {
+        if (state.zoneIdx === -2 && n === 0) state.hasExitedLab = true;
+        if (n === 1) state.hasVisitedRoute1 = true;
         if(state.cheat && n > state.unlockedZone) state.unlockedZone = n;
         state.zoneIdx = n; 
         state.subStage = 1;
@@ -3407,7 +4124,7 @@ function showStats() {
 
 function renderAutoStopSettings() {
     const list = document.getElementById('auto-stop-settings-list');
-    const rarities = ['Commun', 'Peu Commun', 'Rare', 'Très Rare', 'Légendaire', 'Shiny'];
+    const rarities = ['Commun', 'Peu Commun', 'Rare', 'Très Rare', 'Légendaire', 'Shiny', 'Nouveau'];
     list.innerHTML = '';
     rarities.forEach(rarity => {
         const isChecked = state.autoStopSettings[rarity];
@@ -3531,6 +4248,39 @@ function renderStats() {
     `;
 }
 
+function updateMobileMenuButtons() {
+    const shopBtn = document.getElementById('mobile-btn-shop');
+    const pcBtn = document.getElementById('mobile-btn-pc');
+    
+    if (shopBtn) {
+        const shopUnlocked = state.unlockedZone >= 2 || state.zoneIdx >= 2;
+        shopBtn.disabled = !shopUnlocked;
+        if (!shopUnlocked) {
+            shopBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            shopBtn.classList.remove('active:bg-slate-700');
+            shopBtn.querySelector('span').innerText = 'lock';
+        } else {
+            shopBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            shopBtn.classList.add('active:bg-slate-700');
+            shopBtn.querySelector('span').innerText = 'storefront';
+        }
+    }
+
+    if (pcBtn) {
+        const pcUnlocked = state.unlockedZone >= 3 || state.zoneIdx >= 3;
+        pcBtn.disabled = !pcUnlocked;
+        if (!pcUnlocked) {
+            pcBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            pcBtn.classList.remove('active:bg-slate-700');
+            pcBtn.querySelector('span').innerText = 'lock';
+        } else {
+            pcBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            pcBtn.classList.add('active:bg-slate-700');
+            pcBtn.querySelector('span').innerText = 'computer';
+        }
+    }
+}
+
 function openMobileSubView(viewId) {
     document.getElementById('mobile-main-menu').classList.add('hidden');
     document.getElementById('mobile-subview-container').classList.remove('hidden');
@@ -3558,6 +4308,11 @@ setInterval(() => {
 window.addEventListener('click', () => {
     const menu = document.getElementById('custom-context-menu');
     if(menu) menu.classList.add('hidden');
+});
+
+// Resize handler for responsive map
+window.addEventListener('resize', () => {
+    updateBg();
 });
 
 // Launch
