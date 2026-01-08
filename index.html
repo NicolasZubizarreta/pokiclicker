@@ -89,6 +89,10 @@
         .shiny-glow { filter: drop-shadow(0 0 15px gold) brightness(1.1); }
         .grayscale { filter: grayscale(100%) opacity(0.3); }
 
+        #main-game-view.cheat-active {
+            box-shadow: inset 0 0 25px #ef4444;
+        }
+
         /* Gen 1 Fly Animation */
         #gen1-fly-overlay {
             display: none;
@@ -205,6 +209,41 @@
             100% { transform: scale(2); opacity: 0; }
         }
         .breaking-lock { animation: break-lock 0.5s forwards; }
+
+        @keyframes flicker-black {
+            0% { opacity: 0; }
+            10% { opacity: 1; }
+            30% { opacity: 0; }
+            50% { opacity: 1; }
+            70% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        .glitch-black { animation: flicker-black 1.5s steps(4) forwards; background: black; }
+
+        @keyframes zoom-in-entrance {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+            60% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+        @keyframes fly-to-bag {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            100% { transform: translate(-150%, 200%) scale(0.1); opacity: 0; }
+        }
+
+        @keyframes diploma-entrance {
+            0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+            60% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+            80% { transform: translate(-50%, -50%) scale(0.95); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        @keyframes title-slam {
+            0% { transform: scale(3); opacity: 0; }
+            60% { transform: scale(1); opacity: 1; }
+            80% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .title-slam { animation: title-slam 1.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
     </style>
 </head>
 <body class="h-screen flex flex-col selection:bg-red-500 selection:text-white select-none">
@@ -348,23 +387,6 @@
     </div>
 </div>
 
-<div class="fixed inset-0 z-[100] bg-black/95 flex flex-col items-center justify-center p-4 hidden" id="victory-modal">
-    <div id="confetti-container" class="absolute inset-0 overflow-hidden pointer-events-none"></div>
-    <div class="relative z-10 text-center flex flex-col items-center animate-bounce">
-        <img src="img/Bravo.png" class="w-64 h-64 md:w-80 md:h-80 object-contain mb-6 drop-shadow-[0_0_30px_rgba(255,215,0,0.6)]">
-        <h1 class="text-2xl md:text-4xl text-yellow-400 mb-6 pixel-font drop-shadow-lg tracking-widest leading-relaxed">FÉLICITATIONS !</h1>
-        <div class="bg-slate-800/90 p-6 rounded-xl border-4 border-yellow-500 shadow-2xl backdrop-blur-sm max-w-2xl mb-8">
-            <p class="text-white text-xs md:text-base font-bold pixel-font leading-loose">
-                TU ES MAINTENANT LE<br>
-                <span class="text-yellow-400 text-lg md:text-2xl">MAÎTRE DE LA LIGUE DE KANTO !</span>
-            </p>
-        </div>
-        <button onclick="closeVictory()" class="bg-gradient-to-r from-yellow-600 to-yellow-400 hover:from-yellow-500 hover:to-yellow-300 text-black font-bold py-3 px-8 rounded-full text-sm md:text-base shadow-[0_0_20px_rgba(234,179,8,0.8)] transition-all transform hover:scale-110 pixel-font border-2 border-white">
-            CONTINUER
-        </button>
-    </div>
-</div>
-
 <div class="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 hidden" id="item-info-modal" onclick="this.classList.add('hidden')">
     <div class="bg-slate-800 border-2 border-slate-500 p-4 rounded-xl shadow-2xl max-w-[280px] w-full text-center relative" onclick="event.stopPropagation()">
         <button onclick="document.getElementById('item-info-modal').classList.add('hidden')" class="absolute top-2 right-2 text-gray-400 hover:text-white material-symbols-outlined text-sm">close</button>
@@ -455,6 +477,7 @@
                     </div>
                     <button class="flex-1 justify-center bg-green-600 hover:bg-green-500 text-white text-[9px] font-bold py-1 px-1 rounded shadow-md border border-green-400 flex items-center gap-1 transition-all" id="auto-attack-btn" onclick="toggleAutoAttack()" title="Auto Attaque"><span class="material-symbols-outlined text-[12px]">swords</span></button>
                     <button class="flex-1 justify-center bg-gray-600 hover:bg-gray-500 text-gray-300 text-[9px] font-bold py-1 px-1 rounded shadow-md border border-gray-400 flex items-center gap-1 transition-all hidden" id="auto-click-btn" onclick="toggleAutoClicker()" title="Auto Click (Restes)"><span class="material-symbols-outlined text-[12px]">ads_click</span></button>
+                    <button class="flex-1 justify-center bg-slate-700 text-gray-500 text-[9px] font-bold py-1 px-1 rounded shadow-md border border-slate-600 flex items-center gap-1 transition-all opacity-50 cursor-not-allowed" id="false-swipe-btn" onclick="useFalseSwipe()" title="Fauchage (Bloqué)" disabled><span class="material-symbols-outlined text-[12px]">lock</span></button>
                 </div>
             </div>
             <div class="flex-1 overflow-y-auto p-2 space-y-2 custom-scroll" id="team-list">
@@ -479,6 +502,11 @@
             <img id="bg-img-element" class="absolute inset-0 w-full h-full object-cover hidden" draggable="false">
             <svg id="bg-overlay-svg" class="absolute inset-0 w-full h-full hidden pointer-events-auto" preserveAspectRatio="xMidYMid slice"></svg>
         </div>
+        <div id="confetti-container" class="absolute inset-0 overflow-hidden pointer-events-none z-[55]"></div>
+        <div id="hof-title-container" class="absolute inset-0 z-[58] flex items-start justify-center pt-32 pointer-events-none hidden">
+             <h1 class="text-3xl md:text-5xl text-yellow-400 font-bold pixel-font text-center drop-shadow-[0_5px_0_rgba(0,0,0,1)] tracking-widest leading-relaxed" style="-webkit-text-stroke: 2px black;">MAÎTRE DE LA<br>LIGUE DE KANTO</h1>
+        </div>
+        <div id="glitch-overlay" class="absolute inset-0 z-[60] hidden pointer-events-none"></div>
 
         <!-- Content Container (Z-10) -->
         <div class="relative z-10 flex flex-col h-full w-full pointer-events-none">
@@ -539,6 +567,8 @@
                 <div class="hidden absolute top-0 right-10 bg-red-600 text-white font-bold text-[10px] px-3 py-1 rounded border border-white shadow-lg animate-bounce" id="boss-badge" style="display: none;">BOSS</div>
             </div>
             
+            <button id="pantheon-exit-btn" class="absolute bottom-20 left-1/2 -translate-x-1/2 bg-red-600 hover:bg-red-500 text-white font-bold py-2 px-6 rounded-full shadow-lg border-2 border-white hidden pointer-events-auto z-50 pixel-font text-xs animate-pulse" onclick="exitPantheon()">SORTIR</button>
+
             <!-- HP Bar Area -->
             <div id="enemy-info-panel" class="flex-none w-[80%] max-w-md mb-4 bg-slate-900/80 rounded-xl border-2 border-slate-600 p-2 shadow-2xl backdrop-blur-md relative mx-auto pointer-events-auto">
                 <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white text-xs font-bold px-3 py-0.5 rounded-full border border-slate-500 shadow-md">
@@ -563,6 +593,9 @@
                 <button class="bg-red-800 text-red-200 border border-red-600 px-2 py-1 rounded text-[10px] font-bold hover:bg-red-700 transition-all shadow-lg flex items-center gap-1" onclick="resetSave()">
                     <span class="material-symbols-outlined text-[14px]">delete</span> RESET
                 </button>
+                <button class="bg-purple-900 text-purple-200 border border-purple-600 px-2 py-1 rounded text-[10px] font-bold hover:bg-purple-700 transition-all shadow-lg" onclick="testEndingSequence()">
+                    ENDGAME
+                </button>
             </div>
 
             <button id="radar-btn" onclick="toggleRadarModal()" title="Poké-Radar" class="absolute bottom-4 right-4 w-12 h-12 lg:w-16 lg:h-16 bg-slate-800 hover:bg-slate-700 rounded-full border-2 border-slate-600 flex items-center justify-center shadow-lg transition-all group disabled:opacity-50 disabled:cursor-not-allowed z-20 pointer-events-auto" disabled>
@@ -577,6 +610,9 @@
     <div id="intro-overlay" class="absolute inset-0 z-50 hidden flex flex-col items-center justify-end pb-2 md:pb-4 overflow-hidden pointer-events-auto">
         <!-- Professor Sprite -->
         <img id="intro-prof" src="img/sprites/SpriteChen1.png" class="absolute bottom-[25%] md:bottom-[30%] right-0 h-[45%] md:h-[60%] object-contain transition-all duration-[1500ms] ease-out pixelated translate-x-full">
+        
+        <!-- Item Display -->
+        <img id="intro-item-display" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-lg object-contain z-40 hidden drop-shadow-2xl">
 
         <!-- Dialog Box -->
         <div id="intro-dialog-box" class="w-[95%] md:w-[50%] bg-white border-4 border-blue-800 rounded-lg p-3 md:p-4 mb-2 md:mb-4 min-h-[6rem] md:min-h-[8rem] h-auto hidden flex-col cursor-pointer shadow-xl z-20 relative mx-auto" onclick="advanceIntro()">
@@ -700,6 +736,7 @@
                         </div>
                         <button id="auto-attack-btn-m" onclick="toggleAutoAttack()" title="Auto Attaque" class="justify-center text-[9px] font-bold p-1.5 rounded shadow-md flex items-center gap-1 transition-all"><span class="material-symbols-outlined text-sm">swords</span></button>
                         <button id="auto-click-btn-m" onclick="toggleAutoClicker()" title="Auto Click (Restes)" class="justify-center text-[9px] font-bold p-1.5 rounded shadow-md flex items-center gap-1 transition-all hidden"><span class="material-symbols-outlined text-sm">ads_click</span></button>
+                        <button id="false-swipe-btn-m" onclick="useFalseSwipe()" title="Fauchage (Bloqué)" class="justify-center text-[9px] font-bold p-1.5 rounded shadow-md flex items-center gap-1 transition-all opacity-50 cursor-not-allowed" disabled><span class="material-symbols-outlined text-sm">lock</span></button>
                     </div>
                 </div>
                 <div id="mobile-team-list" class="flex-1 overflow-y-auto p-2 space-y-2 custom-scroll"></div>
@@ -752,6 +789,15 @@
     </button>
 </div>
 
+<div class="fixed inset-0 z-[80] bg-black/80 flex flex-col items-center justify-center p-4 hidden" id="diploma-modal" onclick="hideDiplomaModal()">
+    <div class="bg-slate-800 border-4 border-slate-600 rounded-xl w-full max-w-2xl flex flex-col shadow-2xl relative p-6" onclick="event.stopPropagation()">
+        <button onclick="hideDiplomaModal()" class="absolute top-4 right-4 text-red-500 hover:text-white material-symbols-outlined text-3xl z-10">close</button>
+        <h2 class="text-center text-yellow-400 pixel-font text-xl mb-4">DIPLÔME</h2>
+        <img src="img/Diplôme.png" class="w-full object-contain rounded-lg shadow-lg border-2 border-yellow-500/50">
+        <p class="text-center text-yellow-200 pixel-font text-xs mt-4">Preuve de la complétion du Pokédex de Kanto.</p>
+    </div>
+</div>
+
 <script>
 // --- CONSTANTS ---
 const ITEMS = {
@@ -765,7 +811,7 @@ const ITEMS = {
     xAttack: { name: "Attaque +", price: 7500, desc: "Dégâts/clic +50% (30s)", type: "consumable", zone: 8, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/x-attack.png", invKey: "xAttack" },
     xSpecial: { name: "Attaque Spé +", price: 10000, desc: "DPS Équipe +50% (30s)", type: "consumable", zone: 12, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/x-sp-atk.png", invKey: "xSpecial" },
     superRepel: { name: "Superepousse", price: 12000, desc: "Bloque Communs/Peu Communs (30s)", type: "consumable", zone: 13, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/super-repel.png", invKey: "superRepel" },
-    pokeDoll: { name: "Poké Poupée", price: 7500, desc: "Invoque le Boss (Si déjà vaincu)", type: "consumable", zone: 16, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-doll.png", invKey: "pokeDoll" },
+    pokeDoll: { name: "Poké Poupée", price: 5000, desc: "Invoque le Boss (Si déjà vaincu)", type: "consumable", zone: 15, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-doll.png", invKey: "pokeDoll" },
     // Améliorations
     runningShoes: { name: "Chaussures Sport", price: 2000, desc: "Divise le temps d'apparition des ennemis par 1.5", type: "upgrade", zone: 1, icon: "sprint", iconColor: "text-orange-400" },
     amuletCoin: { name: "Pièce Rune", price: 4000, desc: "Gains d'argent +30%", type: "upgrade", zone: 2, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/amulet-coin.png" },
@@ -775,7 +821,10 @@ const ITEMS = {
     bicycle: { name: "Bicyclette", price: 30000, desc: "Vitesse de spawn x3 (Remplace Chaussures)", type: "upgrade", zone: 7, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/bicycle.png" },
     luckyEgg: { name: "Oeuf Chance", price: 75000, desc: "XP gagnée x1.5", type: "upgrade", zone: 10, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lucky-egg.png" },
     pokeradar: { name: "Poké-Radar", price: 45000, desc: "Affiche les Pokémon trouvables dans la zone actuelle.", type: "upgrade", zone: 8, icon: "radar", iconColor: "text-green-400" },
-    leftovers: { name: "Restes", price: 150000, desc: "Auto-click 9 clics/sec", type: "upgrade", zone: 14, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/leftovers.png" }
+    leftovers: { name: "Restes", price: 150000, desc: "Auto-click 9 clics/sec", type: "upgrade", zone: 14, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/leftovers.png" },
+    falseSwipe: { name: "CT Fauchage", price: 100000, desc: "Compétence : Empêche le Pokémon sauvage de mourir (1 PV min). Recharge 30s.", type: "upgrade", zone: 12, icon: "content_cut", iconColor: "text-red-400" },
+    shinyCharm: { name: "Charme Chroma", price: 0, desc: "Chances de Shiny x3 (Passif)", type: "upgrade", zone: 99, img: "img/CharmeChroma.png" },
+    diploma: { name: "Diplôme Kanto", price: 0, desc: "Preuve de complétion du Pokédex", type: "upgrade", zone: 99, img: "img/Diplôme.png" }
 };
 const EVOLUTIONS = {
     1:{id:2,lvl:16,name:"Herbizarre"}, 2:{id:3,lvl:32,name:"Florizarre"},
@@ -1157,13 +1206,13 @@ const MILESTONES = [
     {count:10, title:"Débutant", desc:"Dégâts Clic x2"},
     {count:20, title:"Amateur", desc:"+2,500 $P"},
     {count:30, title:"Collectionneur", desc:"DPS Équipe +50%"},
-    {count:40, title:"Dresseur", desc:"Omni XP (XP +100%)"},
+    {count:40, title:"Dresseur", desc:"Omni Exp (XP +100%)"},
     {count:50, title:"Expert", desc:"Spawn +20%"},
     {count:70, title:"Champion", desc:"Shop -15%"},
     {count:90, title:"Maître", desc:"Dégâts Totaux +50%"},
     {count:110, title:"Légende", desc:"Jeton Brillant"},
     {count:130, title:"Mythique", desc:"Master Ball + 10 Bonbons"},
-    {count:151, title:"Kanto Master", desc:"Shiny Chance x2"}
+    {count:151, title:"Kanto Master", desc:"Charme Chroma (Shiny x3)"}
 ];
 
 // Map names to IDs manually for older entries, but preferred to put ID in ZONE data
@@ -1438,23 +1487,23 @@ const ZONES = [
   {id:21, name:"Ligue Pokémon", bg:"img/background/Zone 21.png", minLevel:70, maxLevel:90,
    pokemons:[
      // OLGA (Glace/Eau)
-     {name:"Olga (Lokhlass)", id:131, level:74, catchRate:0},
-     {name:"Olga (Lippoutou)", id:124, level:76, catchRate:0},
+     {name:"Olga (Lokhlass)", id:131, rarity:"Conseil 4", level:74, catchRate:0},
+     {name:"Olga (Lippoutou)", id:124, rarity:"Conseil 4", level:76, catchRate:0},
      
      // ALDO (Combat/Roche)
-     {name:"Aldo (Mackogneur)", id:68, level:78, catchRate:0},
-     {name:"Aldo (Onix)", id:95, level:80, catchRate:0},
+     {name:"Aldo (Mackogneur)", id:68, rarity:"Conseil 4", level:78, catchRate:0},
+     {name:"Aldo (Onix)", id:95, rarity:"Conseil 4", level:80, catchRate:0},
      
      // AGATHA (Spectre/Poison)
-     {name:"Agatha (Ectoplasma)", id:94, level:82, catchRate:0},
-     {name:"Agatha (Arbok)", id:24, level:84, catchRate:0},
+     {name:"Agatha (Ectoplasma)", id:94, rarity:"Conseil 4", level:82, catchRate:0},
+     {name:"Agatha (Arbok)", id:24, rarity:"Conseil 4", level:84, catchRate:0},
      
      // PETER (Dragon)
-     {name:"Peter (Dracolosse)", id:149, level:86, catchRate:0},
-     {name:"Peter (Léviator)", id:130, level:88, catchRate:0},
+     {name:"Peter (Dracolosse)", id:149, rarity:"Conseil 4", level:86, catchRate:0},
+     {name:"Peter (Léviator)", id:130, rarity:"Conseil 4", level:88, catchRate:0},
 
      // MAÎTRE BLUE (Son 1er Pokémon)
-     {name:"Maître Blue (Roucarnage)", id:18, level:92, catchRate:0}
+     {name:"Maître Blue (Roucarnage)", id:18, rarity:"Maître", level:92, catchRate:0}
    ], 
    // Le Boss est défini dynamiquement
    boss:{name:"Maître Blue", id:9, level:100, catchRate:0}}
@@ -1463,12 +1512,13 @@ const ZONES = [
 ZONES[-4] = {id:-4, name:"Chez Maman", bg:"img/background/Chez Maman.png", minLevel:0, maxLevel:0, pokemons:[], boss:{name:"", id:0, level:0, catchRate:0}};
 ZONES[-3] = {id:-3, name:"Chez Blue", bg:"img/background/Chez Blue.png", minLevel:0, maxLevel:0, pokemons:[], boss:{name:"", id:0, level:0, catchRate:0}};
 ZONES[-2] = {id:-2, name:"Labo Pokémon du Prof. Chen", bg:"img/background/LaboPokemon.png", minLevel:0, maxLevel:0, pokemons:[], boss:{name:"", id:0, level:0, catchRate:0}};
+ZONES[-5] = {id:-5, name:"Panthéon Pokémon", bg:"img/background/Pantheon.png", minLevel:0, maxLevel:0, pokemons:[], boss:{name:"", id:0, level:0, catchRate:0}};
 
 // --- STATE ---
 let state = {
     money: 0, 
-    inv: { balls: 0, superballs: 0, hyperballs: 0, candy: 0, omniXp: 0, shinyToken: 0, masterball: 0, repel: 0, xAttack: 0, xSpecial: 0, superRepel: 0, pokeDoll: 0 },
-    upgrades: { runningShoes: false, amuletCoin: false, protein: false, expShare: false, hardStone: false, bicycle: false, luckyEgg: false, leftovers: false, pokeradar: false },
+    inv: { balls: 0, superballs: 0, hyperballs: 0, candy: 0, omniExp: 0, shinyToken: 0, masterball: 0, repel: 0, xAttack: 0, xSpecial: 0, superRepel: 0, pokeDoll: 0 },
+    upgrades: { runningShoes: false, amuletCoin: false, protein: false, expShare: false, hardStone: false, bicycle: false, luckyEgg: false, leftovers: false, pokeradar: false, falseSwipe: false, shinyCharm: false, diploma: false },
     team: [], 
     introBagUnlocked: false,
     introMapUnlocked: false,
@@ -1476,12 +1526,15 @@ let state = {
     hasVisitedRoute1: false,
     pc: [],
     pokedex: [],
+    pokedexBackup: null,
+    hasSeenEnding: false,
     badges: [],
     milestones: [],
     repelEndTime: 0,
     attackBoostEndTime: 0,
     dpsBoostEndTime: 0,
     superRepelEndTime: 0,
+    falseSwipeCooldown: 0,
     zoneIdx: -4, 
     subStage: 1, 
     unlockedZone: 0,
@@ -1497,23 +1550,24 @@ let state = {
     candyMode: false,
     candyTargetIdx: null,
     candyAmount: 1,
+    shinyTokenMode: false,
     summaryPokemon: null,
     contextTarget: null,
     visitedLab: false
 };
 
 // Runtime variables (not saved)
-let enemy = { hp: 10, maxHp: 10, id: 0, level: 1, isBoss: false, isShiny: false, catchRate: 1, name: "", rarity: "Commun", dead: false };
+let enemy = { hp: 10, maxHp: 10, id: 0, level: 1, isBoss: false, isShiny: false, catchRate: 1, name: "", rarity: "Commun", dead: false, isFalseSwiped: false };
 let audioCtx = false, synth = null;
 let bossTimer = null;
 let autoSaveInterval = null;
 let autoClickerInterval = null;
 let evolvingPokemon = { uid: null, endTime: 0, oldId: null, newId: null };
 let evolutionInterval = null;
+let feedbackTimer = null;
 let victoryInterval = null;
 let fireworkInterval = null;
-let feedbackTimer = null;
-let introDialogs = [
+const INTRO_DIALOGS = [
     "Salutations ! Bienvenue dans le monde merveilleux des Pokémon !",
     "Mon nom est Chen. Les gens m'appellent souvent le Professeur Pokémon.",
     "Ce monde est peuplé de créatures appelées Pokémon. Pour certains, ce sont des animaux domestiques, pour d'autres, des partenaires de combat.",
@@ -1522,9 +1576,26 @@ let introDialogs = [
     "Le monde est vaste. Pour t'aider à te repérer entre les différentes zones, je te confie aussi cette Carte de la Région.",
     "Mais c'est dangereux de partir dans les hautes herbes sans protection ! J'ai ici trois Pokémon rares. Choisis-en un, il t'accompagnera dans ton voyage."
 ];
+const ENDING_DIALOGS = [
+    "Incroyable... Je n'en crois pas mes yeux !",
+    "Ton Pokédex... Il est complet ! Tu as attrapé les 151 Pokémon de Kanto !",
+    "C'était mon rêve depuis toujours. Tu l'as réalisé pour moi.",
+    "Tu es officiellement le plus grand Collectionneur Pokémon de la région !",
+    "En guise de reconnaissance, voici ton Diplôme officiel.",
+    "Félicitations !",
+    "Prends aussi ceci : le Charme Chroma. Les Pokémon Shinies apparaîtront beaucoup plus souvent !",
+    "Qui sait peut être qu'un jour tu attraperas tout les pokémons du monde... L'aventure continue !"
+];
+const PANTHEON_DIALOGS = [
+    "Splendide ! Simplement splendide !",
+    "Tu as vaincu le Conseil des 4 et le Maître actuel. Tu es le nouveau Maître de la Ligue de Kanto !",
+    "Mais tu n'as pas gagné seul. Viens avec moi, allons enregistrer tes partenaires au Panthéon."
+];
+let activeDialogs = INTRO_DIALOGS;
 let introIndex = 0;
 let introTyping = false;
 let selectedStarterId = null;
+let isEndingSequence = false;
 
 // --- INIT ---
 function init() {
@@ -1546,6 +1617,8 @@ function startGame() {
 
 function startIntro() {
     // Reset state
+    activeDialogs = INTRO_DIALOGS;
+    isEndingSequence = false;
     introIndex = 0;
     introTyping = false;
     selectedStarterId = null;
@@ -1554,6 +1627,7 @@ function startIntro() {
     const prof = document.getElementById('intro-prof');
     const box = document.getElementById('intro-dialog-box');
     const selection = document.getElementById('intro-selection');
+    const itemDisplay = document.getElementById('intro-item-display');
     
     overlay.classList.remove('hidden');
     
@@ -1566,6 +1640,7 @@ function startIntro() {
     box.classList.add('hidden');
     selection.classList.add('hidden');
     selection.classList.remove('flex');
+    itemDisplay.classList.add('hidden');
     
     // Phase 1: Enter Professor (Animated)
     requestAnimationFrame(() => {
@@ -1583,8 +1658,34 @@ function startIntro() {
 
 function nextDialog() {
     const currentIndex = introIndex; // Capture l'index actuel pour éviter le bug du saut
-    if (currentIndex >= introDialogs.length) {
+    if (currentIndex >= activeDialogs.length) {
+        // NEW: End of Pantheon dialog
+        if (activeDialogs === PANTHEON_DIALOGS) {
+            const prof = document.getElementById('intro-prof');
+            prof.style.transition = 'transform 1s ease-in';
+            prof.style.transform = 'translateX(-150%)'; // Exit left
+
+            setTimeout(() => {
+                document.getElementById('intro-overlay').classList.add('hidden');
+                // Reset prof for next time
+                prof.style.transition = 'transform 1.5s ease-out';
+                prof.style.opacity = '1';
+                prof.style.left = 'auto';
+                prof.style.right = '0';
+                prof.style.transform = '';
+                
+                // Petit délai avant de lancer l'animation pour ne pas couper le début
+                setTimeout(animateHallOfFame, 1000);
+            }, 1000);
+            return;
+        }
         // Phase 4: Selection
+        if (isEndingSequence) {
+             document.getElementById('intro-overlay').classList.add('hidden');
+             isEndingSequence = false;
+             activeDialogs = INTRO_DIALOGS;
+             return;
+        }
         document.getElementById('intro-prof').classList.add('opacity-0');
         document.getElementById('intro-dialog-box').classList.add('hidden');
         setTimeout(() => {
@@ -1594,28 +1695,80 @@ function nextDialog() {
         return;
     }
 
-    // Phase 3: Sprite Change
-    const prof = document.getElementById('intro-prof');
-    if (currentIndex === 2) {
-        prof.classList.add('opacity-0');
-        setTimeout(() => {
-            prof.src = "img/sprites/SpriteChen2.png";
-            prof.classList.remove('opacity-0');
-        }, 500);
-    }
-    if (currentIndex === 4) {
-        prof.classList.add('opacity-0');
-        setTimeout(() => {
-            prof.src = "img/sprites/SpriteChen3.png";
-            prof.classList.remove('opacity-0');
-        }, 500);
-    }
-    
-    // Unlocks
-    if (currentIndex === 3 && !state.introBagUnlocked) {
-        state.introBagUnlocked = true;
-        state.inv.balls += 5;
-        const lock = document.getElementById('bag-locked');
+    if (isEndingSequence) {
+        const itemDisplay = document.getElementById('intro-item-display');
+        
+        // Reset classes
+        itemDisplay.classList.remove('hidden');
+        itemDisplay.style.animation = 'none';
+        itemDisplay.offsetHeight; /* trigger reflow */
+        
+        if (currentIndex === 4) { // Show Diploma
+             itemDisplay.src = "img/Diplôme.png";
+             itemDisplay.style.animation = "diploma-entrance 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards";
+             if(!state.upgrades.diploma) {
+                 state.upgrades.diploma = true;
+                 renderBag();
+             }
+        }
+        else if (currentIndex === 5) { // Hide Diploma (Fly to bag)
+             itemDisplay.src = "img/Diplôme.png";
+             itemDisplay.style.animation = "fly-to-bag 0.8s forwards";
+        }
+        else if (currentIndex === 6) { // Show Charm
+             itemDisplay.src = ITEMS.shinyCharm.img;
+             itemDisplay.style.animation = "zoom-in-entrance 0.8s forwards";
+             if(!state.upgrades.shinyCharm) {
+                 state.upgrades.shinyCharm = true;
+                 renderBag();
+                 showFeedback("CHARME CHROMA OBTENU !", "purple");
+             }
+        }
+        else if (currentIndex === 7) { // Hide Charm (Fly to bag)
+             itemDisplay.src = ITEMS.shinyCharm.img;
+             itemDisplay.style.animation = "fly-to-bag 0.8s forwards";
+        } else {
+             itemDisplay.classList.add('hidden');
+        }
+    } else {
+        // Intro Logic
+        const prof = document.getElementById('intro-prof');
+        if (currentIndex === 2) {
+            prof.classList.remove('duration-[1500ms]');
+            prof.classList.add('duration-500');
+            prof.classList.add('opacity-0');
+            setTimeout(() => {
+                prof.src = "img/sprites/SpriteChen2.png";
+                prof.classList.remove('duration-500');
+                prof.classList.add('duration-1000');
+                requestAnimationFrame(() => prof.classList.remove('opacity-0'));
+                setTimeout(() => {
+                    prof.classList.remove('duration-1000');
+                    prof.classList.add('duration-[1500ms]');
+                }, 1000);
+            }, 500);
+        }
+        if (currentIndex === 4) {
+            prof.classList.remove('duration-[1500ms]');
+            prof.classList.add('duration-500');
+            prof.classList.add('opacity-0');
+            setTimeout(() => {
+                prof.src = "img/sprites/SpriteChen3.png";
+                prof.classList.remove('duration-500');
+                prof.classList.add('duration-1000');
+                requestAnimationFrame(() => prof.classList.remove('opacity-0'));
+                setTimeout(() => {
+                    prof.classList.remove('duration-1000');
+                    prof.classList.add('duration-[1500ms]');
+                }, 1000);
+            }, 500);
+        }
+        
+        // Unlocks
+        if (currentIndex === 3 && !state.introBagUnlocked) {
+            state.introBagUnlocked = true;
+            state.inv.balls += 5;
+            const lock = document.getElementById('bag-locked');
         if(lock) lock.classList.add('breaking-lock');
         setTimeout(() => {
             if(lock) lock.classList.remove('breaking-lock');
@@ -1634,9 +1787,10 @@ function nextDialog() {
         }
         showFeedback("CARTE DÉBLOQUÉE !", "yellow");
     }
+    }
 
     // Phase 2: Typewriter
-    const text = introDialogs[currentIndex];
+    const text = activeDialogs[currentIndex];
     const el = document.getElementById('intro-text');
     const arrow = document.getElementById('intro-arrow');
     
@@ -1852,6 +2006,22 @@ function toggleCheat() {
         }
     }
     state.cheat = !state.cheat;
+
+    if(state.cheat) {
+        state.inv.shinyToken++;
+        // Cheat Pokedex: 150/151 (No Rattata)
+        state.pokedexBackup = [...state.pokedex];
+        state.pokedex = [];
+        for(let i=1; i<=151; i++) {
+            if(i !== 19) state.pokedex.push(i);
+        }
+        checkMilestones();
+    } else {
+        if(state.pokedexBackup) {
+            state.pokedex = state.pokedexBackup;
+            state.pokedexBackup = null;
+        }
+    }
     const updateBtn = (id, baseClass) => {
         const b = document.getElementById(id);
         if(!b) return;
@@ -1862,6 +2032,7 @@ function toggleCheat() {
     };
     updateBtn('cheat-btn', "px-2 py-1 rounded text-[10px] font-bold transition-all");
     renderShop();
+    renderPokedex();
     updateZone();
 }
 
@@ -1903,6 +2074,7 @@ function spawnEnemy() {
 
     enemy.dead = false;
     enemy.isCatching = false;
+    enemy.isFalseSwiped = false;
     enemy.uid = Date.now(); // Unique ID to prevent race conditions
     enemy.gender = Math.random() < 0.5 ? 'male' : 'female';
     const z = ZONES[state.zoneIdx];
@@ -1947,7 +2119,9 @@ function spawnEnemy() {
     } else {
         enemy.isBoss = (state.subStage === 10);
         
-        let shinyChance = hasMilestone(151) ? (1/128) : (1/256);
+        let shinyChance = 1/256;
+        if(state.upgrades.shinyCharm) shinyChance *= 3;
+        else if(hasMilestone(151)) shinyChance *= 2;
         if(state.cheat) shinyChance = 1;
         enemy.isShiny = !enemy.isBoss && Math.random() < shinyChance; 
         
@@ -1987,7 +2161,7 @@ function spawnEnemy() {
 
     // Stop auto battle for rares
     const isNew = !state.pokedex.includes(enemy.id);
-    const shouldStop = state.stopOnRare && (state.autoStopSettings[enemy.rarity] || (enemy.isShiny && state.autoStopSettings.Shiny) || (isNew && state.autoStopSettings.Nouveau));
+    const shouldStop = state.stopOnRare && (state.autoStopSettings[enemy.rarity] || (enemy.isShiny && state.autoStopSettings.Shiny) || (isNew && !enemy.isBoss && state.autoStopSettings.Nouveau));
 
     if(shouldStop && (state.auto || state.autoClicker)) {
         state.interruptedState = { auto: state.auto, autoClicker: state.autoClicker };
@@ -2024,6 +2198,7 @@ function spawnEnemy() {
 function damageEnemy(amt) {
     if(enemy.dead) return;
     enemy.hp -= amt;
+    if(enemy.isFalseSwiped && enemy.hp < 1) enemy.hp = 1;
     if(enemy.hp <= 0) {
         enemy.hp = 0;
         killEnemy();
@@ -2061,7 +2236,7 @@ function killEnemy() {
     if (xpGain < 1) xpGain = 1;
     if (state.upgrades.expShare) xpGain = Math.floor(xpGain * 1.5);
     if (state.upgrades.luckyEgg) xpGain = Math.floor(xpGain * 1.5);
-    if (state.inv.omniXp > 0) xpGain = Math.floor(xpGain * 2);
+    if (state.inv.omniExp > 0) xpGain = Math.floor(xpGain * 2);
     if(hasBadge("Âme")) xpGain = Math.floor(xpGain * 1.5);
     
     state.team.forEach(p => {
@@ -2090,7 +2265,7 @@ function killEnemy() {
             if (state.subStage < 10) {
                 state.subStage++;
             } else {
-                showVictory();
+                enterHallOfFame();
                 state.subStage = 1;
             }
         } else {
@@ -2312,12 +2487,25 @@ function addToPokedex(id) {
     }
 }
 
-function useShinyToken(uid) {
-    let p = state.team.find(x=>x.uid===uid);
-    if(p && !p.isShiny && state.inv.shinyToken > 0) {
-        state.inv.shinyToken--; p.isShiny = true; p.img = getSprite(p.id, true);
+function initShinyTokenUse() {
+    if(state.inv.shinyToken <= 0) return;
+    state.shinyTokenMode = true;
+    state.candyMode = false;
+    state.swapIdx = null;
+    showFeedback("SÉLECTIONNEZ UN POKÉMON", "yellow");
+    renderTeam();
+}
+
+function useShinyTokenOn(i) {
+    const p = state.team[i];
+    if (p.isShiny) { showFeedback("DÉJÀ SHINY !", "red"); return; }
+    if(confirm(`Utiliser un Jeton Shiny sur ${p.name} ?`)) {
+        state.inv.shinyToken--;
+        p.isShiny = true;
+        p.img = getSprite(p.id, true);
+        state.shinyTokenMode = false;
         playTone('up'); showFeedback("SHINY !!!", "purple");
-        renderTeam(); renderBag();
+        renderTeam(); renderBag(); updateUI();
     }
 }
 
@@ -2379,9 +2567,22 @@ function usePokeDoll() {
     }
 }
 
+function useFalseSwipe() {
+    if (!state.upgrades.falseSwipe) return;
+    const now = Date.now();
+    if (state.falseSwipeCooldown > now) return;
+    
+    enemy.isFalseSwiped = true;
+    state.falseSwipeCooldown = now + 30000; // 30s cooldown
+    
+    showFeedback("FAUCHAGE ACTIF !", "red");
+    updateFalseSwipeBtn();
+}
+
 function initCandyUse() {
     if(state.inv.candy <= 0) return;
     state.candyMode = true;
+    state.shinyTokenMode = false;
     state.candyTargetIdx = null;
     showFeedback("SÉLECTIONNEZ UN POKÉMON", "blue");
     renderTeam();
@@ -2398,6 +2599,8 @@ function handleTeamClick(i) {
         state.candyTargetIdx = i;
         state.candyAmount = 1;
         renderTeam();
+    } else if (state.shinyTokenMode) {
+        useShinyTokenOn(i);
     }
 }
 
@@ -2706,26 +2909,16 @@ function showItemInfo(id, e) {
     document.getElementById('item-info-modal').classList.remove('hidden');
 }
 
-function showVictory() {
-    document.getElementById('victory-modal').classList.remove('hidden');
-    startVictoryAnimation();
-    playTone('pc'); // Son de victoire (réutilisation du son PC pour l'instant)
-}
-
-function closeVictory() {
-    document.getElementById('victory-modal').classList.add('hidden');
-    stopVictoryAnimation();
-}
-
 function startVictoryAnimation() {
     const container = document.getElementById('confetti-container');
+    if(!container) return;
     container.innerHTML = '';
     
     // Confetti
     victoryInterval = setInterval(() => {
         const c = document.createElement('div');
         c.className = 'absolute w-2 h-2 rounded-sm';
-        c.style.left = Math.random() * 100 + 'vw';
+        c.style.left = Math.random() * 100 + '%';
         c.style.top = '-10px';
         c.style.backgroundColor = `hsl(${Math.random()*360}, 100%, 50%)`;
         c.style.transform = `rotate(${Math.random()*360}deg)`;
@@ -2733,21 +2926,21 @@ function startVictoryAnimation() {
         container.appendChild(c);
         
         requestAnimationFrame(() => {
-            c.style.top = '110vh';
+            c.style.top = '110%';
             c.style.transform = `rotate(${Math.random()*720}deg)`;
         });
         
         setTimeout(() => c.remove(), 4000);
     }, 50);
 
-    // Fireworks (Cercles qui s'agrandissent)
+    // Fireworks
     fireworkInterval = setInterval(() => {
         const f = document.createElement('div');
         f.className = 'absolute rounded-full border-2 opacity-0';
         f.style.width = '10px';
         f.style.height = '10px';
-        f.style.left = Math.random() * 80 + 10 + 'vw';
-        f.style.top = Math.random() * 60 + 10 + 'vh';
+        f.style.left = Math.random() * 80 + 10 + '%';
+        f.style.top = Math.random() * 60 + 10 + '%';
         const color = `hsl(${Math.random()*360}, 100%, 50%)`;
         f.style.borderColor = color;
         f.style.boxShadow = `0 0 20px ${color}, inset 0 0 20px ${color}`;
@@ -2761,13 +2954,14 @@ function startVictoryAnimation() {
         });
         
         setTimeout(() => f.remove(), 1000);
-    }, 400);
+    }, 800);
 }
 
 function stopVictoryAnimation() {
     if(victoryInterval) clearInterval(victoryInterval);
     if(fireworkInterval) clearInterval(fireworkInterval);
-    document.getElementById('confetti-container').innerHTML = '';
+    const container = document.getElementById('confetti-container');
+    if(container) container.innerHTML = '';
 }
 
 function getPrice(base) {
@@ -2848,6 +3042,7 @@ function loadData(data) {
     state.candyMode = false;
     state.candyTargetIdx = null;
     state.candyAmount = 1;
+    state.shinyTokenMode = false;
     state.summaryPokemon = null;
     state.contextTarget = null;
     if(state.introBagUnlocked === undefined) state.introBagUnlocked = false;
@@ -2860,7 +3055,11 @@ function loadData(data) {
     if(!state.milestones) state.milestones = [];
     if(state.unlockedZone === undefined) state.unlockedZone = 0;
     if(!state.badges) state.badges = [];
-    if(state.inv.omniXp === undefined) state.inv.omniXp = 0;
+    if(state.inv.omniExp === undefined) state.inv.omniExp = 0;
+    if(state.inv.omniXp !== undefined) {
+        state.inv.omniExp += state.inv.omniXp;
+        delete state.inv.omniXp;
+    }
     if(state.inv.shinyToken === undefined) state.inv.shinyToken = 0;
     if(state.inv.masterball === undefined) state.inv.masterball = 0;
     if(state.inv.repel === undefined) state.inv.repel = 0;
@@ -2872,6 +3071,7 @@ function loadData(data) {
     if(!state.attackBoostEndTime) state.attackBoostEndTime = 0;
     if(!state.dpsBoostEndTime) state.dpsBoostEndTime = 0;
     if(!state.superRepelEndTime) state.superRepelEndTime = 0;
+    if(!state.falseSwipeCooldown) state.falseSwipeCooldown = 0;
     if(!state.upgrades) state.upgrades = { runningShoes: false, amuletCoin: false, protein: false, expShare: false, pokeradar: false };
     if(!state.repelEndTime) state.repelEndTime = 0;
     if(state.stopOnRare === undefined) state.stopOnRare = true;
@@ -2885,6 +3085,10 @@ function loadData(data) {
     // Re-bind images and init XP if missing (for old saves)
     const initP = (p) => {
         p.img = getSprite(p.id, p.isShiny);
+        if(state.upgrades.shinyCharm === undefined) state.upgrades.shinyCharm = false;
+        if(state.upgrades.diploma === undefined) state.upgrades.diploma = false;
+        if(state.pokedexBackup === undefined) state.pokedexBackup = null;
+        if(state.upgrades.falseSwipe === undefined) state.upgrades.falseSwipe = false;
         if(p.xp === undefined) p.xp = 0;
         if(p.maxXp === undefined) p.maxXp = calcMaxXp(p.id, p.level);
         if(p.happiness === undefined) p.happiness = 0;
@@ -2906,9 +3110,7 @@ function loadData(data) {
     state.pc.forEach(initP);
     
     initAudio();
-    updateUI(); renderTeam(); renderBag(); renderShop(); renderPC(); updateZone(); updateBg(); updateRadarButton();
-    spawnEnemy(); startAutoClicker();
-    startAutoSave();
+    updateUI(); renderTeam(); renderBag(); renderShop(); renderPC(); updateZone(); updateBg(); updateRadarButton(); spawnEnemy(); startAutoClicker(); startAutoSave();
 }
 
 function checkMilestones() {
@@ -2920,13 +3122,88 @@ function checkMilestones() {
             
             // One-time rewards
             if(m.count === 20) state.money += 2500;
-            if(m.count === 40) state.inv.omniXp++;
+            if(m.count === 40) state.inv.omniExp++;
             if(m.count === 110) state.inv.shinyToken++;
             if(m.count === 130) { state.inv.masterball++; state.inv.candy+=10; }
+            if(m.count === 151 && !state.hasSeenEnding) {
+                setTimeout(startEndingSequence, 1500);
+            }
             
             updateUI(); renderBag();
         }
     });
+}
+
+function testEndingSequence() {
+    state.hasSeenEnding = false;
+    startEndingSequence();
+}
+
+function startEndingSequence() {
+    if(state.hasSeenEnding) return;
+    state.hasSeenEnding = true;
+    
+    // Glitch Effect
+    const glitch = document.getElementById('glitch-overlay');
+    glitch.classList.remove('hidden');
+    glitch.classList.add('glitch-black');
+
+    // Teleport DURING glitch (screen is black/flickering)
+    setTimeout(() => {
+        // Force teleport to Lab (Zone -2)
+        state.zoneIdx = -2;
+        state.subStage = 1;
+        updateBg(); 
+        renderShop(); renderBag(); renderPC(); 
+        spawnEnemy();
+        updateZone();
+    }, 500);
+    
+    setTimeout(() => {
+        // Safety check: if not in Lab, abort sequence
+        if(state.zoneIdx !== -2) {
+            glitch.classList.remove('glitch-black');
+            glitch.classList.add('hidden');
+            return;
+        }
+        glitch.classList.remove('glitch-black');
+        glitch.classList.add('hidden');
+        
+        // Setup Intro Overlay for Ending
+        const overlay = document.getElementById('intro-overlay');
+        const prof = document.getElementById('intro-prof');
+        const box = document.getElementById('intro-dialog-box');
+        const selection = document.getElementById('intro-selection');
+        
+        overlay.classList.remove('hidden');
+        box.classList.add('hidden');
+        selection.classList.add('hidden'); // Ensure starters are hidden
+        selection.classList.remove('flex');
+        
+        // Prof Animation
+        prof.src = "img/sprites/SpriteChen1.png";
+        prof.classList.remove('opacity-0');
+        prof.style.right = "50%";
+        prof.style.transform = "translate(50%, 100%)"; // Start below
+        prof.style.transition = "transform 2s ease-out";
+        
+        // Force reflow
+        void prof.offsetWidth;
+        
+        prof.style.transform = "translate(50%, 0)"; // Move to center
+        
+        setTimeout(() => {
+            box.classList.remove('hidden');
+            box.classList.add('flex');
+            
+            // Setup Dialog
+            activeDialogs = ENDING_DIALOGS;
+            introIndex = 0;
+            isEndingSequence = true;
+            nextDialog();
+        }, 2000);
+        
+    }, 2000);
 }
 
 function enterLab() {
@@ -3207,6 +3484,14 @@ function closeZoneInfo() {
     document.getElementById('zone-info-modal').classList.add('hidden');
 }
 
+function showDiplomaModal() {
+    document.getElementById('diploma-modal').classList.remove('hidden');
+}
+
+function hideDiplomaModal() {
+    document.getElementById('diploma-modal').classList.add('hidden');
+}
+
 function showMapTooltip(text, e, color='yellow') {
     if (window.innerWidth < 1024) return;
     const t = document.getElementById('map-tooltip');
@@ -3391,6 +3676,164 @@ function releasePokemon(idx) {
     } 
 }
 
+function enterHallOfFame() {
+    const overlay = document.getElementById('glitch-overlay');
+    overlay.className = "absolute inset-0 z-[60] bg-black transition-opacity duration-1000 opacity-0 pointer-events-none";
+    overlay.classList.remove('hidden');
+    
+    // Fade Out
+    requestAnimationFrame(() => {
+        overlay.classList.remove('opacity-0');
+        overlay.classList.add('opacity-100');
+    });
+
+    setTimeout(() => {
+        state.zoneIdx = -5; // Panthéon
+        updateBg();
+        updateZone();
+        renderShop(); renderBag(); renderPC();
+        spawnEnemy(); // Will handle empty zone logic
+        
+        // Fade In
+        overlay.classList.remove('opacity-100');
+        overlay.classList.add('opacity-0');
+        setTimeout(() => {
+            overlay.classList.add('hidden');
+            startPantheonSequence();
+        }, 1000);
+    }, 1000);
+}
+
+function startPantheonSequence() {
+    const overlay = document.getElementById('intro-overlay');
+    const prof = document.getElementById('intro-prof');
+    const box = document.getElementById('intro-dialog-box');
+    const selection = document.getElementById('intro-selection');
+    const itemDisplay = document.getElementById('intro-item-display');
+
+    overlay.classList.remove('hidden');
+    box.classList.add('hidden');
+    selection.classList.add('hidden');
+    selection.classList.remove('flex');
+    itemDisplay.classList.add('hidden');
+
+    // Reset professor sprite for new animation
+    prof.src = "img/sprites/SpriteChen1.png";
+    prof.classList.remove('opacity-0', 'translate-x-full');
+    prof.style.transition = 'transform 1.5s ease-out';
+    prof.style.right = 'auto';
+    prof.style.left = '0';
+    prof.style.transform = 'translateX(-100%)'; // Start off-screen left
+
+    // Force reflow
+    void prof.offsetWidth;
+
+    // Animate to center.
+    prof.style.left = '50%';
+    prof.style.transform = 'translateX(-50%)';
+
+    setTimeout(() => {
+        box.classList.remove('hidden');
+        box.classList.add('flex');
+        
+        activeDialogs = PANTHEON_DIALOGS;
+        introIndex = 0;
+        isEndingSequence = false;
+        nextDialog();
+    }, 1600);
+}
+
+function animateHallOfFame() {
+    const svg = document.getElementById('bg-overlay-svg');
+    svg.innerHTML = ''; // Clear previous
+    
+    // Coordonnées des centres des socles (calculées d'après votre mapping)
+    const positions = [
+        {x: 126, y: 652}, // Socle 1
+        {x: 268, y: 590}, // Socle 2
+        {x: 422, y: 564}, // Socle 3
+        {x: 602, y: 564}, // Socle 4
+        {x: 756, y: 590}, // Socle 5
+        {x: 905, y: 650}  // Socle 6
+    ];
+
+    state.team.forEach((p, i) => {
+        if (i >= positions.length) return;
+        setTimeout(() => {
+            const pos = positions[i];
+            const size = 160; // Taille du sprite
+            const finalY = pos.y - size + 20;
+
+            const img = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+            img.setAttributeNS('http://www.w3.org/1999/xlink', 'href', getArtwork(p.id, p.isShiny));
+            img.setAttribute('x', pos.x - size/2);
+            img.setAttribute('y', finalY);
+            img.setAttribute('width', size);
+            img.setAttribute('height', size);
+            img.setAttribute('class', 'opacity-0');
+            img.style.transform = 'translateY(-300px)';
+            img.style.transition = 'transform 1s ease-out, opacity 0.5s ease-in';
+            img.style.filter = "drop-shadow(0 10px 10px rgba(0,0,0,0.5))";
+            svg.appendChild(img);
+            
+            requestAnimationFrame(() => {
+                img.getBoundingClientRect(); // Force le navigateur à calculer la position de départ
+                img.style.transform = 'translateY(0)';
+                img.classList.remove('opacity-0');
+            });
+            
+            playTone('catch');
+
+            // After landing, show level
+            setTimeout(() => {
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', pos.x);
+                text.setAttribute('y', pos.y + 35);
+                text.setAttribute('fill', 'white');
+                text.setAttribute('font-size', '24');
+                text.setAttribute('font-family', "'Press Start 2P', cursive");
+                text.setAttribute('text-anchor', 'middle');
+                text.style.filter = "drop-shadow(2px 2px 2px rgba(0,0,0,0.7))";
+                text.textContent = `Lv. ${p.level}`;
+                text.setAttribute('class', 'opacity-0');
+                text.style.transition = 'opacity 0.5s ease-in';
+                svg.appendChild(text);
+
+                requestAnimationFrame(() => {
+                    text.classList.remove('opacity-0');
+                });
+            }, 1000);
+
+        }, i * 2000); // Délai de 2s entre chaque Pokémon
+    });
+
+    // Déclenchement du feu d'artifice à la fin
+    setTimeout(() => {
+        startVictoryAnimation();
+        showHallOfFameTitle();
+    }, state.team.length * 2000 + 500);
+}
+
+function showHallOfFameTitle() {
+    const t = document.getElementById('hof-title-container');
+    t.classList.remove('hidden');
+    t.firstElementChild.classList.add('title-slam');
+}
+
+function exitPantheon() {
+    stopVictoryAnimation();
+    const t = document.getElementById('hof-title-container');
+    t.classList.add('hidden');
+    t.firstElementChild.classList.remove('title-slam');
+    changeZone(0); // Retour Bourg Palette (via logique standard ou custom si besoin)
+    // Force reset to Zone 0 if changeZone logic is relative
+    if(state.zoneIdx !== 0) {
+        state.zoneIdx = 0;
+        updateBg(); updateZone(); spawnEnemy();
+    }
+    state.hasExitedLab = true; // Ensure we are outside
+}
+
 function updateUI() {
     document.getElementById('money-display').innerText = state.money.toLocaleString('de-DE');
     const currentDps = getDPS(enemy.dead ? null : enemy.id).toFixed(1);
@@ -3410,6 +3853,7 @@ function updateUI() {
     updateAutoStopBtn();
     updateMapButton();
     updateAutoClickerBtn();
+    updateFalseSwipeBtn();
     updateMobileMenuButtons();
 }
 
@@ -3470,6 +3914,7 @@ function updateBg() {
     // Hide speech bubble by default
     document.getElementById('mom-speech').classList.add('hidden');
     document.getElementById('blue-speech').classList.add('hidden');
+    document.getElementById('pantheon-exit-btn').classList.add('hidden');
 
     // Zone 0 Special Handling (Interactive Map)
     if (state.zoneIdx === -4) {
@@ -3544,6 +3989,23 @@ function updateBg() {
                 </a>
             `;
         };
+    } else if (state.zoneIdx === -5) {
+        // Panthéon
+        bgDiv.classList.add('hidden');
+        bgImg.classList.remove('hidden');
+        bgSvg.classList.remove('hidden'); // SVG activé pour les sprites
+        document.getElementById('pantheon-exit-btn').classList.remove('hidden');
+        bgSvg.innerHTML = ''; // Nettoyage impératif des anciens éléments (Zone 0)
+        
+        bgImg.classList.remove('object-cover');
+        bgImg.classList.add('object-contain');
+        bgSvg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+        
+        bgImg.src = bg;
+        bgImg.onload = () => {
+             bgSvg.setAttribute('viewBox', `0 0 ${bgImg.naturalWidth} ${bgImg.naturalHeight}`);
+        };
+
     } else if (state.zoneIdx === 0) {
         // Bourg Palette
         bgDiv.classList.add('hidden');
@@ -3681,7 +4143,7 @@ function renderTeam() {
         const swapMode = state.swapIdx!==null;
         const candyMode = state.candyMode;
         const isCandyTarget = candyMode && state.candyTargetIdx === i;
-        const isInteractive = swapMode || candyMode;
+        const isInteractive = swapMode || candyMode || state.shinyTokenMode;
         const mult = !enemy.dead ? getMultiplier(p.id, enemy.id) : 1;
         const multColor = mult > 1 ? "text-green-400" : mult < 1 ? "text-red-400" : "text-gray-400";
         const pTypes = getTypes(p.id);
@@ -3741,7 +4203,6 @@ function renderTeam() {
                 </div>
                 <span class="text-[10px] text-blue-300 mr-1">Lv.${p.level}</span>
                 ${evo ? `<button onclick="evolve(${p.uid}); event.stopPropagation();" class="bg-purple-600 text-white text-[9px] px-2 py-1 rounded animate-pulse">EVO</button>` : ''}
-                ${!p.isShiny && state.inv.shinyToken>0 ? `<button onclick="useShinyToken(${p.uid}); event.stopPropagation();" class="bg-yellow-400 text-black text-[9px] px-1.5 py-1 rounded font-bold" title="Utiliser Jeton Shiny">✦</button>` : ''}
             </div>`}
             ` : `<div class="text-[9px] text-blue-300 font-bold">REMPLACER</div>`}
         </div>`;
@@ -3809,40 +4270,11 @@ function renderBag() {
         if(desktopBag) desktopBag.classList.remove('locked-blur'); 
     }
 
-    let html = `
+    let consumables = `
     <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 cursor-pointer hover:bg-slate-600" onclick="attemptCatch('poke')" title="${ITEMS.pokeball.desc}">
         <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" class="w-6 h-6">
         <div><div class="text-xs text-gray-400">Pokéball</div><div class="text-sm font-bold">x${state.inv.balls} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
     </div>
-    <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 ${state.inv.candy>0?'cursor-pointer hover:bg-slate-600':''}" ${state.inv.candy>0?'onclick="initCandyUse()"':''} title="${ITEMS.candy.desc}">
-        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rare-candy.png" class="w-6 h-6">
-        <div><div class="text-xs text-gray-400">Super Bonbon</div><div class="text-sm font-bold">x${state.inv.candy} ${state.inv.candy>0?'<span class="text-[8px] text-yellow-500">UTILISER</span>':''}</div></div>
-    </div>
-    ${state.inv.repel>0 ? `
-    <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 cursor-pointer hover:bg-slate-600" onclick="useRepel()" title="${ITEMS.repel.desc}">
-        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/repel.png" class="w-6 h-6">
-        <div><div class="text-xs text-gray-400">Repousse</div><div class="text-sm font-bold">x${state.inv.repel} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
-    </div>`:''}
-    ${state.inv.superRepel>0 ? `
-    <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 cursor-pointer hover:bg-slate-600" onclick="useSuperRepel()" title="${ITEMS.superRepel.desc}">
-        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/super-repel.png" class="w-6 h-6">
-        <div><div class="text-xs text-gray-400">Superepousse</div><div class="text-sm font-bold">x${state.inv.superRepel} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
-    </div>`:''}
-    ${state.inv.xAttack>0 ? `
-    <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 cursor-pointer hover:bg-slate-600" onclick="useXAttack()" title="${ITEMS.xAttack.desc}">
-        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/x-attack.png" class="w-6 h-6">
-        <div><div class="text-xs text-gray-400">Attaque +</div><div class="text-sm font-bold">x${state.inv.xAttack} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
-    </div>`:''}
-    ${state.inv.xSpecial>0 ? `
-    <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 cursor-pointer hover:bg-slate-600" onclick="useXSpecial()" title="${ITEMS.xSpecial.desc}">
-        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/x-sp-atk.png" class="w-6 h-6">
-        <div><div class="text-xs text-gray-400">Attaque Spé +</div><div class="text-sm font-bold">x${state.inv.xSpecial} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
-    </div>`:''}
-    ${state.inv.pokeDoll>0 ? `
-    <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 cursor-pointer hover:bg-slate-600" onclick="usePokeDoll()" title="${ITEMS.pokeDoll.desc}">
-        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-doll.png" class="w-6 h-6">
-        <div><div class="text-xs text-gray-400">Poké Poupée</div><div class="text-sm font-bold">x${state.inv.pokeDoll} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
-    </div>`:''}
     ${state.inv.superballs>0 || state.unlockedZone>=4 || state.zoneIdx>=4 ? `
     <div class="bg-blue-900/40 p-2 rounded flex items-center gap-2 border border-blue-500 cursor-pointer hover:bg-blue-800/40" onclick="attemptCatch('super')" title="${ITEMS.superball.desc}">
         <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png" class="w-6 h-6">
@@ -3858,14 +4290,94 @@ function renderBag() {
         <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/master-ball.png" class="w-6 h-6">
         <div><div class="text-xs text-purple-300">Masterball</div><div class="text-sm font-bold">x${state.inv.masterball} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
     </div>`:''}
-    ${state.inv.shinyToken>0 ? `
-    <div class="bg-yellow-900/40 p-2 rounded flex items-center gap-2 border border-yellow-500" title="Transforme un Pokémon de l'équipe en Shiny">
-        <div class="w-6 h-6 rounded-full bg-yellow-400 border-2 border-white flex items-center justify-center text-[10px] text-black font-bold">✦</div>
-        <div><div class="text-xs text-yellow-300">Jeton Shiny</div><div class="text-sm font-bold">x${state.inv.shinyToken}</div></div>
-    </div>`:''}
-    ${state.inv.omniXp>0 ? `
-    <div class="bg-indigo-900/40 p-2 rounded flex items-center gap-2 border border-indigo-500" title="XP gagnée +100% (Passif)"><span class="material-symbols-outlined text-indigo-300">auto_awesome</span><div><div class="text-xs text-indigo-300">Omni XP</div><div class="text-sm font-bold">x${state.inv.omniXp}</div></div></div>`:''}
-    `;
+    <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 ${state.inv.candy>0?'cursor-pointer hover:bg-slate-600':''}" ${state.inv.candy>0?'onclick="initCandyUse()"':''} title="${ITEMS.candy.desc}">
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rare-candy.png" class="w-6 h-6">
+        <div><div class="text-xs text-gray-400">Super Bonbon</div><div class="text-sm font-bold">x${state.inv.candy} ${state.inv.candy>0?'<span class="text-[8px] text-yellow-500">UTILISER</span>':''}</div></div>
+    </div>`;
+
+    if(state.inv.repel>0) {
+        consumables += `
+    <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 cursor-pointer hover:bg-slate-600" onclick="useRepel()" title="${ITEMS.repel.desc}">
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/repel.png" class="w-6 h-6">
+        <div><div class="text-xs text-gray-400">Repousse</div><div class="text-sm font-bold">x${state.inv.repel} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
+    </div>`;
+    }
+    if(state.inv.superRepel>0) {
+        consumables += `
+    <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 cursor-pointer hover:bg-slate-600" onclick="useSuperRepel()" title="${ITEMS.superRepel.desc}">
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/super-repel.png" class="w-6 h-6">
+        <div><div class="text-xs text-gray-400">Superepousse</div><div class="text-sm font-bold">x${state.inv.superRepel} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
+    </div>`;
+    }
+    if(state.inv.xAttack>0) {
+        consumables += `
+    <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 cursor-pointer hover:bg-slate-600" onclick="useXAttack()" title="${ITEMS.xAttack.desc}">
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/x-attack.png" class="w-6 h-6">
+        <div><div class="text-xs text-gray-400">Attaque +</div><div class="text-sm font-bold">x${state.inv.xAttack} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
+    </div>`;
+    }
+    if(state.inv.xSpecial>0) {
+        consumables += `
+    <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 cursor-pointer hover:bg-slate-600" onclick="useXSpecial()" title="${ITEMS.xSpecial.desc}">
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/x-sp-atk.png" class="w-6 h-6">
+        <div><div class="text-xs text-gray-400">Attaque Spé +</div><div class="text-sm font-bold">x${state.inv.xSpecial} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
+    </div>`;
+    }
+    if(state.inv.pokeDoll>0) {
+        consumables += `
+    <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 cursor-pointer hover:bg-slate-600" onclick="usePokeDoll()" title="${ITEMS.pokeDoll.desc}">
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-doll.png" class="w-6 h-6">
+        <div><div class="text-xs text-gray-400">Poké Poupée</div><div class="text-sm font-bold">x${state.inv.pokeDoll} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
+    </div>`;
+    }
+
+    let rareItems = "";
+    for (const [key, val] of Object.entries(state.upgrades)) {
+        if (val) {
+            const item = ITEMS[key];
+            if (item) {
+                const isDiploma = key === 'diploma';
+                let iconHtml = "";
+                if (item.img) iconHtml = `<img src="${item.img}" class="w-6 h-6 object-contain">`;
+                else if (item.icon) iconHtml = `<span class="material-symbols-outlined ${item.iconColor || 'text-white'}">${item.icon}</span>`;
+                
+                rareItems += `
+                <div class="bg-slate-800 p-2 rounded flex items-center gap-2 border border-slate-700 ${isDiploma ? 'cursor-pointer hover:bg-slate-700' : ''}" title="${item.desc}" ${isDiploma ? `onclick="showDiplomaModal()"` : ''}>
+                    ${iconHtml}
+                    <div>
+                        <div class="text-xs text-gray-300">${item.name}</div>
+                        ${!isDiploma ? `<div class="text-[9px] text-green-400 font-bold">ACTIF</div>` : '<div class="text-[9px] text-blue-400 font-bold">VOIR</div>'}
+                    </div>
+                </div>`;
+            }
+        }
+    }
+
+    if(state.inv.shinyToken>0) {
+        rareItems += `
+    <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 cursor-pointer hover:bg-slate-600" onclick="initShinyTokenUse()" title="Transforme un Pokémon de l'équipe en Shiny">
+        <img src="img/JetonShiny.png" class="w-6 h-6 object-contain">
+        <div><div class="text-xs text-yellow-300">Jeton Shiny</div><div class="text-sm font-bold">x${state.inv.shinyToken} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
+    </div>`;
+    }
+
+    if(state.inv.omniExp>0) {
+        rareItems += `
+    <div class="bg-indigo-900/40 p-2 rounded flex items-center gap-2 border border-indigo-500" title="XP gagnée +100% (Passif)">
+        <img src="img/OmniExp.png" class="w-6 h-6 object-contain">
+        <div><div class="text-xs text-indigo-300">Omni Exp</div><div class="text-sm font-bold">x${state.inv.omniExp}</div></div>
+    </div>`;
+    }
+
+    let html = "";
+    if (consumables) {
+        html += `<div class="col-span-2 text-xs font-bold text-gray-400 mb-1 uppercase tracking-wider border-b border-gray-700 pb-1">Consommables</div>`;
+        html += consumables;
+    }
+    if (rareItems) {
+        html += `<div class="col-span-2 text-xs font-bold text-yellow-400 mb-1 mt-2 uppercase tracking-wider border-b border-yellow-700/50 pb-1">Objets Rares</div>`;
+        html += rareItems;
+    }
 
     if(desktopBag) desktopBag.innerHTML = html;
     if(mobileBag) mobileBag.innerHTML = html;
@@ -4029,19 +4541,60 @@ function updateAutoClickerBtn() {
         let baseClass = "justify-center text-[9px] font-bold flex items-center gap-1 transition-all rounded shadow-md";
         baseClass += isDesktop ? " flex-1 py-1 px-1" : " p-1.5";
 
+        const iconSize = isDesktop ? "text-[12px]" : "text-sm";
+
         if (!hasLeftovers) {
             b.className = `${baseClass} bg-slate-700 text-gray-500 border border-slate-600 cursor-not-allowed opacity-50`;
-            b.innerHTML = `<span class="material-symbols-outlined text-[12px]">lock</span>`;
+            b.innerHTML = `<span class="material-symbols-outlined ${iconSize}">lock</span>`;
             b.disabled = true;
             b.title = "Auto Click (Nécessite l'objet Restes)";
         } else {
             b.disabled = false;
             b.title = "Auto Click (Restes)";
-            b.innerHTML = `<span class="material-symbols-outlined text-[12px]">ads_click</span>`;
+            b.innerHTML = `<span class="material-symbols-outlined ${iconSize}">ads_click</span>`;
             const colorClass = state.autoClicker 
                 ? "bg-green-600 hover:bg-green-500 text-white border border-green-400" 
                 : "bg-red-600 hover:bg-red-500 text-white border border-red-400";
             b.className = `${baseClass} ${colorClass}`;
+        }
+    });
+}
+
+function updateFalseSwipeBtn() {
+    const hasUpgrade = state.upgrades.falseSwipe;
+    const now = Date.now();
+    const onCooldown = state.falseSwipeCooldown > now;
+    
+    ['false-swipe-btn', 'false-swipe-btn-m'].forEach(id => {
+        const b = document.getElementById(id);
+        if(!b) return;
+        
+        const isDesktop = id === 'false-swipe-btn';
+        const iconSize = isDesktop ? "text-[12px]" : "text-sm";
+        let baseClass = "justify-center text-[9px] font-bold flex items-center gap-1 transition-all rounded shadow-md";
+        baseClass += isDesktop ? " flex-1 py-1 px-1" : " p-1.5";
+
+        if (!hasUpgrade) {
+            b.className = `${baseClass} bg-slate-700 text-gray-500 border border-slate-600 cursor-not-allowed opacity-50`;
+            b.innerHTML = `<span class="material-symbols-outlined ${iconSize}">lock</span>`;
+            b.disabled = true;
+            b.title = "Fauchage (Nécessite CT Fauchage)";
+        } else if (onCooldown) {
+            const remaining = Math.ceil((state.falseSwipeCooldown - now) / 1000);
+            b.className = `${baseClass} bg-slate-700 text-gray-400 border border-slate-600 cursor-not-allowed`;
+            b.innerHTML = `<span class="material-symbols-outlined ${iconSize}">schedule</span> ${remaining}`;
+            b.disabled = true;
+            b.title = `Recharge: ${remaining}s`;
+        } else {
+            if (enemy.isFalseSwiped) {
+                 b.className = `${baseClass} bg-red-600 text-white border border-red-400 animate-pulse`;
+                 b.title = "Fauchage Actif !";
+            } else {
+                 b.className = `${baseClass} bg-blue-600 hover:bg-blue-500 text-white border border-blue-400`;
+                 b.title = "Utiliser Fauchage (Laisse à 1 PV)";
+            }
+            b.innerHTML = `<span class="material-symbols-outlined ${iconSize}">content_cut</span>`;
+            b.disabled = false;
         }
     });
 }
@@ -4203,9 +4756,9 @@ function renderStats() {
     let xpMults = [];
     if(state.upgrades.expShare) xpMults.push("Multi Exp (x1.5)");
     if(state.upgrades.luckyEgg) xpMults.push("Oeuf Chance (x1.5)");
-    if(state.inv.omniXp > 0) xpMults.push("Omni XP (x2)");
+    if(state.inv.omniExp > 0) xpMults.push("Omni Exp (x2)");
     if(hasBadge("Âme")) xpMults.push("Badge Âme (x1.5)");
-    let xpTotalMult = (state.upgrades.expShare?1.5:1) * (state.upgrades.luckyEgg?1.5:1) * (state.inv.omniXp>0?2:1) * (hasBadge("Âme")?1.5:1);
+    let xpTotalMult = (state.upgrades.expShare?1.5:1) * (state.upgrades.luckyEgg?1.5:1) * (state.inv.omniExp>0?2:1) * (hasBadge("Âme")?1.5:1);
 
     let catchMults = [];
     if(hasBadge("Marais")) catchMults.push("Badge Marais (x1.3)");
@@ -4302,6 +4855,7 @@ setInterval(() => {
         damageEnemy(getDPS(enemy.id)/10);
     }
     updateActiveEffects();
+    if(state.upgrades.falseSwipe) updateFalseSwipeBtn();
 }, 100);
 
 // Global click to close context menu
