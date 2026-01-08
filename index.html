@@ -88,6 +88,7 @@
         .shiny-filter { filter: hue-rotate(150deg) saturate(150%) brightness(1.1) drop-shadow(0 0 5px gold); }
         .shiny-glow { filter: drop-shadow(0 0 15px gold) brightness(1.1); }
         .grayscale { filter: grayscale(100%) opacity(0.3); }
+        .caca-filter { filter: sepia(1) hue-rotate(-50deg) saturate(3) brightness(0.7) !important; }
 
         #main-game-view.cheat-active {
             box-shadow: inset 0 0 25px #ef4444;
@@ -177,7 +178,7 @@
 
         /* Easter Eggs */
         @keyframes rainbow { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } }
-        .rainbow-anim { animation: rainbow 2s linear infinite; }
+        .rainbow-anim { animation: rainbow 2s linear infinite !important; }
         .upside-down { transform: rotate(180deg); }
         
         @keyframes float-upside-down {
@@ -795,6 +796,15 @@
         <h2 class="text-center text-yellow-400 pixel-font text-xl mb-4">DIPLÔME</h2>
         <img src="img/Diplôme.png" class="w-full object-contain rounded-lg shadow-lg border-2 border-yellow-500/50">
         <p class="text-center text-yellow-200 pixel-font text-xs mt-4">Preuve de la complétion du Pokédex de Kanto.</p>
+    </div>
+</div>
+
+<div class="fixed inset-0 z-[90] flex items-center justify-center bg-black/80 hidden" id="johto-modal" onclick="this.classList.add('hidden')">
+    <div class="bg-slate-800 border-4 border-yellow-500 p-6 rounded-xl shadow-2xl max-w-sm w-full text-center relative" onclick="event.stopPropagation()">
+        <button onclick="document.getElementById('johto-modal').classList.add('hidden')" class="absolute top-2 right-2 text-gray-400 hover:text-white material-symbols-outlined">close</button>
+        <h2 class="text-yellow-400 pixel-font text-xl mb-4">JOHTO</h2>
+        <p class="text-white mb-4 text-sm">Cette région est en cours de développement.</p>
+        <div class="bg-slate-900 p-2 rounded text-xs text-gray-400 font-mono border border-slate-700">Bientôt disponible !</div>
     </div>
 </div>
 
@@ -1520,6 +1530,8 @@ let state = {
     inv: { balls: 0, superballs: 0, hyperballs: 0, candy: 0, omniExp: 0, shinyToken: 0, masterball: 0, repel: 0, xAttack: 0, xSpecial: 0, superRepel: 0, pokeDoll: 0 },
     upgrades: { runningShoes: false, amuletCoin: false, protein: false, expShare: false, hardStone: false, bicycle: false, luckyEgg: false, leftovers: false, pokeradar: false, falseSwipe: false, shinyCharm: false, diploma: false },
     team: [], 
+    johtoUnlocked: false,
+    boatClicked: false,
     introBagUnlocked: false,
     introMapUnlocked: false,
     hasExitedLab: false,
@@ -1527,6 +1539,7 @@ let state = {
     pc: [],
     pokedex: [],
     pokedexBackup: null,
+    hasSeenPantheonIntro: false,
     hasSeenEnding: false,
     badges: [],
     milestones: [],
@@ -1567,6 +1580,7 @@ let evolutionInterval = null;
 let feedbackTimer = null;
 let victoryInterval = null;
 let fireworkInterval = null;
+let pantheonTimeouts = [];
 const INTRO_DIALOGS = [
     "Salutations ! Bienvenue dans le monde merveilleux des Pokémon !",
     "Mon nom est Chen. Les gens m'appellent souvent le Professeur Pokémon.",
@@ -1590,6 +1604,14 @@ const PANTHEON_DIALOGS = [
     "Splendide ! Simplement splendide !",
     "Tu as vaincu le Conseil des 4 et le Maître actuel. Tu es le nouveau Maître de la Ligue de Kanto !",
     "Mais tu n'as pas gagné seul. Viens avec moi, allons enregistrer tes partenaires au Panthéon."
+];
+const JOHTO_INTRO_DIALOGS = [
+    "Ah, te voilà de retour au Bourg Palette ! Maître de la Ligue... Ça sonne bien, n'est-ce pas ?",
+    "Tout Kanto parle de tes exploits. Tu as prouvé ta valeur en tant que dresseur d'élite.",
+    "Cependant, la quête du savoir ne s'arrête jamais. Il reste encore des Pokémon rares cachés ici.",
+    "Mais si tu as soif de nouveaux horizons... J'ai reçu un appel de mon collègue, le Professeur Orme.",
+    "Il habite à Johto, une région voisine. Il paraît qu'on y trouve des espèces totalement inconnues !",
+    "J'ai mis à jour ton Passe. Tu peux désormais voyager vers Johto depuis le port du Bourg Palette."
 ];
 let activeDialogs = INTRO_DIALOGS;
 let introIndex = 0;
@@ -1679,6 +1701,14 @@ function nextDialog() {
             }, 1000);
             return;
         }
+        if (activeDialogs === JOHTO_INTRO_DIALOGS) {
+             document.getElementById('intro-overlay').classList.add('hidden');
+             state.johtoUnlocked = true;
+             updateBg(); // Refresh map to show flashing boat
+             showFeedback("ACCÈS JOHTO DÉBLOQUÉ !", "yellow");
+             playTone('up');
+             return;
+        }
         // Phase 4: Selection
         if (isEndingSequence) {
              document.getElementById('intro-overlay').classList.add('hidden');
@@ -1733,7 +1763,7 @@ function nextDialog() {
     } else {
         // Intro Logic
         const prof = document.getElementById('intro-prof');
-        if (currentIndex === 2) {
+        if ((activeDialogs === INTRO_DIALOGS || activeDialogs === PANTHEON_DIALOGS) && currentIndex === 2) {
             prof.classList.remove('duration-[1500ms]');
             prof.classList.add('duration-500');
             prof.classList.add('opacity-0');
@@ -1748,7 +1778,7 @@ function nextDialog() {
                 }, 1000);
             }, 500);
         }
-        if (currentIndex === 4) {
+        if (activeDialogs === INTRO_DIALOGS && currentIndex === 4) {
             prof.classList.remove('duration-[1500ms]');
             prof.classList.add('duration-500');
             prof.classList.add('opacity-0');
@@ -2441,6 +2471,26 @@ function getCatchChance(ballType) {
     return Math.min(chance, 1) * 100;
 }
 
+function getEvolutionStage(id) {
+    const findPreEvo = (targetId) => {
+        for (const [k, v] of Object.entries(EVOLUTIONS)) {
+            const keyId = parseInt(k);
+            if (Array.isArray(v.id)) {
+                if (v.id.includes(targetId)) return keyId;
+            } else {
+                if (v.id === targetId) return keyId;
+            }
+        }
+        return null;
+    };
+    let preEvo = findPreEvo(id);
+    if (preEvo) {
+        if (findPreEvo(preEvo)) return 3;
+        return 2;
+    }
+    return 1;
+}
+
 function showCatchTooltip() {
     if(!state.cheat) return;
     const t = document.getElementById('catch-tooltip');
@@ -2668,7 +2718,7 @@ function evolve(uid) {
             newName = ed.name;
         }
         p.id = newId;
-        p.name = newName;
+        if (!p.isRenamed) p.name = newName;
         p.img=getSprite(p.id, p.isShiny); 
         addToPokedex(p.id);
         
@@ -2715,10 +2765,13 @@ function showPokemonSummary(location, index, event) {
 
     const sprite = document.getElementById('summary-sprite');
     sprite.src = getArtwork(p.id, p.isShiny);
-    
-    sprite.classList.remove('rainbow-anim', 'upside-down');
-    if (p.name === "Dinnerbone" || p.name === "Grumm") sprite.classList.add('upside-down');
-    if (p.name === "jeb_") sprite.classList.add('rainbow-anim');
+
+    sprite.classList.remove('rainbow-anim', 'upside-down', 'caca-filter');
+    const pNameLower = p.name.toLowerCase();
+    if (pNameLower === "dinnerbone" || pNameLower === "grumm") sprite.classList.add('upside-down');
+    if (pNameLower === "jeb_") sprite.classList.add('rainbow-anim');
+    if (pNameLower === "caca") sprite.classList.add('caca-filter');
+    if (pNameLower === "daran") sprite.src = `img/EasterEgg/DaranStade${getEvolutionStage(p.id)}.png`;
 
     document.getElementById('summary-name').innerText = p.name;
     document.getElementById('summary-shiny-icon').classList.toggle('hidden', !p.isShiny);
@@ -2873,13 +2926,18 @@ function confirmSummaryRename() {
     const newName = input.value.trim();
 
     if (newName && newName.length > 0 && newName.length <= 12) {
-        state[location][index].name = newName;
+        const p = state[location][index];
+        p.name = newName;
+        p.isRenamed = true;
         document.getElementById('summary-name').innerText = newName;
         
         const sprite = document.getElementById('summary-sprite');
-        sprite.classList.remove('rainbow-anim', 'upside-down');
-        if (newName === "Dinnerbone" || newName === "Grumm") sprite.classList.add('upside-down');
-        if (newName === "jeb_") sprite.classList.add('rainbow-anim');
+        sprite.className = "h-32 w-32 md:h-64 md:w-64 object-contain pokemon-float drop-shadow-2xl"; // Reset classes
+        sprite.src = getArtwork(p.id, p.isShiny); // Reset src
+        if (newName.toLowerCase() === "dinnerbone" || newName.toLowerCase() === "grumm") sprite.classList.add('upside-down');
+        if (newName.toLowerCase() === "jeb_") sprite.classList.add('rainbow-anim');
+        if (newName.toLowerCase() === "caca") sprite.classList.add('caca-filter');
+        if (newName.toLowerCase() === "daran") sprite.src = `img/EasterEgg/DaranStade${getEvolutionStage(p.id)}.png`;
         
         renderTeam();
         renderPC();
@@ -3049,6 +3107,9 @@ function loadData(data) {
     if(state.introMapUnlocked === undefined) state.introMapUnlocked = false;
     if(state.visitedLab === undefined) state.visitedLab = false;
     if(state.hasExitedLab === undefined) state.hasExitedLab = false;
+    if(state.johtoUnlocked === undefined) state.johtoUnlocked = false;
+    if(state.hasSeenPantheonIntro === undefined) state.hasSeenPantheonIntro = false;
+    if(state.boatClicked === undefined) state.boatClicked = false;
     if(state.hasVisitedRoute1 === undefined) state.hasVisitedRoute1 = false;
     if(state.starterId === undefined) state.starterId = null;
     if(!state.pokedex) state.pokedex = [];
@@ -3104,6 +3165,7 @@ function loadData(data) {
             }
         }
         if(p.isFavorite === undefined) p.isFavorite = false;
+        if(p.isRenamed === undefined) p.isRenamed = false;
     };
     
     state.team.forEach(initP);
@@ -3699,12 +3761,17 @@ function enterHallOfFame() {
         overlay.classList.add('opacity-0');
         setTimeout(() => {
             overlay.classList.add('hidden');
-            startPantheonSequence();
+            if (!state.hasSeenPantheonIntro) {
+                startPantheonSequence();
+            } else {
+                animateHallOfFame();
+            }
         }, 1000);
     }, 1000);
 }
 
 function startPantheonSequence() {
+    state.hasSeenPantheonIntro = true;
     const overlay = document.getElementById('intro-overlay');
     const prof = document.getElementById('intro-prof');
     const box = document.getElementById('intro-dialog-box');
@@ -3744,6 +3811,10 @@ function startPantheonSequence() {
 }
 
 function animateHallOfFame() {
+    // Clear previous timeouts to prevent duplication
+    pantheonTimeouts.forEach(id => clearTimeout(id));
+    pantheonTimeouts = [];
+
     const svg = document.getElementById('bg-overlay-svg');
     svg.innerHTML = ''; // Clear previous
     
@@ -3759,33 +3830,55 @@ function animateHallOfFame() {
 
     state.team.forEach((p, i) => {
         if (i >= positions.length) return;
-        setTimeout(() => {
+        const tId = setTimeout(() => {
             const pos = positions[i];
             const size = 160; // Taille du sprite
             const finalY = pos.y - size + 20;
 
+            // Easter eggs
+            let transformRotate = '';
+            let specialClass = '';
+            const pNameLower = p.name.toLowerCase();
+            if (pNameLower === "dinnerbone" || pNameLower === "grumm") {
+                transformRotate = 'rotate(180deg)';
+            }
+            if (pNameLower === "jeb_") {
+                specialClass = 'rainbow-anim';
+            }
+            
+            // Handle Caca filter manually to combine with drop-shadow
+            let filterStyle = "drop-shadow(0 10px 10px rgba(0,0,0,0.5))";
+            if (pNameLower === "caca") {
+                filterStyle = "sepia(1) hue-rotate(-50deg) saturate(3) brightness(0.7) " + filterStyle;
+            }
+
+            let imgSrc = getArtwork(p.id, p.isShiny);
+            if (pNameLower === "daran") imgSrc = `img/EasterEgg/DaranStade${getEvolutionStage(p.id)}.png`;
+
             const img = document.createElementNS('http://www.w3.org/2000/svg', 'image');
-            img.setAttributeNS('http://www.w3.org/1999/xlink', 'href', getArtwork(p.id, p.isShiny));
+            img.setAttributeNS('http://www.w3.org/1999/xlink', 'href', imgSrc);
             img.setAttribute('x', pos.x - size/2);
             img.setAttribute('y', finalY);
             img.setAttribute('width', size);
             img.setAttribute('height', size);
-            img.setAttribute('class', 'opacity-0');
-            img.style.transform = 'translateY(-300px)';
+            img.setAttribute('class', `opacity-0 ${specialClass}`);
+            img.style.transform = `translateY(-300px) ${transformRotate}`;
             img.style.transition = 'transform 1s ease-out, opacity 0.5s ease-in';
-            img.style.filter = "drop-shadow(0 10px 10px rgba(0,0,0,0.5))";
+            img.style.transformOrigin = 'center';
+            img.style.transformBox = 'fill-box';
+            img.style.filter = filterStyle;
             svg.appendChild(img);
             
             requestAnimationFrame(() => {
                 img.getBoundingClientRect(); // Force le navigateur à calculer la position de départ
-                img.style.transform = 'translateY(0)';
+                img.style.transform = `translateY(0) ${transformRotate}`;
                 img.classList.remove('opacity-0');
             });
             
             playTone('catch');
 
             // After landing, show level
-            setTimeout(() => {
+            const tId2 = setTimeout(() => {
                 const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                 text.setAttribute('x', pos.x);
                 text.setAttribute('y', pos.y + 35);
@@ -3803,28 +3896,46 @@ function animateHallOfFame() {
                     text.classList.remove('opacity-0');
                 });
             }, 1000);
+            pantheonTimeouts.push(tId2);
 
         }, i * 2000); // Délai de 2s entre chaque Pokémon
+        pantheonTimeouts.push(tId);
     });
 
     // Déclenchement du feu d'artifice à la fin
-    setTimeout(() => {
+    const tIdFinal = setTimeout(() => {
         startVictoryAnimation();
         showHallOfFameTitle();
     }, state.team.length * 2000 + 500);
+    pantheonTimeouts.push(tIdFinal);
 }
 
 function showHallOfFameTitle() {
     const t = document.getElementById('hof-title-container');
     t.classList.remove('hidden');
+    
+    const btn = document.getElementById('pantheon-exit-btn');
+    btn.classList.remove('bg-red-600', 'hover:bg-red-500');
+    btn.classList.add('bg-green-600', 'hover:bg-green-500', 'animate-pulse');
+    
     t.firstElementChild.classList.add('title-slam');
 }
 
 function exitPantheon() {
     stopVictoryAnimation();
+    pantheonTimeouts.forEach(id => clearTimeout(id));
+    pantheonTimeouts = [];
     const t = document.getElementById('hof-title-container');
     t.classList.add('hidden');
     t.firstElementChild.classList.remove('title-slam');
+    
+    // Reset button style
+    const btn = document.getElementById('pantheon-exit-btn');
+    btn.classList.add('bg-red-600', 'hover:bg-red-500');
+    btn.classList.remove('bg-green-600', 'hover:bg-green-500', 'animate-pulse');
+
+    const triggerJohto = !state.johtoUnlocked || state.cheat;
+
     changeZone(0); // Retour Bourg Palette (via logique standard ou custom si besoin)
     // Force reset to Zone 0 if changeZone logic is relative
     if(state.zoneIdx !== 0) {
@@ -3832,6 +3943,57 @@ function exitPantheon() {
         updateBg(); updateZone(); spawnEnemy();
     }
     state.hasExitedLab = true; // Ensure we are outside
+
+    if (triggerJohto) {
+        setTimeout(startJohtoIntro, 500);
+    }
+}
+
+function startJohtoIntro() {
+    const overlay = document.getElementById('intro-overlay');
+    const prof = document.getElementById('intro-prof');
+    const box = document.getElementById('intro-dialog-box');
+    const selection = document.getElementById('intro-selection');
+    const itemDisplay = document.getElementById('intro-item-display');
+
+    overlay.classList.remove('hidden');
+    box.classList.add('hidden');
+    selection.classList.add('hidden');
+    selection.classList.remove('flex');
+    itemDisplay.classList.add('hidden');
+
+    // Reset professor sprite
+    prof.src = "img/sprites/SpriteChen1.png";
+    prof.classList.remove('opacity-0', 'translate-x-full');
+    prof.style.transition = 'transform 1.5s ease-out';
+    prof.style.right = 'auto';
+    prof.style.left = '0';
+    prof.style.transform = 'translateX(-100%)';
+
+    // Force reflow
+    void prof.offsetWidth;
+
+    // Animate to center
+    prof.style.left = '50%';
+    prof.style.transform = 'translateX(-50%)';
+
+    setTimeout(() => {
+        box.classList.remove('hidden');
+        box.classList.add('flex');
+        
+        activeDialogs = JOHTO_INTRO_DIALOGS;
+        introIndex = 0;
+        isEndingSequence = false;
+        nextDialog();
+    }, 1600);
+}
+
+function showJohtoModal() {
+    document.getElementById('johto-modal').classList.remove('hidden');
+    if(!state.boatClicked) {
+        state.boatClicked = true;
+        updateBg();
+    }
 }
 
 function updateUI() {
@@ -4026,6 +4188,14 @@ function updateBg() {
         bgImg.src = bg;
         bgImg.onload = () => {
             const labClass = state.visitedLab ? "transition-all lg:hover:brightness-150 cursor-pointer" : "flash-green-strong cursor-pointer";
+            
+            let boatRect = `<rect x="638" y="1806" width="230" height="239" fill="rgba(75, 85, 99, 0.4)" stroke="rgba(209, 213, 219, 0.9)" stroke-width="3" class="transition-all lg:hover:brightness-150 cursor-pointer" onmouseenter="showMapTooltip('Bateau en direction de Johto', event, 'gray')" onmousemove="moveMapTooltip(event)" onmouseleave="hideMapTooltip()"></rect>`;
+            
+            if (state.johtoUnlocked) {
+                const pulseClass = state.boatClicked ? "" : "animate-pulse";
+                boatRect = `<rect x="638" y="1806" width="230" height="239" fill="rgba(59, 130, 246, 0.3)" stroke="rgba(147, 197, 253, 0.9)" stroke-width="3" class="${pulseClass} cursor-pointer lg:hover:fill-blue-400/50 transition-colors" onmouseenter="showMapTooltip('Bateau vers Johto', event, 'blue')" onmousemove="moveMapTooltip(event)" onmouseleave="hideMapTooltip()" onclick="showJohtoModal()"></rect>`;
+            }
+
             bgSvg.setAttribute('viewBox', `0 0 ${bgImg.naturalWidth} ${bgImg.naturalHeight}`);
             bgSvg.innerHTML = `
                 <a href="#" onclick="event.preventDefault()">
@@ -4041,7 +4211,7 @@ function updateBg() {
                     <rect x="1327" y="836" width="96" height="96" fill="rgba(22, 163, 74, 0.4)" stroke="rgba(134, 239, 172, 0.9)" stroke-width="3" class="${labClass}" onmouseenter="showMapTooltip('Labo Pokémon du Prof. Chen', event, 'green')" onmousemove="moveMapTooltip(event)" onmouseleave="hideMapTooltip()" onclick="enterLab()"></rect>
                 </a>
                 <a href="#" onclick="event.preventDefault()">
-                    <rect x="638" y="1806" width="230" height="239" fill="rgba(75, 85, 99, 0.4)" stroke="rgba(209, 213, 219, 0.9)" stroke-width="3" class="transition-all lg:hover:brightness-150 cursor-pointer" onmouseenter="showMapTooltip('Bateau en direction de Johto', event, 'gray')" onmousemove="moveMapTooltip(event)" onmouseleave="hideMapTooltip()"></rect>
+                    ${boatRect}
                 </a>
             `;
         };
@@ -4170,8 +4340,25 @@ function renderTeam() {
 
         // Easter Eggs Visuals
         let specialClass = "";
-        if (p.name === "Dinnerbone" || p.name === "Grumm") specialClass = "upside-down";
-        if (p.name === "jeb_") specialClass = "rainbow-anim";
+        const pNameLower = p.name.toLowerCase();
+        if (pNameLower === "dinnerbone" || pNameLower === "grumm") specialClass = "upside-down";
+        if (pNameLower === "jeb_") specialClass = "rainbow-anim";
+        if (pNameLower === "caca") specialClass = "caca-filter";
+        
+        if (pNameLower === "daran") {
+            if (isEvolving) {
+                 const timeLeft = evolvingPokemon.endTime - Date.now();
+                 const newStage = getEvolutionStage(p.id);
+                 const oldStage = getEvolutionStage(evolvingPokemon.oldId);
+                 if (Math.floor(timeLeft / 150) % 2 === 0) {
+                     displayImg = `img/EasterEgg/DaranStade${oldStage}.png`;
+                 } else {
+                     displayImg = `img/EasterEgg/DaranStade${newStage}.png`;
+                 }
+            } else {
+                displayImg = `img/EasterEgg/DaranStade${getEvolutionStage(p.id)}.png`;
+            }
+        }
 
         const genderSymbol = p.gender === 'male' ? '<span class="text-blue-400 text-[10px] ml-1 font-bold">♂</span>' : (p.gender === 'female' ? '<span class="text-pink-400 text-[10px] ml-1 font-bold">♀</span>' : '');
 
@@ -4228,10 +4415,20 @@ function renderPC() {
         const genderSymbol = p.gender === 'male' ? '<span class="text-blue-400 text-[8px] ml-1 font-bold">♂</span>' : (p.gender === 'female' ? '<span class="text-pink-400 text-[8px] ml-1 font-bold">♀</span>' : '');
         const nameDisplay = `<div class="text-[10px] text-green-400 truncate max-w-[100px]">${p.name}${p.isShiny?"✦":""}${p.isFavorite?"<span class='text-yellow-400 text-[8px] ml-1'>★</span>":""}</div>`;
 
+        // Easter Eggs Visuals
+        let specialClass = "";
+        const pNameLower = p.name.toLowerCase();
+        if (pNameLower === "dinnerbone" || pNameLower === "grumm") specialClass = "upside-down";
+        if (pNameLower === "jeb_") specialClass = "rainbow-anim";
+        if (pNameLower === "caca") specialClass = "caca-filter";
+        
+        let pcImg = p.img;
+        if (pNameLower === "daran") pcImg = `img/EasterEgg/DaranStade${getEvolutionStage(p.id)}.png`;
+
         html += `
         <div oncontextmenu="openContextMenu('pc', ${i}, event)" onclick="openContextMenu('pc', ${i}, event)" class="flex justify-between items-center bg-gray-900/80 p-2 mb-1 border-b border-green-900 cursor-pointer hover:bg-gray-800/80">
             <div class="flex items-center gap-2">
-                <img src="${p.img}" class="w-8 h-8 ${shinyClass}">
+                <img src="${pcImg}" class="w-8 h-8 ${shinyClass} ${specialClass}">
                 <div>
                     ${nameDisplay}
                     <div class="text-[8px] text-green-600">Lv.${p.level}${genderSymbol}</div>
