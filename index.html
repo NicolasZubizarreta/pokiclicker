@@ -813,15 +813,16 @@
 const ITEMS = {
     // Consommables
     pokeball: { name: "Pokéball", price: 200, desc: "Capture des Pokémon (Faible chance)", type: "consumable", zone: 0, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png", invKey: "balls" },
-    superball: { name: "Superball", price: 600, desc: "Capture des Pokémon (Moyenne chance x2)", type: "consumable", zone: 4, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png", invKey: "superballs" },
+    superball: { name: "Superball", price: 600, desc: "Capture des Pokémon (Moyenne chance x2)", type: "consumable", zone: 6, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png", invKey: "superballs" },
     hyperball: { name: "Hyperball", price: 1500, desc: "Capture des Pokémon (Haute chance x4)", type: "consumable", zone: 9, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png", invKey: "hyperballs" },
     candy: { name: "Bonbon", price: 5000, desc: "Fait monter un Pokémon de niveau", type: "consumable", zone: 8, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rare-candy.png", invKey: "candy" },
     masterball: { name: "Master Ball", price: 150000, desc: "Capture à coup sûr (100%)", type: "consumable", zone: 16, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/master-ball.png", invKey: "masterball" },
-    repel: { name: "Repousse", price: 2000, desc: "Empêche les Pokémon communs d'apparaître pendant 30s", type: "consumable", zone: 6, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/repel.png", invKey: "repel" },    
+    repel: { name: "Repousse", price: 2000, desc: "Empêche les Pokémon communs d'apparaître pendant 30s", type: "consumable", zone: 4, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/repel.png", invKey: "repel" },    
     xAttack: { name: "Attaque +", price: 7500, desc: "Dégâts/clic +50% (30s)", type: "consumable", zone: 8, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/x-attack.png", invKey: "xAttack" },
     xSpecial: { name: "Attaque Spé +", price: 10000, desc: "DPS Équipe +50% (30s)", type: "consumable", zone: 12, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/x-sp-atk.png", invKey: "xSpecial" },
     superRepel: { name: "Superepousse", price: 12000, desc: "Bloque Communs/Peu Communs (30s)", type: "consumable", zone: 13, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/super-repel.png", invKey: "superRepel" },
     pokeDoll: { name: "Poké Poupée", price: 5000, desc: "Invoque le Boss (Si déjà vaincu)", type: "consumable", zone: 15, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-doll.png", invKey: "pokeDoll" },
+    everstone: { name: "Pierre Stase", price: 10000, desc: "Bloque l'évolution. Dégâts +25% (Base & Évolutif uniquement)", type: "consumable", zone: 10, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/everstone.png", invKey: "everstone" },
     // Améliorations
     runningShoes: { name: "Chaussures Sport", price: 2000, desc: "Divise le temps d'apparition des ennemis par 1.5", type: "upgrade", zone: 1, icon: "sprint", iconColor: "text-orange-400" },
     amuletCoin: { name: "Pièce Rune", price: 4000, desc: "Gains d'argent +30%", type: "upgrade", zone: 2, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/amulet-coin.png" },
@@ -829,7 +830,7 @@ const ITEMS = {
     expShare: { name: "Multi Exp", price: 12000, desc: "XP gagnée +50%", type: "upgrade", zone: 4, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/exp-share.png" },
     hardStone: { name: "Pierre Dure", price: 15000, desc: "Augmente les dégâts du clic de +30%", type: "upgrade", zone: 6, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/hard-stone.png" },
     bicycle: { name: "Bicyclette", price: 30000, desc: "Vitesse de spawn x3 (Remplace Chaussures)", type: "upgrade", zone: 7, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/bicycle.png" },
-    luckyEgg: { name: "Oeuf Chance", price: 75000, desc: "XP gagnée x1.5", type: "upgrade", zone: 10, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lucky-egg.png" },
+    luckyEgg: { name: "Oeuf Chance", price: 75000, desc: "XP gagnée +50%", type: "upgrade", zone: 10, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lucky-egg.png" },
     pokeradar: { name: "Poké-Radar", price: 45000, desc: "Affiche les Pokémon trouvables dans la zone actuelle.", type: "upgrade", zone: 8, icon: "radar", iconColor: "text-green-400" },
     leftovers: { name: "Restes", price: 150000, desc: "Auto-click 9 clics/sec", type: "upgrade", zone: 14, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/leftovers.png" },
     falseSwipe: { name: "CT Fauchage", price: 100000, desc: "Compétence : Empêche le Pokémon sauvage de mourir (1 PV min). Recharge 30s.", type: "upgrade", zone: 12, icon: "content_cut", iconColor: "text-red-400" },
@@ -1527,7 +1528,7 @@ ZONES[-5] = {id:-5, name:"Panthéon Pokémon", bg:"img/background/Pantheon.png",
 // --- STATE ---
 let state = {
     money: 0, 
-    inv: { balls: 0, superballs: 0, hyperballs: 0, candy: 0, omniExp: 0, shinyToken: 0, masterball: 0, repel: 0, xAttack: 0, xSpecial: 0, superRepel: 0, pokeDoll: 0 },
+    inv: { balls: 0, superballs: 0, hyperballs: 0, candy: 0, omniExp: 0, shinyToken: 0, masterball: 0, repel: 0, xAttack: 0, xSpecial: 0, superRepel: 0, pokeDoll: 0, everstone: 0 },
     upgrades: { runningShoes: false, amuletCoin: false, protein: false, expShare: false, hardStone: false, bicycle: false, luckyEgg: false, leftovers: false, pokeradar: false, falseSwipe: false, shinyCharm: false, diploma: false },
     team: [], 
     johtoUnlocked: false,
@@ -1564,6 +1565,7 @@ let state = {
     candyTargetIdx: null,
     candyAmount: 1,
     shinyTokenMode: false,
+    everstoneMode: false,
     summaryPokemon: null,
     contextTarget: null,
     visitedLab: false
@@ -1598,7 +1600,7 @@ const ENDING_DIALOGS = [
     "En guise de reconnaissance, voici ton Diplôme officiel.",
     "Félicitations !",
     "Prends aussi ceci : le Charme Chroma. Les Pokémon Shinies apparaîtront beaucoup plus souvent !",
-    "Qui sait peut être qu'un jour tu attraperas tout les pokémons du monde... L'aventure continue !"
+    "Qui sait peut être qu'un jour tu attraperas tous les pokémons du monde... L'aventure continue !"
 ];
 const PANTHEON_DIALOGS = [
     "Splendide ! Simplement splendide !",
@@ -1613,6 +1615,10 @@ const JOHTO_INTRO_DIALOGS = [
     "Il habite à Johto, une région voisine. Il paraît qu'on y trouve des espèces totalement inconnues !",
     "J'ai mis à jour ton Passe. Tu peux désormais voyager vers Johto depuis le port du Bourg Palette."
 ];
+const GENDERLESS_IDS = [81, 82, 100, 101, 120, 121, 132, 137, 144, 145, 146, 150, 151];
+const ALWAYS_FEMALE_IDS = [29, 30, 31, 113, 115, 124];
+const ALWAYS_MALE_IDS = [32, 33, 34, 106, 107, 128];
+
 let activeDialogs = INTRO_DIALOGS;
 let introIndex = 0;
 let introTyping = false;
@@ -2000,9 +2006,10 @@ function getDPS(targetId) {
 
         let shinyBonus = p.isShiny ? 1.5 : 1; // Shiny deals x1.5 damage
         let happyMult = 1 + ((p.happiness || 0) * 0.001); // +0.1% per happiness
+        let everstoneBonus = p.everstone ? 1.25 : 1;
         let baseStat = BASE_STATS[p.id] || 40; // Fallback if ID missing
         let rawDmg = (baseStat * p.level) / 5;
-        return s + (rawDmg * m * shinyBonus * happyMult);
+        return s + (rawDmg * m * shinyBonus * happyMult * everstoneBonus);
     }, 0); 
     
     if(hasMilestone(30)) dps *= 1.5;
@@ -2106,7 +2113,6 @@ function spawnEnemy() {
     enemy.isCatching = false;
     enemy.isFalseSwiped = false;
     enemy.uid = Date.now(); // Unique ID to prevent race conditions
-    enemy.gender = Math.random() < 0.5 ? 'male' : 'female';
     const z = ZONES[state.zoneIdx];
 
     if (z.pokemons.length === 0) {
@@ -2209,11 +2215,16 @@ function spawnEnemy() {
         setTimeout(()=>a.classList.add('hidden'), 3000);
     }
 
-    // Exception for genderless Pokémon
-    if (enemy.id === 132) enemy.gender = 'genderless';
-    if ([32, 33, 34].includes(enemy.id)) enemy.gender = 'male';
-    if ([29, 30, 31].includes(enemy.id)) enemy.gender = 'female';
-
+    // Gender assignment with exceptions
+    if (GENDERLESS_IDS.includes(enemy.id)) {
+        enemy.gender = 'genderless';
+    } else if (ALWAYS_MALE_IDS.includes(enemy.id)) {
+        enemy.gender = 'male';
+    } else if (ALWAYS_FEMALE_IDS.includes(enemy.id)) {
+        enemy.gender = 'female';
+    } else {
+        enemy.gender = Math.random() < 0.5 ? 'male' : 'female';
+    }
     // HP Scaling
     const baseHp = BASE_HP[enemy.id] || 40;
     const zoneMult = ZONE_MULT[state.zoneIdx] || (6 + (state.zoneIdx - 4) * 2.5);
@@ -2283,7 +2294,7 @@ function killEnemy() {
         
         // Happiness Gain
         if (p.happiness === undefined) p.happiness = 0;
-        if (p.happiness < 255 && (p.level - enemy.level <= 20)) p.happiness++;
+        if (p.happiness < 255 && (p.level - enemy.level <= 25)) p.happiness++;
     });
 
     playTone('coin');
@@ -2651,6 +2662,8 @@ function handleTeamClick(i) {
         renderTeam();
     } else if (state.shinyTokenMode) {
         useShinyTokenOn(i);
+    } else if (state.everstoneMode) {
+        useEverstoneOn(i);
     }
 }
 
@@ -2751,9 +2764,10 @@ function getPokemonDps(p, targetId) {
 
     let shinyBonus = p.isShiny ? 1.5 : 1;
     let happyMult = 1 + ((p.happiness || 0) * 0.001);
+    let everstoneBonus = p.everstone ? 1.25 : 1;
     let baseStat = BASE_STATS[p.id] || 40;
     let rawDmg = (baseStat * p.level) / 5;
-    return rawDmg * m * shinyBonus * happyMult;
+    return rawDmg * m * shinyBonus * happyMult * everstoneBonus;
 }
 
 function showPokemonSummary(location, index, event) {
@@ -3033,7 +3047,7 @@ function getItemPrice(id) {
     if(!item) return 0;
     let base = item.price;
     if(item.type === 'consumable') {
-        base = Math.floor(base * (1 + state.badges.length * 0.25));
+        base = Math.floor(base * (1 + state.badges.length * 0.10));
     }
     return base;
 }
@@ -3101,6 +3115,7 @@ function loadData(data) {
     state.candyTargetIdx = null;
     state.candyAmount = 1;
     state.shinyTokenMode = false;
+    state.everstoneMode = false;
     state.summaryPokemon = null;
     state.contextTarget = null;
     if(state.introBagUnlocked === undefined) state.introBagUnlocked = false;
@@ -3129,6 +3144,7 @@ function loadData(data) {
     if(state.inv.xSpecial === undefined) state.inv.xSpecial = 0;
     if(state.inv.superRepel === undefined) state.inv.superRepel = 0;
     if(state.inv.pokeDoll === undefined) state.inv.pokeDoll = 0;
+    if(state.inv.everstone === undefined) state.inv.everstone = 0;
     if(!state.attackBoostEndTime) state.attackBoostEndTime = 0;
     if(!state.dpsBoostEndTime) state.dpsBoostEndTime = 0;
     if(!state.superRepelEndTime) state.superRepelEndTime = 0;
@@ -3153,19 +3169,20 @@ function loadData(data) {
         if(p.xp === undefined) p.xp = 0;
         if(p.maxXp === undefined) p.maxXp = calcMaxXp(p.id, p.level);
         if(p.happiness === undefined) p.happiness = 0;
-        if(!p.gender) {
-            if (p.id === 132) {
+        if(!p.gender) { // Assign gender to pokemon from old saves
+            if (GENDERLESS_IDS.includes(p.id)) {
                 p.gender = 'genderless';
-            } else if ([32, 33, 34].includes(p.id)) {
+            } else if (ALWAYS_MALE_IDS.includes(p.id)) {
                 p.gender = 'male';
-            } else if ([29, 30, 31].includes(p.id)) {
+            } else if (ALWAYS_FEMALE_IDS.includes(p.id)) {
                 p.gender = 'female';
             } else {
-                p.gender = Math.random() < 0.5 ? 'male' : 'female';
+                p.gender = Math.random() < 0.5 ? 'male' : 'female'; // Default
             }
         }
         if(p.isFavorite === undefined) p.isFavorite = false;
         if(p.isRenamed === undefined) p.isRenamed = false;
+        if(p.everstone === undefined) p.everstone = false;
     };
     
     state.team.forEach(initP);
@@ -3996,6 +4013,23 @@ function showJohtoModal() {
     }
 }
 
+function updateShopPrices() {
+    const elements = document.querySelectorAll('.shop-price-text');
+    elements.forEach(el => {
+        const id = el.getAttribute('data-id');
+        if(ITEMS[id]) {
+             const finalPrice = getPrice(getItemPrice(id));
+             if (state.money >= finalPrice) {
+                el.classList.remove('text-red-500');
+                el.classList.add('text-yellow-400');
+            } else {
+                el.classList.remove('text-yellow-400');
+                el.classList.add('text-red-500');
+            }
+        }
+    });
+}
+
 function updateUI() {
     document.getElementById('money-display').innerText = state.money.toLocaleString('de-DE');
     const currentDps = getDPS(enemy.dead ? null : enemy.id).toFixed(1);
@@ -4010,6 +4044,7 @@ function updateUI() {
     if(document.getElementById('shop-stock-hyperball')) document.getElementById('shop-stock-hyperball').innerText = state.inv.hyperballs;
     if(document.getElementById('shop-stock-masterball')) document.getElementById('shop-stock-masterball').innerText = state.inv.masterball;
     if(document.getElementById('shop-stock-repel')) document.getElementById('shop-stock-repel').innerText = state.inv.repel;
+    if(document.getElementById('shop-stock-everstone')) document.getElementById('shop-stock-everstone').innerText = state.inv.everstone;
     updateAutoBtn();
     updateRadarButton();
     updateAutoStopBtn();
@@ -4017,6 +4052,7 @@ function updateUI() {
     updateAutoClickerBtn();
     updateFalseSwipeBtn();
     updateMobileMenuButtons();
+    updateShopPrices();
 }
 
 function updateZone() {
@@ -4309,11 +4345,11 @@ function renderTeam() {
 
     let html = "";
     state.team.forEach((p,i) => {
-        const evo = EVOLUTIONS[p.id] && p.level >= EVOLUTIONS[p.id].lvl;
+        const evo = !p.everstone && EVOLUTIONS[p.id] && p.level >= EVOLUTIONS[p.id].lvl;
         const swapMode = state.swapIdx!==null;
         const candyMode = state.candyMode;
         const isCandyTarget = candyMode && state.candyTargetIdx === i;
-        const isInteractive = swapMode || candyMode || state.shinyTokenMode;
+        const isInteractive = swapMode || candyMode || state.shinyTokenMode || state.everstoneMode;
         const mult = !enemy.dead ? getMultiplier(p.id, enemy.id) : 1;
         const multColor = mult > 1 ? "text-green-400" : mult < 1 ? "text-red-400" : "text-gray-400";
         const pTypes = getTypes(p.id);
@@ -4322,6 +4358,8 @@ function renderTeam() {
         const shinyIcon = p.isShiny ? "<span class='text-yellow-400 ml-1'>✦</span>" : "";
         const shinyDpsMult = p.isShiny ? 1.5 : 1;
         const happyMult = 1 + ((p.happiness || 0) * 0.001);
+        const everstoneBonus = p.everstone ? 1.25 : 1;
+        const everstoneIcon = p.everstone ? "<span class='text-gray-400 ml-1' title='Pierre Stase'>🪨</span>" : "";
         let baseStat = BASE_STATS[p.id] || 40;
         let rawDmg = (baseStat * p.level) / 5;
         const xpPct = p.level >= 100 ? 100 : Math.min(100, (p.xp / p.maxXp) * 100);
@@ -4364,7 +4402,7 @@ function renderTeam() {
 
         const nameDisplay = `
         <div class="flex items-center gap-1 min-w-0 relative z-10">
-            <div class="text-xs font-bold text-gray-200 truncate">${typeIcon}${p.name}${shinyIcon}${p.isFavorite?"<span class='text-yellow-400 text-[10px] ml-1'>★</span>":""}</div>
+            <div class="text-xs font-bold text-gray-200 truncate">${typeIcon}${p.name}${shinyIcon}${everstoneIcon}${p.isFavorite?"<span class='text-yellow-400 text-[10px] ml-1'>★</span>":""}</div>
         </div>`;
 
         html += `
@@ -4372,7 +4410,7 @@ function renderTeam() {
             <img src="${displayImg}" class="w-10 h-10 mr-3 ${shinyClass} ${animClass} ${specialClass}">
             <div class="flex-1 min-w-0">
                 ${nameDisplay}
-                <div class="text-[10px] text-yellow-500">DPS: ${(rawDmg*mult*shinyDpsMult*happyMult).toFixed(1)} <span class="${multColor} text-[8px]">x${mult}</span>${genderSymbol}</div>
+                <div class="text-[10px] text-yellow-500">DPS: ${(rawDmg*mult*shinyDpsMult*happyMult*everstoneBonus).toFixed(1)} <span class="${multColor} text-[8px]">x${mult}</span>${genderSymbol}</div>
             </div>
             ${!swapMode ? `
             ${isCandyTarget ? `
@@ -4527,6 +4565,13 @@ function renderBag() {
         <div><div class="text-xs text-gray-400">Poké Poupée</div><div class="text-sm font-bold">x${state.inv.pokeDoll} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
     </div>`;
     }
+    if(state.inv.everstone>0) {
+        consumables += `
+    <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 cursor-pointer hover:bg-slate-600" onclick="initEverstoneUse()" title="${ITEMS.everstone.desc}">
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/everstone.png" class="w-6 h-6">
+        <div><div class="text-xs text-gray-400">Pierre Stase</div><div class="text-sm font-bold">x${state.inv.everstone} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
+    </div>`;
+    }
 
     let rareItems = "";
     for (const [key, val] of Object.entries(state.upgrades)) {
@@ -4615,7 +4660,7 @@ function renderShop() {
         <div class="bg-slate-800 p-2 rounded border ${id==='superball'?'border-blue-600 bg-blue-900/30':'border-slate-700'} hover:border-blue-500 cursor-pointer flex items-center gap-2 relative group" onclick="buyItem('${id}')" title="${item.desc}">
             ${iconHtml}
             <div class="flex-1 text-xs ${id==='superball'?'text-blue-200':''}">${item.name}</div>
-            <div class="${priceColor} text-xs">${finalPrice.toLocaleString('de-DE')}$</div>
+            <div class="shop-price-text ${priceColor} text-xs" data-id="${id}">${finalPrice.toLocaleString('de-DE')}$</div>
             ${stockDisplay}
             <button onclick="showItemInfo('${id}', event)" class="w-4 h-4 rounded-full bg-slate-600 hover:bg-slate-500 text-white text-[8px] flex items-center justify-center border border-slate-500 shrink-0 z-10 ml-1" title="Info">i</button>
         </div>`;
@@ -4640,7 +4685,7 @@ function renderShop() {
         <div class="bg-slate-800 p-2 rounded border ${owned?'border-green-600 opacity-50':'border-slate-700 hover:border-blue-500 cursor-pointer'} flex items-center gap-2 relative group" ${!owned?`onclick="buyItem('${id}')"`:''} title="${item.desc}">
             ${iconHtml}
             <div class="flex-1 text-xs">${item.name}</div>
-            ${owned ? `<div class="text-xs text-green-400 font-bold">ACQUIS</div>` : `<div class="${priceColor} text-xs">${finalPrice.toLocaleString('de-DE')}$</div>`}
+            ${owned ? `<div class="text-xs text-green-400 font-bold">ACQUIS</div>` : `<div class="shop-price-text ${priceColor} text-xs" data-id="${id}">${finalPrice.toLocaleString('de-DE')}$</div>`}
             <button onclick="showItemInfo('${id}', event)" class="w-4 h-4 rounded-full bg-slate-600 hover:bg-slate-500 text-white text-[8px] flex items-center justify-center border border-slate-500 shrink-0 z-10 ml-1" title="Info">i</button>
         </div>`;
     }
