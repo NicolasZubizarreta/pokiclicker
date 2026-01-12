@@ -566,6 +566,28 @@
                 <div id="searching-msg" class="hidden text-white pixel-font text-sm animate-pulse tracking-widest z-20">RECHERCHE EN COURS...</div>
                 <img class="w-48 h-48 lg:w-72 lg:h-72 object-contain pokemon-float drop-shadow-2xl transition-all duration-100 cursor-pointer active:scale-95 pointer-events-auto" id="enemy-sprite" onclick="clickAttack(event)" onmouseenter="showCatchTooltip()" onmouseleave="hideCatchTooltip()" src="" draggable="false">
                 <div class="hidden absolute top-0 right-10 bg-red-600 text-white font-bold text-[10px] px-3 py-1 rounded border border-white shadow-lg animate-bounce" id="boss-badge" style="display: none;">BOSS</div>
+
+                <div id="daycare-panel" class="absolute inset-0 z-20 hidden flex flex-col items-center justify-center pointer-events-none p-2 overflow-y-auto custom-scroll">
+                    <!-- Parents Section -->
+                    <div class="flex flex-row items-center justify-center gap-4 md:gap-16 mb-4 md:mb-6 mt-4 md:mt-16 w-full shrink-0 pointer-events-auto">
+                        <div id="daycare-parent-0" class="w-24 h-32 md:w-40 md:h-56 bg-slate-800/80 border-4 md:border-8 border-dashed border-slate-500 rounded-xl md:rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-slate-700/90 transition relative shadow-xl shrink-0" onclick="selectDaycareParent(0)">
+                            <span class="text-xs md:text-xl text-gray-400 text-center">Parent 1</span>
+                        </div>
+
+                        <div id="daycare-heart" class="hidden flex items-center justify-center shrink-0">
+                             <span class="text-red-500 font-bold text-2xl md:text-6xl animate-pulse drop-shadow-lg">♥</span>
+                        </div>
+
+
+                        <div id="daycare-parent-1" class="w-24 h-32 md:w-40 md:h-56 bg-slate-800/80 border-4 md:border-8 border-dashed border-slate-500 rounded-xl md:rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-slate-700/90 transition relative shadow-xl shrink-0" onclick="selectDaycareParent(1)">
+                            <span class="text-xs md:text-xl text-gray-400 text-center">Parent 2</span>
+                        </div>
+                    </div>
+                    <div id="daycare-chance" class="text-center text-sm md:text-xl font-bold text-white mb-4 md:mb-8 bg-black/50 px-4 py-1 rounded shrink-0 pointer-events-auto">Chance: 0%</div>
+                
+                    <!-- Eggs Section -->
+                    <div class="flex flex-wrap justify-center gap-2 md:gap-4 mb-4 md:mb-10 w-full shrink-0 pointer-events-auto" id="daycare-eggs-list"></div>
+                </div>
             </div>
             
             <button id="pantheon-exit-btn" class="absolute bottom-20 left-1/2 -translate-x-1/2 bg-red-600 hover:bg-red-500 text-white font-bold py-2 px-6 rounded-full shadow-lg border-2 border-white hidden pointer-events-auto z-50 pixel-font text-xs animate-pulse" onclick="exitPantheon()">SORTIR</button>
@@ -1524,6 +1546,7 @@ ZONES[-4] = {id:-4, name:"Chez Maman", bg:"img/background/Chez Maman.png", minLe
 ZONES[-3] = {id:-3, name:"Chez Blue", bg:"img/background/Chez Blue.png", minLevel:0, maxLevel:0, pokemons:[], boss:{name:"", id:0, level:0, catchRate:0}};
 ZONES[-2] = {id:-2, name:"Labo Pokémon du Prof. Chen", bg:"img/background/LaboPokemon.png", minLevel:0, maxLevel:0, pokemons:[], boss:{name:"", id:0, level:0, catchRate:0}};
 ZONES[-5] = {id:-5, name:"Panthéon Pokémon", bg:"img/background/Pantheon.png", minLevel:0, maxLevel:0, pokemons:[], boss:{name:"", id:0, level:0, catchRate:0}};
+ZONES[-1] = {id:-1, name:"Pension Pokémon", bg:"img/background/Pension.png", minLevel:0, maxLevel:0, pokemons:[], boss:{name:"", id:0, level:0, catchRate:0}};
 
 // --- STATE ---
 let state = {
@@ -1568,7 +1591,9 @@ let state = {
     everstoneMode: false,
     summaryPokemon: null,
     contextTarget: null,
-    visitedLab: false
+    visitedLab: false,
+    daycare: { unlocked: false, parents: [null, null], eggs: [], slots: 1 },
+    daycareMode: { active: false, slotIdx: null }
 };
 
 // Runtime variables (not saved)
@@ -1650,6 +1675,20 @@ function startIntro() {
     introIndex = 0;
     introTyping = false;
     selectedStarterId = null;
+
+    // Déterminer le statut shiny des starters
+    const shinyChance = state.cheat ? 1 : 1/256;
+    window.starterShinyStatus = {
+        1: Math.random() < shinyChance,
+        4: Math.random() < shinyChance,
+        7: Math.random() < shinyChance
+    };
+    [1, 4, 7].forEach(id => {
+        const pokeImg = document.getElementById(`poke-${id}`);
+        const isShiny = window.starterShinyStatus[id];
+        pokeImg.src = getArtwork(id, isShiny);
+        pokeImg.classList.toggle('shiny-glow', isShiny);
+    });
 
     const overlay = document.getElementById('intro-overlay');
     const prof = document.getElementById('intro-prof');
@@ -1877,7 +1916,8 @@ function confirmStarter() {
     if(!selectedStarterId) return;
     let name = selectedStarterId===1?"Bulbizarre":selectedStarterId===4?"Salamèche":"Carapuce";
     state.starterId = selectedStarterId;
-    addToTeam(selectedStarterId, name, 5, false, Math.random() < 0.5 ? 'male' : 'female');
+    const isShiny = window.starterShinyStatus[selectedStarterId];
+    addToTeam(selectedStarterId, name, 5, isShiny, Math.random() < 0.5 ? 'male' : 'female');
     addToPokedex(selectedStarterId);
     
     if(state.unlockedZone < 1) state.unlockedZone = 1;
@@ -1997,6 +2037,7 @@ function hasMilestone(c) { return state.milestones.includes(c); }
 
 function getDPS(targetId) { 
     let dps = state.team.reduce((s,p) => {
+        if (p.isEgg) return s;
         let m = targetId ? getMultiplier(p.id, targetId) : 1;
         
         // Easter Egg: Johnny
@@ -2231,9 +2272,9 @@ function spawnEnemy() {
     enemy.maxHp = Math.floor((baseHp * enemy.level * 2) * zoneMult);
     if(enemy.isBoss) enemy.maxHp *= 4;
     enemy.hp = enemy.maxHp;
-    updateUI(); // Refresh DPS display for new enemy
+    updateUI();
     updateEnemyUI();
-    renderTeam(); // Refresh team DPS multipliers for new enemy
+    updateTeamStats();
 }
 
 function damageEnemy(amt) {
@@ -2280,11 +2321,13 @@ function killEnemy() {
     if (state.inv.omniExp > 0) xpGain = Math.floor(xpGain * 2);
     if(hasBadge("Âme")) xpGain = Math.floor(xpGain * 1.5);
     
+    let levelUpOccurred = false;
     state.team.forEach(p => {
-        if(p.level < 100) {
+        if(p.level < 100 && !p.isEgg) {
             p.xp += xpGain;
             if(p.xp >= p.maxXp) {
                 p.level++;
+                levelUpOccurred = true;
                 p.xp -= p.maxXp;
                 p.maxXp = calcMaxXp(p.id, p.level);
                 playTone('up');
@@ -2295,9 +2338,38 @@ function killEnemy() {
         // Happiness Gain
         if (p.happiness === undefined) p.happiness = 0;
         if (p.happiness < 255 && (p.level - enemy.level <= 25)) p.happiness++;
+
+        // Egg Hatching Logic
+        if (p.isEgg) {
+            p.hatchSteps = (p.hatchSteps || 0) + 1;
+            if (p.hatchSteps >= p.maxSteps) {
+                p.isEgg = false;
+                // Restore real name if it was "Oeuf"
+                if (p.name === "Oeuf") {
+                     // Try to find name in ZONES or EVOLUTIONS
+                     let realName = "Pokémon";
+                     for(const z of ZONES) { const f = z.pokemons.find(pk => pk.id === p.id); if(f) { realName = f.name; break; } }
+                     p.name = realName;
+                }
+                p.img = getSprite(p.id, p.isShiny);
+                p.happiness = 125; // Base happiness
+                showFeedback(`${p.name} ÉCLOS !`, "green");
+                playTone('up');
+                addToPokedex(p.id);
+            }
+        }
     });
 
+    // Daycare Tick
+    processDaycare();
+
     playTone('coin');
+
+    if (levelUpOccurred) {
+        renderTeam();
+    } else {
+        updateTeamStats();
+    }
 
     if(enemy.isBoss) {
         checkBadges();
@@ -2323,6 +2395,11 @@ function killEnemy() {
                 }
                 if(state.unlockedZone === 3) {
                     setTimeout(() => showFeedback("PC DE LÉO DÉBLOQUÉ !", "green", 3000), delay);
+                    delay += 3000;
+                }
+                if(state.unlockedZone === 11) { // Celadon Gym
+                    setTimeout(() => showFeedback("PENSION DÉBLOQUÉE (BOURG PALETTE) !", "pink", 4000), delay);
+                    state.daycare.unlocked = true;
                     delay += 3000;
                 }
 
@@ -2631,6 +2708,10 @@ function usePokeDoll() {
 function useFalseSwipe() {
     if (!state.upgrades.falseSwipe) return;
     const now = Date.now();
+    if (enemy.isBoss) {
+        showFeedback("INUTILE SUR UN BOSS !", "red");
+        return;
+    }
     if (state.falseSwipeCooldown > now) return;
     
     enemy.isFalseSwiped = true;
@@ -2650,7 +2731,9 @@ function initCandyUse() {
 }
 
 function handleTeamClick(i) {
-    if(state.swapIdx !== null) {
+    if (state.daycareMode && state.daycareMode.active) {
+        depositToDaycare('team', i);
+    } else if(state.swapIdx !== null) {
         confirmSwap(i);
     } else if (state.candyMode) {
         if(state.team[i].level >= 100) {
@@ -2754,8 +2837,33 @@ function evolve(uid) {
     }
 }
 
+function getBaseForm(id) {
+    // Build reverse map lazily
+    if (!window.PRE_EVO_MAP) {
+        window.PRE_EVO_MAP = {};
+        for (const [k, v] of Object.entries(EVOLUTIONS)) {
+            const parent = parseInt(k);
+            if (Array.isArray(v.id)) {
+                v.id.forEach(child => window.PRE_EVO_MAP[child] = parent);
+            } else {
+                window.PRE_EVO_MAP[v.id] = parent;
+            }
+        }
+    }
+    let current = id;
+    while (window.PRE_EVO_MAP[current]) {
+        current = window.PRE_EVO_MAP[current];
+    }
+    return current;
+}
+
+function countActivePokemon() {
+    return state.team.filter(p => !p.isEgg).length;
+}
+
 function getPokemonDps(p, targetId) {
     if (!p) return 0;
+    if (p.isEgg) return 0; // Eggs deal no damage
     let m = targetId ? getMultiplier(p.id, targetId) : 1;
     
     if (targetId && p.name === "Johnny" && getTypes(targetId).includes("Dark")) {
@@ -2770,6 +2878,47 @@ function getPokemonDps(p, targetId) {
     return rawDmg * m * shinyBonus * happyMult * everstoneBonus;
 }
 
+function updateTeamStats() {
+    state.team.forEach(p => {
+        const elements = document.querySelectorAll(`[data-uid='${p.uid}']`);
+        if (elements.length === 0) return;
+
+        const isEgg = p.isEgg;
+        const xpPct = isEgg ? Math.min(100, (p.hatchSteps / p.maxSteps) * 100) : (p.level >= 100 ? 100 : Math.min(100, (p.xp / p.maxXp) * 100));
+        
+        const mult = !enemy.dead ? getMultiplier(p.id, enemy.id) : 1;
+        const multColor = mult > 1 ? "text-green-400" : mult < 1 ? "text-red-400" : "text-gray-400";
+        const shinyDpsMult = p.isShiny ? 1.5 : 1;
+        const happyMult = isEgg ? 1 : 1 + ((p.happiness || 0) * 0.001);
+        const everstoneBonus = p.everstone ? 1.25 : 1;
+        let baseStat = BASE_STATS[p.id] || 40;
+        let rawDmg = (baseStat * p.level) / 5;
+        const dpsValue = (rawDmg * mult * shinyDpsMult * happyMult * everstoneBonus).toFixed(1);
+        const genderSymbol = p.gender === 'male' ? '<span class="text-blue-400 text-[10px] ml-1 font-bold">♂</span>' : (p.gender === 'female' ? '<span class="text-pink-400 text-[10px] ml-1 font-bold">♀</span>' : '');
+
+        elements.forEach(el => {
+            const xpBar = el.querySelector('.team-xp-bar');
+            const dpsText = el.querySelector('.team-dps-text');
+            const levelText = el.querySelector('.team-level-text');
+            
+            if (xpBar) {
+                xpBar.style.width = xpPct + '%';
+            }
+            if (dpsText) {
+                if (isEgg) {
+                    dpsText.innerHTML = `<span class="text-gray-400">Éclosion: ${p.hatchSteps}/${p.maxSteps}</span>`;
+                } else {
+                    dpsText.innerHTML = `DPS: ${dpsValue} <span class="${multColor} text-[8px]">x${mult}</span>${genderSymbol}`;
+                }
+            }
+            if (levelText) {
+                if (isEgg) levelText.innerText = '';
+                else levelText.innerText = `Lv.${p.level}`;
+            }
+        });
+    });
+}
+
 function showPokemonSummary(location, index, event) {
     if(event) event.preventDefault();
     const p = state[location][index];
@@ -2778,17 +2927,21 @@ function showPokemonSummary(location, index, event) {
     state.summaryPokemon = { location, index };
 
     const sprite = document.getElementById('summary-sprite');
-    sprite.src = getArtwork(p.id, p.isShiny);
+    if (p.isEgg) {
+        sprite.src = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lucky-egg.png";
+        sprite.className = "h-32 w-32 md:h-64 md:w-64 object-contain pokemon-float drop-shadow-2xl";
+    } else {
+        sprite.src = getArtwork(p.id, p.isShiny);
+        sprite.classList.remove('rainbow-anim', 'upside-down', 'caca-filter');
+        const pNameLower = p.name.toLowerCase();
+        if (pNameLower === "dinnerbone" || pNameLower === "grumm") sprite.classList.add('upside-down');
+        if (pNameLower === "jeb_") sprite.classList.add('rainbow-anim');
+        if (pNameLower === "caca") sprite.classList.add('caca-filter');
+        if (pNameLower === "daran") sprite.src = `img/EasterEgg/DaranStade${getEvolutionStage(p.id)}.png`;
+    }
 
-    sprite.classList.remove('rainbow-anim', 'upside-down', 'caca-filter');
-    const pNameLower = p.name.toLowerCase();
-    if (pNameLower === "dinnerbone" || pNameLower === "grumm") sprite.classList.add('upside-down');
-    if (pNameLower === "jeb_") sprite.classList.add('rainbow-anim');
-    if (pNameLower === "caca") sprite.classList.add('caca-filter');
-    if (pNameLower === "daran") sprite.src = `img/EasterEgg/DaranStade${getEvolutionStage(p.id)}.png`;
-
-    document.getElementById('summary-name').innerText = p.name;
-    document.getElementById('summary-shiny-icon').classList.toggle('hidden', !p.isShiny);
+    document.getElementById('summary-name').innerText = p.isEgg ? "Oeuf" : p.name;
+    document.getElementById('summary-shiny-icon').classList.toggle('hidden', !p.isShiny || p.isEgg);
     
     const pTypes = getTypes(p.id);
     let genderSymbol = '';
@@ -2799,12 +2952,19 @@ function showPokemonSummary(location, index, event) {
     let favClass = p.isFavorite ? 'text-yellow-400' : 'text-gray-400 hover:text-white';
     let favHtml = `<span class="material-symbols-outlined cursor-pointer ml-2 text-lg ${favClass}" onclick="toggleSummaryFavorite()" title="Favori">${favIcon}</span>`;
 
-    document.getElementById('summary-types').innerHTML = pTypes.map(t => `<span style="background:${TYPE_COLORS[t]}" class="text-xs px-2 py-1 rounded text-white shadow-sm uppercase">${t}</span>`).join("") + genderSymbol + favHtml;
-
-    document.getElementById('summary-level').innerText = `Lv.${p.level}`;
-    const xpPct = p.level >= 100 ? 100 : Math.min(100, (p.xp / p.maxXp) * 100);
-    document.getElementById('summary-xp-bar').style.width = `${xpPct}%`;
-    document.getElementById('summary-xp-text').innerText = p.level >= 100 ? "MAX" : `${Math.floor(p.xp)}/${p.maxXp}`;
+    if (p.isEgg) {
+        document.getElementById('summary-types').innerHTML = `<span class="text-xs px-2 py-1 rounded bg-gray-500 text-white shadow-sm uppercase">NORMAL</span>` + favHtml;
+        document.getElementById('summary-level').innerText = "Eclosion";
+        const pct = (p.hatchSteps / p.maxSteps) * 100;
+        document.getElementById('summary-xp-bar').style.width = `${pct}%`;
+        document.getElementById('summary-xp-text').innerText = `${p.hatchSteps}/${p.maxSteps}`;
+    } else {
+        document.getElementById('summary-types').innerHTML = pTypes.map(t => `<span style="background:${TYPE_COLORS[t]}" class="text-xs px-2 py-1 rounded text-white shadow-sm uppercase">${t}</span>`).join("") + genderSymbol + favHtml;
+        document.getElementById('summary-level').innerText = `Lv.${p.level}`;
+        const xpPct = p.level >= 100 ? 100 : Math.min(100, (p.xp / p.maxXp) * 100);
+        document.getElementById('summary-xp-bar').style.width = `${xpPct}%`;
+        document.getElementById('summary-xp-text').innerText = p.level >= 100 ? "MAX" : `${Math.floor(p.xp)}/${p.maxXp}`;
+    }
 
     const dps = getPokemonDps(p, enemy.dead ? null : enemy.id);
     document.getElementById('summary-dps').innerText = dps.toFixed(1);
@@ -2891,6 +3051,7 @@ function movePokemonFromSummary() {
 
     if (location === 'team') {
         if (state.team.length <= 1) { showFeedback("DERNIER POKÉMON !", "red"); return; }
+        if (countActivePokemon() <= 1 && !state.team[index].isEgg) { showFeedback("IL FAUT 1 POKÉMON ACTIF !", "red"); return; }
         const p = state.team.splice(index, 1)[0];
         state.pc.push(p);
         playTone('pc');
@@ -2912,6 +3073,7 @@ function releasePokemonFromSummary() {
     const p = state[location][index];
 
     if (location === 'team' && state.team.length <= 1) { showFeedback("IMPOSSIBLE !", "red"); return; }
+    if (location === 'team' && countActivePokemon() <= 1 && !state.team[index].isEgg) { showFeedback("IL FAUT 1 POKÉMON ACTIF !", "red"); return; }
 
     if (confirm(`Voulez-vous vraiment relâcher ${p.name} ?`)) {
         state[location].splice(index, 1);
@@ -3158,6 +3320,7 @@ function loadData(data) {
     if(state.autoStopSettings.Nouveau === undefined) state.autoStopSettings.Nouveau = true;
     state.interruptedState = null; // Always reset on load
     if(state.stats.totalMoney === undefined) state.stats.totalMoney = state.money;
+    if(!state.daycare) state.daycare = { unlocked: false, parents: [null, null], eggs: [], slots: 1 };
     
     // Re-bind images and init XP if missing (for old saves)
     const initP = (p) => {
@@ -3740,6 +3903,13 @@ function initSwap(idx) {
 
 function confirmSwap(tIdx) {
     if(state.swapIdx === null) return;
+    
+    const teamMon = state.team[tIdx];
+    const pcMon = state.pc[state.swapIdx];
+    if (!teamMon.isEgg && pcMon.isEgg && countActivePokemon() <= 1) {
+        showFeedback("IL FAUT 1 POKÉMON ACTIF !", "red"); return;
+    }
+
     let temp = state.team[tIdx];
     state.team[tIdx] = state.pc[state.swapIdx];
     state.pc[state.swapIdx] = temp;
@@ -4068,6 +4238,16 @@ function updateZone() {
         zoneIdContainer.style.visibility = 'hidden';
         stageTextEl.style.display = 'none';
         zoneProgressEl.parentElement.style.display = 'none';
+        
+        // Hide enemy in Daycare (Zone -1)
+        if (state.zoneIdx === -1) {
+            document.getElementById('enemy-sprite').classList.add('hidden');
+            document.getElementById('enemy-info-panel').classList.add('hidden');
+            document.getElementById('daycare-panel').classList.remove('hidden');
+            renderDaycare();
+        } else {
+            document.getElementById('daycare-panel').classList.add('hidden');
+        }
     } else {
         zoneIdContainer.style.visibility = 'visible';
         zoneIdEl.innerText = state.zoneIdx;
@@ -4187,6 +4367,25 @@ function updateBg() {
                 </a>
             `;
         };
+    } else if (state.zoneIdx === -1) {
+        // Pension Pokémon
+        bgDiv.classList.add('hidden');
+        bgImg.classList.remove('hidden');
+        bgSvg.classList.remove('hidden');
+        
+        bgImg.classList.remove('object-cover');
+        bgImg.classList.add('object-contain');
+        bgSvg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+
+        bgImg.src = bg;
+        bgImg.onload = () => {
+            bgSvg.setAttribute('viewBox', `0 0 ${bgImg.naturalWidth} ${bgImg.naturalHeight}`);
+            bgSvg.innerHTML = `
+                <a href="#" onclick="event.preventDefault()">
+                    <rect x="1077" y="1366" width="227" height="109" fill="rgba(220, 38, 38, 0.3)" stroke="rgba(252, 165, 165, 0.9)" stroke-width="3" class="animate-pulse cursor-pointer lg:hover:fill-red-400/50 transition-colors" onmouseenter="showMapTooltip('Sortie', event, 'red')" onmousemove="moveMapTooltip(event)" onmouseleave="hideMapTooltip()" onclick="exitDaycare()"></rect>
+                </a>
+            `;
+        };
     } else if (state.zoneIdx === -5) {
         // Panthéon
         bgDiv.classList.add('hidden');
@@ -4211,15 +4410,9 @@ function updateBg() {
         bgSvg.classList.remove('hidden');
         
         bgImg.classList.remove('object-contain', 'object-cover');
-        
-        if (window.innerWidth < 1024) {
-            bgImg.classList.add('object-contain');
-            bgSvg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-        } else {
-            bgImg.classList.add('object-cover');
-            bgImg.style.objectPosition = "center";
-            bgSvg.setAttribute('preserveAspectRatio', 'xMidYMid slice');
-        }
+        bgImg.classList.add('object-contain');
+        bgImg.style.objectPosition = "center";
+        bgSvg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
 
         bgImg.src = bg;
         bgImg.onload = () => {
@@ -4243,6 +4436,10 @@ function updateBg() {
                 <a href="#" onclick="event.preventDefault()">
                     <rect x="392" y="1293" width="82" height="91" fill="rgba(146, 64, 14, 0.4)" stroke="rgba(251, 191, 36, 0.9)" stroke-width="3" class="transition-all lg:hover:brightness-150 cursor-pointer" onmouseenter="showMapTooltip('Pension Pokémon', event, 'amber')" onmousemove="moveMapTooltip(event)" onmouseleave="hideMapTooltip()"></rect>
                 </a>
+                ${state.daycare.unlocked ? `
+                <a href="#" onclick="event.preventDefault()">
+                    <rect x="392" y="1293" width="82" height="91" fill="rgba(236, 72, 153, 0.3)" stroke="rgba(244, 114, 182, 0.9)" stroke-width="3" class="animate-pulse cursor-pointer lg:hover:fill-pink-400/50 transition-colors" onmouseenter="showMapTooltip('Pension Pokémon', event, 'pink')" onmousemove="moveMapTooltip(event)" onmouseleave="hideMapTooltip()" onclick="changeZone(-1)"></rect>
+                </a>` : ''}
                 <a href="#" onclick="event.preventDefault()">
                     <rect x="1327" y="836" width="96" height="96" fill="rgba(22, 163, 74, 0.4)" stroke="rgba(134, 239, 172, 0.9)" stroke-width="3" class="${labClass}" onmouseenter="showMapTooltip('Labo Pokémon du Prof. Chen', event, 'green')" onmousemove="moveMapTooltip(event)" onmouseleave="hideMapTooltip()" onclick="enterLab()"></rect>
                 </a>
@@ -4350,6 +4547,23 @@ function renderTeam() {
         const candyMode = state.candyMode;
         const isCandyTarget = candyMode && state.candyTargetIdx === i;
         const isInteractive = swapMode || candyMode || state.shinyTokenMode || state.everstoneMode;
+        const isEgg = p.isEgg;
+        const isDaycareSelect = state.daycareMode && state.daycareMode.active;
+        
+        let borderClass = (isInteractive || isDaycareSelect) ? 'border-blue-400 bg-blue-900/30 cursor-pointer animate-pulse' : 'border-slate-600 bg-slate-700/40';
+        
+        if (state.everstoneMode) {
+             const stage = getEvolutionStage(p.id);
+             const canEvolve = EVOLUTIONS[p.id] !== undefined;
+             if (p.everstone) {
+                 borderClass = 'border-red-400 bg-red-900/30 cursor-pointer'; // Retrait possible
+             } else if (stage === 1 && canEvolve) {
+                 borderClass = 'border-green-400 bg-green-900/30 cursor-pointer animate-pulse'; // Compatible
+             } else {
+                 borderClass = 'border-gray-700 bg-gray-800/50 opacity-50 cursor-not-allowed'; // Incompatible
+             }
+        }
+
         const mult = !enemy.dead ? getMultiplier(p.id, enemy.id) : 1;
         const multColor = mult > 1 ? "text-green-400" : mult < 1 ? "text-red-400" : "text-gray-400";
         const pTypes = getTypes(p.id);
@@ -4357,12 +4571,12 @@ function renderTeam() {
         const shinyClass = p.isShiny ? "shiny-glow" : "";
         const shinyIcon = p.isShiny ? "<span class='text-yellow-400 ml-1'>✦</span>" : "";
         const shinyDpsMult = p.isShiny ? 1.5 : 1;
-        const happyMult = 1 + ((p.happiness || 0) * 0.001);
+        const happyMult = isEgg ? 1 : 1 + ((p.happiness || 0) * 0.001);
         const everstoneBonus = p.everstone ? 1.25 : 1;
         const everstoneIcon = p.everstone ? "<span class='text-gray-400 ml-1' title='Pierre Stase'>🪨</span>" : "";
         let baseStat = BASE_STATS[p.id] || 40;
         let rawDmg = (baseStat * p.level) / 5;
-        const xpPct = p.level >= 100 ? 100 : Math.min(100, (p.xp / p.maxXp) * 100);
+        const xpPct = isEgg ? Math.min(100, (p.hatchSteps / p.maxSteps) * 100) : (p.level >= 100 ? 100 : Math.min(100, (p.xp / p.maxXp) * 100));
         
         const isEvolving = p.uid === evolvingPokemon.uid && Date.now() < evolvingPokemon.endTime;
         const animClass = isEvolving ? "evolving" : "";
@@ -4398,19 +4612,23 @@ function renderTeam() {
             }
         }
 
+        if (isEgg) {
+            displayImg = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lucky-egg.png";
+        }
+
         const genderSymbol = p.gender === 'male' ? '<span class="text-blue-400 text-[10px] ml-1 font-bold">♂</span>' : (p.gender === 'female' ? '<span class="text-pink-400 text-[10px] ml-1 font-bold">♀</span>' : '');
 
         const nameDisplay = `
         <div class="flex items-center gap-1 min-w-0 relative z-10">
-            <div class="text-xs font-bold text-gray-200 truncate">${typeIcon}${p.name}${shinyIcon}${everstoneIcon}${p.isFavorite?"<span class='text-yellow-400 text-[10px] ml-1'>★</span>":""}</div>
-        </div>`;
+            <div class="text-xs font-bold text-gray-200 truncate">${isEgg ? '' : typeIcon}${p.name}${!isEgg ? shinyIcon : ''}${everstoneIcon}${p.isFavorite?"<span class='text-yellow-400 text-[10px] ml-1'>★</span>":""}</div>
+        </div>`
 
         html += `
-        <div oncontextmenu="openContextMenu('team', ${i}, event)" onclick="${isInteractive ? `handleTeamClick(${i})` : `openContextMenu('team', ${i}, event)`}" class="flex items-center p-2 rounded border ${isInteractive?'border-blue-400 bg-blue-900/30 cursor-pointer animate-pulse':'border-slate-600 bg-slate-700/40'} hover:bg-slate-700 transition group">
-            <img src="${displayImg}" class="w-10 h-10 mr-3 ${shinyClass} ${animClass} ${specialClass}">
+        <div data-uid="${p.uid}" oncontextmenu="openContextMenu('team', ${i}, event)" onclick="${(isInteractive || isDaycareSelect) ? `handleTeamClick(${i})` : `openContextMenu('team', ${i}, event)`}" class="flex items-center p-2 rounded border ${borderClass} hover:bg-slate-700 transition group">
+            <img src="${displayImg}" class="w-10 h-10 mr-3 ${!isEgg ? shinyClass : ''} ${animClass} ${specialClass}">
             <div class="flex-1 min-w-0">
                 ${nameDisplay}
-                <div class="text-[10px] text-yellow-500">DPS: ${(rawDmg*mult*shinyDpsMult*happyMult*everstoneBonus).toFixed(1)} <span class="${multColor} text-[8px]">x${mult}</span>${genderSymbol}</div>
+                <div class="team-dps-text text-[10px] text-yellow-500">${isEgg ? `<span class="text-gray-400">Éclosion: ${p.hatchSteps}/${p.maxSteps}</span>` : `DPS: ${(rawDmg*mult*shinyDpsMult*happyMult*everstoneBonus).toFixed(1)} <span class="${multColor} text-[8px]">x${mult}</span>${genderSymbol}`}</div>
             </div>
             ${!swapMode ? `
             ${isCandyTarget ? `
@@ -4423,10 +4641,10 @@ function renderTeam() {
             </div>
             ` : `
             <div class="flex items-center gap-1">
-                <div class="w-12 h-1.5 bg-slate-800 rounded-full overflow-hidden relative border border-slate-600 mr-1" title="XP: ${Math.floor(p.xp)}/${p.maxXp}">
-                    <div class="h-full bg-blue-500 transition-all duration-300" style="width:${xpPct}%"></div>
+                <div class="w-12 h-1.5 bg-slate-800 rounded-full overflow-hidden relative border border-slate-600 mr-1" title="${isEgg ? 'Pas' : 'XP'}">
+                    <div class="team-xp-bar h-full ${isEgg ? 'bg-yellow-500' : 'bg-blue-500'} transition-all duration-300" style="width:${xpPct}%"></div>
                 </div>
-                <span class="text-[10px] text-blue-300 mr-1">Lv.${p.level}</span>
+                <span class="team-level-text text-[10px] text-blue-300 mr-1">${isEgg ? '' : `Lv.${p.level}`}</span>
                 ${evo ? `<button onclick="evolve(${p.uid}); event.stopPropagation();" class="bg-purple-600 text-white text-[9px] px-2 py-1 rounded animate-pulse">EVO</button>` : ''}
             </div>`}
             ` : `<div class="text-[9px] text-blue-300 font-bold">REMPLACER</div>`}
@@ -4440,6 +4658,7 @@ function renderTeam() {
 function renderPC() {
     const desktopContent = document.getElementById('pc-content');
     const mobileContent = document.getElementById('mobile-pc-content');
+    const isDaycareSelect = state.daycareMode && state.daycareMode.active;
 
     if(state.unlockedZone<3 && state.zoneIdx<3) { 
         document.getElementById('pc-locked').classList.remove('hidden'); 
@@ -4464,7 +4683,7 @@ function renderPC() {
         if (pNameLower === "daran") pcImg = `img/EasterEgg/DaranStade${getEvolutionStage(p.id)}.png`;
 
         html += `
-        <div oncontextmenu="openContextMenu('pc', ${i}, event)" onclick="openContextMenu('pc', ${i}, event)" class="flex justify-between items-center bg-gray-900/80 p-2 mb-1 border-b border-green-900 cursor-pointer hover:bg-gray-800/80">
+        <div oncontextmenu="openContextMenu('pc', ${i}, event)" onclick="${isDaycareSelect ? `depositToDaycare('pc', ${i})` : `openContextMenu('pc', ${i}, event)`}" class="flex justify-between items-center bg-gray-900/80 p-2 mb-1 border-b border-green-900 cursor-pointer hover:bg-gray-800/80 ${isDaycareSelect ? 'border-l-4 border-l-blue-500 bg-blue-900/20' : ''}">
             <div class="flex items-center gap-2">
                 <img src="${pcImg}" class="w-8 h-8 ${shinyClass} ${specialClass}">
                 <div>
@@ -4565,7 +4784,8 @@ function renderBag() {
         <div><div class="text-xs text-gray-400">Poké Poupée</div><div class="text-sm font-bold">x${state.inv.pokeDoll} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
     </div>`;
     }
-    if(state.inv.everstone>0) {
+    const hasEquippedEverstone = state.team.some(p => p.everstone);
+    if(state.inv.everstone>0 || hasEquippedEverstone) {
         consumables += `
     <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 cursor-pointer hover:bg-slate-600" onclick="initEverstoneUse()" title="${ITEMS.everstone.desc}">
         <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/everstone.png" class="w-6 h-6">
@@ -4821,6 +5041,11 @@ function updateFalseSwipeBtn() {
             b.innerHTML = `<span class="material-symbols-outlined ${iconSize}">lock</span>`;
             b.disabled = true;
             b.title = "Fauchage (Nécessite CT Fauchage)";
+        } else if (enemy.isBoss) {
+            b.className = `${baseClass} bg-slate-700 text-gray-400 border border-slate-600 cursor-not-allowed`;
+            b.innerHTML = `<span class="material-symbols-outlined ${iconSize}">block</span>`;
+            b.disabled = true;
+            b.title = `Inutilisable sur un Boss`;
         } else if (onCooldown) {
             const remaining = Math.ceil((state.falseSwipeCooldown - now) / 1000);
             b.className = `${baseClass} bg-slate-700 text-gray-400 border border-slate-600 cursor-not-allowed`;
@@ -5088,6 +5313,263 @@ function openMobileSubView(viewId) {
 function closeMobileSubViews() {
     document.getElementById('mobile-main-menu').classList.remove('hidden');
     document.getElementById('mobile-subview-container').classList.add('hidden');
+}
+
+// --- DAYCARE SYSTEM ---
+
+function exitDaycare() {
+    state.daycareMode = { active: false, slotIdx: null };
+    renderTeam(); renderPC();
+    changeZone(1); // Go back to Zone 0 (Pallet Town)
+}
+
+function selectDaycareParent(slotIdx) {
+    if (state.daycare.parents[slotIdx]) {
+        // Withdraw
+        if (state.team.length < 6) {
+            state.team.push(state.daycare.parents[slotIdx]);
+            state.daycare.parents[slotIdx] = null;
+            playTone('pc');
+            renderDaycare();
+            renderTeam();
+        } else {
+            state.pc.push(state.daycare.parents[slotIdx]);
+            state.daycare.parents[slotIdx] = null;
+            playTone('pc');
+            showFeedback("RENVOYÉ AU PC", "blue");
+            renderDaycare();
+        }
+    } else {
+        // Activate Selection Mode
+        if (state.daycareMode.active && state.daycareMode.slotIdx === slotIdx) {
+            // Cancel if clicking same slot
+            state.daycareMode = { active: false, slotIdx: null };
+            renderTeam(); renderPC();
+        } else {
+            state.daycareMode = { active: true, slotIdx: slotIdx };
+            state.candyMode = false;
+            state.shinyTokenMode = false;
+            state.swapIdx = null;
+            showFeedback("SÉLECTIONNEZ UN POKÉMON (ÉQUIPE OU PC)", "blue");
+            renderTeam();
+            renderPC();
+        }
+    }
+}
+
+function depositToDaycare(source, index) {
+    if (!state.daycareMode || !state.daycareMode.active) return;
+    
+    const slot = state.daycareMode.slotIdx;
+    let p;
+    
+    if (source === 'team') {
+        if (state.team.length <= 1) { showFeedback("IMPOSSIBLE (DERNIER POKÉMON)", "red"); return; }
+        if (countActivePokemon() <= 1 && !state.team[index].isEgg) { showFeedback("IL FAUT 1 POKÉMON ACTIF !", "red"); return; }
+        p = state.team.splice(index, 1)[0];
+    } else {
+        p = state.pc.splice(index, 1)[0];
+    }
+    
+    state.daycare.parents[slot] = p;
+    state.daycareMode = { active: false, slotIdx: null };
+    
+    playTone('pc');
+    renderDaycare();
+    renderTeam();
+    renderPC();
+    updateUI();
+}
+
+function checkDaycareCompatibility() {
+    const [p1, p2] = state.daycare.parents;
+    if (!p1 || !p2) return 0;
+
+    const isDitto1 = p1.id === 132;
+    const isDitto2 = p2.id === 132;
+
+    // Case: Ditto + Ditto
+    if (isDitto1 && isDitto2) return 0.04;
+
+    // Case: One Ditto
+    if (isDitto1 || isDitto2) return 0.04;
+
+    // Case: Standard (M+F)
+    if (p1.gender !== 'genderless' && p2.gender !== 'genderless' && p1.gender !== p2.gender) {
+        const base1 = getBaseForm(p1.id);
+        const base2 = getBaseForm(p2.id);
+        
+        if (base1 === base2) return 0.04; // Same Species
+        
+        // Check Types
+        const t1 = getTypes(p1.id);
+        const t2 = getTypes(p2.id);
+        const shareType = t1.some(t => t2.includes(t));
+        
+        if (shareType) return 0.02;
+    }
+
+    return 0;
+}
+
+function processDaycare() {
+    if (!state.daycare.unlocked) return;
+    
+    // Egg Laying
+    if (state.daycare.eggs.length < state.daycare.slots) {
+        const chance = checkDaycareCompatibility();
+        if (chance > 0 && Math.random() < chance) {
+            // Generate Egg
+            const [p1, p2] = state.daycare.parents;
+            let speciesId;
+            
+            if (p1.id === 132 && p2.id === 132) {
+                // Random Base
+                let rndId = Math.floor(Math.random() * 151) + 1;
+                speciesId = getBaseForm(rndId);
+            } else if (p1.id === 132) {
+                speciesId = getBaseForm(p2.id);
+            } else if (p2.id === 132) {
+                speciesId = getBaseForm(p1.id);
+            } else {
+                // Mother's species
+                speciesId = p1.gender === 'female' ? getBaseForm(p1.id) : getBaseForm(p2.id);
+            }
+
+            const isShiny = Math.random() < 0.125; // 1/8
+            state.daycare.eggs.push({
+                speciesId: speciesId,
+                isShiny: isShiny,
+                ticks: 0,
+                maxTicks: 25,
+                hatched: false
+            });
+            if (state.zoneIdx === -1) renderDaycare();
+        }
+    }
+}
+
+function withdrawEgg(idx) {
+    const egg = state.daycare.eggs[idx];
+    if (!egg) return;
+
+    // Gender
+    let gender = Math.random() < 0.5 ? 'male' : 'female';
+    if (GENDERLESS_IDS.includes(egg.speciesId)) gender = 'genderless';
+    else if (ALWAYS_MALE_IDS.includes(egg.speciesId)) gender = 'male';
+    else if (ALWAYS_FEMALE_IDS.includes(egg.speciesId)) gender = 'female';
+    
+    // Create Egg Object for Team
+    const eggObj = {
+        id: egg.speciesId,
+        name: "Oeuf",
+        level: 1,
+        isShiny: egg.isShiny,
+        gender: gender,
+        happiness: 0,
+        xp: 0,
+        maxXp: calcMaxXp(egg.speciesId, 1),
+        uid: Date.now() + Math.random(),
+        img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lucky-egg.png",
+        isFavorite: false,
+        isEgg: true,
+        hatchSteps: 0,
+        maxSteps: 25
+    };
+
+    if (state.team.length < 6) {
+        state.team.push(eggObj);
+        showFeedback("OEUF RÉCUPÉRÉ !", "green");
+    } else {
+        state.pc.push(eggObj);
+        showFeedback("OEUF -> PC", "blue");
+    }
+    
+    playTone('up');
+    state.daycare.eggs.splice(idx, 1);
+    addToPokedex(egg.speciesId);
+    renderDaycare();
+}
+
+function buyEggSlot() {
+    if (state.daycare.slots >= 5) return;
+    const cost = (state.daycare.slots) * 5000; // 1->2 (5k), 2->3 (10k)...
+    if (state.money >= cost) {
+        state.money -= cost;
+        state.daycare.slots++;
+        playTone('coin');
+        renderDaycare();
+        updateUI();
+    } else {
+        showFeedback("PAS ASSEZ D'ARGENT", "red");
+    }
+}
+
+function renderDaycare() {
+    // Parents
+    [0, 1].forEach(i => {
+        const p = state.daycare.parents[i];
+        const el = document.getElementById(`daycare-parent-${i}`);
+        if (p) {
+            let displayImg = p.img;
+            let specialClass = "";
+            const pNameLower = p.name.toLowerCase();
+            if (pNameLower === "dinnerbone" || pNameLower === "grumm") specialClass = "upside-down";
+            if (pNameLower === "jeb_") specialClass = "rainbow-anim";
+            if (pNameLower === "caca") specialClass = "caca-filter";
+            if (pNameLower === "daran") displayImg = `img/EasterEgg/DaranStade${getEvolutionStage(p.id)}.png`;
+
+            el.innerHTML = `<img src="${displayImg}" class="w-16 h-16 md:w-32 md:h-32 object-contain pokemon-float ${specialClass}"><div class="text-[10px] md:text-base font-bold text-white mt-1 text-center break-all px-1">${p.name}</div><div class="absolute top-1 right-1 text-red-500 font-bold text-lg md:text-2xl cursor-pointer hover:scale-125 transition" title="Reprendre">✕</div>`;
+            el.classList.add('border-green-500', 'bg-slate-800/90');
+            el.classList.remove('border-dashed', 'border-slate-500');
+        } else {
+            el.innerHTML = `<span class="text-[10px] md:text-base text-gray-500 mb-1">Déposer</span><span class="material-symbols-outlined text-gray-500 text-2xl md:text-5xl">add_circle</span>`;
+            el.classList.remove('border-green-500', 'bg-slate-700');
+            el.classList.add('border-dashed', 'border-slate-500', 'bg-slate-800/80');
+        }
+    });
+
+    // Chance
+    const chance = checkDaycareCompatibility();
+    const chanceEl = document.getElementById('daycare-chance');
+    chanceEl.innerText = `Chance de ponte: ${(chance * 100).toFixed(0)}%`;
+    chanceEl.className = `text-center text-sm md:text-xl font-bold mb-4 md:mb-8 bg-black/50 px-4 py-1 rounded shrink-0 pointer-events-auto ${chance > 0 ? 'text-green-400' : 'text-red-400'}`;
+
+    // Heart
+    const heart = document.getElementById('daycare-heart');
+    if (state.daycare.parents[0] && state.daycare.parents[1]) heart.classList.remove('hidden');
+    else heart.classList.add('hidden');
+
+    // Eggs
+    const list = document.getElementById('daycare-eggs-list');
+    list.innerHTML = '';
+    
+    // Render existing eggs
+    state.daycare.eggs.forEach((egg, i) => {        
+        list.innerHTML += `
+        <div class="w-16 h-16 md:w-24 md:h-24 bg-slate-800/90 rounded-lg md:rounded-xl flex items-center justify-center border-2 md:border-4 border-yellow-500 cursor-pointer hover:scale-110 transition shadow-lg relative group" onclick="withdrawEgg(${i})" title="Récupérer l'œuf">
+            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lucky-egg.png" class="w-8 h-8 md:w-12 md:h-12 animate-bounce">
+            <div class="absolute -bottom-2 bg-green-600 text-white text-[8px] md:text-[10px] font-bold px-1 py-0.5 rounded opacity-100 md:opacity-0 md:group-hover:opacity-100 transition">PRENDRE</div>
+        </div>`;
+    });
+
+    // Render empty/buyable slots
+    for (let i = state.daycare.eggs.length; i < 5; i++) {
+        if (i < state.daycare.slots) {
+            list.innerHTML += `
+            <div class="w-16 h-16 md:w-24 md:h-24 bg-slate-800/50 rounded-lg md:rounded-xl flex items-center justify-center border-2 md:border-4 border-dashed border-slate-600">
+                <span class="text-[8px] md:text-[10px] text-gray-600">Vide</span>
+            </div>`;
+        } else {
+            const cost = (i) * 5000;
+            const canBuy = state.money >= cost;
+            list.innerHTML += `
+            <div class="w-16 h-16 md:w-24 md:h-24 bg-slate-900/80 rounded-lg md:rounded-xl flex flex-col items-center justify-center border-2 md:border-4 border-slate-700 opacity-70 hover:opacity-100 cursor-pointer transition" onclick="buyEggSlot()">
+                <span class="material-symbols-outlined text-gray-500 text-lg md:text-2xl">lock</span>
+                <div class="text-[8px] md:text-[10px] text-yellow-500 font-bold mt-1">${cost/1000}k$</div>
+            </div>`;
+        }
+    }
 }
 
 // --- GAME LOOP & START ---
