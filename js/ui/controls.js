@@ -343,7 +343,7 @@ function renderStats() {
         </div>
         <div class="bg-slate-800 rounded p-3 border border-slate-700 mb-4">
             <div class="text-[10px] text-gray-400">ARGENT TOTAL</div>
-            <div class="text-xl font-bold text-yellow-400 pixel-font">${(state.stats.totalMoney || state.money).toLocaleString('de-DE')} $</div>
+            <div class="text-xl font-bold text-yellow-400 pixel-font">${formatMoney(state.stats.totalMoney || state.money)} $</div>
         </div>
         
         ${statBlock("DÉGÂTS CLIC", baseClick, clickMults, currentClick, "touch_app", "red", "Base (5+0.2% DPS)")}

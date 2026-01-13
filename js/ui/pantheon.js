@@ -88,7 +88,11 @@ function startPantheonSequence() {
     itemDisplay.classList.add('hidden');
 
     // Reset professor sprite for new animation
-    prof.src = "img/kanto/sprites/SpriteChen1.png";
+    if (typeof swapProfSprite === 'function') {
+        swapProfSprite("img/kanto/sprites/SpriteChen1.png");
+    } else {
+        prof.src = "img/kanto/sprites/SpriteChen1.png";
+    }
     prof.classList.remove('opacity-0', 'translate-x-full');
     prof.style.transition = 'transform 1.5s ease-out';
     prof.style.right = 'auto';

@@ -17,9 +17,24 @@ function updateShopPrices() {
     });
 }
 
+function formatMoney(value) {
+    const n = Number(value) || 0;
+    const abs = Math.abs(n);
+    const formatShort = (num, unit, decimals) => {
+        const out = (num / unit).toFixed(decimals);
+        return `${out.replace(/\.0$/, "")}${unit === 1e3 ? "K" : unit === 1e6 ? "M" : unit === 1e9 ? "B" : "T"}`;
+    };
+
+    if (abs >= 1e12) return formatShort(n, 1e12, abs < 1e13 ? 1 : 0);
+    if (abs >= 1e9) return formatShort(n, 1e9, abs < 1e10 ? 1 : 0);
+    if (abs >= 1e6) return formatShort(n, 1e6, abs < 1e7 ? 1 : 0);
+    if (abs >= 1e4) return formatShort(n, 1e3, abs < 1e5 ? 1 : 0);
+    return n.toLocaleString('fr-FR');
+}
+
 
 function updateUI() {
-    document.getElementById('money-display').innerText = state.money.toLocaleString('de-DE');
+    document.getElementById('money-display').innerText = formatMoney(state.money);
     const currentDps = getDPS(enemy.dead ? null : enemy.id).toFixed(1);
     document.getElementById('total-dps').innerText = currentDps;
     if(document.getElementById('total-dps-m')) document.getElementById('total-dps-m').innerText = currentDps;

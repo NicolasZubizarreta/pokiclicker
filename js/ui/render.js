@@ -41,7 +41,7 @@ function renderTeam() {
         const shinyDpsMult = p.isShiny ? 1.5 : 1;
         const happyMult = isEgg ? 1 : 1 + ((p.happiness || 0) * 0.001);
         const everstoneBonus = p.everstone ? 1.25 : 1;
-        const everstoneIcon = p.everstone ? "<span class='text-gray-400 ml-1' title='Pierre Stase'>🪨</span>" : "";
+        const everstoneIcon = p.everstone ? "<span class='text-gray-400 ml-1' title='Pierre Stase'>⏳</span>" : "";
         let baseStat = BASE_STATS[p.id] || 40;
         let rawDmg = (baseStat * p.level) / 5;
         const xpPct = isEgg ? Math.min(100, (p.hatchSteps / p.maxSteps) * 100) : (p.level >= 100 ? 100 : Math.min(100, (p.xp / p.maxXp) * 100));
@@ -124,6 +124,22 @@ function renderTeam() {
 }
 
 
+const PC_PAGE_SIZE = 20;
+
+function setPcPage(page) {
+    const totalPages = Math.max(1, Math.ceil(state.pc.length / PC_PAGE_SIZE));
+    const next = Math.min(Math.max(1, page), totalPages);
+    if (state.pcPage !== next) state.pcPage = next;
+    renderPC();
+}
+
+function nextPcPage() {
+    setPcPage((state.pcPage || 1) + 1);
+}
+
+function prevPcPage() {
+    setPcPage((state.pcPage || 1) - 1);
+}
 function renderPC() {
     const desktopContent = document.getElementById('pc-content');
     const mobileContent = document.getElementById('mobile-pc-content');
@@ -178,6 +194,7 @@ function sortPC(method) {
     } else if (method === 'favorite') {
         state.pc.sort((a, b) => (b.isFavorite === a.isFavorite) ? (a.id - b.id) : (b.isFavorite ? 1 : -1));
     }
+    state.pcPage = 1;
     renderPC();
 }
 
@@ -409,6 +426,9 @@ function renderPokedex() {
         g.appendChild(div);
     }
 }
+
+
+
 
 
 

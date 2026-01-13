@@ -20,9 +20,10 @@ let state = {
     money: 0, 
     inv: { balls: 0, superballs: 0, hyperballs: 0, candy: 0, omniExp: 0, shinyToken: 0, masterball: 0, repel: 0, xAttack: 0, xSpecial: 0, superRepel: 0, pokeDoll: 0, everstone: 0 },
     upgrades: { runningShoes: false, amuletCoin: false, protein: false, expShare: false, hardStone: false, bicycle: false, luckyEgg: false, leftovers: false, pokeradar: false, falseSwipe: false, shinyCharm: false, diploma: false },
-    team: [],
+    team: [], 
     currentRegion: "kanto",
-johtoUnlocked: false,
+    johtoUnlocked: false,
+    pcPage: 1,
     boatClicked: false,
     introBagUnlocked: false,
     introMapUnlocked: false,
@@ -84,6 +85,25 @@ let introTyping = false;
 let selectedStarterId = null;
 let isEndingSequence = false;
 
+function swapProfSprite(src, delayMs = 0) {
+    const prof = document.getElementById('intro-prof');
+    if (!prof || !src) return;
+    if (prof.src.endsWith(src)) return;
+    const fadeMs = 250;
+    const doSwap = () => {
+        prof.style.transition = `transform 1.5s cubic-bezier(0.25, 1, 0.5, 1), opacity ${fadeMs}ms ease-in-out`;
+        prof.style.opacity = '0';
+        const img = new Image();
+        img.onload = () => {
+            prof.src = src;
+            requestAnimationFrame(() => { prof.style.opacity = '1'; });
+        };
+        img.src = src;
+    };
+    if (delayMs > 0) setTimeout(doSwap, delayMs);
+    else doSwap();
+}
+
 // --- INIT ---
 function init() {
     // Check for save
@@ -136,9 +156,11 @@ function startIntro() {
     prof.style.transition = 'none';
     prof.style.right = "auto";
     prof.style.left = "50%";
-    prof.style.transform = "translateX(100vw)"; // Start way off screen right
+    // Start just outside the playable area on the right.
+    prof.style.transform = "translateX(120%)";
     prof.src = "img/kanto/sprites/SpriteChen1.png";
     prof.classList.remove('opacity-0');
+    prof.style.opacity = '1';
     box.classList.add('hidden');
     selection.classList.add('hidden');
     selection.classList.remove('flex');
@@ -149,11 +171,10 @@ function startIntro() {
     
     // Phase 1: Enter Professor (Animated)
     requestAnimationFrame(() => {
-        prof.style.transition = 'transform 1.5s cubic-bezier(0.25, 1, 0.5, 1)';
-        prof.style.transform = "translateX(50%)"; // Center (since right is auto and left is 50%, translate 50% moves it to visual center relative to itself if origin is correct, but here we want to center it. Let's adjust.)
-        // Correction for centering absolute element with left 50%:
-        prof.style.transform = "translateX(50%)"; 
-        
+        prof.style.transition = 'transform 1.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 250ms ease-in-out';
+        // Center the sprite.
+        prof.style.transform = "translateX(-50%)";
+
         setTimeout(() => {
             box.classList.remove('hidden');
             box.classList.add('flex');
@@ -246,36 +267,11 @@ function nextDialog() {
         }
     } else {
         // Intro Logic
-        const prof = document.getElementById('intro-prof');
         if ((activeDialogs === INTRO_DIALOGS || activeDialogs === PANTHEON_DIALOGS) && currentIndex === 2) {
-            prof.classList.remove('duration-[1500ms]');
-            prof.classList.add('duration-500');
-            prof.classList.add('opacity-0');
-            setTimeout(() => {
-                prof.src = "img/kanto/sprites/SpriteChen2.png";
-                prof.classList.remove('duration-500');
-                prof.classList.add('duration-1000');
-                requestAnimationFrame(() => prof.classList.remove('opacity-0'));
-                setTimeout(() => {
-                    prof.classList.remove('duration-1000');
-                    prof.classList.add('duration-[1500ms]');
-                }, 1000);
-            }, 500);
+            swapProfSprite("img/kanto/sprites/SpriteChen2.png", 350);
         }
         if (activeDialogs === INTRO_DIALOGS && currentIndex === 4) {
-            prof.classList.remove('duration-[1500ms]');
-            prof.classList.add('duration-500');
-            prof.classList.add('opacity-0');
-            setTimeout(() => {
-                prof.src = "img/kanto/sprites/SpriteChen3.png";
-                prof.classList.remove('duration-500');
-                prof.classList.add('duration-1000');
-                requestAnimationFrame(() => prof.classList.remove('opacity-0'));
-                setTimeout(() => {
-                    prof.classList.remove('duration-1000');
-                    prof.classList.add('duration-[1500ms]');
-                }, 1000);
-            }, 500);
+            swapProfSprite("img/kanto/sprites/SpriteChen3.png", 350);
         }
         
         // Unlocks

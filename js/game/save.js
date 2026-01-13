@@ -50,6 +50,7 @@ function loadData(data) {
     if(state.johtoUnlocked === undefined) state.johtoUnlocked = false;
     if(!state.currentRegion) state.currentRegion = ACTIVE_REGION_KEY;
     if(!REGIONS || !REGIONS[state.currentRegion]) state.currentRegion = ACTIVE_REGION_KEY;
+    if(state.pcPage === undefined) state.pcPage = 1;
     if(state.hasSeenPantheonIntro === undefined) state.hasSeenPantheonIntro = false;
     if(state.boatClicked === undefined) state.boatClicked = false;
     if(state.hasVisitedRoute1 === undefined) state.hasVisitedRoute1 = false;
