@@ -3,7 +3,7 @@
 Un Clicker Pokémon complet développé avec amour.
 ## Fonctionnalités
 - Capture, Équipe, PC, Évolution
-- 5 Zones avec Boss
+- 21 Zones avec Boss
 - Sauvegarde locale via ce fichier
 ## Instructions
 Ouvrez index.html dans un navigateur pour jouer.

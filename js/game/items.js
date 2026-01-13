@@ -1,0 +1,178 @@
+﻿// --- MODULE ---
+
+function initShinyTokenUse() {
+    if(state.inv.shinyToken <= 0) return;
+    state.shinyTokenMode = true;
+    state.candyMode = false;
+    state.swapIdx = null;
+    showFeedback("SÉLECTIONNEZ UN POKÉMON", "yellow");
+    renderTeam();
+}
+
+
+function useShinyTokenOn(i) {
+    const p = state.team[i];
+    if (p.isShiny) { showFeedback("DÉJÀ SHINY !", "red"); return; }
+    if(confirm(`Utiliser un Jeton Shiny sur ${p.name} ?`)) {
+        state.inv.shinyToken--;
+        p.isShiny = true;
+        p.img = getSprite(p.id, true);
+        state.shinyTokenMode = false;
+        playTone('up'); showFeedback("SHINY !!!", "purple");
+        renderTeam(); renderBag(); updateUI();
+    }
+}
+
+
+function useRepel() {
+    if(state.inv.repel > 0) {
+        state.inv.repel--;
+        const now = Date.now();
+        state.repelEndTime = (state.repelEndTime > now ? state.repelEndTime : now) + 30000;
+        showFeedback("REPOUSSE ACTIF !", "gray");
+        renderBag();
+        updateActiveEffects();
+    }
+}
+
+
+function useXAttack() {
+    if(state.inv.xAttack > 0) {
+        state.inv.xAttack--;
+        const now = Date.now();
+        state.attackBoostEndTime = (state.attackBoostEndTime > now ? state.attackBoostEndTime : now) + 30000;
+        showFeedback("ATTAQUE + ACTIF !", "red");
+        renderBag();
+        updateActiveEffects();
+    }
+}
+
+
+function useXSpecial() {
+    if(state.inv.xSpecial > 0) {
+        state.inv.xSpecial--;
+        const now = Date.now();
+        state.dpsBoostEndTime = (state.dpsBoostEndTime > now ? state.dpsBoostEndTime : now) + 30000;
+        showFeedback("DPS x2 ACTIF !", "blue");
+        renderBag();
+        updateActiveEffects();
+    }
+}
+
+
+function useSuperRepel() {
+    if(state.inv.superRepel > 0) {
+        state.inv.superRepel--;
+        const now = Date.now();
+        state.superRepelEndTime = (state.superRepelEndTime > now ? state.superRepelEndTime : now) + 30000;
+        showFeedback("SUPER REPOUSSE !", "gray");
+        renderBag();
+        updateActiveEffects();
+    }
+}
+
+
+function usePokeDoll() {
+    if(state.inv.pokeDoll > 0) {
+        if(state.unlockedZone > state.zoneIdx) {
+            state.inv.pokeDoll--;
+            state.subStage = 10;
+            spawnEnemy();
+            showFeedback("BOSS INVOQUÉ !", "purple");
+            renderBag();
+        } else {
+            showFeedback("BOSS NON VAINCU !", "red");
+        }
+    }
+}
+
+
+function useFalseSwipe() {
+    if (!state.upgrades.falseSwipe) return;
+    const now = Date.now();
+    if (enemy.isBoss) {
+        showFeedback("INUTILE SUR UN BOSS !", "red");
+        return;
+    }
+    if (state.falseSwipeCooldown > now) return;
+    
+    enemy.isFalseSwiped = true;
+    state.falseSwipeCooldown = now + 30000; // 30s cooldown
+    
+    showFeedback("FAUCHAGE ACTIF !", "red");
+    updateFalseSwipeBtn();
+}
+
+
+function initCandyUse() {
+    if(state.inv.candy <= 0) return;
+    state.candyMode = true;
+    state.shinyTokenMode = false;
+    state.candyTargetIdx = null;
+    showFeedback("SÉLECTIONNEZ UN POKÉMON", "blue");
+    renderTeam();
+}
+
+
+function handleTeamClick(i) {
+    if (state.daycareMode && state.daycareMode.active) {
+        depositToDaycare('team', i);
+    } else if(state.swapIdx !== null) {
+        confirmSwap(i);
+    } else if (state.candyMode) {
+        if(state.team[i].level >= 100) {
+            showFeedback("NIVEAU MAX !", "red");
+            return;
+        }
+        state.candyTargetIdx = i;
+        state.candyAmount = 1;
+        renderTeam();
+    } else if (state.shinyTokenMode) {
+        useShinyTokenOn(i);
+    } else if (state.everstoneMode) {
+        useEverstoneOn(i);
+    }
+}
+
+
+function adjustCandyAmount(delta) {
+    if (state.candyTargetIdx === null) return;
+    const p = state.team[state.candyTargetIdx];
+    const maxUse = Math.min(state.inv.candy, 100 - p.level);
+    
+    let newAmt = state.candyAmount + delta;
+    if (newAmt < 1) newAmt = 1;
+    if (newAmt > maxUse) newAmt = maxUse;
+    
+    state.candyAmount = newAmt;
+    renderTeam();
+}
+
+
+function confirmCandyUse() {
+    if (state.candyTargetIdx === null) return;
+    const i = state.candyTargetIdx;
+    const p = state.team[i];
+    const count = state.candyAmount;
+    
+    if(count > 0 && state.inv.candy >= count) {
+        state.inv.candy -= count;
+        p.level += count;
+        p.maxXp = calcMaxXp(p.id, p.level);
+        playTone('up'); 
+        showFeedback(`+${count} NIVEAUX !`, "green");
+        
+        state.candyMode = false;
+        state.candyTargetIdx = null;
+        updateUI(); renderBag(); renderTeam(); 
+    }
+}
+
+
+function cancelCandyUse() {
+    state.candyMode = false;
+    state.candyTargetIdx = null;
+    renderTeam();
+}
+
+
