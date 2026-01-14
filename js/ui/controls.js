@@ -224,6 +224,16 @@ function hidePC() {
     document.getElementById('right-menu-view').classList.remove('hidden');
 }
 
+function showProfile() {
+    document.getElementById('right-menu-view').classList.add('hidden');
+    document.getElementById('profile-view').classList.remove('hidden');
+}
+
+function hideProfile() {
+    document.getElementById('profile-view').classList.add('hidden');
+    document.getElementById('right-menu-view').classList.remove('hidden');
+}
+
 
 function showStats() {
     document.getElementById('stats-modal').classList.remove('hidden');

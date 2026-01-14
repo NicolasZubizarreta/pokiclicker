@@ -1,4 +1,4 @@
-ï»¿// --- DAYCARE SYSTEM ---
+// --- DAYCARE SYSTEM ---
 
 function exitDaycare() {
     state.daycareMode = { active: false, slotIdx: null };
@@ -19,7 +19,7 @@ function selectDaycareParent(slotIdx) {
             state.pc.push(state.daycare.parents[slotIdx]);
             state.daycare.parents[slotIdx] = null;
             playTone('pc');
-            showFeedback("RENVOYÃ‰ AU PC", "blue");
+            showFeedback("RENVOYÉ AU PC", "blue");
             renderDaycare();
         }
     } else {
@@ -33,7 +33,7 @@ function selectDaycareParent(slotIdx) {
             state.candyMode = false;
             state.shinyTokenMode = false;
             state.swapIdx = null;
-            showFeedback("SÃ‰LECTIONNEZ UN POKÃ‰MON (Ã‰QUIPE OU PC)", "blue");
+            showFeedback("SÉLECTIONNEZ UN POKÉMON (ÉQUIPE OU PC)", "blue");
             renderTeam();
             renderPC();
         }
@@ -47,8 +47,8 @@ function depositToDaycare(source, index) {
     let p;
     
     if (source === 'team') {
-        if (state.team.length <= 1) { showFeedback("IMPOSSIBLE (DERNIER POKÃ‰MON)", "red"); return; }
-        if (countActivePokemon() <= 1 && !state.team[index].isEgg) { showFeedback("IL FAUT 1 POKÃ‰MON ACTIF !", "red"); return; }
+        if (state.team.length <= 1) { showFeedback("IMPOSSIBLE (DERNIER POKÉMON)", "red"); return; }
+        if (countActivePokemon() <= 1 && !state.team[index].isEgg) { showFeedback("IL FAUT 1 POKÉMON ACTIF !", "red"); return; }
         p = state.team.splice(index, 1)[0];
     } else {
         p = state.pc.splice(index, 1)[0];
@@ -162,7 +162,7 @@ function withdrawEgg(idx) {
 
     if (state.team.length < 6) {
         state.team.push(eggObj);
-        showFeedback("OEUF RÃ‰CUPÃ‰RÃ‰ !", "green");
+        showFeedback("OEUF RÉCUPÉRÉ !", "green");
     } else {
         state.pc.push(eggObj);
         showFeedback("OEUF -> PC", "blue");
@@ -202,11 +202,11 @@ function renderDaycare() {
             if (pNameLower === "caca") specialClass = "caca-filter";
             if (pNameLower === "daran") displayImg = `img/kanto/EasterEgg/DaranStade${getEvolutionStage(p.id)}.png`;
 
-            el.innerHTML = `<img src="${displayImg}" class="w-16 h-16 md:w-32 md:h-32 object-contain pokemon-float ${specialClass}"><div class="text-[10px] md:text-base font-bold text-white mt-1 text-center break-all px-1">${p.name}</div><div class="absolute top-1 right-1 text-red-500 font-bold text-lg md:text-2xl cursor-pointer hover:scale-125 transition" title="Reprendre">âœ•</div>`;
+            el.innerHTML = `<img src="${displayImg}" class="w-16 h-16 md:w-32 md:h-32 object-contain pokemon-float ${specialClass}"><div class="text-[10px] md:text-base font-bold text-white mt-1 text-center break-all px-1">${p.name}</div><div class="absolute top-1 right-1 text-red-500 font-bold text-lg md:text-2xl cursor-pointer hover:scale-125 transition" title="Reprendre">?</div>`;
             el.classList.add('border-green-500', 'bg-slate-800/90');
             el.classList.remove('border-dashed', 'border-slate-500');
         } else {
-            el.innerHTML = `<span class="text-[10px] md:text-base text-gray-500 mb-1">DÃ©poser</span><span class="material-symbols-outlined text-gray-500 text-2xl md:text-5xl">add_circle</span>`;
+            el.innerHTML = `<span class="text-[10px] md:text-base text-gray-500 mb-1">Déposer</span><span class="material-symbols-outlined text-gray-500 text-2xl md:text-5xl">add_circle</span>`;
             el.classList.remove('border-green-500', 'bg-slate-700');
             el.classList.add('border-dashed', 'border-slate-500', 'bg-slate-800/80');
         }
@@ -230,8 +230,8 @@ function renderDaycare() {
     // Render existing eggs
     state.daycare.eggs.forEach((egg, i) => {        
         list.innerHTML += `
-        <div class="w-16 h-16 md:w-24 md:h-24 bg-slate-800/90 rounded-lg md:rounded-xl flex items-center justify-center border-2 md:border-4 border-yellow-500 cursor-pointer hover:scale-110 transition shadow-lg relative group" onclick="withdrawEgg(${i})" title="RÃ©cupÃ©rer l'Å“uf">
-            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lucky-egg.png" class="w-8 h-8 md:w-12 md:h-12 animate-bounce">
+        <div class="w-12 h-12 md:w-20 md:h-20 bg-slate-800/90 rounded-lg md:rounded-xl flex items-center justify-center border-2 md:border-4 border-yellow-500 cursor-pointer hover:scale-110 transition shadow-lg relative group" onclick="withdrawEgg(${i})" title="Récupérer l'œuf">
+            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/lucky-egg.png" class="w-6 h-6 md:w-10 md:h-10 animate-bounce">
             <div class="absolute -bottom-2 bg-green-600 text-white text-[8px] md:text-[10px] font-bold px-1 py-0.5 rounded opacity-100 md:opacity-0 md:group-hover:opacity-100 transition">PRENDRE</div>
         </div>`;
     });
@@ -240,14 +240,14 @@ function renderDaycare() {
     for (let i = state.daycare.eggs.length; i < 5; i++) {
         if (i < state.daycare.slots) {
             list.innerHTML += `
-            <div class="w-16 h-16 md:w-24 md:h-24 bg-slate-800/50 rounded-lg md:rounded-xl flex items-center justify-center border-2 md:border-4 border-dashed border-slate-600">
+            <div class="w-12 h-12 md:w-20 md:h-20 bg-slate-800/50 rounded-lg md:rounded-xl flex items-center justify-center border-2 md:border-4 border-dashed border-slate-600">
                 <span class="text-[8px] md:text-[10px] text-gray-600">Vide</span>
             </div>`;
         } else {
             const cost = (i) * 5000;
             const canBuy = state.money >= cost;
             list.innerHTML += `
-            <div class="w-16 h-16 md:w-24 md:h-24 bg-slate-900/80 rounded-lg md:rounded-xl flex flex-col items-center justify-center border-2 md:border-4 border-slate-700 opacity-70 hover:opacity-100 cursor-pointer transition" onclick="buyEggSlot()">
+            <div class="w-12 h-12 md:w-20 md:h-20 bg-slate-900/80 rounded-lg md:rounded-xl flex flex-col items-center justify-center border-2 md:border-4 border-slate-700 opacity-70 hover:opacity-100 cursor-pointer transition" onclick="buyEggSlot()">
                 <span class="material-symbols-outlined text-gray-500 text-lg md:text-2xl">lock</span>
                 <div class="text-[8px] md:text-[10px] text-yellow-500 font-bold mt-1">${cost/1000}k$</div>
             </div>`;

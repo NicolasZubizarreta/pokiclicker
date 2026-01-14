@@ -37,7 +37,7 @@ function updateMobileMenuButtons() {
 function openMobileSubView(viewId) {
     document.getElementById('mobile-main-menu').classList.add('hidden');
     document.getElementById('mobile-subview-container').classList.remove('hidden');
-    const views = ['mobile-team-view', 'mobile-bag-view', 'mobile-shop-view', 'mobile-pc-view'];
+    const views = ['mobile-team-view', 'mobile-bag-view', 'mobile-shop-view', 'mobile-pc-view', 'mobile-profile-view'];
     views.forEach(id => document.getElementById(id).classList.add('hidden'));
     document.getElementById(viewId).classList.remove('hidden');
     document.getElementById(viewId).classList.add('flex');

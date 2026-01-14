@@ -324,10 +324,10 @@
                 <div class="absolute top-12 left-0 w-full text-center hidden pointer-events-none z-50" id="feedback-msg">
                     <span class="text-yellow-400 font-bold text-2xl pixel-font text-shadow-lg drop-shadow-lg">CAPTURED!</span>
                 </div>
-                <div id="mom-speech" class="absolute bottom-4 left-1/2 -translate-x-1/2 w-auto max-w-[90%] bg-white/90 text-black p-4 rounded-lg border-4 border-blue-500 pixel-font text-xs z-50 hidden shadow-xl text-center pointer-events-none">
+                <div id="mom-speech" class="absolute bottom-2 md:bottom-4 left-1/2 -translate-x-1/2 w-auto max-w-[90%] bg-white/90 text-black p-4 rounded-lg border-4 border-blue-500 pixel-font text-xs z-50 hidden shadow-xl text-center pointer-events-none">
                     Il n'y a rien à faire ici, sortons.
                 </div>
-                <div id="blue-speech" class="absolute bottom-4 left-1/2 -translate-x-1/2 w-auto max-w-[90%] bg-white/90 text-black p-4 rounded-lg border-4 border-blue-500 pixel-font text-xs z-50 hidden shadow-xl text-center pointer-events-none">
+                <div id="blue-speech" class="absolute bottom-2 md:bottom-4 left-1/2 -translate-x-1/2 w-auto max-w-[90%] bg-white/90 text-black p-4 rounded-lg border-4 border-blue-500 pixel-font text-xs z-50 hidden shadow-xl text-center pointer-events-none">
                     Eh pourquoi il a le droit à une maison en 3D lui ?
                 </div>
                 <div id="catch-tooltip" class="hidden absolute top-4 right-4 bg-black/90 border border-slate-500 p-3 rounded-lg text-xs text-white z-50 pointer-events-none shadow-xl backdrop-blur-sm min-w-[120px]"></div>
@@ -335,7 +335,7 @@
                 <img class="w-48 h-48 lg:w-72 lg:h-72 object-contain pokemon-float drop-shadow-2xl transition-all duration-100 cursor-pointer active:scale-95 pointer-events-auto" id="enemy-sprite" onclick="clickAttack(event)" onmouseenter="showCatchTooltip()" onmouseleave="hideCatchTooltip()" src="" draggable="false">
                 <div class="hidden absolute top-0 right-10 bg-red-600 text-white font-bold text-[10px] px-3 py-1 rounded border border-white shadow-lg animate-bounce" id="boss-badge" style="display: none;">BOSS</div>
 
-                <div id="daycare-panel" class="absolute inset-0 z-20 hidden flex flex-col items-center justify-center pointer-events-none p-2 overflow-y-auto custom-scroll">
+                <div id="daycare-panel" class="absolute inset-0 z-20 hidden flex flex-col items-center justify-start md:justify-center gap-2 md:gap-3 pt-2 md:pt-0 pb-24 md:pb-0 pointer-events-none p-2 overflow-y-auto custom-scroll min-h-0 w-full">
                     <!-- Parents Section -->
                     <div class="flex flex-row items-center justify-center gap-4 md:gap-16 mb-4 md:mb-6 mt-4 md:mt-16 w-full shrink-0 pointer-events-auto">
                         <div id="daycare-parent-0" class="w-24 h-32 md:w-40 md:h-56 bg-slate-800/80 border-4 md:border-8 border-dashed border-slate-500 rounded-xl md:rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-slate-700/90 transition relative shadow-xl shrink-0" onclick="selectDaycareParent(0)">
@@ -354,7 +354,7 @@
                     <div id="daycare-chance" class="text-center text-sm md:text-xl font-bold text-white mb-4 md:mb-8 bg-black/50 px-4 py-1 rounded shrink-0 pointer-events-auto">Chance: 0%</div>
                 
                     <!-- Eggs Section -->
-                    <div class="flex flex-wrap justify-center gap-2 md:gap-4 mb-4 md:mb-10 w-full shrink-0 pointer-events-auto" id="daycare-eggs-list"></div>
+                    <div class="grid grid-cols-5 gap-2 md:gap-3 mb-4 md:mb-10 w-full max-w-[320px] md:max-w-[520px] shrink-0 pointer-events-auto" id="daycare-eggs-list"></div>
                 </div>
             </div>
             
@@ -381,12 +381,6 @@
             <!-- Bottom Controls -->
             <div class="flex-none p-2 flex justify-start gap-2 pointer-events-auto">
                 <button class="bg-gray-800 text-gray-400 border border-gray-600 px-2 py-1 rounded text-[10px] font-bold hover:bg-gray-700 transition-all opacity-50 hover:opacity-100" id="cheat-btn" onclick="toggleCheat()" title="Active le mode triche">CHEAT</button>
-                <button class="bg-red-800 text-red-200 border border-red-600 px-2 py-1 rounded text-[10px] font-bold hover:bg-red-700 transition-all shadow-lg flex items-center gap-1" onclick="resetSave()">
-                    <span class="material-symbols-outlined text-[14px]">delete</span> RESET
-                </button>
-                <button class="bg-purple-900 text-purple-200 border border-purple-600 px-2 py-1 rounded text-[10px] font-bold hover:bg-purple-700 transition-all shadow-lg" onclick="testEndingSequence()">
-                    ENDGAME
-                </button>
             </div>
 
             <button id="radar-btn" onclick="toggleRadarModal()" title="Poké-Radar" class="absolute bottom-4 right-4 w-12 h-12 lg:w-16 lg:h-16 bg-slate-800 hover:bg-slate-700 rounded-full border-2 border-slate-600 flex items-center justify-center shadow-lg transition-all group disabled:opacity-50 disabled:cursor-not-allowed z-20 pointer-events-auto" disabled>
@@ -466,12 +460,30 @@
                 <button onclick="toggleBadges()" class="bg-slate-800 hover:bg-slate-700 text-yellow-300 border border-slate-600 p-2 rounded flex items-center justify-center gap-2 font-bold text-xs transition-all shadow-lg group">
                     <span class="material-symbols-outlined group-hover:scale-110 transition-transform">military_tech</span> BADGES
                 </button>
-                <button onclick="showStats()" class="bg-slate-800 hover:bg-slate-700 text-purple-300 border border-slate-600 p-2 rounded flex items-center justify-center gap-2 font-bold text-xs transition-all shadow-lg group">
-                    <span class="material-symbols-outlined group-hover:scale-110 transition-transform">bar_chart</span> STATISTIQUES
+                <button onclick="showProfile()" class="bg-slate-800 hover:bg-slate-700 text-blue-300 border border-slate-600 p-2 rounded flex items-center justify-center gap-2 font-bold text-xs transition-all shadow-lg group w-full">
+                    <span class="material-symbols-outlined group-hover:scale-110 transition-transform">person</span> PROFIL
                 </button>
-                <button onclick="exportSave()" class="bg-slate-800 hover:bg-slate-700 text-blue-300 border border-slate-600 p-2 rounded flex items-center justify-center gap-2 font-bold text-xs transition-all shadow-lg group">
-                    <span class="material-symbols-outlined group-hover:scale-110 transition-transform">save</span> SAUVER
+                <button class="bg-slate-700 text-gray-500 border border-slate-600 p-2 rounded flex items-center justify-center gap-2 font-bold text-xs transition-all shadow-lg opacity-60 cursor-not-allowed w-full" disabled>
+                    <span class="material-symbols-outlined">groups</span> LOBBY (en dev)
                 </button>
+            </div>
+            <div id="profile-view" class="absolute inset-0 flex flex-col bg-slate-900 hidden z-20">
+                <div class="p-2 bg-slate-800 text-center shadow-md border-b border-slate-700 z-10 flex justify-between items-center">
+                    <button onclick="hideProfile()" class="text-yellow-300 hover:text-white material-symbols-outlined text-lg bg-slate-800/80 rounded-full w-6 h-6 flex items-center justify-center">arrow_back</button>
+                    <span class="pixel-font text-[10px] text-yellow-300 tracking-wider">PROFIL</span>
+                    <span class="w-6 h-6"></span>
+                </div>
+                <div class="flex-1 overflow-y-auto p-3 space-y-3 custom-scroll">
+                    <button onclick="showStats()" class="bg-slate-800 hover:bg-slate-700 text-purple-300 border border-slate-600 p-2 rounded flex items-center justify-center gap-2 font-bold text-xs transition-all shadow-lg group w-full">
+                        <span class="material-symbols-outlined group-hover:scale-110 transition-transform">bar_chart</span> STATISTIQUES
+                    </button>
+                    <button onclick="exportSave()" class="bg-slate-800 hover:bg-slate-700 text-blue-300 border border-slate-600 p-2 rounded flex items-center justify-center gap-2 font-bold text-xs transition-all shadow-lg group w-full">
+                        <span class="material-symbols-outlined group-hover:scale-110 transition-transform">save</span> SAUVER
+                    </button>
+                    <button onclick="resetSave()" class="bg-red-800 text-red-200 border border-red-600 p-2 rounded flex items-center justify-center gap-2 font-bold text-xs hover:bg-red-700 transition-all shadow-lg group w-full">
+                        <span class="material-symbols-outlined text-[14px]">delete</span> RESET
+                    </button>
+                </div>
             </div>
             <div id="pc-view" class="absolute inset-0 flex flex-col bg-slate-900 hidden z-20">
                 <div class="p-2 bg-green-900/50 text-center shadow-md border-b border-green-800 z-10 flex justify-between items-center">
@@ -504,8 +516,8 @@
             <button id="mobile-btn-pc" onclick="openMobileSubView('mobile-pc-view')" class="bg-slate-800 rounded flex flex-col items-center justify-center text-xs font-bold text-green-300 border border-slate-600 active:bg-slate-700"><span class="material-symbols-outlined mb-1">computer</span>PC</button>
             <button onclick="togglePokedex()" class="bg-slate-800 rounded flex flex-col items-center justify-center text-xs font-bold text-red-400 border border-slate-600 active:bg-slate-700"><span class="material-symbols-outlined mb-1">book</span>POKÉDEX</button>
             <button onclick="toggleBadges()" class="bg-slate-800 rounded flex flex-col items-center justify-center text-xs font-bold text-yellow-500 border border-slate-600 active:bg-slate-700"><span class="material-symbols-outlined mb-1">military_tech</span>BADGES</button>
-            <button onclick="showStats()" class="bg-slate-800 rounded flex flex-col items-center justify-center text-xs font-bold text-purple-400 border border-slate-600 active:bg-slate-700"><span class="material-symbols-outlined mb-1">bar_chart</span>STATS</button>
-            <button onclick="exportSave()" class="bg-slate-800 rounded flex flex-col items-center justify-center text-xs font-bold text-blue-200 border border-slate-600 active:bg-slate-700"><span class="material-symbols-outlined mb-1">save</span>SAUVER</button>
+            <button onclick="openMobileSubView('mobile-profile-view')" class="bg-slate-800 rounded flex flex-col items-center justify-center text-xs font-bold text-blue-300 border border-slate-600 active:bg-slate-700"><span class="material-symbols-outlined mb-1">person</span>PROFIL</button>
+            <button class="bg-slate-800 rounded flex flex-col items-center justify-center text-xs font-bold text-gray-500 border border-slate-600 opacity-60 cursor-not-allowed" disabled><span class="material-symbols-outlined mb-1">groups</span>LOBBY (en dev)</button>
         </div>
 
         <!-- Sub-views Container -->
@@ -555,6 +567,23 @@
                 </div>
                 <div id="mobile-pc-content" class="flex-1 overflow-y-auto p-2 pc-screen custom-scroll bg-black"></div>
                 <div id="mobile-pc-pagination" class="p-2 bg-green-950/60 border-t border-green-900"></div>
+            </div>
+            <div id="mobile-profile-view" class="h-full w-full flex-col hidden bg-slate-800 absolute inset-0">
+                <div class="p-2 bg-slate-700 flex items-center gap-2 border-b border-slate-600 shrink-0">
+                    <button onclick="closeMobileSubViews()" class="material-symbols-outlined text-white hover:text-yellow-400">arrow_back</button>
+                    <h3 class="pixel-font text-xs text-yellow-300">PROFIL</h3>
+                </div>
+                <div class="flex-1 overflow-y-auto p-2 space-y-2 custom-scroll">
+                    <button onclick="showStats()" class="bg-slate-800 hover:bg-slate-700 text-purple-300 border border-slate-600 p-2 rounded flex items-center justify-center gap-2 font-bold text-xs transition-all shadow-lg w-full">
+                        <span class="material-symbols-outlined">bar_chart</span> STATISTIQUES
+                    </button>
+                    <button onclick="exportSave()" class="bg-slate-800 hover:bg-slate-700 text-blue-300 border border-slate-600 p-2 rounded flex items-center justify-center gap-2 font-bold text-xs transition-all shadow-lg w-full">
+                        <span class="material-symbols-outlined">save</span> SAUVER
+                    </button>
+                    <button onclick="resetSave()" class="bg-red-800 text-red-200 border border-red-600 p-2 rounded flex items-center justify-center gap-2 font-bold text-xs hover:bg-red-700 transition-all shadow-lg w-full">
+                        <span class="material-symbols-outlined text-[14px]">delete</span> RESET
+                    </button>
+                </div>
             </div>
         </div>
     </div>

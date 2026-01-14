@@ -142,11 +142,6 @@ function checkMilestones() {
     });
 }
 
-function testEndingSequence() {
-    state.hasSeenEnding = false;
-    startEndingSequence();
-}
-
 function startEndingSequence() {
     if(state.hasSeenEnding) return;
     state.hasSeenEnding = true;
@@ -646,10 +641,52 @@ function renderBadges() {
 }
 
 function resetSave() {
-    if(confirm("Effacer la sauvegarde locale et recommencer ?")) {
-        localStorage.removeItem('pokiClickerSave');
-        location.reload();
-    }
+    const regionKey = state.currentRegion || ACTIVE_REGION_KEY;
+    const regionName = regionKey.toUpperCase();
+    if(!confirm(`R\xe9initialiser la progression de ${regionName} ?`)) return;
+
+    state.money = 0;
+    state.inv = { balls: 0, superballs: 0, hyperballs: 0, candy: 0, omniExp: 0, shinyToken: 0, masterball: 0, repel: 0, xAttack: 0, xSpecial: 0, superRepel: 0, pokeDoll: 0, everstone: 0 };
+    state.upgrades = { runningShoes: false, amuletCoin: false, protein: false, expShare: false, hardStone: false, bicycle: false, luckyEgg: false, leftovers: false, pokeradar: false, falseSwipe: false, shinyCharm: false, diploma: false };
+    state.team = [];
+    state.pc = [];
+    state.pokedex = [];
+    state.pokedexBackup = null;
+    state.badges = [];
+    state.milestones = [];
+    state.zoneIdx = -4;
+    state.subStage = 1;
+    state.unlockedZone = 0;
+    state.auto = true;
+    state.autoClicker = false;
+    state.starterId = null;
+    state.stats = { kills: 0, totalMoney: 0 };
+    state.repelEndTime = 0;
+    state.attackBoostEndTime = 0;
+    state.dpsBoostEndTime = 0;
+    state.superRepelEndTime = 0;
+    state.falseSwipeCooldown = 0;
+    state.boatClicked = false;
+    state.introBagUnlocked = false;
+    state.introMapUnlocked = false;
+    state.hasExitedLab = false;
+    state.hasVisitedRoute1 = false;
+    state.visitedLab = false;
+    state.hasSeenPantheonIntro = false;
+    state.hasSeenEnding = false;
+    state.daycare = { unlocked: false, parents: [null, null], eggs: [], slots: 1 };
+    state.swapIdx = null;
+    state.candyMode = false;
+    state.candyTargetIdx = null;
+    state.candyAmount = 1;
+    state.shinyTokenMode = false;
+    state.everstoneMode = false;
+    state.summaryPokemon = null;
+    state.contextTarget = null;
+
+    updateUI(); renderTeam(); renderBag(); renderShop(); renderPC(); updateZone(); updateBg(); updateRadarButton(); spawnEnemy();
+    localStorage.setItem('pokiClickerSave', JSON.stringify(state));
+    showFeedback(`PROGRESSION ${regionName} R\xc9INITIALIS\xc9E`, "red", 2000);
 }
 
 
