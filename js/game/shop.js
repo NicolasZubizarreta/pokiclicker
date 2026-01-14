@@ -1,4 +1,4 @@
-﻿// --- MODULE ---
+// --- MODULE ---
 
 function getPrice(base) {
     if(state.cheat) return 1;
@@ -12,7 +12,7 @@ function getItemPrice(id) {
     if(!item) return 0;
     let base = item.price;
     if(item.type === 'consumable') {
-        base = Math.floor(base * (1 + state.badges.length * 0.10));
+        base = Math.floor(base * (1 + state.badges.length * 0.05));
     }
     return base;
 }

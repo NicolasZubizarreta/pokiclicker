@@ -3,6 +3,7 @@
 function evolve(uid) {
     let p = state.team.find(x=>x.uid===uid);
     let ed = EVOLUTIONS[p.id];
+    if (p && p.everstone) { showFeedback("EVOLUTION BLOQUEE !", "red"); return; }
     if(p && ed && p.level>=ed.lvl) { 
         const oldId = p.id;
         let newId, newName;

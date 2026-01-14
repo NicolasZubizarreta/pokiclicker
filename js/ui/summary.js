@@ -107,6 +107,7 @@ function openContextMenu(loc, idx, e) {
     e.stopPropagation();
     state.contextTarget = { location: loc, index: idx };
     const menu = document.getElementById('custom-context-menu');
+    const removeItemBtn = document.getElementById('context-remove-item-btn');
     
     // Position logic
     let x = e.clientX;
@@ -120,6 +121,12 @@ function openContextMenu(loc, idx, e) {
     menu.style.top = `${y}px`;
     menu.classList.remove('hidden');
     menu.classList.add('flex');
+
+    if (removeItemBtn) {
+        const p = state[loc][idx];
+        const canRemoveItem = !!(p && p.everstone);
+        removeItemBtn.classList.toggle('hidden', !canRemoveItem);
+    }
 }
 
 
@@ -128,6 +135,20 @@ function onSummaryClick() {
         showPokemonSummary(state.contextTarget.location, state.contextTarget.index);
         document.getElementById('custom-context-menu').classList.add('hidden');
     }
+}
+
+
+function removeItemFromContext() {
+    if (!state.contextTarget) return;
+    const { location, index } = state.contextTarget;
+    const p = state[location][index];
+    if (!p || !p.everstone) return;
+
+    p.everstone = false;
+    state.inv.everstone++;
+    showFeedback("OBJET RETIRE !", "gray");
+    document.getElementById('custom-context-menu').classList.add('hidden');
+    renderTeam(); renderPC(); renderBag(); updateUI();
 }
 
 

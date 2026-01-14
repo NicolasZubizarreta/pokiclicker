@@ -580,6 +580,10 @@
     <button onclick="onSummaryClick()" class="text-left px-4 py-3 text-xs font-bold text-white hover:bg-slate-700 w-full flex items-center gap-2 transition-colors">
         <span class="material-symbols-outlined text-sm">info</span> Résumé
     </button>
+    <button id="context-remove-item-btn" onclick="removeItemFromContext()" class="text-left px-4 py-3 text-xs font-bold text-white hover:bg-slate-700 w-full flex items-center gap-2 transition-colors hidden">
+        <span class="material-symbols-outlined text-sm">remove_circle</span> Retirer l'objet
+    </button>
+
 </div>
 
 <div class="fixed inset-0 z-[80] bg-black/80 flex flex-col items-center justify-center p-4 hidden" id="diploma-modal" onclick="hideDiplomaModal()">

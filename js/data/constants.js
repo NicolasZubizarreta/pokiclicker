@@ -2,14 +2,14 @@
 const ITEMS = {
     // Consommables
     pokeball: { name: "Pokéball", price: 200, desc: "Capture des Pokémon (Faible chance)", type: "consumable", zone: 0, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png", invKey: "balls" },
-    superball: { name: "Superball", price: 600, desc: "Capture des Pokémon (Moyenne chance x2)", type: "consumable", zone: 6, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png", invKey: "superballs" },
-    hyperball: { name: "Hyperball", price: 1500, desc: "Capture des Pokémon (Haute chance x4)", type: "consumable", zone: 9, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png", invKey: "hyperballs" },
+    superball: { name: "Superball", price: 500, desc: "Capture des Pokémon (Moyenne chance x2)", type: "consumable", zone: 6, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/great-ball.png", invKey: "superballs" },
+    hyperball: { name: "Hyperball", price: 1200, desc: "Capture des Pokémon (Haute chance x4)", type: "consumable", zone: 9, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/ultra-ball.png", invKey: "hyperballs" },
     candy: { name: "Bonbon", price: 5000, desc: "Fait monter un Pokémon de niveau", type: "consumable", zone: 8, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rare-candy.png", invKey: "candy" },
     masterball: { name: "Master Ball", price: 150000, desc: "Capture à coup sûr (100%)", type: "consumable", zone: 16, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/master-ball.png", invKey: "masterball" },
     repel: { name: "Repousse", price: 2000, desc: "Empêche les Pokémon communs d'apparaître pendant 30s", type: "consumable", zone: 4, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/repel.png", invKey: "repel" },    
     xAttack: { name: "Attaque +", price: 7500, desc: "Dégâts/clic +50% (30s)", type: "consumable", zone: 8, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/x-attack.png", invKey: "xAttack" },
     xSpecial: { name: "Attaque Spé +", price: 10000, desc: "DPS Équipe +50% (30s)", type: "consumable", zone: 12, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/x-sp-atk.png", invKey: "xSpecial" },
-    superRepel: { name: "Superepousse", price: 12000, desc: "Bloque Communs/Peu Communs (30s)", type: "consumable", zone: 13, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/super-repel.png", invKey: "superRepel" },
+    superRepel: { name: "Superepousse", price: 8000, desc: "Bloque Communs/Peu Communs (30s)", type: "consumable", zone: 13, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/super-repel.png", invKey: "superRepel" },
     pokeDoll: { name: "Poké Poupée", price: 5000, desc: "Invoque le Boss (Si déjà vaincu)", type: "consumable", zone: 15, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-doll.png", invKey: "pokeDoll" },
     everstone: { name: "Pierre Stase", price: 10000, desc: "Bloque l'évolution. Dégâts +25% (Base & Évolutif uniquement)", type: "consumable", zone: 10, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/everstone.png", invKey: "everstone" },
     // Améliorations
@@ -459,6 +459,3 @@ const JOHTO_INTRO_DIALOGS = [
 const GENDERLESS_IDS = [81, 82, 100, 101, 120, 121, 132, 137, 144, 145, 146, 150, 151];
 const ALWAYS_FEMALE_IDS = [29, 30, 31, 113, 115, 124];
 const ALWAYS_MALE_IDS = [32, 33, 34, 106, 107, 128];
-
-
-

@@ -272,8 +272,7 @@ function renderBag() {
         <div><div class="text-xs text-gray-400">Poké Poupée</div><div class="text-sm font-bold">x${state.inv.pokeDoll} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
     </div>`;
     }
-    const hasEquippedEverstone = state.team.some(p => p.everstone);
-    if(state.inv.everstone>0 || hasEquippedEverstone) {
+    if(state.inv.everstone>0) {
         consumables += `
     <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 cursor-pointer hover:bg-slate-600" onclick="initEverstoneUse()" title="${ITEMS.everstone.desc}">
         <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/everstone.png" class="w-6 h-6">

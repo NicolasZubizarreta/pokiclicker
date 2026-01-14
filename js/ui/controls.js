@@ -172,7 +172,7 @@ function updateAutoStopBtn() {
 function showFeedback(t,c,d=1200) {
     const e = document.getElementById('feedback-msg');
     if(feedbackTimer) clearTimeout(feedbackTimer);
-    e.innerHTML = `<span class="text-${c}-400 font-bold text-2xl pixel-font text-shadow-lg">${t}</span>`;
+    e.innerHTML = `<span class="text-${c}-400 font-bold text-2xl pixel-font text-shadow-lg text-outline">${t}</span>`;
     e.classList.remove('hidden'); 
     e.classList.remove('animate-bounce');
     void e.offsetWidth; // Trigger reflow

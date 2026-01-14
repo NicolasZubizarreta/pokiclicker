@@ -176,3 +176,40 @@ function cancelCandyUse() {
 }
 
 
+function initEverstoneUse() {
+    const hasEquippedEverstone = state.team.some(p => p.everstone);
+    if (state.inv.everstone <= 0 && !hasEquippedEverstone) return;
+    state.everstoneMode = true;
+    state.candyMode = false;
+    state.shinyTokenMode = false;
+    state.swapIdx = null;
+    showFeedback("SELECTIONNEZ UN POKEMON", "gray");
+    renderTeam();
+}
+
+
+function useEverstoneOn(i) {
+    const p = state.team[i];
+    if (!p || p.isEgg) { showFeedback("POKEMON INVALIDE !", "red"); return; }
+
+    if (p.everstone) {
+        showFeedback("RETIREZ VIA LE MENU !", "red");
+        state.everstoneMode = false;
+        renderTeam();
+        return;
+    }
+
+    if (state.inv.everstone <= 0) { showFeedback("PLUS DE PIERRE STASE !", "red"); return; }
+
+    const stage = getEvolutionStage(p.id);
+    const canEvolve = EVOLUTIONS[p.id] !== undefined;
+    if (stage !== 1 || !canEvolve) { showFeedback("POKEMON INCOMPATIBLE !", "red"); return; }
+
+    state.inv.everstone--;
+    p.everstone = true;
+    state.everstoneMode = false;
+    showFeedback("PIERRE STASE EQUIPEE !", "gray");
+    renderTeam(); renderBag(); updateUI();
+}
+
+
