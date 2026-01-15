@@ -14,7 +14,7 @@ function renderTeam() {
         const swapMode = state.swapIdx!==null;
         const candyMode = state.candyMode;
         const isCandyTarget = candyMode && state.candyTargetIdx === i;
-        const isInteractive = swapMode || candyMode || state.shinyTokenMode || state.everstoneMode;
+        const isInteractive = swapMode || candyMode || state.shinyTokenMode || state.everstoneMode || state.stoneMode;
         const isEgg = p.isEgg;
         const isDaycareSelect = state.daycareMode && state.daycareMode.active;
         
@@ -22,10 +22,18 @@ function renderTeam() {
         
         if (state.everstoneMode) {
              const stage = getEvolutionStage(p.id);
-             const canEvolve = EVOLUTIONS[p.id] !== undefined;
+             const canEvolve = canEvolveAny(p.id);
              if (p.everstone) {
                  borderClass = 'border-red-400 bg-red-900/30 cursor-pointer'; // Retrait possible
              } else if (stage === 1 && canEvolve) {
+                 borderClass = 'border-green-400 bg-green-900/30 cursor-pointer animate-pulse'; // Compatible
+             } else {
+                 borderClass = 'border-gray-700 bg-gray-800/50 opacity-50 cursor-not-allowed'; // Incompatible
+             }
+        } else if (state.stoneMode) {
+             const stoneId = state.stoneType;
+             const canStone = !!stoneId && !p.isEgg && !p.everstone && getStoneEvolution(p.id, stoneId);
+             if (canStone) {
                  borderClass = 'border-green-400 bg-green-900/30 cursor-pointer animate-pulse'; // Compatible
              } else {
                  borderClass = 'border-gray-700 bg-gray-800/50 opacity-50 cursor-not-allowed'; // Incompatible
@@ -279,6 +287,41 @@ function renderBag() {
         <div><div class="text-xs text-gray-400">Pierre Stase</div><div class="text-sm font-bold">x${state.inv.everstone} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
     </div>`;
     }
+    if(state.inv.fireStone>0) {
+        consumables += `
+    <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 cursor-pointer hover:bg-slate-600" onclick="initStoneUse('fireStone')" title="${ITEMS.fireStone.desc}">
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fire-stone.png" class="w-6 h-6">
+        <div><div class="text-xs text-gray-400">Pierre Feu</div><div class="text-sm font-bold">x${state.inv.fireStone} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
+    </div>`;
+    }
+    if(state.inv.waterStone>0) {
+        consumables += `
+    <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 cursor-pointer hover:bg-slate-600" onclick="initStoneUse('waterStone')" title="${ITEMS.waterStone.desc}">
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/water-stone.png" class="w-6 h-6">
+        <div><div class="text-xs text-gray-400">Pierre Eau</div><div class="text-sm font-bold">x${state.inv.waterStone} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
+    </div>`;
+    }
+    if(state.inv.leafStone>0) {
+        consumables += `
+    <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 cursor-pointer hover:bg-slate-600" onclick="initStoneUse('leafStone')" title="${ITEMS.leafStone.desc}">
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/leaf-stone.png" class="w-6 h-6">
+        <div><div class="text-xs text-gray-400">Pierre Plante</div><div class="text-sm font-bold">x${state.inv.leafStone} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
+    </div>`;
+    }
+    if(state.inv.thunderStone>0) {
+        consumables += `
+    <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 cursor-pointer hover:bg-slate-600" onclick="initStoneUse('thunderStone')" title="${ITEMS.thunderStone.desc}">
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/thunder-stone.png" class="w-6 h-6">
+        <div><div class="text-xs text-gray-400">Pierre Foudre</div><div class="text-sm font-bold">x${state.inv.thunderStone} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
+    </div>`;
+    }
+    if(state.inv.moonStone>0) {
+        consumables += `
+    <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 cursor-pointer hover:bg-slate-600" onclick="initStoneUse('moonStone')" title="${ITEMS.moonStone.desc}">
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/moon-stone.png" class="w-6 h-6">
+        <div><div class="text-xs text-gray-400">Pierre Lune</div><div class="text-sm font-bold">x${state.inv.moonStone} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
+    </div>`;
+    }
 
     let rareItems = "";
     for (const [key, val] of Object.entries(state.upgrades)) {
@@ -350,6 +393,7 @@ function renderShop() {
     // Consumables
     for (const [id, item] of Object.entries(ITEMS)) {
         if (item.type !== 'consumable') continue;
+        if (item.shop === 'mall') continue;
         if (state.unlockedZone < item.zone && state.zoneIdx < item.zone) continue;
 
         let stockDisplay = "";
@@ -400,6 +444,42 @@ function renderShop() {
 
     if(desktopShop) desktopShop.innerHTML = html;
     if(mobileShop) mobileShop.innerHTML = html;
+}
+
+function renderMallPanel() {
+    const mallContent = document.getElementById('mall-shop-content');
+    if (!mallContent) return;
+
+    const mallItems = ['xAttack', 'xSpecial', 'pokeDoll', 'everstone', 'fireStone', 'waterStone', 'leafStone', 'thunderStone', 'moonStone'];
+    let html = "";
+
+    mallItems.forEach((id) => {
+        const item = ITEMS[id];
+        if (!item) return;
+
+        let stockDisplay = "";
+        if (item.invKey) {
+            stockDisplay = `<div class="text-[8px] text-blue-300">x<span id="shop-stock-${id}">${state.inv[item.invKey]}</span></div>`;
+        }
+
+        let iconHtml = "";
+        if (item.img) iconHtml = `<img class="w-6 h-6" src="${item.img}">`;
+        else if (item.icon) iconHtml = `<span class="material-symbols-outlined ${item.iconColor || 'text-gray-400'}">${item.icon}</span>`;
+
+        const finalPrice = getPrice(getItemPrice(id));
+        const priceColor = state.money >= finalPrice ? "text-yellow-400" : "text-red-500";
+
+        html += `
+        <div class="bg-slate-800 p-2 rounded border border-slate-700 hover:border-yellow-500 cursor-pointer flex items-center gap-2 relative group" onclick="buyItem('${id}')" title="${item.desc}">
+            ${iconHtml}
+            <div class="flex-1 text-xs">${item.name}</div>
+            <div class="shop-price-text ${priceColor} text-xs" data-id="${id}">${finalPrice.toLocaleString('de-DE')}$</div>
+            ${stockDisplay}
+            <button onclick="showItemInfo('${id}', event)" class="w-4 h-4 rounded-full bg-slate-600 hover:bg-slate-500 text-white text-[8px] flex items-center justify-center border border-slate-500 shrink-0 z-10 ml-1" title="Info">i</button>
+        </div>`;
+    });
+
+    mallContent.innerHTML = html;
 }
 
 

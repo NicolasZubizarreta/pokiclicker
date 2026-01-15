@@ -293,6 +293,7 @@ function killEnemy() {
                 }
 
                 for(const key in ITEMS) {
+                    if(ITEMS[key].shop === 'mall') continue;
                     if(ITEMS[key].zone === state.unlockedZone) {
                         const iName = ITEMS[key].name;
                         setTimeout(() => {

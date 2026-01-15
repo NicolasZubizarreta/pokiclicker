@@ -73,6 +73,11 @@ function loadData(data) {
     if(state.inv.superRepel === undefined) state.inv.superRepel = 0;
     if(state.inv.pokeDoll === undefined) state.inv.pokeDoll = 0;
     if(state.inv.everstone === undefined) state.inv.everstone = 0;
+    if(state.inv.fireStone === undefined) state.inv.fireStone = 0;
+    if(state.inv.waterStone === undefined) state.inv.waterStone = 0;
+    if(state.inv.leafStone === undefined) state.inv.leafStone = 0;
+    if(state.inv.thunderStone === undefined) state.inv.thunderStone = 0;
+    if(state.inv.moonStone === undefined) state.inv.moonStone = 0;
     if(!state.attackBoostEndTime) state.attackBoostEndTime = 0;
     if(!state.dpsBoostEndTime) state.dpsBoostEndTime = 0;
     if(!state.superRepelEndTime) state.superRepelEndTime = 0;
@@ -374,7 +379,10 @@ function flyToZone(zoneId) {
     if (overlay.style.display === 'flex') return;
 
     // 1. Find current zone coordinates to position the trainer
-    const currentArea = getActiveRegion().mapData.find(a => a.zoneId === state.zoneIdx);
+    let currentArea = getActiveRegion().mapData.find(a => a.zoneId === state.zoneIdx);
+    if (!currentArea) {
+        currentArea = getActiveRegion().mapData.find(a => a.zoneId === 0) || getActiveRegion().mapData[0];
+    }
     if (!currentArea) return;
 
     let centerX, centerY;
@@ -448,8 +456,9 @@ function showZoneInfo(zoneId) {
     if (!zone) return;
 
     const isUnlocked = zoneId <= state.unlockedZone || state.cheat;
-    
-    document.getElementById('zone-info-name').innerText = zone.name;
+    const isCeladopole = zoneId === 11;
+
+    document.getElementById('zone-info-name').innerText = isCeladopole ? "Céladopole" : zone.name;
     if (zoneId <= 0) {
         document.getElementById('zone-info-desc').innerText = "";
     } else {
@@ -461,23 +470,38 @@ function showZoneInfo(zoneId) {
     bgEl.style.backgroundImage = bgUrl;
     if (!bgUrl) bgEl.style.background = zone.bg;
 
-    const btn = document.getElementById('zone-info-go-btn');
-    const newBtn = btn.cloneNode(true);
-    btn.parentNode.replaceChild(newBtn, btn);
-    
-    if (isUnlocked) {
-        newBtn.className = "w-full py-2 rounded font-bold text-[10px] flex items-center justify-center gap-2 transition-all shadow-lg uppercase tracking-wider bg-blue-600 hover:bg-blue-500 text-white border border-blue-400 hover:scale-105";
-        newBtn.innerHTML = `<span class="material-symbols-outlined text-sm">flight_takeoff</span> Y ALLER`;
-        newBtn.onclick = () => {
-            closeZoneInfo();
-            flyToZone(zoneId);
-        };
-        newBtn.disabled = false;
-    } else {
-        newBtn.className = "w-full py-2 rounded font-bold text-[10px] flex items-center justify-center gap-2 transition-all shadow-lg uppercase tracking-wider bg-slate-700 text-gray-500 border border-slate-600 cursor-not-allowed opacity-70";
-        newBtn.innerHTML = `<span class="material-symbols-outlined text-sm">lock</span> BLOQUÉ`;
-        newBtn.onclick = null;
-        newBtn.disabled = true;
+    const actions = document.getElementById('zone-info-actions');
+    actions.innerHTML = "";
+
+    const enabledClasses = "w-full py-2 rounded font-bold text-[10px] flex items-center justify-center gap-2 transition-all shadow-lg uppercase tracking-wider bg-blue-600 hover:bg-blue-500 text-white border border-blue-400 hover:scale-105";
+    const disabledClasses = "w-full py-2 rounded font-bold text-[10px] flex items-center justify-center gap-2 transition-all shadow-lg uppercase tracking-wider bg-slate-700 text-gray-500 border border-slate-600 cursor-not-allowed opacity-70";
+
+    const buildButton = (label, icon, enabled, onClick) => {
+        const btn = document.createElement('button');
+        btn.className = enabled ? enabledClasses : disabledClasses;
+        btn.innerHTML = `<span class="material-symbols-outlined text-sm">${icon}</span> ${label}`;
+        btn.disabled = !enabled;
+        if (enabled) btn.onclick = onClick;
+        return btn;
+    };
+
+    const flyToExtraZone = (targetId) => {
+        closeZoneInfo();
+        flyToZone(targetId);
+    };
+
+    const goLabel = isUnlocked ? (isCeladopole ? "Arène" : "Y ALLER") : "BLOQUÉ";
+    const goIcon = isUnlocked ? "flight_takeoff" : "lock";
+    const goBtn = buildButton(goLabel, goIcon, isUnlocked, () => {
+        closeZoneInfo();
+        flyToZone(zoneId);
+    });
+    goBtn.id = "zone-info-go-btn";
+    actions.appendChild(goBtn);
+
+    if (isCeladopole) {
+        actions.appendChild(buildButton("Centre Commercial", "storefront", isUnlocked, () => flyToExtraZone(-6)));
+        actions.appendChild(buildButton("Casino", "casino", isUnlocked, () => flyToExtraZone(-7)));
     }
 
     document.getElementById('zone-info-modal').classList.remove('hidden');
@@ -646,7 +670,7 @@ function resetSave() {
     if(!confirm(`R\xe9initialiser la progression de ${regionName} ?`)) return;
 
     state.money = 0;
-    state.inv = { balls: 0, superballs: 0, hyperballs: 0, candy: 0, omniExp: 0, shinyToken: 0, masterball: 0, repel: 0, xAttack: 0, xSpecial: 0, superRepel: 0, pokeDoll: 0, everstone: 0 };
+    state.inv = { balls: 0, superballs: 0, hyperballs: 0, candy: 0, omniExp: 0, shinyToken: 0, masterball: 0, repel: 0, xAttack: 0, xSpecial: 0, superRepel: 0, pokeDoll: 0, everstone: 0, fireStone: 0, waterStone: 0, leafStone: 0, thunderStone: 0, moonStone: 0 };
     state.upgrades = { runningShoes: false, amuletCoin: false, protein: false, expShare: false, hardStone: false, bicycle: false, luckyEgg: false, leftovers: false, pokeradar: false, falseSwipe: false, shinyCharm: false, diploma: false };
     state.team = [];
     state.pc = [];
@@ -681,6 +705,10 @@ function resetSave() {
     state.candyAmount = 1;
     state.shinyTokenMode = false;
     state.everstoneMode = false;
+    state.stoneMode = false;
+    state.stoneType = null;
+    state.stoneMode = false;
+    state.stoneType = null;
     state.summaryPokemon = null;
     state.contextTarget = null;
 
@@ -688,6 +716,10 @@ function resetSave() {
     localStorage.setItem('pokiClickerSave', JSON.stringify(state));
     showFeedback(`PROGRESSION ${regionName} R\xc9INITIALIS\xc9E`, "red", 2000);
 }
+
+
+
+
 
 
 

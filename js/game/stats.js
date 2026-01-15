@@ -116,6 +116,14 @@ function getEvolutionStage(id) {
                 if (v.id === targetId) return keyId;
             }
         }
+        for (const [k, v] of Object.entries(STONE_EVOLUTIONS)) {
+            const keyId = parseInt(k);
+            if (Array.isArray(v)) {
+                if (v.some(child => child.id === targetId)) return keyId;
+            } else if (v.id === targetId) {
+                return keyId;
+            }
+        }
         return null;
     };
     let preEvo = findPreEvo(id);

@@ -90,6 +90,18 @@ function updateZone() {
         stageTextEl.innerText = state.subStage+"/10";
         zoneProgressEl.style.width = (state.subStage*10)+"%";
     }
+
+    const mallPanel = document.getElementById('mall-shop-panel');
+    if (mallPanel) {
+        if (state.zoneIdx === -6) {
+            mallPanel.classList.remove('hidden');
+            mallPanel.classList.add('flex');
+            renderMallPanel();
+        } else {
+            mallPanel.classList.add('hidden');
+            mallPanel.classList.remove('flex');
+        }
+    }
     
     // Arrows
     const canNext = (state.zoneIdx < state.unlockedZone || state.cheat) && state.zoneIdx < getActiveRegion().zones.length-1;
@@ -210,7 +222,7 @@ function updateBg() {
             `;
         };
     } else if (state.zoneIdx === -1) {
-        // Pension Pokémon
+        // Pension PokÃ©mon
         bgDiv.classList.remove('hidden');
         bgImg.classList.remove('hidden');
         bgSvg.classList.remove('hidden');
@@ -229,12 +241,12 @@ function updateBg() {
             `;
         };
     } else if (state.zoneIdx === -5) {
-        // Panthéon
+        // PanthÃ©on
         bgDiv.classList.remove('hidden');
         bgImg.classList.remove('hidden');
-        bgSvg.classList.remove('hidden'); // SVG activé pour les sprites
+        bgSvg.classList.remove('hidden'); // SVG activÃ© pour les sprites
         document.getElementById('pantheon-exit-btn').classList.remove('hidden');
-        bgSvg.innerHTML = ''; // Nettoyage impératif des anciens éléments (Zone 0)
+        bgSvg.innerHTML = ''; // Nettoyage impÃ©ratif des anciens Ã©lÃ©ments (Zone 0)
         
         bgImg.classList.remove('object-cover');
         bgImg.classList.add('object-contain');
@@ -244,6 +256,23 @@ function updateBg() {
         bgImg.onload = () => {
              bgSvg.setAttribute('viewBox', `0 0 ${bgImg.naturalWidth} ${bgImg.naturalHeight}`);
         };
+
+    } else if (state.zoneIdx === -6 || state.zoneIdx === -7) {
+        // Centre Commercial / Casino
+        bgDiv.classList.remove('hidden');
+        bgImg.classList.add('hidden');
+        bgSvg.classList.add('hidden');
+        bgSvg.innerHTML = '';
+        bgDiv.classList.remove('bg-blur');
+        
+        if (bg.includes("http") || bg.includes("img/kanto/")) {
+            bgDiv.style.backgroundImage = "url('" + encodeURI(bg) + "')";
+            bgDiv.style.background = "";
+            bgDiv.style.backgroundImage = "url('" + encodeURI(bg) + "')";
+        } else {
+            bgDiv.style.backgroundImage = "url('" + encodeURI(bg) + "')";
+            bgDiv.style.background = bg;
+        }
 
     } else if (state.zoneIdx === 0) {
         // Bourg Palette
@@ -276,14 +305,14 @@ function updateBg() {
                     <rect x="667" y="692" width="80" height="85" fill="rgba(37, 99, 235, 0.4)" stroke="rgba(147, 197, 253, 0.9)" stroke-width="3" class="transition-all lg:hover:brightness-150 cursor-pointer" onmouseenter="showMapTooltip('Chez Blue', event, 'blue')" onmousemove="moveMapTooltip(event)" onmouseleave="hideMapTooltip()" onclick="changeZone(-3)"></rect>
                 </a>
                 <a href="#" onclick="event.preventDefault()">
-                    <rect x="392" y="1293" width="82" height="91" fill="rgba(146, 64, 14, 0.4)" stroke="rgba(251, 191, 36, 0.9)" stroke-width="3" class="transition-all lg:hover:brightness-150 cursor-pointer" onmouseenter="showMapTooltip('Pension Pokémon', event, 'amber')" onmousemove="moveMapTooltip(event)" onmouseleave="hideMapTooltip()"></rect>
+                    <rect x="392" y="1293" width="82" height="91" fill="rgba(146, 64, 14, 0.4)" stroke="rgba(251, 191, 36, 0.9)" stroke-width="3" class="transition-all lg:hover:brightness-150 cursor-pointer" onmouseenter="showMapTooltip('Pension PokÃ©mon', event, 'amber')" onmousemove="moveMapTooltip(event)" onmouseleave="hideMapTooltip()"></rect>
                 </a>
                 ${state.daycare.unlocked ? `
                 <a href="#" onclick="event.preventDefault()">
-                    <rect x="392" y="1293" width="82" height="91" fill="rgba(236, 72, 153, 0.3)" stroke="rgba(244, 114, 182, 0.9)" stroke-width="3" class="animate-pulse cursor-pointer lg:hover:fill-pink-400/50 transition-colors" onmouseenter="showMapTooltip('Pension Pokémon', event, 'pink')" onmousemove="moveMapTooltip(event)" onmouseleave="hideMapTooltip()" onclick="changeZone(-1)"></rect>
+                    <rect x="392" y="1293" width="82" height="91" fill="rgba(236, 72, 153, 0.3)" stroke="rgba(244, 114, 182, 0.9)" stroke-width="3" class="animate-pulse cursor-pointer lg:hover:fill-pink-400/50 transition-colors" onmouseenter="showMapTooltip('Pension PokÃ©mon', event, 'pink')" onmousemove="moveMapTooltip(event)" onmouseleave="hideMapTooltip()" onclick="changeZone(-1)"></rect>
                 </a>` : ''}
                 <a href="#" onclick="event.preventDefault()">
-                    <rect x="1327" y="836" width="96" height="96" fill="rgba(22, 163, 74, 0.4)" stroke="rgba(134, 239, 172, 0.9)" stroke-width="3" class="${labClass}" onmouseenter="showMapTooltip('Labo Pokémon du Prof. Chen', event, 'green')" onmousemove="moveMapTooltip(event)" onmouseleave="hideMapTooltip()" onclick="enterLab()"></rect>
+                    <rect x="1327" y="836" width="96" height="96" fill="rgba(22, 163, 74, 0.4)" stroke="rgba(134, 239, 172, 0.9)" stroke-width="3" class="${labClass}" onmouseenter="showMapTooltip('Labo PokÃ©mon du Prof. Chen', event, 'green')" onmousemove="moveMapTooltip(event)" onmouseleave="hideMapTooltip()" onclick="enterLab()"></rect>
                 </a>
                 <a href="#" onclick="event.preventDefault()">
                     ${boatRect}
@@ -350,7 +379,7 @@ function updateEnemyUI() {
     else if (enemy.gender === 'female') genderHtml = `<span class="text-pink-400 ml-1 font-bold text-sm">?</span>`;
     
     if(enemy.isShiny) typeHtml += `<span class="text-yellow-400 ml-1 font-bold text-sm">?</span>`;
-    if(state.pokedex.includes(enemy.id)) typeHtml += `<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" class="w-3 h-3 inline-block ml-1" title="Déjà capturé">`;
+    if(state.pokedex.includes(enemy.id)) typeHtml += `<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" class="w-3 h-3 inline-block ml-1" title="DÃ©jÃ  capturÃ©">`;
     
     document.getElementById('enemy-name').innerHTML = enemy.name + genderHtml + typeHtml;
     
@@ -388,7 +417,7 @@ function updateActiveEffects() {
     };
 
     addBadge(state.attackBoostEndTime, "ATK +", "bg-red-900 border-red-500");
-    addBadge(state.dpsBoostEndTime, "SPÉ +", "bg-blue-900 border-blue-500");
+    addBadge(state.dpsBoostEndTime, "SPÃ‰ +", "bg-blue-900 border-blue-500");
     addBadge(state.repelEndTime, "REPOUSSE", "bg-gray-700 border-gray-500");
     addBadge(state.superRepelEndTime, "SUPER REP.", "bg-slate-600 border-slate-400");
 }

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="utf-8">
@@ -179,7 +179,7 @@
                     <div id="summary-name-display" class="flex items-center gap-2">
                         <h3 id="summary-name" class="pixel-font text-sm md:text-lg text-white truncate">POKEMON</h3>
                         <button id="summary-rename-btn" onclick="startSummaryRename()" class="material-symbols-outlined text-sm text-gray-400 hover:text-white transition-colors">edit</button>
-                        <span id="summary-shiny-icon" class="text-yellow-400 text-lg hidden">✦</span>
+                        <span id="summary-shiny-icon" class="text-yellow-400 text-lg hidden">?</span>
                     </div>
                     <div id="summary-rename-input-container" class="hidden items-center gap-1">
                         <input type="text" id="summary-rename-input" maxlength="12" class="w-24 text-xs text-black px-1 py-0.5 rounded border border-blue-400 focus:outline-none select-text">
@@ -324,6 +324,15 @@
                 <div class="absolute top-12 left-0 w-full text-center hidden pointer-events-none z-50" id="feedback-msg">
                     <span class="text-yellow-400 font-bold text-2xl pixel-font text-shadow-lg drop-shadow-lg">CAPTURED!</span>
                 </div>
+                <div id="mall-shop-panel" class="absolute inset-0 hidden items-center justify-center pointer-events-none z-40">
+                    <div class="w-[92%] max-w-md bg-slate-900/90 border-2 border-yellow-600 rounded-xl shadow-2xl backdrop-blur-sm pointer-events-auto">
+                        <div class="p-3 border-b border-yellow-700/60 text-center">
+                            <div class="text-yellow-400 pixel-font text-xs tracking-widest">CENTRE COMMERCIAL</div>
+                            <div class="text-[9px] text-gray-400 mt-1">Objets exclusifs</div>
+                        </div>
+                        <div id="mall-shop-content" class="p-3 space-y-2 max-h-[60vh] overflow-y-auto custom-scroll"></div>
+                    </div>
+                </div>
                 <div id="mom-speech" class="absolute bottom-2 md:bottom-4 left-1/2 -translate-x-1/2 w-auto max-w-[90%] bg-white/90 text-black p-4 rounded-lg border-4 border-blue-500 pixel-font text-xs z-50 hidden shadow-xl text-center pointer-events-none">
                     Il n'y a rien à faire ici, sortons.
                 </div>
@@ -343,7 +352,7 @@
                         </div>
 
                         <div id="daycare-heart" class="hidden flex items-center justify-center shrink-0">
-                             <span class="text-red-500 font-bold text-2xl md:text-6xl animate-pulse drop-shadow-lg">♥</span>
+                             <span class="text-red-500 font-bold text-2xl md:text-6xl animate-pulse drop-shadow-lg">?</span>
                         </div>
 
 
@@ -402,7 +411,7 @@
         <!-- Dialog Box -->
         <div id="intro-dialog-box" class="w-[95%] md:w-[50%] bg-white border-4 border-blue-800 rounded-lg p-3 md:p-4 mb-2 md:mb-4 min-h-[6rem] md:min-h-[8rem] h-auto hidden flex-col cursor-pointer shadow-xl z-20 relative mx-auto" onclick="advanceIntro()">
             <p id="intro-text" class="text-black pixel-font text-[10px] md:text-xs leading-loose select-none break-words" style="word-spacing: 6px; letter-spacing: 1px;"></p>
-            <div id="intro-arrow" class="absolute bottom-2 right-2 text-red-500 animate-bounce hidden text-xl">▼</div>
+            <div id="intro-arrow" class="absolute bottom-2 right-2 text-red-500 animate-bounce hidden text-xl">?</div>
         </div>
 
         <!-- Selection Area -->
@@ -600,7 +609,9 @@
                 <h3 class="text-yellow-400 font-bold mb-0.5 pixel-font text-xs tracking-wide uppercase" id="zone-info-name">ZONE NAME</h3>
                 <div class="text-[10px] text-blue-300 font-bold" id="zone-info-desc">Zone X</div>
             </div>
-            <button id="zone-info-go-btn" class="w-full py-2 rounded font-bold text-[10px] flex items-center justify-center gap-2 transition-all shadow-lg uppercase tracking-wider"><span>Y ALLER</span></button>
+            <div id="zone-info-actions" class="flex flex-col gap-2">
+                <button id="zone-info-go-btn" class="w-full py-2 rounded font-bold text-[10px] flex items-center justify-center gap-2 transition-all shadow-lg uppercase tracking-wider"><span>Y ALLER</span></button>
+            </div>
         </div>
     </div>
 </div>
@@ -660,6 +671,7 @@
     <script src="js/game/loop.js"></script>
 </body>
 </html>
+
 
 
 

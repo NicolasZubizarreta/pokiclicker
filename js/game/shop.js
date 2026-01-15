@@ -36,6 +36,7 @@ function buyItem(id) {
         }
         
         updateUI(); renderBag(); renderShop();
+        if (state.zoneIdx === -6) renderMallPanel();
     }
 }
 

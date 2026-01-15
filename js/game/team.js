@@ -20,6 +20,9 @@ function addToPokedex(id) {
     }
 }
 
+function canEvolveAny(id) {
+    return EVOLUTIONS[id] !== undefined || STONE_EVOLUTIONS[id] !== undefined;
+}
 
 function getBaseForm(id) {
     // Build reverse map lazily
@@ -29,6 +32,14 @@ function getBaseForm(id) {
             const parent = parseInt(k);
             if (Array.isArray(v.id)) {
                 v.id.forEach(child => window.PRE_EVO_MAP[child] = parent);
+            } else {
+                window.PRE_EVO_MAP[v.id] = parent;
+            }
+        }
+        for (const [k, v] of Object.entries(STONE_EVOLUTIONS)) {
+            const parent = parseInt(k);
+            if (Array.isArray(v)) {
+                v.forEach(child => window.PRE_EVO_MAP[child.id] = parent);
             } else {
                 window.PRE_EVO_MAP[v.id] = parent;
             }

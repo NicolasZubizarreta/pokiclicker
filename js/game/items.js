@@ -4,6 +4,8 @@ function initShinyTokenUse() {
     if(state.inv.shinyToken <= 0) return;
     state.shinyTokenMode = true;
     state.candyMode = false;
+    state.stoneMode = false;
+    state.stoneType = null;
     state.swapIdx = null;
     showFeedback("SÉLECTIONNEZ UN POKÉMON", "yellow");
     renderTeam();
@@ -108,6 +110,8 @@ function initCandyUse() {
     if(state.inv.candy <= 0) return;
     state.candyMode = true;
     state.shinyTokenMode = false;
+    state.stoneMode = false;
+    state.stoneType = null;
     state.candyTargetIdx = null;
     showFeedback("SÉLECTIONNEZ UN POKÉMON", "blue");
     renderTeam();
@@ -131,6 +135,8 @@ function handleTeamClick(i) {
         useShinyTokenOn(i);
     } else if (state.everstoneMode) {
         useEverstoneOn(i);
+    } else if (state.stoneMode) {
+        useStoneOn(i);
     }
 }
 
@@ -182,8 +188,22 @@ function initEverstoneUse() {
     state.everstoneMode = true;
     state.candyMode = false;
     state.shinyTokenMode = false;
+    state.stoneMode = false;
+    state.stoneType = null;
     state.swapIdx = null;
     showFeedback("SELECTIONNEZ UN POKEMON", "gray");
+    renderTeam();
+}
+
+function cancelItemModes() {
+    if (!state) return;
+    state.candyMode = false;
+    state.candyTargetIdx = null;
+    state.candyAmount = 1;
+    state.shinyTokenMode = false;
+    state.everstoneMode = false;
+    state.stoneMode = false;
+    state.stoneType = null;
     renderTeam();
 }
 
@@ -202,7 +222,7 @@ function useEverstoneOn(i) {
     if (state.inv.everstone <= 0) { showFeedback("PLUS DE PIERRE STASE !", "red"); return; }
 
     const stage = getEvolutionStage(p.id);
-    const canEvolve = EVOLUTIONS[p.id] !== undefined;
+    const canEvolve = canEvolveAny(p.id);
     if (stage !== 1 || !canEvolve) { showFeedback("POKEMON INCOMPATIBLE !", "red"); return; }
 
     state.inv.everstone--;
@@ -211,5 +231,57 @@ function useEverstoneOn(i) {
     showFeedback("PIERRE STASE EQUIPEE !", "gray");
     renderTeam(); renderBag(); updateUI();
 }
+
+function getStoneEvolution(pokeId, stoneId) {
+    const evo = STONE_EVOLUTIONS[pokeId];
+    if (!evo) return null;
+    if (Array.isArray(evo)) return evo.find(entry => entry.stone === stoneId) || null;
+    return evo.stone === stoneId ? evo : null;
+}
+
+function initStoneUse(stoneId) {
+    const item = ITEMS[stoneId];
+    if (!item) return;
+    if (state.inv[item.invKey] <= 0) return;
+    state.stoneMode = true;
+    state.stoneType = stoneId;
+    state.candyMode = false;
+    state.shinyTokenMode = false;
+    state.everstoneMode = false;
+    state.swapIdx = null;
+    showFeedback("SÉLECTIONNEZ UN POKÉMON", "yellow");
+    renderTeam();
+}
+
+function useStoneOn(i) {
+    const p = state.team[i];
+    if (!p || p.isEgg) { showFeedback("POKÉMON INVALIDE !", "red"); return; }
+    if (p.everstone) { showFeedback("PIERRE STASE ÉQUIPÉE !", "red"); return; }
+
+    const stoneId = state.stoneType;
+    const item = ITEMS[stoneId];
+    if (!item || state.inv[item.invKey] <= 0) { showFeedback("PLUS DE PIERRE !", "red"); return; }
+
+    const evo = getStoneEvolution(p.id, stoneId);
+    if (!evo) { showFeedback("POKÉMON INCOMPATIBLE !", "red"); return; }
+
+    if (confirm(`Utiliser ${item.name} sur ${p.name} ?`)) {
+        state.inv[item.invKey]--;
+        state.stoneMode = false;
+        state.stoneType = null;
+        evolveWithStone(p, evo);
+        renderBag(); updateUI();
+    }
+}
+
+document.addEventListener('click', (e) => {
+    if (typeof state === 'undefined') return;
+    if (!state.candyMode && !state.shinyTokenMode && !state.everstoneMode && !state.stoneMode) return;
+    if (e.target.closest('#team-container') || e.target.closest('#bag-container') ||
+        e.target.closest('#mobile-team-view') || e.target.closest('#mobile-bag-view')) {
+        return;
+    }
+    cancelItemModes();
+});
 
 

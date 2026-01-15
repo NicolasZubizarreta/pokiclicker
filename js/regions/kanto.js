@@ -21,7 +21,7 @@ const MAP_DATA = [
     { type: "rect", coords: [1147,307,1193,353], name: "Tunnel Rocheux", zoneId: 9, color: "blue" },
     { type: "circle", coords: [1171,511,38], name: "Lavanville", zoneId: null, color: "gray" }, // Non jouable
     { type: "rect", coords: [1163,502,1209,548], name: "Tour Pokémon", zoneId: 10, color: "blue" },
-    { type: "circle", coords: [751,510,38], name: "Arène de Céladopole", zoneId: 11, color: "red" },
+    { type: "circle", coords: [751,510,38], name: "Céladopole", zoneId: 11, color: "red" },
     { type: "rect", coords: [1147,367,1193,413], name: "Centrale", zoneId: 12, color: "blue" },
     { type: "circle", coords: [810,870,38], name: "Arène de Parmanie", zoneId: 13, color: "red" },
     { type: "rect", coords: [923,503,969,548], name: "Sylphe SARL", zoneId: 14, color: "blue" },
@@ -67,8 +67,8 @@ const ZONES = [
    pokemons:[
      {name:"Racaillou", id:74, rarity:"Commun", spawnRate:0.3, catchRate:255},
      {name:"Sabelette", id:27, rarity:"Commun", spawnRate:0.25, catchRate:255},
-     {name:"Nidoran♀", id:29, rarity:"Peu Commun", spawnRate:0.15, catchRate:235},
-     {name:"Nidoran♂", id:32, rarity:"Peu Commun", spawnRate:0.15, catchRate:235},
+     {name:"Nidoran?", id:29, rarity:"Peu Commun", spawnRate:0.15, catchRate:235},
+     {name:"Nidoran?", id:32, rarity:"Peu Commun", spawnRate:0.15, catchRate:235},
      {name:"Onix", id:95, rarity:"Rare", spawnRate:0.1, catchRate:45},
      {name:"Carapuce", id:7, rarity:"Très Rare", spawnRate:0.05, catchRate:45}
    ], boss:{name:"Pierre (Onix)", id:95, level:14, catchRate:0, badge:"Roche"}},
@@ -289,6 +289,12 @@ ZONES[-3] = {id:-3, name:"Chez Blue", bg:"img/kanto/background/Chez Blue.png", m
 ZONES[-2] = {id:-2, name:"Labo Pokémon du Prof. Chen", bg:"img/kanto/background/LaboPokemon.png", minLevel:0, maxLevel:0, pokemons:[], boss:{name:"", id:0, level:0, catchRate:0}};
 ZONES[-5] = {id:-5, name:"Panthéon Pokémon", bg:"img/kanto/background/Pantheon.png", minLevel:0, maxLevel:0, pokemons:[], boss:{name:"", id:0, level:0, catchRate:0}};
 ZONES[-1] = {id:-1, name:"Pension Pokémon", bg:"img/kanto/background/Pension.png", minLevel:0, maxLevel:0, pokemons:[], boss:{name:"", id:0, level:0, catchRate:0}};
+ZONES[-6] = {id:-6, name:"Centre Commercial", bg:"img/kanto/background/CentreCommercial.png", minLevel:0, maxLevel:0, pokemons:[], boss:{name:"", id:0, level:0, catchRate:0}};
+ZONES[-7] = {id:-7, name:"Casino", bg:"img/kanto/background/Casino.png", minLevel:0, maxLevel:0, pokemons:[], boss:{name:"", id:0, level:0, catchRate:0}};
+
+
+
+
 
 
 

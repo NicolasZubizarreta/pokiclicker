@@ -7,11 +7,16 @@ const ITEMS = {
     candy: { name: "Bonbon", price: 5000, desc: "Fait monter un Pokémon de niveau", type: "consumable", zone: 8, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/rare-candy.png", invKey: "candy" },
     masterball: { name: "Master Ball", price: 150000, desc: "Capture à coup sûr (100%)", type: "consumable", zone: 16, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/master-ball.png", invKey: "masterball" },
     repel: { name: "Repousse", price: 2000, desc: "Empêche les Pokémon communs d'apparaître pendant 30s", type: "consumable", zone: 4, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/repel.png", invKey: "repel" },    
-    xAttack: { name: "Attaque +", price: 7500, desc: "Dégâts/clic +50% (30s)", type: "consumable", zone: 8, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/x-attack.png", invKey: "xAttack" },
-    xSpecial: { name: "Attaque Spé +", price: 10000, desc: "DPS Équipe +50% (30s)", type: "consumable", zone: 12, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/x-sp-atk.png", invKey: "xSpecial" },
+    xAttack: { name: "Attaque +", price: 7500, desc: "Dégâts/clic +50% (30s)", type: "consumable", zone: 8, shop: "mall", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/x-attack.png", invKey: "xAttack" },
+    xSpecial: { name: "Attaque Spé +", price: 10000, desc: "DPS Équipe +50% (30s)", type: "consumable", zone: 12, shop: "mall", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/x-sp-atk.png", invKey: "xSpecial" },
+    fireStone: { name: "Pierre Feu", price: 10000, desc: "Pierre d'évolution (fonction à venir)", type: "consumable", zone: 0, shop: "mall", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/fire-stone.png", invKey: "fireStone" },
+    waterStone: { name: "Pierre Eau", price: 10000, desc: "Pierre d'évolution (fonction à venir)", type: "consumable", zone: 0, shop: "mall", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/water-stone.png", invKey: "waterStone" },
+    leafStone: { name: "Pierre Plante", price: 10000, desc: "Pierre d'évolution (fonction à venir)", type: "consumable", zone: 0, shop: "mall", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/leaf-stone.png", invKey: "leafStone" },
+    thunderStone: { name: "Pierre Foudre", price: 10000, desc: "Pierre d'évolution (fonction à venir)", type: "consumable", zone: 0, shop: "mall", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/thunder-stone.png", invKey: "thunderStone" },
+    moonStone: { name: "Pierre Lune", price: 10000, desc: "Pierre d'évolution (fonction à venir)", type: "consumable", zone: 0, shop: "mall", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/moon-stone.png", invKey: "moonStone" },
     superRepel: { name: "Superepousse", price: 8000, desc: "Bloque Communs/Peu Communs (30s)", type: "consumable", zone: 13, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/super-repel.png", invKey: "superRepel" },
-    pokeDoll: { name: "Poké Poupée", price: 5000, desc: "Invoque le Boss (Si déjà vaincu)", type: "consumable", zone: 15, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-doll.png", invKey: "pokeDoll" },
-    everstone: { name: "Pierre Stase", price: 10000, desc: "Bloque l'évolution. Dégâts +25% (Base & Évolutif uniquement)", type: "consumable", zone: 10, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/everstone.png", invKey: "everstone" },
+    pokeDoll: { name: "Poké Poupée", price: 5000, desc: "Invoque le Boss (Si déjà vaincu)", type: "consumable", zone: 15, shop: "mall", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-doll.png", invKey: "pokeDoll" },
+    everstone: { name: "Pierre Stase", price: 10000, desc: "Bloque l'évolution. Dégâts +25% (Base & Évolutif uniquement)", type: "consumable", zone: 10, shop: "mall", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/everstone.png", invKey: "everstone" },
     // Améliorations
     runningShoes: { name: "Chaussures Sport", price: 2000, desc: "Divise le temps d'apparition des ennemis par 1.5", type: "upgrade", zone: 1, icon: "sprint", iconColor: "text-orange-400" },
     amuletCoin: { name: "Pièce Rune", price: 4000, desc: "Gains d'argent +30%", type: "upgrade", zone: 2, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/amulet-coin.png" },
@@ -36,26 +41,21 @@ const EVOLUTIONS = {
     19:{id:20,lvl:20,name:"Rattatac"},
     21:{id:22,lvl:20,name:"Rapasdepic"},
     23:{id:24,lvl:22,name:"Arbok"},
-    25:{id:26,lvl:22,name:"Raichu"},
     27:{id:28,lvl:22,name:"Sablaireau"},
-    29:{id:30,lvl:16,name:"Nidorina"}, 30:{id:31,lvl:36,name:"Nidoqueen"},
-    32:{id:33,lvl:16,name:"Nidorino"}, 33:{id:34,lvl:36,name:"Nidoking"},
-    35:{id:36,lvl:25,name:"Mélodelfe"},
-    37:{id:38,lvl:25,name:"Feunard"},
-    39:{id:40,lvl:25,name:"Grodoudou"},
+    29:{id:30,lvl:16,name:"Nidorina"},
+    32:{id:33,lvl:16,name:"Nidorino"},
     41:{id:42,lvl:22,name:"Nosferalto"},
-    43:{id:44,lvl:21,name:"Ortide"}, 44:{id:45,lvl:32,name:"Rafflesia"}, // Rafflesia requires Stone usually
+    43:{id:44,lvl:21,name:"Ortide"},
     46:{id:47,lvl:24,name:"Parasect"},
     48:{id:49,lvl:31,name:"Aéromite"},
     50:{id:51,lvl:26,name:"Triopikeur"},
     52:{id:53,lvl:28,name:"Persian"},
     54:{id:55,lvl:33,name:"Akwakwak"},
     56:{id:57,lvl:28,name:"Colossinge"},
-    58:{id:59,lvl:25,name:"Arcanin"},
-    60:{id:61,lvl:25,name:"Têtarte"}, 61:{id:62,lvl:35,name:"Tartard"},
+    60:{id:61,lvl:25,name:"Têtarte"},
     63:{id:64,lvl:16,name:"Kadabra"}, 64:{id:65,lvl:36,name:"Alakazam"}, // Trade logic ignored for clicker
     66:{id:67,lvl:28,name:"Machopeur"}, 67:{id:68,lvl:40,name:"Mackogneur"},
-    69:{id:70,lvl:21,name:"Boustiflor"}, 70:{id:71,lvl:32,name:"Empiflor"},
+    69:{id:70,lvl:21,name:"Boustiflor"},
     72:{id:73,lvl:30,name:"Tentacruel"},
     74:{id:75,lvl:25,name:"Gravalanch"}, 75:{id:76,lvl:36,name:"Grolem"},
     77:{id:78,lvl:40,name:"Galopa"},
@@ -64,23 +64,44 @@ const EVOLUTIONS = {
     84:{id:85,lvl:31,name:"Dodrio"},
     86:{id:87,lvl:34,name:"Lamantine"},
     88:{id:89,lvl:38,name:"Grotadmorv"},
-    90:{id:91,lvl:30,name:"Crustabri"},
+    
     92:{id:93,lvl:25,name:"Spectrum"}, 93:{id:94,lvl:40,name:"Ectoplasma"},
     96:{id:97,lvl:26,name:"Hypnomade"},
     98:{id:99,lvl:28,name:"Krabboss"},
     100:{id:101,lvl:30,name:"Électrode"},
-    102:{id:103,lvl:30,name:"Noadkoko"},
+    
     104:{id:105,lvl:28,name:"Ossatueur"},
     109:{id:110,lvl:35,name:"Smogogo"},
     111:{id:112,lvl:42,name:"Rhinoféros"},
     116:{id:117,lvl:32,name:"Hypocéan"},
     118:{id:119,lvl:33,name:"Poissoroy"},
-    120:{id:121,lvl:30,name:"Staross"},
+    
     129:{id:130,lvl:20,name:"Léviator"},
-    133:{id:[134,135,136],lvl:20,name:["Aquali","Voltali","Pyroli"]},
+    
     138:{id:139,lvl:40,name:"Amonistar"},
     140:{id:141,lvl:40,name:"Kabutops"},
     147:{id:148,lvl:30,name:"Draco"}, 148:{id:149,lvl:55,name:"Dracolosse"}
+};
+
+const STONE_EVOLUTIONS = {
+    25: { id: 26, name: "Raichu", stone: "thunderStone" },
+    37: { id: 38, name: "Feunard", stone: "fireStone" },
+    58: { id: 59, name: "Arcanin", stone: "fireStone" },
+    61: { id: 62, name: "Tartard", stone: "waterStone" },
+    90: { id: 91, name: "Crustabri", stone: "waterStone" },
+    120: { id: 121, name: "Staross", stone: "waterStone" },
+    44: { id: 45, name: "Rafflesia", stone: "leafStone" },
+    70: { id: 71, name: "Empiflor", stone: "leafStone" },
+    102: { id: 103, name: "Noadkoko", stone: "leafStone" },
+    30: { id: 31, name: "Nidoqueen", stone: "moonStone" },
+    33: { id: 34, name: "Nidoking", stone: "moonStone" },
+    35: { id: 36, name: "Mélodelfe", stone: "moonStone" },
+    39: { id: 40, name: "Grodoudou", stone: "moonStone" },
+    133: [
+        { id: 134, name: "Aquali", stone: "waterStone" },
+        { id: 135, name: "Voltali", stone: "thunderStone" },
+        { id: 136, name: "Pyroli", stone: "fireStone" }
+    ]
 };
 
 const BASE_STATS = {
