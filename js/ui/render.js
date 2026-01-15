@@ -14,7 +14,9 @@ function renderTeam() {
         const swapMode = state.swapIdx!==null;
         const candyMode = state.candyMode;
         const isCandyTarget = candyMode && state.candyTargetIdx === i;
-        const isInteractive = swapMode || candyMode || state.shinyTokenMode || state.everstoneMode || state.stoneMode;
+        const calciumMode = state.calciumMode;
+        const isCalciumTarget = calciumMode && state.calciumTargetIdx === i;
+        const isInteractive = swapMode || candyMode || calciumMode || state.shinyTokenMode || state.everstoneMode || state.stoneMode;
         const isEgg = p.isEgg;
         const isDaycareSelect = state.daycareMode && state.daycareMode.active;
         
@@ -34,6 +36,13 @@ function renderTeam() {
              const stoneId = state.stoneType;
              const canStone = !!stoneId && !p.isEgg && !p.everstone && getStoneEvolution(p.id, stoneId);
              if (canStone) {
+                 borderClass = 'border-green-400 bg-green-900/30 cursor-pointer animate-pulse'; // Compatible
+             } else {
+                 borderClass = 'border-gray-700 bg-gray-800/50 opacity-50 cursor-not-allowed'; // Incompatible
+             }
+        } else if (state.calciumMode) {
+             const canCalcium = !p.isEgg && (p.calciumBoosts || 0) < 10;
+             if (canCalcium) {
                  borderClass = 'border-green-400 bg-green-900/30 cursor-pointer animate-pulse'; // Compatible
              } else {
                  borderClass = 'border-gray-700 bg-gray-800/50 opacity-50 cursor-not-allowed'; // Incompatible
@@ -100,7 +109,7 @@ function renderTeam() {
         </div>`
 
         html += `
-        <div data-uid="${p.uid}" oncontextmenu="openContextMenu('team', ${i}, event)" onclick="${(isInteractive || isDaycareSelect) ? `handleTeamClick(${i})` : `openContextMenu('team', ${i}, event)`}" class="flex items-center p-2 rounded border ${borderClass} hover:bg-slate-700 transition group">
+        <div data-uid="${p.uid}" oncontextmenu="openContextMenu('team', ${i}, event)" onclick="onTeamClick(${i}, event)" class="flex items-center p-2 rounded border ${borderClass} hover:bg-slate-700 transition group">
             <img src="${displayImg}" class="w-10 h-10 mr-3 ${!isEgg ? shinyClass : ''} ${animClass} ${specialClass}">
             <div class="flex-1 min-w-0">
                 ${nameDisplay}
@@ -114,6 +123,14 @@ function renderTeam() {
                 <button onclick="adjustCandyAmount(1)" class="w-5 h-5 bg-slate-600 hover:bg-slate-500 rounded flex items-center justify-center"><span class="material-symbols-outlined text-[14px]">add</span></button>
                 <button onclick="confirmCandyUse()" class="ml-1 text-green-400 hover:text-green-300 material-symbols-outlined text-[16px]" title="Confirmer">check</button>
                 <button onclick="cancelCandyUse()" class="text-red-400 hover:text-red-300 material-symbols-outlined text-[16px]" title="Annuler">close</button>
+            </div>
+            ` : isCalciumTarget ? `
+            <div class="flex items-center gap-1 bg-slate-800 rounded p-1 border border-green-500" onclick="event.stopPropagation()">
+                <button onclick="adjustCalciumAmount(-1)" class="w-5 h-5 bg-slate-600 hover:bg-slate-500 rounded flex items-center justify-center"><span class="material-symbols-outlined text-[14px]">remove</span></button>
+                <span class="text-xs font-bold w-6 text-center text-white">${state.calciumAmount}</span>
+                <button onclick="adjustCalciumAmount(1)" class="w-5 h-5 bg-slate-600 hover:bg-slate-500 rounded flex items-center justify-center"><span class="material-symbols-outlined text-[14px]">add</span></button>
+                <button onclick="confirmCalciumUse()" class="ml-1 text-green-400 hover:text-green-300 material-symbols-outlined text-[16px]" title="Confirmer">check</button>
+                <button onclick="cancelCalciumUse()" class="text-red-400 hover:text-red-300 material-symbols-outlined text-[16px]" title="Annuler">close</button>
             </div>
             ` : `
             <div class="flex items-center gap-1">
@@ -287,6 +304,13 @@ function renderBag() {
         <div><div class="text-xs text-gray-400">Pierre Stase</div><div class="text-sm font-bold">x${state.inv.everstone} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
     </div>`;
     }
+    if(state.inv.calcium>0) {
+        consumables += `
+    <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 cursor-pointer hover:bg-slate-600" onclick="initCalciumUse()" title="${ITEMS.calcium.desc}">
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/calcium.png" class="w-6 h-6">
+        <div><div class="text-xs text-gray-400">Calcium</div><div class="text-sm font-bold">x${state.inv.calcium} <span class="text-[8px] text-yellow-500">UTILISER</span></div></div>
+    </div>`;
+    }
     if(state.inv.fireStone>0) {
         consumables += `
     <div class="bg-slate-700 p-2 rounded flex items-center gap-2 border border-slate-600 cursor-pointer hover:bg-slate-600" onclick="initStoneUse('fireStone')" title="${ITEMS.fireStone.desc}">
@@ -450,7 +474,7 @@ function renderMallPanel() {
     const mallContent = document.getElementById('mall-shop-content');
     if (!mallContent) return;
 
-    const mallItems = ['xAttack', 'xSpecial', 'pokeDoll', 'everstone', 'fireStone', 'waterStone', 'leafStone', 'thunderStone', 'moonStone'];
+    const mallItems = ['xAttack', 'xSpecial', 'pokeDoll', 'everstone', 'calcium', 'fireStone', 'waterStone', 'leafStone', 'thunderStone', 'moonStone'];
     let html = "";
 
     mallItems.forEach((id) => {

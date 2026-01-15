@@ -11,7 +11,7 @@ function getItemPrice(id) {
     const item = ITEMS[id];
     if(!item) return 0;
     let base = item.price;
-    if(item.type === 'consumable') {
+    if(item.type === 'consumable' && !item.noBadgeInflation) {
         base = Math.floor(base * (1 + state.badges.length * 0.05));
     }
     return base;

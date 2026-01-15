@@ -2,13 +2,13 @@
 
 function addToTeam(id,n,l,s,g) { 
     const maxXp = calcMaxXp(id, l);
-    state.team.push({id:id, name:n, level:l, isShiny:s, gender:g, happiness:0, xp:0, maxXp:maxXp, uid:Date.now() + Math.random(), img:getSprite(id, s), isFavorite:false}); 
+    state.team.push({id:id, name:n, level:l, isShiny:s, gender:g, happiness:0, xp:0, maxXp:maxXp, uid:Date.now() + Math.random(), img:getSprite(id, s), isFavorite:false, calciumBoosts:0}); 
     renderTeam(); 
 }
 
 function addToPC(id,n,l,s,g) { 
     const maxXp = calcMaxXp(id, l);
-    state.pc.push({id:id, name:n, level:l, isShiny:s, gender:g, happiness:0, xp:0, maxXp:maxXp, uid:Date.now() + Math.random(), img:getSprite(id, s), isFavorite:false}); 
+    state.pc.push({id:id, name:n, level:l, isShiny:s, gender:g, happiness:0, xp:0, maxXp:maxXp, uid:Date.now() + Math.random(), img:getSprite(id, s), isFavorite:false, calciumBoosts:0}); 
     renderPC(); 
 }
 
@@ -72,7 +72,8 @@ function getPokemonDps(p, targetId) {
     let everstoneBonus = p.everstone ? 1.25 : 1;
     let baseStat = BASE_STATS[p.id] || 40;
     let rawDmg = (baseStat * p.level) / 5;
-    return rawDmg * m * shinyBonus * happyMult * everstoneBonus;
+    let calciumMult = 1 + ((p.calciumBoosts || 0) * 0.02);
+    return rawDmg * m * shinyBonus * happyMult * everstoneBonus * calciumMult;
 }
 
 
@@ -91,7 +92,8 @@ function updateTeamStats() {
         const everstoneBonus = p.everstone ? 1.25 : 1;
         let baseStat = BASE_STATS[p.id] || 40;
         let rawDmg = (baseStat * p.level) / 5;
-        const dpsValue = (rawDmg * mult * shinyDpsMult * happyMult * everstoneBonus).toFixed(1);
+        let calciumMult = 1 + ((p.calciumBoosts || 0) * 0.02);
+        const dpsValue = (rawDmg * mult * shinyDpsMult * happyMult * everstoneBonus * calciumMult).toFixed(1);
         const genderSymbol = p.gender === 'male' ? '<span class="text-blue-400 text-[10px] ml-1 font-bold">♂</span>' : (p.gender === 'female' ? '<span class="text-pink-400 text-[10px] ml-1 font-bold">♀</span>' : '');
 
         elements.forEach(el => {

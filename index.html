@@ -214,6 +214,7 @@
                         </div>
                     </div>
                     <div class="text-[9px] text-yellow-400 mt-1 font-bold" id="summary-happy-bonus">+0.0% Dégâts</div>
+                    <div class="text-[9px] text-emerald-400 mt-1 font-bold hidden" id="summary-calcium-bonus"></div>
                 </div>
             </div>
 
@@ -658,48 +659,69 @@
             <div>
                 <h3 class="text-yellow-300 font-bold mb-2">Parcours principal (A à Z)</h3>
                 <p>1) Départ chez Maman (Bourg Palette): sors, puis va au Labo du Prof. Chen.</p>
-                <p>2) Choisis ton starter. Une fois choisi, ouvre la Carte et va sur la Route 1 (première zone).</p>
-                <p>3) Les dégâts viennent des clics ET du DPS des Pokémon de ton équipe.</p>
-                <p>4) Chaque zone a 10 étapes. Au boss (étape 10), tu débloques la zone suivante.</p>
-                <p>5) Tu as 30 secondes pour tuer le boss: si le timer expire, tu reviens à l’étape 9.</p>
-                <p>6) Capture les Pokémon sauvages pour te faire une équipe solide et avancer plus vite.</p>
-                <p>7) Utilise le Pokéshop pour acheter des consommables et améliorations. Plus tu avances dans les zones, plus d’objets et d’améliorations se débloquent.</p>
-                <p>8) Récupère les badges en battant les Arènes: bonus permanents. Tu peux voir leurs effets dans le menu Badges.</p>
-                <p>9) Complète le Pokédex pour débloquer des paliers et le Charme Chroma. Accès via le menu Pokédex.</p>
-                <p>9) Bats la Ligue pour accéder au Panthéon.</p>
+                <p class="mt-2">2) Choisis ton starter. Une fois choisi, ouvre la Carte et va sur la Route 1 (première zone).</p>
+                <p class="mt-2">3) Les dégâts viennent des clics ET du DPS des Pokémon de ton équipe.</p>
+                <p class="mt-2">4) Chaque zone a 10 étapes. Au boss (étape 10), tu débloques la zone suivante.</p>
+                <p class="mt-2">5) Tu as 30 secondes pour tuer le boss: si le timer expire, tu reviens à l’étape 9.</p>
+                <p class="mt-2">6) Capture les Pokémon sauvages pour te faire une équipe solide et avancer plus vite.</p>
+                <p class="mt-2">7) Utilise le Pokéshop pour acheter des consommables et améliorations. Plus tu avances dans les zones, plus d’objets et d’améliorations se débloquent.</p>
+                <p class="mt-2">8) Récupère les badges en battant les Arènes: bonus permanents. Tu peux voir leurs effets dans le menu Badges.</p>
+                <p class="mt-2">9) Complète le Pokédex pour débloquer des paliers et le Charme Chroma. Accès via le menu Pokédex.</p>
+                <p class="mt-2">10) Bats la Ligue pour accéder au Panthéon.</p>
             </div>
             <div>
                 <h3 class="text-yellow-300 font-bold mb-2">Fonctionnalités clés</h3>
                 <p>- Auto-attaque: active le DPS des Pokémon de l’équipe (bouton épées).</p>
-                <p>- Auto-clique (Restes): débloqué en zone 14 via l’amélioration Restes. Active un clic automatique via le bouton Auto-clic.</p>
-                <p>- Auto-stop: stoppe l’auto-combat sur Commun/Peu Commun/Rare/Très Rare/Légendaire/Shiny/Nouveau. Active/désactive via le bouton “main”, et configure via l’icône “settings”.</p>
-                <p>- Poké-Radar: affiche les Pokémon trouvables par zone. Débloqué en zone 8 via l’amélioration Poké-Radar.</p>
-                <p>- PC: débloqué en zone 3. Permet de stocker des Pokémon et gérer ta team.</p>
-                <p>- Pension: débloquée en zone 11 (Bourg Palette). Dépose 2 Pokémon pour tenter d’obtenir des œufs. Métamorph = bonus. Même type: 2% de chance d’œuf par combat. Même espèce: 4% par combat. Tu peux acheter plus de slots d’œufs.</p>
-                <p>- Carte: permet de téléporter vers les zones débloquées.</p>
-                <p>- Bonheur: augmente en combattant. Il donne un bonus de dégâts. Un Pokémon qui sort d’un œuf démarre à 125 de bonheur.</p>
-                <p>- Œufs: récupère un œuf à la pension, mets-le dans ton équipe, puis fais des combats pour l’éclore.</p>
+                <p class="mt-2">- Auto-clique (Restes): débloqué en zone 14 via l’amélioration Restes. Active un clic automatique via le bouton Auto-clic.</p>
+                <p class="mt-2">- Auto-stop: stoppe l’auto-combat sur Commun/Peu Commun/Rare/Très Rare/Légendaire/Shiny/Nouveau. Active/désactive via le bouton “main”, et configure via l’icône “settings”.</p>
+                <p class="mt-2">- Poké-Radar: affiche les Pokémon trouvables par zone. Débloqué en zone 8 via l’amélioration Poké-Radar.</p>
+                <p class="mt-2">- Fiche résumé: clique sur un Pokémon puis “Résumé” pour voir sexe, types, niveau et bonheur. Depuis cette fiche, tu peux aussi renommer, mettre en favori, relâcher, ou échanger un Pokémon avec le PC.</p>
+                <p class="mt-2">- Pension: débloquée en zone 11 (Bourg Palette). Dépose 2 Pokémon pour tenter d’obtenir des œufs. Métamorph = bonus. Même type: 2% de chance d’œuf par combat. Même espèce: 4% par combat. Tu peux acheter plus de slots d’œufs.</p>
+                <p class="mt-2">- Carte: permet de téléporter vers les zones débloquées.</p>
+                <p class="mt-2">- Bonheur: augmente en combattant. Il donne un bonus de dégâts. Un Pokémon qui sort d’un œuf démarre à 125 de bonheur.</p>
+                <p class="mt-2">- Œufs: récupère un œuf à la pension, mets-le dans ton équipe, puis fais des combats pour l’éclore.</p>
+                <p class="mt-2">- Menu Stats: accessible via Profil. Il récapitule tes statistiques principales.</p>
+            </div>
+            <div>
+                <h3 class="text-yellow-300 font-bold mb-2">Capture & Repousses</h3>
+                <p>Affaiblis un Pokémon puis utilise des Pokéballs. Les balls plus fortes augmentent la chance de capture (Super/Hyper/Master).</p>
+                <p class="mt-2">Repousse: bloque les Pokémon “Commun” pendant un temps. Super Repousse: bloque “Commun” et “Peu Commun”.</p>
             </div>
             <div>
                 <h3 class="text-yellow-300 font-bold mb-2">Pokédex & Récompenses</h3>
                 <p>Accès via le menu Pokédex. Capture des Pokémon pour remplir le Pokédex: chaque palier donne une récompense visible dans le menu “Récompenses”.</p>
-                <p>Compléter le Pokédex déclenche une scène avec le Prof. Chen qui te remet le Diplôme et le Charme Chroma.</p>
+                <p class="mt-2">Compléter le Pokédex déclenche une scène avec le Prof. Chen qui te remet le Diplôme et le Charme Chroma.</p>
+            </div>
+            <div>
+                <h3 class="text-yellow-300 font-bold mb-2">PC</h3>
+                <p>Débloqué en zone 3. Le PC stocke tes Pokémon capturés. Tu peux trier par numéro, nom, niveau ou favori.</p>
+                <p class="mt-2">Depuis ta team, utilise la fiche Résumé pour envoyer un Pokémon au PC ou en récupérer un.</p>
             </div>
             <div>
                 <h3 class="text-yellow-300 font-bold mb-2">Sauvegarde</h3>
                 <p>La sauvegarde est stockée en cache dans le navigateur (local). Pour être sûr de la garder ou pour jouer sur un autre appareil, utilise “Sauver” dans le profil: un fichier JSON est exporté.</p>
-                <p>Pour restaurer, utilise “Importer une sauvegarde (JSON)” dans le menu de début du jeu.</p>
+                <p class="mt-2">Pour restaurer, utilise “Importer une sauvegarde (JSON)” dans le menu de début du jeu.</p>
+            </div>
+            <div>
+                <h3 class="text-yellow-300 font-bold mb-2">Reset</h3>
+                <p>Le bouton Reset réinitialise la progression de la région en cours. Attention: c’est définitif.</p>
             </div>
             <div>
                 <h3 class="text-yellow-300 font-bold mb-2">Centre Commercial</h3>
                 <p>Débloqué via progression (à Céladopole) et accessible depuis la Carte.</p>
                 <p>Objets exclusifs: Attaque +, Attaque Spé +, Pierres d’évolution, Poké Poupée, Pierre Stase.</p>
-                <p>Les pierres font évoluer certains Pokémon (impossible si Pierre Stase équipée).</p>
+                <p class="mt-2">Les pierres font évoluer certains Pokémon (impossible si Pierre Stase équipée).</p>
+                <p class="mt-2">Pierre Stase: s’équipe via le Sac sur un Pokémon compatible. Elle bloque toute évolution et donne +25% dégâts. Retrait via la fiche Résumé.</p>
+            </div>
+            <div>
+                <h3 class="text-yellow-300 font-bold mb-2">CT Fauchage</h3>
+                <p>Débloquée en zone 12 via l’amélioration CT Fauchage au Pokéshop.</p>
+                <p class="mt-2">Effet: empêche un Pokémon sauvage de mourir (le laisse à 1 PV). Inutilisable sur les boss, avec un cooldown.</p>
             </div>
             <div>
                 <h3 class="text-yellow-300 font-bold mb-2">Ligue Pokémon</h3>
                 <p>La Ligue est composée de 10 boss à la suite. Tu affrontes un boss par étape, avec un timer de 30s pour chaque combat.</p>
-                <p>En battant la Ligue, tu accèdes à la prochaine région.</p>
+                <p class="mt-2">En battant la Ligue, tu accèdes à la prochaine région.</p>
             </div>
             <div>
                 <h3 class="text-yellow-300 font-bold mb-2">Casino</h3>
@@ -708,9 +730,9 @@
             <div>
                 <h3 class="text-yellow-300 font-bold mb-2">Easter Eggs</h3>
                 <p>- Renomme un Pokémon en “dinnerbone” ou “grumm” pour l’inverser.</p>
-                <p>- Renomme en “jeb_” pour un effet arc-en-ciel.</p>
-                <p>- Renomme en “caca” pour un filtre spécial.</p>
-                <p>- Renomme en “Daran” pour obtenir un skin de Pokémon exclusif.</p>
+                <p class="mt-2">- Renomme en “jeb_” pour un effet arc-en-ciel.</p>
+                <p class="mt-2">- Renomme en “caca” pour un filtre spécial.</p>
+                <p class="mt-2">- Renomme en “Daran” pour obtenir un skin de Pokémon exclusif.</p>
             </div>
         </div>
     </div>

@@ -79,7 +79,8 @@ function getDPS(targetId) {
         let everstoneBonus = p.everstone ? 1.25 : 1;
         let baseStat = BASE_STATS[p.id] || 40; // Fallback if ID missing
         let rawDmg = (baseStat * p.level) / 5;
-        return s + (rawDmg * m * shinyBonus * happyMult * everstoneBonus);
+        let calciumMult = 1 + ((p.calciumBoosts || 0) * 0.02);
+        return s + (rawDmg * m * shinyBonus * happyMult * everstoneBonus * calciumMult);
     }, 0); 
     
     if(hasMilestone(30)) dps *= 1.5;

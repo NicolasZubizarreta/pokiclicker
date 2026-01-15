@@ -1,4 +1,4 @@
-﻿// --- MODULE ---
+// --- MODULE ---
 
 function initShinyTokenUse() {
     if(state.inv.shinyToken <= 0) return;
@@ -6,6 +6,9 @@ function initShinyTokenUse() {
     state.candyMode = false;
     state.stoneMode = false;
     state.stoneType = null;
+    state.calciumMode = false;
+    state.calciumTargetIdx = null;
+    state.calciumAmount = 1;
     state.swapIdx = null;
     showFeedback("SÉLECTIONNEZ UN POKÉMON", "yellow");
     renderTeam();
@@ -110,13 +113,32 @@ function initCandyUse() {
     if(state.inv.candy <= 0) return;
     state.candyMode = true;
     state.shinyTokenMode = false;
+    state.calciumMode = false;
     state.stoneMode = false;
     state.stoneType = null;
     state.candyTargetIdx = null;
+    state.calciumTargetIdx = null;
+    state.calciumAmount = 1;
     showFeedback("SÉLECTIONNEZ UN POKÉMON", "blue");
     renderTeam();
 }
 
+
+function onTeamClick(i, event) {
+    if (state.daycareMode && state.daycareMode.active) {
+        depositToDaycare('team', i);
+        return;
+    }
+    if (state.swapIdx !== null) {
+        confirmSwap(i);
+        return;
+    }
+    if (state.candyMode || state.calciumMode || state.shinyTokenMode || state.everstoneMode || state.stoneMode) {
+        handleTeamClick(i);
+        return;
+    }
+    openContextMenu('team', i, event);
+}
 
 function handleTeamClick(i) {
     if (state.daycareMode && state.daycareMode.active) {
@@ -131,6 +153,14 @@ function handleTeamClick(i) {
         state.candyTargetIdx = i;
         state.candyAmount = 1;
         renderTeam();
+        } else if (state.calciumMode) {
+        const p = state.team[i];
+        if (!p || p.isEgg) { showFeedback("POKÉMON INVALIDE !", "red"); return; }
+        if ((p.calciumBoosts || 0) >= 10) { showFeedback("LIMITE ATTEINTE !", "red"); return; }
+        state.calciumTargetIdx = i;
+        state.calciumAmount = 1;
+        renderTeam();
+        return;
     } else if (state.shinyTokenMode) {
         useShinyTokenOn(i);
     } else if (state.everstoneMode) {
@@ -160,24 +190,65 @@ function confirmCandyUse() {
     const i = state.candyTargetIdx;
     const p = state.team[i];
     const count = state.candyAmount;
-    
+
     if(count > 0 && state.inv.candy >= count) {
         state.inv.candy -= count;
         p.level += count;
         p.maxXp = calcMaxXp(p.id, p.level);
-        playTone('up'); 
+        playTone('up');
         showFeedback(`+${count} NIVEAUX !`, "green");
-        
+
         state.candyMode = false;
         state.candyTargetIdx = null;
-        updateUI(); renderBag(); renderTeam(); 
+        updateUI(); renderBag(); renderTeam();
     }
 }
-
 
 function cancelCandyUse() {
     state.candyMode = false;
     state.candyTargetIdx = null;
+    renderTeam();
+}
+function adjustCalciumAmount(delta) {
+    if (state.calciumTargetIdx === null) return;
+    const p = state.team[state.calciumTargetIdx];
+    const maxUse = Math.min(state.inv.calcium, 10 - (p.calciumBoosts || 0));
+
+    let newAmt = state.calciumAmount + delta;
+    if (newAmt < 1) newAmt = 1;
+    if (newAmt > maxUse) newAmt = maxUse;
+
+    state.calciumAmount = newAmt;
+    renderTeam();
+}
+
+function confirmCalciumUse() {
+    if (state.calciumTargetIdx === null) return;
+    const i = state.calciumTargetIdx;
+    const p = state.team[i];
+    const maxUse = Math.min(state.inv.calcium, 10 - (p.calciumBoosts || 0));
+    const count = Math.min(state.calciumAmount, maxUse);
+
+    if (count <= 0) return;
+
+    state.inv.calcium -= count;
+    p.calciumBoosts = (p.calciumBoosts || 0) + count;
+    showFeedback(`+${count * 2}% DPS PERMANENT`, "green");
+
+    state.calciumMode = false;
+    state.calciumTargetIdx = null;
+    state.calciumAmount = 1;
+
+    renderTeam(); renderBag(); updateUI();
+    if (state.summaryPokemon && state.summaryPokemon.location === "team" && state.summaryPokemon.index === i) {
+        showPokemonSummary('team', i);
+    }
+}
+
+function cancelCalciumUse() {
+    state.calciumMode = false;
+    state.calciumTargetIdx = null;
+    state.calciumAmount = 1;
     renderTeam();
 }
 
@@ -188,10 +259,13 @@ function initEverstoneUse() {
     state.everstoneMode = true;
     state.candyMode = false;
     state.shinyTokenMode = false;
+    state.calciumMode = false;
+    state.calciumTargetIdx = null;
+    state.calciumAmount = 1;
     state.stoneMode = false;
     state.stoneType = null;
     state.swapIdx = null;
-    showFeedback("SELECTIONNEZ UN POKEMON", "gray");
+    showFeedback("SÉLECTIONNEZ UN POKÉMON", "gray");
     renderTeam();
 }
 
@@ -202,6 +276,9 @@ function cancelItemModes() {
     state.candyAmount = 1;
     state.shinyTokenMode = false;
     state.everstoneMode = false;
+    state.calciumMode = false;
+    state.calciumTargetIdx = null;
+    state.calciumAmount = 1;
     state.stoneMode = false;
     state.stoneType = null;
     renderTeam();
@@ -210,7 +287,7 @@ function cancelItemModes() {
 
 function useEverstoneOn(i) {
     const p = state.team[i];
-    if (!p || p.isEgg) { showFeedback("POKEMON INVALIDE !", "red"); return; }
+    if (!p || p.isEgg) { showFeedback("POKÉMON INVALIDE !", "red"); return; }
 
     if (p.everstone) {
         showFeedback("RETIREZ VIA LE MENU !", "red");
@@ -223,12 +300,12 @@ function useEverstoneOn(i) {
 
     const stage = getEvolutionStage(p.id);
     const canEvolve = canEvolveAny(p.id);
-    if (stage !== 1 || !canEvolve) { showFeedback("POKEMON INCOMPATIBLE !", "red"); return; }
+    if (stage !== 1 || !canEvolve) { showFeedback("POKÉMON INCOMPATIBLE !", "red"); return; }
 
     state.inv.everstone--;
     p.everstone = true;
     state.everstoneMode = false;
-    showFeedback("PIERRE STASE EQUIPEE !", "gray");
+    showFeedback("PIERRE STASE ÉQUIPÉE !", "gray");
     renderTeam(); renderBag(); updateUI();
 }
 
@@ -248,10 +325,29 @@ function initStoneUse(stoneId) {
     state.candyMode = false;
     state.shinyTokenMode = false;
     state.everstoneMode = false;
+    state.calciumMode = false;
+    state.calciumTargetIdx = null;
+    state.calciumAmount = 1;
     state.swapIdx = null;
     showFeedback("SÉLECTIONNEZ UN POKÉMON", "yellow");
     renderTeam();
 }
+
+function initCalciumUse() {
+    if (state.inv.calcium <= 0) return;
+    state.calciumMode = true;
+    state.candyMode = false;
+    state.shinyTokenMode = false;
+    state.everstoneMode = false;
+    state.stoneMode = false;
+    state.stoneType = null;
+    state.calciumTargetIdx = null;
+    state.calciumAmount = 1;
+    state.swapIdx = null;
+    showFeedback("SÉLECTIONNEZ UN POKÉMON", "yellow");
+    renderTeam();
+}
+
 
 function useStoneOn(i) {
     const p = state.team[i];
@@ -276,12 +372,17 @@ function useStoneOn(i) {
 
 document.addEventListener('click', (e) => {
     if (typeof state === 'undefined') return;
-    if (!state.candyMode && !state.shinyTokenMode && !state.everstoneMode && !state.stoneMode) return;
+    if (!state.candyMode && !state.calciumMode && !state.shinyTokenMode && !state.everstoneMode && !state.stoneMode) return;
     if (e.target.closest('#team-container') || e.target.closest('#bag-container') ||
         e.target.closest('#mobile-team-view') || e.target.closest('#mobile-bag-view')) {
         return;
     }
     cancelItemModes();
 });
+
+
+
+
+
 
 

@@ -41,6 +41,9 @@ function loadData(data) {
     state.candyAmount = 1;
     state.shinyTokenMode = false;
     state.everstoneMode = false;
+    state.calciumMode = false;
+    state.calciumTargetIdx = null;
+    state.calciumAmount = 1;
     state.summaryPokemon = null;
     state.contextTarget = null;
     if(state.introBagUnlocked === undefined) state.introBagUnlocked = false;
@@ -78,6 +81,7 @@ function loadData(data) {
     if(state.inv.leafStone === undefined) state.inv.leafStone = 0;
     if(state.inv.thunderStone === undefined) state.inv.thunderStone = 0;
     if(state.inv.moonStone === undefined) state.inv.moonStone = 0;
+    if(state.inv.calcium === undefined) state.inv.calcium = 0;
     if(!state.attackBoostEndTime) state.attackBoostEndTime = 0;
     if(!state.dpsBoostEndTime) state.dpsBoostEndTime = 0;
     if(!state.superRepelEndTime) state.superRepelEndTime = 0;
@@ -117,6 +121,7 @@ function loadData(data) {
         if(p.isFavorite === undefined) p.isFavorite = false;
         if(p.isRenamed === undefined) p.isRenamed = false;
         if(p.everstone === undefined) p.everstone = false;
+        if(p.calciumBoosts === undefined) p.calciumBoosts = 0;
     };
     
     state.team.forEach(initP);
@@ -670,7 +675,7 @@ function resetSave() {
     if(!confirm(`R\xe9initialiser la progression de ${regionName} ?`)) return;
 
     state.money = 0;
-    state.inv = { balls: 0, superballs: 0, hyperballs: 0, candy: 0, omniExp: 0, shinyToken: 0, masterball: 0, repel: 0, xAttack: 0, xSpecial: 0, superRepel: 0, pokeDoll: 0, everstone: 0, fireStone: 0, waterStone: 0, leafStone: 0, thunderStone: 0, moonStone: 0 };
+    state.inv = { balls: 0, superballs: 0, hyperballs: 0, candy: 0, omniExp: 0, shinyToken: 0, masterball: 0, repel: 0, xAttack: 0, xSpecial: 0, superRepel: 0, pokeDoll: 0, everstone: 0, fireStone: 0, waterStone: 0, leafStone: 0, thunderStone: 0, moonStone: 0, calcium: 0 };
     state.upgrades = { runningShoes: false, amuletCoin: false, protein: false, expShare: false, hardStone: false, bicycle: false, luckyEgg: false, leftovers: false, pokeradar: false, falseSwipe: false, shinyCharm: false, diploma: false };
     state.team = [];
     state.pc = [];
@@ -705,8 +710,9 @@ function resetSave() {
     state.candyAmount = 1;
     state.shinyTokenMode = false;
     state.everstoneMode = false;
-    state.stoneMode = false;
-    state.stoneType = null;
+    state.calciumMode = false;
+    state.calciumTargetIdx = null;
+    state.calciumAmount = 1;
     state.stoneMode = false;
     state.stoneType = null;
     state.summaryPokemon = null;
