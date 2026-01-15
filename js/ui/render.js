@@ -58,6 +58,7 @@ function renderTeam() {
         const shinyDpsMult = p.isShiny ? 1.5 : 1;
         const happyMult = isEgg ? 1 : 1 + ((p.happiness || 0) * 0.001);
         const everstoneBonus = p.everstone ? 1.25 : 1;
+        const calciumMult = 1 + ((p.calciumBoosts || 0) * 0.02);
         const everstoneIcon = p.everstone ? "<span class='text-gray-400 ml-1' title='Pierre Stase'>⏳</span>" : "";
         let baseStat = BASE_STATS[p.id] || 40;
         let rawDmg = (baseStat * p.level) / 5;
@@ -113,7 +114,7 @@ function renderTeam() {
             <img src="${displayImg}" class="w-10 h-10 mr-3 ${!isEgg ? shinyClass : ''} ${animClass} ${specialClass}">
             <div class="flex-1 min-w-0">
                 ${nameDisplay}
-                <div class="team-dps-text text-[10px] text-yellow-500">${isEgg ? `<span class="text-gray-400">Éclosion: ${p.hatchSteps}/${p.maxSteps}</span>` : `DPS: ${(rawDmg*mult*shinyDpsMult*happyMult*everstoneBonus).toFixed(1)} <span class="${multColor} text-[8px]">x${mult}</span>${genderSymbol}`}</div>
+                <div class="team-dps-text text-[10px] text-yellow-500">${isEgg ? `<span class="text-gray-400">Éclosion: ${p.hatchSteps}/${p.maxSteps}</span>` : `DPS: ${(rawDmg*mult*shinyDpsMult*happyMult*everstoneBonus*calciumMult).toFixed(1)} <span class="${multColor} text-[8px]">x${mult}</span>${genderSymbol}`}</div>
             </div>
             ${!swapMode ? `
             ${isCandyTarget ? `
@@ -447,6 +448,7 @@ function renderShop() {
     
     for (const [id, item] of Object.entries(ITEMS)) {
         if (item.type !== 'upgrade') continue;
+        if (item.shop === 'casino') continue;
         if (state.unlockedZone < item.zone && state.zoneIdx < item.zone) continue;
 
         const owned = state.upgrades[id];

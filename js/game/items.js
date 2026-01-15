@@ -134,6 +134,7 @@ function onTeamClick(i, event) {
         return;
     }
     if (state.candyMode || state.calciumMode || state.shinyTokenMode || state.everstoneMode || state.stoneMode) {
+        if (event) event.stopPropagation();
         handleTeamClick(i);
         return;
     }
@@ -153,7 +154,7 @@ function handleTeamClick(i) {
         state.candyTargetIdx = i;
         state.candyAmount = 1;
         renderTeam();
-        } else if (state.calciumMode) {
+    } else if (state.calciumMode) {
         const p = state.team[i];
         if (!p || p.isEgg) { showFeedback("POKÉMON INVALIDE !", "red"); return; }
         if ((p.calciumBoosts || 0) >= 10) { showFeedback("LIMITE ATTEINTE !", "red"); return; }
@@ -209,6 +210,7 @@ function cancelCandyUse() {
     state.candyTargetIdx = null;
     renderTeam();
 }
+
 function adjustCalciumAmount(delta) {
     if (state.calciumTargetIdx === null) return;
     const p = state.team[state.calciumTargetIdx];
@@ -251,6 +253,8 @@ function cancelCalciumUse() {
     state.calciumAmount = 1;
     renderTeam();
 }
+
+
 
 
 function initEverstoneUse() {
@@ -347,6 +351,7 @@ function initCalciumUse() {
     showFeedback("SÉLECTIONNEZ UN POKÉMON", "yellow");
     renderTeam();
 }
+
 
 
 function useStoneOn(i) {

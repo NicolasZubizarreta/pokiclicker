@@ -62,6 +62,7 @@ function loadData(data) {
     if(!state.milestones) state.milestones = [];
     if(state.unlockedZone === undefined) state.unlockedZone = 0;
     if(!state.badges) state.badges = [];
+    if(state.casinoTokens === undefined) state.casinoTokens = 0;
     if(state.inv.omniExp === undefined) state.inv.omniExp = 0;
     if(state.inv.omniXp !== undefined) {
         state.inv.omniExp += state.inv.omniXp;
@@ -87,6 +88,7 @@ function loadData(data) {
     if(!state.superRepelEndTime) state.superRepelEndTime = 0;
     if(!state.falseSwipeCooldown) state.falseSwipeCooldown = 0;
     if(!state.upgrades) state.upgrades = { runningShoes: false, amuletCoin: false, protein: false, expShare: false, pokeradar: false };
+    if(state.upgrades.ctJackpot === undefined) state.upgrades.ctJackpot = false;
     if(!state.repelEndTime) state.repelEndTime = 0;
     if(state.stopOnRare === undefined) state.stopOnRare = true;
     if(state.autoStopSettings === undefined) {
@@ -676,7 +678,7 @@ function resetSave() {
 
     state.money = 0;
     state.inv = { balls: 0, superballs: 0, hyperballs: 0, candy: 0, omniExp: 0, shinyToken: 0, masterball: 0, repel: 0, xAttack: 0, xSpecial: 0, superRepel: 0, pokeDoll: 0, everstone: 0, fireStone: 0, waterStone: 0, leafStone: 0, thunderStone: 0, moonStone: 0, calcium: 0 };
-    state.upgrades = { runningShoes: false, amuletCoin: false, protein: false, expShare: false, hardStone: false, bicycle: false, luckyEgg: false, leftovers: false, pokeradar: false, falseSwipe: false, shinyCharm: false, diploma: false };
+    state.upgrades = { runningShoes: false, amuletCoin: false, protein: false, expShare: false, hardStone: false, bicycle: false, luckyEgg: false, leftovers: false, pokeradar: false, falseSwipe: false, ctJackpot: false, shinyCharm: false, diploma: false };
     state.team = [];
     state.pc = [];
     state.pokedex = [];
@@ -703,6 +705,7 @@ function resetSave() {
     state.visitedLab = false;
     state.hasSeenPantheonIntro = false;
     state.hasSeenEnding = false;
+    state.casinoTokens = 0;
     state.daycare = { unlocked: false, parents: [null, null], eggs: [], slots: 1 };
     state.swapIdx = null;
     state.candyMode = false;
