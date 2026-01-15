@@ -717,6 +717,16 @@ function resetSave() {
     showFeedback(`PROGRESSION ${regionName} R\xc9INITIALIS\xc9E`, "red", 2000);
 }
 
+function toggleHelpModal() {
+    const m = document.getElementById('help-modal');
+    if (!m) return;
+    if (m.classList.contains('hidden')) {
+        m.classList.remove('hidden');
+    } else {
+        m.classList.add('hidden');
+    }
+}
+
 
 
 

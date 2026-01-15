@@ -324,13 +324,13 @@
                 <div class="absolute top-12 left-0 w-full text-center hidden pointer-events-none z-50" id="feedback-msg">
                     <span class="text-yellow-400 font-bold text-2xl pixel-font text-shadow-lg drop-shadow-lg">CAPTURED!</span>
                 </div>
-                <div id="mall-shop-panel" class="absolute inset-0 hidden items-center justify-center pointer-events-none z-40">
-                    <div class="w-[92%] max-w-md bg-slate-900/90 border-2 border-yellow-600 rounded-xl shadow-2xl backdrop-blur-sm pointer-events-auto">
+                <div id="mall-shop-panel" class="absolute inset-x-0 top-24 bottom-28 md:top-28 md:bottom-32 hidden items-center justify-center pointer-events-none z-40">
+                    <div class="w-[82%] sm:w-[70%] md:w-[90%] max-w-[320px] md:max-w-[520px] h-[45vh] max-h-[45vh] md:h-[55vh] md:max-h-[55vh] bg-slate-900/90 border-2 border-yellow-600 rounded-xl shadow-2xl backdrop-blur-sm pointer-events-auto flex flex-col">
                         <div class="p-3 border-b border-yellow-700/60 text-center">
                             <div class="text-yellow-400 pixel-font text-xs tracking-widest">CENTRE COMMERCIAL</div>
                             <div class="text-[9px] text-gray-400 mt-1">Objets exclusifs</div>
                         </div>
-                        <div id="mall-shop-content" class="p-3 space-y-2 max-h-[60vh] overflow-y-auto custom-scroll"></div>
+                        <div id="mall-shop-content" class="p-2 space-y-2 overflow-y-auto custom-scroll flex-1 min-h-0"></div>
                     </div>
                 </div>
                 <div id="mom-speech" class="absolute bottom-2 md:bottom-4 left-1/2 -translate-x-1/2 w-auto max-w-[90%] bg-white/90 text-black p-4 rounded-lg border-4 border-blue-500 pixel-font text-xs z-50 hidden shadow-xl text-center pointer-events-none">
@@ -489,6 +489,9 @@
                     <button onclick="exportSave()" class="bg-slate-800 hover:bg-slate-700 text-blue-300 border border-slate-600 p-2 rounded flex items-center justify-center gap-2 font-bold text-xs transition-all shadow-lg group w-full">
                         <span class="material-symbols-outlined group-hover:scale-110 transition-transform">save</span> SAUVER
                     </button>
+                    <button onclick="toggleHelpModal()" class="bg-slate-800 hover:bg-slate-700 text-yellow-300 border border-slate-600 p-2 rounded flex items-center justify-center gap-2 font-bold text-xs transition-all shadow-lg group w-full">
+                        <span class="material-symbols-outlined group-hover:scale-110 transition-transform">help</span> AIDE
+                    </button>
                     <button onclick="resetSave()" class="bg-red-800 text-red-200 border border-red-600 p-2 rounded flex items-center justify-center gap-2 font-bold text-xs hover:bg-red-700 transition-all shadow-lg group w-full">
                         <span class="material-symbols-outlined text-[14px]">delete</span> RESET
                     </button>
@@ -589,6 +592,9 @@
                     <button onclick="exportSave()" class="bg-slate-800 hover:bg-slate-700 text-blue-300 border border-slate-600 p-2 rounded flex items-center justify-center gap-2 font-bold text-xs transition-all shadow-lg w-full">
                         <span class="material-symbols-outlined">save</span> SAUVER
                     </button>
+                    <button onclick="toggleHelpModal()" class="bg-slate-800 hover:bg-slate-700 text-yellow-300 border border-slate-600 p-2 rounded flex items-center justify-center gap-2 font-bold text-xs transition-all shadow-lg w-full">
+                        <span class="material-symbols-outlined">help</span> AIDE
+                    </button>
                     <button onclick="resetSave()" class="bg-red-800 text-red-200 border border-red-600 p-2 rounded flex items-center justify-center gap-2 font-bold text-xs hover:bg-red-700 transition-all shadow-lg w-full">
                         <span class="material-symbols-outlined text-[14px]">delete</span> RESET
                     </button>
@@ -641,6 +647,72 @@
         <h2 class="text-yellow-400 pixel-font text-xl mb-4">JOHTO</h2>
         <p class="text-white mb-4 text-sm">Cette région est en cours de développement.</p>
         <div class="bg-slate-900 p-2 rounded text-xs text-gray-400 font-mono border border-slate-700">Bientôt disponible !</div>
+    </div>
+</div>
+
+<div class="fixed inset-0 z-[90] flex items-center justify-center bg-black/80 hidden" id="help-modal" onclick="toggleHelpModal()">
+    <div class="bg-slate-800 border-4 border-slate-600 rounded-xl w-full max-w-3xl max-h-[85vh] flex flex-col shadow-2xl relative p-6 overflow-hidden" onclick="event.stopPropagation()">
+        <button onclick="toggleHelpModal()" class="absolute top-3 right-3 text-red-500 hover:text-white material-symbols-outlined text-3xl z-10">close</button>
+        <h2 class="text-center text-yellow-400 pixel-font text-xl mb-4">GUIDE DU JEU</h2>
+        <div class="flex-1 overflow-y-auto custom-scroll space-y-4 text-sm leading-relaxed text-gray-200">
+            <div>
+                <h3 class="text-yellow-300 font-bold mb-2">Parcours principal (A à Z)</h3>
+                <p>1) Départ chez Maman (Bourg Palette): sors, puis va au Labo du Prof. Chen.</p>
+                <p>2) Choisis ton starter. Une fois choisi, ouvre la Carte et va sur la Route 1 (première zone).</p>
+                <p>3) Les dégâts viennent des clics ET du DPS des Pokémon de ton équipe.</p>
+                <p>4) Chaque zone a 10 étapes. Au boss (étape 10), tu débloques la zone suivante.</p>
+                <p>5) Tu as 30 secondes pour tuer le boss: si le timer expire, tu reviens à l’étape 9.</p>
+                <p>6) Capture les Pokémon sauvages pour te faire une équipe solide et avancer plus vite.</p>
+                <p>7) Utilise le Pokéshop pour acheter des consommables et améliorations. Plus tu avances dans les zones, plus d’objets et d’améliorations se débloquent.</p>
+                <p>8) Récupère les badges en battant les Arènes: bonus permanents. Tu peux voir leurs effets dans le menu Badges.</p>
+                <p>9) Complète le Pokédex pour débloquer des paliers et le Charme Chroma. Accès via le menu Pokédex.</p>
+                <p>9) Bats la Ligue pour accéder au Panthéon.</p>
+            </div>
+            <div>
+                <h3 class="text-yellow-300 font-bold mb-2">Fonctionnalités clés</h3>
+                <p>- Auto-attaque: active le DPS des Pokémon de l’équipe (bouton épées).</p>
+                <p>- Auto-clique (Restes): débloqué en zone 14 via l’amélioration Restes. Active un clic automatique via le bouton Auto-clic.</p>
+                <p>- Auto-stop: stoppe l’auto-combat sur Commun/Peu Commun/Rare/Très Rare/Légendaire/Shiny/Nouveau. Active/désactive via le bouton “main”, et configure via l’icône “settings”.</p>
+                <p>- Poké-Radar: affiche les Pokémon trouvables par zone. Débloqué en zone 8 via l’amélioration Poké-Radar.</p>
+                <p>- PC: débloqué en zone 3. Permet de stocker des Pokémon et gérer ta team.</p>
+                <p>- Pension: débloquée en zone 11 (Bourg Palette). Dépose 2 Pokémon pour tenter d’obtenir des œufs. Métamorph = bonus. Même type: 2% de chance d’œuf par combat. Même espèce: 4% par combat. Tu peux acheter plus de slots d’œufs.</p>
+                <p>- Carte: permet de téléporter vers les zones débloquées.</p>
+                <p>- Bonheur: augmente en combattant. Il donne un bonus de dégâts. Un Pokémon qui sort d’un œuf démarre à 125 de bonheur.</p>
+                <p>- Œufs: récupère un œuf à la pension, mets-le dans ton équipe, puis fais des combats pour l’éclore.</p>
+            </div>
+            <div>
+                <h3 class="text-yellow-300 font-bold mb-2">Pokédex & Récompenses</h3>
+                <p>Accès via le menu Pokédex. Capture des Pokémon pour remplir le Pokédex: chaque palier donne une récompense visible dans le menu “Récompenses”.</p>
+                <p>Compléter le Pokédex déclenche une scène avec le Prof. Chen qui te remet le Diplôme et le Charme Chroma.</p>
+            </div>
+            <div>
+                <h3 class="text-yellow-300 font-bold mb-2">Sauvegarde</h3>
+                <p>La sauvegarde est stockée en cache dans le navigateur (local). Pour être sûr de la garder ou pour jouer sur un autre appareil, utilise “Sauver” dans le profil: un fichier JSON est exporté.</p>
+                <p>Pour restaurer, utilise “Importer une sauvegarde (JSON)” dans le menu de début du jeu.</p>
+            </div>
+            <div>
+                <h3 class="text-yellow-300 font-bold mb-2">Centre Commercial</h3>
+                <p>Débloqué via progression (à Céladopole) et accessible depuis la Carte.</p>
+                <p>Objets exclusifs: Attaque +, Attaque Spé +, Pierres d’évolution, Poké Poupée, Pierre Stase.</p>
+                <p>Les pierres font évoluer certains Pokémon (impossible si Pierre Stase équipée).</p>
+            </div>
+            <div>
+                <h3 class="text-yellow-300 font-bold mb-2">Ligue Pokémon</h3>
+                <p>La Ligue est composée de 10 boss à la suite. Tu affrontes un boss par étape, avec un timer de 30s pour chaque combat.</p>
+                <p>En battant la Ligue, tu accèdes à la prochaine région.</p>
+            </div>
+            <div>
+                <h3 class="text-yellow-300 font-bold mb-2">Casino</h3>
+                <p>Zone spéciale en préparation.</p>
+            </div>
+            <div>
+                <h3 class="text-yellow-300 font-bold mb-2">Easter Eggs</h3>
+                <p>- Renomme un Pokémon en “dinnerbone” ou “grumm” pour l’inverser.</p>
+                <p>- Renomme en “jeb_” pour un effet arc-en-ciel.</p>
+                <p>- Renomme en “caca” pour un filtre spécial.</p>
+                <p>- Renomme en “Daran” pour obtenir un skin de Pokémon exclusif.</p>
+            </div>
+        </div>
     </div>
 </div>
 
