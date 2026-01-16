@@ -180,6 +180,18 @@ function showFeedback(t,c,d=1200) {
     feedbackTimer = setTimeout(()=>e.classList.add('hidden'), d);
 }
 
+function showPalletSpeech(text, duration = 4000) {
+    const bubble = document.getElementById('pallet-speech');
+    if (!bubble) return;
+    bubble.innerText = text;
+    bubble.classList.remove('hidden');
+    setTimeout(() => bubble.classList.add('hidden'), duration);
+}
+
+function triggerChenEndGame() {
+    startChenChallengeSequence(true);
+}
+
 
 function changeZone(d) {
     hideMapTooltip();

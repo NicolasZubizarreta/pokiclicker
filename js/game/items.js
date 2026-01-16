@@ -134,6 +134,7 @@ function onTeamClick(i, event) {
         return;
     }
     if (state.candyMode || state.calciumMode || state.shinyTokenMode || state.everstoneMode || state.stoneMode) {
+        if (event && typeof event.stopPropagation === 'function') event.stopPropagation();
         handleTeamClick(i);
         return;
     }

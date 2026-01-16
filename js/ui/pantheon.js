@@ -257,6 +257,10 @@ function exitPantheon() {
     if (triggerJohto) {
         setTimeout(startJohtoIntro, 500);
     }
+    if (state.chenChallengePending) {
+        state.chenChallengePending = false;
+        setTimeout(() => startChenChallengeSequence(true), 800);
+    }
 }
 
 

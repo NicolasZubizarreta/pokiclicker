@@ -306,7 +306,37 @@ const BASE_HP = {
     "151": 100                     // Mew
 };
 
-const ZONE_MULT = [1, 1, 1.5, 2.2, 3.5, 6];
+const ZONE_MULT = {
+    "-7": 1,
+    "-6": 1,
+    "-5": 1,
+    "-4": 1,
+    "-3": 1,
+    "-2": 100,
+    "-1": 1,
+    0: 1,
+    1: 1,
+    2: 1.5,
+    3: 2.2,
+    4: 3.5,
+    5: 6,
+    6: 11,
+    7: 13.5,
+    8: 16,
+    9: 18.5,
+    10: 21,
+    11: 23.5,
+    12: 26,
+    13: 28.5,
+    14: 31,
+    15: 33.5,
+    16: 36,
+    17: 38.5,
+    18: 41,
+    19: 43.5,
+    20: 46,
+    21: 48.5
+};
 
 const TYPES = {
     NORMAL:"Normal", FIRE:"Fire", WATER:"Water", GRASS:"Grass", ELECTRIC:"Electric", ICE:"Ice", 
@@ -437,13 +467,6 @@ const MILESTONES = [
     {count:151, title:"Kanto Master", desc:"Charme Chroma (Shiny x3)"}
 ];
 
-// Map names to IDs manually for older entries, but preferred to put ID in ZONE data
-const ID_MAP_FALLBACK = {
-    "Rattata":19,"Roucool":16,"Rattatac":20,"Roucoups":17,"Bulbizarre":1,"Chenipan":10,"Aspicot":13,"Chrysacier":11,"Coconfort":14,
-    "Pikachu":25,"Salamèche":4,"Papilusion":12,"Racaillou":74,"Sabelette":27,"Nidoran♀":29,"Nidoran♂":32,"Onix":95,"Carapuce":7,
-    "Nosferapti":41,"Paras":46,"Mélofée":35,"Rondoudou":39,"Leveinard":113,"Mélodelfe":36,"Mystherbe":43,"Chétiflor":69,"Abra":63,
-    "Mimitoss":48,"Mew":151,"Roucarnage":18
-};
 
 
 const INTRO_DIALOGS = [
@@ -469,6 +492,16 @@ const PANTHEON_DIALOGS = [
     "Splendide ! Simplement splendide !",
     "Tu as vaincu le Conseil des 4 et le Maître actuel. Tu es le nouveau Maître de la Ligue de Kanto !",
     "Mais tu n'as pas gagné seul. Viens avec moi, allons enregistrer tes partenaires au Panthéon."
+];
+const CHEN_SECRET_INTRO_DIALOGS = [
+    "Te voilà. Champion de la Ligue ET Pokédex complet... Tu as surpassé toutes mes attentes.",
+    "Mais il reste une dernière épreuve. Autrefois, avant d'être chercheur, j'étais moi-même un dresseur redoutable.",
+    "Prouve-moi que tu es la véritable Légende de Kanto. En garde !"
+];
+const CHEN_SECRET_WIN_DIALOGS = [
+    "Magnifique ! Je n'avais pas ressenti un tel frisson depuis des années !",
+    "Tu as définitivement surpassé le maître. Il n'y a plus aucun doute : tu es la véritable Légende de Kanto.",
+    "Je n'ai aucun doute que tu feras sensation dans les autres régions. Le monde t'appartient maintenant !"
 ];
 const JOHTO_INTRO_DIALOGS = [
     "Ah, te voilà de retour au Bourg Palette ! Maître de la Ligue... Ça sonne bien, n'est-ce pas ?",

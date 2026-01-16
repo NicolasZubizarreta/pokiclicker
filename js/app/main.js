@@ -34,6 +34,12 @@ let state = {
     pokedexBackup: null,
     hasSeenPantheonIntro: false,
     hasSeenEnding: false,
+    leagueWins: 0,
+    chenChallengeActive: false,
+    chenChallengeCompleted: false,
+    chenChallengeStage: 1,
+    chenChallengeIntroSeen: false,
+    chenChallengePending: false,
     badges: [],
     milestones: [],
     repelEndTime: 0,
@@ -107,6 +113,18 @@ function swapProfSprite(src, delayMs = 0) {
     };
     if (delayMs > 0) setTimeout(doSwap, delayMs);
     else doSwap();
+}
+
+function resetProfSpriteDefaults() {
+    const prof = document.getElementById('intro-prof');
+    if (!prof) return;
+    prof.style.transition = 'transform 1.5s ease-out';
+    prof.style.opacity = '1';
+    prof.style.left = 'auto';
+    prof.style.right = '0';
+    prof.style.top = '';
+    prof.style.bottom = '';
+    prof.style.transform = '';
 }
 
 // --- INIT ---
@@ -218,6 +236,18 @@ function nextDialog() {
              showFeedback("ACCÈS JOHTO DÉBLOQUÉ !", "yellow");
              playTone('up');
              return;
+        }
+        if (activeDialogs === CHEN_SECRET_INTRO_DIALOGS) {
+            document.getElementById('intro-overlay').classList.add('hidden');
+            resetProfSpriteDefaults();
+            setTimeout(startChenBattle, 300);
+            return;
+        }
+        if (activeDialogs === CHEN_SECRET_WIN_DIALOGS) {
+            document.getElementById('intro-overlay').classList.add('hidden');
+            resetProfSpriteDefaults();
+            activeDialogs = INTRO_DIALOGS;
+            return;
         }
         // Phase 4: Selection
         if (isEndingSequence) {

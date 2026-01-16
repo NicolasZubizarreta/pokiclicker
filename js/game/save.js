@@ -58,6 +58,13 @@ function loadData(data) {
     if(state.boatClicked === undefined) state.boatClicked = false;
     if(state.hasVisitedRoute1 === undefined) state.hasVisitedRoute1 = false;
     if(state.starterId === undefined) state.starterId = null;
+    if(state.leagueWins === undefined) state.leagueWins = state.hasSeenPantheonIntro ? 1 : 0;
+    if(state.chenChallengeActive === undefined) state.chenChallengeActive = false;
+    if(state.chenChallengeCompleted === undefined) state.chenChallengeCompleted = false;
+    if(state.chenChallengeStage === undefined) state.chenChallengeStage = 1;
+    if(state.chenChallengeIntroSeen === undefined) state.chenChallengeIntroSeen = false;
+    if(state.chenChallengePending === undefined) state.chenChallengePending = false;
+    if(state.chenChallengeCompleted) state.chenChallengeActive = false;
     if(!state.pokedex) state.pokedex = [];
     if(!state.milestones) state.milestones = [];
     if(state.unlockedZone === undefined) state.unlockedZone = 0;
@@ -196,14 +203,15 @@ function startEndingSequence() {
         // Prof Animation
         prof.src = "img/kanto/sprites/SpriteChen1.png";
         prof.classList.remove('opacity-0');
-        prof.style.right = "50%";
-        prof.style.transform = "translate(50%, 100%)"; // Start below
+        prof.style.right = "auto";
+        prof.style.left = "50%";
+        prof.style.transform = "translate(-50%, 100%)"; // Start below
         prof.style.transition = "transform 2s ease-out";
         
         // Force reflow
         void prof.offsetWidth;
         
-        prof.style.transform = "translate(50%, 0)"; // Move to center
+        prof.style.transform = "translate(-50%, 0)"; // Move to center
         
         setTimeout(() => {
             box.classList.remove('hidden');
@@ -219,8 +227,168 @@ function startEndingSequence() {
     }, 2000);
 }
 
+function canTriggerChenChallenge() {
+    return state.leagueWins >= 1 && state.hasSeenEnding && state.pokedex.length >= 151 && !state.chenChallengeCompleted;
+}
+
+function startChenChallengeSequence(force = false) {
+    if (!force && !canTriggerChenChallenge()) return;
+    if (force) state.chenChallengeCompleted = false;
+    state.chenChallengeActive = true;
+    state.chenChallengeStage = 1;
+    state.chenChallengeIntroSeen = false;
+
+    // Glitch Effect (same as Pokedex completion)
+    const glitch = document.getElementById('glitch-overlay');
+    glitch.classList.remove('hidden');
+    glitch.classList.add('glitch-black');
+
+    // Teleport DURING glitch (screen is black/flickering)
+    setTimeout(() => {
+        state.zoneIdx = -2;
+        state.subStage = 1;
+        updateBg();
+        renderShop(); renderBag(); renderPC();
+        spawnEnemy();
+        updateZone();
+    }, 500);
+
+    setTimeout(() => {
+        if (state.zoneIdx !== -2) {
+            glitch.classList.remove('glitch-black');
+            glitch.classList.add('hidden');
+            return;
+        }
+        glitch.classList.remove('glitch-black');
+        glitch.classList.add('hidden');
+        startChenChallengeIntro();
+    }, 2000);
+}
+
+function startChenChallengeIntro() {
+    const overlay = document.getElementById('intro-overlay');
+    const prof = document.getElementById('intro-prof');
+    const box = document.getElementById('intro-dialog-box');
+    const selection = document.getElementById('intro-selection');
+    const itemDisplay = document.getElementById('intro-item-display');
+
+    overlay.classList.remove('hidden');
+    box.classList.add('hidden');
+    selection.classList.add('hidden');
+    selection.classList.remove('flex');
+    itemDisplay.classList.add('hidden');
+
+    state.chenChallengeIntroSeen = true;
+
+    prof.src = "img/kanto/sprites/SpriteChen2.png";
+    prof.classList.remove('opacity-0');
+    prof.style.opacity = '1';
+    prof.style.left = '50%';
+    prof.style.right = 'auto';
+    prof.style.bottom = 'auto';
+    prof.style.top = '0';
+    prof.style.transform = 'translate(-50%, -120%)';
+    prof.style.transition = 'transform 1.8s ease-out, opacity 250ms ease-in-out';
+
+    void prof.offsetWidth;
+    prof.style.transform = 'translate(-50%, 10%)';
+
+    setTimeout(() => {
+        box.classList.remove('hidden');
+        box.classList.add('flex');
+
+        activeDialogs = CHEN_SECRET_INTRO_DIALOGS;
+        introIndex = 0;
+        isEndingSequence = false;
+        nextDialog();
+    }, 1800);
+}
+
+function startChenBattle() {
+    if (state.chenChallengeCompleted) return;
+    state.chenChallengeActive = true;
+    state.chenChallengeStage = 1;
+    spawnEnemy();
+}
+
+function startChenVictorySequence() {
+    state.chenChallengeActive = false;
+    state.chenChallengeCompleted = true;
+    state.chenChallengeStage = 1;
+
+    const overlay = document.getElementById('intro-overlay');
+    const prof = document.getElementById('intro-prof');
+    const box = document.getElementById('intro-dialog-box');
+    const selection = document.getElementById('intro-selection');
+    const itemDisplay = document.getElementById('intro-item-display');
+
+    overlay.classList.remove('hidden');
+    box.classList.add('hidden');
+    selection.classList.add('hidden');
+    selection.classList.remove('flex');
+    itemDisplay.classList.add('hidden');
+
+    prof.src = "img/kanto/sprites/SpriteChen2.png";
+    prof.classList.remove('opacity-0');
+    prof.style.opacity = '0';
+    prof.style.left = '50%';
+    prof.style.right = 'auto';
+    prof.style.top = 'auto';
+    prof.style.bottom = '20%';
+    prof.style.transform = 'translate(-50%, 20%) scale(0.8)';
+    prof.style.transition = 'transform 1.2s ease-out, opacity 0.6s ease-out';
+
+    void prof.offsetWidth;
+    prof.style.opacity = '1';
+    prof.style.transform = 'translate(-50%, 0) scale(1)';
+
+    setTimeout(() => {
+        box.classList.remove('hidden');
+        box.classList.add('flex');
+
+        activeDialogs = CHEN_SECRET_WIN_DIALOGS;
+        introIndex = 0;
+        isEndingSequence = false;
+        nextDialog();
+    }, 900);
+}
+
+function failChenChallenge() {
+    if (!state.chenChallengeActive || state.chenChallengeCompleted) return;
+    state.chenChallengeStage = 1;
+
+    const glitch = document.getElementById('glitch-overlay');
+    glitch.classList.remove('hidden');
+    glitch.classList.add('glitch-black');
+
+    setTimeout(() => {
+        state.zoneIdx = 0;
+        state.subStage = 1;
+        state.hasExitedLab = true;
+        updateBg();
+        renderShop(); renderBag(); renderPC();
+        spawnEnemy();
+        updateZone();
+    }, 500);
+
+    setTimeout(() => {
+        glitch.classList.remove('glitch-black');
+        glitch.classList.add('hidden');
+        showPalletSpeech("Continue de t'entraîner pour réussir ton dernier défi...", 5000);
+    }, 2000);
+}
+
 function enterLab() {
+    if (state.chenChallengeActive && !state.chenChallengeCompleted) {
+        state.chenChallengeStage = 1;
+    }
     changeZone(-2);
+    if (state.chenChallengeActive && !state.chenChallengeCompleted) {
+        setTimeout(() => {
+            if (!state.chenChallengeIntroSeen) startChenChallengeIntro();
+        }, 800);
+        return;
+    }
     if (!state.visitedLab) {
         setTimeout(startIntro, 1000);
     }
@@ -299,7 +467,12 @@ function updateMapButton() {
 
     btn.classList.remove('animate-bounce', 'ring-4', 'ring-green-500', 'bg-green-900');
 
-    if (state.unlockedZone >= 1 || state.cheat || state.introMapUnlocked) {
+    if (state.zoneIdx === -5) {
+        btn.disabled = true;
+        btn.classList.add('disabled:opacity-50', 'disabled:cursor-not-allowed');
+        lockIcon.classList.remove('hidden');
+        activeIcon.classList.add('hidden');
+    } else if (state.unlockedZone >= 1 || state.cheat || state.introMapUnlocked) {
         btn.disabled = false;
         btn.classList.remove('disabled:opacity-50', 'disabled:cursor-not-allowed');
         lockIcon.classList.add('hidden');
@@ -317,6 +490,7 @@ function updateMapButton() {
 }
 
 function toggleMap() {
+    if (state.zoneIdx === -5) return;
     const m = document.getElementById('map-modal');
     if(m.classList.contains('hidden')) {
         m.classList.remove('hidden');
@@ -703,6 +877,12 @@ function resetSave() {
     state.visitedLab = false;
     state.hasSeenPantheonIntro = false;
     state.hasSeenEnding = false;
+    state.leagueWins = 0;
+    state.chenChallengeActive = false;
+    state.chenChallengeCompleted = false;
+    state.chenChallengeStage = 1;
+    state.chenChallengeIntroSeen = false;
+    state.chenChallengePending = false;
     state.daycare = { unlocked: false, parents: [null, null], eggs: [], slots: 1 };
     state.swapIdx = null;
     state.candyMode = false;

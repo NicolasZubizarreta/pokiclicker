@@ -1,5 +1,31 @@
 ﻿// --- GAME MODULE ---
 
+function getChenStarterId() {
+    if (state.starterId === 1) return 9;
+    if (state.starterId === 4) return 3;
+    if (state.starterId === 7) return 6;
+    return 3;
+}
+
+function getChenStarterName(id) {
+    if (id === 3) return "Florizarre";
+    if (id === 6) return "Dracaufeu";
+    if (id === 9) return "Tortank";
+    return "Florizarre";
+}
+
+function getChenChallengeRoster() {
+    const starterId = getChenStarterId();
+    return [
+        { name: "Tauros", id: 128, level: 100 },
+        { name: "Noadkoko", id: 103, level: 100 },
+        { name: "Arcanin", id: 59, level: 100 },
+        { name: "Léviator", id: 130, level: 100 },
+        { name: getChenStarterName(starterId), id: starterId, level: 100 },
+        { name: "Dracolosse", id: 149, level: 100 }
+    ];
+}
+
 function startBossTimer() {
     const w = document.getElementById('boss-timer-wrapper');
     const b = document.getElementById('boss-timer-bar');
@@ -15,6 +41,9 @@ function startBossTimer() {
             showFeedback("TEMPS ÉCOULÉ !", "red");
             if (state.zoneIdx === 20) { // League penalty: reset to start
                 state.subStage = 1;
+            } else if (state.zoneIdx === -2 && state.chenChallengeActive) {
+                failChenChallenge();
+                return;
             } else {
                 state.subStage = 9;
             }
@@ -44,8 +73,23 @@ function spawnEnemy() {
     enemy.isFalseSwiped = false;
     enemy.uid = Date.now(); // Unique ID to prevent race conditions
     const z = getActiveRegion().zones[state.zoneIdx];
+    const isChenChallenge = state.zoneIdx === -2 && state.chenChallengeActive && state.chenChallengeIntroSeen;
 
-    if (z.pokemons.length === 0) {
+    if (isChenChallenge) {
+        enemy.isBoss = true;
+        const roster = getChenChallengeRoster();
+        const stage = state.chenChallengeStage || 1;
+        const sel = roster[Math.min(stage, roster.length) - 1];
+
+        enemy.name = sel.name;
+        enemy.rarity = "Boss";
+        enemy.id = sel.id;
+        enemy.catchRate = 0;
+        enemy.level = sel.level;
+        enemy.isShiny = false;
+        startBossTimer();
+        document.getElementById('enemy-info-panel').classList.remove('hidden');
+    } else if (z.pokemons.length === 0) {
         // Zone Pacifique (Bourg Palette)
         document.getElementById('enemy-sprite').classList.add('hidden');
         document.getElementById('enemy-info-panel').classList.add('hidden');
@@ -59,7 +103,7 @@ function spawnEnemy() {
     }
 
     // --- LEAGUE REWORK: All encounters are bosses ---
-    if (state.zoneIdx === 21) {
+    if (!isChenChallenge && state.zoneIdx === 21) {
         enemy.isBoss = true;
         const leaguePokemons = z.pokemons;
         let sel;
@@ -81,7 +125,7 @@ function spawnEnemy() {
         enemy.isShiny = false;
         startBossTimer();
 
-    } else {
+    } else if (!isChenChallenge) {
         enemy.isBoss = (state.subStage === 10);
         
         let shinyChance = 1/256;
@@ -118,7 +162,7 @@ function spawnEnemy() {
             }
             enemy.name = sel.name; 
             enemy.rarity = sel.rarity;
-            enemy.id = sel.id || ID_MAP_FALLBACK[sel.name] || 25; 
+            enemy.id = sel.id || 25; 
             enemy.catchRate = sel.catchRate;
             enemy.level = Math.floor(Math.random()*(z.maxLevel-z.minLevel+1))+z.minLevel;
         }
@@ -154,9 +198,12 @@ function spawnEnemy() {
     } else {
         enemy.gender = Math.random() < 0.5 ? 'male' : 'female';
     }
+    if (state.zoneIdx === 21) {
+        enemy.gender = 'genderless';
+    }
     // HP Scaling
     const baseHp = BASE_HP[enemy.id] || 40;
-    const zoneMult = ZONE_MULT[state.zoneIdx] || (6 + (state.zoneIdx - 4) * 2.5);
+    const zoneMult = ZONE_MULT[state.zoneIdx] !== undefined ? ZONE_MULT[state.zoneIdx] : 1;
     enemy.maxHp = Math.floor((baseHp * enemy.level * 2) * zoneMult);
     if(enemy.isBoss) enemy.maxHp *= 4;
     enemy.hp = enemy.maxHp;
@@ -267,8 +314,18 @@ function killEnemy() {
             if (state.subStage < 10) {
                 state.subStage++;
             } else {
+                const hadLeagueWin = (state.leagueWins || 0) >= 1;
+                state.leagueWins = (state.leagueWins || 0) + 1;
+                state.chenChallengePending = hadLeagueWin && canTriggerChenChallenge();
                 enterHallOfFame();
                 state.subStage = 1;
+            }
+        } else if (state.zoneIdx === -2 && state.chenChallengeActive && state.chenChallengeIntroSeen) {
+            const roster = getChenChallengeRoster();
+            if ((state.chenChallengeStage || 1) < roster.length) {
+                state.chenChallengeStage = (state.chenChallengeStage || 1) + 1;
+            } else {
+                startChenVictorySequence();
             }
         } else {
             // Logique Boss Classique (Fin de zone)

@@ -146,6 +146,7 @@ function updateBg() {
     // Hide speech bubble by default
     document.getElementById('mom-speech').classList.add('hidden');
     document.getElementById('blue-speech').classList.add('hidden');
+    document.getElementById('pallet-speech').classList.add('hidden');
     document.getElementById('pantheon-exit-btn').classList.add('hidden');
 
     // Zone 0 Special Handling (Interactive Map)
@@ -287,7 +288,10 @@ function updateBg() {
 
         bgImg.src = bg;
         bgImg.onload = () => {
-            const labClass = state.visitedLab ? "transition-all lg:hover:brightness-150 cursor-pointer" : "flash-green-strong cursor-pointer";
+            const chenFlash = state.chenChallengeActive && !state.chenChallengeCompleted;
+            const labClass = chenFlash
+                ? "flash-green-strong transition-all lg:hover:brightness-150 cursor-pointer"
+                : (state.visitedLab ? "transition-all lg:hover:brightness-150 cursor-pointer" : "flash-green-strong cursor-pointer");
             
             let boatRect = `<rect x="638" y="1806" width="230" height="239" fill="rgba(75, 85, 99, 0.4)" stroke="rgba(209, 213, 219, 0.9)" stroke-width="3" class="transition-all lg:hover:brightness-150 cursor-pointer" onmouseenter="showMapTooltip('Bateau en direction de Johto', event, 'gray')" onmousemove="moveMapTooltip(event)" onmouseleave="hideMapTooltip()"></rect>`;
             
@@ -375,10 +379,10 @@ function updateEnemyUI() {
     ).join("");
     
     let genderHtml = '';
-    if (enemy.gender === 'male') genderHtml = `<span class="text-blue-400 ml-1 font-bold text-sm">?</span>`;
-    else if (enemy.gender === 'female') genderHtml = `<span class="text-pink-400 ml-1 font-bold text-sm">?</span>`;
+    if (enemy.gender === 'male') genderHtml = `<span class="text-blue-400 ml-1 font-bold text-sm">&#9794;</span>`;
+    else if (enemy.gender === 'female') genderHtml = `<span class="text-pink-400 ml-1 font-bold text-sm">&#9792;</span>`;
     
-    if(enemy.isShiny) typeHtml += `<span class="text-yellow-400 ml-1 font-bold text-sm">?</span>`;
+    if(enemy.isShiny) typeHtml += `<span class="text-yellow-400 ml-1 font-bold text-sm">&#9733;</span>`;
     if(state.pokedex.includes(enemy.id)) typeHtml += `<img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" class="w-3 h-3 inline-block ml-1" title="Déjà capturé">`;
     
     document.getElementById('enemy-name').innerHTML = enemy.name + genderHtml + typeHtml;
