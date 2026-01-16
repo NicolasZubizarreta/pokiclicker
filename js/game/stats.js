@@ -27,6 +27,7 @@ function calculateGoldReward(enemy) {
 
     // Bonus Item (Pièce Rune)
     if (state.upgrades.amuletCoin) baseReward *= 1.3;
+    if (state.upgrades.ctJackpot) baseReward *= 1.2;
 
     return Math.floor(baseReward);
 }

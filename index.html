@@ -325,13 +325,110 @@
                 <div class="absolute top-12 left-0 w-full text-center hidden pointer-events-none z-50" id="feedback-msg">
                     <span class="text-yellow-400 font-bold text-2xl pixel-font text-shadow-lg drop-shadow-lg">CAPTURED!</span>
                 </div>
-                <div id="mall-shop-panel" class="absolute inset-x-0 top-24 bottom-28 md:top-28 md:bottom-32 hidden items-center justify-center pointer-events-none z-40">
-                    <div class="w-[82%] sm:w-[70%] md:w-[90%] max-w-[320px] md:max-w-[520px] h-[45vh] max-h-[45vh] md:h-[55vh] md:max-h-[55vh] bg-slate-900/90 border-2 border-yellow-600 rounded-xl shadow-2xl backdrop-blur-sm pointer-events-auto flex flex-col">
+                <div id="mall-shop-panel" class="absolute inset-x-0 top-2 bottom-2 md:top-6 md:bottom-6 hidden items-center justify-center pointer-events-none z-40">
+                    <div class="w-[92%] sm:w-[82%] md:w-[90%] max-w-[320px] md:max-w-[520px] h-full max-h-full min-h-0 bg-slate-900/90 border-2 border-yellow-600 rounded-xl shadow-2xl backdrop-blur-sm pointer-events-auto flex flex-col overflow-hidden">
                         <div class="p-3 border-b border-yellow-700/60 text-center">
                             <div class="text-yellow-400 pixel-font text-xs tracking-widest">CENTRE COMMERCIAL</div>
                             <div class="text-[9px] text-gray-400 mt-1">Objets exclusifs</div>
                         </div>
                         <div id="mall-shop-content" class="p-2 space-y-2 overflow-y-auto custom-scroll flex-1 min-h-0"></div>
+                    </div>
+                </div>
+                <div id="casino-panel" class="absolute inset-x-0 top-2 bottom-2 md:top-6 md:bottom-6 hidden items-center justify-center pointer-events-none z-40">
+                    <div class="w-[94%] sm:w-[86%] md:w-[90%] max-w-[360px] md:max-w-[640px] h-full max-h-full min-h-0 bg-slate-900/90 border-2 border-emerald-600 rounded-xl shadow-2xl backdrop-blur-sm pointer-events-auto flex flex-col overflow-hidden">
+                        <div class="p-3 border-b border-emerald-700/60 text-center">
+                            <div class="text-emerald-400 pixel-font text-xs tracking-widest">CASINO</div>
+                            <div class="text-[9px] text-gray-400 mt-1">Jetons et mini-jeux</div>
+                        </div>
+                        <div class="p-3 flex flex-wrap items-center justify-between gap-4 text-[10px] text-gray-300 border-b border-slate-700">
+                            <div class="flex items-center gap-1">
+                                <span>Jetons:</span><span id="casino-tokens" class="text-white font-bold">0</span>
+                            </div>
+                            <div class="flex items-center gap-2 flex-wrap justify-end">
+                                <button id="casino-buy-btn" onclick="buyCasinoTokens()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold px-2 py-1 rounded border border-emerald-400 shadow-md">+50 jetons (1 000$)</button>
+                                <button id="casino-cashout-btn" onclick="cashOutCasinoTokens()" class="bg-slate-700 hover:bg-slate-600 text-white text-[10px] font-bold px-2 py-1 rounded border border-slate-500 shadow-md">Echanger jetons</button>
+                            </div>
+                        </div>
+                        <div class="p-2 flex items-center justify-center gap-3 md:gap-4 border-b border-slate-700">
+                            <button id="casino-view-btn-games" onclick="showCasinoView('games')" class="bg-emerald-700 hover:bg-emerald-600 text-white text-[10px] font-bold px-4 py-1.5 rounded-lg border border-emerald-500 shadow-md">JEU</button>
+                            <button id="casino-view-btn-shop" onclick="showCasinoView('shop')" class="bg-slate-800 hover:bg-slate-700 text-white text-[10px] font-bold px-4 py-1.5 rounded-lg border border-slate-600 shadow-md">SHOP</button>
+                        </div>
+                        <div class="flex-1 overflow-y-auto custom-scroll p-5">
+                            <div id="casino-view-games" class="flex flex-col gap-6 min-h-full justify-between">
+                                <div class="flex items-center justify-center gap-3 md:gap-4">
+                                    <button id="casino-tab-btn-slots" onclick="showCasinoTab('slots')" class="bg-slate-800 hover:bg-slate-700 text-white text-[10px] font-bold px-4 py-1.5 rounded-lg border border-slate-600 shadow-md">Machine à sous</button>
+                                    <button id="casino-tab-btn-blackjack" onclick="showCasinoTab('blackjack')" class="bg-slate-800 hover:bg-slate-700 text-white text-[10px] font-bold px-4 py-1.5 rounded-lg border border-slate-600 shadow-md">Blackjack</button>
+                                    <button id="casino-tab-btn-coin" onclick="showCasinoTab('coin')" class="bg-slate-800 hover:bg-slate-700 text-white text-[10px] font-bold px-4 py-1.5 rounded-lg border border-slate-600 shadow-md">Pile ou Face</button>
+                                </div>
+                                <div class="flex-1 flex flex-col justify-between gap-6 pb-4">
+                                    <div id="casino-tab-slots" class="flex flex-col items-center gap-4">
+                                        <div class="flex justify-center gap-3 md:gap-4">
+                                            <div id="slot-reel-1" class="w-28 h-20 md:w-40 md:h-28 bg-slate-800 border-2 border-slate-600 rounded-xl flex items-center justify-center">
+                                                <img id="slot-reel-img-1" class="w-16 h-16 md:w-20 md:h-20 object-contain" alt="slot 1" src="">
+                                            </div>
+                                    <div id="slot-reel-2" class="w-28 h-20 md:w-40 md:h-28 bg-slate-800 border-2 border-slate-600 rounded-xl flex items-center justify-center">
+                                        <img id="slot-reel-img-2" class="w-16 h-16 md:w-20 md:h-20 object-contain" alt="slot 2" src="">
+                                    </div>
+                                    <div id="slot-reel-3" class="w-28 h-20 md:w-40 md:h-28 bg-slate-800 border-2 border-slate-600 rounded-xl flex items-center justify-center">
+                                        <img id="slot-reel-img-3" class="w-16 h-16 md:w-20 md:h-20 object-contain" alt="slot 3" src="">
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-center gap-2">
+                                    <input id="slots-bet" type="number" min="1" step="1" value="1" class="w-24 bg-slate-900 border border-slate-600 rounded px-2 py-1 text-[10px] text-white">
+                                    <button onclick="spinSlotsFromUI()" class="bg-yellow-500 hover:bg-yellow-400 text-black text-[10px] font-bold px-4 py-1.5 rounded border border-yellow-600">SPIN</button>
+                                </div>
+                                <div id="slots-result" class="text-center text-[10px] text-gray-300">Prêt à jouer.</div>
+                                    <div class="text-[9px] text-gray-400 text-center leading-relaxed">
+                                        3x 7 = x500 · 3x Pikachu = x50 · 3x Staross = x20 · 3x Baie = x10 · 3x Magicarpe = x5 · 2x Baie = x2
+                                    </div>
+                                    </div>
+                                    <div id="casino-tab-blackjack" class="space-y-3 hidden">
+                                        <div class="text-center text-[10px] text-gray-400">Blackjack (Croupier Rocket)</div>
+                                        <div class="bg-slate-800/70 border border-slate-700 rounded p-2">
+                                            <div class="text-[10px] text-gray-400 mb-1">Croupier</div>
+                                            <div id="blackjack-dealer-cards" class="flex flex-wrap gap-1 text-[10px] text-white"></div>
+                                            <div class="text-[10px] text-gray-400 mt-1">Total: <span id="blackjack-dealer-total">0</span></div>
+                                        </div>
+                                        <div class="bg-slate-800/70 border border-slate-700 rounded p-2">
+                                            <div class="text-[10px] text-gray-400 mb-1">Joueur</div>
+                                            <div id="blackjack-player-cards" class="flex flex-wrap gap-1 text-[10px] text-white"></div>
+                                            <div class="text-[10px] text-gray-400 mt-1">Total: <span id="blackjack-player-total">0</span></div>
+                                        </div>
+                                        <div class="flex items-center justify-center gap-2">
+                                            <input id="blackjack-bet" type="number" min="1" step="1" value="1" class="w-20 bg-slate-900 border border-slate-600 rounded px-2 py-1 text-[10px] text-white">
+                                            <button id="blackjack-start-btn" onclick="startBlackjackFromUI()" class="bg-emerald-500 hover:bg-emerald-400 text-black text-[10px] font-bold px-3 py-1 rounded border border-emerald-600">DISTRIBUER</button>
+                                            <button id="blackjack-hit-btn" onclick="blackjackHit()" class="bg-slate-700 text-gray-300 text-[10px] font-bold px-3 py-1 rounded border border-slate-600" disabled>HIT</button>
+                                            <button id="blackjack-stand-btn" onclick="blackjackStand()" class="bg-slate-700 text-gray-300 text-[10px] font-bold px-3 py-1 rounded border border-slate-600" disabled>STAND</button>
+                                        </div>
+                                        <div id="blackjack-result" class="text-center text-[10px] text-gray-300">Prêt à jouer.</div>
+                                    </div>
+                                    <div id="casino-tab-coin" class="flex flex-col items-center justify-center gap-5 hidden min-h-[40vh]">
+                                        <div class="text-center text-[10px] text-gray-400">Pile ou Face</div>
+                                        <div class="flex justify-center w-full">
+                                            <div id="coin-display" class="w-32 h-32 md:w-40 md:h-40 bg-slate-800 border-2 border-slate-600 rounded-full flex items-center justify-center">
+                                                <img id="coin-img" class="w-20 h-20 md:w-24 md:h-24 object-contain" alt="face" src="">
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center justify-center gap-2">
+                                            <input id="coin-bet" type="number" min="1" step="1" value="1" class="w-24 bg-slate-900 border border-slate-600 rounded px-2 py-1 text-[10px] text-white">
+                                            <button onclick="playCoinFlipFromUI('face')" class="bg-yellow-400 hover:bg-yellow-300 text-black text-[10px] font-bold px-3 py-1 rounded border border-yellow-500 flex items-center gap-1">
+                                                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png" class="w-4 h-4" alt="Pikachu">
+                                                Face
+                                            </button>
+                                            <button onclick="playCoinFlipFromUI('pile')" class="bg-red-500 hover:bg-red-400 text-white text-[10px] font-bold px-3 py-1 rounded border border-red-600 flex items-center gap-1">
+                                                <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" class="w-4 h-4" alt="Pokeball">
+                                                Pile
+                                            </button>
+                                        </div>
+                                        <div id="coin-result" class="text-center text-[10px] text-gray-300">Choisis ton camp.</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="casino-view-shop" class="hidden min-h-full flex flex-col gap-4">
+                                <div class="text-center text-[10px] text-gray-400 mb-3">Boutique de jetons</div>
+                                <div id="casino-shop-list" class="space-y-2"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div id="mom-speech" class="absolute bottom-2 md:bottom-4 left-1/2 -translate-x-1/2 w-auto max-w-[90%] bg-white/90 text-black p-4 rounded-lg border-4 border-blue-500 pixel-font text-xs z-50 hidden shadow-xl text-center pointer-events-none">
@@ -765,6 +862,7 @@
     <script src="js/ui/mobile.js"></script>
     <script src="js/game/save.js"></script>
     <script src="js/game/daycare.js"></script>
+    <script src="js/game/casino.js"></script>
     <script src="js/app/main.js"></script>
     <script src="js/game/loop.js"></script>
 </body>

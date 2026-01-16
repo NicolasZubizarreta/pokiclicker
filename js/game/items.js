@@ -154,7 +154,7 @@ function handleTeamClick(i) {
         state.candyTargetIdx = i;
         state.candyAmount = 1;
         renderTeam();
-        } else if (state.calciumMode) {
+    } else if (state.calciumMode) {
         const p = state.team[i];
         if (!p || p.isEgg) { showFeedback("POKÉMON INVALIDE !", "red"); return; }
         if ((p.calciumBoosts || 0) >= 10) { showFeedback("LIMITE ATTEINTE !", "red"); return; }
@@ -210,6 +210,7 @@ function cancelCandyUse() {
     state.candyTargetIdx = null;
     renderTeam();
 }
+
 function adjustCalciumAmount(delta) {
     if (state.calciumTargetIdx === null) return;
     const p = state.team[state.calciumTargetIdx];
@@ -252,6 +253,8 @@ function cancelCalciumUse() {
     state.calciumAmount = 1;
     renderTeam();
 }
+
+
 
 
 function initEverstoneUse() {
@@ -350,6 +353,7 @@ function initCalciumUse() {
 }
 
 
+
 function useStoneOn(i) {
     const p = state.team[i];
     if (!p || p.isEgg) { showFeedback("POKÉMON INVALIDE !", "red"); return; }
@@ -375,7 +379,8 @@ document.addEventListener('click', (e) => {
     if (typeof state === 'undefined') return;
     if (!state.candyMode && !state.calciumMode && !state.shinyTokenMode && !state.everstoneMode && !state.stoneMode) return;
     if (e.target.closest('#team-container') || e.target.closest('#bag-container') ||
-        e.target.closest('#mobile-team-view') || e.target.closest('#mobile-bag-view')) {
+        e.target.closest('#mobile-team-view') || e.target.closest('#mobile-bag-view') ||
+        e.target.closest('#mobile-main-menu')) {
         return;
     }
     cancelItemModes();

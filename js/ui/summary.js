@@ -56,7 +56,7 @@ function showPokemonSummary(location, index, event) {
     document.getElementById('summary-happy-progress').style.background = `conic-gradient(#fbbf24 ${happyPct}%, #334155 ${happyPct}%)`;
     document.getElementById('summary-happy-val').innerText = `${happyVal}/255`;
     document.getElementById('summary-happy-bonus').innerText = `+${(happyVal * 0.1).toFixed(1)}% Dégâts`;
-        const calciumBonus = (p.calciumBoosts || 0) * 2;
+    const calciumBonus = (p.calciumBoosts || 0) * 2;
     const calciumEl = document.getElementById('summary-calcium-bonus');
     if (calciumEl) {
         if (!p.isEgg && calciumBonus > 0) {

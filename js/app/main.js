@@ -1,4 +1,4 @@
-﻿const REGIONS = {
+const REGIONS = {
     kanto: { badges: BADGES, mapData: MAP_DATA, zones: ZONES },
     johto: JOHTO_REGION
 };
@@ -19,7 +19,7 @@ function setActiveRegion(key) {
 let state = {
     money: 0, 
     inv: { balls: 0, superballs: 0, hyperballs: 0, candy: 0, omniExp: 0, shinyToken: 0, masterball: 0, repel: 0, xAttack: 0, xSpecial: 0, superRepel: 0, pokeDoll: 0, everstone: 0, fireStone: 0, waterStone: 0, leafStone: 0, thunderStone: 0, moonStone: 0, calcium: 0 },
-    upgrades: { runningShoes: false, amuletCoin: false, protein: false, expShare: false, hardStone: false, bicycle: false, luckyEgg: false, leftovers: false, pokeradar: false, falseSwipe: false, shinyCharm: false, diploma: false },
+    upgrades: { runningShoes: false, amuletCoin: false, protein: false, expShare: false, hardStone: false, bicycle: false, luckyEgg: false, leftovers: false, pokeradar: false, falseSwipe: false, ctJackpot: false, shinyCharm: false, diploma: false },
     team: [], 
     currentRegion: "kanto",
     johtoUnlocked: false,
@@ -42,6 +42,7 @@ let state = {
     chenChallengePending: false,
     badges: [],
     milestones: [],
+    casinoTokens: 0,
     repelEndTime: 0,
     attackBoostEndTime: 0,
     dpsBoostEndTime: 0,

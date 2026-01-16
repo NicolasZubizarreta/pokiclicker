@@ -56,6 +56,7 @@ function updateUI() {
     updateFalseSwipeBtn();
     updateMobileMenuButtons();
     updateShopPrices();
+    if (typeof updateCasinoUI === 'function') updateCasinoUI();
 }
 
 
@@ -100,6 +101,18 @@ function updateZone() {
         } else {
             mallPanel.classList.add('hidden');
             mallPanel.classList.remove('flex');
+        }
+    }
+
+    const casinoPanel = document.getElementById('casino-panel');
+    if (casinoPanel) {
+        if (state.zoneIdx === -7) {
+            casinoPanel.classList.remove('hidden');
+            casinoPanel.classList.add('flex');
+            if (typeof updateCasinoUI === 'function') updateCasinoUI();
+        } else {
+            casinoPanel.classList.add('hidden');
+            casinoPanel.classList.remove('flex');
         }
     }
     
