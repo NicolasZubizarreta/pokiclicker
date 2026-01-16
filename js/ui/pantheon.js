@@ -174,7 +174,15 @@ function animateHallOfFame() {
             img.style.transition = 'transform 1s ease-out, opacity 0.5s ease-in';
             img.style.transformOrigin = 'center';
             img.style.transformBox = 'fill-box';
-            img.style.filter = filterStyle;
+            if (pNameLower === "jeb_") {
+                img.style.filter = 'none';
+                img.style.webkitFilter = 'none';
+                img.style.animation = 'rainbow 2s linear infinite';
+                img.style.webkitAnimation = 'rainbow 2s linear infinite';
+            } else {
+                img.style.filter = filterStyle;
+                img.style.webkitFilter = filterStyle;
+            }
             svg.appendChild(img);
             
             requestAnimationFrame(() => {

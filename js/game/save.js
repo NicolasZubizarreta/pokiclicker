@@ -284,15 +284,16 @@ function startChenChallengeIntro() {
 
     prof.src = "img/kanto/sprites/SpriteChen2.png";
     prof.classList.remove('opacity-0');
+    prof.style.transition = 'none';
     prof.style.opacity = '1';
     prof.style.left = '50%';
     prof.style.right = 'auto';
     prof.style.bottom = 'auto';
     prof.style.top = '0';
     prof.style.transform = 'translate(-50%, -120%)';
-    prof.style.transition = 'transform 1.8s ease-out, opacity 250ms ease-in-out';
 
     void prof.offsetWidth;
+    prof.style.transition = 'transform 1.8s ease-out, opacity 250ms ease-in-out';
     prof.style.transform = 'translate(-50%, 10%)';
 
     setTimeout(() => {
