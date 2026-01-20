@@ -34,8 +34,8 @@ function formatMoney(value) {
 
 const MOM_TV_CONFIG = {
     videoSrc: "img/kanto/EasterEgg/Daran.mp4",
-    screenRect: { x: 600, y: 290, w: 120, h: 90 },
-    buttonRect: { x: 730, y: 390, w: 22, h: 16 }
+    screenRect: { x: 119, y: 104, w: 150, h: 75 },
+    buttonRect: { x: 261, y: 181, w: 8, h: 7 }
 };
 
 let momTvIsOn = false;
@@ -46,49 +46,39 @@ function ensureMomTvOverlay() {
     if (!layer) return null;
 
     let video = document.getElementById('mom-tv-video');
-    let screenOff = document.getElementById('mom-tv-screen-off');
     let button = document.getElementById('mom-tv-button');
 
     if (!video) {
         video = document.createElement('video');
         video.id = 'mom-tv-video';
-        video.preload = 'metadata';
-        video.style.position = 'absolute';
-        video.style.display = 'none';
-        video.style.objectFit = 'cover';
-        video.style.pointerEvents = 'none';
-        video.setAttribute('playsinline', '');
-        video.setAttribute('webkit-playsinline', '');
-        video.src = MOM_TV_CONFIG.videoSrc;
         layer.appendChild(video);
     }
-
-    if (!screenOff) {
-        screenOff = document.createElement('div');
-        screenOff.id = 'mom-tv-screen-off';
-        screenOff.style.position = 'absolute';
-        screenOff.style.display = 'none';
-        screenOff.style.background = 'rgba(0, 0, 0, 0.65)';
-        screenOff.style.cursor = 'pointer';
-        screenOff.style.pointerEvents = 'auto';
-        screenOff.addEventListener('click', startMomTv);
-        layer.appendChild(screenOff);
-    }
+    video.preload = 'metadata';
+    video.style.position = 'absolute';
+    video.style.display = 'none';
+    video.style.objectFit = 'cover';
+    video.style.pointerEvents = 'none';
+    video.setAttribute('playsinline', '');
+    video.setAttribute('webkit-playsinline', '');
+    video.muted = true;
+    video.volume = 0;
+    video.setAttribute('muted', '');
+    video.src = MOM_TV_CONFIG.videoSrc;
 
     if (!button) {
         button = document.createElement('div');
         button.id = 'mom-tv-button';
-        button.style.position = 'absolute';
-        button.style.display = 'none';
-        button.style.background = 'rgba(255, 255, 255, 0.01)';
-        button.style.cursor = 'pointer';
-        button.style.pointerEvents = 'auto';
-        button.addEventListener('mouseenter', (e) => showMapTooltip('Bouton tele', e, 'gray'));
-        button.addEventListener('mousemove', (e) => moveMapTooltip(e));
-        button.addEventListener('mouseleave', () => hideMapTooltip());
-        button.addEventListener('click', startMomTv);
         layer.appendChild(button);
     }
+    button.style.position = 'absolute';
+    button.style.display = 'none';
+    button.style.background = 'rgba(255, 255, 255, 0.01)';
+    button.style.cursor = 'pointer';
+    button.style.pointerEvents = 'auto';
+    button.onmouseenter = (e) => showMapTooltip('Bouton tele', e, 'gray');
+    button.onmousemove = (e) => moveMapTooltip(e);
+    button.onmouseleave = () => hideMapTooltip();
+    button.onclick = startMomTv;
 
     if (!momTvResizeBound) {
         window.addEventListener('resize', () => {
@@ -97,16 +87,15 @@ function ensureMomTvOverlay() {
         momTvResizeBound = true;
     }
 
-    return { video, screenOff, button };
+    return { video, button };
 }
 
 function positionMomTvOverlay() {
     const layer = document.getElementById('bg-layer');
     const img = document.getElementById('bg-img-element');
     const video = document.getElementById('mom-tv-video');
-    const screenOff = document.getElementById('mom-tv-screen-off');
     const button = document.getElementById('mom-tv-button');
-    if (!layer || !img || !video || !screenOff || !button) return;
+    if (!layer || !img || !video || !button) return;
     if (!img.naturalWidth || !img.naturalHeight) return;
 
     const layerRect = layer.getBoundingClientRect();
@@ -125,33 +114,31 @@ function positionMomTvOverlay() {
     };
 
     setRect(video, MOM_TV_CONFIG.screenRect);
-    setRect(screenOff, MOM_TV_CONFIG.screenRect);
     setRect(button, MOM_TV_CONFIG.buttonRect);
 }
 
 function showMomTvOverlay() {
     const els = ensureMomTvOverlay();
     if (!els) return;
-    els.screenOff.style.display = 'block';
     els.button.style.display = 'block';
     positionMomTvOverlay();
 }
 
 function hideMomTvOverlay() {
     const video = document.getElementById('mom-tv-video');
-    const screenOff = document.getElementById('mom-tv-screen-off');
     const button = document.getElementById('mom-tv-button');
     if (video) video.style.display = 'none';
-    if (screenOff) screenOff.style.display = 'none';
     if (button) button.style.display = 'none';
 }
 
 function startMomTv() {
+    if (momTvIsOn) {
+        stopMomTv();
+        return;
+    }
     momTvIsOn = true;
     const video = document.getElementById('mom-tv-video');
-    const screenOff = document.getElementById('mom-tv-screen-off');
     if (!video) return;
-    if (screenOff) screenOff.style.display = 'none';
     video.style.display = 'block';
     video.currentTime = 0;
     const playPromise = video.play();
@@ -163,13 +150,11 @@ function startMomTv() {
 function stopMomTv() {
     momTvIsOn = false;
     const video = document.getElementById('mom-tv-video');
-    const screenOff = document.getElementById('mom-tv-screen-off');
     if (video) {
         video.pause();
         video.currentTime = 0;
         video.style.display = 'none';
     }
-    if (screenOff) screenOff.style.display = 'block';
 }
 
 function syncMomTvState() {
@@ -323,17 +308,10 @@ function updateBg() {
 
         bgImg.src = bg;
         bgImg.onload = () => {
-            const labClass = state.visitedLab ? "transition-all hover:brightness-150 cursor-pointer" : "flash-green-strong cursor-pointer";
             bgSvg.setAttribute('viewBox', `0 0 ${bgImg.naturalWidth} ${bgImg.naturalHeight}`);
             bgSvg.innerHTML = `
                 <a href="#" onclick="event.preventDefault()">
-                    <rect x="262" y="181" width="7" height="6" fill="transparent" class="cursor-pointer"></rect>
-                </a>
-                <a href="#" onclick="event.preventDefault()">
-                    <rect x="121" y="106" width="147" height="70" fill="transparent" class="cursor-pointer"></rect>
-                </a>
-                <a href="#" onclick="event.preventDefault()">
-                    <rect x="284" y="571" width="138" height="69" fill="rgba(0, 255, 0, 0.3)" class="animate-pulse cursor-pointer lg:hover:fill-green-400/50 transition-colors" onmouseenter="showMapTooltip('Sortie', event, 'green')" onmousemove="moveMapTooltip(event)" onmouseleave="hideMapTooltip()" onclick="changeZone(4)"></rect>
+                    <rect x="283" y="571" width="140" height="71" fill="rgba(0, 255, 0, 0.3)" class="animate-pulse cursor-pointer lg:hover:fill-green-400/50 transition-colors" onmouseenter="showMapTooltip('Sortie', event, 'green')" onmousemove="moveMapTooltip(event)" onmouseleave="hideMapTooltip()" onclick="changeZone(4)"></rect>
                 </a>
             `;
             showMomTvOverlay();
