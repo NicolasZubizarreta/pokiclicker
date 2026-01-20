@@ -291,11 +291,3 @@ ZONES[-5] = {id:-5, name:"Panthéon Pokémon", bg:"img/kanto/background/Pantheon
 ZONES[-1] = {id:-1, name:"Pension Pokémon", bg:"img/kanto/background/Pension.png", minLevel:0, maxLevel:0, pokemons:[], boss:{name:"", id:0, level:0, catchRate:0}};
 ZONES[-6] = {id:-6, name:"Centre Commercial", bg:"img/kanto/background/CentreCommercial.png", minLevel:0, maxLevel:0, pokemons:[], boss:{name:"", id:0, level:0, catchRate:0}};
 ZONES[-7] = {id:-7, name:"Casino", bg:"img/kanto/background/Casino.png", minLevel:0, maxLevel:0, pokemons:[], boss:{name:"", id:0, level:0, catchRate:0}};
-
-
-
-
-
-
-
-

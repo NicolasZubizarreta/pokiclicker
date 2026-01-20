@@ -1,4 +1,5 @@
-ï»¿// --- UI MODULE ---
+// --- UI MODULE ---
+let shakeAnimTimeout = null;
 
 function clickAttack(e) {
     if(enemy.dead) return;
@@ -76,7 +77,7 @@ function updateAutoClickerBtn() {
             b.className = `${baseClass} bg-slate-700 text-gray-500 border border-slate-600 cursor-not-allowed opacity-50`;
             b.innerHTML = `<span class="material-symbols-outlined ${iconSize}">lock</span>`;
             b.disabled = true;
-            b.title = "Auto Click (NÃ©cessite l'objet Restes)";
+            b.title = "Auto Click (Nécessite l'objet Restes)";
         } else {
             b.disabled = false;
             b.title = "Auto Click (Restes)";
@@ -108,7 +109,7 @@ function updateFalseSwipeBtn() {
             b.className = `${baseClass} bg-slate-700 text-gray-500 border border-slate-600 cursor-not-allowed opacity-50`;
             b.innerHTML = `<span class="material-symbols-outlined ${iconSize}">lock</span>`;
             b.disabled = true;
-            b.title = "Fauchage (NÃ©cessite CT Fauchage)";
+            b.title = "Fauchage (Nécessite CT Fauchage)";
         } else if (enemy.isBoss) {
             b.className = `${baseClass} bg-slate-700 text-gray-400 border border-slate-600 cursor-not-allowed`;
             b.innerHTML = `<span class="material-symbols-outlined ${iconSize}">block</span>`;
@@ -126,7 +127,7 @@ function updateFalseSwipeBtn() {
                  b.title = "Fauchage Actif !";
             } else {
                  b.className = `${baseClass} bg-blue-600 hover:bg-blue-500 text-white border border-blue-400`;
-                 b.title = "Utiliser Fauchage (Laisse Ã  1 PV)";
+                 b.title = "Utiliser Fauchage (Laisse à 1 PV)";
             }
             b.innerHTML = `<span class="material-symbols-outlined ${iconSize}">content_cut</span>`;
             b.disabled = false;
@@ -189,7 +190,9 @@ function showPalletSpeech(text, duration = 4000) {
 }
 
 function triggerChenEndGame() {
-    startChenChallengeSequence(true);
+    if (typeof startFinalCreditsSequence === 'function') {
+        startFinalCreditsSequence();
+    }
 }
 
 
@@ -255,7 +258,7 @@ function showStats() {
 
 function renderAutoStopSettings() {
     const list = document.getElementById('auto-stop-settings-list');
-    const rarities = ['Commun', 'Peu Commun', 'Rare', 'TrÃ¨s Rare', 'LÃ©gendaire', 'Shiny', 'Nouveau'];
+    const rarities = ['Commun', 'Peu Commun', 'Rare', 'Très Rare', 'Légendaire', 'Shiny', 'Nouveau'];
     list.innerHTML = '';
     rarities.forEach(rarity => {
         const isChecked = state.autoStopSettings[rarity];
@@ -300,16 +303,16 @@ function renderStats() {
     
     let dpsMults = [];
     if(hasMilestone(30)) dpsMults.push("Collectionneur (x1.5)");
-    if(hasMilestone(90)) dpsMults.push("MaÃ®tre (x1.5)");
+    if(hasMilestone(90)) dpsMults.push("Maître (x1.5)");
     if(hasBadge("Cascade")) dpsMults.push("Badge Cascade (x1.3)");
     if(hasBadge("Foudre")) dpsMults.push("Badge Foudre (x1.2)");
     if(hasBadge("Volcan")) dpsMults.push("Badge Volcan (x1.5)");
-    if(Date.now() < state.dpsBoostEndTime) dpsMults.push("Attaque SpÃ© + (x2)");
+    if(Date.now() < state.dpsBoostEndTime) dpsMults.push("Attaque Spé + (x2)");
 
-    // Base Click est calculÃ© sur le DPS TOTAL (currentDps), pas le DPS de base
+    // Base Click est calculé sur le DPS TOTAL (currentDps), pas le DPS de base
     let baseClick = 5 + Math.floor(currentDps * 0.002);
     
-    // Recalcul pour affichage neutre (sans dÃ©pendre de l'ennemi actuel)
+    // Recalcul pour affichage neutre (sans dépendre de l'ennemi actuel)
     let currentClick = baseClick;
     if(hasMilestone(10)) currentClick *= 2;
     if(hasMilestone(90)) currentClick *= 1.5;
@@ -321,9 +324,9 @@ function renderStats() {
     if(Date.now() < state.attackBoostEndTime) currentClick *= 2;
 
     let clickMults = [];
-    if(hasMilestone(10)) clickMults.push("DÃ©butant (x2)");
-    if(hasMilestone(90)) clickMults.push("MaÃ®tre (x1.5)");
-    if(state.upgrades.protein) clickMults.push("ProtÃ©ine (x1.5)");
+    if(hasMilestone(10)) clickMults.push("Débutant (x2)");
+    if(hasMilestone(90)) clickMults.push("Maître (x1.5)");
+    if(state.upgrades.protein) clickMults.push("Protéine (x1.5)");
     if(state.upgrades.hardStone) clickMults.push("Pierre Dure (x1.3)");
     if(hasBadge("Roche")) clickMults.push("Badge Roche (x1.5)");
     if(hasBadge("Foudre")) clickMults.push("Badge Foudre (x1.2)");
@@ -331,7 +334,7 @@ function renderStats() {
     if(Date.now() < state.attackBoostEndTime) clickMults.push("Attaque + (x2)");
 
     let moneyMults = [];
-    if(state.upgrades.amuletCoin) moneyMults.push("PiÃ¨ce Rune (x1.3)");
+    if(state.upgrades.amuletCoin) moneyMults.push("Pièce Rune (x1.3)");
     if(hasBadge("Prisme")) moneyMults.push("Badge Prisme (x1.2)");
     let moneyTotalMult = (state.upgrades.amuletCoin?1.3:1) * (hasBadge("Prisme")?1.2:1);
 
@@ -339,8 +342,8 @@ function renderStats() {
     if(state.upgrades.expShare) xpMults.push("Multi Exp (x1.5)");
     if(state.upgrades.luckyEgg) xpMults.push("Oeuf Chance (x1.5)");
     if(state.inv.omniExp > 0) xpMults.push("Omni Exp (x2)");
-    if(hasBadge("Ã‚me")) xpMults.push("Badge Ã‚me (x1.5)");
-    let xpTotalMult = (state.upgrades.expShare?1.5:1) * (state.upgrades.luckyEgg?1.5:1) * (state.inv.omniExp>0?2:1) * (hasBadge("Ã‚me")?1.5:1);
+    if(hasBadge("Âme")) xpMults.push("Badge Âme (x1.5)");
+    let xpTotalMult = (state.upgrades.expShare?1.5:1) * (state.upgrades.luckyEgg?1.5:1) * (state.inv.omniExp>0?2:1) * (hasBadge("Âme")?1.5:1);
 
     let catchMults = [];
     if(hasBadge("Marais")) catchMults.push("Badge Marais (x1.3)");
@@ -360,7 +363,7 @@ function renderStats() {
 
     c.innerHTML = `
         <div class="bg-slate-800 rounded p-3 border border-slate-700 mb-2">
-            <div class="text-[10px] text-gray-400">POKÃ‰MON VAINCUS</div>
+            <div class="text-[10px] text-gray-400">POKÉMON VAINCUS</div>
             <div class="text-xl font-bold text-white pixel-font">${state.stats.kills}</div>
         </div>
         <div class="bg-slate-800 rounded p-3 border border-slate-700 mb-4">
@@ -368,8 +371,8 @@ function renderStats() {
             <div class="text-xl font-bold text-yellow-400 pixel-font">${formatMoney(state.stats.totalMoney || state.money)} $</div>
         </div>
         
-        ${statBlock("DÃ‰GÃ‚TS CLIC", baseClick, clickMults, currentClick, "touch_app", "red", "Base (5+0.2% DPS)")}
-        ${statBlock("DPS Ã‰QUIPE", baseDps.toFixed(1), dpsMults, currentDps.toFixed(1), "swords", "blue")}
+        ${statBlock("DÉGÂTS CLIC", baseClick, clickMults, currentClick, "touch_app", "red", "Base (5+0.2% DPS)")}
+        ${statBlock("DPS ÉQUIPE", baseDps.toFixed(1), dpsMults, currentDps.toFixed(1), "swords", "blue")}
         ${statBlock("GAINS ARGENT", "100%", moneyMults, "x"+moneyTotalMult.toFixed(2), "attach_money", "yellow")}
         ${statBlock("GAINS XP", "100%", xpMults, "x"+xpTotalMult.toFixed(2), "school", "green")}
         
@@ -382,5 +385,6 @@ function renderStats() {
         </div>
     `;
 }
+
 
 

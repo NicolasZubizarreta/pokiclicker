@@ -18,6 +18,7 @@ const ITEMS = {
     superRepel: { name: "Superepousse", price: 8000, desc: "Bloque Communs/Peu Communs (30s)", type: "consumable", zone: 13, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/super-repel.png", invKey: "superRepel" },
     pokeDoll: { name: "Poké Poupée", price: 5000, desc: "Invoque le Boss (Si déjà vaincu)", type: "consumable", zone: 15, shop: "mall", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-doll.png", invKey: "pokeDoll" },
     everstone: { name: "Pierre Stase", price: 10000, desc: "Bloque l'évolution. Dégâts +25% (Base & Évolutif uniquement)", type: "consumable", zone: 10, shop: "mall", img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/everstone.png", invKey: "everstone" },
+    shinyToken: { name: "Jeton Shiny", price: 250000, desc: "Force la prochaine rencontre à être un Pokémon Shiny (ne fonctionne pas sur les Boss).", type: "consumable", shop: "mall", noBadgeInflation: true, img: "img/kanto/icones/JetonShiny.png", invKey: "shinyToken" },
     // Améliorations
     runningShoes: { name: "Chaussures Sport", price: 2000, desc: "Divise le temps d'apparition des ennemis par 1.5", type: "upgrade", zone: 1, icon: "sprint", iconColor: "text-orange-400" },
     amuletCoin: { name: "Pièce Rune", price: 4000, desc: "Gains d'argent +30%", type: "upgrade", zone: 2, img: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/amulet-coin.png" },

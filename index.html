@@ -277,6 +277,51 @@
         </div>
         <div id="glitch-overlay" class="absolute inset-0 z-[60] hidden pointer-events-none"></div>
         <div id="global-transition" class="absolute inset-0 bg-black z-[100] pointer-events-none opacity-0 transition-opacity duration-300"></div>
+        <div id="end-credits-overlay" class="absolute inset-0 z-[95] bg-black hidden">
+            <div class="end-credits-float-layer" id="end-credits-float-layer"></div>
+            <div class="end-credits-intro px-6 text-center max-w-3xl hidden">
+            </div>
+            <div class="end-credits-scroll">
+                <div class="end-credits-content" id="end-credits-content">
+                    <div class="end-credits-title pixel-font text-yellow-400">POKÉ-CLICKER : KANTO ORIGINS</div>
+                    <div class="end-credits-message text-gray-200 mt-4">
+                        FÉLICITATIONS ! Vous avez vaincu la Ligue, complété le Pokédex et surpassé le Professeur Chen.<br><br>
+                        Vous êtes considéré comme le dresseur de légende de KANTO
+                    </div>
+                    <div class="credits-gap"></div>
+
+                    <div class="credits-push-marker" id="credits-push-marker"></div>
+                    <div class="credits-section-title pixel-font text-yellow-300">CRÉATION & RÉALISATION ;</div>
+                    <div class="credits-line">Concept Original Nicolas Zubizarreta</div>
+                    <div class="credits-line">Game Design & Équilibrage Nicolas Zubizarreta</div>
+                    <div class="credits-line">Programmation Lead Nicolas Zubizarreta</div>
+                    <div class="credits-line">Scénario & Dialogues Nicolas Zubizarreta</div>
+                    <div class="credits-line">Interface & UI Nicolas Zubizarreta</div>
+
+                    <div class="credits-gap"></div>
+                    <div class="credits-section-title pixel-font text-yellow-300">ASSISTANT TECHNIQUE :</div>
+                    <div class="credits-line">Gemini Code Assistant</div>
+                    <div class="credits-line">Support Syntaxique : VS Code</div>
+
+                    <div class="credits-gap"></div>
+                    <div class="credits-section-title pixel-font text-yellow-300">ÉQUIPE D'ASSURANCE QUALITÉ (QA)</div>
+                    <div class="credits-line">Daran Jacquet, Bjorn Silvester, Maé François</div>
+
+                    <div class="credits-gap"></div>
+                    <div class="credits-section-title pixel-font text-yellow-300">GUEST STAR & REMERCIEMENTS SPÉCIAUX</div>
+                    <div class="credits-line">DARAN Pour le don de sa personne. A inspiré et débloqué le skin Pokémon Exclusif "Daran".</div>
+
+                    <div class="credits-gap"></div>
+                    <div class="credits-section-title pixel-font text-yellow-300">BASÉ SUR L'UNIVERS DE</div>
+                    <div class="credits-line">POKÉMON © Nintendo / Creatures Inc. / GAME FREAK inc. Ceci est un fan-game gratuit réalisé par passion.</div>
+
+                    <div class="credits-gap"></div>
+                    <div class="credits-section-title pixel-font text-yellow-300">MERCI D'AVOIR JOUÉ !</div>
+                    <div class="credits-line">Votre sauvegarde a été mise à jour. Vous pouvez maintenant retourner explorer Kanto librement.</div>
+                    <div class="credits-line">À SUIVRE... ?</div>
+                </div>
+            </div>
+        </div>
 
         <!-- Content Container (Z-10) -->
         <div class="relative z-10 flex flex-col h-full w-full pointer-events-none">
@@ -826,7 +871,11 @@
             </div>
             <div>
                 <h3 class="text-yellow-300 font-bold mb-2">Casino</h3>
-                <p>Zone spéciale en préparation.</p>
+                <p>Débloqué via progression (à Céladopole). Vous pouvez y acheter des jetons avec vos Pokédollars pour jouer à 3 mini-jeux : la Machine à sous, le Blackjack et le Pile ou Face. Les jetons gagnés peuvent être échangés contre des Pokémon rares (Abra, Insecateur, Minidraco, Porygon) et des objets exclusifs comme la CT Jackpot ou une Master Ball.</p>
+            </div>
+            <div>
+                <h3 class="text-yellow-300 font-bold mb-2">Défi du Professeur Chen</h3>
+                <p>Une fois la ligue vaincue et le Pokédex de Kanto complété (151 Pokémon capturés), un défi ultime vous attend au laboratoire du Professeur Chen. Il vous affrontera avec une équipe de 6 Pokémon, tous au niveau 100, incluant un starter avantagé sur le vôtre, Tauros, Noadkoko, Arcanin, Léviator et son puissant Dracolosse. Chaque Pokémon doit être vaincu en moins de 30 secondes. C'est le test final pour devenir le véritable maître de Kanto.</p>
             </div>
             <div>
                 <h3 class="text-yellow-300 font-bold mb-2">Easter Eggs</h3>
@@ -867,6 +916,7 @@
     <script src="js/game/loop.js"></script>
 </body>
 </html>
+
 
 
 

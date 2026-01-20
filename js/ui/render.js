@@ -476,7 +476,7 @@ function renderMallPanel() {
     const mallContent = document.getElementById('mall-shop-content');
     if (!mallContent) return;
 
-    const mallItems = ['xAttack', 'xSpecial', 'pokeDoll', 'everstone', 'calcium', 'fireStone', 'waterStone', 'leafStone', 'thunderStone', 'moonStone'];
+    const mallItems = ['xAttack', 'xSpecial', 'pokeDoll', 'everstone', 'calcium', 'fireStone', 'waterStone', 'leafStone', 'thunderStone', 'moonStone', 'shinyToken'];
     let html = "";
 
     mallItems.forEach((id) => {

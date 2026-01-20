@@ -248,6 +248,9 @@ function nextDialog() {
             document.getElementById('intro-overlay').classList.add('hidden');
             resetProfSpriteDefaults();
             activeDialogs = INTRO_DIALOGS;
+            if (typeof startFinalCreditsSequence === 'function') {
+                startFinalCreditsSequence();
+            }
             return;
         }
         // Phase 4: Selection

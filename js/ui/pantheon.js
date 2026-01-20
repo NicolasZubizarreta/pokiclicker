@@ -252,11 +252,18 @@ function exitPantheon() {
     btn.classList.add('bg-red-600', 'hover:bg-red-500');
     btn.classList.remove('bg-green-600', 'hover:bg-green-500', 'animate-pulse');
 
-    const triggerJohto = !state.johtoUnlocked || state.cheat;
+    const firstLeagueWin = (state.leagueWins || 0) === 1;
+    const triggerJohto = firstLeagueWin && (!state.johtoUnlocked || state.cheat);
+
+    if (state.chenChallengePending) {
+        state.chenChallengePending = false;
+        setTimeout(() => startChenChallengeSequence(true), 800);
+        return;
+    }
 
     changeZone(0); // Retour Bourg Palette (via logique standard ou custom si besoin)
     // Force reset to Zone 0 if changeZone logic is relative
-    if(state.zoneIdx !== 0) {
+    if (state.zoneIdx !== 0) {
         state.zoneIdx = 0;
         updateBg(); updateZone(); spawnEnemy();
     }
@@ -264,10 +271,6 @@ function exitPantheon() {
 
     if (triggerJohto) {
         setTimeout(startJohtoIntro, 500);
-    }
-    if (state.chenChallengePending) {
-        state.chenChallengePending = false;
-        setTimeout(() => startChenChallengeSequence(true), 800);
     }
 }
 

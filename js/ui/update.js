@@ -32,6 +32,151 @@ function formatMoney(value) {
     return n.toLocaleString('fr-FR');
 }
 
+const MOM_TV_CONFIG = {
+    videoSrc: "img/kanto/EasterEgg/Daran.mp4",
+    screenRect: { x: 600, y: 290, w: 120, h: 90 },
+    buttonRect: { x: 730, y: 390, w: 22, h: 16 }
+};
+
+let momTvIsOn = false;
+let momTvResizeBound = false;
+
+function ensureMomTvOverlay() {
+    const layer = document.getElementById('bg-layer');
+    if (!layer) return null;
+
+    let video = document.getElementById('mom-tv-video');
+    let screenOff = document.getElementById('mom-tv-screen-off');
+    let button = document.getElementById('mom-tv-button');
+
+    if (!video) {
+        video = document.createElement('video');
+        video.id = 'mom-tv-video';
+        video.preload = 'metadata';
+        video.style.position = 'absolute';
+        video.style.display = 'none';
+        video.style.objectFit = 'cover';
+        video.style.pointerEvents = 'none';
+        video.setAttribute('playsinline', '');
+        video.setAttribute('webkit-playsinline', '');
+        video.src = MOM_TV_CONFIG.videoSrc;
+        layer.appendChild(video);
+    }
+
+    if (!screenOff) {
+        screenOff = document.createElement('div');
+        screenOff.id = 'mom-tv-screen-off';
+        screenOff.style.position = 'absolute';
+        screenOff.style.display = 'none';
+        screenOff.style.background = 'rgba(0, 0, 0, 0.65)';
+        screenOff.style.cursor = 'pointer';
+        screenOff.style.pointerEvents = 'auto';
+        screenOff.addEventListener('click', startMomTv);
+        layer.appendChild(screenOff);
+    }
+
+    if (!button) {
+        button = document.createElement('div');
+        button.id = 'mom-tv-button';
+        button.style.position = 'absolute';
+        button.style.display = 'none';
+        button.style.background = 'rgba(255, 255, 255, 0.01)';
+        button.style.cursor = 'pointer';
+        button.style.pointerEvents = 'auto';
+        button.addEventListener('mouseenter', (e) => showMapTooltip('Bouton tele', e, 'gray'));
+        button.addEventListener('mousemove', (e) => moveMapTooltip(e));
+        button.addEventListener('mouseleave', () => hideMapTooltip());
+        button.addEventListener('click', startMomTv);
+        layer.appendChild(button);
+    }
+
+    if (!momTvResizeBound) {
+        window.addEventListener('resize', () => {
+            if (state.zoneIdx === -4) positionMomTvOverlay();
+        });
+        momTvResizeBound = true;
+    }
+
+    return { video, screenOff, button };
+}
+
+function positionMomTvOverlay() {
+    const layer = document.getElementById('bg-layer');
+    const img = document.getElementById('bg-img-element');
+    const video = document.getElementById('mom-tv-video');
+    const screenOff = document.getElementById('mom-tv-screen-off');
+    const button = document.getElementById('mom-tv-button');
+    if (!layer || !img || !video || !screenOff || !button) return;
+    if (!img.naturalWidth || !img.naturalHeight) return;
+
+    const layerRect = layer.getBoundingClientRect();
+    const scale = Math.min(layerRect.width / img.naturalWidth, layerRect.height / img.naturalHeight);
+    const renderW = img.naturalWidth * scale;
+    const renderH = img.naturalHeight * scale;
+    const offsetX = (layerRect.width - renderW) / 2;
+    const offsetY = (layerRect.height - renderH) / 2;
+
+    const setRect = (el, rect) => {
+        el.style.left = `${offsetX + rect.x * scale}px`;
+        el.style.top = `${offsetY + rect.y * scale}px`;
+        el.style.width = `${rect.w * scale}px`;
+        el.style.height = `${rect.h * scale}px`;
+        el.style.zIndex = '12';
+    };
+
+    setRect(video, MOM_TV_CONFIG.screenRect);
+    setRect(screenOff, MOM_TV_CONFIG.screenRect);
+    setRect(button, MOM_TV_CONFIG.buttonRect);
+}
+
+function showMomTvOverlay() {
+    const els = ensureMomTvOverlay();
+    if (!els) return;
+    els.screenOff.style.display = 'block';
+    els.button.style.display = 'block';
+    positionMomTvOverlay();
+}
+
+function hideMomTvOverlay() {
+    const video = document.getElementById('mom-tv-video');
+    const screenOff = document.getElementById('mom-tv-screen-off');
+    const button = document.getElementById('mom-tv-button');
+    if (video) video.style.display = 'none';
+    if (screenOff) screenOff.style.display = 'none';
+    if (button) button.style.display = 'none';
+}
+
+function startMomTv() {
+    momTvIsOn = true;
+    const video = document.getElementById('mom-tv-video');
+    const screenOff = document.getElementById('mom-tv-screen-off');
+    if (!video) return;
+    if (screenOff) screenOff.style.display = 'none';
+    video.style.display = 'block';
+    video.currentTime = 0;
+    const playPromise = video.play();
+    if (playPromise && typeof playPromise.catch === 'function') {
+        playPromise.catch(() => {});
+    }
+}
+
+function stopMomTv() {
+    momTvIsOn = false;
+    const video = document.getElementById('mom-tv-video');
+    const screenOff = document.getElementById('mom-tv-screen-off');
+    if (video) {
+        video.pause();
+        video.currentTime = 0;
+        video.style.display = 'none';
+    }
+    if (screenOff) screenOff.style.display = 'block';
+}
+
+function syncMomTvState() {
+    if (momTvIsOn) startMomTv();
+    else stopMomTv();
+}
+
 
 function updateUI() {
     document.getElementById('money-display').innerText = formatMoney(state.money);
@@ -145,6 +290,9 @@ function updateBg() {
     const bgImg = document.getElementById('bg-img-element');
     const bgSvg = document.getElementById('bg-overlay-svg');
 
+    if (state.zoneIdx !== -4 && momTvIsOn) stopMomTv();
+    if (state.zoneIdx !== -4) hideMomTvOverlay();
+
     // Reset styles that might be changed by mobile specific hacks
     bgImg.style.cssText = '';
     bgSvg.style.cssText = '';
@@ -188,6 +336,8 @@ function updateBg() {
                     <rect x="284" y="571" width="138" height="69" fill="rgba(0, 255, 0, 0.3)" class="animate-pulse cursor-pointer lg:hover:fill-green-400/50 transition-colors" onmouseenter="showMapTooltip('Sortie', event, 'green')" onmousemove="moveMapTooltip(event)" onmouseleave="hideMapTooltip()" onclick="changeZone(4)"></rect>
                 </a>
             `;
+            showMomTvOverlay();
+            syncMomTvState();
         };
     } else if (state.zoneIdx === -2) {
         // Labo Prof Chen

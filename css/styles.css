@@ -1,4 +1,4 @@
-﻿body { font-family: 'Open Sans', sans-serif; background: #0f172a; color: white; overflow: hidden; touch-action: manipulation; }
+body { font-family: 'Open Sans', sans-serif; background: #0f172a; color: white; overflow: hidden; touch-action: manipulation; }
         h1, h2, h3, .pixel-font { font-family: 'Press Start 2P', cursive; }
         
         /* Animations */
@@ -137,7 +137,7 @@
         }
         @keyframes move-lines { from { background-position: 0 0; } to { background-position: -400px 0; } }
         @keyframes track-open {
-            0% { clip-path: inset(48% 0 48% 100%); } /* Trait fin à droite */
+            0% { clip-path: inset(48% 0 48% 100%); } /* Trait fin � droite */
             50% { clip-path: inset(48% 0 48% 0); }   /* Trait fin toute largeur */
             100% { clip-path: inset(0 0 0 0); }      /* Pleine hauteur */
         }
@@ -148,9 +148,9 @@
         @keyframes bird-fly-sequence {
             0% { left: 150%; }
             10% { left: 150%; } /* Attente ouverture */
-            30% { left: 50%; }  /* Arrivée au centre (Rapide) */
+            30% { left: 50%; }  /* Arriv�e au centre (Rapide) */
             60% { left: 50%; }  /* Pause */
-            100% { left: -50%; } /* Départ vers la gauche (Lent) */
+            100% { left: -50%; } /* D�part vers la gauche (Lent) */
         }
 
         @media (max-width: 1024px) {
@@ -245,5 +245,154 @@
             100% { transform: scale(1); opacity: 1; }
         }
         .title-slam { animation: title-slam 1.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+
+        /* End Credits */
+        #end-credits-overlay {
+            --credits-delay: 0s;
+            --credits-duration: 110s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            overflow: hidden;
+            pointer-events: auto;
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+        #end-credits-overlay.hidden {
+            display: none;
+        }
+        #end-credits-overlay .end-credits-intro {
+            opacity: 0;
+            transform: translateY(20px) scale(0.98);
+            max-width: min(720px, 92vw);
+            z-index: 2;
+        }
+        #end-credits-overlay .end-credits-intro.in-flow {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            margin-bottom: 22px;
+        }
+        #end-credits-overlay .end-credits-intro.clone {
+            opacity: 0;
+            transform: translateY(0) scale(1);
+            margin-bottom: 22px;
+            animation: none;
+        }
+        #end-credits-overlay .end-credits-intro.clone.show {
+            opacity: 1;
+            transition: opacity 300ms ease;
+        }
+#end-credits-overlay .end-credits-title {
+            font-size: clamp(20px, 4vw, 36px);
+            letter-spacing: 2px;
+            text-shadow: 0 6px 0 #000;
+            opacity: 1 !important;
+            transform: none !important;
+        }
+        #end-credits-overlay .end-credits-message {
+            font-size: clamp(13px, 2.2vw, 18px);
+            line-height: 1.6;
+            font-weight: 600;
+            opacity: 1 !important;
+            transform: none !important;
+        }
+        #end-credits-overlay .end-credits-scroll {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding: 0 16px;
+            pointer-events: none;
+            z-index: 2;
+        }
+        #end-credits-overlay .end-credits-content {
+            width: min(720px, 90vw);
+            text-align: center;
+            color: #e2e8f0;
+            transform: translateY(120%);
+        }
+        #end-credits-overlay .credits-section-title {
+            font-size: clamp(12px, 2.4vw, 16px);
+            margin-top: 22px;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+        #end-credits-overlay .credits-line {
+            font-size: clamp(12px, 2.2vw, 16px);
+            line-height: 1.7;
+            font-weight: 700;
+            text-shadow: 0 2px 0 rgba(0, 0, 0, 0.6);
+            margin-bottom: 6px;
+        }
+        #end-credits-overlay .credits-gap {
+            height: 26px;
+        }
+        #end-credits-overlay .credits-push-marker {
+            width: 100%;
+            height: 1px;
+        }
+        #end-credits-overlay .end-credits-float-layer {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 1;
+        }
+        #end-credits-overlay .end-credits-float {
+            position: absolute;
+            opacity: 0;
+            transform: scale(0.98);
+            image-rendering: pixelated;
+            filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.6));
+        }
+
+        #end-credits-overlay.active .end-credits-content {
+            animation: end-credits-scroll var(--credits-duration) linear var(--credits-delay) forwards;
+        }
+        #end-credits-overlay.credits-fadeout {
+            opacity: 0;
+            transition: opacity 1200ms ease;
+        }
+
+        @keyframes end-credits-intro {
+            0% { opacity: 0; transform: translateY(20px) scale(0.98); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes intro-scroll-out {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 1; transform: translateY(-140vh) scale(1); }
+        }
+        @keyframes end-credits-title {
+            0% { opacity: 0; transform: translateY(10px) scale(1.1); }
+            70% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes end-credits-message {
+            0% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes end-credits-scroll {
+            0% { transform: translateY(120%); }
+            100% { transform: translateY(-120%); }
+        }
+        @keyframes credits-float-life {
+            0% { opacity: 0; transform: scale(0.98); }
+            20% { opacity: 0.6; transform: scale(1); }
+            80% { opacity: 0.6; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0.99); }
+        }
+
+        @media (max-width: 640px) {
+#end-credits-overlay .end-credits-title {
+                letter-spacing: 1px;
+            }
+            #end-credits-overlay .credits-gap {
+                height: 18px;
+            }
+        }
 
 

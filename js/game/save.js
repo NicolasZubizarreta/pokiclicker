@@ -356,6 +356,167 @@ function startChenVictorySequence() {
     }, 900);
 }
 
+let endCreditsTimeout = null;
+let endCreditsImageInterval = null;
+let endCreditsIntroTimer = null;
+let endCreditsEndHandler = null;
+
+const END_CREDITS_IMAGES = [
+    "img/kanto/sprites/SpriteChen1.png",
+    "img/kanto/sprites/SpriteChen2.png",
+    "img/kanto/sprites/SpriteChen3.png",
+    "img/kanto/sprites/SpriteFly1.png",
+    "img/kanto/sprites/SpriteFly2.png",
+    "img/kanto/sprites/SpriteFly3.png",
+    "img/kanto/sprites/SpriteFly4.png",
+    "img/kanto/sprites/SpriteFly5.png",
+    "img/kanto/background/Casino.png",
+    "img/kanto/background/CentreCommercial.png",
+    "img/kanto/background/Chez Blue.png",
+    "img/kanto/background/Chez Maman.png",
+    "img/kanto/background/LaboPokemon.png",
+    "img/kanto/background/Pantheon.png",
+    "img/kanto/background/Pension.png",
+    "img/kanto/background/Zone 0.png",
+    "img/kanto/background/Zone 1.png",
+    "img/kanto/background/Zone 2.png",
+    "img/kanto/background/Zone 3.png",
+    "img/kanto/background/Zone 4.png",
+    "img/kanto/background/Zone 5.png",
+    "img/kanto/background/Zone 6.png",
+    "img/kanto/background/Zone 7.png",
+    "img/kanto/background/Zone 8.png",
+    "img/kanto/background/Zone 9.png",
+    "img/kanto/background/Zone 10.png",
+    "img/kanto/background/Zone 11.png",
+    "img/kanto/background/Zone 12.png",
+    "img/kanto/background/Zone 13.png",
+    "img/kanto/background/Zone 14.png",
+    "img/kanto/background/Zone 15.png",
+    "img/kanto/background/Zone 16.png",
+    "img/kanto/background/Zone 17.png",
+    "img/kanto/background/Zone 18.png",
+    "img/kanto/background/Zone 19.png",
+    "img/kanto/background/Zone 20.png",
+    "img/kanto/background/Zone 21.png"
+];
+
+function randInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function startCreditsImageSpawner() {
+    const layer = document.getElementById('end-credits-float-layer');
+    if (!layer) return;
+    layer.innerHTML = '';
+
+    const active = [];
+    const maxActive = 3;
+
+    const overlaps = (a, b) => {
+        return !(a.x + a.w <= b.x || b.x + b.w <= a.x || a.y + a.h <= b.y || b.y + b.h <= a.y);
+    };
+
+    const spawnOne = () => {
+        if (active.length >= maxActive) return;
+        const img = document.createElement('img');
+        img.className = 'end-credits-float';
+        img.src = END_CREDITS_IMAGES[randInt(0, END_CREDITS_IMAGES.length - 1)];
+
+        const size = randInt(8, 30);
+        let placed = false;
+
+        for (let i = 0; i < 10; i++) {
+            const x = randInt(0, 100 - size);
+            const y = randInt(0, 100 - size);
+            const rect = { x, y, w: size, h: size };
+            if (active.every(r => !overlaps(r, rect))) {
+                placed = true;
+                img.style.width = `${size}%`;
+                img.style.left = `${x}%`;
+                img.style.top = `${y}%`;
+                active.push(rect);
+                layer.appendChild(img);
+                const stayMs = randInt(3500, 5500);
+                img.style.animation = `credits-float-life ${stayMs}ms ease-in-out forwards`;
+                setTimeout(() => {
+                    img.remove();
+                    const idx = active.indexOf(rect);
+                    if (idx !== -1) active.splice(idx, 1);
+                }, stayMs + 200);
+                break;
+            }
+        }
+    };
+
+    endCreditsImageInterval = setInterval(spawnOne, 3200);
+}
+
+function stopCreditsImageSpawner() {
+    if (endCreditsImageInterval) clearInterval(endCreditsImageInterval);
+    endCreditsImageInterval = null;
+    const layer = document.getElementById('end-credits-float-layer');
+    if (layer) layer.innerHTML = '';
+}
+
+function startFinalCreditsSequence() {
+    const overlay = document.getElementById('end-credits-overlay');
+    if (!overlay) return;
+
+    if (endCreditsTimeout) clearTimeout(endCreditsTimeout);
+    if (endCreditsEndHandler) endCreditsEndHandler = null;
+
+    overlay.classList.remove('hidden', 'credits-fadeout', 'active');
+
+    const content = document.getElementById('end-credits-content');
+    if (content) {
+        content.style.animation = 'none';
+        void content.offsetHeight;
+        content.style.animation = '';
+    }
+
+    void overlay.offsetHeight;
+    overlay.classList.add('active');
+    startCreditsImageSpawner();
+
+    if (content) {
+        const onEnd = (e) => {
+            if (e && e.animationName !== 'end-credits-scroll') return;
+            if (endCreditsEndHandler !== onEnd) return;
+            endFinalCreditsSequence();
+        };
+        endCreditsEndHandler = onEnd;
+        content.addEventListener('animationend', onEnd, { once: true });
+    }
+
+    try {
+        localStorage.setItem('pokiClickerSave', JSON.stringify(state));
+    } catch (e) {}
+
+    const creditsDelayMs = 1000; // Corresponds to --credits-delay
+    const creditsDurationMs = 110000; // Corresponds to --credits-duration
+    const outroBufferMs = 4000;
+    endCreditsTimeout = setTimeout(() => {
+        endFinalCreditsSequence();
+    }, creditsDelayMs + creditsDurationMs + outroBufferMs);
+}
+
+function endFinalCreditsSequence() {
+    const overlay = document.getElementById('end-credits-overlay');
+    if (!overlay) return;
+    overlay.classList.add('credits-fadeout');
+    overlay.classList.remove('active');
+    stopCreditsImageSpawner();
+    if (endCreditsTimeout) clearTimeout(endCreditsTimeout);
+    endCreditsTimeout = null;
+    if (endCreditsEndHandler) endCreditsEndHandler = null;
+    
+    setTimeout(() => {
+        overlay.classList.add('hidden');
+        overlay.classList.remove('credits-fadeout');
+    }, 1300);
+}
+
 function failChenChallenge() {
     if (!state.chenChallengeActive || state.chenChallengeCompleted) return;
     state.chenChallengeStage = 1;
@@ -462,6 +623,14 @@ function toggleAutoStopSettingsModal() {
     }
 }
 
+function setIconPair(lockIcon, activeIcon, locked) {
+    if (!lockIcon || !activeIcon) return;
+    lockIcon.hidden = !locked;
+    activeIcon.hidden = locked;
+    lockIcon.style.display = locked ? 'inline-flex' : 'none';
+    activeIcon.style.display = locked ? 'none' : 'inline-flex';
+}
+
 function updateMapButton() {
     const btn = document.getElementById('map-btn');
     const lockIcon = document.getElementById('map-icon-lock');
@@ -473,13 +642,11 @@ function updateMapButton() {
     if (state.zoneIdx === -5) {
         btn.disabled = true;
         btn.classList.add('disabled:opacity-50', 'disabled:cursor-not-allowed');
-        lockIcon.classList.remove('hidden');
-        activeIcon.classList.add('hidden');
+        setIconPair(lockIcon, activeIcon, true);
     } else if (state.unlockedZone >= 1 || state.cheat || state.introMapUnlocked) {
         btn.disabled = false;
         btn.classList.remove('disabled:opacity-50', 'disabled:cursor-not-allowed');
-        lockIcon.classList.add('hidden');
-        activeIcon.classList.remove('hidden');
+        setIconPair(lockIcon, activeIcon, false);
         
         if (state.zoneIdx === 0 && state.unlockedZone === 1 && state.stats.kills === 0 && !state.hasVisitedRoute1) {
             btn.classList.add('animate-bounce', 'ring-4', 'ring-green-500', 'bg-green-900');
@@ -487,8 +654,7 @@ function updateMapButton() {
     } else {
         btn.disabled = true;
         btn.classList.add('disabled:opacity-50', 'disabled:cursor-not-allowed');
-        lockIcon.classList.remove('hidden');
-        activeIcon.classList.add('hidden');
+        setIconPair(lockIcon, activeIcon, true);
     }
 }
 
@@ -512,13 +678,11 @@ function updateRadarButton() {
     if (state.upgrades.pokeradar) {
         btn.disabled = false;
         btn.classList.remove('disabled:opacity-50', 'disabled:cursor-not-allowed');
-        lockIcon.classList.add('hidden');
-        activeIcon.classList.remove('hidden');
+        setIconPair(lockIcon, activeIcon, false);
     } else {
         btn.disabled = true;
         btn.classList.add('disabled:opacity-50', 'disabled:cursor-not-allowed');
-        lockIcon.classList.remove('hidden');
-        activeIcon.classList.add('hidden');
+        setIconPair(lockIcon, activeIcon, true);
     }
 }
 
