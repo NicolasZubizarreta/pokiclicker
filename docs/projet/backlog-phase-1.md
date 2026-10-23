@@ -307,7 +307,7 @@ Fourchette : 2 à 3 jours. Risque : Tailwind et jetons CSS à brancher propremen
 
 ## H. `feat(ui): jouer un combat de la Route 1 de bout en bout`
 
-Labels : `type:feat`, `etat:en_cours`, `est:2-3`, `prio:1` · branche : `v2` (pas encore de PR) · `agent-ok` : oui (après D, E, F, G, I)
+Labels : `type:feat`, `etat:fait`, `est:2-3`, `prio:1` · branche : `v2` (pas encore de PR) · `agent-ok` : oui (après D, E, F, G, I)
 
 ### Histoire
 En tant que joueur, je veux cliquer sur un Pokémon sauvage de la Route 1, le battre avec mon équipe, voir les étapes avancer et retrouver ma partie en revenant afin de vérifier que les fondations tiennent.
@@ -316,15 +316,18 @@ En tant que joueur, je veux cliquer sur un Pokémon sauvage de la Route 1, le ba
 Écran de combat selon `design/examples/2026-10-23-kanto-combat.html` et `design/DESIGN.md` (bouton d'action, barre de PV, étapes, carte de Pokémon). Branche le cœur (D), les zones (E), la sauvegarde (F), les images (I) et la coquille (G). Équipe de départ **fixe et provisoire**. Fichiers prévus (À CONFIRMER) : `src/ui/EcranCombat.tsx`, `src/ui/store.ts` (Zustand, abonnement à 10 Hz), `src/ui/BarrePv.tsx`, `src/ui/Etapes.tsx`.
 
 ### Critères d'acceptation
-- [ ] Étant donné la Route 1 à l'étape 1, quand je touche le bouton « Attaque », alors les PV de l'ennemi baissent et un chiffre de dégâts monte puis s'efface.
-- [ ] Étant donné l'étape 10, quand le boss est battu, alors un message de fin de zone s'affiche et l'écran propose la suite (zone suivante verrouillée si la condition n'est pas remplie, avec la raison en français).
-- [ ] Étant donné une partie en cours, quand je ferme puis rouvre l'application, alors je reprends à la même étape avec les mêmes PV d'équipe (sauvegarde automatique toutes les 30 s et à la fermeture).
-- [ ] Étant donné 12 appuis par seconde sur un téléphone, quand le combat tourne 60 s, alors l'image reste fluide (pas de chute sous 50 images/s sur le profil de mesure du navigateur) et l'interface n'est mise à jour que 10 fois par seconde au plus.
-- [ ] Étant donné les écrans 390 et 1440 px, quand je les capture, alors aucune bande noire, aucun saut d'image, aucun texte en anglais.
-- [ ] Étant donné une erreur de chargement des données, quand elle survient, alors un message en français dit quoi faire (« Recharge la page ; ta partie est gardée »).
+- [x] Étant donné la Route 1 à l'étape 1, quand je touche le bouton « Attaque », alors les PV de l'ennemi baissent et un chiffre de dégâts monte puis s'efface.
+- [x] Étant donné l'étape 10, quand le boss est battu, alors un message de fin de zone s'affiche et l'écran propose la suite (zone suivante verrouillée si la condition n'est pas remplie, avec la raison en français).
+- [x] Étant donné une partie en cours, quand je ferme puis rouvre l'application, alors je reprends à la même étape avec les mêmes PV d'équipe (sauvegarde automatique toutes les 30 s et à la fermeture).
+- [x] Étant donné 12 appuis par seconde sur un téléphone, quand le combat tourne 60 s, alors l'image reste fluide (pas de chute sous 50 images/s sur le profil de mesure du navigateur) et l'interface n'est mise à jour que 10 fois par seconde au plus.
+- [x] Étant donné les écrans 390 et 1440 px, quand je les capture, alors aucune bande noire, aucun saut d'image, aucun texte en anglais.
+- [x] Étant donné une erreur de chargement des données, quand elle survient, alors un message en français dit quoi faire (« Recharge la page ; ta partie est gardée »).
 
 ### Périmètre précisé le 23/10
 Disposition retenue par Nicolas : variante A « Scène et Attaque » (maquette design/variantes/combat/a-scene-attaque.html) ; remarque de Nicolas : dans les cartes d'équipe, le DPS ne doit pas être collé au bord droit (marge d'au moins 16 px, p-4). Zustand 5.0.16 et Playwright 1.64.1 sont installés. Images prêtes dans public/img/ (décor decors/route-1.webp, sprites de face 1, 4, 7, 16, 17, 19, 20, 21 ; décor V1 recadré en 16:9 par moi, provisoire). Équipe de départ provisoire fixe : Bulbizarre, Salamèche, Carapuce, niveau 5. Sauvegarde locale toutes les 30 s et à la fermeture ; l'ennemi en cours n'est PAS sauvegardé (ADR 0001, aucun état d'interface) : à la reprise, même zone, même étape, même équipe, un nouvel ennemi apparaît. La fin de zone après le boss est un message avec la suite (Forêt de Jade, provisoire) verrouillée avec la raison tant que la condition n'est pas remplie, puis « La suite arrive bientôt. » une fois déverrouillée (le contenu de la zone suivante n'existe pas encore). Livraison en deux temps : H1 (écran, stockage d'état, sauvegarde, tests Vitest), H2 (test Playwright 390 et 1440 px, mesure d'images par seconde).
+
+### Résultat (23/10)
+Test e2e Playwright (390 et 1440 px, build de production) : 8 tests verts (parcours jusqu'au boss, reprise, données corrompues, mise en page). Fluidité à 4× de ralentissement du processeur, 12 appuis/s pendant 60 s : 59,85 images/s en moyenne, 56 au minimum, 8 rendus de PV par seconde au maximum, 1 tâche longue (65 ms). Écarts assumés : sur mobile le DPS par Pokémon n'est donné que dans le nom accessible (cases de 56 px de DESIGN.md), le total reste affiché ; pas de sprite du Prof. Chen ; l'ennemi en cours n'est pas sauvegardé (ADR 0001).
 
 ### Hors périmètre
 Capture, choix du starter, dialogues, Shop, équipe modifiable, hors-ligne.
