@@ -1,0 +1,606 @@
+{
+  "1": {
+    "puissance": 79,
+    "pv": 53
+  },
+  "2": {
+    "puissance": 101,
+    "pv": 68
+  },
+  "3": {
+    "puissance": 131,
+    "pv": 88
+  },
+  "4": {
+    "puissance": 77,
+    "pv": 51
+  },
+  "5": {
+    "puissance": 101,
+    "pv": 66
+  },
+  "6": {
+    "puissance": 133,
+    "pv": 85
+  },
+  "7": {
+    "puissance": 78,
+    "pv": 53
+  },
+  "8": {
+    "puissance": 101,
+    "pv": 70
+  },
+  "9": {
+    "puissance": 132,
+    "pv": 95
+  },
+  "10": {
+    "puissance": 48,
+    "pv": 33
+  },
+  "11": {
+    "puissance": 51,
+    "pv": 37
+  },
+  "12": {
+    "puissance": 98,
+    "pv": 60
+  },
+  "13": {
+    "puissance": 48,
+    "pv": 32
+  },
+  "14": {
+    "puissance": 51,
+    "pv": 35
+  },
+  "15": {
+    "puissance": 98,
+    "pv": 60
+  },
+  "16": {
+    "puissance": 62,
+    "pv": 42
+  },
+  "17": {
+    "puissance": 87,
+    "pv": 58
+  },
+  "18": {
+    "puissance": 119,
+    "pv": 77
+  },
+  "19": {
+    "puissance": 63,
+    "pv": 38
+  },
+  "20": {
+    "puissance": 103,
+    "pv": 67
+  },
+  "21": {
+    "puissance": 65,
+    "pv": 42
+  },
+  "22": {
+    "puissance": 110,
+    "pv": 72
+  },
+  "23": {
+    "puissance": 72,
+    "pv": 50
+  },
+  "24": {
+    "puissance": 112,
+    "pv": 73
+  },
+  "25": {
+    "puissance": 80,
+    "pv": 40
+  },
+  "26": {
+    "puissance": 121,
+    "pv": 68
+  },
+  "27": {
+    "puissance": 75,
+    "pv": 58
+  },
+  "28": {
+    "puissance": 112,
+    "pv": 87
+  },
+  "29": {
+    "puissance": 68,
+    "pv": 58
+  },
+  "30": {
+    "puissance": 91,
+    "pv": 74
+  },
+  "31": {
+    "puissance": 126,
+    "pv": 97
+  },
+  "32": {
+    "puissance": 68,
+    "pv": 53
+  },
+  "33": {
+    "puissance": 91,
+    "pv": 70
+  },
+  "34": {
+    "puissance": 126,
+    "pv": 97
+  },
+  "35": {
+    "puissance": 80,
+    "pv": 62
+  },
+  "36": {
+    "puissance": 120,
+    "pv": 90
+  },
+  "37": {
+    "puissance": 74,
+    "pv": 63
+  },
+  "38": {
+    "puissance": 126,
+    "pv": 97
+  },
+  "39": {
+    "puissance": 67,
+    "pv": 72
+  },
+  "40": {
+    "puissance": 108,
+    "pv": 92
+  },
+  "41": {
+    "puissance": 61,
+    "pv": 43
+  },
+  "42": {
+    "puissance": 113,
+    "pv": 77
+  },
+  "43": {
+    "puissance": 80,
+    "pv": 57
+  },
+  "44": {
+    "puissance": 98,
+    "pv": 72
+  },
+  "45": {
+    "puissance": 122,
+    "pv": 92
+  },
+  "46": {
+    "puissance": 71,
+    "pv": 52
+  },
+  "47": {
+    "puissance": 101,
+    "pv": 77
+  },
+  "48": {
+    "puissance": 76,
+    "pv": 57
+  },
+  "49": {
+    "puissance": 118,
+    "pv": 78
+  },
+  "50": {
+    "puissance": 66,
+    "pv": 32
+  },
+  "51": {
+    "puissance": 101,
+    "pv": 57
+  },
+  "52": {
+    "puissance": 72,
+    "pv": 52
+  },
+  "53": {
+    "puissance": 110,
+    "pv": 73
+  },
+  "54": {
+    "puissance": 80,
+    "pv": 60
+  },
+  "55": {
+    "puissance": 125,
+    "pv": 87
+  },
+  "56": {
+    "puissance": 76,
+    "pv": 48
+  },
+  "57": {
+    "puissance": 113,
+    "pv": 72
+  },
+  "58": {
+    "puissance": 87,
+    "pv": 67
+  },
+  "59": {
+    "puissance": 138,
+    "pv": 90
+  },
+  "60": {
+    "puissance": 75,
+    "pv": 55
+  },
+  "61": {
+    "puissance": 96,
+    "pv": 70
+  },
+  "62": {
+    "puissance": 127,
+    "pv": 92
+  },
+  "63": {
+    "puissance": 77,
+    "pv": 38
+  },
+  "64": {
+    "puissance": 100,
+    "pv": 55
+  },
+  "65": {
+    "puissance": 125,
+    "pv": 65
+  },
+  "66": {
+    "puissance": 76,
+    "pv": 58
+  },
+  "67": {
+    "puissance": 101,
+    "pv": 72
+  },
+  "68": {
+    "puissance": 126,
+    "pv": 88
+  },
+  "69": {
+    "puissance": 75,
+    "pv": 50
+  },
+  "70": {
+    "puissance": 97,
+    "pv": 67
+  },
+  "71": {
+    "puissance": 122,
+    "pv": 87
+  },
+  "72": {
+    "puissance": 83,
+    "pv": 72
+  },
+  "73": {
+    "puissance": 128,
+    "pv": 100
+  },
+  "74": {
+    "puissance": 75,
+    "pv": 58
+  },
+  "75": {
+    "puissance": 97,
+    "pv": 72
+  },
+  "76": {
+    "puissance": 123,
+    "pv": 92
+  },
+  "77": {
+    "puissance": 102,
+    "pv": 60
+  },
+  "78": {
+    "puissance": 125,
+    "pv": 77
+  },
+  "79": {
+    "puissance": 78,
+    "pv": 78
+  },
+  "80": {
+    "puissance": 122,
+    "pv": 98
+  },
+  "81": {
+    "puissance": 81,
+    "pv": 57
+  },
+  "82": {
+    "puissance": 116,
+    "pv": 78
+  },
+  "83": {
+    "puissance": 77,
+    "pv": 48
+  },
+  "84": {
+    "puissance": 92,
+    "pv": 62
+  },
+  "85": {
+    "puissance": 117,
+    "pv": 72
+  },
+  "86": {
+    "puissance": 81,
+    "pv": 72
+  },
+  "87": {
+    "puissance": 118,
+    "pv": 98
+  },
+  "88": {
+    "puissance": 81,
+    "pv": 72
+  },
+  "89": {
+    "puissance": 125,
+    "pv": 98
+  },
+  "90": {
+    "puissance": 76,
+    "pv": 58
+  },
+  "91": {
+    "puissance": 131,
+    "pv": 92
+  },
+  "92": {
+    "puissance": 77,
+    "pv": 45
+  },
+  "93": {
+    "puissance": 101,
+    "pv": 60
+  },
+  "94": {
+    "puissance": 125,
+    "pv": 75
+  },
+  "95": {
+    "puissance": 96,
+    "pv": 80
+  },
+  "96": {
+    "puissance": 82,
+    "pv": 77
+  },
+  "97": {
+    "puissance": 120,
+    "pv": 100
+  },
+  "98": {
+    "puissance": 81,
+    "pv": 62
+  },
+  "99": {
+    "puissance": 118,
+    "pv": 82
+  },
+  "100": {
+    "puissance": 82,
+    "pv": 55
+  },
+  "101": {
+    "puissance": 120,
+    "pv": 73
+  },
+  "102": {
+    "puissance": 81,
+    "pv": 67
+  },
+  "103": {
+    "puissance": 130,
+    "pv": 92
+  },
+  "104": {
+    "puissance": 80,
+    "pv": 68
+  },
+  "105": {
+    "puissance": 106,
+    "pv": 83
+  },
+  "106": {
+    "puissance": 113,
+    "pv": 70
+  },
+  "107": {
+    "puissance": 113,
+    "pv": 78
+  },
+  "108": {
+    "puissance": 96,
+    "pv": 72
+  },
+  "109": {
+    "puissance": 85,
+    "pv": 62
+  },
+  "110": {
+    "puissance": 122,
+    "pv": 83
+  },
+  "111": {
+    "puissance": 86,
+    "pv": 63
+  },
+  "112": {
+    "puissance": 121,
+    "pv": 88
+  },
+  "113": {
+    "puissance": 112,
+    "pv": 120
+  },
+  "114": {
+    "puissance": 108,
+    "pv": 82
+  },
+  "115": {
+    "puissance": 122,
+    "pv": 92
+  },
+  "116": {
+    "puissance": 73,
+    "pv": 50
+  },
+  "117": {
+    "puissance": 135,
+    "pv": 92
+  },
+  "118": {
+    "puissance": 80,
+    "pv": 60
+  },
+  "119": {
+    "puissance": 112,
+    "pv": 80
+  },
+  "120": {
+    "puissance": 85,
+    "pv": 57
+  },
+  "121": {
+    "puissance": 130,
+    "pv": 82
+  },
+  "122": {
+    "puissance": 115,
+    "pv": 80
+  },
+  "123": {
+    "puissance": 125,
+    "pv": 75
+  },
+  "124": {
+    "puissance": 113,
+    "pv": 68
+  },
+  "125": {
+    "puissance": 122,
+    "pv": 70
+  },
+  "126": {
+    "puissance": 123,
+    "pv": 72
+  },
+  "127": {
+    "puissance": 125,
+    "pv": 82
+  },
+  "128": {
+    "puissance": 122,
+    "pv": 82
+  },
+  "129": {
+    "puissance": 5,
+    "pv": 20
+  },
+  "130": {
+    "puissance": 135,
+    "pv": 95
+  },
+  "131": {
+    "puissance": 133,
+    "pv": 102
+  },
+  "132": {
+    "puissance": 72,
+    "pv": 48
+  },
+  "133": {
+    "puissance": 81,
+    "pv": 55
+  },
+  "134": {
+    "puissance": 131,
+    "pv": 97
+  },
+  "135": {
+    "puissance": 131,
+    "pv": 78
+  },
+  "136": {
+    "puissance": 131,
+    "pv": 82
+  },
+  "137": {
+    "puissance": 98,
+    "pv": 70
+  },
+  "138": {
+    "puissance": 88,
+    "pv": 82
+  },
+  "139": {
+    "puissance": 123,
+    "pv": 98
+  },
+  "140": {
+    "puissance": 88,
+    "pv": 68
+  },
+  "141": {
+    "puissance": 123,
+    "pv": 80
+  },
+  "142": {
+    "puissance": 128,
+    "pv": 72
+  },
+  "143": {
+    "puissance": 135,
+    "pv": 112
+  },
+  "144": {
+    "puissance": 145,
+    "pv": 105
+  },
+  "145": {
+    "puissance": 145,
+    "pv": 95
+  },
+  "146": {
+    "puissance": 145,
+    "pv": 95
+  },
+  "147": {
+    "puissance": 75,
+    "pv": 55
+  },
+  "148": {
+    "puissance": 105,
+    "pv": 78
+  },
+  "149": {
+    "puissance": 150,
+    "pv": 103
+  },
+  "150": {
+    "puissance": 170,
+    "pv": 95
+  },
+  "151": {
+    "puissance": 150,
+    "pv": 100
+  }
+}

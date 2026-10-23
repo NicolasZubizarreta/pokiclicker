@@ -1,0 +1,13 @@
+{
+  "projet": "PokiClicker v2",
+  "phases": [
+    { "id": 0, "nom": "Cadrage", "jalon": "documents validés", "statut": "fait" },
+    { "id": 1, "nom": "Fondations", "jalon": "Route 1 jouable sur téléphone et PC", "statut": "en_cours", "backlog": "backlog-phase-1.md" },
+    { "id": 2, "nom": "Kanto jouable", "jalon": "Kanto terminable", "statut": "a_faire" },
+    { "id": 3, "nom": "Équilibrage outillé", "jalon": "Kanto en 60-90 min à 7 clics/s", "statut": "a_faire" },
+    { "id": 4, "nom": "Compte et sauvegarde en ligne", "jalon": "partie jouable sur deux appareils", "statut": "a_faire" },
+    { "id": 5, "nom": "Design et UX", "jalon": "Kanto « propre »", "statut": "a_faire" },
+    { "id": 6, "nom": "Monde", "jalon": "Johto jouable", "statut": "a_faire" },
+    { "id": 7, "nom": "Régions suivantes et méta", "jalon": "une région par livraison", "statut": "a_faire" }
+  ]
+}

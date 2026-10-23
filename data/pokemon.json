@@ -1,0 +1,2488 @@
+{
+  "version": 1,
+  "pokemon": [
+    {
+      "numero": 1,
+      "nom": "Bulbizarre",
+      "types": [
+        "grass",
+        "poison"
+      ],
+      "stats": {
+        "pv": 45,
+        "attaque": 49,
+        "defense": 49,
+        "attaqueSpe": 65,
+        "defenseSpe": 65,
+        "vitesse": 45
+      },
+      "generation": 1
+    },
+    {
+      "numero": 2,
+      "nom": "Herbizarre",
+      "types": [
+        "grass",
+        "poison"
+      ],
+      "stats": {
+        "pv": 60,
+        "attaque": 62,
+        "defense": 63,
+        "attaqueSpe": 80,
+        "defenseSpe": 80,
+        "vitesse": 60
+      },
+      "generation": 1
+    },
+    {
+      "numero": 3,
+      "nom": "Florizarre",
+      "types": [
+        "grass",
+        "poison"
+      ],
+      "stats": {
+        "pv": 80,
+        "attaque": 82,
+        "defense": 83,
+        "attaqueSpe": 100,
+        "defenseSpe": 100,
+        "vitesse": 80
+      },
+      "generation": 1
+    },
+    {
+      "numero": 4,
+      "nom": "Salamèche",
+      "types": [
+        "fire"
+      ],
+      "stats": {
+        "pv": 39,
+        "attaque": 52,
+        "defense": 43,
+        "attaqueSpe": 60,
+        "defenseSpe": 50,
+        "vitesse": 65
+      },
+      "generation": 1
+    },
+    {
+      "numero": 5,
+      "nom": "Reptincel",
+      "types": [
+        "fire"
+      ],
+      "stats": {
+        "pv": 58,
+        "attaque": 64,
+        "defense": 58,
+        "attaqueSpe": 80,
+        "defenseSpe": 65,
+        "vitesse": 80
+      },
+      "generation": 1
+    },
+    {
+      "numero": 6,
+      "nom": "Dracaufeu",
+      "types": [
+        "fire",
+        "flying"
+      ],
+      "stats": {
+        "pv": 78,
+        "attaque": 84,
+        "defense": 78,
+        "attaqueSpe": 109,
+        "defenseSpe": 85,
+        "vitesse": 100
+      },
+      "generation": 1
+    },
+    {
+      "numero": 7,
+      "nom": "Carapuce",
+      "types": [
+        "water"
+      ],
+      "stats": {
+        "pv": 44,
+        "attaque": 48,
+        "defense": 65,
+        "attaqueSpe": 50,
+        "defenseSpe": 64,
+        "vitesse": 43
+      },
+      "generation": 1
+    },
+    {
+      "numero": 8,
+      "nom": "Carabaffe",
+      "types": [
+        "water"
+      ],
+      "stats": {
+        "pv": 59,
+        "attaque": 63,
+        "defense": 80,
+        "attaqueSpe": 65,
+        "defenseSpe": 80,
+        "vitesse": 58
+      },
+      "generation": 1
+    },
+    {
+      "numero": 9,
+      "nom": "Tortank",
+      "types": [
+        "water"
+      ],
+      "stats": {
+        "pv": 79,
+        "attaque": 83,
+        "defense": 100,
+        "attaqueSpe": 85,
+        "defenseSpe": 105,
+        "vitesse": 78
+      },
+      "generation": 1
+    },
+    {
+      "numero": 10,
+      "nom": "Chenipan",
+      "types": [
+        "bug"
+      ],
+      "stats": {
+        "pv": 45,
+        "attaque": 30,
+        "defense": 35,
+        "attaqueSpe": 20,
+        "defenseSpe": 20,
+        "vitesse": 45
+      },
+      "generation": 1
+    },
+    {
+      "numero": 11,
+      "nom": "Chrysacier",
+      "types": [
+        "bug"
+      ],
+      "stats": {
+        "pv": 50,
+        "attaque": 20,
+        "defense": 55,
+        "attaqueSpe": 25,
+        "defenseSpe": 25,
+        "vitesse": 30
+      },
+      "generation": 1
+    },
+    {
+      "numero": 12,
+      "nom": "Papilusion",
+      "types": [
+        "bug",
+        "flying"
+      ],
+      "stats": {
+        "pv": 60,
+        "attaque": 45,
+        "defense": 50,
+        "attaqueSpe": 90,
+        "defenseSpe": 80,
+        "vitesse": 70
+      },
+      "generation": 1
+    },
+    {
+      "numero": 13,
+      "nom": "Aspicot",
+      "types": [
+        "bug",
+        "poison"
+      ],
+      "stats": {
+        "pv": 40,
+        "attaque": 35,
+        "defense": 30,
+        "attaqueSpe": 20,
+        "defenseSpe": 20,
+        "vitesse": 50
+      },
+      "generation": 1
+    },
+    {
+      "numero": 14,
+      "nom": "Coconfort",
+      "types": [
+        "bug",
+        "poison"
+      ],
+      "stats": {
+        "pv": 45,
+        "attaque": 25,
+        "defense": 50,
+        "attaqueSpe": 25,
+        "defenseSpe": 25,
+        "vitesse": 35
+      },
+      "generation": 1
+    },
+    {
+      "numero": 15,
+      "nom": "Dardargnan",
+      "types": [
+        "bug",
+        "poison"
+      ],
+      "stats": {
+        "pv": 65,
+        "attaque": 90,
+        "defense": 40,
+        "attaqueSpe": 45,
+        "defenseSpe": 80,
+        "vitesse": 75
+      },
+      "generation": 1
+    },
+    {
+      "numero": 16,
+      "nom": "Roucool",
+      "types": [
+        "normal",
+        "flying"
+      ],
+      "stats": {
+        "pv": 40,
+        "attaque": 45,
+        "defense": 40,
+        "attaqueSpe": 35,
+        "defenseSpe": 35,
+        "vitesse": 56
+      },
+      "generation": 1
+    },
+    {
+      "numero": 17,
+      "nom": "Roucoups",
+      "types": [
+        "normal",
+        "flying"
+      ],
+      "stats": {
+        "pv": 63,
+        "attaque": 60,
+        "defense": 55,
+        "attaqueSpe": 50,
+        "defenseSpe": 50,
+        "vitesse": 71
+      },
+      "generation": 1
+    },
+    {
+      "numero": 18,
+      "nom": "Roucarnage",
+      "types": [
+        "normal",
+        "flying"
+      ],
+      "stats": {
+        "pv": 83,
+        "attaque": 80,
+        "defense": 75,
+        "attaqueSpe": 70,
+        "defenseSpe": 70,
+        "vitesse": 101
+      },
+      "generation": 1
+    },
+    {
+      "numero": 19,
+      "nom": "Rattata",
+      "types": [
+        "normal"
+      ],
+      "stats": {
+        "pv": 30,
+        "attaque": 56,
+        "defense": 35,
+        "attaqueSpe": 25,
+        "defenseSpe": 35,
+        "vitesse": 72
+      },
+      "generation": 1
+    },
+    {
+      "numero": 20,
+      "nom": "Rattatac",
+      "types": [
+        "normal"
+      ],
+      "stats": {
+        "pv": 55,
+        "attaque": 81,
+        "defense": 60,
+        "attaqueSpe": 50,
+        "defenseSpe": 70,
+        "vitesse": 97
+      },
+      "generation": 1
+    },
+    {
+      "numero": 21,
+      "nom": "Piafabec",
+      "types": [
+        "normal",
+        "flying"
+      ],
+      "stats": {
+        "pv": 40,
+        "attaque": 60,
+        "defense": 30,
+        "attaqueSpe": 31,
+        "defenseSpe": 31,
+        "vitesse": 70
+      },
+      "generation": 1
+    },
+    {
+      "numero": 22,
+      "nom": "Rapasdepic",
+      "types": [
+        "normal",
+        "flying"
+      ],
+      "stats": {
+        "pv": 65,
+        "attaque": 90,
+        "defense": 65,
+        "attaqueSpe": 61,
+        "defenseSpe": 61,
+        "vitesse": 100
+      },
+      "generation": 1
+    },
+    {
+      "numero": 23,
+      "nom": "Abo",
+      "types": [
+        "poison"
+      ],
+      "stats": {
+        "pv": 35,
+        "attaque": 60,
+        "defense": 44,
+        "attaqueSpe": 40,
+        "defenseSpe": 54,
+        "vitesse": 55
+      },
+      "generation": 1
+    },
+    {
+      "numero": 24,
+      "nom": "Arbok",
+      "types": [
+        "poison"
+      ],
+      "stats": {
+        "pv": 60,
+        "attaque": 95,
+        "defense": 69,
+        "attaqueSpe": 65,
+        "defenseSpe": 79,
+        "vitesse": 80
+      },
+      "generation": 1
+    },
+    {
+      "numero": 25,
+      "nom": "Pikachu",
+      "types": [
+        "electric"
+      ],
+      "stats": {
+        "pv": 35,
+        "attaque": 55,
+        "defense": 40,
+        "attaqueSpe": 50,
+        "defenseSpe": 50,
+        "vitesse": 90
+      },
+      "generation": 1
+    },
+    {
+      "numero": 26,
+      "nom": "Raichu",
+      "types": [
+        "electric"
+      ],
+      "stats": {
+        "pv": 60,
+        "attaque": 90,
+        "defense": 55,
+        "attaqueSpe": 90,
+        "defenseSpe": 80,
+        "vitesse": 110
+      },
+      "generation": 1
+    },
+    {
+      "numero": 27,
+      "nom": "Sabelette",
+      "types": [
+        "ground"
+      ],
+      "stats": {
+        "pv": 50,
+        "attaque": 75,
+        "defense": 85,
+        "attaqueSpe": 20,
+        "defenseSpe": 30,
+        "vitesse": 40
+      },
+      "generation": 1
+    },
+    {
+      "numero": 28,
+      "nom": "Sablaireau",
+      "types": [
+        "ground"
+      ],
+      "stats": {
+        "pv": 75,
+        "attaque": 100,
+        "defense": 110,
+        "attaqueSpe": 45,
+        "defenseSpe": 55,
+        "vitesse": 65
+      },
+      "generation": 1
+    },
+    {
+      "numero": 29,
+      "nom": "Nidoran♀",
+      "types": [
+        "poison"
+      ],
+      "stats": {
+        "pv": 55,
+        "attaque": 47,
+        "defense": 52,
+        "attaqueSpe": 40,
+        "defenseSpe": 40,
+        "vitesse": 41
+      },
+      "generation": 1
+    },
+    {
+      "numero": 30,
+      "nom": "Nidorina",
+      "types": [
+        "poison"
+      ],
+      "stats": {
+        "pv": 70,
+        "attaque": 62,
+        "defense": 67,
+        "attaqueSpe": 55,
+        "defenseSpe": 55,
+        "vitesse": 56
+      },
+      "generation": 1
+    },
+    {
+      "numero": 31,
+      "nom": "Nidoqueen",
+      "types": [
+        "poison",
+        "ground"
+      ],
+      "stats": {
+        "pv": 90,
+        "attaque": 92,
+        "defense": 87,
+        "attaqueSpe": 75,
+        "defenseSpe": 85,
+        "vitesse": 76
+      },
+      "generation": 1
+    },
+    {
+      "numero": 32,
+      "nom": "Nidoran♂",
+      "types": [
+        "poison"
+      ],
+      "stats": {
+        "pv": 46,
+        "attaque": 57,
+        "defense": 40,
+        "attaqueSpe": 40,
+        "defenseSpe": 40,
+        "vitesse": 50
+      },
+      "generation": 1
+    },
+    {
+      "numero": 33,
+      "nom": "Nidorino",
+      "types": [
+        "poison"
+      ],
+      "stats": {
+        "pv": 61,
+        "attaque": 72,
+        "defense": 57,
+        "attaqueSpe": 55,
+        "defenseSpe": 55,
+        "vitesse": 65
+      },
+      "generation": 1
+    },
+    {
+      "numero": 34,
+      "nom": "Nidoking",
+      "types": [
+        "poison",
+        "ground"
+      ],
+      "stats": {
+        "pv": 81,
+        "attaque": 102,
+        "defense": 77,
+        "attaqueSpe": 85,
+        "defenseSpe": 75,
+        "vitesse": 85
+      },
+      "generation": 1
+    },
+    {
+      "numero": 35,
+      "nom": "Mélofée",
+      "types": [
+        "fairy"
+      ],
+      "stats": {
+        "pv": 70,
+        "attaque": 45,
+        "defense": 48,
+        "attaqueSpe": 60,
+        "defenseSpe": 65,
+        "vitesse": 35
+      },
+      "generation": 1
+    },
+    {
+      "numero": 36,
+      "nom": "Mélodelfe",
+      "types": [
+        "fairy"
+      ],
+      "stats": {
+        "pv": 95,
+        "attaque": 70,
+        "defense": 73,
+        "attaqueSpe": 95,
+        "defenseSpe": 90,
+        "vitesse": 60
+      },
+      "generation": 1
+    },
+    {
+      "numero": 37,
+      "nom": "Goupix",
+      "types": [
+        "fire"
+      ],
+      "stats": {
+        "pv": 38,
+        "attaque": 41,
+        "defense": 40,
+        "attaqueSpe": 50,
+        "defenseSpe": 65,
+        "vitesse": 65
+      },
+      "generation": 1
+    },
+    {
+      "numero": 38,
+      "nom": "Feunard",
+      "types": [
+        "fire"
+      ],
+      "stats": {
+        "pv": 73,
+        "attaque": 76,
+        "defense": 75,
+        "attaqueSpe": 81,
+        "defenseSpe": 100,
+        "vitesse": 100
+      },
+      "generation": 1
+    },
+    {
+      "numero": 39,
+      "nom": "Rondoudou",
+      "types": [
+        "normal",
+        "fairy"
+      ],
+      "stats": {
+        "pv": 115,
+        "attaque": 45,
+        "defense": 20,
+        "attaqueSpe": 45,
+        "defenseSpe": 25,
+        "vitesse": 20
+      },
+      "generation": 1
+    },
+    {
+      "numero": 40,
+      "nom": "Grodoudou",
+      "types": [
+        "normal",
+        "fairy"
+      ],
+      "stats": {
+        "pv": 140,
+        "attaque": 70,
+        "defense": 45,
+        "attaqueSpe": 85,
+        "defenseSpe": 50,
+        "vitesse": 45
+      },
+      "generation": 1
+    },
+    {
+      "numero": 41,
+      "nom": "Nosferapti",
+      "types": [
+        "poison",
+        "flying"
+      ],
+      "stats": {
+        "pv": 40,
+        "attaque": 45,
+        "defense": 35,
+        "attaqueSpe": 30,
+        "defenseSpe": 40,
+        "vitesse": 55
+      },
+      "generation": 1
+    },
+    {
+      "numero": 42,
+      "nom": "Nosferalto",
+      "types": [
+        "poison",
+        "flying"
+      ],
+      "stats": {
+        "pv": 75,
+        "attaque": 80,
+        "defense": 70,
+        "attaqueSpe": 65,
+        "defenseSpe": 75,
+        "vitesse": 90
+      },
+      "generation": 1
+    },
+    {
+      "numero": 43,
+      "nom": "Mystherbe",
+      "types": [
+        "grass",
+        "poison"
+      ],
+      "stats": {
+        "pv": 45,
+        "attaque": 50,
+        "defense": 55,
+        "attaqueSpe": 75,
+        "defenseSpe": 65,
+        "vitesse": 30
+      },
+      "generation": 1
+    },
+    {
+      "numero": 44,
+      "nom": "Ortide",
+      "types": [
+        "grass",
+        "poison"
+      ],
+      "stats": {
+        "pv": 60,
+        "attaque": 65,
+        "defense": 70,
+        "attaqueSpe": 85,
+        "defenseSpe": 75,
+        "vitesse": 40
+      },
+      "generation": 1
+    },
+    {
+      "numero": 45,
+      "nom": "Rafflesia",
+      "types": [
+        "grass",
+        "poison"
+      ],
+      "stats": {
+        "pv": 75,
+        "attaque": 80,
+        "defense": 85,
+        "attaqueSpe": 110,
+        "defenseSpe": 90,
+        "vitesse": 50
+      },
+      "generation": 1
+    },
+    {
+      "numero": 46,
+      "nom": "Paras",
+      "types": [
+        "bug",
+        "grass"
+      ],
+      "stats": {
+        "pv": 35,
+        "attaque": 70,
+        "defense": 55,
+        "attaqueSpe": 45,
+        "defenseSpe": 55,
+        "vitesse": 25
+      },
+      "generation": 1
+    },
+    {
+      "numero": 47,
+      "nom": "Parasect",
+      "types": [
+        "bug",
+        "grass"
+      ],
+      "stats": {
+        "pv": 60,
+        "attaque": 95,
+        "defense": 80,
+        "attaqueSpe": 60,
+        "defenseSpe": 80,
+        "vitesse": 30
+      },
+      "generation": 1
+    },
+    {
+      "numero": 48,
+      "nom": "Mimitoss",
+      "types": [
+        "bug",
+        "poison"
+      ],
+      "stats": {
+        "pv": 60,
+        "attaque": 55,
+        "defense": 50,
+        "attaqueSpe": 40,
+        "defenseSpe": 55,
+        "vitesse": 45
+      },
+      "generation": 1
+    },
+    {
+      "numero": 49,
+      "nom": "Aéromite",
+      "types": [
+        "bug",
+        "poison"
+      ],
+      "stats": {
+        "pv": 70,
+        "attaque": 65,
+        "defense": 60,
+        "attaqueSpe": 90,
+        "defenseSpe": 75,
+        "vitesse": 90
+      },
+      "generation": 1
+    },
+    {
+      "numero": 50,
+      "nom": "Taupiqueur",
+      "types": [
+        "ground"
+      ],
+      "stats": {
+        "pv": 10,
+        "attaque": 55,
+        "defense": 25,
+        "attaqueSpe": 35,
+        "defenseSpe": 45,
+        "vitesse": 95
+      },
+      "generation": 1
+    },
+    {
+      "numero": 51,
+      "nom": "Triopikeur",
+      "types": [
+        "ground"
+      ],
+      "stats": {
+        "pv": 35,
+        "attaque": 100,
+        "defense": 50,
+        "attaqueSpe": 50,
+        "defenseSpe": 70,
+        "vitesse": 120
+      },
+      "generation": 1
+    },
+    {
+      "numero": 52,
+      "nom": "Miaouss",
+      "types": [
+        "normal"
+      ],
+      "stats": {
+        "pv": 40,
+        "attaque": 45,
+        "defense": 35,
+        "attaqueSpe": 40,
+        "defenseSpe": 40,
+        "vitesse": 90
+      },
+      "generation": 1
+    },
+    {
+      "numero": 53,
+      "nom": "Persian",
+      "types": [
+        "normal"
+      ],
+      "stats": {
+        "pv": 65,
+        "attaque": 70,
+        "defense": 60,
+        "attaqueSpe": 65,
+        "defenseSpe": 65,
+        "vitesse": 115
+      },
+      "generation": 1
+    },
+    {
+      "numero": 54,
+      "nom": "Psykokwak",
+      "types": [
+        "water"
+      ],
+      "stats": {
+        "pv": 50,
+        "attaque": 52,
+        "defense": 48,
+        "attaqueSpe": 65,
+        "defenseSpe": 50,
+        "vitesse": 55
+      },
+      "generation": 1
+    },
+    {
+      "numero": 55,
+      "nom": "Akwakwak",
+      "types": [
+        "water"
+      ],
+      "stats": {
+        "pv": 80,
+        "attaque": 82,
+        "defense": 78,
+        "attaqueSpe": 95,
+        "defenseSpe": 80,
+        "vitesse": 85
+      },
+      "generation": 1
+    },
+    {
+      "numero": 56,
+      "nom": "Férosinge",
+      "types": [
+        "fighting"
+      ],
+      "stats": {
+        "pv": 40,
+        "attaque": 80,
+        "defense": 35,
+        "attaqueSpe": 35,
+        "defenseSpe": 45,
+        "vitesse": 70
+      },
+      "generation": 1
+    },
+    {
+      "numero": 57,
+      "nom": "Colossinge",
+      "types": [
+        "fighting"
+      ],
+      "stats": {
+        "pv": 65,
+        "attaque": 105,
+        "defense": 60,
+        "attaqueSpe": 60,
+        "defenseSpe": 70,
+        "vitesse": 95
+      },
+      "generation": 1
+    },
+    {
+      "numero": 58,
+      "nom": "Caninos",
+      "types": [
+        "fire"
+      ],
+      "stats": {
+        "pv": 55,
+        "attaque": 70,
+        "defense": 45,
+        "attaqueSpe": 70,
+        "defenseSpe": 50,
+        "vitesse": 60
+      },
+      "generation": 1
+    },
+    {
+      "numero": 59,
+      "nom": "Arcanin",
+      "types": [
+        "fire"
+      ],
+      "stats": {
+        "pv": 90,
+        "attaque": 110,
+        "defense": 80,
+        "attaqueSpe": 100,
+        "defenseSpe": 80,
+        "vitesse": 95
+      },
+      "generation": 1
+    },
+    {
+      "numero": 60,
+      "nom": "Ptitard",
+      "types": [
+        "water"
+      ],
+      "stats": {
+        "pv": 40,
+        "attaque": 50,
+        "defense": 40,
+        "attaqueSpe": 40,
+        "defenseSpe": 40,
+        "vitesse": 90
+      },
+      "generation": 1
+    },
+    {
+      "numero": 61,
+      "nom": "Têtarte",
+      "types": [
+        "water"
+      ],
+      "stats": {
+        "pv": 65,
+        "attaque": 65,
+        "defense": 65,
+        "attaqueSpe": 50,
+        "defenseSpe": 50,
+        "vitesse": 90
+      },
+      "generation": 1
+    },
+    {
+      "numero": 62,
+      "nom": "Tartard",
+      "types": [
+        "water",
+        "fighting"
+      ],
+      "stats": {
+        "pv": 90,
+        "attaque": 95,
+        "defense": 95,
+        "attaqueSpe": 70,
+        "defenseSpe": 90,
+        "vitesse": 70
+      },
+      "generation": 1
+    },
+    {
+      "numero": 63,
+      "nom": "Abra",
+      "types": [
+        "psychic"
+      ],
+      "stats": {
+        "pv": 25,
+        "attaque": 20,
+        "defense": 15,
+        "attaqueSpe": 105,
+        "defenseSpe": 55,
+        "vitesse": 90
+      },
+      "generation": 1
+    },
+    {
+      "numero": 64,
+      "nom": "Kadabra",
+      "types": [
+        "psychic"
+      ],
+      "stats": {
+        "pv": 40,
+        "attaque": 35,
+        "defense": 30,
+        "attaqueSpe": 120,
+        "defenseSpe": 70,
+        "vitesse": 105
+      },
+      "generation": 1
+    },
+    {
+      "numero": 65,
+      "nom": "Alakazam",
+      "types": [
+        "psychic"
+      ],
+      "stats": {
+        "pv": 55,
+        "attaque": 50,
+        "defense": 45,
+        "attaqueSpe": 135,
+        "defenseSpe": 95,
+        "vitesse": 120
+      },
+      "generation": 1
+    },
+    {
+      "numero": 66,
+      "nom": "Machoc",
+      "types": [
+        "fighting"
+      ],
+      "stats": {
+        "pv": 70,
+        "attaque": 80,
+        "defense": 50,
+        "attaqueSpe": 35,
+        "defenseSpe": 35,
+        "vitesse": 35
+      },
+      "generation": 1
+    },
+    {
+      "numero": 67,
+      "nom": "Machopeur",
+      "types": [
+        "fighting"
+      ],
+      "stats": {
+        "pv": 80,
+        "attaque": 100,
+        "defense": 70,
+        "attaqueSpe": 50,
+        "defenseSpe": 60,
+        "vitesse": 45
+      },
+      "generation": 1
+    },
+    {
+      "numero": 68,
+      "nom": "Mackogneur",
+      "types": [
+        "fighting"
+      ],
+      "stats": {
+        "pv": 90,
+        "attaque": 130,
+        "defense": 80,
+        "attaqueSpe": 65,
+        "defenseSpe": 85,
+        "vitesse": 55
+      },
+      "generation": 1
+    },
+    {
+      "numero": 69,
+      "nom": "Chétiflor",
+      "types": [
+        "grass",
+        "poison"
+      ],
+      "stats": {
+        "pv": 50,
+        "attaque": 75,
+        "defense": 35,
+        "attaqueSpe": 70,
+        "defenseSpe": 30,
+        "vitesse": 40
+      },
+      "generation": 1
+    },
+    {
+      "numero": 70,
+      "nom": "Boustiflor",
+      "types": [
+        "grass",
+        "poison"
+      ],
+      "stats": {
+        "pv": 65,
+        "attaque": 90,
+        "defense": 50,
+        "attaqueSpe": 85,
+        "defenseSpe": 45,
+        "vitesse": 55
+      },
+      "generation": 1
+    },
+    {
+      "numero": 71,
+      "nom": "Empiflor",
+      "types": [
+        "grass",
+        "poison"
+      ],
+      "stats": {
+        "pv": 80,
+        "attaque": 105,
+        "defense": 65,
+        "attaqueSpe": 100,
+        "defenseSpe": 70,
+        "vitesse": 70
+      },
+      "generation": 1
+    },
+    {
+      "numero": 72,
+      "nom": "Tentacool",
+      "types": [
+        "water",
+        "poison"
+      ],
+      "stats": {
+        "pv": 40,
+        "attaque": 40,
+        "defense": 35,
+        "attaqueSpe": 50,
+        "defenseSpe": 100,
+        "vitesse": 70
+      },
+      "generation": 1
+    },
+    {
+      "numero": 73,
+      "nom": "Tentacruel",
+      "types": [
+        "water",
+        "poison"
+      ],
+      "stats": {
+        "pv": 80,
+        "attaque": 70,
+        "defense": 65,
+        "attaqueSpe": 80,
+        "defenseSpe": 120,
+        "vitesse": 100
+      },
+      "generation": 1
+    },
+    {
+      "numero": 74,
+      "nom": "Racaillou",
+      "types": [
+        "rock",
+        "ground"
+      ],
+      "stats": {
+        "pv": 40,
+        "attaque": 80,
+        "defense": 100,
+        "attaqueSpe": 30,
+        "defenseSpe": 30,
+        "vitesse": 20
+      },
+      "generation": 1
+    },
+    {
+      "numero": 75,
+      "nom": "Gravalanch",
+      "types": [
+        "rock",
+        "ground"
+      ],
+      "stats": {
+        "pv": 55,
+        "attaque": 95,
+        "defense": 115,
+        "attaqueSpe": 45,
+        "defenseSpe": 45,
+        "vitesse": 35
+      },
+      "generation": 1
+    },
+    {
+      "numero": 76,
+      "nom": "Grolem",
+      "types": [
+        "rock",
+        "ground"
+      ],
+      "stats": {
+        "pv": 80,
+        "attaque": 120,
+        "defense": 130,
+        "attaqueSpe": 55,
+        "defenseSpe": 65,
+        "vitesse": 45
+      },
+      "generation": 1
+    },
+    {
+      "numero": 77,
+      "nom": "Ponyta",
+      "types": [
+        "fire"
+      ],
+      "stats": {
+        "pv": 50,
+        "attaque": 85,
+        "defense": 55,
+        "attaqueSpe": 65,
+        "defenseSpe": 65,
+        "vitesse": 90
+      },
+      "generation": 1
+    },
+    {
+      "numero": 78,
+      "nom": "Galopa",
+      "types": [
+        "fire"
+      ],
+      "stats": {
+        "pv": 65,
+        "attaque": 100,
+        "defense": 70,
+        "attaqueSpe": 80,
+        "defenseSpe": 80,
+        "vitesse": 105
+      },
+      "generation": 1
+    },
+    {
+      "numero": 79,
+      "nom": "Ramoloss",
+      "types": [
+        "water",
+        "psychic"
+      ],
+      "stats": {
+        "pv": 90,
+        "attaque": 65,
+        "defense": 65,
+        "attaqueSpe": 40,
+        "defenseSpe": 40,
+        "vitesse": 15
+      },
+      "generation": 1
+    },
+    {
+      "numero": 80,
+      "nom": "Flagadoss",
+      "types": [
+        "water",
+        "psychic"
+      ],
+      "stats": {
+        "pv": 95,
+        "attaque": 75,
+        "defense": 110,
+        "attaqueSpe": 100,
+        "defenseSpe": 80,
+        "vitesse": 30
+      },
+      "generation": 1
+    },
+    {
+      "numero": 81,
+      "nom": "Magnéti",
+      "types": [
+        "electric",
+        "steel"
+      ],
+      "stats": {
+        "pv": 25,
+        "attaque": 35,
+        "defense": 70,
+        "attaqueSpe": 95,
+        "defenseSpe": 55,
+        "vitesse": 45
+      },
+      "generation": 1
+    },
+    {
+      "numero": 82,
+      "nom": "Magnéton",
+      "types": [
+        "electric",
+        "steel"
+      ],
+      "stats": {
+        "pv": 50,
+        "attaque": 60,
+        "defense": 95,
+        "attaqueSpe": 120,
+        "defenseSpe": 70,
+        "vitesse": 70
+      },
+      "generation": 1
+    },
+    {
+      "numero": 83,
+      "nom": "Canarticho",
+      "types": [
+        "normal",
+        "flying"
+      ],
+      "stats": {
+        "pv": 52,
+        "attaque": 90,
+        "defense": 55,
+        "attaqueSpe": 58,
+        "defenseSpe": 62,
+        "vitesse": 60
+      },
+      "generation": 1
+    },
+    {
+      "numero": 84,
+      "nom": "Doduo",
+      "types": [
+        "normal",
+        "flying"
+      ],
+      "stats": {
+        "pv": 35,
+        "attaque": 85,
+        "defense": 45,
+        "attaqueSpe": 35,
+        "defenseSpe": 35,
+        "vitesse": 75
+      },
+      "generation": 1
+    },
+    {
+      "numero": 85,
+      "nom": "Dodrio",
+      "types": [
+        "normal",
+        "flying"
+      ],
+      "stats": {
+        "pv": 60,
+        "attaque": 110,
+        "defense": 70,
+        "attaqueSpe": 60,
+        "defenseSpe": 60,
+        "vitesse": 110
+      },
+      "generation": 1
+    },
+    {
+      "numero": 86,
+      "nom": "Otaria",
+      "types": [
+        "water"
+      ],
+      "stats": {
+        "pv": 65,
+        "attaque": 45,
+        "defense": 55,
+        "attaqueSpe": 45,
+        "defenseSpe": 70,
+        "vitesse": 45
+      },
+      "generation": 1
+    },
+    {
+      "numero": 87,
+      "nom": "Lamantine",
+      "types": [
+        "water",
+        "ice"
+      ],
+      "stats": {
+        "pv": 90,
+        "attaque": 70,
+        "defense": 80,
+        "attaqueSpe": 70,
+        "defenseSpe": 95,
+        "vitesse": 70
+      },
+      "generation": 1
+    },
+    {
+      "numero": 88,
+      "nom": "Tadmorv",
+      "types": [
+        "poison"
+      ],
+      "stats": {
+        "pv": 80,
+        "attaque": 80,
+        "defense": 50,
+        "attaqueSpe": 40,
+        "defenseSpe": 50,
+        "vitesse": 25
+      },
+      "generation": 1
+    },
+    {
+      "numero": 89,
+      "nom": "Grotadmorv",
+      "types": [
+        "poison"
+      ],
+      "stats": {
+        "pv": 105,
+        "attaque": 105,
+        "defense": 75,
+        "attaqueSpe": 65,
+        "defenseSpe": 100,
+        "vitesse": 50
+      },
+      "generation": 1
+    },
+    {
+      "numero": 90,
+      "nom": "Kokiyas",
+      "types": [
+        "water"
+      ],
+      "stats": {
+        "pv": 30,
+        "attaque": 65,
+        "defense": 100,
+        "attaqueSpe": 45,
+        "defenseSpe": 25,
+        "vitesse": 40
+      },
+      "generation": 1
+    },
+    {
+      "numero": 91,
+      "nom": "Crustabri",
+      "types": [
+        "water",
+        "ice"
+      ],
+      "stats": {
+        "pv": 50,
+        "attaque": 95,
+        "defense": 180,
+        "attaqueSpe": 85,
+        "defenseSpe": 45,
+        "vitesse": 70
+      },
+      "generation": 1
+    },
+    {
+      "numero": 92,
+      "nom": "Fantominus",
+      "types": [
+        "ghost",
+        "poison"
+      ],
+      "stats": {
+        "pv": 30,
+        "attaque": 35,
+        "defense": 30,
+        "attaqueSpe": 100,
+        "defenseSpe": 35,
+        "vitesse": 80
+      },
+      "generation": 1
+    },
+    {
+      "numero": 93,
+      "nom": "Spectrum",
+      "types": [
+        "ghost",
+        "poison"
+      ],
+      "stats": {
+        "pv": 45,
+        "attaque": 50,
+        "defense": 45,
+        "attaqueSpe": 115,
+        "defenseSpe": 55,
+        "vitesse": 95
+      },
+      "generation": 1
+    },
+    {
+      "numero": 94,
+      "nom": "Ectoplasma",
+      "types": [
+        "ghost",
+        "poison"
+      ],
+      "stats": {
+        "pv": 60,
+        "attaque": 65,
+        "defense": 60,
+        "attaqueSpe": 130,
+        "defenseSpe": 75,
+        "vitesse": 110
+      },
+      "generation": 1
+    },
+    {
+      "numero": 95,
+      "nom": "Onix",
+      "types": [
+        "rock",
+        "ground"
+      ],
+      "stats": {
+        "pv": 35,
+        "attaque": 45,
+        "defense": 160,
+        "attaqueSpe": 30,
+        "defenseSpe": 45,
+        "vitesse": 70
+      },
+      "generation": 1
+    },
+    {
+      "numero": 96,
+      "nom": "Soporifik",
+      "types": [
+        "psychic"
+      ],
+      "stats": {
+        "pv": 60,
+        "attaque": 48,
+        "defense": 45,
+        "attaqueSpe": 43,
+        "defenseSpe": 90,
+        "vitesse": 42
+      },
+      "generation": 1
+    },
+    {
+      "numero": 97,
+      "nom": "Hypnomade",
+      "types": [
+        "psychic"
+      ],
+      "stats": {
+        "pv": 85,
+        "attaque": 73,
+        "defense": 70,
+        "attaqueSpe": 73,
+        "defenseSpe": 115,
+        "vitesse": 67
+      },
+      "generation": 1
+    },
+    {
+      "numero": 98,
+      "nom": "Krabby",
+      "types": [
+        "water"
+      ],
+      "stats": {
+        "pv": 30,
+        "attaque": 105,
+        "defense": 90,
+        "attaqueSpe": 25,
+        "defenseSpe": 25,
+        "vitesse": 50
+      },
+      "generation": 1
+    },
+    {
+      "numero": 99,
+      "nom": "Krabboss",
+      "types": [
+        "water"
+      ],
+      "stats": {
+        "pv": 55,
+        "attaque": 130,
+        "defense": 115,
+        "attaqueSpe": 50,
+        "defenseSpe": 50,
+        "vitesse": 75
+      },
+      "generation": 1
+    },
+    {
+      "numero": 100,
+      "nom": "Voltorbe",
+      "types": [
+        "electric"
+      ],
+      "stats": {
+        "pv": 40,
+        "attaque": 30,
+        "defense": 50,
+        "attaqueSpe": 55,
+        "defenseSpe": 55,
+        "vitesse": 100
+      },
+      "generation": 1
+    },
+    {
+      "numero": 101,
+      "nom": "Électrode",
+      "types": [
+        "electric"
+      ],
+      "stats": {
+        "pv": 60,
+        "attaque": 50,
+        "defense": 70,
+        "attaqueSpe": 80,
+        "defenseSpe": 80,
+        "vitesse": 150
+      },
+      "generation": 1
+    },
+    {
+      "numero": 102,
+      "nom": "Noeunoeuf",
+      "types": [
+        "grass",
+        "psychic"
+      ],
+      "stats": {
+        "pv": 60,
+        "attaque": 40,
+        "defense": 80,
+        "attaqueSpe": 60,
+        "defenseSpe": 45,
+        "vitesse": 40
+      },
+      "generation": 1
+    },
+    {
+      "numero": 103,
+      "nom": "Noadkoko",
+      "types": [
+        "grass",
+        "psychic"
+      ],
+      "stats": {
+        "pv": 95,
+        "attaque": 95,
+        "defense": 85,
+        "attaqueSpe": 125,
+        "defenseSpe": 75,
+        "vitesse": 55
+      },
+      "generation": 1
+    },
+    {
+      "numero": 104,
+      "nom": "Osselait",
+      "types": [
+        "ground"
+      ],
+      "stats": {
+        "pv": 50,
+        "attaque": 50,
+        "defense": 95,
+        "attaqueSpe": 40,
+        "defenseSpe": 50,
+        "vitesse": 35
+      },
+      "generation": 1
+    },
+    {
+      "numero": 105,
+      "nom": "Ossatueur",
+      "types": [
+        "ground"
+      ],
+      "stats": {
+        "pv": 60,
+        "attaque": 80,
+        "defense": 110,
+        "attaqueSpe": 50,
+        "defenseSpe": 80,
+        "vitesse": 45
+      },
+      "generation": 1
+    },
+    {
+      "numero": 106,
+      "nom": "Kicklee",
+      "types": [
+        "fighting"
+      ],
+      "stats": {
+        "pv": 50,
+        "attaque": 120,
+        "defense": 53,
+        "attaqueSpe": 35,
+        "defenseSpe": 110,
+        "vitesse": 87
+      },
+      "generation": 1
+    },
+    {
+      "numero": 107,
+      "nom": "Tygnon",
+      "types": [
+        "fighting"
+      ],
+      "stats": {
+        "pv": 50,
+        "attaque": 105,
+        "defense": 79,
+        "attaqueSpe": 35,
+        "defenseSpe": 110,
+        "vitesse": 76
+      },
+      "generation": 1
+    },
+    {
+      "numero": 108,
+      "nom": "Excelangue",
+      "types": [
+        "normal"
+      ],
+      "stats": {
+        "pv": 90,
+        "attaque": 55,
+        "defense": 75,
+        "attaqueSpe": 60,
+        "defenseSpe": 75,
+        "vitesse": 30
+      },
+      "generation": 1
+    },
+    {
+      "numero": 109,
+      "nom": "Smogo",
+      "types": [
+        "poison"
+      ],
+      "stats": {
+        "pv": 40,
+        "attaque": 65,
+        "defense": 95,
+        "attaqueSpe": 60,
+        "defenseSpe": 45,
+        "vitesse": 35
+      },
+      "generation": 1
+    },
+    {
+      "numero": 110,
+      "nom": "Smogogo",
+      "types": [
+        "poison"
+      ],
+      "stats": {
+        "pv": 65,
+        "attaque": 90,
+        "defense": 120,
+        "attaqueSpe": 85,
+        "defenseSpe": 70,
+        "vitesse": 60
+      },
+      "generation": 1
+    },
+    {
+      "numero": 111,
+      "nom": "Rhinocorne",
+      "types": [
+        "ground",
+        "rock"
+      ],
+      "stats": {
+        "pv": 80,
+        "attaque": 85,
+        "defense": 95,
+        "attaqueSpe": 30,
+        "defenseSpe": 30,
+        "vitesse": 25
+      },
+      "generation": 1
+    },
+    {
+      "numero": 112,
+      "nom": "Rhinoféros",
+      "types": [
+        "ground",
+        "rock"
+      ],
+      "stats": {
+        "pv": 105,
+        "attaque": 130,
+        "defense": 120,
+        "attaqueSpe": 45,
+        "defenseSpe": 45,
+        "vitesse": 40
+      },
+      "generation": 1
+    },
+    {
+      "numero": 113,
+      "nom": "Leveinard",
+      "types": [
+        "normal"
+      ],
+      "stats": {
+        "pv": 250,
+        "attaque": 5,
+        "defense": 5,
+        "attaqueSpe": 35,
+        "defenseSpe": 105,
+        "vitesse": 50
+      },
+      "generation": 1
+    },
+    {
+      "numero": 114,
+      "nom": "Saquedeneu",
+      "types": [
+        "grass"
+      ],
+      "stats": {
+        "pv": 65,
+        "attaque": 55,
+        "defense": 115,
+        "attaqueSpe": 100,
+        "defenseSpe": 40,
+        "vitesse": 60
+      },
+      "generation": 1
+    },
+    {
+      "numero": 115,
+      "nom": "Kangourex",
+      "types": [
+        "normal"
+      ],
+      "stats": {
+        "pv": 105,
+        "attaque": 95,
+        "defense": 80,
+        "attaqueSpe": 40,
+        "defenseSpe": 80,
+        "vitesse": 90
+      },
+      "generation": 1
+    },
+    {
+      "numero": 116,
+      "nom": "Hypotrempe",
+      "types": [
+        "water"
+      ],
+      "stats": {
+        "pv": 30,
+        "attaque": 40,
+        "defense": 70,
+        "attaqueSpe": 70,
+        "defenseSpe": 25,
+        "vitesse": 60
+      },
+      "generation": 1
+    },
+    {
+      "numero": 117,
+      "nom": "Hypocéan",
+      "types": [
+        "water"
+      ],
+      "stats": {
+        "pv": 55,
+        "attaque": 65,
+        "defense": 95,
+        "attaqueSpe": 95,
+        "defenseSpe": 45,
+        "vitesse": 85
+      },
+      "generation": 1
+    },
+    {
+      "numero": 118,
+      "nom": "Poissirène",
+      "types": [
+        "water"
+      ],
+      "stats": {
+        "pv": 45,
+        "attaque": 67,
+        "defense": 60,
+        "attaqueSpe": 35,
+        "defenseSpe": 50,
+        "vitesse": 63
+      },
+      "generation": 1
+    },
+    {
+      "numero": 119,
+      "nom": "Poissoroy",
+      "types": [
+        "water"
+      ],
+      "stats": {
+        "pv": 80,
+        "attaque": 92,
+        "defense": 65,
+        "attaqueSpe": 65,
+        "defenseSpe": 80,
+        "vitesse": 68
+      },
+      "generation": 1
+    },
+    {
+      "numero": 120,
+      "nom": "Stari",
+      "types": [
+        "water"
+      ],
+      "stats": {
+        "pv": 30,
+        "attaque": 45,
+        "defense": 55,
+        "attaqueSpe": 70,
+        "defenseSpe": 55,
+        "vitesse": 85
+      },
+      "generation": 1
+    },
+    {
+      "numero": 121,
+      "nom": "Staross",
+      "types": [
+        "water",
+        "psychic"
+      ],
+      "stats": {
+        "pv": 60,
+        "attaque": 75,
+        "defense": 85,
+        "attaqueSpe": 100,
+        "defenseSpe": 85,
+        "vitesse": 115
+      },
+      "generation": 1
+    },
+    {
+      "numero": 122,
+      "nom": "M. Mime",
+      "types": [
+        "psychic",
+        "fairy"
+      ],
+      "stats": {
+        "pv": 40,
+        "attaque": 45,
+        "defense": 65,
+        "attaqueSpe": 100,
+        "defenseSpe": 120,
+        "vitesse": 90
+      },
+      "generation": 1
+    },
+    {
+      "numero": 123,
+      "nom": "Insécateur",
+      "types": [
+        "bug",
+        "flying"
+      ],
+      "stats": {
+        "pv": 70,
+        "attaque": 110,
+        "defense": 80,
+        "attaqueSpe": 55,
+        "defenseSpe": 80,
+        "vitesse": 105
+      },
+      "generation": 1
+    },
+    {
+      "numero": 124,
+      "nom": "Lippoutou",
+      "types": [
+        "ice",
+        "psychic"
+      ],
+      "stats": {
+        "pv": 65,
+        "attaque": 50,
+        "defense": 35,
+        "attaqueSpe": 115,
+        "defenseSpe": 95,
+        "vitesse": 95
+      },
+      "generation": 1
+    },
+    {
+      "numero": 125,
+      "nom": "Élektek",
+      "types": [
+        "electric"
+      ],
+      "stats": {
+        "pv": 65,
+        "attaque": 83,
+        "defense": 57,
+        "attaqueSpe": 95,
+        "defenseSpe": 85,
+        "vitesse": 105
+      },
+      "generation": 1
+    },
+    {
+      "numero": 126,
+      "nom": "Magmar",
+      "types": [
+        "fire"
+      ],
+      "stats": {
+        "pv": 65,
+        "attaque": 95,
+        "defense": 57,
+        "attaqueSpe": 100,
+        "defenseSpe": 85,
+        "vitesse": 93
+      },
+      "generation": 1
+    },
+    {
+      "numero": 127,
+      "nom": "Scarabrute",
+      "types": [
+        "bug"
+      ],
+      "stats": {
+        "pv": 65,
+        "attaque": 125,
+        "defense": 100,
+        "attaqueSpe": 55,
+        "defenseSpe": 70,
+        "vitesse": 85
+      },
+      "generation": 1
+    },
+    {
+      "numero": 128,
+      "nom": "Tauros",
+      "types": [
+        "normal"
+      ],
+      "stats": {
+        "pv": 75,
+        "attaque": 100,
+        "defense": 95,
+        "attaqueSpe": 40,
+        "defenseSpe": 70,
+        "vitesse": 110
+      },
+      "generation": 1
+    },
+    {
+      "numero": 129,
+      "nom": "Magicarpe",
+      "types": [
+        "water"
+      ],
+      "stats": {
+        "pv": 20,
+        "attaque": 10,
+        "defense": 55,
+        "attaqueSpe": 15,
+        "defenseSpe": 20,
+        "vitesse": 80
+      },
+      "generation": 1
+    },
+    {
+      "numero": 130,
+      "nom": "Léviator",
+      "types": [
+        "water",
+        "flying"
+      ],
+      "stats": {
+        "pv": 95,
+        "attaque": 125,
+        "defense": 79,
+        "attaqueSpe": 60,
+        "defenseSpe": 100,
+        "vitesse": 81
+      },
+      "generation": 1
+    },
+    {
+      "numero": 131,
+      "nom": "Lokhlass",
+      "types": [
+        "water",
+        "ice"
+      ],
+      "stats": {
+        "pv": 130,
+        "attaque": 85,
+        "defense": 80,
+        "attaqueSpe": 85,
+        "defenseSpe": 95,
+        "vitesse": 60
+      },
+      "generation": 1
+    },
+    {
+      "numero": 132,
+      "nom": "Métamorph",
+      "types": [
+        "normal"
+      ],
+      "stats": {
+        "pv": 48,
+        "attaque": 48,
+        "defense": 48,
+        "attaqueSpe": 48,
+        "defenseSpe": 48,
+        "vitesse": 48
+      },
+      "generation": 1
+    },
+    {
+      "numero": 133,
+      "nom": "Évoli",
+      "types": [
+        "normal"
+      ],
+      "stats": {
+        "pv": 55,
+        "attaque": 55,
+        "defense": 50,
+        "attaqueSpe": 45,
+        "defenseSpe": 65,
+        "vitesse": 55
+      },
+      "generation": 1
+    },
+    {
+      "numero": 134,
+      "nom": "Aquali",
+      "types": [
+        "water"
+      ],
+      "stats": {
+        "pv": 130,
+        "attaque": 65,
+        "defense": 60,
+        "attaqueSpe": 110,
+        "defenseSpe": 95,
+        "vitesse": 65
+      },
+      "generation": 1
+    },
+    {
+      "numero": 135,
+      "nom": "Voltali",
+      "types": [
+        "electric"
+      ],
+      "stats": {
+        "pv": 65,
+        "attaque": 65,
+        "defense": 60,
+        "attaqueSpe": 110,
+        "defenseSpe": 95,
+        "vitesse": 130
+      },
+      "generation": 1
+    },
+    {
+      "numero": 136,
+      "nom": "Pyroli",
+      "types": [
+        "fire"
+      ],
+      "stats": {
+        "pv": 65,
+        "attaque": 130,
+        "defense": 60,
+        "attaqueSpe": 95,
+        "defenseSpe": 110,
+        "vitesse": 65
+      },
+      "generation": 1
+    },
+    {
+      "numero": 137,
+      "nom": "Porygon",
+      "types": [
+        "normal"
+      ],
+      "stats": {
+        "pv": 65,
+        "attaque": 60,
+        "defense": 70,
+        "attaqueSpe": 85,
+        "defenseSpe": 75,
+        "vitesse": 40
+      },
+      "generation": 1
+    },
+    {
+      "numero": 138,
+      "nom": "Amonita",
+      "types": [
+        "rock",
+        "water"
+      ],
+      "stats": {
+        "pv": 35,
+        "attaque": 40,
+        "defense": 100,
+        "attaqueSpe": 90,
+        "defenseSpe": 55,
+        "vitesse": 35
+      },
+      "generation": 1
+    },
+    {
+      "numero": 139,
+      "nom": "Amonistar",
+      "types": [
+        "rock",
+        "water"
+      ],
+      "stats": {
+        "pv": 70,
+        "attaque": 60,
+        "defense": 125,
+        "attaqueSpe": 115,
+        "defenseSpe": 70,
+        "vitesse": 55
+      },
+      "generation": 1
+    },
+    {
+      "numero": 140,
+      "nom": "Kabuto",
+      "types": [
+        "rock",
+        "water"
+      ],
+      "stats": {
+        "pv": 30,
+        "attaque": 80,
+        "defense": 90,
+        "attaqueSpe": 55,
+        "defenseSpe": 45,
+        "vitesse": 55
+      },
+      "generation": 1
+    },
+    {
+      "numero": 141,
+      "nom": "Kabutops",
+      "types": [
+        "rock",
+        "water"
+      ],
+      "stats": {
+        "pv": 60,
+        "attaque": 115,
+        "defense": 105,
+        "attaqueSpe": 65,
+        "defenseSpe": 70,
+        "vitesse": 80
+      },
+      "generation": 1
+    },
+    {
+      "numero": 142,
+      "nom": "Ptéra",
+      "types": [
+        "rock",
+        "flying"
+      ],
+      "stats": {
+        "pv": 80,
+        "attaque": 105,
+        "defense": 65,
+        "attaqueSpe": 60,
+        "defenseSpe": 75,
+        "vitesse": 130
+      },
+      "generation": 1
+    },
+    {
+      "numero": 143,
+      "nom": "Ronflex",
+      "types": [
+        "normal"
+      ],
+      "stats": {
+        "pv": 160,
+        "attaque": 110,
+        "defense": 65,
+        "attaqueSpe": 65,
+        "defenseSpe": 110,
+        "vitesse": 30
+      },
+      "generation": 1
+    },
+    {
+      "numero": 144,
+      "nom": "Artikodin",
+      "types": [
+        "ice",
+        "flying"
+      ],
+      "stats": {
+        "pv": 90,
+        "attaque": 85,
+        "defense": 100,
+        "attaqueSpe": 95,
+        "defenseSpe": 125,
+        "vitesse": 85
+      },
+      "generation": 1
+    },
+    {
+      "numero": 145,
+      "nom": "Électhor",
+      "types": [
+        "electric",
+        "flying"
+      ],
+      "stats": {
+        "pv": 90,
+        "attaque": 90,
+        "defense": 85,
+        "attaqueSpe": 125,
+        "defenseSpe": 90,
+        "vitesse": 100
+      },
+      "generation": 1
+    },
+    {
+      "numero": 146,
+      "nom": "Sulfura",
+      "types": [
+        "fire",
+        "flying"
+      ],
+      "stats": {
+        "pv": 90,
+        "attaque": 100,
+        "defense": 90,
+        "attaqueSpe": 125,
+        "defenseSpe": 85,
+        "vitesse": 90
+      },
+      "generation": 1
+    },
+    {
+      "numero": 147,
+      "nom": "Minidraco",
+      "types": [
+        "dragon"
+      ],
+      "stats": {
+        "pv": 41,
+        "attaque": 64,
+        "defense": 45,
+        "attaqueSpe": 50,
+        "defenseSpe": 50,
+        "vitesse": 50
+      },
+      "generation": 1
+    },
+    {
+      "numero": 148,
+      "nom": "Draco",
+      "types": [
+        "dragon"
+      ],
+      "stats": {
+        "pv": 61,
+        "attaque": 84,
+        "defense": 65,
+        "attaqueSpe": 70,
+        "defenseSpe": 70,
+        "vitesse": 70
+      },
+      "generation": 1
+    },
+    {
+      "numero": 149,
+      "nom": "Dracolosse",
+      "types": [
+        "dragon",
+        "flying"
+      ],
+      "stats": {
+        "pv": 91,
+        "attaque": 134,
+        "defense": 95,
+        "attaqueSpe": 100,
+        "defenseSpe": 100,
+        "vitesse": 80
+      },
+      "generation": 1
+    },
+    {
+      "numero": 150,
+      "nom": "Mewtwo",
+      "types": [
+        "psychic"
+      ],
+      "stats": {
+        "pv": 106,
+        "attaque": 110,
+        "defense": 90,
+        "attaqueSpe": 154,
+        "defenseSpe": 90,
+        "vitesse": 130
+      },
+      "generation": 1
+    },
+    {
+      "numero": 151,
+      "nom": "Mew",
+      "types": [
+        "psychic"
+      ],
+      "stats": {
+        "pv": 100,
+        "attaque": 100,
+        "defense": 100,
+        "attaqueSpe": 100,
+        "defenseSpe": 100,
+        "vitesse": 100
+      },
+      "generation": 1
+    }
+  ]
+}

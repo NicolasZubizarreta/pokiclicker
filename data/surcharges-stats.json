@@ -1,0 +1,765 @@
+[
+  {
+    "pokemon": 1,
+    "pv": 53,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 2,
+    "pv": 68,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 3,
+    "pv": 88,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 4,
+    "pv": 51,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 5,
+    "pv": 66,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 6,
+    "pv": 85,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 7,
+    "pv": 53,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 8,
+    "pv": 70,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 9,
+    "pv": 95,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 10,
+    "pv": 33,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 11,
+    "pv": 37,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 12,
+    "pv": 60,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 13,
+    "pv": 32,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 14,
+    "pv": 35,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 15,
+    "pv": 60,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 16,
+    "pv": 42,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 17,
+    "pv": 58,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 18,
+    "pv": 77,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 19,
+    "pv": 38,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 20,
+    "pv": 67,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 21,
+    "pv": 42,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 22,
+    "pv": 72,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 23,
+    "pv": 50,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 24,
+    "pv": 73,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 25,
+    "pv": 40,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 26,
+    "pv": 68,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 27,
+    "pv": 58,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 28,
+    "pv": 87,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 29,
+    "pv": 58,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 30,
+    "pv": 74,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 31,
+    "pv": 97,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 32,
+    "pv": 53,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 33,
+    "pv": 70,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 34,
+    "pv": 97,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 35,
+    "pv": 62,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 36,
+    "pv": 90,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 37,
+    "pv": 63,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 38,
+    "pv": 97,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 39,
+    "pv": 72,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 40,
+    "pv": 92,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 41,
+    "pv": 43,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 42,
+    "pv": 77,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 43,
+    "pv": 57,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 44,
+    "pv": 72,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 45,
+    "pv": 92,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 46,
+    "pv": 52,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 47,
+    "pv": 77,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 48,
+    "pv": 57,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 49,
+    "pv": 78,
+    "puissance": 118,
+    "raison": "Puissance et PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 50,
+    "pv": 32,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 51,
+    "pv": 57,
+    "puissance": 101,
+    "raison": "Puissance et PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 52,
+    "pv": 52,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 53,
+    "pv": 73,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 54,
+    "pv": 60,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 55,
+    "pv": 87,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 56,
+    "pv": 48,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 57,
+    "pv": 72,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 58,
+    "pv": 67,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 59,
+    "pv": 90,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 60,
+    "pv": 55,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 61,
+    "pv": 70,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 62,
+    "pv": 92,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 63,
+    "pv": 38,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 64,
+    "pv": 55,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 65,
+    "pv": 65,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 66,
+    "pv": 58,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 67,
+    "pv": 72,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 68,
+    "pv": 88,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 69,
+    "pv": 50,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 70,
+    "pv": 67,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 71,
+    "pv": 87,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 72,
+    "pv": 72,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 73,
+    "pv": 100,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 74,
+    "pv": 58,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 75,
+    "pv": 72,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 76,
+    "pv": 92,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 77,
+    "pv": 60,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 78,
+    "pv": 77,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 79,
+    "pv": 78,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 80,
+    "pv": 98,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 81,
+    "pv": 57,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 82,
+    "pv": 78,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 83,
+    "pv": 48,
+    "puissance": 77,
+    "raison": "Puissance et PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 84,
+    "pv": 62,
+    "puissance": 92,
+    "raison": "Puissance et PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 85,
+    "pv": 72,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 86,
+    "pv": 72,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 87,
+    "pv": 98,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 88,
+    "pv": 72,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 89,
+    "pv": 98,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 90,
+    "pv": 58,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 91,
+    "pv": 92,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 92,
+    "pv": 45,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 93,
+    "pv": 60,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 94,
+    "pv": 75,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 95,
+    "pv": 80,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 96,
+    "pv": 77,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 97,
+    "pv": 100,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 98,
+    "pv": 62,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 99,
+    "pv": 82,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 100,
+    "pv": 55,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 101,
+    "pv": 73,
+    "puissance": 120,
+    "raison": "Puissance et PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 102,
+    "pv": 67,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 103,
+    "pv": 92,
+    "puissance": 130,
+    "raison": "Puissance et PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 104,
+    "pv": 68,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 105,
+    "pv": 83,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 106,
+    "pv": 70,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 107,
+    "pv": 78,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 108,
+    "pv": 72,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 109,
+    "pv": 62,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 110,
+    "pv": 83,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 111,
+    "pv": 63,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 112,
+    "pv": 88,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 113,
+    "pv": 120,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 114,
+    "pv": 82,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 115,
+    "pv": 92,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 116,
+    "pv": 50,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 117,
+    "pv": 92,
+    "puissance": 135,
+    "raison": "Puissance et PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 118,
+    "pv": 60,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 119,
+    "pv": 80,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 120,
+    "pv": 57,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 121,
+    "pv": 82,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 122,
+    "pv": 80,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 123,
+    "pv": 75,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 124,
+    "pv": 68,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 125,
+    "pv": 70,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 126,
+    "pv": 72,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 127,
+    "pv": 82,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 128,
+    "pv": 82,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 129,
+    "pv": 20,
+    "puissance": 5,
+    "raison": "Puissance et PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 130,
+    "pv": 95,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 131,
+    "pv": 102,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 132,
+    "pv": 48,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 133,
+    "pv": 55,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 134,
+    "pv": 97,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 135,
+    "pv": 78,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 136,
+    "pv": 82,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 137,
+    "pv": 70,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 138,
+    "pv": 82,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 139,
+    "pv": 98,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 140,
+    "pv": 68,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 141,
+    "pv": 80,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 142,
+    "pv": 72,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 143,
+    "pv": 112,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 144,
+    "pv": 105,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 145,
+    "pv": 95,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 146,
+    "pv": 95,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 147,
+    "pv": 55,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 148,
+    "pv": 78,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 149,
+    "pv": 103,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 150,
+    "pv": 95,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  },
+  {
+    "pokemon": 151,
+    "pv": 100,
+    "raison": "PV repris de la V1 (réglage à la main)"
+  }
+]

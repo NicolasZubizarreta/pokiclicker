@@ -14,7 +14,7 @@ export default tseslint.config(
     rules: reactHooks.configs.recommended.rules,
   },
   {
-    files: ['eslint.config.js', 'vite.config.ts', 'scripts/**/*.{js,ts}', 'tests/**/*.ts'],
+    files: ['eslint.config.js', 'vite.config.ts', 'scripts/**/*.{js,mjs,ts}', 'tests/**/*.ts'],
     languageOptions: { globals: globals.node },
   },
   {
@@ -31,7 +31,7 @@ export default tseslint.config(
         }],
       }],
       'no-restricted-globals': ['error',
-        ...['window', 'document', 'localStorage', 'sessionStorage', 'navigator'].map((name) => ({
+        ...['window', 'document', 'localStorage', 'sessionStorage', 'navigator', 'fetch', 'XMLHttpRequest'].map((name) => ({
           name,
           message: 'Le cœur du jeu doit rester pur : aucun accès au navigateur ici.',
         })),

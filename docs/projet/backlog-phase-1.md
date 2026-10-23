@@ -37,7 +37,7 @@ Jalon : **Route 1 jouable sur téléphone et PC** (`docs/plan.md`). Brouillon du
 
 ## A. `chore(socle): initialiser le dépôt Vite, React, TypeScript, Vitest et la CI`
 
-Labels : `type:chore`, `etat:pret`, `est:1-2`, `prio:1` · branche : `v2` (pas de PR : première pose du socle) · `agent-ok` : **non** (Codex exécute sur ordre de Nicolas du 23/10, diff relu par Claude puis Nicolas)
+Labels : `type:chore`, `etat:fait`, `est:1-2`, `prio:1` · branche : `v2` (pas de PR : première pose du socle) · `agent-ok` : **non** (Codex exécute sur ordre de Nicolas du 23/10, diff relu par Claude puis Nicolas)
 
 ### Histoire
 En tant que développeur du jeu, je veux un dépôt qui compile, se teste et se vérifie à chaque PR afin que tout ticket suivant parte d'un socle vert.
@@ -46,11 +46,11 @@ En tant que développeur du jeu, je veux un dépôt qui compile, se teste et se 
 Rien n'existe. Pile validée : Vite, React, TypeScript, Zustand, Tailwind compilé, Vitest, PWA. Le cœur du jeu vit dans `src/core` (TypeScript pur, sans React ni DOM). Chemins prévus (À CONFIRMER) : `package.json`, `tsconfig.json`, `vite.config.ts`, `src/core/`, `src/ui/`, `data/`, `.github/workflows/ci.yml`, `.gitignore`. Dépend du **nom du dépôt** (question ouverte n° 1 du plan).
 
 ### Critères d'acceptation
-- [ ] Étant donné un clone neuf, quand je lance `npm ci` puis `npm run build`, alors le build réussit sans avertissement TypeScript.
-- [ ] Étant donné un test trivial dans `src/core`, quand je lance `npm test`, alors Vitest l'exécute et passe.
-- [ ] Étant donné une PR vers `main`, quand la CI s'exécute, alors elle lance type-check, lint, tests et build, et échoue si l'un des quatre échoue.
-- [ ] Étant donné une importation de `react` ou de `document` dans `src/core`, quand je lance le lint, alors il échoue (règle qui protège le cœur pur).
-- [ ] Étant donné `data/`, quand le build tourne, alors aucun fichier de données n'est requis en dur dans le code (chargé par import JSON typé).
+- [x] Étant donné un clone neuf, quand je lance `npm ci` puis `npm run build`, alors le build réussit sans avertissement TypeScript.
+- [x] Étant donné un test trivial dans `src/core`, quand je lance `npm test`, alors Vitest l'exécute et passe.
+- [ ] Étant donné une PR vers `main`, quand la CI s'exécute, alors elle lance type-check, lint, tests et build, et échoue si l'un des quatre échoue. (à vérifier au premier envoi sur GitHub : la CI est écrite mais jamais exécutée là-bas)
+- [x] Étant donné une importation de `react` ou de `document` dans `src/core`, quand je lance le lint, alors il échoue (règle qui protège le cœur pur).
+- [x] Étant donné `data/`, quand le build tourne, alors aucun fichier de données n'est requis en dur dans le code (chargé par import JSON typé).
 
 ### Hors périmètre
 Déploiement, compte en ligne, PWA (ticket J), contenu du jeu.
@@ -76,12 +76,12 @@ En tant que développeur du jeu, je veux les quatre décisions techniques écrit
 `docs/plan.md` § « Décisions techniques à figer en phase 1 » : (1) modèle de sauvegarde à trois niveaux et migrations, (2) zones en graphe et événements en données, (3) stats des Pokémon par formule depuis PokeAPI, (4) fréquence d'enregistrement en ligne et conflits entre deux appareils. Fichiers à créer (À CONFIRMER) : `docs/adr/0001-sauvegarde.md` à `0004-synchro.md`.
 
 ### Critères d'acceptation
-- [ ] Étant donné les quatre sujets, quand j'ouvre `docs/adr/`, alors il y a un fichier par décision avec : contexte, options écartées, décision, conséquences.
-- [ ] Étant donné l'ADR 1, quand je le lis, alors il fixe : les trois niveaux (compte, partie, région), le champ de version, la règle « une migration par version », ce que contient chaque niveau.
-- [ ] Étant donné l'ADR 2, quand je le lis, alors il fixe le format d'une zone (identifiant, liens, conditions de passage, boss) et d'un événement, avec un exemple Route 1 et un exemple Ronflex/Pokéflûte.
-- [ ] Étant donné l'ADR 3, quand je le lis, alors il fixe la formule des stats, les champs conservés de PokeAPI et la façon de régénérer les données.
-- [ ] Étant donné l'ADR 4, quand je le lis, alors il fixe la fréquence (proposition : 30 à 60 s et à la fermeture), la règle de conflit et la limite connue (triche acceptée).
-- [ ] Chaque ADR porte la mention « décidé par Nicolas le <date> » avant de passer en `accepté`.
+- [x] Étant donné les quatre sujets, quand j'ouvre `docs/adr/`, alors il y a un fichier par décision avec : contexte, options écartées, décision, conséquences.
+- [x] Étant donné l'ADR 1, quand je le lis, alors il fixe : les trois niveaux (compte, partie, région), le champ de version, la règle « une migration par version », ce que contient chaque niveau.
+- [x] Étant donné l'ADR 2, quand je le lis, alors il fixe le format d'une zone (identifiant, liens, conditions de passage, boss) et d'un événement, avec un exemple Route 1 et un exemple Ronflex/Pokéflûte.
+- [x] Étant donné l'ADR 3, quand je le lis, alors il fixe la formule des stats, les champs conservés de PokeAPI et la façon de régénérer les données.
+- [x] Étant donné l'ADR 4, quand je le lis, alors il fixe la fréquence (proposition : 30 à 60 s et à la fermeture), la règle de conflit et la limite connue (triche acceptée).
+- [x] Chaque ADR porte la mention « décidé par Nicolas le <date> » avant de passer en `accepté`.
 
 ### Hors périmètre
 Tout code ; choix du service en ligne (phase 4, l'ADR 4 pose seulement la règle).
@@ -96,7 +96,7 @@ Fourchette : 1 jour (rédaction par Claude, décisions par Nicolas). Risque : d�
 
 ## B. `feat(core): faire tourner le jeu au temps écoulé`
 
-Labels : `type:feat`, `etat:pret`, `est:1-2`, `prio:1` · branche : `v2` (pas encore de PR) · `agent-ok` : oui (ordre de Nicolas du 23/10, A terminé)
+Labels : `type:feat`, `etat:fait`, `est:1-2`, `prio:1` · branche : `v2` (pas encore de PR) · `agent-ok` : oui (ordre de Nicolas du 23/10, A terminé)
 
 ### Histoire
 En tant que joueur, je veux que le jeu avance de la même façon que la page soit active, ralentie ou rouverte afin de ne jamais perdre ni gagner de progression à cause du navigateur.
@@ -105,10 +105,10 @@ En tant que joueur, je veux que le jeu avance de la même façon que la page soi
 La V1 utilise des `setInterval` (`legacy/js/game/loop.js`) et un auto-clic par minuteur (`js/ui/controls.js`). En V2 l'état vit hors React ; la boucle calcule à partir du **temps écoulé** (horloge injectable), et l'interface se rafraîchit à 10 Hz au maximum. Fichiers prévus (À CONFIRMER) : `src/core/loop.ts`, `src/core/clock.ts`, `src/core/loop.test.ts`.
 
 ### Critères d'acceptation
-- [ ] Étant donné une horloge simulée, quand 5 000 ms s'écoulent en un seul pas, alors l'état avance exactement comme 50 pas de 100 ms.
-- [ ] Étant donné un onglet suspendu 10 minutes puis rouvert, quand la boucle reprend, alors elle rattrape au plus **1 heure** de temps de jeu (36 000 pas de 100 ms, valeur lue dans `data/reglages.json`), signale le temps non rattrapé, et ne gèle pas l'écran.
-- [ ] Étant donné la boucle en marche, quand l'interface s'abonne à l'état, alors elle n'est notifiée que 10 fois par seconde au plus.
-- [ ] Étant donné `src/core/loop.ts`, quand je le lis, alors il n'importe ni React ni `window` ni `document`.
+- [x] Étant donné une horloge simulée, quand 5 000 ms s'écoulent en un seul pas, alors l'état avance exactement comme 50 pas de 100 ms.
+- [x] Étant donné un onglet suspendu 10 minutes puis rouvert, quand la boucle reprend, alors elle rattrape au plus **1 heure** de temps de jeu (36 000 pas de 100 ms, valeur lue dans `data/reglages.json`), signale le temps non rattrapé, et ne gèle pas l'écran.
+- [x] Étant donné la boucle en marche, quand l'interface s'abonne à l'état, alors elle n'est notifiée que 10 fois par seconde au plus.
+- [x] Étant donné `src/core/loop.ts`, quand je le lis, alors il n'importe ni React ni `window` ni `document`.
 
 ### Hors périmètre
 Expéditions hors ligne (phase 6) ; combat (ticket D) ; sauvegarde.
@@ -123,7 +123,7 @@ Fourchette : 1 à 2 jours. Risque : faible (plafond fixé à 1 h par Nicolas le 
 
 ## C. `feat(core): décrire un Pokémon et calculer ses stats par formule`
 
-Labels : `type:feat`, `etat:idee`, `est:2-3`, `prio:1` · branche : `feat/<n>-pokemon` · `agent-ok` : oui (après A et ADR 3)
+Labels : `type:feat`, `etat:fait`, `est:2-3`, `prio:1` · branche : `v2` (pas encore de PR) · `agent-ok` : oui (ordre de Nicolas du 23/10 ; A et ADR 0003 faits). **Découpage de l'exécution** : Codex écrit le code, le script et les tests (pas de réseau) ; Claude lance le script PokeAPI et génère `data/pokemon.json`.
 
 ### Histoire
 En tant que développeur du jeu, je veux générer les stats de tous les Pokémon par une formule et un script plutôt que les écrire à la main afin de tenir 1 025 Pokémon sans y perdre le projet.
@@ -132,11 +132,11 @@ En tant que développeur du jeu, je veux générer les stats de tous les Pokémo
 Formules de la V1 : `legacy/js/game/stats.js` et `legacy/js/data/constants.js` (DPS = somme de stat × niveau / 5, puis bonus). Données de base issues de PokeAPI, sprites en local. Fichiers prévus (À CONFIRMER) : `src/core/pokemon.ts`, `src/core/stats.ts`, `data/pokemon.json` (généré), `scripts/generer-pokemon.mjs`, `src/core/stats.test.ts`.
 
 ### Critères d'acceptation
-- [ ] Étant donné un Pokémon de `data/pokemon.json` et un niveau, quand j'appelle `calculerDps`, alors le résultat est identique à la V1 pour au moins 10 cas figés (tableau de valeurs relevées dans la V1).
-- [ ] Étant donné un Pokémon shiny, quand j'appelle `calculerDps`, alors le bonus de dégâts shiny du réglage s'applique (valeur lue dans le JSON de réglage, pas en dur).
-- [ ] Étant donné le script de génération, quand je le lance, alors `data/pokemon.json` est régénéré à l'identique (même contenu octet pour octet) et contient les 151 premiers Pokémon avec numéro, nom français, types, stats de base.
-- [ ] Étant donné un Pokémon sans nom français dans la source, quand le script tourne, alors il échoue avec un message qui nomme le numéro, au lieu d'écrire un nom anglais.
-- [ ] Étant donné `src/core`, quand je lance le lint, alors aucun appel réseau n'y figure (le réseau reste dans `scripts/`).
+- [x] Étant donné un Pokémon de `data/pokemon.json` et un niveau, quand j'appelle `calculerDps`, alors le résultat est identique à la V1 pour au moins 10 cas figés (tableau de valeurs relevées dans la V1).
+- [x] Étant donné un Pokémon shiny, quand j'appelle `calculerDps`, alors le bonus de dégâts shiny du réglage s'applique (valeur lue dans le JSON de réglage, pas en dur).
+- [x] Étant donné le script de génération, quand je le lance, alors `data/pokemon.json` est régénéré à l'identique (même contenu octet pour octet) et contient les 151 premiers Pokémon avec numéro, nom français, types, six stats de base et génération (les évolutions viennent dans un ticket suivant).
+- [x] Étant donné un Pokémon sans nom français dans la source, quand le script tourne, alors il échoue avec un message qui nomme le numéro, au lieu d'écrire un nom anglais.
+- [x] Étant donné `src/core`, quand je lance le lint, alors aucun appel réseau n'y figure (le réseau reste dans `scripts/`).
 
 ### Hors périmètre
 Évolutions, bonheur, objets tenus, générations 2 et suivantes (le script les prendra par un paramètre, sans les générer ici).

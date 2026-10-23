@@ -1,0 +1,19 @@
+{
+  "pokemon": {
+    "id": 129,
+    "stats": [
+      { "base_stat": 20, "stat": { "name": "hp" } },
+      { "base_stat": 10, "stat": { "name": "attack" } },
+      { "base_stat": 55, "stat": { "name": "defense" } },
+      { "base_stat": 15, "stat": { "name": "special-attack" } },
+      { "base_stat": 20, "stat": { "name": "special-defense" } },
+      { "base_stat": 80, "stat": { "name": "speed" } }
+    ],
+    "types": [{ "slot": 1, "type": { "name": "water" } }]
+  },
+  "espece": {
+    "id": 129,
+    "names": [{ "name": "Magicarpe", "language": { "name": "fr" } }],
+    "generation": { "name": "generation-i" }
+  }
+}

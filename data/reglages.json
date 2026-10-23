@@ -3,5 +3,16 @@
     "pasMs": 100,
     "rattrapageMaxMs": 3600000,
     "notificationMinMs": 100
+  },
+  "stats": {
+    "puissanceDiviseur": 4,
+    "pv": { "coefPv": 0.33, "coefDefense": 0.3, "coefDefenseSpe": 0.3, "constante": 10 }
+  },
+  "degats": {
+    "diviseurNiveau": 5,
+    "shiny": 1.5,
+    "bonheurParPoint": 0.001,
+    "pierreEternelle": 1.25,
+    "calciumParBoost": 0.02
   }
 }
