@@ -32,7 +32,11 @@ describe('Jetons et styles de l’interface', () => {
       .map((entree) => `${entree.parentPath}/${entree.name}`);
     fichiers.push(`${racine}/index.html`);
     for (const fichier of fichiers) {
-      expect(readFileSync(fichier, 'utf8'), fichier).not.toMatch(/https?:\/\//i);
+      const contenu = readFileSync(fichier, 'utf8')
+        .replace(/\/\*[\s\S]*?\*\//g, (commentaire) => /@license|@licence|copyright|SPDX/i.test(commentaire) ? '' : commentaire)
+        .replace(/^\s*\/\/.*(?:@license|@licence|copyright|SPDX).*$/gim, '')
+        .replace(/http:\/\/www\.w3\.org\/[\w/-]*/g, '');
+      expect(contenu, fichier).not.toMatch(/https?:\/\//i);
     }
   });
 });

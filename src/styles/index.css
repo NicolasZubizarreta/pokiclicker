@@ -6,6 +6,10 @@
 @import "@fontsource/atkinson-hyperlegible-next/latin-600.css";
 @import "@fontsource/atkinson-hyperlegible-next/latin-700.css";
 
+.image-rendering-pixelated {
+  image-rendering: pixelated;
+}
+
 @theme inline {
   --color-fond: var(--fond);
   --color-surface: var(--surface);

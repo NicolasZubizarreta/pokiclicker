@@ -1,0 +1,15 @@
+{
+  "decor": {
+    "ratio": [16, 9],
+    "largeur": 1920,
+    "hauteur": 1080,
+    "tolerance": 0.005,
+    "qualiteWebp": 82
+  },
+  "sprite": { "taille": 96 },
+  "dossiers": {
+    "sources": "assets-src",
+    "sorties": "public/img",
+    "tailles": "public/img/tailles.json"
+  }
+}

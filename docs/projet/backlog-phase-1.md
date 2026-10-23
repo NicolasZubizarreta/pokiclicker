@@ -211,7 +211,7 @@ Fourchette : 2 à 3 jours. Risque : perte de données si la migration est mal é
 
 ## I. `feat(images): traiter les images au bon format par script`
 
-Labels : `type:feat`, `etat:en_cours`, `est:2-2`, `prio:2` · branche : `v2` (pas encore de PR) · `agent-ok` : oui
+Labels : `type:feat`, `etat:fait`, `est:2-2`, `prio:2` · branche : `v2` (pas encore de PR) · `agent-ok` : oui
 
 ### Histoire
 En tant que joueur, je veux des images qui ne sautent pas, ne laissent pas de bandes noires et se chargent vite afin de ne jamais voir un décor mal découpé.
@@ -220,12 +220,12 @@ En tant que joueur, je veux des images qui ne sautent pas, ne laissent pas de ba
 Interdit de la marque n° 5 (`design/DESIGN.md`) : un seul ratio par type, `width` et `height` posés, sprite suivant préchargé. Décors 16:9 en 1920 × 1080 WebP, sprites 96 × 96 en facteur entier. Fichiers prévus (À CONFIRMER) : `scripts/traiter-images.mjs`, `public/img/`, `src/ui/Image.tsx`, `src/ui/precharger.ts`.
 
 ### Critères d'acceptation
-- [ ] Étant donné un décor qui n'est pas en 16:9, quand le script tourne, alors il échoue en nommant le fichier et son ratio, sans le recadrer.
-- [ ] Étant donné un dossier de décors valides, quand le script tourne, alors il écrit des WebP de 1920 × 1080 et un fichier de tailles (largeur, hauteur) lu par le composant.
-- [ ] Étant donné le composant `Image`, quand il s'affiche, alors `width` et `height` sont posés (aucun décalage de mise en page) et le rendu des sprites est en `image-rendering: pixelated`.
-- [ ] Étant donné un sprite à afficher à l'échelle, quand la largeur disponible n'est pas un multiple entier, alors le facteur d'échelle est arrondi à l'entier inférieur (jamais fractionnaire).
-- [ ] Étant donné l'ennemi en cours, quand il reste 1 PV, alors le sprite du suivant est déjà chargé.
-- [ ] Étant donné le build, quand je liste les requêtes réseau au chargement, alors aucune ne sort du domaine du jeu.
+- [x] Étant donné un décor qui n'est pas en 16:9, quand le script tourne, alors il échoue en nommant le fichier et son ratio, sans le recadrer.
+- [x] Étant donné un dossier de décors valides, quand le script tourne, alors il écrit des WebP de 1920 × 1080 et un fichier de tailles (largeur, hauteur) lu par le composant.
+- [x] Étant donné le composant `Image`, quand il s'affiche, alors `width` et `height` sont posés (aucun décalage de mise en page) et le rendu des sprites est en `image-rendering: pixelated`.
+- [x] Étant donné un sprite à afficher à l'échelle, quand la largeur disponible n'est pas un multiple entier, alors le facteur d'échelle est arrondi à l'entier inférieur (jamais fractionnaire).
+- [x] Étant donné l'ennemi en cours, quand il reste 1 PV, alors le sprite du suivant est déjà chargé.
+- [x] Étant donné le build, quand je liste les requêtes réseau au chargement, alors aucune ne sort du domaine du jeu.
 
 ### Périmètre précisé le 23/10
 Bibliothèque sharp (installée, 0 vulnérabilité). Réglages dans data/images.json (ratio 16:9, taille 1920 × 1080, tolérance de ratio, qualité WebP, taille des sprites 96) : rien en dur dans le script. Sources dans ssets-src/ (décors, sprites), sorties dans public/img/. Les décors de la V1 en 2784 × 1536 (ratio 1,8125) ne sont PAS recadrés : le script les refuse en nommant fichier et ratio. « Sprite suivant préchargé » : l'ennemi suivant est tiré à son apparition, donc on précharge tous les sprites possibles de la zone (sauvages et boss) à l'entrée dans la zone ; un test le prouve. Aucune image du jeu n'est ajoutée au dépôt en dehors de fixtures de test générées.

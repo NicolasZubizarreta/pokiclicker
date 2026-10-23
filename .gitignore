@@ -1,4 +1,5 @@
 node_modules/
+assets-src/
 dist/
 .claude/route/jobs/
 # captures et références lourdes : gardées en local, hors dépôt
