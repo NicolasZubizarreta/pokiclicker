@@ -179,7 +179,7 @@ Fourchette : 2 à 3 jours. Risque : format de condition trop rigide pour Ronflex
 
 ## F. `feat(sauvegarde): enregistrer et restaurer la partie localement, en trois niveaux versionnés`
 
-Labels : `type:feat`, `etat:idee`, `est:2-3`, `prio:1` · branche : `feat/<n>-sauvegarde` · `agent-ok` : oui (sauvegarde locale sans identité ; revue humaine obligatoire)
+Labels : `type:feat`, `etat:fait`, `est:2-3`, `prio:1` · branche : `v2` (pas encore de PR) · `agent-ok` : oui (sauvegarde locale sans identité ; revue humaine obligatoire)
 
 ### Histoire
 En tant que joueur, je veux retrouver ma partie telle que je l'ai laissée, et pouvoir l'exporter en JSON, afin de ne jamais perdre ma progression.
@@ -188,12 +188,15 @@ En tant que joueur, je veux retrouver ma partie telle que je l'ai laissée, et p
 La V1 sauvegarde tout dans une clé `pokiClickerSave` (`legacy/js/game/save.js`). En V2 : trois niveaux (compte, partie, région) avec un numéro de version et des migrations, stockés en local pour l'instant. Fichiers prévus (À CONFIRMER) : `src/core/sauvegarde.ts`, `src/core/migrations/`, `src/core/sauvegarde.test.ts`, `src/ui/stockage-local.ts`.
 
 ### Critères d'acceptation
-- [ ] Étant donné une partie en cours, quand j'enregistre puis je recharge, alors l'état restauré est égal à l'état enregistré (test aller-retour).
-- [ ] Étant donné une sauvegarde de version N-1, quand je la charge, alors la migration vers N s'applique et aucune donnée n'est perdue (jeu d'essai figé dans `src/core/migrations/__fixtures__/`).
-- [ ] Étant donné une sauvegarde d'une version plus récente que le jeu, quand je la charge, alors le jeu refuse avec « Cette sauvegarde vient d'une version plus récente du jeu » et ne l'écrase pas.
-- [ ] Étant donné un JSON corrompu, quand je l'importe, alors un message en français explique le problème et la partie en cours reste intacte.
-- [ ] Étant donné l'export, quand je réimporte le fichier produit, alors la partie est identique ; le fichier ne contient ni e-mail ni identifiant de compte.
-- [ ] Étant donné deux régions, quand j'enregistre la région Kanto, alors le niveau région Johto n'est pas modifié.
+- [x] Étant donné une partie en cours, quand j'enregistre puis je recharge, alors l'état restauré est égal à l'état enregistré (test aller-retour).
+- [x] Étant donné une sauvegarde de version N-1, quand je la charge, alors la migration vers N s'applique et aucune donnée n'est perdue (jeu d'essai figé dans `src/core/migrations/__fixtures__/`).
+- [x] Étant donné une sauvegarde d'une version plus récente que le jeu, quand je la charge, alors le jeu refuse avec « Cette sauvegarde vient d'une version plus récente du jeu » et ne l'écrase pas.
+- [x] Étant donné un JSON corrompu, quand je l'importe, alors un message en français explique le problème et la partie en cours reste intacte.
+- [x] Étant donné l'export, quand je réimporte le fichier produit, alors la partie est identique ; le fichier ne contient ni e-mail ni identifiant de compte.
+- [x] Étant donné deux régions, quand j'enregistre la région Kanto, alors le niveau région Johto n'est pas modifié.
+
+### Périmètre précisé le 23/10
+Le numéro de version courant est 1 : le mécanisme de migration est donc testé avec une table de migrations injectée (version 0 fictive → 1) et un jeu d'essai figé ; la table réelle est vide. Un import crée toujours une NOUVELLE partie (jamais de remplacement). Une écriture peut vérifier la révision attendue (préparation de l'ADR 0004), sans synchronisation.
 
 ### Hors périmètre
 Compte en ligne, synchronisation, conflits entre appareils (phase 4), sauvegarde automatique à intervalle (ticket H).

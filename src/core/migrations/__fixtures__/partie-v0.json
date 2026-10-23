@@ -1,0 +1,16 @@
+{
+  "version": 0,
+  "niveau": "partie",
+  "id": "ancienne-partie",
+  "revision": 7,
+  "ecritLe": "2026-10-23T12:00:00.000Z",
+  "donnees": {
+    "nomPartie": "Aventure conservée",
+    "regionCourante": "kanto",
+    "regionsDebloquees": ["kanto", "johto"],
+    "pokedexNational": [1, 25],
+    "pcGlobal": [{ "uid": "pikachu", "numero": 25, "niveau": 12, "xp": 45, "shiny": true, "bonheur": 8, "pierreEternelle": true, "calcium": 2, "surnom": "Éclair" }],
+    "drapeaux": ["chen-rencontre"],
+    "statistiques": { "victoires": 42, "argentTotalGagne": 1234 }
+  }
+}

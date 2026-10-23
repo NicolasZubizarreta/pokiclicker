@@ -3,6 +3,7 @@ import donnees from '../../data/reglages.json';
 export type Bonus = { cle: string; x: number; arrondi?: boolean };
 
 export const reglages: {
+  depart: { argent: number; etape: number };
   combat: {
     clicBase: number; clicPartDps: number; pvParNiveau: number; pvBoss: number;
     chanceShiny: number; clicsMaxParSeconde: number; fenetreClicsMs: number; etapeBoss: number;
