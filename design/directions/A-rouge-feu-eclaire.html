@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#141821">
+<title>Route 1 · Pokiclicker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;500;600;700&family=Pixelify+Sans:wght@600&display=swap" rel="stylesheet">
+<style>
+:root {
+  color-scheme: dark;
+  --bg:#141821; --surface:#232A3A; --surface-raised:#2D3547; --ink:#F4EFE4; --muted:#B2B9C7;
+  --cream:#F4EFE4; --paper:#FFFDF7; --night:#141821; --red:#C8321E; --red-hover:#E0442D; --red-shadow:#761F19;
+  --gold:#F5C033; --green:#3D9A4A; --danger:#B81D3A; --white:#FFFFFF; --edge:#596176; --frame-dark:#121A23;
+  --region:#B7D171; --region-light:#EAF1B4; --region-dark:#5C7940; --sky:#A8C4B6;
+  --shadow: #0B1019; --clear:transparent; --veil: #14182155; --scene-shade:#17251699; --halo:#FFF7BF88; --dust:#FFF4BB;
+  --shine:#FFFFFF55; --dither:#14182122; --ghost:#B8DA91; --track:#202D25;
+  --font-body:'Atkinson Hyperlegible Next','Atkinson Hyperlegible',system-ui,sans-serif;
+  --font-pixel:'Pixelify Sans',system-ui,sans-serif;
+  --text:16px; --small:16px; --title:20px; --heading:24px; --display:32px;
+  --s1:8px; --s2:16px; --s3:24px; --s4:32px; --s5:40px; --s6:48px; --s7:56px; --s8:64px;
+  --px:2px; --step:4px; --radius:0px; --mobile-sprite:192px; --desktop-sprite:288px;
+}
+:root[data-theme="light"] { color-scheme:light; --bg:#F4EFE4; --surface:#FFFDF7; --surface-raised:#E8E3D6; --ink:#141821; --muted:#566073; --edge:#A5A896; --shadow:#BCB9A9; --veil:#F4EFE433; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:var(--text)/1.4 var(--font-body); font-variant-numeric:tabular-nums; }
+button { font:inherit; color:inherit; cursor:pointer; border:0; border-radius:var(--radius); }
+button:focus-visible,[role="button"]:focus-visible { outline:var(--step) solid var(--gold); outline-offset:var(--step); }
+button:disabled { opacity:.45; cursor:not-allowed; }
+button:active:not(:disabled) { transform:translateY(var(--px)); }
+svg { width:var(--s3); height:var(--s3); fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:square; stroke-linejoin:miter; flex-shrink:0; }
+.svg-library { position:absolute; width:0; height:0; overflow:hidden; }
+.pixel { font-family:var(--font-pixel); font-weight:600; }
+.frame { border:var(--px) solid var(--cream); box-shadow:0 0 0 var(--px) var(--frame-dark),inset 0 0 0 var(--px) var(--edge); clip-path:polygon(4px 0,calc(100% - 4px) 0,calc(100% - 4px) 4px,100% 4px,100% calc(100% - 4px),calc(100% - 4px) calc(100% - 4px),calc(100% - 4px) 100%,4px 100%,4px calc(100% - 4px),0 calc(100% - 4px),0 4px,4px 4px); }
+.app { max-width:1440px; margin:auto; padding:var(--s4); display:grid; grid-template-columns:176px minmax(0,1fr) 232px; grid-template-rows:var(--s6) auto auto; gap:var(--s3); min-height:100svh; }
+.sidebar { grid-column:1; grid-row:1/4; display:flex; flex-direction:column; padding-top:var(--s1); }
+.brand { font-size:var(--heading); margin:0 0 var(--s1); display:flex; align-items:center; gap:var(--s1); }
+.brand svg { color:var(--red); width:var(--s4); height:var(--s4); }
+.brand-note { color:var(--muted); margin:0 0 var(--s5); }
+.nav { display:flex; flex-direction:column; gap:var(--s1); }
+.nav button { min-height:var(--s7); display:flex; gap:var(--s2); align-items:center; padding:var(--s2); background:var(--clear); text-align:left; font-family:var(--font-pixel); font-size:var(--title); border-left:var(--step) solid var(--clear); }
+.nav button:hover { background:var(--surface-raised); }
+.nav button.active { color:var(--gold); background:var(--surface); border-color:var(--red); }
+.sidebar-foot { margin-top:auto; padding-top:var(--s4); color:var(--muted); font-size:var(--small); }
+.status { grid-column:2/4; display:flex; align-items:center; justify-content:space-between; gap:var(--s2); }
+.status-left,.status-right,.currency { display:flex; align-items:center; gap:var(--s1); }
+.status-left { gap:var(--s4); }
+.currency { font-size:var(--title); font-weight:700; }
+.currency.money { color:var(--gold); }
+.currency.candy svg { color:var(--red-hover); }
+.icon-button { display:grid; place-items:center; width:var(--s6); height:var(--s6); background:var(--surface); box-shadow:inset 0 var(--px) var(--shine),0 var(--step) var(--shadow); }
+.icon-button:hover { background:var(--surface-raised); }
+.session { font-size:var(--small); color:var(--muted); margin-right:var(--s2); }
+.battle { grid-column:2; grid-row:2; min-width:0; }
+.zone { display:flex; align-items:center; justify-content:space-between; gap:var(--s2); padding:var(--s2) var(--s3); background:var(--surface); margin-bottom:var(--s2); }
+.zone h1 { font-size:var(--heading); margin:0; }
+.zone p { margin:0; font-size:var(--small); color:var(--muted); }
+.route-progress { text-align:right; }
+.steps { display:flex; align-items:center; gap:var(--s1); margin-top:var(--s1); }
+.step { width:var(--s1); height:var(--s1); background:var(--edge); }
+.step.done { background:var(--region); }
+.step.current { background:var(--gold); box-shadow:0 0 0 var(--px) var(--surface),0 0 0 var(--step) var(--gold); }
+.steps svg { width:var(--s3); height:var(--s3); color:var(--gold); margin-left:var(--step); }
+.stage { position:relative; aspect-ratio:16/9; min-height:360px; overflow:hidden; background:var(--sky); cursor:crosshair; isolation:isolate; border-bottom:var(--step) solid var(--region-dark); }
+.landscape { position:absolute; inset:-5%; width:110%; height:110%; object-fit:cover; object-position:40% 35%; z-index:-5; animation:far-drift 14s ease-in-out infinite alternate; }
+.scene-wash { position:absolute; inset:0; background:linear-gradient(var(--veil),var(--clear) 50%,var(--scene-shade)); z-index:-4; }
+.sky-dither { position:absolute; inset:0 0 48%; background:repeating-conic-gradient(var(--dither) 0 25%,var(--clear) 0 50%) 0 0 / 4px 4px; opacity:.6; z-index:-3; }
+.halo { position:absolute; width:440px; height:360px; right:-48px; top:0; background:radial-gradient(ellipse,var(--halo),var(--clear) 67%); z-index:-2; }
+.ground { position:absolute; height:var(--s6); bottom:0; left:-5%; width:110%; background:repeating-linear-gradient(90deg,var(--region-dark) 0 16px,var(--region) 16px 24px,var(--region-dark) 24px 40px); clip-path:polygon(0 48%,8% 48%,8% 32%,14% 32%,14% 64%,28% 64%,28% 40%,40% 40%,40% 72%,54% 72%,54% 48%,69% 48%,69% 24%,78% 24%,78% 56%,92% 56%,92% 32%,100% 32%,100% 100%,0 100%); z-index:2; animation:near-drift 9s ease-in-out infinite alternate; }
+.enemy-info { position:absolute; top:var(--s3); left:var(--s3); width:264px; background:var(--paper); color:var(--night); padding:var(--s2); border-color:var(--night); box-shadow:inset 0 0 0 var(--px) var(--region-dark),var(--step) var(--step) var(--frame-dark); z-index:3; }
+.enemy-title { display:flex; justify-content:space-between; align-items:center; gap:var(--s2); }
+.enemy-title h2 { margin:0; font-size:var(--heading); }
+.enemy-title span { font-weight:700; }
+.health-row { display:flex; align-items:center; gap:var(--s1); margin-top:var(--s1); }
+.hp-label { font-size:var(--small); font-weight:700; color:var(--region-dark); }
+.health-track { position:relative; height:12px; flex:1; border:var(--px) solid var(--night); background:var(--track); overflow:hidden; }
+.health-fill,.health-ghost { position:absolute; inset:0; transform:scaleX(.65); transform-origin:left; background:var(--green); transition:transform 120ms linear; }
+.health-ghost { background:var(--ghost); transition:transform 240ms linear 300ms; }
+.health-fill[data-level="medium"] { background:var(--gold); }
+.health-fill[data-level="low"] { background:var(--danger); }
+.health-numbers { display:flex; justify-content:flex-end; align-items:center; gap:var(--s1); font-size:var(--small); margin-top:var(--step); }
+.health-numbers svg { width:var(--s2); height:var(--s2); color:var(--danger); display:none; }
+.health-numbers.low svg { display:block; }
+.enemy { position:absolute; right:var(--s3); bottom:var(--s4); width:320px; height:304px; display:flex; align-items:flex-end; justify-content:center; }
+.pedestal { position:absolute; bottom:0; width:100%; height:var(--s8); background:radial-gradient(ellipse at 50% 30%,var(--region-light),var(--region) 55%,var(--region-dark) 59%,var(--region-dark) 68%,var(--clear) 70%); clip-path:ellipse(50% 48% at 50% 50%); box-shadow:inset 0 var(--step) var(--shine); }
+.enemy img { position:relative; width:var(--desktop-sprite); height:var(--desktop-sprite); image-rendering:pixelated; margin-bottom:var(--s2); filter:drop-shadow(0 8px 0 var(--scene-shade)); }
+.enemy.hit img { animation:hit 90ms ease-out; }
+.damage { position:absolute; left:55%; top:30%; color:var(--paper); font:600 var(--display) var(--font-pixel); text-shadow:var(--px) var(--px) var(--night),calc(-1 * var(--px)) calc(-1 * var(--px)) var(--night); pointer-events:none; animation:damage 500ms ease-out forwards; z-index:5; }
+.stage-tip { position:absolute; bottom:var(--s2); left:var(--s3); z-index:3; color:var(--paper); font-size:var(--small); text-shadow:var(--px) var(--px) var(--night); }
+.scene-label { position:absolute; right:var(--s2); bottom:var(--s1); z-index:4; background:var(--region-dark); color:var(--cream); padding:var(--step) var(--s1); font-size:var(--small); }
+.dust { position:absolute; width:var(--step); height:var(--step); background:var(--dust); left:40%; top:55%; animation:float 7s ease-in-out infinite; opacity:.7; }
+.dust.d2 { left:78%; top:22%; animation-delay:-3s; }
+.dust.d3 { left:24%; top:76%; animation-delay:-5s; }
+.action { margin-top:var(--s2); width:100%; height:88px; background:var(--red); color:var(--white); box-shadow:inset 0 var(--px) var(--shine),0 var(--step) var(--red-shadow); display:flex; align-items:center; justify-content:center; gap:var(--s2); }
+.action:hover { background:var(--red-hover); }
+.action .pixel { font-size:var(--display); }
+.action svg { width:var(--s4); height:var(--s4); }
+.action-detail { color:var(--cream); font-size:var(--small); margin-left:var(--s3); padding-left:var(--s3); border-left:var(--px) solid var(--shine); }
+.team { grid-column:3; grid-row:2/4; background:var(--surface); padding:var(--s2); align-self:start; }
+.team-heading { display:flex; align-items:center; justify-content:space-between; margin-bottom:var(--s2); }
+.team h2 { margin:0; font-size:var(--heading); }
+.team-count { color:var(--muted); font-size:var(--small); }
+.team-list { display:grid; gap:var(--s1); }
+.pokemon-card { min-height:88px; display:flex; align-items:center; gap:var(--s1); background:var(--surface-raised); border:var(--px) solid var(--cream); padding:var(--s1); position:relative; }
+.pokemon-card:first-child { border-color:var(--gold); }
+.portrait { position:relative; flex:none; width:var(--s8); height:var(--s8); display:grid; place-items:center; overflow:hidden; }
+.portrait .pedestal { height:var(--s3); bottom:0; }
+.portrait img { position:absolute; width:96px; height:96px; left:50%; top:50%; transform:translate(-50%,-50%); object-fit:contain; image-rendering:pixelated; }
+.pokemon-name { font-family:var(--font-pixel); font-size:var(--title); line-height:1.1; }
+.pokemon-level { font-size:var(--small); color:var(--muted); }
+.pokemon-dps { color:var(--gold); font-weight:700; }
+.total { border-top:var(--px) solid var(--edge); padding-top:var(--s2); margin:var(--s2) 0 0; display:flex; flex-wrap:wrap; gap:var(--s1); align-items:baseline; justify-content:space-between; }
+.total strong { font-size:var(--heading); color:var(--gold); }
+.dialogue { grid-column:2; grid-row:3; display:flex; align-items:center; gap:var(--s2); padding:var(--s2) var(--s3); background:var(--surface); position:relative; align-self:start; }
+.chen { width:var(--s8); height:80px; object-fit:contain; image-rendering:pixelated; align-self:flex-end; }
+.dialogue h2 { font-size:var(--title); margin:0 0 var(--step); color:var(--gold); }
+.dialogue p { margin:0; padding-right:var(--s2); }
+.dialogue-arrow { position:absolute; bottom:var(--s2); right:var(--s2); width:0; height:0; border-left:6px solid var(--clear); border-right:6px solid var(--clear); border-top:6px solid var(--gold); animation:arrow 1.5s ease-in-out infinite; }
+.mobile-nav { display:none; }
+.toast { position:fixed; bottom:var(--s4); left:50%; transform:translateX(-50%); padding:var(--s2) var(--s3); background:var(--surface); color:var(--ink); border:var(--px) solid var(--gold); z-index:20; max-width:calc(100% - var(--s4)); }
+.toast[hidden] { display:none; }
+@keyframes hit { 50% { transform:translateX(4px); } }
+@keyframes damage { to { transform:translateY(-24px); opacity:0; } }
+@keyframes float { 50% { transform:translate(8px,-16px); opacity:.2; } }
+@keyframes arrow { 50% { transform:translateY(4px); } }
+@keyframes far-drift { to { transform:translateX(4px); } }
+@keyframes near-drift { to { transform:translateX(-8px); } }
+@keyframes enter { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+.battle,.team,.dialogue { animation:enter 500ms ease-out both; }
+.team { animation-delay:80ms; } .dialogue { animation-delay:160ms; }
+@media (max-width:1100px) and (min-width:701px) { .app { grid-template-columns:80px minmax(0,1fr) 208px; padding:var(--s2); gap:var(--s2); } .brand span,.brand-note,.sidebar-foot,.nav button span { display:none; } .nav button { justify-content:center; padding:var(--s1); } .zone { padding:var(--s2); } .zone p { max-width:160px; } .enemy { right:0; } .enemy-info { left:var(--s2); width:240px; } }
+@media (max-width:700px) {
+  .app { display:flex; flex-direction:column; padding:0 0 var(--s7); gap:0; min-height:100svh; }
+  .sidebar { display:none; }
+  .status { height:var(--s6); flex:none; padding:0 var(--s2); border-bottom:var(--px) solid var(--edge); }
+  .status-left { gap:var(--s3); } .currency { font-size:var(--text); }
+  .status-right { gap:var(--s1); } .icon-button { width:44px; height:44px; background:var(--clear); box-shadow:none; }
+  .session { display:none; }
+  .battle { width:100%; animation:none; }
+  .zone { margin:var(--s1); padding:var(--s1) var(--s2); min-height:88px; gap:var(--s1); }
+  .zone h1 { font-size:var(--heading); } .zone p { font-size:var(--small); max-width:144px; margin-top:var(--step); }
+  .route-progress { font-size:var(--small); } .steps { gap:var(--step); } .steps svg { margin-left:0; }
+  .stage { aspect-ratio:auto; min-height:0; height:296px; }
+  .landscape { object-position:42% 35%; } .halo { width:320px; height:288px; right:-32px; }
+  .enemy-info { left:var(--s2); top:var(--s2); width:232px; padding:var(--s1) var(--s2); }
+  .enemy-title h2 { font-size:var(--title); } .enemy-title span { font-size:var(--text); }
+  .enemy { width:232px; height:216px; right:var(--s1); bottom:var(--s2); }
+  .enemy img { width:var(--mobile-sprite); height:var(--mobile-sprite); margin-bottom:var(--s1); }
+  .enemy .pedestal { height:var(--s6); } .ground { height:var(--s4); }
+  .stage-tip { bottom:var(--s2); left:var(--s2); max-width:112px; } .scene-label { font-size:var(--small); }
+  .action { width:calc(100% - var(--s4)); margin:var(--s2) var(--s2) var(--s3); height:88px; }
+  .action-detail { margin-left:var(--s1); padding-left:var(--s2); }
+  .team { width:100%; padding:0 var(--s2) var(--s2); background:var(--bg); animation:none; }
+  .team-heading { margin-bottom:var(--s1); } .team h2 { font-size:var(--title); } .team-count { display:none; }
+  .team-list { grid-template-columns:repeat(6,minmax(0,1fr)); gap:var(--step); }
+  .pokemon-card { display:flex; flex-direction:column; gap:0; padding:var(--step) 0; min-height:112px; border-width:var(--px); overflow:hidden; }
+  .portrait { width:var(--s7); height:var(--s7); }
+  .portrait img { width:96px; height:96px; max-width:none; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); }
+  .portrait .pedestal { width:var(--s7); height:var(--s2); bottom:0; }
+  .pokemon-name { display:none; } .pokemon-level { font-size:var(--small); text-align:center; }
+  .pokemon-dps { font-size:var(--small); text-align:center; } .dps-unit { display:none; }
+  .total { margin-top:var(--s1); padding-top:var(--s1); font-size:var(--text); border:0; justify-content:flex-end; gap:var(--s1); }
+  .total strong { font-size:var(--title); }
+  .dialogue { margin:0 var(--s2) var(--s2); padding:var(--s1) var(--s2); gap:var(--s1); animation:none; }
+  .chen { width:var(--s6); height:var(--s8); } .dialogue p { font-size:var(--text); line-height:1.25; } .dialogue h2 { margin:0; }
+  .mobile-nav { display:flex; position:fixed; bottom:0; left:0; right:0; height:var(--s7); z-index:10; background:var(--surface); border-top:var(--px) solid var(--edge); padding-bottom:env(safe-area-inset-bottom); }
+  .mobile-nav button { display:flex; flex:1; flex-direction:column; align-items:center; justify-content:center; gap:0; background:var(--clear); font-size:var(--small); border-top:var(--px) solid var(--clear); }
+  .mobile-nav button.active { color:var(--gold); border-top-color:var(--red); background:var(--surface-raised); } .mobile-nav button:hover { background:var(--surface-raised); }
+  .toast { bottom:80px; }
+}
+@media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation:none!important; transition:none!important; } .damage { display:none; } }
+</style>
+</head>
+<body>
+<svg class="svg-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
+<symbol id="ball" viewBox="0 0 24 24"><path d="M8 2h8v2h4v4h2v8h-2v4h-4v2H8v-2H4v-4H2V8h2V4h4zM2 12h7m6 0h7M9 9h6v6H9z"/></symbol>
+<symbol id="swords" viewBox="0 0 24 24"><path d="m3 3 5 1 12 14-3 3L4 8zM21 3l-5 1-5 6m-3 5-5 5m12-1 5-5M4 14l6 6"/></symbol>
+<symbol id="team-icon" viewBox="0 0 24 24"><path d="M4 3h6v6H4zM14 3h6v6h-6zM4 15h6v6H4zM14 15h6v6h-6z"/></symbol>
+<symbol id="bag" viewBox="0 0 24 24"><path d="M4 8h16v13H4zM8 8V3h8v5M4 13h16M10 12v3h4v-3"/></symbol>
+<symbol id="map" viewBox="0 0 24 24"><path d="m2 5 6-3 8 3 6-3v17l-6 3-8-3-6 3zM8 2v17M16 5v17"/></symbol>
+<symbol id="more" viewBox="0 0 24 24"><path d="M3 10h3v4H3zM10 10h3v4h-3zM17 10h3v4h-3z"/></symbol>
+<symbol id="coin" viewBox="0 0 24 24"><path d="M7 2h10v2h3v3h2v10h-2v3h-3v2H7v-2H4v-3H2V7h2V4h3zM10 6v12m0-11h5v5h-5m-3 3h8"/></symbol>
+<symbol id="candy" viewBox="0 0 24 24"><path d="m7 8 3-3h5l4 4v5l-3 3h-5l-4-4zM8 7 3 3 2 8l5 3m10 5 4 5 1-5-4-3M11 8l5 5"/></symbol>
+<symbol id="sun" viewBox="0 0 24 24"><path d="M9 7h6v2h2v6h-2v2H9v-2H7V9h2zM12 1v3m0 16v3M1 12h3m16 0h3M4 4l2 2m12 12 2 2M20 4l-2 2M6 18l-2 2"/></symbol>
+<symbol id="menu" viewBox="0 0 24 24"><path d="M3 5h18M3 12h18M3 19h18"/></symbol>
+<symbol id="warning" viewBox="0 0 24 24"><path d="M10 2h4l8 18H2zM12 8v5m0 3v2"/></symbol>
+</defs></svg>
+<div class="app">
+  <aside class="sidebar" aria-label="Navigation principale">
+    <div class="brand pixel"><svg><use href="#ball"/></svg><span>Pokiclicker</span></div>
+    <p class="brand-note">L'aventure, un clic à la fois.</p>
+    <nav class="nav">
+      <button class="active" aria-current="page"><svg><use href="#swords"/></svg><span>Combat</span></button>
+      <button data-notice="Ton équipe est prête au combat."><svg><use href="#team-icon"/></svg><span>Équipe</span></button>
+      <button data-notice="La boutique ouvrira après ton premier boss."><svg><use href="#bag"/></svg><span>Shop</span></button>
+      <button data-notice="Tu explores la Route 1, à Kanto."><svg><use href="#map"/></svg><span>Carte</span></button>
+      <button data-notice="Continue ton aventure sur la Route 1."><svg><use href="#more"/></svg><span>Plus</span></button>
+    </nav>
+    <div class="sidebar-foot">Région de Kanto<br>Ta prochaine étape : Jadielle.</div>
+  </aside>
+  <header class="status" aria-label="Tes ressources">
+    <div class="status-left"><span class="currency money"><svg aria-hidden="true"><use href="#coin"/></svg>12 450 ₽</span><span class="currency candy"><svg aria-hidden="true"><use href="#candy"/></svg><span aria-label="3 bonbons">3</span></span></div>
+    <div class="status-right"><span class="session">À toi de jouer, Dresseur.</span><button class="icon-button" id="theme" aria-label="Changer le thème" title="Changer le thème"><svg aria-hidden="true"><use href="#sun"/></svg></button><button class="icon-button" aria-label="Ouvrir le menu" data-notice="Route 1 · Étape 4 sur 10 · Équipe au complet"><svg aria-hidden="true"><use href="#menu"/></svg></button></div>
+  </header>
+  <main class="battle" aria-label="Combat de la Route 1">
+    <section class="zone frame" aria-labelledby="zone-name"><div><h1 id="zone-name" class="pixel">Route 1</h1><p>Le boss t'attend à l'étape 10</p></div><div class="route-progress"><span>Étape <strong>4</strong> / 10</span><div class="steps" aria-label="Étape 4 sur 10, boss à l'étape 10"><i class="step done"></i><i class="step done"></i><i class="step done"></i><i class="step current"></i><i class="step"></i><i class="step"></i><i class="step"></i><i class="step"></i><i class="step"></i><svg aria-hidden="true"><use href="#ball"/></svg></div></div></section>
+    <div class="stage" id="stage" role="button" tabindex="0" aria-label="Attaquer Rattata">
+      <img class="landscape" src="../specimens/assets/v1/zone-1.jpg" width="1280" height="720" alt="">
+      <div class="scene-wash"></div><div class="sky-dither"></div><div class="halo"></div><div class="ground"></div>
+      <div class="enemy-info frame"><div class="enemy-title"><h2 class="pixel">Rattata</h2><span>Niv. 4</span></div><div class="health-row"><span class="hp-label">PV</span><div class="health-track" role="progressbar" aria-label="PV de Rattata" aria-valuemin="0" aria-valuemax="480" aria-valuenow="312"><div class="health-ghost"></div><div class="health-fill"></div></div></div><div class="health-numbers"><svg aria-label="PV faibles"><use href="#warning"/></svg><span id="hp-text">312 / 480</span></div></div>
+      <div class="enemy" id="enemy"><div class="pedestal"></div><img src="../specimens/assets/pokemon/19.png" width="96" height="96" alt="Rattata sauvage"></div>
+      <i class="dust"></i><i class="dust d2"></i><i class="dust d3"></i>
+      <span class="stage-tip">Touche la scène pour attaquer</span><span class="scene-label">Kanto · Hautes herbes</span>
+    </div>
+    <button class="action frame" id="attack"><svg aria-hidden="true"><use href="#swords"/></svg><span class="pixel">Attaque</span><span class="action-detail">À chaque coup<br><strong>27 dégâts</strong></span></button>
+  </main>
+  <section class="team frame" aria-labelledby="team-title">
+    <div class="team-heading"><h2 class="pixel" id="team-title">Ton équipe</h2><span class="team-count">6 / 6</span></div>
+    <div class="team-list">
+      <div class="pokemon-card" aria-label="Bulbizarre, niveau 9, 245 DPS"><div class="portrait"><div class="pedestal"></div><img src="../specimens/assets/pokemon/1.png" width="96" height="96" alt="Bulbizarre"></div><div><div class="pokemon-name">Bulbizarre</div><div class="pokemon-level">Niv. 9</div><div class="pokemon-dps">245 <span class="dps-unit">DPS</span></div></div></div>
+      <div class="pokemon-card" aria-label="Pikachu, niveau 7, 190 DPS"><div class="portrait"><div class="pedestal"></div><img src="../specimens/assets/pokemon/25.png" width="96" height="96" alt="Pikachu"></div><div><div class="pokemon-name">Pikachu</div><div class="pokemon-level">Niv. 7</div><div class="pokemon-dps">190 <span class="dps-unit">DPS</span></div></div></div>
+      <div class="pokemon-card" aria-label="Roucool, niveau 6, 120 DPS"><div class="portrait"><div class="pedestal"></div><img src="../specimens/assets/pokemon/16.png" width="96" height="96" alt="Roucool"></div><div><div class="pokemon-name">Roucool</div><div class="pokemon-level">Niv. 6</div><div class="pokemon-dps">120 <span class="dps-unit">DPS</span></div></div></div>
+      <div class="pokemon-card" aria-label="Onix, niveau 5, 160 DPS"><div class="portrait"><div class="pedestal"></div><img src="../specimens/assets/pokemon/95.png" width="96" height="96" alt="Onix"></div><div><div class="pokemon-name">Onix</div><div class="pokemon-level">Niv. 5</div><div class="pokemon-dps">160 <span class="dps-unit">DPS</span></div></div></div>
+      <div class="pokemon-card" aria-label="Salamèche, niveau 4, 90 DPS"><div class="portrait"><div class="pedestal"></div><img src="../specimens/assets/pokemon/4.png" width="96" height="96" alt="Salamèche"></div><div><div class="pokemon-name">Salamèche</div><div class="pokemon-level">Niv. 4</div><div class="pokemon-dps">90 <span class="dps-unit">DPS</span></div></div></div>
+      <div class="pokemon-card" aria-label="Carapuce, niveau 4, 85 DPS"><div class="portrait"><div class="pedestal"></div><img src="../specimens/assets/pokemon/7.png" width="96" height="96" alt="Carapuce"></div><div><div class="pokemon-name">Carapuce</div><div class="pokemon-level">Niv. 4</div><div class="pokemon-dps">85 <span class="dps-unit">DPS</span></div></div></div>
+    </div><p class="total"><span>DPS équipe :</span><strong>890</strong></p>
+  </section>
+  <aside class="dialogue frame" aria-label="Conseil du Professeur Chen"><img class="chen" src="../specimens/assets/v1/SpriteChen1.png" width="64" height="80" alt="Professeur Chen"><div><h2 class="pixel">Prof. Chen</h2><p>Beau travail ! Encore 6 combats avant le boss de la Route 1.</p></div><span class="dialogue-arrow" aria-hidden="true"></span></aside>
+</div>
+<nav class="mobile-nav" aria-label="Navigation principale">
+  <button class="active" aria-current="page"><svg aria-hidden="true"><use href="#swords"/></svg>Combat</button>
+  <button data-notice="Ton équipe est prête au combat."><svg aria-hidden="true"><use href="#team-icon"/></svg>Équipe</button>
+  <button data-notice="La boutique ouvrira après ton premier boss."><svg aria-hidden="true"><use href="#bag"/></svg>Shop</button>
+  <button data-notice="Tu explores la Route 1, à Kanto."><svg aria-hidden="true"><use href="#map"/></svg>Carte</button>
+  <button data-notice="Continue ton aventure sur la Route 1."><svg aria-hidden="true"><use href="#more"/></svg>Plus</button>
+</nav>
+<div class="toast" id="toast" role="status" hidden></div>
+<script>
+const root = document.documentElement;
+try { const saved = localStorage.getItem('pokiclicker-theme'); if (saved === 'light' || saved === 'dark') root.dataset.theme = saved; } catch (_) {}
+document.getElementById('theme').addEventListener('click', () => { root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark'; try { localStorage.setItem('pokiclicker-theme', root.dataset.theme); } catch (_) {} });
+const stage = document.getElementById('stage'), enemy = document.getElementById('enemy'), fill = document.querySelector('.health-fill'), ghost = document.querySelector('.health-ghost'), health = document.querySelector('.health-track');
+let hp = 312, hitTimer, toastTimer;
+function attack() {
+  hp = hp <= 27 ? 480 : hp - 27;
+  fill.style.transform = ghost.style.transform = `scaleX(${hp / 480})`;
+  fill.dataset.level = hp <= 96 ? 'low' : hp <= 240 ? 'medium' : 'high';
+  document.querySelector('.health-numbers').classList.toggle('low', hp <= 96);
+  document.getElementById('hp-text').textContent = `${hp} / 480`; health.setAttribute('aria-valuenow', hp);
+  enemy.classList.remove('hit'); void enemy.offsetWidth; enemy.classList.add('hit'); clearTimeout(hitTimer); hitTimer = setTimeout(() => enemy.classList.remove('hit'), 100);
+  const damage = document.createElement('span'); damage.className = 'damage'; damage.textContent = '27'; damage.setAttribute('aria-hidden', 'true'); stage.append(damage); setTimeout(() => damage.remove(), 500);
+}
+document.getElementById('attack').addEventListener('click', attack); stage.addEventListener('click', attack);
+stage.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); attack(); } });
+document.querySelectorAll('[data-notice]').forEach(button => button.addEventListener('click', () => { const toast = document.getElementById('toast'); toast.textContent = button.dataset.notice; toast.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.hidden = true, 3000); }));
+</script>
+</body>
+</html>

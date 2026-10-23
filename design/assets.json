@@ -1,0 +1,29 @@
+{
+  "mascotte": [],
+  "personnages": [
+    { "fichier": "specimens/assets/v1/SpriteChen1.png", "role": "guide du jeu (Prof. Chen, personnage de la série, pas une mascotte inventée)", "humeur": "accueil", "usage": ["dialogue", "intro", "appel"], "obligatoire": false },
+    { "fichier": "specimens/assets/v1/SpriteChen2.png", "role": "guide", "humeur": "explication", "usage": ["dialogue"], "obligatoire": false },
+    { "fichier": "specimens/assets/v1/SpriteChen3.png", "role": "guide", "humeur": "sérieux", "usage": ["dialogue", "défi"], "obligatoire": false }
+  ],
+  "illustrations": [
+    { "fichier": "specimens/assets/maps/kanto-johto-1800.jpg", "role": "carte de région (exemple, 1800 x 963, filigrane retiré par recadrage)", "usage": ["atlas"] },
+    { "fichier": "specimens/assets/maps/hoenn-560.jpg", "role": "vignette de région", "usage": ["atlas"] },
+    { "fichier": "specimens/assets/maps/sinnoh-560.jpg", "role": "vignette de région", "usage": ["atlas"] },
+    { "fichier": "specimens/assets/maps/unys-560.jpg", "role": "vignette de région", "usage": ["atlas"] },
+    { "fichier": "specimens/assets/maps/kalos-paldea-560.jpg", "role": "vignette de région (Kalos et Paldea partagent l'image)", "usage": ["atlas"] },
+    { "fichier": "specimens/assets/maps/alola-560.jpg", "role": "vignette de région", "usage": ["atlas"] },
+    { "fichier": "specimens/assets/maps/galar-560.jpg", "role": "vignette de région", "usage": ["atlas"] }
+  ],
+  "sprites": { "dossier": "specimens/assets/pokemon/", "format": "PNG 96 x 96, face et dos (back-<id>.png)", "source": "PokeAPI (usage privé entre amis)", "ids": [1, 4, 7, 16, 19, 25, 95] },
+  "decors": [
+    { "fichier": "specimens/assets/v1/zone-1.jpg", "role": "décor provisoire de la Route 1 (V1, panneau « Route 1 - Jadielle » et filigrane dans l'image)", "usage": ["combat (maquettes)"] }
+  ],
+  "a-produire": [
+    { "besoin": "décors de zone 16:9 (1920 x 1080), vus de face ou trois quarts, sol pour poser le Pokémon, plans séparables, point focal enregistré, sans filigrane", "usage": "scène de combat, une par zone et par région", "remplacement": "décor V1 provisoire" },
+    { "besoin": "carte réelle de chaque région avec la géographie fidèle (référence : carte de ville officielle de chaque jeu) et zones cliquables en %", "usage": "atlas", "remplacement": "carte d'exemple KANTO-JOHTO" },
+    { "besoin": "cadres 9 tranches par région (Kanto, Johto, …)", "usage": "cadres pixel des composants", "remplacement": "cadres dessinés en CSS dans les maquettes" },
+    { "besoin": "logo et nom du jeu", "usage": "en-tête, écran de titre, icône de la PWA", "remplacement": "nom de travail en police de titre" },
+    { "besoin": "apparence des easter eggs Bjorn et Gabriel", "usage": "renommage de Pokémon", "remplacement": "aucune" },
+    { "besoin": "captures d'interface HeartGold / SoulSilver pour recaler le thème Johto", "usage": "thème Johto", "remplacement": "interprétation actuelle" }
+  ]
+}

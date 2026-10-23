@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1E2A33">
+  <title>Route 1 · L’atlas des Pokémon</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: dark;
+      --paper: #1E2A33; --surface: #2A3843; --raised: #344752; --ink: #F3E6C8;
+      --muted: #BCC7C7; --line: #657676; --action: #B5361F; --action-hover: #CF452B;
+      --white: #FFFFFF; --sea: #2B6C9E; --success: #3C8C3F; --danger: #8E1F3B;
+      --gold: #E4B96C; --shadow: #101B22; --land: #415C58; --land-edge: #6E8270;
+      --water: #243D4C; --road: #DDC79B; --night-veil: #172F4140; --warm-veil: #D5AB5920;
+      --scene-ink: #2B2118; --ribbon: #FBF4E2; --clear: #FFFFFF00;
+      --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.74' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Cpath fill='%23ffffff' filter='url(%23n)' opacity='.17' d='M0 0h180v180H0z'/%3E%3C/svg%3E");
+      --s1: 8px; --s2: 16px; --s3: 24px; --s4: 32px; --s5: 40px; --s6: 48px; --s8: 64px;
+      --tiny: 12px; --small: 14px; --body: 16px; --large: 20px; --title: 32px; --display: 48px;
+      --radius: 12px; --round: 50%; --stroke: 2px; --sticker-line: 3px; --offset: 4px;
+      --touch: 48px; --stamp: 104px; --sprite: 192px; --team-sprite: 192px; --scene-height: 336px;
+      --edge: polygon(1% 2%, 24% 0, 52% 1%, 78% 0, 99% 2%, 100% 34%, 99% 70%, 100% 98%, 72% 100%, 48% 99%, 21% 100%, 0 98%, 1% 60%, 0 27%);
+      --heading: 'Lilita One', 'Trebuchet MS', sans-serif; --text: 'Nunito', 'Segoe UI', sans-serif;
+    }
+    :root[data-theme="light"] {
+      color-scheme: light; --paper: #F3E6C8; --surface: #FBF4E2; --raised: #EBDDAD; --ink: #2B2118;
+      --muted: #6C6250; --line: #AA9877; --shadow: #65503B; --land: #B9C58A;
+      --land-edge: #788A60; --water: #BCD3D3; --road: #68543B; --night-veil: #172F4100;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font: 700 var(--body)/1.45 var(--text); font-variant-numeric: tabular-nums; }
+    body::after { content: ''; position: fixed; inset: 0; background: var(--grain); opacity: .24; pointer-events: none; z-index: 20; }
+    button { font: inherit; color: inherit; cursor: pointer; border: var(--stroke) solid var(--ink); background: var(--surface); min-width: var(--touch); min-height: var(--touch); border-radius: var(--radius); transition: transform .15s, background .15s; }
+    button:hover { background: var(--raised); transform: translateY(-2px); }
+    button:active { transform: translate(var(--offset), var(--offset)); box-shadow: none; }
+    button:disabled { opacity: .5; cursor: wait; }
+    button:focus-visible, [tabindex]:focus-visible { outline: var(--offset) solid var(--gold); outline-offset: var(--offset); }
+    svg { display: block; } .icon { width: var(--s3); height: var(--s3); fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    .masthead { max-width: 1440px; margin: auto; padding: var(--s3) var(--s5); display: flex; align-items: center; justify-content: space-between; gap: var(--s3); }
+    .brand { font: var(--large) var(--heading); display: flex; align-items: center; gap: var(--s2); }
+    .brand-mark { width: var(--s5); height: var(--s5); color: var(--gold); }
+    .brand small { display: block; font: 700 var(--tiny) var(--text); color: var(--muted); margin-top: var(--s1); }
+    .resources { display: flex; align-items: center; gap: var(--s2); }
+    .resource { display: flex; align-items: center; gap: var(--s1); padding: var(--s1) var(--s2); background: var(--surface); border-radius: var(--radius); min-height: var(--touch); }
+    .resource svg { color: var(--gold); } .resource.candy svg { color: var(--danger); fill: var(--gold); }
+    .icon-button { display: grid; place-items: center; border-color: var(--line); }
+    main { max-width: 1360px; margin: 0 auto; padding: 0 var(--s3) var(--s3); }
+    .atlas { position: relative; display: grid; grid-template-columns: minmax(320px, .85fr) minmax(0, 1.3fr); border: var(--stroke) solid var(--line); border-radius: var(--radius); background: var(--surface); box-shadow: var(--s1) var(--s1) 0 var(--shadow); overflow: hidden; animation: open-atlas .6s ease-out both; }
+    .map-page { position: relative; padding: var(--s4); border-right: var(--stroke) solid var(--line); background: var(--paper); display: flex; flex-direction: column; }
+    .eyebrow { color: var(--gold); font-size: var(--small); margin: 0 0 var(--s1); }
+    h1 { font: var(--display)/1 var(--heading); margin: 0; } h2 { font: var(--large) var(--heading); margin: 0; }
+    .zone-heading { display: flex; justify-content: space-between; align-items: center; gap: var(--s2); }
+    .chapter { border: var(--stroke) solid var(--line); border-radius: var(--round); width: var(--s6); height: var(--s6); display: grid; place-items: center; font: var(--large) var(--heading); transform: rotate(8deg); color: var(--gold); }
+    .map-caption { color: var(--muted); margin: var(--s2) 0 0; font-size: var(--body); }
+    .map { width: 100%; height: 400px; margin: var(--s2) 0; overflow: visible; }
+    .map .water { fill: var(--water); } .map .land { fill: var(--land); stroke: var(--land-edge); stroke-width: 2; }
+    .map .contour { fill: none; stroke: var(--land-edge); opacity: .55; }
+    .map .trees { stroke: var(--land-edge); fill: var(--paper); stroke-width: 2; }
+    .route-line { fill: none; stroke: var(--road); stroke-width: 3; stroke-dasharray: 3 9; stroke-linecap: round; }
+    .route-progress { fill: none; stroke: var(--gold); stroke-width: 5; stroke-linecap: round; stroke-dasharray: 260 1000; }
+    .map .stop { fill: var(--paper); stroke: var(--road); stroke-width: 2; }
+    .map text { fill: var(--ink); font: 800 var(--small) var(--text); text-anchor: middle; }
+    .map .place { fill: var(--muted); font-style: italic; font-size: var(--tiny); }
+    .wax { fill: var(--action); stroke: var(--action-hover); stroke-width: 3; } .wax-icon { fill: none; stroke: var(--ribbon); stroke-width: 2; }
+    .pin { fill: var(--gold); stroke: var(--scene-ink); stroke-width: 2; }
+    .progress-copy { display: flex; justify-content: space-between; align-items: center; border-top: var(--stroke) dashed var(--line); padding-top: var(--s2); }
+    .progress-copy strong { font: var(--large) var(--heading); } .progress-copy span { font-size: var(--small); color: var(--muted); }
+    .chen-note { margin-top: auto; padding: var(--s3) 0 0; display: flex; align-items: center; gap: var(--s1); transform: rotate(-2deg); }
+    .chen-note img { width: 72px; height: 96px; object-fit: contain; image-rendering: pixelated; filter: drop-shadow(3px 2px 0 var(--shadow)); }
+    .note { position: relative; padding: var(--s2); background: var(--ribbon); color: var(--scene-ink); clip-path: var(--edge); font-style: italic; font-weight: 700; }
+    .note::before { content: ''; display: block; width: var(--s1); height: var(--s1); background: var(--action); border-radius: var(--round); margin: 0 auto var(--s1); }
+    .note p { margin: 0; } .note small { display: block; font-size: var(--small); margin-top: var(--s1); }
+    .battle-page { min-width: 0; padding: var(--s3); }
+    .battle-heading { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--s2); }
+    .live { font-size: var(--small); color: var(--muted); display: flex; align-items: center; gap: var(--s1); }
+    .live::before { content: ''; width: var(--s1); height: var(--s1); border-radius: var(--round); background: var(--success); }
+    .mobile-route { display: none; }
+    .scene { position: relative; height: var(--scene-height); overflow: hidden; border-radius: var(--radius); border: var(--stroke) solid var(--shadow); isolation: isolate; cursor: pointer; background: var(--land); }
+    .landscape { position: absolute; inset: -5%; width: 110%; height: 110%; object-fit: cover; object-position: 45% 42%; filter: saturate(.7); animation: landscape-drift 18s ease-in-out infinite alternate; z-index: -4; }
+    .scene::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at center, var(--clear) 25%, var(--shadow) 140%), linear-gradient(var(--night-veil), var(--warm-veil)); pointer-events: none; z-index: -2; }
+    .cloud { position: absolute; width: 50%; height: var(--s8); top: var(--s3); left: -20%; border-radius: var(--round); background: var(--ribbon); opacity: .1; filter: none; animation: cloud-drift 35s linear infinite; z-index: -3; }
+    .cloud.second { top: 35%; animation-delay: -18s; width: 35%; }
+    .enemy { position: absolute; width: var(--sprite); height: var(--sprite); left: calc(50% - var(--sprite) / 2); top: var(--s3); transform: rotate(-2deg); }
+    .enemy::after { content: ''; position: absolute; left: 24%; right: 20%; bottom: 12%; height: var(--s2); background: var(--shadow); opacity: .45; border-radius: var(--round); z-index: -1; }
+    .pokemon { display: block; width: var(--sprite); height: var(--sprite); image-rendering: pixelated; object-fit: contain; filter: drop-shadow(3px 0 0 var(--white)) drop-shadow(-3px 0 0 var(--white)) drop-shadow(0 3px 0 var(--white)) drop-shadow(0 -3px 0 var(--white)) drop-shadow(4px 5px 0 var(--shadow)); }
+    .enemy.hit { animation: recoil .22s ease-out; } .enemy.peel { animation: peel .65s ease-in both; }
+    .enemy-ribbon { position: absolute; bottom: var(--s2); left: var(--s2); right: 144px; padding: var(--s2); background: var(--ribbon); color: var(--scene-ink); clip-path: var(--edge); }
+    .enemy-title { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s1); }
+    .enemy-title strong { font: var(--large) var(--heading); } .enemy-title span { font-size: var(--body); }
+    .hp-track { height: var(--s2); margin-top: var(--s1); background: var(--scene-ink); clip-path: polygon(0 15%, 97% 0, 100% 65%, 98% 95%, 1% 100%, 2% 65%); overflow: hidden; }
+    .hp-fill { height: 100%; background: var(--success); transform: scaleX(.65); transform-origin: left; transition: transform .2s; }
+    .hp-copy { display: flex; justify-content: space-between; margin-top: var(--s1); font-size: var(--small); }
+    .attack { position: absolute; right: var(--s2); bottom: var(--s2); width: var(--stamp); height: var(--stamp); border-radius: 47% 52% 48% 46%; background: var(--action); color: var(--white); border: var(--offset) double var(--ribbon); box-shadow: var(--offset) var(--offset) 0 var(--shadow); transform: rotate(-7deg); font: var(--large) var(--heading); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--s1); }
+    .attack:hover { background: var(--action-hover); transform: rotate(-3deg) scale(1.03); } .attack:active { transform: rotate(-7deg) translateY(4px); }
+    .scene-hint { position: absolute; left: var(--s2); top: var(--s2); color: var(--ribbon); background: var(--night-veil); font-size: var(--small); padding: var(--s1); border-radius: var(--radius); }
+    .damage { position: absolute; left: 50%; top: 28%; color: var(--white); font: var(--title) var(--heading); text-shadow: 2px 2px 0 var(--scene-ink); pointer-events: none; animation: damage-rise .65s ease-out forwards; }
+    .paf { position: absolute; left: 29%; top: 22%; border: var(--offset) solid var(--action); color: var(--action); background: var(--ribbon); padding: var(--s1) var(--s2); font: var(--title) var(--heading); pointer-events: none; animation: paf .4s ease-out forwards; }
+    .team-heading { margin: var(--s3) 0 var(--s2); display: flex; justify-content: space-between; align-items: baseline; gap: var(--s1); }
+    .team-heading p { margin: 0; font-size: var(--small); color: var(--muted); } .team-heading b { color: var(--gold); font-size: var(--body); }
+    .team { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s1); }
+    .teammate { min-width: 0; display: flex; align-items: center; position: relative; border: var(--stroke) solid var(--line); border-radius: var(--radius); padding: var(--s1); background: var(--paper); overflow: hidden; min-height: 104px; }
+    .team-picture { width: var(--s8); height: 80px; flex-shrink: 0; overflow: visible; position: relative; }
+    .team-picture img { width: var(--team-sprite); height: var(--team-sprite); image-rendering: pixelated; position: absolute; left: calc((var(--s8) - var(--team-sprite)) / 2); top: calc((80px - var(--team-sprite)) / 2); clip-path: inset(28% 30% 28% 30%); transform: rotate(-2deg); filter: drop-shadow(2px 0 0 var(--white)) drop-shadow(-2px 0 0 var(--white)) drop-shadow(0 2px 0 var(--white)); }
+    .teammate:nth-child(even) img { transform: rotate(2deg); }
+    .team-info { z-index: 1; min-width: 0; } .team-info strong { display: block; font: var(--body) var(--heading); } .team-info span { display: block; font-size: var(--small); color: var(--muted); } .team-info b { display: block; font-size: var(--small); color: var(--gold); }
+    .page-footer { display: flex; justify-content: space-between; color: var(--muted); font-size: var(--tiny); padding-top: var(--s2); }
+    .tabs { max-width: 800px; margin: var(--s3) auto 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--s1); }
+    .tab { min-height: var(--s8); border-radius: var(--radius) var(--radius) 0 0; display: flex; justify-content: center; align-items: center; gap: var(--s1); border-color: var(--line); font-family: var(--heading); }
+    .tab[aria-current="page"] { background: var(--gold); color: var(--scene-ink); border-color: var(--gold); transform: rotate(-2deg); box-shadow: var(--offset) var(--offset) 0 var(--shadow); }
+    .tab:disabled { opacity: .6; cursor: default; }
+    .bottom-note { text-align: center; color: var(--muted); font-size: var(--tiny); margin: var(--s2) 0 0; }
+    @keyframes open-atlas { from { opacity: 0; transform: translateY(16px) rotate(.5deg); } to { opacity: 1; transform: none; } }
+    @keyframes landscape-drift { to { transform: translate(-1%, 1%) scale(1.03); } }
+    @keyframes cloud-drift { to { transform: translateX(320%); } }
+    @keyframes recoil { 50% { transform: translate(12px, -8px) rotate(5deg); } }
+    @keyframes damage-rise { to { transform: translate(16px, -64px) rotate(8deg); opacity: 0; } }
+    @keyframes paf { from { transform: rotate(-6deg) scale(1.3); } to { transform: rotate(-6deg) scale(1); opacity: 0; } }
+    @keyframes peel { to { transform: rotate(24deg) translateY(-96px); opacity: 0; } }
+    @media (min-width: 1200px) { :root { --sprite: 288px; } .enemy { top: -40px; } }
+    @media (max-width: 1100px) and (min-width: 701px) { .team { grid-template-columns: repeat(2, minmax(0, 1fr)); } .map-page { padding: var(--s3); } }
+    @media (max-width: 700px) {
+      :root { --title: 24px; --display: 32px; --scene-height: 280px; --stamp: 96px; }
+      .masthead { padding: var(--s1) var(--s2); gap: var(--s1); background: var(--surface); border-bottom: var(--stroke) solid var(--line); }
+      .brand { display: none; } .resources { width: 100%; gap: var(--s1); } .resource { padding: var(--s1); } .resource:first-child { margin-right: auto; }
+      main { padding: var(--s2) var(--s1) 0; } .atlas { display: block; border: 0; box-shadow: none; overflow: visible; background: var(--paper); }
+      .map-page { padding: 0 var(--s1); border: 0; } .eyebrow { display: none; } .chapter { display: none; } .map-caption { margin-top: var(--s1); font-size: var(--body); }
+      .map, .progress-copy, .chen-note { display: none; } .zone-heading::after { content: 'Étape 4 / 10'; color: var(--gold); font: var(--body) var(--heading); }
+      .battle-page { padding: var(--s2) 0 0; } .battle-heading { display: none; }
+      .mobile-route { display: flex; list-style: none; padding: 0 var(--s1); margin: 0 0 var(--s2); justify-content: space-between; align-items: center; position: relative; }
+      .mobile-route::before { content: ''; position: absolute; left: var(--s2); right: var(--s2); top: 50%; border-top: var(--stroke) dashed var(--line); }
+      .mobile-route::after { content: ''; position: absolute; left: var(--s2); width: 30%; top: 50%; height: var(--offset); background: var(--gold); }
+      .mobile-route li { position: relative; z-index: 1; width: var(--s3); height: var(--s4); display: grid; place-items: center; background: var(--paper); font-size: var(--small); color: var(--muted); }
+      .mobile-route .done { color: var(--gold); } .mobile-route .here { color: var(--scene-ink); background: var(--gold); clip-path: polygon(0 0,100% 0,100% 75%,50% 100%,0 75%); font-weight: 900; }
+      .mobile-route .boss { background: var(--action); border-radius: var(--round); color: var(--white); transform: rotate(8deg); width: var(--s4); }
+      .enemy { top: 0; left: calc(44% - var(--sprite) / 2); } .scene-hint { font-size: var(--tiny); padding: 0; top: var(--s1); }
+      .enemy-ribbon { left: var(--s1); right: 120px; bottom: var(--s2); padding: var(--s2) var(--s1); }
+      .enemy-title strong { font-size: var(--large); } .enemy-title span { font-size: var(--small); } .attack { right: var(--s2); bottom: var(--s3); }
+      .team-heading { padding: 0 var(--s1); margin-top: var(--s2); } .team-heading p { font-size: var(--small); }
+      .team { display: flex; overflow-x: auto; gap: var(--s1); padding: 0 var(--s1) var(--s1); scroll-snap-type: x proximity; }
+      .teammate { flex: 0 0 168px; min-height: 104px; scroll-snap-align: start; } .team-info span, .team-info b { font-size: var(--body); }
+      .page-footer { display: none; } .tabs { position: sticky; bottom: 0; margin: var(--s2) calc(-1 * var(--s1)) 0; padding: var(--s1) var(--s1) env(safe-area-inset-bottom); background: var(--paper); gap: var(--offset); z-index: 5; border-top: var(--stroke) solid var(--line); }
+      .tab { flex-direction: column; gap: var(--offset); font-size: var(--small); min-width: 0; padding: var(--s1) 0; } .bottom-note { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } .damage, .paf { display: none; } }
+  </style>
+</head>
+<body>
+  <svg width="0" height="0" aria-hidden="true" style="position:absolute"><defs>
+    <symbol id="i-combat" viewBox="0 0 24 24"><path d="m4 3 4 1 10 12-3 3L4 7Zm12 0 4 1-1 4-5 5M3 21l5-5m8 0 5 5M2 16l6 6m8-1 5-5"/></symbol>
+    <symbol id="i-team" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M3 12h6m6 0h6"/></symbol>
+    <symbol id="i-shop" viewBox="0 0 24 24"><path d="M4 10v11h16V10M3 10l2-7h14l2 7M3 10q3 4 6 0 3 4 6 0 3 4 6 0M9 21v-7h6v7"/></symbol>
+    <symbol id="i-map" viewBox="0 0 24 24"><path d="m3 5 6-2 6 2 6-2v16l-6 2-6-2-6 2Zm6-2v16m6-14v16"/></symbol>
+    <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></symbol>
+    <symbol id="i-coin" viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="8" ry="10"/><path d="M10 7h4a3 3 0 0 1 0 6h-4m1-7v12m-3-3h7"/></symbol>
+    <symbol id="i-candy" viewBox="0 0 24 24"><path d="m8 7-5-4v7l4 1m10 2 4 1v7l-5-4"/><rect x="7" y="6" width="10" height="12" rx="5" transform="rotate(35 12 12)"/></symbol>
+    <symbol id="i-theme" viewBox="0 0 24 24"><path d="M20 14A9 9 0 0 1 10 3a9 9 0 1 0 10 11Z"/><path d="M17 3v4m-2-2h4"/></symbol>
+  </defs></svg>
+  <header class="masthead">
+    <div class="brand"><svg class="icon brand-mark"><use href="#i-map"/></svg><div>L’atlas des Pokémon<small>Les petits voyages font les grandes équipes.</small></div></div>
+    <div class="resources">
+      <div class="resource"><svg class="icon" aria-hidden="true"><use href="#i-coin"/></svg><span>12 450 ₽</span></div>
+      <div class="resource candy" aria-label="3 bonbons"><svg class="icon" aria-hidden="true"><use href="#i-candy"/></svg><span>3</span></div>
+      <button class="icon-button" id="theme" aria-label="Passer à la carte de jour" title="Changer la lumière"><svg class="icon" aria-hidden="true"><use href="#i-theme"/></svg></button>
+      <button class="icon-button" aria-label="Ouvrir le menu" id="menu"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h14M5 12h14M5 18h14"/></svg></button>
+    </div>
+  </header>
+  <main>
+    <div class="atlas">
+      <aside class="map-page" aria-label="Carte de la Route 1">
+        <p class="eyebrow">Carnet de Kanto · Première escale</p>
+        <div class="zone-heading"><h1>Route 1</h1><span class="chapter" aria-hidden="true">01</span></div>
+        <p class="map-caption">Le boss t’attend à l’étape 10</p>
+        <svg class="map" viewBox="0 0 400 400" role="img" aria-label="Route en pointillé : tu es à l’étape 4 sur 10, entre Bourg Palette et Jadielle.">
+          <path class="water" d="M4 24Q90 6 171 23T391 16L395 369Q240 395 13 374Z"/>
+          <path class="land" d="M42 362 23 304 49 268 30 211 65 175 46 119 80 93 109 35 196 19 258 38 333 24 365 74 343 128 370 176 338 223 363 280 326 332 290 366 208 354 160 381 98 353Z"/>
+          <path class="contour" d="m57 327 19-59-17-54 33-40-12-54 50-59 65-19 66 25 51-17 28 32-20 63 30 44-37 43 22 49-43 48-81-3-51 29Z"/>
+          <path class="contour" d="m90 291 20-63-7-37 21-56 26-44 62-16 56 24 35 59-29 65 20 39-49 37-72-6Z"/>
+          <path fill="none" stroke="var(--water)" stroke-width="15" d="M358 128q-61 13-53 69t-50 58q-40-10-35 41t-62 71"/>
+          <g class="trees"><path d="m64 195 12-26 12 26h-8v9h-8v-9Zm21 16 12-26 12 26h-8v9h-8v-9Zm-25 19 10-23 10 23h-7v8h-6v-8ZM266 77l12-26 12 26h-8v9h-8v-9Zm22 16 12-26 12 26h-8v9h-8v-9ZM291 309l12-26 12 26h-8v9h-8v-9Z"/></g>
+          <path id="map-route" class="route-line" d="M104 329C66 296 106 267 142 267S207 231 164 208 113 161 160 151 247 171 246 120 280 81 301 65"/>
+          <path id="map-progress" class="route-progress" d="M104 329C66 296 106 267 142 267S207 231 164 208 113 161 160 151 247 171 246 120 280 81 301 65"/>
+          <g><circle class="stop" cx="104" cy="329" r="13"/><text x="104" y="334">1</text><circle class="stop" cx="91" cy="290" r="13"/><text x="91" y="295">2</text><circle class="stop" cx="142" cy="267" r="13"/><text x="142" y="272">3</text><circle class="stop" cx="164" cy="208" r="13"/><text x="164" y="213">5</text><circle class="stop" cx="132" cy="171" r="13"/><text x="132" y="176">6</text><circle class="stop" cx="186" cy="151" r="13"/><text x="186" y="156">7</text><circle class="stop" cx="241" cy="145" r="13"/><text x="241" y="150">8</text><circle class="stop" cx="252" cy="94" r="13"/><text x="252" y="99">9</text></g>
+          <g transform="translate(187 242)"><path class="pin" d="M0 0C-31-28-19-49 0-49S31-28 0 0Z"/><circle cx="0" cy="-29" r="8" fill="var(--scene-ink)"/><text x="0" y="22">Tu es ici</text></g>
+          <g transform="translate(302 58)"><path class="wax" d="m0-26 9 5 12 1 2 12 5 9-7 10-3 11-13 1-10 4-9-8-11-4 1-12-4-11 9-7 6-10Z"/><circle r="17" fill="none" stroke="var(--gold)"/><path class="wax-icon" d="m-10-5 5 5 5-9 5 9 5-5-2 14H-8Z"/></g>
+          <text class="place" x="104" y="364">Bourg Palette</text><text class="place" x="306" y="24">Vers Jadielle</text><text class="place" x="300" y="206" transform="rotate(-20 300 206)">Rivière des songes</text>
+          <g transform="translate(43 57)" stroke="var(--road)" fill="none"><path d="M0-21v42m-15-21h30M0-21l5 21-5-5-5 5Z"/><text x="0" y="-27">N</text></g>
+        </svg>
+        <div class="progress-copy"><strong>Étape 4 <span>/ 10</span></strong><span>Encore 6 combats</span></div>
+        <div class="chen-note"><img src="../specimens/assets/v1/SpriteChen1.png" width="72" height="96" alt="Professeur Chen"><div class="note"><p>Beau travail ! Encore 6 combats avant le boss de la Route 1.</p><small>— Prof. Chen</small></div></div>
+      </aside>
+      <section class="battle-page" aria-label="Combat et équipe">
+        <div class="battle-heading"><h2>Une rencontre dans les hautes herbes…</h2><span class="live">Combat sauvage</span></div>
+        <ol class="mobile-route" aria-label="Étape 4 sur 10"><li class="done">1</li><li class="done">2</li><li class="done">3</li><li class="here" aria-current="step">4</li><li>5</li><li>6</li><li>7</li><li>8</li><li>9</li><li class="boss" aria-label="Étape 10, boss"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 7 4 4 5-7 5 7 4-4-2 13H5Z"/></svg></li></ol>
+        <div class="scene" id="scene" role="button" tabindex="0" aria-label="Attaquer Rattata en touchant la scène">
+          <img class="landscape" src="../specimens/assets/v1/zone-1.jpg" width="960" height="540" alt="">
+          <div class="cloud"></div><div class="cloud second"></div>
+          <span class="scene-hint">Touche la scène pour attaquer</span>
+          <div class="enemy" id="enemy"><img class="pokemon" src="../specimens/assets/pokemon/19.png" width="96" height="96" alt="Rattata sauvage"></div>
+          <div class="enemy-ribbon"><div class="enemy-title"><strong>Rattata</strong><span>Niv. 4</span></div><div class="hp-track" role="progressbar" aria-label="Points de vie de Rattata" aria-valuemin="0" aria-valuemax="480" aria-valuenow="312" id="hp"><div class="hp-fill" id="hp-fill"></div></div><div class="hp-copy"><span>PV</span><strong id="hp-copy">312 / 480</strong></div></div>
+          <button class="attack" id="attack" aria-label="Attaque : infliger 27 dégâts"><svg class="icon" aria-hidden="true"><use href="#i-combat"/></svg>Attaque</button>
+        </div>
+        <div class="team-heading"><h2>Tes compagnons</h2><p>DPS équipe : <b>890</b></p></div>
+        <div class="team" aria-label="Ton équipe de six Pokémon">
+          <article class="teammate"><div class="team-picture"><img src="../specimens/assets/pokemon/1.png" width="96" height="96" alt="Bulbizarre"></div><div class="team-info"><strong>Bulbizarre</strong><span>Niv. 9</span><b>245 DPS</b></div></article>
+          <article class="teammate"><div class="team-picture"><img src="../specimens/assets/pokemon/25.png" width="96" height="96" alt="Pikachu"></div><div class="team-info"><strong>Pikachu</strong><span>Niv. 7</span><b>190 DPS</b></div></article>
+          <article class="teammate"><div class="team-picture"><img src="../specimens/assets/pokemon/16.png" width="96" height="96" alt="Roucool"></div><div class="team-info"><strong>Roucool</strong><span>Niv. 6</span><b>120 DPS</b></div></article>
+          <article class="teammate"><div class="team-picture"><img src="../specimens/assets/pokemon/95.png" width="96" height="96" alt="Onix"></div><div class="team-info"><strong>Onix</strong><span>Niv. 5</span><b>160 DPS</b></div></article>
+          <article class="teammate"><div class="team-picture"><img src="../specimens/assets/pokemon/4.png" width="96" height="96" alt="Salamèche"></div><div class="team-info"><strong>Salamèche</strong><span>Niv. 4</span><b>90 DPS</b></div></article>
+          <article class="teammate"><div class="team-picture"><img src="../specimens/assets/pokemon/7.png" width="96" height="96" alt="Carapuce"></div><div class="team-info"><strong>Carapuce</strong><span>Niv. 4</span><b>85 DPS</b></div></article>
+        </div>
+        <div class="page-footer"><span>Chaque rencontre écrit la suite du voyage.</span><span>Kanto · p. 01</span></div>
+      </section>
+    </div>
+    <nav class="tabs" aria-label="Navigation principale">
+      <button class="tab" aria-current="page"><svg class="icon" aria-hidden="true"><use href="#i-combat"/></svg>Combat</button>
+      <button class="tab" disabled title="Disponible dans le jeu complet"><svg class="icon" aria-hidden="true"><use href="#i-team"/></svg>Équipe</button>
+      <button class="tab" disabled title="Disponible dans le jeu complet"><svg class="icon" aria-hidden="true"><use href="#i-shop"/></svg>Shop</button>
+      <button class="tab" disabled title="Disponible dans le jeu complet"><svg class="icon" aria-hidden="true"><use href="#i-map"/></svg>Carte</button>
+      <button class="tab" disabled title="Disponible dans le jeu complet"><svg class="icon" aria-hidden="true"><use href="#i-more"/></svg>Plus</button>
+    </nav>
+    <p class="bottom-note">Un coin de papier, six compagnons, toute une aventure.</p>
+  </main>
+  <script>
+    const root = document.documentElement, theme = document.getElementById('theme');
+    try { const saved = localStorage.getItem('pokiclicker-theme'); if (saved === 'light' || saved === 'dark') root.dataset.theme = saved; } catch (_) {}
+    function themeLabel() { theme.setAttribute('aria-label', root.dataset.theme === 'dark' ? 'Passer à la carte de jour' : 'Passer à la carte de nuit'); }
+    themeLabel();
+    theme.onclick = () => { root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark'; themeLabel(); try { localStorage.setItem('pokiclicker-theme', root.dataset.theme); } catch (_) {} };
+    const scene = document.getElementById('scene'), enemy = document.getElementById('enemy'), attack = document.getElementById('attack'), fill = document.getElementById('hp-fill'), hp = document.getElementById('hp');
+    let health = 312, busy = false;
+    function paint() { fill.style.transform = `scaleX(${health / 480})`; hp.setAttribute('aria-valuenow', health); document.getElementById('hp-copy').textContent = `${health} / 480`; }
+    function hit() {
+      if (busy) return;
+      health = Math.max(0, health - 27); paint();
+      enemy.classList.remove('hit'); void enemy.offsetWidth; enemy.classList.add('hit');
+      for (const [className, text] of [['damage', '27'], ['paf', 'Paf !']]) { const mark = document.createElement('span'); mark.className = className; mark.textContent = text; mark.setAttribute('aria-hidden', 'true'); scene.append(mark); setTimeout(() => mark.remove(), 700); }
+      if (!health) { busy = true; attack.disabled = true; enemy.classList.remove('hit'); enemy.classList.add('peel'); setTimeout(() => { health = 480; paint(); enemy.classList.remove('peel'); busy = false; attack.disabled = false; }, 700); }
+    }
+    scene.addEventListener('click', hit);
+    scene.addEventListener('keydown', event => { if (event.target === scene && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); hit(); } });
+    document.getElementById('menu').onclick = () => { document.querySelector('.tabs').scrollIntoView({ block: 'nearest' }); };
+  </script>
+</body>
+</html>

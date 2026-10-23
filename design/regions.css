@@ -1,0 +1,206 @@
+/* GÉNÉRÉ par scripts/regions-build.cjs depuis regions.json : ne pas éditer à la main.
+   Usage : <html data-region="johto" data-theme="dark">. Kanto = tokens.css (aucun attribut). */
+
+/* kanto : Rouge Feu / Vert Feuille : thème de base (tokens.css) ; seuls les rôles de région sont ici */
+:root, [data-region="kanto"] {
+  --region-accent: #8a6a12;
+  --region-argent: #595e67;
+  --region-socle: #7fb35f;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]), [data-region="kanto"]:not([data-theme="light"]) {
+    --region-accent: #f5c033;
+    --region-argent: #f4efe4;
+    --region-socle: #9bd37a;
+  }
+}
+:root[data-theme="dark"], [data-region="kanto"][data-theme="dark"] {
+  --region-accent: #f5c033;
+  --region-argent: #f4efe4;
+  --region-socle: #9bd37a;
+}
+
+/* johto : HeartGold / SoulSilver (interprétation, à valider avec des captures du jeu) */
+[data-region="johto"] {
+  --fond: #f1e8d0;
+  --surface: #fbf6e8;
+  --surface-2: #e6dcc0;
+  --bordure: #b9a77a;
+  --texte: #1a1610;
+  --texte-doux: #5a4d36;
+  --texte-inverse: #ffffff;
+  --action: #8e2f24;
+  --action-survol: #74261d;
+  --action-texte: #ffffff;
+  --lien: #74261d;
+  --focus: #1e6fa8;
+  --selection: #f1dfa6;
+  --blanc: #ffffff;
+  --region-accent: #8a6a12;
+  --region-argent: #6c7783;
+  --region-socle: #d9b857;
+}
+@media (prefers-color-scheme: dark) {
+  [data-region="johto"]:not([data-theme="light"]) {
+    --fond: #1a1610;
+    --surface: #2a2118;
+    --surface-2: #382d20;
+    --bordure: #7a6a45;
+    --texte: #f4ead2;
+    --texte-doux: #cfc3a4;
+    --texte-inverse: #ffffff;
+    --action: #8e2f24;
+    --action-survol: #74261d;
+    --action-texte: #ffffff;
+    --lien: #e3bd55;
+    --focus: #e3bd55;
+    --selection: #3d3319;
+    --blanc: #ffffff;
+    --region-accent: #c9a13b;
+    --region-argent: #b9c3cf;
+    --region-socle: #e8cf8a;
+  }
+}
+[data-region="johto"][data-theme="dark"] {
+  --fond: #1a1610;
+  --surface: #2a2118;
+  --surface-2: #382d20;
+  --bordure: #7a6a45;
+  --texte: #f4ead2;
+  --texte-doux: #cfc3a4;
+  --texte-inverse: #ffffff;
+  --action: #8e2f24;
+  --action-survol: #74261d;
+  --action-texte: #ffffff;
+  --lien: #e3bd55;
+  --focus: #e3bd55;
+  --selection: #3d3319;
+  --blanc: #ffffff;
+  --region-accent: #c9a13b;
+  --region-argent: #b9c3cf;
+  --region-socle: #e8cf8a;
+}
+
+/* hoenn : à décider avec Nicolas (provisoire, esquisse de la direction C) */
+[data-region="hoenn"] {
+  --fond: #e4eef0;
+  --surface: #f6fafb;
+  --surface-2: #d3e2e6;
+  --bordure: #8aa7b0;
+  --texte: #0c1d2a;
+  --texte-doux: #3f5866;
+  --texte-inverse: #ffffff;
+  --action: #1e6fa8;
+  --action-survol: #175a89;
+  --action-texte: #ffffff;
+  --lien: #175a89;
+  --focus: #c2501f;
+  --selection: #f2dca6;
+  --blanc: #ffffff;
+  --region-accent: #b3541f;
+  --region-argent: #6a7f8a;
+  --region-socle: #e9c98a;
+}
+@media (prefers-color-scheme: dark) {
+  [data-region="hoenn"]:not([data-theme="light"]) {
+    --fond: #0c1d2a;
+    --surface: #16303f;
+    --surface-2: #1f4154;
+    --bordure: #4d7488;
+    --texte: #e4eef0;
+    --texte-doux: #a9c2cc;
+    --texte-inverse: #ffffff;
+    --action: #1e6fa8;
+    --action-survol: #175a89;
+    --action-texte: #ffffff;
+    --lien: #e9c98a;
+    --focus: #e9c98a;
+    --selection: #2a3d2f;
+    --blanc: #ffffff;
+    --region-accent: #e9c98a;
+    --region-argent: #a9c2cc;
+    --region-socle: #e9c98a;
+  }
+}
+[data-region="hoenn"][data-theme="dark"] {
+  --fond: #0c1d2a;
+  --surface: #16303f;
+  --surface-2: #1f4154;
+  --bordure: #4d7488;
+  --texte: #e4eef0;
+  --texte-doux: #a9c2cc;
+  --texte-inverse: #ffffff;
+  --action: #1e6fa8;
+  --action-survol: #175a89;
+  --action-texte: #ffffff;
+  --lien: #e9c98a;
+  --focus: #e9c98a;
+  --selection: #2a3d2f;
+  --blanc: #ffffff;
+  --region-accent: #e9c98a;
+  --region-argent: #a9c2cc;
+  --region-socle: #e9c98a;
+}
+
+/* atlas : carte du monde et hub : papier, encre, cartoon (direction B) */
+[data-region="atlas"] {
+  --fond: #f3e6c8;
+  --surface: #fbf4e2;
+  --surface-2: #eadbb6;
+  --bordure: #2b2118;
+  --texte: #2b2118;
+  --texte-doux: #5c4a37;
+  --texte-inverse: #ffffff;
+  --action: #b5361f;
+  --action-survol: #962b18;
+  --action-texte: #ffffff;
+  --lien: #962b18;
+  --focus: #2b6c9e;
+  --selection: #f1dfa6;
+  --blanc: #ffffff;
+  --region-accent: #2b6c9e;
+  --region-argent: #8a7a5c;
+  --region-socle: #d9b857;
+  --font-titre: "Lilita One", system-ui, sans-serif;
+  --font-texte: "Nunito", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  [data-region="atlas"]:not([data-theme="light"]) {
+    --fond: #1e2a33;
+    --surface: #2a3843;
+    --surface-2: #34444f;
+    --bordure: #6f8594;
+    --texte: #f3e6c8;
+    --texte-doux: #c9bda0;
+    --texte-inverse: #ffffff;
+    --action: #b5361f;
+    --action-survol: #962b18;
+    --action-texte: #ffffff;
+    --lien: #e3bd55;
+    --focus: #e3bd55;
+    --selection: #3a3320;
+    --blanc: #ffffff;
+    --region-accent: #7eb1dd;
+    --region-argent: #a9b6bf;
+    --region-socle: #d9b857;
+  }
+}
+[data-region="atlas"][data-theme="dark"] {
+  --fond: #1e2a33;
+  --surface: #2a3843;
+  --surface-2: #34444f;
+  --bordure: #6f8594;
+  --texte: #f3e6c8;
+  --texte-doux: #c9bda0;
+  --texte-inverse: #ffffff;
+  --action: #b5361f;
+  --action-survol: #962b18;
+  --action-texte: #ffffff;
+  --lien: #e3bd55;
+  --focus: #e3bd55;
+  --selection: #3a3320;
+  --blanc: #ffffff;
+  --region-accent: #7eb1dd;
+  --region-argent: #a9b6bf;
+  --region-socle: #d9b857;
+}

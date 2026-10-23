@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.claude/route/jobs/
+# captures et références lourdes : gardées en local, hors dépôt
+design/captures/
+design/references/*.png
+design/references/vues/
+design/references/hgss/

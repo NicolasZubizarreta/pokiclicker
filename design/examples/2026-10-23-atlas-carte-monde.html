@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1E2A33">
+  <title>Atlas du monde · Pokiclicker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: dark;
+      --paper: #1E2A33; --surface: #2A3843; --raised: #344752; --ink: #F3E6C8;
+      --muted: #BCC7C7; --line: #657676; --action: #B5361F; --action-hover: #CF452B;
+      --white: #FFFFFF; --sea: #2B6C9E; --success: #3C8C3F; --danger: #8E1F3B;
+      --gold: #E4B96C; --shadow: #101B22; --land: #415C58; --land-edge: #6E8270;
+      --water: #243D4C; --road: #DDC79B; --night-veil: #172F4140; --warm-veil: #D5AB5920;
+      --scene-ink: #2B2118; --ribbon: #FBF4E2; --clear: #FFFFFF00;
+      --lock-veil: #1E2A3370;
+      --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.74' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Cpath fill='%23ffffff' filter='url(%23n)' opacity='.17' d='M0 0h180v180H0z'/%3E%3C/svg%3E");
+      --s1: 8px; --s2: 16px; --s3: 24px; --s4: 32px; --s5: 40px; --s6: 48px; --s8: 64px;
+      --tiny: 12px; --small: 14px; --body: 16px; --large: 20px; --title: 32px; --display: 48px;
+      --radius: 12px; --round: 50%; --stroke: 2px; --sticker-line: 3px; --offset: 4px;
+      --touch: 48px; --thumb: 88px; --rail: 272px; --detail: 224px; --max: 1440px;
+      --mobile-thumb: 112px; --map-height: 336px; --nav-height: 88px;
+      --edge: polygon(1% 2%, 24% 0, 52% 1%, 78% 0, 99% 2%, 100% 34%, 99% 70%, 100% 98%, 72% 100%, 48% 99%, 21% 100%, 0 98%, 1% 60%, 0 27%);
+      --heading: 'Lilita One', 'Trebuchet MS', sans-serif; --text: 'Nunito', 'Segoe UI', sans-serif;
+    }
+    :root[data-theme="light"] {
+      color-scheme: light; --paper: #F3E6C8; --surface: #FBF4E2; --raised: #EBDDAD; --ink: #2B2118;
+      --muted: #6C6250; --line: #AA9877; --shadow: #65503B; --land: #B9C58A;
+      --land-edge: #788A60; --water: #BCD3D3; --road: #68543B; --night-veil: #172F4100;
+      --lock-veil: #F3E6C860;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font: 700 var(--body)/1.45 var(--text); font-variant-numeric: tabular-nums; }
+    body::after { content: ''; position: fixed; inset: 0; background: var(--grain); opacity: .18; pointer-events: none; z-index: 20; }
+    button { font: inherit; color: inherit; cursor: pointer; border: var(--stroke) solid var(--ink); background: var(--surface); min-width: var(--touch); min-height: var(--touch); border-radius: var(--radius); }
+    button:hover { background: var(--raised); }
+    button:active { transform: translateY(var(--offset)); }
+    button:disabled { opacity: .55; cursor: not-allowed; }
+    :focus-visible { outline: var(--offset) solid var(--gold); outline-offset: var(--offset); }
+    svg { display: block; } .icon { width: var(--s3); height: var(--s3); fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+    [hidden] { display: none !important; }
+    h1, h2, h3, p { margin: 0; } h1 { font: var(--display)/1.05 var(--heading); } h2 { font: var(--title)/1.1 var(--heading); } h3 { font: var(--large)/1.2 var(--heading); }
+    .masthead { max-width: var(--max); margin: auto; padding: var(--s3) var(--s4); display: flex; align-items: center; justify-content: space-between; gap: var(--s2); }
+    .brand, .resources, .resource, .tools, .legend, .legend span { display: flex; align-items: center; gap: var(--s1); }
+    .brand { gap: var(--s2); font: var(--large) var(--heading); } .brand > svg { width: var(--s5); height: var(--s5); color: var(--gold); }
+    .brand small { display: block; margin-top: var(--offset); font: 700 var(--body) var(--text); color: var(--muted); }
+    .resource { background: var(--surface); padding: var(--s1) var(--s2); border-radius: var(--radius); min-height: var(--touch); } .resource svg { color: var(--gold); }
+    .icon-button { display: grid; place-items: center; border-color: var(--line); }
+    main { max-width: var(--max); margin: auto; padding: 0 var(--s4) var(--s3); }
+    .intro { display: flex; justify-content: space-between; align-items: end; gap: var(--s2); margin: var(--s2) 0 var(--s3); }
+    .intro p { margin-top: var(--s1); color: var(--muted); } .edition { color: var(--gold); font-style: italic; }
+    .atlas { display: grid; grid-template-columns: var(--rail) minmax(0, 1fr); border: var(--stroke) solid var(--line); border-radius: var(--radius); background: var(--surface); box-shadow: var(--s1) var(--s1) 0 var(--shadow); overflow: hidden; }
+    .map-page { padding: var(--s3) var(--s2); border-right: var(--stroke) solid var(--line); background: var(--paper); }
+    .map-page h2 { font-size: var(--large); margin: 0 var(--s1) var(--s2); }
+    .regions { display: grid; gap: var(--s1); }
+    .region { text-align: left; width: 100%; display: flex; gap: var(--s1); align-items: center; padding: var(--s1); border-color: var(--clear); background: var(--clear); }
+    .region[aria-pressed="true"] { border-color: var(--gold); background: var(--surface); box-shadow: var(--offset) var(--offset) 0 var(--shadow); }
+    .region strong { display: block; font: var(--large) var(--heading); } .region small { display: block; color: var(--muted); font-size: var(--body); line-height: 1.25; margin-top: var(--offset); }
+    .thumbnail { position: relative; width: var(--thumb); aspect-ratio: 560 / 300; flex-shrink: 0; border: var(--stroke) solid var(--line); border-radius: calc(var(--radius) / 2); overflow: hidden; }
+    .thumbnail img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .region.locked img { filter: grayscale(1); } .region.locked .thumbnail::after { content: ''; position: absolute; inset: 0; background: var(--lock-veil); }
+    .thumbnail .seal { position: absolute; width: var(--s4); height: var(--s4); left: 50%; top: 50%; transform: translate(-50%, -50%) rotate(-8deg); z-index: 1; color: var(--muted); }
+    .map-leaf { min-width: 0; padding: var(--s3); display: flex; flex-direction: column; }
+    .map-heading { display: flex; justify-content: space-between; align-items: center; gap: var(--s2); margin-bottom: var(--s2); } .map-heading p { color: var(--muted); margin-top: var(--offset); }
+    .tools button { padding: var(--s1) var(--s2); display: flex; align-items: center; gap: var(--s1); } .tools [aria-pressed="true"] { background: var(--gold); color: var(--scene-ink); }
+    .spread { display: grid; grid-template-columns: minmax(0, 1fr) var(--detail); gap: var(--s2); align-items: start; }
+    .map-column { min-width: 0; } .map-frame { border: var(--sticker-line) solid var(--ink); border-radius: var(--radius); overflow: hidden; background: var(--water); box-shadow: var(--offset) var(--offset) 0 var(--shadow); }
+    .viewport { overflow: hidden; position: relative; }
+    .map-canvas { width: 100%; aspect-ratio: 1800 / 963; position: relative; isolation: isolate; }
+    .map-image { display: block; width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+    .map-canvas::after { content: ''; position: absolute; inset: 0; background: var(--night-veil); pointer-events: none; }
+    .pin { position: absolute; width: var(--touch); height: var(--touch); padding: 0; border: 0; background: var(--clear); border-radius: var(--round); transform: translate(-50%, -50%); z-index: 2; display: grid; place-items: center; }
+    .pin:hover, .pin:active { background: var(--clear); transform: translate(-50%, -50%); } .pin:hover .seal { scale: 1.12; }
+    .seal { width: var(--s5); height: var(--s5); stroke: currentColor; stroke-width: 1.8; stroke-linejoin: round; fill: var(--surface); }
+    .pin .seal { animation: pin-drop .6s cubic-bezier(.22,.8,.35,1) both; animation-delay: calc(var(--i) * 40ms); filter: drop-shadow(var(--stroke) var(--stroke) 0 var(--shadow)); }
+    .done { color: var(--gold); } .done .seal { fill: var(--action); } .locked { color: var(--muted); }
+    .current .seal { fill: var(--gold); color: var(--scene-ink); width: var(--s6); height: var(--s6); }
+    .current::before { content: ''; position: absolute; inset: 0; border: var(--offset) solid var(--gold); border-radius: var(--round); opacity: .45; box-shadow: 0 0 0 var(--s1) var(--warm-veil); }
+    .pin-label { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); white-space: nowrap; background: var(--ribbon); color: var(--scene-ink); padding: var(--offset) var(--s1); border: var(--stroke) solid var(--scene-ink); border-radius: calc(var(--radius) / 2); box-shadow: var(--stroke) var(--stroke) 0 var(--shadow); }
+    .map-foot { margin-top: var(--s2); display: flex; justify-content: space-between; align-items: center; gap: var(--s1); color: var(--muted); }
+    .compass { display: flex; align-items: center; gap: var(--s1); font-family: var(--heading); color: var(--gold); } .compass svg { width: var(--s4); height: var(--s4); }
+    .zoom { display: none; gap: var(--s1); align-items: center; } .zoom button { font: var(--title) var(--heading); }
+    .place-hint { display: none; margin-top: var(--s1); color: var(--gold); } .placing .place-hint { display: block; } .placing .map-canvas { cursor: crosshair; } .placing .pin { pointer-events: none; }
+    .crosshair { position: absolute; left: var(--x, 50%); top: var(--y, 50%); width: var(--s4); height: var(--s4); transform: translate(-50%, -50%); z-index: 4; pointer-events: none; color: var(--scene-ink); background: var(--gold); border-radius: var(--round); display: none; }
+    .placing .crosshair { display: block; }
+    .coordinates { margin-top: var(--s2); padding: var(--s1); border: var(--stroke) dashed var(--gold); border-radius: var(--radius); display: flex; align-items: center; justify-content: space-between; gap: var(--s1); background: var(--paper); } .coordinates button { padding: var(--s1); }
+    .sheet { background: var(--paper); border: var(--stroke) solid var(--line); border-radius: var(--radius); padding: var(--s2); box-shadow: var(--offset) var(--offset) 0 var(--shadow); }
+    .sheet-top { display: flex; justify-content: space-between; align-items: center; gap: var(--s1); margin-bottom: var(--s2); color: var(--gold); } .sheet-top .seal { transform: rotate(8deg); color: var(--scene-ink); fill: var(--gold); }
+    .sheet h3 { font-size: var(--title); } .sheet p { margin-top: var(--s2); } .sheet .state { color: var(--gold); margin-top: var(--s1); }
+    .progress { margin-top: var(--s2); border-top: var(--stroke) dashed var(--line); padding-top: var(--s2); } .progress strong { font: var(--large) var(--heading); }
+    .progress-track { height: var(--s1); border-radius: var(--radius); background: var(--raised); margin-top: var(--s1); overflow: hidden; } .progress-track::before { content: ''; display: block; width: 40%; height: 100%; background: var(--gold); }
+    .stamp-button { width: 100%; background: var(--action); border: var(--offset) double var(--ribbon); color: var(--white); box-shadow: var(--offset) var(--offset) 0 var(--shadow); font: var(--large) var(--heading); transform: rotate(-2deg); margin-top: var(--s3); }
+    .stamp-button:hover { background: var(--action-hover); } .sheet .explanation { color: var(--muted); } .sheet.picked { animation: unfold .2s ease-out; }
+    .atlas-footer { margin-top: auto; padding-top: var(--s4); } .atlas-footer h3 { margin-bottom: var(--s2); } .legend { flex-wrap: wrap; gap: var(--s2); } .legend .seal { width: var(--s3); height: var(--s3); color: var(--gold); }
+    .atlas-footer p { margin-top: var(--s2); color: var(--muted); font-style: italic; }
+    .tabs { max-width: calc(var(--rail) * 3); margin: var(--s3) auto 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--s1); }
+    .tab { min-height: var(--s8); display: flex; justify-content: center; align-items: center; gap: var(--s1); border-color: var(--line); font-family: var(--heading); border-radius: var(--radius) var(--radius) 0 0; }
+    .tab[aria-current="page"] { background: var(--gold); color: var(--scene-ink); border-color: var(--gold); transform: rotate(-2deg); box-shadow: var(--offset) var(--offset) 0 var(--shadow); }
+    .menu-panel { position: absolute; top: var(--s8); right: var(--s4); padding: var(--s2); background: var(--surface); border: var(--stroke) solid var(--line); border-radius: var(--radius); z-index: 10; box-shadow: var(--offset) var(--offset) 0 var(--shadow); }
+    @keyframes pin-drop { 0% { transform: translateY(calc(-1 * var(--s4))); opacity: 0; } 65% { transform: translateY(var(--offset)); opacity: 1; } 82% { transform: translateY(calc(-1 * var(--offset))); } 100% { transform: translateY(0); opacity: 1; } }
+    @keyframes unfold { from { transform: translateY(var(--s1)); opacity: .5; } to { transform: translateY(0); opacity: 1; } }
+    @media (max-width: 1100px) and (min-width: 701px) { :root { --rail: 224px; --thumb: 64px; } .spread { grid-template-columns: minmax(0, 1fr); } .sheet { margin-top: var(--s2); } }
+    @media (max-width: 700px) {
+      :root { --display: 32px; --title: 24px; --small: 16px; --tiny: 16px; }
+      .masthead { padding: var(--s1) var(--s2); background: var(--surface); border-bottom: var(--stroke) solid var(--line); } .brand { display: none; } .resources { width: 100%; } .resource { margin-right: auto; padding: var(--s1); }
+      main { padding: 0 var(--s2) calc(var(--nav-height) + var(--s3)); } .intro { margin: var(--s3) 0 var(--s2); } .edition { display: none; }
+      .atlas { display: block; border: 0; box-shadow: none; background: var(--paper); overflow: visible; } .map-page { padding: 0; border: 0; } .map-page h2 { display: none; }
+      .regions { display: flex; overflow: auto; gap: var(--s1); padding: var(--offset) var(--offset) var(--s2); margin: 0 calc(-1 * var(--offset)); align-items: start; }
+      .region { flex: 0 0 calc(var(--mobile-thumb) + var(--s2) + var(--stroke) * 2); width: auto; display: block; } .thumbnail { display: block; width: var(--mobile-thumb); margin-bottom: var(--s1); } .region small { font-size: var(--body); } .region strong { font-size: var(--large); }
+      .map-leaf { padding: var(--s1) 0 0; } .map-heading { gap: var(--s1); } .map-heading p { display: none; } .tools button { padding: var(--s1); }
+      .spread { display: block; } .viewport { height: var(--map-height); overflow: auto; touch-action: pan-x pan-y; overscroll-behavior: contain; } .map-canvas { width: var(--zoom, 220%); }
+      .zoom { display: flex; } .map-foot { margin-top: var(--s1); } .map-foot > span { display: none; }
+      .sheet { position: sticky; bottom: calc(var(--nav-height) + var(--s1)); margin-top: var(--s2); z-index: 5; padding: var(--s2); border-top: var(--offset) solid var(--gold); }
+      .sheet-top { margin-bottom: var(--s1); } .sheet-top .seal { width: var(--s4); height: var(--s4); } .sheet p { margin-top: var(--s1); } .sheet h3 { font-size: var(--title); }
+      .sheet { position: fixed; left: var(--s2); right: var(--s2); bottom: calc(var(--nav-height) + var(--s1)); margin: 0; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: var(--s2); padding: var(--s1) var(--s2); }
+      .sheet-top, .sheet #progress, .sheet #boss, .sheet .explanation { display: none; }
+      .sheet h3 { font-size: var(--text); } .sheet .state { margin-top: 0; } .sheet .stamp-button { margin: 0; min-height: 44px; }
+      body { padding-bottom: calc(var(--nav-height) + 96px); }
+      .progress { margin-top: var(--s1); padding-top: var(--s1); } .progress-track { display: none; } .stamp-button { margin-top: var(--s2); }
+      .atlas-footer { padding-top: var(--s3); } .legend { gap: var(--s1) var(--s2); }
+      .tabs { position: fixed; bottom: 0; left: 0; right: 0; z-index: 8; margin: 0; max-width: none; min-height: var(--nav-height); padding: var(--s1) var(--s1) max(var(--s1), env(safe-area-inset-bottom)); background: var(--paper); border-top: var(--stroke) solid var(--line); gap: var(--offset); }
+      .tab { flex-direction: column; font-size: var(--body); gap: var(--offset); min-width: 0; padding: var(--offset) 0; } .menu-panel { right: var(--s2); }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+  </style>
+</head>
+<body>
+  <svg width="0" height="0" aria-hidden="true" style="position:absolute"><defs>
+    <symbol id="i-map" viewBox="0 0 24 24"><path d="m3 5 6-2 6 2 6-2v16l-6 2-6-2-6 2Zm6-2v16m6-14v16"/></symbol>
+    <symbol id="i-coin" viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="8" ry="10"/><path d="M10 7h4a3 3 0 0 1 0 6h-4m1-7v12m-3-3h7"/></symbol>
+    <symbol id="i-theme" viewBox="0 0 24 24"><path d="M20 14A9 9 0 0 1 10 3a9 9 0 1 0 10 11Z"/><path d="M17 3v4m-2-2h4"/></symbol>
+    <symbol id="i-combat" viewBox="0 0 24 24"><path d="m4 3 4 1 10 12-3 3L4 7Zm12 0 4 1-1 4-5 5M3 21l5-5m8 0 5 5M2 16l6 6m8-1 5-5"/></symbol>
+    <symbol id="i-team" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M3 12h6m6 0h6"/></symbol>
+    <symbol id="i-shop" viewBox="0 0 24 24"><path d="M4 10v11h16V10M3 10l2-7h14l2 7M3 10q3 4 6 0 3 4 6 0 3 4 6 0M9 21v-7h6v7"/></symbol>
+    <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><path d="M12 1v7m0 8v7M1 12h7m8 0h7"/></symbol>
+    <symbol id="s-lock" viewBox="0 0 48 48"><path d="m24 3 7 4 8 1 1 8 5 8-5 7-1 9-9 1-6 4-8-4-8-1-1-9-4-7 4-8 1-8 8-1Z"/><rect x="15" y="21" width="18" height="14" rx="3"/><path d="M18 21v-5a6 6 0 0 1 12 0v5m-6 5v4" fill="none"/></symbol>
+    <symbol id="s-star" viewBox="0 0 48 48"><path d="m24 3 7 4 8 1 1 8 5 8-5 7-1 9-9 1-6 4-8-4-8-1-1-9-4-7 4-8 1-8 8-1Z"/><path d="m24 12 4 8 9 1-7 6 2 9-8-5-8 5 2-9-7-6 9-1Z" fill="none"/></symbol>
+    <symbol id="s-pin" viewBox="0 0 48 48"><path d="M24 45S8 29 8 18a16 16 0 1 1 32 0c0 11-16 27-16 27Z"/><circle cx="24" cy="18" r="6" fill="none"/></symbol>
+  </defs></svg>
+  <header class="masthead">
+    <div class="brand"><svg class="icon" aria-hidden="true"><use href="#i-map"/></svg><div>L’atlas des Pokémon<small>Le monde s’ouvre au fil de ton aventure.</small></div></div>
+    <div class="resources">
+      <div class="resource"><svg class="icon" aria-hidden="true"><use href="#i-coin"/></svg>12 450 ₽</div>
+      <button class="icon-button" id="theme" aria-label="Passer au papier clair"><svg class="icon" aria-hidden="true"><use href="#i-theme"/></svg></button>
+      <button class="icon-button" id="menu" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu-panel"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h14M5 12h14M5 18h14"/></svg></button>
+    </div>
+    <div class="menu-panel" id="menu-panel" hidden><p>Ton carnet de voyage</p><p>9 régions · 1 région ouverte</p><p id="theme-name">Carte de nuit</p></div>
+  </header>
+  <main>
+    <div class="intro"><div><h1>Atlas du monde</h1><p>Un monde, neuf régions à découvrir.</p></div><span class="edition">Chaque voyage commence par un point sur la carte.</span></div>
+    <div class="atlas">
+      <aside class="map-page" aria-label="Sommaire des régions">
+        <h2>Les régions</h2>
+        <div class="regions" id="regions"></div>
+      </aside>
+      <section class="map-leaf" aria-labelledby="map-title">
+        <div class="map-heading"><div><h2 id="map-title">Kanto & Johto</h2><p id="map-subtitle">Ton aventure continue à Kanto.</p></div><div class="tools"><button id="place" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#i-target"/></svg>Placer</button></div></div>
+        <div class="spread">
+          <div class="map-column">
+            <div class="map-frame"><div class="viewport" id="viewport"><div class="map-canvas" id="canvas">
+              <img class="map-image" id="map-image" src="../specimens/assets/maps/kanto-johto-1800.jpg" width="1800" height="963" alt="Carte illustrée de Kanto et Johto, entre montagnes, villes et archipels">
+              <div id="pins"></div>
+              <svg class="icon crosshair" aria-hidden="true"><use href="#i-target"/></svg>
+            </div></div></div>
+            <div class="map-foot"><div class="compass"><svg class="icon" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2v28M2 16h28m-12-4-2-10-2 10 2-2Z"/></svg>N</div><span>Illustration d’exemple</span><div class="zoom" aria-label="Zoom de la carte"><button id="minus" aria-label="Réduire la carte" disabled>−</button><output id="zoom-value">220 %</output><button id="plus" aria-label="Agrandir la carte">+</button></div></div>
+            <p class="place-hint" id="place-hint">Touche la carte pour relever un emplacement.</p>
+            <div class="coordinates" id="coordinates" hidden><output id="coordinate-value" aria-live="polite"></output><button id="copy">Copier</button></div>
+          </div>
+          <article class="sheet" id="sheet" aria-labelledby="place-name" aria-live="polite">
+            <div class="sheet-top"><span>Ton escale</span><svg class="seal" aria-hidden="true"><use id="sheet-icon" href="#s-pin"/></svg></div>
+            <h3 id="place-name">Arène d’Azuria</h3><p class="state" id="place-state">Tu es ici</p>
+            <div class="progress" id="progress"><strong>Étapes 4 / 10</strong><div class="progress-track"></div></div>
+            <p id="boss">Boss : Ondine (exemple)</p>
+            <button class="stamp-button" id="go" aria-describedby="explanation">Y aller</button>
+            <p class="explanation" id="explanation">Reprends ton aventure à cette étape.</p>
+          </article>
+        </div>
+        <footer class="atlas-footer"><h3>Ton carnet de Kanto</h3><div class="legend" aria-label="Légende"><span><svg class="seal" aria-hidden="true"><use href="#s-pin"/></svg>Tu es ici</span><span><svg class="seal" aria-hidden="true"><use href="#s-star"/></svg>Terminé</span><span><svg class="seal" aria-hidden="true"><use href="#s-lock"/></svg>Verrouillé</span></div><p>Emplacements d’exemple : la géographie fidèle sera redessinée.</p></footer>
+      </section>
+    </div>
+    <nav class="tabs" aria-label="Navigation principale">
+      <button class="tab" disabled><svg class="icon" aria-hidden="true"><use href="#i-combat"/></svg>Combat</button>
+      <button class="tab" disabled><svg class="icon" aria-hidden="true"><use href="#i-team"/></svg>Équipe</button>
+      <button class="tab" disabled><svg class="icon" aria-hidden="true"><use href="#i-shop"/></svg>Shop</button>
+      <button class="tab" aria-current="page"><svg class="icon" aria-hidden="true"><use href="#i-map"/></svg>Carte</button>
+      <button class="tab" id="more"><svg class="icon" aria-hidden="true"><use href="#i-more"/></svg>Plus</button>
+    </nav>
+  </main>
+  <script>
+    const $ = id => document.getElementById(id), root = document.documentElement, assets = '../specimens/assets/maps/';
+    try { const saved = localStorage.getItem('pokiclicker-theme'); if (['light', 'dark'].includes(saved)) root.dataset.theme = saved; } catch (_) {}
+    function themeLabel() { $('theme').setAttribute('aria-label', root.dataset.theme === 'dark' ? 'Passer au papier clair' : 'Passer à la carte de nuit'); $('theme-name').textContent = root.dataset.theme === 'dark' ? 'Carte de nuit' : 'Papier clair'; }
+    themeLabel(); $('theme').onclick = () => { root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark'; themeLabel(); try { localStorage.setItem('pokiclicker-theme', root.dataset.theme); } catch (_) {} };
+    $('menu').onclick = () => { $('menu-panel').hidden = !$('menu-panel').hidden; $('menu').setAttribute('aria-expanded', String(!$('menu-panel').hidden)); }; $('more').onclick = () => $('menu').click();
+    const regions = [['Kanto','kanto-johto','Tu es ici'],['Johto','kanto-johto',"Bats la Ligue de Kanto pour l’ouvrir"],['Hoenn','hoenn','Bientôt'],['Sinnoh','sinnoh','Bientôt'],['Unys','unys','Bientôt'],['Kalos','kalos-paldea','Bientôt'],['Alola','alola','Bientôt'],['Galar','galar','Bientôt'],['Paldea','kalos-paldea','Bientôt']];
+    // Coordonnées éditables : x et y sont des pourcentages de l’image entière.
+    const pins = [
+      { name: 'Bourg Palette', x: 17.6, y: 55.8, state: 'done' },
+      { name: 'Forêt de Jade', x: 32.0, y: 65.7, state: 'done' },
+      { name: 'Arène d’Azuria', x: 28.8, y: 24.9, state: 'current' },
+      { name: 'Mont Sélénite', x: 53.3, y: 29.9, state: 'locked' },
+      { name: 'Ligue Pokémon', x: 63.4, y: 18.4, state: 'locked' },
+      { name: 'Céladopole', x: 78.9, y: 51.8, state: 'locked' },
+      { name: 'Cramois’Île', x: 70.9, y: 91.0, state: 'locked' },
+      { name: 'Îles Écume', x: 8.0, y: 85.7, state: 'locked' }
+    ];
+    const symbols = { done: 'star', current: 'pin', locked: 'lock' }, states = { done: 'Terminé', current: 'Tu es ici', locked: 'Verrouillé' };
+    $('regions').innerHTML = regions.map(([name, image, hint], i) => `<button class="region ${i ? 'locked' : ''}" aria-pressed="${!i}" data-region="${i}"><span class="thumbnail"><img src="${assets}${image}-560.jpg" width="560" height="300" alt="Carte de ${name}">${i ? '<svg class="seal" aria-hidden="true"><use href="#s-lock"/></svg>' : ''}</span><span><strong>${name}</strong><small>${hint}</small></span></button>`).join('');
+    $('pins').innerHTML = pins.map((p, i) => `<button class="pin ${p.state}" style="left:${p.x}%;top:${p.y}%;--i:${i}" data-pin="${i}" aria-label="${p.name} · ${states[p.state]}" aria-pressed="${i === 2}"><svg class="seal" aria-hidden="true"><use href="#s-${symbols[p.state]}"/></svg>${p.state === 'current' ? '<span class="pin-label">Tu es ici</span>' : ''}</button>`).join('');
+    function showSheet(name, state, explanation, region = false) {
+      $('place-name').textContent = name; $('place-state').textContent = states[state]; $('sheet-icon').setAttribute('href', '#s-' + symbols[state]); $('progress').hidden = state !== 'current' || region; $('boss').hidden = region;
+      $('go').disabled = state === 'locked'; $('explanation').textContent = explanation; $('sheet').classList.remove('picked'); void $('sheet').offsetWidth; $('sheet').classList.add('picked');
+    }
+    $('pins').onclick = e => { const button = e.target.closest('[data-pin]'); if (!button) return; const p = pins[button.dataset.pin]; document.querySelectorAll('[data-pin]').forEach(b => b.setAttribute('aria-pressed', String(b === button))); showSheet(p.name, p.state, p.state === 'locked' ? 'Bats d’abord Mont Sélénite' : p.state === 'done' ? 'Tu peux revenir explorer cette étape.' : 'Reprends ton aventure à cette étape.'); };
+    $('regions').onclick = e => { const button = e.target.closest('[data-region]'); if (!button) return; const i = Number(button.dataset.region), [name, image, hint] = regions[i]; document.querySelectorAll('[data-region]').forEach(b => b.setAttribute('aria-pressed', String(b === button))); $('map-title').textContent = i === 0 ? 'Kanto & Johto' : name; $('map-subtitle').textContent = i ? hint : 'Ton aventure continue à Kanto.'; $('map-image').src = assets + image + (i < 2 ? '-1800.jpg' : '-560.jpg'); $('map-image').alt = 'Carte illustrée de ' + name; $('pins').hidden = i !== 0; $('coordinates').hidden = true; showSheet(i ? name : pins[2].name, i ? 'locked' : 'current', i ? hint : 'Reprends ton aventure à cette étape.', !!i); if (!i) centerCurrent(); };
+    const levels = [220, 300, 400]; let zoom = 0, placing = false, coordinateText = '';
+    function centerCurrent() { if (!matchMedia('(max-width: 700px)').matches) return; $('viewport').scrollLeft = $('canvas').offsetWidth * .288 - $('viewport').clientWidth / 2; $('viewport').scrollTop = $('canvas').offsetHeight * .249 - $('viewport').clientHeight / 2; }
+    function changeZoom(delta) { const v = $('viewport'), c = $('canvas'), x = (v.scrollLeft + v.clientWidth / 2) / c.offsetWidth, y = (v.scrollTop + v.clientHeight / 2) / c.offsetHeight; zoom = Math.max(0, Math.min(2, zoom + delta)); c.style.setProperty('--zoom', levels[zoom] + '%'); v.scrollLeft = c.offsetWidth * x - v.clientWidth / 2; v.scrollTop = c.offsetHeight * y - v.clientHeight / 2; $('zoom-value').textContent = levels[zoom] + ' %'; $('minus').disabled = zoom === 0; $('plus').disabled = zoom === 2; }
+    $('plus').onclick = () => changeZoom(1); $('minus').onclick = () => changeZoom(-1);
+    $('place').onclick = () => { placing = !placing; $('place').setAttribute('aria-pressed', String(placing)); document.querySelector('.map-leaf').classList.toggle('placing', placing); if (!placing) $('coordinates').hidden = true; };
+    function point(e) { const r = $('canvas').getBoundingClientRect(); return [Math.max(0, Math.min(100, (e.clientX - r.left) / r.width * 100)), Math.max(0, Math.min(100, (e.clientY - r.top) / r.height * 100))]; }
+    $('canvas').onpointermove = e => { if (!placing) return; const [x,y] = point(e); $('canvas').style.setProperty('--x', x + '%'); $('canvas').style.setProperty('--y', y + '%'); };
+    $('canvas').onclick = e => { if (!placing) return; const [x,y] = point(e); $('canvas').style.setProperty('--x', x + '%'); $('canvas').style.setProperty('--y', y + '%'); coordinateText = `x: ${x.toFixed(1)}%, y: ${y.toFixed(1)}%`; $('coordinate-value').textContent = coordinateText; $('coordinates').hidden = false; $('copy').textContent = 'Copier'; };
+    $('copy').onclick = async () => { try { await navigator.clipboard.writeText(coordinateText); $('copy').textContent = 'Copié !'; } catch (_) { $('copy').textContent = 'Copie indisponible'; } };
+    $('go').onclick = () => { $('explanation').textContent = 'Destination choisie ! Le départ sera disponible dans le jeu.'; };
+    requestAnimationFrame(centerCurrent); window.addEventListener('resize', centerCurrent);
+  </script>
+</body>
+</html>
