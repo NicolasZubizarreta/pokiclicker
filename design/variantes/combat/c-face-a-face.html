@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>C · Face à face</title><link rel="stylesheet" href="commun.css"><script src="commun.js" defer></script>
+<style>
+.scene { height:calc(var(--spacing) * 80); }
+.scene .carte { width:54%; }
+.scene .ennemi { top:calc(var(--spacing) * 8); bottom:auto; right:0; }
+.allie { bottom:0; left:0; }
+.carte-allie { position:absolute; right:calc(var(--spacing) * 2); bottom:calc(var(--spacing) * 4); background:var(--surface); padding:calc(var(--spacing) * 2); z-index:2; }
+.dialogue { padding:calc(var(--spacing) * 2); }
+.dialogue h2 { white-space:nowrap; }
+.variante-c .fleche { display:none; }
+@media (min-width:64rem) { .scene { height:auto; } .scene .ennemi { top:0; } .allie { bottom:0; } .carte-allie { bottom:calc(var(--spacing) * 8); } }
+</style></head>
+<body class="variante-c">
+<details class="notice"><summary>C — Face à face</summary><p>Bulbizarre te fait face au combat, vu de dos.<br>Chen te guide après l’équipe ; le partenaire choisi est marqué.<br>Point faible : les deux Pokémon partagent une scène compacte.</p></details>
+<main id="combat"><header data-piece="entete"></header><div class="disposition"><section class="scene cadre" aria-label="Bulbizarre face à Rattata"><div data-piece="decor"></div><div data-piece="ennemi"></div><div data-piece="carte"></div><div class="allie"><div class="pedestal" aria-hidden="true"></div><img class="sprite" src="../../specimens/assets/pokemon/back-1.png" width="96" height="96" alt="Bulbizarre vu de dos"></div><div class="carte-allie cadre"><h2>Bulbizarre</h2><p>Niv. 5 · 4 DPS</p></div></section><div data-piece="action"></div><section class="equipe" data-piece="equipe"></section><aside class="dialogue cadre" data-piece="dialogue"></aside></div></main><nav data-piece="navigation" aria-label="Navigation principale"></nav>
+</body></html>

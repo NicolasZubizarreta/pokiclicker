@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>B · Scène tactile</title><link rel="stylesheet" href="commun.css"><script src="commun.js" defer></script>
+<style>
+.scene { height:calc(var(--spacing) * 96); cursor:pointer; }
+.scene .ennemi { bottom:calc(var(--spacing) * 36); right:calc(var(--spacing) * 4); }
+.etat { position:absolute; inset:auto 0 0; background:var(--surface); padding:calc(var(--spacing) * 2); }
+.etat .carte { position:static; width:auto; padding:calc(var(--spacing) * 2); }
+.etat .progression { margin-top:calc(var(--spacing) * 2); display:flex; justify-content:space-between; align-items:center; }
+.consigne { position:absolute; top:calc(var(--spacing) * 4); left:calc(var(--spacing) * 4); padding:calc(var(--spacing) * 2); background:var(--surface); font-size:var(--text-base); z-index:2; }
+[data-piece="action"] { grid-row:2; }
+.panneau { display:grid; gap:calc(var(--spacing) * 4); }
+@media (min-width:64rem) { .scene { height:auto; } .equipe { grid-column:1; grid-row:2; } [data-piece="action"] { grid-row:3; } .panneau { grid-column:2; grid-row:1 / 4; } .cases { grid-template-columns:repeat(6,minmax(0,1fr)); } }
+</style></head>
+<body class="variante-b">
+<details class="notice"><summary>B — Scène tactile</summary><p>Touche la scène pour attaquer.<br>La barre d’état rassemble les PV et ta progression.<br>Point faible : le geste est moins évident qu’un grand bouton.</p></details>
+<main id="combat"><header data-piece="entete"></header><div class="disposition"><section class="scene cadre" data-tactile role="button" tabindex="0" aria-label="Attaque Rattata en touchant la scène"><div data-piece="decor"></div><div data-piece="ennemi"></div><span class="consigne">Touche le Pokémon</span><div class="etat"><div data-piece="carte"></div><div data-piece="etapes"></div></div></section><section class="equipe" data-piece="equipe"></section><div data-piece="action"></div><div class="panneau"><aside class="dialogue cadre" data-piece="dialogue"></aside><section class="statistiques cadre"><h2>Ton attaque</h2><p>DPS total : <strong>12</strong></p><p>Dégâts par clic : <strong>10</strong></p></section></div></div></main><nav data-piece="navigation" aria-label="Navigation principale"></nav>
+</body></html>
