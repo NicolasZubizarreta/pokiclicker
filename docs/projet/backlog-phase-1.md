@@ -67,7 +67,7 @@ Fourchette : 1 à 2 jours. Risque : choix des versions et des règles de lint (f
 
 ## L. `docs(adr): trancher les quatre décisions techniques de la phase 1`
 
-Labels : `type:docs`, `etat:idee`, `est:1-1`, `prio:1` · branche : `docs/<n>-adr` · `agent-ok` : **non**
+Labels : `type:docs`, `etat:pret`, `est:1-1`, `prio:1` · branche : `v2` · **brouillons rédigés le 23/10 dans `docs/adr/`, en attente de validation de Nicolas** · `agent-ok` : **non**
 
 ### Histoire
 En tant que développeur du jeu, je veux les quatre décisions techniques écrites avant le code afin que les agents ne les réinventent pas chacun de leur côté.
