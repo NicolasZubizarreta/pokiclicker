@@ -1,0 +1,30 @@
+name: Vérifications
+
+on:
+  pull_request:
+    branches: [main, v2]
+  push:
+    branches: [v2]
+
+jobs:
+  verification:
+    name: Vérifier le socle
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+      - name: Installer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Installer les dépendances
+        run: npm ci
+      - name: Vérifier les types
+        run: npm run typecheck
+      - name: Vérifier les règles de code
+        run: npm run lint
+      - name: Exécuter les tests
+        run: npm test
+      - name: Construire le jeu
+        run: npm run build

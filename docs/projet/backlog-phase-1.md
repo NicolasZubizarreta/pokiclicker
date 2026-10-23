@@ -37,7 +37,7 @@ Jalon : **Route 1 jouable sur téléphone et PC** (`docs/plan.md`). Brouillon du
 
 ## A. `chore(socle): initialiser le dépôt Vite, React, TypeScript, Vitest et la CI`
 
-Labels : `type:chore`, `etat:idee`, `est:1-2`, `prio:1` · branche : `chore/<n>-socle` · `agent-ok` : **non**
+Labels : `type:chore`, `etat:pret`, `est:1-2`, `prio:1` · branche : `v2` (pas de PR : première pose du socle) · `agent-ok` : **non** (Codex exécute sur ordre de Nicolas du 23/10, diff relu par Claude puis Nicolas)
 
 ### Histoire
 En tant que développeur du jeu, je veux un dépôt qui compile, se teste et se vérifie à chaque PR afin que tout ticket suivant parte d'un socle vert.
