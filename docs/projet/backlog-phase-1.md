@@ -102,7 +102,7 @@ Labels : `type:feat`, `etat:idee`, `est:1-2`, `prio:1` · branche : `feat/<n>-bo
 En tant que joueur, je veux que le jeu avance de la même façon que la page soit active, ralentie ou rouverte afin de ne jamais perdre ni gagner de progression à cause du navigateur.
 
 ### Contexte
-La V1 utilise des `setInterval` (`../pokiclicker/js/game/loop.js`) et un auto-clic par minuteur (`js/ui/controls.js`). En V2 l'état vit hors React ; la boucle calcule à partir du **temps écoulé** (horloge injectable), et l'interface se rafraîchit à 10 Hz au maximum. Fichiers prévus (À CONFIRMER) : `src/core/loop.ts`, `src/core/clock.ts`, `src/core/loop.test.ts`.
+La V1 utilise des `setInterval` (`legacy/js/game/loop.js`) et un auto-clic par minuteur (`js/ui/controls.js`). En V2 l'état vit hors React ; la boucle calcule à partir du **temps écoulé** (horloge injectable), et l'interface se rafraîchit à 10 Hz au maximum. Fichiers prévus (À CONFIRMER) : `src/core/loop.ts`, `src/core/clock.ts`, `src/core/loop.test.ts`.
 
 ### Critères d'acceptation
 - [ ] Étant donné une horloge simulée, quand 5 000 ms s'écoulent en un seul pas, alors l'état avance exactement comme 50 pas de 100 ms.
@@ -129,7 +129,7 @@ Labels : `type:feat`, `etat:idee`, `est:2-3`, `prio:1` · branche : `feat/<n>-po
 En tant que développeur du jeu, je veux générer les stats de tous les Pokémon par une formule et un script plutôt que les écrire à la main afin de tenir 1 025 Pokémon sans y perdre le projet.
 
 ### Contexte
-Formules de la V1 : `../pokiclicker/js/game/stats.js` et `js/data/constants.js` (DPS = somme de stat × niveau / 5, puis bonus). Données de base issues de PokeAPI, sprites en local. Fichiers prévus (À CONFIRMER) : `src/core/pokemon.ts`, `src/core/stats.ts`, `data/pokemon.json` (généré), `scripts/generer-pokemon.mjs`, `src/core/stats.test.ts`.
+Formules de la V1 : `legacy/js/game/stats.js` et `legacy/js/data/constants.js` (DPS = somme de stat × niveau / 5, puis bonus). Données de base issues de PokeAPI, sprites en local. Fichiers prévus (À CONFIRMER) : `src/core/pokemon.ts`, `src/core/stats.ts`, `data/pokemon.json` (généré), `scripts/generer-pokemon.mjs`, `src/core/stats.test.ts`.
 
 ### Critères d'acceptation
 - [ ] Étant donné un Pokémon de `data/pokemon.json` et un niveau, quand j'appelle `calculerDps`, alors le résultat est identique à la V1 pour au moins 10 cas figés (tableau de valeurs relevées dans la V1).
@@ -157,7 +157,7 @@ Labels : `type:feat`, `etat:idee`, `est:2-3`, `prio:1` · branche : `feat/<n>-zo
 En tant que développeur du jeu, je veux des zones décrites en JSON, reliées en graphe avec des conditions de passage, afin d'ajouter une région sans toucher au code.
 
 ### Contexte
-Toute la V1 vit dans `../pokiclicker/js/regions/kanto.js` (liste linéaire). Cible : un graphe validé au chargement. Fichiers prévus (À CONFIRMER) : `src/core/monde.ts`, `src/core/conditions.ts`, `data/regions/kanto/zones.json`, `data/schemas/zone.schema.json`, `src/core/monde.test.ts`. Seule la Route 1 est saisie ; la saisie du reste de Kanto est la phase 2.
+Toute la V1 vit dans `legacy/js/regions/kanto.js` (liste linéaire). Cible : un graphe validé au chargement. Fichiers prévus (À CONFIRMER) : `src/core/monde.ts`, `src/core/conditions.ts`, `data/regions/kanto/zones.json`, `data/schemas/zone.schema.json`, `src/core/monde.test.ts`. Seule la Route 1 est saisie ; la saisie du reste de Kanto est la phase 2.
 
 ### Critères d'acceptation
 - [ ] Étant donné `zones.json`, quand le jeu le charge, alors chaque zone a un identifiant unique, au moins un lien sortant (sauf la dernière) et des liens qui pointent vers des zones existantes.
@@ -185,7 +185,7 @@ Labels : `type:feat`, `etat:idee`, `est:2-3`, `prio:1` · branche : `feat/<n>-sa
 En tant que joueur, je veux retrouver ma partie telle que je l'ai laissée, et pouvoir l'exporter en JSON, afin de ne jamais perdre ma progression.
 
 ### Contexte
-La V1 sauvegarde tout dans une clé `pokiClickerSave` (`../pokiclicker/js/game/save.js`). En V2 : trois niveaux (compte, partie, région) avec un numéro de version et des migrations, stockés en local pour l'instant. Fichiers prévus (À CONFIRMER) : `src/core/sauvegarde.ts`, `src/core/migrations/`, `src/core/sauvegarde.test.ts`, `src/ui/stockage-local.ts`.
+La V1 sauvegarde tout dans une clé `pokiClickerSave` (`legacy/js/game/save.js`). En V2 : trois niveaux (compte, partie, région) avec un numéro de version et des migrations, stockés en local pour l'instant. Fichiers prévus (À CONFIRMER) : `src/core/sauvegarde.ts`, `src/core/migrations/`, `src/core/sauvegarde.test.ts`, `src/ui/stockage-local.ts`.
 
 ### Critères d'acceptation
 - [ ] Étant donné une partie en cours, quand j'enregistre puis je recharge, alors l'état restauré est égal à l'état enregistré (test aller-retour).
@@ -243,7 +243,7 @@ Labels : `type:feat`, `etat:idee`, `est:2-3`, `prio:1` · branche : `feat/<n>-co
 En tant que joueur, je veux que mes clics et mon équipe fassent avancer le combat, avec le clic qui compte toute la partie, afin de gagner en choisissant bien et non en laissant tourner un automate.
 
 ### Contexte
-Règles V1 : `../pokiclicker/js/game/combat.js`, `stats.js`, `constants.js` (PV ennemi = base × niveau × 2 × multiplicateur de zone ; clic = 5 + 0,2 % du DPS, avec multiplicateurs). Plafond de **12 clics/s** décidé le 23/10. Fichiers prévus (À CONFIRMER) : `src/core/combat.ts`, `src/core/clic.ts`, `data/reglages.json`, `src/core/combat.test.ts`.
+Règles V1 : `legacy/js/game/combat.js`, `legacy/js/game/stats.js`, `legacy/js/data/constants.js` (PV ennemi = base × niveau × 2 × multiplicateur de zone ; clic = 5 + 0,2 % du DPS, avec multiplicateurs). Plafond de **12 clics/s** décidé le 23/10. Fichiers prévus (À CONFIRMER) : `src/core/combat.ts`, `src/core/clic.ts`, `data/reglages.json`, `src/core/combat.test.ts`.
 
 ### Critères d'acceptation
 - [ ] Étant donné un ennemi de PV connus et un DPS connu, quand 10 s s'écoulent sans clic, alors ses PV baissent de 10 × DPS (au plafond de 0).
