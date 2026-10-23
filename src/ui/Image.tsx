@@ -7,6 +7,8 @@ type PropsImage = {
   alt: string;
   largeurDisponible?: number;
   tailles?: TaillesImages;
+  className?: string;
+  couvrir?: boolean;
 };
 
 export function facteurEntier(largeurDisponible: number, tailleNative: number): number {
@@ -17,7 +19,7 @@ export function facteurEntier(largeurDisponible: number, tailleNative: number): 
   return Math.max(1, Math.floor(largeurDisponible / tailleNative));
 }
 
-export function Image({ src, genre, alt, largeurDisponible, tailles = taillesImages }: PropsImage) {
+export function Image({ src, genre, alt, largeurDisponible, tailles = taillesImages, className = '', couvrir = false }: PropsImage) {
   const dimensions = tailles[src.replace(/^\//, '')];
   if (!dimensions) {
     if (import.meta.env.DEV) throw new Error(`Image inconnue : ${src}. Lance le script de traitement des images.`);
@@ -27,5 +29,5 @@ export function Image({ src, genre, alt, largeurDisponible, tailles = taillesIma
     ? facteurEntier(largeurDisponible, dimensions.largeur) : 1;
   return <img src={src} alt={alt} width={dimensions.largeur * facteur} height={dimensions.hauteur * facteur}
     decoding="async" loading={genre === 'decor' ? 'eager' : undefined}
-    className={genre === 'decor' ? 'aspect-video object-contain' : 'image-rendering-pixelated'} />;
+    className={`${genre === 'decor' ? `aspect-video ${couvrir ? 'object-cover' : 'object-contain'}` : 'image-rendering-pixelated'} ${className}`} />;
 }

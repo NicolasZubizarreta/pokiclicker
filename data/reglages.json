@@ -1,4 +1,5 @@
 {
+  "interface": { "sauvegardeAutoMs": 30000 },
   "depart": { "argent": 0, "etape": 1 },
   "boucle": {
     "pasMs": 100,

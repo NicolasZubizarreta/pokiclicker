@@ -1,6 +1,7 @@
 import type { Zone } from '../core/monde';
 
 export const cheminSprite = (numero: number): string => `img/sprites/pokemon/${numero}.png`;
+export const cheminDecor = (zone: Pick<Zone, 'decor'>): string => `img/decors/${zone.decor.split('/').at(-1)}`;
 
 export function spritesPossibles(zone: Zone): string[] {
   return [...new Set([...zone.sauvages, zone.boss].map(({ pokemon }) => cheminSprite(pokemon)))].sort();

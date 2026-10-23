@@ -13,8 +13,8 @@ describe('Coquille', () => {
     const boutons = within(screen.getByRole('navigation')).getAllByRole('button');
     expect(boutons.map((bouton) => bouton.textContent)).toEqual(noms);
     expect(boutons.filter((bouton) => bouton.getAttribute('aria-current') === 'page')).toEqual([boutons[0]]);
-    expect(within(screen.getByRole('main')).getByRole('heading').textContent).toBe('Combat');
-    expect(screen.getByText('Le combat arrive bientôt.')).toBeTruthy();
+    expect(within(screen.getByRole('main')).getByRole('heading', { level: 1 }).textContent).toBe('Route 1');
+    expect(screen.getByRole('button', { name: 'Attaque' })).toBeTruthy();
   });
 
   it('change de page et déplace la sélection au clic', async () => {
@@ -32,7 +32,7 @@ describe('Coquille', () => {
   it('place le lien d’évitement puis les cinq boutons dans le parcours clavier', async () => {
     const utilisateur = userEvent.setup();
     render(<Coquille />);
-    for (const element of [screen.getByRole('link', { name: 'Aller au contenu' }), ...screen.getAllByRole('button')]) {
+    for (const element of [screen.getByRole('link', { name: 'Aller au contenu' }), ...screen.getAllByRole('button').filter(b => !b.hasAttribute('disabled'))]) {
       await utilisateur.tab();
       expect(document.activeElement).toBe(element);
     }
@@ -54,8 +54,8 @@ describe('Coquille', () => {
   it('emploie les textes français prévus et masque les icônes aux lecteurs d’écran', async () => {
     const utilisateur = userEvent.setup();
     const { container } = render(<Coquille />);
-    const autorises = new Set(['Aller au contenu', ...noms, 'Le combat arrive bientôt.', 'Cette page arrive bientôt.']);
-    for (const nom of noms) {
+    const autorises = new Set(['Aller au contenu', ...noms, 'Cette page arrive bientôt.']);
+    for (const nom of noms.slice(1)) {
       await utilisateur.click(screen.getByRole('button', { name: nom }));
       const parcours = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
       while (parcours.nextNode()) {

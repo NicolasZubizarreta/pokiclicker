@@ -48,7 +48,13 @@ export type EtatCombat = {
 
 export function creerCombat(zone: Zone, equipe: readonly MembreEquipe[], alea: () => number,
   actifs: readonly string[] = []): EtatCombat {
-  return { zoneId: zone.id, etape: 1, ennemi: creerEnnemi(zone, 1, alea),
+  return reprendreCombat(zone, equipe, alea, 1, actifs);
+}
+
+export function reprendreCombat(zone: Zone, equipe: readonly MembreEquipe[], alea: () => number,
+  etape: number, actifs: readonly string[] = []): EtatCombat {
+  if (!Number.isInteger(etape) || etape < 1 || etape > zone.etapes) throw new Error('Étape de reprise invalide');
+  return { zoneId: zone.id, etape, ennemi: creerEnnemi(zone, etape, alea),
     equipe, actifs, evenements: [], zone, alea };
 }
 

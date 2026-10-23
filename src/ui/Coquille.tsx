@@ -1,13 +1,19 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Navigation } from './Navigation';
 import type { Page } from './Navigation';
 import { PageBientot } from './pages';
+import { EcranCombat } from './EcranCombat';
+import { storeJeu } from './store';
 
 export function Coquille({ region = 'kanto', theme = 'dark' }: {
   region?: 'kanto' | 'johto' | 'hoenn' | 'atlas';
   theme?: 'dark' | 'light';
 }) {
   const [page, choisir] = useState<Page>('Combat');
+  useEffect(() => {
+    storeJeu.getState().demarrer();
+    return () => { storeJeu.getState().fermer(); storeJeu.getState().arreter(); };
+  }, []);
 
   return (
     <div data-region={region} data-theme={theme}
@@ -17,7 +23,7 @@ export function Coquille({ region = 'kanto', theme = 'dark' }: {
       </a>
       <Navigation page={page} choisir={choisir} />
       <main id="contenu" tabIndex={-1} className="mb-14 min-w-0 p-4 lg:mb-0 lg:ml-24 lg:p-8">
-        <PageBientot titre={page} />
+        {page === 'Combat' ? <EcranCombat /> : <PageBientot titre={page} />}
       </main>
     </div>
   );
