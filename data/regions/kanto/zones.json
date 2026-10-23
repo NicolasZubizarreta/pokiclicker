@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "region": "kanto",
+  "depart": "kanto.route-1",
+  "zones": [
+    {
+      "id": "kanto.route-1",
+      "nom": "Route 1",
+      "decor": "kanto/route-1.webp",
+      "niveaux": [2, 5],
+      "etapes": 10,
+      "multiplicateurPv": 1,
+      "sauvages": [
+        { "pokemon": 19, "rarete": "commun", "apparition": 0.3, "capture": 255 },
+        { "pokemon": 16, "rarete": "commun", "apparition": 0.3, "capture": 255 },
+        { "pokemon": 21, "rarete": "commun", "apparition": 0.2, "capture": 255 },
+        { "pokemon": 20, "rarete": "peu-commun", "apparition": 0.1, "capture": 127 },
+        { "pokemon": 17, "rarete": "peu-commun", "apparition": 0.05, "capture": 120 },
+        { "pokemon": 1, "rarete": "tres-rare", "apparition": 0.05, "capture": 45 }
+      ],
+      "boss": { "pokemon": 19, "nom": "Rattata (Géant)", "niveau": 6, "capture": 0 },
+      "liens": [{ "vers": "kanto.foret-de-jade", "si": { "type": "boss", "zone": "kanto.route-1" } }],
+      "ancienId": 1
+    },
+    {
+      "id": "kanto.foret-de-jade",
+      "nom": "Forêt de Jade",
+      "decor": "kanto/foret-de-jade.webp",
+      "niveaux": [5, 8],
+      "etapes": 10,
+      "multiplicateurPv": 1.5,
+      "sauvages": [
+        { "pokemon": 10, "rarete": "commun", "apparition": 0.25, "capture": 255 },
+        { "pokemon": 13, "rarete": "commun", "apparition": 0.25, "capture": 255 },
+        { "pokemon": 11, "rarete": "peu-commun", "apparition": 0.15, "capture": 120 },
+        { "pokemon": 14, "rarete": "peu-commun", "apparition": 0.15, "capture": 120 },
+        { "pokemon": 25, "rarete": "rare", "apparition": 0.15, "capture": 190 },
+        { "pokemon": 4, "rarete": "tres-rare", "apparition": 0.05, "capture": 45 }
+      ],
+      "boss": { "pokemon": 12, "nom": "Papilusion", "niveau": 10, "capture": 0 },
+      "liens": [],
+      "ancienId": 2,
+      "fin": true
+    }
+  ]
+}

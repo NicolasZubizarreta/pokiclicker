@@ -151,20 +151,20 @@ Fourchette : 2 à 3 jours. Risque : écarts de noms français et de formes entre
 
 ## E. `feat(monde): décrire les zones en graphe, avec la Route 1 en données`
 
-Labels : `type:feat`, `etat:idee`, `est:2-3`, `prio:1` · branche : `feat/<n>-zones` · `agent-ok` : oui (après A et ADR 2)
+Labels : `type:feat`, `etat:fait`, `est:2-3`, `prio:1` · branche : `v2` (pas encore de PR) · `agent-ok` : oui (après A et ADR 2)
 
 ### Histoire
 En tant que développeur du jeu, je veux des zones décrites en JSON, reliées en graphe avec des conditions de passage, afin d'ajouter une région sans toucher au code.
 
 ### Contexte
-Toute la V1 vit dans `legacy/js/regions/kanto.js` (liste linéaire). Cible : un graphe validé au chargement. Fichiers prévus (À CONFIRMER) : `src/core/monde.ts`, `src/core/conditions.ts`, `data/regions/kanto/zones.json`, `data/schemas/zone.schema.json`, `src/core/monde.test.ts`. Seule la Route 1 est saisie ; la saisie du reste de Kanto est la phase 2.
+Toute la V1 vit dans `legacy/js/regions/kanto.js` (liste linéaire). Cible : un graphe validé au chargement. Fichiers prévus (À CONFIRMER) : `src/core/monde.ts`, `src/core/conditions.ts`, `data/regions/kanto/zones.json`, `data/schemas/zone.schema.json`, `src/core/monde.test.ts`. **Deux zones saisies** : la Route 1 et la Forêt de Jade (portées de la V1, pour que la zone suivante verrouillée existe et se teste), la Forêt de Jade marquée `"fin": true` jusqu'à la phase 2 ; `carte` (positions en fractions) reste absente tant que le format des cartes n'est pas fixé (phase 5) ; la saisie du reste de Kanto est la phase 2.
 
 ### Critères d'acceptation
-- [ ] Étant donné `zones.json`, quand le jeu le charge, alors chaque zone a un identifiant unique, au moins un lien sortant (sauf la dernière) et des liens qui pointent vers des zones existantes.
-- [ ] Étant donné un fichier avec un lien vers une zone inconnue, quand le chargement s'exécute, alors il échoue avec le message « Zone inconnue : <id> » (en français).
-- [ ] Étant donné une zone dont la condition est « badge X », quand le joueur n'a pas ce badge, alors `peutPasser` renvoie faux avec la raison lisible ; avec le badge, il renvoie vrai.
-- [ ] Étant donné les conditions `badge`, `boss vaincu`, `objet-clé`, `quête`, quand je lis `conditions.ts`, alors les quatre existent et sont testées une fois chacune.
-- [ ] Étant donné la Route 1, quand je la lis, alors elle donne : 10 étapes, boss à l'étape 10, liste des Pokémon sauvages avec niveau et chance d'apparition.
+- [x] Étant donné `zones.json`, quand le jeu le charge, alors chaque zone a un identifiant unique, au moins un lien sortant (sauf la dernière) et des liens qui pointent vers des zones existantes.
+- [x] Étant donné un fichier avec un lien vers une zone inconnue, quand le chargement s'exécute, alors il échoue avec le message « Zone inconnue : <id> » (en français).
+- [x] Étant donné une zone dont la condition est « badge X », quand le joueur n'a pas ce badge, alors `peutPasser` renvoie faux avec la raison lisible ; avec le badge, il renvoie vrai.
+- [x] Étant donné les conditions `badge`, `boss vaincu`, `objet-clé`, `quête`, quand je lis `conditions.ts`, alors les quatre existent et sont testées une fois chacune.
+- [x] Étant donné la Route 1, quand je la lis, alors elle donne : 10 étapes, boss à l'étape 10, liste des Pokémon sauvages avec niveau et chance d'apparition.
 
 ### Hors périmètre
 Les autres zones de Kanto, les événements (Ronflex, rival), la carte du monde.
