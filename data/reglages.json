@@ -1,0 +1,7 @@
+{
+  "boucle": {
+    "pasMs": 100,
+    "rattrapageMaxMs": 3600000,
+    "notificationMinMs": 100
+  }
+}

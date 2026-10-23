@@ -96,7 +96,7 @@ Fourchette : 1 jour (rédaction par Claude, décisions par Nicolas). Risque : d�
 
 ## B. `feat(core): faire tourner le jeu au temps écoulé`
 
-Labels : `type:feat`, `etat:idee`, `est:1-2`, `prio:1` · branche : `feat/<n>-boucle` · `agent-ok` : oui (après A)
+Labels : `type:feat`, `etat:pret`, `est:1-2`, `prio:1` · branche : `v2` (pas encore de PR) · `agent-ok` : oui (ordre de Nicolas du 23/10, A terminé)
 
 ### Histoire
 En tant que joueur, je veux que le jeu avance de la même façon que la page soit active, ralentie ou rouverte afin de ne jamais perdre ni gagner de progression à cause du navigateur.
@@ -106,7 +106,7 @@ La V1 utilise des `setInterval` (`legacy/js/game/loop.js`) et un auto-clic par m
 
 ### Critères d'acceptation
 - [ ] Étant donné une horloge simulée, quand 5 000 ms s'écoulent en un seul pas, alors l'état avance exactement comme 50 pas de 100 ms.
-- [ ] Étant donné un onglet suspendu 10 minutes puis rouvert, quand la boucle reprend, alors elle rattrape le temps écoulé en un nombre borné de pas (pas de gel de l'écran), avec un plafond documenté.
+- [ ] Étant donné un onglet suspendu 10 minutes puis rouvert, quand la boucle reprend, alors elle rattrape au plus **1 heure** de temps de jeu (36 000 pas de 100 ms, valeur lue dans `data/reglages.json`), signale le temps non rattrapé, et ne gèle pas l'écran.
 - [ ] Étant donné la boucle en marche, quand l'interface s'abonne à l'état, alors elle n'est notifiée que 10 fois par seconde au plus.
 - [ ] Étant donné `src/core/loop.ts`, quand je le lis, alors il n'importe ni React ni `window` ni `document`.
 
@@ -117,7 +117,7 @@ Expéditions hors ligne (phase 6) ; combat (ticket D) ; sauvegarde.
 `npm test -- loop` (4 tests, un par critère, horloge simulée de Vitest).
 
 ### Effort et risques
-Fourchette : 1 à 2 jours. Risque : plafond de rattrapage mal choisi (à fixer avec Nicolas). Dépend de : A.
+Fourchette : 1 à 2 jours. Risque : faible (plafond fixé à 1 h par Nicolas le 23/10). Dépend de : A (fait).
 
 ---
 
