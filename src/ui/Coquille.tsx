@@ -1,0 +1,24 @@
+import { useState } from 'react';
+import { Navigation } from './Navigation';
+import type { Page } from './Navigation';
+import { PageBientot } from './pages';
+
+export function Coquille({ region = 'kanto', theme = 'dark' }: {
+  region?: 'kanto' | 'johto' | 'hoenn' | 'atlas';
+  theme?: 'dark' | 'light';
+}) {
+  const [page, choisir] = useState<Page>('Combat');
+
+  return (
+    <div data-region={region} data-theme={theme}
+      className="min-h-dvh bg-fond font-texte text-texte pb-[env(safe-area-inset-bottom)] lg:pb-0">
+      <a href="#contenu" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-20 focus:bg-surface focus:p-4 focus:text-lien">
+        Aller au contenu
+      </a>
+      <Navigation page={page} choisir={choisir} />
+      <main id="contenu" tabIndex={-1} className="mb-14 min-w-0 p-4 lg:mb-0 lg:ml-24 lg:p-8">
+        <PageBientot titre={page} />
+      </main>
+    </div>
+  );
+}

@@ -6,6 +6,7 @@
   --region-accent: #8a6a12;
   --region-argent: #595e67;
   --region-socle: #7fb35f;
+  --rayon: 0;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]), [data-region="kanto"]:not([data-theme="light"]) {
@@ -39,6 +40,7 @@
   --region-accent: #8a6a12;
   --region-argent: #6c7783;
   --region-socle: #d9b857;
+  --rayon: 0.25rem;
 }
 @media (prefers-color-scheme: dark) {
   [data-region="johto"]:not([data-theme="light"]) {
@@ -161,6 +163,7 @@
   --region-accent: #2b6c9e;
   --region-argent: #8a7a5c;
   --region-socle: #d9b857;
+  --rayon: 0.75rem;
   --font-titre: "Lilita One", system-ui, sans-serif;
   --font-texte: "Nunito", system-ui, sans-serif;
 }

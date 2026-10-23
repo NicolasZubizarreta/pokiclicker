@@ -11,7 +11,7 @@ const decl=o=>Object.entries(o).map(([k,v])=>`  --${k}: ${v};`).join('\n');
 for(const [n,t] of Object.entries(R)){if(n.startsWith('_'))continue;
  const isK=n==='kanto';
  for(const th of isK?[]:['clair','sombre'])for(const [a,b,min] of CHECKS){const r=cr(t[th][a],t[th][b]);if(r<min){fails++;console.log(`ÉCHEC ${n} ${th} ${a}/${b} ${r.toFixed(2)} < ${min}`)}}
- const extra=t.typo?`\n  --font-titre: ${t.typo.titre};\n  --font-texte: ${t.typo.texte};`:'';
+ const extra=(t.rayon!==undefined?`\n  --rayon: ${t.rayon};`:'')+(t.typo?`\n  --font-titre: ${t.typo.titre};\n  --font-texte: ${t.typo.texte};`:'');
  css+=`\n/* ${n} : ${t.jeu} */\n[data-region="${n}"] {\n${decl(t.clair)}${extra}\n}\n@media (prefers-color-scheme: dark) {\n  [data-region="${n}"]:not([data-theme="light"]) {\n${decl(t.sombre).replace(/^/gm,'  ')}\n  }\n}\n[data-region="${n}"][data-theme="dark"] {\n${decl(t.sombre)}\n}\n`;}
 // Kanto est le thème par défaut : les rôles de région s'appliquent aussi sans attribut data-region
 css=css.replace('[data-region="kanto"] {\n  --region-accent','[data-region="kanto"] {\n  --region-accent'.replace('[data-region="kanto"]',':root, [data-region="kanto"]'))

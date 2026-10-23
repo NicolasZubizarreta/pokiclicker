@@ -1,0 +1,47 @@
+@import "tailwindcss";
+@import "../../design/tokens.tailwind.css";
+@import "../../design/regions.css";
+@import "@fontsource/pixelify-sans/latin-600.css";
+@import "@fontsource/atkinson-hyperlegible-next/latin-400.css";
+@import "@fontsource/atkinson-hyperlegible-next/latin-600.css";
+@import "@fontsource/atkinson-hyperlegible-next/latin-700.css";
+
+@theme inline {
+  --color-fond: var(--fond);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-bordure: var(--bordure);
+  --color-texte: var(--texte);
+  --color-texte-doux: var(--texte-doux);
+  --color-texte-inverse: var(--texte-inverse);
+  --color-action: var(--action);
+  --color-action-survol: var(--action-survol);
+  --color-action-texte: var(--action-texte);
+  --color-lien: var(--lien);
+  --color-focus: var(--focus);
+  --color-selection: var(--selection);
+  --color-region-accent: var(--region-accent);
+  --color-region-argent: var(--region-argent);
+  --color-region-socle: var(--region-socle);
+  --radius-cadre: var(--rayon);
+}
+
+@layer base {
+  body {
+    @apply bg-fond text-texte font-texte tabular-nums;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    overscroll-behavior: none;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      transition: none !important;
+    }
+  }
+}

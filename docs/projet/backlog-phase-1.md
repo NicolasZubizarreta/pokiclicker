@@ -272,7 +272,7 @@ Fourchette : 2 à 3 jours. Risque : formule V1 à lire avec précision (la V1 m�
 
 ## G. `feat(ui): poser la coquille d'interface mobile et ses jetons`
 
-Labels : `type:feat`, `etat:idee`, `est:2-3`, `prio:1` · branche : `feat/<n>-coquille` · `agent-ok` : oui (renvoi `design/DESIGN.md`)
+Labels : `type:feat`, `etat:fait`, `est:2-3`, `prio:1` · branche : `v2` (pas encore de PR) · `agent-ok` : oui (renvoi `design/DESIGN.md`)
 
 ### Histoire
 En tant que joueur sur téléphone, je veux une navigation basse et des écrans pensés pour le pouce afin de jouer en portrait sans zoomer.
@@ -281,12 +281,15 @@ En tant que joueur sur téléphone, je veux une navigation basse et des écrans 
 Tout le style vient de `design/DESIGN.md`, `design/tokens.css` et `design/regions.css` ; ne pas redire la charte. Squelette : navigation basse à 5 entrées (Combat, Équipe, Shop, Carte, Plus), 56 px ; sur PC, navigation à gauche. Fichiers prévus (À CONFIRMER) : `src/ui/Coquille.tsx`, `src/ui/Navigation.tsx`, `src/styles/` (import des jetons), `src/ui/Coquille.test.tsx`.
 
 ### Critères d'acceptation
-- [ ] Étant donné un écran de 390 px, quand la coquille s'affiche, alors la navigation est en bas, ses cibles font au moins 44 px, et il n'y a aucun défilement horizontal.
-- [ ] Étant donné un écran de 1440 px, quand la coquille s'affiche, alors la navigation est à gauche.
-- [ ] Étant donné `data-region="johto"` sur la racine, quand la page s'affiche, alors les couleurs de Johto s'appliquent sans changer le code des composants.
-- [ ] Étant donné la navigation, quand j'appuie sur Tab, alors le focus est visible (anneau 3:1) ; l'entrée active se distingue par la forme et la couleur.
-- [ ] Étant donné le code de `src/ui`, quand je le parcours, alors aucune couleur, taille ou rayon n'est en dur (tout vient des jetons).
-- [ ] Captures à 390 et 1440 px jointes à la PR et vérifiées contre `design/DESIGN.md`.
+- [x] Étant donné un écran de 390 px, quand la coquille s'affiche, alors la navigation est en bas, ses cibles font au moins 44 px, et il n'y a aucun défilement horizontal.
+- [x] Étant donné un écran de 1440 px, quand la coquille s'affiche, alors la navigation est à gauche.
+- [x] Étant donné `data-region="johto"` sur la racine, quand la page s'affiche, alors les couleurs de Johto s'appliquent sans changer le code des composants.
+- [x] Étant donné la navigation, quand j'appuie sur Tab, alors le focus est visible (anneau 3:1) ; l'entrée active se distingue par la forme et la couleur.
+- [x] Étant donné le code de `src/ui`, quand je le parcours, alors aucune couleur, taille ou rayon n'est en dur (tout vient des jetons).
+- [ ] Captures à 390 et 1440 px jointes à la PR et vérifiées contre `design/DESIGN.md`. (Vérifiées le 23/10 en direct à 390 et 1440 px, focus et Johto compris ; à joindre à la PR au premier envoi sur GitHub.)
+
+### Périmètre précisé le 23/10
+Tailwind v4 compilé (jetons de `design/tokens.tailwind.css`), polices locales (Pixelify Sans, Atkinson Hyperlegible Next), icônes SVG en ligne, mode sombre par défaut, rayons par région (`--rayon` ajouté à `design/regions.json` : Kanto 0, Johto 4 px, atlas 12 px, valeurs de DESIGN.md). La coquille applique le squelette retenu le 23/10 (direction A) ; les trois variantes de la règle de `CLAUDE.md` seront proposées pour l'écran de combat (ticket H), pas pour la coquille. Les captures 390 et 1440 px sont faites par Claude après le travail de Codex.
 
 ### Hors périmètre
 Contenu des écrans Équipe, Shop, Carte, Plus (page vide « Bientôt »), animations d'entrée, mode clair détaillé.

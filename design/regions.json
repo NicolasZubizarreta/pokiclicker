@@ -1,6 +1,7 @@
 {
   "_note": "Thèmes de région : mêmes noms de rôles que charte.json (Kanto = charte.json). Source de regions.css, généré par scripts/regions-build.cjs. Une région ajoute ses valeurs ici, rien d'autre.",
   "kanto": {
+    "rayon": "0",
     "jeu": "Rouge Feu / Vert Feuille : thème de base (tokens.css) ; seuls les rôles de région sont ici",
     "clair": {
       "region-accent": "#8a6a12",
@@ -14,6 +15,7 @@
     }
   },
   "johto": {
+    "rayon": "0.25rem",
     "jeu": "HeartGold / SoulSilver (interprétation, à valider avec des captures du jeu)",
     "clair": {
       "fond": "#f1e8d0",
@@ -96,6 +98,7 @@
     }
   },
   "atlas": {
+    "rayon": "0.75rem",
     "jeu": "carte du monde et hub : papier, encre, cartoon (direction B)",
     "typo": {
       "titre": "\"Lilita One\", system-ui, sans-serif",
