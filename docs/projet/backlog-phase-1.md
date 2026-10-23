@@ -307,7 +307,7 @@ Fourchette : 2 à 3 jours. Risque : Tailwind et jetons CSS à brancher propremen
 
 ## H. `feat(ui): jouer un combat de la Route 1 de bout en bout`
 
-Labels : `type:feat`, `etat:idee`, `est:2-3`, `prio:1` · branche : `feat/<n>-combat-route-1` · `agent-ok` : oui (après D, E, F, G, I)
+Labels : `type:feat`, `etat:en_cours`, `est:2-3`, `prio:1` · branche : `v2` (pas encore de PR) · `agent-ok` : oui (après D, E, F, G, I)
 
 ### Histoire
 En tant que joueur, je veux cliquer sur un Pokémon sauvage de la Route 1, le battre avec mon équipe, voir les étapes avancer et retrouver ma partie en revenant afin de vérifier que les fondations tiennent.
@@ -322,6 +322,9 @@ En tant que joueur, je veux cliquer sur un Pokémon sauvage de la Route 1, le ba
 - [ ] Étant donné 12 appuis par seconde sur un téléphone, quand le combat tourne 60 s, alors l'image reste fluide (pas de chute sous 50 images/s sur le profil de mesure du navigateur) et l'interface n'est mise à jour que 10 fois par seconde au plus.
 - [ ] Étant donné les écrans 390 et 1440 px, quand je les capture, alors aucune bande noire, aucun saut d'image, aucun texte en anglais.
 - [ ] Étant donné une erreur de chargement des données, quand elle survient, alors un message en français dit quoi faire (« Recharge la page ; ta partie est gardée »).
+
+### Périmètre précisé le 23/10
+Disposition retenue par Nicolas : variante A « Scène et Attaque » (maquette design/variantes/combat/a-scene-attaque.html) ; remarque de Nicolas : dans les cartes d'équipe, le DPS ne doit pas être collé au bord droit (marge d'au moins 16 px, p-4). Zustand 5.0.16 et Playwright 1.64.1 sont installés. Images prêtes dans public/img/ (décor decors/route-1.webp, sprites de face 1, 4, 7, 16, 17, 19, 20, 21 ; décor V1 recadré en 16:9 par moi, provisoire). Équipe de départ provisoire fixe : Bulbizarre, Salamèche, Carapuce, niveau 5. Sauvegarde locale toutes les 30 s et à la fermeture ; l'ennemi en cours n'est PAS sauvegardé (ADR 0001, aucun état d'interface) : à la reprise, même zone, même étape, même équipe, un nouvel ennemi apparaît. La fin de zone après le boss est un message avec la suite (Forêt de Jade, provisoire) verrouillée avec la raison tant que la condition n'est pas remplie, puis « La suite arrive bientôt. » une fois déverrouillée (le contenu de la zone suivante n'existe pas encore). Livraison en deux temps : H1 (écran, stockage d'état, sauvegarde, tests Vitest), H2 (test Playwright 390 et 1440 px, mesure d'images par seconde).
 
 ### Hors périmètre
 Capture, choix du starter, dialogues, Shop, équipe modifiable, hors-ligne.
