@@ -342,7 +342,7 @@ Fourchette : 2 à 3 jours. Risque : rafraîchissement de l'interface sur un tél
 
 ## J. `feat(pwa): rendre le jeu installable et lisible hors connexion`
 
-Labels : `type:feat`, `etat:idee`, `est:1-2`, `prio:2` · branche : `feat/<n>-pwa` · `agent-ok` : oui
+Labels : `type:feat`, `etat:en_cours`, `est:1-2`, `prio:2` · branche : `v2` (pas encore de PR) · `agent-ok` : oui
 
 ### Histoire
 En tant que joueur sur téléphone, je veux installer le jeu sur l'écran d'accueil et l'ouvrir sans réseau afin de jouer dans le train.
@@ -355,6 +355,9 @@ Plugin PWA de Vite ; le jeu n'a aucune ressource externe au chargement, donc tou
 - [ ] Étant donné une première visite faite en ligne, quand je coupe le réseau et recharge, alors le jeu s'ouvre et la partie se charge.
 - [ ] Étant donné une nouvelle version publiée, quand j'ouvre le jeu, alors un message « Une mise à jour est prête. Recharge pour l'utiliser. » apparaît et la partie en cours n'est pas perdue.
 - [ ] Étant donné l'audit Lighthouse sur le build, quand je lance la catégorie PWA, alors il n'y a aucune erreur bloquante.
+
+### Périmètre précisé le 23/10
+ite-plugin-pwa 2.0.0 et workbox-window installés (0 vulnérabilité). Mise à jour sur demande seulement (jamais de rechargement automatique) : message exact « Une mise à jour est prête. Recharge pour l'utiliser. », la partie est sauvegardée avant le rechargement. Couleurs du manifeste lues dans design/tokens.css (--fond sombre), icônes provisoires générées par script (Poké Ball en trait, pas de mascotte), nom du jeu dans data/jeu.json. L'audit Lighthouse est lancé par Claude, l'essai Android et iOS réel par Nicolas (ticket M).
 
 ### Hors périmètre
 Notifications, synchronisation en arrière-plan, vraies icônes (phase 5).
