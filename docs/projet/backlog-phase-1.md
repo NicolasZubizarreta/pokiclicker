@@ -357,7 +357,7 @@ Plugin PWA de Vite ; le jeu n'a aucune ressource externe au chargement, donc tou
 - [ ] Étant donné l'audit Lighthouse sur le build, quand je lance la catégorie PWA, alors il n'y a aucune erreur bloquante.
 
 ### Périmètre précisé le 23/10
-ite-plugin-pwa 2.0.0 et workbox-window installés (0 vulnérabilité). Mise à jour sur demande seulement (jamais de rechargement automatique) : message exact « Une mise à jour est prête. Recharge pour l'utiliser. », la partie est sauvegardée avant le rechargement. Couleurs du manifeste lues dans design/tokens.css (--fond sombre), icônes provisoires générées par script (Poké Ball en trait, pas de mascotte), nom du jeu dans data/jeu.json. L'audit Lighthouse est lancé par Claude, l'essai Android et iOS réel par Nicolas (ticket M).
+`vite-plugin-pwa` 2.0.0 et `workbox-window` installés (0 vulnérabilité). Mise à jour sur demande seulement (jamais de rechargement automatique) : message exact « Une mise à jour est prête. Recharge pour l'utiliser. », la partie est sauvegardée avant le rechargement. Couleurs du manifeste lues dans design/tokens.css (--fond sombre), icônes provisoires générées par script (Poké Ball en trait, pas de mascotte), nom du jeu dans data/jeu.json. L'audit Lighthouse est lancé par Claude, l'essai Android et iOS réel par Nicolas (ticket M).
 
 ### Hors périmètre
 Notifications, synchronisation en arrière-plan, vraies icônes (phase 5).
