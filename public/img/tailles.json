@@ -1,1 +1,38 @@
-{}
+{
+  "img/decors/route-1.webp": {
+    "largeur": 1920,
+    "hauteur": 1080
+  },
+  "img/sprites/pokemon/1.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/16.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/17.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/19.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/20.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/21.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/4.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/7.png": {
+    "largeur": 96,
+    "hauteur": 96
+  }
+}
