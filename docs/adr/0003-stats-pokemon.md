@@ -1,6 +1,6 @@
 # ADR 0003 — Stats des Pokémon : formule, surcharges et données générées
 
-**Statut : proposé le 23/10/2026, en attente de la validation de Nicolas.**
+**Statut : accepté — décidé par Nicolas le 23/10/2026.**
 
 ## Contexte
 - La V1 utilise deux tables écrites à la main, `BASE_STATS` (puissance d'attaque) et `BASE_HP` (PV), pour les 151 Pokémon (`legacy/js/data/constants.js`). Le DPS d'un Pokémon vaut `BASE_STATS × niveau / 5`, puis des bonus (`legacy/js/game/stats.js`). Les PV d'un ennemi valent `BASE_HP × niveau × 2 × multiplicateur de zone`, fois 4 pour un boss (`legacy/js/game/combat.js`).
@@ -23,9 +23,9 @@
 6. **Le script échoue** (et n'écrit rien) s'il manque le nom français d'un Pokémon : il n'écrit jamais un nom anglais dans le jeu.
 7. **Test de non-régression** : pour 10 Pokémon de Kanto figés, `puissance` et `pv` du jeu sont identiques aux valeurs de la V1.
 
-## Points à trancher par Nicolas
-- Les coefficients de la formule des PV sont une **approximation** de ce que la V1 faisait à la main : à ajuster au simulateur d'équilibrage (phase 3) pour Johto et les régions suivantes.
-- Les 8 écarts de puissance sont-ils voulus (réglages d'équilibrage) ou des restes à corriger ? Par défaut ils sont gardés.
+## Décisions de Nicolas (23/10/2026)
+- Les **8 écarts de puissance** de la V1 sont gardés comme réglages voulus (surcharges).
+- Les **PV des 151 Pokémon de Kanto** sont repris tels quels de la V1 ; les coefficients de la formule de PV (nouvelles régions) seront ajustés au simulateur d'équilibrage (phase 3).
 
 ## Conséquences
 - Ajouter une génération = relancer le script avec un autre intervalle de numéros.

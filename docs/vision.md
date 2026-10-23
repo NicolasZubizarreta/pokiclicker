@@ -41,7 +41,7 @@ Jeu **perso et amis**, ni public ni monétisé. Plateforme : **PC et mobile**, l
 ## Comptes et sauvegardes
 - **Compte en ligne** : plusieurs parties par compte ; on lance celle qu'on veut et on peut en supprimer.
 - **Export/import JSON conservé**, en secours.
-- Trois niveaux de données : **compte** (diamants, skins, succès), **partie** (monde, Pokédex national, PC global, argent), **région** (équipe, zone, badges).
+- Trois niveaux de données : **compte** (diamants, skins, succès), **partie** (monde, Pokédex national, PC global), **région** (équipe, zone, badges, argent, inventaire d'objets : chaque région repart de zéro, décidé le 23/10, ADR 0001).
 - **Succès → diamants** (monnaie du compte) → **skins** (cosmétiques uniquement). Un succès ne se gagne qu'une fois par compte.
 - Triche : le jeu tourne côté client, une sauvegarde modifiée reste possible. Accepté entre amis ; les skins sont cosmétiques, donc l'enjeu est faible.
 

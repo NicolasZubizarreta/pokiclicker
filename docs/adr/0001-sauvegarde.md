@@ -1,6 +1,6 @@
 # ADR 0001 — Sauvegarde à trois niveaux, versionnée
 
-**Statut : proposé le 23/10/2026, en attente de la validation de Nicolas.** (Passe en « accepté » avec la mention « décidé par Nicolas le <date> ».)
+**Statut : accepté — décidé par Nicolas le 23/10/2026.**
 
 ## Contexte
 - La V1 garde tout dans **un seul objet `state`** sérialisé sous la clé `pokiClickerSave` (`legacy/js/app/main.js`, `legacy/js/game/save.js`). Cet objet mélange la progression (argent, équipe, badges, PC, Pokédex), des réglages (arrêt sur rare) et des **états d'interface** qui ne devraient pas être sauvegardés (`candyMode`, `swapIdx`, `summaryPokemon`, `contextTarget`…). Il n'a pas de numéro de version : chaque ajout de champ est rattrapé à la main au chargement.
@@ -23,9 +23,9 @@
 6. **Export/import JSON** conservé : un fichier contient une partie complète (sa partie et ses régions) ; il ne contient ni e-mail ni identifiant de compte. Un fichier corrompu est refusé avec un message en français, sans toucher à la partie en cours.
 7. **Reprise après absence** : la sauvegarde garde la date de dernière écriture. Le rattrapage de temps (1 heure au plus, ticket B, `data/reglages.json`) s'applique à l'ouverture.
 
-## Points à trancher par Nicolas
-- **Argent et objets** : la vision place l'**argent au niveau partie** (partagé entre régions). Conséquence : l'argent de fin de Kanto (environ 1 M$/h) arrive dans Johto et casse la courbe d'achat. Proposition : **argent et inventaire au niveau région** (chaque région repart de zéro, comme l'équipe), et seulement les diamants au compte. Décision à prendre ; ce document applique la proposition (région) en attendant.
-- **Import d'une sauvegarde de la V1** : non prévu. À demander si Nicolas veut garder sa partie Kanto actuelle.
+## Décisions de Nicolas (23/10/2026)
+- **Argent et inventaire au niveau région** : chaque région repart de zéro, comme l'équipe. Seuls les diamants, les succès et les skins sont au compte ; le Pokédex national et le PC global sont à la partie. (Écarte la formule « argent au niveau partie » de `docs/vision.md`, à corriger.)
+- **Import d'une sauvegarde de la V1** : non prévu.
 
 ## Conséquences
 - Remettre à zéro une région ne touche ni le Pokédex ni le PC global.

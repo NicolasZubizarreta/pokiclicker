@@ -1,6 +1,6 @@
 # ADR 0002 — Zones en graphe, événements en données
 
-**Statut : proposé le 23/10/2026, en attente de la validation de Nicolas.**
+**Statut : accepté — décidé par Nicolas le 23/10/2026.** Deux points restent ouverts pour la phase 2 (voir ci-dessous).
 
 ## Contexte
 - En V1, les zones sont un tableau `ZONES` linéaire (`legacy/js/regions/kanto.js`, `legacy/js/data/constants.js`) : identifiant numérique, nom, décor, niveaux mini et maxi, liste de Pokémon sauvages (`rarity`, `spawnRate`, `catchRate`), boss (`name`, `id`, `level`, `catchRate`). La progression suit `unlockedZone` et les badges (`BADGES[].zoneIdx`). Le multiplicateur de PV par zone est une table à part (`ZONE_MULT`). Les positions cliquables de la carte sont en **pixels** (`MAP_DATA`), d'où les décalages quand l'image change de taille. Les scènes d'introduction sont de « fausses zones » à indices négatifs (−7 à −1).
@@ -61,9 +61,9 @@
 6. **Validation au chargement** : identifiants uniques, liens vers des zones existantes, un chemin depuis la zone de départ vers chaque zone, conditions connues. Un fichier invalide fait échouer le chargement avec un message en français (« Zone inconnue : kanto.route-99 »).
 7. **Les scènes d'introduction** de la V1 (zones −7 à −1) deviennent des **événements** de type `debut-partie`, pas des zones.
 
-## Points à trancher par Nicolas
-- Le combat de Ronflex arrive-t-il **avant** de pouvoir passer, ou le réveil libère-t-il juste le passage ? (L'exemple ci-dessus fait les deux : combat puis passage ouvert.)
-- Les combats de rival sont-ils obligatoires (bloquants) ou facultatifs ? (À reprendre depuis la V1 en phase 2.)
+## Points laissés ouverts (phase 2)
+- Le combat de Ronflex avant le passage, ou le réveil seul ? L'exemple ci-dessus fait les deux ; à confirmer en saisissant Kanto.
+- Les combats de rival, obligatoires ou facultatifs ? À reprendre de la V1.
 
 ## Conséquences
 - Ajouter une région = ajouter des fichiers JSON ; le moteur ne change pas.

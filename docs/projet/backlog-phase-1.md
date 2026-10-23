@@ -17,7 +17,7 @@ Jalon : **Route 1 jouable sur téléphone et PC** (`docs/plan.md`). Brouillon du
 | Ordre | Ticket | Fourchette | Dépend de | `agent-ok` recommandé |
 |---|---|---|---|---|
 | 1 | A. Socle du dépôt (Vite, TS, Vitest, CI) | 1 à 2 j | nom du dépôt | non (configuration, fait par un humain) |
-| 2 | L. Les quatre ADR | 1 j | rien | non (décisions de Nicolas) |
+| 2 | L. Les quatre ADR | 1 j | rien | fait le 23/10 |
 | 3 | B. Boucle de jeu au temps écoulé | 1 à 2 j | A | oui |
 | 4 | C. Modèle Pokémon et stats par formule | 2 à 3 j | A, L (ADR 3) | oui |
 | 5 | E. Graphe de zones et Route 1 en données | 2 à 3 j | A, L (ADR 2) | oui |
@@ -67,7 +67,7 @@ Fourchette : 1 à 2 jours. Risque : choix des versions et des règles de lint (f
 
 ## L. `docs(adr): trancher les quatre décisions techniques de la phase 1`
 
-Labels : `type:docs`, `etat:pret`, `est:1-1`, `prio:1` · branche : `v2` · **brouillons rédigés le 23/10 dans `docs/adr/`, en attente de validation de Nicolas** · `agent-ok` : **non**
+Labels : `type:docs`, `etat:fait`, `est:1-1`, `prio:1` · branche : `v2` · **FAIT le 23/10 : quatre ADR acceptés par Nicolas dans `docs/adr/`** · `agent-ok` : **non**
 
 ### Histoire
 En tant que développeur du jeu, je veux les quatre décisions techniques écrites avant le code afin que les agents ne les réinventent pas chacun de leur côté.
@@ -145,7 +145,7 @@ Formules de la V1 : `legacy/js/game/stats.js` et `legacy/js/data/constants.js` (
 `npm test -- stats` ; `node scripts/generer-pokemon.mjs` puis `git diff --stat` vide au second lancement.
 
 ### Effort et risques
-Fourchette : 2 à 3 jours. Risque : écarts de noms français et de formes entre PokeAPI et la V1 (à lister dans le ticket, pas à corriger à la main). Dépend de : A ; ADR 3 (L).
+Fourchette : 2 à 3 jours. Risque : écarts de noms français et de formes entre PokeAPI et la V1 (à lister dans le ticket, pas à corriger à la main). Dépend de : A (fait) ; ADR 0003 (accepté). **Précisions de l'ADR** : puissance = ⌊somme des 6 stats ÷ 4⌋ ; PV des 151 de Kanto repris de la V1 dans `data/surcharges-stats.json` (8 écarts de puissance gardés) ; formule de PV approchée pour les nouvelles régions ; test de non-régression sur 10 Pokémon.
 
 ---
 
@@ -173,7 +173,7 @@ Les autres zones de Kanto, les événements (Ronflex, rival), la carte du monde.
 `npm test -- monde` (cinq tests) ; ajouter volontairement un lien cassé et vérifier l'échec.
 
 ### Effort et risques
-Fourchette : 2 à 3 jours. Risque : format de condition trop rigide pour Ronflex et le rival (couvert par l'exemple de l'ADR 2). Dépend de : A ; ADR 2 (L).
+Fourchette : 2 à 3 jours. Risque : format de condition trop rigide pour Ronflex et le rival (couvert par l'exemple de l'ADR 2). Dépend de : A (fait) ; ADR 0002 (accepté). **Précisions de l'ADR** : identifiants texte (`kanto.route-1`) avec `ancienId` ; `multiplicateurPv` dans la zone ; `carte` en fractions de l'image ; conditions `badge`/`boss`/`objet`/`quete`/`drapeau` + `tous`/`un_parmi`/`non`.
 
 ---
 
@@ -202,7 +202,7 @@ Compte en ligne, synchronisation, conflits entre appareils (phase 4), sauvegarde
 `npm test -- sauvegarde` (6 tests) ; parcours manuel : export, vider le stockage, import.
 
 ### Effort et risques
-Fourchette : 2 à 3 jours. Risque : perte de données si la migration est mal écrite ; revue humaine du diff et des fixtures. Dépend de : A ; ADR 1 (L).
+Fourchette : 2 à 3 jours. Risque : perte de données si la migration est mal écrite ; revue humaine du diff et des fixtures. Dépend de : A (fait) ; ADR 0001 (accepté). **Précisions de l'ADR** : enveloppe `{ version, niveau, id, revision, ecritLe, donnees }` ; argent et inventaire au niveau région ; aucun état d'interface sauvegardé ; pas d'import de la V1.
 
 ---
 
