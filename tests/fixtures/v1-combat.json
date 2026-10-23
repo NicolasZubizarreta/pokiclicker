@@ -1,0 +1,565 @@
+[
+  {
+    "nom": "Équipe de un",
+    "equipe": [
+      {
+        "numero": 19,
+        "niveau": 5,
+        "shiny": false,
+        "bonheur": 0,
+        "pierreEternelle": false,
+        "calcium": 0
+      }
+    ],
+    "cible": 19,
+    "jalons": [],
+    "badges": [],
+    "objets": [],
+    "boosts": [],
+    "dpsV1": 63,
+    "clicV1": 5
+  },
+  {
+    "nom": "Équipe de six",
+    "equipe": [
+      {
+        "numero": 1,
+        "niveau": 23,
+        "shiny": false,
+        "bonheur": 0,
+        "pierreEternelle": false,
+        "calcium": 0
+      },
+      {
+        "numero": 4,
+        "niveau": 23,
+        "shiny": false,
+        "bonheur": 0,
+        "pierreEternelle": false,
+        "calcium": 0
+      },
+      {
+        "numero": 7,
+        "niveau": 23,
+        "shiny": false,
+        "bonheur": 0,
+        "pierreEternelle": false,
+        "calcium": 0
+      },
+      {
+        "numero": 25,
+        "niveau": 23,
+        "shiny": false,
+        "bonheur": 0,
+        "pierreEternelle": false,
+        "calcium": 0
+      },
+      {
+        "numero": 129,
+        "niveau": 23,
+        "shiny": false,
+        "bonheur": 0,
+        "pierreEternelle": false,
+        "calcium": 0
+      },
+      {
+        "numero": 151,
+        "niveau": 23,
+        "shiny": false,
+        "bonheur": 0,
+        "pierreEternelle": false,
+        "calcium": 0
+      }
+    ],
+    "cible": 95,
+    "jalons": [],
+    "badges": [],
+    "objets": [],
+    "boosts": [],
+    "dpsV1": 3847.8999999999996,
+    "clicV1": 12
+  },
+  {
+    "nom": "Avantage",
+    "equipe": [
+      {
+        "numero": 7,
+        "niveau": 5,
+        "shiny": false,
+        "bonheur": 0,
+        "pierreEternelle": false,
+        "calcium": 0
+      }
+    ],
+    "cible": 4,
+    "jalons": [],
+    "badges": [],
+    "objets": [],
+    "boosts": [],
+    "dpsV1": 156,
+    "clicV1": 5
+  },
+  {
+    "nom": "Désavantage",
+    "equipe": [
+      {
+        "numero": 4,
+        "niveau": 5,
+        "shiny": false,
+        "bonheur": 0,
+        "pierreEternelle": false,
+        "calcium": 0
+      }
+    ],
+    "cible": 7,
+    "jalons": [],
+    "badges": [],
+    "objets": [],
+    "boosts": [],
+    "dpsV1": 38.5,
+    "clicV1": 5
+  },
+  {
+    "nom": "Immunité",
+    "equipe": [
+      {
+        "numero": 19,
+        "niveau": 5,
+        "shiny": false,
+        "bonheur": 0,
+        "pierreEternelle": false,
+        "calcium": 0
+      }
+    ],
+    "cible": 92,
+    "jalons": [],
+    "badges": [],
+    "objets": [],
+    "boosts": [],
+    "dpsV1": 0,
+    "clicV1": 5
+  },
+  {
+    "nom": "Shiny",
+    "equipe": [
+      {
+        "numero": 1,
+        "niveau": 5,
+        "shiny": true,
+        "bonheur": 0,
+        "pierreEternelle": false,
+        "calcium": 0
+      }
+    ],
+    "cible": 19,
+    "jalons": [],
+    "badges": [],
+    "objets": [],
+    "boosts": [],
+    "dpsV1": 118.5,
+    "clicV1": 5
+  },
+  {
+    "nom": "Bonheur",
+    "equipe": [
+      {
+        "numero": 1,
+        "niveau": 5,
+        "shiny": false,
+        "bonheur": 173,
+        "pierreEternelle": false,
+        "calcium": 0
+      }
+    ],
+    "cible": 19,
+    "jalons": [],
+    "badges": [],
+    "objets": [],
+    "boosts": [],
+    "dpsV1": 92.667,
+    "clicV1": 5
+  },
+  {
+    "nom": "Pierre éternelle",
+    "equipe": [
+      {
+        "numero": 1,
+        "niveau": 5,
+        "shiny": false,
+        "bonheur": 0,
+        "pierreEternelle": true,
+        "calcium": 0
+      }
+    ],
+    "cible": 19,
+    "jalons": [],
+    "badges": [],
+    "objets": [],
+    "boosts": [],
+    "dpsV1": 98.75,
+    "clicV1": 5
+  },
+  {
+    "nom": "Calcium",
+    "equipe": [
+      {
+        "numero": 1,
+        "niveau": 5,
+        "shiny": false,
+        "bonheur": 0,
+        "pierreEternelle": false,
+        "calcium": 7
+      }
+    ],
+    "cible": 19,
+    "jalons": [],
+    "badges": [],
+    "objets": [],
+    "boosts": [],
+    "dpsV1": 90.06000000000002,
+    "clicV1": 5
+  },
+  {
+    "nom": "Jalon 10",
+    "equipe": [
+      {
+        "numero": 19,
+        "niveau": 5,
+        "shiny": false,
+        "bonheur": 0,
+        "pierreEternelle": false,
+        "calcium": 0
+      }
+    ],
+    "cible": 19,
+    "jalons": [
+      10
+    ],
+    "badges": [],
+    "objets": [],
+    "boosts": [],
+    "dpsV1": 63,
+    "clicV1": 10
+  },
+  {
+    "nom": "Jalon 30",
+    "equipe": [
+      {
+        "numero": 19,
+        "niveau": 5,
+        "shiny": false,
+        "bonheur": 0,
+        "pierreEternelle": false,
+        "calcium": 0
+      }
+    ],
+    "cible": 19,
+    "jalons": [
+      30
+    ],
+    "badges": [],
+    "objets": [],
+    "boosts": [],
+    "dpsV1": 94.5,
+    "clicV1": 5
+  },
+  {
+    "nom": "Jalon 90",
+    "equipe": [
+      {
+        "numero": 19,
+        "niveau": 5,
+        "shiny": false,
+        "bonheur": 0,
+        "pierreEternelle": false,
+        "calcium": 0
+      }
+    ],
+    "cible": 19,
+    "jalons": [
+      90
+    ],
+    "badges": [],
+    "objets": [],
+    "boosts": [],
+    "dpsV1": 94.5,
+    "clicV1": 7.5
+  },
+  {
+    "nom": "Badge roche",
+    "equipe": [
+      {
+        "numero": 19,
+        "niveau": 5,
+        "shiny": false,
+        "bonheur": 0,
+        "pierreEternelle": false,
+        "calcium": 0
+      }
+    ],
+    "cible": 19,
+    "jalons": [],
+    "badges": [
+      "roche"
+    ],
+    "objets": [],
+    "boosts": [],
+    "dpsV1": 63,
+    "clicV1": 7
+  },
+  {
+    "nom": "Badge cascade",
+    "equipe": [
+      {
+        "numero": 19,
+        "niveau": 5,
+        "shiny": false,
+        "bonheur": 0,
+        "pierreEternelle": false,
+        "calcium": 0
+      }
+    ],
+    "cible": 19,
+    "jalons": [],
+    "badges": [
+      "cascade"
+    ],
+    "objets": [],
+    "boosts": [],
+    "dpsV1": 81.9,
+    "clicV1": 5
+  },
+  {
+    "nom": "Badge foudre",
+    "equipe": [
+      {
+        "numero": 19,
+        "niveau": 5,
+        "shiny": false,
+        "bonheur": 0,
+        "pierreEternelle": false,
+        "calcium": 0
+      }
+    ],
+    "cible": 19,
+    "jalons": [],
+    "badges": [
+      "foudre"
+    ],
+    "objets": [],
+    "boosts": [],
+    "dpsV1": 75.6,
+    "clicV1": 6
+  },
+  {
+    "nom": "Badge volcan",
+    "equipe": [
+      {
+        "numero": 19,
+        "niveau": 5,
+        "shiny": false,
+        "bonheur": 0,
+        "pierreEternelle": false,
+        "calcium": 0
+      }
+    ],
+    "cible": 19,
+    "jalons": [],
+    "badges": [
+      "volcan"
+    ],
+    "objets": [],
+    "boosts": [],
+    "dpsV1": 94.5,
+    "clicV1": 7.5
+  },
+  {
+    "nom": "Objet protein",
+    "equipe": [
+      {
+        "numero": 19,
+        "niveau": 5,
+        "shiny": false,
+        "bonheur": 0,
+        "pierreEternelle": false,
+        "calcium": 0
+      }
+    ],
+    "cible": 19,
+    "jalons": [],
+    "badges": [],
+    "objets": [
+      "protein"
+    ],
+    "boosts": [],
+    "dpsV1": 63,
+    "clicV1": 7
+  },
+  {
+    "nom": "Objet hardStone",
+    "equipe": [
+      {
+        "numero": 19,
+        "niveau": 5,
+        "shiny": false,
+        "bonheur": 0,
+        "pierreEternelle": false,
+        "calcium": 0
+      }
+    ],
+    "cible": 19,
+    "jalons": [],
+    "badges": [],
+    "objets": [
+      "hardStone"
+    ],
+    "boosts": [],
+    "dpsV1": 63,
+    "clicV1": 6
+  },
+  {
+    "nom": "Boost dps",
+    "equipe": [
+      {
+        "numero": 19,
+        "niveau": 5,
+        "shiny": false,
+        "bonheur": 0,
+        "pierreEternelle": false,
+        "calcium": 0
+      }
+    ],
+    "cible": 19,
+    "jalons": [],
+    "badges": [],
+    "objets": [],
+    "boosts": [
+      "dps"
+    ],
+    "dpsV1": 94.5,
+    "clicV1": 5
+  },
+  {
+    "nom": "Boost attaque",
+    "equipe": [
+      {
+        "numero": 19,
+        "niveau": 5,
+        "shiny": false,
+        "bonheur": 0,
+        "pierreEternelle": false,
+        "calcium": 0
+      }
+    ],
+    "cible": 19,
+    "jalons": [],
+    "badges": [],
+    "objets": [],
+    "boosts": [
+      "attaque"
+    ],
+    "dpsV1": 63,
+    "clicV1": 7.5
+  },
+  {
+    "nom": "Arrondis successifs",
+    "equipe": [
+      {
+        "numero": 19,
+        "niveau": 5,
+        "shiny": false,
+        "bonheur": 0,
+        "pierreEternelle": false,
+        "calcium": 0
+      }
+    ],
+    "cible": 19,
+    "jalons": [],
+    "badges": [
+      "roche",
+      "foudre"
+    ],
+    "objets": [
+      "protein",
+      "hardStone"
+    ],
+    "boosts": [],
+    "dpsV1": 75.6,
+    "clicV1": 15
+  },
+  {
+    "nom": "Tous les bonus cumulés",
+    "equipe": [
+      {
+        "numero": 1,
+        "niveau": 67,
+        "shiny": true,
+        "bonheur": 255,
+        "pierreEternelle": true,
+        "calcium": 9
+      },
+      {
+        "numero": 6,
+        "niveau": 67,
+        "shiny": true,
+        "bonheur": 255,
+        "pierreEternelle": true,
+        "calcium": 9
+      },
+      {
+        "numero": 9,
+        "niveau": 67,
+        "shiny": true,
+        "bonheur": 255,
+        "pierreEternelle": true,
+        "calcium": 9
+      },
+      {
+        "numero": 25,
+        "niveau": 67,
+        "shiny": true,
+        "bonheur": 255,
+        "pierreEternelle": true,
+        "calcium": 9
+      },
+      {
+        "numero": 130,
+        "niveau": 67,
+        "shiny": true,
+        "bonheur": 255,
+        "pierreEternelle": true,
+        "calcium": 9
+      },
+      {
+        "numero": 151,
+        "niveau": 67,
+        "shiny": true,
+        "bonheur": 255,
+        "pierreEternelle": true,
+        "calcium": 9
+      }
+    ],
+    "cible": 149,
+    "jalons": [
+      10,
+      30,
+      90
+    ],
+    "badges": [
+      "roche",
+      "cascade",
+      "foudre",
+      "volcan"
+    ],
+    "objets": [
+      "protein",
+      "hardStone"
+    ],
+    "boosts": [
+      "dps",
+      "attaque"
+    ],
+    "dpsV1": 188943.69797915622,
+    "clicV1": 9047.25
+  }
+]

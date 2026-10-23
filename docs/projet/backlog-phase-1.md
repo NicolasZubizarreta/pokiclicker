@@ -237,7 +237,7 @@ Fourchette : 2 jours. Risque : bibliothèque d'image native (sharp) sous Windows
 
 ## D. `feat(core): résoudre le combat, le clic, le DPS et le plafond de 12 clics par seconde`
 
-Labels : `type:feat`, `etat:idee`, `est:2-3`, `prio:1` · branche : `feat/<n>-combat` · `agent-ok` : oui (après B et C)
+Labels : `type:feat`, `etat:fait`, `est:2-3`, `prio:1` · branche : `v2` (pas encore de PR) · `agent-ok` : oui (après B et C)
 
 ### Histoire
 En tant que joueur, je veux que mes clics et mon équipe fassent avancer le combat, avec le clic qui compte toute la partie, afin de gagner en choisissant bien et non en laissant tourner un automate.
@@ -246,12 +246,15 @@ En tant que joueur, je veux que mes clics et mon équipe fassent avancer le comb
 Règles V1 : `legacy/js/game/combat.js`, `legacy/js/game/stats.js`, `legacy/js/data/constants.js` (PV ennemi = base × niveau × 2 × multiplicateur de zone ; clic = 5 + 0,2 % du DPS, avec multiplicateurs). Plafond de **12 clics/s** décidé le 23/10. Fichiers prévus (À CONFIRMER) : `src/core/combat.ts`, `src/core/clic.ts`, `data/reglages.json`, `src/core/combat.test.ts`.
 
 ### Critères d'acceptation
-- [ ] Étant donné un ennemi de PV connus et un DPS connu, quand 10 s s'écoulent sans clic, alors ses PV baissent de 10 × DPS (au plafond de 0).
-- [ ] Étant donné un clic, quand il est enregistré, alors les dégâts valent 5 + 0,2 % du DPS, multiplicateurs inclus (6 cas figés issus de la V1).
-- [ ] Étant donné 30 clics envoyés dans la même seconde, quand le combat résout, alors seuls 12 sont comptés ; avec 7 clics espacés, les 7 sont comptés.
-- [ ] Étant donné un ennemi à 0 PV, quand le tick suivant arrive, alors le suivant apparaît et la fin d'étape est signalée une seule fois.
-- [ ] Étant donné l'étape 10 d'une zone, quand l'ennemi est un boss, alors son PV utilise le multiplicateur boss du fichier de réglage (valeur lue dans `data/reglages.json`).
-- [ ] Étant donné `combat.ts`, quand je le lis, alors aucune constante d'équilibrage n'est en dur.
+- [x] Étant donné un ennemi de PV connus et un DPS connu, quand 10 s s'écoulent sans clic, alors ses PV baissent de 10 × DPS (au plafond de 0).
+- [x] Étant donné un clic, quand il est enregistré, alors les dégâts valent 5 + 0,2 % du DPS, multiplicateurs inclus (6 cas figés issus de la V1).
+- [x] Étant donné 30 clics envoyés dans la même seconde, quand le combat résout, alors seuls 12 sont comptés ; avec 7 clics espacés, les 7 sont comptés.
+- [x] Étant donné un ennemi à 0 PV, quand le tick suivant arrive, alors le suivant apparaît et la fin d'étape est signalée une seule fois.
+- [x] Étant donné l'étape 10 d'une zone, quand l'ennemi est un boss, alors son PV utilise le multiplicateur boss du fichier de réglage (valeur lue dans `data/reglages.json`).
+- [x] Étant donné `combat.ts`, quand je le lis, alors aucune constante d'équilibrage n'est en dur.
+
+### Périmètre précisé le 23/10
+Ce ticket porte aussi : le tableau des efficacités de type de la V1 (`data/types.json`), les bonus de badges, jalons, objets et boosts pilotés par données (`data/reglages.json`), le tirage et les PV des ennemis (rareté, niveau, shiny 1/256, boss ×4), la progression d'étape et le plafond de clics. Les valeurs attendues viennent du **vrai code de la V1** exécuté par un script (`tests/fixtures/`). Pas de récompenses (argent, XP : phase 2), pas de délai d'apparition, pas d'easter egg « Johnny ».
 
 ### Hors périmètre
 Capture, objets, bonheur, évolutions, minuteur de boss, expéditions.

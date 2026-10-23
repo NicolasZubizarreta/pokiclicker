@@ -8,6 +8,36 @@
     "puissanceDiviseur": 4,
     "pv": { "coefPv": 0.33, "coefDefense": 0.3, "coefDefenseSpe": 0.3, "constante": 10 }
   },
+  "combat": {
+    "clicBase": 5,
+    "clicPartDps": 0.002,
+    "pvParNiveau": 2,
+    "pvBoss": 4,
+    "chanceShiny": 0.00390625,
+    "clicsMaxParSeconde": 12,
+    "fenetreClicsMs": 1000,
+    "etapeBoss": 10
+  },
+  "bonus": {
+    "dps": [
+      { "cle": "jalon:30", "x": 1.5 },
+      { "cle": "jalon:90", "x": 1.5 },
+      { "cle": "badge:cascade", "x": 1.3 },
+      { "cle": "badge:foudre", "x": 1.2 },
+      { "cle": "badge:volcan", "x": 1.5 },
+      { "cle": "boost:dps", "x": 1.5 }
+    ],
+    "clic": [
+      { "cle": "jalon:10", "x": 2 },
+      { "cle": "jalon:90", "x": 1.5 },
+      { "cle": "objet:protein", "x": 1.5, "arrondi": true },
+      { "cle": "objet:hardStone", "x": 1.3, "arrondi": true },
+      { "cle": "badge:roche", "x": 1.5, "arrondi": true },
+      { "cle": "badge:foudre", "x": 1.2, "arrondi": true },
+      { "cle": "badge:volcan", "x": 1.5 },
+      { "cle": "boost:attaque", "x": 1.5 }
+    ]
+  },
   "degats": {
     "diviseurNiveau": 5,
     "shiny": 1.5,
