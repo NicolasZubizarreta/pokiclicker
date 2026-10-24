@@ -55,7 +55,7 @@ function Scene({ store }: { store: StoreJeu }) {
   if (!zone && !ennemi && lieu) return <section aria-label={lieu.nom}
     className="scene-limitee relative isolate flex h-76 items-end bg-surface-2 p-4 lg:col-span-3 lg:aspect-video lg:h-auto">
     {imageConnue(cheminDecor(lieu)) && <Image src={cheminDecor(lieu)} genre="decor" alt="" couvrir className="absolute inset-0 -z-10 size-full" />}
-    <p className="cadre bg-surface p-3">{'message' in lieu ? lieu.message : null}</p>
+    {'message' in lieu && lieu.message && <p className="cadre bg-surface p-3">{lieu.message}</p>}
     {notification}
   </section>;
   if (!zone || !ennemi) return null;

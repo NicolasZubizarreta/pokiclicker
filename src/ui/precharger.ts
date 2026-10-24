@@ -4,7 +4,7 @@ export const cheminSprite = (numero: number): string => `img/sprites/pokemon/${n
 export const cheminDecor = (zone: Pick<Zone, 'decor'>): string => `img/decors/${zone.decor.split('/').at(-1)}`;
 
 export function spritesPossibles(zone: Zone): string[] {
-  return [...new Set([...zone.sauvages, zone.boss].map(({ pokemon }) => cheminSprite(pokemon)))].sort();
+  return [...new Set([...zone.sauvages, ...(zone.adversaires ?? []), zone.boss].map(({ pokemon }) => cheminSprite(pokemon)))].sort();
 }
 
 export type ImagePrechargeable = {

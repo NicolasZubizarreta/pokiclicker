@@ -197,7 +197,7 @@ Fourchette : 2 à 3 jours. Risque : bonus d'objets de la V1 mélangés dans plus
 
 ## F. `feat(zones): minuteur de boss de 30 s, progression d'étape et changement de zone`
 
-Labels : `type:feat`, `etat:pret`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : oui
+Labels : `type:feat`, `etat:fait`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : oui
 
 ### Histoire
 En tant que joueur, je veux affronter chaque boss avec un temps limité et passer à la zone suivante quand je le bats afin de progresser dans Kanto.
@@ -206,13 +206,13 @@ En tant que joueur, je veux affronter chaque boss avec un temps limité et passe
 V1 : `combat.js` (`killEnemy` l. 310-369, `startBossTimer`), `update.js` (`updateZone`). V2 : `src/core/combat.ts` (`creerCombat`, `reprendreCombat`, événement `boss-vaincu`), `src/core/monde.ts` (`peutPasser`, `zonesOuvertes`), `src/ui/store.ts`, `src/ui/EcranCombat.tsx`, `src/ui/DialogueChen.tsx`. **Règles V1** : étapes 1 à 9 sauvages, 10 boss ; minuteur de **30 s** sur chaque boss (barre de temps), échec = retour à l'étape 9 de la zone ; vaincre le boss de la zone courante ouvre la zone suivante ; on peut revenir dans une zone déjà ouverte ; la zone 0 (Bourg Palette) n'a pas d'ennemi ; pénalité d'échec de la Ligue (retour à l'étape 1) : **correction de la V1** : la V1 teste la zone 20, la bonne zone est la Ligue (zone 21).
 
 ### Critères d'acceptation
-- [ ] Étant donné l'étape 10, quand le boss apparaît, alors un minuteur de 30 s (valeur dans `data/reglages.json`) démarre, visible en barre ; en temps de jeu simulé, il tombe à 0 après 30 000 ms.
-- [ ] Étant donné un boss non vaincu à 0 s, quand le minuteur expire, alors le combat revient à l'étape 9 de la même zone avec un nouvel ennemi sauvage et un message en français ; en Ligue, le retour se fait à l'étape 1 de la Ligue (zone 21, non 20).
-- [ ] Étant donné un boss vaincu avant la fin, quand l'événement `boss-vaincu` est traité, alors la zone est marquée vaincue, la zone suivante est ouverte, et l'écran propose « Zone suivante » (bouton actif) au lieu du texte « La suite arrive bientôt. ».
-- [ ] Étant donné une zone ouverte, quand je choisis une autre zone ouverte (par le sélecteur provisoire de la page Combat, remplacé par la carte en G), alors le combat bascule, les sprites et le décor de la zone sont préchargés, l'étape repart à 1 et la sauvegarde est écrite.
-- [ ] Étant donné une zone fermée, quand j'essaie d'y aller, alors le bouton est désactivé avec la raison en français donnée par `peutPasser`.
-- [ ] Étant donné un rechargement, quand je rouvre, alors je reprends dans la même zone et la même étape (l'ennemi en cours n'est pas sauvegardé).
-- [ ] Étant donné la Bourg Palette (zone 0), quand j'y entre, alors aucun ennemi n'apparaît et le message de la zone s'affiche.
+- [x] Étant donné l'étape 10, quand le boss apparaît, alors un minuteur de 30 s (valeur dans `data/reglages.json`) démarre, visible en barre ; en temps de jeu simulé, il tombe à 0 après 30 000 ms.
+- [x] Étant donné un boss non vaincu à 0 s, quand le minuteur expire, alors le combat revient à l'étape 9 de la même zone avec un nouvel ennemi sauvage et un message en français ; en Ligue, le retour se fait à l'étape 1 de la Ligue (zone 21, non 20).
+- [x] Étant donné un boss vaincu avant la fin, quand l'événement `boss-vaincu` est traité, alors la zone est marquée vaincue, la zone suivante est ouverte, et l'écran propose « Zone suivante » (bouton actif) au lieu du texte « La suite arrive bientôt. ».
+- [x] Étant donné une zone ouverte, quand je choisis une autre zone ouverte (par le sélecteur provisoire de la page Combat, remplacé par la carte en G), alors le combat bascule, les sprites et le décor de la zone sont préchargés, l'étape repart à 1 et la sauvegarde est écrite.
+- [x] Étant donné une zone fermée, quand j'essaie d'y aller, alors le bouton est désactivé avec la raison en français donnée par `peutPasser`.
+- [x] Étant donné un rechargement, quand je rouvre, alors je reprends dans la même zone et la même étape (l'ennemi en cours n'est pas sauvegardé).
+- [x] Étant donné la Bourg Palette (zone 0), quand j'y entre, alors aucun ennemi n'apparaît et le message de la zone s'affiche.
 
 ### Hors périmètre
 Carte cliquable (G), Ligue complète (Q), badges (N), événements de zone (O), animation de voyage de 3,3 s.

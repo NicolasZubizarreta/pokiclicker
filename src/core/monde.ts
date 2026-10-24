@@ -122,7 +122,7 @@ export function chargerMonde(fichier: FichierZones, catalogue = chargerPokemon()
   for (const actuelle of fichier.zones) {
     if (!accessibles.has(actuelle.id)) throw new Error(`Zone inaccessible : ${actuelle.id}`);
   }
-  return {
+  const monde = {
     region: fichier.region,
     depart: fichier.depart,
     premierCombat: fichier.premierCombat,
@@ -135,9 +135,9 @@ export function chargerMonde(fichier: FichierZones, catalogue = chargerPokemon()
       return fichier.zones.find(actuelle => actuelle.liens.some(lien => lien.vers === id));
     },
     accesZone(vers: string, etat: EtatMonde): ResultatCondition {
-      if (this.zonesOuvertes(etat).some(actuelle => actuelle.id === vers)) return { ok: true };
-      const precedente = this.zonePrecedente(vers);
-      return precedente ? this.peutPasser(precedente.id, vers, etat)
+      if (monde.zonesOuvertes(etat).some(actuelle => actuelle.id === vers)) return { ok: true };
+      const precedente = monde.zonePrecedente(vers);
+      return precedente ? monde.peutPasser(precedente.id, vers, etat)
         : { ok: false, raison: 'Cette zone est inaccessible.' };
     },
     liensDepuis: (id: string) => zone(id).liens,
@@ -149,4 +149,5 @@ export function chargerMonde(fichier: FichierZones, catalogue = chargerPokemon()
     },
     zonesOuvertes: (etat: EtatMonde) => parcourir(etat),
   };
+  return monde;
 }

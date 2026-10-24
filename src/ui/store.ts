@@ -16,6 +16,7 @@ import type { DonneesRegion, PokemonPossede, Stockage } from '../core/sauvegarde
 import { detailErreur, ouvrirPartie } from './persistance';
 import { creerStockageLocal } from './stockage-local';
 import { genererIdentifiant } from './identifiants';
+import { imageConnue } from './Image';
 import { cheminDecor, precharger, prechargerZone } from './precharger';
 
 export type Degat = { id: number; valeur: number };
@@ -124,7 +125,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
   };
   const prechargerLieu = () => {
     const lieu = kanto.zone(region.zoneId);
-    void precharger([cheminDecor(lieu)]);
+    if (imageConnue(cheminDecor(lieu))) void precharger([cheminDecor(lieu)]);
     if (!lieu.sansCombat) void prechargerZone(lieu);
   };
   const cacher = () => { if (document.visibilityState === 'hidden') enregistrer(); };

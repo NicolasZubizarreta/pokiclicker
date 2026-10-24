@@ -26,6 +26,15 @@ it('liste tous les sauvages et le boss de la Route 1, triés sans doublon', asyn
   expect(chemins).toHaveLength(zone.sauvages.length);
 });
 
+it('précharge aussi les adversaires de la Ligue', async () => {
+  const { kanto } = await import('../core/regions');
+  const { spritesPossibles, cheminSprite } = await import('./precharger');
+  const ligue = kanto.zoneDeCombat('kanto.ligue-pokemon');
+  const attendus = [...new Set([...(ligue.adversaires ?? []), ligue.boss].map(({ pokemon }) => cheminSprite(pokemon)))].sort();
+  expect(spritesPossibles(ligue)).toEqual(attendus);
+  expect(attendus.length).toBeGreaterThan(1);
+});
+
 it('mutualise les requêtes même simultanées et compte les échecs sans interruption', async () => {
   const { precharger } = await import('./precharger');
   const creer = fabrique(new Set(), 'absent.png');

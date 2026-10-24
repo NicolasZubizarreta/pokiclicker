@@ -89,7 +89,12 @@ test('Boss et zones : barre de temps, zone suivante, retour et reprise', async (
   await expect(page.getByRole('progressbar', { name: 'Temps restant' })).toHaveCount(0);
   const fermee = page.getByRole('button', { name: /^Zone suivante/ });
   await expect(fermee).toBeDisabled();
-  await expect(page.getByText(/Il faut|boss|Route 1/).first()).toBeVisible();
+  await expect(page.getByText('Bats le boss de Route 1.')).toBeVisible();
+  await page.getByRole('button', { name: /^Zone précédente/ }).click();
+  await expect(page.getByText('Pas de Pokémon sauvage ici. Va sur la Route 1 pour combattre.')).toBeVisible();
+  await expect(page.getByRole('button', { name: /^Attaquer/ })).toHaveCount(0);
+  await page.getByRole('button', { name: /^Zone suivante/ }).click();
+  await expect(page.getByRole('heading', { name: 'Route 1', exact: true })).toBeVisible();
   await atteindre(page, 10);
   const temps = page.getByRole('progressbar', { name: 'Temps restant' });
   await expect(temps).toBeVisible();
