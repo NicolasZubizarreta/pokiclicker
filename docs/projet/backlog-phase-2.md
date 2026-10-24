@@ -227,7 +227,7 @@ Fourchette : 2 à 3 jours. Risque : état du minuteur à ne pas sauvegarder ni r
 
 ## G. `feat(ui): carte de Kanto avec zones cliquables positionnées en pourcentages`
 
-Labels : `type:feat`, `etat:idee`, `est:2-3`, `prio:2` · branche : `v2` · `agent-ok` : oui
+Labels : `type:feat`, `etat:pret`, `est:2-3`, `prio:2` · branche : `v2` · `agent-ok` : oui
 
 ### Histoire
 En tant que joueur, je veux voir la carte de Kanto et toucher une zone pour y aller afin de me repérer et de revenir farmer une zone précédente.
@@ -251,7 +251,7 @@ V1 : `MAP_DATA` (24 zones cliquables en rect, cercle ou polygone, en **pixels** 
 - [ ] Étant donné la barre « Ton voyage », quand je regarde la carte, alors elle montre la progression (badges sur 8, zone actuelle) ; la Route 1 clignote en vert tant qu'elle n'a pas été visitée (tutoriel de la V1).
 
 ### Hors périmètre
-Carte du monde et Johto (phase 6), animation de vol de 3,3 s, régénération de l'image (phase 5).
+Carte du monde et Johto (phase 6), régénération de l'image (phase 5).
 
 ### Vérification
 Tests unitaires de conversion ; Playwright : toucher une zone ouverte, y aller ; capture à 390 et 1440 px.
