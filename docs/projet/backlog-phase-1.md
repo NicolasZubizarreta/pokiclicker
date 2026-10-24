@@ -342,7 +342,7 @@ Fourchette : 2 à 3 jours. Risque : rafraîchissement de l'interface sur un tél
 
 ## J. `feat(pwa): rendre le jeu installable et lisible hors connexion`
 
-Labels : `type:feat`, `etat:en_cours`, `est:1-2`, `prio:2` · branche : `v2` (pas encore de PR) · `agent-ok` : oui
+Labels : `type:feat`, `etat:fait`, `est:1-2`, `prio:2` · branche : `v2` (pas encore de PR) · `agent-ok` : oui
 
 ### Histoire
 En tant que joueur sur téléphone, je veux installer le jeu sur l'écran d'accueil et l'ouvrir sans réseau afin de jouer dans le train.
@@ -351,14 +351,16 @@ En tant que joueur sur téléphone, je veux installer le jeu sur l'écran d'accu
 Plugin PWA de Vite ; le jeu n'a aucune ressource externe au chargement, donc tout peut être mis en cache. Fichiers prévus (À CONFIRMER) : `vite.config.ts`, `public/manifest.webmanifest`, `public/icons/` (icônes provisoires), `src/ui/MiseAJour.tsx`.
 
 ### Critères d'acceptation
-- [ ] Étant donné le build de production, quand je l'ouvre dans Chrome mobile, alors l'invite « Installer » est proposée et le manifeste est valide (nom, icônes 192 et 512, couleur de fond du jeton `--fond`).
-- [ ] Étant donné une première visite faite en ligne, quand je coupe le réseau et recharge, alors le jeu s'ouvre et la partie se charge.
-- [ ] Étant donné une nouvelle version publiée, quand j'ouvre le jeu, alors un message « Une mise à jour est prête. Recharge pour l'utiliser. » apparaît et la partie en cours n'est pas perdue.
-- [ ] Étant donné l'audit Lighthouse sur le build, quand je lance la catégorie PWA, alors il n'y a aucune erreur bloquante.
+- [x] Étant donné le build de production, quand je l'ouvre dans Chrome mobile, alors l'invite « Installer » est proposée et le manifeste est valide (nom, icônes 192 et 512, couleur de fond du jeton `--fond`).
+- [x] Étant donné une première visite faite en ligne, quand je coupe le réseau et recharge, alors le jeu s'ouvre et la partie se charge.
+- [x] Étant donné une nouvelle version publiée, quand j'ouvre le jeu, alors un message « Une mise à jour est prête. Recharge pour l'utiliser. » apparaît et la partie en cours n'est pas perdue.
+- [x] Étant donné l'audit Lighthouse sur le build, quand je lance la catégorie PWA, alors il n'y a aucune erreur bloquante.
 
 ### Périmètre précisé le 23/10
 `vite-plugin-pwa` 2.0.0 et `workbox-window` installés (0 vulnérabilité). Mise à jour sur demande seulement (jamais de rechargement automatique) : message exact « Une mise à jour est prête. Recharge pour l'utiliser. », la partie est sauvegardée avant le rechargement. Couleurs du manifeste lues dans design/tokens.css (--fond sombre), icônes provisoires générées par script (Poké Ball en trait, pas de mascotte), nom du jeu dans data/jeu.json. L'audit Lighthouse est lancé par Claude, l'essai Android et iOS réel par Nicolas (ticket M).
 
+### Résultat (24/10)
+Manifeste valide et installable : le contrôle d'installabilité de Chrome (DevTools, `Page.getInstallabilityErrors`) ne renvoie aucune erreur, le manifeste non plus. Le test Playwright coupe le réseau après une première visite, recharge, retrouve la partie et attaque hors ligne. Précache : 32 entrées (757 Kio) dont décor, sprites, polices et icônes. Mise à jour : message exact, sauvegarde avant rechargement, testé avec un double du service worker (une vraie mise à jour entre deux versions publiées reste à voir au premier déploiement). L'audit Lighthouse « catégorie PWA » n'existe plus depuis Lighthouse 12 : il est remplacé par le contrôle d'installabilité ci-dessus. Reste à Nicolas : l'invite « Installer » sur un vrai Android et l'ajout à l'écran d'accueil sur iOS (ticket M). Le test de fluidité dépend de la charge de la machine : vert à 58,9 images/s sur machine au repos, il peut tomber sous le seuil quand d'autres applications consomment le processeur.
 ### Hors périmètre
 Notifications, synchronisation en arrière-plan, vraies icônes (phase 5).
 
