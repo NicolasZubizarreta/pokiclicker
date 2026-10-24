@@ -112,6 +112,7 @@ it('présente le voyage avec une progression native accessible', () => {
 });
 
 it('voyage vers une zone ouverte avant de signaler l’arrivée', () => {
+  vi.useFakeTimers();
   storeJeu.getState().allerVers(storeJeu.getState().carte.formes.find(f => f.numero === 0)!.zone!);
   const aller = vi.spyOn(storeJeu.getState(), 'allerVers');
   const arrive = vi.fn();
@@ -122,6 +123,7 @@ it('voyage vers une zone ouverte avant de signaler l’arrivée', () => {
   const image = screen.getByRole('img', { name: 'Décor de Route 1' });
   expect(image.className).toContain('aspect-video');
   fireEvent.click(screen.getByRole('button', { name: 'Y aller' }));
+  act(() => { vi.advanceTimersByTime(3800); });
   expect(aller).toHaveBeenCalledWith(storeJeu.getState().carte.formes.find(f => f.numero === 1)!.zone);
   expect(arrive).toHaveBeenCalledTimes(1);
   expect(aller.mock.invocationCallOrder[0]).toBeLessThan(arrive.mock.invocationCallOrder[0]!);
@@ -136,6 +138,7 @@ it('explique le verrouillage de la Forêt de Jade sans action', () => {
 });
 
 it('propose les trois entrées de Céladopole et explique les deux indisponibles', () => {
+  vi.useFakeTimers();
   const carte = storeJeu.getState().carte;
   const ville = carte.formes.find(f => f.nom === 'Céladopole')!;
   storeJeu.setState({ carte: { ...carte, formes: carte.formes.map(f => f === ville ? { ...f, ouverte: true, actuelle: false } : f) } });
@@ -150,6 +153,7 @@ it('propose les trois entrées de Céladopole et explique les deux indisponibles
   }
   expect(within(fiche).getAllByText('Bientôt disponible.')).toHaveLength(2);
   fireEvent.click(within(fiche).getByRole('button', { name: 'Y aller' }));
+  act(() => { vi.advanceTimersByTime(3800); });
   expect(aller).toHaveBeenCalledWith(ville.zone);
 });
 
@@ -158,7 +162,7 @@ it('réserve la même bande sous l’image et indique la zone actuelle sans acti
   const fiche = screen.getByRole('region', { name: 'Zone sélectionnée' });
   const classes = fiche.className;
   expect(classes).toContain('carte-bande-reservee');
-  expect(fiche.previousElementSibling?.tagName.toLowerCase()).toBe('svg');
+  expect(fiche.previousElementSibling?.querySelector('svg[aria-label="Carte de Kanto"]')).toBeTruthy();
   expect(fiche.parentElement?.className).toContain('cadre');
   for (const nom of [/Céladopole/, /Forêt de Jade/, /Route 1 \(Zone 1\)/]) {
     fireEvent.click(screen.getByRole('button', { name: nom }));

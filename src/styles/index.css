@@ -53,6 +53,7 @@
       transition: none !important;
       animation: none !important;
     }
+    .fondu-carte { animation: fondu-carte var(--duration-lent) linear !important; }
   }
 }
 
@@ -102,3 +103,18 @@
 .carte-miniature { width: calc(var(--spacing) * 32); max-width: 100%; }
 .carte-deblocage { opacity: 1; transition: opacity calc(var(--duration-lent) * 2) var(--ease-standard); }
 @starting-style { .carte-deblocage { opacity: 0; } }
+
+.fondu-carte { animation: fondu-carte var(--duration-lent) linear; }
+@keyframes fondu-carte { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+.vol-overlay { position: absolute; inset: 0; display: flex; align-items: center; pointer-events: none; color: var(--texte); }
+.vol-attente { width: 100%; height: min(calc(var(--spacing) * 45), 100%); --vol-attente: calc(var(--vol-ms) * 1ms); }
+:root { --vol-fond: black; }
+.vol-piste { position: relative; height: 100%; overflow: hidden; background: var(--vol-fond); transform-origin: right center; animation: vol-ouverture calc(var(--vol-ms) * 1ms) var(--ease-standard) var(--vol-attente) both; }
+.vol-overlay[data-phase="fermeture"] .vol-piste { animation: vol-fermeture calc(var(--vol-ms) * 1ms) var(--ease-standard) forwards; }
+.vol-traits { position: absolute; inset: 0; width: 100%; height: 100%; animation: vol-traits calc(var(--vol-ms) * 1ms) linear infinite; }
+.vol-trajet { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; animation: vol-trajet calc(var(--vol-ms) * 1ms) ease-in-out both; }
+.vol-oiseau { transform: scale(2); image-rendering: pixelated; }
+@keyframes vol-ouverture { 0% { transform: scale(0, 0.02); } 50% { transform: scale(1, 0.02); } 100% { transform: scale(1); } }
+@keyframes vol-fermeture { to { transform: scaleY(0); } }
+@keyframes vol-trajet { 0%, 10% { transform: translateX(-150%); } 30%, 60% { transform: translateX(0); } 100% { transform: translateX(150%); } }
+@keyframes vol-traits { to { transform: translateX(-100%); } }
