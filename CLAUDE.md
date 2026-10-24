@@ -4,7 +4,7 @@ Clicker Pokémon pour Nicolas et ses amis, PC et mobile (mobile prioritaire). Ci
 
 Source de vérité : `docs/vision.md` (le jeu), `docs/plan.md` (phases et questions ouvertes), `docs/projet/` (charte, risques). Lire ces fichiers avant toute tâche ; les mettre à jour quand une décision change.
 
-La V1 (vanilla JS, Kanto complet) est le point de départ : **on porte ses règles, ses formules, ses données de Kanto, ses textes et ses sprites, on ne repart pas de zéro sur le concept**. Même dépôt GitHub (`NicolasZubizarreta/pokiclicker`) : la V1 reste sur `main` ; la V2 vit sur la branche `v2`, où la V1 est rangée dans `legacy/` (lecture seule). **Ne pas modifier la V1.** Ne change aucune règle de jeu sans ticket : un écart avec la V1 est un bug.
+La V1 (vanilla JS, Kanto complet) est le point de départ : **on porte ses règles, ses formules, ses données de Kanto, ses textes, ses sprites, ses visuels, ses animations, ses sons et ses easter eggs (inventaire : `docs/projet/v1-visuel-a-porter.md`), on ne repart pas de zéro sur le concept**. Même dépôt GitHub (`NicolasZubizarreta/pokiclicker`) : la V1 reste sur `main` ; la V2 vit sur la branche `v2`, où la V1 est rangée dans `legacy/` (lecture seule). **Ne pas modifier la V1.** Ne change aucune règle de jeu sans ticket : un écart avec la V1 est un bug.
 
 Règles :
 - Ne rien coder avant que le ticket soit « prêt » et validé par Nicolas.

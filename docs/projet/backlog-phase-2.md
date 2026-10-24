@@ -37,6 +37,7 @@ Jalon : **Kanto terminable** (`docs/plan.md`). Brouillon du 24/10/2026, validé 
 | 3. Équipe et économie | H, I, J, K, L, M, N |
 | 4. Histoire | O, P, Q, R, S |
 | 5. Annexes | T, U, V, W, X |
+| Transversal | Z |
 | Jalon | Y |
 
 Chemin critique : A → E → F → C → Q → R → Y. Hors phase 2 : quêtes, succès, diamants, skins (phase 4) ; expéditions, PC global, Pokédex national (phase 6) ; audio réel (phase 5) ; Johto (phase 6, la V1 n'a qu'un stub).
@@ -74,7 +75,7 @@ Fourchette : 2 à 3 jours. Risque : perte de données si la migration est mal é
 
 ## B. `design(ui): proposer trois variantes pour chaque page commune de Kanto`
 
-Labels : `type:design`, `etat:pret`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : oui (maquettes jetables, Nicolas choisit)
+Labels : `type:design`, `etat:fait`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : oui (maquettes jetables, Nicolas choisit)
 
 ### Histoire
 En tant que Nicolas, je veux voir trois variantes de chaque nouvelle page avant qu'on code afin de choisir une seule fois, sans aller-retour ticket par ticket.
@@ -83,11 +84,11 @@ En tant que Nicolas, je veux voir trois variantes de chaque nouvelle page avant 
 Règle de `CLAUDE.md` : trois variantes avant de polir. Pages communes : **Équipe** (liste, cartes, case vide), **fiche Pokémon** (résumé, renommer, favori, relâcher, envoyer au PC, bouton d'évolution), **PC** (liste triable), **Sac**, **Shop**, **Carte de Kanto**, **Plus** (menu avec Pokédex, Badges, Profil, Stats, Aide), **boîte d'événement** (dialogue de Chen et choix du starter). Base : `design/DESIGN.md`, `design/variantes/combat/` (modèle de la livraison de phase 1), `legacy/index.html` et `legacy/js/ui/{render,summary,controls,mobile}.js` pour la liste des écrans de la V1. Fichiers : `design/variantes/<page>/{a,b,c}-*.html`, `commun.css`, `commun.js` par page.
 
 ### Critères d'acceptation
-- [ ] Étant donné chaque page citée, quand j'ouvre `design/variantes/<page>/`, alors trois maquettes autonomes (A, B, C) se chargent sans ressource externe, avec les jetons de `design/tokens.css` et les mêmes données d'exemple.
-- [ ] Étant donné les écrans 390 et 1440 px, quand je capture chaque maquette, alors aucune bande, aucun débordement horizontal, aucun texte en anglais, cibles ≥ 44 px, texte ≥ 16 px sur mobile.
-- [ ] Étant donné chaque maquette, quand je la lis, alors un bandeau repliable donne en 3 lignes l'idée de la variante et son point faible.
-- [ ] Étant donné les captures à 390 et 1440 px de chaque variante, quand Claude les vérifie contre `design/DESIGN.md`, alors tout écart relevé est corrigé avant de te les présenter (l'agent ne voit pas le rendu).
-- [ ] Étant donné les pages « Shop » et « Boutique », quand je lis les maquettes, alors l'entrée de navigation s'appelle « Shop » (mot de Nicolas et de la V1).
+- [x] Étant donné chaque page citée, quand j'ouvre `design/variantes/<page>/`, alors trois maquettes autonomes (A, B, C) se chargent sans ressource externe, avec les jetons de `design/tokens.css` et les mêmes données d'exemple.
+- [x] Étant donné les écrans 390 et 1440 px, quand je capture chaque maquette, alors aucune bande, aucun débordement horizontal, aucun texte en anglais, cibles ≥ 44 px, texte ≥ 16 px sur mobile.
+- [x] Étant donné chaque maquette, quand je la lis, alors un bandeau repliable donne en 3 lignes l'idée de la variante et son point faible.
+- [x] Étant donné les captures à 390 et 1440 px de chaque variante, quand Claude les vérifie contre `design/DESIGN.md`, alors tout écart relevé est corrigé avant de te les présenter (l'agent ne voit pas le rendu).
+- [x] Étant donné les pages « Shop » et « Boutique », quand je lis les maquettes, alors l'entrée de navigation s'appelle « Shop » (mot de Nicolas et de la V1).
 
 ### Hors périmètre
 Code React des pages (dans les tickets H, I, L, G, N, P), pages annexes (Panthéon, Pension, Centre commercial, Casino : variantes dans leurs tickets), design définitif (phase 5).
@@ -140,6 +141,9 @@ En tant que joueur, je veux que chaque zone ait son décor et que chaque Pokémo
 ### Contexte
 Le pipeline de phase 1 (`scripts/traiter-images.mjs`, `data/images.json`) **refuse** tout décor qui n'est pas en 16:9 et ne recadre jamais. Les décors V1 sont en 2784 × 1536 (ratio 1,8125) ; Zone 1 en 2816 × 1536 ; Zone 0 en 2048 × 2048 ; les lieux (Chez Blue 1053 × 692, Chez Maman 1201 × 656, Labo 2048 × 2048) ont d'autres ratios encore. Décision de Nicolas : recadrage central provisoire par un script de préparation **séparé**, signalé provisoire jusqu'à la phase 5. Sprites : 8 sont déjà dans `public/img/sprites/pokemon/` ; il manque 143 PNG de 96 × 96, à télécharger depuis `raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/<id>.png`. Fichiers : `scripts/preparer-decors-v1.mjs` (nouveau), `scripts/telecharger-sprites.mjs` (nouveau), `assets-src/` (ignoré par git), `public/img/`.
 
+### Retours de Nicolas (24/10)
+Ajout (24/10) : les **icônes officielles d'objets** que Nicolas veut retrouver (20 PNG de PokeAPI/sprites/items, voir `v1-visuel-a-porter.md` § 5), les **artworks des trois starters** (normal et shiny), l'image d'une Poké Ball et le **sprite animé de Roucarnage** du vol sont des ressources externes dans la V1 : on les rapatrie en local, avec le même accord à demander au moment du téléchargement. Rien ne se charge depuis Internet en V2.
+
 ### Critères d'acceptation
 - [ ] Étant donné les décors V1 de `legacy/img/kanto/background/`, quand `preparer-decors-v1.mjs` tourne, alors il écrit dans `assets-src/decors/` un PNG 16:9 par zone (recadrage central ; fichiers déjà en 16:9 inchangés), nommés d'après les identifiants de zone, et affiche pour chaque fichier la part de bord perdue ; un fichier de 2048 × 2048 ou plus étroit que 16:9 est refusé avec un message qui le nomme (pas de recadrage destructeur > 10 %) et sa liste est donnée à Nicolas.
 - [ ] Étant donné `assets-src/decors/`, quand `traiter-images.mjs` tourne, alors les décors sortent en WebP 1920 × 1080 dans `public/img/decors/` et `tailles.json` les liste.
@@ -147,6 +151,8 @@ Le pipeline de phase 1 (`scripts/traiter-images.mjs`, `data/images.json`) **refu
 - [ ] Étant donné la liste des Pokémon de `data/pokemon.json` (151), quand `telecharger-sprites.mjs` tourne **après accord de Nicolas**, alors il télécharge uniquement les sprites manquants (face, 96 × 96), vérifie chaque taille avec `sharp`, refuse un fichier d'une autre taille, n'écrase rien, et ne contacte que `raw.githubusercontent.com`.
 - [ ] Étant donné `public/img/sprites/pokemon/`, quand je compte, alors il y a 151 PNG de 96 × 96 et `tailles.json` les liste ; un test vérifie que chaque `pokemon` d'une zone ou d'un boss a son sprite.
 - [ ] Étant donné les lieux spéciaux (Labo, Chez Maman, Chez Blue, Panthéon, Centre commercial, Casino), quand je liste les décors, alors ceux qui ne sont pas utilisables en 16:9 sont signalés pour être traités par leurs tickets (P, R, U, V).
+
+- [ ] Étant donné les icônes d'objets, les artworks des starters, la Poké Ball et l'oiseau du vol listés dans `v1-visuel-a-porter.md`, quand le pipeline d'images s'exécute, alors ils sont dans `public/img/` aux bons formats, avec leurs tailles dans `data/images.json`, et aucune URL externe ne subsiste dans le code.
 
 ### Hors périmètre
 Régénération des décors (phase 5), sprites de dos, sprites de Chen, cartes, icônes d'objets (L), vidéo Daran (W).
@@ -229,12 +235,20 @@ En tant que joueur, je veux voir la carte de Kanto et toucher une zone pour y al
 ### Contexte
 V1 : `MAP_DATA` (24 zones cliquables en rect, cercle ou polygone, en **pixels** sur `kanto.png`), `flyToZone` (`save.js` l. 717, animation de 3,3 s), `showZoneInfo` (boutons Centre commercial et Casino pour la zone 11). Lavanville et « Daran Ass » sont grisées. ADR 0002 : `carte` en **fractions de l'image** (0 à 1). V2 : onglet « Carte » de `src/ui/Navigation.tsx` encore en `PageBientot`. La variante de page est choisie par Nicolas sur les maquettes du ticket B. Fichiers : `src/ui/CarteKanto.tsx` (nouveau), `data/regions/kanto/zones.json` (champ `carte`), `scripts/convertir-carte-v1.mjs` (nouveau, pixels vers fractions).
 
+### Retours de Nicolas (24/10)
+**Choix de Nicolas (24/10).** Variante **A** (carte plein cadre) + la **barre « Ton voyage »** de la variante C. La fiche de la zone est **dans la carte** mais ne doit pas cacher le bas : fiche plus petite, ou carte plus grande avec un emplacement réservé. Au clic, afficher le **numéro de zone** (pour savoir quand on y accède). **Pas de tracé de chemin.** La carte actuelle est « pourrie » : on reprend **la carte de la V1** (`legacy/img/kanto/kanto.png`, 24 zones en image mapping SVG, coordonnées en pixels natifs d'une image 1920 × 1080 à convertir en pourcentages) avec ses **animations** : téléportation « vol Gen 1 » (3,8 s : dresseur animé, overlay en télé CRT, oiseau, changement de zone derrière l'overlay), clignotement vert du tutoriel, pulsation de la zone actuelle, et une **vraie animation de déblocage d'une zone** (la V1 n'en avait pas sur la carte). Détail : `v1-visuel-a-porter.md` § 1. Sources : `docs/projet/choix-variantes-b.md` (choix), `docs/projet/v1-visuel-a-porter.md` (ce que fait la V1).
+
 ### Critères d'acceptation
 - [ ] Étant donné `MAP_DATA` de la V1, quand le script convertit, alors chaque forme est écrite en fractions de l'image (rect, cercle, polygone) dans `zones.json`, avec les ratios de l'image V1 ; un test compare un échantillon de 5 zones avec le calcul indépendant.
 - [ ] Étant donné la page Carte, quand je l'ouvre, alors l'image de Kanto s'affiche à son ratio sans bande, les zones ouvertes sont cliquables (cible ≥ 44 px au toucher), les zones fermées sont grisées avec la raison en français au toucher, la zone actuelle est mise en évidence par la forme et la couleur.
 - [ ] Étant donné une zone ouverte, quand je la touche, alors un petit panneau donne son nom et le bouton « Y aller » ; la zone 11 ajoute les accès Centre commercial et Casino (actifs quand les tickets U et V sont livrés).
 - [ ] Étant donné un téléphone, quand j'utilise la carte, alors elle se déplace au doigt et se zoome au pincement sans faire défiler la page (mode debug « afficher les zones » activable par l'adresse `?debug=carte`).
 - [ ] Étant donné les écrans 390 et 1440 px, quand je les capture, alors aucune bande ni défilement horizontal, aucun texte en anglais.
+- [ ] Étant donné la carte de la V1, quand je la compare à la V2, alors les 24 zones sont aux mêmes endroits (coordonnées de `MAP_DATA` converties en pourcentages, test sur chaque zone) avec leur forme (rectangle, cercle, polygone), et les zones qui se chevauchent gardent l'ordre de la V1.
+- [ ] Étant donné un clic sur une zone, quand la fiche s'ouvre, alors elle affiche le nom, « Zone N », la miniature du décor et le bouton « Y aller » (ou « Bloquée » avec la raison), dans la carte, sans cacher le bas de la carte ; Céladopole propose Arène, Centre commercial et Casino.
+- [ ] Étant donné « Y aller », quand je valide, alors l'animation de vol de la V1 se joue (≈ 3,8 s, dresseur animé, overlay en télé CRT, oiseau), le changement de zone a lieu derrière l'overlay et un second clic pendant l'animation est ignoré ; avec `prefers-reduced-motion`, la zone change avec un simple fondu.
+- [ ] Étant donné une zone qui vient d'être débloquée, quand je rouvre la carte, alors une animation de déblocage (propre à la V2) la fait passer du gris à sa couleur, après le message « Zone débloquée ! » de la V1.
+- [ ] Étant donné la barre « Ton voyage », quand je regarde la carte, alors elle montre la progression (badges sur 8, zone actuelle) ; la Route 1 clignote en vert tant qu'elle n'a pas été visitée (tutoriel de la V1).
 
 ### Hors périmètre
 Carte du monde et Johto (phase 6), animation de vol de 3,3 s, régénération de l'image (phase 5).
@@ -257,6 +271,9 @@ En tant que joueur, je veux gérer mon équipe de 6 Pokémon et consulter chaque
 ### Contexte
 V1 : `legacy/js/game/team.js` (122 l.), `legacy/js/ui/summary.js` (254 l.). V2 : `src/ui/CarteEquipe.tsx`, `src/ui/EcranCombat.tsx`, onglet « Équipe » encore en `PageBientot`. **Règles V1** : équipe de 6 au plus ; champs d'un Pokémon (id, niveau, shiny, sexe, bonheur, XP, favori, calcium, pierre Stase, surnom, œuf) ; fiche Résumé avec « Envoyer au PC » et « Placer dans l'équipe » ; mode échange quand l'équipe est pleine ; **au moins 1 Pokémon et 1 non-œuf** dans l'équipe ; renommer (≤ 12 caractères) ; favori ; relâcher avec confirmation. Le sexe suit les listes `GENDERLESS_IDS`, `ALWAYS_MALE_IDS`, `ALWAYS_FEMALE_IDS` de `constants.js`. Variante de page : choix de Nicolas (ticket B).
 
+### Retours de Nicolas (24/10)
+**Choix de Nicolas (24/10).** Page Équipe : variante **A** (liste + détail). Fiche Pokémon : variante **B** (fenêtre superposée, pas une page) ; à corriger par rapport à la maquette : le défilement doit marcher quand le curseur est sur la fiche, l'étoile « Retire des favoris » doit être alignée avec son texte, la fiche affiche le **nom de l'espèce** en plus du surnom. Reprendre de la V1 : anneau de bonheur (`conic-gradient`), détail des bonus de dégâts, menu contextuel au clic droit (Résumé, Retirer l'objet). Sources : `docs/projet/choix-variantes-b.md` (choix), `docs/projet/v1-visuel-a-porter.md` (ce que fait la V1).
+
 ### Critères d'acceptation
 - [ ] Étant donné l'onglet Équipe, quand je l'ouvre, alors je vois 6 cases (Pokémon ou case vide) avec sprite, nom, niveau, barre d'XP et DPS, le DPS total, sans chevauchement ni défilement horizontal à 390 px.
 - [ ] Étant donné un Pokémon, quand je touche sa carte, alors sa fiche s'ouvre (sprite, niveau, XP, bonheur, sexe, shiny, calcium, objets tenus, types, DPS) ; elle se ferme au toucher extérieur et à la touche Échap.
@@ -266,6 +283,8 @@ V1 : `legacy/js/game/team.js` (122 l.), `legacy/js/ui/summary.js` (254 l.). V2 :
 - [ ] Étant donné une équipe de 1 Pokémon, quand je tente de l'envoyer au PC, alors c'est refusé avec la raison ; avec 2 Pokémon et au moins un non-œuf restant, c'est accepté.
 - [ ] Étant donné une équipe pleine, quand je place un Pokémon du PC, alors le mode échange propose le Pokémon à remplacer.
 - [ ] Étant donné le sexe d'une espèce, quand un Pokémon est créé, alors il respecte les listes de la V1 (sans sexe, toujours mâle, toujours femelle, sinon tirage au hasard) ; un test le prouve sur toutes les espèces.
+- [ ] Étant donné la fiche d'un Pokémon surnommé, quand je l'ouvre, alors elle montre le surnom ET le nom de l'espèce ; l'étoile « favori » est alignée avec son texte ; je peux faire défiler la fiche à la molette ou au doigt, curseur posé dessus.
+- [ ] Étant donné la fiche ouverte, quand je la ferme (bouton, touche Échap ou toucher à côté), alors je reviens à la liste de l'équipe sans perdre ma place ; le fond ne défile pas derrière.
 
 ### Hors périmètre
 PC (I), évolution (K), objets (M), œuf (T), renommage à effet d'easter egg (W, qui s'accroche à ce renommage).
@@ -288,6 +307,9 @@ En tant que joueur, je veux un PC pour ranger mes Pokémon en trop et un Pokéde
 ### Contexte
 V1 : `team.js`, `summary.js`, `render.js` (`renderPC`, `renderPokedex`), `state.pc`, `state.pokedex` (tableau d'identifiants capturés, **pas de « vu »**). **Règles V1** : le PC est débloqué à la zone 3 ; liste illimitée sans boîtes ; tri par numéro, nom, niveau ou favori ; la pagination de la V1 (`PC_PAGE_SIZE`) est du code mort, **non portée** ; le Pokédex a 151 cases ; il est alimenté par capture, évolution, éclosion, achat au casino et starter. Décision de conception n° 7 : ce PC est le **PC de la région** (`pc` dans `DonneesRegion`, ticket A) ; le Pokédex de Kanto est dans `pokedexNational` (niveau partie, déjà dans le schéma). Pages : choix de Nicolas (B). Fichiers : `src/ui/PagePC.tsx`, `src/ui/Pokedex.tsx` (nouveaux), `src/core/pc.ts` (nouveau, fonctions pures : ajouter, retirer, trier, échanger).
 
+### Retours de Nicolas (24/10)
+**Choix de Nicolas (24/10).** PC : variante **B** (grille + détail). Ajouts demandés : une **barre de recherche** (par nom ou numéro), un **tri par shiny**, et sur PC la **liste de l'équipe à droite, au-dessus de la fiche du Pokémon** (équipe d'abord, fiche en dessous, défilement si c'est trop grand). Pokédex : celui de la V1 (grille de 151, silhouettes, paliers) dans Plus. Sources : `docs/projet/choix-variantes-b.md` (choix), `docs/projet/v1-visuel-a-porter.md` (ce que fait la V1).
+
 ### Critères d'acceptation
 - [ ] Étant donné la zone 2 ouverte seulement, quand j'ouvre le menu, alors le PC est verrouillé avec la raison en français ; à la zone 3 il est accessible.
 - [ ] Étant donné 30 Pokémon dans le PC, quand je change le tri (numéro, nom, niveau, favori), alors l'ordre change comme dans la V1 (comparaison avec le code V1 sur un jeu d'essai) ; la liste défile sans bloquer la page.
@@ -295,6 +317,8 @@ V1 : `team.js`, `summary.js`, `render.js` (`renderPC`, `renderPokedex`), `state.
 - [ ] Étant donné le Pokédex, quand je l'ouvre, alors 151 cases s'affichent dans l'ordre national (capturé : sprite et nom ; non capturé : silhouette et « ??? »), avec le compteur « n / 151 » ; une espèce n'apparaît capturée qu'après capture, évolution, éclosion, achat de casino ou choix du starter.
 - [ ] Étant donné une capture d'une espèce déjà possédée, quand elle arrive, alors le doublon est autorisé (comme en V1) et le Pokédex ne change pas.
 - [ ] Étant donné un rechargement, quand je rouvre, alors le PC et le Pokédex sont identiques (`toEqual` sur la région et la partie).
+- [ ] Étant donné 30 Pokémon dans le PC, quand je tape une partie d'un nom ou un numéro dans la recherche, alors la grille ne garde que les correspondances (sans tenir compte des accents ni de la casse) ; effacer la recherche rétablit tout.
+- [ ] Étant donné le tri, quand je choisis « Shiny », alors les shiny passent en premier, puis l'ordre par numéro ; la liste de l'équipe est affichée à droite au-dessus de la fiche (sur mobile, au-dessus de la grille ou dans un onglet).
 
 ### Hors périmètre
 PC global et Pokédex national complet (phase 6), expéditions, Pokédex « vu » (absent de la V1), paliers de récompenses (N).
@@ -376,6 +400,9 @@ En tant que joueur, je veux acheter des objets avec mon argent afin d'aller plus
 ### Contexte
 V1 : `legacy/js/game/shop.js` (42 l.), `items.js`, `constants.js` (`ITEMS`, 31 entrées), `render.js` (`renderShop`). V2 : onglet « Shop » encore en `PageBientot` ; bonus déjà décrits dans `data/reglages.json` (clés `objet:protein`, `objet:hardStone`…). Pages : choix de Nicolas (B). **Règles V1** : le Shop se débloque à la zone 2 ; un objet apparaît quand `zone ouverte ≥ zone de l'objet` ou quand on est dans cette zone ; prix des consommables = `base × (1 + 0,05 × nombre de badges)` (sauf `noBadgeInflation`), puis ×0,85 avec le palier 70 ; **consommables** : Pokéball 200 (zone 0), Superball 500 (6), Hyperball 1 200 (9), Bonbon 5 000 (8), Master Ball 150 000 (16) ; **à achat unique** (`ameliorations`) : Chaussures 2 000 (1 : délai d'ennemi 1 000 ms), Pièce Rune 4 000 (2 : or ×1,3), Protéine 7 500 (3 : clic ×1,5), Multi Exp 12 000 (4 : XP ×1,5), Pierre Dure 15 000 (6 : clic ×1,3), Bicyclette 30 000 (7 : délai 500 ms), Poké-Radar 45 000 (8), Œuf Chance 75 000 (10 : XP ×1,5), Restes 150 000 (14 : auto-clic de 9 par seconde). **Corrections de la V1** : textes des Chaussures et de la Bicyclette corrigés (1 000 ms et 500 ms), Superball au Shop dès la zone 6. Fichiers : `data/objets.json` (nouveau, converti par script), `src/core/boutique.ts` (nouveau), `src/ui/Sac.tsx`, `src/ui/Shop.tsx`.
 
+### Retours de Nicolas (24/10)
+**Choix de Nicolas (24/10).** Shop : variante **B** (cartes produit) avec le **tri par catégorie** de C ; mieux aligner les éléments ; **supprimer** la case « Prépare ta route » et le message « Il te manque X pièces » (un bouton grisé suffit) ; **pas de panier**. Sac : **aucune variante ne convient** : il faut des **icônes officielles comme en V1** (20 PNG PokeAPI à rapatrier, voir ticket D), des **cases bien plus petites** sans vide inutile, le **filtre par catégorie** de C, et un **système d'utilisation des objets refait**. Pour l'utilisation, reprendre le mode de la V1 (`v1-visuel-a-porter.md` § 8) : clic sur l'objet → « Sélectionne un Pokémon », lignes d'équipe qui pulsent (cibles valides vertes, invalides grisées, clic ailleurs = annulation), sélecteur − / n / + pour Bonbon et Calcium, confirmation pour pierres et Jeton Shiny, pastilles de compte à rebours sous les PV pour les objets à durée, bouton CT Fauchage dans l'en-tête de l'équipe. Trois variantes du **nouveau** Sac sont à proposer à Nicolas avant le code. Sources : `docs/projet/choix-variantes-b.md` (choix), `docs/projet/v1-visuel-a-porter.md` (ce que fait la V1).
+
 ### Critères d'acceptation
 - [ ] Étant donné `ITEMS` de la V1, quand le script convertit, alors `data/objets.json` contient les objets du Shop avec prix, zone, type (consommable, achat unique), effet et texte français corrigé ; un test compare prix et zones avec la V1.
 - [ ] Étant donné 0 à 8 badges et le palier 70, quand je calcule un prix, alors il égale celui de la V1 (`base × (1 + 0,05 × badges)`, ×0,85) pour chaque objet, comparaison stricte avec le code V1 (fixture).
@@ -384,6 +411,9 @@ V1 : `legacy/js/game/shop.js` (42 l.), `items.js`, `constants.js` (`ITEMS`, 31 e
 - [ ] Étant donné un objet à achat unique déjà possédé, quand j'ouvre le Shop, alors il est marqué « Possédé » et ne peut plus être acheté.
 - [ ] Étant donné les objets à effet permanent, quand je les possède, alors leurs bonus apparaissent dans les calculs de clic, d'or, d'XP et de délai (les clés de `bonus` de `data/reglages.json` sont branchées ; le calcul est comparé à la V1) ; les Restes déclenchent 9 clics automatiques par seconde, sous le plafond de 12.
 - [ ] Étant donné le Sac, quand je l'ouvre, alors je vois balles, Bonbons et objets avec leurs quantités et leurs textes ; un Bonbon utilisé sur un Pokémon lui donne +n niveaux (jusqu'à 100).
+- [ ] Étant donné le Shop, quand je regarde un objet trop cher, alors son bouton est grisé sans autre message ; il n'y a ni panier ni case « Prépare ta route » ; le tri par catégorie (Balles, Soins, Équipement) fonctionne.
+- [ ] Étant donné le Sac, quand je l'ouvre, alors chaque objet a son icône officielle (fichier local) dans une case compacte, groupée par catégorie avec un filtre ; aucune icône n'est chargée depuis Internet.
+- [ ] Étant donné un Bonbon ou un Calcium, quand je l'utilise, alors le mode de sélection de la V1 s'enclenche (message, lignes d'équipe en surbrillance, annulation d'un clic ailleurs) puis le sélecteur − / n / + avec confirmation ; les valeurs et messages sont ceux de la V1.
 
 ### Hors périmètre
 Objets actifs à durée ou à usage (M), Centre commercial (U), jetons de casino (V), Poké-Radar (effet : M).
@@ -392,7 +422,7 @@ Objets actifs à durée ou à usage (M), Centre commercial (U), jetons de casino
 `npm test -- boutique` ; `node scripts/extraire-objets-v1.mjs` (nouveau) ; Playwright 390 et 1440 px (achat, rechargement).
 
 ### Effort et risques
-Fourchette : 3 jours. Risque : bonus d'objets dispersés dans plusieurs fichiers de la V1 (déjà cartographiés dans `data/reglages.json` en phase 1). Dépend de : A, B, E, F.
+Fourchette : 3 à 4 jours (le Sac est à refaire). Risque : bonus d'objets dispersés dans plusieurs fichiers de la V1 (déjà cartographiés dans `data/reglages.json` en phase 1). Dépend de : A, B, E, F.
 
 ---
 
@@ -437,6 +467,9 @@ En tant que joueur, je veux gagner des badges en battant les chefs d'arène et d
 ### Contexte
 V1 : `kanto.js` (`BADGES`), `save.js` (`checkBadges`, l. 561, animation `badge-slam`), `constants.js` (`MILESTONES`). V2 : bonus déjà décrits dans `data/reglages.json` (`badge:*`, `jalon:*`). **Règles V1** : 8 badges attribués quand le boss de l'arène est vaincu (zones 3, 5, 7, 11, 13, 15, 17, 18) : Roche (clic +50 %), Cascade (DPS ×1,3), Foudre (dégâts ×1,2 clic et DPS), Prisme (or ×1,2), Âme (XP ×1,5), Marais (capture ×1,3), Volcan (dégâts ×1,5), Terre (apparition ÷1,2) ; le champ `boss.badge` des zones n'est qu'informatif ; 10 paliers de Pokédex : 10 (clic ×2), 20 (+2 500 $), 30 (DPS ×1,5), 40 (Omni Exp), 50 (apparition ×0,9), 70 (Shop −15 %), 90 (dégâts ×1,5), 110 (Jeton Shiny), 130 (Master Ball + 10 Bonbons), 151 (Charme Chroma). Pages : choix de Nicolas (B, page Plus). Fichiers : `data/badges.json`, `data/jalons.json` (nouveaux), `src/core/progression.ts`, `src/ui/PageBadges.tsx`, `src/ui/PageJalons.tsx`.
 
+### Retours de Nicolas (24/10)
+**Choix de Nicolas (24/10).** Page Plus : variante **C** (tableau de bord). Reprendre de la V1 le **carnet de badges** (« Boîte à badges » : 8 cercles en grille de 4, obtenu = fond clair avec halo doré, non obtenu = silhouette grisée, effet au survol) et **l'animation d'obtention d'un badge** (message « Badge X obtenu ! », la boîte s'ouvre à 1,2 s, le badge « claque » à 2 s : échelle 5 → 1 → 1,4 → 1 en 1,2 s). Nicolas : « je veux garder toutes les animations que j'avais faites ; tu peux les retravailler, mais pas les supprimer ». Sources : `docs/projet/choix-variantes-b.md` (choix), `docs/projet/v1-visuel-a-porter.md` (ce que fait la V1).
+
 ### Critères d'acceptation
 - [ ] Étant donné chaque arène, quand son boss est vaincu, alors le badge correspondant est ajouté une seule fois à `badges`, une animation d'obtention de moins d'une seconde se joue (réduite si `prefers-reduced-motion`), et la sauvegarde est écrite.
 - [ ] Étant donné les 8 badges, quand je lis les bonus du jeu, alors chaque effet applique la valeur de la V1 (clic, DPS, or, XP, capture, apparition) via les clés de `data/reglages.json` ; comparaison stricte avec le code V1 pour 8 jeux de badges.
@@ -444,6 +477,8 @@ V1 : `kanto.js` (`BADGES`), `save.js` (`checkBadges`, l. 561, animation `badge-s
 - [ ] Étant donné la page Badges, quand je l'ouvre, alors les 8 badges sont visibles (obtenus : image et effet ; non obtenus : silhouette et arène à battre).
 - [ ] Étant donné la page Pokédex, quand je consulte les paliers, alors je vois la récompense du prochain palier et le nombre d'espèces restantes.
 - [ ] Étant donné le palier 70 ou le badge Prisme, quand je consulte les prix et les gains, alors ils changent comme dans la V1 (branchement vers L et E vérifié par un test de bout en bout du cœur).
+- [ ] Étant donné un boss d'arène vaincu, quand le badge est obtenu, alors se joue la séquence de la V1 (message, ouverture de la boîte à badges à 1,2 s, badge qui « claque » à 2 s, ≈ 3,2 s au total), comparée à `badge-slam` de la V1 (mêmes étapes et durées) ; avec `prefers-reduced-motion`, le badge apparaît sans mouvement.
+- [ ] Étant donné la page Plus, quand je l'ouvre, alors je vois le tableau de bord de la variante C (progression, Pokédex n / 151, badges n / 8) et la boîte à badges de la V1 avec l'effet au survol.
 
 ### Hors périmètre
 Scène de fin du palier 151 (X), Charme Chroma comme objet de capture (J) : le palier le donne seulement.
@@ -496,6 +531,9 @@ En tant que joueur, je veux commencer par la rencontre du professeur Chen et cho
 ### Contexte
 V1 : `legacy/js/game/intro.js`, `render.js` (`renderIntro`, `renderStarterSelect`), `kanto.js` (lieux). Pages : choix de Nicolas (B). V2 : `DialogueChen.tsx`, `equipe-de-depart.ts` (équipe provisoire de 3 starters à remplacer). **Règles V1** : intro de 7 lignes affichées en machine à écrire (30 ms par caractère), **+5 Pokéballs à la ligne 3**, **la carte est débloquée à la ligne 5** ; choix du starter entre trois Poké Balls animées, artwork ×1,5, bouton « CHOISIR <nom> », niveau 5 ; le **shiny du starter est pré-tiré** à 1/256 à la création ; sexe aléatoire ; le starter est ajouté au Pokédex ; ensuite lieux : **Chez Maman** (soin gratuit des Pokémon, texte d'accueil), **Labo de Chen** (dialogue, accès Pokédex), **Chez Blue** (dialogue). **Correction de la V1** : la phase de départ n'est plus codée en dur dans le store ; elle est l'événement `debut-partie` de O. Fichiers : `data/evenements/intro.json`, `src/ui/PageIntro.tsx`, `src/ui/ChoixStarter.tsx`.
 
+### Retours de Nicolas (24/10)
+**Choix de Nicolas (24/10).** Les trois maquettes d'intro sont **refusées** (« vides et moches »). On reprend l'**intro jouable de la V1** (`v1-visuel-a-porter.md` § 3) : écran titre, on se réveille **Chez Maman** (« Il n'y a rien à faire ici, sortons. »), on sort, on se **balade dans Bourg Palette sur l'image avec zones cliquables** (Chez Maman, Chez Blue et son gag, Labo de Chen qui clignote en vert, Pension plus tard, Bateau), on entre au **Labo** : Chen glisse de la droite, dialogue en machine à écrire (30 ms par caractère, ▼ qui rebondit, trois sprites de Chen), **le cadenas du sac se brise** et +5 Pokéballs, **la carte se débloque** (bouton qui rebondit), puis le **choix du starter** (trois Poké Balls, l'artwork apparaît au survol, ×1,5 au choix, bouton « Choisir X »), sortie du labo qui clignote, carte, vol, Route 1. La télé de Chez Maman (easter egg Daran) est reprise dans le ticket W. Ce ticket devient gros : à découper en P1 (scènes de Bourg Palette navigables) et P2 (dialogue de Chen et choix du starter) au moment du lancement. Sources : `docs/projet/choix-variantes-b.md` (choix), `docs/projet/v1-visuel-a-porter.md` (ce que fait la V1).
+
 ### Critères d'acceptation
 - [ ] Étant donné une partie neuve, quand je démarre, alors l'événement `debut-partie` joue l'intro de 7 lignes à 30 ms par caractère ; toucher saute l'animation de la ligne puis passe à la suivante ; les 5 Pokéballs sont données à la ligne 3 et la carte est débloquée à la ligne 5 (test de l'état après chaque ligne).
 - [ ] Étant donné le choix du starter, quand j'ouvre l'écran, alors trois Poké Balls s'ouvrent sur Bulbizarre, Salamèche et Carapuce (artwork ×1,5) avec « CHOISIR <nom> » ; le choix crée un Pokémon de niveau 5, sexe tiré, shiny avec la probabilité 1/256 (tirage injecté en test), ajouté au Pokédex.
@@ -503,6 +541,9 @@ V1 : `legacy/js/game/intro.js`, `render.js` (`renderIntro`, `renderStarterSelect
 - [ ] Étant donné Chez Maman, quand je clique sur « Se reposer », alors mes Pokémon sont soignés ; le Labo et Chez Blue affichent leurs dialogues et sont rejouables.
 - [ ] Étant donné un rechargement pendant l'intro, quand je rouvre, alors l'intro reprend à la ligne en cours (O) sans redonner les Pokéballs.
 - [ ] Étant donné 390 et 1440 px, quand l'intro et le choix s'affichent, alors tout est visible sans défiler ; textes entièrement en français ; `prefers-reduced-motion` désactive la machine à écrire (texte complet immédiat).
+- [ ] Étant donné une partie neuve, quand je clique sur JOUER, alors je me réveille Chez Maman avec le message de la V1 ; la sortie est signalée en vert pulsant ; la transition entre scènes est un voile noir de 300 ms.
+- [ ] Étant donné Bourg Palette, quand je survole ou touche une zone, alors elle réagit comme dans la V1 (Chez Maman, Chez Blue avec son texte, Labo qui clignote en vert tant que non visité, Pension verrouillée avec la raison, Bateau gris) ; les zones sont en pourcentages de l'image et suivent le redimensionnement de la fenêtre.
+- [ ] Étant donné le dialogue de Chen, quand il se joue, alors Chen glisse en 1,5 s, la boîte apparaît à 1,6 s, le texte s'écrit à 30 ms par caractère, un toucher pendant l'écriture n'avance pas la ligne, les cadenas et la carte réagissent aux mêmes lignes qu'en V1.
 
 ### Hors périmètre
 Nom du jeu (écran titre), choix du nom du dresseur (absent de la V1), Chen en sprite (voir point ouvert « sprite de Chen »).
@@ -511,7 +552,7 @@ Nom du jeu (écran titre), choix du nom du dresseur (absent de la V1), Chen en s
 `npm test -- intro` ; Playwright : parcours intro → choix → combat à 390 et 1440 px ; captures.
 
 ### Effort et risques
-Fourchette : 3 jours. Risque : l'équipe de départ change : mettre à jour tous les tests de phase 1 qui supposent 3 starters. Dépend de : O, H, I, J.
+Fourchette : 5 jours (4 à 5 si découpé en P1 et P2). Risque : l'équipe de départ change : mettre à jour tous les tests de phase 1 qui supposent 3 starters. Dépend de : O, H, I, J.
 
 ---
 
@@ -740,6 +781,35 @@ Fourchette : 3 jours. Risque : musique et droits (aucun fichier audio n'est ajou
 
 ---
 
+## Z. `feat(v1): reprendre les animations, les sons et les finitions visuelles de la V1`
+
+Labels : `type:feat`, `etat:idee`, `est:3-4`, `prio:2` · branche : `v2` · `agent-ok` : oui
+
+### Histoire
+En tant que joueur de la V1, je veux retrouver les animations, les sons et les petits effets que j'aimais afin que la V2 ait la même âme que mon jeu.
+
+### Contexte
+Demande de Nicolas (24/10) : « la V1 c'est l'idéal de mon jeu : le visuel, les animations, les easter eggs, c'est pile ce que j'aimais ». Inventaire complet dans `docs/projet/v1-visuel-a-porter.md` § 4 et § 7. Ce ticket couvre le **transversal** qui n'appartient à aucune page : animations du combat, de la capture, de l'évolution, du shiny, de la victoire ; sons ; finitions. Les animations propres à une page (vol de la carte, badge, intro, Panthéon, casino) sont dans le ticket de leur page. Chaque animation est reprise avec ses durées de la V1, retravaillée seulement pour respecter `design/DESIGN.md` (propriétés `transform` et `opacity`, pas de `steps()` sur un sprite, `prefers-reduced-motion`). Fichiers : `src/ui/animations/` (nouveau), `src/ui/sons.ts` (nouveau), `data/animations.json` (durées).
+
+### Critères d'acceptation
+- [ ] Étant donné l'inventaire de la V1, quand j'ouvre `docs/projet/v1-visuel-a-porter.md`, alors chaque animation du § 4 a un état : reprise (avec le ticket qui la porte), retravaillée (avec la raison) ou écartée par Nicolas ; aucune n'est supprimée sans son accord.
+- [ ] Étant donné un Pokémon sauvage, quand il est à l'écran, alors il flotte doucement (3 s en boucle) ; à chaque toucher, il tremble 0,3 s avec un éclat blanc ; les nombres de dégâts sont verts si le premier Pokémon de l'équipe est efficace et rouges sinon.
+- [ ] Étant donné une capture, quand la balle est lancée, alors le sprite devient une silhouette noire qui tremble pendant 1 s avant le résultat ; l'évolution fait clignoter en blanc 3 s en alternant les deux formes toutes les 150 ms ; un shiny a son halo doré et la bannière « Shiny apparu ! Auto stoppé ! » qui rebondit 3 s.
+- [ ] Étant donné les sons, quand je clique, tue un ennemi, capture, monte de niveau ou range un Pokémon au PC, alors le son de la V1 correspondant se joue (cinq tons courts synthétisés par la Web Audio, sans fichier ni bibliothèque), un interrupteur « Son » dans Plus les coupe, et rien ne se joue avant le premier geste du joueur (règle des navigateurs).
+- [ ] Étant donné `prefers-reduced-motion`, quand une animation devrait se jouer, alors elle est remplacée par un changement d'état instantané ou un fondu, sans perdre l'information.
+- [ ] Étant donné les finitions de la V1 (contour noir des textes, verre dépoli des panneaux, étoiles ✦, message « Recherche en cours… » entre deux ennemis), quand je les compare, alors chacune est reprise ou écartée par Nicolas, notée dans l'inventaire.
+
+### Hors périmètre
+Animations propres à une page (carte, badges, intro, Panthéon, casino, générique : dans leurs tickets), easter eggs de renommage (ticket W), musique (la V1 n'en a pas).
+
+### Vérification
+`npm test -- animations sons` ; captures et vidéos courtes de chaque animation comparées à la V1 par Claude ; essai de Nicolas.
+
+### Effort et risques
+Fourchette : 3 à 4 jours. Risque : fluidité (règle de DESIGN.md, 59 images/s au repos) : mesurer avec le test de fluidité après chaque ajout. Dépend de : H (équipe et combat étoffé), J (capture), K (évolution).
+
+---
+
 ## Y. `test(jalon): test de jalon 2 de bout en bout avec des sauvegardes de test`
 
 Labels : `type:test`, `etat:idee`, `est:1-2`, `prio:1` · branche : `v2` · `agent-ok` : oui
@@ -765,4 +835,4 @@ Essai de Nicolas (jalon humain, hors CI), équilibrage fin.
 `npm run test:e2e -- jalon-2` ; rapport Playwright joint à `docs/projet/jalon-2.md`.
 
 ### Effort et risques
-Fourchette : 1 à 2 jours. Risque : fragile si les temps de combat varient ; utiliser l'horloge simulée de l'interface de test. Dépend de : A à W.
+Fourchette : 1 à 2 jours. Risque : fragile si les temps de combat varient ; utiliser l'horloge simulée de l'interface de test. Dépend de : A à W et Z.
