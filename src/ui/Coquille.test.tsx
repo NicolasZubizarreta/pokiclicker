@@ -23,7 +23,7 @@ describe('Coquille', () => {
     render(<Coquille />);
     for (const nom of noms.slice(1)) {
       await utilisateur.click(screen.getByRole('button', { name: nom }));
-      expect(within(screen.getByRole('main')).getByRole('heading').textContent).toBe(nom);
+      expect(within(screen.getByRole('main')).getByRole('heading', { level: 1 }).textContent).toBe(nom);
       if (nom === 'Carte') expect(screen.getByRole('button', { name: 'Route 1 (Zone 1)' })).toBeTruthy();
       else expect(screen.getByText('Cette page arrive bientôt.')).toBeTruthy();
       expect(screen.getAllByRole('button').filter((bouton) => bouton.hasAttribute('aria-current')))
@@ -62,9 +62,15 @@ describe('Coquille', () => {
       const parcours = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
       while (parcours.nextNode()) {
         const texte = parcours.currentNode.textContent?.trim();
-        const textesCarte = new Set(['Sélectionne une zone.', ...storeJeu.getState().carte.formes.map(f =>
+        const voyage = parcours.currentNode.parentElement?.closest('section')?.querySelector('h2')?.textContent === 'Ton voyage';
+        if (voyage) {
+          // Les fragments de la barre « Ton voyage » (nombres, « badges sur ») sont vérifiés en bloc.
+          expect(parcours.currentNode.parentElement?.closest('section')?.textContent).toMatch(/Ton voyage\d+ badges? sur \d+ · .+ en cours/);
+          continue;
+        }
+        const textesCarte = new Set(['Ton voyage', 'Touche une zone pour la voir.', ...storeJeu.getState().carte.formes.map(f =>
           f.numero === null || f.numero === 0 ? f.nom : `${f.nom} (Zone ${f.numero})`)]);
-        if (texte) expect(autorises.has(texte) || textesCarte.has(texte), texte).toBe(true);
+        if (texte) expect(autorises.has(texte) || textesCarte.has(texte) || /^\d+ badges? sur \d+ · .+ en cours$|^(\d+|\/)$/.test(texte), texte).toBe(true);
       }
       for (const element of container.querySelectorAll('[aria-label]')) {
         const forme = storeJeu.getState().carte.formes.find(f => f.nom === element.getAttribute('data-forme'));

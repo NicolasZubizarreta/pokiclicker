@@ -89,3 +89,8 @@
 .carte-pulsation { animation: carte-opacite var(--duree-carte-pulsation) var(--ease-standard) infinite; }
 .carte-clignotement { animation: carte-opacite var(--duree-carte-clignotement) var(--ease-standard) infinite; }
 @keyframes carte-opacite { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+
+.carte-bande-reservee { height: calc(var(--spacing) * 80); overflow-y: auto; }
+.carte-miniature { width: calc(var(--spacing) * 32); max-width: 100%; }
+.carte-deblocage { opacity: 1; transition: opacity calc(var(--duration-lent) * 2) var(--ease-standard); }
+@starting-style { .carte-deblocage { opacity: 0; } }

@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { CarteKanto } from './CarteKanto';
 import { storeJeu } from './store';
@@ -10,6 +10,7 @@ afterEach(() => {
   storeJeu.getState().arreter();
   window.history.replaceState(null, '', '/');
   vi.restoreAllMocks();
+  vi.useRealTimers();
 });
 const afficher = () => render(<CarteKanto quandArrive={vi.fn()} />);
 
@@ -34,7 +35,8 @@ it('nomme les boutons et sélectionne au clavier sans voyager', () => {
   expect(route.querySelector('title')?.textContent).toBe('Route 1 (Zone 1)');
   expect(screen.queryByRole('button', { name: /Lavanville|Daran Ass/ })).toBeNull();
   fireEvent.keyDown(route, { key: 'Enter' });
-  expect(screen.getByRole('status').textContent).toBe('Route 1 (Zone 1)');
+  expect(screen.getByRole('heading', { name: 'Route 1' })).toBeTruthy();
+  expect(screen.getByText('Zone 1')).toBeTruthy();
   fireEvent.keyDown(route, { key: ' ' });
   expect(aller).not.toHaveBeenCalled();
 });
@@ -43,7 +45,8 @@ it('permet de sélectionner une zone fermée', () => {
   afficher();
   const fermee = storeJeu.getState().carte.formes.find(f => f.zone && !f.ouverte)!;
   fireEvent.click(screen.getByRole('button', { name: `${fermee.nom} (Zone ${fermee.numero})` }));
-  expect(screen.getByRole('status').textContent).toBe(`${fermee.nom} (Zone ${fermee.numero})`);
+  expect(screen.getByRole('heading', { name: fermee.nom })).toBeTruthy();
+  expect(screen.getByText(`Zone ${fermee.numero}`)).toBeTruthy();
 });
 
 it('montre les noms et halos en debug seulement', () => {
@@ -82,10 +85,10 @@ it('capture les pointeurs, distingue toucher et glisser et zoome à deux doigts'
   pointer(route, 'pointerdown', 1, 100);
   pointer(svg, 'pointermove', 1, 109);
   pointer(svg, 'pointerup', 1, 109);
-  expect(screen.getByRole('status').textContent).toBe('Sélectionne une zone.');
+  expect(screen.getByText('Touche une zone pour la voir.')).toBeTruthy();
   pointer(route, 'pointerdown', 1, 100);
   pointer(svg, 'pointerup', 1, 100);
-  expect(screen.getByRole('status').textContent).toBe('Route 1 (Zone 1)');
+  expect(screen.getByRole('heading', { name: 'Route 1' })).toBeTruthy();
   pointer(svg, 'pointerdown', 1, 100);
   pointer(svg, 'pointerdown', 2, 200);
   pointer(svg, 'pointermove', 2, 300);
@@ -96,4 +99,109 @@ it('capture les pointeurs, distingue toucher et glisser et zoome à deux doigts'
   expect(svg.getAttribute('viewBox')).not.toBe(avant);
   pointer(svg, 'pointercancel', 1, 80);
   expect(capture).toHaveBeenCalledWith(2);
+});
+
+it('présente le voyage avec une progression native accessible', () => {
+  afficher();
+  expect(screen.getByRole('heading', { name: 'Ton voyage' })).toBeTruthy();
+  expect(screen.getByText(/0 badges sur 8 · .* en cours/)).toBeTruthy();
+  const progress = screen.getByRole('progressbar', { name: 'Badges obtenus' });
+  expect(progress.tagName).toBe('PROGRESS');
+  expect(progress.getAttribute('value')).toBe('0');
+  expect(progress.getAttribute('max')).toBe('8');
+});
+
+it('voyage vers une zone ouverte avant de signaler l’arrivée', () => {
+  storeJeu.getState().allerVers(storeJeu.getState().carte.formes.find(f => f.numero === 0)!.zone!);
+  const aller = vi.spyOn(storeJeu.getState(), 'allerVers');
+  const arrive = vi.fn();
+  render(<CarteKanto quandArrive={arrive} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Route 1 (Zone 1)' }));
+  expect(screen.getByRole('heading', { name: 'Route 1' })).toBeTruthy();
+  expect(screen.getByText('Zone 1')).toBeTruthy();
+  const image = screen.getByRole('img', { name: 'Décor de Route 1' });
+  expect(image.className).toContain('aspect-video');
+  fireEvent.click(screen.getByRole('button', { name: 'Y aller' }));
+  expect(aller).toHaveBeenCalledWith(storeJeu.getState().carte.formes.find(f => f.numero === 1)!.zone);
+  expect(arrive).toHaveBeenCalledTimes(1);
+  expect(aller.mock.invocationCallOrder[0]).toBeLessThan(arrive.mock.invocationCallOrder[0]!);
+});
+
+it('explique le verrouillage de la Forêt de Jade sans action', () => {
+  afficher();
+  fireEvent.click(screen.getByRole('button', { name: /Forêt de Jade/ }));
+  expect(screen.getByText('Bloquée')).toBeTruthy();
+  expect(screen.getByText('Bats le boss de Route 1.')).toBeTruthy();
+  expect(screen.queryByRole('button', { name: 'Y aller' })).toBeNull();
+});
+
+it('propose les trois entrées de Céladopole et explique les deux indisponibles', () => {
+  const carte = storeJeu.getState().carte;
+  const ville = carte.formes.find(f => f.nom === 'Céladopole')!;
+  storeJeu.setState({ carte: { ...carte, formes: carte.formes.map(f => f === ville ? { ...f, ouverte: true, actuelle: false } : f) } });
+  const aller = vi.spyOn(storeJeu.getState(), 'allerVers').mockImplementation(() => {});
+  afficher();
+  const fiche = screen.getByRole('region', { name: 'Zone sélectionnée' });
+  fireEvent.click(screen.getByRole('button', { name: /Céladopole/ }));
+  expect(within(fiche).getByRole('heading', { name: 'Céladopole' })).toBeTruthy();
+  expect(within(fiche).getByText('Arène')).toBeTruthy();
+  for (const nom of ['Centre commercial', 'Casino']) {
+    expect((within(fiche).getByRole('button', { name: nom }) as HTMLButtonElement).disabled).toBe(true);
+  }
+  expect(within(fiche).getAllByText('Bientôt disponible.')).toHaveLength(2);
+  fireEvent.click(within(fiche).getByRole('button', { name: 'Y aller' }));
+  expect(aller).toHaveBeenCalledWith(ville.zone);
+});
+
+it('réserve la même bande sous l’image et indique la zone actuelle sans action', () => {
+  const { container } = afficher();
+  const fiche = screen.getByRole('region', { name: 'Zone sélectionnée' });
+  const classes = fiche.className;
+  expect(classes).toContain('carte-bande-reservee');
+  expect(fiche.previousElementSibling?.tagName.toLowerCase()).toBe('svg');
+  expect(fiche.parentElement?.className).toContain('cadre');
+  for (const nom of [/Céladopole/, /Forêt de Jade/, /Route 1 \(Zone 1\)/]) {
+    fireEvent.click(screen.getByRole('button', { name: nom }));
+    expect(fiche.className).toBe(classes);
+  }
+  const actuelle = storeJeu.getState().carte.formes.find(f => f.actuelle)!;
+  fireEvent.click(screen.getByRole('button', { name: actuelle.numero ? `${actuelle.nom} (Zone ${actuelle.numero})` : actuelle.nom }));
+  expect(screen.getByText('Tu es ici.')).toBeTruthy();
+  expect(within(fiche).queryByRole('button', { name: 'Y aller' })).toBeNull();
+  expect(container.textContent).not.toMatch(/\b(locked|travel|current|coming soon|select a zone)\b/i);
+});
+
+it('annonce les zones débloquées puis les marque vues après 600 ms', () => {
+  vi.useFakeTimers();
+  const route = storeJeu.getState().carte.formes.find(f => f.numero === 1)!;
+  storeJeu.getState().allerVers(route.zone!);
+  for (let i = 0; i < 10000 && !storeJeu.getState().carte.nouvelles.length; i++) {
+    vi.advanceTimersByTime(100);
+    storeJeu.getState().attaquer();
+    storeJeu.getState().tick();
+  }
+  const nouvelles = [...storeJeu.getState().carte.nouvelles];
+  expect(nouvelles.length).toBeGreaterThan(0);
+  const { container } = afficher();
+  expect(screen.getByRole('status').textContent).toContain('Zone débloquée !');
+  expect(screen.getByRole('status').textContent).toContain('Forêt de Jade');
+  expect(container.querySelector('[data-forme="Forêt de Jade"]')?.getAttribute('class')).toContain('carte-deblocage');
+  act(() => { vi.advanceTimersByTime(599); });
+  expect(storeJeu.getState().carte.nouvelles).toEqual(nouvelles);
+  act(() => { vi.advanceTimersByTime(1); });
+  expect(storeJeu.getState().carte.nouvelles).toEqual([]);
+  expect(screen.queryByRole('status')).toBeNull();
+});
+
+it('annule la prise en compte des déblocages si la carte est quittée avant la fin', () => {
+  vi.useFakeTimers();
+  const carte = storeJeu.getState().carte;
+  const zone = carte.formes.find(f => f.nom === 'Forêt de Jade')!.zone!;
+  storeJeu.setState({ carte: { ...carte, nouvelles: [zone] } });
+  const voir = vi.spyOn(storeJeu.getState(), 'voirCarte');
+  const { unmount } = afficher();
+  unmount();
+  act(() => { vi.advanceTimersByTime(600); });
+  expect(voir).not.toHaveBeenCalled();
+  expect(storeJeu.getState().carte.nouvelles).toEqual([zone]);
 });
