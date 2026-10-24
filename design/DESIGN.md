@@ -37,7 +37,7 @@ Valeurs exactes : `tokens.css` et `regions.css`. Sémantiques : `--succes-*`, `-
 - Ruptures : 390 · 768 · 1024 · 1440 px, container queries et `clamp()`, aucune largeur fixe en px sur un conteneur.
 
 ## Composants nommés
-- **Bouton d'action** : plaque en relief, ≥ 44 px (« Attaque » ≥ 88 px sur mobile, sous le pouce droit). États : survol, pressé (descend de 2 px), désactivé (avec explication visible), focus (anneau 3:1).
+- **Bouton d'action** : plaque en relief, ≥ 44 px. États : survol, pressé (descend de 2 px), désactivé (avec explication visible), focus (anneau 3:1). **Il n'y a plus de bouton « Attaque » (décision du 24/10) : on touche la scène, comme dans la V1.** La scène entière est la cible (un seul élément focalisable, nom accessible « Attaquer <Pokémon> », Entrée et Espace comme alternative au toucher) ; le recul du sprite et le chiffre de dégâts confirment l'appui.
 - **Cadre** : double liseré (Kanto : crème ; Johto : or puis argent ; atlas : encre irrégulière). Un seul style de cadre par écran.
 - **Barre de PV** : pixel, vert puis jaune puis rouge ; `scaleX` en 120 ms, barre fantôme après 300 ms.
 - **Étapes** : 10 marques ; la 10e = boss (Poké Ball / cachet / cachet de cire).
@@ -53,8 +53,8 @@ Valeurs exactes : `tokens.css` et `regions.css`. Sémantiques : `--succes-*`, `-
 - Décors : 16:9 1920 × 1080, vus de face ou de trois quarts, point focal dans les données. Les décors de la V1 sont à régénérer.
 
 ## Responsive
-- 390 px : navigation basse, scène ≈ 300 px, « Attaque » pleine largeur, équipe en 6 cases de 56 px.
-- 1440 px : navigation à gauche, scène 16:9 au centre, équipe à droite, dialogue sous la scène ; atlas en double page.
+- 390 px : navigation basse, scène ≈ 300 px (cible tactile), équipe en 6 cases de 56 px, dialogue visible sans défiler.
+- 1440 px : navigation à gauche, scène 16:9 au centre (largeur limitée pour que scène et dialogue tiennent sans défiler dans la fenêtre), équipe à droite, dialogue sous la scène ; atlas en double page.
 - Ordre des blocs repensé sur mobile, pas réduit.
 
 ## Interdits de la marque
@@ -69,3 +69,4 @@ Tutoiement, phrases courtes, chaleureux. Boutons à l'impératif court. Erreur =
 - 2026-10-23 — Johto = HeartGold / SoulSilver, thème d'interprétation faute de captures d'interface — à recaler avec des captures du jeu.
 - 2026-10-23 — Direction C « appareil de région » (boîtier Pokédex / Pokégear) abandonnée — incomprise, rendu jouet, coût de 9 boîtiers.
 - 2026-10-23 — Plafond de 12 clics/s, tutoiement, mode sombre par défaut — décisions de Nicolas.
+- 2026-10-24 — Plus de bouton « Attaque » : on touche la scène (comme la V1 et les autres clickers) ; gain de place, le dialogue et le message de fin de zone doivent être visibles sans défiler ; les notifications (mise à jour, hors connexion) sont des toasts flottants qui ne déplacent jamais la mise en page — décisions de Nicolas après essai sur PC et téléphone.
