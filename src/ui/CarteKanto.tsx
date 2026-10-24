@@ -125,7 +125,7 @@ export function CarteKanto({ quandArrive }: { quandArrive: () => void }) {
         viewBox={`${vue.x} ${vue.y} ${vue.largeur} ${vue.hauteur}`}
         onPointerDown={commencer} onPointerMove={bouger} onPointerUp={terminer}
         onPointerCancel={terminer} onLostPointerCapture={event => { pointeurs.current.delete(event.pointerId); }}>
-        <image href="/img/decors/carte-kanto.webp" width={16} height={16 * dimensions.hauteur / dimensions.largeur} />
+        <image href="img/decors/carte-kanto.webp" width={16} height={16 * dimensions.hauteur / dimensions.largeur} />
         <g data-halos className={debug ? 'fill-focus/30 stroke-focus' : 'fill-transparent'}>
           {carte.formes.filter(f => f.ouverte && f.zone).map(f => {
             const centre = centreForme(f.forme);
@@ -140,7 +140,7 @@ export function CarteKanto({ quandArrive }: { quandArrive: () => void }) {
             return <Fragment key={f.nom}>
               {nouvelle && <Forme {...attributsSvg(f.forme)} className="pointer-events-none fill-texte-doux/50" />}
               <Forme {...attributsSvg(f.forme)} data-forme={f.nom} data-zone={f.zone}
-              className={`${couleur(f)} ${nouvelle ? 'carte-deblocage' : ''} ${debug ? 'stroke-focus' : ''} ${f.zone ? 'cursor-pointer' : 'pointer-events-none'}`}
+              className={`${couleur(f)} focus-visible:outline-none focus-visible:stroke-focus focus-visible:stroke-3 ${nouvelle ? 'carte-deblocage' : ''} ${debug ? 'stroke-focus' : ''} ${f.zone ? 'cursor-pointer' : 'pointer-events-none'}`}
               vectorEffect="non-scaling-stroke" role={f.zone ? 'button' : undefined}
               tabIndex={f.zone ? 0 : undefined} aria-label={nomAccessible(f)}
               onClick={() => { if (f.zone && !glissement.current) selectionner(f.zone); }}
