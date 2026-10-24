@@ -1,16 +1,22 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { readFileSync, readdirSync } from 'node:fs';
 import { creerHorlogeSimulee } from './clock';
 import { reglages } from './reglages';
 import { compteInitial, creerGestionnaire, creerStockageMemoire, etatMondeDe, partieInitiale,
-  regionInitiale, versMembreEquipe } from './sauvegarde';
+  regionInitiale, versMembreEquipe, validerDonneesRegion, validerPokemonPossede } from './sauvegarde';
 import type { DonneesRegion, PokemonPossede } from './sauvegarde';
 import { migrationsParDefaut } from './migrations';
 import v0 from './migrations/__fixtures__/partie-v0.json';
 import v1 from './migrations/__fixtures__/partie-v1.json';
+import v2 from './migrations/__fixtures__/partie-v2.json';
+import regionV1 from './migrations/__fixtures__/region-v1.json';
+import regionV2 from './migrations/__fixtures__/region-v2.json';
+import compteV1 from './migrations/__fixtures__/compte-v1.json';
+import compteV2 from './migrations/__fixtures__/compte-v2.json';
+import exportV1 from './migrations/__fixtures__/export-v1.json';
 
 const pokemon: PokemonPossede = { uid: 'bulbizarre', numero: 1, niveau: 5, xp: 12, shiny: true,
-  bonheur: 20, pierreEternelle: true, calcium: 2, surnom: 'Forêt' };
+  bonheur: 20, pierreEternelle: true, calcium: 2, surnom: 'Forêt', sexe: 'femelle', favori: false };
 function contexte() {
   const stockage = creerStockageMemoire();
   const horloge = creerHorlogeSimulee(Date.UTC(2026, 9, 23));
@@ -108,6 +114,73 @@ describe('sauvegarde à trois niveaux', () => {
 });
 
 describe('chargement sûr et import', () => {
+  it.each(['compte', 'partie', 'region'] as const)('lit la version 1 du niveau %s sans aucune écriture', niveau => {
+    const { stockage, horloge } = contexte();
+    // La fixture de migration contient volontairement un champ inconnu, interdit au chargement.
+    const region = structuredClone(regionV1);
+    Reflect.deleteProperty(region.donnees, 'futur');
+    const attendue = structuredClone(regionV2);
+    Reflect.deleteProperty(attendue.donnees, 'futur');
+    const sources = { compte: compteV1, partie: v1, region };
+    const attendus = { compte: compteV2, partie: v2, region: attendue };
+    const cles = { compte: 'pokiclicker:compte:local', partie: `pokiclicker:partie:${v1.id}`,
+      region: `pokiclicker:region:${v1.id}:kanto` };
+    const texte = `  ${JSON.stringify(sources[niveau])}\n`;
+    stockage.ecrire(cles[niveau], texte);
+    const ecrire = vi.spyOn(stockage, 'ecrire');
+    const supprimer = vi.spyOn(stockage, 'supprimer');
+    const jeu = creerGestionnaire({ stockage, horloge, genererId: () => 'nouvelle' });
+    const lire = () => niveau === 'compte' ? jeu.chargerCompte()
+      : niveau === 'partie' ? jeu.chargerPartie(v1.id) : jeu.chargerRegion(v1.id, 'kanto');
+    expect(lire()).toEqual(attendus[niveau]);
+    expect(lire()).toEqual(attendus[niveau]);
+    expect(stockage.lire(cles[niveau])).toBe(texte);
+    expect(ecrire).not.toHaveBeenCalled();
+    expect(supprimer).not.toHaveBeenCalled();
+  });
+  it.each(['compte', 'partie', 'region'] as const)('refuse la version 3 du niveau %s sans écriture', niveau => {
+    const { stockage, horloge } = contexte();
+    const source = { compte: compteV1, partie: v1, region: regionV1 }[niveau];
+    const cle = niveau === 'compte' ? 'pokiclicker:compte:local'
+      : niveau === 'partie' ? `pokiclicker:partie:${v1.id}` : `pokiclicker:region:${v1.id}:kanto`;
+    const texte = JSON.stringify({ ...source, version: 3 });
+    stockage.ecrire(cle, texte);
+    const ecrire = vi.spyOn(stockage, 'ecrire');
+    const supprimer = vi.spyOn(stockage, 'supprimer');
+    const jeu = creerGestionnaire({ stockage, horloge, genererId: () => 'nouvelle' });
+    const lire = () => niveau === 'compte' ? jeu.chargerCompte()
+      : niveau === 'partie' ? jeu.chargerPartie(v1.id) : jeu.chargerRegion(v1.id, 'kanto');
+    expect(lire).toThrowError(new Error("Cette sauvegarde vient d'une version plus récente du jeu."));
+    expect(stockage.lire(cle)).toBe(texte);
+    expect(ecrire).not.toHaveBeenCalled();
+    expect(supprimer).not.toHaveBeenCalled();
+  });
+  it('importe la fixture d’export en version 1 vers les données figées de version 2', () => {
+    const { jeu } = contexte();
+    const attendue = structuredClone(regionV2.donnees);
+    Reflect.deleteProperty(attendue, 'futur');
+    const { id } = jeu.importerPartie(JSON.stringify(exportV1));
+    expect(jeu.chargerPartie(id)).toMatchObject({ version: 2, donnees: v2.donnees });
+    expect(jeu.chargerPartie(id)?.donnees).toEqual(v2.donnees);
+    expect(jeu.chargerRegion(id, 'kanto')).toMatchObject({ version: 2, donnees: attendue });
+    expect(jeu.chargerRegion(id, 'kanto')?.donnees).toEqual(attendue);
+  });
+  it.each(['fichier', 'partie', 'region'] as const)('refuse un export v1 contenant une version 3 (%s) sans appeler le stockage en écriture', cible => {
+    const { stockage, horloge } = contexte();
+    const ecrire = vi.spyOn(stockage, 'ecrire');
+    const supprimer = vi.spyOn(stockage, 'supprimer');
+    const genererId = vi.fn(() => 'nouvelle');
+    const jeu = creerGestionnaire({ stockage, horloge, genererId });
+    const fichier = structuredClone(exportV1);
+    if (cible === 'fichier') fichier.version = 3;
+    if (cible === 'partie') fichier.partie.version = 3;
+    if (cible === 'region') fichier.regions[0]!.version = 3;
+    expect(() => jeu.importerPartie(JSON.stringify(fichier))).toThrowError(
+      new Error("Cette sauvegarde vient d'une version plus récente du jeu."));
+    expect(ecrire).not.toHaveBeenCalled();
+    expect(supprimer).not.toHaveBeenCalled();
+    expect(genererId).not.toHaveBeenCalled();
+  });
   it('refuse une version future avec le message exact et préserve chaque octet', () => {
     const { jeu, stockage } = contexte();
     const p = jeu.creerPartie('Test');
@@ -141,19 +214,30 @@ describe('chargement sûr et import', () => {
     const ancienneCle = `pokiclicker:partie:${v0.id}`;
     stockage.ecrire(ancienneCle, texte);
     const lue = jeu.chargerPartie(v0.id);
-    expect(lue).toEqual(v1);
+    expect(lue).toEqual(v2);
     expect(stockage.lire(ancienneCle)).toBe(texte);
-    expect(jeu.ecrirePartie(v0.id, lue!.donnees)).toMatchObject({ version: 1, revision: 8 });
+    expect(jeu.ecrirePartie(v0.id, lue!.donnees)).toMatchObject({ version: 2, revision: 8 });
   });
   it('exporte et importe toutes les régions sous un nouvel identifiant sans information de compte', () => {
     const { jeu, stockage } = contexte();
     jeu.ecrireCompte({ ...compteInitial(), diamants: 42 });
     const p = jeu.creerPartie('Aventure');
     jeu.ecrirePartie(p.id, { ...p.donnees, pcGlobal: [pokemon], regionsDebloquees: ['kanto', 'johto'] });
-    jeu.ecrireRegion(p.id, 'kanto', { ...regionInitiale('kanto', 'kanto.route-1'), equipe: [pokemon], argent: 99 });
+    jeu.ecrireRegion(p.id, 'kanto', { ...regionInitiale('kanto', 'kanto.route-1'), equipe: [pokemon], argent: 99,
+      pc: [{ ...pokemon, uid: 'pc', sexe: 'sansSexe', favori: true }], ameliorations: ['chaussures'],
+      jalonsRecus: [10, 20], starterId: 1, statistiques: { eliminations: 45, argentTotalGagne: 987 },
+      chronos: { finRepousse: 1000, finSuperRepousse: 2000, finBoostAttaque: 3000,
+        finBoostAttaqueSpeciale: 4000, rechargeFauchage: 5000 },
+      pension: { parents: [pokemon, { ...pokemon, uid: 'parent-2', sexe: 'male' }],
+        oeufs: [{ ...pokemon, uid: 'oeuf', oeuf: { pasRestants: 6, pasMax: 10 } }], emplacementsOeuf: 3 },
+      jetons: 53, arretAuto: { commun: true, peuCommun: true, rare: false, tresRare: false,
+        legendaire: false, shiny: false, nouveau: false } });
     jeu.ecrireRegion(p.id, 'johto', regionInitiale('johto', 'johto.depart'));
     const texte = jeu.exporterPartie(p.id);
     const fichier = JSON.parse(texte);
+    expect(fichier.version).toBe(2);
+    expect(fichier.partie.version).toBe(2);
+    expect(fichier.regions.every((r: { version: number }) => r.version === 2)).toBe(true);
     function verifier(v: unknown) {
       if (typeof v === 'string') {
         expect(v).not.toMatch(/mail|compte|local/i);
@@ -195,10 +279,10 @@ describe('chargement sûr et import', () => {
     const fichier = JSON.parse(jeu.exporterPartie(p.id));
     const avant = instantane(stockage);
     for (const cible of [fichier, fichier.partie, fichier.regions[0]]) {
-      cible.version = 99;
+      cible.version = 3;
       expect(() => jeu.importerPartie(JSON.stringify(fichier))).toThrowError(
         new Error("Cette sauvegarde vient d'une version plus récente du jeu."));
-      cible.version = 1;
+      cible.version = 2;
     }
     expect(instantane(stockage)).toEqual(avant);
   });
@@ -213,12 +297,91 @@ describe('chargement sûr et import', () => {
       return { ...reste, nom: nomPartie };
     };
     const { id } = jeu.importerPartie(JSON.stringify(fichier));
-    expect(jeu.chargerPartie(id)?.donnees).toEqual(v1.donnees);
+    expect(jeu.chargerPartie(id)?.donnees).toEqual(v2.donnees);
   });
   it('garde le module et ses voisins de production indépendants du navigateur', () => {
     const dossier = new URL('.', import.meta.url);
     const fichiers = readdirSync(dossier).filter(nom => nom.startsWith('sauvegarde') && !nom.endsWith('.test.ts'));
     for (const nom of fichiers) expect(readFileSync(new URL(nom, dossier), 'utf8')).not.toMatch(/localStorage|window/);
     expect(readFileSync(new URL('migrations/index.ts', dossier), 'utf8')).not.toMatch(/localStorage|window/);
+  });
+});
+
+describe('validation du schéma de version 2', () => {
+  it.each([
+    [{ sexe: 'inconnu' }, 'Sexe invalide : inconnu'],
+    [{ oeuf: { pasRestants: 11, pasMax: 10 } }, 'Œuf invalide : les pas restants dépassent le maximum'],
+    [{ oeuf: { pasRestants: 0, pasMax: 0 } }, 'Œuf invalide : Entier strictement positif attendu'],
+    [{ oeuf: { pasRestants: -1, pasMax: 10 } }, 'Œuf invalide : Nombre positif ou nul attendu'],
+    [{ oeuf: { pasRestants: 0.5, pasMax: 10 } }, 'Œuf invalide : Entier attendu'],
+    [{ oeuf: { pasRestants: 0, pasMax: 1.5 } }, 'Œuf invalide : Entier attendu'],
+    [{ oeuf: { pasRestants: 0, pasMax: 1, inconnu: true } }, 'Œuf invalide : Champ inconnu'],
+    [{ oeuf: { pasRestants: 0 } }, 'Œuf invalide : Champ manquant : pasMax'],
+    [{ favori: 'oui' }, 'Booléen attendu'],
+    [{ inconnu: true }, 'Champ inconnu'],
+  ])('refuse un Pokémon invalide (%j)', (modification, message) => {
+    expect(() => validerPokemonPossede({ ...pokemon, ...modification })).toThrowError(new Error(message));
+  });
+  it.each(['male', 'femelle', 'sansSexe'])('accepte le sexe %s et les bornes des pas d’œuf', sexe => {
+    for (const pasRestants of [0, 10]) {
+      expect(() => validerPokemonPossede({ ...pokemon, sexe, oeuf: { pasRestants, pasMax: 10 } })).not.toThrow();
+    }
+  });
+  it.each([
+    [{ jetons: -1 }, 'Nombre positif ou nul attendu'],
+    [{ jetons: 0.5 }, 'Entier attendu'],
+    [{ starterId: '1' }, 'Nombre positif ou nul attendu'],
+    [{ starterId: 0 }, 'Entier strictement positif attendu'],
+    [{ starterId: 1.5 }, 'Entier attendu'],
+    [{ pc: [null] }, 'Objet attendu'],
+    [{ ameliorations: [1] }, 'Texte attendu'],
+    [{ jalonsRecus: [0] }, 'Entier strictement positif attendu'],
+    [{ statistiques: { eliminations: -1, argentTotalGagne: 0 } }, 'Nombre positif ou nul attendu'],
+    [{ statistiques: { eliminations: 0, argentTotalGagne: Infinity } }, 'Nombre positif ou nul attendu'],
+    [{ pension: { parents: [pokemon, pokemon, pokemon], oeufs: [], emplacementsOeuf: 1 } }, 'Pension invalide : au plus deux parents'],
+    [{ pension: { parents: [], oeufs: [pokemon], emplacementsOeuf: 1 } }, 'Œuf invalide : état d’œuf manquant dans la pension'],
+    [{ pension: { parents: [], oeufs: [], emplacementsOeuf: 0 } }, 'Entier strictement positif attendu'],
+    [{ pension: { parents: [], oeufs: [], emplacementsOeuf: 1.5 } }, 'Entier attendu'],
+    [{ inconnu: true }, 'Champ inconnu'],
+    [{ arretAuto: {} }, 'Champ manquant : commun'],
+    [{ chronos: {} }, 'Champ manquant : finRepousse'],
+  ])('refuse une région invalide (%j)', (modification, message) => {
+    expect(() => validerDonneesRegion({ ...regionInitiale('kanto', 'kanto.route-1'), ...modification }))
+      .toThrowError(new Error(message));
+  });
+  it('exige tous les champs du schéma et isole profondément les valeurs de départ', () => {
+    const region = regionInitiale('kanto', 'kanto.route-1');
+    for (const cle of Object.keys(region)) {
+      const incomplet = { ...region };
+      Reflect.deleteProperty(incomplet, cle);
+      expect(() => validerDonneesRegion(incomplet)).toThrow(`Champ manquant : ${cle}`);
+    }
+    for (const cle of ['sexe', 'favori']) {
+      const incomplet = { ...pokemon };
+      Reflect.deleteProperty(incomplet, cle);
+      expect(() => validerPokemonPossede(incomplet)).toThrow(`Champ manquant : ${cle}`);
+    }
+    region.pc.push(pokemon);
+    region.pension.parents.push(pokemon);
+    region.chronos.finRepousse = 123;
+    region.arretAuto.rare = false;
+    const autre = regionInitiale('kanto', 'kanto.route-1');
+    expect(autre).toMatchObject(reglages.depart.region);
+    expect(autre.pension.emplacementsOeuf).toBe(1);
+  });
+  it('valide chaque chrono et chaque critère d’arrêt, sans accepter de champ supplémentaire', () => {
+    const region = regionInitiale('kanto', 'kanto.route-1');
+    for (const cle of Object.keys(region.chronos)) {
+      for (const valeur of [-1, 0.5, Infinity, '0']) {
+        expect(() => validerDonneesRegion({ ...region, chronos: { ...region.chronos, [cle]: valeur } })).toThrow(/attendu/);
+      }
+    }
+    for (const cle of Object.keys(region.arretAuto)) {
+      expect(() => validerDonneesRegion({ ...region, arretAuto: { ...region.arretAuto, [cle]: 1 } })).toThrow('Booléen attendu');
+    }
+    for (const cle of ['chronos', 'arretAuto', 'pension', 'statistiques'] as const) {
+      expect(() => validerDonneesRegion({ ...region, [cle]: { ...region[cle], inconnu: true } })).toThrow('Champ inconnu');
+    }
+    expect(() => validerDonneesRegion({ ...region, starterId: 1 })).not.toThrow();
   });
 });

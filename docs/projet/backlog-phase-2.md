@@ -45,7 +45,7 @@ Chemin critique : A → E → F → C → Q → R → Y. Hors phase 2 : quêtes,
 
 ## A. `feat(sauvegarde): étendre la sauvegarde de région à tout Kanto et migrer de la version 1 à la version 2`
 
-Labels : `type:feat`, `etat:idee`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : oui, **relecture humaine renforcée** (migration)
+Labels : `type:feat`, `etat:fait`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : oui, **relecture humaine renforcée** (migration)
 
 ### Histoire
 En tant que joueur, je veux que ma partie garde tout ce qu'elle doit (inventaire, objets achetés, PC, Pokédex, pension, jetons, chronos) afin de retrouver exactement ma progression après fermeture, y compris après une mise à jour du jeu.
@@ -54,12 +54,12 @@ En tant que joueur, je veux que ma partie garde tout ce qu'elle doit (inventaire
 Le schéma de phase 1 (`src/core/sauvegarde-types.ts`, version 1) ne couvre que l'équipe, l'argent, l'inventaire, les badges et la zone. La phase 2 ajoute le nécessaire pour Kanto, d'après la liste des champs de la V1 (`legacy/js/game/save.js`, `loadData` et la fusion des valeurs par défaut). ADR 0001 : trois niveaux, enveloppe versionnée, migrations pures, pas d'état d'interface, pas d'import de la V1. Fichiers : `src/core/sauvegarde-types.ts`, `sauvegarde-validation.ts`, `sauvegarde.ts`, `migrations/index.ts`, fixtures `migrations/__fixtures__/`.
 
 ### Critères d'acceptation
-- [ ] Étant donné `DonneesRegion`, quand je le lis, alors il contient en plus : `pc` (liste de Pokémon, sans limite), `ameliorations` (liste d'objets à achat unique possédés), `jalonsRecus` (paliers du Pokédex déjà récompensés), `starterId`, `statistiques` (éliminations, argent total gagné), `chronos` (fins de repousse, de boosts, recharge du fauchage, en horodatages), `pension` (parents, œufs, emplacements), `jetons` (casino) et `arretAuto` (réglages d'arrêt) ; chaque champ a une valeur de départ lue dans `data/reglages.json` ou vide.
-- [ ] Étant donné `PokemonPossede`, quand je le lis, alors il porte aussi `sexe`, `favori` et un état d'œuf facultatif (`pasRestants`, `pasMax`) ; les validateurs rejettent un sexe ou un nombre de pas invalide avec un message français.
-- [ ] Étant donné une sauvegarde en version 1 (fixture figée), quand je la charge, alors `migrer` la fait passer en version 2 sans perdre aucun champ existant et sans écrire pendant la lecture ; la table de migrations contient la marche `1 → 2`.
-- [ ] Étant donné une sauvegarde en version 3 (inconnue), quand je la charge, alors le message exact « Cette sauvegarde vient d'une version plus récente du jeu. » s'affiche et rien n'est modifié.
-- [ ] Étant donné une partie en version 2, quand j'exporte puis j'importe, alors la partie importée est identique, régions comprises (`toEqual`).
-- [ ] Étant donné `VERSION_ACTUELLE`, quand je la lis, alors elle vaut 2, et le test de non-régression de phase 1 (aller-retour compte, partie, région) passe toujours.
+- [x] Étant donné `DonneesRegion`, quand je le lis, alors il contient en plus : `pc` (liste de Pokémon, sans limite), `ameliorations` (liste d'objets à achat unique possédés), `jalonsRecus` (paliers du Pokédex déjà récompensés), `starterId`, `statistiques` (éliminations, argent total gagné), `chronos` (fins de repousse, de boosts, recharge du fauchage, en horodatages), `pension` (parents, œufs, emplacements), `jetons` (casino) et `arretAuto` (réglages d'arrêt) ; chaque champ a une valeur de départ lue dans `data/reglages.json` ou vide.
+- [x] Étant donné `PokemonPossede`, quand je le lis, alors il porte aussi `sexe`, `favori` et un état d'œuf facultatif (`pasRestants`, `pasMax`) ; les validateurs rejettent un sexe ou un nombre de pas invalide avec un message français.
+- [x] Étant donné une sauvegarde en version 1 (fixture figée), quand je la charge, alors `migrer` la fait passer en version 2 sans perdre aucun champ existant et sans écrire pendant la lecture ; la table de migrations contient la marche `1 → 2`.
+- [x] Étant donné une sauvegarde en version 3 (inconnue), quand je la charge, alors le message exact « Cette sauvegarde vient d'une version plus récente du jeu. » s'affiche et rien n'est modifié.
+- [x] Étant donné une partie en version 2, quand j'exporte puis j'importe, alors la partie importée est identique, régions comprises (`toEqual`).
+- [x] Étant donné `VERSION_ACTUELLE`, quand je la lis, alors elle vaut 2, et le test de non-régression de phase 1 (aller-retour compte, partie, région) passe toujours.
 
 ### Hors périmètre
 Chiffrement, synchronisation en ligne (phase 4), PC global et Pokédex national (phase 6), import de la sauvegarde V1.
@@ -465,15 +465,15 @@ Labels : `type:feat`, `etat:idee`, `est:2-3`, `prio:1` · branche : `v2` · `age
 En tant que développeur, je veux un moteur qui joue des événements décrits en JSON afin d'ajouter l'intro, le rival ou les scènes de fin sans écrire de code pour chacun.
 
 ### Contexte
-ADR 0002 (`docs/adr/0002-*.md`, à relire : points ouverts listés en fin de ticket). V1 : les scènes sont codées en dur dans `legacy/js/` (`intro`, `rival`, `snorlax`, `league`). V2 : `DonneesRegion.drapeaux` et `evenementsVus` existent déjà dans le schéma ; `src/core/evenements.ts` (nouveau, pur : aucun accès au DOM). **Déclencheurs** : `entree-zone`, `boss-vaincu`, `objet-utilise`, `debut-partie`. **Étapes** : `dialogue`, `combat`, `donner`, `poser-drapeau`, `deplacer`, `bloquer`. Chaque événement a un identifiant, des conditions (drapeaux requis ou interdits, badge, zone) et une liste d'étapes ; il ne se joue qu'une fois sauf mention `repetable`. Le moteur produit des **commandes d'affichage** (dialogue à montrer, combat à lancer) que l'interface exécute et reconnaît par un accusé (`etapeTerminee`) ; il est déterministe et sérialisable (reprise après rechargement au milieu d'un événement).
+ADR 0002 (`docs/adr/0002-*.md`, à relire : points ouverts listés en fin de ticket). V1 : les scènes sont codées en dur dans `legacy/js/` (`intro`, `rival`, `snorlax`, `league`). V2 : `DonneesRegion.drapeaux` et `evenementsJoues` existent déjà dans le schéma ; `src/core/evenements.ts` (nouveau, pur : aucun accès au DOM). **Déclencheurs** : `entree-zone`, `boss-vaincu`, `objet-utilise`, `debut-partie`. **Étapes** : `dialogue`, `combat`, `donner`, `poser-drapeau`, `deplacer`, `bloquer`. Chaque événement a un identifiant, des conditions (drapeaux requis ou interdits, badge, zone) et une liste d'étapes ; il ne se joue qu'une fois sauf mention `repetable`. Le moteur produit des **commandes d'affichage** (dialogue à montrer, combat à lancer) que l'interface exécute et reconnaît par un accusé (`etapeTerminee`) ; il est déterministe et sérialisable (reprise après rechargement au milieu d'un événement).
 
 ### Critères d'acceptation
 - [ ] Étant donné un fichier `data/evenements/*.json` valide, quand le chargeur le lit, alors un schéma (Valibot, comme le reste) le valide ; une étape inconnue, un déclencheur inconnu ou une cible introuvable donne une erreur claire en français citant le fichier et l'identifiant.
-- [ ] Étant donné un événement `entree-zone` avec condition `drapeau:x` absent, quand j'entre dans la zone, alors il se déclenche ; une fois terminé, il est ajouté à `evenementsVus` et ne se rejoue pas.
+- [ ] Étant donné un événement `entree-zone` avec condition `drapeau:x` absent, quand j'entre dans la zone, alors il se déclenche ; une fois terminé, il est ajouté à `evenementsJoues` et ne se rejoue pas.
 - [ ] Étant donné les six étapes, quand j'exécute un événement d'essai, alors chaque étape produit sa commande (ou son effet : `donner` ajoute des objets, `poser-drapeau` écrit un drapeau, `deplacer` change de zone, `bloquer` interdit l'accès à une zone tant qu'un drapeau manque).
 - [ ] Étant donné un rechargement au milieu d'un événement, quand je rouvre, alors il reprend à l'étape en cours (index d'étape sauvegardé) sans double récompense.
 - [ ] Étant donné deux événements éligibles en même temps, quand ils se déclenchent, alors l'ordre est celui d'un champ `priorite` puis de l'identifiant (déterministe, testé).
-- [ ] Étant donné la sauvegarde, quand elle est exportée puis importée, alors `drapeaux` et `evenementsVus` sont conservés (test de bout en bout du cœur).
+- [ ] Étant donné la sauvegarde, quand elle est exportée puis importée, alors `drapeaux` et `evenementsJoues` sont conservés (test de bout en bout du cœur).
 
 ### Hors périmètre
 Contenu des scènes (P, Q, R, S), éditeur d'événements, scripts arbitraires dans les données (pas de code exécutable en JSON).

@@ -1,10 +1,11 @@
 import donnees from '../../data/reglages.json';
+import type { NouveauxChampsRegion } from './sauvegarde-types';
 
 export type Bonus = { cle: string; x: number; arrondi?: boolean };
 
 export const reglages: {
   interface: { sauvegardeAutoMs: number };
-  depart: { argent: number; etape: number };
+  depart: { argent: number; etape: number; region: NouveauxChampsRegion };
   combat: {
     clicBase: number; clicPartDps: number; pvParNiveau: number; pvBoss: number;
     chanceShiny: number; clicsMaxParSeconde: number; fenetreClicsMs: number; etapeBoss: number;

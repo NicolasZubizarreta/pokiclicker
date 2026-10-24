@@ -32,3 +32,8 @@
 - Le compte en ligne (phase 4) synchronise trois types d'objets au lieu d'un gros bloc, avec une taille de l'ordre de quelques kilo-octets par partie.
 - Chaque évolution du format coûte une migration testée : c'est voulu.
 - Tickets concernés : F (sauvegarde locale), H (reprise de la Route 1).
+
+## Version 2 (24/10/2026, ticket A de la phase 2)
+- `VERSION_ACTUELLE` = 2. La marche 1 → 2 reçoit le niveau de l'enveloppe (`migration(donnees, niveau)`) : le compte est inchangé, la partie et la région gagnent `sexe` et `favori` sur chaque Pokémon, la région gagne `pc`, `ameliorations`, `jalonsRecus`, `starterId`, `statistiques`, `chronos`, `pension`, `jetons` et `arretAuto` (valeurs de départ dans `data/reglages.json`, section `depart.region`).
+- Le sexe d'un Pokémon déjà sauvegardé est déduit de son `uid` (parité de la somme des codes des caractères) : reproductible, sans hasard.
+- Lire une sauvegarde ancienne ne l'écrit jamais ; elle est réécrite en version 2 à la première écriture.

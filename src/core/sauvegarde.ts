@@ -19,7 +19,8 @@ export function partieInitiale(nom: string): DonneesPartie {
 export function regionInitiale(regionId: string, zoneDepart: string): DonneesRegion {
   return { regionId, zoneId: zoneDepart, etape: reglages.depart.etape, equipe: [], badges: [],
     bossVaincus: [], objetsCles: [], quetes: [], drapeaux: [], evenementsJoues: [],
-    argent: reglages.depart.argent, inventaire: {}, ligueGagnee: 0 };
+    argent: reglages.depart.argent, inventaire: {}, ligueGagnee: 0,
+    ...structuredClone(reglages.depart.region) };
 }
 export function versMembreEquipe(p: PokemonPossede): MembreEquipe {
   const { numero, niveau, shiny, bonheur, pierreEternelle, calcium } = p;

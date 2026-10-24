@@ -37,7 +37,17 @@ function forme(v: unknown, requis: Record<string, Validateur>, facultatifs: Reco
 }
 export function validerPokemonPossede(v: unknown): asserts v is PokemonPossede {
   forme(v, { uid: identifiant, numero: positif, niveau: positif, xp: nombre, shiny: booleen,
-    bonheur: nombre, pierreEternelle: booleen, calcium: entier }, { surnom: chaine });
+    bonheur: nombre, pierreEternelle: booleen, calcium: entier, favori: booleen,
+    sexe: s => exiger(s === 'male' || s === 'femelle' || s === 'sansSexe', `Sexe invalide : ${String(s)}`) },
+  { surnom: chaine, oeuf: o => {
+    try {
+      forme(o, { pasRestants: entier, pasMax: positif });
+      const oeuf = o as NonNullable<PokemonPossede['oeuf']>;
+      exiger(oeuf.pasRestants <= oeuf.pasMax, 'les pas restants dépassent le maximum');
+    } catch (erreur) {
+      throw new Error(`Œuf invalide : ${(erreur as Error).message}`);
+    }
+  } });
 }
 export function validerDonneesCompte(v: unknown): asserts v is DonneesCompte {
   forme(v, { diamants: nombre, succes: textes, skins: textes,
@@ -54,7 +64,22 @@ export function validerDonneesRegion(v: unknown): asserts v is DonneesRegion {
   forme(v, { regionId: identifiant, zoneId: chaine, etape: positif, equipe: liste(validerPokemonPossede),
     badges: textes, bossVaincus: textes, objetsCles: textes, quetes: textes, drapeaux: textes,
     evenementsJoues: textes, argent: nombre, ligueGagnee: entier,
-    inventaire: i => { objet(i); Object.values(i).forEach(entier); } });
+    inventaire: i => { objet(i); Object.values(i).forEach(entier); },
+    pc: liste(validerPokemonPossede), ameliorations: textes, jalonsRecus: liste(positif),
+    starterId: s => { if (s !== null) positif(s); },
+    statistiques: s => forme(s, { eliminations: entier, argentTotalGagne: nombre }),
+    chronos: c => forme(c, { finRepousse: entier, finSuperRepousse: entier, finBoostAttaque: entier,
+      finBoostAttaqueSpeciale: entier, rechargeFauchage: entier }),
+    pension: p => {
+      forme(p, { parents: liste(validerPokemonPossede), oeufs: liste(o => {
+        validerPokemonPossede(o);
+        exiger(o.oeuf !== undefined, 'Œuf invalide : état d’œuf manquant dans la pension');
+      }), emplacementsOeuf: positif });
+      exiger((p as DonneesRegion['pension']).parents.length <= 2, 'Pension invalide : au plus deux parents');
+    },
+    jetons: entier,
+    arretAuto: a => forme(a, { commun: booleen, peuCommun: booleen, rare: booleen, tresRare: booleen,
+      legendaire: booleen, shiny: booleen, nouveau: booleen }) });
 }
 export function dateUtc(v: unknown): void {
   chaine(v);

@@ -1,0 +1,20 @@
+{
+  "version": 2,
+  "niveau": "compte",
+  "id": "local",
+  "revision": 3,
+  "ecritLe": "2026-10-23T12:00:00.000Z",
+  "donnees": {
+    "diamants": 18,
+    "succes": [
+      "premier"
+    ],
+    "skins": [
+      "rouge"
+    ],
+    "preferences": {
+      "sombre": true,
+      "sonActive": false
+    }
+  }
+}

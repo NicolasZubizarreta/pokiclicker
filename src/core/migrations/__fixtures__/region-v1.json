@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "niveau": "region",
+  "id": "kanto",
+  "revision": 9,
+  "ecritLe": "2026-10-23T12:00:00.000Z",
+  "donnees": {
+    "regionId": "kanto",
+    "zoneId": "kanto.route-1",
+    "etape": 7,
+    "equipe": [
+      { "uid": "bulbizarre", "numero": 1, "niveau": 15, "xp": 120, "shiny": false, "bonheur": 30, "pierreEternelle": false, "calcium": 0 },
+      { "uid": "pikachu", "numero": 25, "niveau": 12, "xp": 45, "shiny": true, "bonheur": 8, "pierreEternelle": true, "calcium": 2, "surnom": "Éclair" }
+    ],
+    "badges": ["roche"],
+    "bossVaincus": ["pierre"],
+    "objetsCles": ["carte"],
+    "quetes": ["chen"],
+    "drapeaux": ["intro"],
+    "evenementsJoues": ["depart"],
+    "argent": 750,
+    "inventaire": { "pokeball": 8, "repousse": 2 },
+    "ligueGagnee": 0,
+    "futur": { "valeur": 42 }
+  }
+}

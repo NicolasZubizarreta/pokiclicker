@@ -1,6 +1,26 @@
 {
   "interface": { "sauvegardeAutoMs": 30000 },
-  "depart": { "argent": 0, "etape": 1 },
+  "depart": {
+    "argent": 0,
+    "etape": 1,
+    "region": {
+      "pc": [],
+      "ameliorations": [],
+      "jalonsRecus": [],
+      "starterId": null,
+      "statistiques": { "eliminations": 0, "argentTotalGagne": 0 },
+      "chronos": {
+        "finRepousse": 0, "finSuperRepousse": 0, "finBoostAttaque": 0,
+        "finBoostAttaqueSpeciale": 0, "rechargeFauchage": 0
+      },
+      "pension": { "parents": [], "oeufs": [], "emplacementsOeuf": 1 },
+      "jetons": 0,
+      "arretAuto": {
+        "commun": false, "peuCommun": false, "rare": true, "tresRare": true,
+        "legendaire": true, "shiny": true, "nouveau": true
+      }
+    }
+  },
   "boucle": {
     "pasMs": 100,
     "rattrapageMaxMs": 3600000,

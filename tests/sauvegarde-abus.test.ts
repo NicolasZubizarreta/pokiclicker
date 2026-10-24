@@ -69,7 +69,7 @@ describe('sauvegarde : essais abusifs (lecture, version future, JSON cassé, imp
     const p = g.creerPartie('A');
     const r = g.chargerRegion(p.id, 'kanto')!;
     const donnees = { ...r.donnees, argent: 1234.5, inventaire: { pokeball: 12 },
-      equipe: [{ uid: 'u1', numero: 25, niveau: 12, xp: 30, shiny: true, bonheur: 40, pierreEternelle: false, calcium: 2, surnom: 'Éclair' }] };
+      equipe: [{ uid: 'u1', numero: 25, niveau: 12, xp: 30, shiny: true, bonheur: 40, pierreEternelle: false, calcium: 2, surnom: 'Éclair', sexe: 'male' as const, favori: false }] };
     g.ecrireRegion(p.id, 'kanto', donnees);
     const { id } = g.importerPartie(g.exporterPartie(p.id));
     expect(id).not.toBe(p.id);
