@@ -1,0 +1,57 @@
+@import "../_base/base.css";
+main { max-width:var(--breakpoint-xl); margin-inline:auto; }
+button,input,select,a { font:inherit; }
+button,input,select,.lien { min-height:calc(var(--spacing) * 11); }
+button,.lien { padding:calc(var(--spacing) * 2) calc(var(--spacing) * 4); background:var(--surface-2); color:var(--texte); border:0; border-radius:var(--rayon); }
+button,.lien { transition:transform var(--duration-rapide) var(--ease-standard); }
+button:hover:enabled,.lien:hover { background:var(--selection); }
+button:active:enabled,.lien:active { transform:translateY(calc(var(--spacing) / 2)); }
+button:disabled { color:var(--texte-doux); cursor:not-allowed; }
+button[aria-pressed="true"],button[aria-selected="true"] { background:var(--selection); color:var(--region-accent); box-shadow:inset var(--spacing) 0 var(--region-accent); }
+a { color:var(--lien); }
+.lien { display:inline-flex; align-items:center; text-decoration:underline; }
+.actions,.outils,.liens { display:flex; flex-wrap:wrap; gap:calc(var(--spacing) * 2); align-items:center; }
+.outils,.liens { margin-block:calc(var(--spacing) * 4); }
+.panneau,.carte-pokemon,.vide { background:var(--surface); padding:calc(var(--spacing) * 4); min-width:0; }
+.panneau > * + * { margin-top:calc(var(--spacing) * 4); }
+.disposition,.collection,.contenu { display:grid; gap:calc(var(--spacing) * 4); min-width:0; }
+.collection { align-content:start; }
+.carte-pokemon { display:grid; gap:calc(var(--spacing) * 2); }
+.portrait { display:grid; place-items:center; position:relative; isolation:isolate; }
+.portrait::before { content:""; position:absolute; width:calc(var(--spacing) * 40); height:calc(var(--spacing) * 8); bottom:calc(var(--spacing) * 6); background:var(--region-socle); border-radius:var(--radius-plein); z-index:-1; }
+.sprite { width:192px; height:192px; max-width:none; }
+.identite { display:flex; flex-wrap:wrap; gap:calc(var(--spacing) * 2); align-items:center; }
+.marque { display:inline-flex; align-items:center; gap:var(--spacing); color:var(--region-accent); }
+.xp { display:block; width:100%; height:calc(var(--spacing) * 2); accent-color:var(--info-base); }
+progress::-webkit-progress-bar { background:var(--surface-2); }
+progress::-webkit-progress-value { background:var(--info-base); }
+progress::-moz-progress-bar { background:var(--info-base); }
+.doux { color:var(--texte-doux); }
+.numero { color:var(--region-accent); font-weight:700; }
+.info { display:flex; gap:calc(var(--spacing) * 2); align-items:start; }
+.statut { min-height:calc(var(--spacing) * 12); padding-block:calc(var(--spacing) * 4); }
+input,select { background:var(--fond); color:var(--texte); border:calc(var(--spacing) / 2) solid var(--bordure); padding:calc(var(--spacing) * 2); max-width:100%; }
+label { display:block; }
+[hidden] { display:none !important; }
+@media (min-width:48rem) { .grille { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media (min-width:64rem) { .disposition { grid-template-columns:minmax(0,3fr) minmax(0,2fr); align-items:start; } .grille { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+
+#equipe { margin-top:calc(var(--spacing) * 4); }
+.ouvrir { display:block; text-decoration:none; color:var(--texte); }
+.ouvrir:hover { background:var(--selection); }
+.vide { display:grid; gap:calc(var(--spacing) * 2); align-content:center; }
+.cases { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:calc(var(--spacing) * 2); }
+.cases button { overflow-wrap:anywhere; min-width:0; }
+.cases .libre { color:var(--texte-doux); }
+[data-variante="b"] .disposition,[data-variante="c"] .disposition { grid-template-columns:minmax(0,1fr); }
+@media (min-width:48rem) { [data-variante="a"] .carte-pokemon .ouvrir { display:grid; grid-template-columns:auto minmax(0,1fr); align-items:center; gap:calc(var(--spacing) * 4); } }
+@media (min-width:64rem) { .cases { grid-template-columns:repeat(6,minmax(0,1fr)); } #detail { position:sticky; top:calc(var(--spacing) * 8); } }
+
+
+/* Mobile : la liste (variante A) est compacte, sprite en 1× ; les cases de la variante C gardent leurs mots entiers. */
+.cases button { padding-inline:var(--spacing); overflow-wrap:normal; word-break:normal; hyphens:none; }
+@media (max-width:47.99rem) {
+ [data-variante="a"] .carte-pokemon .ouvrir { display:grid; grid-template-columns:calc(var(--spacing) * 24) minmax(0,1fr); gap:calc(var(--spacing) * 2); align-items:center; }
+ [data-variante="a"] .carte-pokemon .sprite { width:96px; height:96px; }
+ [data-variante="a"] .carte-pokemon .portrait::before { width:calc(var(--spacing) * 20); height:calc(var(--spacing) * 4); bottom:calc(var(--spacing) * 3); }
+}

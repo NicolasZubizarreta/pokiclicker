@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>A — Liste triable · PC</title><link rel="stylesheet" href="commun.css"><script src="commun.js" defer></script></head>
+<body data-variante="a">
+<details class="notice"><summary>A — Liste triable</summary><p>Parcours toutes tes captures en lignes, sans pagination.</p><p>Un détail à droite regroupe les actions du Pokémon choisi.</p><p>Point faible : Les sprites entiers rendent la liste longue sur mobile.</p></details>
+<main><header><h1>Ton PC</h1><span class="monnaie">6 300 pièces</span><p class="progression">Kanto · Route 1 · 2 badges : Roche, Cascade · Pokédex 24 / 151</p></header>
+<div class="liens"><a class="lien" href="../equipe/a-liste.html">Retour à l’équipe</a><strong id="compteur">18 Pokémon</strong></div>
+<div class="outils" role="group" aria-label="Trie les Pokémon"><span>Trie par :</span><button data-tri="id" aria-pressed="true">Numéro</button><button data-tri="name" aria-pressed="false">Nom</button><button data-tri="level" aria-pressed="false">Niveau</button><button data-tri="fav" aria-pressed="false">Favori</button></div>
+<div class="outils" aria-label="États de démonstration"><button id="plein" aria-pressed="false">Exemple : équipe pleine</button><button id="vide" aria-pressed="false">Exemple : PC vide</button></div>
+<div class="onglets" hidden role="group" aria-label="Affiche une colonne"><button data-colonne="team" aria-pressed="false">Équipe</button><button data-colonne="pc" aria-pressed="true">PC</button></div>
+<div id="contenu" class="disposition"></div><p id="statut" class="statut" role="status"></p></main>
+<nav aria-label="Navigation principale"><button type="button" data-page="Combat" ><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m3 3 5 1 12 14-3 3L4 8zM21 3l-5 1-5 6m-3 5-5 5m12-1 5-5M4 14l6 6"/></svg>Combat</button><button type="button" data-page="Équipe" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 3h6v6H4zM14 3h6v6h-6zM4 15h6v6H4zM14 15h6v6h-6z"/></svg>Équipe</button><button type="button" data-page="Shop" ><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 8h16v13H4zM8 8V3h8v5M4 13h16M10 12v3h4v-3"/></svg>Shop</button><button type="button" data-page="Carte" ><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m2 5 6-3 8 3 6-3v17l-6 3-8-3-6 3zM8 2v17M16 5v17"/></svg>Carte</button><button type="button" data-page="Plus" ><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 10h3v4H3zM10 10h3v4h-3zM17 10h3v4h-3z"/></svg>Plus</button></nav>
+</body></html>

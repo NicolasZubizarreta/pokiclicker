@@ -1,0 +1,70 @@
+@import "../_base/base.css";
+main { max-width:var(--breakpoint-xl); margin-inline:auto; }
+button,input,select,a { font:inherit; }
+button,input,select,.lien { min-height:calc(var(--spacing) * 11); }
+button,.lien { padding:calc(var(--spacing) * 2) calc(var(--spacing) * 4); background:var(--surface-2); color:var(--texte); border:0; border-radius:var(--rayon); }
+button,.lien { transition:transform var(--duration-rapide) var(--ease-standard); }
+button:hover:enabled,.lien:hover { background:var(--selection); }
+button:active:enabled,.lien:active { transform:translateY(calc(var(--spacing) / 2)); }
+button:disabled { color:var(--texte-doux); cursor:not-allowed; }
+button[aria-pressed="true"],button[aria-selected="true"] { background:var(--selection); color:var(--region-accent); box-shadow:inset var(--spacing) 0 var(--region-accent); }
+a { color:var(--lien); }
+.lien { display:inline-flex; align-items:center; text-decoration:underline; }
+.actions,.outils,.liens { display:flex; flex-wrap:wrap; gap:calc(var(--spacing) * 2); align-items:center; }
+.outils,.liens { margin-block:calc(var(--spacing) * 4); }
+.panneau,.carte-pokemon,.vide { background:var(--surface); padding:calc(var(--spacing) * 4); min-width:0; }
+.panneau > * + * { margin-top:calc(var(--spacing) * 4); }
+.disposition,.collection,.contenu { display:grid; gap:calc(var(--spacing) * 4); min-width:0; }
+.collection { align-content:start; }
+.carte-pokemon { display:grid; gap:calc(var(--spacing) * 2); }
+.portrait { display:grid; place-items:center; position:relative; isolation:isolate; }
+.portrait::before { content:""; position:absolute; width:calc(var(--spacing) * 40); height:calc(var(--spacing) * 8); bottom:calc(var(--spacing) * 6); background:var(--region-socle); border-radius:var(--radius-plein); z-index:-1; }
+.sprite { width:192px; height:192px; max-width:none; }
+.identite { display:flex; flex-wrap:wrap; gap:calc(var(--spacing) * 2); align-items:center; }
+.marque { display:inline-flex; align-items:center; gap:var(--spacing); color:var(--region-accent); }
+.xp { display:block; width:100%; height:calc(var(--spacing) * 2); accent-color:var(--info-base); }
+progress::-webkit-progress-bar { background:var(--surface-2); }
+progress::-webkit-progress-value { background:var(--info-base); }
+progress::-moz-progress-bar { background:var(--info-base); }
+.doux { color:var(--texte-doux); }
+.numero { color:var(--region-accent); font-weight:700; }
+.info { display:flex; gap:calc(var(--spacing) * 2); align-items:start; }
+.statut { min-height:calc(var(--spacing) * 12); padding-block:calc(var(--spacing) * 4); }
+input,select { background:var(--fond); color:var(--texte); border:calc(var(--spacing) / 2) solid var(--bordure); padding:calc(var(--spacing) * 2); max-width:100%; }
+label { display:block; }
+[hidden] { display:none !important; }
+@media (min-width:48rem) { .grille { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media (min-width:64rem) { .disposition { grid-template-columns:minmax(0,3fr) minmax(0,2fr); align-items:start; } .grille { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+
+.selectionner { padding:0; background:none; text-align:left; display:block; width:100%; }
+.selectionner .portrait { width:100%; }
+.carte-pokemon:has([aria-pressed="true"]) { background:var(--selection); }
+.onglets { display:flex; gap:calc(var(--spacing) * 2); margin-block:calc(var(--spacing) * 4); }
+.equipe-places { display:grid; gap:calc(var(--spacing) * 2); }
+.equipe-places button { text-align:left; }
+#detail { order:-1; }
+[data-variante="c"] .colonne-pc { min-width:0; display:grid; gap:calc(var(--spacing) * 4); }
+[data-variante="c"][data-colonne="pc"] .colonne-equipe,[data-variante="c"][data-colonne="team"] .colonne-pc { display:none; }
+@media (min-width:48rem) { [data-variante="a"] .selectionner { display:grid; grid-template-columns:auto minmax(0,1fr); gap:calc(var(--spacing) * 4); align-items:center; } }
+@media (min-width:64rem) {
+ #detail { order:0; position:sticky; top:calc(var(--spacing) * 8); }
+ [data-variante="b"] .disposition { grid-template-columns:minmax(0,2fr) minmax(0,1fr); }
+ [data-variante="b"] .grille { grid-template-columns:repeat(2,minmax(0,1fr)); }
+ [data-variante="c"] .disposition { grid-template-columns:minmax(0,1fr) minmax(0,2fr); }
+ [data-variante="c"] .onglets { display:none; }
+ [data-variante="c"][data-colonne] .colonne-equipe,[data-variante="c"][data-colonne] .colonne-pc { display:grid; }
+ [data-variante="c"] #detail { position:static; }
+}
+
+
+/* Mobile : lignes et vignettes compactes (sprite en 1×) au lieu de grandes cartes. */
+@media (max-width:63.99rem) {
+ .collection .sprite { width:96px; height:96px; }
+ .collection .portrait::before { width:calc(var(--spacing) * 20); height:calc(var(--spacing) * 4); bottom:calc(var(--spacing) * 3); }
+ [data-variante="a"] .collection .selectionner,[data-variante="c"] .collection .selectionner { display:grid; grid-template-columns:calc(var(--spacing) * 24) minmax(0,1fr); gap:calc(var(--spacing) * 2); align-items:center; }
+ [data-variante="a"] .collection .carte-pokemon,[data-variante="c"] .collection .carte-pokemon { padding:calc(var(--spacing) * 2); }
+ [data-variante="b"] .grille { grid-template-columns:repeat(auto-fill,minmax(calc(var(--spacing) * 36),1fr)); }
+}
+
+/* La sélection se lit par le fond de la carte : pas de liseré qui mord sur le texte. */
+.selectionner[aria-pressed="true"] { box-shadow:none; color:var(--texte); background:none; }

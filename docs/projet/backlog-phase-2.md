@@ -74,7 +74,7 @@ Fourchette : 2 à 3 jours. Risque : perte de données si la migration est mal é
 
 ## B. `design(ui): proposer trois variantes pour chaque page commune de Kanto`
 
-Labels : `type:design`, `etat:idee`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : oui (maquettes jetables, Nicolas choisit)
+Labels : `type:design`, `etat:pret`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : oui (maquettes jetables, Nicolas choisit)
 
 ### Histoire
 En tant que Nicolas, je veux voir trois variantes de chaque nouvelle page avant qu'on code afin de choisir une seule fois, sans aller-retour ticket par ticket.

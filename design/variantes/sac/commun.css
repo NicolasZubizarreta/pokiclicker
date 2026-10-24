@@ -1,0 +1,45 @@
+@import "../_base/base.css";
+main { max-width:var(--breakpoint-xl); margin-inline:auto; }
+.stack,.layout,.products,.menu,.dex,.targets { display:grid; gap:calc(var(--spacing) * 4); }
+.layout > * { min-width:0; }
+.panel { background:var(--surface); padding:calc(var(--spacing) * 4); }
+h3 { margin:0; font-size:var(--text-lg); }
+p + p,h2 + p { margin-top:calc(var(--spacing) * 2); }
+.muted { color:var(--texte-doux); }
+button,input,select,.link { min-height:calc(var(--spacing) * 11); font:inherit; }
+button:not(nav button),.link { padding:calc(var(--spacing) * 2) calc(var(--spacing) * 4); background:var(--surface-2); border:0; border-radius:var(--rayon); }
+button { transition:transform var(--duration-rapide) var(--ease-standard); }
+button:hover:enabled,.link:hover { background:var(--selection); }
+button:active:enabled { transform:translateY(calc(var(--spacing) / 2)); }
+button:disabled { color:var(--texte-doux); cursor:not-allowed; }
+button[aria-pressed="true"],button[aria-selected="true"] { background:var(--selection); box-shadow:inset 0 calc(var(--spacing) * -1) var(--region-accent); }
+button.action { background:var(--action); color:var(--action-texte); }
+button.action:hover:enabled { background:var(--action-survol); }
+.row,.toolbar { display:flex; align-items:center; flex-wrap:wrap; gap:calc(var(--spacing) * 2); }
+.row > .description { flex:1; min-width:0; }
+.item { display:grid; gap:calc(var(--spacing) * 2); align-content:start; }
+.item svg,.menu svg { width:calc(var(--spacing) * 8); height:calc(var(--spacing) * 8); }
+input,select { background:var(--surface-2); color:var(--texte); border:calc(var(--spacing) / 2) solid var(--bordure); padding:var(--spacing); min-width:0; max-width:100%; }
+input[type="number"] { width:calc(var(--spacing) * 20); }
+a { color:var(--lien); }
+[hidden] { display:none !important; }
+.sprite { width:calc(var(--spacing) * 48); height:calc(var(--spacing) * 48); margin-inline:auto; background:var(--region-socle); }
+.status { display:flex; gap:calc(var(--spacing) * 2); align-items:center; }
+.toast { position:fixed; inset:auto calc(var(--spacing) * 4) calc(var(--spacing) * 18) auto; max-width:calc(100% - var(--spacing) * 8); z-index:20; }
+.notice,.toolbar { margin-bottom:calc(var(--spacing) * 4); }
+@media (min-width:64rem) {
+ .layout { grid-template-columns:minmax(0,2fr) minmax(0,1fr); }
+ .toast { max-width:var(--breakpoint-sm); }
+}
+.grille-objets { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:calc(var(--spacing) * 4); }
+.grille-objets button { justify-items:center; text-align:center; padding:calc(var(--spacing) * 4); }
+.targets { margin-top:calc(var(--spacing) * 4); }
+@media (min-width:64rem) {
+ .variante-c .layout { grid-template-columns:repeat(2,minmax(0,1fr)); }
+ .variante-a #objets article { grid-template-columns:minmax(0,1fr) auto; }
+ .variante-a #objets article p { grid-column:1 / -1; }
+}
+
+
+/* Le socle est une ellipse sous le Pokémon, pas un carré plein. */
+.sprite { background:radial-gradient(ellipse 40% 8% at 50% 90%,var(--region-socle) 98%,transparent 100%); }

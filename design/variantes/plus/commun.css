@@ -1,0 +1,57 @@
+@import "../_base/base.css";
+main { max-width:var(--breakpoint-xl); margin-inline:auto; }
+.stack,.layout,.products,.menu,.dex,.targets { display:grid; gap:calc(var(--spacing) * 4); }
+.layout > * { min-width:0; }
+.panel { background:var(--surface); padding:calc(var(--spacing) * 4); }
+h3 { margin:0; font-size:var(--text-lg); }
+p + p,h2 + p { margin-top:calc(var(--spacing) * 2); }
+.muted { color:var(--texte-doux); }
+button,input,select,.link { min-height:calc(var(--spacing) * 11); font:inherit; }
+button:not(nav button),.link { padding:calc(var(--spacing) * 2) calc(var(--spacing) * 4); background:var(--surface-2); border:0; border-radius:var(--rayon); }
+button { transition:transform var(--duration-rapide) var(--ease-standard); }
+button:hover:enabled,.link:hover { background:var(--selection); }
+button:active:enabled { transform:translateY(calc(var(--spacing) / 2)); }
+button:disabled { color:var(--texte-doux); cursor:not-allowed; }
+button[aria-pressed="true"],button[aria-selected="true"] { background:var(--selection); box-shadow:inset 0 calc(var(--spacing) * -1) var(--region-accent); }
+button.action { background:var(--action); color:var(--action-texte); }
+button.action:hover:enabled { background:var(--action-survol); }
+.row,.toolbar { display:flex; align-items:center; flex-wrap:wrap; gap:calc(var(--spacing) * 2); }
+.row > .description { flex:1; min-width:0; }
+.item { display:grid; gap:calc(var(--spacing) * 2); align-content:start; }
+.item svg,.menu svg { width:calc(var(--spacing) * 8); height:calc(var(--spacing) * 8); }
+input,select { background:var(--surface-2); color:var(--texte); border:calc(var(--spacing) / 2) solid var(--bordure); padding:var(--spacing); min-width:0; max-width:100%; }
+input[type="number"] { width:calc(var(--spacing) * 20); }
+a { color:var(--lien); }
+[hidden] { display:none !important; }
+.sprite { width:calc(var(--spacing) * 48); height:calc(var(--spacing) * 48); margin-inline:auto; background:var(--region-socle); }
+.status { display:flex; gap:calc(var(--spacing) * 2); align-items:center; }
+.toast { position:fixed; inset:auto calc(var(--spacing) * 4) calc(var(--spacing) * 18) auto; max-width:calc(100% - var(--spacing) * 8); z-index:20; }
+.notice,.toolbar { margin-bottom:calc(var(--spacing) * 4); }
+@media (min-width:64rem) {
+ .layout { grid-template-columns:minmax(0,2fr) minmax(0,1fr); }
+ .toast { max-width:var(--breakpoint-sm); }
+}
+
+.menu button { display:flex; align-items:center; gap:calc(var(--spacing) * 4); text-align:left; }
+.menu button span span { display:block; color:var(--texte-doux); }
+.dex { grid-template-columns:repeat(auto-fit,minmax(min(100%,calc(var(--spacing) * 56)),1fr)); max-height:calc(var(--spacing) * 144); overflow-y:auto; }
+.dex-case { display:grid; justify-items:center; gap:calc(var(--spacing) * 2); padding:calc(var(--spacing) * 2); background:var(--surface-2); }
+.silhouette { width:calc(var(--spacing) * 48); height:calc(var(--spacing) * 48); display:grid; place-items:center; color:var(--texte-doux); }
+.silhouette svg { width:calc(var(--spacing) * 16); height:calc(var(--spacing) * 16); }
+.capture { background:var(--selection); }
+.dashboard { display:flex; flex-wrap:wrap; justify-content:space-between; gap:calc(var(--spacing) * 4); margin-bottom:calc(var(--spacing) * 4); }
+.variante-b .menu { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.variante-b .menu button { flex-direction:column; align-items:start; }
+@media (min-width:64rem) {
+ .variante-a .layout { grid-template-columns:1fr; }
+ .variante-a .menu button { justify-content:start; }
+ .variante-b .layout,.variante-c .layout { grid-template-columns:minmax(0,1fr) minmax(0,2fr); }
+}
+
+
+/* Le socle est une ellipse sous le Pokémon, pas un carré plein. */
+.sprite { background:radial-gradient(ellipse 40% 8% at 50% 90%,var(--region-socle) 98%,transparent 100%); }
+
+/* Pokédex : plusieurs cases par ligne, sprites en 1×. */
+.dex { grid-template-columns:repeat(auto-fill,minmax(calc(var(--spacing) * 28),1fr)); gap:calc(var(--spacing) * 2); }
+.dex .sprite,.dex .silhouette { width:96px; height:96px; }
