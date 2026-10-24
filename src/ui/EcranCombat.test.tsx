@@ -93,7 +93,7 @@ it('rend la scène attaquable, avec des PV accessibles et dix étapes dont le bo
   const { container, horloge } = preparer();
   const attaque = screen.getByRole('button', { name: /^Attaquer / });
   expect(attaque.classList.contains('inset-0')).toBe(true);
-  expect(container.querySelectorAll('.bg-action')).toHaveLength(0);
+  expect(container.querySelectorAll('.bg-action')).toHaveLength(1);
   const barre = screen.getByRole('progressbar', { name: 'PV de Rattata' });
   const avant = Number(barre.getAttribute('aria-valuenow'));
   fireEvent.click(attaque);
@@ -118,14 +118,66 @@ it('réserve une marge à droite des cartes et une ligne distincte au DPS', () =
   expect(carte.className).toContain('lg:grid-cols-');
   expect(screen.getAllByLabelText('Case libre')).toHaveLength(3);
 });
-it('explique la suite verrouillée puis annonce la fin et le contenu à venir', () => {
-  const { horloge } = preparer();
-  expect(screen.getByText(/Suite : Forêt de Jade \(verrouillée :/).textContent).toMatch(/Route 1/);
+it('explique le verrouillage et désactive la destination fermée', () => {
+  preparer();
+  const destination = store.getState().zoneSuivante!;
+  const bouton = screen.getByRole('button', { name: `Zone suivante : ${destination.nom}` });
+  const allerVers = vi.spyOn(store.getState(), 'allerVers');
+  expect(bouton.hasAttribute('disabled')).toBe(true);
+  expect(screen.getByText(destination.raison!)).toBeTruthy();
+  fireEvent.click(bouton);
+  expect(allerVers).not.toHaveBeenCalled();
   expect(screen.queryByText('La suite arrive bientôt.')).toBeNull();
-  act(() => { for (let i = 0; i < 1000; i++) { horloge.avancer(100); store.getState().tick(); } });
-  expect(screen.getByRole('status').textContent).toBe('Route 1 terminée !');
-  expect(screen.getByText('La suite arrive bientôt.')).toBeTruthy();
-  expect(screen.getByRole('button', { name: /^Attaquer / }).hasAttribute('disabled')).toBe(false);
+});
+it('permet de choisir les destinations ouvertes et conserve l’annonce du store', () => {
+  preparer();
+  act(() => store.setState({ zoneSuivante: { ...store.getState().zoneSuivante!, ouverte: true, raison: null },
+    annonce: 'Zone débloquée !' }));
+  const allerVers = vi.spyOn(store.getState(), 'allerVers').mockImplementation(() => {});
+  for (const [libelle, destination] of [
+    ['Zone suivante', store.getState().zoneSuivante], ['Zone précédente', store.getState().zonePrecedente],
+  ] as const) {
+    expect(destination).not.toBeNull();
+    const bouton = screen.getByRole('button', { name: `${libelle} : ${destination!.nom}` });
+    expect(bouton.hasAttribute('disabled')).toBe(false);
+    fireEvent.click(bouton);
+    expect(allerVers).toHaveBeenLastCalledWith(destination!.id);
+  }
+  expect(screen.getByRole('status').textContent).toBe('Zone débloquée !');
+  expect(screen.queryByText(/terminée !/)).toBeNull();
+  expect(screen.queryByText('La suite arrive bientôt.')).toBeNull();
+  act(() => store.setState({ zonePrecedente: null, zoneSuivante: null }));
+  expect(screen.queryByRole('button', { name: /^Zone / })).toBeNull();
+  expect(screen.queryByText('La suite arrive bientôt.')).toBeNull();
+});
+it('affiche la barre de temps seulement avec un minuteur de combat', () => {
+  preparer();
+  expect(screen.queryByRole('progressbar', { name: 'Temps restant' })).toBeNull();
+  act(() => store.setState({ minuteur: { restantMs: 23456, totalMs: 30000 } }));
+  expect(screen.getByRole('progressbar', { name: 'Temps restant' }).getAttribute('aria-valuenow')).toBe('24');
+  act(() => store.setState({ minuteur: null, enRecherche: true }));
+  expect(screen.queryByRole('progressbar', { name: 'Temps restant' })).toBeNull();
+  expect(screen.getByText('Recherche en cours…')).toBeTruthy();
+});
+it('affiche le lieu sans combat, son décor et son message en gardant l’équipe', () => {
+  const { container } = preparer();
+  const precedente = store.getState().zonePrecedente!;
+  act(() => store.getState().allerVers(precedente.id));
+  const { lieu, zone, ennemi } = store.getState();
+  expect(zone).toBeNull();
+  expect(ennemi).toBeNull();
+  expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(lieu!.nom);
+  expect(within(screen.getByRole('banner')).getByText(lieu!.nom, { selector: 'p' })).toBeTruthy();
+  expect(screen.getByText(('message' in lieu! ? lieu.message : undefined)!)).toBeTruthy();
+  // Le décor de Bourg Palette arrive avec le ticket P : sans image au registre, l'écran reste affiché sans décor.
+  expect(container.querySelector('img[src^="img/decors/"]')).toBeNull();
+  expect(screen.queryByRole('button', { name: /^Attaquer/ })).toBeNull();
+  expect(screen.queryByRole('list', { name: 'Étapes de la zone' })).toBeNull();
+  expect(screen.queryByText(/Étape .* sur 10/)).toBeNull();
+  expect(screen.getByRole('region', { name: 'Ton équipe' })).toBeTruthy();
+  expect(screen.getAllByRole('progressbar', { name: /^XP de / })).toHaveLength(3);
+  expect(screen.getByText('Choisis une zone pour partir à l’aventure.')).toBeTruthy();
+  expect(screen.queryByText('La suite arrive bientôt.')).toBeNull();
 });
 it('affiche une erreur française sans toucher au stockage corrompu', () => {
   const { stockage } = preparer(true);

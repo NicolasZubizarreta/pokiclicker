@@ -75,13 +75,36 @@ test('Parcours : dix étapes, boss, fin de route et captures', async ({ page }, 
   await page.evaluate(() => Promise.all([...document.images].map(image => image.decode())));
   await page.screenshot({ path: `design/captures/h-combat-${largeur}-boss.png`, animations: 'disabled' });
   await atteindre(page, 1);
-  await expect(page.getByRole('status')).toHaveText('Route 1 terminée !');
-  await expect(page.getByText('La suite arrive bientôt.', { exact: true })).toBeVisible();
+  await expect(page.getByText('La suite arrive bientôt.')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: /^Zone suivante/ })).toBeEnabled();
   await verifierFenetre(page);
   if (informations.project.name === 'pc') {
     await page.setViewportSize({ width: 1915, height: 1007 });
     await verifierFenetre(page);
   }
+});
+
+test('Boss et zones : barre de temps, zone suivante, retour et reprise', async ({ page }) => {
+  await ouvrir(page);
+  await expect(page.getByRole('progressbar', { name: 'Temps restant' })).toHaveCount(0);
+  const fermee = page.getByRole('button', { name: /^Zone suivante/ });
+  await expect(fermee).toBeDisabled();
+  await expect(page.getByText(/Il faut|boss|Route 1/).first()).toBeVisible();
+  await atteindre(page, 10);
+  const temps = page.getByRole('progressbar', { name: 'Temps restant' });
+  await expect(temps).toBeVisible();
+  await expect(temps).toHaveAttribute('aria-valuemax', '30');
+  await atteindre(page, 1);
+  const suivante = page.getByRole('button', { name: /^Zone suivante/ });
+  await expect(suivante).toBeEnabled();
+  await suivante.click();
+  await expect(page.getByRole('heading', { name: 'Forêt de Jade', exact: true })).toBeVisible();
+  await expect(page.getByText('Étape 1 sur 10', { exact: true })).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole('heading', { name: 'Forêt de Jade', exact: true })).toBeVisible();
+  await expect(page.getByText('Étape 1 sur 10', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: /^Zone précédente/ }).click();
+  await expect(page.getByRole('heading', { name: 'Route 1', exact: true })).toBeVisible();
 });
 
 test('Récompenses : pièces, XP, recherche et montée de niveau', async ({ page }) => {
@@ -200,7 +223,7 @@ test('Mise en page : scène, navigation, équipe et langue', async ({ page }, in
   const bouton = (await page.getByRole('button', { name: /^Attaquer / }).boundingBox())!;
   expect(bouton).toEqual(boiteScene);
   await expect(page.getByRole('button', { name: 'Attaque', exact: true })).toHaveCount(0);
-  await expect(page.locator('button.bg-action')).toHaveCount(0);
+  await expect(page.locator('button.bg-action')).toHaveText(/^Zone suivante/);
   if (informations.project.name !== 'mobile') {
     expect(boiteScene.width / boiteScene.height).toBeCloseTo(16 / 9, 2);
     const navigation = page.getByRole('navigation');

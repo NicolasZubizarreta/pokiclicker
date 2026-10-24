@@ -2,11 +2,12 @@ import { useEffect, useRef } from 'react';
 import { useStore } from 'zustand';
 import { chargerPokemon } from '../core/pokemon';
 import { BarrePv } from './BarrePv';
+import { BarreTemps } from './BarreTemps';
 import { CarteEquipe } from './CarteEquipe';
 import { DegatsFlottants } from './DegatsFlottants';
 import { DialogueChen } from './DialogueChen';
 import { Etapes } from './Etapes';
-import { Image } from './Image';
+import { Image, imageConnue } from './Image';
 import { formaterDps } from './nombres';
 import { ERREUR_CHARGEMENT } from './persistance';
 import { cheminDecor, cheminSprite, precharger, prechargerZone } from './precharger';
@@ -18,12 +19,13 @@ const formateurArgent = new Intl.NumberFormat('fr-FR');
 const sousTitres: Record<string, string> = { 'kanto.route-1': 'Jadielle' };
 
 function Entete({ store }: { store: StoreJeu }) {
+  const lieu = useStore(store, etat => etat.lieu);
   const zone = useStore(store, etat => etat.zone);
   const etape = useStore(store, etat => etat.etape);
   const argent = useStore(store, etat => etat.argent);
   return <header className="mb-4 flex flex-wrap items-center justify-between gap-2">
-    <div><h1 className="font-titre text-2xl font-semibold">{zone?.nom}</h1><p>{zone && (sousTitres[zone.id] ?? zone.nom)}</p></div>
-    <span className="text-region-accent tabular-nums">{formateurArgent.format(argent)} pièces</span><Etapes etape={etape} />
+    <div><h1 className="font-titre text-2xl font-semibold">{lieu?.nom}</h1><p>{lieu && (sousTitres[lieu.id] ?? lieu.nom)}</p></div>
+    <span className="text-region-accent tabular-nums">{formateurArgent.format(argent)} pièces</span>{zone && <Etapes etape={etape} />}
   </header>;
 }
 
@@ -38,15 +40,24 @@ function Scene({ store }: { store: StoreJeu }) {
     element.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(var(--spacing))' }, { transform: 'translateX(0)' }],
       { duration: 90, easing: 'cubic-bezier(0.2, 0, 0, 1)' });
   };
+  const lieu = useStore(store, etat => etat.lieu);
   const zone = useStore(store, etat => etat.zone);
   const ennemi = useStore(store, etat => etat.ennemi);
+  const minuteur = useStore(store, etat => etat.minuteur);
   const enRecherche = useStore(store, etat => etat.enRecherche);
   const annonce = useStore(store, etat => etat.annonce);
   useEffect(() => {
-    if (!zone) return;
-    void prechargerZone(zone);
-    void precharger([cheminDecor(zone)]);
-  }, [zone]);
+    if (zone) void prechargerZone(zone);
+    if (lieu && imageConnue(cheminDecor(lieu))) void precharger([cheminDecor(lieu)]);
+  }, [zone, lieu]);
+  const notification = annonce !== null && <div role="status" aria-live="polite"
+    className="pointer-events-none cadre absolute inset-x-4 top-4 z-20 bg-surface p-2 text-center">{annonce}</div>;
+  if (!zone && !ennemi && lieu) return <section aria-label={lieu.nom}
+    className="scene-limitee relative isolate flex h-76 items-end bg-surface-2 p-4 lg:col-span-3 lg:aspect-video lg:h-auto">
+    {imageConnue(cheminDecor(lieu)) && <Image src={cheminDecor(lieu)} genre="decor" alt="" couvrir className="absolute inset-0 -z-10 size-full" />}
+    <p className="cadre bg-surface p-3">{'message' in lieu ? lieu.message : null}</p>
+    {notification}
+  </section>;
   if (!zone || !ennemi) return null;
   const nom = catalogue.parNumero(ennemi.numero).nom;
   return <section aria-label={enRecherche ? 'Combat contre un Pokémon en approche' : `Combat contre ${nom}`} className="scene-limitee relative isolate h-76 bg-surface-2 lg:col-span-3 lg:aspect-video lg:h-auto">
@@ -57,6 +68,7 @@ function Scene({ store }: { store: StoreJeu }) {
       </div>
       {ennemi.shiny && <p>Chromatique</p>}
       <BarrePv key={`${ennemi.numero}-${ennemi.niveau}-${ennemi.boss}`} pv={ennemi.pv} maximum={ennemi.pvMax} nom={nom} />
+      {minuteur && <BarreTemps restantMs={minuteur.restantMs} totalMs={minuteur.totalMs} />}
     </div>
     <div ref={sprite} aria-hidden={enRecherche} className={`pointer-events-none absolute right-2 bottom-2 flex will-change-transform size-48 items-end justify-center lg:size-72 ${enRecherche ? 'opacity-0' : ''}`}>
       <div aria-hidden="true" className="socle absolute bottom-10 h-12 w-3/4 bg-region-socle lg:bottom-16 lg:h-16" />
@@ -68,8 +80,7 @@ function Scene({ store }: { store: StoreJeu }) {
     {enRecherche && <div role="status" className="pointer-events-none absolute inset-0 flex items-center justify-center">
       <span className="cadre bg-surface p-2">Recherche en cours…</span>
     </div>}
-    {annonce !== null && <div role="status" aria-live="polite"
-      className="pointer-events-none cadre absolute inset-x-4 top-4 z-20 bg-surface p-2 text-center">{annonce}</div>}
+    {notification}
     <button type="button" aria-label={enRecherche ? 'Attaquer (recherche en cours)' : `Attaquer ${nom}`}
       className="cible-combat cadre absolute inset-0 z-10 touch-manipulation select-none"
       onContextMenu={event => event.preventDefault()}

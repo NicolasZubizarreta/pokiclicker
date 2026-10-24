@@ -19,6 +19,9 @@ export function facteurEntier(largeurDisponible: number, tailleNative: number): 
   return Math.max(1, Math.floor(largeurDisponible / tailleNative));
 }
 
+/** Vrai si l’image figure au registre des tailles (un décor encore absent, ex. Bourg Palette avant le ticket P, ne plante pas l’écran). */
+export const imageConnue = (src: string, tailles: TaillesImages = taillesImages): boolean => src.replace(/^\//, '') in tailles;
+
 export function Image({ src, genre, alt, largeurDisponible, tailles = taillesImages, className = '', couvrir = false }: PropsImage) {
   const dimensions = tailles[src.replace(/^\//, '')];
   if (!dimensions) {

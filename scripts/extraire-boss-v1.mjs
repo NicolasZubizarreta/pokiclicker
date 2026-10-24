@@ -2,12 +2,16 @@ import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { createContext, runInContext } from 'node:vm';
 
 const racine = new URL('../', import.meta.url);
+/** @type {Map<number, () => void>} */
 const callbacks = new Map();
+/** @type {number[]} */
 const appels = [];
+/** @type {string[]} */
 const messages = [];
 const styles = {};
 const sansEffet = () => {};
 const elements = new Map();
+/** @param {string} id */
 const element = id => {
   if (!elements.has(id)) elements.set(id, {
     style: styles,
@@ -18,11 +22,11 @@ const element = id => {
 const contexte = createContext({
   Date: { now: () => 0 },
   document: { getElementById: element },
-  showFeedback: texte => messages.push(texte),
+  showFeedback: (/** @type {string} */ texte) => messages.push(texte),
   updateZone: sansEffet, updateUI: sansEffet, updateEnemyUI: sansEffet,
   checkBadges: sansEffet, enterHallOfFame: sansEffet,
-  setInterval: (rappel, periode) => { callbacks.set(1, rappel); return 1; },
-  clearInterval: id => callbacks.delete(id),
+  setInterval: (/** @type {() => void} */ rappel) => { callbacks.set(1, rappel); return 1; },
+  clearInterval: (/** @type {number} */ id) => callbacks.delete(id),
 });
 for (const fichier of ['legacy/js/data/constants.js', 'legacy/js/regions/kanto.js', 'legacy/js/game/combat.js']) {
   runInContext((await readFile(new URL(fichier, racine), 'utf8')).replace(/^\uFEFF/, ''), contexte);

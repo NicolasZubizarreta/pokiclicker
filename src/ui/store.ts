@@ -101,7 +101,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
     const destination = (zone: ZoneMonde | undefined): Destination | null => {
       if (!zone) return null;
       const acces = kanto.accesZone(zone.id, etatMondeDe(region));
-      return { id: zone.id, nom: zone.nom, ouverte: acces.ok, raison: acces.ok ? null : acces.raison };
+      return { id: zone.id, nom: zone.nom, ouverte: acces.ok, raison: acces.ok ? null : acces.raison ?? null };
     };
     const equipe: CaseEquipe[] = region.equipe.map(pokemon => ({ pokemon,
       xpMax: calculerMaxXp(pokemon.numero, pokemon.niveau),
@@ -110,7 +110,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
     const precedent = store.getState();
     const zonePrecedente = destination(kanto.zonePrecedente(lieu.id));
     const zoneSuivante = destination(lien ? kanto.zone(lien.vers) : undefined);
-    const ennemi = coeur ? (({ capture: _capture, ...ennemi }) => ennemi)(coeur.ennemi) : null;
+    const ennemi = coeur ? (({ numero, niveau, pv, pvMax, boss, shiny, rarete }) => ({ numero, niveau, pv, pvMax, boss, shiny, rarete }))(coeur.ennemi) : null;
     store.setState({ lieu, zone: coeur?.zone ?? null, etape: region.etape, ennemi, pv: ennemi?.pv ?? 0,
       equipe: JSON.stringify(equipe) === JSON.stringify(precedent.equipe) ? precedent.equipe : equipe,
       dps: coeur ? calculerDpsEquipe(coeur.equipe, coeur.ennemi) : 0, erreur,
