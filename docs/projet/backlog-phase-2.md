@@ -103,7 +103,7 @@ Fourchette : 2 à 3 jours. Risque : Codex ne voit pas le rendu (en phase 1, troi
 
 ## C. `feat(monde): saisir les 22 zones de Kanto en données, extraites du code de la V1`
 
-Labels : `type:feat`, `etat:idee`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : oui
+Labels : `type:feat`, `etat:pret`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : oui
 
 ### Histoire
 En tant que joueur, je veux retrouver toutes les zones de Kanto de la V1 (Pokémon sauvages, boss, niveaux, difficulté) afin de jouer la même aventure.
@@ -797,10 +797,14 @@ Demande de Nicolas (24/10) : « la V1 c'est l'idéal de mon jeu : le visuel, les
 - [ ] Étant donné une capture, quand la balle est lancée, alors le sprite devient une silhouette noire qui tremble pendant 1 s avant le résultat ; l'évolution fait clignoter en blanc 3 s en alternant les deux formes toutes les 150 ms ; un shiny a son halo doré et la bannière « Shiny apparu ! Auto stoppé ! » qui rebondit 3 s.
 - [ ] Étant donné les sons, quand je clique, tue un ennemi, capture, monte de niveau ou range un Pokémon au PC, alors le son de la V1 correspondant se joue (cinq tons courts synthétisés par la Web Audio, sans fichier ni bibliothèque), un interrupteur « Son » dans Plus les coupe, et rien ne se joue avant le premier geste du joueur (règle des navigateurs).
 - [ ] Étant donné `prefers-reduced-motion`, quand une animation devrait se jouer, alors elle est remplacée par un changement d'état instantané ou un fondu, sans perdre l'information.
+- [ ] Étant donné la musique, quand Nicolas a choisi des morceaux, alors chaque fichier est local, sous licence libre ou généré (source et licence notées dans ), jouable seulement après un geste du joueur, coupable dans Plus, et le thème de victoire de la Ligue se joue au Panthéon.
 - [ ] Étant donné les finitions de la V1 (contour noir des textes, verre dépoli des panneaux, étoiles ✦, message « Recherche en cours… » entre deux ennemis), quand je les compare, alors chacune est reprise ou écartée par Nicolas, notée dans l'inventaire.
 
+### Musique (ajout du 24/10, demande de Nicolas)
+La V1 n'a presque pas de son ; Nicolas veut y ajouter de la musique, notamment un thème à la victoire sur la Ligue (au Panthéon). **Les musiques Pokémon officielles sont protégées (Nintendo, Game Freak) et le dépôt est public : on ne les ajoute pas.** Pistes à écouter ensemble avant de garder quoi que ce soit : morceaux sous licence libre (CC0 ou équivalent, licence notée dans le dépôt) et morceaux générés par IA dans le même esprit. Un lecteur simple (volume, coupure, aucune lecture avant le premier geste du joueur), fichiers locaux compressés, préchargement discret.
+
 ### Hors périmètre
-Animations propres à une page (carte, badges, intro, Panthéon, casino, générique : dans leurs tickets), easter eggs de renommage (ticket W), musique (la V1 n'en a pas).
+Animations propres à une page (carte, badges, intro, Panthéon, casino, générique : dans leurs tickets), easter eggs de renommage (ticket W).
 
 ### Vérification
 `npm test -- animations sons` ; captures et vidéos courtes de chaque animation comparées à la V1 par Claude ; essai de Nicolas.
