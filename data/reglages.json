@@ -31,6 +31,7 @@
     "pv": { "coefPv": 0.33, "coefDefense": 0.3, "coefDefenseSpe": 0.3, "constante": 10 }
   },
   "combat": {
+    "minuteurBossMs": 30000,
     "clicBase": 5,
     "clicPartDps": 0.002,
     "pvParNiveau": 2,

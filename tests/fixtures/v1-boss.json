@@ -1,0 +1,110 @@
+{
+  "source": "legacy/js/game/combat.js",
+  "minuteur": {
+    "periodeMs": 1000,
+    "topsAvantExpiration": 30,
+    "cas": [
+      {
+        "zoneIdx": 5,
+        "subStageFinal": 9,
+        "message": "TEMPS ÉCOULÉ !",
+        "appelsSpawn": 1
+      },
+      {
+        "zoneIdx": 20,
+        "subStageFinal": 1,
+        "message": "TEMPS ÉCOULÉ !",
+        "appelsSpawn": 1
+      },
+      {
+        "zoneIdx": 21,
+        "subStageFinal": 9,
+        "message": "TEMPS ÉCOULÉ !",
+        "appelsSpawn": 1
+      }
+    ]
+  },
+  "ligue": [
+    {
+      "etape": 1,
+      "id": 131,
+      "niveau": 74,
+      "pvMax": 2928624,
+      "boss": true,
+      "tauxCapture": 0
+    },
+    {
+      "etape": 2,
+      "id": 124,
+      "niveau": 76,
+      "pvMax": 2005184,
+      "boss": true,
+      "tauxCapture": 0
+    },
+    {
+      "etape": 3,
+      "id": 68,
+      "niveau": 78,
+      "pvMax": 2663232,
+      "boss": true,
+      "tauxCapture": 0
+    },
+    {
+      "etape": 4,
+      "id": 95,
+      "niveau": 80,
+      "pvMax": 2483200,
+      "boss": true,
+      "tauxCapture": 0
+    },
+    {
+      "etape": 5,
+      "id": 94,
+      "niveau": 82,
+      "pvMax": 2386200,
+      "boss": true,
+      "tauxCapture": 0
+    },
+    {
+      "etape": 6,
+      "id": 24,
+      "niveau": 84,
+      "pvMax": 2379216,
+      "boss": true,
+      "tauxCapture": 0
+    },
+    {
+      "etape": 7,
+      "id": 149,
+      "niveau": 86,
+      "pvMax": 3436904,
+      "boss": true,
+      "tauxCapture": 0
+    },
+    {
+      "etape": 8,
+      "id": 130,
+      "niveau": 88,
+      "pvMax": 3243680,
+      "boss": true,
+      "tauxCapture": 0
+    },
+    {
+      "etape": 9,
+      "id": 18,
+      "niveau": 92,
+      "pvMax": 2748592,
+      "boss": true,
+      "tauxCapture": 0
+    },
+    {
+      "etape": 10,
+      "id": 9,
+      "niveau": 100,
+      "pvMax": 3686000,
+      "boss": true,
+      "tauxCapture": 0
+    }
+  ],
+  "commentaire": "La pénalité V1 remet la zone 20 à l’étape 1, tandis que la zone 21 revient à l’étape 9. La suite Math.random déterministe utilisée pour la Ligue est [0.5]."
+}

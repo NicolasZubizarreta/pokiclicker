@@ -30,6 +30,7 @@ export const reglages: {
   interface: { sauvegardeAutoMs: number; annonceMs: number };
   depart: { argent: number; etape: number; region: NouveauxChampsRegion };
   combat: {
+    minuteurBossMs: number;
     clicBase: number; clicPartDps: number; pvParNiveau: number; pvBoss: number;
     chanceShiny: number; clicsMaxParSeconde: number; fenetreClicsMs: number; etapeBoss: number;
   };
@@ -49,3 +50,7 @@ export const reglages: {
     calciumParBoost: number;
   };
 } = donnees;
+
+if (!Number.isFinite(reglages.combat.minuteurBossMs) || reglages.combat.minuteurBossMs <= 0) {
+  throw new Error('Minuteur de boss invalide');
+}

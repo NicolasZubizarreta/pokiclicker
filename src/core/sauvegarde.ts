@@ -2,6 +2,7 @@ import type { MembreEquipe } from './combat';
 import type { Horloge } from './clock';
 import type { EtatMonde } from './conditions';
 import { reglages } from './reglages';
+import { kanto } from './regions';
 import { ERREUR_VERSION, VERSION_ACTUELLE } from './sauvegarde-types';
 import type { DonneesCompte, DonneesPartie, DonneesRegion, Enveloppe, Niveau, PokemonPossede, Stockage } from './sauvegarde-types';
 import { dateUtc, exiger, identifiant, objet, validerEnveloppe } from './sauvegarde-validation';
@@ -98,7 +99,7 @@ export function creerGestionnaire({ stockage, horloge, genererId }: {
     ecrireCompte: (donnees: DonneesCompte) => ecrire(cleCompte, 'compte', 'local', donnees),
     chargerPartie,
     chargerRegion,
-    creerPartie(nom: string, zoneDepart = 'kanto.route-1') {
+    creerPartie(nom: string, zoneDepart = kanto.premierCombat) {
       const id = nouvelId();
       const partie = preparer('partie', id, partieInitiale(nom));
       const region = preparer('region', 'kanto', regionInitiale('kanto', zoneDepart));

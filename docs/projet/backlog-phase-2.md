@@ -197,7 +197,7 @@ Fourchette : 2 à 3 jours. Risque : bonus d'objets de la V1 mélangés dans plus
 
 ## F. `feat(zones): minuteur de boss de 30 s, progression d'étape et changement de zone`
 
-Labels : `type:feat`, `etat:idee`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : oui
+Labels : `type:feat`, `etat:pret`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : oui
 
 ### Histoire
 En tant que joueur, je veux affronter chaque boss avec un temps limité et passer à la zone suivante quand je le bats afin de progresser dans Kanto.

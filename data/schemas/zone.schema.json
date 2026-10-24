@@ -74,6 +74,7 @@
         "id": { "$ref": "#/$defs/identifiant" },
         "nom": { "type": "string", "minLength": 1 },
         "sansCombat": { "const": true },
+        "message": { "type": "string", "minLength": 1, "pattern": "\\S" },
         "decor": { "type": "string", "pattern": "^(?!/)(?!.*\\.\\.)[^:]+$", "description": "Chemin relatif du futur décor local." },
         "liens": { "$ref": "#/$defs/zoneCombat/properties/liens" },
         "ancienId": { "type": "integer" },

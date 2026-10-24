@@ -8,6 +8,7 @@
       "id": "kanto.bourg-palette",
       "nom": "Bourg Palette",
       "sansCombat": true,
+      "message": "Pas de Pokémon sauvage ici. Va sur la Route 1 pour combattre.",
       "decor": "kanto/bourg-palette.webp",
       "liens": [
         {

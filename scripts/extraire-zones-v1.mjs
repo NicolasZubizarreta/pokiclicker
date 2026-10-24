@@ -49,7 +49,9 @@ const zones = Array.from(ZONES, (zone, indice) => {
   const debut = { id: identifiant(indice), nom: zone.name };
   const decor = `kanto/${slugs[indice]}.webp`;
   if (indice === 0) {
-    return { ...debut, sansCombat: true, decor, liens, ancienId: zone.id };
+    // Contenu supplémentaire propre à la V2, absent des données de la V1.
+    const message = 'Pas de Pokémon sauvage ici. Va sur la Route 1 pour combattre.';
+    return { ...debut, sansCombat: true, message, decor, liens, ancienId: zone.id };
   }
   return {
     ...debut,

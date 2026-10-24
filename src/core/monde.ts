@@ -10,6 +10,7 @@ export type ZoneSansCombat = {
   id: string;
   nom: string;
   sansCombat: true;
+  message?: string;
   decor: string;
   liens: Lien[];
   ancienId: number;
@@ -66,6 +67,9 @@ export function chargerMonde(fichier: FichierZones, catalogue = chargerPokemon()
       if (lien.si !== undefined) valider(lien.si);
     }
     if (actuelle.sansCombat) {
+      if (actuelle.message !== undefined && (typeof actuelle.message !== 'string' || !actuelle.message.trim())) {
+        throw new Error(`Message de zone invalide : ${actuelle.id}`);
+      }
       if ('sauvages' in actuelle || 'boss' in actuelle || 'adversaires' in actuelle) {
         throw new Error(`Zone sans combat invalide : ${actuelle.id}`);
       }
@@ -127,6 +131,15 @@ export function chargerMonde(fichier: FichierZones, catalogue = chargerPokemon()
     lieu,
     zone,
     zoneDeCombat,
+    zonePrecedente(id: string): ZoneMonde | undefined {
+      return fichier.zones.find(actuelle => actuelle.liens.some(lien => lien.vers === id));
+    },
+    accesZone(vers: string, etat: EtatMonde): ResultatCondition {
+      if (this.zonesOuvertes(etat).some(actuelle => actuelle.id === vers)) return { ok: true };
+      const precedente = this.zonePrecedente(vers);
+      return precedente ? this.peutPasser(precedente.id, vers, etat)
+        : { ok: false, raison: 'Cette zone est inaccessible.' };
+    },
     liensDepuis: (id: string) => zone(id).liens,
     peutPasser(depuis: string, vers: string, etat: EtatMonde): ResultatCondition {
       const liens = zone(depuis).liens.filter((lien) => lien.vers === vers);
