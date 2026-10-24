@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mon bilan des variantes</title>
+<link rel="stylesheet" href="_base/base.css">
+<style>
+  body { padding-bottom:calc(var(--spacing) * 8); }
+  main { max-width:48rem; margin-inline:auto; display:grid; gap:calc(var(--spacing) * 4); }
+  .page { background:var(--surface); padding:calc(var(--spacing) * 4); display:grid; gap:calc(var(--spacing) * 2); }
+  .ligne { display:grid; grid-template-columns:calc(var(--spacing) * 16) minmax(0,1fr); gap:calc(var(--spacing) * 2); align-items:start; }
+  .garde { color:var(--succes-base); font-weight:700; }
+  .jette { color:var(--erreur-base); font-weight:700; }
+  .bof { color:var(--alerte-base); font-weight:700; }
+  .vide { color:var(--texte-doux); }
+  button,a.lien { display:inline-flex; align-items:center; min-height:calc(var(--spacing) * 11); padding:calc(var(--spacing) * 2) calc(var(--spacing) * 4); border:0; font:inherit; background:var(--action); color:var(--action-texte); cursor:pointer; text-decoration:none; }
+  a.lien { background:var(--surface-2); color:var(--lien); }
+  textarea { width:100%; min-height:calc(var(--spacing) * 40); background:var(--fond); color:var(--texte); border:calc(var(--spacing) / 2) solid var(--bordure); padding:calc(var(--spacing) * 2); font:inherit; }
+  .actions { display:flex; flex-wrap:wrap; gap:calc(var(--spacing) * 2); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Mon bilan</h1>
+  <p>Voilà ce que tu as noté sur cet appareil. Touche « Copier mon bilan » puis colle-le dans la conversation avec Claude.</p>
+  <div class="actions">
+    <button type="button" id="copier">Copier mon bilan</button>
+    <a class="lien" href="index.html">Retour aux trois sites</a>
+  </div>
+  <p id="statut" role="status"></p>
+  <div id="pages"></div>
+  <label for="texte">Texte à copier</label>
+  <textarea id="texte" readonly></textarea>
+</main>
+<script>
+  const PAGES = [['equipe', 'Équipe'], ['fiche-pokemon', 'Fiche Pokémon'], ['pc', 'PC'], ['sac', 'Sac'], ['shop', 'Shop'],
+    ['plus', 'Plus et Pokédex'], ['carte', 'Carte'], ['evenement', 'Chen et choix du starter']];
+  const MOTS = { garde: 'je garde', bof: 'bof', jette: 'je jette' };
+  const lire = (dir, l) => { try { return JSON.parse(localStorage.getItem('avis:' + dir + ':' + l) || '{}'); } catch { return {}; } };
+  const lignes = [];
+  const conteneur = document.getElementById('pages');
+  for (const [dir, nom] of PAGES) {
+    const bloc = document.createElement('section');
+    bloc.className = 'page';
+    const titre = document.createElement('h2');
+    titre.textContent = nom;
+    bloc.append(titre);
+    const morceaux = [];
+    for (const l of ['a', 'b', 'c']) {
+      const avis = lire(dir, l);
+      const ligne = document.createElement('div');
+      ligne.className = 'ligne';
+      const lettre = document.createElement('strong');
+      lettre.textContent = 'Site ' + l.toUpperCase();
+      const texte = document.createElement('span');
+      if (avis.v || avis.n) {
+        const v = document.createElement('span');
+        v.className = avis.v || '';
+        v.textContent = avis.v ? MOTS[avis.v] : '';
+        texte.append(v, avis.n ? (avis.v ? ' · ' : '') + avis.n : '');
+        morceaux.push(l.toUpperCase() + ' : ' + (avis.v ? MOTS[avis.v] : 'sans avis') + (avis.n ? ' (' + avis.n.replace(/\s+/g, ' ') + ')' : ''));
+      } else {
+        texte.className = 'vide';
+        texte.textContent = 'pas encore vu';
+      }
+      ligne.append(lettre, texte);
+      bloc.append(ligne);
+    }
+    conteneur.append(bloc);
+    if (morceaux.length) lignes.push(nom + ' — ' + morceaux.join(' ; '));
+  }
+  const texte = lignes.length ? 'Mon bilan des variantes :\n' + lignes.join('\n') : 'Je n’ai encore rien noté.';
+  document.getElementById('texte').value = texte;
+  document.getElementById('copier').addEventListener('click', async () => {
+    const statut = document.getElementById('statut');
+    try { await navigator.clipboard.writeText(texte); statut.textContent = 'Bilan copié. Colle-le dans la conversation.'; }
+    catch { document.getElementById('texte').select(); statut.textContent = 'Copie impossible ici : le texte est sélectionné, copie-le à la main.'; }
+  });
+</script>
+</body>
+</html>
