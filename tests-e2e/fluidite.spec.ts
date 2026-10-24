@@ -4,7 +4,7 @@ import { test, expect } from '@playwright/test';
 test('Fluidité : 60 secondes à 12 appuis/s avec processeur limité à 4×', async ({ page }, informations) => {
   test.skip(informations.project.name !== 'mobile', 'Mesure réservée au profil mobile.');
   await page.goto('/');
-  await expect(page.getByRole('button', { name: 'Attaque', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
   await page.evaluate(() => document.fonts.ready);
   const session = await page.context().newCDPSession(page);
   await session.send('Emulation.setCPUThrottlingRate', { rate: 4 });
@@ -19,7 +19,7 @@ test('Fluidité : 60 secondes à 12 appuis/s avec processeur limité à 4×', as
       const images = Array<number>(60).fill(0);
       const rendus = new Map<Node, number[]>();
       const taches: PerformanceEntry[] = [];
-      const bouton = [...document.querySelectorAll('button')].find(element => element.textContent === 'Attaque')!;
+      const bouton = document.querySelector('button[aria-label^="Attaquer "]')!;
       let appuis = 0;
       let animation = 0;
       let minuteur = 0;
@@ -51,7 +51,7 @@ test('Fluidité : 60 secondes à 12 appuis/s avec processeur limité à 4×', as
       // Échéances absolues : 720 appuis, sans dérive cumulative de setInterval.
       const attaquer = () => {
         if (performance.now() - debut >= duree || appuis >= 720) return;
-        bouton.click();
+        bouton.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, button: 0, pointerType: 'touch' }));
         appuis++;
         minuteur = window.setTimeout(attaquer, Math.max(0, debut + appuis * 1000 / 12 - performance.now()));
       };

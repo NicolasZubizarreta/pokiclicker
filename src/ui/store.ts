@@ -13,6 +13,7 @@ import { etatMondeDe, versMembreEquipe } from '../core/sauvegarde';
 import type { DonneesRegion, PokemonPossede, Stockage } from '../core/sauvegarde';
 import { detailErreur, ouvrirPartie } from './persistance';
 import { creerStockageLocal } from './stockage-local';
+import { genererIdentifiant } from './identifiants';
 
 export type Degat = { id: number; valeur: number };
 export type CaseEquipe = { pokemon: PokemonPossede; dps: number } | null;
@@ -136,4 +137,4 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
 
 export type StoreJeu = ReturnType<typeof creerStoreJeu>;
 export const storeJeu = creerStoreJeu({ horloge: creerHorlogeSysteme(), stockage: creerStockageLocal(),
-  alea: Math.random, genererId: () => crypto.randomUUID() });
+  alea: Math.random, genererId: genererIdentifiant });

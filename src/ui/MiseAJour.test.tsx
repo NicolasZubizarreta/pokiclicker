@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { useState } from 'react';
-import { cleanup, render, screen, fireEvent } from '@testing-library/react';
+import { act, cleanup, render, screen, fireEvent } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { MiseAJour } from './MiseAJour';
 import { storeJeu } from './store';
@@ -11,7 +11,7 @@ vi.mock('virtual:pwa-register/react', () => ({
     updateServiceWorker: double.mettreAJour }),
 }));
 beforeEach(() => { double.actualiser = false; double.horsLigne = false; double.mettreAJour.mockReset(); });
-afterEach(() => { cleanup(); vi.restoreAllMocks(); });
+afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.useRealTimers(); });
 
 it('ne montre rien au départ', () => {
   const { container } = render(<MiseAJour />);
@@ -22,6 +22,7 @@ it('annonce la mise à jour en français et permet de la remettre à plus tard',
   double.actualiser = true;
   render(<MiseAJour />);
   const bandeau = screen.getByRole('status');
+  expect(bandeau.classList.contains('fixed')).toBe(true);
   expect(bandeau.getAttribute('aria-live')).toBe('polite');
   expect(screen.getByText("Une mise à jour est prête. Recharge pour l'utiliser.")).toBeTruthy();
   expect(screen.getByRole('button', { name: 'Recharger' })).toBeTruthy();
@@ -29,6 +30,28 @@ it('annonce la mise à jour en français et permet de la remettre à plus tard',
   fireEvent.click(screen.getByRole('button', { name: 'Plus tard' }));
   expect(screen.queryByRole('status')).toBeNull();
   expect(double.mettreAJour).not.toHaveBeenCalled();
+});
+it('ferme le toast hors connexion après six secondes et nettoie son minuteur', () => {
+  vi.useFakeTimers();
+  double.horsLigne = true;
+  const vue = render(<MiseAJour />);
+  act(() => vi.advanceTimersByTime(5999));
+  expect(screen.getByRole('status').classList.contains('fixed')).toBe(true);
+  act(() => vi.advanceTimersByTime(1));
+  expect(screen.queryByRole('status')).toBeNull();
+  vue.unmount();
+  const suivante = render(<MiseAJour />);
+  expect(vi.getTimerCount()).toBe(1);
+  suivante.unmount();
+  expect(vi.getTimerCount()).toBe(0);
+});
+it('garde le toast de mise à jour jusqu’à une action', () => {
+  vi.useFakeTimers();
+  double.actualiser = true;
+  double.horsLigne = true;
+  render(<MiseAJour />);
+  act(() => vi.advanceTimersByTime(10000));
+  expect(screen.getByRole('button', { name: 'Recharger' })).toBeTruthy();
 });
 
 it('sauvegarde avant de demander le rechargement', () => {

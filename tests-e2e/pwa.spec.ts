@@ -29,9 +29,12 @@ test('PWA : manifeste, précache, reprise et attaque hors connexion', async ({ p
     await page.screenshot({ path: informations.outputPath(`pwa-${largeur}.png`), animations: 'disabled' });
   }
   await page.setViewportSize({ width: 390, height: 844 });
+  const scene = page.getByRole('region', { name: /^Combat contre/ });
+  const avecToast = await scene.boundingBox();
   await page.getByRole('button', { name: 'Fermer', exact: true }).click();
+  expect(await scene.boundingBox()).toEqual(avecToast);
   // L'horloge suspendue évite que le DPS change l'étape pendant les assertions.
-  const attaque = page.getByRole('button', { name: 'Attaque', exact: true });
+  const attaque = page.getByRole('button', { name: /^Attaquer / });
   for (let clic = 0; clic < 300; clic++) {
     if (await page.getByText('Étape 2 sur 10', { exact: true }).isVisible()) break;
     await attaque.click();

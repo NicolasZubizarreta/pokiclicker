@@ -8,10 +8,11 @@ import { ERREUR_CONFLIT } from './persistance';
 import { equipeDeDepart } from './equipe-de-depart';
 import { cheminDecor } from './precharger';
 import { kanto } from '../core/regions';
+import { genererIdentifiant } from './identifiants';
 
 const stores: StoreJeu[] = [];
 beforeEach(() => vi.useFakeTimers());
-afterEach(() => { stores.forEach(store => store.getState().arreter()); stores.length = 0; vi.useRealTimers(); });
+afterEach(() => { stores.forEach(store => store.getState().arreter()); stores.length = 0; vi.useRealTimers(); vi.unstubAllGlobals(); });
 function preparer(stockage = creerStockageMemoire()) {
   const horloge = creerHorlogeSimulee();
   const store = creerStoreJeu({ horloge, stockage, alea: () => .1, genererId: () => 'test' });
@@ -21,6 +22,22 @@ function preparer(stockage = creerStockageMemoire()) {
   return { store, horloge, stockage, avancer };
 }
 
+it('démarre et sauvegarde une nouvelle partie sans randomUUID', () => {
+  const getRandomValues = globalThis.crypto.getRandomValues.bind(globalThis.crypto);
+  vi.stubGlobal('crypto', { getRandomValues });
+  const stockage = creerStockageMemoire();
+  const store = creerStoreJeu({ horloge: creerHorlogeSimulee(), stockage, alea: () => .1, genererId: genererIdentifiant });
+  stores.push(store);
+  store.getState().demarrer();
+  expect(store.getState().erreur).toBeNull();
+  expect(store.getState().ennemi).not.toBeNull();
+  expect(creerGestionnaire({ stockage, horloge: creerHorlogeSimulee(), genererId: genererIdentifiant }).listerParties()[0]?.id)
+    .toMatch(/^[\da-f]{8}-[\da-f]{4}-4[\da-f]{3}-[89ab][\da-f]{3}-[\da-f]{12}$/);
+});
+it('produit aussi un UUID v4 au dernier recours sans crypto', () => {
+  vi.stubGlobal('crypto', undefined);
+  expect(genererIdentifiant()).toMatch(/^[\da-f]{8}-[\da-f]{4}-4[\da-f]{3}-[89ab][\da-f]{3}-[\da-f]{12}$/);
+});
 it('convertit le décor des données vers son fichier local', () => {
   expect(cheminDecor(kanto.zone('kanto.route-1'))).toBe('img/decors/route-1.webp');
 });

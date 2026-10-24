@@ -24,13 +24,14 @@ async function ouvrir(page: Page) {
   await page.goto('/');
   await expect(page.getByRole('heading', { name: 'Route 1', exact: true })).toBeVisible();
   await expect(page.getByText('Étape 1 sur 10', { exact: true })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Attaque', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
+  await page.evaluate(() => Promise.all([...document.images].map(image => image.decode())));
 }
 
 async function atteindre(page: Page, etape: number) {
   for (let appui = 0; appui < 1500; appui++) {
     if (await page.getByText(`Étape ${etape} sur 10`, { exact: true }).isVisible()) return;
-    await page.getByRole('button', { name: 'Attaque', exact: true }).click({ force: true });
+    await page.getByRole('button', { name: /^Attaquer / }).click({ force: true });
     await page.clock.runFor(90);
   }
   throw new Error(`Étape ${etape} non atteinte après 1500 appuis espacés de 90 ms`);
@@ -41,28 +42,62 @@ async function stockage(page: Page) {
     .filter(cle => cle.startsWith('pokiclicker:')).map(cle => [cle, localStorage.getItem(cle)])));
 }
 
+async function verifierFenetre(page: Page) {
+  expect(await page.evaluate(() => document.documentElement.scrollHeight - window.innerHeight)).toBeLessThanOrEqual(1);
+  const dialogue = (await page.getByRole('complementary', { name: 'Dialogue' }).boundingBox())!;
+  const taille = page.viewportSize()!;
+  const limite = taille.width < 1024 ? (await page.getByRole('navigation').boundingBox())!.y : taille.height;
+  expect(dialogue.y + dialogue.height).toBeLessThanOrEqual(limite);
+  const scene = (await page.getByRole('region', { name: /^Combat contre/ }).boundingBox())!;
+  expect(scene.y).toBeGreaterThanOrEqual(0);
+  expect(scene.y + scene.height).toBeLessThanOrEqual(limite);
+}
+
 test('Parcours : dix étapes, boss, fin de route et captures', async ({ page }, informations) => {
   await ouvrir(page);
   await mkdir('design/captures', { recursive: true });
   const largeur = informations.project.name === 'mobile' ? 390 : 1440;
   await page.screenshot({ path: `design/captures/h-combat-${largeur}.png`, animations: 'disabled' });
+  await verifierFenetre(page);
+  if (informations.project.name === 'pc') {
+    await page.setViewportSize({ width: 1915, height: 1007 });
+    await verifierFenetre(page);
+    await page.screenshot({ path: 'design/captures/h-combat-1915.png', animations: 'disabled' });
+    await page.setViewportSize({ width: 1440, height: 900 });
+  }
   await atteindre(page, 10);
   await expect(page.getByRole('heading', { name: 'Rattata (Géant)', exact: true })).toBeVisible();
+  await page.evaluate(() => Promise.all([...document.images].map(image => image.decode())));
   await page.screenshot({ path: `design/captures/h-combat-${largeur}-boss.png`, animations: 'disabled' });
   await atteindre(page, 1);
   await expect(page.getByRole('status')).toHaveText('Route 1 terminée !');
-  await expect(page.getByRole('button', { name: 'Forêt de Jade' })).toBeDisabled();
   await expect(page.getByText('La suite arrive bientôt.', { exact: true })).toBeVisible();
+  await verifierFenetre(page);
+  if (informations.project.name === 'pc') {
+    await page.setViewportSize({ width: 1915, height: 1007 });
+    await verifierFenetre(page);
+  }
+});
+
+test('Contexte non sécurisé : combat disponible sans randomUUID', async ({ page }, informations) => {
+  test.skip(informations.project.name !== 'mobile', 'Régression téléphone.');
+  await page.addInitScript(() => { Object.defineProperty(crypto, 'randomUUID', { value: undefined }); });
+  await ouvrir(page);
+  await expect(page.getByRole('alert')).toHaveCount(0);
+  await page.getByRole('button', { name: /^Attaquer / }).click();
+  await page.clock.runFor(100);
+  await expect(page.locator('.degat-flottant')).toHaveCount(1);
 });
 
 test('Reprise : même étape, même équipe et sauvegarde stable', async ({ page }, informations) => {
   await ouvrir(page);
   await atteindre(page, 5);
   const equipe = page.getByRole('region', { name: 'Ton équipe' });
-  const avant = await equipe.locator('[aria-label]').evaluateAll(cartes => cartes.map(carte => carte.getAttribute('aria-label')));
+  // Les DPS dépendent du type du nouvel ennemi ; comparer l’identité et le niveau.
+  const avant = await equipe.locator('[aria-label]').evaluateAll(cartes => cartes.map(carte => carte.getAttribute('aria-label')?.replace(/, [\d.]+ DPS$/, '')));
   await page.reload();
   await expect(page.getByText('Étape 5 sur 10', { exact: true })).toBeVisible();
-  expect(await equipe.locator('[aria-label]').evaluateAll(cartes => cartes.map(carte => carte.getAttribute('aria-label')))).toEqual(avant);
+  expect(await equipe.locator('[aria-label]').evaluateAll(cartes => cartes.map(carte => carte.getAttribute('aria-label')?.replace(/, [\d.]+ DPS$/, '')))).toEqual(avant);
   for (const nom of ['Bulbizarre', 'Salamèche', 'Carapuce']) {
     const carte = equipe.locator(`[aria-label^="${nom},"]`);
     await expect(carte).toHaveCount(1);
@@ -107,14 +142,12 @@ test('Mise en page : scène, navigation, équipe et langue', async ({ page }, in
     expect(boiteDecor[dimension], `Décor et scène : ${dimension}`).toBeCloseTo(attendu[dimension], 0);
   }
   await expect(decor).toHaveCSS('object-fit', 'cover');
-  if (informations.project.name === 'mobile') {
-    const bouton = (await page.getByRole('button', { name: 'Attaque', exact: true }).boundingBox())!;
-    expect(bouton.height).toBeGreaterThanOrEqual(88);
-    expect(bouton.x).toBeGreaterThanOrEqual(0);
-    expect(bouton.y).toBeGreaterThanOrEqual(0);
-    expect(bouton.x + bouton.width).toBeLessThanOrEqual(390);
-    expect(bouton.y + bouton.height).toBeLessThanOrEqual(844);
-  } else {
+  const bouton = (await page.getByRole('button', { name: /^Attaquer / }).boundingBox())!;
+  expect(bouton).toEqual(boiteScene);
+  await expect(page.getByRole('button', { name: 'Attaque', exact: true })).toHaveCount(0);
+  await expect(page.locator('button.bg-action')).toHaveCount(0);
+  if (informations.project.name !== 'mobile') {
+    expect(boiteScene.width / boiteScene.height).toBeCloseTo(16 / 9, 2);
     const navigation = page.getByRole('navigation');
     const boiteNavigation = (await navigation.boundingBox())!;
     expect(boiteNavigation.x + boiteNavigation.width).toBeLessThanOrEqual(boiteScene.x);

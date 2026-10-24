@@ -58,9 +58,18 @@
   border-radius: var(--rayon);
   box-shadow: inset 0 0 0 calc(var(--spacing) / 2) var(--fond), inset 0 0 0 var(--spacing) var(--region-argent);
 }
-.plaque-attaque {
-  box-shadow: inset 0 0 0 calc(var(--spacing) / 2) var(--fond), inset 0 0 0 var(--spacing) var(--region-argent), var(--shadow-md);
-  transition: transform var(--duration-rapide) var(--ease-standard);
+.toast {
+  bottom: calc(4.5rem + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 2rem);
+  max-width: 24rem;
+}
+.cible-combat { -webkit-touch-callout: none; }
+.cible-combat:focus-visible { outline-offset: -3px; }
+@media (min-width: 64rem) {
+  .scene-limitee { width: min(100%, calc((100dvh - 19rem) * 16 / 9)); margin-inline: auto; }
+  .toast { bottom: 1rem; right: 1rem; left: auto; transform: none; }
 }
 .barre-pv { transition: transform var(--duree-pv) var(--ease-standard); }
 .barre-fantome { transition-delay: var(--duration-lent); }

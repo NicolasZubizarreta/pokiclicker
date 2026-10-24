@@ -14,7 +14,7 @@ describe('Coquille', () => {
     expect(boutons.map((bouton) => bouton.textContent)).toEqual(noms);
     expect(boutons.filter((bouton) => bouton.getAttribute('aria-current') === 'page')).toEqual([boutons[0]]);
     expect(within(screen.getByRole('main')).getByRole('heading', { level: 1 }).textContent).toBe('Route 1');
-    expect(screen.getByRole('button', { name: 'Attaque' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /^Attaquer / })).toBeTruthy();
   });
 
   it('change de page et déplace la sélection au clic', async () => {

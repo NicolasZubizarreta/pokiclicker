@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useStore } from 'zustand';
 import { chargerPokemon } from '../core/pokemon';
 import { BarrePv } from './BarrePv';
@@ -26,6 +26,16 @@ function Entete({ store }: { store: StoreJeu }) {
 }
 
 function Scene({ store }: { store: StoreJeu }) {
+  const sprite = useRef<HTMLDivElement>(null);
+  const attaquer = () => {
+    store.getState().attaquer();
+    const element = sprite.current;
+    // Recul de 4 px en 90 ms par l'API d'animation (composition hors du fil principal) ;
+    // un changement de classe CSS à chaque appui coûtait plus de 400 tâches longues par minute.
+    if (typeof element?.animate !== 'function' || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+    element.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(var(--spacing))' }, { transform: 'translateX(0)' }],
+      { duration: 90, easing: 'cubic-bezier(0.2, 0, 0, 1)' });
+  };
   const zone = useStore(store, etat => etat.zone);
   const ennemi = useStore(store, etat => etat.ennemi);
   useEffect(() => {
@@ -35,22 +45,27 @@ function Scene({ store }: { store: StoreJeu }) {
   }, [zone]);
   if (!zone || !ennemi) return null;
   const nom = catalogue.parNumero(ennemi.numero).nom;
-  return <section aria-label={`Combat contre ${nom}`} className="cadre relative isolate h-76 overflow-hidden bg-surface-2 lg:col-span-3 lg:aspect-video lg:h-auto">
+  return <section aria-label={`Combat contre ${nom}`} className="scene-limitee relative isolate h-76 bg-surface-2 lg:col-span-3 lg:aspect-video lg:h-auto">
     <Image src={cheminDecor(zone)} genre="decor" alt="" couvrir className="absolute inset-0 -z-10 size-full" />
-    <div className="cadre absolute top-4 left-4 z-10 w-3/5 bg-surface p-3">
+    <div className="pointer-events-none cadre absolute top-4 left-4 z-10 w-3/5 bg-surface p-3">
       <div className="flex flex-wrap items-center justify-between gap-1">
         <h2 className="font-titre text-xl">{nom}{ennemi.boss ? ' (Géant)' : ''}</h2><span>Niv. {ennemi.niveau}</span>
       </div>
       {ennemi.shiny && <p>Chromatique</p>}
       <BarrePv key={`${ennemi.numero}-${ennemi.niveau}-${ennemi.boss}`} pv={ennemi.pv} maximum={ennemi.pvMax} nom={nom} />
     </div>
-    <div className="absolute right-2 bottom-2 flex size-48 items-end justify-center lg:size-72">
+    <div ref={sprite} className="pointer-events-none absolute right-2 bottom-2 flex will-change-transform size-48 items-end justify-center lg:size-72">
       <div aria-hidden="true" className="socle absolute bottom-10 h-12 w-3/4 bg-region-socle lg:bottom-16 lg:h-16" />
       <Image src={cheminSprite(ennemi.numero)} genre="sprite" alt={nom} largeurDisponible={192}
         className="relative size-48 max-w-none lg:hidden" />
       <Image src={cheminSprite(ennemi.numero)} genre="sprite" alt={nom} largeurDisponible={288}
         className="relative hidden size-72 max-w-none lg:block" />
     </div>
+    <button type="button" aria-label={`Attaquer ${nom}`}
+      className="cible-combat cadre absolute inset-0 z-10 touch-manipulation select-none"
+      onContextMenu={event => event.preventDefault()}
+      onPointerDown={event => { if (event.button === 0) attaquer(); }}
+      onClick={event => { if (event.detail === 0) attaquer(); }} />
     <DegatsFlottants store={store} />
   </section>;
 }
@@ -58,36 +73,24 @@ function Scene({ store }: { store: StoreJeu }) {
 function Equipe({ store }: { store: StoreJeu }) {
   const equipe = useStore(store, etat => etat.equipe);
   const dps = useStore(store, etat => etat.dps);
-  return <section aria-label="Ton équipe" className="min-w-0 lg:col-start-4 lg:row-start-1 lg:row-end-4">
+  return <section aria-label="Ton équipe" className="min-w-0 lg:col-start-4 lg:row-start-1 lg:row-end-3">
     <h2 className="mb-2 flex justify-between gap-2 font-titre text-xl">Ton équipe <span>{dps} DPS</span></h2>
     <div className="grid grid-cols-6 gap-1 lg:grid-cols-1">{equipe.map((membre, i) =>
       <CarteEquipe key={membre?.pokemon.uid ?? i} membre={membre} />)}</div>
   </section>;
 }
 
-function Suite({ store }: { store: StoreJeu }) {
-  const fin = useStore(store, etat => etat.finZone);
-  const suite = useStore(store, etat => etat.suite);
-  return <section className="cadre bg-surface p-4 lg:col-span-3">
-    {fin && <p role="status" className="mb-2 font-titre text-xl">{fin}</p>}
-    {suite && <><button type="button" disabled aria-describedby="raison-suite" className="min-h-11 bg-surface-2 px-4 text-texte-doux">{suite.nom}</button>
-      <p id="raison-suite" className="mt-2">{suite.raison}</p></>}
-  </section>;
-}
-
 export function EcranCombat({ store = storeJeu }: { store?: StoreJeu }) {
   const erreur = useStore(store, etat => etat.erreur);
   const fatale = useStore(store, etat => etat.erreurChargement);
-  const attaquer = useStore(store, etat => etat.attaquer);
   return <>
     {erreur && <div role="alert" className="cadre mb-4 bg-surface p-4">
-      {fatale && <p>{ERREUR_CHARGEMENT}</p>}<p>{erreur}</p>
+      {fatale && <p>{ERREUR_CHARGEMENT}</p>}<p>{erreur.split('\n')[0]}</p>
+      {erreur.includes('\n') && <p className="mt-2 break-words text-sm">{erreur.slice(erreur.indexOf('\n') + 1)}</p>}
     </div>}
     {!fatale && <><Entete store={store} /><div className="grid gap-4 lg:grid-cols-4 lg:gap-6">
       <Scene store={store} />
-      <button type="button" onClick={attaquer}
-        className="cadre plaque-attaque h-22 w-full bg-action font-titre text-3xl text-action-texte shadow-md hover:bg-action-survol active:translate-y-0.5 lg:col-span-3">Attaque</button>
-      <Equipe store={store} /><DialogueChen /><Suite store={store} />
+      <Equipe store={store} /><DialogueChen store={store} />
     </div></>}
   </>;
 }
