@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { creerHorlogeSimulee } from '../core/clock';
-import { creerGestionnaire, creerStockageMemoire } from '../core/sauvegarde';
+import { creerGestionnaire, creerStockageMemoire, etatMondeDe } from '../core/sauvegarde';
 import type { DonneesRegion } from '../core/sauvegarde';
 import { calculerMaxXp } from '../core/recompenses';
 import { reglages } from '../core/reglages';
@@ -41,6 +41,73 @@ function vaincre(partie: ReturnType<typeof preparer>) {
   }
   expect(partie.store.getState().etape).not.toBe(etape);
 }
+
+it('expose les 24 formes dans l’ordre, leurs accès et les badges au démarrage', () => {
+  const { store, stockage } = preparer();
+  const region = JSON.parse(stockage.lire('pokiclicker:region:test:kanto')!).donnees as DonneesRegion;
+  const { carte } = store.getState();
+  expect(carte.formes).toHaveLength(24);
+  expect(carte.formes.map(entree => entree.forme)).toEqual(kanto.carte.formes);
+  const ouvertes = kanto.zonesOuvertes(etatMondeDe(region)).map(zone => zone.id);
+  for (const entree of carte.formes) {
+    expect(entree.nom).toBe(entree.forme.nom);
+    expect(entree.zone).toBe(entree.forme.zone);
+    expect(entree.numero).toBe(entree.zone === null ? null : kanto.zone(entree.zone).ancienId);
+    expect(entree.ouverte).toBe(entree.zone !== null && ouvertes.includes(entree.zone));
+    expect(entree.actuelle).toBe(entree.zone === region.zoneId);
+    const acces = entree.zone === null || entree.ouverte ? null : kanto.accesZone(entree.zone, etatMondeDe(region));
+    expect(entree.raison).toBe(acces && !acces.ok ? acces.raison ?? null : null);
+  }
+  expect(carte.formes.find(entree => entree.zone === 'kanto.route-1')).toMatchObject({ ouverte: true, actuelle: true, numero: 1 });
+  expect(carte.formes.find(entree => entree.zone === 'kanto.foret-de-jade')).toMatchObject({ ouverte: false, raison: expect.any(String) });
+  expect(carte.formes.find(entree => entree.nom === 'Lavanville')).toMatchObject({ zone: null, ouverte: false, raison: null });
+  expect(carte.badges).toEqual({ obtenus: 0, total: 8 });
+  expect(carte.nouvelles).toEqual([]);
+  expect(carte.tutorielRoute1).toBe(false);
+});
+
+it('signale les zones débloquées jusqu’à voirCarte, sans sauvegarder cette mémoire', () => {
+  const partie = preparerRegion(region => ({ ...region, etape: 10,
+    badges: ['roche'], equipe: [{ ...region.equipe[0]!, niveau: 100 }] }));
+  const { store, stockage } = partie;
+  expect(store.getState().carte.badges).toEqual({ obtenus: 1, total: 8 });
+  vaincre(partie);
+  expect(store.getState().carte.nouvelles).toContain('kanto.foret-de-jade');
+  expect(store.getState().carte.formes.find(entree => entree.zone === 'kanto.foret-de-jade')).toMatchObject({ ouverte: true, raison: null });
+  const ecrire = vi.spyOn(stockage, 'ecrire');
+  store.getState().arreter();
+  expect(preparer(stockage).store.getState().carte.nouvelles).toEqual([]);
+  ecrire.mockClear();
+  store.getState().voirCarte();
+  expect(store.getState().carte.nouvelles).toEqual([]);
+  expect(ecrire).not.toHaveBeenCalled();
+  store.getState().demarrer();
+  partie.avancer();
+  expect(store.getState().carte.nouvelles).toEqual([]);
+});
+
+it('déduit le tutoriel du Bourg Palette et de l’absence de boss vaincu', () => {
+  const partie = preparerRegion(region => ({ ...region, etape: 10,
+    equipe: [{ ...region.equipe[0]!, niveau: 100 }] }));
+  const { store } = partie;
+  store.getState().allerVers('kanto.bourg-palette');
+  expect(store.getState().carte.tutorielRoute1).toBe(true);
+  store.getState().allerVers('kanto.route-1');
+  expect(store.getState().carte.tutorielRoute1).toBe(false);
+  for (let i = 0; i < 10; i++) vaincre(partie);
+  store.getState().allerVers('kanto.bourg-palette');
+  expect(store.getState().carte.tutorielRoute1).toBe(false);
+});
+
+it('garde la même référence de carte entre deux ticks sans changement de carte', () => {
+  const partie = preparer();
+  const carte = partie.store.getState().carte;
+  expect(carte).toBeDefined();
+  partie.avancer();
+  expect(partie.store.getState().carte).toBe(carte);
+  partie.avancer();
+  expect(partie.store.getState().carte).toBe(carte);
+});
 
 it('récompense chaque victoire et recharge exactement les niveaux, XP et argent sauvegardés', () => {
   const partie = preparerRegion(region => ({ ...region,

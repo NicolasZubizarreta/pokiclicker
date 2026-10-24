@@ -1,5 +1,9 @@
 {
-  "interface": { "sauvegardeAutoMs": 30000, "annonceMs": 1200 },
+  "interface": {
+    "sauvegardeAutoMs": 30000, "annonceMs": 1200,
+    "vol": { "poseMs": 800, "delaiOuvertureMs": 50, "volMs": 2500, "fermetureMs": 500, "imageMs": 150, "images": 5 }
+  },
+  "carte": { "zoomMax": 6 },
   "depart": {
     "argent": 0,
     "etape": 1,

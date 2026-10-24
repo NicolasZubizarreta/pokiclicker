@@ -27,7 +27,12 @@ export type ReglagesDelais = {
 };
 
 export const reglages: {
-  interface: { sauvegardeAutoMs: number; annonceMs: number };
+  interface: {
+    sauvegardeAutoMs: number; annonceMs: number;
+    // Calendrier V1 : legacy/js/game/save.js L759-797.
+    vol: { poseMs: number; delaiOuvertureMs: number; volMs: number; fermetureMs: number; imageMs: number; images: number };
+  };
+  carte: { zoomMax: number };
   depart: { argent: number; etape: number; region: NouveauxChampsRegion };
   combat: {
     minuteurBossMs: number;
@@ -53,4 +58,11 @@ export const reglages: {
 
 if (!Number.isFinite(reglages.combat.minuteurBossMs) || reglages.combat.minuteurBossMs <= 0) {
   throw new Error('Minuteur de boss invalide');
+}
+
+for (const valeur of Object.values(reglages.interface.vol)) {
+  if (!Number.isFinite(valeur) || valeur <= 0) throw new Error('Réglages de vol invalides');
+}
+if (!Number.isFinite(reglages.carte.zoomMax) || reglages.carte.zoomMax <= 0) {
+  throw new Error('Zoom de carte invalide');
 }
