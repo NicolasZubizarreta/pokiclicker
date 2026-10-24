@@ -1,30 +1,32 @@
 import { describe, expect, it } from 'vitest';
 import donnees from '../../data/regions/kanto/zones.json';
 import { chargerMonde } from './monde';
-import type { FichierZones } from './monde';
+import type { FichierZones, Zone } from './monde';
 import type { EtatMonde } from './conditions';
 import { chargerPokemon } from './pokemon';
 import { kanto } from './regions';
 
 const vide: EtatMonde = { badges: [], bossVaincus: [], objets: [], quetes: [], drapeaux: [] };
 const depart = 'kanto.route-1';
+const bourg = 'kanto.bourg-palette';
 const foret = 'kanto.foret-de-jade';
 const fichierEssai = () => structuredClone(donnees) as FichierZones;
+const routeEssai = (fichier: FichierZones) => fichier.zones.find(({ id }) => id === depart) as Zone;
 
 describe('monde Kanto', () => {
-  it('charge les deux zones avec le vrai catalogue de 151 Pokémon', () => {
+  it('charge les 22 zones avec le vrai catalogue de 151 Pokémon', () => {
     const catalogue = chargerPokemon();
     expect(catalogue.liste).toHaveLength(151);
     expect(() => chargerMonde(fichierEssai(), catalogue)).not.toThrow();
     expect(kanto.region).toBe('kanto');
-    expect(kanto.depart).toBe(depart);
-    expect(kanto.zones).toHaveLength(2);
-    expect(kanto.zone(foret).fin).toBe(true);
+    expect(kanto.depart).toBe(bourg);
+    expect(kanto.zones).toHaveLength(22);
+    expect(kanto.zones.filter(({ fin }) => fin).map(({ id }) => id)).toEqual(['kanto.ligue-pokemon']);
     expect(kanto.zone(depart).fin).toBeUndefined();
   });
 
   it('conserve les valeurs de la Route 1 de la V1', () => {
-    const route = kanto.zone(depart);
+    const route = kanto.zoneDeCombat(depart);
     expect(route.nom).toBe('Route 1');
     expect(route.ancienId).toBe(1);
     expect(route.etapes).toBe(10);
@@ -42,7 +44,7 @@ describe('monde Kanto', () => {
   });
 
   it('conserve les valeurs de la Forêt de Jade de la V1', () => {
-    const zone = kanto.zone(foret);
+    const zone = kanto.zoneDeCombat(foret);
     expect(zone.nom).toBe('Forêt de Jade');
     expect(zone.ancienId).toBe(2);
     expect(zone.etapes).toBe(10);
@@ -54,18 +56,33 @@ describe('monde Kanto', () => {
     ]);
   });
 
+  // Valeurs relevées à la main dans legacy/js/regions/kanto.js et ZONE_MULT, indépendantes du script d'extraction.
+  it('conserve la Ligue et l’Arène de Céladopole telles que relevées dans la V1', () => {
+    const ligue = kanto.zoneDeCombat('kanto.ligue-pokemon');
+    expect(ligue.adversaires![8]).toEqual({ pokemon: 18, nom: 'Maître Blue (Roucarnage)', niveau: 92, capture: 0 });
+    expect(ligue.boss).toEqual({ pokemon: 9, nom: 'Maître Blue', niveau: 100, capture: 0 });
+    expect(ligue.multiplicateurPv).toBe(48.5);
+    const celadopole = kanto.zoneDeCombat('kanto.arene-de-celadopole');
+    expect(celadopole.boss).toMatchObject({ pokemon: 71, niveau: 39 });
+    expect(celadopole.multiplicateurPv).toBe(23.5);
+    expect(celadopole.type).toBe('arene');
+  });
+
   it('verrouille le passage et les zones accessibles selon le boss vaincu', () => {
     const etat = { ...vide, bossVaincus: [depart] };
     expect(kanto.liensDepuis(depart)).toEqual([{ vers: foret, si: { type: 'boss', zone: depart } }]);
     expect(kanto.peutPasser(depart, foret, vide)).toEqual({ ok: false, raison: 'Bats le boss de Route 1.' });
     expect(kanto.peutPasser(depart, foret, etat)).toEqual({ ok: true });
     expect(kanto.peutPasser(foret, depart, etat)).toEqual({ ok: false, raison: `Pas de chemin de ${foret} vers ${depart}.` });
-    expect(kanto.zonesOuvertes(vide).map((zone) => zone.id)).toEqual([depart]);
-    expect(kanto.zonesOuvertes(etat).map((zone) => zone.id)).toEqual([depart, foret]);
+    expect(kanto.zonesOuvertes(vide).map((zone) => zone.id)).toEqual([bourg, depart]);
+    expect(kanto.zonesOuvertes(etat).map((zone) => zone.id)).toEqual([bourg, depart, foret]);
   });
 
   it('parcourt un cycle et un lien sans condition sans boucler', () => {
-    const fichier = fichierEssai();
+    const fichier: FichierZones = {
+      version: 1, region: 'kanto', depart, premierCombat: depart, lieux: [],
+      zones: [structuredClone(kanto.zoneDeCombat(depart)), structuredClone(kanto.zoneDeCombat(foret))],
+    };
     fichier.zones[0]!.liens = [{ vers: foret }];
     fichier.zones[1]!.liens = [{ vers: depart }];
     const monde = chargerMonde(fichier);
@@ -74,24 +91,24 @@ describe('monde Kanto', () => {
   });
 
   const invalides: [string, (fichier: FichierZones) => void, string][] = [
-    ['lien inconnu', (f) => { f.zones[0]!.liens = [{ vers: 'kanto.route-99' }]; }, 'Zone inconnue : kanto.route-99'],
+    ['lien inconnu', (f) => { routeEssai(f).liens = [{ vers: 'kanto.route-99' }]; }, 'Zone inconnue : kanto.route-99'],
     ['départ inconnu', (f) => { f.depart = 'absent'; }, 'Zone inconnue : absent'],
-    ['zone inaccessible', (f) => { f.zones[0]!.liens = [{ vers: depart }]; }, `Zone inaccessible : ${foret}`],
-    ['doublon', (f) => { f.zones.push(structuredClone(f.zones[0]!)); }, `Identifiant de zone dupliqué : ${depart}`],
-    ['absence de sortie', (f) => { delete f.zones[1]!.fin; }, `Zone sans sortie : ${foret}`],
-    ['Pokémon sauvage inconnu', (f) => { f.zones[0]!.sauvages[0]!.pokemon = 999; }, 'Pokémon inconnu : 999'],
-    ['boss inconnu', (f) => { f.zones[0]!.boss.pokemon = 999; }, 'Pokémon inconnu : 999'],
-    ['niveaux inversés', (f) => { f.zones[0]!.niveaux = [5, 2]; }, `Niveaux invalides : ${depart}`],
+    ['zone inaccessible', (f) => { routeEssai(f).liens = [{ vers: depart }]; }, `Zone inaccessible : ${foret}`],
+    ['doublon', (f) => { f.zones.push(structuredClone(routeEssai(f))); }, `Identifiant de zone dupliqué : ${depart}`],
+    ['absence de sortie', (f) => { routeEssai(f).liens = []; }, `Zone sans sortie : ${depart}`],
+    ['Pokémon sauvage inconnu', (f) => { routeEssai(f).sauvages[0]!.pokemon = 999; }, 'Pokémon inconnu : 999'],
+    ['boss inconnu', (f) => { routeEssai(f).boss.pokemon = 999; }, 'Pokémon inconnu : 999'],
+    ['niveaux inversés', (f) => { routeEssai(f).niveaux = [5, 2]; }, `Niveaux invalides : ${depart}`],
     ['condition inconnue', (f) => {
-      Object.assign(f.zones[0]!.liens[0]!.si!, { type: 'inconnu' });
+      Object.assign(routeEssai(f).liens[0]!.si!, { type: 'inconnu' });
     }, 'Condition inconnue : inconnu'],
-    ['étapes nulles', (f) => { f.zones[0]!.etapes = 0; }, `Étapes invalides : ${depart}`],
-    ['étapes fractionnaires', (f) => { f.zones[0]!.etapes = 1.5; }, `Étapes invalides : ${depart}`],
-    ['sauvages vides', (f) => { f.zones[0]!.sauvages = []; }, `Aucun Pokémon sauvage : ${depart}`],
-    ['apparition nulle', (f) => { f.zones[0]!.sauvages[0]!.apparition = 0; }, `Apparition invalide : ${depart}`],
-    ['capture négative', (f) => { f.zones[0]!.sauvages[0]!.capture = -1; }, `Capture invalide : ${depart}`],
-    ['capture excessive', (f) => { f.zones[0]!.boss.capture = 256; }, `Capture invalide : ${depart}`],
-    ['rareté inconnue', (f) => { Object.assign(f.zones[0]!.sauvages[0]!, { rarete: 'inconnue' }); }, 'Rareté inconnue : inconnue'],
+    ['étapes nulles', (f) => { routeEssai(f).etapes = 0; }, `Étapes invalides : ${depart}`],
+    ['étapes fractionnaires', (f) => { routeEssai(f).etapes = 1.5; }, `Étapes invalides : ${depart}`],
+    ['sauvages vides', (f) => { routeEssai(f).sauvages = []; }, `Aucun Pokémon sauvage : ${depart}`],
+    ['apparition nulle', (f) => { routeEssai(f).sauvages[0]!.apparition = 0; }, `Apparition invalide : ${depart}`],
+    ['capture négative', (f) => { routeEssai(f).sauvages[0]!.capture = -1; }, `Capture invalide : ${depart}`],
+    ['capture excessive', (f) => { routeEssai(f).boss.capture = 256; }, `Capture invalide : ${depart}`],
+    ['rareté inconnue', (f) => { Object.assign(routeEssai(f).sauvages[0]!, { rarete: 'inconnue' }); }, 'Rareté inconnue : inconnue'],
   ];
   it.each(invalides)('rejette un fichier d’essai : %s', (_, modifier, message) => {
     const fichier = fichierEssai();

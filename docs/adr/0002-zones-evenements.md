@@ -61,6 +61,14 @@
 6. **Validation au chargement** : identifiants uniques, liens vers des zones existantes, un chemin depuis la zone de départ vers chaque zone, conditions connues. Un fichier invalide fait échouer le chargement avec un message en français (« Zone inconnue : kanto.route-99 »).
 7. **Les scènes d'introduction** de la V1 (zones −7 à −1) deviennent des **événements** de type `debut-partie`, pas des zones.
 
+## Précisions de la saisie de Kanto (ticket C, 24/10/2026)
+- **Zone sans combat** : Bourg Palette (zone 0 de la V1, sans ennemi) est un nœud du graphe marqué `"sansCombat": true`, sans `niveaux`, `etapes`, `sauvages` ni `boss`. C'est le `depart` du monde ; `premierCombat` (`kanto.route-1`) désigne la première zone où l'on se bat. `creerPartie` garde pour l'instant sa valeur par défaut `kanto.route-1` (inchangée) ; la brancher sur `premierCombat` revient à la scène d'ouverture (ticket O). Le moteur distingue `monde.zone(id)` (tout nœud) de `monde.zoneDeCombat(id)` (lève « Zone sans combat : <id> »).
+- **Type de zone** : `type` vaut `"arene"` (zones des badges de la V1, `BADGES[].zoneIdx`) ou `"ligue"`. Un type inconnu est refusé (« Type de zone inconnu : <x> »).
+- **Ligue** : `sauvages` vide, `adversaires` (les neuf combats qui précèdent) et `boss` (le dixième, Maître Blue) ; `etapes - 1` doit égaler le nombre d'adversaires (« Adversaires de la Ligue invalides : <id> »). Son déroulé en jeu relève du ticket Q.
+- **Lieux spéciaux** (précise le point 7) : les sept lieux de la V1 à indices négatifs ne sont ni des zones ni, pour l'instant, des événements. Ils sont listés dans `lieux` (`lieu`, `nom`, `decor`, `ancienId`, `depuis`, `si?`) ; `depuis` est la zone d'où l'on y accède, `si` la condition de la V1. Les tickets qui en ont besoin (pension, labo, panthéon, casino…) les lisent ; les scènes d'introduction restent des événements `debut-partie` (ticket O).
+- **Validation** (complète le point 6) : `premierCombat` doit être une zone de combat, un lieu est unique et part d'une zone existante, sa condition est valide.
+- **Génération** : `data/regions/kanto/zones.json` est produit par `scripts/extraire-zones-v1.mjs`, qui exécute le code de la V1 ; la copie brute `tests/fixtures/v1-zones.json` sert aux tests de fidélité (`src/core/monde-fidelite.test.ts`). Seules les conditions d'accès des lieux sont écrites à la main, avec la ligne de la V1 citée en commentaire. Le champ `carte` n'est pas saisi ici (ticket G).
+
 ## Points laissés ouverts (phase 2)
 - Le combat de Ronflex avant le passage, ou le réveil seul ? L'exemple ci-dessus fait les deux ; à confirmer en saisissant Kanto.
 - Les combats de rival, obligatoires ou facultatifs ? À reprendre de la V1.

@@ -2,7 +2,7 @@ import { expect, it, vi } from 'vitest';
 import { reprendreCombat } from './combat';
 import { kanto } from './regions';
 
-const zone = kanto.zone('kanto.route-1');
+const zone = kanto.zoneDeCombat('kanto.route-1');
 it('reprend une étape avec un ennemi neuf sans modifier la zone ni l’équipe', () => {
   const equipe = Object.freeze([{ numero: 1, niveau: 5 }]);
   const combat = reprendreCombat(zone, equipe, () => .1, 4);

@@ -11,7 +11,7 @@ import { chargerPokemon } from './pokemon';
 import { kanto } from './regions';
 import { reglages } from './reglages';
 
-const route = kanto.zone('kanto.route-1');
+const route = kanto.zoneDeCombat('kanto.route-1');
 const equipe = [{ numero: 19, niveau: 5 }];
 const catalogue = chargerPokemon();
 const constant = () => 0.5;
@@ -61,7 +61,7 @@ describe('Ennemis', () => {
     expect(boss.pv).toBe(38 * 6 * 2 * 1 * reglages.combat.pvBoss);
   });
   it('calcule les PV du boss de la Forêt de Jade depuis la référence V1', () => {
-    const foret = kanto.zone('kanto.foret-de-jade');
+    const foret = kanto.zoneDeCombat('kanto.foret-de-jade');
     const pvBase = (statsV1 as Record<string, { pv: number }>)[foret.boss.pokemon]!.pv;
     expect(foret.multiplicateurPv).toBe(1.5);
     expect(creerEnnemi(foret, 10, suite()).pv).toBe(Math.floor(pvBase * foret.boss.niveau * 2 * 1.5) * 4);

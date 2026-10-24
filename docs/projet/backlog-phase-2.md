@@ -103,7 +103,7 @@ Fourchette : 2 à 3 jours. Risque : Codex ne voit pas le rendu (en phase 1, troi
 
 ## C. `feat(monde): saisir les 22 zones de Kanto en données, extraites du code de la V1`
 
-Labels : `type:feat`, `etat:pret`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : oui
+Labels : `type:feat`, `etat:fait`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : oui
 
 ### Histoire
 En tant que joueur, je veux retrouver toutes les zones de Kanto de la V1 (Pokémon sauvages, boss, niveaux, difficulté) afin de jouer la même aventure.
@@ -112,13 +112,13 @@ En tant que joueur, je veux retrouver toutes les zones de Kanto de la V1 (Pokém
 V1 : `legacy/js/regions/kanto.js` (22 zones jouables, ids 0 à 21, plus 7 lieux spéciaux à ids négatifs : Pension −1, Labo −2, Chez Blue −3, Chez Maman −4, Panthéon −5, Centre commercial −6, Casino −7) et la table `ZONE_MULT` (1, 1, 1,5, 2,2, 3,5, 6, 11, puis +2,5 par zone jusqu'à 48,5 en zone 21 ; 100 pour le Labo). V2 : `data/regions/kanto/zones.json` ne contient que Route 1 et la Forêt de Jade provisoire ; format et validations dans `src/core/monde.ts` (ADR 0002). Les passages de la V1 sont linéaires (un seul entier `unlockedZone`, boss de la zone courante vaincu) : ils deviennent des liens `{ si: { type: "boss", zone } }`. Environ 115 entrées de Pokémon sauvages, raretés Commun à Légendaire. Fichiers : `data/regions/kanto/zones.json`, `scripts/extraire-zones-v1.mjs` (nouveau, sur le modèle de `scripts/extraire-references-v1.mjs`), `tests/fixtures/v1-zones.json`, `src/core/monde.test.ts`.
 
 ### Critères d'acceptation
-- [ ] Étant donné le code V1 exécuté par le script, quand je compare, alors chacune des 22 zones a, dans `zones.json`, les mêmes Pokémon (numéro, rareté, `apparition`, `capture`), niveaux min et max, boss (numéro, nom, niveau, capture) et `multiplicateurPv` (comparaison stricte, `toEqual`).
-- [ ] Étant donné les zones de passage, quand je lis `liens`, alors chaque zone `n` mène à `n+1` si le boss de `n` est vaincu, et l'ordre de la V1 est conservé ; Bourg Palette (zone 0, sans ennemi) est la zone de départ du monde, la Route 1 est la zone 1.
-- [ ] Étant donné les 7 lieux spéciaux, quand je lis le fichier, alors ils ne sont **pas** des zones : ils sont repérés par un champ `lieu` (pension, labo, chez-blue, chez-maman, pantheon, centre-commercial, casino) lu par les tickets qui en ont besoin, avec leur condition d'accès de la V1 (par exemple Pension, Centre commercial et Casino à la zone 11).
-- [ ] Étant donné les 8 arènes (zones 3, 5, 7, 11, 13, 15, 17, 18) et la Ligue (zone 21), quand je lis `zones.json`, alors chacune est marquée (`type: "arene" | "ligue"`) ; la Ligue porte ses 10 étapes de boss en données (détail dans Q).
-- [ ] Étant donné `chargerMonde`, quand je charge le fichier complet, alors la validation passe (identifiants uniques, liens valides, chemin du départ vers chaque zone, conditions connues) et un test vérifie qu'on peut aller du départ à la Ligue.
-- [ ] Étant donné un fichier volontairement cassé (zone inconnue), quand je le charge, alors le message français « Zone inconnue : kanto.route-99 » est levé.
-- [ ] Étant donné les décors, quand je lis `decor`, alors chaque zone pointe vers un fichier `kanto/<slug>.webp` produit par le ticket D (ce ticket ne génère aucune image).
+- [x] Étant donné le code V1 exécuté par le script, quand je compare, alors chacune des 22 zones a, dans `zones.json`, les mêmes Pokémon (numéro, rareté, `apparition`, `capture`), niveaux min et max, boss (numéro, nom, niveau, capture) et `multiplicateurPv` (comparaison stricte, `toEqual`).
+- [x] Étant donné les zones de passage, quand je lis `liens`, alors chaque zone `n` mène à `n+1` si le boss de `n` est vaincu, et l'ordre de la V1 est conservé ; Bourg Palette (zone 0, sans ennemi) est la zone de départ du monde, la Route 1 est la zone 1.
+- [x] Étant donné les 7 lieux spéciaux, quand je lis le fichier, alors ils ne sont **pas** des zones : ils sont repérés par un champ `lieu` (pension, labo, chez-blue, chez-maman, pantheon, centre-commercial, casino) lu par les tickets qui en ont besoin, avec leur condition d'accès de la V1 (par exemple Pension, Centre commercial et Casino à la zone 11).
+- [x] Étant donné les 8 arènes (zones 3, 5, 7, 11, 13, 15, 17, 18) et la Ligue (zone 21), quand je lis `zones.json`, alors chacune est marquée (`type: "arene" | "ligue"`) ; la Ligue porte ses 10 étapes de boss en données (détail dans Q).
+- [x] Étant donné `chargerMonde`, quand je charge le fichier complet, alors la validation passe (identifiants uniques, liens valides, chemin du départ vers chaque zone, conditions connues) et un test vérifie qu'on peut aller du départ à la Ligue.
+- [x] Étant donné un fichier volontairement cassé (zone inconnue), quand je le charge, alors le message français « Zone inconnue : kanto.route-99 » est levé.
+- [x] Étant donné les décors, quand je lis `decor`, alors chaque zone pointe vers un fichier `kanto/<slug>.webp` produit par le ticket D (ce ticket ne génère aucune image).
 
 ### Hors périmètre
 Images (D), carte cliquable (G), minuteur de boss et changement de zone (F), détail de la Ligue (Q), événements (O), Zones de Johto.

@@ -13,6 +13,7 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "extraire:zones": "node scripts/extraire-zones-v1.mjs",
     "ci": "npm run typecheck && npm run lint && npm test && npm run build"
   },
   "dependencies": {

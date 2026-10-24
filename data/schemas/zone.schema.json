@@ -1,15 +1,17 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Graphe des zones d'une région",
-  "description": "Format de l'ADR 0002. La dernière étape de chaque zone est son boss. Les liens forment un graphe orienté ; fin autorise une zone sans sortie.",
+  "description": "Format de l'ADR 0002. La dernière étape de chaque zone de combat est son boss. Les liens forment un graphe orienté ; fin autorise une zone sans sortie.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["version", "region", "depart", "zones"],
+  "required": ["version", "region", "depart", "premierCombat", "zones", "lieux"],
   "properties": {
     "version": { "const": 1 },
     "region": { "$ref": "#/$defs/identifiant" },
     "depart": { "$ref": "#/$defs/identifiant" },
-    "zones": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/zone" } }
+    "premierCombat": { "$ref": "#/$defs/identifiant", "description": "Identifiant de la première zone de combat." },
+    "zones": { "type": "array", "minItems": 1, "items": { "oneOf": [{ "$ref": "#/$defs/zoneSansCombat" }, { "$ref": "#/$defs/zoneCombat" }] } },
+    "lieux": { "type": "array", "items": { "$ref": "#/$defs/lieu" } }
   },
   "$defs": {
     "identifiant": { "type": "string", "minLength": 1 },
@@ -46,13 +48,49 @@
         }
       ]
     },
-    "zone": {
+    "rencontre": {
+      "type": "object", "additionalProperties": false, "required": ["pokemon", "nom", "niveau", "capture"],
+      "properties": {
+        "pokemon": { "$ref": "#/$defs/pokemon" }, "nom": { "type": "string", "minLength": 1 },
+        "niveau": { "type": "integer", "minimum": 1 }, "capture": { "$ref": "#/$defs/capture" }
+      }
+    },
+    "lieu": {
+      "type": "object", "additionalProperties": false, "required": ["lieu", "nom", "decor", "ancienId", "depuis"],
+      "properties": {
+        "lieu": { "$ref": "#/$defs/identifiant" },
+        "nom": { "type": "string", "minLength": 1 },
+        "decor": { "type": "string", "pattern": "^(?!/)(?!.*\\.\\.)[^:]+$", "description": "Chemin relatif du futur décor local." },
+        "ancienId": { "type": "integer" },
+        "depuis": { "$ref": "#/$defs/identifiant" },
+        "si": { "$ref": "#/$defs/condition" }
+      }
+    },
+    "zoneSansCombat": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "nom", "sansCombat", "decor", "liens", "ancienId"],
+      "properties": {
+        "id": { "$ref": "#/$defs/identifiant" },
+        "nom": { "type": "string", "minLength": 1 },
+        "sansCombat": { "const": true },
+        "decor": { "type": "string", "pattern": "^(?!/)(?!.*\\.\\.)[^:]+$", "description": "Chemin relatif du futur décor local." },
+        "liens": { "$ref": "#/$defs/zoneCombat/properties/liens" },
+        "ancienId": { "type": "integer" },
+        "fin": { "type": "boolean", "description": "Fin de la région ; autorise une zone sans sortie." }
+      },
+      "if": { "not": { "required": ["fin"], "properties": { "fin": { "const": true } } } },
+      "then": { "properties": { "liens": { "minItems": 1 } } }
+    },
+    "zoneCombat": {
       "type": "object",
       "additionalProperties": false,
       "required": ["id", "nom", "decor", "niveaux", "etapes", "multiplicateurPv", "sauvages", "boss", "liens", "ancienId"],
       "properties": {
         "id": { "$ref": "#/$defs/identifiant" },
         "nom": { "type": "string", "minLength": 1 },
+        "sansCombat": { "const": false },
+        "type": { "enum": ["arene", "ligue"] },
         "decor": { "type": "string", "pattern": "^(?!/)(?!.*\\.\\.)[^:]+$", "description": "Chemin relatif du futur décor local." },
         "niveaux": {
           "type": "array", "minItems": 2, "maxItems": 2,
@@ -62,7 +100,7 @@
         "etapes": { "type": "integer", "minimum": 1, "description": "La dernière étape est le boss ; 10 dans la V1." },
         "multiplicateurPv": { "type": "number", "exclusiveMinimum": 0 },
         "sauvages": {
-          "type": "array", "minItems": 1,
+          "type": "array",
           "items": {
             "type": "object", "additionalProperties": false, "required": ["pokemon", "rarete", "apparition", "capture"],
             "properties": {
@@ -73,13 +111,8 @@
             }
           }
         },
-        "boss": {
-          "type": "object", "additionalProperties": false, "required": ["pokemon", "nom", "niveau", "capture"],
-          "properties": {
-            "pokemon": { "$ref": "#/$defs/pokemon" }, "nom": { "type": "string", "minLength": 1 },
-            "niveau": { "type": "integer", "minimum": 1 }, "capture": { "$ref": "#/$defs/capture" }
-          }
-        },
+        "boss": { "$ref": "#/$defs/rencontre" },
+        "adversaires": { "type": "array", "items": { "$ref": "#/$defs/rencontre" }, "description": "Adversaires de la Ligue avant le boss, au nombre de etapes moins un." },
         "liens": {
           "type": "array", "items": {
             "type": "object", "additionalProperties": false, "required": ["vers"],
@@ -87,8 +120,13 @@
           }
         },
         "ancienId": { "type": "integer" },
-        "fin": { "type": "boolean", "description": "Fin provisoire de la Forêt de Jade jusqu'à la saisie de la suite de Kanto en phase 2." }
+        "fin": { "type": "boolean", "description": "Fin de la région ; autorise une zone sans sortie." }
       },
+      "allOf": [{
+        "if": { "required": ["type"], "properties": { "type": { "const": "ligue" } } },
+        "then": { "required": ["adversaires"], "properties": { "sauvages": { "maxItems": 0 } } },
+        "else": { "properties": { "sauvages": { "minItems": 1 }, "adversaires": false } }
+      }],
       "if": { "not": { "required": ["fin"], "properties": { "fin": { "const": true } } } },
       "then": { "properties": { "liens": { "minItems": 1 } } }
     }

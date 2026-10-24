@@ -1,46 +1,1449 @@
 {
   "version": 1,
   "region": "kanto",
-  "depart": "kanto.route-1",
+  "depart": "kanto.bourg-palette",
+  "premierCombat": "kanto.route-1",
   "zones": [
+    {
+      "id": "kanto.bourg-palette",
+      "nom": "Bourg Palette",
+      "sansCombat": true,
+      "decor": "kanto/bourg-palette.webp",
+      "liens": [
+        {
+          "vers": "kanto.route-1"
+        }
+      ],
+      "ancienId": 0
+    },
     {
       "id": "kanto.route-1",
       "nom": "Route 1",
       "decor": "kanto/route-1.webp",
-      "niveaux": [2, 5],
+      "niveaux": [
+        2,
+        5
+      ],
       "etapes": 10,
       "multiplicateurPv": 1,
       "sauvages": [
-        { "pokemon": 19, "rarete": "commun", "apparition": 0.3, "capture": 255 },
-        { "pokemon": 16, "rarete": "commun", "apparition": 0.3, "capture": 255 },
-        { "pokemon": 21, "rarete": "commun", "apparition": 0.2, "capture": 255 },
-        { "pokemon": 20, "rarete": "peu-commun", "apparition": 0.1, "capture": 127 },
-        { "pokemon": 17, "rarete": "peu-commun", "apparition": 0.05, "capture": 120 },
-        { "pokemon": 1, "rarete": "tres-rare", "apparition": 0.05, "capture": 45 }
+        {
+          "pokemon": 19,
+          "rarete": "commun",
+          "apparition": 0.3,
+          "capture": 255
+        },
+        {
+          "pokemon": 16,
+          "rarete": "commun",
+          "apparition": 0.3,
+          "capture": 255
+        },
+        {
+          "pokemon": 21,
+          "rarete": "commun",
+          "apparition": 0.2,
+          "capture": 255
+        },
+        {
+          "pokemon": 20,
+          "rarete": "peu-commun",
+          "apparition": 0.1,
+          "capture": 127
+        },
+        {
+          "pokemon": 17,
+          "rarete": "peu-commun",
+          "apparition": 0.05,
+          "capture": 120
+        },
+        {
+          "pokemon": 1,
+          "rarete": "tres-rare",
+          "apparition": 0.05,
+          "capture": 45
+        }
       ],
-      "boss": { "pokemon": 19, "nom": "Rattata (Géant)", "niveau": 6, "capture": 0 },
-      "liens": [{ "vers": "kanto.foret-de-jade", "si": { "type": "boss", "zone": "kanto.route-1" } }],
+      "boss": {
+        "pokemon": 19,
+        "nom": "Rattata (Géant)",
+        "niveau": 6,
+        "capture": 0
+      },
+      "liens": [
+        {
+          "vers": "kanto.foret-de-jade",
+          "si": {
+            "type": "boss",
+            "zone": "kanto.route-1"
+          }
+        }
+      ],
       "ancienId": 1
     },
     {
       "id": "kanto.foret-de-jade",
       "nom": "Forêt de Jade",
       "decor": "kanto/foret-de-jade.webp",
-      "niveaux": [5, 8],
+      "niveaux": [
+        5,
+        8
+      ],
       "etapes": 10,
       "multiplicateurPv": 1.5,
       "sauvages": [
-        { "pokemon": 10, "rarete": "commun", "apparition": 0.25, "capture": 255 },
-        { "pokemon": 13, "rarete": "commun", "apparition": 0.25, "capture": 255 },
-        { "pokemon": 11, "rarete": "peu-commun", "apparition": 0.15, "capture": 120 },
-        { "pokemon": 14, "rarete": "peu-commun", "apparition": 0.15, "capture": 120 },
-        { "pokemon": 25, "rarete": "rare", "apparition": 0.15, "capture": 190 },
-        { "pokemon": 4, "rarete": "tres-rare", "apparition": 0.05, "capture": 45 }
+        {
+          "pokemon": 10,
+          "rarete": "commun",
+          "apparition": 0.25,
+          "capture": 255
+        },
+        {
+          "pokemon": 13,
+          "rarete": "commun",
+          "apparition": 0.25,
+          "capture": 255
+        },
+        {
+          "pokemon": 11,
+          "rarete": "peu-commun",
+          "apparition": 0.15,
+          "capture": 120
+        },
+        {
+          "pokemon": 14,
+          "rarete": "peu-commun",
+          "apparition": 0.15,
+          "capture": 120
+        },
+        {
+          "pokemon": 25,
+          "rarete": "rare",
+          "apparition": 0.15,
+          "capture": 190
+        },
+        {
+          "pokemon": 4,
+          "rarete": "tres-rare",
+          "apparition": 0.05,
+          "capture": 45
+        }
       ],
-      "boss": { "pokemon": 12, "nom": "Papilusion", "niveau": 10, "capture": 0 },
+      "boss": {
+        "pokemon": 12,
+        "nom": "Papilusion",
+        "niveau": 10,
+        "capture": 0
+      },
+      "liens": [
+        {
+          "vers": "kanto.arene-d-argenta",
+          "si": {
+            "type": "boss",
+            "zone": "kanto.foret-de-jade"
+          }
+        }
+      ],
+      "ancienId": 2
+    },
+    {
+      "id": "kanto.arene-d-argenta",
+      "nom": "Arène d'Argenta",
+      "type": "arene",
+      "decor": "kanto/arene-d-argenta.webp",
+      "niveaux": [
+        9,
+        12
+      ],
+      "etapes": 10,
+      "multiplicateurPv": 2.2,
+      "sauvages": [
+        {
+          "pokemon": 74,
+          "rarete": "commun",
+          "apparition": 0.3,
+          "capture": 255
+        },
+        {
+          "pokemon": 27,
+          "rarete": "commun",
+          "apparition": 0.25,
+          "capture": 255
+        },
+        {
+          "pokemon": 29,
+          "rarete": "peu-commun",
+          "apparition": 0.15,
+          "capture": 235
+        },
+        {
+          "pokemon": 32,
+          "rarete": "peu-commun",
+          "apparition": 0.15,
+          "capture": 235
+        },
+        {
+          "pokemon": 95,
+          "rarete": "rare",
+          "apparition": 0.1,
+          "capture": 45
+        },
+        {
+          "pokemon": 7,
+          "rarete": "tres-rare",
+          "apparition": 0.05,
+          "capture": 45
+        }
+      ],
+      "boss": {
+        "pokemon": 95,
+        "nom": "Pierre (Onix)",
+        "niveau": 14,
+        "capture": 0
+      },
+      "liens": [
+        {
+          "vers": "kanto.mont-selenite",
+          "si": {
+            "type": "boss",
+            "zone": "kanto.arene-d-argenta"
+          }
+        }
+      ],
+      "ancienId": 3
+    },
+    {
+      "id": "kanto.mont-selenite",
+      "nom": "Mont Sélénite",
+      "decor": "kanto/mont-selenite.webp",
+      "niveaux": [
+        12,
+        15
+      ],
+      "etapes": 10,
+      "multiplicateurPv": 3.5,
+      "sauvages": [
+        {
+          "pokemon": 41,
+          "rarete": "commun",
+          "apparition": 0.4,
+          "capture": 255
+        },
+        {
+          "pokemon": 46,
+          "rarete": "commun",
+          "apparition": 0.2,
+          "capture": 190
+        },
+        {
+          "pokemon": 129,
+          "rarete": "commun",
+          "apparition": 0.2,
+          "capture": 255
+        },
+        {
+          "pokemon": 35,
+          "rarete": "rare",
+          "apparition": 0.1,
+          "capture": 150
+        },
+        {
+          "pokemon": 39,
+          "rarete": "rare",
+          "apparition": 0.05,
+          "capture": 170
+        },
+        {
+          "pokemon": 113,
+          "rarete": "tres-rare",
+          "apparition": 0.05,
+          "capture": 30
+        }
+      ],
+      "boss": {
+        "pokemon": 36,
+        "nom": "Mélodelfe",
+        "niveau": 16,
+        "capture": 0
+      },
+      "liens": [
+        {
+          "vers": "kanto.arene-d-azuria",
+          "si": {
+            "type": "boss",
+            "zone": "kanto.mont-selenite"
+          }
+        }
+      ],
+      "ancienId": 4
+    },
+    {
+      "id": "kanto.arene-d-azuria",
+      "nom": "Arène d'Azuria",
+      "type": "arene",
+      "decor": "kanto/arene-d-azuria.webp",
+      "niveaux": [
+        15,
+        18
+      ],
+      "etapes": 10,
+      "multiplicateurPv": 6,
+      "sauvages": [
+        {
+          "pokemon": 43,
+          "rarete": "commun",
+          "apparition": 0.21,
+          "capture": 255
+        },
+        {
+          "pokemon": 69,
+          "rarete": "commun",
+          "apparition": 0.21,
+          "capture": 255
+        },
+        {
+          "pokemon": 60,
+          "rarete": "peu-commun",
+          "apparition": 0.18,
+          "capture": 255
+        },
+        {
+          "pokemon": 120,
+          "rarete": "peu-commun",
+          "apparition": 0.15,
+          "capture": 225
+        },
+        {
+          "pokemon": 118,
+          "rarete": "peu-commun",
+          "apparition": 0.1,
+          "capture": 225
+        },
+        {
+          "pokemon": 54,
+          "rarete": "rare",
+          "apparition": 0.1,
+          "capture": 190
+        },
+        {
+          "pokemon": 124,
+          "rarete": "tres-rare",
+          "apparition": 0.05,
+          "capture": 45
+        }
+      ],
+      "boss": {
+        "pokemon": 121,
+        "nom": "Ondine (Staross)",
+        "niveau": 21,
+        "capture": 0
+      },
+      "liens": [
+        {
+          "vers": "kanto.pont-pepite",
+          "si": {
+            "type": "boss",
+            "zone": "kanto.arene-d-azuria"
+          }
+        }
+      ],
+      "ancienId": 5
+    },
+    {
+      "id": "kanto.pont-pepite",
+      "nom": "Pont Pépite",
+      "decor": "kanto/pont-pepite.webp",
+      "niveaux": [
+        17,
+        20
+      ],
+      "etapes": 10,
+      "multiplicateurPv": 11,
+      "sauvages": [
+        {
+          "pokemon": 63,
+          "rarete": "commun",
+          "apparition": 0.3,
+          "capture": 200
+        },
+        {
+          "pokemon": 17,
+          "rarete": "commun",
+          "apparition": 0.2,
+          "capture": 120
+        },
+        {
+          "pokemon": 48,
+          "rarete": "peu-commun",
+          "apparition": 0.2,
+          "capture": 190
+        },
+        {
+          "pokemon": 79,
+          "rarete": "peu-commun",
+          "apparition": 0.15,
+          "capture": 190
+        },
+        {
+          "pokemon": 22,
+          "rarete": "rare",
+          "apparition": 0.14,
+          "capture": 90
+        },
+        {
+          "pokemon": 151,
+          "rarete": "legendaire",
+          "apparition": 0.01,
+          "capture": 45
+        }
+      ],
+      "boss": {
+        "pokemon": 18,
+        "nom": "Rival (Roucarnage)",
+        "niveau": 23,
+        "capture": 0
+      },
+      "liens": [
+        {
+          "vers": "kanto.arene-de-carmin",
+          "si": {
+            "type": "boss",
+            "zone": "kanto.pont-pepite"
+          }
+        }
+      ],
+      "ancienId": 6
+    },
+    {
+      "id": "kanto.arene-de-carmin",
+      "nom": "Arène de Carmin",
+      "type": "arene",
+      "decor": "kanto/arene-de-carmin.webp",
+      "niveaux": [
+        20,
+        25
+      ],
+      "etapes": 10,
+      "multiplicateurPv": 13.5,
+      "sauvages": [
+        {
+          "pokemon": 100,
+          "rarete": "commun",
+          "apparition": 0.3,
+          "capture": 190
+        },
+        {
+          "pokemon": 81,
+          "rarete": "commun",
+          "apparition": 0.3,
+          "capture": 190
+        },
+        {
+          "pokemon": 52,
+          "rarete": "peu-commun",
+          "apparition": 0.2,
+          "capture": 255
+        },
+        {
+          "pokemon": 83,
+          "rarete": "rare",
+          "apparition": 0.1,
+          "capture": 45
+        },
+        {
+          "pokemon": 25,
+          "rarete": "rare",
+          "apparition": 0.1,
+          "capture": 190
+        }
+      ],
+      "boss": {
+        "pokemon": 26,
+        "nom": "Major Bob (Raichu)",
+        "niveau": 26,
+        "capture": 0
+      },
+      "liens": [
+        {
+          "vers": "kanto.cave-taupiqueur",
+          "si": {
+            "type": "boss",
+            "zone": "kanto.arene-de-carmin"
+          }
+        }
+      ],
+      "ancienId": 7
+    },
+    {
+      "id": "kanto.cave-taupiqueur",
+      "nom": "Cave Taupiqueur",
+      "decor": "kanto/cave-taupiqueur.webp",
+      "niveaux": [
+        23,
+        27
+      ],
+      "etapes": 10,
+      "multiplicateurPv": 16,
+      "sauvages": [
+        {
+          "pokemon": 50,
+          "rarete": "commun",
+          "apparition": 0.8,
+          "capture": 255
+        },
+        {
+          "pokemon": 104,
+          "rarete": "rare",
+          "apparition": 0.1,
+          "capture": 190
+        },
+        {
+          "pokemon": 51,
+          "rarete": "tres-rare",
+          "apparition": 0.1,
+          "capture": 50
+        }
+      ],
+      "boss": {
+        "pokemon": 51,
+        "nom": "Triopikeur",
+        "niveau": 29,
+        "capture": 0
+      },
+      "liens": [
+        {
+          "vers": "kanto.tunnel-rocheux",
+          "si": {
+            "type": "boss",
+            "zone": "kanto.cave-taupiqueur"
+          }
+        }
+      ],
+      "ancienId": 8
+    },
+    {
+      "id": "kanto.tunnel-rocheux",
+      "nom": "Tunnel Rocheux",
+      "decor": "kanto/tunnel-rocheux.webp",
+      "niveaux": [
+        25,
+        30
+      ],
+      "etapes": 10,
+      "multiplicateurPv": 18.5,
+      "sauvages": [
+        {
+          "pokemon": 66,
+          "rarete": "commun",
+          "apparition": 0.35,
+          "capture": 180
+        },
+        {
+          "pokemon": 56,
+          "rarete": "commun",
+          "apparition": 0.35,
+          "capture": 190
+        },
+        {
+          "pokemon": 75,
+          "rarete": "rare",
+          "apparition": 0.2,
+          "capture": 120
+        },
+        {
+          "pokemon": 95,
+          "rarete": "tres-rare",
+          "apparition": 0.1,
+          "capture": 45
+        }
+      ],
+      "boss": {
+        "pokemon": 76,
+        "nom": "Grolem",
+        "niveau": 33,
+        "capture": 0
+      },
+      "liens": [
+        {
+          "vers": "kanto.tour-pokemon",
+          "si": {
+            "type": "boss",
+            "zone": "kanto.tunnel-rocheux"
+          }
+        }
+      ],
+      "ancienId": 9
+    },
+    {
+      "id": "kanto.tour-pokemon",
+      "nom": "Tour Pokémon",
+      "decor": "kanto/tour-pokemon.webp",
+      "niveaux": [
+        28,
+        33
+      ],
+      "etapes": 10,
+      "multiplicateurPv": 21,
+      "sauvages": [
+        {
+          "pokemon": 92,
+          "rarete": "commun",
+          "apparition": 0.5,
+          "capture": 190
+        },
+        {
+          "pokemon": 93,
+          "rarete": "peu-commun",
+          "apparition": 0.25,
+          "capture": 90
+        },
+        {
+          "pokemon": 61,
+          "rarete": "peu-commun",
+          "apparition": 0.15,
+          "capture": 120
+        },
+        {
+          "pokemon": 96,
+          "rarete": "rare",
+          "apparition": 0.05,
+          "capture": 190
+        },
+        {
+          "pokemon": 105,
+          "rarete": "tres-rare",
+          "apparition": 0.05,
+          "capture": 75
+        }
+      ],
+      "boss": {
+        "pokemon": 94,
+        "nom": "Ectoplasma",
+        "niveau": 36,
+        "capture": 0
+      },
+      "liens": [
+        {
+          "vers": "kanto.arene-de-celadopole",
+          "si": {
+            "type": "boss",
+            "zone": "kanto.tour-pokemon"
+          }
+        }
+      ],
+      "ancienId": 10
+    },
+    {
+      "id": "kanto.arene-de-celadopole",
+      "nom": "Arène de Céladopole",
+      "type": "arene",
+      "decor": "kanto/arene-de-celadopole.webp",
+      "niveaux": [
+        30,
+        35
+      ],
+      "etapes": 10,
+      "multiplicateurPv": 23.5,
+      "sauvages": [
+        {
+          "pokemon": 37,
+          "rarete": "commun",
+          "apparition": 0.25,
+          "capture": 190
+        },
+        {
+          "pokemon": 58,
+          "rarete": "commun",
+          "apparition": 0.25,
+          "capture": 190
+        },
+        {
+          "pokemon": 102,
+          "rarete": "peu-commun",
+          "apparition": 0.2,
+          "capture": 90
+        },
+        {
+          "pokemon": 44,
+          "rarete": "peu-commun",
+          "apparition": 0.1,
+          "capture": 120
+        },
+        {
+          "pokemon": 70,
+          "rarete": "peu-commun",
+          "apparition": 0.1,
+          "capture": 120
+        },
+        {
+          "pokemon": 133,
+          "rarete": "rare",
+          "apparition": 0.1,
+          "capture": 45
+        }
+      ],
+      "boss": {
+        "pokemon": 71,
+        "nom": "Erika (Empiflor)",
+        "niveau": 39,
+        "capture": 0
+      },
+      "liens": [
+        {
+          "vers": "kanto.centrale",
+          "si": {
+            "type": "boss",
+            "zone": "kanto.arene-de-celadopole"
+          }
+        }
+      ],
+      "ancienId": 11
+    },
+    {
+      "id": "kanto.centrale",
+      "nom": "Centrale",
+      "decor": "kanto/centrale.webp",
+      "niveaux": [
+        32,
+        38
+      ],
+      "etapes": 10,
+      "multiplicateurPv": 26,
+      "sauvages": [
+        {
+          "pokemon": 100,
+          "rarete": "commun",
+          "apparition": 0.3,
+          "capture": 190
+        },
+        {
+          "pokemon": 81,
+          "rarete": "commun",
+          "apparition": 0.3,
+          "capture": 190
+        },
+        {
+          "pokemon": 125,
+          "rarete": "rare",
+          "apparition": 0.2,
+          "capture": 45
+        },
+        {
+          "pokemon": 101,
+          "rarete": "peu-commun",
+          "apparition": 0.13,
+          "capture": 60
+        },
+        {
+          "pokemon": 143,
+          "rarete": "tres-rare",
+          "apparition": 0.05,
+          "capture": 25
+        },
+        {
+          "pokemon": 145,
+          "rarete": "legendaire",
+          "apparition": 0.02,
+          "capture": 3
+        }
+      ],
+      "boss": {
+        "pokemon": 145,
+        "nom": "Électhor",
+        "niveau": 45,
+        "capture": 0
+      },
+      "liens": [
+        {
+          "vers": "kanto.arene-de-parmanie",
+          "si": {
+            "type": "boss",
+            "zone": "kanto.centrale"
+          }
+        }
+      ],
+      "ancienId": 12
+    },
+    {
+      "id": "kanto.arene-de-parmanie",
+      "nom": "Arène de Parmanie",
+      "type": "arene",
+      "decor": "kanto/arene-de-parmanie.webp",
+      "niveaux": [
+        35,
+        40
+      ],
+      "etapes": 10,
+      "multiplicateurPv": 28.5,
+      "sauvages": [
+        {
+          "pokemon": 33,
+          "rarete": "commun",
+          "apparition": 0.12,
+          "capture": 120
+        },
+        {
+          "pokemon": 30,
+          "rarete": "commun",
+          "apparition": 0.12,
+          "capture": 120
+        },
+        {
+          "pokemon": 84,
+          "rarete": "peu-commun",
+          "apparition": 0.12,
+          "capture": 190
+        },
+        {
+          "pokemon": 72,
+          "rarete": "peu-commun",
+          "apparition": 0.12,
+          "capture": 190
+        },
+        {
+          "pokemon": 115,
+          "rarete": "rare",
+          "apparition": 0.08,
+          "capture": 45
+        },
+        {
+          "pokemon": 123,
+          "rarete": "rare",
+          "apparition": 0.08,
+          "capture": 45
+        },
+        {
+          "pokemon": 127,
+          "rarete": "rare",
+          "apparition": 0.08,
+          "capture": 45
+        },
+        {
+          "pokemon": 128,
+          "rarete": "rare",
+          "apparition": 0.08,
+          "capture": 45
+        },
+        {
+          "pokemon": 114,
+          "rarete": "rare",
+          "apparition": 0.1,
+          "capture": 45
+        },
+        {
+          "pokemon": 147,
+          "rarete": "tres-rare",
+          "apparition": 0.1,
+          "capture": 45
+        }
+      ],
+      "boss": {
+        "pokemon": 110,
+        "nom": "Koga (Smogogo)",
+        "niveau": 45,
+        "capture": 0
+      },
+      "liens": [
+        {
+          "vers": "kanto.sylphe-sarl",
+          "si": {
+            "type": "boss",
+            "zone": "kanto.arene-de-parmanie"
+          }
+        }
+      ],
+      "ancienId": 13
+    },
+    {
+      "id": "kanto.sylphe-sarl",
+      "nom": "Sylphe SARL",
+      "decor": "kanto/sylphe-sarl.webp",
+      "niveaux": [
+        38,
+        43
+      ],
+      "etapes": 10,
+      "multiplicateurPv": 31,
+      "sauvages": [
+        {
+          "pokemon": 23,
+          "rarete": "commun",
+          "apparition": 0.2,
+          "capture": 255
+        },
+        {
+          "pokemon": 109,
+          "rarete": "commun",
+          "apparition": 0.2,
+          "capture": 190
+        },
+        {
+          "pokemon": 88,
+          "rarete": "peu-commun",
+          "apparition": 0.2,
+          "capture": 190
+        },
+        {
+          "pokemon": 137,
+          "rarete": "rare",
+          "apparition": 0.2,
+          "capture": 45
+        },
+        {
+          "pokemon": 132,
+          "rarete": "tres-rare",
+          "apparition": 0.1,
+          "capture": 35
+        },
+        {
+          "pokemon": 131,
+          "rarete": "tres-rare",
+          "apparition": 0.1,
+          "capture": 45
+        }
+      ],
+      "boss": {
+        "pokemon": 53,
+        "nom": "Giovanni (Persian)",
+        "niveau": 47,
+        "capture": 0
+      },
+      "liens": [
+        {
+          "vers": "kanto.arene-de-safrania",
+          "si": {
+            "type": "boss",
+            "zone": "kanto.sylphe-sarl"
+          }
+        }
+      ],
+      "ancienId": 14
+    },
+    {
+      "id": "kanto.arene-de-safrania",
+      "nom": "Arène de Safrania",
+      "type": "arene",
+      "decor": "kanto/arene-de-safrania.webp",
+      "niveaux": [
+        40,
+        45
+      ],
+      "etapes": 10,
+      "multiplicateurPv": 33.5,
+      "sauvages": [
+        {
+          "pokemon": 63,
+          "rarete": "commun",
+          "apparition": 0.3,
+          "capture": 200
+        },
+        {
+          "pokemon": 64,
+          "rarete": "peu-commun",
+          "apparition": 0.2,
+          "capture": 100
+        },
+        {
+          "pokemon": 122,
+          "rarete": "rare",
+          "apparition": 0.15,
+          "capture": 45
+        },
+        {
+          "pokemon": 106,
+          "rarete": "rare",
+          "apparition": 0.1,
+          "capture": 45
+        },
+        {
+          "pokemon": 107,
+          "rarete": "rare",
+          "apparition": 0.1,
+          "capture": 45
+        },
+        {
+          "pokemon": 108,
+          "rarete": "rare",
+          "apparition": 0.15,
+          "capture": 45
+        }
+      ],
+      "boss": {
+        "pokemon": 65,
+        "nom": "Sabrina (Alakazam)",
+        "niveau": 48,
+        "capture": 0
+      },
+      "liens": [
+        {
+          "vers": "kanto.iles-ecume",
+          "si": {
+            "type": "boss",
+            "zone": "kanto.arene-de-safrania"
+          }
+        }
+      ],
+      "ancienId": 15
+    },
+    {
+      "id": "kanto.iles-ecume",
+      "nom": "Îles Écume",
+      "decor": "kanto/iles-ecume.webp",
+      "niveaux": [
+        43,
+        48
+      ],
+      "etapes": 10,
+      "multiplicateurPv": 36,
+      "sauvages": [
+        {
+          "pokemon": 86,
+          "rarete": "commun",
+          "apparition": 0.2,
+          "capture": 190
+        },
+        {
+          "pokemon": 90,
+          "rarete": "commun",
+          "apparition": 0.2,
+          "capture": 190
+        },
+        {
+          "pokemon": 98,
+          "rarete": "peu-commun",
+          "apparition": 0.15,
+          "capture": 225
+        },
+        {
+          "pokemon": 116,
+          "rarete": "peu-commun",
+          "apparition": 0.15,
+          "capture": 190
+        },
+        {
+          "pokemon": 73,
+          "rarete": "rare",
+          "apparition": 0.15,
+          "capture": 60
+        },
+        {
+          "pokemon": 87,
+          "rarete": "tres-rare",
+          "apparition": 0.1,
+          "capture": 75
+        },
+        {
+          "pokemon": 144,
+          "rarete": "legendaire",
+          "apparition": 0.05,
+          "capture": 3
+        }
+      ],
+      "boss": {
+        "pokemon": 144,
+        "nom": "Artikodin",
+        "niveau": 50,
+        "capture": 0
+      },
+      "liens": [
+        {
+          "vers": "kanto.arene-de-cramois-ile",
+          "si": {
+            "type": "boss",
+            "zone": "kanto.iles-ecume"
+          }
+        }
+      ],
+      "ancienId": 16
+    },
+    {
+      "id": "kanto.arene-de-cramois-ile",
+      "nom": "Arène de Cramois'Île",
+      "type": "arene",
+      "decor": "kanto/arene-de-cramois-ile.webp",
+      "niveaux": [
+        45,
+        50
+      ],
+      "etapes": 10,
+      "multiplicateurPv": 38.5,
+      "sauvages": [
+        {
+          "pokemon": 77,
+          "rarete": "commun",
+          "apparition": 0.2,
+          "capture": 190
+        },
+        {
+          "pokemon": 37,
+          "rarete": "commun",
+          "apparition": 0.2,
+          "capture": 190
+        },
+        {
+          "pokemon": 126,
+          "rarete": "rare",
+          "apparition": 0.15,
+          "capture": 45
+        },
+        {
+          "pokemon": 138,
+          "rarete": "tres-rare",
+          "apparition": 0.15,
+          "capture": 45
+        },
+        {
+          "pokemon": 140,
+          "rarete": "tres-rare",
+          "apparition": 0.15,
+          "capture": 45
+        },
+        {
+          "pokemon": 142,
+          "rarete": "tres-rare",
+          "apparition": 0.15,
+          "capture": 45
+        }
+      ],
+      "boss": {
+        "pokemon": 59,
+        "nom": "Blaine (Arcanin)",
+        "niveau": 54,
+        "capture": 0
+      },
+      "liens": [
+        {
+          "vers": "kanto.arene-de-jadielle",
+          "si": {
+            "type": "boss",
+            "zone": "kanto.arene-de-cramois-ile"
+          }
+        }
+      ],
+      "ancienId": 17
+    },
+    {
+      "id": "kanto.arene-de-jadielle",
+      "nom": "Arène de Jadielle",
+      "type": "arene",
+      "decor": "kanto/arene-de-jadielle.webp",
+      "niveaux": [
+        50,
+        58
+      ],
+      "etapes": 10,
+      "multiplicateurPv": 41,
+      "sauvages": [
+        {
+          "pokemon": 33,
+          "rarete": "commun",
+          "apparition": 0.25,
+          "capture": 120
+        },
+        {
+          "pokemon": 30,
+          "rarete": "commun",
+          "apparition": 0.25,
+          "capture": 120
+        },
+        {
+          "pokemon": 111,
+          "rarete": "peu-commun",
+          "apparition": 0.2,
+          "capture": 120
+        },
+        {
+          "pokemon": 51,
+          "rarete": "rare",
+          "apparition": 0.15,
+          "capture": 50
+        },
+        {
+          "pokemon": 112,
+          "rarete": "rare",
+          "apparition": 0.15,
+          "capture": 60
+        }
+      ],
+      "boss": {
+        "pokemon": 112,
+        "nom": "Giovanni (Rhinoféros)",
+        "niveau": 60,
+        "capture": 0
+      },
+      "liens": [
+        {
+          "vers": "kanto.caverne-azuree",
+          "si": {
+            "type": "boss",
+            "zone": "kanto.arene-de-jadielle"
+          }
+        }
+      ],
+      "ancienId": 18
+    },
+    {
+      "id": "kanto.caverne-azuree",
+      "nom": "Caverne Azurée",
+      "decor": "kanto/caverne-azuree.webp",
+      "niveaux": [
+        55,
+        65
+      ],
+      "etapes": 10,
+      "multiplicateurPv": 43.5,
+      "sauvages": [
+        {
+          "pokemon": 47,
+          "rarete": "commun",
+          "apparition": 0.2,
+          "capture": 75
+        },
+        {
+          "pokemon": 64,
+          "rarete": "commun",
+          "apparition": 0.2,
+          "capture": 100
+        },
+        {
+          "pokemon": 26,
+          "rarete": "rare",
+          "apparition": 0.25,
+          "capture": 75
+        },
+        {
+          "pokemon": 148,
+          "rarete": "tres-rare",
+          "apparition": 0.3,
+          "capture": 45
+        },
+        {
+          "pokemon": 150,
+          "rarete": "legendaire",
+          "apparition": 0.05,
+          "capture": 3
+        }
+      ],
+      "boss": {
+        "pokemon": 150,
+        "nom": "Mewtwo",
+        "niveau": 70,
+        "capture": 0
+      },
+      "liens": [
+        {
+          "vers": "kanto.route-victoire",
+          "si": {
+            "type": "boss",
+            "zone": "kanto.caverne-azuree"
+          }
+        }
+      ],
+      "ancienId": 19
+    },
+    {
+      "id": "kanto.route-victoire",
+      "nom": "Route Victoire",
+      "decor": "kanto/route-victoire.webp",
+      "niveaux": [
+        60,
+        70
+      ],
+      "etapes": 10,
+      "multiplicateurPv": 46,
+      "sauvages": [
+        {
+          "pokemon": 67,
+          "rarete": "commun",
+          "apparition": 0.3,
+          "capture": 90
+        },
+        {
+          "pokemon": 75,
+          "rarete": "peu-commun",
+          "apparition": 0.3,
+          "capture": 120
+        },
+        {
+          "pokemon": 42,
+          "rarete": "rare",
+          "apparition": 0.25,
+          "capture": 90
+        },
+        {
+          "pokemon": 149,
+          "rarete": "tres-rare",
+          "apparition": 0.1,
+          "capture": 45
+        },
+        {
+          "pokemon": 146,
+          "rarete": "legendaire",
+          "apparition": 0.05,
+          "capture": 3
+        }
+      ],
+      "boss": {
+        "pokemon": 146,
+        "nom": "Sulfura",
+        "niveau": 80,
+        "capture": 0
+      },
+      "liens": [
+        {
+          "vers": "kanto.ligue-pokemon",
+          "si": {
+            "type": "boss",
+            "zone": "kanto.route-victoire"
+          }
+        }
+      ],
+      "ancienId": 20
+    },
+    {
+      "id": "kanto.ligue-pokemon",
+      "nom": "Ligue Pokémon",
+      "type": "ligue",
+      "decor": "kanto/ligue-pokemon.webp",
+      "niveaux": [
+        70,
+        90
+      ],
+      "etapes": 10,
+      "multiplicateurPv": 48.5,
+      "sauvages": [],
+      "adversaires": [
+        {
+          "pokemon": 131,
+          "nom": "Olga (Lokhlass)",
+          "niveau": 74,
+          "capture": 0
+        },
+        {
+          "pokemon": 124,
+          "nom": "Olga (Lippoutou)",
+          "niveau": 76,
+          "capture": 0
+        },
+        {
+          "pokemon": 68,
+          "nom": "Aldo (Mackogneur)",
+          "niveau": 78,
+          "capture": 0
+        },
+        {
+          "pokemon": 95,
+          "nom": "Aldo (Onix)",
+          "niveau": 80,
+          "capture": 0
+        },
+        {
+          "pokemon": 94,
+          "nom": "Agatha (Ectoplasma)",
+          "niveau": 82,
+          "capture": 0
+        },
+        {
+          "pokemon": 24,
+          "nom": "Agatha (Arbok)",
+          "niveau": 84,
+          "capture": 0
+        },
+        {
+          "pokemon": 149,
+          "nom": "Peter (Dracolosse)",
+          "niveau": 86,
+          "capture": 0
+        },
+        {
+          "pokemon": 130,
+          "nom": "Peter (Léviator)",
+          "niveau": 88,
+          "capture": 0
+        },
+        {
+          "pokemon": 18,
+          "nom": "Maître Blue (Roucarnage)",
+          "niveau": 92,
+          "capture": 0
+        }
+      ],
+      "boss": {
+        "pokemon": 9,
+        "nom": "Maître Blue",
+        "niveau": 100,
+        "capture": 0
+      },
       "liens": [],
-      "ancienId": 2,
+      "ancienId": 21,
       "fin": true
+    }
+  ],
+  "lieux": [
+    {
+      "lieu": "pension",
+      "nom": "Pension Pokémon",
+      "decor": "kanto/pension.webp",
+      "ancienId": -1,
+      "depuis": "kanto.bourg-palette",
+      "si": {
+        "type": "boss",
+        "zone": "kanto.tour-pokemon"
+      }
+    },
+    {
+      "lieu": "labo",
+      "nom": "Labo Pokémon du Prof. Chen",
+      "decor": "kanto/labo.webp",
+      "ancienId": -2,
+      "depuis": "kanto.bourg-palette"
+    },
+    {
+      "lieu": "chez-blue",
+      "nom": "Chez Blue",
+      "decor": "kanto/chez-blue.webp",
+      "ancienId": -3,
+      "depuis": "kanto.bourg-palette"
+    },
+    {
+      "lieu": "chez-maman",
+      "nom": "Chez Maman",
+      "decor": "kanto/chez-maman.webp",
+      "ancienId": -4,
+      "depuis": "kanto.bourg-palette"
+    },
+    {
+      "lieu": "pantheon",
+      "nom": "Panthéon Pokémon",
+      "decor": "kanto/pantheon.webp",
+      "ancienId": -5,
+      "depuis": "kanto.ligue-pokemon",
+      "si": {
+        "type": "boss",
+        "zone": "kanto.ligue-pokemon"
+      }
+    },
+    {
+      "lieu": "centre-commercial",
+      "nom": "Centre Commercial",
+      "decor": "kanto/centre-commercial.webp",
+      "ancienId": -6,
+      "depuis": "kanto.arene-de-celadopole",
+      "si": {
+        "type": "boss",
+        "zone": "kanto.tour-pokemon"
+      }
+    },
+    {
+      "lieu": "casino",
+      "nom": "Casino",
+      "decor": "kanto/casino.webp",
+      "ancienId": -7,
+      "depuis": "kanto.arene-de-celadopole",
+      "si": {
+        "type": "boss",
+        "zone": "kanto.tour-pokemon"
+      }
     }
   ]
 }

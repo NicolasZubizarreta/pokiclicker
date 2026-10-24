@@ -95,7 +95,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
         if (!coeur) {
           persistance = ouvrirPartie({ stockage, horloge, genererId });
           region = persistance.region;
-          coeur = reprendreCombat(kanto.zone(region.zoneId), region.equipe.map(versMembreEquipe), alea, region.etape);
+          coeur = reprendreCombat(kanto.zoneDeCombat(region.zoneId), region.equipe.map(versMembreEquipe), alea, region.etape);
           afficher();
         }
         boucle = creerBoucle({ horloge, etat: null, avancer: () => {
