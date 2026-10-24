@@ -1,5 +1,5 @@
 import { execFile } from 'node:child_process';
-import { mkdtemp, mkdir, readFile, readdir, rm } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -15,7 +15,7 @@ async function preparer() {
   temporaires.push(dossier);
   const sources = join(dossier, 'sources');
   const sorties = join(dossier, 'sorties');
-  await Promise.all(['decors', 'sprites'].map((genre) => mkdir(join(sources, genre), { recursive: true })));
+  await Promise.all(['decors', 'sprites', 'objets', 'artworks', 'animes'].map((genre) => mkdir(join(sources, genre), { recursive: true })));
   const creer = (chemin: string, width: number, height: number) => sharp({
     create: { width, height, channels: 4, background: { r: 23, g: 78, b: 139, alpha: 0.7 } },
   }).png().toFile(join(sources, chemin));
@@ -90,4 +90,68 @@ it('lit les réglages depuis les données', async () => {
   const contenu = await readFile(script, 'utf8');
   expect(contenu).not.toMatch(/\b(?:1920|1080|82|96)\b/);
   expect(contenu).toContain('data/images.json');
+});
+
+it('accepte un objet et copie ses octets avec un nom normalisé', async () => {
+  const { sources, sorties, creer, lancer } = await preparer();
+  await creer('objets/Poké Ball.png', 30, 30);
+  expect(await lancer()).toEqual({ code: 0, message: '' });
+  expect(await readFile(join(sorties, 'objets/poke-ball.png'))).toEqual(await readFile(join(sources, 'objets/Poké Ball.png')));
+  expect(JSON.parse(await readFile(join(sorties, 'tailles.json'), 'utf8'))).toEqual({
+    'img/objets/poke-ball.png': { largeur: 30, hauteur: 30 },
+  });
+});
+
+it('refuse un objet de taille incorrecte sans rien écrire', async () => {
+  const { sorties, creer, lancer } = await preparer();
+  await creer('artworks/valide.png', 100, 100);
+  await creer('objets/petit.png', 16, 30);
+  const resultat = await lancer();
+  expect(resultat.code).toBe(1);
+  expect(resultat.message).toContain('Objet refusé : petit.png mesure 16 × 30 (attendu 30 × 30).');
+  await expect(readdir(sorties)).rejects.toMatchObject({ code: 'ENOENT' });
+});
+
+it('conserve les octets et les dimensions réelles des artworks carrés', async () => {
+  const { sources, sorties, creer, lancer } = await preparer();
+  await creer('artworks/1-shiny.png', 475, 475);
+  expect(await lancer()).toEqual({ code: 0, message: '' });
+  expect(await readFile(join(sorties, 'artworks/1-shiny.png'))).toEqual(await readFile(join(sources, 'artworks/1-shiny.png')));
+  expect(JSON.parse(await readFile(join(sorties, 'tailles.json'), 'utf8'))).toEqual({
+    'img/artworks/1-shiny.png': { largeur: 475, hauteur: 475 },
+  });
+});
+
+it('refuse un artwork non carré sans rien écrire', async () => {
+  const { sorties, creer, lancer } = await preparer();
+  await creer('artworks/1.png', 475, 400);
+  const resultat = await lancer();
+  expect(resultat.code).toBe(1);
+  expect(resultat.message).toContain("Artwork refusé : 1.png n'est pas carré (475 × 400).");
+  await expect(readdir(sorties)).rejects.toMatchObject({ code: 'ENOENT' });
+});
+
+it('copie une animation GIF octet pour octet et inscrit ses dimensions', async () => {
+  const { sources, sorties, lancer } = await preparer();
+  const source = await sharp({
+    create: { width: 24, height: 40, channels: 4, background: 'red', pageHeight: 20 },
+  }).composite([{ input: { create: { width: 24, height: 20, channels: 4, background: 'blue' } }, top: 0, left: 0 }])
+    .gif({ delay: [100, 200], loop: 0 }).toBuffer();
+  expect((await sharp(source, { animated: true }).metadata()).pages).toBe(2);
+  await writeFile(join(sources, 'animes/Évoli.GIF'), source);
+  expect(await lancer()).toEqual({ code: 0, message: '' });
+  expect(await readFile(join(sorties, 'animes/evoli.gif'))).toEqual(source);
+  expect(JSON.parse(await readFile(join(sorties, 'tailles.json'), 'utf8'))).toEqual({
+    'img/animes/evoli.gif': { largeur: 24, hauteur: 20 },
+  });
+});
+
+it('refuse un fichier non GIF dans les animations sans rien écrire', async () => {
+  const { sorties, creer, lancer } = await preparer();
+  await creer('objets/valide.png', 30, 30);
+  await creer('animes/1.png', 24, 20);
+  const resultat = await lancer();
+  expect(resultat.code).toBe(1);
+  expect(resultat.message).toContain("Animation refusée : 1.png n'est pas un GIF (.gif).");
+  await expect(readdir(sorties)).rejects.toMatchObject({ code: 'ENOENT' });
 });

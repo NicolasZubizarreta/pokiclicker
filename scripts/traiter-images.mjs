@@ -16,14 +16,26 @@ async function traiter() {
   const erreurs = [];
   const fichiers = [];
   const destinations = new Set();
-  for (const genre of ['decors', 'sprites']) {
+  /** @type {Record<string, {extension: string, filtre: RegExp, dossier: string, taille?: number, libelle?: string}>} */
+  const genres = {
+    decors: { extension: 'webp', filtre: /\.(png|jpe?g|webp)$/i, dossier: 'decors' },
+    sprites: { extension: 'png', filtre: /\.png$/i, dossier: 'sprites/pokemon', taille: reglages.sprite.taille, libelle: 'Sprite' },
+    objets: { extension: 'png', filtre: /\.png$/i, dossier: 'objets', taille: reglages.objet.taille, libelle: 'Objet' },
+    artworks: { extension: 'png', filtre: /\.png$/i, dossier: 'artworks' },
+    animes: { extension: 'gif', filtre: /\.gif$/i, dossier: 'animes' },
+  };
+  for (const [genre, regle] of Object.entries(genres)) {
     const dossier = join(sources, genre);
     const entrees = await readdir(dossier, { withFileTypes: true }).catch((erreur) => {
       if (erreur.code === 'ENOENT') return [];
       throw erreur;
     });
     for (const entree of entrees.sort((a, b) => a.name.localeCompare(b.name))) {
-      if (!entree.isFile() || !(genre === 'decors' ? /\.(png|jpe?g|webp)$/i : /\.png$/i).test(entree.name)) continue;
+      if (!entree.isFile()) continue;
+      if (!regle.filtre.test(entree.name)) {
+        if (genre === 'animes') erreurs.push(`Animation refusée : ${entree.name} n'est pas un GIF (.gif).`);
+        continue;
+      }
       const nom = entree.name;
       try {
         const source = await readFile(join(dossier, nom));
@@ -39,13 +51,15 @@ async function traiter() {
           if (largeur < cibleL || hauteur < cibleH) {
             erreurs.push(`Décor refusé : ${nom} mesure ${largeur} × ${hauteur}, trop petit pour ${cibleL} × ${cibleH}.`);
           }
-        } else if (largeur !== reglages.sprite.taille || hauteur !== reglages.sprite.taille) {
-          erreurs.push(`Sprite refusé : ${nom} mesure ${largeur} × ${hauteur} (attendu ${reglages.sprite.taille} × ${reglages.sprite.taille}).`);
+        } else if (regle.taille !== undefined && (largeur !== regle.taille || hauteur !== regle.taille)) {
+          erreurs.push(`${regle.libelle} refusé : ${nom} mesure ${largeur} × ${hauteur} (attendu ${regle.taille} × ${regle.taille}).`);
+        } else if (genre === 'artworks' && largeur !== hauteur) {
+          erreurs.push(`Artwork refusé : ${nom} n'est pas carré (${largeur} × ${hauteur}).`);
         }
         const normalise = basename(nom, extname(nom)).normalize('NFD').replace(/\p{M}/gu, '')
           .toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/^-+|-+$/g, '');
         if (!normalise) throw new Error('Nom de fichier inutilisable.');
-        const chemin = `${genre === 'sprites' ? 'sprites/pokemon' : genre}/${normalise}.${decor ? 'webp' : 'png'}`;
+        const chemin = `${regle.dossier}/${normalise}.${regle.extension}`;
         if (destinations.has(chemin)) throw new Error(`Nom de sortie en double : ${chemin}.`);
         destinations.add(chemin);
         fichiers.push({ chemin, source, decor, largeur, hauteur });

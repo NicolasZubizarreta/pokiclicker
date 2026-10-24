@@ -133,7 +133,7 @@ Fourchette : 2 à 3 jours. Risque : données volumineuses saisies par script (pa
 
 ## D. `feat(images): préparer les décors de Kanto en 16:9 et les sprites des 151 Pokémon`
 
-Labels : `type:feat`, `etat:idee`, `est:1-2`, `prio:1` · branche : `v2` · `agent-ok` : oui, **téléchargement soumis à l'accord de Nicolas**
+Labels : `type:feat`, `etat:fait`, `est:1-2`, `prio:1` · branche : `v2` · `agent-ok` : oui, **téléchargement soumis à l'accord de Nicolas**
 
 ### Histoire
 En tant que joueur, je veux que chaque zone ait son décor et que chaque Pokémon ait son sprite, sans bande noire ni image qui saute, afin que le jeu soit complet à l'écran.
@@ -145,14 +145,14 @@ Le pipeline de phase 1 (`scripts/traiter-images.mjs`, `data/images.json`) **refu
 Ajout (24/10) : les **icônes officielles d'objets** que Nicolas veut retrouver (20 PNG de PokeAPI/sprites/items, voir `v1-visuel-a-porter.md` § 5), les **artworks des trois starters** (normal et shiny), l'image d'une Poké Ball et le **sprite animé de Roucarnage** du vol sont des ressources externes dans la V1 : on les rapatrie en local, avec le même accord à demander au moment du téléchargement. Rien ne se charge depuis Internet en V2.
 
 ### Critères d'acceptation
-- [ ] Étant donné les décors V1 de `legacy/img/kanto/background/`, quand `preparer-decors-v1.mjs` tourne, alors il écrit dans `assets-src/decors/` un PNG 16:9 par zone (recadrage central ; fichiers déjà en 16:9 inchangés), nommés d'après les identifiants de zone, et affiche pour chaque fichier la part de bord perdue ; un fichier de 2048 × 2048 ou plus étroit que 16:9 est refusé avec un message qui le nomme (pas de recadrage destructeur > 10 %) et sa liste est donnée à Nicolas.
-- [ ] Étant donné `assets-src/decors/`, quand `traiter-images.mjs` tourne, alors les décors sortent en WebP 1920 × 1080 dans `public/img/decors/` et `tailles.json` les liste.
-- [ ] Étant donné le script de préparation, quand je lis son en-tête, alors il est marqué « PROVISOIRE : à remplacer par les décors régénérés de la phase 5 » et les décors recadrés sont listés dans `docs/projet/decors-provisoires.md`.
-- [ ] Étant donné la liste des Pokémon de `data/pokemon.json` (151), quand `telecharger-sprites.mjs` tourne **après accord de Nicolas**, alors il télécharge uniquement les sprites manquants (face, 96 × 96), vérifie chaque taille avec `sharp`, refuse un fichier d'une autre taille, n'écrase rien, et ne contacte que `raw.githubusercontent.com`.
-- [ ] Étant donné `public/img/sprites/pokemon/`, quand je compte, alors il y a 151 PNG de 96 × 96 et `tailles.json` les liste ; un test vérifie que chaque `pokemon` d'une zone ou d'un boss a son sprite.
-- [ ] Étant donné les lieux spéciaux (Labo, Chez Maman, Chez Blue, Panthéon, Centre commercial, Casino), quand je liste les décors, alors ceux qui ne sont pas utilisables en 16:9 sont signalés pour être traités par leurs tickets (P, R, U, V).
+- [x] Étant donné les décors V1 de `legacy/img/kanto/background/`, quand `preparer-decors-v1.mjs` tourne, alors il écrit dans `assets-src/decors/` un PNG 16:9 par zone (recadrage central ; fichiers déjà en 16:9 inchangés), nommés d'après les identifiants de zone, et affiche pour chaque fichier la part de bord perdue ; un fichier de 2048 × 2048 ou plus étroit que 16:9 est refusé avec un message qui le nomme (pas de recadrage destructeur > 10 %) et sa liste est donnée à Nicolas.
+- [x] Étant donné `assets-src/decors/`, quand `traiter-images.mjs` tourne, alors les décors sortent en WebP 1920 × 1080 dans `public/img/decors/` et `tailles.json` les liste.
+- [x] Étant donné le script de préparation, quand je lis son en-tête, alors il est marqué « PROVISOIRE : à remplacer par les décors régénérés de la phase 5 » et les décors recadrés sont listés dans `docs/projet/decors-provisoires.md`.
+- [x] Étant donné la liste des Pokémon de `data/pokemon.json` (151), quand `telecharger-sprites.mjs` tourne **après accord de Nicolas**, alors il télécharge uniquement les sprites manquants (face, 96 × 96), vérifie chaque taille avec `sharp`, refuse un fichier d'une autre taille, n'écrase rien, et ne contacte que `raw.githubusercontent.com`.
+- [x] Étant donné `public/img/sprites/pokemon/`, quand je compte, alors il y a 151 PNG de 96 × 96 et `tailles.json` les liste ; un test vérifie que chaque `pokemon` d'une zone ou d'un boss a son sprite.
+- [x] Étant donné les lieux spéciaux (Labo, Chez Maman, Chez Blue, Panthéon, Centre commercial, Casino), quand je liste les décors, alors ceux qui ne sont pas utilisables en 16:9 sont signalés pour être traités par leurs tickets (P, R, U, V).
 
-- [ ] Étant donné les icônes d'objets, les artworks des starters, la Poké Ball et l'oiseau du vol listés dans `v1-visuel-a-porter.md`, quand le pipeline d'images s'exécute, alors ils sont dans `public/img/` aux bons formats, avec leurs tailles dans `data/images.json`, et aucune URL externe ne subsiste dans le code.
+- [x] Étant donné les icônes d'objets, les artworks des starters, la Poké Ball et l'oiseau du vol listés dans `v1-visuel-a-porter.md`, quand le pipeline d'images s'exécute, alors ils sont dans `public/img/` aux bons formats, avec leurs tailles dans `data/images.json`, et aucune URL externe ne subsiste dans le code.
 
 ### Hors périmètre
 Régénération des décors (phase 5), sprites de dos, sprites de Chen, cartes, icônes d'objets (L), vidéo Daran (W).

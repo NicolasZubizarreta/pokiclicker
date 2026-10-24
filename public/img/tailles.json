@@ -1,9 +1,457 @@
 {
+  "img/animes/roucarnage-vol.gif": {
+    "largeur": 58,
+    "hauteur": 68
+  },
+  "img/artworks/1-shiny.png": {
+    "largeur": 512,
+    "hauteur": 512
+  },
+  "img/artworks/1.png": {
+    "largeur": 475,
+    "hauteur": 475
+  },
+  "img/artworks/4-shiny.png": {
+    "largeur": 512,
+    "hauteur": 512
+  },
+  "img/artworks/4.png": {
+    "largeur": 475,
+    "hauteur": 475
+  },
+  "img/artworks/7-shiny.png": {
+    "largeur": 512,
+    "hauteur": 512
+  },
+  "img/artworks/7.png": {
+    "largeur": 475,
+    "hauteur": 475
+  },
+  "img/decors/arene-d-argenta.webp": {
+    "largeur": 1920,
+    "hauteur": 1080
+  },
+  "img/decors/arene-d-azuria.webp": {
+    "largeur": 1920,
+    "hauteur": 1080
+  },
+  "img/decors/arene-de-carmin.webp": {
+    "largeur": 1920,
+    "hauteur": 1080
+  },
+  "img/decors/arene-de-celadopole.webp": {
+    "largeur": 1920,
+    "hauteur": 1080
+  },
+  "img/decors/arene-de-cramois-ile.webp": {
+    "largeur": 1920,
+    "hauteur": 1080
+  },
+  "img/decors/arene-de-jadielle.webp": {
+    "largeur": 1920,
+    "hauteur": 1080
+  },
+  "img/decors/arene-de-parmanie.webp": {
+    "largeur": 1920,
+    "hauteur": 1080
+  },
+  "img/decors/arene-de-safrania.webp": {
+    "largeur": 1920,
+    "hauteur": 1080
+  },
+  "img/decors/casino.webp": {
+    "largeur": 1920,
+    "hauteur": 1080
+  },
+  "img/decors/cave-taupiqueur.webp": {
+    "largeur": 1920,
+    "hauteur": 1080
+  },
+  "img/decors/caverne-azuree.webp": {
+    "largeur": 1920,
+    "hauteur": 1080
+  },
+  "img/decors/centrale.webp": {
+    "largeur": 1920,
+    "hauteur": 1080
+  },
+  "img/decors/centre-commercial.webp": {
+    "largeur": 1920,
+    "hauteur": 1080
+  },
+  "img/decors/chez-maman.webp": {
+    "largeur": 1920,
+    "hauteur": 1080
+  },
+  "img/decors/foret-de-jade.webp": {
+    "largeur": 1920,
+    "hauteur": 1080
+  },
+  "img/decors/iles-ecume.webp": {
+    "largeur": 1920,
+    "hauteur": 1080
+  },
+  "img/decors/ligue-pokemon.webp": {
+    "largeur": 1920,
+    "hauteur": 1080
+  },
+  "img/decors/mont-selenite.webp": {
+    "largeur": 1920,
+    "hauteur": 1080
+  },
+  "img/decors/pont-pepite.webp": {
+    "largeur": 1920,
+    "hauteur": 1080
+  },
   "img/decors/route-1.webp": {
     "largeur": 1920,
     "hauteur": 1080
   },
+  "img/decors/route-victoire.webp": {
+    "largeur": 1920,
+    "hauteur": 1080
+  },
+  "img/decors/sylphe-sarl.webp": {
+    "largeur": 1920,
+    "hauteur": 1080
+  },
+  "img/decors/tour-pokemon.webp": {
+    "largeur": 1920,
+    "hauteur": 1080
+  },
+  "img/decors/tunnel-rocheux.webp": {
+    "largeur": 1920,
+    "hauteur": 1080
+  },
+  "img/objets/amulet-coin.png": {
+    "largeur": 30,
+    "hauteur": 30
+  },
+  "img/objets/bicycle.png": {
+    "largeur": 30,
+    "hauteur": 30
+  },
+  "img/objets/calcium.png": {
+    "largeur": 30,
+    "hauteur": 30
+  },
+  "img/objets/everstone.png": {
+    "largeur": 30,
+    "hauteur": 30
+  },
+  "img/objets/exp-share.png": {
+    "largeur": 30,
+    "hauteur": 30
+  },
+  "img/objets/fire-stone.png": {
+    "largeur": 30,
+    "hauteur": 30
+  },
+  "img/objets/great-ball.png": {
+    "largeur": 30,
+    "hauteur": 30
+  },
+  "img/objets/hard-stone.png": {
+    "largeur": 30,
+    "hauteur": 30
+  },
+  "img/objets/leaf-stone.png": {
+    "largeur": 30,
+    "hauteur": 30
+  },
+  "img/objets/leftovers.png": {
+    "largeur": 30,
+    "hauteur": 30
+  },
+  "img/objets/lucky-egg.png": {
+    "largeur": 30,
+    "hauteur": 30
+  },
+  "img/objets/master-ball.png": {
+    "largeur": 30,
+    "hauteur": 30
+  },
+  "img/objets/moon-stone.png": {
+    "largeur": 30,
+    "hauteur": 30
+  },
+  "img/objets/poke-ball.png": {
+    "largeur": 30,
+    "hauteur": 30
+  },
+  "img/objets/poke-doll.png": {
+    "largeur": 30,
+    "hauteur": 30
+  },
+  "img/objets/protein.png": {
+    "largeur": 30,
+    "hauteur": 30
+  },
+  "img/objets/rare-candy.png": {
+    "largeur": 30,
+    "hauteur": 30
+  },
+  "img/objets/repel.png": {
+    "largeur": 30,
+    "hauteur": 30
+  },
+  "img/objets/super-repel.png": {
+    "largeur": 30,
+    "hauteur": 30
+  },
+  "img/objets/thunder-stone.png": {
+    "largeur": 30,
+    "hauteur": 30
+  },
+  "img/objets/ultra-ball.png": {
+    "largeur": 30,
+    "hauteur": 30
+  },
+  "img/objets/water-stone.png": {
+    "largeur": 30,
+    "hauteur": 30
+  },
+  "img/objets/x-attack.png": {
+    "largeur": 30,
+    "hauteur": 30
+  },
+  "img/objets/x-sp-atk.png": {
+    "largeur": 30,
+    "hauteur": 30
+  },
   "img/sprites/pokemon/1.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/10.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/100.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/101.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/102.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/103.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/104.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/105.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/106.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/107.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/108.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/109.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/11.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/110.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/111.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/112.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/113.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/114.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/115.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/116.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/117.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/118.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/119.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/12.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/120.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/121.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/122.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/123.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/124.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/125.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/126.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/127.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/128.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/129.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/13.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/130.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/131.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/132.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/133.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/134.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/135.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/136.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/137.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/138.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/139.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/14.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/140.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/141.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/142.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/143.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/144.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/145.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/146.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/147.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/148.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/149.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/15.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/150.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/151.png": {
     "largeur": 96,
     "hauteur": 96
   },
@@ -15,7 +463,15 @@
     "largeur": 96,
     "hauteur": 96
   },
+  "img/sprites/pokemon/18.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
   "img/sprites/pokemon/19.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/2.png": {
     "largeur": 96,
     "hauteur": 96
   },
@@ -27,11 +483,343 @@
     "largeur": 96,
     "hauteur": 96
   },
+  "img/sprites/pokemon/22.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/23.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/24.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/25.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/26.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/27.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/28.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/29.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/3.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/30.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/31.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/32.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/33.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/34.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/35.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/36.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/37.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/38.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/39.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
   "img/sprites/pokemon/4.png": {
     "largeur": 96,
     "hauteur": 96
   },
+  "img/sprites/pokemon/40.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/41.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/42.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/43.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/44.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/45.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/46.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/47.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/48.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/49.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/5.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/50.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/51.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/52.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/53.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/54.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/55.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/56.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/57.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/58.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/59.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/6.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/60.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/61.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/62.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/63.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/64.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/65.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/66.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/67.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/68.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/69.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
   "img/sprites/pokemon/7.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/70.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/71.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/72.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/73.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/74.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/75.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/76.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/77.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/78.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/79.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/8.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/80.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/81.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/82.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/83.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/84.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/85.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/86.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/87.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/88.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/89.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/9.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/90.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/91.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/92.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/93.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/94.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/95.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/96.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/97.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/98.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon/99.png": {
     "largeur": 96,
     "hauteur": 96
   }

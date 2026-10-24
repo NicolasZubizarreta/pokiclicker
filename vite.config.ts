@@ -28,6 +28,14 @@ export default defineConfig(({ command, mode, isPreview }) => ({
     manifest: construireManifeste({ jeu, jetons }),
     workbox: {
       globPatterns: ['**/*.{js,css,html,webp,png,woff,woff2,json,webmanifest}'],
+      // Les décors (≈ 170 ko pièce), artworks et animations lourds ne sont pas préchargés à l'installation :
+      // ils entrent dans le cache à leur première vue. Seul le décor de départ (Route 1) est préchargé.
+      globIgnores: ['**/img/decors/!(route-1).webp', '**/img/artworks/**', '**/img/animes/**'],
+      runtimeCaching: [{
+        urlPattern: ({ url }: { url: URL }) => /\/img\/(decors|artworks|animes)\//.test(url.pathname),
+        handler: 'CacheFirst',
+        options: { cacheName: 'images-lourdes', cacheableResponse: { statuses: [200] } },
+      }],
       navigateFallback: 'index.html', cleanupOutdatedCaches: true,
     },
     devOptions: { enabled: false },
