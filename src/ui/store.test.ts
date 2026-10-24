@@ -74,11 +74,11 @@ it('affiche la recherche pendant les 2 000 ms suivant une victoire et garde les 
   expect(partie.store.getState().enRecherche).toBe(false);
   vaincre(partie);
   expect(partie.store.getState().enRecherche).toBe(true);
-  const { equipe, suite, ennemi, etape } = partie.store.getState();
+  const { equipe, zoneSuivante, ennemi, etape } = partie.store.getState();
   for (let i = 0; i < 19; i++) partie.avancer();
   expect(partie.store.getState().enRecherche).toBe(true);
   expect(partie.store.getState().equipe).toBe(equipe);
-  expect(partie.store.getState().suite).toBe(suite);
+  expect(partie.store.getState().zoneSuivante).toBe(zoneSuivante);
   partie.avancer();
   expect(partie.store.getState().enRecherche).toBe(false);
   expect(partie.store.getState().ennemi).toEqual(ennemi);
@@ -191,17 +191,131 @@ it('annonce une seule fois la fin, inscrit le boss et sauvegarde immédiatement'
   const { store, avancer, stockage } = preparer();
   const ecrire = vi.spyOn(stockage, 'ecrire');
   let annonces = 0;
-  store.subscribe((etat, avant) => { if (etat.finZone !== avant.finZone) annonces++; });
-  for (let i = 0; i < 2000 && store.getState().finZone === null; i++) avancer();
+  store.subscribe((etat, avant) => { if (etat.annonce === 'Zone débloquée !' && etat.annonce !== avant.annonce) annonces++; });
+  for (let i = 0; i < 2000 && store.getState().annonce !== 'Zone débloquée !'; i++) avancer();
   expect(annonces).toBe(1);
-  expect(store.getState().finZone).toBe('Route 1 terminée !');
-  expect(store.getState().suite?.raison).toBe('La suite arrive bientôt.');
+  expect(store.getState().annonce).toBe('Zone débloquée !');
+  expect(store.getState().zoneSuivante).toEqual({ id: 'kanto.foret-de-jade', nom: 'Forêt de Jade', ouverte: true, raison: null });
   const region = JSON.parse(stockage.lire('pokiclicker:region:test:kanto')!).donnees;
   expect(region.bossVaincus).toEqual(['kanto.route-1']);
   expect(region.etape).toBe(1);
-  for (let i = 0; i < 2000; i++) avancer();
+  for (let i = 0; i < 12; i++) avancer();
+  expect(store.getState().annonce).toBeNull();
   expect(annonces).toBe(1);
   expect(ecrire).toHaveBeenCalledTimes(2);
+  for (let i = 0; i < 2000; i++) avancer();
+  expect(annonces).toBe(1);
+});
+
+it('sauvegarde les récompenses d’un boss déjà vaincu sans annoncer de déblocage', () => {
+  const partie = preparerRegion(region => ({ ...region, etape: 10, bossVaincus: ['kanto.route-1'],
+    equipe: [{ ...region.equipe[0]!, niveau: 100 }] }));
+  const ecrire = vi.spyOn(partie.stockage, 'ecrire');
+  vaincre(partie);
+  expect(partie.store.getState().annonce).not.toBe('Zone débloquée !');
+  expect(ecrire).toHaveBeenCalledTimes(2);
+  const region = JSON.parse(partie.stockage.lire('pokiclicker:region:test:kanto')!).donnees;
+  expect(region.argent).toBe(partie.store.getState().argent);
+  expect(region.statistiques.eliminations).toBe(1);
+  expect(region.bossVaincus).toEqual(['kanto.route-1']);
+});
+
+it('refuse une zone fermée sans écriture puis voyage dans les deux sens après le boss', () => {
+  const partie = preparerRegion(region => ({ ...region, etape: 10,
+    equipe: [{ ...region.equipe[0]!, niveau: 100 }] }));
+  const { store, stockage } = partie;
+  const revision = () => JSON.parse(stockage.lire('pokiclicker:region:test:kanto')!).revision;
+  const avant = revision();
+  expect(store.getState().zoneSuivante?.ouverte).toBe(false);
+  store.getState().allerVers('kanto.foret-de-jade');
+  expect(store.getState().zone?.id).toBe('kanto.route-1');
+  expect(store.getState().etape).toBe(10);
+  expect(revision()).toBe(avant);
+  vaincre(partie);
+  expect(store.getState().annonce).toBe('Zone débloquée !');
+  expect(store.getState().zoneSuivante?.ouverte).toBe(true);
+  const apresBoss = revision();
+  store.getState().allerVers('kanto.foret-de-jade');
+  expect(revision()).toBe(apresBoss + 1);
+  expect(store.getState().etape).toBe(1);
+  expect(store.getState().ennemi?.numero).toBe(kanto.zoneDeCombat('kanto.foret-de-jade').sauvages[0]!.pokemon);
+  expect(store.getState().enRecherche).toBe(false);
+  expect(store.getState().minuteur).toBeNull();
+  expect(store.getState().annonce).toBeNull();
+  expect(store.getState().zonePrecedente).toEqual({ id: 'kanto.route-1', nom: 'Route 1', ouverte: true, raison: null });
+  store.getState().arreter();
+  const rechargee = preparer(stockage);
+  expect(rechargee.store.getState().zone?.id).toBe('kanto.foret-de-jade');
+  expect(rechargee.store.getState().etape).toBe(1);
+  rechargee.store.getState().allerVers('kanto.route-1');
+  expect(rechargee.store.getState().zone?.id).toBe('kanto.route-1');
+  expect(rechargee.store.getState().etape).toBe(1);
+});
+
+it('compte les 30 secondes du boss sans DPS et annonce son échec à l’expiration', () => {
+  const partie = preparerRegion(region => ({ ...region, etape: 10, equipe: [] }));
+  expect(partie.store.getState().minuteur).toEqual({ restantMs: 30000, totalMs: 30000 });
+  for (let i = 1; i < 300; i++) {
+    partie.avancer();
+    expect(partie.store.getState().minuteur?.restantMs).toBe(30000 - i * 100);
+  }
+  partie.avancer();
+  expect(partie.store.getState().minuteur).toBeNull();
+  expect(partie.store.getState().etape).toBe(9);
+  expect(partie.store.getState().annonce).toBe('Temps écoulé !');
+  for (let i = 0; i < 12; i++) partie.avancer();
+  expect(partie.store.getState().annonce).toBeNull();
+});
+
+it('reprend un boss neuf et masque son minuteur pendant la recherche', () => {
+  const partie = preparerRegion(region => ({ ...region, etape: 10, equipe: [] }));
+  partie.avancer(1000);
+  partie.store.getState().fermer();
+  partie.store.getState().arreter();
+  expect(preparer(partie.stockage).store.getState().minuteur?.restantMs).toBe(30000);
+  const recherche = preparerRegion(region => ({ ...region, etape: 9 }));
+  vaincre(recherche);
+  expect(recherche.store.getState().etape).toBe(10);
+  expect(recherche.store.getState().minuteur).toBeNull();
+  for (let i = 0; i < 20; i++) recherche.avancer();
+  expect(recherche.store.getState().minuteur?.restantMs).toBe(30000);
+});
+
+it('séjourne à Bourg Palette sans combat et reprend sans réinitialiser le store', () => {
+  const partie = preparer();
+  partie.store.getState().allerVers('kanto.bourg-palette');
+  const etat = partie.store.getState();
+  expect(etat.lieu?.id).toBe('kanto.bourg-palette');
+  expect(etat.lieu?.sansCombat && etat.lieu.message).toBeTruthy();
+  expect(etat.zone).toBeNull();
+  expect(etat.ennemi).toBeNull();
+  expect(etat.minuteur).toBeNull();
+  partie.avancer(7200000);
+  expect(partie.store.getState().etape).toBe(1);
+  expect(partie.store.getState().argent).toBe(etat.argent);
+  partie.store.getState().arreter();
+  const lire = vi.spyOn(partie.stockage, 'lire');
+  partie.store.getState().demarrer();
+  expect(lire).not.toHaveBeenCalled();
+  partie.store.getState().arreter();
+  const rechargee = preparer(partie.stockage);
+  expect(rechargee.store.getState().lieu?.id).toBe('kanto.bourg-palette');
+  expect(rechargee.store.getState().etape).toBe(1);
+  expect(rechargee.store.getState().ennemi).toBeNull();
+  expect(rechargee.store.getState().minuteur).toBeNull();
+  rechargee.store.getState().allerVers('kanto.route-1');
+  expect(rechargee.store.getState().ennemi).not.toBeNull();
+});
+
+it('rattrape le minuteur au même rythme que les DPS', () => {
+  const modifier = (region: DonneesRegion) => ({ ...region, etape: 10, equipe: [] });
+  const groupe = preparerRegion(modifier);
+  const pas = preparerRegion(modifier);
+  groupe.avancer(30000);
+  for (let i = 0; i < 300; i++) pas.avancer();
+  expect(groupe.store.getState().etape).toBe(pas.store.getState().etape);
+  expect(groupe.store.getState().annonce).toBe(pas.store.getState().annonce);
+  expect(groupe.store.getState().minuteur).toEqual(pas.store.getState().minuteur);
 });
 it('restaure la zone, l’étape et toute l’équipe avec un nouvel ennemi', () => {
   const premier = preparer();

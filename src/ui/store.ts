@@ -1,14 +1,14 @@
 import { createStore } from 'zustand/vanilla';
 import { creerHorlogeSysteme } from '../core/clock';
 import type { Horloge } from '../core/clock';
-import { avancerCombat, calculerClic, calculerDpsEquipe, cliquer, creerLimiteurClics,
+import { avancerCombat, calculerClic, calculerDpsEquipe, cliquer, creerCombat, creerLimiteurClics,
   reprendreCombat, viderEvenements } from '../core/combat';
 import type { EtatCombat } from '../core/combat';
 import type { Ennemi } from '../core/ennemis';
 import { creerBoucle } from '../core/loop';
 import { chargerPokemon } from '../core/pokemon';
 import { appliquerVictoire, calculerMaxXp } from '../core/recompenses';
-import type { Zone } from '../core/monde';
+import type { Zone, ZoneMonde } from '../core/monde';
 import { kanto } from '../core/regions';
 import { reglages } from '../core/reglages';
 import { etatMondeDe, versMembreEquipe } from '../core/sauvegarde';
@@ -16,29 +16,32 @@ import type { DonneesRegion, PokemonPossede, Stockage } from '../core/sauvegarde
 import { detailErreur, ouvrirPartie } from './persistance';
 import { creerStockageLocal } from './stockage-local';
 import { genererIdentifiant } from './identifiants';
+import { cheminDecor, precharger, prechargerZone } from './precharger';
 
 export type Degat = { id: number; valeur: number };
 export type CaseEquipe = { pokemon: PokemonPossede; dps: number; xpMax: number } | null;
+export type Destination = { id: string; nom: string; ouverte: boolean; raison: string | null };
 export type AffichageJeu = {
-  zone: Zone | null; etape: number; ennemi: Omit<Ennemi, 'capture'> | null; pv: number;
-  equipe: CaseEquipe[]; dps: number; finZone: string | null; erreur: string | null;
-  erreurChargement: boolean; suite: { nom: string; raison: string } | null;
+  lieu: ZoneMonde | null; zone: Zone | null; etape: number; ennemi: Omit<Ennemi, 'capture'> | null; pv: number;
+  equipe: CaseEquipe[]; dps: number; erreur: string | null;
+  erreurChargement: boolean; zonePrecedente: Destination | null; zoneSuivante: Destination | null;
+  minuteur: { restantMs: number; totalMs: number } | null;
   evenementsDegats: Degat[];
   argent: number; enRecherche: boolean; annonce: string | null;
-  attaquer(): void; demarrer(): void; arreter(): void; fermer(): void; tick(): void;
+  allerVers(zoneId: string): void; attaquer(): void; demarrer(): void; arreter(): void; fermer(): void; tick(): void;
 };
 
 export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
   horloge: Horloge; stockage: Stockage; alea: () => number; genererId: () => string;
 }) {
-  let coeur: EtatCombat | undefined;
+  let coeur: EtatCombat | null = null;
+  let initialise = false;
   let region: DonneesRegion;
   let persistance: ReturnType<typeof ouvrirPartie>;
   let boucle: ReturnType<typeof creerBoucle<null>> | undefined;
   let minuteur: ReturnType<typeof setInterval> | undefined;
   let sauvegarde: ReturnType<typeof setInterval> | undefined;
   let erreur: string | null = null;
-  let finZone: string | null = null;
   let degats: Degat[] = [];
   let identifiantDegat = 0;
   const catalogue = chargerPokemon();
@@ -49,7 +52,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
   const abonnesDegats = new Set<(degat: Degat) => void>();
   const limiteur = creerLimiteurClics(horloge);
   const enregistrer = () => {
-    if (!coeur) return;
+    if (!initialise) return;
     try { persistance.enregistrer(region); } catch (cause) { erreur = detailErreur(cause); }
   };
   const traiter = () => {
@@ -72,10 +75,19 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
           finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs;
         }
       }
-      if (evenement.type === 'boss-vaincu' && !region.bossVaincus.includes(evenement.zoneId)) {
-        region = { ...region, bossVaincus: [...region.bossVaincus, evenement.zoneId] };
-        finZone = `${coeur.zone.nom} terminée !`;
+      if (evenement.type === 'boss-vaincu') {
+        if (!region.bossVaincus.includes(evenement.zoneId)) {
+          region = { ...region, bossVaincus: [...region.bossVaincus, evenement.zoneId] };
+          if (kanto.liensDepuis(evenement.zoneId).length > 0) {
+            annonce = 'Zone débloquée !';
+            finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs;
+          }
+        }
         sauvegarder = true;
+      }
+      if (evenement.type === 'boss-echoue') {
+        annonce = 'Temps écoulé !';
+        finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs;
       }
     }
     coeur = { ...coeur, equipe: region.equipe.map(versMembreEquipe) };
@@ -83,30 +95,54 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
     if (sauvegarder) enregistrer();
   };
   const afficher = () => {
-    if (!coeur) return;
-    const lien = kanto.liensDepuis(coeur.zoneId)[0];
-    const passage = lien ? kanto.peutPasser(coeur.zoneId, lien.vers, etatMondeDe(region)) : null;
+    if (!initialise) return;
+    const lieu = kanto.zone(region.zoneId);
+    const lien = lieu.liens[0];
+    const destination = (zone: ZoneMonde | undefined): Destination | null => {
+      if (!zone) return null;
+      const acces = kanto.accesZone(zone.id, etatMondeDe(region));
+      return { id: zone.id, nom: zone.nom, ouverte: acces.ok, raison: acces.ok ? null : acces.raison };
+    };
     const equipe: CaseEquipe[] = region.equipe.map(pokemon => ({ pokemon,
       xpMax: calculerMaxXp(pokemon.numero, pokemon.niveau),
-      dps: calculerDpsEquipe([versMembreEquipe(pokemon)], coeur!.ennemi) }));
+      dps: coeur ? calculerDpsEquipe([versMembreEquipe(pokemon)], coeur.ennemi) : 0 }));
     while (equipe.length < 6) equipe.push(null);
     const precedent = store.getState();
-    const suite = lien ? { nom: kanto.zone(lien.vers).nom,
-      raison: passage?.ok ? 'La suite arrive bientôt.' : passage?.raison ?? '' } : null;
-    const { numero, niveau, pv, pvMax, boss, shiny, rarete } = coeur.ennemi;
-    store.setState({ zone: coeur.zone, etape: coeur.etape, ennemi: { numero, niveau, pv, pvMax, boss, shiny, rarete }, pv,
+    const zonePrecedente = destination(kanto.zonePrecedente(lieu.id));
+    const zoneSuivante = destination(lien ? kanto.zone(lien.vers) : undefined);
+    const ennemi = coeur ? (({ capture: _capture, ...ennemi }) => ennemi)(coeur.ennemi) : null;
+    store.setState({ lieu, zone: coeur?.zone ?? null, etape: region.etape, ennemi, pv: ennemi?.pv ?? 0,
       equipe: JSON.stringify(equipe) === JSON.stringify(precedent.equipe) ? precedent.equipe : equipe,
-      dps: calculerDpsEquipe(coeur.equipe, coeur.ennemi), finZone, erreur,
-      argent: region.argent, enRecherche: coeur.attenteMs > 0, annonce,
-      suite: JSON.stringify(suite) === JSON.stringify(precedent.suite) ? precedent.suite : suite,
+      dps: coeur ? calculerDpsEquipe(coeur.equipe, coeur.ennemi) : 0, erreur,
+      argent: region.argent, enRecherche: (coeur?.attenteMs ?? 0) > 0, annonce,
+      minuteur: coeur && coeur.attenteMs === 0 && coeur.minuteurMs !== null
+        ? { restantMs: coeur.minuteurMs, totalMs: reglages.combat.minuteurBossMs } : null,
+      zonePrecedente: JSON.stringify(zonePrecedente) === JSON.stringify(precedent.zonePrecedente) ? precedent.zonePrecedente : zonePrecedente,
+      zoneSuivante: JSON.stringify(zoneSuivante) === JSON.stringify(precedent.zoneSuivante) ? precedent.zoneSuivante : zoneSuivante,
       evenementsDegats: degats });
     degats = [];
   };
+  const prechargerLieu = () => {
+    const lieu = kanto.zone(region.zoneId);
+    void precharger([cheminDecor(lieu)]);
+    if (!lieu.sansCombat) void prechargerZone(lieu);
+  };
   const cacher = () => { if (document.visibilityState === 'hidden') enregistrer(); };
   const store = createStore<AffichageJeu>(() => ({
-    zone: null, etape: 1, ennemi: null, pv: 0, equipe: [], dps: 0, finZone: null,
-    erreur: null, erreurChargement: false, suite: null, evenementsDegats: [],
+    lieu: null, zone: null, etape: 1, ennemi: null, pv: 0, equipe: [], dps: 0, minuteur: null,
+    erreur: null, erreurChargement: false, zonePrecedente: null, zoneSuivante: null, evenementsDegats: [],
     argent: 0, enRecherche: false, annonce: null,
+    allerVers(zoneId) {
+      if (!initialise || !kanto.accesZone(zoneId, etatMondeDe(region)).ok) return;
+      const lieu = kanto.zone(zoneId);
+      coeur = lieu.sansCombat ? null : creerCombat(lieu, region.equipe.map(versMembreEquipe), alea);
+      region = { ...region, zoneId, etape: 1 };
+      annonce = null;
+      degats = [];
+      prechargerLieu();
+      enregistrer();
+      afficher();
+    },
     attaquer() {
       if (!coeur || minuteur === undefined) return;
       const avant = coeur;
@@ -121,16 +157,19 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
     demarrer() {
       if (minuteur !== undefined || store.getState().erreurChargement) return;
       try {
-        if (!coeur) {
+        if (!initialise) {
           persistance = ouvrirPartie({ stockage, horloge, genererId });
           region = persistance.region;
-          coeur = reprendreCombat(kanto.zoneDeCombat(region.zoneId), region.equipe.map(versMembreEquipe), alea, region.etape);
+          const lieu = kanto.zone(region.zoneId);
+          coeur = lieu.sansCombat ? null : reprendreCombat(lieu, region.equipe.map(versMembreEquipe), alea, region.etape);
+          initialise = true;
+          prechargerLieu();
           afficher();
         }
         boucle = creerBoucle({ horloge, etat: null, avancer: () => {
           tempsJeuMs += reglages.boucle.pasMs;
           if (annonce !== null && tempsJeuMs >= finAnnonceMs) annonce = null;
-          coeur = avancerCombat(coeur!, reglages.boucle.pasMs);
+          if (coeur) coeur = avancerCombat(coeur, reglages.boucle.pasMs);
           traiter();
           return null;
         } });
