@@ -14,3 +14,4 @@ _(rien pour l'instant)_
 
 ## Journal de la nuit
 _(un ticket par ligne : état, commit local, ce qui reste)_
+- **F** — fait, commits locaux 1833028 → 761322f. CI verte (499 tests), e2e PC et mobile verts, revue acceptée avec retouches appliquées. Bourg Palette n'a pas encore de décor (arrive avec P) : l'écran s'affiche sans image. Le minuteur du boss se vérifie en unitaire (le DPS des starters tue le boss avant 30 s dans le navigateur).
