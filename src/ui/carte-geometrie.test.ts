@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import kanto from '../../data/regions/kanto/zones.json';
 import type { FormeCarte } from '../core/monde';
+import { reglages } from '../core/reglages';
 import { attributsSvg, borner, centreForme, deplacer, rayonCible, vueInitiale, zoomer } from './carte-geometrie';
 
 describe('géométrie de la carte', () => {
@@ -28,8 +29,8 @@ describe('géométrie de la carte', () => {
     const polygone: FormeCarte = { ...base, forme: 'polygone', points: [[0, 0], [1, 0], [0, 1]] };
     expect(attributsSvg(polygone)).toEqual({ points: '0,0 16,0 0,9' });
     expect(centreForme(polygone)).toEqual({ x: 8, y: 4.5 });
-    expect(rayonCible(2)).toBe(11);
-    expect(rayonCible(44)).toBe(0.5);
+    expect(rayonCible(2)).toBe(reglages.carte.rayonCiblePx / 2);
+    expect(rayonCible(44)).toBe(reglages.carte.rayonCiblePx / 44);
   });
 
   it('zoome autour du point sans modifier la vue reçue', () => {

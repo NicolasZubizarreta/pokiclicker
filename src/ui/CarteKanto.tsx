@@ -7,6 +7,7 @@ import type { Point, Vue } from './carte-geometrie';
 import { storeJeu } from './store';
 import type { EtatForme } from './store';
 import { kanto } from '../core/regions';
+import { reglages } from '../core/reglages';
 import { Image, imageConnue } from './Image';
 import { cheminDecor, precharger } from './precharger';
 import { DresseurVol, imagesVol, useVol, VolGen1 } from './VolGen1';
@@ -23,6 +24,7 @@ export function CarteKanto({ quandArrive }: { quandArrive: () => void }) {
   const carte = useStore(storeJeu, etat => etat.carte);
   const lieu = useStore(storeJeu, etat => etat.lieu);
   const [nouvelles] = useState(() => carte.nouvelles);
+  const [fondu, demarrerFondu] = useState(false);
   const [selection, selectionner] = useState<string | null>(null);
   const [vue, changerVue] = useState(vueInitiale);
   const [largeur, mesurer] = useState(0);
@@ -42,7 +44,10 @@ export function CarteKanto({ quandArrive }: { quandArrive: () => void }) {
 
   useEffect(() => {
     if (!nouvelles.length) return;
-    const delai = setTimeout(() => storeJeu.getState().voirCarte(), 600);
+    const delai = setTimeout(() => {
+      demarrerFondu(true);
+      storeJeu.getState().voirCarte();
+    }, reglages.carte.deblocageMs);
     return () => clearTimeout(delai);
   }, [nouvelles]);
 
@@ -57,7 +62,7 @@ export function CarteKanto({ quandArrive }: { quandArrive: () => void }) {
       event.preventDefault();
       const rect = element.getBoundingClientRect();
       if (!rect.width) return;
-      changerVue(v => zoomer(v, Math.exp(-event.deltaY / 500), {
+      changerVue(v => zoomer(v, Math.exp(-event.deltaY / reglages.carte.diviseurMolette), {
         x: v.x + (event.clientX - rect.left) * v.largeur / rect.width,
         y: v.y + (event.clientY - rect.top) * v.hauteur / rect.height,
       }));
@@ -88,7 +93,7 @@ export function CarteKanto({ quandArrive }: { quandArrive: () => void }) {
     if (!ancien) return;
     const point = { x: event.clientX, y: event.clientY };
     pointeurs.current.set(event.pointerId, point);
-    if (origine.current && Math.hypot(point.x - origine.current.x, point.y - origine.current.y) > 8) glissement.current = true;
+    if (origine.current && Math.hypot(point.x - origine.current.x, point.y - origine.current.y) > reglages.carte.seuilGlissementPx) glissement.current = true;
     if (!glissement.current) return;
     const rect = event.currentTarget.getBoundingClientRect();
     if (!rect.width) return;
@@ -140,7 +145,7 @@ export function CarteKanto({ quandArrive }: { quandArrive: () => void }) {
             return <Fragment key={f.nom}>
               {nouvelle && <Forme {...attributsSvg(f.forme)} className="pointer-events-none fill-texte-doux/50" />}
               <Forme {...attributsSvg(f.forme)} data-forme={f.nom} data-zone={f.zone}
-              className={`${couleur(f)} focus-visible:outline-none focus-visible:stroke-focus focus-visible:stroke-3 ${nouvelle ? 'carte-deblocage' : ''} ${debug ? 'stroke-focus' : ''} ${f.zone ? 'cursor-pointer' : 'pointer-events-none'}`}
+              className={`${couleur(f)} focus-visible:outline-none focus-visible:stroke-focus focus-visible:stroke-3 ${nouvelle ? fondu ? 'carte-deblocage' : 'opacity-0' : ''} ${debug ? 'stroke-focus' : ''} ${f.zone ? 'cursor-pointer' : 'pointer-events-none'}`}
               vectorEffect="non-scaling-stroke" role={f.zone ? 'button' : undefined}
               tabIndex={f.zone ? 0 : undefined} aria-label={nomAccessible(f)}
               onClick={() => { if (f.zone && !glissement.current) selectionner(f.zone); }}
@@ -150,7 +155,7 @@ export function CarteKanto({ quandArrive }: { quandArrive: () => void }) {
             </Fragment>;
           })}
         </g>
-        {vol.actif && !reduit && actuelle && <DresseurVol ms={vol.ms} forme={actuelle.forme} />}
+        {vol.actif && !reduit && vol.depart && <DresseurVol ms={vol.ms} forme={vol.depart} />}
         <g className="pointer-events-none fill-succes-base">
           {carte.tutorielRoute1 && carte.formes.filter(f => f.numero === 1).map(f => createElement(balise(f), {
             ...attributsSvg(f.forme), key: f.nom, className: 'carte-clignotement',
@@ -169,18 +174,17 @@ export function CarteKanto({ quandArrive }: { quandArrive: () => void }) {
       </div>
       {vol.actif && <p role="status" className="sr-only">Vol en cours vers {carte.formes.find(f => f.zone === vol.cible)?.nom}…</p>}
       <section aria-label="Zone sélectionnée" className="carte-bande-reservee mt-2 bg-surface-2 p-4 text-base">
-        {nouvelles.length > 0 && carte.nouvelles.length > 0 && <p role="status" className="mb-2">
+        {nouvelles.length > 0 && !choisie && <p role="status" className="mb-2">
           Zone débloquée ! {carte.formes.filter(f => f.zone && nouvelles.includes(f.zone)).map(f => f.nom).join(', ')}
         </p>}
         {!choisie ? <p>Touche une zone pour la voir.</p> : <>
           <h2 className="font-titre text-xl font-semibold">{choisie.nom}</h2>
           {choisie.numero !== null && choisie.numero !== 0 && <p>Zone {choisie.numero}</p>}
           {decor && imageConnue(decor) && <Image genre="decor" src={decor} alt={`Décor de ${choisie.nom}`} className="carte-miniature my-2" />}
-          {choisie.nom === 'Céladopole' && <h3>Arène</h3>}
           {!choisie.ouverte ? <><p>Bloquée</p><p>{choisie.raison ?? 'Pas encore accessible.'}</p></>
             : choisie.actuelle && !vol.actif ? <p>Tu es ici.</p>
               : <button type="button" className="min-h-11 min-w-11 bg-action px-4 py-2 text-action-texte shadow-sm hover:bg-action-survol"
-                disabled={vol.actif} onClick={() => lancer(choisie.zone!)}>Y aller</button>}
+                disabled={vol.actif} onClick={() => lancer(choisie.zone!, actuelle?.forme ?? null)}>{choisie.nom === 'Céladopole' ? 'Arène' : 'Y aller'}</button>}
           {choisie.nom === 'Céladopole' && <div className="mt-2 grid gap-2">
             {['Centre commercial', 'Casino'].map(nom => <div key={nom}>
               <button type="button" disabled aria-describedby={`carte-${nom === 'Casino' ? 'casino' : 'commerce'}`}

@@ -86,7 +86,6 @@
 @keyframes fleche { to { transform: translateY(var(--spacing)); } }
 
 /* Rebond du bouton Carte de la V1 (animate-bounce, 1 s). */
-:root { --duree-signal: 1s; }
 .rebond-signal { animation: rebond-signal var(--duree-signal) var(--ease-standard) infinite; }
 @keyframes rebond-signal {
   0%, 100% { transform: translateY(-25%); }
@@ -94,7 +93,6 @@
 }
 
 /* Durées V1 de la carte : pulsation 2 s et tutoriel 0,8 s. */
-:root { --duree-carte-pulsation: 2s; --duree-carte-clignotement: 0.8s; }
 .carte-pulsation { animation: carte-opacite var(--duree-carte-pulsation) var(--ease-standard) infinite; }
 .carte-clignotement { animation: carte-opacite var(--duree-carte-clignotement) var(--ease-standard) infinite; }
 @keyframes carte-opacite { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
@@ -108,13 +106,13 @@
 @keyframes fondu-carte { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 .vol-overlay { position: absolute; inset: 0; display: flex; align-items: center; pointer-events: none; color: var(--texte); }
 .vol-attente { width: 100%; height: min(calc(var(--spacing) * 45), 100%); --vol-attente: calc(var(--vol-ms) * 1ms); }
-:root { --vol-fond: black; }
-.vol-piste { position: relative; height: 100%; overflow: hidden; background: var(--vol-fond); transform-origin: right center; animation: vol-ouverture calc(var(--vol-ms) * 1ms) var(--ease-standard) var(--vol-attente) both; }
-.vol-overlay[data-phase="fermeture"] .vol-piste { animation: vol-fermeture calc(var(--vol-ms) * 1ms) var(--ease-standard) forwards; }
-.vol-traits { position: absolute; inset: 0; width: 100%; height: 100%; animation: vol-traits calc(var(--vol-ms) * 1ms) linear infinite; }
+.vol-piste { position: relative; height: 100%; overflow: hidden; background: var(--fond); transform-origin: right center; animation: vol-ouverture calc(var(--vol-ms) * 1ms) ease-out var(--vol-attente) both; }
+.vol-overlay[data-phase="fermeture"] .vol-piste { animation: vol-fermeture calc(var(--vol-ms) * 1ms) ease-in-out forwards; }
+.vol-traits { position: absolute; inset: 0; display: flex; width: 200%; height: 100%; animation: vol-traits calc(var(--vol-ms) * 1ms) linear infinite; }
+.vol-traits > svg { flex: 0 0 50%; height: 100%; }
 .vol-trajet { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; animation: vol-trajet calc(var(--vol-ms) * 1ms) ease-in-out both; }
 .vol-oiseau { transform: scale(2); image-rendering: pixelated; }
 @keyframes vol-ouverture { 0% { transform: scale(0, 0.02); } 50% { transform: scale(1, 0.02); } 100% { transform: scale(1); } }
 @keyframes vol-fermeture { to { transform: scaleY(0); } }
-@keyframes vol-trajet { 0%, 10% { transform: translateX(-150%); } 30%, 60% { transform: translateX(0); } 100% { transform: translateX(150%); } }
-@keyframes vol-traits { to { transform: translateX(-100%); } }
+@keyframes vol-trajet { 0%, 10% { transform: translateX(150%); } 30%, 60% { transform: translateX(0); } 100% { transform: translateX(-150%); } }
+@keyframes vol-traits { to { transform: translateX(-50%); } }

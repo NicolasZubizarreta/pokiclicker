@@ -147,12 +147,13 @@ it('propose les trois entrées de Céladopole et explique les deux indisponibles
   const fiche = screen.getByRole('region', { name: 'Zone sélectionnée' });
   fireEvent.click(screen.getByRole('button', { name: /Céladopole/ }));
   expect(within(fiche).getByRole('heading', { name: 'Céladopole' })).toBeTruthy();
-  expect(within(fiche).getByText('Arène')).toBeTruthy();
+  expect(within(fiche).getByRole('button', { name: 'Arène' })).toBeTruthy();
+  expect(within(fiche).queryByRole('heading', { name: 'Arène' })).toBeNull();
   for (const nom of ['Centre commercial', 'Casino']) {
     expect((within(fiche).getByRole('button', { name: nom }) as HTMLButtonElement).disabled).toBe(true);
   }
   expect(within(fiche).getAllByText('Bientôt disponible.')).toHaveLength(2);
-  fireEvent.click(within(fiche).getByRole('button', { name: 'Y aller' }));
+  fireEvent.click(within(fiche).getByRole('button', { name: 'Arène' }));
   act(() => { vi.advanceTimersByTime(3800); });
   expect(aller).toHaveBeenCalledWith(ville.zone);
 });
@@ -189,11 +190,15 @@ it('annonce les zones débloquées puis les marque vues après 600 ms', () => {
   const { container } = afficher();
   expect(screen.getByRole('status').textContent).toContain('Zone débloquée !');
   expect(screen.getByRole('status').textContent).toContain('Forêt de Jade');
-  expect(container.querySelector('[data-forme="Forêt de Jade"]')?.getAttribute('class')).toContain('carte-deblocage');
+  expect(container.querySelector('[data-forme="Forêt de Jade"]')?.getAttribute('class')).not.toContain('carte-deblocage');
   act(() => { vi.advanceTimersByTime(599); });
   expect(storeJeu.getState().carte.nouvelles).toEqual(nouvelles);
+  expect(container.querySelector('.carte-deblocage')).toBeNull();
   act(() => { vi.advanceTimersByTime(1); });
   expect(storeJeu.getState().carte.nouvelles).toEqual([]);
+  expect(screen.getByRole('status').textContent).toContain('Zone débloquée !');
+  expect(container.querySelector('[data-forme="Forêt de Jade"]')?.getAttribute('class')).toContain('carte-deblocage');
+  fireEvent.click(screen.getByRole('button', { name: /Forêt de Jade/ }));
   expect(screen.queryByRole('status')).toBeNull();
 });
 

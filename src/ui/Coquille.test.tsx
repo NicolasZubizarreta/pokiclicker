@@ -141,7 +141,7 @@ describe('Coquille', () => {
         }
         const textesCarte = new Set(['Ton voyage', 'Touche une zone pour la voir.', ...storeJeu.getState().carte.formes.map(f =>
           f.numero === null || f.numero === 0 ? f.nom : `${f.nom} (Zone ${f.numero})`)]);
-        if (texte) expect(autorises.has(texte) || textesCarte.has(texte) || /^\d+ badges? sur \d+ · .+ en cours$|^(\d+|\/)$/.test(texte), texte).toBe(true);
+        if (texte) expect(autorises.has(texte) || textesCarte.has(texte), texte).toBe(true);
       }
       for (const element of container.querySelectorAll('[aria-label]')) {
         const forme = storeJeu.getState().carte.formes.find(f => f.nom === element.getAttribute('data-forme'));

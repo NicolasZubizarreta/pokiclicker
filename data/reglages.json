@@ -1,9 +1,9 @@
 {
   "interface": {
     "sauvegardeAutoMs": 30000, "annonceMs": 1200,
-    "vol": { "poseMs": 800, "delaiOuvertureMs": 50, "volMs": 2500, "fermetureMs": 500, "imageMs": 150, "images": 5 }
+    "vol": { "poseMs": 800, "delaiOuvertureMs": 50, "volMs": 2500, "fermetureMs": 500, "imageMs": 150, "images": 5, "pisteMs": 400, "traitsMs": 200, "fonduReduitMs": 300, "changerReduitMs": 150, "tailleDresseurRatio": 0.23148148148148148 }
   },
-  "carte": { "zoomMax": 6 },
+  "carte": { "zoomMax": 6, "deblocageMs": 600, "seuilGlissementPx": 8, "diviseurMolette": 500, "rayonCiblePx": 22 },
   "depart": {
     "argent": 0,
     "etape": 1,

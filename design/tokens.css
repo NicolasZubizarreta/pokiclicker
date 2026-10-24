@@ -106,6 +106,9 @@
   --duration-rapide: 90ms;
   --duration-normal: 150ms;
   --duration-lent: 300ms;
+  --duree-signal: 1s;
+  --duree-carte-pulsation: 2s;
+  --duree-carte-clignotement: 0.8s;
   --breakpoint-sm: 24.375rem;
   --breakpoint-md: 48rem;
   --breakpoint-lg: 64rem;

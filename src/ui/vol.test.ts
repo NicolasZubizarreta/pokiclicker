@@ -18,6 +18,6 @@ it.each([
 });
 
 it('centralise les constantes V1', () => {
-  expect(reglages.interface.vol).toEqual({ poseMs: 800, delaiOuvertureMs: 50, volMs: 2500, fermetureMs: 500, imageMs: 150, images: 5 });
-  expect(reglages.carte.zoomMax).toBe(6);
+  expect(reglages.interface.vol).toMatchObject({ poseMs: 800, delaiOuvertureMs: 50, volMs: 2500, fermetureMs: 500, imageMs: 150, images: 5, pisteMs: 400, traitsMs: 200 });
+  expect(reglages.carte).toMatchObject({ zoomMax: 6, deblocageMs: 600, seuilGlissementPx: 8, diviseurMolette: 500, rayonCiblePx: 22 });
 });

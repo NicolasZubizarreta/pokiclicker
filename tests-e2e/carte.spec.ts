@@ -112,3 +112,23 @@ test('Carte : zoom à la molette et déplacement sans faire défiler la page, mo
   const noms = await page.locator('svg[aria-label="Carte de Kanto"] text').allTextContents();
   expect(noms.length).toBeGreaterThanOrEqual(24);
 });
+
+test('Carte : fluidité au repos, pulsation de la zone actuelle comprise', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
+  await page.getByRole('button', { name: 'Carte', exact: true }).click();
+  await expect(page.locator('svg[aria-label="Carte de Kanto"]')).toBeVisible();
+  await page.evaluate(() => document.fonts.ready);
+  const fps = await page.evaluate(() => new Promise<number>(terminer => {
+    let images = 0;
+    const debut = performance.now();
+    const dessiner = () => {
+      images++;
+      if (performance.now() - debut < 5000) requestAnimationFrame(dessiner);
+      else terminer(images / ((performance.now() - debut) / 1000));
+    };
+    requestAnimationFrame(dessiner);
+  }));
+  // Seuil de DESIGN.md : 59 images/s au repos ; marge de mesure pour la machine de test.
+  expect(fps).toBeGreaterThanOrEqual(55);
+});

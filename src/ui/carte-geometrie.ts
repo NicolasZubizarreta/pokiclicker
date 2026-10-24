@@ -21,7 +21,7 @@ export function attributsSvg(forme: FormeCarte) {
 }
 
 export function rayonCible(pxParUnite: number): number {
-  return 22 / pxParUnite;
+  return reglages.carte.rayonCiblePx / pxParUnite;
 }
 
 export function vueInitiale(): Vue {

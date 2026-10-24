@@ -30,9 +30,9 @@ export const reglages: {
   interface: {
     sauvegardeAutoMs: number; annonceMs: number;
     // Calendrier V1 : legacy/js/game/save.js L759-797.
-    vol: { poseMs: number; delaiOuvertureMs: number; volMs: number; fermetureMs: number; imageMs: number; images: number };
+    vol: { poseMs: number; delaiOuvertureMs: number; volMs: number; fermetureMs: number; imageMs: number; images: number; pisteMs: number; traitsMs: number; fonduReduitMs: number; changerReduitMs: number; tailleDresseurRatio: number };
   };
-  carte: { zoomMax: number };
+  carte: { zoomMax: number; deblocageMs: number; seuilGlissementPx: number; diviseurMolette: number; rayonCiblePx: number };
   depart: { argent: number; etape: number; region: NouveauxChampsRegion };
   combat: {
     minuteurBossMs: number;
@@ -63,6 +63,6 @@ if (!Number.isFinite(reglages.combat.minuteurBossMs) || reglages.combat.minuteur
 for (const valeur of Object.values(reglages.interface.vol)) {
   if (!Number.isFinite(valeur) || valeur <= 0) throw new Error('Réglages de vol invalides');
 }
-if (!Number.isFinite(reglages.carte.zoomMax) || reglages.carte.zoomMax <= 0) {
-  throw new Error('Zoom de carte invalide');
+for (const valeur of Object.values(reglages.carte)) {
+  if (!Number.isFinite(valeur) || valeur <= 0) throw new Error('Réglages de carte invalides');
 }
