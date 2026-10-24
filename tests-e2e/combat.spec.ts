@@ -30,6 +30,9 @@ async function ouvrir(page: Page) {
 
 async function atteindre(page: Page, etape: number) {
   for (let appui = 0; appui < 1500; appui++) {
+    if (await page.getByRole('status').filter({ hasText: 'Recherche en cours…' }).isVisible()) {
+      await page.clock.runFor(2000);
+    }
     if (await page.getByText(`Étape ${etape} sur 10`, { exact: true }).isVisible()) return;
     await page.getByRole('button', { name: /^Attaquer / }).click({ force: true });
     await page.clock.runFor(90);
@@ -43,6 +46,8 @@ async function stockage(page: Page) {
 }
 
 async function verifierFenetre(page: Page) {
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+  await expect(page.getByRole('complementary', { name: 'Dialogue' })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollHeight - window.innerHeight)).toBeLessThanOrEqual(1);
   const dialogue = (await page.getByRole('complementary', { name: 'Dialogue' }).boundingBox())!;
   const taille = page.viewportSize()!;
@@ -79,6 +84,56 @@ test('Parcours : dix étapes, boss, fin de route et captures', async ({ page }, 
   }
 });
 
+test('Récompenses : pièces, XP, recherche et montée de niveau', async ({ page }) => {
+  await ouvrir(page);
+  const argent = page.locator('header').getByText(/pièces/);
+  const lireArgent = async () => (await argent.innerText()).replace(/\s/g, ' ');
+  const montant = (texte: string) => Number(texte.replace(/\D/g, ''));
+  const depart = montant(await lireArgent());
+  const equipe = page.getByRole('region', { name: 'Ton équipe' });
+  const noms = ['Bulbizarre', 'Salamèche', 'Carapuce'];
+  const xpAvant: number[] = [];
+  for (const nom of noms) {
+    const carte = equipe.locator(`[aria-label^="${nom},"]`);
+    await expect(carte).toHaveAttribute('aria-label', new RegExp(`${nom}, niveau \\d+,`));
+    const barre = carte.getByRole('progressbar', { name: `XP de ${nom}`, exact: true });
+    await expect(barre).toBeVisible();
+    xpAvant.push(Number(await barre.getAttribute('aria-valuenow')));
+  }
+  const recherche = page.getByRole('status').filter({ hasText: 'Recherche en cours…' });
+  for (let appui = 0; appui < 1500 && !(await recherche.isVisible()); appui++) {
+    await page.getByRole('button', { name: /^Attaquer / }).click({ force: true });
+    await page.clock.runFor(90);
+  }
+  await expect(recherche).toBeVisible();
+  await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
+  const apres = await lireArgent();
+  expect(montant(apres)).toBeGreaterThan(depart);
+  expect(apres).not.toBe('1 250 pièces');
+  for (const [index, nom] of noms.entries()) {
+    const barre = equipe.getByRole('progressbar', { name: `XP de ${nom}`, exact: true });
+    expect(Number(await barre.getAttribute('aria-valuenow')), `XP de ${nom}`).toBeGreaterThan(xpAvant[index]!);
+  }
+  await page.getByRole('button', { name: /^Attaquer / }).click({ force: true });
+  expect(await lireArgent()).toBe(apres);
+  await expect(recherche).toBeVisible();
+  await page.clock.runFor(2000);
+  await expect(recherche).toBeHidden();
+
+  const montee = page.getByRole('status').filter({ hasText: /(passe au niveau \d+|montent de niveau) !/ });
+  for (let appui = 0; appui < 1500 && !(await montee.first().isVisible()); appui++) {
+    if (await recherche.isVisible()) await page.clock.runFor(2000);
+    await page.getByRole('button', { name: /^Attaquer / }).click({ force: true });
+    await page.clock.runFor(90);
+  }
+  await expect(montee.first()).toBeVisible();
+  for (const width of [390, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await expect(montee.first()).toBeVisible();
+    await verifierFenetre(page);
+  }
+});
+
 test('Contexte non sécurisé : combat disponible sans randomUUID', async ({ page }, informations) => {
   test.skip(informations.project.name !== 'mobile', 'Régression téléphone.');
   await page.addInitScript(() => { Object.defineProperty(crypto, 'randomUUID', { value: undefined }); });
@@ -94,18 +149,18 @@ test('Reprise : même étape, même équipe et sauvegarde stable', async ({ page
   await atteindre(page, 5);
   const equipe = page.getByRole('region', { name: 'Ton équipe' });
   // Les DPS dépendent du type du nouvel ennemi ; comparer l’identité et le niveau.
-  const avant = await equipe.locator('[aria-label]').evaluateAll(cartes => cartes.map(carte => carte.getAttribute('aria-label')?.replace(/, [\d.]+ DPS$/, '')));
+  const avant = await equipe.locator('[aria-label*=", niveau "]').evaluateAll(cartes => cartes.map(carte => carte.getAttribute('aria-label')?.replace(/, [\d\s,]+ DPS$/, '')));
   await page.reload();
   await expect(page.getByText('Étape 5 sur 10', { exact: true })).toBeVisible();
-  expect(await equipe.locator('[aria-label]').evaluateAll(cartes => cartes.map(carte => carte.getAttribute('aria-label')?.replace(/, [\d.]+ DPS$/, '')))).toEqual(avant);
+  expect(await equipe.locator('[aria-label*=", niveau "]').evaluateAll(cartes => cartes.map(carte => carte.getAttribute('aria-label')?.replace(/, [\d\s,]+ DPS$/, '')))).toEqual(avant);
   for (const nom of ['Bulbizarre', 'Salamèche', 'Carapuce']) {
     const carte = equipe.locator(`[aria-label^="${nom},"]`);
     await expect(carte).toHaveCount(1);
-    await expect(carte).toHaveAttribute('aria-label', new RegExp(`${nom}, niveau 5, \\d+(?:\\.\\d+)? DPS`));
+    await expect(carte).toHaveAttribute('aria-label', new RegExp(`${nom}, niveau \\d+, \\d+(?:,\\d+)? DPS`));
     // Sur mobile, les cases font 56 px (DESIGN.md) : le DPS n'y est donné qu'au total et dans le nom accessible.
     if (informations.project.name === 'pc') await expect(carte.getByText(/DPS/), `DPS visible de ${nom}`).toBeVisible();
   }
-  await expect(equipe.locator('[aria-label]:not([aria-label="Case libre"])')).toHaveCount(3);
+  await expect(equipe.locator('[aria-label*=", niveau "]')).toHaveCount(3);
   const premiere = await stockage(page);
   await page.clock.runFor(100);
   expect(await stockage(page)).toEqual(premiere);

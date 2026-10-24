@@ -1,9 +1,11 @@
 // @vitest-environment jsdom
-import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { readFileSync } from 'node:fs';
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { creerHorlogeSimulee } from '../core/clock';
 import { creerStockageMemoire } from '../core/sauvegarde';
 import { EcranCombat } from './EcranCombat';
+import { formaterDps } from './nombres';
 import { creerStoreJeu } from './store';
 import type { StoreJeu } from './store';
 import { ERREUR_CHARGEMENT } from './persistance';
@@ -20,6 +22,72 @@ function preparer(corrompu = false) {
   const vue = render(<EcranCombat store={store} />);
   return { ...vue, horloge, stockage };
 }
+
+it('affiche les pièces du store au format français sans constante provisoire', () => {
+  preparer();
+  for (const argent of [1250, 9876543, 0]) {
+    act(() => store.setState({ argent }));
+    expect(screen.getByRole('banner').textContent?.replace(/\s/g, ' ')).toContain(
+      `${new Intl.NumberFormat('fr-FR').format(argent).replace(/\s/g, ' ')} pièces`);
+  }
+  expect(readFileSync('src/ui/EcranCombat.tsx', 'utf8'))
+    .not.toContain(['ARGENT', 'PROVISOIRE'].join('_'));
+});
+it('affiche les niveaux mobile et PC ainsi que les XP accessibles de chaque Pokémon', () => {
+  preparer();
+  const noms = ['Bulbizarre', 'Salamèche', 'Carapuce'];
+  const membres = store.getState().equipe.filter(membre => membre !== null);
+  expect(membres).toHaveLength(3);
+  for (const [index, membre] of membres.entries()) {
+    const nom = noms[index];
+    const carte = screen.getByLabelText(`${nom}, niveau ${membre.pokemon.niveau}, ${formaterDps(membre.dps)} DPS`);
+    expect(within(carte).getByText(String(membre.pokemon.niveau)).className).toContain('lg:hidden');
+    expect(within(carte).getByText(`Niv. ${membre.pokemon.niveau}`)).toBeTruthy();
+    const barre = within(carte).getByRole('progressbar', { name: `XP de ${nom}` });
+    expect(barre.getAttribute('aria-valuemin')).toBe('0');
+    expect(barre.getAttribute('aria-valuemax')).toBe(String(membre.xpMax));
+    expect(barre.getAttribute('aria-valuenow')).toBe(String(membre.pokemon.xp));
+    expect(barre.className).toContain('h-1');
+  }
+  expect(screen.getAllByRole('progressbar', { name: /^XP de / })).toHaveLength(3);
+  act(() => store.setState({ equipe: store.getState().equipe.map((membre, index) =>
+    membre && index === 0 ? { ...membre, pokemon: { ...membre.pokemon, niveau: 100 }, xpMax: 0 } : membre) }));
+  expect(screen.queryByRole('progressbar', { name: 'XP de Bulbizarre' })).toBeNull();
+  expect(screen.getAllByRole('progressbar', { name: /^XP de / })).toHaveLength(2);
+});
+it('affiche puis retire l’annonce du store sans déplacer la scène', () => {
+  preparer();
+  expect(screen.queryByRole('status')).toBeNull();
+  const annonce = 'Salamèche passe au niveau 6 ! Chromatique ! +5 Bonbons';
+  act(() => store.setState({ annonce }));
+  const message = screen.getByRole('status');
+  expect(message.textContent).toBe(annonce);
+  expect(message.getAttribute('aria-live')).toBe('polite');
+  expect(message.className).toContain('absolute');
+  expect(message.className).toContain('pointer-events-none');
+  act(() => store.setState({ annonce: null }));
+  expect(screen.queryByRole('status')).toBeNull();
+  expect(screen.queryByText(annonce)).toBeNull();
+});
+it('masque l’ennemi pendant la recherche en gardant la cible d’attaque et les éléments en place', () => {
+  const { container } = preparer();
+  expect(screen.queryByText('Recherche en cours…')).toBeNull();
+  const attaque = screen.getByRole('button', { name: /^Attaquer / });
+  const panneau = screen.getByRole('progressbar', { name: 'PV de Rattata' }).parentElement?.parentElement;
+  const sprite = container.querySelector('.will-change-transform');
+  act(() => store.setState({ enRecherche: true }));
+  expect(screen.getByRole('status').textContent).toBe('Recherche en cours…');
+  expect(screen.getByRole('button', { name: /^Attaquer / })).toBe(attaque);
+  expect(attaque.getAttribute('aria-label')).toBe('Attaquer (recherche en cours)');
+  expect(screen.queryByRole('heading', { name: 'Rattata' })).toBeNull();
+  expect(screen.queryByRole('img', { name: 'Rattata' })).toBeNull();
+  expect(panneau?.classList.contains('opacity-0')).toBe(true);
+  expect(sprite?.classList.contains('opacity-0')).toBe(true);
+  act(() => store.setState({ enRecherche: false }));
+  expect(screen.queryByText('Recherche en cours…')).toBeNull();
+  expect(panneau?.classList.contains('opacity-0')).toBe(false);
+  expect(sprite?.classList.contains('opacity-0')).toBe(false);
+});
 
 it('rend la scène attaquable, avec des PV accessibles et dix étapes dont le boss', () => {
   const { container, horloge } = preparer();

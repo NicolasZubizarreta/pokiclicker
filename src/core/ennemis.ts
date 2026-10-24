@@ -1,4 +1,4 @@
-import type { Zone } from './monde';
+import type { Rarete, Zone } from './monde';
 import { chargerPokemon } from './pokemon';
 import { reglages } from './reglages';
 import { statsDeCombat } from './stats';
@@ -6,7 +6,7 @@ import { statsDeCombat } from './stats';
 const catalogue = chargerPokemon();
 export type Ennemi = {
   numero: number; niveau: number; shiny: boolean; boss: boolean;
-  capture: number; pv: number; pvMax: number;
+  capture: number; pv: number; pvMax: number; rarete: Rarete | null;
 };
 
 export function creerEnnemi(zone: Zone, etape: number, alea: () => number,
@@ -28,5 +28,6 @@ export function creerEnnemi(zone: Zone, etape: number, alea: () => number,
     : Math.floor(alea() * (zone.niveaux[1] - zone.niveaux[0] + 1)) + zone.niveaux[0];
   const pvMax = Math.floor(statsDeCombat(catalogue.parNumero(numero)).pv * niveau
     * options.pvParNiveau * zone.multiplicateurPv) * (boss ? options.pvBoss : 1);
-  return { numero, niveau, shiny, boss, capture: boss ? zone.boss.capture : rencontre.capture, pv: pvMax, pvMax };
+  return { numero, niveau, shiny, boss, rarete: boss ? null : rencontre.rarete,
+    capture: boss ? zone.boss.capture : rencontre.capture, pv: pvMax, pvMax };
 }

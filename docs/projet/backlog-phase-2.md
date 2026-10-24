@@ -167,7 +167,7 @@ Fourchette : 1 à 2 jours. Risque : téléchargement de fichiers (accord de Nico
 
 ## E. `feat(combat): donner l'argent, l'XP, les niveaux et le bonheur à chaque ennemi vaincu`
 
-Labels : `type:feat`, `etat:idee`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : oui
+Labels : `type:feat`, `etat:fait`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : oui
 
 ### Histoire
 En tant que joueur, je veux gagner de l'argent et de l'expérience en battant des Pokémon afin que mon équipe progresse et que je puisse acheter des objets.
@@ -176,13 +176,13 @@ En tant que joueur, je veux gagner de l'argent et de l'expérience en battant de
 V1 : `legacy/js/game/combat.js` (`killEnemy`, l. 227-369), `stats.js` (`calculateGoldReward`, `calcMaxXp`). V2 : `src/core/combat.ts` (événement `ennemi-vaincu`), `src/ui/store.ts`, `src/core/reglages.ts` et `data/reglages.json` (clés `bonus`, déjà présentes). **Règles V1 à reproduire** : or = `floor((niveau×4 + niveau^1,4) × m)` avec m = 10 pour un boss, 3 pour Rare et Très Rare, 20 pour Légendaire, sinon 1 ; puis multiplicateurs (Pièce Rune ×1,3, CT Jackpot ×1,2, badge Prisme ×1,2, shiny ×5) ; XP = `floor(PV de base × niveau × 2,2)`, ×5 pour un boss, puis Multi Exp ×1,5, Œuf Chance ×1,5, Omni Exp ×2, badge Âme ×1,5 ; un shiny vaincu rapporte +5 Bonbons ; chaque Pokémon de l'équipe (hors œuf, niveau < 100) reçoit l'XP **complète**, sans partage ; **un seul niveau gagné par ennemi vaincu** ; `maxXp = floor(50 × niveau^2,2 × tier)` avec tier 0,8 si puissance < 100, 1,2 si > 180, sinon 1 ; niveau maximum 100 ; bonheur +1 par ennemi vaincu pour chaque membre (plafond 255) si niveau du Pokémon − niveau de l'ennemi ≤ 25 ; délai avant l'ennemi suivant 2 000 ms (1 000 avec Chaussures, 500 avec Bicyclette, /1,2 avec le badge Terre, ×0,9 au palier 50). Les **multiplicateurs d'objets, de badges et de paliers sont des sources branchées plus tard** (L, M, N) : ce ticket fournit le calcul et la table de multiplicateurs en données.
 
 ### Critères d'acceptation
-- [ ] Étant donné les 22 scénarios de la V1 (niveau, rareté, boss ou non, shiny, avec et sans multiplicateurs), quand je compare l'or et l'XP de `src/core`, alors les valeurs sont strictement égales à celles du code V1 exécuté (fixture `tests/fixtures/v1-recompenses.json`).
-- [ ] Étant donné un ennemi vaincu, quand l'événement est traité, alors l'argent de la région augmente, `statistiques` est mise à jour, chaque Pokémon éligible reçoit l'XP et gagne au plus un niveau, et son `maxXp` suit la courbe V1 jusqu'au niveau 100.
-- [ ] Étant donné un Pokémon de niveau 100, quand l'XP arrive, alors il n'en reçoit pas ; un œuf n'en reçoit pas.
-- [ ] Étant donné un écart de niveau supérieur à 25, quand l'ennemi est vaincu, alors le bonheur n'augmente pas ; sinon il augmente de 1 jusqu'à 255.
-- [ ] Étant donné un shiny vaincu, quand l'événement est traité, alors 5 Bonbons sont ajoutés à l'inventaire.
-- [ ] Étant donné les délais de la V1, quand un ennemi est vaincu, alors le suivant apparaît après 2 000 ms de temps de jeu (valeur lue dans `data/reglages.json`), avec la table de réducteurs prête pour les objets.
-- [ ] Étant donné l'écran de combat, quand je joue, alors l'argent affiché est celui de la région (plus de « 1 250 pièces » provisoire), chaque carte d'équipe montre son niveau et une barre d'XP, et un message bref signale une montée de niveau (sans défilement de page, dialogue toujours visible).
+- [x] Étant donné les 22 scénarios de la V1 (niveau, rareté, boss ou non, shiny, avec et sans multiplicateurs), quand je compare l'or et l'XP de `src/core`, alors les valeurs sont strictement égales à celles du code V1 exécuté (fixture `tests/fixtures/v1-recompenses.json`).
+- [x] Étant donné un ennemi vaincu, quand l'événement est traité, alors l'argent de la région augmente, `statistiques` est mise à jour, chaque Pokémon éligible reçoit l'XP et gagne au plus un niveau, et son `maxXp` suit la courbe V1 jusqu'au niveau 100.
+- [x] Étant donné un Pokémon de niveau 100, quand l'XP arrive, alors il n'en reçoit pas ; un œuf n'en reçoit pas.
+- [x] Étant donné un écart de niveau supérieur à 25, quand l'ennemi est vaincu, alors le bonheur n'augmente pas ; sinon il augmente de 1 jusqu'à 255.
+- [x] Étant donné un shiny vaincu, quand l'événement est traité, alors 5 Bonbons sont ajoutés à l'inventaire.
+- [x] Étant donné les délais de la V1, quand un ennemi est vaincu, alors le suivant apparaît après 2 000 ms de temps de jeu (valeur lue dans `data/reglages.json`), avec la table de réducteurs prête pour les objets.
+- [x] Étant donné l'écran de combat, quand je joue, alors l'argent affiché est celui de la région (plus de « 1 250 pièces » provisoire), chaque carte d'équipe montre son niveau et une barre d'XP, et un message bref signale une montée de niveau (sans défilement de page, dialogue toujours visible).
 
 ### Hors périmètre
 Sources des multiplicateurs (objets L et M, badges et paliers N), capture (J), évolutions (K), dépense d'argent.

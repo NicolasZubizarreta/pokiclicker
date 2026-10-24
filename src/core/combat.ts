@@ -1,10 +1,11 @@
 import types from '../../data/types.json';
-import type { Zone } from './monde';
+import type { Rarete, Zone } from './monde';
 import { chargerPokemon } from './pokemon';
 import { calculerDps } from './stats';
 import { reglages } from './reglages';
 import { creerEnnemi } from './ennemis';
 import type { Ennemi } from './ennemis';
+import { delaiEnnemiSuivant } from './recompenses';
 export { creerEnnemi } from './ennemis';
 export { creerLimiteurClics } from './clics';
 
@@ -38,12 +39,12 @@ export function calculerClic(dpsEquipe: number, actifs: readonly string[] = []):
 }
 
 export type EvenementCombat =
-  | { type: 'ennemi-vaincu'; numero: number; niveau: number; shiny: boolean; boss: boolean }
+  | { type: 'ennemi-vaincu'; numero: number; niveau: number; shiny: boolean; boss: boolean; rarete: Rarete | null }
   | { type: 'boss-vaincu'; zoneId: string };
 export type EtatCombat = {
   zoneId: string; etape: number; ennemi: Ennemi; equipe: readonly MembreEquipe[];
   actifs: readonly string[]; evenements: readonly EvenementCombat[];
-  zone: Zone; alea: () => number;
+  zone: Zone; alea: () => number; attenteMs: number;
 };
 
 export function creerCombat(zone: Zone, equipe: readonly MembreEquipe[], alea: () => number,
@@ -55,28 +56,36 @@ export function reprendreCombat(zone: Zone, equipe: readonly MembreEquipe[], ale
   etape: number, actifs: readonly string[] = []): EtatCombat {
   if (!Number.isInteger(etape) || etape < 1 || etape > zone.etapes) throw new Error('Étape de reprise invalide');
   return { zoneId: zone.id, etape, ennemi: creerEnnemi(zone, etape, alea),
-    equipe, actifs, evenements: [], zone, alea };
+    equipe, actifs, evenements: [], zone, alea, attenteMs: 0 };
 }
 
 function infliger(etat: EtatCombat, degats: number): EtatCombat {
   const pv = Math.max(0, etat.ennemi.pv - degats);
   if (pv > 0) return { ...etat, ennemi: { ...etat.ennemi, pv } };
-  const { numero, niveau, shiny, boss } = etat.ennemi;
+  const { numero, niveau, shiny, boss, rarete } = etat.ennemi;
   const evenements: EvenementCombat[] = [...etat.evenements,
-    { type: 'ennemi-vaincu', numero, niveau, shiny, boss }];
+    { type: 'ennemi-vaincu', numero, niveau, shiny, boss, rarete }];
   if (boss) evenements.push({ type: 'boss-vaincu', zoneId: etat.zoneId });
   const etape = boss ? 1 : etat.etape + 1;
-  return { ...etat, etape, evenements, ennemi: creerEnnemi(etat.zone, etape, etat.alea) };
+  return { ...etat, etape, evenements, ennemi: creerEnnemi(etat.zone, etape, etat.alea),
+    attenteMs: delaiEnnemiSuivant(etat.actifs) };
 }
 
 export function avancerCombat(etat: EtatCombat, pasMs: number): EtatCombat {
   if (!Number.isFinite(pasMs) || pasMs < 0) throw new Error('Durée de combat invalide');
   // Conversion d'unité, indépendante des réglages d'équilibrage.
+  if (pasMs === 0) return etat;
+  if (etat.attenteMs > 0) {
+    const attente = Math.min(pasMs, etat.attenteMs);
+    etat = { ...etat, attenteMs: etat.attenteMs - attente };
+    pasMs -= attente;
+    if (pasMs === 0) return etat;
+  }
   return infliger(etat, calculerDpsEquipe(etat.equipe, etat.ennemi, etat.actifs) * pasMs / 1e3);
 }
 
 export function cliquer(etat: EtatCombat, limiteur: { essayer(): boolean }): EtatCombat {
-  if (!limiteur.essayer()) return etat;
+  if (etat.attenteMs > 0 || !limiteur.essayer()) return etat;
   return infliger(etat, calculerClic(calculerDpsEquipe(etat.equipe, etat.ennemi, etat.actifs), etat.actifs));
 }
 

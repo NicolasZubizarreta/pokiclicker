@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import references from '../../tests/fixtures/v1-combat.json';
 import matrice from '../../tests/fixtures/v1-multiplicateurs.json';
 import statsV1 from '../../tests/fixtures/v1-stats.json';
@@ -52,13 +52,23 @@ describe('Non-régression stricte de la V1', () => {
 });
 
 describe('Ennemis', () => {
+  it('conserve la rareté de la rencontre tirée sans tirage supplémentaire', () => {
+    const zone = { ...route, sauvages: [
+      { ...route.sauvages[0]!, apparition: 0.2, rarete: 'commun' as const },
+      { ...route.sauvages[0]!, apparition: 0.8, rarete: 'rare' as const },
+    ] };
+    expect(creerEnnemi(zone, 1, suite(0.5, 0.1, 0)).rarete).toBe('commun');
+    expect(creerEnnemi(zone, 1, suite(0.5, 0.3, 0)).rarete).toBe('rare');
+  });
   it('calcule les PV de Rattata et du boss de Route 1', () => {
     const zone = { ...route, niveaux: [5, 5] as [number, number],
       sauvages: [{ ...route.sauvages[0]!, pokemon: 19, apparition: 1 }] };
     expect(creerEnnemi(zone, 1, constant).pv).toBe(380);
+    expect(creerEnnemi(zone, 1, suite(0.5, 0, 0)).rarete).toBe(zone.sauvages[0]!.rarete);
     const boss = creerEnnemi(route, reglages.combat.etapeBoss, suite());
     expect(boss).toMatchObject({ numero: 19, niveau: 6, pv: 1824, boss: true, shiny: false, capture: route.boss.capture });
     expect(boss.pv).toBe(38 * 6 * 2 * 1 * reglages.combat.pvBoss);
+    expect(boss.rarete).toBeNull();
   });
   it('calcule les PV du boss de la Forêt de Jade depuis la référence V1', () => {
     const foret = kanto.zoneDeCombat('kanto.foret-de-jade');
@@ -120,6 +130,40 @@ describe('Limiteur de clics', () => {
 });
 
 describe('Résolution du combat', () => {
+  it('démarre sans attente et ignore un pas nul', () => {
+    const initial = creerCombat(route, equipe, constant);
+    expect(initial.attenteMs).toBe(0);
+    expect(avancerCombat(initial, 0)).toBe(initial);
+  });
+  it('ignore les clics pendant l’attente sans appeler le limiteur', () => {
+    const initial = creerCombat(route, equipe, constant);
+    const suivant = cliquer({ ...initial, ennemi: { ...initial.ennemi, pv: 1 } }, { essayer: () => true });
+    const essayer = vi.fn(() => true);
+    expect(cliquer(suivant, { essayer })).toBe(suivant);
+    expect(essayer).not.toHaveBeenCalled();
+    expect(avancerCombat(suivant, 0)).toBe(suivant);
+  });
+  it.each([[1999, 1], [2000, 0]])('consomme %i ms d’attente et laisse %i ms sans dégâts', (pas, attente) => {
+    const initial = creerCombat(route, equipe, constant);
+    const suivant = cliquer({ ...initial, ennemi: { ...initial.ennemi, pv: 1 } }, { essayer: () => true });
+    const apres = avancerCombat(suivant, pas);
+    expect(apres.attenteMs).toBe(attente);
+    expect(apres.ennemi).toBe(suivant.ennemi);
+    expect(apres.evenements).toBe(suivant.evenements);
+    expect(avancerCombat(avancerCombat(suivant, 1999), 1).attenteMs).toBe(0);
+  });
+  it('applique seulement les 100 ms de DPS restantes après 2100 ms', () => {
+    const initial = creerCombat(route, equipe, constant);
+    const suivant = cliquer({ ...initial, ennemi: { ...initial.ennemi, pv: 1 } }, { essayer: () => true });
+    const apres = avancerCombat(suivant, 2100);
+    expect(apres.attenteMs).toBe(0);
+    expect(apres.ennemi.pv).toBe(suivant.ennemi.pv - calculerDpsEquipe(equipe, suivant.ennemi) * 0.1);
+  });
+  it('réduit l’attente à 500 ms avec la bicyclette', () => {
+    const initial = creerCombat(route, equipe, constant, ['objet:bicycle']);
+    const suivant = avancerCombat({ ...initial, ennemi: { ...initial.ennemi, pv: 1 } }, 1000);
+    expect(suivant.attenteMs).toBe(500);
+  });
   it('inflige exactement dix secondes de DPS en cent pas sans clic via la boucle', () => {
     const initial = creerCombat(route, [{ numero: 19, niveau: 50 }], constant);
     const etat = { ...initial, ennemi: { ...initial.ennemi, numero: 19, pv: 10000, pvMax: 10000 } };
@@ -137,7 +181,8 @@ describe('Résolution du combat', () => {
     const suivant = avancerCombat(initial, 1000000);
     expect(suivant.etape).toBe(2);
     expect(suivant.evenements).toEqual([{ type: 'ennemi-vaincu', numero: initial.ennemi.numero,
-      niveau: initial.ennemi.niveau, shiny: initial.ennemi.shiny, boss: false }]);
+      niveau: initial.ennemi.niveau, shiny: initial.ennemi.shiny, boss: false, rarete: initial.ennemi.rarete }]);
+    expect(suivant.attenteMs).toBe(2000);
     expect(suivant.ennemi.pv).toBe(suivant.ennemi.pvMax);
     expect(avancerCombat(suivant, 0).evenements).toHaveLength(1);
   });
@@ -147,11 +192,12 @@ describe('Résolution du combat', () => {
     const boss = cliquer(neuf, { essayer: () => true });
     expect(boss.etape).toBe(10);
     expect(boss.ennemi.boss).toBe(true);
-    const apres = avancerCombat(boss, 1000000);
+    const apres = avancerCombat(avancerCombat(boss, boss.attenteMs), 1000000);
     expect(apres.etape).toBe(1);
     expect(apres.ennemi.boss).toBe(false);
     expect(apres.evenements.filter((e) => e.type === 'ennemi-vaincu')).toHaveLength(2);
     expect(apres.evenements.at(-1)).toEqual({ type: 'boss-vaincu', zoneId: route.id });
+    expect(apres.evenements.at(-2)).toMatchObject({ type: 'ennemi-vaincu', rarete: null });
     expect(viderEvenements(apres).evenements).toEqual([]);
     expect(apres.evenements).toHaveLength(3);
   });

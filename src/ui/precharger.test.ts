@@ -1,7 +1,7 @@
 import { beforeEach, expect, it, vi } from 'vitest';
 import zones from '../../data/regions/kanto/zones.json';
 import type { Zone } from '../core/monde';
-import { creerCombat, cliquer } from '../core/combat';
+import { avancerCombat, creerCombat, cliquer } from '../core/combat';
 import type { ImagePrechargeable } from './precharger';
 
 const zone = zones.zones.find(({ id }) => id === 'kanto.route-1') as Zone;
@@ -57,6 +57,7 @@ it('a déjà chargé le sprite de chacune des 200 apparitions, boss compris', as
     const courant = combat.ennemi;
     combat = cliquer({ ...combat, ennemi: { ...courant, pv: 1 } }, { essayer: () => true });
     expect(combat.ennemi).not.toBe(courant);
+    combat = avancerCombat(combat, combat.attenteMs);
   }
   expect(bossVus).toBeGreaterThan(0);
 });

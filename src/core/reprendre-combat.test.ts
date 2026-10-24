@@ -7,6 +7,7 @@ it('reprend une étape avec un ennemi neuf sans modifier la zone ni l’équipe'
   const equipe = Object.freeze([{ numero: 1, niveau: 5 }]);
   const combat = reprendreCombat(zone, equipe, () => .1, 4);
   expect(combat.etape).toBe(4);
+  expect(combat.attenteMs).toBe(0);
   expect(combat.equipe).toBe(equipe);
   expect(combat.ennemi.pv).toBe(combat.ennemi.pvMax);
   expect(combat.evenements).toEqual([]);
