@@ -3,6 +3,7 @@ import { cleanup, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it } from 'vitest';
 import { Coquille } from './Coquille';
+import { storeJeu } from './store';
 
 afterEach(cleanup);
 const noms = ['Combat', 'Équipe', 'Shop', 'Carte', 'Plus'];
@@ -23,7 +24,8 @@ describe('Coquille', () => {
     for (const nom of noms.slice(1)) {
       await utilisateur.click(screen.getByRole('button', { name: nom }));
       expect(within(screen.getByRole('main')).getByRole('heading').textContent).toBe(nom);
-      expect(screen.getByText('Cette page arrive bientôt.')).toBeTruthy();
+      if (nom === 'Carte') expect(screen.getByRole('button', { name: 'Route 1 (Zone 1)' })).toBeTruthy();
+      else expect(screen.getByText('Cette page arrive bientôt.')).toBeTruthy();
       expect(screen.getAllByRole('button').filter((bouton) => bouton.hasAttribute('aria-current')))
         .toEqual([screen.getByRole('button', { name: nom })]);
     }
@@ -60,10 +62,15 @@ describe('Coquille', () => {
       const parcours = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
       while (parcours.nextNode()) {
         const texte = parcours.currentNode.textContent?.trim();
-        if (texte) expect(autorises.has(texte), texte).toBe(true);
+        const textesCarte = new Set(['Sélectionne une zone.', ...storeJeu.getState().carte.formes.map(f =>
+          f.numero === null || f.numero === 0 ? f.nom : `${f.nom} (Zone ${f.numero})`)]);
+        if (texte) expect(autorises.has(texte) || textesCarte.has(texte), texte).toBe(true);
       }
       for (const element of container.querySelectorAll('[aria-label]')) {
-        expect(element.getAttribute('aria-label')).toBe('Navigation principale');
+        const forme = storeJeu.getState().carte.formes.find(f => f.nom === element.getAttribute('data-forme'));
+        const attendu = forme ? (forme.numero === null || forme.numero === 0 ? forme.nom : `${forme.nom} (Zone ${forme.numero})`)
+          : element.tagName.toLowerCase() === 'svg' ? 'Carte de Kanto' : 'Navigation principale';
+        expect(element.getAttribute('aria-label')).toBe(attendu);
       }
     }
     const icones = container.querySelectorAll('svg');

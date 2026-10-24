@@ -24,6 +24,11 @@
   --color-lien: var(--lien);
   --color-focus: var(--focus);
   --color-selection: var(--selection);
+  --color-succes-base: var(--succes-base);
+  --color-alerte-base: var(--alerte-base);
+  --color-erreur-base: var(--erreur-base);
+  --color-info-base: var(--info-base);
+  --color-info-texte: var(--info-texte);
   --color-region-accent: var(--region-accent);
   --color-region-argent: var(--region-argent);
   --color-region-socle: var(--region-socle);
@@ -78,3 +83,9 @@
 .fleche-chen { animation: fleche var(--duree-degats) var(--ease-standard) infinite alternate; }
 @keyframes degats { to { transform: translateY(calc(var(--spacing) * -6)); opacity: 0; } }
 @keyframes fleche { to { transform: translateY(var(--spacing)); } }
+
+/* Durées V1 de la carte : pulsation 2 s et tutoriel 0,8 s. */
+:root { --duree-carte-pulsation: 2s; --duree-carte-clignotement: 0.8s; }
+.carte-pulsation { animation: carte-opacite var(--duree-carte-pulsation) var(--ease-standard) infinite; }
+.carte-clignotement { animation: carte-opacite var(--duree-carte-clignotement) var(--ease-standard) infinite; }
+@keyframes carte-opacite { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
