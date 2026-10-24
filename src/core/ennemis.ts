@@ -11,7 +11,9 @@ export type Ennemi = {
 
 export function creerEnnemi(zone: Zone, etape: number, alea: () => number,
   options: typeof reglages.combat = reglages.combat): Ennemi {
-  const boss = etape === options.etapeBoss;
+  const ligue = zone.type === 'ligue';
+  const boss = ligue || etape === options.etapeBoss;
+  const adversaire = ligue && etape < options.etapeBoss ? zone.adversaires![etape - 1]! : zone.boss;
   let rencontre = zone.sauvages[0]!;
   // La V1 tire le shiny avant l'espèce et le niveau ; le boss ne consomme aucun tirage.
   const shiny = !boss && alea() < options.chanceShiny;
@@ -23,11 +25,11 @@ export function creerEnnemi(zone: Zone, etape: number, alea: () => number,
       if (cumul >= tirage) { rencontre = sauvage; break; }
     }
   }
-  const numero = boss ? zone.boss.pokemon : rencontre.pokemon;
-  const niveau = boss ? zone.boss.niveau
+  const numero = boss ? adversaire.pokemon : rencontre.pokemon;
+  const niveau = boss ? adversaire.niveau
     : Math.floor(alea() * (zone.niveaux[1] - zone.niveaux[0] + 1)) + zone.niveaux[0];
   const pvMax = Math.floor(statsDeCombat(catalogue.parNumero(numero)).pv * niveau
     * options.pvParNiveau * zone.multiplicateurPv) * (boss ? options.pvBoss : 1);
   return { numero, niveau, shiny, boss, rarete: boss ? null : rencontre.rarete,
-    capture: boss ? zone.boss.capture : rencontre.capture, pv: pvMax, pvMax };
+    capture: ligue ? 0 : boss ? adversaire.capture : rencontre.capture, pv: pvMax, pvMax };
 }
