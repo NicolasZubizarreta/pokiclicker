@@ -374,7 +374,7 @@ Fourchette : 1 à 2 jours. Risque : comportement du cache sur iOS. Dépend de : 
 
 ## M. `test(jalon): jouer la Route 1 sur un téléphone réel et sur PC`
 
-Labels : `type:test`, `etat:idee`, `est:1-1`, `prio:1` · branche : aucune · `agent-ok` : **non**
+Labels : `type:test`, `etat:fait`, `est:1-1`, `prio:1` · branche : aucune · `agent-ok` : **non**
 
 ### Histoire
 En tant que Nicolas, je veux valider le jalon de la phase 1 sur mes propres appareils afin de décider si on passe à Kanto.
@@ -383,10 +383,13 @@ En tant que Nicolas, je veux valider le jalon de la phase 1 sur mes propres appa
 Jalon : « Route 1 jouable sur téléphone et PC ». Définition de « fini » dans `docs/projet/charte.md`.
 
 ### Critères d'acceptation
-- [ ] Étant donné un téléphone en portrait, quand je joue la Route 1 du début au boss, alors tout reste lisible et utilisable au pouce, sans zoom.
-- [ ] Étant donné un PC (1440 px), quand je joue la même zone, alors la disposition suit `design/DESIGN.md`.
-- [ ] Étant donné une partie fermée en cours de zone, quand je la rouvre sur le même appareil, alors je reprends où j'étais.
-- [ ] Les écarts relevés deviennent des tickets `type:bug`, classés par priorité.
+- [x] Étant donné un téléphone en portrait, quand je joue la Route 1 du début au boss, alors tout reste lisible et utilisable au pouce, sans zoom.
+- [x] Étant donné un PC (1440 px), quand je joue la même zone, alors la disposition suit `design/DESIGN.md`.
+- [x] Étant donné une partie fermée en cours de zone, quand je la rouvre sur le même appareil, alors je reprends où j'étais.
+- [x] Les écarts relevés deviennent des tickets `type:bug`, classés par priorité.
+
+### Résultat (24/10)
+Validé par Nicolas sur son téléphone et son PC après correction des écarts : voir `docs/projet/jalon-1.md`. Restent à voir à part : l'installation en application sur un vrai Android et iPhone (https requis).
 
 ### Hors périmètre
 Équilibrage (phase 3).
