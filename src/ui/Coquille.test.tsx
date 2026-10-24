@@ -1,14 +1,85 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen, within } from '@testing-library/react';
+import { act, cleanup, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Coquille } from './Coquille';
-import { storeJeu } from './store';
+import { creerStoreJeu, storeJeu } from './store';
 
-afterEach(cleanup);
+const contexte = vi.hoisted(() => ({ store: null as unknown as typeof storeJeu }));
+vi.mock('./store', async (importOriginal) => ({
+  ...await importOriginal<typeof import('./store')>(),
+  get storeJeu() { return contexte.store; },
+}));
+
+function nouvellePartie() {
+  contexte.store = creerStoreJeu({
+    horloge: { maintenant: () => 0 },
+    stockage: {
+      lire: cle => localStorage.getItem(cle),
+      ecrire: (cle, valeur) => localStorage.setItem(cle, valeur),
+      supprimer: cle => localStorage.removeItem(cle),
+      cles: () => Object.keys(localStorage),
+    },
+    alea: () => 0.5,
+    genererId: () => 'test-coquille',
+  });
+}
+
+beforeEach(() => { localStorage.clear(); nouvellePartie(); });
+
+afterEach(() => {
+  cleanup();
+  localStorage.clear();
+});
 const noms = ['Combat', 'Équipe', 'Shop', 'Carte', 'Plus'];
 
 describe('Coquille', () => {
+  it('ne signale plus Carte à Bourg Palette après un boss vaincu', () => {
+    const { unmount } = render(<Coquille />);
+    unmount();
+    const cle = Object.keys(localStorage).find(cle => cle.startsWith('pokiclicker:region:') && cle.endsWith(':kanto'))!;
+    const sauvegarde = JSON.parse(localStorage.getItem(cle)!);
+    sauvegarde.donnees.bossVaincus = ['kanto.route-1'];
+    localStorage.setItem(cle, JSON.stringify(sauvegarde));
+    nouvellePartie();
+    render(<Coquille />);
+    act(() => storeJeu.getState().allerVers('kanto.bourg-palette'));
+    expect(storeJeu.getState().carte.tutorielRoute1).toBe(false);
+    const carte = screen.getByRole('button', { name: 'Carte' });
+    expect(carte.hasAttribute('data-signal')).toBe(false);
+    expect(carte.classList.contains('rebond-signal')).toBe(false);
+  });
+
+  it('signale seulement Carte à Bourg Palette avant le premier boss', () => {
+    const { container } = render(<Coquille />);
+    act(() => storeJeu.getState().allerVers('kanto.bourg-palette'));
+    const carte = screen.getByRole('button', { name: 'Carte' });
+    expect(carte.getAttribute('data-signal')).toBe('true');
+    expect(carte.classList.contains('ring-4')).toBe(true);
+    expect(carte.classList.contains('ring-succes-base')).toBe(true);
+    expect(carte.classList.contains('rebond-signal')).toBe(true);
+    expect(container.querySelectorAll('[data-signal="true"]')).toHaveLength(1);
+  });
+
+  it('éteint le signal en quittant Bourg Palette pour la Route 1', () => {
+    render(<Coquille />);
+    act(() => storeJeu.getState().allerVers('kanto.bourg-palette'));
+    expect(screen.getByRole('button', { name: 'Carte' }).getAttribute('data-signal')).toBe('true');
+    act(() => storeJeu.getState().allerVers('kanto.route-1'));
+    expect(screen.getByRole('button', { name: 'Carte' }).hasAttribute('data-signal')).toBe(false);
+  });
+
+  it('éteint le signal quand on ouvre Carte', async () => {
+    const utilisateur = userEvent.setup();
+    render(<Coquille />);
+    act(() => storeJeu.getState().allerVers('kanto.bourg-palette'));
+    const carte = screen.getByRole('button', { name: 'Carte' });
+    expect(carte.getAttribute('data-signal')).toBe('true');
+    await utilisateur.click(carte);
+    expect(carte.hasAttribute('data-signal')).toBe(false);
+    expect(carte.classList.contains('rebond-signal')).toBe(false);
+  });
+
   it('présente les cinq destinations dans l’ordre et active seulement Combat', () => {
     render(<Coquille />);
     const boutons = within(screen.getByRole('navigation')).getAllByRole('button');

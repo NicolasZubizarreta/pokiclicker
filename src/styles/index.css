@@ -84,6 +84,14 @@
 @keyframes degats { to { transform: translateY(calc(var(--spacing) * -6)); opacity: 0; } }
 @keyframes fleche { to { transform: translateY(var(--spacing)); } }
 
+/* Rebond du bouton Carte de la V1 (animate-bounce, 1 s). */
+:root { --duree-signal: 1s; }
+.rebond-signal { animation: rebond-signal var(--duree-signal) var(--ease-standard) infinite; }
+@keyframes rebond-signal {
+  0%, 100% { transform: translateY(-25%); }
+  50% { transform: translateY(0); }
+}
+
 /* Durées V1 de la carte : pulsation 2 s et tutoriel 0,8 s. */
 :root { --duree-carte-pulsation: 2s; --duree-carte-clignotement: 0.8s; }
 .carte-pulsation { animation: carte-opacite var(--duree-carte-pulsation) var(--ease-standard) infinite; }
