@@ -1,12 +1,14 @@
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { runInContext, createContext } from 'node:vm';
+import { convertirCarte, lireTaillePng } from './convertir-carte-v1.mjs';
 
 const racine = new URL('../', import.meta.url);
 const contexte = createContext({});
 for (const fichier of ['legacy/js/data/constants.js', 'legacy/js/regions/kanto.js']) {
   runInContext((await readFile(new URL(fichier, racine), 'utf8')).replace(/^\uFEFF/, ''), contexte);
 }
-const { ZONES, ZONE_MULT, BADGES } = runInContext('({ ZONES, ZONE_MULT, BADGES })', contexte);
+const { ZONES, ZONE_MULT, BADGES, MAP_DATA } = runInContext('({ ZONES, ZONE_MULT, BADGES, MAP_DATA })', contexte);
+const image = await lireTaillePng(new URL('legacy/img/kanto/kanto.png', racine));
 
 const slugsAttendus = [
   'bourg-palette', 'route-1', 'foret-de-jade', 'arene-d-argenta',
@@ -116,9 +118,12 @@ for (const [fichier, donnees] of [
     multiplicateurs: Object.entries(ZONE_MULT).map(([id, mult]) => [Number(id), mult])
       .sort(([a], [b]) => a - b),
     badges: BADGES,
+    carte: MAP_DATA,
+    image,
   }],
   ['data/regions/kanto/zones.json', {
     version: 1, region: 'kanto', depart: identifiant(0), premierCombat: identifiant(1), zones, lieux,
+    carte: convertirCarte(MAP_DATA, image, zones),
   }],
 ]) {
   const texte = JSON.stringify(donnees, null, 2) + '\n';

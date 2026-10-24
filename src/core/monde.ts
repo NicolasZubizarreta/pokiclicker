@@ -34,8 +34,14 @@ export type Zone = {
 };
 export type ZoneMonde = Zone | ZoneSansCombat;
 export type Lieu = { lieu: string; nom: string; decor: string; ancienId: number; depuis: string; si?: Condition };
+export type FormeCarte = { zone: string | null; nom: string; teinte: string } & (
+  | { forme: 'rect'; x: number; y: number; l: number; h: number }
+  | { forme: 'cercle'; x: number; y: number; r: number }
+  | { forme: 'polygone'; points: [number, number][] }
+);
+export type CarteRegion = { image: string; ratio: [number, number]; formes: FormeCarte[] };
 export type FichierZones = {
-  version: number; region: string; depart: string; premierCombat: string; zones: ZoneMonde[]; lieux: Lieu[];
+  version: number; region: string; depart: string; premierCombat: string; zones: ZoneMonde[]; lieux: Lieu[]; carte: CarteRegion;
 };
 
 export function chargerMonde(fichier: FichierZones, catalogue = chargerPokemon()) {
@@ -109,6 +115,35 @@ export function chargerMonde(fichier: FichierZones, catalogue = chargerPokemon()
     return resultat;
   }
   const contexte = { nomZone: (id: string) => zone(id).nom };
+  const carte = fichier.carte;
+  if (!carte || typeof carte.image !== 'string' || !/^(?!\/)(?!.*\.\.)[^:]+$/.test(carte.image)
+    || !Array.isArray(carte.ratio) || carte.ratio.length !== 2
+    || !carte.ratio.every(valeur => Number.isFinite(valeur) && valeur > 0) || !Array.isArray(carte.formes)) {
+    throw new Error('Forme de carte invalide : carte');
+  }
+  const zonesCarte = new Set<string>();
+  const fraction = (valeur: unknown) => typeof valeur === 'number' && Number.isFinite(valeur) && valeur >= 0 && valeur <= 1;
+  for (const forme of carte.formes) {
+    const invalide = () => new Error(`Forme de carte invalide : ${forme?.nom}`);
+    if (!forme || typeof forme.nom !== 'string' || !forme.nom.trim()
+      || typeof forme.teinte !== 'string' || !forme.teinte.trim()) throw invalide();
+    if (forme.zone !== null) {
+      zone(forme.zone);
+      if (zonesCarte.has(forme.zone)) throw invalide();
+      zonesCarte.add(forme.zone);
+    }
+    if (forme.forme === 'rect') {
+      if (![forme.x, forme.y, forme.l, forme.h].every(fraction)) throw invalide();
+    } else if (forme.forme === 'cercle') {
+      if (![forme.x, forme.y, forme.r].every(fraction)) throw invalide();
+    } else if (forme.forme === 'polygone') {
+      if (!Array.isArray(forme.points) || forme.points.length < 3
+        || !forme.points.every(point => Array.isArray(point) && point.length === 2 && point.every(fraction))) throw invalide();
+    } else throw invalide();
+  }
+  for (const actuelle of fichier.zones) {
+    if (!zonesCarte.has(actuelle.id)) throw new Error(`Forme de carte invalide : ${actuelle.nom}`);
+  }
   function parcourir(etat?: EtatMonde): ZoneMonde[] {
     const visites = new Set<string>([fichier.depart]);
     for (const id of visites) {
@@ -128,6 +163,7 @@ export function chargerMonde(fichier: FichierZones, catalogue = chargerPokemon()
     premierCombat: fichier.premierCombat,
     zones: fichier.zones,
     lieux: fichier.lieux,
+    carte,
     lieu,
     zone,
     zoneDeCombat,

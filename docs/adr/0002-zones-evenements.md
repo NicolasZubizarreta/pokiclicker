@@ -62,6 +62,10 @@
 7. **Les scènes d'introduction** de la V1 (zones −7 à −1) deviennent des **événements** de type `debut-partie`, pas des zones.
 
 ## Précisions de la saisie de Kanto (ticket C, 24/10/2026)
+- **Carte** (ticket G) : le bloc `carte` est à la racine du fichier : `{ image, ratio: [16, 9], formes }` ; il précise le point 2.
+  Les formes sont ordonnées comme `MAP_DATA` : `{ zone, nom, teinte, forme, … }`, avec `zone` = id V2 ou `null` pour les lieux non jouables.
+  `forme` vaut `rect` (`x,y,l,h`), `cercle` (`x,y,r`) ou `polygone` (`points: [[x,y],…]`).
+  Toutes les coordonnées sont des fractions de l'image : x et l sur la largeur, y et h sur la hauteur ; `r` est une fraction de la largeur.
 - **Zone sans combat** : Bourg Palette (zone 0 de la V1, sans ennemi) est un nœud du graphe marqué `"sansCombat": true`, sans `niveaux`, `etapes`, `sauvages` ni `boss`. C'est le `depart` du monde ; `premierCombat` (`kanto.route-1`) désigne la première zone où l'on se bat et fournit la zone de départ par défaut de `creerPartie`. La scène d'ouverture reste au ticket O. Un `message` facultatif, non vide, décrit les zones sans combat. Le moteur distingue `monde.zone(id)` (tout nœud) de `monde.zoneDeCombat(id)` (lève « Zone sans combat : <id> »).
 - **Accès aux zones** : `accesZone(vers, etat)` autorise toute zone déjà ouverte, y compris lors d'un retour. Sinon, il réutilise `peutPasser` depuis `zonePrecedente(vers)`, la première zone dans l'ordre des données dont un lien mène à la destination, et renvoie la raison du refus en français.
 - **Type de zone** : `type` vaut `"arene"` (zones des badges de la V1, `BADGES[].zoneIdx`) ou `"ligue"`. Un type inconnu est refusé (« Type de zone inconnu : <x> »).

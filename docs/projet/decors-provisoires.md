@@ -33,3 +33,5 @@ Ces fichiers sont plus étroits que 16:9 ou carrés : les rendre 16:9 obligerait
 
 ## Hors connexion
 Seul le décor de la Route 1 est préchargé avec l'application (`vite.config.ts`, `workbox.globIgnores`). Les autres décors, les artworks et l'animation de Roucarnage entrent dans le cache à leur première vue (`CacheFirst`, cache `images-lourdes`) : un décor jamais affiché en ligne n'est pas disponible hors connexion. Précharger les 24 décors (≈ 4 Mo) dépassait le délai d'activation du service worker et ralentissait le jeu pendant son installation (test de fluidité).
+Carte de Kanto reprise telle quelle de la V1 pour le ticket G, à régénérer en phase 5.
+

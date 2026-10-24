@@ -4,16 +4,61 @@
   "description": "Format de l'ADR 0002. La dernière étape de chaque zone de combat est son boss. Les liens forment un graphe orienté ; fin autorise une zone sans sortie.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["version", "region", "depart", "premierCombat", "zones", "lieux"],
+  "required": ["version", "region", "depart", "premierCombat", "zones", "lieux", "carte"],
   "properties": {
     "version": { "const": 1 },
     "region": { "$ref": "#/$defs/identifiant" },
     "depart": { "$ref": "#/$defs/identifiant" },
     "premierCombat": { "$ref": "#/$defs/identifiant", "description": "Identifiant de la première zone de combat." },
     "zones": { "type": "array", "minItems": 1, "items": { "oneOf": [{ "$ref": "#/$defs/zoneSansCombat" }, { "$ref": "#/$defs/zoneCombat" }] } },
-    "lieux": { "type": "array", "items": { "$ref": "#/$defs/lieu" } }
+    "lieux": { "type": "array", "items": { "$ref": "#/$defs/lieu" } },
+    "carte": {
+      "type": "object", "additionalProperties": false, "required": ["image", "ratio", "formes"],
+      "properties": {
+        "image": { "type": "string", "pattern": "^(?!/)(?!.*\\.\\.)[^:]+$" },
+        "ratio": { "type": "array", "minItems": 2, "maxItems": 2, "items": { "type": "number", "exclusiveMinimum": 0 } },
+        "formes": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/formeCarte" } }
+      }
+    }
   },
   "$defs": {
+    "fraction": { "type": "number", "minimum": 0, "maximum": 1 },
+    "formeCarte": {
+      "type": "object", "unevaluatedProperties": false,
+      "required": ["zone", "nom", "teinte", "forme"],
+      "properties": {
+        "zone": { "oneOf": [{ "$ref": "#/$defs/identifiant" }, { "type": "null" }] },
+        "nom": { "type": "string", "minLength": 1, "pattern": "\\S" },
+        "teinte": { "type": "string", "minLength": 1, "pattern": "\\S" }
+      },
+      "oneOf": [
+        {
+          "required": ["x", "y", "l", "h"],
+          "properties": {
+            "forme": { "const": "rect" },
+            "x": { "$ref": "#/$defs/fraction" }, "y": { "$ref": "#/$defs/fraction" },
+            "l": { "$ref": "#/$defs/fraction" }, "h": { "$ref": "#/$defs/fraction" }
+          }
+        },
+        {
+          "required": ["x", "y", "r"],
+          "properties": {
+            "forme": { "const": "cercle" },
+            "x": { "$ref": "#/$defs/fraction" }, "y": { "$ref": "#/$defs/fraction" },
+            "r": { "$ref": "#/$defs/fraction", "description": "Rayon en fraction de la largeur de l'image." }
+          }
+        },
+        {
+          "required": ["points"],
+          "properties": {
+            "forme": { "const": "polygone" },
+            "points": { "type": "array", "minItems": 3, "items": {
+              "type": "array", "minItems": 2, "maxItems": 2, "items": { "$ref": "#/$defs/fraction" }
+            } }
+          }
+        }
+      ]
+    },
     "identifiant": { "type": "string", "minLength": 1 },
     "capture": { "type": "number", "minimum": 0, "maximum": 255 },
     "pokemon": { "type": "integer", "minimum": 1 },

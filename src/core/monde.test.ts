@@ -81,6 +81,7 @@ describe('monde Kanto', () => {
   it('parcourt un cycle et un lien sans condition sans boucler', () => {
     const fichier: FichierZones = {
       version: 1, region: 'kanto', depart, premierCombat: depart, lieux: [],
+      carte: { ...kanto.carte, formes: kanto.carte.formes.filter((forme) => forme.zone === depart || forme.zone === foret) },
       zones: [structuredClone(kanto.zoneDeCombat(depart)), structuredClone(kanto.zoneDeCombat(foret))],
     };
     fichier.zones[0]!.liens = [{ vers: foret }];

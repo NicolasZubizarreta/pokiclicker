@@ -1446,5 +1446,303 @@
         "zone": "kanto.tour-pokemon"
       }
     }
-  ]
+  ],
+  "carte": {
+    "image": "kanto/carte-kanto.webp",
+    "ratio": [
+      16,
+      9
+    ],
+    "formes": [
+      {
+        "zone": "kanto.route-1",
+        "nom": "Route 1",
+        "teinte": "orange",
+        "forme": "rect",
+        "x": 0.15625,
+        "y": 0.6425925925925926,
+        "l": 0.030729166666666665,
+        "h": 0.06296296296296296
+      },
+      {
+        "zone": "kanto.foret-de-jade",
+        "nom": "Forêt de Jade",
+        "teinte": "blue",
+        "forme": "rect",
+        "x": 0.16041666666666668,
+        "y": 0.45,
+        "l": 0.022916666666666665,
+        "h": 0.04351851851851852
+      },
+      {
+        "zone": "kanto.arene-d-argenta",
+        "nom": "Arène d'Argenta",
+        "teinte": "red",
+        "forme": "cercle",
+        "x": 0.17239583333333333,
+        "y": 0.36203703703703705,
+        "r": 0.019270833333333334
+      },
+      {
+        "zone": "kanto.mont-selenite",
+        "nom": "Mont Sélénite",
+        "teinte": "blue",
+        "forme": "polygone",
+        "points": [
+          [
+            0.31614583333333335,
+            0.28425925925925927
+          ],
+          [
+            0.33958333333333335,
+            0.28425925925925927
+          ],
+          [
+            0.33958333333333335,
+            0.32685185185185184
+          ],
+          [
+            0.31614583333333335,
+            0.32685185185185184
+          ]
+        ]
+      },
+      {
+        "zone": "kanto.arene-d-azuria",
+        "nom": "Arène d'Azuria",
+        "teinte": "red",
+        "forme": "cercle",
+        "x": 0.48489583333333336,
+        "y": 0.30648148148148147,
+        "r": 0.019791666666666666
+      },
+      {
+        "zone": "kanto.pont-pepite",
+        "nom": "Pont Pépite",
+        "teinte": "orange",
+        "forme": "rect",
+        "x": 0.46875,
+        "y": 0.22962962962962963,
+        "l": 0.03177083333333333,
+        "h": 0.03611111111111111
+      },
+      {
+        "zone": "kanto.arene-de-carmin",
+        "nom": "Arène de Carmin",
+        "teinte": "red",
+        "forme": "cercle",
+        "x": 0.48489583333333336,
+        "y": 0.6388888888888888,
+        "r": 0.019791666666666666
+      },
+      {
+        "zone": "kanto.cave-taupiqueur",
+        "nom": "Cave Taupiqueur",
+        "teinte": "blue",
+        "forme": "rect",
+        "x": 0.5041666666666667,
+        "y": 0.6166666666666667,
+        "l": 0.0234375,
+        "h": 0.04351851851851852
+      },
+      {
+        "zone": "kanto.tunnel-rocheux",
+        "nom": "Tunnel Rocheux",
+        "teinte": "blue",
+        "forme": "rect",
+        "x": 0.5973958333333333,
+        "y": 0.28425925925925927,
+        "l": 0.023958333333333335,
+        "h": 0.04259259259259259
+      },
+      {
+        "zone": null,
+        "nom": "Lavanville",
+        "teinte": "gray",
+        "forme": "cercle",
+        "x": 0.6098958333333333,
+        "y": 0.47314814814814815,
+        "r": 0.019791666666666666
+      },
+      {
+        "zone": "kanto.tour-pokemon",
+        "nom": "Tour Pokémon",
+        "teinte": "blue",
+        "forme": "rect",
+        "x": 0.6057291666666667,
+        "y": 0.4648148148148148,
+        "l": 0.023958333333333335,
+        "h": 0.04259259259259259
+      },
+      {
+        "zone": "kanto.arene-de-celadopole",
+        "nom": "Céladopole",
+        "teinte": "red",
+        "forme": "cercle",
+        "x": 0.39114583333333336,
+        "y": 0.4722222222222222,
+        "r": 0.019791666666666666
+      },
+      {
+        "zone": "kanto.centrale",
+        "nom": "Centrale",
+        "teinte": "blue",
+        "forme": "rect",
+        "x": 0.5973958333333333,
+        "y": 0.3398148148148148,
+        "l": 0.023958333333333335,
+        "h": 0.04259259259259259
+      },
+      {
+        "zone": "kanto.arene-de-parmanie",
+        "nom": "Arène de Parmanie",
+        "teinte": "red",
+        "forme": "cercle",
+        "x": 0.421875,
+        "y": 0.8055555555555556,
+        "r": 0.019791666666666666
+      },
+      {
+        "zone": "kanto.sylphe-sarl",
+        "nom": "Sylphe SARL",
+        "teinte": "blue",
+        "forme": "rect",
+        "x": 0.48072916666666665,
+        "y": 0.46574074074074073,
+        "l": 0.023958333333333335,
+        "h": 0.041666666666666664
+      },
+      {
+        "zone": "kanto.arene-de-safrania",
+        "nom": "Arène de Safrania",
+        "teinte": "red",
+        "forme": "cercle",
+        "x": 0.48489583333333336,
+        "y": 0.47129629629629627,
+        "r": 0.019270833333333334
+      },
+      {
+        "zone": "kanto.iles-ecume",
+        "nom": "Îles Écume",
+        "teinte": "blue",
+        "forme": "rect",
+        "x": 0.28489583333333335,
+        "y": 0.8953703703703704,
+        "l": 0.023958333333333335,
+        "h": 0.04259259259259259
+      },
+      {
+        "zone": "kanto.arene-de-cramois-ile",
+        "nom": "Arène Cramois'Île",
+        "teinte": "red",
+        "forme": "cercle",
+        "x": 0.17239583333333333,
+        "y": 0.9185185185185185,
+        "r": 0.019270833333333334
+      },
+      {
+        "zone": "kanto.arene-de-jadielle",
+        "nom": "Arène de Jadielle",
+        "teinte": "red",
+        "forme": "cercle",
+        "x": 0.17239583333333333,
+        "y": 0.5833333333333334,
+        "r": 0.019270833333333334
+      },
+      {
+        "zone": "kanto.caverne-azuree",
+        "nom": "Caverne Azurée",
+        "teinte": "cyan",
+        "forme": "polygone",
+        "points": [
+          [
+            0.47760416666666666,
+            0.16666666666666666
+          ],
+          [
+            0.47760416666666666,
+            0.14166666666666666
+          ],
+          [
+            0.4828125,
+            0.14166666666666666
+          ],
+          [
+            0.4828125,
+            0.13518518518518519
+          ],
+          [
+            0.4979166666666667,
+            0.13425925925925927
+          ],
+          [
+            0.4979166666666667,
+            0.14074074074074075
+          ],
+          [
+            0.503125,
+            0.14074074074074075
+          ],
+          [
+            0.503125,
+            0.16666666666666666
+          ],
+          [
+            0.4979166666666667,
+            0.16666666666666666
+          ],
+          [
+            0.4947916666666667,
+            0.15462962962962962
+          ],
+          [
+            0.4864583333333333,
+            0.1537037037037037
+          ],
+          [
+            0.4828125,
+            0.16666666666666666
+          ]
+        ]
+      },
+      {
+        "zone": "kanto.route-victoire",
+        "nom": "Route Victoire",
+        "teinte": "blue",
+        "forme": "rect",
+        "x": 0.096875,
+        "y": 0.34074074074074073,
+        "l": 0.023958333333333335,
+        "h": 0.040740740740740744
+      },
+      {
+        "zone": "kanto.ligue-pokemon",
+        "nom": "Ligue Pokémon",
+        "teinte": "red",
+        "forme": "cercle",
+        "x": 0.109375,
+        "y": 0.30648148148148147,
+        "r": 0.019270833333333334
+      },
+      {
+        "zone": "kanto.bourg-palette",
+        "nom": "Bourg Palette",
+        "teinte": "purple",
+        "forme": "cercle",
+        "x": 0.17239583333333333,
+        "y": 0.7509259259259259,
+        "r": 0.018229166666666668
+      },
+      {
+        "zone": null,
+        "nom": "Daran Ass",
+        "teinte": "gray",
+        "forme": "rect",
+        "x": 0.16041666666666668,
+        "y": 0.3962962962962963,
+        "l": 0.022916666666666665,
+        "h": 0.04259259259259259
+      }
+    ]
+  }
 }

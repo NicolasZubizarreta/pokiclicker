@@ -1480,5 +1480,312 @@
       "name": "Terre",
       "desc": "Vitesse de spawn +20%"
     }
-  ]
+  ],
+  "carte": [
+    {
+      "type": "rect",
+      "coords": [
+        300,
+        694,
+        359,
+        762
+      ],
+      "name": "Route 1",
+      "zoneId": 1,
+      "color": "orange"
+    },
+    {
+      "type": "rect",
+      "coords": [
+        308,
+        486,
+        352,
+        533
+      ],
+      "name": "Forêt de Jade",
+      "zoneId": 2,
+      "color": "blue"
+    },
+    {
+      "type": "circle",
+      "coords": [
+        331,
+        391,
+        37
+      ],
+      "name": "Arène d'Argenta",
+      "zoneId": 3,
+      "color": "red"
+    },
+    {
+      "type": "polygon",
+      "coords": [
+        607,
+        307,
+        652,
+        307,
+        652,
+        353,
+        607,
+        353
+      ],
+      "name": "Mont Sélénite",
+      "zoneId": 4,
+      "color": "blue"
+    },
+    {
+      "type": "circle",
+      "coords": [
+        931,
+        331,
+        38
+      ],
+      "name": "Arène d'Azuria",
+      "zoneId": 5,
+      "color": "red"
+    },
+    {
+      "type": "rect",
+      "coords": [
+        900,
+        248,
+        961,
+        287
+      ],
+      "name": "Pont Pépite",
+      "zoneId": 6,
+      "color": "orange"
+    },
+    {
+      "type": "circle",
+      "coords": [
+        931,
+        690,
+        38
+      ],
+      "name": "Arène de Carmin",
+      "zoneId": 7,
+      "color": "red"
+    },
+    {
+      "type": "rect",
+      "coords": [
+        968,
+        666,
+        1013,
+        713
+      ],
+      "name": "Cave Taupiqueur",
+      "zoneId": 8,
+      "color": "blue"
+    },
+    {
+      "type": "rect",
+      "coords": [
+        1147,
+        307,
+        1193,
+        353
+      ],
+      "name": "Tunnel Rocheux",
+      "zoneId": 9,
+      "color": "blue"
+    },
+    {
+      "type": "circle",
+      "coords": [
+        1171,
+        511,
+        38
+      ],
+      "name": "Lavanville",
+      "zoneId": null,
+      "color": "gray"
+    },
+    {
+      "type": "rect",
+      "coords": [
+        1163,
+        502,
+        1209,
+        548
+      ],
+      "name": "Tour Pokémon",
+      "zoneId": 10,
+      "color": "blue"
+    },
+    {
+      "type": "circle",
+      "coords": [
+        751,
+        510,
+        38
+      ],
+      "name": "Céladopole",
+      "zoneId": 11,
+      "color": "red"
+    },
+    {
+      "type": "rect",
+      "coords": [
+        1147,
+        367,
+        1193,
+        413
+      ],
+      "name": "Centrale",
+      "zoneId": 12,
+      "color": "blue"
+    },
+    {
+      "type": "circle",
+      "coords": [
+        810,
+        870,
+        38
+      ],
+      "name": "Arène de Parmanie",
+      "zoneId": 13,
+      "color": "red"
+    },
+    {
+      "type": "rect",
+      "coords": [
+        923,
+        503,
+        969,
+        548
+      ],
+      "name": "Sylphe SARL",
+      "zoneId": 14,
+      "color": "blue"
+    },
+    {
+      "type": "circle",
+      "coords": [
+        931,
+        509,
+        37
+      ],
+      "name": "Arène de Safrania",
+      "zoneId": 15,
+      "color": "red"
+    },
+    {
+      "type": "rect",
+      "coords": [
+        547,
+        967,
+        593,
+        1013
+      ],
+      "name": "Îles Écume",
+      "zoneId": 16,
+      "color": "blue"
+    },
+    {
+      "type": "circle",
+      "coords": [
+        331,
+        992,
+        37
+      ],
+      "name": "Arène Cramois'Île",
+      "zoneId": 17,
+      "color": "red"
+    },
+    {
+      "type": "circle",
+      "coords": [
+        331,
+        630,
+        37
+      ],
+      "name": "Arène de Jadielle",
+      "zoneId": 18,
+      "color": "red"
+    },
+    {
+      "type": "polygon",
+      "coords": [
+        917,
+        180,
+        917,
+        153,
+        927,
+        153,
+        927,
+        146,
+        956,
+        145,
+        956,
+        152,
+        966,
+        152,
+        966,
+        180,
+        956,
+        180,
+        950,
+        167,
+        934,
+        166,
+        927,
+        180
+      ],
+      "name": "Caverne Azurée",
+      "zoneId": 19,
+      "color": "cyan"
+    },
+    {
+      "type": "rect",
+      "coords": [
+        186,
+        368,
+        232,
+        412
+      ],
+      "name": "Route Victoire",
+      "zoneId": 20,
+      "color": "blue"
+    },
+    {
+      "type": "circle",
+      "coords": [
+        210,
+        331,
+        37
+      ],
+      "name": "Ligue Pokémon",
+      "zoneId": 21,
+      "color": "red"
+    },
+    {
+      "type": "circle",
+      "coords": [
+        331,
+        811,
+        35
+      ],
+      "name": "Bourg Palette",
+      "zoneId": 0,
+      "color": "purple"
+    },
+    {
+      "type": "rect",
+      "coords": [
+        308,
+        428,
+        352,
+        474
+      ],
+      "name": "Daran Ass",
+      "zoneId": null,
+      "color": "gray"
+    }
+  ],
+  "image": {
+    "largeur": 1920,
+    "hauteur": 1080
+  }
 }

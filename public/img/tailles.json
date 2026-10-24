@@ -59,6 +59,10 @@
     "largeur": 1920,
     "hauteur": 1080
   },
+  "img/decors/carte-kanto.webp": {
+    "largeur": 1920,
+    "hauteur": 1080
+  },
   "img/decors/casino.webp": {
     "largeur": 1920,
     "hauteur": 1080
@@ -218,6 +222,26 @@
   "img/objets/x-sp-atk.png": {
     "largeur": 30,
     "hauteur": 30
+  },
+  "img/sprites/dresseur/vol-1.png": {
+    "largeur": 511,
+    "hauteur": 560
+  },
+  "img/sprites/dresseur/vol-2.png": {
+    "largeur": 451,
+    "hauteur": 499
+  },
+  "img/sprites/dresseur/vol-3.png": {
+    "largeur": 411,
+    "hauteur": 486
+  },
+  "img/sprites/dresseur/vol-4.png": {
+    "largeur": 518,
+    "hauteur": 534
+  },
+  "img/sprites/dresseur/vol-5.png": {
+    "largeur": 471,
+    "hauteur": 551
   },
   "img/sprites/pokemon/1.png": {
     "largeur": 96,

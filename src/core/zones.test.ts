@@ -11,6 +11,53 @@ const vide: EtatMonde = { badges: [], bossVaincus: [], objets: [], quetes: [], d
 const route = 'kanto.route-1';
 const foret = 'kanto.foret-de-jade';
 
+describe('carte de Kanto', () => {
+  it('expose 24 formes pour les 22 zones et deux lieux non jouables', () => {
+    expect(kanto.carte.formes).toHaveLength(24);
+    const zones = kanto.carte.formes.filter(forme => forme.zone !== null).map(forme => forme.zone);
+    expect(new Set(zones).size).toBe(22);
+    expect(kanto.carte.formes.filter(forme => forme.zone === null)).toHaveLength(2);
+    expect(new Set(zones)).toEqual(new Set(kanto.zones.map(zone => zone.id)));
+  });
+
+  it('exprime toutes les coordonnées en fractions de l’image', () => {
+    expect(kanto.carte.image).toBe('kanto/carte-kanto.webp');
+    expect(kanto.carte.ratio).toEqual([16, 9]);
+    for (const forme of kanto.carte.formes) {
+      const fractions = forme.forme === 'polygone' ? forme.points.flat()
+        : forme.forme === 'rect' ? [forme.x, forme.y, forme.l, forme.h] : [forme.x, forme.y, forme.r];
+      for (const fraction of fractions) {
+        expect(fraction).toBeGreaterThanOrEqual(0);
+        expect(fraction).toBeLessThanOrEqual(1);
+      }
+    }
+  });
+
+  it('refuse une fraction de 1,2', () => {
+    const fichier = structuredClone(donnees);
+    Object.assign(fichier.carte.formes[0]!, { x: 1.2 });
+    expect(() => chargerMonde(fichier as FichierZones)).toThrow('Forme de carte invalide : Route 1');
+  });
+
+  it('refuse une zone inconnue', () => {
+    const fichier = structuredClone(donnees);
+    fichier.carte.formes[0]!.zone = 'kanto.inconnue';
+    expect(() => chargerMonde(fichier as FichierZones)).toThrow('Zone inconnue : kanto.inconnue');
+  });
+
+  it('refuse deux formes pour la même zone', () => {
+    const fichier = structuredClone(donnees);
+    fichier.carte.formes.push(structuredClone(fichier.carte.formes[0]!));
+    expect(() => chargerMonde(fichier as FichierZones)).toThrow('Forme de carte invalide : Route 1');
+  });
+
+  it('refuse une zone sans forme', () => {
+    const fichier = structuredClone(donnees);
+    fichier.carte.formes.shift();
+    expect(() => chargerMonde(fichier as FichierZones)).toThrow(/Forme de carte invalide/);
+  });
+});
+
 describe('accès aux zones et départ', () => {
   it('autorise une zone déjà ouverte', () => {
     expect(kanto.accesZone(route, vide)).toEqual({ ok: true });
