@@ -227,7 +227,7 @@ Fourchette : 2 à 3 jours. Risque : état du minuteur à ne pas sauvegarder ni r
 
 ## G. `feat(ui): carte de Kanto avec zones cliquables positionnées en pourcentages`
 
-Labels : `type:feat`, `etat:pret`, `est:2-3`, `prio:2` · branche : `v2` · `agent-ok` : oui
+Labels : `type:feat`, `etat:fait`, `est:2-3`, `prio:2` · branche : `v2` · `agent-ok` : oui
 
 ### Histoire
 En tant que joueur, je veux voir la carte de Kanto et toucher une zone pour y aller afin de me repérer et de revenir farmer une zone précédente.
@@ -239,16 +239,16 @@ V1 : `MAP_DATA` (24 zones cliquables en rect, cercle ou polygone, en **pixels** 
 **Choix de Nicolas (24/10).** Variante **A** (carte plein cadre) + la **barre « Ton voyage »** de la variante C. La fiche de la zone est **dans la carte** mais ne doit pas cacher le bas : fiche plus petite, ou carte plus grande avec un emplacement réservé. Au clic, afficher le **numéro de zone** (pour savoir quand on y accède). **Pas de tracé de chemin.** La carte actuelle est « pourrie » : on reprend **la carte de la V1** (`legacy/img/kanto/kanto.png`, 24 zones en image mapping SVG, coordonnées en pixels natifs d'une image 1920 × 1080 à convertir en pourcentages) avec ses **animations** : téléportation « vol Gen 1 » (3,8 s : dresseur animé, overlay en télé CRT, oiseau, changement de zone derrière l'overlay), clignotement vert du tutoriel, pulsation de la zone actuelle, et une **vraie animation de déblocage d'une zone** (la V1 n'en avait pas sur la carte). Détail : `v1-visuel-a-porter.md` § 1. Sources : `docs/projet/choix-variantes-b.md` (choix), `docs/projet/v1-visuel-a-porter.md` (ce que fait la V1).
 
 ### Critères d'acceptation
-- [ ] Étant donné `MAP_DATA` de la V1, quand le script convertit, alors chaque forme est écrite en fractions de l'image (rect, cercle, polygone) dans `zones.json`, avec les ratios de l'image V1 ; un test compare un échantillon de 5 zones avec le calcul indépendant.
-- [ ] Étant donné la page Carte, quand je l'ouvre, alors l'image de Kanto s'affiche à son ratio sans bande, les zones ouvertes sont cliquables (cible ≥ 44 px au toucher), les zones fermées sont grisées avec la raison en français au toucher, la zone actuelle est mise en évidence par la forme et la couleur.
-- [ ] Étant donné une zone ouverte, quand je la touche, alors un petit panneau donne son nom et le bouton « Y aller » ; la zone 11 ajoute les accès Centre commercial et Casino (actifs quand les tickets U et V sont livrés).
-- [ ] Étant donné un téléphone, quand j'utilise la carte, alors elle se déplace au doigt et se zoome au pincement sans faire défiler la page (mode debug « afficher les zones » activable par l'adresse `?debug=carte`).
-- [ ] Étant donné les écrans 390 et 1440 px, quand je les capture, alors aucune bande ni défilement horizontal, aucun texte en anglais.
-- [ ] Étant donné la carte de la V1, quand je la compare à la V2, alors les 24 zones sont aux mêmes endroits (coordonnées de `MAP_DATA` converties en pourcentages, test sur chaque zone) avec leur forme (rectangle, cercle, polygone), et les zones qui se chevauchent gardent l'ordre de la V1.
-- [ ] Étant donné un clic sur une zone, quand la fiche s'ouvre, alors elle affiche le nom, « Zone N », la miniature du décor et le bouton « Y aller » (ou « Bloquée » avec la raison), dans la carte, sans cacher le bas de la carte ; Céladopole propose Arène, Centre commercial et Casino.
-- [ ] Étant donné « Y aller », quand je valide, alors l'animation de vol de la V1 se joue (≈ 3,8 s, dresseur animé, overlay en télé CRT, oiseau), le changement de zone a lieu derrière l'overlay et un second clic pendant l'animation est ignoré ; avec `prefers-reduced-motion`, la zone change avec un simple fondu.
-- [ ] Étant donné une zone qui vient d'être débloquée, quand je rouvre la carte, alors une animation de déblocage (propre à la V2) la fait passer du gris à sa couleur, après le message « Zone débloquée ! » de la V1.
-- [ ] Étant donné la barre « Ton voyage », quand je regarde la carte, alors elle montre la progression (badges sur 8, zone actuelle) ; la Route 1 clignote en vert tant qu'elle n'a pas été visitée (tutoriel de la V1).
+- [x] Étant donné `MAP_DATA` de la V1, quand le script convertit, alors chaque forme est écrite en fractions de l'image (rect, cercle, polygone) dans `zones.json`, avec les ratios de l'image V1 ; un test compare un échantillon de 5 zones avec le calcul indépendant.
+- [x] Étant donné la page Carte, quand je l'ouvre, alors l'image de Kanto s'affiche à son ratio sans bande, les zones ouvertes sont cliquables (cible ≥ 44 px au toucher), les zones fermées sont grisées avec la raison en français au toucher, la zone actuelle est mise en évidence par la forme et la couleur.
+- [x] Étant donné une zone ouverte, quand je la touche, alors un petit panneau donne son nom et le bouton « Y aller » ; la zone 11 ajoute les accès Centre commercial et Casino (actifs quand les tickets U et V sont livrés).
+- [x] Étant donné un téléphone, quand j'utilise la carte, alors elle se déplace au doigt et se zoome au pincement sans faire défiler la page (mode debug « afficher les zones » activable par l'adresse `?debug=carte`).
+- [x] Étant donné les écrans 390 et 1440 px, quand je les capture, alors aucune bande ni défilement horizontal, aucun texte en anglais.
+- [x] Étant donné la carte de la V1, quand je la compare à la V2, alors les 24 zones sont aux mêmes endroits (coordonnées de `MAP_DATA` converties en pourcentages, test sur chaque zone) avec leur forme (rectangle, cercle, polygone), et les zones qui se chevauchent gardent l'ordre de la V1.
+- [x] Étant donné un clic sur une zone, quand la fiche s'ouvre, alors elle affiche le nom, « Zone N », la miniature du décor et le bouton « Y aller » (ou « Bloquée » avec la raison), dans la carte, sans cacher le bas de la carte ; Céladopole propose Arène, Centre commercial et Casino.
+- [x] Étant donné « Y aller », quand je valide, alors l'animation de vol de la V1 se joue (≈ 3,8 s, dresseur animé, overlay en télé CRT, oiseau), le changement de zone a lieu derrière l'overlay et un second clic pendant l'animation est ignoré ; avec `prefers-reduced-motion`, la zone change avec un simple fondu.
+- [x] Étant donné une zone qui vient d'être débloquée, quand je rouvre la carte, alors une animation de déblocage (propre à la V2) la fait passer du gris à sa couleur, après le message « Zone débloquée ! » de la V1.
+- [x] Étant donné la barre « Ton voyage », quand je regarde la carte, alors elle montre la progression (badges sur 8, zone actuelle) ; la Route 1 clignote en vert tant qu'elle n'a pas été visitée (tutoriel de la V1).
 
 ### Hors périmètre
 Carte du monde et Johto (phase 6), régénération de l'image (phase 5).
