@@ -50,7 +50,7 @@ export function DresseurVol({ ms, forme }: { ms: number; forme: FormeCarte }) {
   const dimensions = tailles[src as keyof typeof tailles];
   return <svg x={centre.x - taille / 2} y={centre.y - taille / 2} width={taille} height={taille}
     viewBox={`0 0 ${dimensions.largeur} ${dimensions.hauteur}`} className="pointer-events-none image-rendering-pixelated" aria-hidden="true">
-    <image data-dresseur href={`/${src}`} width={dimensions.largeur} height={dimensions.hauteur} />
+    <image data-dresseur href={src} width={dimensions.largeur} height={dimensions.hauteur} />
   </svg>;
 }
 

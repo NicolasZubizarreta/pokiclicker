@@ -49,7 +49,7 @@ it('affiche les cinq images dans le SVG à 150 ms d’intervalle et désactive Y
   expect((bouton as HTMLButtonElement).disabled).toBe(true);
   expect(screen.getByRole('status').textContent).toBe('Vol en cours vers Route 1…');
   for (let image = 1; image <= 5; image++) {
-    expect(container.querySelector('svg image[data-dresseur]')?.getAttribute('href')).toBe(`/img/sprites/dresseur/vol-${image}.png`);
+    expect(container.querySelector('svg image[data-dresseur]')?.getAttribute('href')).toBe(`img/sprites/dresseur/vol-${image}.png`);
     if (image < 5) avancer(150);
   }
   avancer(250);
