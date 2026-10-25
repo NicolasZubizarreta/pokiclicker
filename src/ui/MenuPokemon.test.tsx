@@ -88,3 +88,30 @@ it('reste dans la fenêtre, même aux bords, avec seulement deux variables numé
   expect(menu.style.getPropertyValue('--menu-x')).toBe('0');
   expect(menu.style.getPropertyValue('--menu-y')).toBe('0');
 });
+
+it.each(['Enter', ' ', 'clic'])("propose le retrait en deuxième entrée et l'active avec %s", touche => {
+  const retirerObjet = vi.fn();
+  const resumer = vi.fn();
+  const fermer = vi.fn();
+  const { rerender } = render(<button>Pokémon</button>);
+  const declencheur = screen.getByRole<HTMLButtonElement>('button');
+  rerender(<><button>Pokémon</button><MenuPokemon x={0} y={0} declencheur={declencheur}
+    fermer={fermer} resumer={resumer} retirerObjet={retirerObjet} /></>);
+  const entrees = screen.getAllByRole('menuitem');
+  expect(entrees.map(e => e.textContent)).toEqual(['Résumé', "Retirer l'objet"]);
+  fireEvent.keyDown(entrees[0]!, { key: 'ArrowUp' });
+  expect(document.activeElement).toBe(entrees[1]);
+  fireEvent.keyDown(entrees[1]!, { key: 'ArrowDown' });
+  expect(document.activeElement).toBe(entrees[0]);
+  fireEvent.keyDown(entrees[0]!, { key: 'ArrowDown' });
+  expect(document.activeElement).toBe(entrees[1]);
+  expect(entrees[1]!.classList.contains('min-h-11')).toBe(true);
+  expect(entrees[1]!.classList.contains('min-w-11')).toBe(true);
+  expect(screen.getByRole('menu').querySelector('.bg-action')).toBeNull();
+  if (touche === 'clic') fireEvent.click(entrees[1]!);
+  else fireEvent.keyDown(entrees[1]!, { key: touche });
+  expect(retirerObjet).toHaveBeenCalledOnce();
+  expect(resumer).not.toHaveBeenCalled();
+  expect(fermer).toHaveBeenCalledOnce();
+  expect(document.activeElement).toBe(declencheur);
+});

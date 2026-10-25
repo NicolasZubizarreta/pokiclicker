@@ -1,12 +1,13 @@
 import { useEffect, useLayoutEffect, useRef } from 'react';
 import type { CSSProperties } from 'react';
 
-export function MenuPokemon({ x, y, declencheur, fermer, resumer }: {
+export function MenuPokemon({ x, y, declencheur, fermer, resumer, retirerObjet }: {
   x: number;
   y: number;
   declencheur: HTMLButtonElement;
   fermer: () => void;
   resumer: () => void;
+  retirerObjet?: () => void;
 }) {
   const menu = useRef<HTMLDivElement>(null);
   const entree = useRef<HTMLButtonElement>(null);
@@ -55,14 +56,20 @@ export function MenuPokemon({ x, y, declencheur, fermer, resumer }: {
         clore();
       } else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
         event.preventDefault();
-        entree.current?.focus();
+        const entrees = Array.from(menu.current?.querySelectorAll<HTMLButtonElement>('[role="menuitem"]') ?? []);
+        const index = entrees.indexOf(document.activeElement as HTMLButtonElement);
+        const suivant = index < 0 ? 0 : (index + (event.key === 'ArrowDown' ? 1 : -1) + entrees.length) % entrees.length;
+        entrees[suivant]?.focus();
       } else if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault();
-        activer();
+        if (event.target instanceof HTMLButtonElement) event.target.click();
       }
     }}>
     <button ref={entree} type="button" role="menuitem" tabIndex={-1}
       className="min-h-11 min-w-11 w-full px-4 py-2 text-left hover:bg-selection focus:bg-selection"
       onClick={activer}>Résumé</button>
+    {retirerObjet && <button type="button" role="menuitem" tabIndex={-1}
+      className="min-h-11 min-w-11 w-full px-4 py-2 text-left hover:bg-selection focus:bg-selection"
+      onClick={() => { clore(); retirerObjet(); }}>Retirer l'objet</button>}
   </div>;
 }
