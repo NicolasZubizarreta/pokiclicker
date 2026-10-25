@@ -21,12 +21,13 @@ type Props = {
   sortieLaboClignote?: boolean;
   quandLabo?: () => void;
   quandSortieLabo?: () => void;
+  quandScene?: (id: string) => void;
   sceneInitiale?: string;
   bloquee?: boolean;
   annonce?: string | null;
 };
 
-export function ScenesBourgPalette({ laboAVisiter = false, sortieLaboClignote = false, quandLabo, quandSortieLabo, sceneInitiale = bourg, bloquee = false, annonce }: Props) {
+export function ScenesBourgPalette({ laboAVisiter = false, sortieLaboClignote = false, quandLabo, quandSortieLabo, quandScene, sceneInitiale = bourg, bloquee = false, annonce }: Props) {
   const [courante, changerScene] = useState(sceneInitiale);
   const [phase, changerPhase] = useState<'repos' | 'couvrir' | 'decouvrir'>('repos');
   const [sortieVue, noterSortie] = useState(false);
@@ -51,6 +52,7 @@ export function ScenesBourgPalette({ laboAVisiter = false, sortieLaboClignote = 
     const changer = () => {
       if (courante === 'kanto.labo') { noterSortie(true); quandSortieLabo?.(); }
       changerScene(id);
+      quandScene?.(id);
       rendreFocus.current = true;
       if (id === 'kanto.labo') quandLabo?.();
     };

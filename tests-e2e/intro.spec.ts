@@ -39,7 +39,7 @@ for (const largeur of [390, 1440]) {
     await expect(chen(page)).toContainText('Choisis-en un');
     await chen(page).click();
     await expect(page.getByRole('heading', { name: 'CHOISIS TON PARTENAIRE' })).toBeVisible();
-    await page.getByRole('button', { name: 'Carapuce', exact: true }).click();
+    await page.getByRole('button', { name: /^Carapuce/ }).click();
     await capturer(page, 'choix', largeur);
     await page.getByRole('button', { name: 'CHOISIR CARAPUCE' }).click();
     await expect(page.getByRole('heading', { name: 'CHOISIS TON PARTENAIRE' })).toHaveCount(0);

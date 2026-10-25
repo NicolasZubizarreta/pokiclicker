@@ -78,18 +78,26 @@ it('change de pose après 350 ms avec un fondu de 250 ms', () => {
 it('annonce les Pokéballs puis la carte quand elles s’ouvrent, pas à la reprise', () => {
   reduire(true);
   const { rerender } = render(<DialogueIntro commande={ligne(2, 'A.')} sacOuvert={false} carteOuverte={false} terminerEtape={vi.fn()} />);
-  expect(document.querySelector('[aria-live]')).toBeNull();
+  expect(document.querySelector('[aria-live]')?.textContent).toBe('');
   rerender(<DialogueIntro commande={ligne(5, 'B.')} sacOuvert carteOuverte={false} terminerEtape={vi.fn()} />);
   expect(screen.getByText('+5 POKÉBALLS !')).toBeTruthy();
   rerender(<DialogueIntro commande={ligne(8, 'C.')} sacOuvert carteOuverte terminerEtape={vi.fn()} />);
   expect(screen.getByText('CARTE DÉBLOQUÉE !')).toBeTruthy();
   expect(screen.queryByText('+5 POKÉBALLS !')).toBeNull();
   rerender(<DialogueIntro commande={ligne(9, 'D.')} sacOuvert carteOuverte terminerEtape={vi.fn()} />);
-  expect(document.querySelector('[aria-live]')).toBeNull();
+  expect(document.querySelector('[aria-live]')?.textContent).toBe('');
 });
 
 it('ne présente que Chen quand aucune ligne n’est en cours', () => {
   const { container } = render(<DialogueIntro commande={null} sacOuvert carteOuverte terminerEtape={vi.fn()} />);
   expect(sprite(container)).toBeTruthy();
   expect(screen.queryByRole('button')).toBeNull();
+});
+
+it('donne le focus à la boîte de chaque nouvelle ligne', () => {
+  reduire(true);
+  const { rerender } = render(<DialogueIntro commande={ligne(0, 'Un.')} sacOuvert={false} carteOuverte={false} terminerEtape={vi.fn()} />);
+  expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Prof. Chen : Un.' }));
+  rerender(<DialogueIntro commande={ligne(1, 'Deux.')} sacOuvert={false} carteOuverte={false} terminerEtape={vi.fn()} />);
+  expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Prof. Chen : Deux.' }));
 });

@@ -1,12 +1,14 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 type Starter = { numero: number; nom: string; shiny: boolean };
 
 /** Choix du partenaire (V1 : `#intro-selection`). Trois Poké Balls ; l’artwork apparaît au survol, au focus et à la sélection. */
 export function ChoixStarter({ starters, choisir }: { starters: Starter[]; choisir(numero: number): void }) {
   const [selection, selectionner] = useState<number | null>(null);
+  const section = useRef<HTMLElement>(null);
+  useEffect(() => { section.current?.querySelector<HTMLButtonElement>('button')?.focus(); }, []);
   const choisi = starters.find(starter => starter.numero === selection);
-  return <section aria-labelledby="choix-starter" className="grid justify-items-center gap-4 p-4">
+  return <section ref={section} aria-labelledby="choix-starter" className="grid justify-items-center gap-4 p-4">
     <h2 id="choix-starter" className="cadre bg-surface p-2 text-center font-titre text-lg">CHOISIS TON PARTENAIRE</h2>
     <div className="flex justify-center gap-4">
       {starters.map(starter => {

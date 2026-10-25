@@ -23,6 +23,7 @@ export function PageIntro({ store = storeJeu, quandTerminee }: { store?: StoreJe
   const [titre, fixerTitre] = useState(!reprise);
   const [visible, rendreVisible] = useState(reprise);
   const [dialogueOuvert, ouvrirDialogue] = useState(reprise);
+  const [enLabo, noterLabo] = useState(reprise);
   const [choixPret, preparerChoix] = useState(false);
   const [erreur, signaler] = useState<string | null>(null);
   const minuteurs = useRef<ReturnType<typeof setTimeout>[]>([]);
@@ -47,7 +48,7 @@ export function PageIntro({ store = storeJeu, quandTerminee }: { store?: StoreJe
     <ScenesBourgPalette
       sceneInitiale={reprise ? 'kanto.labo' : 'kanto.chez-maman'}
       laboAVisiter={intro.enCours} sortieLaboClignote={!intro.enCours && !intro.choixStarter}
-      bloquee={parlant}
+      bloquee={parlant || (intro.enCours && enLabo)} quandScene={id => noterLabo(id === 'kanto.labo')}
       quandLabo={() => {
         if (!intro.enCours) return;
         minuteurs.current.push(setTimeout(() => ouvrirDialogue(true), reduit ? 0 : reglages.intro.laboDelaiMs));

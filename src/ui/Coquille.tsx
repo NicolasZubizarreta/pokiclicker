@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import { useStore } from 'zustand';
 import { Navigation } from './Navigation';
 import type { Page } from './Navigation';
@@ -30,7 +30,7 @@ export function Coquille({ region = 'kanto', theme = 'dark' }: {
   const [introVue, fixerIntroVue] = useState(false);
   if (introActive && !introVue) fixerIntroVue(true);
   const tutorielRoute1 = useStore(storeJeu, etat => etat.carte.tutorielRoute1);
-  useEffect(() => {
+  useLayoutEffect(() => {
     storeJeu.getState().demarrer();
     return () => { storeJeu.getState().fermer(); storeJeu.getState().arreter(); };
   }, []);
@@ -41,7 +41,7 @@ export function Coquille({ region = 'kanto', theme = 'dark' }: {
       <a href="#contenu" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-20 focus:bg-surface focus:p-4 focus:text-lien">
         Aller au contenu
       </a>
-      <Navigation page={page} choisir={choisir} signalCarte={tutorielRoute1 && page !== 'Carte' && !introActive} inerte={introActive} />
+      <Navigation page={page} choisir={choisir} signalCarte={tutorielRoute1 && page !== 'Carte' && !introActive && !introVue} inerte={introActive || introVue} />
       <main id="contenu" tabIndex={-1} className="mb-14 min-w-0 p-4 lg:mb-0 lg:ml-24 lg:p-8">
         <MiseAJour />
         {page !== 'Combat' && annonce !== null && <div role="status" aria-live="polite"

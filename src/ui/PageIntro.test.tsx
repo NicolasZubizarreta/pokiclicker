@@ -85,3 +85,25 @@ it('reprend directement au Labo avec la ligne en cours après un rechargement', 
   expect(screen.getByRole('region', { name: 'Labo Pokémon du Prof. Chen' })).toBeTruthy();
   expect(screen.getByRole('button', { name: /^Prof\. Chen : Quant à moi/ })).toBeTruthy();
 });
+
+it('avec les animations : le labo ne se quitte pas avant le dialogue, puis délais de 1 s, 1,6 s et 0,5 s', () => {
+  vi.stubGlobal('matchMedia', (requete: string) => ({ matches: false, media: requete, addEventListener() {}, removeEventListener() {} }));
+  const { store } = ouvrir();
+  const terminee = vi.fn();
+  render(<PageIntro store={store} quandTerminee={terminee} />);
+  cliquer('JOUER');
+  avancer(1);
+  expect(screen.queryByRole('region', { name: 'Chez Maman' })).toBeTruthy();
+  cliquer('Sortie');
+  avancer(450);
+  cliquer('Labo Pokémon du Prof. Chen');
+  avancer(450);
+  expect((screen.getByRole('button', { name: 'Sortie' }) as HTMLButtonElement).disabled).toBe(true);
+  avancer(999);
+  expect(screen.queryByRole('button', { name: /^Prof\. Chen : / })).toBeNull();
+  avancer(1);
+  avancer(1600);
+  expect(screen.getByRole('button', { name: /^Prof\. Chen : Salutations/ })).toBeTruthy();
+  expect(document.activeElement).toBe(screen.getByRole('button', { name: /^Prof\. Chen : Salutations/ }));
+  expect(terminee).not.toHaveBeenCalled();
+});
