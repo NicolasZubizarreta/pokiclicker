@@ -6,21 +6,29 @@ import { statsDeCombat } from './stats';
 const catalogue = chargerPokemon();
 export type Ennemi = {
   numero: number; niveau: number; shiny: boolean; boss: boolean;
-  capture: number; pv: number; pvMax: number; rarete: Rarete | null;
+  capture: number; pv: number; pvMax: number; rarete: Rarete | null; fauche?: true;
 };
 
 export function creerEnnemi(zone: Zone, etape: number, alea: () => number,
-  options: typeof reglages.combat = reglages.combat): Ennemi {
+  options: typeof reglages.combat = reglages.combat, actifs: readonly string[] = []): Ennemi {
   const ligue = zone.type === 'ligue';
   const boss = ligue || etape === options.etapeBoss;
   const adversaire = ligue && etape < options.etapeBoss ? zone.adversaires![etape - 1]! : zone.boss;
-  let rencontre = zone.sauvages[0]!;
+  let pool = zone.sauvages;
   // La V1 tire le shiny avant l'espèce et le niveau ; le boss ne consomme aucun tirage.
   const shiny = !boss && alea() < options.chanceShiny;
   if (!boss) {
+    const repousse = reglages.objetsActifs.repousses.find(r => actifs.includes(r.cle));
+    if (repousse) {
+      const filtre = pool.filter(s => !repousse.exclues.includes(s.rarete));
+      if (filtre.length > 0) pool = filtre;
+    }
+  }
+  let rencontre = pool[0]!;
+  if (!boss) {
     const tirage = alea();
     let cumul = 0;
-    for (const sauvage of zone.sauvages) {
+    for (const sauvage of pool) {
       cumul += sauvage.apparition;
       if (cumul >= tirage) { rencontre = sauvage; break; }
     }

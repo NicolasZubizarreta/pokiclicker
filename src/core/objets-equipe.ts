@@ -1,8 +1,65 @@
 import type { ResultatEquipe } from './equipe';
+import { peutEvoluer, stade } from './evolution';
 import { reglages } from './reglages';
 import type { DonneesRegion, PokemonPossede } from './sauvegarde-types';
 
 type TypeObjet = 'bonbon' | 'calcium';
+
+function refusStase(pokemon: PokemonPossede | undefined): string | undefined {
+  if (!pokemon || pokemon.oeuf) return 'Pokémon invalide !';
+  if (pokemon.pierreEternelle) return 'Retire-la via le menu !';
+}
+
+export function cibleValideStase(pokemon: PokemonPossede): boolean {
+  return !refusStase(pokemon) && stade(pokemon.numero) === 1 && peutEvoluer(pokemon.numero);
+}
+
+export function poserStase(region: DonneesRegion, uid: string): ResultatEquipe & { message: string } {
+  const pokemon = region.equipe.find((p) => p.uid === uid);
+  const stock = region.inventaire.everstone ?? 0;
+  const raison = refusStase(pokemon) ?? (stock <= 0 ? 'Plus de Pierre Stase !'
+    : pokemon && !cibleValideStase(pokemon) ? 'Pokémon incompatible !' : undefined);
+  if (raison) return { ok: false, raison, message: raison };
+  return {
+    ok: true, message: 'Pierre Stase équipée !',
+    region: {
+      ...region,
+      inventaire: { ...region.inventaire, everstone: stock - 1 },
+      equipe: region.equipe.map((p) => p.uid === uid ? { ...p, pierreEternelle: true } : p),
+    },
+  };
+}
+
+export function retirerStase(region: DonneesRegion, uid: string): ResultatEquipe & { message: string } {
+  const pokemon = region.equipe.find((p) => p.uid === uid) ?? region.pc.find((p) => p.uid === uid);
+  const raison = !pokemon ? 'Pokémon invalide !' : !pokemon.pierreEternelle ? 'Aucun objet à retirer !' : undefined;
+  if (raison) return { ok: false, raison, message: raison };
+  const retirer = (p: PokemonPossede): PokemonPossede => p.uid === uid ? { ...p, pierreEternelle: false } : p;
+  return {
+    ok: true, message: 'Objet retiré !',
+    region: {
+      ...region,
+      inventaire: { ...region.inventaire, everstone: (region.inventaire.everstone ?? 0) + 1 },
+      equipe: region.equipe.map(retirer), pc: region.pc.map(retirer),
+    },
+  };
+}
+
+export function utiliserJetonShiny(region: DonneesRegion, uid: string): ResultatEquipe & { message: string } {
+  const pokemon = region.equipe.find((p) => p.uid === uid);
+  const stock = region.inventaire.shinyToken ?? 0;
+  const raison = !pokemon ? 'Pokémon invalide !' : pokemon.shiny ? 'Déjà chromatique !'
+    : stock <= 0 ? 'Quantité invalide.' : undefined;
+  if (raison) return { ok: false, raison, message: raison };
+  return {
+    ok: true, message: 'Chromatique !',
+    region: {
+      ...region,
+      inventaire: { ...region.inventaire, shinyToken: stock - 1 },
+      equipe: region.equipe.map((p) => p.uid === uid ? { ...p, shiny: true } : p),
+    },
+  };
+}
 
 function refusCible(type: TypeObjet, pokemon: PokemonPossede | undefined): string | undefined {
   if (!pokemon || pokemon.oeuf) return 'Pokémon invalide !';
