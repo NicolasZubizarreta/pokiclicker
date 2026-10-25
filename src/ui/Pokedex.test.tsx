@@ -5,6 +5,7 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { Pokedex } from './Pokedex';
 import { cheminSprite } from './precharger';
 import { storeJeu } from './store';
+import { afficherProgression } from './store-progression';
 
 vi.mock('./store', async original => {
   const module = await original<typeof import('./store')>();
@@ -17,6 +18,8 @@ afterEach(cleanup);
 
 it('présente les 151 espèces dans l’ordre national et compte les captures de Kanto sans doublons', () => {
   render(<Pokedex retour={() => {}} />);
+  // Isole la liste historique des espèces ; les paliers ont leur propre test.
+  screen.queryByRole('list', { name: 'Paliers du Pokédex' })?.remove();
   expect(screen.getByRole('heading', { level: 1, name: 'Pokédex' }).tabIndex).toBe(-1);
   expect(screen.getByText('2 / 151')).toBeTruthy();
   const liste = screen.getByRole('list');
@@ -39,6 +42,28 @@ it('présente les 151 espèces dans l’ordre national et compte les captures de
   expect(within(liste).getAllByAltText('Pokémon inconnu')).toHaveLength(149);
   expect(liste.textContent).toBe(entrees.map((_, index) =>
     `N° ${index + 1}${index === 0 ? 'Bulbizarre' : index === 24 ? 'Pikachu' : '???'}`).join(''));
+});
+
+it('présente les dix paliers automatiques et le prochain objectif accessible', () => {
+  const pokedex = Array.from({ length: 24 }, (_, i) => i + 1);
+  const progression = afficherProgression({ badges: [], jalonsRecus: [10, 20] }, pokedex);
+  storeJeu.setState({ pokedex, progression });
+  const { container } = render(<Pokedex retour={() => {}} />);
+  expect(screen.getByText('24 / 151')).toBeTruthy();
+  expect(screen.getByText('Prochain palier : 30 (Collectionneur) · Encore 6 espèces.')).toBeTruthy();
+  const liste = screen.getByRole('list', { name: 'Paliers du Pokédex' });
+  expect(liste.tagName).toBe('UL');
+  const entrees = within(liste).getAllByRole('listitem');
+  expect(entrees).toHaveLength(10);
+  progression.paliers.forEach((palier, index) => {
+    expect(entrees[index]!.textContent).toContain(`${palier.palier} — ${palier.titre} — ${palier.description}`);
+    expect(within(entrees[index]!).getByText(palier.recu ? 'reçu' : 'à venir')).toBeTruthy();
+    expect(entrees[index]!.querySelector('[aria-hidden="true"]')).toBeTruthy();
+  });
+  expect(screen.queryByRole('button', { name: /Réclame/ })).toBeNull();
+  expect(container.querySelector('[class~="bg-action"]')).toBeNull();
+  act(() => { storeJeu.setState({ progression: { ...progression, prochain: null } }); });
+  expect(screen.getByText('Pokédex complet !')).toBeTruthy();
 });
 
 it('appelle Retour', () => {

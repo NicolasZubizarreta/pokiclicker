@@ -9,6 +9,7 @@ import { PagePlus } from './PagePlus';
 import { PageShop } from './PageShop';
 import { storeJeu } from './store';
 import { MiseAJour } from './MiseAJour';
+import { ObtentionBadge } from './ObtentionBadge';
 
 export function Coquille({ region = 'kanto', theme = 'dark' }: {
   region?: 'kanto' | 'johto' | 'hoenn' | 'atlas';
@@ -16,6 +17,14 @@ export function Coquille({ region = 'kanto', theme = 'dark' }: {
 }) {
   const [page, choisir] = useState<Page>('Combat');
   const annonce = useStore(storeJeu, etat => etat.annonce);
+  const obtentionBadge = useStore(storeJeu, etat => etat.obtentionBadge);
+  const badges = useStore(storeJeu, etat => etat.progression.badges);
+  const [declencheur, memoriserDeclencheur] = useState<HTMLElement | null>(null);
+  useEffect(() => storeJeu.subscribe((etat, avant) => {
+    if (etat.obtentionBadge !== null && avant.obtentionBadge === null) {
+      memoriserDeclencheur(document.activeElement instanceof HTMLElement ? document.activeElement : null);
+    }
+  }), []);
   const tutorielRoute1 = useStore(storeJeu, etat => etat.carte.tutorielRoute1);
   useEffect(() => {
     storeJeu.getState().demarrer();
@@ -35,6 +44,10 @@ export function Coquille({ region = 'kanto', theme = 'dark' }: {
           className="cadre bg-surface p-2 text-center">{annonce}</div>}
         {page === 'Combat' ? <EcranCombat /> : page === 'Carte' ? <CarteKanto quandArrive={() => choisir('Combat')} /> : page === 'Équipe' ? <PageEquipe /> : page === 'Plus' ? <PagePlus /> : <PageShop />}
       </main>
+      <ObtentionBadge ouvert={obtentionBadge !== null && obtentionBadge.phase !== 'message'} badges={badges}
+        cache={obtentionBadge?.phase === 'message' || obtentionBadge?.phase === 'boite' ? obtentionBadge.id : null}
+        claque={obtentionBadge?.phase === 'claque' ? obtentionBadge.id : null}
+        fermer={() => storeJeu.getState().fermerBoiteBadges()} declencheur={declencheur} />
     </div>
   );
 }

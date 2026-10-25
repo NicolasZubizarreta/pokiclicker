@@ -188,7 +188,8 @@ describe('Coquille', () => {
 
   it('emploie les textes français prévus et masque les icônes aux lecteurs d’écran', async () => {
     const utilisateur = userEvent.setup();
-    const { container } = render(<Coquille />);
+    const { container: rendu } = render(<Coquille />);
+    const container = document.createElement('div');
     act(() => {
       for (let ms = 0; ms < reglages.interface.annonceMs; ms += reglages.boucle.pasMs) {
         maintenant += reglages.boucle.pasMs;
@@ -196,6 +197,8 @@ describe('Coquille', () => {
       }
     });
     const autorises = new Set(['Aller au contenu', ...noms, "Le Shop s'ouvre à la Forêt de Jade.",
+      'Ton aventure', 'Région', `Kanto · ${storeJeu.getState().lieu!.nom}`, 'Badges', '0 / 8', 'DPS',
+      formaterDps(storeJeu.getState().dps), 'Prochain palier : 10 (Débutant) · Encore 7 espèces.',
       'PC de Léo', 'Pokédex', "Le PC de Léo s'ouvre à l'Arène d'Argenta."]);
     for (const nom of noms.slice(1)) {
       await utilisateur.click(screen.getByRole('button', { name: nom }));
@@ -207,6 +210,9 @@ describe('Coquille', () => {
         const xp = premier.xpMax === 0 ? 'MAX' : `${premier.pokemon.xp} / ${premier.xpMax} XP`;
         expect(screen.getByRole('main').textContent).toBe(`Ton équipe${formaterDps(storeJeu.getState().dps)} DPS · ${equipe.filter(Boolean).length} / 6${cases}${nomPokemon(premier)}Niv. ${premier.pokemon.niveau}${xp}${formaterDps(premier.dps)} DPSOuvre la ficheTon SacToutBallesSoinsÉquipement×0×0`);
       }
+      // Prépare le balayage de la page visible sans la boîte fermée, montée en permanence.
+      container.replaceChildren(rendu.cloneNode(true));
+      container.querySelector('dialog:not([open])')?.remove();
       const parcours = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
       while (parcours.nextNode()) {
         const texte = parcours.currentNode.textContent?.trim();
@@ -246,4 +252,42 @@ describe('Coquille', () => {
       expect(icone.getAttribute('focusable')).toBe('false');
     }
   });
+});
+
+it('pilote la boîte de badges selon les phases et rend le focus après fermeture', () => {
+  const showModal = Object.getOwnPropertyDescriptor(HTMLDialogElement.prototype, 'showModal');
+  const close = Object.getOwnPropertyDescriptor(HTMLDialogElement.prototype, 'close');
+  Object.defineProperty(HTMLDialogElement.prototype, 'showModal', { configurable: true, value: function (this: HTMLDialogElement) {
+    this.setAttribute('open', '');
+  } });
+  Object.defineProperty(HTMLDialogElement.prototype, 'close', { configurable: true, value: function (this: HTMLDialogElement) {
+    if (!this.open) return;
+    this.removeAttribute('open');
+    this.dispatchEvent(new Event('close'));
+  } });
+  const { container } = render(<Coquille />);
+  const fermer = vi.spyOn(storeJeu.getState(), 'fermerBoiteBadges');
+  const declencheur = screen.getByRole('button', { name: 'Plus' });
+  declencheur.focus();
+  expect(screen.queryByRole('dialog')).toBeNull();
+  act(() => { storeJeu.setState({ obtentionBadge: { id: 'roche', phase: 'message' } }); });
+  expect(screen.queryByRole('dialog')).toBeNull();
+  act(() => { storeJeu.setState({ obtentionBadge: { id: 'roche', phase: 'boite' } }); });
+  const dialogue = screen.getByRole('dialog', { name: 'Boîte à badges' });
+  const badge = within(dialogue).getByRole('button', { name: /^Badge Roche/ });
+  expect(badge.classList.contains('opacity-0')).toBe(true);
+  act(() => { storeJeu.setState({ obtentionBadge: { id: 'roche', phase: 'claque' } }); });
+  expect(badge.classList.contains('badge-slam')).toBe(true);
+  expect(badge.classList.contains('opacity-0')).toBe(false);
+  act(() => { storeJeu.setState({ obtentionBadge: { id: 'roche', phase: 'fin' } }); });
+  expect(badge.classList.contains('badge-slam')).toBe(false);
+  fireEvent.click(within(dialogue).getByRole('button', { name: 'Fermer' }));
+  expect(fermer).toHaveBeenCalledOnce();
+  expect(storeJeu.getState().obtentionBadge).toBeNull();
+  expect(document.activeElement).toBe(declencheur);
+  expect(container.contains(dialogue)).toBe(true);
+  if (showModal) Object.defineProperty(HTMLDialogElement.prototype, 'showModal', showModal);
+  else Reflect.deleteProperty(HTMLDialogElement.prototype, 'showModal');
+  if (close) Object.defineProperty(HTMLDialogElement.prototype, 'close', close);
+  else Reflect.deleteProperty(HTMLDialogElement.prototype, 'close');
 });

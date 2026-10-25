@@ -4,6 +4,8 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { chargerPokemon } from '../core/pokemon';
 import { PagePlus } from './PagePlus';
 import { creerStoreJeu, storeJeu } from './store';
+import { afficherProgression } from './store-progression';
+import { formaterDps } from './nombres';
 
 const contexte = vi.hoisted(() => ({ store: null as unknown as typeof storeJeu }));
 vi.mock('./store', async original => ({
@@ -36,6 +38,10 @@ afterEach(() => {
 
 it('présente seulement les deux entrées françaises, le compteur et le verrou visible lié au PC', () => {
   const { container } = render(<PagePlus />);
+  // Prépare la vue historique ; les ajouts du tableau de bord sont vérifiés séparément.
+  container.querySelector('section[aria-labelledby]')?.remove();
+  container.querySelector('[data-entree="badges"]')?.closest('li')?.remove();
+  container.querySelector('[data-prochain-palier]')?.remove();
   expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Plus');
   const liste = screen.getByRole('list');
   expect(within(liste).getAllByRole('listitem')).toHaveLength(2);
@@ -74,6 +80,9 @@ it('ouvre le PC après les boss de la Route 1 et de la Forêt de Jade et gère l
 it('ouvre le Pokédex des trois starters avec ses textes français et rend le focus à l’entrée d’origine', () => {
   const { container } = render(<PagePlus />);
   fireEvent.click(screen.getByRole('button', { name: 'Pokédex 3 / 151' }));
+  // Isole le compteur et la grille historiques pour leur comparaison exacte.
+  container.querySelector('[aria-label="Paliers du Pokédex"]')?.remove();
+  container.querySelector('[data-prochain-palier]')?.remove();
   expect(document.activeElement).toBe(screen.getByRole('heading', { level: 1, name: 'Pokédex' }));
   expect(screen.getByText('3 / 151')).toBeTruthy();
   const catalogue = chargerPokemon();
@@ -82,4 +91,26 @@ it('ouvre le Pokédex des trois starters avec ses textes français et rend le fo
   fireEvent.click(screen.getByRole('button', { name: 'Retour' }));
   expect(document.activeElement).toBe(screen.getByRole('button', { name: /^Pokédex/ }));
   expect(screen.getByRole('button', { name: 'Pokédex 3 / 151' })).toBeTruthy();
+});
+
+it('affiche le tableau de bord C et ouvre les badges avec le focus aller-retour', () => {
+  const progression = afficherProgression({ badges: ['roche', 'cascade'], jalonsRecus: [10, 20] },
+    Array.from({ length: 24 }, (_, i) => i + 1));
+  storeJeu.setState({ progression });
+  const { container } = render(<PagePlus />);
+  const aventure = screen.getByRole('region', { name: 'Ton aventure' });
+  expect(aventure.querySelector('dl')).toBeTruthy();
+  expect(within(aventure).getByText('24 / 151')).toBeTruthy();
+  expect(within(aventure).getByText('2 / 8')).toBeTruthy();
+  expect(within(aventure).getByText(`Kanto · ${storeJeu.getState().lieu!.nom}`)).toBeTruthy();
+  expect(within(aventure).getByText(formaterDps(storeJeu.getState().dps))).toBeTruthy();
+  expect(screen.getByText(/Encore 6 espèces/)).toBeTruthy();
+  expect(screen.queryByRole('button', { name: /Réclame/ })).toBeNull();
+  expect(container.querySelector('[class~="bg-action"]')).toBeNull();
+  fireEvent.click(screen.getByRole('button', { name: 'Badges' }));
+  expect(document.activeElement).toBe(screen.getByRole('heading', { level: 1, name: 'Badges' }));
+  expect(screen.getAllByRole('button', { name: /^Badge / })).toHaveLength(8);
+  expect(container.querySelector('.opacity-0, .badge-slam, [class~="bg-action"]')).toBeNull();
+  fireEvent.click(screen.getByRole('button', { name: 'Retour' }));
+  expect(document.activeElement).toBe(container.querySelector('[data-entree="badges"]'));
 });
