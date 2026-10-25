@@ -41,6 +41,12 @@ export function ouvrirPartie(options: Parameters<typeof creerGestionnaire>[0],
     region: enveloppe.donnees,
     pokedex: partie.donnees.pokedexNational,
     preferences,
+    sonActive: compte.preferences.sonActive ?? reglages.sons.actifParDefaut,
+    enregistrerSon(actif: boolean) {
+      if (bloquee) return;
+      const actuel = gestionnaire.chargerCompte()?.donnees ?? compteInitial();
+      gestionnaire.ecrireCompte({ ...actuel, preferences: { ...actuel.preferences, sonActive: actif } });
+    },
     enregistrerPreferences(p: PreferencesCombat) {
       const suivantes = JSON.stringify(p);
       if (bloquee || suivantes === dernieresPreferences) return;

@@ -27,6 +27,11 @@ export function afficherCapture(coeur: EtatCombat | null, inventaire: Record<str
 
 const motifs = { shiny: 'Chromatique en vue', nouveau: 'Nouveau Pokémon', commun: 'Commun en vue',
   'peu-commun': 'Peu commun en vue', rare: 'Rare en vue', 'tres-rare': 'Très rare en vue', legendaire: 'Légendaire en vue' };
+const motifsBanniere = { shiny: 'Shiny', nouveau: 'Nouveau Pokémon', commun: 'Commun',
+  'peu-commun': 'Peu commun', rare: 'Rare', 'tres-rare': 'Très rare', legendaire: 'Légendaire' };
+export function banniereArret(motif: Extract<EvenementCombat, { type: 'arret-auto' }>['motif']): string {
+  return `${motifsBanniere[motif]}${motif === 'nouveau' ? '' : ' apparu'} ! Auto stoppé !`;
+}
 export function annonceCapture(evenement: EvenementCombat, numero: number): string | null {
   if (evenement.type === 'arret-auto') return `${motifs[evenement.motif]} ! Auto-attaque arrêtée.`;
   if (evenement.type === 'reprise-auto') return 'Auto-attaque reprise.';
