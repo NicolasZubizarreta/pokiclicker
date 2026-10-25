@@ -651,11 +651,11 @@ En tant que joueur, je veux déposer deux Pokémon à la pension et faire éclor
 V1 : `legacy/js/game/daycare.js`, `render.js` (`renderDaycare`). Pages : choix de Nicolas (B). **Règles V1** : débloquée à la zone 11 ; **2 emplacements de parents** ; **emplacements d'œuf** achetés `slots × 5000` jusqu'à 5 ; la ponte a une chance de **4 %** si l'un des parents est Métamorph ou si mâle + femelle de la même espèce de base, de **2 %** si les types sont partagés, sinon 0 ; l'œuf est **shiny avec 1/8** (avec un parent shiny) et sinon 1/256 ; l'éclosion exige **25 éliminations** d'ennemis ; la naissance donne un Pokémon de **niveau 1, bonheur 125** ; l'éclosion ajoute au Pokédex. Un parent est un Pokémon de l'équipe ou du PC ; il y revient quand on le retire. Fichiers : `src/core/pension.ts`, `src/ui/PagePension.tsx`.
 
 ### Critères d'acceptation
-- [ ] Étant donné la zone 10 ouverte, quand j'ouvre le menu, alors la pension est verrouillée avec la raison ; à la zone 11 elle s'ouvre.
-- [ ] Étant donné 2 parents compatibles, quand ils sont déposés, alors le test de ponte utilise exactement les probabilités de la V1 (4 %, 2 %, 0) sur 1 000 tirages injectés, comparés à la V1 (fixture) ; avec des parents incompatibles aucun œuf n'apparaît.
+- [x] Étant donné la zone 10 ouverte, quand j'ouvre le menu, alors la pension est verrouillée avec la raison ; à la zone 11 elle s'ouvre.
+- [x] Étant donné 2 parents compatibles, quand ils sont déposés, alors le test de ponte utilise exactement les probabilités de la V1 (4 %, 2 %, 0) sur 1 000 tirages injectés, comparés à la V1 (fixture) ; avec des parents incompatibles aucun œuf n'apparaît.
 - [ ] Étant donné les emplacements d'œuf, quand j'en achète un, alors le prix est `slots × 5000` et jamais plus de 5 ; sans argent le bouton est désactivé avec la raison.
-- [ ] Étant donné un œuf, quand 25 ennemis sont éliminés (compteur partagé avec le combat), alors il éclot : un Pokémon de niveau 1, bonheur 125, ajouté au Pokédex et à l'équipe (ou au PC si l'équipe est pleine) ; la progression est sauvegardée (`pension` dans la région).
-- [ ] Étant donné un rechargement, quand je rouvre, alors parents, œufs et compteurs sont identiques.
+- [x] Étant donné un œuf, quand 25 ennemis sont éliminés (compteur partagé avec le combat), alors il éclot : un Pokémon de niveau 1, bonheur 125, ajouté au Pokédex et à l'équipe (ou au PC si l'équipe est pleine) ; la progression est sauvegardée (`pension` dans la région).
+- [x] Étant donné un rechargement, quand je rouvre, alors parents, œufs et compteurs sont identiques.
 - [ ] Étant donné 390 et 1440 px, quand la pension s'ouvre, alors tout est lisible sans défiler en largeur ; textes en français.
 
 ### Hors périmètre
@@ -671,7 +671,7 @@ Fourchette : 2 à 3 jours. Risque : le compteur d'éliminations n'existe pas dan
 
 ## U. `feat(centre-commercial): Centre commercial de la zone 11`
 
-Labels : `type:feat`, `etat:idee`, `est:1-2`, `prio:3` · branche : `v2` · `agent-ok` : oui
+Labels : `type:feat`, `etat:en_cours`, `est:1-2`, `prio:3` · branche : `v2` · `agent-ok` : oui
 
 ### Histoire
 En tant que joueur, je veux un Centre commercial où acheter des objets temporaires afin de varier mes stratégies.
@@ -698,7 +698,7 @@ Fourchette : 1 à 2 jours. Risque : minimal (réutilise L). Dépend de : L, M, G
 
 ## V. `feat(casino): casino, machine à sous, blackjack, pile ou face et boutique de jetons`
 
-Labels : `type:feat`, `etat:idee`, `est:3`, `prio:3` · branche : `v2` · `agent-ok` : oui
+Labels : `type:feat`, `etat:en_cours`, `est:3`, `prio:3` · branche : `v2` · `agent-ok` : oui
 
 ### Histoire
 En tant que joueur, je veux jouer au casino avec l'argent du jeu afin de tenter ma chance et d'obtenir des objets rares.
@@ -783,7 +783,7 @@ Fourchette : 3 jours. Risque : musique et droits (aucun fichier audio n'est ajou
 
 ## Z. `feat(v1): reprendre les animations, les sons et les finitions visuelles de la V1`
 
-Labels : `type:feat`, `etat:idee`, `est:3-4`, `prio:2` · branche : `v2` · `agent-ok` : oui
+Labels : `type:feat`, `etat:en_cours`, `est:3-4`, `prio:2` · branche : `v2` · `agent-ok` : oui
 
 ### Histoire
 En tant que joueur de la V1, je veux retrouver les animations, les sons et les petits effets que j'aimais afin que la V2 ait la même âme que mon jeu.
