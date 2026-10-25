@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "acces": { "raison": "Le Casino s'ouvre à Céladopole après la Tour Pokémon." },
+  "jetons": { "achat": { "cost": 1000, "tokens": 50 }, "rachat": { "tokens": 50, "money": 1000 } },
+  "symboles": [
+    { "id": "7", "nom": "7", "image": "objets/master-ball.png", "poids": 1, "gain": 500 },
+    { "id": "Pikachu", "nom": "Pikachu", "image": "pokemon/25", "poids": 6, "gain": 50 },
+    { "id": "Staross", "nom": "Staross", "image": "pokemon/121", "poids": 10, "gain": 20 },
+    { "id": "Baie", "nom": "Baie", "image": null, "poids": 18, "gain": 10 },
+    { "id": "Magicarpe", "nom": "Magicarpe", "image": "pokemon/129", "poids": 65, "gain": 5 }
+  ],
+  "deuxBaies": { "symbole": "Baie", "nombre": 2, "gain": 2 },
+  "animation": { "rouleaux": [700, 950, 1200], "defilement": 80, "piece": 500 },
+  "blackjack": { "seuilCroupier": 17, "gainVictoire": 2, "gainEgalite": 1, "gainNaturel": 2.5 },
+  "pileOuFace": { "faces": { "face": "pokemon/25", "pile": "objets/poke-ball.png" }, "seuilFace": 0.5, "gain": 2 },
+  "boutique": [
+    { "key": "abra", "name": "Abra", "price": 250, "type": "pokemon", "id": 63 },
+    { "key": "candy", "name": "Super Bonbon", "price": 500, "type": "item", "itemKey": "candy" },
+    { "key": "scyther", "name": "Insecateur", "price": 1000, "type": "pokemon", "id": 123 },
+    { "key": "dratini", "name": "Minidraco", "price": 4000, "type": "pokemon", "id": 147 },
+    { "key": "porygon", "name": "Porygon", "price": 5000, "type": "pokemon", "id": 137 },
+    { "key": "ctJackpot", "name": "CT Jackpot", "price": 10000, "type": "upgrade", "itemKey": "ctJackpot" },
+    { "key": "masterball", "name": "Master Ball", "price": 40000, "type": "item", "itemKey": "masterball" }
+  ],
+  "noms": { "candy": "Bonbon", "ctJackpot": "CT Jackpot", "masterball": "Master Ball" },
+  "messages": {
+    "argentInsuffisant": "Pas assez d'argent.", "jetonsInsuffisants": "Pas assez de jetons.",
+    "miseInvalide": "Mise invalide.", "choixInvalide": "Choix invalide.",
+    "achatJetons": "+50 jetons !", "rachatJetons": "+1 000 $ !", "perdu": "Perdu…",
+    "gagne": "Gagné ×{gain} !", "baies": "Baie ×2 !", "blackjack": "Blackjack ! ×2,5",
+    "bust": "Bust ! Perdu.", "egalite": "Égalité. Mise rendue.", "jouer": "À toi de jouer.",
+    "dejaAcquis": "Déjà acquis !", "achat": "+{nom} !", "croupier": "Croupier Rocket"
+  },
+  "rappel": "Argent virtuel uniquement : aucun paiement réel."
+}
