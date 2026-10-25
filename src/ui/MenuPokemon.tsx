@@ -50,7 +50,7 @@ export function MenuPokemon({ x, y, declencheur, fermer, resumer }: {
   return <div ref={menu} role="menu" aria-label="Actions du Pokémon" style={position}
     className="menu-pokemon cadre fixed left-0 top-0 z-50 max-h-dvh max-w-full overflow-auto bg-surface p-2 text-base"
     onKeyDown={event => {
-      if (event.key === 'Escape') {
+      if (event.key === 'Escape' || event.key === 'Tab') {
         event.preventDefault();
         clore();
       } else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {

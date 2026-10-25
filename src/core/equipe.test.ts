@@ -62,7 +62,7 @@ describe('règles d’équipe', () => {
   it('garde le dernier actif mais permet de déplacer ou relâcher un œuf', () => {
     const entree = region([pokemon('a'), pokemon('oeuf', true)]);
     expect(envoyerAuPc(entree, 'a')).toEqual({ ok: false, raison: actif });
-    expect(relacher(entree, 'a')).toEqual({ ok: false, raison: dernier });
+    expect(relacher(entree, 'a')).toEqual({ ok: false, raison: actif });
     expect(envoyerAuPc(entree, 'oeuf')).toEqual({ ok: true, region: { ...entree, equipe: [pokemon('a')], pc: [...entree.pc, pokemon('oeuf', true)] } });
     expect(relacher(entree, 'oeuf')).toEqual({ ok: true, region: { ...entree, equipe: [pokemon('a')] } });
   });

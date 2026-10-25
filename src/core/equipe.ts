@@ -46,8 +46,9 @@ export function relacher(region: DonneesRegion, uid: string): ResultatEquipe {
   const liste = listeDuPokemon(region, uid);
   if (!liste) return absent;
   const pokemon = region[liste].find((p) => p.uid === uid)!;
-  if (liste === 'equipe' && (region.equipe.length <= 1 || dernierActif(region, pokemon))) {
-    return { ok: false, raison: dernier };
+  if (liste === 'equipe') {
+    if (region.equipe.length <= 1) return { ok: false, raison: dernier };
+    if (dernierActif(region, pokemon)) return { ok: false, raison: actif };
   }
   return { ok: true, region: { ...region, [liste]: region[liste].filter((p) => p.uid !== uid) } };
 }

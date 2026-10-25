@@ -59,6 +59,13 @@ it.each(['bouton', 'fond', 'Échap'])('ferme avec %s et restaure le focus', mode
   expect(document.activeElement).toBe(screen.getByText('Ouvre la fiche'));
 });
 
+it('ne ferme pas la fiche quand on appuie à l’intérieur', () => {
+  afficher();
+  const dialogue = screen.getByRole('dialog', { name: 'Bourgeon' });
+  fireEvent.pointerDown(screen.getByText('Ferme la fiche'));
+  expect(dialogue.hasAttribute('open')).toBe(true);
+});
+
 it('renomme avec validation du cœur, compteur et en-tête réactif', () => {
   afficher();
   const champ = screen.getByRole('textbox', { name: 'Surnom' });
@@ -116,7 +123,7 @@ it.each([false, true])('interdit le dernier non-œuf avec raison visible (œuf :
   storeJeu.setState({ equipe: oeuf ? [equipe[0]!, { ...equipe[1]!, pokemon: { ...pokemon, uid: 'oeuf', oeuf: { pasRestants: 10, pasMax: 10 } } }] : [equipe[0]!] });
   afficher();
   expect(screen.getByRole('button', { name: 'Relâcher' }).hasAttribute('disabled')).toBe(true);
-  expect(screen.getByText("C'est ton dernier Pokémon : garde-le dans l'équipe.")).toBeTruthy();
+  expect(screen.getByText(oeuf ? "Il faut au moins 1 Pokémon actif dans l'équipe." : "C'est ton dernier Pokémon : garde-le dans l'équipe.")).toBeTruthy();
 });
 
 it('garde la confirmation ouverte si le store refuse', () => {

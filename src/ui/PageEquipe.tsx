@@ -35,7 +35,7 @@ export function PageEquipe() {
   }
 
   return <section className="mx-auto max-w-screen-xl text-base">
-    <h1 className="font-titre text-2xl font-semibold">Ton équipe</h1>
+    <h1 tabIndex={-1} className="font-titre text-2xl font-semibold">Ton équipe</h1>
     <p className="mt-2 text-region-accent">{`${formaterDps(dps)} DPS · ${equipe.filter(Boolean).length} / ${reglages.equipe.taille}`}</p>
     {echange && <div role="status" className="cadre mt-4 flex flex-wrap items-center gap-4 bg-surface p-4">
       <p>Choisis le Pokémon à remplacer par {echange.nom}</p>
@@ -88,7 +88,7 @@ export function PageEquipe() {
         <h2 className="break-words font-titre text-xl font-semibold">{nom}</h2>
         <p>Niv. {membre.pokemon.niveau}</p>
         <BarreXp xp={membre.pokemon.xp} maximum={membre.xpMax} nom={nom} />
-        <p>{membre.xpMax === 0 ? 'MAX' : `${membre.pokemon.xp} / ${membre.xpMax} XP`}</p>
+        <p>{membre.xpMax === 0 ? 'MAX' : `${Math.floor(membre.pokemon.xp)} / ${membre.xpMax} XP`}</p>
         <p className="text-region-accent">{formaterDps(membre.dps)} DPS</p>
         {!echange && <button type="button" className="min-h-11 bg-action px-4 py-2 text-action-texte hover:bg-action-survol"
           onClick={event => ouvrirFiche(membre.pokemon.uid, event.currentTarget)}>Ouvre la fiche</button>}

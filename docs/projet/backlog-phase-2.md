@@ -263,7 +263,7 @@ Fourchette : 2 à 3 jours. Risque : l'image `kanto.png` de la V1 a un ratio prop
 
 ## H. `feat(equipe): afficher l'équipe et la fiche d'un Pokémon, le renommer, le mettre en favori et le relâcher`
 
-Labels : `type:feat`, `etat:pret`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : oui
+Labels : `type:feat`, `etat:fait`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : oui
 
 ### Histoire
 En tant que joueur, je veux gérer mon équipe de 6 Pokémon et consulter chaque fiche afin de choisir qui combat.
@@ -275,16 +275,16 @@ V1 : `legacy/js/game/team.js` (122 l.), `legacy/js/ui/summary.js` (254 l.). V2 :
 **Choix de Nicolas (24/10).** Page Équipe : variante **A** (liste + détail). Fiche Pokémon : variante **B** (fenêtre superposée, pas une page) ; à corriger par rapport à la maquette : le défilement doit marcher quand le curseur est sur la fiche, l'étoile « Retire des favoris » doit être alignée avec son texte, la fiche affiche le **nom de l'espèce** en plus du surnom. Reprendre de la V1 : anneau de bonheur (`conic-gradient`), détail des bonus de dégâts, menu contextuel au clic droit (Résumé, Retirer l'objet). Sources : `docs/projet/choix-variantes-b.md` (choix), `docs/projet/v1-visuel-a-porter.md` (ce que fait la V1).
 
 ### Critères d'acceptation
-- [ ] Étant donné l'onglet Équipe, quand je l'ouvre, alors je vois 6 cases (Pokémon ou case vide) avec sprite, nom, niveau, barre d'XP et DPS, le DPS total, sans chevauchement ni défilement horizontal à 390 px.
-- [ ] Étant donné un Pokémon, quand je touche sa carte, alors sa fiche s'ouvre (sprite, niveau, XP, bonheur, sexe, shiny, calcium, objets tenus, types, DPS) ; elle se ferme au toucher extérieur et à la touche Échap.
-- [ ] Étant donné une fiche, quand je renomme avec 13 caractères, alors la saisie est refusée avec un message français ; avec 12 caractères, le surnom est enregistré.
-- [ ] Étant donné une fiche, quand je mets en favori, alors l'étoile s'affiche et la valeur survit au rechargement.
-- [ ] Étant donné un Pokémon, quand je le relâche, alors une confirmation en français est demandée ; confirmée, il disparaît ; il est impossible de relâcher le dernier Pokémon non-œuf de l'équipe.
-- [ ] Étant donné une équipe de 1 Pokémon, quand je tente de l'envoyer au PC, alors c'est refusé avec la raison ; avec 2 Pokémon et au moins un non-œuf restant, c'est accepté.
-- [ ] Étant donné une équipe pleine, quand je place un Pokémon du PC, alors le mode échange propose le Pokémon à remplacer.
-- [ ] Étant donné le sexe d'une espèce, quand un Pokémon est créé, alors il respecte les listes de la V1 (sans sexe, toujours mâle, toujours femelle, sinon tirage au hasard) ; un test le prouve sur toutes les espèces.
-- [ ] Étant donné la fiche d'un Pokémon surnommé, quand je l'ouvre, alors elle montre le surnom ET le nom de l'espèce ; l'étoile « favori » est alignée avec son texte ; je peux faire défiler la fiche à la molette ou au doigt, curseur posé dessus.
-- [ ] Étant donné la fiche ouverte, quand je la ferme (bouton, touche Échap ou toucher à côté), alors je reviens à la liste de l'équipe sans perdre ma place ; le fond ne défile pas derrière.
+- [x] Étant donné l'onglet Équipe, quand je l'ouvre, alors je vois 6 cases (Pokémon ou case vide) avec sprite, nom, niveau, barre d'XP et DPS, le DPS total, sans chevauchement ni défilement horizontal à 390 px.
+- [x] Étant donné un Pokémon, quand je touche sa carte, alors sa fiche s'ouvre (sprite, niveau, XP, bonheur, sexe, shiny, calcium, objets tenus, types, DPS) ; elle se ferme au toucher extérieur et à la touche Échap.
+- [x] Étant donné une fiche, quand je renomme avec 13 caractères, alors la saisie est refusée avec un message français ; avec 12 caractères, le surnom est enregistré.
+- [x] Étant donné une fiche, quand je mets en favori, alors l'étoile s'affiche et la valeur survit au rechargement.
+- [x] Étant donné un Pokémon, quand je le relâche, alors une confirmation en français est demandée ; confirmée, il disparaît ; il est impossible de relâcher le dernier Pokémon non-œuf de l'équipe.
+- [x] Étant donné une équipe de 1 Pokémon, quand je tente de l'envoyer au PC, alors c'est refusé avec la raison ; avec 2 Pokémon et au moins un non-œuf restant, c'est accepté. (règle codée et testée dans le cœur ; le bouton de la fiche s’active avec le ticket I)
+- [x] Étant donné une équipe pleine, quand je place un Pokémon du PC, alors le mode échange propose le Pokémon à remplacer. (mode échange codé et affiché ; déclenché depuis le PC au ticket I)
+- [x] Étant donné le sexe d'une espèce, quand un Pokémon est créé, alors il respecte les listes de la V1 (sans sexe, toujours mâle, toujours femelle, sinon tirage au hasard) ; un test le prouve sur toutes les espèces.
+- [x] Étant donné la fiche d'un Pokémon surnommé, quand je l'ouvre, alors elle montre le surnom ET le nom de l'espèce ; l'étoile « favori » est alignée avec son texte ; je peux faire défiler la fiche à la molette ou au doigt, curseur posé dessus.
+- [x] Étant donné la fiche ouverte, quand je la ferme (bouton, touche Échap ou toucher à côté), alors je reviens à la liste de l'équipe sans perdre ma place ; le fond ne défile pas derrière.
 
 ### Hors périmètre
 PC (I), évolution (K), objets (M), œuf (T), renommage à effet d'easter egg (W, qui s'accroche à ce renommage).

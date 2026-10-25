@@ -15,6 +15,12 @@ html:has(dialog[open]) { overflow: hidden; }
 .fiche-pokemon {
   max-height: 50dvh;
   margin: auto auto 0;
+}
+.fiche-pokemon[open] { display: flex; flex-direction: column; }
+.fiche-contenu {
+  flex: 1;
+  min-height: 0;
+  align-content: start;
   overflow-y: auto;
   overscroll-behavior: contain;
 }

@@ -11,3 +11,4 @@ design/references/vues/
 design/references/hgss/
 .claude/route/
 dev-dist/
+.vitest/

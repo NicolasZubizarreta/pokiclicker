@@ -56,7 +56,10 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur }: Props) {
   const aLaFermeture = () => {
     if (confirmation.current?.open) confirmation.current.close();
     fermer();
-    declencheur.current?.focus();
+    const origine = declencheur.current;
+    // Pokémon relâché : sa carte n'existe plus, le focus va au titre de la page.
+    if (origine?.isConnected) origine.focus();
+    else document.querySelector<HTMLElement>('h1')?.focus();
   };
   const pokemon = membre?.pokemon;
   const espece = pokemon ? catalogue.parNumero(pokemon.numero) : null;
@@ -67,10 +70,10 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur }: Props) {
   const detail = membre ? detailDps(membre.pokemon, membre.multiplicateur) : null;
 
   return <>
-    <dialog ref={dialogue} aria-labelledby={titre} className="fiche-pokemon cadre w-full max-w-3xl bg-surface p-4 text-base text-texte lg:p-8"
+    <dialog ref={dialogue} aria-labelledby={titre} className="fiche-pokemon cadre w-full max-w-3xl bg-surface p-0 text-base text-texte"
       onClose={aLaFermeture} onCancel={event => { event.preventDefault(); fermerFiche(); }}
       onPointerDown={event => { if (event.target === event.currentTarget) fermerFiche(); }}>
-      <div className="grid min-w-0 gap-4">
+      <div className="fiche-contenu grid min-w-0 gap-4 p-4 lg:p-8">
         <button type="button" className={`${bouton} justify-self-end`} onClick={fermerFiche}>Ferme la fiche</button>
         <header>
           <h2 id={titre} className="break-words font-titre text-2xl">{nom}</h2>
@@ -82,8 +85,8 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur }: Props) {
             <Image src={cheminSprite(pokemon.numero)} genre="sprite" alt={espece.nom} className="size-48 image-rendering-pixelated" />
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            {pokemon.sexe === 'male' && <span className="text-info-base" aria-label="Mâle">♂</span>}
-            {pokemon.sexe === 'femelle' && <span className="text-erreur-base" aria-label="Femelle">♀</span>}
+            {pokemon.sexe === 'male' && <span className="text-info-base" role="img" aria-label="Mâle">♂</span>}
+            {pokemon.sexe === 'femelle' && <span className="text-erreur-base" role="img" aria-label="Femelle">♀</span>}
             {pokemon.shiny && <span className="inline-flex items-center gap-1 text-alerte-base"><Etoile />Shiny</span>}
             <button type="button" aria-pressed={pokemon.favori}
               className={`${bouton} inline-flex items-center gap-2 ${pokemon.favori ? 'text-lien' : ''}`}
@@ -93,7 +96,7 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur }: Props) {
             {espece.types.map(type => <span key={type} className="bg-surface-2 px-2 py-1">{nomType(type)}</span>)}
           </div>
           <div>
-            <p>XP : {pokemon.niveau >= 100 ? <span>MAX</span> : <span>{pokemon.xp} / {membre.xpMax}</span>}</p>
+            <p>XP : {pokemon.niveau >= 100 ? <span>MAX</span> : <span>{Math.floor(pokemon.xp)} / {membre.xpMax}</span>}</p>
             <BarreXp xp={pokemon.xp} maximum={membre.xpMax} nom={nom} />
           </div>
           <p className="text-xl text-region-accent">{formaterDps(membre.dps)} DPS</p>
