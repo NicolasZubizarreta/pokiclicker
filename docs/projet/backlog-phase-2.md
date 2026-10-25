@@ -333,7 +333,7 @@ Fourchette : 2 à 3 jours. Risque : la décision « PC de région » est à conf
 
 ## J. `feat(capture): capturer un Pokémon sauvage avec une balle et régler l'arrêt automatique`
 
-Labels : `type:feat`, `etat:pret`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : oui
+Labels : `type:feat`, `etat:fait`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : oui
 
 ### Histoire
 En tant que joueur, je veux capturer des Pokémon sauvages avec des balles afin de compléter mon Pokédex et de renforcer mon équipe.
@@ -342,13 +342,13 @@ En tant que joueur, je veux capturer des Pokémon sauvages avec des balles afin 
 V1 : `legacy/js/game/capture.js` (137 l.), `combat.js` (`autoStopSettings`). V2 : `src/core/ennemis.ts` (champ `capture` déjà présent), `src/core/combat.ts`, `src/ui/EcranCombat.tsx`. **Règles V1** : balles Poké ×1, Super ×2, Hyper ×4, Master = 100 % ; `chance = (taux/255 × (3·PVmax − 2·PV)/(3·PVmax) × mult) / (1 + niveau/25)`, ×1,3 avec le badge Marais ; s'applique à l'ennemi vivant ; animation d'1 s ; **la balle est consommée même en cas d'échec** ; les boss ont un taux de 0 (capture impossible) ; succès : ajout au Pokédex, dans l'équipe si elle a moins de 6 Pokémon sinon au PC ; le nom perd ses parenthèses, le niveau de l'ennemi est conservé ; shiny 1/256 (déjà porté), ×3 avec le Charme Chroma, ×2 au palier 151, jamais sur un boss ; **auto-attaque** activable et **arrêt automatique** sur rareté, shiny ou nouvelle espèce (`autoStopSettings`, 7 réglages). Les balles s'achètent en L ; en attendant, le test les place dans l'inventaire. Toucher la scène attaque (décidé) : la capture est un geste séparé.
 
 ### Critères d'acceptation
-- [ ] Étant donné les 30 situations de la V1 (taux, PV, niveau, balle, badge Marais), quand je compare la probabilité de capture, alors les valeurs sont strictement égales à celles du code V1 (fixture `tests/fixtures/v1-capture.json`).
-- [ ] Étant donné une balle et un ennemi sauvage vivant, quand je lance, alors une animation d'1 s se joue, la balle est consommée, et le résultat (capturé ou échappé) est décidé par un tirage injecté (tests déterministes).
-- [ ] Étant donné un boss, quand j'ouvre le Sac, alors les balles sont désactivées avec la raison « Ce Pokémon ne peut pas être capturé. ».
-- [ ] Étant donné une capture réussie, quand l'équipe a moins de 6 Pokémon, alors il la rejoint ; sinon il va au PC ; le Pokédex est mis à jour ; l'ennemi est remplacé sans récompense d'XP (la V1 donne `or×2` et ni XP ni kill : conservé).
-- [ ] Étant donné une Master Ball, quand je lance, alors la capture réussit toujours sauf sur un boss.
-- [ ] Étant donné l'auto-attaque, quand je la désactive, alors l'ennemi n'est plus blessé par le DPS (seuls les clics comptent) ; quand l'arrêt automatique est réglé sur « shiny », « rare » ou « nouveau », alors l'auto-attaque s'arrête à l'apparition d'un ennemi correspondant et un message le dit.
-- [ ] Étant donné les réglages d'arrêt, quand je recharge, alors ils sont conservés (préférences du compte, pas de l'interface).
+- [x] Étant donné les 30 situations de la V1 (taux, PV, niveau, balle, badge Marais), quand je compare la probabilité de capture, alors les valeurs sont strictement égales à celles du code V1 (fixture `tests/fixtures/v1-capture.json`).
+- [x] Étant donné une balle et un ennemi sauvage vivant, quand je lance, alors une animation d'1 s se joue, la balle est consommée, et le résultat (capturé ou échappé) est décidé par un tirage injecté (tests déterministes).
+- [x] Étant donné un boss, quand j'ouvre le Sac, alors les balles sont désactivées avec la raison « Ce Pokémon ne peut pas être capturé. ».
+- [x] Étant donné une capture réussie, quand l'équipe a moins de 6 Pokémon, alors il la rejoint ; sinon il va au PC ; le Pokédex est mis à jour ; l'ennemi est remplacé sans récompense d'XP (la V1 donne `or×2` et ni XP ni kill : conservé).
+- [x] Étant donné une Master Ball, quand je lance, alors la capture réussit toujours sauf sur un boss.
+- [x] Étant donné l'auto-attaque, quand je la désactive, alors l'ennemi n'est plus blessé par le DPS (seuls les clics comptent) ; quand l'arrêt automatique est réglé sur « shiny », « rare » ou « nouveau », alors l'auto-attaque s'arrête à l'apparition d'un ennemi correspondant et un message le dit.
+- [x] Étant donné les réglages d'arrêt, quand je recharge, alors ils sont conservés (préférences du compte, pas de l'interface).
 
 ### Hors périmètre
 Achat des balles (L), Radar (M), Charme Chroma et palier 151 (N), Jeton Shiny (M).

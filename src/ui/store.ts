@@ -43,7 +43,7 @@ export type AffichageJeu = {
   erreurChargement: boolean; zonePrecedente: Destination | null; zoneSuivante: Destination | null;
   minuteur: { restantMs: number; totalMs: number } | null;
   evenementsDegats: Degat[];
-  argent: number; enRecherche: boolean; annonce: string | null;
+  argent: number; enRecherche: boolean; cache: boolean; annonce: string | null;
   echange: { uid: string; nom: string } | null;
   renommer(uid: string, texte: string): string | null;
   basculerFavori(uid: string): string | null;
@@ -101,6 +101,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
         region = resultat.region;
         pokedex = ajouterAuPokedex(pokedex, evenement.numero);
         if (resultat.destination === 'pc') messagesCapture.push(`${catalogue.parNumero(evenement.numero).nom} est envoyé au PC.`);
+        if (resultat.bonbons > 0) messagesCapture.push(`Chromatique ! +${resultat.bonbons} Bonbons`);
       }
       if (evenement.type === 'ennemi-vaincu') {
         const r = appliquerVictoire(region, evenement, coeur.actifs);
@@ -183,7 +184,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
       carte: JSON.stringify(carte) === JSON.stringify(precedent.carte) ? precedent.carte : carte,
       equipe: JSON.stringify(equipe) === JSON.stringify(precedent.equipe) ? precedent.equipe : equipe,
       dps: coeur ? calculerDpsEquipe(coeur.equipe, coeur.ennemi) : 0, erreur,
-      argent: region.argent, enRecherche: (coeur?.attenteMs ?? 0) > 0 && !coeur?.attenteCapture, annonce, echange,
+      argent: region.argent, enRecherche: (coeur?.attenteMs ?? 0) > 0 && !coeur?.attenteCapture, cache: (coeur?.attenteMs ?? 0) > 0, annonce, echange,
       minuteur: coeur && coeur.attenteMs === 0 && coeur.minuteurMs !== null
         ? { restantMs: coeur.minuteurMs, totalMs: reglages.combat.minuteurBossMs } : null,
       zonePrecedente: JSON.stringify(zonePrecedente) === JSON.stringify(precedent.zonePrecedente) ? precedent.zonePrecedente : zonePrecedente,
@@ -218,7 +219,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
     capture: { balles: [], possible: false, raison: 'Aucun Pokémon à capturer.', enCours: false },
     autoAttaque: preferences.autoAttaque, arretAuto: preferences.arretAuto,
     capturer(cle) {
-      if (!initialise) return;
+      if (!initialise || minuteur === undefined) return;
       const condition = conditionCapture(coeur, region.inventaire, cle);
       if (!condition.ok) { annonce = condition.raison ?? null; finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs; }
       else if (coeur) {
@@ -243,7 +244,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
     },
     lieu: null, zone: null, etape: 1, ennemi: null, pv: 0, equipe: [], dps: 0, minuteur: null,
     erreur: null, erreurChargement: false, zonePrecedente: null, zoneSuivante: null, evenementsDegats: [],
-    argent: 0, enRecherche: false, annonce: null, echange: null,
+    argent: 0, enRecherche: false, cache: false, annonce: null, echange: null,
     pc: [], pokedex, accesPc: { ouvert: false, raison: reglages.pc.raison },
     noterEspece(numero) {
       if (!initialise || !Number.isSafeInteger(numero) || numero <= 0) return;

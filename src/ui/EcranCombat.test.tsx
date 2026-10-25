@@ -143,7 +143,7 @@ it('masque l’ennemi pendant la recherche en gardant la cible d’attaque et le
   const attaque = screen.getByRole('button', { name: /^Attaquer / });
   const panneau = screen.getByRole('progressbar', { name: 'PV de Rattata' }).parentElement?.parentElement;
   const sprite = container.querySelector('.will-change-transform');
-  act(() => store.setState({ enRecherche: true }));
+  act(() => store.setState({ enRecherche: true, cache: true }));
   expect(screen.getByRole('status').textContent).toBe('Recherche en cours…');
   expect(screen.getByRole('button', { name: /^Attaquer / })).toBe(attaque);
   expect(attaque.getAttribute('aria-label')).toBe('Attaquer (recherche en cours)');
@@ -151,10 +151,17 @@ it('masque l’ennemi pendant la recherche en gardant la cible d’attaque et le
   expect(screen.queryByRole('img', { name: 'Rattata' })).toBeNull();
   expect(panneau?.classList.contains('opacity-0')).toBe(true);
   expect(sprite?.classList.contains('opacity-0')).toBe(true);
-  act(() => store.setState({ enRecherche: false }));
+  act(() => store.setState({ enRecherche: false, cache: false }));
   expect(screen.queryByText('Recherche en cours…')).toBeNull();
   expect(panneau?.classList.contains('opacity-0')).toBe(false);
   expect(sprite?.classList.contains('opacity-0')).toBe(false);
+});
+
+it('cache le sprite sans message pendant la réapparition qui suit une capture', () => {
+  const { container } = preparer();
+  act(() => store.setState({ enRecherche: false, cache: true }));
+  expect(screen.queryByText('Recherche en cours…')).toBeNull();
+  expect(container.querySelector('.will-change-transform')?.classList.contains('opacity-0')).toBe(true);
 });
 
 it('rend la scène attaquable, avec des PV accessibles et dix étapes dont le boss', () => {

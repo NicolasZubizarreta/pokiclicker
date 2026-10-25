@@ -47,6 +47,7 @@ function Scene({ store }: { store: StoreJeu }) {
   const ennemi = useStore(store, etat => etat.ennemi);
   const minuteur = useStore(store, etat => etat.minuteur);
   const enRecherche = useStore(store, etat => etat.enRecherche);
+  const cache = useStore(store, etat => etat.cache);
   const annonce = useStore(store, etat => etat.annonce);
   const captureEnCours = useStore(store, etat => etat.capture.enCours);
   useEffect(() => {
@@ -65,7 +66,7 @@ function Scene({ store }: { store: StoreJeu }) {
   const nom = catalogue.parNumero(ennemi.numero).nom;
   return <section aria-label={enRecherche ? 'Combat contre un Pokémon en approche' : `Combat contre ${nom}`} className="scene-limitee relative isolate h-76 bg-surface-2 lg:col-span-3 lg:aspect-video lg:h-auto">
     <Image src={cheminDecor(zone)} genre="decor" alt="" couvrir className="absolute inset-0 -z-10 size-full" />
-    <div aria-hidden={enRecherche} className={`pointer-events-none cadre absolute top-4 left-4 z-10 w-3/5 bg-surface p-3 ${enRecherche ? 'opacity-0' : ''}`}>
+    <div aria-hidden={cache} className={`pointer-events-none cadre absolute top-4 left-4 z-10 w-3/5 bg-surface p-3 ${cache ? 'opacity-0' : ''}`}>
       <div className="flex flex-wrap items-center justify-between gap-1">
         <h2 className="font-titre text-xl">{nom}{ennemi.boss ? ' (Géant)' : ''}</h2><span>Niv. {ennemi.niveau}</span>
       </div>
@@ -73,7 +74,7 @@ function Scene({ store }: { store: StoreJeu }) {
       <BarrePv key={`${ennemi.numero}-${ennemi.niveau}-${ennemi.boss}`} pv={ennemi.pv} maximum={ennemi.pvMax} nom={nom} />
       {minuteur && <BarreTemps restantMs={minuteur.restantMs} totalMs={minuteur.totalMs} />}
     </div>
-    <div ref={sprite} aria-hidden={enRecherche} className={`pointer-events-none absolute right-2 bottom-2 flex will-change-transform size-48 items-end justify-center lg:size-72 ${enRecherche ? 'opacity-0' : ''}`}>
+    <div ref={sprite} aria-hidden={cache} className={`pointer-events-none absolute right-2 bottom-2 flex will-change-transform size-48 items-end justify-center lg:size-72 ${cache ? 'opacity-0' : ''}`}>
       <div aria-hidden="true" className="socle absolute bottom-10 h-12 w-3/4 bg-region-socle lg:bottom-16 lg:h-16" />
       <Image src={cheminSprite(ennemi.numero)} genre="sprite" alt={nom} largeurDisponible={192}
         className={`relative size-48 max-w-none lg:hidden ${captureEnCours ? 'capture-en-cours' : ''}`} />
@@ -113,7 +114,7 @@ function CommandesCombat({ store }: { store: StoreJeu }) {
   const regler = useStore(store, etat => etat.reglerArretAuto);
   if (!zone) return null;
   return <div className="commandes-combat grid min-w-0 gap-1 lg:col-span-3">
-    <fieldset className="min-w-0" disabled={!capture.possible || capture.enCours}>
+    <fieldset className="min-w-0">
       <BarreCapture {...capture} capturer={capturer} />
     </fieldset>
     <ReglagesCombat autoAttaque={autoAttaque} arret={arret} basculer={basculer} regler={regler} />

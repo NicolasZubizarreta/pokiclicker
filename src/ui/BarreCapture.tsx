@@ -17,7 +17,7 @@ export function BarreCapture({ balles, possible, raison, enCours, capturer }: {
     {!selection && explication && <p id={description} className="self-center text-texte-doux">{explication}</p>}
     {selection && <div className="flex flex-wrap gap-2">
       {possedees.map(balle => <button key={balle.cle} type="button"
-        aria-pressed={selection?.cle === balle.cle}
+        aria-pressed={selection?.cle === balle.cle} disabled={raison !== null}
         className="cadre flex min-h-11 min-w-11 items-center gap-2 bg-surface p-3 aria-pressed:bg-selection"
         onClick={() => choisir(balle.cle)}>
         <img src={balle.image} alt="" width={24} height={24} className="image-rendering-pixelated h-6 w-6 shrink-0" />

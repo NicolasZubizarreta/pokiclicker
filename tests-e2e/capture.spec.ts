@@ -64,22 +64,26 @@ test('échec : la Pokéball est consommée', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Pokéball ×4', exact: true })).toBeVisible();
 });
 
-test('arrêt automatique sur un nouveau Pokémon puis reprise à la victoire', async ({ page }) => {
+test('arrêt automatique sur chaque nouveau Pokémon, à chaque apparition', async ({ page }) => {
+  // Aléa fixé : toujours un Rattata, nouveau tant qu'il n'est pas capturé (comme en V1).
+  await page.addInitScript(() => { Math.random = () => 0.1; });
   await page.clock.install();
   await page.clock.pauseAt(new Date());
   await page.goto('/');
   await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
-  // Le premier tick traite l'apparition du premier ennemi (nouveau pour le Pokédex des trois départs).
   await page.clock.runFor(100);
-  await expect(page.getByText('Nouveau Pokémon ! Auto-attaque arrêtée.', { exact: true })).toBeVisible();
+  const message = page.getByText('Nouveau Pokémon ! Auto-attaque arrêtée.', { exact: true });
+  await expect(message).toBeVisible();
   const auto = page.getByRole('button', { name: 'Auto-attaque', exact: true });
   await expect(auto).toHaveAttribute('aria-pressed', 'false');
-  for (let appui = 0; appui < 200 && (await auto.getAttribute('aria-pressed')) === 'false'; appui++) {
+  for (let appui = 0; appui < 200 && !(await page.getByText('Étape 2 sur 10', { exact: true }).isVisible()); appui++) {
     await page.getByRole('button', { name: /^Attaquer / }).click({ force: true });
     await page.clock.runFor(90);
   }
-  // Le message de reprise est bref : l'état du bouton est la preuve durable.
-  await expect(auto).toHaveAttribute('aria-pressed', 'true');
+  // La victoire reprend l'auto-attaque, puis l'ennemi suivant (encore nouveau) l'arrête de nouveau.
+  await expect(page.getByText('Étape 2 sur 10', { exact: true })).toBeVisible();
+  await page.clock.runFor(2000);
+  await expect(auto).toHaveAttribute('aria-pressed', 'false');
 });
 
 test('réglages conservés au rechargement', async ({ page }) => {

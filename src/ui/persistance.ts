@@ -40,7 +40,7 @@ export function ouvrirPartie(options: Parameters<typeof creerGestionnaire>[0]) {
     preferences,
     enregistrerPreferences(p: PreferencesCombat) {
       const suivantes = JSON.stringify(p);
-      if (suivantes === dernieresPreferences) return;
+      if (bloquee || suivantes === dernieresPreferences) return;
       const actuel = gestionnaire.chargerCompte()?.donnees ?? compteInitial();
       gestionnaire.ecrireCompte({ ...actuel, preferences: { ...actuel.preferences, ...structuredClone(p) } });
       dernieresPreferences = suivantes;
