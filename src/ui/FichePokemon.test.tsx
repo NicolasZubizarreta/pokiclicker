@@ -50,6 +50,25 @@ function afficher() {
   return vue;
 }
 
+it.each([
+  [{ ...pokemon, niveau: 15, pierreEternelle: false }, 'Évolution : niveau 16'],
+  [{ ...pokemon, numero: 25, pierreEternelle: false }, 'Évolution : Pierre Foudre'],
+  [{ ...pokemon, numero: 133, pierreEternelle: false }, 'Évolution : Pierre Eau, Pierre Foudre ou Pierre Feu'],
+  [pokemon, 'Évolution bloquée (Pierre Stase).'],
+  [{ ...pokemon, numero: 25 }, 'Évolution bloquée (Pierre Stase).'],
+] as const)('décrit l’évolution dans la fiche (%s)', (p, texte) => {
+  storeJeu.setState({ equipe: [{ pokemon: p, dps: 42, xpMax: 100, multiplicateur: 1 }] });
+  afficher();
+  expect(screen.getByText(texte)).toBeTruthy();
+});
+
+it.each([{ ...pokemon, numero: 3 }, { ...pokemon, oeuf: { pasRestants: 10, pasMax: 10 } }])(
+  'omet l’évolution sans cible ou pour un œuf (%s)', p => {
+    storeJeu.setState({ equipe: [{ pokemon: p, dps: 42, xpMax: 100, multiplicateur: 1 }] });
+    afficher();
+    expect(screen.queryByText(/^Évolution/)).toBeNull();
+  });
+
 it.each(['bouton', 'fond', 'Échap'])('ferme avec %s et restaure le focus', mode => {
   afficher();
   const dialogue = screen.getByRole('dialog', { name: 'Bourgeon' });

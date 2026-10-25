@@ -3,6 +3,9 @@ import { useStore } from 'zustand';
 import { chargerPokemon } from '../core/pokemon';
 import { reglages } from '../core/reglages';
 import { cibleValide, quantiteMax } from '../core/objets-equipe';
+import { cibleValidePierre } from '../core/evolution';
+import { ConfirmationObjet } from './ConfirmationObjet';
+import { SpriteEvolution } from './SpriteEvolution';
 import { BarreXp } from './BarreXp';
 import { FichePokemon } from './FichePokemon';
 import { Image } from './Image';
@@ -10,7 +13,7 @@ import { MenuPokemon } from './MenuPokemon';
 import { Sac } from './Sac';
 import { SelecteurQuantite } from './SelecteurQuantite';
 import { formaterDps } from './nombres';
-import { cheminSprite } from './precharger';
+import { cheminSprite, precharger } from './precharger';
 import { storeJeu } from './store';
 
 const catalogue = chargerPokemon();
@@ -20,7 +23,8 @@ export function PageEquipe() {
   const dps = useStore(storeJeu, etat => etat.dps);
   const echange = useStore(storeJeu, etat => etat.echange);
   const sac = useStore(storeJeu, etat => etat.sac);
-  const [selection, selectionner] = useState<{ type: 'bonbon' | 'calcium'; cle: string; nom: string } | null>(null);
+  const evolution = useStore(storeJeu, etat => etat.evolution);
+  const [selection, selectionner] = useState<{ type: 'bonbon' | 'calcium' | 'pierre'; cle: string; nom: string } | null>(null);
   const mode = echange ? null : selection;
   const [cible, cibler] = useState<string | null>(null);
   const [quantite, changerQuantite] = useState(1);
@@ -41,6 +45,12 @@ export function PageEquipe() {
   const nom = membre ? membre.pokemon.surnom ?? catalogue.parNumero(membre.pokemon.numero).nom : '';
 
   useEffect(() => () => storeJeu.getState().annulerEchange(), []);
+
+  useEffect(() => {
+    for (const membre of equipe) {
+      if (typeof membre?.evolution === 'number') void precharger([cheminSprite(membre.evolution)]);
+    }
+  }, [equipe]);
 
   function annulerObjet() {
     rendreFocus.current = true;
@@ -90,7 +100,7 @@ export function PageEquipe() {
     </div>}
     {echange && erreur?.echange === echange && <p role="alert" className="mt-4 text-erreur-base">{erreur.message}</p>}
     <p role="status" className={mode ? 'mt-4' : undefined}>{mode ? 'Sélectionne un Pokémon.' : ''}</p>
-    {mode && erreurObjet && <p role="alert" className="mt-4 text-erreur-base">{erreurObjet}</p>}
+    {erreurObjet && <p role="alert" className="mt-4 text-erreur-base">{erreurObjet}</p>}
     <div className="mt-4 grid items-start gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
       <ul ref={liste} className="grid min-w-0 gap-4">
         {Array.from({ length: reglages.equipe.taille }, (_, index) => {
@@ -99,11 +109,12 @@ export function PageEquipe() {
           const { pokemon, dps, xpMax } = caseEquipe;
           const nom = pokemon.surnom ?? catalogue.parNumero(pokemon.numero).nom;
           const stock = mode ? sac.entrees.find(entree => entree.id === mode.cle)?.quantite ?? 0 : 0;
-          const maximum = mode ? quantiteMax(mode.type, pokemon, stock) : 0;
-          const valide = mode && cibleValide(mode.type, pokemon) && maximum > 0;
+          const maximum = mode && mode.type !== 'pierre' ? quantiteMax(mode.type, pokemon, stock) : 0;
+          const valide = mode && (mode.type === 'pierre' ? cibleValidePierre(pokemon, mode.cle)
+            : cibleValide(mode.type, pokemon) && maximum > 0);
           return <li key={pokemon.uid} className="min-w-0">
             <button type="button" aria-label={`${nom}, niveau ${pokemon.niveau}`} aria-pressed={membre?.pokemon.uid === pokemon.uid}
-              disabled={!!mode && !valide}
+              disabled={!!mode && mode.type !== 'pierre' && !valide}
               className={`cadre grid min-h-11 w-full grid-cols-[auto_minmax(0,1fr)] items-center gap-2 p-4 text-left hover:bg-selection ${membre?.pokemon.uid === pokemon.uid ? 'bg-selection' : 'bg-surface'} ${mode ? valide ? 'relative motion-safe:cible-valide' : 'grayscale opacity-50' : ''}`}
               onContextMenu={event => {
                 event.preventDefault();
@@ -117,6 +128,12 @@ export function PageEquipe() {
                   return;
                 }
                 if (mode) {
+                  if (mode.type === 'pierre' && !valide) {
+                    cibler(null);
+                    signalerObjet(pokemon.oeuf ? 'Pokémon invalide !' : pokemon.pierreEternelle
+                      ? 'Pierre Stase équipée !' : 'Pokémon incompatible !');
+                    return;
+                  }
                   if (valide) {
                     cibler(pokemon.uid);
                     changerQuantite(1);
@@ -127,7 +144,10 @@ export function PageEquipe() {
                 choisir(pokemon.uid);
                 if (!panneau.current?.getClientRects().length) ouvrirFiche(pokemon.uid, event.currentTarget);
               }}>
-              <Image src={cheminSprite(pokemon.numero)} genre="sprite" alt="" className="size-24 max-w-none" />
+              {evolution?.uid === pokemon.uid
+                ? <span className="grid size-24 max-w-none place-items-center [&_img]:size-24"><SpriteEvolution ancien={cheminSprite(evolution.ancien)}
+                  nouveau={cheminSprite(evolution.nouveau)} nom={nom} actif /></span>
+                : <Image src={cheminSprite(pokemon.numero)} genre="sprite" alt="" className="size-24 max-w-none" />}
               <span className="grid min-w-0 gap-2">
                 <strong className="flex items-center gap-2 break-words">{nom}{pokemon.favori &&
                   <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" className="size-5 shrink-0 fill-current text-lien">
@@ -138,8 +158,18 @@ export function PageEquipe() {
                 <span className="text-region-accent">{formaterDps(dps)} DPS</span>
               </span>
             </button>
-            {mode && cible === pokemon.uid && valide && <SelecteurQuantite valeur={Math.min(quantite, maximum)} max={maximum}
+            {!mode && !echange && typeof caseEquipe.evolution === 'number' && <button type="button"
+              aria-label={`Faire évoluer ${nom}`} className="cadre min-h-11 w-full bg-surface border-alerte-base motion-safe:animate-pulse"
+              onClick={() => signalerObjet(storeJeu.getState().evoluer(pokemon.uid))}>Évoluer</button>}
+            {mode?.type === 'pierre' && cible === pokemon.uid && valide && <ConfirmationObjet objet={mode.nom} nom={nom}
+              annuler={annulerObjet} valider={() => {
+                const message = storeJeu.getState().utiliserPierre(pokemon.uid, mode.cle);
+                if (message) signalerObjet(message);
+                else annulerObjet();
+              }} />}
+            {mode && mode.type !== 'pierre' && cible === pokemon.uid && valide && <SelecteurQuantite valeur={Math.min(quantite, maximum)} max={maximum}
               changer={changerQuantite} annuler={annulerObjet} valider={() => {
+                if (mode.type === 'pierre') return;
                 const message = storeJeu.getState().utiliserObjet(mode.type, pokemon.uid, Math.min(quantite, maximum));
                 if (message) signalerObjet(message);
                 else annulerObjet();
@@ -151,7 +181,10 @@ export function PageEquipe() {
       {membre && <aside ref={panneau} className="cadre sticky top-8 hidden min-w-0 space-y-4 bg-surface p-4 lg:block">
         <div className="relative isolate grid place-items-center">
           <span className="socle absolute bottom-6 -z-10 h-8 w-40 bg-region-socle" aria-hidden="true" />
-          <Image src={cheminSprite(membre.pokemon.numero)} genre="sprite" alt="" className="size-48 max-w-full" />
+          {evolution?.uid === membre.pokemon.uid
+            ? <span className="grid size-48 max-w-full place-items-center [&_img]:size-48"><SpriteEvolution ancien={cheminSprite(evolution.ancien)}
+              nouveau={cheminSprite(evolution.nouveau)} nom={nom} actif /></span>
+            : <Image src={cheminSprite(membre.pokemon.numero)} genre="sprite" alt="" className="size-48 max-w-full" />}
         </div>
         <h2 className="break-words font-titre text-xl font-semibold">{nom}</h2>
         <p>Niv. {membre.pokemon.niveau}</p>

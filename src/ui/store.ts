@@ -2,10 +2,11 @@ import { createStore } from 'zustand/vanilla';
 import { creerHorlogeSysteme } from '../core/clock';
 import type { Horloge } from '../core/clock';
 import { avancerCombat, calculerClic, calculerDpsEquipe, cliquer, creerCombat, creerLimiteurClics,
-  multiplicateurType, reprendreCombat, viderEvenements, lancerCapture, basculerAutoAttaque, basculerAutoClic } from '../core/combat';
+  multiplicateurType, reprendreCombat, viderEvenements, lancerCapture, basculerAutoAttaque, basculerAutoClic, suspendreDps } from '../core/combat';
 import { acheter, chargerObjets, objetsActifs } from '../core/boutique';
 import { clicsAutomatiques } from '../core/clics';
 import { utiliserSurPokemon } from '../core/objets-equipe';
+import { evoluer as evoluerEquipe, evoluerParPierre, evolutionDisponible } from '../core/evolution';
 import { appliquerCapture, chanceCapture, retirerBalle } from '../core/capture';
 import type { EtatCombat } from '../core/combat';
 import type { Ennemi } from '../core/ennemis';
@@ -22,6 +23,7 @@ import { etatMondeDe, versMembreEquipe } from '../core/sauvegarde';
 import type { DonneesRegion, PokemonPossede, Stockage } from '../core/sauvegarde';
 import type { PreferencesCombat, ReglagesArret } from '../core/sauvegarde-types';
 import { afficherCapture, annonceCapture, conditionCapture, type AffichageCapture } from './store-capture';
+import { afficherEvolution, type EvolutionAffichee } from './store-evolution';
 import { afficherBoutique, afficherSac, type AffichageBoutique, type AffichageSac } from './store-boutique';
 import { detailErreur, ouvrirPartie } from './persistance';
 import { creerStockageLocal } from './stockage-local';
@@ -30,7 +32,7 @@ import { imageConnue } from './Image';
 import { cheminDecor, precharger, prechargerZone } from './precharger';
 
 export type Degat = { id: number; valeur: number };
-export type CaseEquipe = { pokemon: PokemonPossede; dps: number; xpMax: number; multiplicateur: number } | null;
+export type CaseEquipe = { pokemon: PokemonPossede; dps: number; xpMax: number; multiplicateur: number; evolution?: number | null } | null;
 export type Destination = { id: string; nom: string; ouverte: boolean; raison: string | null };
 export type EtatForme = {
   forme: FormeCarte; zone: string | null; nom: string; numero: number | null;
@@ -40,6 +42,9 @@ export type AffichageJeu = {
   boutique: AffichageBoutique; sac: AffichageSac; autoClic: { possede: boolean; actif: boolean };
   acheter(id: string, quantite: number): string | null;
   utiliserObjet(type: 'bonbon' | 'calcium', uid: string, n: number): string | null;
+  evoluer(uid: string): string | null;
+  utiliserPierre(uid: string, pierre: string): string | null;
+  evolution: EvolutionAffichee | null;
   basculerAutoClic(): void;
   capture: AffichageCapture; autoAttaque: boolean; arretAuto: ReglagesArret;
   capturer(cle: string): void; basculerAutoAttaque(): void; reglerArretAuto(partiel: Partial<ReglagesArret>): void;
@@ -90,6 +95,8 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
   // Temps effectivement simulé par la boucle utilisant l'horloge injectée.
   let tempsJeuMs = 0;
   let resteAutoClicMs = 0;
+  let evolutionEnCours: EvolutionAffichee | null = null;
+  let finEvolutionMs = 0;
   const objets = chargerObjets();
   const abonnesDegats = new Set<(degat: Degat) => void>();
   const limiteur = creerLimiteurClics(horloge);
@@ -158,7 +165,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
       const acces = kanto.accesZone(zone.id, etatMondeDe(region));
       return { id: zone.id, nom: zone.nom, ouverte: acces.ok, raison: acces.ok ? null : acces.raison ?? null };
     };
-    const equipe: CaseEquipe[] = region.equipe.map(pokemon => ({ pokemon,
+    const equipe: CaseEquipe[] = region.equipe.map(pokemon => ({ pokemon, evolution: evolutionDisponible(pokemon),
       xpMax: calculerMaxXp(pokemon.numero, pokemon.niveau),
       multiplicateur: coeur ? multiplicateurType(catalogue.parNumero(pokemon.numero).types,
         catalogue.parNumero(coeur.ennemi.numero).types) : 1,
@@ -198,6 +205,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
       carte: JSON.stringify(carte) === JSON.stringify(precedent.carte) ? precedent.carte : carte,
       equipe: JSON.stringify(equipe) === JSON.stringify(precedent.equipe) ? precedent.equipe : equipe,
       dps: coeur ? calculerDpsEquipe(coeur.equipe, coeur.ennemi, coeur.actifs) : 0, erreur,
+      evolution: afficherEvolution(evolutionEnCours, finEvolutionMs, tempsJeuMs),
       argent: region.argent, enRecherche: (coeur?.attenteMs ?? 0) > 0 && !coeur?.attenteCapture, cache: (coeur?.attenteMs ?? 0) > 0, annonce, echange,
       minuteur: coeur && coeur.attenteMs === 0 && coeur.minuteurMs !== null
         ? { restantMs: coeur.minuteurMs, totalMs: reglages.combat.minuteurBossMs } : null,
@@ -212,6 +220,14 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
     if (!lieu.sansCombat) void prechargerZone(lieu);
   };
   const cacher = () => { if (document.visibilityState === 'hidden') enregistrer(); };
+  const demarrerEvolution = (evolution: { uid: string; de: number; vers: number }) => {
+    pokedex = ajouterAuPokedex(pokedex, evolution.vers);
+    evolutionEnCours = { uid: evolution.uid, ancien: evolution.de, nouveau: evolution.vers };
+    finEvolutionMs = tempsJeuMs + reglages.evolution.animationMs;
+    if (coeur) coeur = suspendreDps(coeur, reglages.evolution.animationMs);
+    annonce = 'Évolution !';
+    finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs;
+  };
   const modifierEquipe = (action: (region: DonneesRegion) => equipe.ResultatEquipe,
     uidPc?: string, fermerEchange = false): string | null => {
     if (!initialise) return 'La partie n’est pas démarrée.';
@@ -254,6 +270,20 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
         return resultat;
       });
     },
+    evoluer(uid) {
+      return modifierEquipe(region => {
+        const resultat = evoluerEquipe(region, uid);
+        if (resultat.ok && resultat.evolution) demarrerEvolution(resultat.evolution);
+        return resultat;
+      });
+    },
+    utiliserPierre(uid, pierre) {
+      return modifierEquipe(region => {
+        const resultat = evoluerParPierre(region, uid, pierre);
+        if (resultat.ok && resultat.evolution) demarrerEvolution(resultat.evolution);
+        return resultat;
+      });
+    },
     basculerAutoClic() {
       if (!coeur || !region.ameliorations.includes('leftovers')) return;
       coeur = basculerAutoClic(coeur, !coeur.autoClic);
@@ -288,7 +318,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
     },
     lieu: null, zone: null, etape: 1, ennemi: null, pv: 0, equipe: [], dps: 0, minuteur: null,
     erreur: null, erreurChargement: false, zonePrecedente: null, zoneSuivante: null, evenementsDegats: [],
-    argent: 0, enRecherche: false, cache: false, annonce: null, echange: null,
+    evolution: null, argent: 0, enRecherche: false, cache: false, annonce: null, echange: null,
     pc: [], pokedex, accesPc: { ouvert: false, raison: reglages.pc.raison },
     noterEspece(numero) {
       if (!initialise || !Number.isSafeInteger(numero) || numero <= 0) return;
@@ -318,6 +348,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
       const autoClic = coeur?.autoClic ?? false;
       coeur = lieu.sansCombat ? null : creerCombat(lieu, region.equipe.map(versMembreEquipe), alea, objetsActifs(region), { ...optionsCombat(), autoClic });
       resteAutoClicMs = 0;
+      if (coeur && tempsJeuMs < finEvolutionMs) coeur = suspendreDps(coeur, finEvolutionMs - tempsJeuMs);
       region = { ...region, zoneId, etape: 1 };
       annonce = null;
       traiter();

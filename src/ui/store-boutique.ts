@@ -11,7 +11,7 @@ export type AffichageBoutique = { acces: Acces; objets: (Description & {
   prix: number; stock: number; possede: boolean; unique: boolean; abordable: boolean;
 })[] };
 export type AffichageSac = { acces: Acces; entrees: (Description & {
-  quantite: number; actif: boolean; utilisable: 'bonbon' | 'calcium' | null;
+  quantite: number; actif: boolean; utilisable: 'bonbon' | 'calcium' | 'pierre' | null;
 })[] };
 
 const objets = chargerObjets();
@@ -39,7 +39,8 @@ export function afficherSac(region: DonneesRegion, precedent: AffichageSac | nul
       id: objet.id, nom: objet.nom, description: objet.description, image: objet.image, categorie: objet.categorie,
       quantite: objet.inventaire ? region.inventaire[objet.inventaire] ?? 0 : 1,
       actif: region.ameliorations.includes(objet.id),
-      utilisable: objet.inventaire === 'bonbon' || objet.inventaire === 'calcium' ? objet.inventaire : null,
+      utilisable: objet.inventaire === 'bonbon' || objet.inventaire === 'calcium' ? objet.inventaire
+        : ['fireStone', 'waterStone', 'leafStone', 'thunderStone', 'moonStone'].includes(objet.inventaire ?? '') ? 'pierre' : null,
     })) };
   return JSON.stringify(sac) === JSON.stringify(precedent) ? precedent! : sac;
 }

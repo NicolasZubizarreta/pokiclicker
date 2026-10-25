@@ -6,6 +6,8 @@ import { formaterDps } from './nombres';
 import { PageEquipe } from './PageEquipe';
 import { storeJeu } from './store';
 import { utiliserSurPokemon } from '../core/objets-equipe';
+import { evolutionDisponible, evoluerParPierre } from '../core/evolution';
+import * as chargement from './precharger';
 import type { DonneesRegion } from '../core/sauvegarde';
 
 vi.mock('./store', async original => {
@@ -244,4 +246,130 @@ it('garde le mode échange prioritaire sur les objets et bloque le menu contextu
   expect(echanger).toHaveBeenCalledWith('pc', 'premier');
   expect(screen.queryByRole('group', { name: 'Quantité' })).toBeNull();
   expect(screen.queryByRole('dialog')).toBeNull();
+});
+
+function preparerEvolution(p: PokemonPossede = pokemon) {
+  storeJeu.setState({ equipe: [{ pokemon: p, dps: 42, xpMax: 100, multiplicateur: 1,
+    evolution: evolutionDisponible(p) }], evolution: null });
+}
+
+it('propose l’évolution au niveau requis, précharge la cible et relaie les refus', () => {
+  preparerEvolution();
+  const precharger = vi.spyOn(chargement, 'precharger').mockResolvedValue({ charges: 1, echecs: 0 });
+  const evoluer = vi.fn(() => 'Évolution bloquée !');
+  storeJeu.setState({ evoluer });
+  const { container } = render(<PageEquipe />);
+  const bouton = screen.getByRole('button', { name: 'Faire évoluer Bourgeon' });
+  expect(bouton.textContent).toBe('Évoluer');
+  expect(bouton.className).toContain('border-alerte-base');
+  expect(bouton.classList.contains('bg-action')).toBe(false);
+  expect(container.querySelector('button button')).toBeNull();
+  expect(container.querySelectorAll('.bg-action')).toHaveLength(1);
+  expect(precharger).toHaveBeenCalledWith(['img/sprites/pokemon/2.png']);
+  fireEvent.click(bouton);
+  expect(evoluer).toHaveBeenCalledWith('premier');
+  expect(screen.getByRole('alert').textContent).toBe('Évolution bloquée !');
+});
+
+it.each([{ ...pokemon, niveau: 15 }, { ...pokemon, pierreEternelle: true },
+  { ...pokemon, oeuf: { pasRestants: 10, pasMax: 10 } }])('masque l’évolution indisponible (%j)', p => {
+  preparerEvolution(p);
+  render(<PageEquipe />);
+  expect(screen.queryByRole('button', { name: /Faire évoluer/ })).toBeNull();
+});
+
+it.each(['bonbon', 'calcium', 'échange'] as const)('masque l’évolution pendant %s', mode => {
+  preparerEvolution();
+  if (mode === 'échange') {
+    storeJeu.setState({ echange: { uid: 'pc', nom: 'Pikachu' } });
+    render(<PageEquipe />);
+  } else preparerObjet(mode);
+  expect(screen.queryByRole('button', { name: /Faire évoluer/ })).toBeNull();
+});
+
+it('anime uniquement le membre concerné dans la ligne et le panneau, puis rétablit les images', () => {
+  preparerEvolution();
+  const { container } = render(<PageEquipe />);
+  act(() => storeJeu.setState({ evolution: { uid: 'premier', ancien: 1, nouveau: 2 } }));
+  expect(container.querySelectorAll('.evolution-nouveau')).toHaveLength(2);
+  expect(container.querySelectorAll('img[src="img/sprites/pokemon/2.png"]')).toHaveLength(2);
+  act(() => storeJeu.setState({ evolution: { uid: 'autre', ancien: 4, nouveau: 5 } }));
+  expect(container.querySelector('.evolution-nouveau')).toBeNull();
+  act(() => storeJeu.setState({ evolution: null }));
+  expect(container.querySelectorAll('img[src="img/sprites/pokemon/1.png"]')).toHaveLength(2);
+});
+
+function preparerPierre(p: PokemonPossede = { ...pokemon, numero: 25 }) {
+  preparerEvolution(p);
+  storeJeu.setState({ sac: { acces: { ouvert: true, raison: null }, entrees: [{
+    id: 'thunderStone', nom: 'Pierre Foudre', description: 'Pierre d’évolution.', image: null,
+    categorie: 'soins', quantite: 1, actif: false, utilisable: 'pierre',
+  }] } });
+  render(<PageEquipe />);
+  fireEvent.click(screen.getByRole('button', { name: 'Pierre Foudre ×1' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Utiliser' }));
+}
+
+it.each([
+  [{ ...pokemon, numero: 19 }, 'Pokémon incompatible !'],
+  [{ ...pokemon, numero: 25, pierreEternelle: true }, 'Pierre Stase équipée !'],
+  [{ ...pokemon, numero: 25, oeuf: { pasRestants: 10, pasMax: 10 } }, 'Pokémon invalide !'],
+] as const)('explique le refus d’une pierre sans consommer le stock (%s)', (p, raison) => {
+  const utiliserPierre = vi.fn(() => null);
+  storeJeu.setState({ utiliserPierre });
+  preparerPierre(p);
+  const ligne = screen.getByRole('button', { name: 'Bourgeon, niveau 16' });
+  expect(ligne.hasAttribute('disabled')).toBe(false);
+  expect(ligne.className).toContain('grayscale');
+  fireEvent.click(ligne);
+  expect(screen.getByRole('alert').textContent).toBe(raison);
+  expect(screen.queryByRole('group', { name: /Utiliser Pierre/ })).toBeNull();
+  expect(utiliserPierre).not.toHaveBeenCalled();
+  expect(storeJeu.getState().sac.entrees[0]?.quantite).toBe(1);
+});
+
+it.each(['validation', 'bouton', 'Échap', 'extérieur', 'déclencheur disparu'])('confirme une pierre et rend le focus après %s', moyen => {
+  storeJeu.setState({ utiliserPierre: vi.fn((uid, pierre) => {
+    const etat = storeJeu.getState();
+    const resultat = evoluerParPierre({ equipe: etat.equipe.flatMap(c => c ? [c.pokemon] : []),
+      inventaire: { thunderStone: 1 } } as unknown as DonneesRegion, uid, pierre);
+    if (!resultat.ok) return resultat.raison;
+    storeJeu.setState({ equipe: resultat.region.equipe.map(pokemon => ({ pokemon, dps: 42, xpMax: 100, multiplicateur: 1 })),
+      sac: { ...etat.sac, entrees: etat.sac.entrees.map(e => ({ ...e, quantite: 0 })) } });
+    return null;
+  }) });
+  preparerPierre();
+  const declencheur = screen.getByRole('button', { name: 'Utiliser' });
+  fireEvent.click(screen.getByRole('button', { name: 'Bourgeon, niveau 16' }));
+  expect(screen.getByRole('group', { name: 'Utiliser Pierre Foudre sur Bourgeon ?' })).toBeTruthy();
+  expect(screen.queryByRole('button', { name: 'Plus' })).toBeNull();
+  expect(document.querySelectorAll('.bg-action')).toHaveLength(1);
+  expect(document.querySelector('button button')).toBeNull();
+  expect(screen.queryByRole('button', { name: /Faire évoluer/ })).toBeNull();
+  if (moyen === 'validation') fireEvent.click(screen.getByRole('button', { name: 'Valider' }));
+  else if (moyen === 'Échap') fireEvent.keyDown(document, { key: 'Escape' });
+  else if (moyen === 'extérieur') fireEvent.click(document.body);
+  else {
+    if (moyen === 'déclencheur disparu') act(() => storeJeu.setState({ sac: { acces: { ouvert: true, raison: null }, entrees: [] } }));
+    fireEvent.click(screen.getByRole('button', { name: 'Annuler' }));
+  }
+  expect(screen.queryByRole('group', { name: /Utiliser Pierre/ })).toBeNull();
+  expect(screen.getByRole('status').textContent).toBe('');
+  expect(document.activeElement).toBe(moyen === 'validation' || moyen === 'déclencheur disparu'
+    ? screen.getByRole('heading', { level: 1 }) : declencheur);
+  expect(storeJeu.getState().sac.entrees[0]?.quantite).toBe(moyen === 'validation' ? 0 : moyen === 'déclencheur disparu' ? undefined : 1);
+  if (moyen === 'validation') {
+    expect(storeJeu.getState().utiliserPierre).toHaveBeenCalledWith('premier', 'thunderStone');
+    expect(storeJeu.getState().equipe[0]?.pokemon.numero).toBe(26);
+  }
+});
+
+it('garde la confirmation de pierre ouverte si le store refuse', () => {
+  storeJeu.setState({ utiliserPierre: vi.fn(() => 'Plus de pierre !') });
+  preparerPierre();
+  fireEvent.click(screen.getByRole('button', { name: 'Bourgeon, niveau 16' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Valider' }));
+  expect(screen.getByRole('alert').textContent).toBe('Plus de pierre !');
+  expect(screen.getByRole('group', { name: 'Utiliser Pierre Foudre sur Bourgeon ?' })).toBeTruthy();
+  expect(storeJeu.getState().sac.entrees[0]?.quantite).toBe(1);
 });

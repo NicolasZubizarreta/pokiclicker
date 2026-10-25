@@ -120,6 +120,11 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur }: Props) {
             <dt>Pierre Stase</dt><dd>× {nombre(detail.pierreEternelle)}</dd>
             <dt>Calcium</dt><dd>× {nombre(detail.calcium)}</dd>
           </dl>
+          {!pokemon.oeuf && peutEvoluer(pokemon.numero) && <p>{pokemon.pierreEternelle
+            ? 'Évolution bloquée (Pierre Stase).'
+            : `Évolution : ${niveauRequis(pokemon.numero) !== null ? `niveau ${niveauRequis(pokemon.numero)}`
+              : new Intl.ListFormat('fr', { type: 'disjunction' }).format(pierresPour(pokemon.numero)
+                .map(pierre => chargerObjets().find(objet => objet.id === pierre)!.nom))}`}</p>}
           <div className="flex flex-wrap items-center gap-4">
             <svg viewBox="0 0 64 64" role="img" aria-label={`Bonheur : ${pokemon.bonheur}/255`} className="size-16 shrink-0 -rotate-90 fill-none">
               <circle cx="32" cy="32" r="28" strokeWidth="8" className="stroke-surface-2" />
@@ -172,3 +177,5 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur }: Props) {
     </dialog>
   </>;
 }
+import { niveauRequis, peutEvoluer, pierresPour } from '../core/evolution';
+import { chargerObjets } from '../core/boutique';
