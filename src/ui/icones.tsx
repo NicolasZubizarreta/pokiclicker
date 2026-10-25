@@ -1,5 +1,15 @@
 import type { ReactNode } from 'react';
 
+export function IconeObjet({ image, nom }: { image: string | null; nom: string }) {
+  const classe = 'image-rendering-pixelated h-12 w-12 shrink-0';
+  return image !== null
+    ? <img src={image} alt="" width={48} height={48} className={classe} />
+    : <svg role="img" aria-label={nom} focusable="false" viewBox="0 0 24 24"
+      fill="none" stroke="currentColor" strokeWidth="2" className={classe}>
+      <path d="m12 3 9 5v9l-9 5-9-5V8zM3 8l9 5 9-5M12 13v9M8 5l9 5" />
+    </svg>;
+}
+
 function Icone({ children }: { children: ReactNode }) {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"

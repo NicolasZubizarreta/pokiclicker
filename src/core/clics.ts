@@ -1,6 +1,11 @@
 import type { Horloge } from './clock';
 import { reglages } from './reglages';
 
+export function clicsAutomatiques(resteMs: number, pasMs: number, intervalleMs: number) {
+  const totalMs = resteMs + pasMs;
+  return { clics: Math.floor(totalMs / intervalleMs), resteMs: totalMs % intervalleMs };
+}
+
 export function creerLimiteurClics(horloge: Horloge, config: Pick<typeof reglages.combat,
   'fenetreClicsMs' | 'clicsMaxParSeconde'> = reglages.combat) {
   const { fenetreClicsMs, clicsMaxParSeconde } = config;

@@ -8,19 +8,28 @@ const options = [
 ] as const;
 const bouton = 'cadre min-h-11 min-w-11 bg-surface p-3 aria-pressed:bg-selection';
 
-export function ReglagesCombat({ autoAttaque, arret, basculer, regler }: {
+export function ReglagesCombat({ autoAttaque, arret, basculer, regler, autoClic, basculerAutoClic }: {
   autoAttaque: boolean;
   arret: ReglagesArret;
   basculer(): void;
   regler(partiel: Partial<ReglagesArret>): void;
+  autoClic?: { possede: boolean; actif: boolean };
+  basculerAutoClic?(): void;
 }) {
   const dialogue = useRef<HTMLDialogElement>(null);
   const declencheur = useRef<HTMLButtonElement>(null);
   const titre = useId();
+  const raisonAutoClic = useId();
   const fermer = () => dialogue.current?.close();
 
   return <div className="flex min-w-0 flex-wrap gap-2 text-base text-texte">
     <button type="button" className={bouton} aria-pressed={autoAttaque} onClick={basculer}>Auto-attaque</button>
+    {autoClic && basculerAutoClic && <>
+      <button type="button" className={bouton} aria-pressed={autoClic.actif}
+        disabled={!autoClic.possede} aria-describedby={!autoClic.possede ? raisonAutoClic : undefined}
+        onClick={basculerAutoClic}>Auto-clic</button>
+      {!autoClic.possede && <p id={raisonAutoClic} className="self-center text-texte-doux">Nécessite l'objet Restes.</p>}
+    </>}
     <button type="button" className={bouton} aria-pressed={arret.actif}
       onClick={() => regler({ actif: !arret.actif })}>Arrêt auto</button>
     <button type="button" ref={declencheur} className={bouton}

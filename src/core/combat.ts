@@ -48,13 +48,14 @@ export type EvenementCombat =
   | { type: 'arret-auto'; motif: Rarete | 'shiny' | 'nouveau' }
   | { type: 'reprise-auto' };
 type OptionsCombat = {
-  autoAttaque?: boolean; arret?: ReglagesArret | null; pokedex?: readonly number[];
+  autoAttaque?: boolean; arret?: ReglagesArret | null; pokedex?: readonly number[]; autoClic?: boolean;
 };
 export type EtatCombat = {
   zoneId: string; etape: number; ennemi: Ennemi; equipe: readonly MembreEquipe[];
   actifs: readonly string[]; evenements: readonly EvenementCombat[];
   zone: Zone; alea: () => number; attenteMs: number; minuteurMs: number | null;
   autoAttaque: boolean; interrompu: boolean; arret: ReglagesArret | null; pokedex: readonly number[];
+  autoClic: boolean; avantArret: { autoAttaque: boolean; autoClic: boolean } | null;
   capture: { chance: number; restantMs: number } | null; attenteCapture: boolean;
 };
 
@@ -71,13 +72,18 @@ export function motifArret(ennemi: Ennemi, nouveau: boolean, arret: ReglagesArre
 }
 
 function apparaitre(etat: EtatCombat): EtatCombat {
-  const motif = motifArret(etat.ennemi, !etat.pokedex.includes(etat.ennemi.numero), etat.arret, etat.autoAttaque);
-  return motif === null ? etat : { ...etat, autoAttaque: false, interrompu: true,
+  const motif = motifArret(etat.ennemi, !etat.pokedex.includes(etat.ennemi.numero), etat.arret, etat.autoAttaque || etat.autoClic);
+  return motif === null ? etat : { ...etat, autoAttaque: false, autoClic: false, interrompu: true,
+    avantArret: { autoAttaque: etat.autoAttaque, autoClic: etat.autoClic },
     evenements: [...etat.evenements, { type: 'arret-auto', motif }] };
 }
 
 export function basculerAutoAttaque(etat: EtatCombat, actif: boolean): EtatCombat {
   return { ...etat, autoAttaque: actif };
+}
+
+export function basculerAutoClic(etat: EtatCombat, actif: boolean): EtatCombat {
+  return { ...etat, autoClic: actif };
 }
 
 export function lancerCapture(etat: EtatCombat, chance: number): EtatCombat {
@@ -92,10 +98,10 @@ export function creerCombat(zone: Zone, equipe: readonly MembreEquipe[], alea: (
 
 export function reprendreCombat(zone: Zone, equipe: readonly MembreEquipe[], alea: () => number,
   etape: number, actifs: readonly string[] = [],
-  { autoAttaque = true, arret = null, pokedex = [] }: OptionsCombat = {}): EtatCombat {
+  { autoAttaque = true, arret = null, pokedex = [], autoClic = false }: OptionsCombat = {}): EtatCombat {
   if (!Number.isInteger(etape) || etape < 1 || etape > zone.etapes) throw new Error('Étape de reprise invalide');
   const ennemi = creerEnnemi(zone, etape, alea);
-  return apparaitre({ zoneId: zone.id, etape, ennemi, autoAttaque, interrompu: false, arret, pokedex,
+  return apparaitre({ zoneId: zone.id, etape, ennemi, autoAttaque, autoClic, avantArret: null, interrompu: false, arret, pokedex,
     equipe, actifs, evenements: [], zone, alea, attenteMs: 0, capture: null, attenteCapture: false,
     minuteurMs: ennemi.boss ? reglages.combat.minuteurBossMs : null });
 }
@@ -118,7 +124,8 @@ function terminerEnnemi(etat: EtatCombat, capture: boolean): EtatCombat {
   const ennemi = creerEnnemi(etat.zone, etape, etat.alea);
   const suivant: EtatCombat = { ...etat, etape, evenements, ennemi, attenteMs,
     capture: null, attenteCapture: capture && attenteMs > 0,
-    autoAttaque: etat.interrompu || etat.autoAttaque, interrompu: false,
+    autoAttaque: etat.avantArret?.autoAttaque ?? etat.autoAttaque,
+    autoClic: etat.avantArret?.autoClic ?? etat.autoClic, avantArret: null, interrompu: false,
     minuteurMs: attenteMs === 0 && ennemi.boss ? reglages.combat.minuteurBossMs : null };
   return attenteMs === 0 ? apparaitre(suivant) : suivant;
 }
