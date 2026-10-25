@@ -1,6 +1,7 @@
 {
   "equipe": { "taille": 6, "surnomMax": 12 },
   "evolution": { "animationMs": 3000, "alternanceMs": 150 },
+  "badges": { "ouvertureMs": 1200, "claqueDelaiMs": 800, "claqueMs": 1200 },
   "shop": { "zone": "kanto.foret-de-jade", "raison": "Le Shop s'ouvre à la Forêt de Jade." },
   "sac": { "zone": "kanto.route-1", "raison": "Le Sac s'ouvre à la Route 1." },
   "boutique": {

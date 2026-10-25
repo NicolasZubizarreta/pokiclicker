@@ -93,6 +93,22 @@ html:has(dialog[open]) { overflow: hidden; }
 
 /* Durées du ticket H et de sa maquette A ; distances issues de l’espacement. */
 :root { --duree-pv: 120ms; --duree-degats: 500ms; --duree-evolution: 3s; }
+:root { --duree-badge: 1.2s; --ease-badge: cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+.badge-obtenu {
+  background: var(--alerte-fond);
+  border: calc(var(--spacing) / 2) solid var(--alerte-base);
+  box-shadow: 0 0 0 var(--spacing) var(--alerte-base);
+}
+.badge-vide { background: var(--surface-2); }
+@utility badge-slam {
+  animation: badge-slam var(--duree-badge) var(--ease-badge) forwards;
+}
+@keyframes badge-slam {
+  0% { transform: scale(5); opacity: 0; }
+  50% { transform: scale(1); opacity: 1; }
+  70% { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
 .cadre {
   border: calc(var(--spacing) / 2) solid var(--region-argent);
   border-radius: var(--rayon);

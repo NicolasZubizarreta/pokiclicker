@@ -1,0 +1,66 @@
+[
+  {
+    "id": "roche",
+    "nom": "Roche",
+    "zone": "kanto.arene-d-argenta",
+    "description": "Dégâts Clic +50%",
+    "image": "img/badges/roche.png",
+    "ordre": 1
+  },
+  {
+    "id": "cascade",
+    "nom": "Cascade",
+    "zone": "kanto.arene-d-azuria",
+    "description": "DPS Équipe +30%",
+    "image": "img/badges/cascade.png",
+    "ordre": 2
+  },
+  {
+    "id": "foudre",
+    "nom": "Foudre",
+    "zone": "kanto.arene-de-carmin",
+    "description": "Dégâts Totaux +20%",
+    "image": "img/badges/foudre.png",
+    "ordre": 3
+  },
+  {
+    "id": "prisme",
+    "nom": "Prisme",
+    "zone": "kanto.arene-de-celadopole",
+    "description": "Or gagné +20%",
+    "image": "img/badges/prisme.png",
+    "ordre": 4
+  },
+  {
+    "id": "ame",
+    "nom": "Âme",
+    "zone": "kanto.arene-de-parmanie",
+    "description": "XP gagnée +50%",
+    "image": "img/badges/ame.png",
+    "ordre": 5
+  },
+  {
+    "id": "marais",
+    "nom": "Marais",
+    "zone": "kanto.arene-de-safrania",
+    "description": "Taux Capture +30%",
+    "image": "img/badges/marais.png",
+    "ordre": 6
+  },
+  {
+    "id": "volcan",
+    "nom": "Volcan",
+    "zone": "kanto.arene-de-cramois-ile",
+    "description": "Dégâts Totaux +50%",
+    "image": "img/badges/volcan.png",
+    "ordre": 7
+  },
+  {
+    "id": "terre",
+    "nom": "Terre",
+    "zone": "kanto.arene-de-jadielle",
+    "description": "Vitesse d'apparition +20%",
+    "image": "img/badges/terre.png",
+    "ordre": 8
+  }
+]

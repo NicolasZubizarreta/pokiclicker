@@ -846,5 +846,37 @@
   "img/sprites/pokemon/99.png": {
     "largeur": 96,
     "hauteur": 96
+  },
+  "img/badges/roche.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/badges/cascade.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/badges/foudre.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/badges/prisme.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/badges/ame.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/badges/marais.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/badges/volcan.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/badges/terre.png": {
+    "largeur": 96,
+    "hauteur": 96
   }
 }

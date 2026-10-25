@@ -1,0 +1,99 @@
+{
+  "paliers": [
+    {
+      "palier": 10,
+      "titre": "Débutant",
+      "description": "Dégâts Clic x2",
+      "recompense": {}
+    },
+    {
+      "palier": 20,
+      "titre": "Amateur",
+      "description": "+2 500 pièces",
+      "recompense": {
+        "argent": 2500
+      }
+    },
+    {
+      "palier": 30,
+      "titre": "Collectionneur",
+      "description": "DPS Équipe +50%",
+      "recompense": {}
+    },
+    {
+      "palier": 40,
+      "titre": "Dresseur",
+      "description": "Omni Exp (XP +100%)",
+      "recompense": {
+        "inventaire": {
+          "omniExp": 1
+        }
+      }
+    },
+    {
+      "palier": 50,
+      "titre": "Expert",
+      "description": "Apparition +20%",
+      "recompense": {}
+    },
+    {
+      "palier": 70,
+      "titre": "Champion",
+      "description": "Boutique -15%",
+      "recompense": {}
+    },
+    {
+      "palier": 90,
+      "titre": "Maître",
+      "description": "Dégâts Totaux +50%",
+      "recompense": {}
+    },
+    {
+      "palier": 110,
+      "titre": "Légende",
+      "description": "Jeton Shiny",
+      "recompense": {
+        "inventaire": {
+          "shinyToken": 1
+        }
+      }
+    },
+    {
+      "palier": 130,
+      "titre": "Mythique",
+      "description": "Master Ball + 10 Bonbons",
+      "recompense": {
+        "inventaire": {
+          "masterball": 1,
+          "bonbon": 10
+        }
+      }
+    },
+    {
+      "palier": 151,
+      "titre": "Maître de Kanto",
+      "description": "Charme Chroma (Shiny x3)",
+      "recompense": {
+        "ameliorations": [
+          "shinyCharm"
+        ]
+      }
+    }
+  ],
+  "objetsRecompense": [
+    {
+      "id": "omniExp",
+      "nom": "Omni Exp",
+      "description": "XP +100%",
+      "prix": 0,
+      "type": "consommable",
+      "zone": null,
+      "boutique": null,
+      "sansInflation": true,
+      "inventaire": "omniExp",
+      "image": null,
+      "categorie": "equipement",
+      "sac": null
+    }
+  ]
+}

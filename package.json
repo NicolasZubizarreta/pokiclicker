@@ -19,6 +19,7 @@
     "extraire:repousses": "node scripts/extraire-repousses-v1.mjs",
     "extraire:evolutions": "node scripts/extraire-evolutions-v1.mjs",
     "extraire:objets": "node scripts/extraire-objets-v1.mjs",
+    "extraire:progression": "node scripts/extraire-progression-v1.mjs",
     "ci": "npm run typecheck && npm run lint && npm test && npm run build"
   },
   "dependencies": {

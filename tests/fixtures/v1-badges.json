@@ -1,0 +1,580 @@
+{
+  "BADGES": [
+    {
+      "id": 1,
+      "zoneIdx": 3,
+      "name": "Roche",
+      "desc": "Dégâts Clic +50%"
+    },
+    {
+      "id": 2,
+      "zoneIdx": 5,
+      "name": "Cascade",
+      "desc": "DPS Équipe +30%"
+    },
+    {
+      "id": 3,
+      "zoneIdx": 7,
+      "name": "Foudre",
+      "desc": "Dégâts Totaux +20%"
+    },
+    {
+      "id": 4,
+      "zoneIdx": 11,
+      "name": "Prisme",
+      "desc": "Or gagné +20%"
+    },
+    {
+      "id": 5,
+      "zoneIdx": 13,
+      "name": "Âme",
+      "desc": "XP gagnée +50%"
+    },
+    {
+      "id": 6,
+      "zoneIdx": 15,
+      "name": "Marais",
+      "desc": "Taux Capture +30%"
+    },
+    {
+      "id": 7,
+      "zoneIdx": 17,
+      "name": "Volcan",
+      "desc": "Dégâts Totaux +50%"
+    },
+    {
+      "id": 8,
+      "zoneIdx": 18,
+      "name": "Terre",
+      "desc": "Vitesse de spawn +20%"
+    }
+  ],
+  "MILESTONES": [
+    {
+      "count": 10,
+      "title": "Débutant",
+      "desc": "Dégâts Clic x2"
+    },
+    {
+      "count": 20,
+      "title": "Amateur",
+      "desc": "+2,500 $P"
+    },
+    {
+      "count": 30,
+      "title": "Collectionneur",
+      "desc": "DPS Équipe +50%"
+    },
+    {
+      "count": 40,
+      "title": "Dresseur",
+      "desc": "Omni Exp (XP +100%)"
+    },
+    {
+      "count": 50,
+      "title": "Expert",
+      "desc": "Spawn +20%"
+    },
+    {
+      "count": 70,
+      "title": "Champion",
+      "desc": "Shop -15%"
+    },
+    {
+      "count": 90,
+      "title": "Maître",
+      "desc": "Dégâts Totaux +50%"
+    },
+    {
+      "count": 110,
+      "title": "Légende",
+      "desc": "Jeton Brillant"
+    },
+    {
+      "count": 130,
+      "title": "Mythique",
+      "desc": "Master Ball + 10 Bonbons"
+    },
+    {
+      "count": 151,
+      "title": "Kanto Master",
+      "desc": "Charme Chroma (Shiny x3)"
+    }
+  ],
+  "equipe": [
+    {
+      "id": 19,
+      "level": 10,
+      "xp": 0,
+      "maxXp": 1000000000,
+      "happiness": 0,
+      "isEgg": false,
+      "name": "Référence"
+    }
+  ],
+  "cible": {
+    "id": 19,
+    "level": 10,
+    "rarity": "Commun",
+    "isShiny": false,
+    "catchRate": 127,
+    "maxHp": 100,
+    "hp": 50
+  },
+  "consommable": "pokeball",
+  "balle": "poke",
+  "attribution": [
+    {
+      "zoneIdx": 0,
+      "badges": []
+    },
+    {
+      "zoneIdx": 1,
+      "badges": []
+    },
+    {
+      "zoneIdx": 2,
+      "badges": []
+    },
+    {
+      "zoneIdx": 3,
+      "badges": [
+        "Roche"
+      ]
+    },
+    {
+      "zoneIdx": 4,
+      "badges": []
+    },
+    {
+      "zoneIdx": 5,
+      "badges": [
+        "Cascade"
+      ]
+    },
+    {
+      "zoneIdx": 6,
+      "badges": []
+    },
+    {
+      "zoneIdx": 7,
+      "badges": [
+        "Foudre"
+      ]
+    },
+    {
+      "zoneIdx": 8,
+      "badges": []
+    },
+    {
+      "zoneIdx": 9,
+      "badges": []
+    },
+    {
+      "zoneIdx": 10,
+      "badges": []
+    },
+    {
+      "zoneIdx": 11,
+      "badges": [
+        "Prisme"
+      ]
+    },
+    {
+      "zoneIdx": 12,
+      "badges": []
+    },
+    {
+      "zoneIdx": 13,
+      "badges": [
+        "Âme"
+      ]
+    },
+    {
+      "zoneIdx": 14,
+      "badges": []
+    },
+    {
+      "zoneIdx": 15,
+      "badges": [
+        "Marais"
+      ]
+    },
+    {
+      "zoneIdx": 16,
+      "badges": []
+    },
+    {
+      "zoneIdx": 17,
+      "badges": [
+        "Volcan"
+      ]
+    },
+    {
+      "zoneIdx": 18,
+      "badges": [
+        "Terre"
+      ]
+    },
+    {
+      "zoneIdx": 19,
+      "badges": []
+    },
+    {
+      "zoneIdx": 20,
+      "badges": []
+    },
+    {
+      "zoneIdx": 21,
+      "badges": []
+    }
+  ],
+  "jeux": [
+    {
+      "badges": [
+        "roche"
+      ],
+      "paliers": [],
+      "dps": 126,
+      "clic": 7,
+      "or": {
+        "sauvage": 65,
+        "boss": 651
+      },
+      "xp": {
+        "sauvage": 836,
+        "boss": 4180
+      },
+      "chance": 23.716153127917835,
+      "delai": 2000,
+      "prix": 210
+    },
+    {
+      "badges": [
+        "cascade"
+      ],
+      "paliers": [],
+      "dps": 163.8,
+      "clic": 5,
+      "or": {
+        "sauvage": 65,
+        "boss": 651
+      },
+      "xp": {
+        "sauvage": 836,
+        "boss": 4180
+      },
+      "chance": 23.716153127917835,
+      "delai": 2000,
+      "prix": 210
+    },
+    {
+      "badges": [
+        "foudre"
+      ],
+      "paliers": [],
+      "dps": 151.2,
+      "clic": 6,
+      "or": {
+        "sauvage": 65,
+        "boss": 651
+      },
+      "xp": {
+        "sauvage": 836,
+        "boss": 4180
+      },
+      "chance": 23.716153127917835,
+      "delai": 2000,
+      "prix": 210
+    },
+    {
+      "badges": [
+        "prisme"
+      ],
+      "paliers": [],
+      "dps": 126,
+      "clic": 5,
+      "or": {
+        "sauvage": 78,
+        "boss": 781
+      },
+      "xp": {
+        "sauvage": 836,
+        "boss": 4180
+      },
+      "chance": 23.716153127917835,
+      "delai": 2000,
+      "prix": 210
+    },
+    {
+      "badges": [
+        "ame"
+      ],
+      "paliers": [],
+      "dps": 126,
+      "clic": 5,
+      "or": {
+        "sauvage": 65,
+        "boss": 651
+      },
+      "xp": {
+        "sauvage": 1254,
+        "boss": 6270
+      },
+      "chance": 23.716153127917835,
+      "delai": 2000,
+      "prix": 210
+    },
+    {
+      "badges": [
+        "marais"
+      ],
+      "paliers": [],
+      "dps": 126,
+      "clic": 5,
+      "or": {
+        "sauvage": 65,
+        "boss": 651
+      },
+      "xp": {
+        "sauvage": 836,
+        "boss": 4180
+      },
+      "chance": 30.830999066293185,
+      "delai": 2000,
+      "prix": 210
+    },
+    {
+      "badges": [
+        "volcan"
+      ],
+      "paliers": [],
+      "dps": 189,
+      "clic": 7.5,
+      "or": {
+        "sauvage": 65,
+        "boss": 651
+      },
+      "xp": {
+        "sauvage": 836,
+        "boss": 4180
+      },
+      "chance": 23.716153127917835,
+      "delai": 2000,
+      "prix": 210
+    },
+    {
+      "badges": [
+        "terre"
+      ],
+      "paliers": [],
+      "dps": 126,
+      "clic": 5,
+      "or": {
+        "sauvage": 65,
+        "boss": 651
+      },
+      "xp": {
+        "sauvage": 836,
+        "boss": 4180
+      },
+      "chance": 23.716153127917835,
+      "delai": 1666,
+      "prix": 210
+    },
+    {
+      "badges": [
+        "roche",
+        "cascade",
+        "foudre",
+        "prisme",
+        "ame",
+        "marais",
+        "volcan",
+        "terre"
+      ],
+      "paliers": [
+        10,
+        30,
+        50,
+        70,
+        90
+      ],
+      "dps": 663.39,
+      "clic": 48,
+      "or": {
+        "sauvage": 78,
+        "boss": 781
+      },
+      "xp": {
+        "sauvage": 1254,
+        "boss": 6270
+      },
+      "chance": 30.830999066293185,
+      "delai": 1499,
+      "prix": 238
+    }
+  ],
+  "paliers": [
+    {
+      "nombre": 9,
+      "saut": false,
+      "avant": [],
+      "recus": [],
+      "argent": 0,
+      "inventaire": {
+        "candy": 0,
+        "omniExp": 0,
+        "shinyToken": 0,
+        "masterball": 0
+      }
+    },
+    {
+      "nombre": 10,
+      "saut": false,
+      "avant": [],
+      "recus": [
+        10
+      ],
+      "argent": 0,
+      "inventaire": {
+        "candy": 0,
+        "omniExp": 0,
+        "shinyToken": 0,
+        "masterball": 0
+      }
+    },
+    {
+      "nombre": 20,
+      "saut": false,
+      "avant": [
+        10
+      ],
+      "recus": [
+        20
+      ],
+      "argent": 2500,
+      "inventaire": {
+        "candy": 0,
+        "omniExp": 0,
+        "shinyToken": 0,
+        "masterball": 0
+      }
+    },
+    {
+      "nombre": 40,
+      "saut": false,
+      "avant": [
+        10,
+        20
+      ],
+      "recus": [
+        30,
+        40
+      ],
+      "argent": 0,
+      "inventaire": {
+        "candy": 0,
+        "omniExp": 1,
+        "shinyToken": 0,
+        "masterball": 0
+      }
+    },
+    {
+      "nombre": 110,
+      "saut": false,
+      "avant": [
+        10,
+        20,
+        30,
+        40
+      ],
+      "recus": [
+        50,
+        70,
+        90,
+        110
+      ],
+      "argent": 0,
+      "inventaire": {
+        "candy": 0,
+        "omniExp": 0,
+        "shinyToken": 1,
+        "masterball": 0
+      }
+    },
+    {
+      "nombre": 130,
+      "saut": false,
+      "avant": [
+        10,
+        20,
+        30,
+        40,
+        50,
+        70,
+        90,
+        110
+      ],
+      "recus": [
+        130
+      ],
+      "argent": 0,
+      "inventaire": {
+        "candy": 10,
+        "omniExp": 0,
+        "shinyToken": 0,
+        "masterball": 1
+      }
+    },
+    {
+      "nombre": 151,
+      "saut": false,
+      "avant": [
+        10,
+        20,
+        30,
+        40,
+        50,
+        70,
+        90,
+        110,
+        130
+      ],
+      "recus": [
+        151
+      ],
+      "argent": 0,
+      "inventaire": {
+        "candy": 0,
+        "omniExp": 0,
+        "shinyToken": 0,
+        "masterball": 0
+      }
+    },
+    {
+      "nombre": 151,
+      "saut": true,
+      "avant": [],
+      "recus": [
+        10,
+        20,
+        30,
+        40,
+        50,
+        70,
+        90,
+        110,
+        130,
+        151
+      ],
+      "argent": 2500,
+      "inventaire": {
+        "candy": 10,
+        "omniExp": 1,
+        "shinyToken": 1,
+        "masterball": 1
+      }
+    }
+  ]
+}

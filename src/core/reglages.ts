@@ -34,6 +34,7 @@ export type ReglagesDelais = {
 
 export const reglages: {
   equipe: { taille: number; surnomMax: number };
+  badges: { ouvertureMs: number; claqueDelaiMs: number; claqueMs: number };
   pc: { zone: string; raison: string };
   shop: { zone: string; raison: string };
   sac: { zone: string; raison: string };

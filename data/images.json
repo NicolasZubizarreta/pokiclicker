@@ -9,6 +9,7 @@
   },
   "sprite": { "taille": 96 },
   "objet": { "taille": 30 },
+  "badge": { "taille": 96 },
   "dossiers": {
     "sources": "assets-src",
     "sorties": "public/img",
