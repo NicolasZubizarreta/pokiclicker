@@ -12,6 +12,12 @@ export function chargerEvolutions(fichier: Evolutions = donnees): Evolutions {
 }
 
 const catalogue = chargerEvolutions();
+const origines = new Map([...catalogue.niveau, ...catalogue.pierre].map(ligne => [ligne.vers, ligne.de]));
+
+export function formeDeBase(numero: number): number {
+  const origine = origines.get(numero);
+  return origine === undefined ? numero : formeDeBase(origine);
+}
 
 export function niveauRequis(numero: number): number | null {
   return catalogue.niveau.find((ligne) => ligne.de === numero)?.niveau ?? null;

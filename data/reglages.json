@@ -1,5 +1,17 @@
 {
   "equipe": { "taille": 6, "surnomMax": 12 },
+  "pension": {
+    "emplacementsMax": 5, "prixParEmplacement": 5000, "pasEclosion": 25,
+    "bonheurNaissance": 125, "metamorph": 132, "especesTirees": 151,
+    "chances": { "metamorph": 0.04, "memeEspece": 0.04, "typePartage": 0.02 },
+    "chanceShiny": 0.125,
+    "messages": {
+      "debloquee": "Pension débloquée (Bourg Palette) !",
+      "pleine": "La pension est pleine.",
+      "envoyePc": "{nom} est envoyé au PC.",
+      "eclosion": "{nom} éclot !"
+    }
+  },
   "evolution": { "animationMs": 3000, "alternanceMs": 150 },
   "badges": { "ouvertureMs": 1200, "claqueDelaiMs": 800, "claqueMs": 1200 },
   "intro": {

@@ -4,6 +4,14 @@ import type { Rarete } from './monde';
 
 export type Bonus = { cle: string; x: number; arrondi?: boolean };
 
+export type ReglagesPension = {
+  emplacementsMax: number; prixParEmplacement: number; pasEclosion: number;
+  bonheurNaissance: number; metamorph: number; especesTirees: number;
+  chances: { metamorph: number; memeEspece: number; typePartage: number };
+  chanceShiny: number;
+  messages: { debloquee: string; pleine: string; envoyePc: string; eclosion: string };
+};
+
 export type ReglagesIntro = {
   flashMs: number; cadenasMs: number; chenEntreeMs: number;
   dialogueDelaiMs: number; caractereMs: number; poseDelaiMs: number; poseFonduMs: number;
@@ -41,6 +49,7 @@ export type ReglagesDelais = {
 };
 
 export const reglages: {
+  pension: ReglagesPension;
   equipe: { taille: number; surnomMax: number };
   badges: { ouvertureMs: number; claqueDelaiMs: number; claqueMs: number };
   intro: ReglagesIntro;
@@ -93,6 +102,17 @@ export const reglages: {
     calciumParBoost: number;
   };
 } = donnees as typeof reglages;
+
+const pension = reglages.pension;
+if ([pension.emplacementsMax, pension.prixParEmplacement, pension.pasEclosion,
+  pension.metamorph, pension.especesTirees].some(valeur => !Number.isSafeInteger(valeur) || valeur <= 0)
+  || !Number.isSafeInteger(pension.bonheurNaissance) || pension.bonheurNaissance < 0
+  || [pension.chanceShiny, pension.chances.metamorph, pension.chances.memeEspece, pension.chances.typePartage]
+    .some(valeur => !Number.isFinite(valeur) || valeur < 0 || valeur > 1)
+  || [pension.messages.debloquee, pension.messages.pleine, pension.messages.envoyePc, pension.messages.eclosion]
+    .some(valeur => typeof valeur !== 'string' || !valeur.trim())) {
+  throw new Error('Réglages de pension invalides');
+}
 
 for (const valeur of Object.values(reglages.equipe)) {
   if (!Number.isSafeInteger(valeur) || valeur <= 0) throw new Error('Réglages d’équipe invalides');
