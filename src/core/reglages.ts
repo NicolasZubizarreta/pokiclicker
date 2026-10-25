@@ -1,5 +1,5 @@
 import donnees from '../../data/reglages.json';
-import type { NouveauxChampsRegion, PreferencesCombat } from './sauvegarde-types';
+import type { DonneesRegion, NouveauxChampsRegion, PreferencesCombat } from './sauvegarde-types';
 import type { Rarete } from './monde';
 
 export type Bonus = { cle: string; x: number; arrondi?: boolean };
@@ -42,13 +42,13 @@ export const reglages: {
     dureeMs: number;
     rechargeFauchageMs: number;
     temporises: Record<'xAttack' | 'xSpecial' | 'repel' | 'superRepel', {
-      chrono: string;
+      chrono: keyof DonneesRegion['chronos'];
       cle: string;
       message: string;
       pastille: string;
     }>;
     repousses: { cle: string; exclues: string[] }[];
-    raretes: Record<'commun' | 'peu-commun' | 'rare' | 'tres-rare' | 'legendaire', string>;
+    raretes: Record<Rarete | 'conseil-4' | 'maitre', string>;
   };
   interface: {
     sauvegardeAutoMs: number; annonceMs: number;
@@ -81,7 +81,7 @@ export const reglages: {
     pierreEternelle: number;
     calciumParBoost: number;
   };
-} = donnees;
+} = donnees as typeof reglages;
 
 for (const valeur of Object.values(reglages.equipe)) {
   if (!Number.isSafeInteger(valeur) || valeur <= 0) throw new Error('Réglages d’équipe invalides');

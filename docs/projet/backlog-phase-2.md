@@ -428,7 +428,7 @@ Fourchette : 3 à 4 jours (le Sac est à refaire). Risque : bonus d'objets dispe
 
 ## M. `feat(objets): objets actifs, repousses, boosts, Calcium, Pierre Stase et Jeton Shiny`
 
-Labels : `type:feat`, `etat:pret`, `est:3`, `prio:2` · branche : `v2` · `agent-ok` : oui
+Labels : `type:feat`, `etat:fait`, `est:3`, `prio:2` · branche : `v2` · `agent-ok` : oui
 
 ### Histoire
 En tant que joueur, je veux utiliser des objets qui changent un combat ou un Pokémon afin de franchir les boss difficiles.
@@ -437,14 +437,14 @@ En tant que joueur, je veux utiliser des objets qui changent un combat ou un Pok
 V1 : `legacy/js/game/items.js` (394 l.), `stats.js`, `combat.js`. **Règles V1** : Repousse (30 s, zone 4, 2 000), Superépousse (zone 13, 8 000) ; Attaque + et Attaque Spé + (30 s, ×1,5, 7 500 et 10 000, Centre commercial) ; CT Fauchage (zone 12, 100 000 : laisse l'ennemi à 1 PV, recharge de 30 s, **inutilisable sur un boss**) ; Poké-Radar (zone 8) ; Calcium (50 000, +2 % de DPS, **10 maximum par Pokémon**, choix via un mode de sélection du Sac) ; Pierre Stase (10 000, **réservée aux Pokémon de stade 1 qui évoluent**, bloque l'évolution, ×1,25 de DPS, retirable depuis le menu du Pokémon : l'objet revient) ; cinq pierres d'évolution (10 000 chacune) ; Poké Poupée (5 000, ré-invoque le boss de la zone s'il est déjà vaincu) ; Jeton Shiny (250 000 : rend un Pokémon de l'équipe shiny, texte corrigé) ; CT Jackpot (casino, or ×1,2). **Correction de la V1** : « ×1,5 » affiché partout (la V1 affiche « ×2 » dans Stats), descriptions des pierres à jour. Fichiers : `src/core/objets-actifs.ts` (nouveau), `data/objets.json` (suite du ticket L), `src/ui/Sac.tsx`.
 
 ### Critères d'acceptation
-- [ ] Étant donné une Repousse, quand je l'utilise, alors pendant 30 s de temps de jeu simulé les apparitions de la rareté basse sont écartées comme dans la V1 (comparaison de la table de spawn), et le chrono est sauvegardé en horodatage ; au rechargement le temps restant est correct.
-- [ ] Étant donné Attaque + ou Attaque Spé +, quand je l'utilise, alors le clic (resp. le DPS) est ×1,5 pendant 30 s, un second usage prolonge sans empiler ; le texte et l'écran Stats disent « ×1,5 ».
-- [ ] Étant donné la CT Fauchage, quand j'attaque un ennemi non boss, alors il passe à 1 PV et l'objet se recharge 30 s ; sur un boss le bouton est désactivé avec la raison.
-- [ ] Étant donné un Pokémon avec 10 Calcium, quand j'en utilise un onzième, alors c'est refusé avec un message français ; sinon +2 % de DPS par Calcium, comparaison stricte avec la V1.
-- [ ] Étant donné la Pierre Stase, quand je l'utilise sur un Pokémon de stade 1 qui évolue, alors son DPS est ×1,25 et l'évolution est bloquée ; sur un autre Pokémon c'est refusé ; le retrait redonne la pierre.
-- [ ] Étant donné la Poké Poupée, quand je l'utilise dans une zone dont le boss est vaincu, alors le boss est ré-invoqué ; sinon refus avec la raison.
-- [ ] Étant donné le Jeton Shiny, quand je choisis un Pokémon non shiny de l'équipe, alors il devient shiny et le jeton est consommé ; le texte de l'objet dit exactement cela.
-- [ ] Étant donné le Poké-Radar, quand je l'utilise, alors la fenêtre de la V1 affiche les Pokémon possibles de la zone avec leur rareté et ceux déjà capturés.
+- [x] Étant donné une Repousse, quand je l'utilise, alors pendant 30 s de temps de jeu simulé les apparitions de la rareté basse sont écartées comme dans la V1 (comparaison de la table de spawn), et le chrono est sauvegardé en horodatage ; au rechargement le temps restant est correct.
+- [x] Étant donné Attaque + ou Attaque Spé +, quand je l'utilise, alors le clic (resp. le DPS) est ×1,5 pendant 30 s, un second usage prolonge sans empiler ; le texte et l'écran Stats disent « ×1,5 ».
+- [x] Étant donné la CT Fauchage, quand j'attaque un ennemi non boss, alors il passe à 1 PV et l'objet se recharge 30 s ; sur un boss le bouton est désactivé avec la raison.
+- [x] Étant donné un Pokémon avec 10 Calcium, quand j'en utilise un onzième, alors c'est refusé avec un message français ; sinon +2 % de DPS par Calcium, comparaison stricte avec la V1.
+- [x] Étant donné la Pierre Stase, quand je l'utilise sur un Pokémon de stade 1 qui évolue, alors son DPS est ×1,25 et l'évolution est bloquée ; sur un autre Pokémon c'est refusé ; le retrait redonne la pierre.
+- [x] Étant donné la Poké Poupée, quand je l'utilise dans une zone dont le boss est vaincu, alors le boss est ré-invoqué ; sinon refus avec la raison.
+- [x] Étant donné le Jeton Shiny, quand je choisis un Pokémon non shiny de l'équipe, alors il devient shiny et le jeton est consommé ; le texte de l'objet dit exactement cela.
+- [x] Étant donné le Poké-Radar, quand je l'utilise, alors la fenêtre de la V1 affiche les Pokémon possibles de la zone avec leur rareté et ceux déjà capturés.
 
 ### Hors périmètre
 Évolution par pierre (livrée au ticket K : usage des pierres dans le Sac ; M ne gère que la pose et le retrait de la Pierre Stase), Centre commercial écran (U), Johnny.
@@ -503,7 +503,7 @@ En tant que développeur, je veux un moteur qui joue des événements décrits e
 ADR 0002 (`docs/adr/0002-*.md`, à relire : points ouverts listés en fin de ticket). V1 : les scènes sont codées en dur dans `legacy/js/` (`intro`, `rival`, `snorlax`, `league`). V2 : `DonneesRegion.drapeaux` et `evenementsJoues` existent déjà dans le schéma ; `src/core/evenements.ts` (nouveau, pur : aucun accès au DOM). **Déclencheurs** : `entree-zone`, `boss-vaincu`, `objet-utilise`, `debut-partie`. **Étapes** : `dialogue`, `combat`, `donner`, `poser-drapeau`, `deplacer`, `bloquer`. Chaque événement a un identifiant, des conditions (drapeaux requis ou interdits, badge, zone) et une liste d'étapes ; il ne se joue qu'une fois sauf mention `repetable`. Le moteur produit des **commandes d'affichage** (dialogue à montrer, combat à lancer) que l'interface exécute et reconnaît par un accusé (`etapeTerminee`) ; il est déterministe et sérialisable (reprise après rechargement au milieu d'un événement).
 
 ### Critères d'acceptation
-- [ ] Étant donné un fichier `data/evenements/*.json` valide, quand le chargeur le lit, alors un schéma (Valibot, comme le reste) le valide ; une étape inconnue, un déclencheur inconnu ou une cible introuvable donne une erreur claire en français citant le fichier et l'identifiant.
+- [ ] Étant donné un fichier `data/evenements/*.json` valide, quand le chargeur le lit, alors un schéma (validation à la main comme le reste (Valibot n’est pas installé)) le valide ; une étape inconnue, un déclencheur inconnu ou une cible introuvable donne une erreur claire en français citant le fichier et l'identifiant.
 - [ ] Étant donné un événement `entree-zone` avec condition `drapeau:x` absent, quand j'entre dans la zone, alors il se déclenche ; une fois terminé, il est ajouté à `evenementsJoues` et ne se rejoue pas.
 - [ ] Étant donné les six étapes, quand j'exécute un événement d'essai, alors chaque étape produit sa commande (ou son effet : `donner` ajoute des objets, `poser-drapeau` écrit un drapeau, `deplacer` change de zone, `bloquer` interdit l'accès à une zone tant qu'un drapeau manque).
 - [ ] Étant donné un rechargement au milieu d'un événement, quand je rouvre, alors il reprend à l'étape en cours (index d'étape sauvegardé) sans double récompense.

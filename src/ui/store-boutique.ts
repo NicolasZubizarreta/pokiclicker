@@ -18,6 +18,7 @@ export type AffichageSac = { acces: Acces; entrees: (Description & {
 })[] };
 
 const objets = chargerObjets();
+const direct = [...Object.keys(reglages.objetsActifs.temporises), 'pokeDoll'];
 
 export function afficherBoutique(region: DonneesRegion, precedent: AffichageBoutique | null): AffichageBoutique {
   const etat = etatMondeDe(region);
@@ -44,7 +45,7 @@ export function afficherSac(region: DonneesRegion, precedent: AffichageSac | nul
       actif: region.ameliorations.includes(objet.id),
       utilisable: objet.inventaire === 'bonbon' || objet.inventaire === 'calcium' ? objet.inventaire
         : objet.inventaire === 'everstone' ? 'stase' : objet.inventaire === 'shinyToken' ? 'jeton'
-        : ['repel', 'superRepel', 'xAttack', 'xSpecial', 'pokeDoll'].includes(objet.inventaire ?? '') ? 'direct'
+        : direct.includes(objet.inventaire ?? '') ? 'direct'
         : pierresEvolution.has(objet.inventaire ?? '') ? 'pierre' : null,
     })) };
   return JSON.stringify(sac) === JSON.stringify(precedent) ? precedent! : sac;

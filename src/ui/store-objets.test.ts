@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { creerHorlogeSimulee } from '../core/clock';
-import { calculerClic } from '../core/combat';
+import { calculerClic, creerCombat } from '../core/combat';
 import { kanto } from '../core/regions';
 import { compteInitial, creerGestionnaire, creerStockageMemoire } from '../core/sauvegarde';
 import type { DonneesRegion } from '../core/sauvegarde';
@@ -41,6 +41,28 @@ function preparer(partiel: Partial<DonneesRegion> = {}) {
 }
 
 describe('objets du store', () => {
+  it('liste les neuf adversaires de la Ligue avec les raretés V1, sans le boss final', () => {
+    const zone = kanto.zone('kanto.ligue-pokemon');
+    if (zone.sansCombat) throw new Error('Zone sans combat');
+    const radar = entreesRadar(zone, [131]);
+    expect(radar).toHaveLength(9);
+    expect(radar.map(e => e.numero)).toEqual(zone.adversaires!.map(e => e.pokemon));
+    expect(radar.map(e => e.libelle)).toEqual([...Array<string>(8).fill('Conseil 4'), 'Maître']);
+    expect(radar.some(e => e.numero === zone.boss.pokemon)).toBe(false);
+    expect(radar[0]!.vu).toBe(true);
+    expect(radar.slice(1).every(e => !e.vu)).toBe(true);
+  });
+
+  it('désactive Fauchage pendant la recherche sans afficher de raison', () => {
+    const { region } = preparer({ ameliorations: ['falseSwipe'] });
+    const zone = kanto.zone(region.zoneId);
+    if (zone.sansCombat) throw new Error('Zone sans combat');
+    const coeur = creerCombat(zone, [], () => 0.5);
+    const etat = afficherFauchage(region, { ...coeur, attenteMs: 100 }, 1000, null);
+    expect(etat.disponible).toBe(false);
+    expect(etat.raison).toBe('');
+  });
+
   it('applique Attaque + immédiatement, pendant 299 ticks, puis expire au 300e', () => {
     const { store, avancer, sauvee } = preparer();
     const base = calculerClic(store.getState().dps);

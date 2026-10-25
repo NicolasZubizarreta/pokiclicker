@@ -25,6 +25,15 @@ const especes = ['Commun', 'Peu Commun', 'Rare', 'Très Rare', 'Légendaire'].ma
   { numero: i + 1, nom: `Espèce ${i + 1}`, rarete, vu: i !== 0 }
 ));
 
+it('réserve les noms aux alternatives et aux infobulles', () => {
+  render(<FenetreRadar ouvert nomZone="Route 1" especes={especes}
+    fermer={vi.fn()} declencheur={null} />);
+  for (const espece of especes) {
+    expect(screen.queryByText(espece.nom)).toBeNull();
+    expect(screen.getByAltText(espece.nom).closest('[title]')?.getAttribute('title')).toBe(espece.nom);
+  }
+});
+
 it('ouvre un dialogue nommé, montre les raretés V1 et la silhouette des espèces non vues', () => {
   const { container } = render(<FenetreRadar ouvert nomZone="Route 1" especes={especes}
     fermer={vi.fn()} declencheur={null} />);

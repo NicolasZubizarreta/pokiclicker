@@ -12,6 +12,17 @@ import type { StoreJeu } from './store';
 import { ERREUR_CHARGEMENT } from './persistance';
 
 let store: StoreJeu;
+it('affiche les deux outils verrouillés et leurs raisons sans aucun objet', () => {
+  preparer();
+  for (const [nom, raison] of [['Fauchage', 'Nécessite la CT Fauchage.'],
+    ['Poké-Radar', 'Nécessite le Poké-Radar.']]) {
+    const bouton = screen.getByRole('button', { name: nom });
+    expect(bouton.matches(':disabled')).toBe(true);
+    expect(screen.getByText(raison!).hidden).toBe(false);
+    expect(document.getElementById(bouton.getAttribute('aria-describedby')!)?.textContent).toBe(raison);
+  }
+});
+
 it('affiche les effets sous les PV sans annonce en direct et suit le store', () => {
   preparer();
   expect(screen.queryByRole('list', { name: 'Effets actifs' })).toBeNull();
@@ -28,9 +39,11 @@ it('affiche les effets sous les PV sans annonce en direct et suit le store', () 
 
 it('cache les outils sans objet et explique chaque verrou quand un outil est possédé', () => {
   preparer();
+  const zone = store.getState().zone;
+  act(() => store.setState({ zone: null }));
   expect(screen.queryByRole('button', { name: 'Fauchage' })).toBeNull();
   expect(screen.queryByRole('button', { name: 'Poké-Radar' })).toBeNull();
-  act(() => store.setState({ radar: true }));
+  act(() => store.setState({ zone, radar: true }));
   const fauchage = screen.getByRole('button', { name: 'Fauchage' });
   expect(fauchage.matches(':disabled')).toBe(true);
   expect(document.getElementById(fauchage.getAttribute('aria-describedby')!)?.textContent)

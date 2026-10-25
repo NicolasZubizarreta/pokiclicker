@@ -20,7 +20,7 @@ export function afficherFauchage(region: DonneesRegion, coeur: EtatCombat | null
   precedent: FauchageAffiche | null): FauchageAffiche {
   const etat = etatFauchage(region, coeur?.ennemi.boss ?? false, maintenant);
   const raison = etat.raison ?? (!coeur ? 'Aucun Pokémon ici.'
-    : coeur.attenteMs > 0 ? 'Recherche en cours.' : null);
+    : coeur.attenteMs > 0 ? '' : null);
   const fauchage = { possede: etat.possede, disponible: raison === null, raison,
     rechargeS: etat.rechargeS, actif: coeur?.ennemi.fauche ?? false };
   return JSON.stringify(fauchage) === JSON.stringify(precedent) ? precedent! : fauchage;
@@ -28,7 +28,11 @@ export function afficherFauchage(region: DonneesRegion, coeur: EtatCombat | null
 
 export function entreesRadar(zone: Zone, pokedex: readonly number[]) {
   const catalogue = chargerPokemon();
-  return zone.sauvages.map(({ pokemon, rarete }) => ({ numero: pokemon,
+  const rencontres = zone.type === 'ligue'
+    ? (zone.adversaires ?? []).map((adversaire, index, adversaires) => ({ ...adversaire,
+      rarete: index === adversaires.length - 1 ? 'maitre' as const : 'conseil-4' as const }))
+    : zone.sauvages;
+  return rencontres.map(({ pokemon, rarete }) => ({ numero: pokemon,
     nom: catalogue.parNumero(pokemon).nom, rarete, libelle: reglages.objetsActifs.raretes[rarete],
     vu: pokedex.includes(pokemon) }));
 }

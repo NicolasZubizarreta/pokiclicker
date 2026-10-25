@@ -475,6 +475,16 @@ it('fait pulser aussi les chromatiques et les œufs pour le Jeton', () => {
   expect(storeJeu.getState().utiliserJeton).not.toHaveBeenCalled();
 });
 
+it('efface le message direct au clic sur une ligne et conserve la région status', () => {
+  storeJeu.setState({ utiliserObjetActif: vi.fn(() => 'Boss non vaincu !') });
+  preparerActif('direct');
+  const status = screen.getByRole('status');
+  expect(status.textContent).toBe('Boss non vaincu !');
+  fireEvent.click(screen.getByRole('button', { name: 'Bourgeon, niveau 16' }));
+  expect(screen.getByRole('status')).toBe(status);
+  expect(status.textContent).toBe('');
+});
+
 it.each([null, 'Boss non vaincu !'])('utilise directement le Sac et annonce le refus %s dans le status existant', refus => {
   const utiliserObjetActif = vi.fn(() => {
     if (!refus) {

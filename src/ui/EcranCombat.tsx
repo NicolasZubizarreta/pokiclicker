@@ -133,7 +133,7 @@ function CommandesCombat({ store }: { store: StoreJeu }) {
     <fieldset className="min-w-0">
       <BarreCapture {...capture} capturer={capturer} />
     </fieldset>
-    {fauchage.possede || radar ? <>
+    <>
       <div className="flex min-w-0 gap-2 overflow-x-auto [&>div]:shrink-0 [&>div]:flex-nowrap [&_button]:shrink-0 [&_p]:whitespace-nowrap">
         {reglages}
         <OutilsCombat fauchage={fauchage} radar={radar} faucher={faucher}
@@ -142,7 +142,7 @@ function CommandesCombat({ store }: { store: StoreJeu }) {
       <FenetreRadar ouvert={declencheurRadar !== null} nomZone={lieu?.nom ?? zone.nom}
         especes={entreesRadar(zone, pokedex).map(espece => ({ ...espece, rarete: espece.libelle }))}
         fermer={() => ouvrirRadar(null)} declencheur={declencheurRadar} />
-    </> : reglages}
+    </>
   </div>;
 }
 

@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useStore } from 'zustand';
 import { chargerPokemon } from '../core/pokemon';
+import { chargerObjets } from '../core/boutique';
 import { reglages } from '../core/reglages';
 import { cibleValide, cibleValideStase, quantiteMax } from '../core/objets-equipe';
 import { cibleValidePierre } from '../core/evolution';
@@ -9,6 +10,7 @@ import { SpriteEvolution } from './SpriteEvolution';
 import { BarreXp } from './BarreXp';
 import { FichePokemon } from './FichePokemon';
 import { Image } from './Image';
+import { IconeObjet } from './icones';
 import { MenuPokemon } from './MenuPokemon';
 import { Sac } from './Sac';
 import { SelecteurQuantite } from './SelecteurQuantite';
@@ -17,6 +19,7 @@ import { cheminSprite, precharger } from './precharger';
 import { storeJeu } from './store';
 
 const catalogue = chargerPokemon();
+const stase = chargerObjets().find(objet => objet.id === 'everstone')!;
 
 export function PageEquipe() {
   const equipe = useStore(storeJeu, etat => etat.equipe);
@@ -54,6 +57,7 @@ export function PageEquipe() {
   }, [equipe]);
 
   function annulerObjet() {
+    annoncerObjet(null);
     rendreFocus.current = true;
     selectionner(null);
     cibler(null);
@@ -124,6 +128,7 @@ export function PageEquipe() {
                 placerMenu({ uid: pokemon.uid, x: event.clientX, y: event.clientY, carte: event.currentTarget });
               }}
               onClick={event => {
+                annoncerObjet(null);
                 if (echange) {
                   const message = storeJeu.getState().echanger(echange.uid, pokemon.uid);
                   signaler(message ? { echange, message } : null);
@@ -173,7 +178,9 @@ export function PageEquipe() {
                 <span className="text-region-accent">{formaterDps(dps)} DPS</span>
               </span>
             </button>
-            {pokemon.pierreEternelle && <img src="img/objets/everstone.png" alt="Pierre Stase" className="size-8 image-rendering-pixelated" />}
+            {pokemon.pierreEternelle && (stase.image !== null
+              ? <img src={stase.image} alt={stase.nom} width={32} height={32} className="size-8 image-rendering-pixelated" />
+              : <IconeObjet image={null} nom={stase.nom} />)}
             {!mode && !echange && typeof caseEquipe.evolution === 'number' && <button type="button"
               aria-label={`Faire évoluer ${nom}`} className="cadre-alerte min-h-11 w-full bg-surface motion-safe:animate-pulse"
               onClick={() => {

@@ -20,7 +20,7 @@
       { "cle": "repousse:peu-commun", "exclues": ["commun", "peu-commun"] },
       { "cle": "repousse:commun", "exclues": ["commun"] }
     ],
-    "raretes": { "commun": "Commun", "peu-commun": "Peu Commun", "rare": "Rare", "tres-rare": "Très Rare", "legendaire": "Légendaire" }
+    "raretes": { "commun": "Commun", "peu-commun": "Peu Commun", "rare": "Rare", "tres-rare": "Très Rare", "legendaire": "Légendaire", "conseil-4": "Conseil 4", "maitre": "Maître" }
   },
   "pc": { "zone": "kanto.arene-d-argenta", "raison": "Le PC de Léo s'ouvre à l'Arène d'Argenta." },
   "interface": {

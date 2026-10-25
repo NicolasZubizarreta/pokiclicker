@@ -5,7 +5,7 @@ import type { DonneesRegion } from './sauvegarde-types';
 type Chronos = DonneesRegion['chronos'];
 type ResultatObjet = (ResultatEquipe & { ok: true; message: string }) | { ok: false; raison: string };
 const effets = Object.entries(reglages.objetsActifs.temporises).map(([id, effet]) =>
-  [id, { ...effet, chrono: effet.chrono as keyof Chronos }] as const);
+  [id, effet] as const);
 
 export function clesActives(chronos: Chronos, maintenant: number): string[] {
   return effets.filter(([, effet]) => maintenant < chronos[effet.chrono]).map(([, effet]) => effet.cle);
