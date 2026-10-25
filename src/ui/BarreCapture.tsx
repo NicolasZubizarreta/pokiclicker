@@ -14,7 +14,8 @@ export function BarreCapture({ balles, possible, raison, enCours, capturer }: {
   const explication = raison ?? (!selection ? "Tu n'as aucune balle." : null);
 
   return <section aria-label="Capture" className="grid min-w-0 gap-4 text-base text-texte">
-    <div className="flex flex-wrap gap-2">
+    {!selection && explication && <p id={description} className="self-center text-texte-doux">{explication}</p>}
+    {selection && <div className="flex flex-wrap gap-2">
       {possedees.map(balle => <button key={balle.cle} type="button"
         aria-pressed={selection?.cle === balle.cle}
         className="cadre flex min-h-11 min-w-11 items-center gap-2 bg-surface p-3 aria-pressed:bg-selection"
@@ -22,11 +23,10 @@ export function BarreCapture({ balles, possible, raison, enCours, capturer }: {
         <img src={balle.image} alt="" width={24} height={24} className="image-rendering-pixelated h-6 w-6 shrink-0" />
         <span>{balle.nom} ×{balle.quantite}</span>
       </button>)}
-    </div>
+    </div>}
     <button type="button" className="cadre min-h-11 min-w-11 bg-surface p-3"
       disabled={!possible || enCours || !selection} aria-describedby={explication ? description : undefined}
       onClick={() => { if (selection) capturer(selection.cle); }}>Capturer</button>
-    {explication && <p id={description} className="text-texte-doux">{explication}</p>}
-    {!selection && raison && <p>Tu n'as aucune balle.</p>}
+    {selection && explication && <p id={description} className="text-texte-doux">{explication}</p>}
   </section>;
 }

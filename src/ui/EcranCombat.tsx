@@ -96,7 +96,7 @@ function Scene({ store }: { store: StoreJeu }) {
 function Equipe({ store }: { store: StoreJeu }) {
   const equipe = useStore(store, etat => etat.equipe);
   const dps = useStore(store, etat => etat.dps);
-  return <section aria-label="Ton équipe" className="min-w-0 lg:col-start-4 lg:row-start-1 lg:row-end-3">
+  return <section aria-label="Ton équipe" className="min-w-0 lg:col-start-4 lg:row-start-1 lg:row-end-4">
     <h2 className="mb-2 flex justify-between gap-2 font-titre text-xl">Ton équipe <span>{formaterDps(dps)} DPS</span></h2>
     <div className="grid grid-cols-6 gap-1 lg:grid-cols-1">{equipe.map((membre, i) =>
       <CarteEquipe key={membre?.pokemon.uid ?? i} membre={membre} />)}</div>

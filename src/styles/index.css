@@ -96,10 +96,11 @@ html:has(dialog[open]) { overflow: hidden; }
 .cible-combat:focus-visible { outline-offset: -3px; }
 .commandes-combat section { @apply grid-cols-[minmax(0,1fr)_auto] items-start gap-1; }
 .commandes-combat section > div { @apply flex-nowrap overflow-x-auto; }
+.commandes-combat section > p:first-child { @apply col-span-1; }
 .commandes-combat section > div > button { @apply shrink-0 whitespace-nowrap; }
 .commandes-combat section > p { @apply col-span-2; }
 .commandes-combat > div { @apply flex-nowrap overflow-x-auto; }
-.commandes-combat button { @apply shrink-0 whitespace-nowrap px-2 py-1; }
+.commandes-combat button { @apply shrink-0 whitespace-nowrap px-3 py-1; }
 .combat-grille { height: calc(100dvh - var(--spacing) * 52); grid-template-rows: minmax(0, 1fr) auto auto auto; }
 .combat-grille > .scene-limitee { @apply min-h-0 overflow-hidden; height: 100%; max-height: calc(var(--spacing) * 76); }
 @media (min-width: 64rem) {

@@ -26,6 +26,12 @@ async function ouvrir(page: Page) {
   await expect(page.getByText('Étape 1 sur 10', { exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
   await page.evaluate(() => Promise.all([...document.images].map(image => image.decode())));
+  // Les parcours de ces tests comptent sur le DPS : l'arrêt automatique (actif par défaut) est coupé.
+  const arret = page.getByRole('button', { name: 'Arrêt auto', exact: true });
+  if ((await arret.getAttribute('aria-pressed')) === 'true') await arret.click();
+  // L'arrêt de l'ouverture a déjà coupé l'auto-attaque (comportement V1) : on la remet.
+  const auto = page.getByRole('button', { name: 'Auto-attaque', exact: true });
+  if ((await auto.getAttribute('aria-pressed')) === 'false') await auto.click();
 }
 
 async function atteindre(page: Page, etape: number) {
