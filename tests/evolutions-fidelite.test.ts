@@ -2,6 +2,17 @@ import { execFileSync } from 'node:child_process';
 import { expect, it } from 'vitest';
 import evolutions from '../data/evolutions.json';
 import fixture from './fixtures/v1-evolutions.json';
+import { evolutionParPierre, peutEvoluer, stade } from '../src/core/evolution';
+
+it('reproduit les stades, possibilités et 755 combinaisons de pierres V1', () => {
+  for (const espece of fixture.especes) {
+    expect(stade(espece.numero)).toBe(espece.stade);
+    expect(peutEvoluer(espece.numero)).toBe(espece.peutEvoluer);
+    for (const [pierre, cible] of Object.entries(espece.pierres)) {
+      expect(evolutionParPierre(espece.numero, pierre)).toBe(cible?.id ?? null);
+    }
+  }
+});
 
 it('conserve les 56 évolutions par niveau de la V1', () => {
   expect(evolutions.niveau.length).toBe(56);

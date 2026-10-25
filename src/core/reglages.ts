@@ -54,6 +54,7 @@ export const reglages: {
   bonus: { dps: Bonus[]; clic: Bonus[] };
   recompenses: ReglagesRecompenses;
   capture: ReglagesCapture;
+  evolution: { animationMs: number; alternanceMs: number };
   delais: ReglagesDelais;
   boucle: { pasMs: number; rattrapageMaxMs: number; notificationMinMs: number };
   stats: {

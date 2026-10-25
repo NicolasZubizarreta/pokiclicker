@@ -92,7 +92,7 @@ html:has(dialog[open]) { overflow: hidden; }
 }
 
 /* Durées du ticket H et de sa maquette A ; distances issues de l’espacement. */
-:root { --duree-pv: 120ms; --duree-degats: 500ms; }
+:root { --duree-pv: 120ms; --duree-degats: 500ms; --duree-evolution: 3s; }
 .cadre {
   border: calc(var(--spacing) / 2) solid var(--region-argent);
   border-radius: var(--rayon);
@@ -129,6 +129,61 @@ html:has(dialog[open]) { overflow: hidden; }
 .fleche-chen { animation: fleche var(--duree-degats) var(--ease-standard) infinite alternate; }
 @keyframes degats { to { transform: translateY(calc(var(--spacing) * -6)); opacity: 0; } }
 @keyframes fleche { to { transform: translateY(var(--spacing)); } }
+
+@utility evolution-flash {
+  animation: evolution-flash var(--duree-evolution) linear forwards;
+}
+@utility evolution-alternance {
+  animation: evolution-alternance var(--duree-evolution) step-end forwards;
+}
+.evolution-ancien { --evolution-pair: 0; --evolution-impair: 1; }
+.evolution-nouveau { --evolution-pair: 1; --evolution-impair: 0; }
+/* Le filtre animé brightness(100) déroge à DESIGN.md pour reprendre la V1. */
+@keyframes evolution-flash {
+  0% { filter: brightness(1); transform: scale(1); }
+  5% { filter: brightness(100); transform: scale(0.5); }
+  10% { filter: brightness(100); transform: scale(1.2); }
+  15% { filter: brightness(100); transform: scale(0.5); }
+  20% { filter: brightness(100); transform: scale(1.2); }
+  25% { filter: brightness(100); transform: scale(0.5); }
+  30% { filter: brightness(100); transform: scale(1.2); }
+  35% { filter: brightness(100); transform: scale(0.5); }
+  40% { filter: brightness(100); transform: scale(1.2); }
+  45% { filter: brightness(100); transform: scale(0.5); }
+  50% { filter: brightness(100); transform: scale(1.2); }
+  55% { filter: brightness(100); transform: scale(0.5); }
+  60% { filter: brightness(100); transform: scale(1.2); }
+  65% { filter: brightness(100); transform: scale(0.5); }
+  70% { filter: brightness(100); transform: scale(1.2); }
+  75% { filter: brightness(100); transform: scale(0.5); }
+  80% { filter: brightness(100); transform: scale(1.2); }
+  85% { filter: brightness(100); transform: scale(0.5); }
+  90% { filter: brightness(100); transform: scale(1.5); }
+  100% { filter: brightness(1); transform: scale(1); }
+}
+@keyframes evolution-alternance {
+  0% { opacity: var(--evolution-pair); }
+  5% { opacity: var(--evolution-impair); }
+  10% { opacity: var(--evolution-pair); }
+  15% { opacity: var(--evolution-impair); }
+  20% { opacity: var(--evolution-pair); }
+  25% { opacity: var(--evolution-impair); }
+  30% { opacity: var(--evolution-pair); }
+  35% { opacity: var(--evolution-impair); }
+  40% { opacity: var(--evolution-pair); }
+  45% { opacity: var(--evolution-impair); }
+  50% { opacity: var(--evolution-pair); }
+  55% { opacity: var(--evolution-impair); }
+  60% { opacity: var(--evolution-pair); }
+  65% { opacity: var(--evolution-impair); }
+  70% { opacity: var(--evolution-pair); }
+  75% { opacity: var(--evolution-impair); }
+  80% { opacity: var(--evolution-pair); }
+  85% { opacity: var(--evolution-impair); }
+  90% { opacity: var(--evolution-pair); }
+  95% { opacity: var(--evolution-impair); }
+  100% { opacity: var(--evolution-pair); }
+}
 
 /* Étapes catch-shake V1 ; durée de capture fixée à 1 s par le ticket J. */
 .capture-en-cours { animation: capture var(--duree-signal) ease-in-out forwards; filter: brightness(0); }
