@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useStore } from 'zustand';
 import { chargerPokemon } from '../core/pokemon';
 import { reglages } from '../core/reglages';
-import { cibleValide, quantiteMax } from '../core/objets-equipe';
+import { cibleValide, cibleValideStase, quantiteMax } from '../core/objets-equipe';
 import { cibleValidePierre } from '../core/evolution';
 import { ConfirmationObjet } from './ConfirmationObjet';
 import { SpriteEvolution } from './SpriteEvolution';
@@ -24,11 +24,12 @@ export function PageEquipe() {
   const echange = useStore(storeJeu, etat => etat.echange);
   const sac = useStore(storeJeu, etat => etat.sac);
   const evolution = useStore(storeJeu, etat => etat.evolution);
-  const [selection, selectionner] = useState<{ type: 'bonbon' | 'calcium' | 'pierre'; cle: string; nom: string } | null>(null);
+  const [selection, selectionner] = useState<{ type: 'bonbon' | 'calcium' | 'pierre' | 'stase' | 'jeton'; cle: string; nom: string } | null>(null);
   const mode = echange ? null : selection;
   const [cible, cibler] = useState<string | null>(null);
   const [quantite, changerQuantite] = useState(1);
   const [erreurObjet, signalerObjet] = useState<string | null>(null);
+  const [messageObjet, annoncerObjet] = useState<string | null>(null);
   const [choisi, choisir] = useState(() => equipe.find(c => c)?.pokemon.uid);
   const [fiche, ouvrir] = useState<string | null>(null);
   const [ouvert, afficher] = useState(false);
@@ -99,7 +100,7 @@ export function PageEquipe() {
         onClick={() => storeJeu.getState().annulerEchange()}>Annuler</button>
     </div>}
     {echange && erreur?.echange === echange && <p role="alert" className="mt-4 text-erreur-base">{erreur.message}</p>}
-    <p role="status" className={mode ? 'mt-4' : undefined}>{mode ? 'Sélectionne un Pokémon.' : ''}</p>
+    <p role="status" className={mode || messageObjet ? 'mt-4' : undefined}>{mode ? 'Sélectionne un Pokémon.' : messageObjet ?? ''}</p>
     {erreurObjet && <p role="alert" className="mt-4 text-erreur-base">{erreurObjet}</p>}
     <div className="mt-4 grid items-start gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
       <ul ref={liste} className="grid min-w-0 gap-4">
@@ -109,12 +110,13 @@ export function PageEquipe() {
           const { pokemon, dps, xpMax } = caseEquipe;
           const nom = pokemon.surnom ?? catalogue.parNumero(pokemon.numero).nom;
           const stock = mode ? sac.entrees.find(entree => entree.id === mode.cle)?.quantite ?? 0 : 0;
-          const maximum = mode && mode.type !== 'pierre' ? quantiteMax(mode.type, pokemon, stock) : 0;
+          const maximum = mode && (mode.type === 'bonbon' || mode.type === 'calcium') ? quantiteMax(mode.type, pokemon, stock) : 0;
           const valide = mode && (mode.type === 'pierre' ? cibleValidePierre(pokemon, mode.cle)
+            : mode.type === 'stase' ? cibleValideStase(pokemon) : mode.type === 'jeton' ? true
             : cibleValide(mode.type, pokemon) && maximum > 0);
           return <li key={pokemon.uid} className="min-w-0">
             <button type="button" aria-label={`${nom}, niveau ${pokemon.niveau}`} aria-pressed={membre?.pokemon.uid === pokemon.uid} data-uid={pokemon.uid}
-              disabled={!!mode && mode.type !== 'pierre' && !valide}
+              disabled={!!mode && (mode.type === 'bonbon' || mode.type === 'calcium') && !valide}
               className={`cadre grid min-h-11 w-full grid-cols-[auto_minmax(0,1fr)] items-center gap-2 p-4 text-left ${mode && !valide ? '' : 'hover:bg-selection'} ${membre?.pokemon.uid === pokemon.uid ? 'bg-selection' : 'bg-surface'} ${mode ? valide ? 'relative motion-safe:cible-valide' : 'grayscale opacity-50' : ''}`}
               onContextMenu={event => {
                 event.preventDefault();
@@ -128,6 +130,18 @@ export function PageEquipe() {
                   return;
                 }
                 if (mode) {
+                  if (mode.type === 'stase') {
+                    const message = storeJeu.getState().poserStase(pokemon.uid);
+                    if (!message || (pokemon.pierreEternelle && !pokemon.oeuf)) annulerObjet();
+                    else cibler(null);
+                    signalerObjet(message);
+                    return;
+                  }
+                  if (mode.type === 'jeton' && pokemon.shiny) {
+                    cibler(null);
+                    signalerObjet('Déjà chromatique !');
+                    return;
+                  }
                   if (mode.type === 'pierre' && !valide) {
                     cibler(null);
                     signalerObjet(pokemon.oeuf ? 'Pokémon invalide !' : pokemon.pierreEternelle
@@ -159,6 +173,7 @@ export function PageEquipe() {
                 <span className="text-region-accent">{formaterDps(dps)} DPS</span>
               </span>
             </button>
+            {pokemon.pierreEternelle && <img src="img/objets/everstone.png" alt="Pierre Stase" className="size-8 image-rendering-pixelated" />}
             {!mode && !echange && typeof caseEquipe.evolution === 'number' && <button type="button"
               aria-label={`Faire évoluer ${nom}`} className="cadre-alerte min-h-11 w-full bg-surface motion-safe:animate-pulse"
               onClick={() => {
@@ -172,9 +187,19 @@ export function PageEquipe() {
                 if (message) signalerObjet(message);
                 else annulerObjet();
               }} />}
-            {mode && mode.type !== 'pierre' && cible === pokemon.uid && valide && <SelecteurQuantite valeur={Math.min(quantite, maximum)} max={maximum}
+            {mode?.type === 'jeton' && cible === pokemon.uid && <ConfirmationObjet objet={mode.nom} nom={nom}
+              annuler={() => {
+                annulerObjet();
+                rendreFocus.current = false;
+                liste.current?.querySelector<HTMLButtonElement>(`button[data-uid="${pokemon.uid}"]`)?.focus();
+              }} valider={() => {
+                const message = storeJeu.getState().utiliserJeton(pokemon.uid);
+                if (message) signalerObjet(message);
+                else annulerObjet();
+              }} />}
+            {mode && (mode.type === 'bonbon' || mode.type === 'calcium') && cible === pokemon.uid && valide && <SelecteurQuantite valeur={Math.min(quantite, maximum)} max={maximum}
               changer={changerQuantite} annuler={annulerObjet} valider={() => {
-                if (mode.type === 'pierre') return;
+                if (mode.type !== 'bonbon' && mode.type !== 'calcium') return;
                 const message = storeJeu.getState().utiliserObjet(mode.type, pokemon.uid, Math.min(quantite, maximum));
                 if (message) signalerObjet(message);
                 else annulerObjet();
@@ -203,17 +228,25 @@ export function PageEquipe() {
         <Sac sac={sac} utiliser={(entree, bouton) => {
           if (echange || !entree.utilisable || entree.quantite <= 0) return;
           declencheurObjet.current = bouton;
-          selectionner({ type: entree.utilisable, cle: entree.id, nom: entree.nom });
           cibler(null);
           changerQuantite(1);
           signalerObjet(null);
           placerMenu(null);
           afficher(false);
+          if (entree.utilisable === 'direct') {
+            annulerObjet();
+            annoncerObjet(storeJeu.getState().utiliserObjetActif(entree.id));
+            return;
+          }
+          annoncerObjet(null);
+          selectionner({ type: entree.utilisable, cle: entree.id, nom: entree.nom });
         }} />
       </div>
       </div>
     </div>
     {!mode && !echange && menu && <MenuPokemon x={menu.x} y={menu.y} declencheur={menu.carte} fermer={() => placerMenu(null)}
+      retirerObjet={equipe.find(c => c?.pokemon.uid === menu.uid)?.pokemon.pierreEternelle
+        ? () => signalerObjet(storeJeu.getState().retirerStase(menu.uid)) : undefined}
       resumer={() => {
         choisir(menu.uid);
         ouvrirFiche(menu.uid, menu.carte);

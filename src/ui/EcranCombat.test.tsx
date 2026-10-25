@@ -12,6 +12,114 @@ import type { StoreJeu } from './store';
 import { ERREUR_CHARGEMENT } from './persistance';
 
 let store: StoreJeu;
+it('affiche les effets sous les PV sans annonce en direct et suit le store', () => {
+  preparer();
+  expect(screen.queryByRole('list', { name: 'Effets actifs' })).toBeNull();
+  act(() => store.setState({ effets: [{ id: 'xAttack', pastille: 'Attaque + ×1,5', restantS: 12 }] }));
+  const effets = screen.getByRole('list', { name: 'Effets actifs' });
+  const pv = screen.getByRole('progressbar', { name: 'PV de Rattata' });
+  expect(pv.parentElement?.parentElement?.contains(effets)).toBe(true);
+  expect(pv.compareDocumentPosition(effets) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  expect(effets.textContent).toBe('Attaque + ×1,5 : 12 s');
+  expect(effets.closest('[aria-live], [role="status"]')).toBeNull();
+  act(() => store.setState({ effets: [] }));
+  expect(screen.queryByRole('list', { name: 'Effets actifs' })).toBeNull();
+});
+
+it('cache les outils sans objet et explique chaque verrou quand un outil est possédé', () => {
+  preparer();
+  expect(screen.queryByRole('button', { name: 'Fauchage' })).toBeNull();
+  expect(screen.queryByRole('button', { name: 'Poké-Radar' })).toBeNull();
+  act(() => store.setState({ radar: true }));
+  const fauchage = screen.getByRole('button', { name: 'Fauchage' });
+  expect(fauchage.matches(':disabled')).toBe(true);
+  expect(document.getElementById(fauchage.getAttribute('aria-describedby')!)?.textContent)
+    .toBe('Nécessite la CT Fauchage.');
+  act(() => store.setState({ radar: false, fauchage: { ...store.getState().fauchage,
+    possede: true, disponible: true, raison: null } }));
+  const radar = screen.getByRole('button', { name: 'Poké-Radar' });
+  expect(radar.matches(':disabled')).toBe(true);
+  expect(document.getElementById(radar.getAttribute('aria-describedby')!)?.textContent)
+    .toBe('Nécessite le Poké-Radar.');
+});
+
+it('branche Fauchage et affiche son état actif, sa recharge et le refus sur un boss', () => {
+  preparer();
+  const faucher = vi.fn();
+  act(() => store.setState({ faucher, fauchage: { possede: true, disponible: true,
+    raison: null, rechargeS: 0, actif: false } }));
+  const bouton = screen.getByRole('button', { name: 'Fauchage' });
+  fireEvent.click(bouton);
+  expect(faucher).toHaveBeenCalledOnce();
+  act(() => store.setState({ fauchage: { ...store.getState().fauchage,
+    disponible: false, actif: true, rechargeS: 30, raison: 'Recharge : 30 s' } }));
+  expect(bouton.getAttribute('aria-pressed')).toBe('true');
+  expect(screen.getByText('Recharge : 30 s')).toBeTruthy();
+  act(() => store.setState({ ennemi: { ...store.getState().ennemi!, boss: true },
+    fauchage: { ...store.getState().fauchage, actif: false, raison: 'Inutile sur un boss !' } }));
+  expect(bouton.matches(':disabled')).toBe(true);
+  expect(screen.getByText('Inutile sur un boss !')).toBeTruthy();
+  fireEvent.click(bouton);
+  expect(faucher).toHaveBeenCalledOnce();
+});
+
+it('ouvre le Radar sur les sauvages du lieu, applique le Pokédex et rend le focus', () => {
+  preparer();
+  const prototype = HTMLDialogElement.prototype;
+  const modalInitial = Object.getOwnPropertyDescriptor(prototype, 'showModal');
+  const closeInitial = Object.getOwnPropertyDescriptor(prototype, 'close');
+  const showModal = vi.fn(function (this: HTMLDialogElement) {
+    this.setAttribute('open', '');
+  });
+  const close = vi.fn(function (this: HTMLDialogElement) {
+    this.removeAttribute('open');
+    fireEvent(this, new Event('close'));
+  });
+  Object.defineProperty(prototype, 'showModal', { configurable: true, value: showModal });
+  Object.defineProperty(prototype, 'close', { configurable: true, value: close });
+  try {
+    const zone = store.getState().zone!;
+    const premier = zone.sauvages[0]!.pokemon;
+    act(() => store.setState({ radar: true, pokedex: [premier] }));
+    const bouton = screen.getByRole('button', { name: 'Poké-Radar' });
+    fireEvent.click(bouton);
+    const fenetre = screen.getByRole('dialog', { name: store.getState().lieu!.nom });
+    expect(showModal).toHaveBeenCalledOnce();
+    const images = within(fenetre).getAllByRole('img');
+    expect(images).toHaveLength(zone.sauvages.length);
+    for (const [index, image] of images.entries()) {
+      expect(image.classList.contains('brightness-0')).toBe(zone.sauvages[index]!.pokemon !== premier);
+      expect(image.getAttribute('src')).toMatch(/^img\//);
+    }
+    expect(within(fenetre).getAllByText('Commun').length).toBeGreaterThan(0);
+    fireEvent.click(within(fenetre).getByRole('button', { name: 'Fermer' }));
+    expect(screen.queryByRole('dialog', { name: store.getState().lieu!.nom })).toBeNull();
+    expect(document.activeElement).toBe(bouton);
+  } finally {
+    if (modalInitial) Object.defineProperty(prototype, 'showModal', modalInitial);
+    else Reflect.deleteProperty(prototype, 'showModal');
+    if (closeInitial) Object.defineProperty(prototype, 'close', closeInitial);
+    else Reflect.deleteProperty(prototype, 'close');
+  }
+});
+
+it('regroupe réglages et outils dans une seule rangée défilante sans action principale supplémentaire', () => {
+  const { container } = preparer();
+  act(() => store.setState({ radar: true }));
+  const rangees = container.querySelectorAll('.commandes-combat .overflow-x-auto');
+  expect(rangees).toHaveLength(1);
+  const rangee = rangees[0]!;
+  expect(rangee.classList.contains('flex')).toBe(true);
+  for (const nom of ['Auto-attaque', 'Auto-clic', 'Arrêt auto', "Réglages de l'arrêt", 'Fauchage', 'Poké-Radar']) {
+    expect(rangee.contains(screen.getByRole('button', { name: nom }))).toBe(true);
+  }
+  for (const groupe of rangee.children) {
+    expect(rangee.className).toContain('[&>div]:flex-nowrap');
+    expect(groupe.classList.contains('overflow-x-auto')).toBe(false);
+  }
+  expect(container.querySelectorAll('.bg-action')).toHaveLength(1);
+});
+
 it('affiche Auto-clic et le rend utilisable avec les Restes', () => {
   preparer();
   expect(screen.getByRole('button', { name: 'Auto-clic' }).matches(':disabled')).toBe(true);

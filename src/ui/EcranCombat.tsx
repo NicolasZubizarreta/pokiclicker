@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useStore } from 'zustand';
 import { chargerPokemon } from '../core/pokemon';
 import { BarrePv } from './BarrePv';
@@ -14,6 +14,10 @@ import { ERREUR_CHARGEMENT } from './persistance';
 import { cheminDecor, cheminSprite, precharger, prechargerZone } from './precharger';
 import { storeJeu } from './store';
 import { ReglagesCombat } from './ReglagesCombat';
+import { PastillesEffets } from './PastillesEffets';
+import { OutilsCombat } from './OutilsCombat';
+import { FenetreRadar } from './FenetreRadar';
+import { entreesRadar } from './store-objets';
 import type { StoreJeu } from './store';
 
 const catalogue = chargerPokemon();
@@ -50,6 +54,7 @@ function Scene({ store }: { store: StoreJeu }) {
   const cache = useStore(store, etat => etat.cache);
   const annonce = useStore(store, etat => etat.annonce);
   const captureEnCours = useStore(store, etat => etat.capture.enCours);
+  const effets = useStore(store, etat => etat.effets);
   useEffect(() => {
     if (zone) void prechargerZone(zone);
     if (lieu && imageConnue(cheminDecor(lieu))) void precharger([cheminDecor(lieu)]);
@@ -72,6 +77,7 @@ function Scene({ store }: { store: StoreJeu }) {
       </div>
       {ennemi.shiny && <p>Chromatique</p>}
       <BarrePv key={`${ennemi.numero}-${ennemi.niveau}-${ennemi.boss}`} pv={ennemi.pv} maximum={ennemi.pvMax} nom={nom} />
+      {effets.length > 0 && <PastillesEffets effets={effets} />}
       {minuteur && <BarreTemps restantMs={minuteur.restantMs} totalMs={minuteur.totalMs} />}
     </div>
     <div ref={sprite} aria-hidden={cache} className={`pointer-events-none absolute right-2 bottom-2 flex will-change-transform size-48 items-end justify-center lg:size-72 ${cache ? 'opacity-0' : ''}`}>
@@ -105,7 +111,13 @@ function Equipe({ store }: { store: StoreJeu }) {
 }
 
 function CommandesCombat({ store }: { store: StoreJeu }) {
+  const [declencheurRadar, ouvrirRadar] = useState<HTMLButtonElement | null>(null);
   const zone = useStore(store, etat => etat.zone);
+  const lieu = useStore(store, etat => etat.lieu);
+  const pokedex = useStore(store, etat => etat.pokedex);
+  const fauchage = useStore(store, etat => etat.fauchage);
+  const radar = useStore(store, etat => etat.radar);
+  const faucher = useStore(store, etat => etat.faucher);
   const capture = useStore(store, etat => etat.capture);
   const autoAttaque = useStore(store, etat => etat.autoAttaque);
   const autoClic = useStore(store, etat => etat.autoClic);
@@ -115,12 +127,22 @@ function CommandesCombat({ store }: { store: StoreJeu }) {
   const basculer = useStore(store, etat => etat.basculerAutoAttaque);
   const regler = useStore(store, etat => etat.reglerArretAuto);
   if (!zone) return null;
+  const reglages = <ReglagesCombat autoAttaque={autoAttaque} arret={arret} basculer={basculer} regler={regler}
+    autoClic={autoClic} basculerAutoClic={basculerAutoClic} />;
   return <div className="commandes-combat grid min-w-0 gap-1 lg:col-span-3">
     <fieldset className="min-w-0">
       <BarreCapture {...capture} capturer={capturer} />
     </fieldset>
-    <ReglagesCombat autoAttaque={autoAttaque} arret={arret} basculer={basculer} regler={regler}
-      autoClic={autoClic} basculerAutoClic={basculerAutoClic} />
+    {fauchage.possede || radar ? <>
+      <div className="flex min-w-0 gap-2 overflow-x-auto [&>div]:shrink-0 [&>div]:flex-nowrap [&_button]:shrink-0 [&_p]:whitespace-nowrap">
+        {reglages}
+        <OutilsCombat fauchage={fauchage} radar={radar} faucher={faucher}
+          ouvrirRadar={ouvrirRadar} />
+      </div>
+      <FenetreRadar ouvert={declencheurRadar !== null} nomZone={lieu?.nom ?? zone.nom}
+        especes={entreesRadar(zone, pokedex).map(espece => ({ ...espece, rarete: espece.libelle }))}
+        fermer={() => ouvrirRadar(null)} declencheur={declencheurRadar} />
+    </> : reglages}
   </div>;
 }
 

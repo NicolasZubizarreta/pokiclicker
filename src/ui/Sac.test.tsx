@@ -65,3 +65,15 @@ it('désactive Utiliser sans stock', () => {
   fireEvent.click(screen.getByRole('button', { name: 'Bonbon ×0' }));
   expect((screen.getByRole('button', { name: 'Utiliser' }) as HTMLButtonElement).disabled).toBe(true);
 });
+
+it.each(['stase', 'jeton', 'direct'] as const)('transmet le nouvel usage %s sans bouton imbriqué ni action principale', utilisable => {
+  const utiliser = vi.fn();
+  const entree = { ...sac.entrees[1]!, utilisable };
+  const { container } = render(<Sac sac={{ ...sac, entrees: [entree] }} utiliser={utiliser} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Bonbon ×2' }));
+  const bouton = screen.getByRole('button', { name: 'Utiliser' });
+  fireEvent.click(bouton);
+  expect(utiliser).toHaveBeenCalledWith(entree, bouton);
+  expect(container.querySelector('button button')).toBeNull();
+  expect(container.querySelectorAll('.bg-action')).toHaveLength(0);
+});

@@ -5,7 +5,7 @@ import type { PokemonPossede } from '../core/sauvegarde';
 import { formaterDps } from './nombres';
 import { PageEquipe } from './PageEquipe';
 import { storeJeu } from './store';
-import { utiliserSurPokemon } from '../core/objets-equipe';
+import { poserStase, retirerStase, utiliserJetonShiny, utiliserSurPokemon } from '../core/objets-equipe';
 import { evolutionDisponible, evoluerParPierre } from '../core/evolution';
 import * as chargement from './precharger';
 import type { DonneesRegion } from '../core/sauvegarde';
@@ -380,4 +380,113 @@ it('garde la confirmation de pierre ouverte si le store refuse', () => {
   expect(screen.getByRole('alert').textContent).toBe('Plus de pierre !');
   expect(screen.getByRole('group', { name: 'Utiliser Pierre Foudre sur Bourgeon ?' })).toBeTruthy();
   expect(storeJeu.getState().sac.entrees[0]?.quantite).toBe(1);
+});
+
+function preparerActif(type: 'stase' | 'jeton' | 'direct', p: PokemonPossede = pokemon) {
+  const id = type === 'stase' ? 'everstone' : type === 'jeton' ? 'shinyToken' : 'repel';
+  const nom = type === 'stase' ? 'Pierre Stase' : type === 'jeton' ? 'Jeton Shiny' : 'Repousse';
+  preparerEvolution(p);
+  const appliquer = (action: typeof poserStase) => vi.fn((uid: string) => {
+    const etat = storeJeu.getState();
+    const resultat = action({ equipe: etat.equipe.flatMap(c => c ? [c.pokemon] : []), pc: [],
+      inventaire: { [id]: etat.sac.entrees[0]!.quantite } } as unknown as DonneesRegion, uid);
+    if (!resultat.ok) return resultat.raison;
+    storeJeu.setState({ equipe: resultat.region.equipe.map(pokemon => ({ pokemon,
+      dps: 42 * (pokemon.pierreEternelle ? 1.25 : 1), xpMax: 100, multiplicateur: 1 })),
+    sac: { ...etat.sac, entrees: etat.sac.entrees.map(e => ({ ...e, quantite: resultat.region.inventaire[id]! })) } });
+    return null;
+  });
+  storeJeu.setState({ poserStase: appliquer(poserStase), retirerStase: appliquer(retirerStase),
+    utiliserJeton: appliquer(utiliserJetonShiny),
+    sac: { acces: { ouvert: true, raison: null }, entrees: [{ id, nom, description: nom, image: null,
+      categorie: 'soins', quantite: 2, actif: false, utilisable: type }] } });
+  render(<PageEquipe />);
+  fireEvent.click(screen.getByRole('button', { name: `${nom} ×2` }));
+  fireEvent.click(screen.getByRole('button', { name: 'Utiliser' }));
+  return screen.getByRole('button', { name: 'Utiliser' });
+}
+
+it('pose la Stase sans confirmation, affiche son icône et le DPS puis la retire via le menu', () => {
+  const declencheur = preparerActif('stase');
+  const ligne = screen.getByRole('button', { name: 'Bourgeon, niveau 16' });
+  expect(ligne.className).toContain('motion-safe:cible-valide');
+  fireEvent.click(ligne);
+  expect(storeJeu.getState().poserStase).toHaveBeenCalledWith('premier');
+  expect(screen.queryByRole('group', { name: /^Utiliser/ })).toBeNull();
+  const icone = within(ligne.parentElement!).getByRole('img', { name: 'Pierre Stase' });
+  expect(icone.getAttribute('src')).toBe('img/objets/everstone.png');
+  expect(ligne.contains(icone)).toBe(false);
+  expect(within(ligne).getByText(`${formaterDps(42 * 1.25)} DPS`)).toBeTruthy();
+  expect(storeJeu.getState().sac.entrees[0]?.quantite).toBe(1);
+  expect(document.activeElement).toBe(declencheur);
+  expect(screen.getByRole('status').textContent).toBe('');
+  expect(document.querySelectorAll('.bg-action')).toHaveLength(1);
+  expect(document.querySelector('button button')).toBeNull();
+  fireEvent.contextMenu(ligne);
+  fireEvent.click(screen.getByRole('menuitem', { name: "Retirer l'objet" }));
+  expect(storeJeu.getState().retirerStase).toHaveBeenCalledWith('premier');
+  expect(storeJeu.getState().sac.entrees[0]?.quantite).toBe(2);
+  expect(within(ligne.parentElement!).queryByRole('img', { name: 'Pierre Stase' })).toBeNull();
+  expect(document.activeElement).toBe(ligne);
+  fireEvent.contextMenu(ligne);
+  expect(screen.queryByRole('menuitem', { name: "Retirer l'objet" })).toBeNull();
+});
+
+it.each([
+  [{ ...pokemon, numero: 2 }, 'Pokémon incompatible !', false],
+  [{ ...pokemon, oeuf: { pasRestants: 10, pasMax: 10 } }, 'Pokémon invalide !', false],
+  [{ ...pokemon, pierreEternelle: true }, 'Retire-la via le menu !', true],
+] as const)('explique le refus de Stase sur une ligne grisée cliquable (%j)', (p, raison, ferme) => {
+  const declencheur = preparerActif('stase', p);
+  const ligne = screen.getByRole('button', { name: 'Bourgeon, niveau 16' });
+  expect(ligne.hasAttribute('disabled')).toBe(false);
+  expect(ligne.className).toContain('grayscale');
+  fireEvent.click(ligne);
+  expect(screen.getByRole('alert').textContent).toBe(raison);
+  expect(screen.getByRole('status').textContent).toBe(ferme ? '' : 'Sélectionne un Pokémon.');
+  expect(storeJeu.getState().sac.entrees[0]?.quantite).toBe(2);
+  if (ferme) expect(document.activeElement).toBe(declencheur);
+});
+
+it.each(['validation', 'annulation', 'refus'] as const)('confirme le Jeton et restitue le focus après %s', moyen => {
+  preparerActif('jeton');
+  const ligne = screen.getByRole('button', { name: 'Bourgeon, niveau 16' });
+  expect(ligne.className).toContain('motion-safe:cible-valide');
+  fireEvent.click(ligne);
+  expect(screen.getByRole('group', { name: 'Utiliser Jeton Shiny sur Bourgeon ?' })).toBeTruthy();
+  expect(document.querySelectorAll('.bg-action')).toHaveLength(1);
+  expect(document.querySelector('button button')).toBeNull();
+  if (moyen === 'refus') storeJeu.setState({ utiliserJeton: vi.fn(() => 'Quantité invalide.') });
+  fireEvent.click(screen.getByRole('button', { name: moyen === 'annulation' ? 'Annuler' : 'Valider' }));
+  expect(storeJeu.getState().equipe[0]?.pokemon.shiny).toBe(moyen === 'validation');
+  expect(storeJeu.getState().sac.entrees[0]?.quantite).toBe(moyen === 'validation' ? 1 : 2);
+  if (moyen === 'annulation') expect(document.activeElement).toBe(ligne);
+  if (moyen === 'refus') expect(screen.getByRole('alert').textContent).toBe('Quantité invalide.');
+  else expect(screen.queryByRole('group', { name: /^Utiliser/ })).toBeNull();
+});
+
+it('fait pulser aussi les chromatiques et les œufs pour le Jeton', () => {
+  preparerActif('jeton', { ...pokemon, shiny: true, oeuf: { pasRestants: 10, pasMax: 10 } });
+  const ligne = screen.getByRole('button', { name: 'Bourgeon, niveau 16' });
+  expect(ligne.className).toContain('motion-safe:cible-valide');
+  fireEvent.click(ligne);
+  expect(screen.getByRole('alert').textContent).toBe('Déjà chromatique !');
+  expect(screen.queryByRole('group', { name: /^Utiliser/ })).toBeNull();
+  expect(storeJeu.getState().utiliserJeton).not.toHaveBeenCalled();
+});
+
+it.each([null, 'Boss non vaincu !'])('utilise directement le Sac et annonce le refus %s dans le status existant', refus => {
+  const utiliserObjetActif = vi.fn(() => {
+    if (!refus) {
+      const sac = storeJeu.getState().sac;
+      storeJeu.setState({ sac: { ...sac, entrees: sac.entrees.map(e => ({ ...e, quantite: e.quantite - 1 })) } });
+    }
+    return refus;
+  });
+  storeJeu.setState({ utiliserObjetActif });
+  preparerActif('direct');
+  expect(utiliserObjetActif).toHaveBeenCalledWith('repel');
+  expect(screen.getByRole('status').textContent).toBe(refus ?? '');
+  expect(screen.queryByRole('group', { name: /^Utiliser/ })).toBeNull();
+  expect(storeJeu.getState().sac.entrees[0]?.quantite).toBe(refus ? 2 : 1);
 });
