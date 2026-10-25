@@ -97,6 +97,17 @@ export function validerDonneesRegion(v: unknown): asserts v is DonneesRegion {
     evenementEnCours: e => forme(e, { id: identifiant,
       etape: i => { entier(i); exiger((i as number) >= 0, 'Étape invalide'); },
       file: liste(identifiant) }),
+    blackjackEnCours: b => {
+      const cartes = liste(c => {
+        chaine(c);
+        exiger(/^(A|[2-9]|10|J|Q|K)-[SHDC]$/.test(c), 'Carte blackjack invalide');
+      });
+      forme(b, { mise: positif, paquet: cartes, joueur: cartes, croupier: cartes });
+      const main = b as NonNullable<DonneesRegion['blackjackEnCours']>;
+      const toutes = [...main.paquet, ...main.joueur, ...main.croupier];
+      exiger(toutes.length === 52 && new Set(toutes).size === 52, 'Paquet blackjack invalide');
+      exiger(main.joueur.length >= 2 && main.croupier.length >= 1, 'Main blackjack invalide');
+    },
   });
 }
 export function dateUtc(v: unknown): void {

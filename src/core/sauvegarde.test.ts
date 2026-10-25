@@ -16,6 +16,7 @@ import compteV2 from './migrations/__fixtures__/compte-v2.json';
 import exportV1 from './migrations/__fixtures__/export-v1.json';
 import { validerDonneesCompte } from './sauvegarde-validation';
 import { ouvrirPartie } from '../ui/persistance';
+import { construirePaquet, distribuer, rester } from './casino';
 
 // Les espèces des fixtures v2 (1 et 25) ne figurent dans aucune liste à sexe fixe.
 const v3 = { ...v2, version: 3 };
@@ -35,6 +36,49 @@ function instantane(stockage: ReturnType<typeof creerStockageMemoire>) {
 }
 const cle = 'pokiclicker:partie:partie-1';
 afterEach(() => { delete migrationsParDefaut[0]; });
+
+describe('sauvegarde du blackjack', () => {
+  it('accepte une ancienne région sans main et conserve la version 3', () => {
+    const { jeu } = contexte();
+    const partie = jeu.creerPartie('Casino');
+    const region = jeu.chargerRegion(partie.id, 'kanto')!;
+    expect(region.version).toBe(3);
+    expect(region.donnees).not.toHaveProperty('blackjackEnCours');
+    expect(() => validerDonneesRegion(region.donnees)).not.toThrow();
+  });
+  it('reprend une main après écriture, lecture, export et import puis la supprime', () => {
+    const { jeu } = contexte();
+    const partie = jeu.creerPartie('Casino');
+    const donne = distribuer({ ...regionInitiale('kanto', 'kanto.route-1'), jetons: 100 }, 3, () => 0.5);
+    if (!donne.ok) throw new Error(donne.raison);
+    expect(donne.region.blackjackEnCours).toBeDefined();
+    jeu.ecrireRegion(partie.id, 'kanto', donne.region);
+    const copie = jeu.importerPartie(jeu.exporterPartie(partie.id));
+    const reprise = jeu.chargerRegion(copie.id, 'kanto')!;
+    expect(reprise.donnees).toEqual(donne.region);
+    expect(reprise.donnees.jetons).toBe(97);
+    const fin = rester(reprise.donnees, () => 0.5);
+    if (!fin.ok) throw new Error(fin.raison);
+    jeu.ecrireRegion(copie.id, 'kanto', fin.region);
+    expect(jeu.chargerRegion(copie.id, 'kanto')!.donnees).not.toHaveProperty('blackjackEnCours');
+  });
+  it('rejette cartes inconnues, doublons, paquet incomplet, mise invalide et champs inconnus', () => {
+    const cartes = construirePaquet(() => 0.5);
+    const main = { mise: 1, paquet: cartes.slice(3), joueur: cartes.slice(0, 2), croupier: cartes.slice(2, 3) };
+    for (const invalide of [
+      { ...main, mise: 0 }, { ...main, mise: -1 }, { ...main, mise: 1.5 },
+      { ...main, mise: Number.MAX_SAFE_INTEGER + 1 },
+      { ...main, joueur: ['X-S', cartes[1]] },
+      { ...main, joueur: [cartes[0], cartes[0]] },
+      { ...main, paquet: main.paquet.slice(1) },
+      { ...main, joueur: [] }, { ...main, croupier: [] },
+      { ...main, inconnu: true },
+    ]) {
+      expect(() => validerDonneesRegion({ ...regionInitiale('kanto', 'kanto.route-1'),
+        blackjackEnCours: invalide })).toThrow();
+    }
+  });
+});
 
 describe('sauvegarde des evenements', () => {
   it('accepte une region sans evenement en cours', () => {

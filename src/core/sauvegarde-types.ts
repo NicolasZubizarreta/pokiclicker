@@ -25,6 +25,7 @@ export type DonneesPartie = {
   pcGlobal: PokemonPossede[]; drapeaux: string[];
   statistiques: { victoires: number; argentTotalGagne: number };
 };
+export type MainBlackjack = { mise: number; paquet: string[]; joueur: string[]; croupier: string[] };
 export type DonneesRegion = {
   regionId: string; zoneId: string; etape: number; equipe: PokemonPossede[];
   badges: string[]; bossVaincus: string[]; objetsCles: string[]; quetes: string[];
@@ -39,6 +40,7 @@ export type DonneesRegion = {
   };
   pension: { parents: PokemonPossede[]; oeufs: PokemonPossede[]; emplacementsOeuf: number };
   jetons: number;
+  blackjackEnCours?: MainBlackjack;
   arretAuto: {
     commun: boolean; peuCommun: boolean; rare: boolean; tresRare: boolean;
     legendaire: boolean; shiny: boolean; nouveau: boolean;
