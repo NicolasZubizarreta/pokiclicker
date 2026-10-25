@@ -4,7 +4,8 @@ import type { Horloge } from '../core/clock';
 import { avancerCombat, calculerClic, calculerDpsEquipe, cliquer, creerCombat, creerLimiteurClics,
   multiplicateurType, reprendreCombat, viderEvenements, lancerCapture, basculerAutoAttaque, basculerAutoClic, suspendreDps,
   faucher as faucherCombat, invoquerBoss } from '../core/combat';
-import { acheter, chargerObjets, objetsActifs } from '../core/boutique';
+import { acheter, chargerObjets } from '../core/boutique';
+import { accorderBadge, accorderJalons, actifsDe } from '../core/progression';
 import { clicsAutomatiques } from '../core/clics';
 import { utiliserSurPokemon, poserStase, retirerStase, utiliserJetonShiny } from '../core/objets-equipe';
 import { clesActives, utiliserTemporise, refusPoupee, utiliserPoupee, declencherRecharge } from '../core/objets-actifs';
@@ -16,7 +17,7 @@ import * as equipe from '../core/equipe';
 import { creerBoucle } from '../core/loop';
 import { chargerPokemon } from '../core/pokemon';
 import { accesPc } from '../core/pc';
-import { ajouterAuPokedex, completerPokedex } from '../core/pokedex';
+import { ajouterAuPokedex, completerPokedex, pokedexDeKanto } from '../core/pokedex';
 import { appliquerVictoire, calculerMaxXp } from '../core/recompenses';
 import type { FormeCarte, Zone, ZoneMonde } from '../core/monde';
 import { kanto } from '../core/regions';
@@ -26,6 +27,7 @@ import type { DonneesRegion, PokemonPossede, Stockage } from '../core/sauvegarde
 import type { PreferencesCombat, ReglagesArret } from '../core/sauvegarde-types';
 import { afficherCapture, annonceCapture, conditionCapture, type AffichageCapture } from './store-capture';
 import { afficherEvolution, type EvolutionAffichee } from './store-evolution';
+import { afficherProgression, phaseObtention, type AffichageProgression, type PhaseObtention } from './store-progression';
 import { afficherEffets, afficherFauchage, type EffetsAffiches, type FauchageAffiche } from './store-objets';
 import { afficherBoutique, afficherSac, type AffichageBoutique, type AffichageSac } from './store-boutique';
 import { detailErreur, ouvrirPartie } from './persistance';
@@ -42,6 +44,9 @@ export type EtatForme = {
   ouverte: boolean; actuelle: boolean; raison: string | null;
 };
 export type AffichageJeu = {
+  progression: AffichageProgression;
+  obtentionBadge: { id: string; phase: PhaseObtention } | null;
+  fermerBoiteBadges(): void;
   effets: EffetsAffiches; fauchage: FauchageAffiche; radar: boolean;
   utiliserObjetActif(id: string): string | null;
   faucher(): string | null;
@@ -80,7 +85,7 @@ export type AffichageJeu = {
 };
 
 function actifsCourants(region: DonneesRegion, maintenant: number): string[] {
-  return [...objetsActifs(region), ...clesActives(region.chronos, maintenant)];
+  return [...actifsDe(region), ...clesActives(region.chronos, maintenant)];
 }
 
 export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
@@ -110,6 +115,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
   let resteAutoClicMs = 0;
   let evolutionEnCours: EvolutionAffichee | null = null;
   let finEvolutionMs = 0;
+  let obtentionBadge: { id: string; debutMs: number } | null = null;
   const objets = chargerObjets();
   const abonnesDegats = new Set<(degat: Degat) => void>();
   const limiteur = creerLimiteurClics(horloge);
@@ -123,6 +129,20 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
     try { persistance.enregistrer(region, pokedex); persistance.enregistrerPreferences(preferences); }
     catch (cause) { erreur = detailErreur(cause); }
   };
+  const noterDansPokedex = (numero?: number, messages?: string[]) => {
+    if (numero !== undefined) pokedex = ajouterAuPokedex(pokedex, numero);
+    const resultat = accorderJalons(region, pokedexDeKanto(pokedex, catalogue).nombre);
+    region = resultat.region;
+    const paliers = resultat.recus.map(jalon => `Palier ${jalon.palier} : ${jalon.titre}`);
+    if (messages) messages.push(...paliers);
+    else if (paliers.length) {
+      annonce = [annonce, ...paliers].filter(Boolean).join(' · ');
+      finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs;
+    }
+    if (coeur) coeur = { ...coeur, pokedex };
+    actualiserActifs();
+    enregistrer();
+  };
   const traiter = () => {
     if (!coeur) return;
     region = { ...region, zoneId: coeur.zoneId, etape: coeur.etape };
@@ -134,7 +154,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
       if (evenement.type === 'capture-reussie') {
         const resultat = appliquerCapture(region, evenement, coeur.actifs, alea, genererId);
         region = resultat.region;
-        pokedex = ajouterAuPokedex(pokedex, evenement.numero);
+        noterDansPokedex(evenement.numero, messagesCapture);
         if (resultat.destination === 'pc') messagesCapture.push(`${catalogue.parNumero(evenement.numero).nom} est envoyé au PC.`);
         if (resultat.bonbons > 0) messagesCapture.push(`Chromatique ! +${resultat.bonbons} Bonbons`);
       }
@@ -154,18 +174,23 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
         }
       }
       if (evenement.type === 'boss-vaincu') {
+        const resultat = accorderBadge(region, evenement.zoneId);
+        region = resultat.region;
+        if (resultat.badge) {
+          messagesCapture.push(`Badge ${resultat.badge.nom} obtenu !`);
+          obtentionBadge = { id: resultat.badge.id, debutMs: tempsJeuMs };
+          actualiserActifs();
+        }
         if (!region.bossVaincus.includes(evenement.zoneId)) {
           region = { ...region, bossVaincus: [...region.bossVaincus, evenement.zoneId] };
           if (kanto.liensDepuis(evenement.zoneId).length > 0) {
-            annonce = 'Zone débloquée !';
-            finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs;
+            messagesCapture.push('Zone débloquée !');
           }
         }
         sauvegarder = true;
       }
       if (evenement.type === 'boss-echoue') {
-        annonce = 'Temps écoulé !';
-        finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs;
+        messagesCapture.push('Temps écoulé !');
       }
     }
     if (messagesCapture.length) { annonce = messagesCapture.join(' · '); finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs; }
@@ -213,6 +238,9 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
     const zoneSuivante = destination(lien ? kanto.zone(lien.vers) : undefined);
     const ennemi = coeur ? (({ numero, niveau, pv, pvMax, boss, shiny, rarete }) => ({ numero, niveau, pv, pvMax, boss, shiny, rarete }))(coeur.ennemi) : null;
     store.setState({ lieu, zone: coeur?.zone ?? null, etape: region.etape, ennemi, pv: ennemi?.pv ?? 0,
+      progression: afficherProgression(region, pokedex),
+      obtentionBadge: obtentionBadge ? { id: obtentionBadge.id,
+        phase: phaseObtention(obtentionBadge.debutMs, tempsJeuMs) } : null,
       effets: afficherEffets(region, maintenant, precedent.effets),
       fauchage: afficherFauchage(region, coeur, maintenant, precedent.fauchage),
       radar: region.ameliorations.includes('pokeradar'),
@@ -244,14 +272,16 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
   };
   const cacher = () => { if (document.visibilityState === 'hidden') enregistrer(); };
   const demarrerEvolution = (evolution: { uid: string; de: number; vers: number }) => {
-    pokedex = ajouterAuPokedex(pokedex, evolution.vers);
     evolutionEnCours = { uid: evolution.uid, ancien: evolution.de, nouveau: evolution.vers };
     finEvolutionMs = tempsJeuMs + reglages.evolution.animationMs;
     if (coeur) coeur = suspendreDps(coeur, reglages.evolution.animationMs);
     annonce = 'Évolution !';
     finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs;
+    noterDansPokedex(evolution.vers);
   };
-  const modifierEquipe = (action: (region: DonneesRegion) => equipe.ResultatEquipe,
+  const modifierEquipe = (action: (region: DonneesRegion) => equipe.ResultatEquipe & {
+    evolution?: { uid: string; de: number; vers: number };
+  },
     uidPc?: string, fermerEchange = false): string | null => {
     if (!initialise) return 'La partie n’est pas démarrée.';
     const resultat = action(region);
@@ -261,6 +291,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
       echange = { uid: uidPc, nom: pokemon.surnom ?? catalogue.parNumero(pokemon.numero).nom };
     } else {
       region = resultat.region;
+      if (resultat.evolution) demarrerEvolution(resultat.evolution);
       if (coeur) coeur = { ...coeur, equipe: region.equipe.map(versMembreEquipe) };
       if (fermerEchange) echange = null;
       enregistrer();
@@ -269,6 +300,9 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
     return null;
   };
   const store = createStore<AffichageJeu>(() => ({
+    progression: afficherProgression({ badges: [], jalonsRecus: [] }, []),
+    obtentionBadge: null,
+    fermerBoiteBadges() { obtentionBadge = null; afficher(); },
     effets: [], fauchage: { possede: false, disponible: false, raison: 'Nécessite la CT Fauchage.', rechargeS: 0, actif: false }, radar: false,
     utiliserObjetActif(id) {
       if (!initialise) return 'La partie n’est pas démarrée.';
@@ -344,18 +378,10 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
       });
     },
     evoluer(uid) {
-      return modifierEquipe(region => {
-        const resultat = evoluerEquipe(region, uid);
-        if (resultat.ok && resultat.evolution) demarrerEvolution(resultat.evolution);
-        return resultat;
-      });
+      return modifierEquipe(region => evoluerEquipe(region, uid));
     },
     utiliserPierre(uid, pierre) {
-      return modifierEquipe(region => {
-        const resultat = evoluerParPierre(region, uid, pierre);
-        if (resultat.ok && resultat.evolution) demarrerEvolution(resultat.evolution);
-        return resultat;
-      });
+      return modifierEquipe(region => evoluerParPierre(region, uid, pierre));
     },
     basculerAutoClic() {
       if (!coeur || !region.ameliorations.includes('leftovers')) return;
@@ -395,11 +421,8 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
     pc: [], pokedex, accesPc: { ouvert: false, raison: reglages.pc.raison },
     noterEspece(numero) {
       if (!initialise || !Number.isSafeInteger(numero) || numero <= 0) return;
-      const suivant = ajouterAuPokedex(pokedex, numero);
-      if (suivant === pokedex) return;
-      pokedex = suivant;
-      if (coeur) coeur = { ...coeur, pokedex };
-      enregistrer();
+      if (pokedex.includes(numero)) return;
+      noterDansPokedex(numero);
       afficher();
     },
     renommer: (uid, texte) => modifierEquipe(region => equipe.renommer(region, uid, texte)),
@@ -454,6 +477,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
           const lieu = kanto.zone(region.zoneId);
           coeur = lieu.sansCombat ? null : reprendreCombat(lieu, region.equipe.map(versMembreEquipe), alea, region.etape, actifsCourants(region, horloge.maintenant()), optionsCombat());
           initialise = true;
+          noterDansPokedex();
           traiter();
           if (pokedex !== persistance.pokedex) enregistrer();
           prechargerLieu();

@@ -4,6 +4,8 @@ import { reglages } from '../core/reglages';
 import { etatMondeDe } from '../core/sauvegarde';
 import type { DonneesRegion } from '../core/sauvegarde';
 import { chargerEvolutions } from '../core/evolution';
+import donneesJalons from '../../data/jalons.json';
+import type { Objet } from '../core/boutique';
 
 const pierresEvolution = new Set(chargerEvolutions().pierre.map(ligne => ligne.pierre));
 
@@ -39,7 +41,7 @@ export function afficherSac(region: DonneesRegion, precedent: AffichageSac | nul
   const etat = etatMondeDe(region);
   const acces = accesSac(kanto, etat);
   const sac: AffichageSac = { acces: { ouvert: acces.ok, raison: acces.ok ? null : acces.raison ?? null },
-    entrees: contenuSac(region, objets, kanto, etat).map(objet => ({
+    entrees: contenuSac(region, [...objets, ...donneesJalons.objetsRecompense as Objet[]], kanto, etat).map(objet => ({
       id: objet.id, nom: objet.nom, description: objet.description, image: objet.image, categorie: objet.categorie,
       quantite: objet.inventaire ? region.inventaire[objet.inventaire] ?? 0 : 1,
       actif: region.ameliorations.includes(objet.id),
