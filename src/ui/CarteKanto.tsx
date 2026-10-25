@@ -19,10 +19,13 @@ const couleur = (f: EtatForme) => !f.ouverte ? 'fill-texte-doux/50'
     : f.nom === 'Caverne Azurée' ? 'fill-info-texte/30'
       : /route|bourg/i.test(f.nom) ? 'fill-alerte-base/30' : 'fill-info-base/30';
 
-export function CarteKanto({ quandArrive }: { quandArrive: () => void }) {
+export function CarteKanto({ quandArrive, quandCentre }: { quandArrive: () => void; quandCentre?: () => void }) {
   const { etat: vol, reduit, lancer } = useVol(zone => storeJeu.getState().allerVers(zone), quandArrive);
   const carte = useStore(storeJeu, etat => etat.carte);
   const lieu = useStore(storeJeu, etat => etat.lieu);
+  const centre = useStore(storeJeu, etat => etat.centre.acces);
+  const centreOuvert = !!quandCentre && centre.ouvert;
+  const raisonCentre = quandCentre ? centre.raison : 'Bientôt disponible.';
   const [nouvelles] = useState(() => carte.nouvelles);
   const [fondu, demarrerFondu] = useState(false);
   const [selection, selectionner] = useState<string | null>(null);
@@ -186,11 +189,18 @@ export function CarteKanto({ quandArrive }: { quandArrive: () => void }) {
               : <button type="button" className="min-h-11 min-w-11 bg-action px-4 py-2 text-action-texte shadow-sm hover:bg-action-survol"
                 disabled={vol.actif} onClick={() => lancer(choisie.zone!, actuelle?.forme ?? null)}>{choisie.nom === 'Céladopole' ? 'Arène' : 'Y aller'}</button>}
           {choisie.nom === 'Céladopole' && <div className="mt-2 grid gap-2">
-            {['Centre commercial', 'Casino'].map(nom => <div key={nom}>
-              <button type="button" disabled aria-describedby={`carte-${nom === 'Casino' ? 'casino' : 'commerce'}`}
-                className="min-h-11 min-w-11 bg-surface px-4 py-2 text-texte-doux">{nom}</button>
-              <p id={`carte-${nom === 'Casino' ? 'casino' : 'commerce'}`}>Bientôt disponible.</p>
-            </div>)}
+            <div>
+              <button type="button" disabled={!centreOuvert} onClick={quandCentre}
+                aria-describedby={!centreOuvert && raisonCentre ? 'carte-commerce' : undefined}
+                className={`min-h-11 min-w-11 px-4 py-2 ${centreOuvert
+                  ? 'bg-action text-action-texte shadow-sm hover:bg-action-survol' : 'bg-surface text-texte-doux'}`}>Centre commercial</button>
+              {!centreOuvert && raisonCentre && <p id="carte-commerce">{raisonCentre}</p>}
+            </div>
+            <div>
+              <button type="button" disabled aria-describedby="carte-casino"
+                className="min-h-11 min-w-11 bg-surface px-4 py-2 text-texte-doux">Casino</button>
+              <p id="carte-casino">Bientôt disponible.</p>
+            </div>
           </div>}
         </>}
       </section>
