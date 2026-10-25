@@ -5,6 +5,7 @@ import { reglages } from '../core/reglages';
 import { BarreXp } from './BarreXp';
 import { FichePokemon } from './FichePokemon';
 import { Image } from './Image';
+import { MenuPokemon } from './MenuPokemon';
 import { formaterDps } from './nombres';
 import { cheminSprite } from './precharger';
 import { storeJeu } from './store';
@@ -18,6 +19,7 @@ export function PageEquipe() {
   const [choisi, choisir] = useState(() => equipe.find(c => c)?.pokemon.uid);
   const [fiche, ouvrir] = useState<string | null>(null);
   const [ouvert, afficher] = useState(false);
+  const [menu, placerMenu] = useState<{ uid: string; x: number; y: number; carte: HTMLButtonElement } | null>(null);
   const [erreur, signaler] = useState<{ echange: typeof echange; message: string } | null>(null);
   const declencheur = useRef<HTMLButtonElement>(null);
   const panneau = useRef<HTMLElement>(null);
@@ -51,6 +53,10 @@ export function PageEquipe() {
           return <li key={pokemon.uid} className="min-w-0">
             <button type="button" aria-label={`${nom}, niveau ${pokemon.niveau}`} aria-pressed={membre?.pokemon.uid === pokemon.uid}
               className={`cadre grid min-h-11 w-full grid-cols-[auto_minmax(0,1fr)] items-center gap-2 p-4 text-left hover:bg-selection ${membre?.pokemon.uid === pokemon.uid ? 'bg-selection' : 'bg-surface'}`}
+              onContextMenu={event => {
+                event.preventDefault();
+                placerMenu({ uid: pokemon.uid, x: event.clientX, y: event.clientY, carte: event.currentTarget });
+              }}
               onClick={event => {
                 if (echange) {
                   const message = storeJeu.getState().echanger(echange.uid, pokemon.uid);
@@ -88,6 +94,11 @@ export function PageEquipe() {
           onClick={event => ouvrirFiche(membre.pokemon.uid, event.currentTarget)}>Ouvre la fiche</button>}
       </aside>}
     </div>
+    {menu && <MenuPokemon x={menu.x} y={menu.y} declencheur={menu.carte} fermer={() => placerMenu(null)}
+      resumer={() => {
+        choisir(menu.uid);
+        ouvrirFiche(menu.uid, menu.carte);
+      }} />}
     {fiche !== null && <FichePokemon uid={fiche} ouvert={ouvert} fermer={() => afficher(false)} declencheur={declencheur} />}
   </section>;
 }

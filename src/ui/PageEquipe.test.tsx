@@ -98,3 +98,18 @@ it('annule l’échange au démontage', () => {
   unmount();
   expect(annulerEchange).toHaveBeenCalledOnce();
 });
+
+it('le clic droit ouvre Résumé, puis la fiche du Pokémon et rend le focus à sa carte', () => {
+  vi.spyOn(HTMLElement.prototype, 'getClientRects').mockReturnValue({ length: 1 } as DOMRectList);
+  render(<PageEquipe />);
+  expect(screen.queryByRole('menu')).toBeNull();
+  const carte = screen.getByRole('button', { name: 'Salamèche, niveau 16' });
+  expect(fireEvent.contextMenu(carte, { clientX: 100, clientY: 80 })).toBe(false);
+  expect(screen.queryByRole('dialog')).toBeNull();
+  fireEvent.click(screen.getByRole('menuitem', { name: 'Résumé' }));
+  expect(screen.queryByRole('menu')).toBeNull();
+  expect(screen.getByRole('dialog', { name: 'Salamèche' })).toBeTruthy();
+  expect(carte.getAttribute('aria-pressed')).toBe('true');
+  fireEvent.click(screen.getByRole('button', { name: 'Ferme la fiche' }));
+  expect(document.activeElement).toBe(carte);
+});

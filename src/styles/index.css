@@ -11,6 +11,7 @@
 }
 
 html:has(dialog[open]) { overflow: hidden; }
+.menu-pokemon { transform: translate(calc(var(--menu-x) * 1px), calc(var(--menu-y) * 1px)); }
 .fiche-pokemon {
   max-height: 50dvh;
   margin: auto auto 0;
