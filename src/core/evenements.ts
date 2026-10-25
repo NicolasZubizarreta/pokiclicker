@@ -14,7 +14,7 @@ export type Declencheur =
   | { type: 'objet-utilise'; objet: string; zone?: string };
 
 export type Etape =
-  | { type: 'dialogue'; locuteur: string; texte: string }
+  | { type: 'dialogue'; locuteur: string; texte: string; pose?: string }
   | { type: 'donner'; objet: string; quantite: number }
   | { type: 'donner'; objetCle: string }
   | { type: 'poser-drapeau'; id: string }
@@ -200,7 +200,7 @@ export function chargerEvenements(
   function etape(v: unknown) {
     objet(v);
     switch (v.type) {
-      case 'dialogue': forme(v, { type: chaine, locuteur: chaine, texte: chaine }); break;
+      case 'dialogue': forme(v, { type: chaine, locuteur: chaine, texte: chaine }, { pose: identifiant }); break;
       case 'donner':
         if (Object.hasOwn(v, 'objetCle')) forme(v, { type: chaine, objetCle: identifiant });
         else forme(v, { type: chaine, objet: objetInventaire, quantite: positif });

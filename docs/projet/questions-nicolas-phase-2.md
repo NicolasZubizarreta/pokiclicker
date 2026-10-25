@@ -3,6 +3,12 @@
 Mandat reçu le 25/10 : enchaîner les tickets de la phase 2 sans attendre, poser les questions au réveil. Règles tenues : aucun push, rien d'écrit sur GitHub, aucun téléchargement ni fichier audio sans accord, aucune règle de jeu changée sans ticket (écart avec la V1 = bug).
 Quand un choix n'est tranché par aucun document, je prends l'option par défaut la plus proche de la V1, je la note ici, et je continue. Un ticket qui exige ton choix (variantes, décision d'ADR, accord sur des assets) est sauté et listé ci-dessous.
 
+## Réponses de Nicolas (25/10, au retour)
+- **K — évolution** : toute l'équipe arrête d'attaquer 3 s, comme la V1 (validé, rien à changer).
+- **M — Fauchage et Poké-Radar à 390 px** : on garde la rangée défilante (validé).
+- **L — Sac** : Nicolas rappelle ses notes du bilan (A bof, B à jeter, C bof mais filtre apprécié ; icônes officielles comme la V1, cases trop grosses, système d'utilisation nul). Le Sac a donc été **refait d'après la V1** le 25/10 : lignes compactes à 2 colonnes, icône 32 px, nom + `×N` + « UTILISER », **un seul clic** pour utiliser (plus de panneau de détail), filtre par catégorie conservé. Les balles restent lancées depuis la barre de capture du combat (la V1 les lançait aussi depuis le Sac : à confirmer si tu les veux dans le Sac).
+- **P — Chez Maman** : pas de bouton « Se reposer » (la V1 n'a ni PV ni soin) ; seule la phrase de la V1 reste (validé).
+
 ## Décisions prises à ta place (à valider)
 - **F — couleur de la barre de temps du boss** : la V1 la fait violette, aucun jeton violet n'existe. Choix : `--alerte-base` (jaune d'urgence), distinct de l'XP (bleu). À changer si tu préfères le bleu ou un nouveau jeton.
 - **F — message du Bourg Palette** : la V1 n'affiche rien. Choix : « Pas de Pokémon sauvage ici. Va sur la Route 1 pour combattre. » (champ `message` de la zone, donnée JSON).
