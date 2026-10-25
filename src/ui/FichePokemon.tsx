@@ -1,7 +1,8 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import type { RefObject } from 'react';
 import { useStore } from 'zustand';
-import { detailDps, relacher as verifierRelachement } from '../core/equipe';
+import { detailDps, envoyerAuPc as verifierEnvoi, relacher as verifierRelachement } from '../core/equipe';
+import { calculerMaxXp } from '../core/recompenses';
 import { chargerPokemon, nomType } from '../core/pokemon';
 import { reglages } from '../core/reglages';
 import { BarreXp } from './BarreXp';
@@ -27,7 +28,14 @@ export function FichePokemon(props: Props) {
 
 function FenetrePokemon({ uid, ouvert, fermer, declencheur }: Props) {
   const equipe = useStore(storeJeu, etat => etat.equipe);
-  const membre = equipe.find(c => c?.pokemon.uid === uid);
+  const pc = useStore(storeJeu, etat => etat.pc);
+  const caseEquipe = equipe.find(c => c?.pokemon.uid === uid);
+  const pokemonPc = !caseEquipe ? pc.find(p => p.uid === uid) : undefined;
+  const detailPc = pokemonPc ? detailDps(pokemonPc, 1) : null;
+  const membre = caseEquipe ?? (pokemonPc && detailPc ? {
+    pokemon: pokemonPc, multiplicateur: 1, xpMax: calculerMaxXp(pokemonPc.numero, pokemonPc.niveau),
+    dps: Object.values(detailPc).reduce((produit, facteur) => produit * facteur, 1),
+  } : undefined);
   const dialogue = useRef<HTMLDialogElement>(null);
   const confirmation = useRef<HTMLDialogElement>(null);
   const annuler = useRef<HTMLButtonElement>(null);
@@ -65,8 +73,11 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur }: Props) {
   const espece = pokemon ? catalogue.parNumero(pokemon.numero) : null;
   const nom = pokemon?.surnom ?? espece?.nom ?? 'Pokémon';
   // La règle pure ne consulte que ces deux listes ; aucune mutation du store.
-  const verification = verifierRelachement({ equipe: equipe.flatMap(c => c ? [c.pokemon] : []), pc: [] } as unknown as Parameters<typeof verifierRelachement>[0], uid);
+  const regionVerification = { equipe: equipe.flatMap(c => c ? [c.pokemon] : []), pc } as unknown as Parameters<typeof verifierRelachement>[0];
+  const verification = verifierRelachement(regionVerification, uid);
   const refus = verification.ok ? null : verification.raison;
+  const verificationPc = verifierEnvoi(regionVerification, uid);
+  const refusPc = caseEquipe && !verificationPc.ok ? verificationPc.raison : null;
   const detail = membre ? detailDps(membre.pokemon, membre.multiplicateur) : null;
 
   return <>
@@ -79,6 +90,7 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur }: Props) {
           <h2 id={titre} className="break-words font-titre text-2xl">{nom}</h2>
           {pokemon && espece && <p>{espece.nom} · N° {pokemon.numero} · Niveau {pokemon.niveau}</p>}
         </header>
+        {pokemonPc && <p>Dans le PC</p>}
         {pokemon && espece && membre && detail && <>
           <div className="relative isolate grid place-items-center">
             <div className="socle absolute bottom-4 -z-10 h-8 w-40 bg-region-socle" />
@@ -127,15 +139,21 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur }: Props) {
             <button type="submit" className={bouton}>Renommer</button>
           </form>
           {erreur && <p role="alert">{erreur}</p>}
-          <button type="button" disabled aria-describedby={raisonPc} className="min-h-11 bg-action px-4 py-2 text-action-texte">Envoyer au PC</button>
-          <p id={raisonPc}>Le PC arrive bientôt.</p>
-          <button type="button" disabled={refus !== null} aria-describedby={refus ? raisonRelachement : undefined}
+          <button type="button" disabled={refusPc !== null} aria-describedby={refusPc ? raisonPc : undefined}
+            className="min-h-11 bg-action px-4 py-2 text-action-texte" onClick={() => {
+              const etat = storeJeu.getState();
+              const raison = pokemonPc ? etat.placerDansEquipe(uid) : etat.envoyerAuPc(uid);
+              signaler(raison);
+              if (raison === null) fermerFiche();
+            }}>{pokemonPc ? "Placer dans l'équipe" : 'Envoyer au PC'}</button>
+          {refusPc && <p id={raisonPc}>{refusPc}</p>}
+          <button type="button" disabled={refus !== null} aria-describedby={refus ? (refus === refusPc ? raisonPc : raisonRelachement) : undefined}
             className={`${bouton} text-erreur-base`} onClick={() => {
               signalerConfirmation(null);
               confirmation.current?.showModal();
               annuler.current?.focus();
             }}>Relâcher</button>
-          {refus && <p id={raisonRelachement}>{refus}</p>}
+          {refus && refus !== refusPc && <p id={raisonRelachement}>{refus}</p>}
         </>}
       </div>
     </dialog>
