@@ -13,6 +13,8 @@ export function PagePlus() {
   const progression = useStore(storeJeu, etat => etat.progression);
   const lieu = useStore(storeJeu, etat => etat.lieu);
   const dps = useStore(storeJeu, etat => etat.dps);
+  const sonActive = useStore(storeJeu, etat => etat.sonActive);
+  const reglagesId = useId();
   const { nombre, total } = progression.pokedex;
   const conteneur = useRef<HTMLDivElement>(null);
   const raisonId = useId();
@@ -71,6 +73,13 @@ export function PagePlus() {
                 data-entree="badges" onClick={() => { entree.current = 'badges'; choisir('badges'); }}>Badges</button>
             </li>
           </ul>
+          <section aria-labelledby={reglagesId} className="cadre mt-4 space-y-4 bg-surface p-4">
+            <h2 id={reglagesId} className="font-titre text-xl font-semibold">Réglages</h2>
+            <button type="button" role="switch" aria-checked={sonActive} onClick={() => storeJeu.getState().basculerSon()}
+              className="flex min-h-11 w-full items-center justify-between gap-2 bg-surface-2 px-4 py-2 text-left hover:bg-selection">
+              <span>Son</span><span className="text-region-accent">{sonActive ? 'Activé' : 'Coupé'}</span>
+            </button>
+          </section>
         </section>}
   </div>;
 }

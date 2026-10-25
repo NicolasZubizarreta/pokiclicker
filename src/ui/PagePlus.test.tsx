@@ -39,7 +39,7 @@ afterEach(() => {
 it('préserve les deux entrées historiques françaises, le compteur et le verrou visible lié au PC', () => {
   const { container } = render(<PagePlus />);
   // Prépare la vue historique ; les ajouts du tableau de bord sont vérifiés séparément.
-  container.querySelector('section[aria-labelledby]')?.remove();
+  container.querySelectorAll('section[aria-labelledby]').forEach(section => section.remove());
   container.querySelector('[data-entree="badges"]')?.closest('li')?.remove();
   container.querySelector('[data-prochain-palier]')?.remove();
   expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Plus');
