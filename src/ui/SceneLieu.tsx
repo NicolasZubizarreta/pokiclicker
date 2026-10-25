@@ -9,9 +9,10 @@ type Props = {
   raisons?: Record<string, string>;
   clignotements?: string[];
   occupe?: boolean;
+  annonceExterne?: string | null;
 };
 
-export function SceneLieu({ scene, nom, quandChoisir, raisons = {}, clignotements = [], occupe = false }: Props) {
+export function SceneLieu({ scene, nom, quandChoisir, raisons = {}, clignotements = [], occupe = false, annonceExterne }: Props) {
   const [annonce, annoncer] = useState('');
   const id = useId();
   const dimensions = { aspectRatio: scene.ratio.join(' / ') };
@@ -41,7 +42,7 @@ export function SceneLieu({ scene, nom, quandChoisir, raisons = {}, clignotement
           onClick={() => { annoncer(texte); if (!raison && f.zone) quandChoisir(f.zone); }} />;
       })}
     </div>
-    <p role="status" className="min-h-11 bg-surface p-2">{annonce}</p>
+    <p role="status" aria-live="polite" className="min-h-11 bg-surface p-2">{annonceExterne ?? annonce}</p>
     {scene.bulle && <aside aria-label="Dialogue" className="cadre bg-surface p-4">{scene.bulle}</aside>}
     {scene.formes.map((f, index) => {
       const raison = f.zone ? raisons[f.zone] : 'Bientôt disponible.';

@@ -7,6 +7,8 @@ import { BarreCapture } from './BarreCapture';
 import { CarteEquipe } from './CarteEquipe';
 import { DegatsFlottants } from './DegatsFlottants';
 import { DialogueChen } from './DialogueChen';
+import { ScenesBourgPalette } from './ScenesBourgPalette';
+import { kanto } from '../core/regions';
 import { Etapes } from './Etapes';
 import { Image, imageConnue } from './Image';
 import { formaterDps } from './nombres';
@@ -61,6 +63,13 @@ function Scene({ store }: { store: StoreJeu }) {
   }, [zone, lieu]);
   const notification = annonce !== null && <div role="status" aria-live="polite"
     className="pointer-events-none cadre absolute inset-x-4 top-4 z-20 bg-surface p-2 text-center">{annonce}</div>;
+  if (lieu?.id === kanto.depart) return <div
+    className="scene-limitee relative grid h-76 grid-rows-[minmax(0,1fr)_auto] bg-surface-2 lg:col-span-3 lg:aspect-video lg:h-auto">
+    <div className="min-h-0 [&>div]:h-full [&_section]:grid [&_section]:h-full [&_section]:grid-rows-[minmax(0,1fr)_auto_auto] [&_section>div]:h-full [&_section>div]:w-auto [&_section>div]:max-w-full [&_section>div]:justify-self-center [&_section>p:not([role])]:sr-only">
+      <ScenesBourgPalette annonce={annonce} />
+    </div>
+    {'message' in lieu && lieu.message && <p className="bg-surface p-2">{lieu.message}</p>}
+  </div>;
   if (!zone && !ennemi && lieu) return <section aria-label={lieu.nom}
     className="scene-limitee relative isolate flex h-76 items-end bg-surface-2 p-4 lg:col-span-3 lg:aspect-video lg:h-auto">
     {imageConnue(cheminDecor(lieu)) && <Image src={cheminDecor(lieu)} genre="decor" alt="" couvrir className="absolute inset-0 -z-10 size-full" />}
@@ -126,7 +135,7 @@ function CommandesCombat({ store }: { store: StoreJeu }) {
   const capturer = useStore(store, etat => etat.capturer);
   const basculer = useStore(store, etat => etat.basculerAutoAttaque);
   const regler = useStore(store, etat => etat.reglerArretAuto);
-  if (!zone) return null;
+  if (!zone) return <div aria-hidden="true" className="lg:col-span-3" />;
   const reglages = <ReglagesCombat autoAttaque={autoAttaque} arret={arret} basculer={basculer} regler={regler}
     autoClic={autoClic} basculerAutoClic={basculerAutoClic} />;
   return <div className="commandes-combat grid min-w-0 gap-1 lg:col-span-3">
