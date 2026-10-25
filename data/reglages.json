@@ -1,4 +1,5 @@
 {
+  "equipe": { "taille": 6, "surnomMax": 12 },
   "interface": {
     "sauvegardeAutoMs": 30000, "annonceMs": 1200,
     "vol": { "poseMs": 800, "delaiOuvertureMs": 50, "volMs": 2500, "fermetureMs": 500, "imageMs": 150, "images": 5, "pisteMs": 400, "traitsMs": 200, "fonduReduitMs": 300, "changerReduitMs": 150, "tailleDresseurRatio": 0.23148148148148148 }

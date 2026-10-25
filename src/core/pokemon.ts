@@ -1,4 +1,11 @@
 import donnees from '../../data/pokemon.json';
+import nomsTypes from '../../data/types-noms.json';
+
+export function nomType(cle: string): string {
+  const nom = nomsTypes[cle as keyof typeof nomsTypes];
+  if (!nom) throw new Error(`Type inconnu : ${cle}`);
+  return nom;
+}
 
 export type StatsBase = {
   pv: number;

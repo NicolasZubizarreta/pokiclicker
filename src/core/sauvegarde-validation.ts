@@ -1,4 +1,6 @@
 import { migrer } from './migrations';
+import { reglages } from './reglages';
+import { sexeEspece } from './sexe';
 import type { DonneesCompte, DonneesPartie, DonneesRegion, Enveloppe, Niveau, PokemonPossede } from './sauvegarde-types';
 
 type Validateur = (valeur: unknown) => void;
@@ -39,7 +41,10 @@ export function validerPokemonPossede(v: unknown): asserts v is PokemonPossede {
   forme(v, { uid: identifiant, numero: positif, niveau: positif, xp: nombre, shiny: booleen,
     bonheur: nombre, pierreEternelle: booleen, calcium: entier, favori: booleen,
     sexe: s => exiger(s === 'male' || s === 'femelle' || s === 'sansSexe', `Sexe invalide : ${String(s)}`) },
-  { surnom: chaine, oeuf: o => {
+  { surnom: s => {
+    chaine(s);
+    exiger(s.trim().length > 0 && s.trim().length <= reglages.equipe.surnomMax, 'Surnom invalide');
+  }, oeuf: o => {
     try {
       forme(o, { pasRestants: entier, pasMax: positif });
       const oeuf = o as NonNullable<PokemonPossede['oeuf']>;
@@ -48,6 +53,10 @@ export function validerPokemonPossede(v: unknown): asserts v is PokemonPossede {
       throw new Error(`Œuf invalide : ${(erreur as Error).message}`);
     }
   } });
+  const pokemon = v as PokemonPossede;
+  const sexe = sexeEspece(pokemon.numero);
+  exiger(sexe === 'aleatoire' ? pokemon.sexe !== 'sansSexe' : pokemon.sexe === sexe,
+    'Sexe incompatible avec l’espèce');
 }
 export function validerDonneesCompte(v: unknown): asserts v is DonneesCompte {
   forme(v, { diamants: nombre, succes: textes, skins: textes,

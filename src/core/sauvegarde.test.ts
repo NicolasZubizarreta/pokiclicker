@@ -15,6 +15,11 @@ import compteV1 from './migrations/__fixtures__/compte-v1.json';
 import compteV2 from './migrations/__fixtures__/compte-v2.json';
 import exportV1 from './migrations/__fixtures__/export-v1.json';
 
+// Les espèces des fixtures v2 (1 et 25) ne figurent dans aucune liste à sexe fixe.
+const v3 = { ...v2, version: 3 };
+const regionV3 = { ...regionV2, version: 3 };
+const compteV3 = { ...compteV2, version: 3 };
+
 const pokemon: PokemonPossede = { uid: 'bulbizarre', numero: 1, niveau: 5, xp: 12, shiny: true,
   bonheur: 20, pierreEternelle: true, calcium: 2, surnom: 'Forêt', sexe: 'femelle', favori: false };
 function contexte() {
@@ -119,10 +124,10 @@ describe('chargement sûr et import', () => {
     // La fixture de migration contient volontairement un champ inconnu, interdit au chargement.
     const region = structuredClone(regionV1);
     Reflect.deleteProperty(region.donnees, 'futur');
-    const attendue = structuredClone(regionV2);
+    const attendue = structuredClone(regionV3);
     Reflect.deleteProperty(attendue.donnees, 'futur');
     const sources = { compte: compteV1, partie: v1, region };
-    const attendus = { compte: compteV2, partie: v2, region: attendue };
+    const attendus = { compte: compteV3, partie: v3, region: attendue };
     const cles = { compte: 'pokiclicker:compte:local', partie: `pokiclicker:partie:${v1.id}`,
       region: `pokiclicker:region:${v1.id}:kanto` };
     const texte = `  ${JSON.stringify(sources[niveau])}\n`;
@@ -138,12 +143,12 @@ describe('chargement sûr et import', () => {
     expect(ecrire).not.toHaveBeenCalled();
     expect(supprimer).not.toHaveBeenCalled();
   });
-  it.each(['compte', 'partie', 'region'] as const)('refuse la version 3 du niveau %s sans écriture', niveau => {
+  it.each(['compte', 'partie', 'region'] as const)('refuse la version 4 du niveau %s sans écriture', niveau => {
     const { stockage, horloge } = contexte();
     const source = { compte: compteV1, partie: v1, region: regionV1 }[niveau];
     const cle = niveau === 'compte' ? 'pokiclicker:compte:local'
       : niveau === 'partie' ? `pokiclicker:partie:${v1.id}` : `pokiclicker:region:${v1.id}:kanto`;
-    const texte = JSON.stringify({ ...source, version: 3 });
+    const texte = JSON.stringify({ ...source, version: 4 });
     stockage.ecrire(cle, texte);
     const ecrire = vi.spyOn(stockage, 'ecrire');
     const supprimer = vi.spyOn(stockage, 'supprimer');
@@ -155,26 +160,26 @@ describe('chargement sûr et import', () => {
     expect(ecrire).not.toHaveBeenCalled();
     expect(supprimer).not.toHaveBeenCalled();
   });
-  it('importe la fixture d’export en version 1 vers les données figées de version 2', () => {
+  it('importe la fixture d’export en version 1 vers les données figées de version 3', () => {
     const { jeu } = contexte();
-    const attendue = structuredClone(regionV2.donnees);
+    const attendue = structuredClone(regionV3.donnees);
     Reflect.deleteProperty(attendue, 'futur');
     const { id } = jeu.importerPartie(JSON.stringify(exportV1));
-    expect(jeu.chargerPartie(id)).toMatchObject({ version: 2, donnees: v2.donnees });
-    expect(jeu.chargerPartie(id)?.donnees).toEqual(v2.donnees);
-    expect(jeu.chargerRegion(id, 'kanto')).toMatchObject({ version: 2, donnees: attendue });
+    expect(jeu.chargerPartie(id)).toMatchObject({ version: 3, donnees: v3.donnees });
+    expect(jeu.chargerPartie(id)?.donnees).toEqual(v3.donnees);
+    expect(jeu.chargerRegion(id, 'kanto')).toMatchObject({ version: 3, donnees: attendue });
     expect(jeu.chargerRegion(id, 'kanto')?.donnees).toEqual(attendue);
   });
-  it.each(['fichier', 'partie', 'region'] as const)('refuse un export v1 contenant une version 3 (%s) sans appeler le stockage en écriture', cible => {
+  it.each(['fichier', 'partie', 'region'] as const)('refuse un export v1 contenant une version 4 (%s) sans appeler le stockage en écriture', cible => {
     const { stockage, horloge } = contexte();
     const ecrire = vi.spyOn(stockage, 'ecrire');
     const supprimer = vi.spyOn(stockage, 'supprimer');
     const genererId = vi.fn(() => 'nouvelle');
     const jeu = creerGestionnaire({ stockage, horloge, genererId });
     const fichier = structuredClone(exportV1);
-    if (cible === 'fichier') fichier.version = 3;
-    if (cible === 'partie') fichier.partie.version = 3;
-    if (cible === 'region') fichier.regions[0]!.version = 3;
+    if (cible === 'fichier') fichier.version = 4;
+    if (cible === 'partie') fichier.partie.version = 4;
+    if (cible === 'region') fichier.regions[0]!.version = 4;
     expect(() => jeu.importerPartie(JSON.stringify(fichier))).toThrowError(
       new Error("Cette sauvegarde vient d'une version plus récente du jeu."));
     expect(ecrire).not.toHaveBeenCalled();
@@ -214,9 +219,9 @@ describe('chargement sûr et import', () => {
     const ancienneCle = `pokiclicker:partie:${v0.id}`;
     stockage.ecrire(ancienneCle, texte);
     const lue = jeu.chargerPartie(v0.id);
-    expect(lue).toEqual(v2);
+    expect(lue).toEqual(v3);
     expect(stockage.lire(ancienneCle)).toBe(texte);
-    expect(jeu.ecrirePartie(v0.id, lue!.donnees)).toMatchObject({ version: 2, revision: 8 });
+    expect(jeu.ecrirePartie(v0.id, lue!.donnees)).toMatchObject({ version: 3, revision: 8 });
   });
   it('exporte et importe toutes les régions sous un nouvel identifiant sans information de compte', () => {
     const { jeu, stockage } = contexte();
@@ -224,7 +229,7 @@ describe('chargement sûr et import', () => {
     const p = jeu.creerPartie('Aventure');
     jeu.ecrirePartie(p.id, { ...p.donnees, pcGlobal: [pokemon], regionsDebloquees: ['kanto', 'johto'] });
     jeu.ecrireRegion(p.id, 'kanto', { ...regionInitiale('kanto', 'kanto.route-1'), equipe: [pokemon], argent: 99,
-      pc: [{ ...pokemon, uid: 'pc', sexe: 'sansSexe', favori: true }], ameliorations: ['chaussures'],
+      pc: [{ ...pokemon, uid: 'pc', numero: 100, sexe: 'sansSexe', favori: true }], ameliorations: ['chaussures'],
       jalonsRecus: [10, 20], starterId: 1, statistiques: { eliminations: 45, argentTotalGagne: 987 },
       chronos: { finRepousse: 1000, finSuperRepousse: 2000, finBoostAttaque: 3000,
         finBoostAttaqueSpeciale: 4000, rechargeFauchage: 5000 },
@@ -235,9 +240,9 @@ describe('chargement sûr et import', () => {
     jeu.ecrireRegion(p.id, 'johto', regionInitiale('johto', 'johto.depart'));
     const texte = jeu.exporterPartie(p.id);
     const fichier = JSON.parse(texte);
-    expect(fichier.version).toBe(2);
-    expect(fichier.partie.version).toBe(2);
-    expect(fichier.regions.every((r: { version: number }) => r.version === 2)).toBe(true);
+    expect(fichier.version).toBe(3);
+    expect(fichier.partie.version).toBe(3);
+    expect(fichier.regions.every((r: { version: number }) => r.version === 3)).toBe(true);
     function verifier(v: unknown) {
       if (typeof v === 'string') {
         expect(v).not.toMatch(/mail|compte|local/i);
@@ -279,10 +284,10 @@ describe('chargement sûr et import', () => {
     const fichier = JSON.parse(jeu.exporterPartie(p.id));
     const avant = instantane(stockage);
     for (const cible of [fichier, fichier.partie, fichier.regions[0]]) {
-      cible.version = 3;
+      cible.version = 4;
       expect(() => jeu.importerPartie(JSON.stringify(fichier))).toThrowError(
         new Error("Cette sauvegarde vient d'une version plus récente du jeu."));
-      cible.version = 2;
+      cible.version = 3;
     }
     expect(instantane(stockage)).toEqual(avant);
   });
@@ -297,7 +302,7 @@ describe('chargement sûr et import', () => {
       return { ...reste, nom: nomPartie };
     };
     const { id } = jeu.importerPartie(JSON.stringify(fichier));
-    expect(jeu.chargerPartie(id)?.donnees).toEqual(v2.donnees);
+    expect(jeu.chargerPartie(id)?.donnees).toEqual(v3.donnees);
   });
   it('garde le module et ses voisins de production indépendants du navigateur', () => {
     const dossier = new URL('.', import.meta.url);
@@ -307,7 +312,7 @@ describe('chargement sûr et import', () => {
   });
 });
 
-describe('validation du schéma de version 2', () => {
+describe('validation du schéma de version 3', () => {
   it.each([
     [{ sexe: 'inconnu' }, 'Sexe invalide : inconnu'],
     [{ oeuf: { pasRestants: 11, pasMax: 10 } }, 'Œuf invalide : les pas restants dépassent le maximum'],
@@ -324,7 +329,8 @@ describe('validation du schéma de version 2', () => {
   });
   it.each(['male', 'femelle', 'sansSexe'])('accepte le sexe %s et les bornes des pas d’œuf', sexe => {
     for (const pasRestants of [0, 10]) {
-      expect(() => validerPokemonPossede({ ...pokemon, sexe, oeuf: { pasRestants, pasMax: 10 } })).not.toThrow();
+      expect(() => validerPokemonPossede({ ...pokemon, numero: sexe === 'sansSexe' ? 100 : pokemon.numero,
+        sexe, oeuf: { pasRestants, pasMax: 10 } })).not.toThrow();
     }
   });
   it.each([

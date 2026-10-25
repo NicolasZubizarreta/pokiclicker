@@ -27,6 +27,7 @@ export type ReglagesDelais = {
 };
 
 export const reglages: {
+  equipe: { taille: number; surnomMax: number };
   interface: {
     sauvegardeAutoMs: number; annonceMs: number;
     // Calendrier V1 : legacy/js/game/save.js L759-797.
@@ -55,6 +56,10 @@ export const reglages: {
     calciumParBoost: number;
   };
 } = donnees;
+
+for (const valeur of Object.values(reglages.equipe)) {
+  if (!Number.isSafeInteger(valeur) || valeur <= 0) throw new Error('Réglages d’équipe invalides');
+}
 
 if (!Number.isFinite(reglages.combat.minuteurBossMs) || reglages.combat.minuteurBossMs <= 0) {
   throw new Error('Minuteur de boss invalide');
