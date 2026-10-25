@@ -23,6 +23,10 @@
   },
   "shop": { "zone": "kanto.foret-de-jade", "raison": "Le Shop s'ouvre à la Forêt de Jade." },
   "sac": { "zone": "kanto.route-1", "raison": "Le Sac s'ouvre à la Route 1." },
+  "centre": {
+    "lieu": "centre-commercial",
+    "objets": ["xAttack", "xSpecial", "pokeDoll", "everstone", "calcium", "fireStone", "waterStone", "leafStone", "thunderStone", "moonStone", "shinyToken"]
+  },
   "boutique": {
     "inflationParBadge": 0.05, "palierRemise": 70, "remise": 0.85, "quantiteMax": 99,
     "reportes": []

@@ -1,4 +1,5 @@
 import donnees from '../../data/objets.json';
+import { evaluer } from './conditions';
 import type { EtatMonde, ResultatCondition } from './conditions';
 import type { chargerMonde } from './monde';
 import { reglages } from './reglages';
@@ -11,6 +12,7 @@ export type Objet = {
   categorie: 'balles' | 'soins' | 'equipement'; sac: string | null;
 };
 type MondeBoutique = Pick<ReturnType<typeof chargerMonde>, 'zonesOuvertes'>;
+type MondeCentre = Pick<ReturnType<typeof chargerMonde>, 'lieu' | 'zone'>;
 type RegionBoutique = {
   argent: number; inventaire: Readonly<Record<string, number>>; ameliorations: readonly string[];
 };
@@ -34,6 +36,16 @@ export function accesShop(monde: MondeBoutique, etat: EtatMonde): ResultatCondit
 export function accesSac(monde: MondeBoutique, etat: EtatMonde): ResultatCondition {
   return monde.zonesOuvertes(etat).some(zone => zone.id === reglages.sac.zone)
     ? { ok: true } : { ok: false, raison: reglages.sac.raison };
+}
+
+export function accesCentre(monde: MondeCentre, etat: EtatMonde): ResultatCondition {
+  const condition = monde.lieu(reglages.centre.lieu).si;
+  return condition ? evaluer(condition, etat, { nomZone: id => monde.zone(id).nom }) : { ok: true };
+}
+
+export function objetsDuCentre(objets: readonly Objet[], monde: MondeCentre, etat: EtatMonde): Objet[] {
+  if (!accesCentre(monde, etat).ok) return [];
+  return reglages.centre.objets.map(id => objets.find(objet => objet.id === id)!);
 }
 
 export function objetsDuShop(objets: readonly Objet[], monde: MondeBoutique, etat: EtatMonde): Objet[] {

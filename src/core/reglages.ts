@@ -1,4 +1,5 @@
 import donnees from '../../data/reglages.json';
+import objets from '../../data/objets.json';
 import type { DonneesRegion, NouveauxChampsRegion, PreferencesCombat } from './sauvegarde-types';
 import type { Rarete } from './monde';
 
@@ -56,6 +57,7 @@ export const reglages: {
   pc: { zone: string; raison: string };
   shop: { zone: string; raison: string };
   sac: { zone: string; raison: string };
+  centre: { lieu: string; objets: string[] };
   boutique: { inflationParBadge: number; palierRemise: number; remise: number; quantiteMax: number; reportes: string[] };
   objetsActifs: {
     dureeMs: number;
@@ -119,6 +121,14 @@ for (const valeur of Object.values(reglages.equipe)) {
 }
 
 if (!reglages.pc.zone || !reglages.pc.raison) throw new Error('Réglages du PC invalides');
+
+const centre = reglages.centre;
+if (!centre || centre.lieu !== 'centre-commercial' || !Array.isArray(centre.objets)
+  || new Set(centre.objets).size !== centre.objets.length
+  || centre.objets.some(id => !objets.some(objet => objet.id === id && objet.boutique === 'mall'))
+  || objets.some(objet => objet.boutique === 'mall' && !centre.objets.includes(objet.id))) {
+  throw new Error('Réglages du Centre invalides : chaque objet du Centre doit être listé une seule fois.');
+}
 
 if (!Number.isFinite(reglages.combat.minuteurBossMs) || reglages.combat.minuteurBossMs <= 0) {
   throw new Error('Minuteur de boss invalide');
