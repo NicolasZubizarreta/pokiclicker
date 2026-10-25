@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { avancerCombat, basculerAutoAttaque, calculerClic, calculerDpsEquipe, cliquer,
-  creerCombat, motifArret, reprendreCombat, viderEvenements } from './combat';
+  creerCombat, lancerCapture, motifArret, reprendreCombat, viderEvenements } from './combat';
 import { kanto } from './regions';
 import { reglages } from './reglages';
 import type { ReglagesArret } from './sauvegarde-types';
@@ -122,5 +122,92 @@ describe('Auto-attaque et arrêt automatique', () => {
     expect(apres.ennemi.boss).toBe(false);
     expect(apres.autoAttaque).toBe(false);
     expect(apres.evenements).toEqual([{ type: 'boss-echoue', zoneId: route.id }]);
+  });
+});
+
+describe('Capture dans le combat', () => {
+  it('initialise la capture et refuse les lancers indisponibles sans modifier les entrées', () => {
+    const etat = Object.freeze(creerCombat(route, [], alea));
+    Object.freeze(etat.ennemi);
+    expect(etat).toMatchObject({ capture: null, attenteCapture: false });
+    const lancer = lancerCapture(etat, 0.7);
+    expect(lancer.capture).toEqual({ chance: 0.7, restantMs: reglages.capture.animationMs });
+    expect(etat.capture).toBeNull();
+    expect(lancerCapture(lancer, 1)).toBe(lancer);
+    const attente = { ...etat, attenteMs: 1 };
+    expect(lancerCapture(attente, 1)).toBe(attente);
+    const impossible = { ...etat, ennemi: { ...etat.ennemi, capture: 0 } };
+    expect(lancerCapture(impossible, 1)).toBe(impossible);
+  });
+
+  it('réussit à 1000 ms exactement, reprend et attend la réapparition', () => {
+    const initial = creerCombat(route, [], alea, [], { arret: { ...arret, nouveau: true } });
+    const etat = lancerCapture(viderEvenements(initial), 1);
+    Object.freeze(etat.capture);
+    const avant = avancerCombat(etat, 999);
+    expect(avant.capture).toEqual({ chance: 1, restantMs: 1 });
+    expect(avant.evenements).toEqual([]);
+    const apres = avancerCombat(avant, 1);
+    const { numero, niveau, shiny, boss, rarete } = initial.ennemi;
+    expect(apres.evenements).toEqual([
+      { type: 'capture-reussie', numero, niveau, shiny, boss, rarete }, { type: 'reprise-auto' },
+    ]);
+    expect(apres).toMatchObject({ capture: null, attenteCapture: true, etape: 2,
+      attenteMs: reglages.capture.reapparitionMs, autoAttaque: true, interrompu: false });
+    expect(etat.capture?.restantMs).toBe(1000);
+    expect(lancerCapture(apres, 1)).toBe(apres);
+    const attente = avancerCombat(viderEvenements(apres), apres.attenteMs - 1);
+    expect(attente.attenteCapture).toBe(true);
+    const apparition = avancerCombat(attente, 1);
+    expect(apparition).toMatchObject({ attenteCapture: false, attenteMs: 0, autoAttaque: false });
+    expect(apparition.evenements).toEqual([{ type: 'arret-auto', motif: 'nouveau' }]);
+  });
+
+  it('échoue au seuil strict et autorise un nouveau lancer', () => {
+    const etat = lancerCapture(creerCombat(route, [], alea, [], { autoAttaque: false }), 0.5);
+    const apres = avancerCombat(etat, 1000);
+    expect(apres).toMatchObject({ capture: null, attenteCapture: false, etape: etat.etape,
+      autoAttaque: false, attenteMs: 0, ennemi: etat.ennemi, evenements: [{ type: 'capture-echouee' }] });
+    expect(lancerCapture(apres, 1).capture).not.toBeNull();
+  });
+
+  it('consomme le reste du pas dans l’attente après une réussite', () => {
+    const etat = lancerCapture(creerCombat(route, [], alea), 2);
+    const apres = avancerCombat(etat, 1500);
+    expect(apres).toMatchObject({ capture: null, attenteCapture: true, etape: 2,
+      attenteMs: reglages.capture.reapparitionMs - 500 });
+    expect(apres.evenements.map((e) => e.type)).toEqual(['capture-reussie']);
+    expect(apres.ennemi.pv).toBe(apres.ennemi.pvMax);
+  });
+
+  it('garde le DPS et les clics pendant l’animation et traite le temps après un échec', () => {
+    const initial = creerCombat(route, equipe, alea);
+    const etat = lancerCapture({ ...initial, ennemi: { ...initial.ennemi, pv: 100000 } }, 0);
+    const dps = calculerDpsEquipe(equipe, etat.ennemi);
+    const avant = avancerCombat(etat, 999);
+    expect(avant.ennemi.pv).toBeCloseTo(etat.ennemi.pv - dps * 0.999);
+    expect(cliquer(avant, limiteur).ennemi.pv).toBeCloseTo(avant.ennemi.pv - calculerClic(dps));
+    const apres = avancerCombat(etat, 1500);
+    expect(apres.ennemi.pv).toBeCloseTo(etat.ennemi.pv - dps * 1.5);
+    expect(apres.evenements).toEqual([{ type: 'capture-echouee' }]);
+  });
+
+  it.each(['dps', 'clic', 'échéance'] as const)('annule sans tirage ni événement de capture à la mort (%s)', (cause) => {
+    let tirages = 0;
+    const initial = creerCombat(route, equipe, () => { tirages++; return 0.5; });
+    const sansCapture = { ...initial, ennemi: { ...initial.ennemi, pv: 1 } };
+    const etat = lancerCapture(sansCapture, 1);
+    const avancer = cause === 'clic'
+      ? (e: typeof etat) => cliquer(e, limiteur)
+      : (e: typeof etat) => avancerCombat(e, cause === 'échéance' ? 1000 : 999);
+    tirages = 0;
+    const reference = avancer(sansCapture);
+    const tiragesReference = tirages;
+    tirages = 0;
+    const apres = avancer(etat);
+    expect(tirages).toBe(tiragesReference);
+    expect(apres).toEqual(reference);
+    expect(apres).toMatchObject({ capture: null, attenteCapture: false });
+    expect(apres.evenements.map((e) => e.type)).toEqual(['ennemi-vaincu']);
   });
 });

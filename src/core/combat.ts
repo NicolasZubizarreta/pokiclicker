@@ -43,6 +43,8 @@ export type EvenementCombat =
   | { type: 'ennemi-vaincu'; numero: number; niveau: number; shiny: boolean; boss: boolean; rarete: Rarete | null }
   | { type: 'boss-vaincu'; zoneId: string }
   | { type: 'boss-echoue'; zoneId: string }
+  | { type: 'capture-reussie'; numero: number; niveau: number; shiny: boolean; boss: boolean; rarete: Rarete | null }
+  | { type: 'capture-echouee' }
   | { type: 'arret-auto'; motif: Rarete | 'shiny' | 'nouveau' }
   | { type: 'reprise-auto' };
 type OptionsCombat = {
@@ -53,6 +55,7 @@ export type EtatCombat = {
   actifs: readonly string[]; evenements: readonly EvenementCombat[];
   zone: Zone; alea: () => number; attenteMs: number; minuteurMs: number | null;
   autoAttaque: boolean; interrompu: boolean; arret: ReglagesArret | null; pokedex: readonly number[];
+  capture: { chance: number; restantMs: number } | null; attenteCapture: boolean;
 };
 
 export function motifArret(ennemi: Ennemi, nouveau: boolean, arret: ReglagesArret | null,
@@ -77,6 +80,11 @@ export function basculerAutoAttaque(etat: EtatCombat, actif: boolean): EtatComba
   return { ...etat, autoAttaque: actif };
 }
 
+export function lancerCapture(etat: EtatCombat, chance: number): EtatCombat {
+  if (etat.attenteMs > 0 || etat.attenteCapture || etat.capture || etat.ennemi.capture === 0) return etat;
+  return { ...etat, capture: { chance, restantMs: reglages.capture.animationMs } };
+}
+
 export function creerCombat(zone: Zone, equipe: readonly MembreEquipe[], alea: () => number,
   actifs: readonly string[] = [], options: OptionsCombat = {}): EtatCombat {
   return reprendreCombat(zone, equipe, alea, 1, actifs, options);
@@ -88,23 +96,28 @@ export function reprendreCombat(zone: Zone, equipe: readonly MembreEquipe[], ale
   if (!Number.isInteger(etape) || etape < 1 || etape > zone.etapes) throw new Error('Étape de reprise invalide');
   const ennemi = creerEnnemi(zone, etape, alea);
   return apparaitre({ zoneId: zone.id, etape, ennemi, autoAttaque, interrompu: false, arret, pokedex,
-    equipe, actifs, evenements: [], zone, alea, attenteMs: 0,
+    equipe, actifs, evenements: [], zone, alea, attenteMs: 0, capture: null, attenteCapture: false,
     minuteurMs: ennemi.boss ? reglages.combat.minuteurBossMs : null });
 }
 
 function infliger(etat: EtatCombat, degats: number): EtatCombat {
   const pv = Math.max(0, etat.ennemi.pv - degats);
   if (pv > 0) return { ...etat, ennemi: { ...etat.ennemi, pv } };
+  return terminerEnnemi(etat, false);
+}
+
+function terminerEnnemi(etat: EtatCombat, capture: boolean): EtatCombat {
   const { numero, niveau, shiny, boss, rarete } = etat.ennemi;
   const evenements: EvenementCombat[] = [...etat.evenements,
-    { type: 'ennemi-vaincu', numero, niveau, shiny, boss, rarete }];
+    { type: capture ? 'capture-reussie' : 'ennemi-vaincu', numero, niveau, shiny, boss, rarete }];
   const bossFinal = boss && (etat.zone.type !== 'ligue' || etat.etape === reglages.combat.etapeBoss);
-  if (bossFinal) evenements.push({ type: 'boss-vaincu', zoneId: etat.zoneId });
+  if (bossFinal && !capture) evenements.push({ type: 'boss-vaincu', zoneId: etat.zoneId });
   if (etat.interrompu) evenements.push({ type: 'reprise-auto' });
   const etape = bossFinal ? 1 : etat.etape + 1;
-  const attenteMs = delaiEnnemiSuivant(etat.actifs);
+  const attenteMs = capture ? reglages.capture.reapparitionMs : delaiEnnemiSuivant(etat.actifs);
   const ennemi = creerEnnemi(etat.zone, etape, etat.alea);
-  const suivant = { ...etat, etape, evenements, ennemi, attenteMs,
+  const suivant: EtatCombat = { ...etat, etape, evenements, ennemi, attenteMs,
+    capture: null, attenteCapture: capture && attenteMs > 0,
     autoAttaque: etat.interrompu || etat.autoAttaque, interrompu: false,
     minuteurMs: attenteMs === 0 && ennemi.boss ? reglages.combat.minuteurBossMs : null };
   return attenteMs === 0 ? apparaitre(suivant) : suivant;
@@ -118,24 +131,34 @@ export function avancerCombat(etat: EtatCombat, pasMs: number): EtatCombat {
     if (etat.attenteMs > 0) {
       const attente = Math.min(pasMs, etat.attenteMs);
       const attenteMs = etat.attenteMs - attente;
-      etat = { ...etat, attenteMs, minuteurMs: attenteMs === 0 && etat.ennemi.boss
+      etat = { ...etat, attenteMs, attenteCapture: etat.attenteCapture && attenteMs > 0,
+        minuteurMs: attenteMs === 0 && etat.ennemi.boss
         ? reglages.combat.minuteurBossMs : etat.minuteurMs };
       pasMs -= attente;
       if (attenteMs === 0) etat = apparaitre(etat);
       if (pasMs === 0) return etat;
     }
     const minuteur = etat.minuteurMs;
-    const dt = minuteur === null ? pasMs : Math.min(pasMs, minuteur);
+    const dt = Math.min(pasMs, minuteur ?? Infinity, etat.capture?.restantMs ?? Infinity);
     const suivant = infliger(etat, etat.autoAttaque
       ? calculerDpsEquipe(etat.equipe, etat.ennemi, etat.actifs) * dt / 1e3 : 0);
     pasMs -= dt;
     // La victoire prime sur l’expiration, même dans la dernière tranche ; une seule mort par pas, comme avant.
-    if (minuteur === null || suivant.evenements.length !== etat.evenements.length) return suivant;
-    etat = { ...suivant, minuteurMs: minuteur - dt };
+    if (suivant.evenements.length !== etat.evenements.length) return suivant;
+    etat = { ...suivant, minuteurMs: minuteur === null ? null : minuteur - dt,
+      capture: etat.capture ? { ...etat.capture, restantMs: etat.capture.restantMs - dt } : null };
+    if (etat.capture?.restantMs === 0) {
+      if (etat.alea() < etat.capture.chance) {
+        etat = terminerEnnemi(etat, true);
+        continue;
+      }
+      etat = { ...etat, capture: null,
+        evenements: [...etat.evenements, { type: 'capture-echouee' }] };
+    }
     if (etat.minuteurMs === 0) {
       const etape = etat.zone.type === 'ligue' ? 1 : reglages.combat.etapeBoss - 1;
       const ennemi = creerEnnemi(etat.zone, etape, etat.alea);
-      etat = apparaitre({ ...etat, etape, ennemi, attenteMs: 0,
+      etat = apparaitre({ ...etat, etape, ennemi, attenteMs: 0, capture: null, attenteCapture: false,
         minuteurMs: ennemi.boss ? reglages.combat.minuteurBossMs : null,
         evenements: [...etat.evenements, { type: 'boss-echoue', zoneId: etat.zoneId }] });
     }

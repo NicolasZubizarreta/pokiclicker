@@ -1,0 +1,711 @@
+{
+  "chances": [
+    {
+      "ennemi": {
+        "capture": 3,
+        "pv": 100,
+        "pvMax": 100,
+        "niveau": 2
+      },
+      "cle": "masterball",
+      "marais": false,
+      "chance": 100
+    },
+    {
+      "ennemi": {
+        "capture": 3,
+        "pv": 50,
+        "pvMax": 100,
+        "niveau": 30
+      },
+      "cle": "pokeball",
+      "marais": false,
+      "chance": 0.35650623885918004
+    },
+    {
+      "ennemi": {
+        "capture": 3,
+        "pv": 1,
+        "pvMax": 100,
+        "niveau": 70
+      },
+      "cle": "superball",
+      "marais": false,
+      "chance": 0.6150670794633644
+    },
+    {
+      "ennemi": {
+        "capture": 3,
+        "pv": 100,
+        "pvMax": 100,
+        "niveau": 2
+      },
+      "cle": "hyperball",
+      "marais": true,
+      "chance": 1.888162672476398
+    },
+    {
+      "ennemi": {
+        "capture": 3,
+        "pv": 50,
+        "pvMax": 100,
+        "niveau": 30
+      },
+      "cle": "masterball",
+      "marais": true,
+      "chance": 100
+    },
+    {
+      "ennemi": {
+        "capture": 3,
+        "pv": 1,
+        "pvMax": 100,
+        "niveau": 70
+      },
+      "cle": "pokeball",
+      "marais": true,
+      "chance": 0.39979360165118677
+    },
+    {
+      "ennemi": {
+        "capture": 45,
+        "pv": 100,
+        "pvMax": 100,
+        "niveau": 2
+      },
+      "cle": "superball",
+      "marais": false,
+      "chance": 10.893246187363834
+    },
+    {
+      "ennemi": {
+        "capture": 45,
+        "pv": 50,
+        "pvMax": 100,
+        "niveau": 30
+      },
+      "cle": "hyperball",
+      "marais": false,
+      "chance": 21.3903743315508
+    },
+    {
+      "ennemi": {
+        "capture": 45,
+        "pv": 1,
+        "pvMax": 100,
+        "niveau": 70
+      },
+      "cle": "masterball",
+      "marais": false,
+      "chance": 100
+    },
+    {
+      "ennemi": {
+        "capture": 45,
+        "pv": 100,
+        "pvMax": 100,
+        "niveau": 2
+      },
+      "cle": "pokeball",
+      "marais": true,
+      "chance": 7.080610021786492
+    },
+    {
+      "ennemi": {
+        "capture": 45,
+        "pv": 50,
+        "pvMax": 100,
+        "niveau": 30
+      },
+      "cle": "superball",
+      "marais": true,
+      "chance": 13.903743315508018
+    },
+    {
+      "ennemi": {
+        "capture": 45,
+        "pv": 1,
+        "pvMax": 100,
+        "niveau": 70
+      },
+      "cle": "hyperball",
+      "marais": true,
+      "chance": 23.987616099071207
+    },
+    {
+      "ennemi": {
+        "capture": 120,
+        "pv": 100,
+        "pvMax": 100,
+        "niveau": 2
+      },
+      "cle": "pokeball",
+      "marais": false,
+      "chance": 14.524328249818444
+    },
+    {
+      "ennemi": {
+        "capture": 120,
+        "pv": 50,
+        "pvMax": 100,
+        "niveau": 30
+      },
+      "cle": "superball",
+      "marais": false,
+      "chance": 28.5204991087344
+    },
+    {
+      "ennemi": {
+        "capture": 120,
+        "pv": 1,
+        "pvMax": 100,
+        "niveau": 70
+      },
+      "cle": "hyperball",
+      "marais": false,
+      "chance": 49.20536635706914
+    },
+    {
+      "ennemi": {
+        "capture": 120,
+        "pv": 100,
+        "pvMax": 100,
+        "niveau": 2
+      },
+      "cle": "masterball",
+      "marais": true,
+      "chance": 100
+    },
+    {
+      "ennemi": {
+        "capture": 120,
+        "pv": 50,
+        "pvMax": 100,
+        "niveau": 30
+      },
+      "cle": "pokeball",
+      "marais": true,
+      "chance": 18.53832442067736
+    },
+    {
+      "ennemi": {
+        "capture": 120,
+        "pv": 1,
+        "pvMax": 100,
+        "niveau": 70
+      },
+      "cle": "superball",
+      "marais": true,
+      "chance": 31.983488132094944
+    },
+    {
+      "ennemi": {
+        "capture": 190,
+        "pv": 100,
+        "pvMax": 100,
+        "niveau": 2
+      },
+      "cle": "hyperball",
+      "marais": false,
+      "chance": 91.98741224885015
+    },
+    {
+      "ennemi": {
+        "capture": 190,
+        "pv": 50,
+        "pvMax": 100,
+        "niveau": 30
+      },
+      "cle": "masterball",
+      "marais": false,
+      "chance": 100
+    },
+    {
+      "ennemi": {
+        "capture": 190,
+        "pv": 1,
+        "pvMax": 100,
+        "niveau": 70
+      },
+      "cle": "pokeball",
+      "marais": false,
+      "chance": 19.477124183006538
+    },
+    {
+      "ennemi": {
+        "capture": 190,
+        "pv": 100,
+        "pvMax": 100,
+        "niveau": 2
+      },
+      "cle": "superball",
+      "marais": true,
+      "chance": 59.7918179617526
+    },
+    {
+      "ennemi": {
+        "capture": 190,
+        "pv": 50,
+        "pvMax": 100,
+        "niveau": 30
+      },
+      "cle": "hyperball",
+      "marais": true,
+      "chance": 100
+    },
+    {
+      "ennemi": {
+        "capture": 190,
+        "pv": 1,
+        "pvMax": 100,
+        "niveau": 70
+      },
+      "cle": "masterball",
+      "marais": true,
+      "chance": 100
+    },
+    {
+      "ennemi": {
+        "capture": 255,
+        "pv": 100,
+        "pvMax": 100,
+        "niveau": 2
+      },
+      "cle": "masterball",
+      "marais": false,
+      "chance": 100
+    },
+    {
+      "ennemi": {
+        "capture": 255,
+        "pv": 50,
+        "pvMax": 100,
+        "niveau": 30
+      },
+      "cle": "pokeball",
+      "marais": false,
+      "chance": 30.303030303030297
+    },
+    {
+      "ennemi": {
+        "capture": 255,
+        "pv": 1,
+        "pvMax": 100,
+        "niveau": 70
+      },
+      "cle": "superball",
+      "marais": false,
+      "chance": 52.28070175438596
+    },
+    {
+      "ennemi": {
+        "capture": 255,
+        "pv": 100,
+        "pvMax": 100,
+        "niveau": 2
+      },
+      "cle": "hyperball",
+      "marais": true,
+      "chance": 100
+    },
+    {
+      "ennemi": {
+        "capture": 255,
+        "pv": 50,
+        "pvMax": 100,
+        "niveau": 30
+      },
+      "cle": "masterball",
+      "marais": true,
+      "chance": 100
+    },
+    {
+      "ennemi": {
+        "capture": 255,
+        "pv": 1,
+        "pvMax": 100,
+        "niveau": 70
+      },
+      "cle": "pokeball",
+      "marais": true,
+      "chance": 33.98245614035088
+    }
+  ],
+  "lancers": [
+    {
+      "ennemi": {
+        "capture": 255,
+        "pv": 100,
+        "pvMax": 100,
+        "niveau": 2
+      },
+      "cle": "pokeball",
+      "taille": 5,
+      "alea": 0,
+      "succes": true,
+      "stocks": {
+        "pokeball": 1,
+        "superball": 2,
+        "hyperball": 2,
+        "masterball": 2
+      },
+      "or": 20,
+      "destination": "equipe",
+      "nom": "Rattata",
+      "niveau": 2
+    },
+    {
+      "ennemi": {
+        "capture": 255,
+        "pv": 100,
+        "pvMax": 100,
+        "niveau": 2
+      },
+      "cle": "superball",
+      "taille": 6,
+      "alea": 0,
+      "succes": true,
+      "stocks": {
+        "pokeball": 2,
+        "superball": 1,
+        "hyperball": 2,
+        "masterball": 2
+      },
+      "or": 20,
+      "destination": "pc",
+      "nom": "Rattata",
+      "niveau": 2
+    },
+    {
+      "ennemi": {
+        "capture": 255,
+        "pv": 100,
+        "pvMax": 100,
+        "niveau": 2
+      },
+      "cle": "hyperball",
+      "taille": 5,
+      "alea": 0.99,
+      "succes": true,
+      "stocks": {
+        "pokeball": 2,
+        "superball": 2,
+        "hyperball": 1,
+        "masterball": 2
+      },
+      "or": 20,
+      "destination": "equipe",
+      "nom": "Rattata",
+      "niveau": 2
+    },
+    {
+      "ennemi": {
+        "capture": 3,
+        "pv": 100,
+        "pvMax": 100,
+        "niveau": 2
+      },
+      "cle": "masterball",
+      "taille": 5,
+      "alea": 0.999,
+      "succes": true,
+      "stocks": {
+        "pokeball": 2,
+        "superball": 2,
+        "hyperball": 2,
+        "masterball": 1
+      },
+      "or": 20,
+      "destination": "equipe",
+      "nom": "Rattata",
+      "niveau": 2
+    }
+  ],
+  "arrets": [
+    {
+      "reglages": {
+        "commun": true,
+        "peuCommun": false,
+        "rare": false,
+        "tresRare": false,
+        "legendaire": false,
+        "shiny": false,
+        "nouveau": false,
+        "actif": true
+      },
+      "auto": true,
+      "shiny": false,
+      "nouveau": false,
+      "boss": false,
+      "rarete": "commun",
+      "arret": true,
+      "message": "COMMUN APPARU ! AUTO STOPPÉ !"
+    },
+    {
+      "reglages": {
+        "commun": false,
+        "peuCommun": true,
+        "rare": false,
+        "tresRare": false,
+        "legendaire": false,
+        "shiny": false,
+        "nouveau": false,
+        "actif": true
+      },
+      "auto": true,
+      "shiny": false,
+      "nouveau": false,
+      "boss": false,
+      "rarete": "peu-commun",
+      "arret": true,
+      "message": "PEU COMMUN APPARU ! AUTO STOPPÉ !"
+    },
+    {
+      "reglages": {
+        "commun": false,
+        "peuCommun": false,
+        "rare": true,
+        "tresRare": false,
+        "legendaire": false,
+        "shiny": false,
+        "nouveau": false,
+        "actif": true
+      },
+      "auto": true,
+      "shiny": false,
+      "nouveau": false,
+      "boss": false,
+      "rarete": "rare",
+      "arret": true,
+      "message": "RARE APPARU ! AUTO STOPPÉ !"
+    },
+    {
+      "reglages": {
+        "commun": false,
+        "peuCommun": false,
+        "rare": false,
+        "tresRare": true,
+        "legendaire": false,
+        "shiny": false,
+        "nouveau": false,
+        "actif": true
+      },
+      "auto": true,
+      "shiny": false,
+      "nouveau": false,
+      "boss": false,
+      "rarete": "tres-rare",
+      "arret": true,
+      "message": "TRÈS RARE APPARU ! AUTO STOPPÉ !"
+    },
+    {
+      "reglages": {
+        "commun": false,
+        "peuCommun": false,
+        "rare": false,
+        "tresRare": false,
+        "legendaire": true,
+        "shiny": false,
+        "nouveau": false,
+        "actif": true
+      },
+      "auto": true,
+      "shiny": false,
+      "nouveau": false,
+      "boss": false,
+      "rarete": "legendaire",
+      "arret": true,
+      "message": "LÉGENDAIRE APPARU ! AUTO STOPPÉ !"
+    },
+    {
+      "reglages": {
+        "commun": false,
+        "peuCommun": false,
+        "rare": false,
+        "tresRare": false,
+        "legendaire": false,
+        "shiny": true,
+        "nouveau": false,
+        "actif": true
+      },
+      "auto": true,
+      "shiny": true,
+      "nouveau": false,
+      "boss": false,
+      "rarete": "legendaire",
+      "arret": true,
+      "message": "SHINY APPARU ! AUTO STOPPÉ !"
+    },
+    {
+      "reglages": {
+        "commun": false,
+        "peuCommun": false,
+        "rare": false,
+        "tresRare": false,
+        "legendaire": false,
+        "shiny": false,
+        "nouveau": true,
+        "actif": true
+      },
+      "auto": true,
+      "shiny": false,
+      "nouveau": true,
+      "boss": false,
+      "rarete": "legendaire",
+      "arret": true,
+      "message": "NOUVEAU POKÉMON ! AUTO STOPPÉ !"
+    },
+    {
+      "reglages": {
+        "commun": false,
+        "peuCommun": false,
+        "rare": true,
+        "tresRare": false,
+        "legendaire": false,
+        "shiny": false,
+        "nouveau": false,
+        "actif": false
+      },
+      "auto": true,
+      "shiny": false,
+      "nouveau": false,
+      "boss": false,
+      "rarete": "rare",
+      "arret": false,
+      "message": null
+    },
+    {
+      "reglages": {
+        "commun": false,
+        "peuCommun": false,
+        "rare": true,
+        "tresRare": false,
+        "legendaire": false,
+        "shiny": false,
+        "nouveau": false,
+        "actif": true
+      },
+      "auto": false,
+      "shiny": false,
+      "nouveau": false,
+      "boss": false,
+      "rarete": "rare",
+      "arret": false,
+      "message": null
+    },
+    {
+      "reglages": {
+        "commun": false,
+        "peuCommun": false,
+        "rare": false,
+        "tresRare": false,
+        "legendaire": false,
+        "shiny": false,
+        "nouveau": true,
+        "actif": true
+      },
+      "auto": true,
+      "shiny": false,
+      "nouveau": true,
+      "boss": true,
+      "rarete": "commun",
+      "arret": false,
+      "message": null
+    },
+    {
+      "reglages": {
+        "commun": false,
+        "peuCommun": false,
+        "rare": false,
+        "tresRare": false,
+        "legendaire": false,
+        "shiny": false,
+        "nouveau": false,
+        "actif": true
+      },
+      "auto": true,
+      "shiny": true,
+      "nouveau": false,
+      "boss": false,
+      "rarete": "commun",
+      "arret": false,
+      "message": null
+    },
+    {
+      "reglages": {
+        "commun": false,
+        "peuCommun": false,
+        "rare": true,
+        "tresRare": false,
+        "legendaire": false,
+        "shiny": false,
+        "nouveau": false,
+        "actif": true
+      },
+      "auto": true,
+      "shiny": true,
+      "nouveau": false,
+      "boss": false,
+      "rarete": "rare",
+      "arret": true,
+      "message": "SHINY APPARU ! AUTO STOPPÉ !"
+    },
+    {
+      "reglages": {
+        "commun": false,
+        "peuCommun": false,
+        "rare": true,
+        "tresRare": false,
+        "legendaire": false,
+        "shiny": false,
+        "nouveau": false,
+        "actif": true
+      },
+      "auto": true,
+      "shiny": false,
+      "nouveau": true,
+      "boss": false,
+      "rarete": "commun",
+      "arret": false,
+      "message": null
+    },
+    {
+      "reglages": {
+        "commun": false,
+        "peuCommun": false,
+        "rare": false,
+        "tresRare": false,
+        "legendaire": false,
+        "shiny": false,
+        "nouveau": false,
+        "actif": true
+      },
+      "auto": true,
+      "shiny": false,
+      "nouveau": true,
+      "boss": false,
+      "rarete": "commun",
+      "arret": false,
+      "message": null
+    },
+    {
+      "reglages": {
+        "commun": false,
+        "peuCommun": false,
+        "rare": false,
+        "tresRare": false,
+        "legendaire": false,
+        "shiny": false,
+        "nouveau": true,
+        "actif": true
+      },
+      "auto": true,
+      "shiny": true,
+      "nouveau": true,
+      "boss": false,
+      "rarete": "commun",
+      "arret": true,
+      "message": "SHINY APPARU ! AUTO STOPPÉ !"
+    }
+  ]
+}

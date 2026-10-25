@@ -15,6 +15,7 @@
     "test:e2e": "playwright test",
     "extraire:zones": "node scripts/extraire-zones-v1.mjs",
     "extraire:boss": "node scripts/extraire-boss-v1.mjs",
+    "extraire:capture": "node scripts/extraire-capture-v1.mjs",
     "ci": "npm run typecheck && npm run lint && npm test && npm run build"
   },
   "dependencies": {

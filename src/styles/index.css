@@ -106,6 +106,17 @@ html:has(dialog[open]) { overflow: hidden; }
 @keyframes degats { to { transform: translateY(calc(var(--spacing) * -6)); opacity: 0; } }
 @keyframes fleche { to { transform: translateY(var(--spacing)); } }
 
+/* Étapes catch-shake V1 ; durée de capture fixée à 1 s par le ticket J. */
+.capture-en-cours { animation: capture var(--duree-signal) ease-in-out forwards; filter: brightness(0); }
+@keyframes capture {
+  0% { transform: scale(1) rotate(0); }
+  20% { transform: scale(0.8) rotate(-10deg); }
+  40% { transform: scale(0.8) rotate(10deg); }
+  60% { transform: scale(0.8) rotate(-10deg); }
+  80% { transform: scale(0.8) rotate(0); }
+  100% { transform: scale(0); opacity: 0; }
+}
+
 /* Rebond du bouton Carte de la V1 (animate-bounce, 1 s). */
 .rebond-signal { animation: rebond-signal var(--duree-signal) var(--ease-standard) infinite; }
 @keyframes rebond-signal {
