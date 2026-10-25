@@ -44,7 +44,6 @@ async function utiliser(page: Page, nom: string, stock = 1) {
   await page.getByRole('button', { name: 'Équipe', exact: true }).click();
   const sac = page.getByRole('region', { name: 'Sac', exact: true });
   await sac.getByRole('button', { name: `${nom} ×${stock}`, exact: true }).click();
-  await sac.getByRole('button', { name: 'Utiliser', exact: true }).click();
 }
 
 async function combat(page: Page) {

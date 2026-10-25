@@ -42,7 +42,6 @@ async function demarrer(page: Page, numero: number, niveau = 16) {
 async function choisirPierre(page: Page, pierre: string) {
   const sac = page.getByRole('region', { name: 'Sac', exact: true });
   await sac.getByRole('button', { name: `${pierre} ×1`, exact: true }).click();
-  await sac.getByRole('button', { name: 'Utiliser', exact: true }).click();
   await expect(page.getByText('Sélectionne un Pokémon.', { exact: true })).toBeVisible();
 }
 

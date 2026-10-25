@@ -208,7 +208,7 @@ describe('Coquille', () => {
       if (nom === 'Équipe') {
         const cases = equipe.map(c => c ? `${nomPokemon(c)}Niv. ${c.pokemon.niveau}${formaterDps(c.dps)} DPS` : 'Emplacement libre').join('');
         const xp = premier.xpMax === 0 ? 'MAX' : `${premier.pokemon.xp} / ${premier.xpMax} XP`;
-        expect(screen.getByRole('main').textContent).toBe(`Ton équipe${formaterDps(storeJeu.getState().dps)} DPS · ${equipe.filter(Boolean).length} / 6${cases}${nomPokemon(premier)}Niv. ${premier.pokemon.niveau}${xp}${formaterDps(premier.dps)} DPSOuvre la ficheTon SacToutBallesSoinsÉquipement×0×0`);
+        expect(screen.getByRole('main').textContent).toBe(`Ton équipe${formaterDps(storeJeu.getState().dps)} DPS · ${equipe.filter(Boolean).length} / 6${cases}${nomPokemon(premier)}Niv. ${premier.pokemon.niveau}${xp}${formaterDps(premier.dps)} DPSOuvre la ficheTon SacToutBallesSoinsÉquipementPokéball×0Bonbon×0`);
       }
       // Prépare le balayage de la page visible sans la boîte fermée, montée en permanence.
       container.replaceChildren(rendu.cloneNode(true));

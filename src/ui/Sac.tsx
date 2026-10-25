@@ -11,29 +11,28 @@ export function Sac({ sac, utiliser }: {
   utiliser(entree: AffichageSac['entrees'][number], declencheur: HTMLButtonElement): void;
 }) {
   const [categorie, filtrer] = useState('tout');
-  const [choisi, choisir] = useState<string | null>(null);
-  const detail = sac.entrees.find(entree => entree.id === choisi);
   if (!sac.acces.ouvert) return <p className="text-texte-doux">{sac.acces.raison}</p>;
-  return <section aria-label="Sac" className="cadre min-w-0 space-y-4 bg-surface p-4 text-base">
+  return <section aria-label="Sac" className="cadre min-w-0 space-y-2 bg-surface p-2 text-base">
     <h2 className="font-titre text-xl font-semibold">Ton Sac</h2>
     <FiltreCategories categories={categories} choix={categorie} choisir={filtrer} />
-    <ul aria-label="Objets du Sac" className="flex flex-wrap gap-4">
+    <ul role="list" aria-label="Objets du Sac" className="grid grid-cols-2 gap-2">
       {sac.entrees.filter(entree => categorie === 'tout' || entree.categorie === categorie).map(entree =>
-        <li key={entree.id} className="w-16">
-          <button type="button" aria-label={`${entree.nom} ×${entree.quantite}`} aria-pressed={choisi === entree.id}
-            className="cadre relative grid size-16 place-items-center bg-surface-2 aria-pressed:bg-selection"
-            onClick={() => choisir(entree.id)}>
-            <IconeObjet image={entree.image} nom={entree.nom} />
-            <span className="absolute bottom-0 right-0 bg-surface px-1">×{entree.quantite}</span>
+        <li key={entree.id} className="min-w-0">
+          <button type="button" aria-label={`${entree.nom} ×${entree.quantite}`} title={entree.description}
+            disabled={entree.utilisable === null || entree.quantite <= 0}
+            className={`cadre flex min-h-11 w-full items-center gap-2 bg-surface-2 p-1 text-left enabled:hover:bg-selection ${entree.quantite <= 0 ? 'opacity-50' : ''}`}
+            onClick={event => utiliser(entree, event.currentTarget)}>
+            <IconeObjet image={entree.image} nom={entree.nom} taille="petite" />
+            <span className="min-w-0">
+              <span className="block truncate text-xs text-texte-doux">{entree.nom}</span>
+              <span className="flex items-center gap-1 whitespace-nowrap text-sm font-bold">
+                ×{entree.quantite}
+                {entree.utilisable !== null && entree.quantite > 0 && <span className="text-xs text-region-accent">UTILISER</span>}
+                {entree.actif && <span className="text-xs text-succes-base">ACTIF</span>}
+              </span>
+            </span>
           </button>
-          {entree.actif && <span className="block text-center text-succes-base">Actif</span>}
         </li>)}
     </ul>
-    {detail && <div className="space-y-2 bg-surface-2 p-4">
-      <h3 className="font-semibold">{detail.nom}</h3>
-      <p>{detail.description}</p>
-      {detail.utilisable && <button type="button" className="cadre min-h-11 bg-surface px-4 py-2"
-        disabled={detail.quantite <= 0} onClick={event => utiliser(detail, event.currentTarget)}>Utiliser</button>}
-    </div>}
   </section>;
 }

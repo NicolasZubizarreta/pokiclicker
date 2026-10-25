@@ -95,13 +95,12 @@ test('Bonbon : annulation extérieure puis deux niveaux', async ({ page }, infor
   await page.getByRole('button', { name: 'Équipe', exact: true }).click();
   const sac = page.getByRole('region', { name: 'Sac', exact: true });
   await sac.getByRole('button', { name: 'Bonbon ×5', exact: true }).click();
-  await sac.getByRole('button', { name: 'Utiliser', exact: true }).click();
   const message = page.getByText('Sélectionne un Pokémon.', { exact: true });
   await expect(message).toBeVisible();
   await page.getByRole('heading', { name: 'Ton équipe', exact: true }).click();
   await expect(message).toHaveCount(0);
   await expect(sac.getByRole('button', { name: 'Bonbon ×5', exact: true })).toBeVisible();
-  await sac.getByRole('button', { name: 'Utiliser', exact: true }).click();
+  await sac.getByRole('button', { name: 'Bonbon ×5', exact: true }).click();
   await expect(message).toBeVisible();
   const bulbizarre = page.getByRole('button', { name: 'Bulbizarre, niveau 5', exact: true });
   await bulbizarre.click();

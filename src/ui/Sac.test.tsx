@@ -17,10 +17,13 @@ afterEach(cleanup);
 it('transmet le bouton déclencheur avec l’objet utilisé', () => {
   const utiliser = vi.fn();
   render(<Sac sac={sac} utiliser={utiliser} />);
-  fireEvent.click(screen.getByRole('button', { name: 'Bonbon ×2' }));
-  const bouton = screen.getByRole('button', { name: 'Utiliser' });
+  const bouton = screen.getByRole('button', { name: 'Bonbon ×2' });
   fireEvent.click(bouton);
+  expect(utiliser).toHaveBeenCalledTimes(1);
   expect(utiliser).toHaveBeenCalledWith(sac.entrees[1], bouton);
+  expect(bouton.title).toBe('Ajoute un niveau.');
+  expect(screen.queryByRole('button', { name: 'Utiliser' })).toBeNull();
+  expect(screen.queryByText('Ajoute un niveau.')).toBeNull();
 });
 
 it('ne présente que la raison quand le Sac est verrouillé', () => {
@@ -33,46 +36,59 @@ it('ne présente que la raison quand le Sac est verrouillé', () => {
 it('présente une grille compacte, les stocks, les icônes locales et le repli SVG', () => {
   const { container } = render(<Sac sac={sac} utiliser={vi.fn()} />);
   expect(screen.getAllByRole('listitem')).toHaveLength(3);
-  expect(screen.getByRole('button', { name: 'Pokéball ×0' }).className).toContain('size-16');
+  expect(screen.getByRole('list', { name: 'Objets du Sac' }).className).toBe('grid grid-cols-2 gap-2');
+  expect(container.querySelector('.size-16')).toBeNull();
+  for (const ligne of screen.getAllByRole('listitem')) {
+    expect(ligne.querySelector('button')?.className).toContain('min-h-11');
+    expect(ligne.querySelector('img, svg')?.classList.contains('size-8')).toBe(true);
+  }
   expect(Array.from(container.querySelectorAll('img')).every(img => img.getAttribute('src')?.startsWith('img/'))).toBe(true);
+  expect(Array.from(container.querySelectorAll('img')).every(img => img.width === 32 && img.height === 32)).toBe(true);
   expect(container.querySelectorAll('img')).toHaveLength(2);
   expect(screen.getByRole('img', { name: 'Chaussures' }).tagName).toBe('svg');
-  expect(screen.getByText('Actif')).toBeTruthy();
+  expect(screen.getByText('ACTIF').className).toContain('text-succes-base');
+  expect(screen.getByText('UTILISER').className).toContain('text-region-accent');
+  expect(screen.getByRole('button', { name: 'Pokéball ×0' }).className).toContain('opacity-50');
   expect(container.querySelectorAll('.bg-action')).toHaveLength(0);
 });
 
-it('filtre les catégories et affiche le détail avec Utiliser pour les consommables disponibles', () => {
-  const utiliser = vi.fn();
-  render(<Sac sac={sac} utiliser={entree => utiliser(entree)} />);
+it('conserve les filtres par catégorie au-dessus de la grille', () => {
+  render(<Sac sac={sac} utiliser={vi.fn()} />);
   fireEvent.click(screen.getByRole('button', { name: 'Soins' }));
   expect(screen.getAllByRole('listitem')).toHaveLength(1);
-  fireEvent.click(screen.getByRole('button', { name: 'Bonbon ×2' }));
-  expect(screen.getByText('Ajoute un niveau.')).toBeTruthy();
-  fireEvent.click(screen.getByRole('button', { name: 'Utiliser' }));
-  expect(utiliser).toHaveBeenCalledWith(sac.entrees[1]);
+  expect(screen.getByRole('button', { name: 'Bonbon ×2' })).toBeTruthy();
   fireEvent.click(screen.getByRole('button', { name: 'Tout' }));
-  fireEvent.click(screen.getByRole('button', { name: 'Pokéball ×0' }));
-  expect(screen.getByText('Capture un Pokémon.')).toBeTruthy();
-  expect(screen.queryByRole('button', { name: 'Utiliser' })).toBeNull();
+  expect(screen.getAllByRole('listitem')).toHaveLength(3);
   fireEvent.click(screen.getByRole('button', { name: 'Équipement' }));
   expect(screen.getAllByRole('listitem')).toHaveLength(1);
+  expect(screen.getByRole('button', { name: 'Chaussures ×1' })).toBeTruthy();
   fireEvent.click(screen.getByRole('button', { name: 'Balles' }));
   expect(screen.getAllByRole('listitem')).toHaveLength(1);
+  expect(screen.getByRole('button', { name: 'Pokéball ×0' })).toBeTruthy();
 });
 
-it('désactive Utiliser sans stock', () => {
-  render(<Sac sac={{ ...sac, entrees: [{ ...sac.entrees[1]!, quantite: 0 }] }} utiliser={vi.fn()} />);
-  fireEvent.click(screen.getByRole('button', { name: 'Bonbon ×0' }));
-  expect((screen.getByRole('button', { name: 'Utiliser' }) as HTMLButtonElement).disabled).toBe(true);
+it.each([
+  { ...sac.entrees[0]!, quantite: 3 },
+  sac.entrees[2]!,
+  { ...sac.entrees[1]!, quantite: 0 },
+])('désactive la ligne non utilisable $nom ×$quantite', entree => {
+  const utiliser = vi.fn();
+  render(<Sac sac={{ ...sac, entrees: [entree] }} utiliser={utiliser} />);
+  const bouton = screen.getByRole('button', { name: `${entree.nom} ×${entree.quantite}` }) as HTMLButtonElement;
+  expect(bouton.disabled).toBe(true);
+  expect(bouton.title).toBe(entree.description);
+  fireEvent.click(bouton);
+  expect(utiliser).not.toHaveBeenCalled();
+  expect(screen.queryByText('UTILISER')).toBeNull();
 });
 
 it.each(['stase', 'jeton', 'direct'] as const)('transmet le nouvel usage %s sans bouton imbriqué ni action principale', utilisable => {
   const utiliser = vi.fn();
   const entree = { ...sac.entrees[1]!, utilisable };
   const { container } = render(<Sac sac={{ ...sac, entrees: [entree] }} utiliser={utiliser} />);
-  fireEvent.click(screen.getByRole('button', { name: 'Bonbon ×2' }));
-  const bouton = screen.getByRole('button', { name: 'Utiliser' });
+  const bouton = screen.getByRole('button', { name: 'Bonbon ×2' });
   fireEvent.click(bouton);
+  expect(utiliser).toHaveBeenCalledTimes(1);
   expect(utiliser).toHaveBeenCalledWith(entree, bouton);
   expect(container.querySelector('button button')).toBeNull();
   expect(container.querySelectorAll('.bg-action')).toHaveLength(0);

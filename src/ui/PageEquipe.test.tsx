@@ -127,7 +127,6 @@ function preparerObjet(type: 'bonbon' | 'calcium' = 'bonbon', stock = 5, avantUt
   render(<PageEquipe />);
   avantUtilisation?.();
   fireEvent.click(screen.getByRole('button', { name: `${type === 'bonbon' ? 'Bonbon' : 'Calcium'} ×${stock}` }));
-  fireEvent.click(screen.getByRole('button', { name: 'Utiliser' }));
 }
 
 it('conserve la même région de sélection vide puis annoncée puis vide', () => {
@@ -147,7 +146,7 @@ it('conserve la même région de sélection vide puis annoncée puis vide', () =
 it.each(['bouton', 'Échap', 'extérieur', 'validation', 'déclencheur disparu'])('rend le focus après %s', moyen => {
   storeJeu.setState({ utiliserObjet: () => null });
   preparerObjet();
-  const declencheur = screen.getByRole('button', { name: 'Utiliser' });
+  const declencheur = screen.getByRole('button', { name: 'Bonbon ×5' });
   fireEvent.click(screen.getByRole('button', { name: 'Bourgeon, niveau 16' }));
   const annuler = screen.getByRole('button', { name: 'Annuler' });
   annuler.focus();
@@ -227,7 +226,7 @@ it('borne le Calcium au stock et à la limite et affiche une erreur du store', (
 it.each(['bouton', 'Échap', 'extérieur'])('annule la sélection par %s et conserve les clics dans le Sac', moyen => {
   preparerObjet();
   fireEvent.click(screen.getByRole('button', { name: 'Bourgeon, niveau 16' }));
-  fireEvent.click(screen.getByText('Objet pour ton équipe.'));
+  fireEvent.click(screen.getByText('Ton Sac'));
   expect(screen.getByRole('group', { name: 'Quantité' })).toBeTruthy();
   if (moyen === 'bouton') fireEvent.click(screen.getByRole('button', { name: 'Annuler' }));
   else if (moyen === 'Échap') fireEvent.keyDown(document, { key: 'Escape' });
@@ -315,7 +314,6 @@ function preparerPierre(p: PokemonPossede = { ...pokemon, numero: 25 }) {
   }] } });
   render(<PageEquipe />);
   fireEvent.click(screen.getByRole('button', { name: 'Pierre Foudre ×1' }));
-  fireEvent.click(screen.getByRole('button', { name: 'Utiliser' }));
 }
 
 it.each([
@@ -347,7 +345,7 @@ it.each(['validation', 'bouton', 'Échap', 'extérieur', 'déclencheur disparu']
     return null;
   }) });
   preparerPierre();
-  const declencheur = screen.getByRole('button', { name: 'Utiliser' });
+  const declencheur = screen.getByRole('button', { name: 'Pierre Foudre ×1' });
   fireEvent.click(screen.getByRole('button', { name: 'Bourgeon, niveau 16' }));
   expect(screen.getByRole('group', { name: 'Utiliser Pierre Foudre sur Bourgeon ?' })).toBeTruthy();
   expect(screen.queryByRole('button', { name: 'Plus' })).toBeNull();
@@ -401,9 +399,9 @@ function preparerActif(type: 'stase' | 'jeton' | 'direct', p: PokemonPossede = p
     sac: { acces: { ouvert: true, raison: null }, entrees: [{ id, nom, description: nom, image: null,
       categorie: 'soins', quantite: 2, actif: false, utilisable: type }] } });
   render(<PageEquipe />);
-  fireEvent.click(screen.getByRole('button', { name: `${nom} ×2` }));
-  fireEvent.click(screen.getByRole('button', { name: 'Utiliser' }));
-  return screen.getByRole('button', { name: 'Utiliser' });
+  const declencheur = screen.getByRole('button', { name: `${nom} ×2` });
+  fireEvent.click(declencheur);
+  return declencheur;
 }
 
 it('pose la Stase sans confirmation, affiche son icône et le DPS puis la retire via le menu', () => {
