@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useStore } from 'zustand';
 import { chargerPokemon } from '../core/pokemon';
 import { ECLAT, SECOUSSE } from './animations';
+import { rejouer } from './rejouer';
 import { BarrePv } from './BarrePv';
 import { BarreTemps } from './BarreTemps';
 import { BarreCapture } from './BarreCapture';
@@ -50,8 +51,11 @@ function Scene({ store }: { store: StoreJeu }) {
     // Secousse et éclat de la V1 par l'API d'animation (composition hors du fil principal) ;
     // un changement de classe CSS à chaque appui coûtait plus de 400 tâches longues par minute.
     if (typeof element?.animate !== 'function' || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
-    element.animate(SECOUSSE.keyframes, SECOUSSE.options);
-    element.querySelectorAll('.eclat-touche').forEach(eclat => eclat.animate(ECLAT.keyframes, ECLAT.options));
+    rejouer(element, SECOUSSE);
+    // Seul l'éclat du sprite affiché (selon le point de rupture) est animé.
+    const grand = window.matchMedia?.('(min-width: 1024px)').matches ?? false;
+    const eclat = element.querySelectorAll('.eclat-touche')[grand ? 1 : 0];
+    if (eclat) rejouer(eclat, ECLAT);
   };
   const lieu = useStore(store, etat => etat.lieu);
   const zone = useStore(store, etat => etat.zone);
@@ -105,7 +109,7 @@ function Scene({ store }: { store: StoreJeu }) {
             <Image src={cheminSprite(ennemi.numero)} genre="sprite" alt={nom} largeurDisponible={largeur as number}
               className={`relative size-full max-w-none ${captureEnCours ? 'capture-en-cours' : ''} ${ennemi.shiny ? 'halo-shiny' : ''}`} />
             <Image src={cheminSprite(ennemi.numero)} genre="sprite" alt="" largeurDisponible={largeur as number}
-              className="eclat-touche absolute inset-0 size-full max-w-none" />
+              className="eclat-touche will-change-[opacity] absolute inset-0 size-full max-w-none" />
           </span>)}
         </div>
       </div>
