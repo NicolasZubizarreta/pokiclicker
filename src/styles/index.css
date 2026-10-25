@@ -10,6 +10,18 @@
   image-rendering: pixelated;
 }
 
+html:has(dialog[open]) { overflow: hidden; }
+.fiche-pokemon {
+  max-height: 50dvh;
+  margin: auto auto 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.fiche-pokemon::backdrop { @apply bg-fond/50; }
+@media (width >= theme(--breakpoint-lg)) {
+  .fiche-pokemon { margin: auto; max-height: calc(100dvh - var(--spacing) * 16); }
+}
+
 @theme inline {
   --color-fond: var(--fond);
   --color-surface: var(--surface);
