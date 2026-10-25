@@ -242,7 +242,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
       if (!resultat.ok) return resultat.raison;
       region = resultat.region;
       if (coeur) coeur = { ...coeur, actifs: objetsActifs(region) };
-      annonce = `${objet.nom} ×${quantite} acheté. ${disponible.prix * quantite} pièces dépensées.`;
+      annonce = `${objet.nom} ×${quantite} acheté. ${(disponible.prix * quantite).toLocaleString('fr-FR')} pièces dépensées.`;
       finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs;
       enregistrer(); afficher();
       return null;

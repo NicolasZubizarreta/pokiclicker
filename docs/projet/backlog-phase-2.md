@@ -363,7 +363,7 @@ Fourchette : 2 à 3 jours. Risque : l'auto-attaque désactivable change la boucl
 
 ## K. `feat(evolution): faire évoluer un Pokémon par niveau ou par pierre`
 
-Labels : `type:feat`, `etat:idee`, `est:2`, `prio:2` · branche : `v2` · `agent-ok` : oui
+Labels : `type:feat`, `etat:pret`, `est:2`, `prio:2` · branche : `v2` · `agent-ok` : oui
 
 ### Histoire
 En tant que joueur, je veux faire évoluer mes Pokémon afin d'augmenter leur puissance et de compléter mon Pokédex.
@@ -392,7 +392,7 @@ Fourchette : 2 jours. Risque : cohérence des DPS après évolution (stats de ba
 
 ## L. `feat(shop): Sac, Shop, balles, Bonbons et objets à effet permanent`
 
-Labels : `type:feat`, `etat:pret`, `est:3`, `prio:1` · branche : `v2` · `agent-ok` : oui
+Labels : `type:feat`, `etat:fait`, `est:3`, `prio:1` · branche : `v2` · `agent-ok` : oui
 
 ### Histoire
 En tant que joueur, je veux acheter des objets avec mon argent afin d'aller plus vite et de vaincre des boss plus difficiles.
@@ -404,16 +404,16 @@ V1 : `legacy/js/game/shop.js` (42 l.), `items.js`, `constants.js` (`ITEMS`, 31 e
 **Choix de Nicolas (24/10).** Shop : variante **B** (cartes produit) avec le **tri par catégorie** de C ; mieux aligner les éléments ; **supprimer** la case « Prépare ta route » et le message « Il te manque X pièces » (un bouton grisé suffit) ; **pas de panier**. Sac : **aucune variante ne convient** : il faut des **icônes officielles comme en V1** (20 PNG PokeAPI à rapatrier, voir ticket D), des **cases bien plus petites** sans vide inutile, le **filtre par catégorie** de C, et un **système d'utilisation des objets refait**. Pour l'utilisation, reprendre le mode de la V1 (`v1-visuel-a-porter.md` § 8) : clic sur l'objet → « Sélectionne un Pokémon », lignes d'équipe qui pulsent (cibles valides vertes, invalides grisées, clic ailleurs = annulation), sélecteur − / n / + pour Bonbon et Calcium, confirmation pour pierres et Jeton Shiny, pastilles de compte à rebours sous les PV pour les objets à durée, bouton CT Fauchage dans l'en-tête de l'équipe. Trois variantes du **nouveau** Sac sont à proposer à Nicolas avant le code. Sources : `docs/projet/choix-variantes-b.md` (choix), `docs/projet/v1-visuel-a-porter.md` (ce que fait la V1).
 
 ### Critères d'acceptation
-- [ ] Étant donné `ITEMS` de la V1, quand le script convertit, alors `data/objets.json` contient les objets du Shop avec prix, zone, type (consommable, achat unique), effet et texte français corrigé ; un test compare prix et zones avec la V1.
-- [ ] Étant donné 0 à 8 badges et le palier 70, quand je calcule un prix, alors il égale celui de la V1 (`base × (1 + 0,05 × badges)`, ×0,85) pour chaque objet, comparaison stricte avec le code V1 (fixture).
-- [ ] Étant donné la zone 1, quand j'ouvre le Shop, alors il est verrouillé avec la raison ; à la zone 2 il s'ouvre ; seuls les objets de zone ≤ zone atteinte sont visibles.
-- [ ] Étant donné un achat avec assez d'argent, quand je confirme, alors l'argent baisse, l'objet arrive dans le Sac (consommable : quantité ; unique : possédé) et une sauvegarde est écrite ; sans assez d'argent, le bouton est désactivé et dit combien il manque.
-- [ ] Étant donné un objet à achat unique déjà possédé, quand j'ouvre le Shop, alors il est marqué « Possédé » et ne peut plus être acheté.
-- [ ] Étant donné les objets à effet permanent, quand je les possède, alors leurs bonus apparaissent dans les calculs de clic, d'or, d'XP et de délai (les clés de `bonus` de `data/reglages.json` sont branchées ; le calcul est comparé à la V1) ; les Restes déclenchent 9 clics automatiques par seconde, sous le plafond de 12.
-- [ ] Étant donné le Sac, quand je l'ouvre, alors je vois balles, Bonbons et objets avec leurs quantités et leurs textes ; un Bonbon utilisé sur un Pokémon lui donne +n niveaux (jusqu'à 100).
-- [ ] Étant donné le Shop, quand je regarde un objet trop cher, alors son bouton est grisé sans autre message ; il n'y a ni panier ni case « Prépare ta route » ; le tri par catégorie (Balles, Soins, Équipement) fonctionne.
-- [ ] Étant donné le Sac, quand je l'ouvre, alors chaque objet a son icône officielle (fichier local) dans une case compacte, groupée par catégorie avec un filtre ; aucune icône n'est chargée depuis Internet.
-- [ ] Étant donné un Bonbon ou un Calcium, quand je l'utilise, alors le mode de sélection de la V1 s'enclenche (message, lignes d'équipe en surbrillance, annulation d'un clic ailleurs) puis le sélecteur − / n / + avec confirmation ; les valeurs et messages sont ceux de la V1.
+- [x] Étant donné `ITEMS` de la V1, quand le script convertit, alors `data/objets.json` contient les objets du Shop avec prix, zone, type (consommable, achat unique), effet et texte français corrigé ; un test compare prix et zones avec la V1.
+- [x] Étant donné 0 à 8 badges et le palier 70, quand je calcule un prix, alors il égale celui de la V1 (`base × (1 + 0,05 × badges)`, ×0,85) pour chaque objet, comparaison stricte avec le code V1 (fixture).
+- [x] Étant donné la zone 1, quand j'ouvre le Shop, alors il est verrouillé avec la raison ; à la zone 2 il s'ouvre ; seuls les objets de zone ≤ zone atteinte sont visibles.
+- [x] Étant donné un achat avec assez d'argent, quand je confirme, alors l'argent baisse, l'objet arrive dans le Sac (consommable : quantité ; unique : possédé) et une sauvegarde est écrite ; sans assez d'argent, le bouton est désactivé et dit combien il manque.
+- [x] Étant donné un objet à achat unique déjà possédé, quand j'ouvre le Shop, alors il est marqué « Possédé » et ne peut plus être acheté.
+- [x] Étant donné les objets à effet permanent, quand je les possède, alors leurs bonus apparaissent dans les calculs de clic, d'or, d'XP et de délai (les clés de `bonus` de `data/reglages.json` sont branchées ; le calcul est comparé à la V1) ; les Restes déclenchent 9 clics automatiques par seconde, sous le plafond de 12.
+- [x] Étant donné le Sac, quand je l'ouvre, alors je vois balles, Bonbons et objets avec leurs quantités et leurs textes ; un Bonbon utilisé sur un Pokémon lui donne +n niveaux (jusqu'à 100).
+- [x] Étant donné le Shop, quand je regarde un objet trop cher, alors son bouton est grisé sans autre message ; il n'y a ni panier ni case « Prépare ta route » ; le tri par catégorie (Balles, Soins, Équipement) fonctionne.
+- [x] Étant donné le Sac, quand je l'ouvre, alors chaque objet a son icône officielle (fichier local) dans une case compacte, groupée par catégorie avec un filtre ; aucune icône n'est chargée depuis Internet.
+- [x] Étant donné un Bonbon ou un Calcium, quand je l'utilise, alors le mode de sélection de la V1 s'enclenche (message, lignes d'équipe en surbrillance, annulation d'un clic ailleurs) puis le sélecteur − / n / + avec confirmation ; les valeurs et messages sont ceux de la V1.
 
 ### Hors périmètre
 Objets actifs à durée ou à usage (M), Centre commercial (U), jetons de casino (V), Poké-Radar (effet : M).

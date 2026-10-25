@@ -92,6 +92,18 @@ it('désactive les achats sans argent sans message supplémentaire', () => {
   expect(container.textContent).not.toMatch(/manque|panier|Prépare ta route/i);
 });
 
+it('désactive le coût de deux unités puis réactive une unité après Moins', () => {
+  preparer(['kanto.route-1']);
+  const objet = storeJeu.getState().boutique.objets.find(o => !o.unique)!;
+  preparer(['kanto.route-1'], objet.prix);
+  render(<PageShop />);
+  const carte = within(screen.getByRole('heading', { name: objet.nom }).closest('article')!);
+  fireEvent.click(carte.getByRole('button', { name: 'Plus' }));
+  expect(carte.getByRole('button', { name: 'Acheter ×2' }).matches(':disabled')).toBe(true);
+  fireEvent.click(carte.getByRole('button', { name: 'Moins' }));
+  expect(carte.getByRole('button', { name: 'Acheter ×1' }).matches(':disabled')).toBe(false);
+});
+
 it('achète la quantité choisie et actualise argent et stock', () => {
   preparer(['kanto.route-1']);
   const objet = storeJeu.getState().boutique.objets.find(o => !o.unique)!;

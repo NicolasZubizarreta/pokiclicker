@@ -108,6 +108,8 @@ function CommandesCombat({ store }: { store: StoreJeu }) {
   const zone = useStore(store, etat => etat.zone);
   const capture = useStore(store, etat => etat.capture);
   const autoAttaque = useStore(store, etat => etat.autoAttaque);
+  const autoClic = useStore(store, etat => etat.autoClic);
+  const basculerAutoClic = useStore(store, etat => etat.basculerAutoClic);
   const arret = useStore(store, etat => etat.arretAuto);
   const capturer = useStore(store, etat => etat.capturer);
   const basculer = useStore(store, etat => etat.basculerAutoAttaque);
@@ -117,7 +119,8 @@ function CommandesCombat({ store }: { store: StoreJeu }) {
     <fieldset className="min-w-0">
       <BarreCapture {...capture} capturer={capturer} />
     </fieldset>
-    <ReglagesCombat autoAttaque={autoAttaque} arret={arret} basculer={basculer} regler={regler} />
+    <ReglagesCombat autoAttaque={autoAttaque} arret={arret} basculer={basculer} regler={regler}
+      autoClic={autoClic} basculerAutoClic={basculerAutoClic} />
   </div>;
 }
 

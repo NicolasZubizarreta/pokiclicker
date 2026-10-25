@@ -1,7 +1,8 @@
 import { useState } from 'react';
+import { reglages } from '../core/reglages';
 import { IconeObjet } from './icones';
 
-export function CarteObjet({ id, nom, description, image, prix, stock, possede, unique, abordable, acheter }: {
+export function CarteObjet({ id, nom, description, image, prix, stock, possede, unique, abordable, argent, acheter }: {
   id: string;
   nom: string;
   description: string;
@@ -11,6 +12,7 @@ export function CarteObjet({ id, nom, description, image, prix, stock, possede, 
   possede: boolean;
   unique: boolean;
   abordable: boolean;
+  argent: number;
   acheter(quantite: number): void;
 }) {
   const [quantite, changer] = useState(1);
@@ -30,10 +32,10 @@ export function CarteObjet({ id, nom, description, image, prix, stock, possede, 
         <button type="button" aria-label="Moins" className={bouton} disabled={quantite <= 1}
           onClick={() => changer(q => Math.max(1, q - 1))}>−</button>
         <output aria-label="Quantité">{quantite}</output>
-        <button type="button" aria-label="Plus" className={bouton} disabled={quantite >= 99}
-          onClick={() => changer(q => Math.min(99, q + 1))}>+</button>
+        <button type="button" aria-label="Plus" className={bouton} disabled={quantite >= reglages.boutique.quantiteMax}
+          onClick={() => changer(q => Math.min(reglages.boutique.quantiteMax, q + 1))}>+</button>
       </div>}
-      <button type="button" className={bouton} disabled={!abordable}
+      <button type="button" className={bouton} disabled={!abordable || prix * (unique ? 1 : quantite) > argent}
         onClick={() => acheter(unique ? 1 : quantite)}>Acheter ×{unique ? 1 : quantite}</button>
     </div>}
   </article>;

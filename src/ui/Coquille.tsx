@@ -15,6 +15,7 @@ export function Coquille({ region = 'kanto', theme = 'dark' }: {
   theme?: 'dark' | 'light';
 }) {
   const [page, choisir] = useState<Page>('Combat');
+  const annonce = useStore(storeJeu, etat => etat.annonce);
   const tutorielRoute1 = useStore(storeJeu, etat => etat.carte.tutorielRoute1);
   useEffect(() => {
     storeJeu.getState().demarrer();
@@ -30,6 +31,8 @@ export function Coquille({ region = 'kanto', theme = 'dark' }: {
       <Navigation page={page} choisir={choisir} signalCarte={tutorielRoute1 && page !== 'Carte'} />
       <main id="contenu" tabIndex={-1} className="mb-14 min-w-0 p-4 lg:mb-0 lg:ml-24 lg:p-8">
         <MiseAJour />
+        {page !== 'Combat' && annonce !== null && <div role="status" aria-live="polite"
+          className="cadre bg-surface p-2 text-center">{annonce}</div>}
         {page === 'Combat' ? <EcranCombat /> : page === 'Carte' ? <CarteKanto quandArrive={() => choisir('Combat')} /> : page === 'Équipe' ? <PageEquipe /> : page === 'Plus' ? <PagePlus /> : <PageShop />}
       </main>
     </div>

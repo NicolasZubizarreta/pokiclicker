@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useStore } from 'zustand';
 import { chargerPokemon } from '../core/pokemon';
 import { reglages } from '../core/reglages';
@@ -34,16 +34,27 @@ export function PageEquipe() {
   const panneau = useRef<HTMLElement>(null);
   const liste = useRef<HTMLUListElement>(null);
   const sacElement = useRef<HTMLDivElement>(null);
+  const declencheurObjet = useRef<HTMLButtonElement>(null);
+  const titre = useRef<HTMLHeadingElement>(null);
+  const rendreFocus = useRef(false);
   const membre = equipe.find(c => c?.pokemon.uid === choisi) ?? equipe.find(c => c);
   const nom = membre ? membre.pokemon.surnom ?? catalogue.parNumero(membre.pokemon.numero).nom : '';
 
   useEffect(() => () => storeJeu.getState().annulerEchange(), []);
 
   function annulerObjet() {
+    rendreFocus.current = true;
     selectionner(null);
     cibler(null);
     signalerObjet(null);
   }
+
+  useLayoutEffect(() => {
+    if (!rendreFocus.current) return;
+    rendreFocus.current = false;
+    const bouton = declencheurObjet.current;
+    (bouton?.isConnected && !bouton.disabled ? bouton : titre.current)?.focus();
+  });
 
   useEffect(() => {
     if (!mode) return;
@@ -70,7 +81,7 @@ export function PageEquipe() {
   }
 
   return <section className="mx-auto max-w-screen-xl text-base">
-    <h1 tabIndex={-1} className="font-titre text-2xl font-semibold">Ton équipe</h1>
+    <h1 ref={titre} tabIndex={-1} className="font-titre text-2xl font-semibold">Ton équipe</h1>
     <p className="mt-2 text-region-accent">{`${formaterDps(dps)} DPS · ${equipe.filter(Boolean).length} / ${reglages.equipe.taille}`}</p>
     {echange && <div role="status" className="cadre mt-4 flex flex-wrap items-center gap-4 bg-surface p-4">
       <p>Choisis le Pokémon à remplacer par {echange.nom}</p>
@@ -78,7 +89,7 @@ export function PageEquipe() {
         onClick={() => storeJeu.getState().annulerEchange()}>Annuler</button>
     </div>}
     {echange && erreur?.echange === echange && <p role="alert" className="mt-4 text-erreur-base">{erreur.message}</p>}
-    {mode && <p role="status" className="mt-4">Sélectionne un Pokémon.</p>}
+    <p role="status" className={mode ? 'mt-4' : undefined}>{mode ? 'Sélectionne un Pokémon.' : ''}</p>
     {mode && erreurObjet && <p role="alert" className="mt-4 text-erreur-base">{erreurObjet}</p>}
     <div className="mt-4 grid items-start gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
       <ul ref={liste} className="grid min-w-0 gap-4">
@@ -151,8 +162,9 @@ export function PageEquipe() {
           onClick={event => ouvrirFiche(membre.pokemon.uid, event.currentTarget)}>Ouvre la fiche</button>}
       </aside>}
       <div ref={sacElement}>
-        <Sac sac={sac} utiliser={entree => {
+        <Sac sac={sac} utiliser={(entree, bouton) => {
           if (echange || !entree.utilisable || entree.quantite <= 0) return;
+          declencheurObjet.current = bouton;
           selectionner({ type: entree.utilisable, cle: entree.id, nom: entree.nom });
           cibler(null);
           changerQuantite(1);

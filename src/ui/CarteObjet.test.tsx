@@ -9,7 +9,7 @@ it('présente la carte B et achète une quantité bornée sans explication de fo
   const acheter = vi.fn();
   const props = { id: 'pokeball', nom: 'Pokéball', description: 'Capture un Pokémon.',
     image: 'img/objets/pokeball.png', prix: 1200, stock: 3, possede: false,
-    unique: false, abordable: true, acheter };
+    unique: false, abordable: true, argent: 1000000, acheter };
   const vue = render(<CarteObjet {...props} />);
   expect(screen.getByRole('heading', { name: props.nom })).toBeTruthy();
   expect(screen.getByText(props.description)).toBeTruthy();

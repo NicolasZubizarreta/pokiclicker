@@ -8,7 +8,7 @@ const categories = [{ cle: 'tout', nom: 'Tout' }, { cle: 'balles', nom: 'Balles'
 
 export function Sac({ sac, utiliser }: {
   sac: AffichageSac;
-  utiliser(entree: AffichageSac['entrees'][number]): void;
+  utiliser(entree: AffichageSac['entrees'][number], declencheur: HTMLButtonElement): void;
 }) {
   const [categorie, filtrer] = useState('tout');
   const [choisi, choisir] = useState<string | null>(null);
@@ -33,7 +33,7 @@ export function Sac({ sac, utiliser }: {
       <h3 className="font-semibold">{detail.nom}</h3>
       <p>{detail.description}</p>
       {detail.utilisable && <button type="button" className="cadre min-h-11 bg-surface px-4 py-2"
-        disabled={detail.quantite <= 0} onClick={() => utiliser(detail)}>Utiliser</button>}
+        disabled={detail.quantite <= 0} onClick={event => utiliser(detail, event.currentTarget)}>Utiliser</button>}
     </div>}
   </section>;
 }

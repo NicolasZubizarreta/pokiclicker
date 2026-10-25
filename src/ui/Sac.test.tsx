@@ -14,6 +14,15 @@ const sac: AffichageSac = { acces: { ouvert: true, raison: null }, entrees: [
 ] };
 afterEach(cleanup);
 
+it('transmet le bouton déclencheur avec l’objet utilisé', () => {
+  const utiliser = vi.fn();
+  render(<Sac sac={sac} utiliser={utiliser} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Bonbon ×2' }));
+  const bouton = screen.getByRole('button', { name: 'Utiliser' });
+  fireEvent.click(bouton);
+  expect(utiliser).toHaveBeenCalledWith(sac.entrees[1], bouton);
+});
+
 it('ne présente que la raison quand le Sac est verrouillé', () => {
   render(<Sac sac={{ ...sac, acces: { ouvert: false, raison: "Le Sac s’ouvre à la Route 1." } }} utiliser={vi.fn()} />);
   expect(screen.getByText('Le Sac s’ouvre à la Route 1.')).toBeTruthy();
@@ -34,7 +43,7 @@ it('présente une grille compacte, les stocks, les icônes locales et le repli S
 
 it('filtre les catégories et affiche le détail avec Utiliser pour les consommables disponibles', () => {
   const utiliser = vi.fn();
-  render(<Sac sac={sac} utiliser={utiliser} />);
+  render(<Sac sac={sac} utiliser={entree => utiliser(entree)} />);
   fireEvent.click(screen.getByRole('button', { name: 'Soins' }));
   expect(screen.getAllByRole('listitem')).toHaveLength(1);
   fireEvent.click(screen.getByRole('button', { name: 'Bonbon ×2' }));

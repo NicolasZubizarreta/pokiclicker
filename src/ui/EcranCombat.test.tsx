@@ -12,6 +12,17 @@ import type { StoreJeu } from './store';
 import { ERREUR_CHARGEMENT } from './persistance';
 
 let store: StoreJeu;
+it('affiche Auto-clic et le rend utilisable avec les Restes', () => {
+  preparer();
+  expect(screen.getByRole('button', { name: 'Auto-clic' }).matches(':disabled')).toBe(true);
+  const basculerAutoClic = vi.fn();
+  act(() => store.setState({ autoClic: { possede: true, actif: true }, basculerAutoClic }));
+  const bouton = screen.getByRole('button', { name: 'Auto-clic' });
+  expect(bouton.matches(':disabled')).toBe(false);
+  expect(bouton.getAttribute('aria-pressed')).toBe('true');
+  fireEvent.click(bouton);
+  expect(basculerAutoClic).toHaveBeenCalledOnce();
+});
 it('branche la capture sous la scène et garde une seule action principale', () => {
   const { container } = preparer();
   const capturer = vi.fn();

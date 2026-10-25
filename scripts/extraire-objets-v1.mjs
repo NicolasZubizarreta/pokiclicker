@@ -34,7 +34,7 @@ const objets = Object.entries(items).map(([id, item]) => {
     inventaire: item.type === 'consumable' ? id === 'candy' ? 'bonbon' : id : null,
     image: images.has(fichier) ? `img/objets/${fichier}` : null,
     categorie: balles.has(id) ? 'balles' : item.type === 'upgrade' ? 'equipement' : 'soins',
-    sac: id === 'pokeball' || id === 'candy' ? 'toujours' : id === 'superball' ? zones[4] : id === 'hyperball' ? zones[9] : null,
+    sac: id === 'pokeball' || id === 'candy' ? 'toujours' : id === 'superball' ? zones[6] : id === 'hyperball' ? zones[9] : null,
   };
 });
 const prix = [];

@@ -30,7 +30,7 @@ it('calcule strictement chaque prix de la fixture V1', () => {
 
 it('conserve les noms et images des balles de capture', () => {
   for (const balle of Object.values(reglages.capture.balles)) {
-    const objet = objets.find(entree => entree.nom === balle.nom)!;
+    const objet = objets.find(entree => entree.id === balle.cle)!;
     expect(objet.nom).toBe(balle.nom);
     expect(objet.image).toBe(balle.image);
     expect(objet.categorie).toBe('balles');

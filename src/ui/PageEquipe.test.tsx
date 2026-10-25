@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import type { PokemonPossede } from '../core/sauvegarde';
 import { formaterDps } from './nombres';
@@ -84,14 +84,14 @@ it('propose l’échange, appelle le store, affiche son erreur et permet d’ann
   storeJeu.setState({ echange: { uid: 'pc', nom: 'Pikachu' } });
   echanger.mockReturnValue('Il faut au moins 1 Pokémon actif dans l’équipe.');
   render(<PageEquipe />);
-  expect(screen.getByRole('status').textContent).toContain('Choisis le Pokémon à remplacer par Pikachu');
+  expect(screen.getAllByRole('status').map(zone => zone.textContent).join(' ')).toContain('Choisis le Pokémon à remplacer par Pikachu');
   fireEvent.click(screen.getByRole('button', { name: 'Salamèche, niveau 16' }));
   expect(echanger).toHaveBeenCalledWith('pc', 'second');
   expect(screen.getByRole('alert').textContent).toBe('Il faut au moins 1 Pokémon actif dans l’équipe.');
   expect(screen.queryByRole('dialog')).toBeNull();
   fireEvent.click(screen.getByRole('button', { name: 'Annuler' }));
   expect(annulerEchange).toHaveBeenCalledOnce();
-  expect(screen.queryByRole('status')).toBeNull();
+  expect(screen.queryByText(/Choisis le Pokémon à remplacer/)).toBeNull();
   expect(screen.queryByRole('alert')).toBeNull();
 });
 
@@ -116,16 +116,47 @@ it('le clic droit ouvre Résumé, puis la fiche du Pokémon et rend le focus à 
   expect(document.activeElement).toBe(carte);
 });
 
-function preparerObjet(type: 'bonbon' | 'calcium' = 'bonbon', stock = 5) {
+function preparerObjet(type: 'bonbon' | 'calcium' = 'bonbon', stock = 5, avantUtilisation?: () => void) {
   storeJeu.setState({ sac: { acces: { ouvert: true, raison: null }, entrees: [{
     id: type === 'bonbon' ? 'candy' : 'calcium', nom: type === 'bonbon' ? 'Bonbon' : 'Calcium',
     description: 'Objet pour ton équipe.', image: null, categorie: 'soins', quantite: stock,
     actif: false, utilisable: type,
   }] } });
   render(<PageEquipe />);
+  avantUtilisation?.();
   fireEvent.click(screen.getByRole('button', { name: `${type === 'bonbon' ? 'Bonbon' : 'Calcium'} ×${stock}` }));
   fireEvent.click(screen.getByRole('button', { name: 'Utiliser' }));
 }
+
+it('conserve la même région de sélection vide puis annoncée puis vide', () => {
+  let region: HTMLElement;
+  preparerObjet('bonbon', 5, () => {
+    region = screen.getByRole('status');
+    expect(region.textContent).toBe('');
+  });
+  const selection = screen.getByRole('status');
+  expect(selection).toBe(region!);
+  expect(selection.textContent).toBe('Sélectionne un Pokémon.');
+  fireEvent.keyDown(document, { key: 'Escape' });
+  expect(screen.getByRole('status')).toBe(selection);
+  expect(selection.textContent).toBe('');
+});
+
+it.each(['bouton', 'Échap', 'extérieur', 'validation', 'déclencheur disparu'])('rend le focus après %s', moyen => {
+  storeJeu.setState({ utiliserObjet: () => null });
+  preparerObjet();
+  const declencheur = screen.getByRole('button', { name: 'Utiliser' });
+  fireEvent.click(screen.getByRole('button', { name: 'Bourgeon, niveau 16' }));
+  const annuler = screen.getByRole('button', { name: 'Annuler' });
+  annuler.focus();
+  if (moyen === 'déclencheur disparu') act(() => storeJeu.setState({ sac: { ...storeJeu.getState().sac, entrees: [] } }));
+  if (moyen === 'bouton') fireEvent.click(annuler);
+  else if (moyen === 'extérieur') fireEvent.click(document.body);
+  else if (moyen === 'validation') fireEvent.click(screen.getByRole('button', { name: 'Valider' }));
+  else fireEvent.keyDown(document, { key: 'Escape' });
+  expect(document.activeElement).toBe(moyen === 'déclencheur disparu'
+    ? screen.getByRole('heading', { level: 1 }) : declencheur);
+});
 
 it('utilise deux Bonbons pour gagner exactement deux niveaux sans changer l’XP', () => {
   const utiliserObjet = vi.fn((type: 'bonbon' | 'calcium', uid: string, n: number) => {
@@ -153,7 +184,7 @@ it('utilise deux Bonbons pour gagner exactement deux niveaux sans changer l’XP
   expect(storeJeu.getState().equipe[0]?.pokemon.niveau).toBe(18);
   expect(storeJeu.getState().equipe[0]?.pokemon.xp).toBe(30);
   expect(screen.queryByRole('group', { name: 'Quantité' })).toBeNull();
-  expect(screen.queryByRole('status')).toBeNull();
+  expect(screen.getByRole('status').textContent).toBe('');
 });
 
 it('laisse les œufs et les niveaux maximum inertes et borne les Bonbons au niveau 100', () => {
@@ -199,7 +230,7 @@ it.each(['bouton', 'Échap', 'extérieur'])('annule la sélection par %s et cons
   if (moyen === 'bouton') fireEvent.click(screen.getByRole('button', { name: 'Annuler' }));
   else if (moyen === 'Échap') fireEvent.keyDown(document, { key: 'Escape' });
   else fireEvent.click(document.body);
-  expect(screen.queryByRole('status')).toBeNull();
+  expect(screen.getByRole('status').textContent).toBe('');
   expect(screen.queryByRole('group', { name: 'Quantité' })).toBeNull();
 });
 

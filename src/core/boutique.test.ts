@@ -100,8 +100,10 @@ describe('contenu du Sac', () => {
   });
 
   it('affiche les Superball et Hyperball sans stock dès leur zone de Sac', () => {
-    const sac = contenuSac(region(), objets, mondeAvec('kanto.route-1', 'kanto.mont-selenite', 'kanto.tunnel-rocheux'), etat);
+    const sac = contenuSac(region(), objets, mondeAvec('kanto.route-1', 'kanto.pont-pepite', 'kanto.tunnel-rocheux'), etat);
     expect(sac).toContainEqual(objet('superball'));
     expect(sac).toContainEqual(objet('hyperball'));
+    // Décision de Nicolas : la Superball du Sac est alignée sur la zone 6 de la boutique, pas sur la zone 4.
+    expect(contenuSac(region(), objets, mondeAvec('kanto.route-1', 'kanto.mont-selenite'), etat)).not.toContainEqual(objet('superball'));
   });
 });

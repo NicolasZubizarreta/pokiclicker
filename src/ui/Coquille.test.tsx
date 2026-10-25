@@ -1,11 +1,12 @@
 // @vitest-environment jsdom
-import { act, cleanup, render, screen, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Coquille } from './Coquille';
 import { creerStoreJeu, storeJeu } from './store';
 import { chargerPokemon } from '../core/pokemon';
 import { formaterDps } from './nombres';
+import { reglages } from '../core/reglages';
 
 const contexte = vi.hoisted(() => ({ store: null as unknown as typeof storeJeu }));
 vi.mock('./store', async (importOriginal) => ({
@@ -13,9 +14,10 @@ vi.mock('./store', async (importOriginal) => ({
   get storeJeu() { return contexte.store; },
 }));
 
+let maintenant = 0;
 function nouvellePartie() {
   contexte.store = creerStoreJeu({
-    horloge: { maintenant: () => 0 },
+    horloge: { maintenant: () => maintenant },
     stockage: {
       lire: cle => localStorage.getItem(cle),
       ecrire: (cle, valeur) => localStorage.setItem(cle, valeur),
@@ -27,13 +29,48 @@ function nouvellePartie() {
   });
 }
 
-beforeEach(() => { localStorage.clear(); nouvellePartie(); });
+beforeEach(() => { maintenant = 0; localStorage.clear(); nouvellePartie(); });
 
 afterEach(() => {
   cleanup();
   localStorage.clear();
 });
 const noms = ['Combat', 'Équipe', 'Shop', 'Carte', 'Plus'];
+
+it('annonce un achat formaté au Shop et retire la notification expirée', () => {
+  const { unmount } = render(<Coquille />);
+  unmount();
+  const cle = Object.keys(localStorage).find(cle => cle.startsWith('pokiclicker:region:') && cle.endsWith(':kanto'))!;
+  const sauvegarde = JSON.parse(localStorage.getItem(cle)!);
+  Object.assign(sauvegarde.donnees, { bossVaincus: ['kanto.route-1'], argent: 100000 });
+  localStorage.setItem(cle, JSON.stringify(sauvegarde));
+  nouvellePartie();
+  render(<Coquille />);
+  fireEvent.click(screen.getByRole('button', { name: 'Shop' }));
+  const objet = storeJeu.getState().boutique.objets.find(o => !o.unique)!;
+  const carte = within(screen.getByRole('heading', { name: objet.nom }).closest('article')!);
+  for (let i = 1; i < 10; i++) fireEvent.click(carte.getByRole('button', { name: 'Plus' }));
+  fireEvent.click(carte.getByRole('button', { name: 'Acheter ×10' }));
+  // Les output de quantité ont aussi le rôle implicite status, nommé « Quantité ».
+  expect(screen.getAllByRole('status', { name: '' })).toHaveLength(1);
+  expect(screen.getByRole('status', { name: '' }).textContent).toBe(`${objet.nom} ×10 acheté. ${(objet.prix * 10).toLocaleString('fr-FR')} pièces dépensées.`);
+  expect(screen.getByRole('status', { name: '' }).getAttribute('aria-live')).toBe('polite');
+  expect(screen.getByRole('status', { name: '' }).classList.contains('absolute')).toBe(false);
+  const message = screen.getByRole('status', { name: '' }).textContent;
+  for (const page of ['Équipe', 'Combat', 'Shop']) {
+    fireEvent.click(screen.getByRole('button', { name: page }));
+    const notifications = document.querySelectorAll('[role="status"][aria-live="polite"]');
+    expect(notifications).toHaveLength(1);
+    expect(notifications[0]?.textContent).toBe(message);
+  }
+  act(() => {
+    for (let ms = 0; ms < reglages.interface.annonceMs; ms += reglages.boucle.pasMs) {
+      maintenant += reglages.boucle.pasMs;
+      storeJeu.getState().tick();
+    }
+  });
+  expect(screen.queryByRole('status', { name: '' })).toBeNull();
+});
 
 describe('Coquille', () => {
   it('ne signale plus Carte à Bourg Palette après un boss vaincu', () => {
@@ -152,6 +189,12 @@ describe('Coquille', () => {
   it('emploie les textes français prévus et masque les icônes aux lecteurs d’écran', async () => {
     const utilisateur = userEvent.setup();
     const { container } = render(<Coquille />);
+    act(() => {
+      for (let ms = 0; ms < reglages.interface.annonceMs; ms += reglages.boucle.pasMs) {
+        maintenant += reglages.boucle.pasMs;
+        storeJeu.getState().tick();
+      }
+    });
     const autorises = new Set(['Aller au contenu', ...noms, "Le Shop s'ouvre à la Forêt de Jade.",
       'PC de Léo', 'Pokédex', "Le PC de Léo s'ouvre à l'Arène d'Argenta."]);
     for (const nom of noms.slice(1)) {
@@ -192,7 +235,7 @@ describe('Coquille', () => {
                     ? equipe.filter(c => c).map(c => `XP de ${nomPokemon(c!)}`).find(n => n === element.getAttribute('aria-label'))
                     : 'Navigation principale';
         // Le Sac de l'onglet Équipe : région, filtre, liste et pastilles « <objet> ×n ».
-        if (nom === 'Équipe' && /^(Sac|Catégories|Objets du Sac|.+ ×\d+)$/.test(element.getAttribute('aria-label') ?? '')) continue;
+        if (nom === 'Équipe' && ['Sac', 'Catégories', 'Objets du Sac', 'Pokéball ×0', 'Bonbon ×0'].includes(element.getAttribute('aria-label') ?? '')) continue;
         expect(element.getAttribute('aria-label')).toBe(attendu);
       }
     }

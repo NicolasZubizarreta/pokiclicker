@@ -27,7 +27,7 @@ export function PageShop() {
           <h2 className="font-titre text-xl font-semibold">{categorie.nom}</h2>
           <div className="grid grid-cols-1 items-stretch gap-4 md:grid-cols-2 lg:grid-cols-3">
             {boutique.objets.filter(objet => objet.categorie === categorie.cle).map(objet =>
-              <CarteObjet key={objet.id} {...objet} acheter={quantite => acheter(objet.id, quantite)} />)}
+              <CarteObjet key={objet.id} {...objet} argent={argent} acheter={quantite => acheter(objet.id, quantite)} />)}
           </div>
         </section>)}
     </>}
