@@ -23,6 +23,10 @@ export function Combat() {
   return <Icone><path d="m3 3 5 1 12 14-3 3L4 8zM21 3l-5 1-5 6m-3 5-5 5m12-1 5-5M4 14l6 6" /></Icone>;
 }
 
+export function IconeBadge() {
+  return <Icone><path d="m12 2 3 4 5 1-1 5 1 5-5 1-3 4-3-4-5-1 1-5-1-5 5-1z" /><circle cx="12" cy="12" r="4" /></Icone>;
+}
+
 export function Equipe() {
   return <Icone><path d="M4 3h6v6H4zM14 3h6v6h-6zM4 15h6v6H4zM14 15h6v6h-6z" /></Icone>;
 }

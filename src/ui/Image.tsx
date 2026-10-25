@@ -3,7 +3,7 @@ import taillesImages from '../../public/img/tailles.json';
 export type TaillesImages = Record<string, { largeur: number; hauteur: number }>;
 type PropsImage = {
   src: string;
-  genre: 'decor' | 'sprite';
+  genre: 'decor' | 'sprite' | 'badge';
   alt: string;
   largeurDisponible?: number;
   tailles?: TaillesImages;
@@ -32,5 +32,5 @@ export function Image({ src, genre, alt, largeurDisponible, tailles = taillesIma
     ? facteurEntier(largeurDisponible, dimensions.largeur) : 1;
   return <img src={src} alt={alt} width={dimensions.largeur * facteur} height={dimensions.hauteur * facteur}
     decoding="async" loading={genre === 'decor' ? 'eager' : undefined}
-    className={`${genre === 'decor' ? `aspect-video ${couvrir ? 'object-cover' : 'object-contain'}` : 'image-rendering-pixelated'} ${className}`} />;
+    className={`${genre === 'decor' ? `aspect-video ${couvrir ? 'object-cover' : 'object-contain'}` : genre === 'sprite' ? 'image-rendering-pixelated' : 'object-contain'} ${className}`} />;
 }
