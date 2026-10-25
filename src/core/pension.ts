@@ -1,6 +1,8 @@
 import { evaluer } from './conditions';
 import type { EtatMonde } from './conditions';
 import { formeDeBase } from './evolution';
+import { relacher } from './equipe';
+import type { ResultatEquipe } from './equipe';
 import type { chargerMonde } from './monde';
 import { chargerPokemon } from './pokemon';
 import { kanto } from './regions';
@@ -11,6 +13,63 @@ import { tirerSexe } from './sexe';
 
 const catalogue = chargerPokemon();
 const pension = reglages.pension;
+
+type ResultatRetrait =
+  | { ok: true; region: DonneesRegion; destination: 'equipe' | 'pc'; numero: number }
+  | { ok: false; raison: string };
+const absent = { ok: false, raison: 'Ce Pokémon est introuvable.' } as const;
+
+export function deposerParent(region: DonneesRegion, uid: string): ResultatEquipe {
+  if (region.pension.parents.length >= 2) return { ok: false, raison: pension.messages.pleine };
+  const pokemon = [...region.equipe, ...region.pc].find(p => p.uid === uid);
+  if (!pokemon) return absent;
+  const retrait = relacher(region, uid);
+  if (!retrait.ok) return retrait;
+  return { ok: true, region: { ...retrait.region,
+    pension: { ...region.pension, parents: [...region.pension.parents, pokemon] },
+  } };
+}
+
+function retirer(region: DonneesRegion, liste: 'parents' | 'oeufs', uid: string): ResultatRetrait {
+  const pokemon = region.pension[liste].find(p => p.uid === uid);
+  if (!pokemon) return absent;
+  const destination = region.equipe.length < reglages.equipe.taille ? 'equipe' : 'pc';
+  return { ok: true, destination, numero: pokemon.numero, region: {
+    ...region, [destination]: [...region[destination], pokemon],
+    pension: { ...region.pension, [liste]: region.pension[liste].filter(p => p.uid !== uid) },
+  } };
+}
+
+export function retirerParent(region: DonneesRegion, uid: string): ResultatRetrait {
+  return retirer(region, 'parents', uid);
+}
+
+export function prendreOeuf(region: DonneesRegion, uid: string): ResultatRetrait {
+  return retirer(region, 'oeufs', uid);
+}
+
+export function prixEmplacementOeuf(region: DonneesRegion): number | null {
+  return region.pension.emplacementsOeuf >= pension.emplacementsMax
+    ? null : region.pension.emplacementsOeuf * pension.prixParEmplacement;
+}
+
+export function acheterEmplacementOeuf(region: DonneesRegion): ResultatEquipe {
+  const prix = prixEmplacementOeuf(region);
+  if (prix === null) return { ok: false, raison: pension.messages.pleine };
+  if (region.argent < prix) return { ok: false, raison: "Pas assez d'argent." };
+  return { ok: true, region: { ...region, argent: region.argent - prix,
+    pension: { ...region.pension, emplacementsOeuf: region.pension.emplacementsOeuf + 1 },
+  } };
+}
+
+export function avancerOeuf(pokemon: PokemonPossede): PokemonPossede {
+  if (!pokemon.oeuf) return pokemon;
+  const pasRestants = Math.max(0, pokemon.oeuf.pasRestants - 1);
+  if (pasRestants > 0) return { ...pokemon, oeuf: { ...pokemon.oeuf, pasRestants } };
+  const eclos = { ...pokemon, niveau: 1, bonheur: pension.bonheurNaissance };
+  delete eclos.oeuf;
+  return eclos;
+}
 
 export function accesPension(
   monde: Pick<ReturnType<typeof chargerMonde>, 'lieu' | 'zone'>, etat: EtatMonde,

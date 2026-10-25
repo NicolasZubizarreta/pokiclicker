@@ -5,6 +5,8 @@ import { chancePonte, pondre, tirerOeuf } from './pension';
 import { regionInitiale, validerPokemonPossede } from './sauvegarde';
 import type { PokemonPossede } from './sauvegarde-types';
 import { sexeEspece } from './sexe';
+import { acheterEmplacementOeuf, deposerParent, prendreOeuf, prixEmplacementOeuf, retirerParent } from './pension';
+import { appliquerVictoire } from './recompenses';
 
 const cheminGraine = new URL('../../scripts/lib/graine.mjs', import.meta.url).href;
 const { graine } = await import(/* @vite-ignore */ cheminGraine) as {
@@ -17,6 +19,76 @@ const parent = (numero: number, sexe: PokemonPossede['sexe']): PokemonPossede =>
 const convertir = (parents: ({ id: number; gender: string } | null)[]) => parents
   .filter(p => p !== null)
   .map(p => parent(p.id, p.gender === 'genderless' ? 'sansSexe' : p.gender === 'female' ? 'femelle' : 'male'));
+
+describe('fidélité des mouvements et éclosions V1', () => {
+  it.each(fixture.emplacements)('emplacements $avant, argent $argent', (cas) => {
+    const region = regionInitiale('kanto', 'kanto.bourg-palette');
+    region.argent = cas.argent;
+    region.pension.emplacementsOeuf = cas.avant;
+    const avant = structuredClone(region);
+    expect(prixEmplacementOeuf(region)).toBe(cas.avant === 5 ? null : cas.avant * 5000);
+    const resultat = acheterEmplacementOeuf(region);
+    expect(resultat.ok).toBe(cas.apres > cas.avant);
+    if (resultat.ok) {
+      expect(resultat.region.pension.emplacementsOeuf).toBe(cas.apres);
+      expect(region.argent - resultat.region.argent).toBe(cas.cout);
+    }
+    expect(region).toEqual(avant);
+  });
+
+  it.each(fixture.retraitOeuf)('retrait œuf, équipe $tailleEquipe', (cas) => {
+    const region = regionInitiale('kanto', 'kanto.bourg-palette');
+    region.equipe = Array.from({ length: cas.tailleEquipe }, (_, i) => ({ ...parent(1, 'male'), uid: `p-${i}` }));
+    const oeuf = { ...parent(cas.oeuf.id, 'male'), uid: 'oeuf', shiny: cas.oeuf.isShiny,
+      oeuf: { pasRestants: cas.oeuf.maxSteps - cas.oeuf.hatchSteps, pasMax: cas.oeuf.maxSteps } };
+    region.pension.oeufs = [oeuf];
+    const avant = structuredClone(region);
+    const resultat = prendreOeuf(region, oeuf.uid);
+    expect(resultat).toMatchObject({ ok: true, destination: cas.destination, numero: cas.appelsPokedex[0] });
+    if (!resultat.ok) throw new Error(resultat.raison);
+    expect(resultat.region[resultat.destination].at(-1)).toEqual(oeuf);
+    expect(resultat.region.pension.oeufs).toEqual(cas.oeufsRestants);
+    expect(region).toEqual(avant);
+  });
+
+  it.each(fixture.parents.retraits)('retrait parent, équipe $tailleEquipe', (cas) => {
+    const region = regionInitiale('kanto', 'kanto.bourg-palette');
+    region.equipe = Array.from({ length: cas.tailleEquipe }, (_, i) => ({ ...parent(1, 'male'), uid: `p-${i}` }));
+    const pokemon = parent(25, 'femelle');
+    region.pc = [pokemon];
+    const depot = deposerParent(region, pokemon.uid);
+    expect(depot.ok).toBe(true);
+    if (!depot.ok) throw new Error(depot.raison);
+    expect(depot.region.pc).toEqual(fixture.parents.depuisPC.pc);
+    const avant = structuredClone(depot.region);
+    const resultat = retirerParent(depot.region, pokemon.uid);
+    expect(resultat).toMatchObject({ ok: true, destination: cas.destination, numero: 25 });
+    if (!resultat.ok) throw new Error(resultat.raison);
+    expect(resultat.region[resultat.destination].at(-1)).toEqual(pokemon);
+    expect(resultat.region.pension.parents).toEqual([]);
+    expect(depot.region).toEqual(avant);
+  });
+
+  it('retrouve les 25 étapes de bonheur et éclosion, PC immobile', () => {
+    let region = regionInitiale('kanto', 'kanto.bourg-palette');
+    const oeuf = { ...parent(25, 'femelle'), shiny: true, oeuf: { pasRestants: 25, pasMax: 25 } };
+    region.equipe = [oeuf];
+    region.pc = [{ ...oeuf, uid: 'pc' }];
+    for (const etape of fixture.eclosion.etapes) {
+      const avant = structuredClone(region);
+      const resultat = appliquerVictoire(region, { numero: 1, niveau: 1, shiny: false, boss: false, rarete: null });
+      expect(region).toEqual(avant);
+      region = resultat.region;
+      for (const [pokemon, reference] of [[region.equipe[0]!, etape.equipe], [region.pc[0]!, etape.pc]] as const) {
+        expect(pokemon).toMatchObject({ numero: reference.id, niveau: reference.level, xp: reference.xp,
+          bonheur: reference.happiness, shiny: reference.isShiny });
+        expect(pokemon.oeuf !== undefined).toBe(reference.isEgg);
+        if (reference.isEgg) expect(pokemon.oeuf?.pasRestants).toBe(reference.maxSteps - reference.hatchSteps);
+      }
+      expect(resultat.eclosions.map(p => p.numero)).toEqual(etape.victoire === 25 ? fixture.eclosion.appelsPokedex : []);
+    }
+  });
+});
 
 describe('fidélité de la ponte V1', () => {
   it('retrouve les 151 formes de base', () => {

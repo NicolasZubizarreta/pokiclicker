@@ -447,6 +447,11 @@ describe('validation du schéma de version 3', () => {
     [{ pension: { parents: [], oeufs: [pokemon], emplacementsOeuf: 1 } }, 'Œuf invalide : état d’œuf manquant dans la pension'],
     [{ pension: { parents: [], oeufs: [], emplacementsOeuf: 0 } }, 'Entier strictement positif attendu'],
     [{ pension: { parents: [], oeufs: [], emplacementsOeuf: 1.5 } }, 'Entier attendu'],
+    [{ pension: { parents: [], oeufs: [], emplacementsOeuf: 6 } }, 'Pension invalide : trop d’emplacements'],
+    [{ pension: { parents: [], oeufs: [
+      { ...pokemon, oeuf: { pasRestants: 25, pasMax: 25 } },
+      { ...pokemon, uid: 'autre-oeuf', oeuf: { pasRestants: 25, pasMax: 25 } },
+    ], emplacementsOeuf: 1 } }, 'Pension invalide : trop d’œufs'],
     [{ inconnu: true }, 'Champ inconnu'],
     [{ arretAuto: {} }, 'Champ manquant : commun'],
     [{ chronos: {} }, 'Champ manquant : finRepousse'],

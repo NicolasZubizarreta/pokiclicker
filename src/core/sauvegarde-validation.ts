@@ -87,6 +87,9 @@ export function validerDonneesRegion(v: unknown): asserts v is DonneesRegion {
         exiger(o.oeuf !== undefined, 'Œuf invalide : état d’œuf manquant dans la pension');
       }), emplacementsOeuf: positif });
       exiger((p as DonneesRegion['pension']).parents.length <= 2, 'Pension invalide : au plus deux parents');
+      const pension = p as DonneesRegion['pension'];
+      exiger(pension.emplacementsOeuf <= reglages.pension.emplacementsMax, 'Pension invalide : trop d’emplacements');
+      exiger(pension.oeufs.length <= pension.emplacementsOeuf, 'Pension invalide : trop d’œufs');
     },
     jetons: entier,
     arretAuto: a => forme(a, { commun: booleen, peuCommun: booleen, rare: booleen, tresRare: booleen,
