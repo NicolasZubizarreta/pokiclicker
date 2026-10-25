@@ -16,7 +16,8 @@ export function creerEnnemi(zone: Zone, etape: number, alea: () => number,
   const adversaire = ligue && etape < options.etapeBoss ? zone.adversaires![etape - 1]! : zone.boss;
   let pool = zone.sauvages;
   // La V1 tire le shiny avant l'espèce et le niveau ; le boss ne consomme aucun tirage.
-  const shiny = !boss && alea() < options.chanceShiny;
+  const bonusShiny = options.shiny.find(bonus => actifs.includes(bonus.cle));
+  const shiny = !boss && alea() < options.chanceShiny * (bonusShiny?.x ?? 1);
   if (!boss) {
     const repousse = reglages.objetsActifs.repousses.find(r => actifs.includes(r.cle));
     if (repousse) {

@@ -74,6 +74,7 @@
     "pvParNiveau": 2,
     "pvBoss": 4,
     "chanceShiny": 0.00390625,
+    "shiny": [{ "cle": "objet:shinyCharm", "x": 3 }, { "cle": "jalon:151", "x": 2 }],
     "clicsMaxParSeconde": 12,
     "fenetreClicsMs": 1000,
     "etapeBoss": 10

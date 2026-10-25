@@ -63,6 +63,7 @@ export const reglages: {
     minuteurBossMs: number;
     clicBase: number; clicPartDps: number; pvParNiveau: number; pvBoss: number;
     chanceShiny: number; clicsMaxParSeconde: number; fenetreClicsMs: number; etapeBoss: number;
+    shiny: { cle: string; x: number }[];
   };
   bonus: { dps: Bonus[]; clic: Bonus[] };
   recompenses: ReglagesRecompenses;
