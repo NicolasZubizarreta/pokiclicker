@@ -494,7 +494,7 @@ Fourchette : 2 jours. Risque : les bonus dispersés dans `stats.js` et `combat.j
 
 ## O. `feat(evenements): moteur d'événements en données (déclencheurs, étapes, drapeaux)`
 
-Labels : `type:feat`, `etat:idee`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : oui
+Labels : `type:feat`, `etat:pret`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : oui
 
 ### Histoire
 En tant que développeur, je veux un moteur qui joue des événements décrits en JSON afin d'ajouter l'intro, le rival ou les scènes de fin sans écrire de code pour chacun.

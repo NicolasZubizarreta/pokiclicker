@@ -19,6 +19,14 @@ const images = new Set(await readdir(new URL('public/img/objets/', racine)));
 const balles = new Set(['pokeball', 'superball', 'hyperball', 'masterball']);
 /** @type {Record<string, string>} */
 const descriptions = {
+  xAttack: 'Dégâts du clic ×1,5 pendant 30 s.',
+  xSpecial: "DPS de l'équipe ×1,5 pendant 30 s.",
+  shinyToken: 'Rend chromatique un Pokémon de ton équipe.',
+  fireStone: 'Fait évoluer certains Pokémon.',
+  waterStone: 'Fait évoluer certains Pokémon.',
+  thunderStone: 'Fait évoluer certains Pokémon.',
+  leafStone: 'Fait évoluer certains Pokémon.',
+  moonStone: 'Fait évoluer certains Pokémon.',
   runningShoes: "Réduit l'attente entre deux ennemis à 1 s.",
   bicycle: "Réduit l'attente entre deux ennemis à 0,5 s (remplace les Chaussures).",
 };

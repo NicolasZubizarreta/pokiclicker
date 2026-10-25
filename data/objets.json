@@ -86,7 +86,7 @@
   {
     "id": "xAttack",
     "nom": "Attaque +",
-    "description": "Dégâts/clic +50% (30s)",
+    "description": "Dégâts du clic ×1,5 pendant 30 s.",
     "prix": 7500,
     "type": "consommable",
     "zone": "kanto.cave-taupiqueur",
@@ -100,7 +100,7 @@
   {
     "id": "xSpecial",
     "nom": "Attaque Spé +",
-    "description": "DPS Équipe +50% (30s)",
+    "description": "DPS de l'équipe ×1,5 pendant 30 s.",
     "prix": 10000,
     "type": "consommable",
     "zone": "kanto.centrale",
@@ -128,7 +128,7 @@
   {
     "id": "fireStone",
     "nom": "Pierre Feu",
-    "description": "Pierre d'évolution (fonction à venir)",
+    "description": "Fait évoluer certains Pokémon.",
     "prix": 10000,
     "type": "consommable",
     "zone": "kanto.bourg-palette",
@@ -142,7 +142,7 @@
   {
     "id": "waterStone",
     "nom": "Pierre Eau",
-    "description": "Pierre d'évolution (fonction à venir)",
+    "description": "Fait évoluer certains Pokémon.",
     "prix": 10000,
     "type": "consommable",
     "zone": "kanto.bourg-palette",
@@ -156,7 +156,7 @@
   {
     "id": "leafStone",
     "nom": "Pierre Plante",
-    "description": "Pierre d'évolution (fonction à venir)",
+    "description": "Fait évoluer certains Pokémon.",
     "prix": 10000,
     "type": "consommable",
     "zone": "kanto.bourg-palette",
@@ -170,7 +170,7 @@
   {
     "id": "thunderStone",
     "nom": "Pierre Foudre",
-    "description": "Pierre d'évolution (fonction à venir)",
+    "description": "Fait évoluer certains Pokémon.",
     "prix": 10000,
     "type": "consommable",
     "zone": "kanto.bourg-palette",
@@ -184,7 +184,7 @@
   {
     "id": "moonStone",
     "nom": "Pierre Lune",
-    "description": "Pierre d'évolution (fonction à venir)",
+    "description": "Fait évoluer certains Pokémon.",
     "prix": 10000,
     "type": "consommable",
     "zone": "kanto.bourg-palette",
@@ -240,7 +240,7 @@
   {
     "id": "shinyToken",
     "nom": "Jeton Shiny",
-    "description": "Force la prochaine rencontre à être un Pokémon Shiny (ne fonctionne pas sur les Boss).",
+    "description": "Rend chromatique un Pokémon de ton équipe.",
     "prix": 250000,
     "type": "consommable",
     "zone": null,

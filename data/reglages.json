@@ -5,7 +5,22 @@
   "sac": { "zone": "kanto.route-1", "raison": "Le Sac s'ouvre à la Route 1." },
   "boutique": {
     "inflationParBadge": 0.05, "palierRemise": 70, "remise": 0.85, "quantiteMax": 99,
-    "reportes": ["repel", "superRepel", "pokeradar", "falseSwipe"]
+    "reportes": []
+  },
+  "objetsActifs": {
+    "dureeMs": 30000,
+    "rechargeFauchageMs": 30000,
+    "temporises": {
+      "xAttack": { "chrono": "finBoostAttaque", "cle": "boost:attaque", "message": "Attaque + active !", "pastille": "Attaque + ×1,5" },
+      "xSpecial": { "chrono": "finBoostAttaqueSpeciale", "cle": "boost:dps", "message": "DPS ×1,5 actif !", "pastille": "DPS ×1,5" },
+      "repel": { "chrono": "finRepousse", "cle": "repousse:commun", "message": "Repousse active !", "pastille": "Repousse" },
+      "superRepel": { "chrono": "finSuperRepousse", "cle": "repousse:peu-commun", "message": "Superepousse active !", "pastille": "Superepousse" }
+    },
+    "repousses": [
+      { "cle": "repousse:peu-commun", "exclues": ["commun", "peu-commun"] },
+      { "cle": "repousse:commun", "exclues": ["commun"] }
+    ],
+    "raretes": { "commun": "Commun", "peu-commun": "Peu Commun", "rare": "Rare", "tres-rare": "Très Rare", "legendaire": "Légendaire" }
   },
   "pc": { "zone": "kanto.arene-d-argenta", "raison": "Le PC de Léo s'ouvre à l'Arène d'Argenta." },
   "interface": {

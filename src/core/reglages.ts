@@ -38,6 +38,18 @@ export const reglages: {
   shop: { zone: string; raison: string };
   sac: { zone: string; raison: string };
   boutique: { inflationParBadge: number; palierRemise: number; remise: number; quantiteMax: number; reportes: string[] };
+  objetsActifs: {
+    dureeMs: number;
+    rechargeFauchageMs: number;
+    temporises: Record<'xAttack' | 'xSpecial' | 'repel' | 'superRepel', {
+      chrono: string;
+      cle: string;
+      message: string;
+      pastille: string;
+    }>;
+    repousses: { cle: string; exclues: string[] }[];
+    raretes: Record<'commun' | 'peu-commun' | 'rare' | 'tres-rare' | 'legendaire', string>;
+  };
   interface: {
     sauvegardeAutoMs: number; annonceMs: number;
     // Calendrier V1 : legacy/js/game/save.js L759-797.

@@ -72,8 +72,9 @@ describe('boutique et sac du store', () => {
     const avant = structuredClone(persiste.region);
     expect(store.getState().acheter('pokeball', 0)).toBe('Quantité invalide.');
     expect(store.getState().acheter('inconnu', 1)).toBeTruthy();
-    expect(store.getState().acheter('repel', 1)).toBeTruthy();
     expect(persiste.region).toEqual(avant);
+    expect(store.getState().acheter('repel', 1)).toBeNull();
+    expect(ouvrir().getState().sac.entrees.find(o => o.id === 'repel')!.quantite).toBe(1);
   });
 
   it('applique Protéine immédiatement et après reprise et création de combat', () => {
