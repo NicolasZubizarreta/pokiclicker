@@ -12,6 +12,7 @@ import { equipeDeDepart } from './equipe-de-depart';
 import { cheminDecor } from './precharger';
 import { kanto } from '../core/regions';
 import { genererIdentifiant } from './identifiants';
+import { detailDps } from '../core/equipe';
 
 const stores: StoreJeu[] = [];
 beforeEach(() => vi.useFakeTimers());
@@ -41,6 +42,101 @@ function vaincre(partie: ReturnType<typeof preparer>) {
   }
   expect(partie.store.getState().etape).not.toBe(etape);
 }
+
+it('enregistre immédiatement le surnom et le favori pour un nouveau store', () => {
+  const { store, stockage } = preparer();
+  const uid = store.getState().equipe[0]!.pokemon.uid;
+  expect(store.getState().renommer(uid, ' Copain ')).toBeNull();
+  expect(store.getState().basculerFavori(uid)).toBeNull();
+  store.getState().arreter();
+  expect(preparer(stockage).store.getState().equipe[0]!.pokemon).toMatchObject({ uid, surnom: 'Copain', favori: true });
+});
+
+it.each(['relacher', 'envoyerAuPc'] as const)('%s recalcule le combat et récompense les Pokémon restants', action => {
+  const partie = preparerRegion(region => ({ ...region,
+    equipe: ['retire', 'reste-1', 'reste-2'].map(uid => ({ ...region.equipe[0]!, uid, niveau: 10, xp: 0 })) }));
+  const { store, stockage } = partie;
+  const avant = store.getState();
+  const contribution = avant.equipe[0]!.dps;
+  expect(avant[action]('retire')).toBeNull();
+  expect(store.getState().equipe.filter(Boolean).map(m => m!.pokemon.uid)).toEqual(['reste-1', 'reste-2']);
+  expect(JSON.parse(stockage.lire('pokiclicker:region:test:kanto')!).donnees.equipe).toHaveLength(2);
+  const pv = store.getState().pv;
+  partie.avancer();
+  expect(store.getState().dps).toBeCloseTo(avant.dps - contribution);
+  expect(pv - store.getState().pv).toBeCloseTo((avant.dps - contribution) / 10);
+  vaincre(partie);
+  for (const membre of store.getState().equipe.filter(Boolean)) {
+    expect(membre!.pokemon.uid).toMatch(/^reste-/);
+    expect(membre!.pokemon.xp).toBeGreaterThan(0);
+  }
+  store.getState().fermer();
+  const region = JSON.parse(stockage.lire('pokiclicker:region:test:kanto')!).donnees as DonneesRegion;
+  expect(region.equipe.map(p => p.uid)).toEqual(['reste-1', 'reste-2']);
+  expect(region.pc.find(p => p.uid === 'retire')?.xp).toBe(action === 'envoyerAuPc' ? 0 : undefined);
+});
+
+it('refuse le dernier Pokémon et les actions invalides sans sauvegarde ni changement d’équipe', () => {
+  const { store, stockage } = preparerRegion(region => ({ ...region, equipe: [region.equipe[0]!] }));
+  const avant = store.getState().equipe;
+  const sauvegarde = stockage.lire('pokiclicker:region:test:kanto');
+  const uid = avant[0]!.pokemon.uid;
+  const dernier = "C'est ton dernier Pokémon : garde-le dans l'équipe.";
+  expect(store.getState().relacher(uid)).toBe(dernier);
+  expect(store.getState().envoyerAuPc(uid)).toBe(dernier);
+  expect(store.getState().renommer(uid, '1234567890123')).toBe('Entre un nom de 1 à 12 caractères.');
+  expect(store.getState().basculerFavori('absent')).toBe('Ce Pokémon est introuvable.');
+  expect(store.getState().placerDansEquipe('absent')).toBe('Ce Pokémon est introuvable.');
+  expect(store.getState().echanger('absent', uid)).toBe('Ce Pokémon est introuvable.');
+  expect(store.getState().equipe).toBe(avant);
+  expect(stockage.lire('pokiclicker:region:test:kanto')).toBe(sauvegarde);
+});
+
+it('envoie au PC puis replace dans l’équipe avec sauvegarde immédiate', () => {
+  const { store, stockage } = preparerRegion(region => ({ ...region,
+    equipe: ['premier', 'second'].map(uid => ({ ...region.equipe[0]!, uid })) }));
+  expect(store.getState().envoyerAuPc('premier')).toBeNull();
+  expect(JSON.parse(stockage.lire('pokiclicker:region:test:kanto')!).donnees.pc[0].uid).toBe('premier');
+  expect(store.getState().placerDansEquipe('premier')).toBeNull();
+  expect(store.getState().echange).toBeNull();
+  const region = JSON.parse(stockage.lire('pokiclicker:region:test:kanto')!).donnees as DonneesRegion;
+  expect(region.pc).toEqual([]);
+  expect(region.equipe.map(p => p.uid)).toEqual(['second', 'premier']);
+});
+
+it('ouvre, annule puis termine un échange sans sauvegarder son ouverture', () => {
+  const { store, stockage } = preparerRegion(region => ({ ...region,
+    equipe: Array.from({ length: 6 }, (_, i) => ({ ...region.equipe[0]!, uid: `equipe-${i}` })),
+    pc: [{ ...region.equipe[0]!, uid: 'pc', surnom: 'Renfort' }] }));
+  const avant = store.getState().equipe;
+  const sauvegarde = stockage.lire('pokiclicker:region:test:kanto');
+  expect(store.getState().placerDansEquipe('pc')).toBeNull();
+  expect(store.getState().echange).toEqual({ uid: 'pc', nom: 'Renfort' });
+  expect(store.getState().equipe).toBe(avant);
+  expect(stockage.lire('pokiclicker:region:test:kanto')).toBe(sauvegarde);
+  store.getState().annulerEchange();
+  expect(store.getState().echange).toBeNull();
+  expect(store.getState().placerDansEquipe('pc')).toBeNull();
+  expect(store.getState().echanger('pc', 'absent')).toBe('Ce Pokémon est introuvable.');
+  expect(store.getState().echange).toEqual({ uid: 'pc', nom: 'Renfort' });
+  expect(store.getState().echanger('pc', 'equipe-2')).toBeNull();
+  expect(store.getState().echange).toBeNull();
+  expect(store.getState().equipe[2]!.pokemon.uid).toBe('pc');
+  const region = JSON.parse(stockage.lire('pokiclicker:region:test:kanto')!).donnees as DonneesRegion;
+  expect(region.equipe[2]!.uid).toBe('pc');
+  expect(region.pc[0]!.uid).toBe('equipe-2');
+});
+
+it('expose le multiplicateur du DPS et conserve la référence d’équipe entre les ticks', () => {
+  const { store, avancer } = preparer();
+  const equipe = store.getState().equipe;
+  for (const membre of equipe.filter(Boolean)) {
+    const detail = detailDps(membre!.pokemon, membre!.multiplicateur);
+    expect(membre!.dps).toBeCloseTo(Object.values(detail).reduce((produit, valeur) => produit * valeur, 1));
+  }
+  avancer();
+  expect(store.getState().equipe).toBe(equipe);
+});
 
 it('expose les 24 formes dans l’ordre, leurs accès et les badges au démarrage', () => {
   const { store, stockage } = preparer();

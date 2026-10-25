@@ -2,9 +2,10 @@ import { createStore } from 'zustand/vanilla';
 import { creerHorlogeSysteme } from '../core/clock';
 import type { Horloge } from '../core/clock';
 import { avancerCombat, calculerClic, calculerDpsEquipe, cliquer, creerCombat, creerLimiteurClics,
-  reprendreCombat, viderEvenements } from '../core/combat';
+  multiplicateurType, reprendreCombat, viderEvenements } from '../core/combat';
 import type { EtatCombat } from '../core/combat';
 import type { Ennemi } from '../core/ennemis';
+import * as equipe from '../core/equipe';
 import { creerBoucle } from '../core/loop';
 import { chargerPokemon } from '../core/pokemon';
 import { appliquerVictoire, calculerMaxXp } from '../core/recompenses';
@@ -20,7 +21,7 @@ import { imageConnue } from './Image';
 import { cheminDecor, precharger, prechargerZone } from './precharger';
 
 export type Degat = { id: number; valeur: number };
-export type CaseEquipe = { pokemon: PokemonPossede; dps: number; xpMax: number } | null;
+export type CaseEquipe = { pokemon: PokemonPossede; dps: number; xpMax: number; multiplicateur: number } | null;
 export type Destination = { id: string; nom: string; ouverte: boolean; raison: string | null };
 export type EtatForme = {
   forme: FormeCarte; zone: string | null; nom: string; numero: number | null;
@@ -33,6 +34,14 @@ export type AffichageJeu = {
   minuteur: { restantMs: number; totalMs: number } | null;
   evenementsDegats: Degat[];
   argent: number; enRecherche: boolean; annonce: string | null;
+  echange: { uid: string; nom: string } | null;
+  renommer(uid: string, texte: string): string | null;
+  basculerFavori(uid: string): string | null;
+  relacher(uid: string): string | null;
+  envoyerAuPc(uid: string): string | null;
+  placerDansEquipe(uidPc: string): string | null;
+  echanger(uidPc: string, uidEquipe: string): string | null;
+  annulerEchange(): void;
   carte: { formes: EtatForme[]; badges: { obtenus: number; total: number }; nouvelles: string[]; tutorielRoute1: boolean };
   voirCarte(): void;
   allerVers(zoneId: string): void; attaquer(): void; demarrer(): void; arreter(): void; fermer(): void; tick(): void;
@@ -55,6 +64,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
   let identifiantDegat = 0;
   const catalogue = chargerPokemon();
   let annonce: string | null = null;
+  let echange: AffichageJeu['echange'] = null;
   let finAnnonceMs = 0;
   // Temps effectivement simulé par la boucle utilisant l'horloge injectée.
   let tempsJeuMs = 0;
@@ -114,6 +124,8 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
     };
     const equipe: CaseEquipe[] = region.equipe.map(pokemon => ({ pokemon,
       xpMax: calculerMaxXp(pokemon.numero, pokemon.niveau),
+      multiplicateur: coeur ? multiplicateurType(catalogue.parNumero(pokemon.numero).types,
+        catalogue.parNumero(coeur.ennemi.numero).types) : 1,
       dps: coeur ? calculerDpsEquipe([versMembreEquipe(pokemon)], coeur.ennemi) : 0 }));
     while (equipe.length < 6) equipe.push(null);
     const precedent = store.getState();
@@ -139,7 +151,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
       carte: JSON.stringify(carte) === JSON.stringify(precedent.carte) ? precedent.carte : carte,
       equipe: JSON.stringify(equipe) === JSON.stringify(precedent.equipe) ? precedent.equipe : equipe,
       dps: coeur ? calculerDpsEquipe(coeur.equipe, coeur.ennemi) : 0, erreur,
-      argent: region.argent, enRecherche: (coeur?.attenteMs ?? 0) > 0, annonce,
+      argent: region.argent, enRecherche: (coeur?.attenteMs ?? 0) > 0, annonce, echange,
       minuteur: coeur && coeur.attenteMs === 0 && coeur.minuteurMs !== null
         ? { restantMs: coeur.minuteurMs, totalMs: reglages.combat.minuteurBossMs } : null,
       zonePrecedente: JSON.stringify(zonePrecedente) === JSON.stringify(precedent.zonePrecedente) ? precedent.zonePrecedente : zonePrecedente,
@@ -153,10 +165,34 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
     if (!lieu.sansCombat) void prechargerZone(lieu);
   };
   const cacher = () => { if (document.visibilityState === 'hidden') enregistrer(); };
+  const modifierEquipe = (action: (region: DonneesRegion) => equipe.ResultatEquipe,
+    uidPc?: string, fermerEchange = false): string | null => {
+    if (!initialise) return 'La partie n’est pas démarrée.';
+    const resultat = action(region);
+    if (!resultat.ok) return resultat.raison;
+    if (resultat.echangeRequis && uidPc !== undefined) {
+      const pokemon = region.pc.find(p => p.uid === uidPc)!;
+      echange = { uid: uidPc, nom: pokemon.surnom ?? catalogue.parNumero(pokemon.numero).nom };
+    } else {
+      region = resultat.region;
+      if (coeur) coeur = { ...coeur, equipe: region.equipe.map(versMembreEquipe) };
+      if (fermerEchange) echange = null;
+      enregistrer();
+    }
+    afficher();
+    return null;
+  };
   const store = createStore<AffichageJeu>(() => ({
     lieu: null, zone: null, etape: 1, ennemi: null, pv: 0, equipe: [], dps: 0, minuteur: null,
     erreur: null, erreurChargement: false, zonePrecedente: null, zoneSuivante: null, evenementsDegats: [],
-    argent: 0, enRecherche: false, annonce: null,
+    argent: 0, enRecherche: false, annonce: null, echange: null,
+    renommer: (uid, texte) => modifierEquipe(region => equipe.renommer(region, uid, texte)),
+    basculerFavori: uid => modifierEquipe(region => equipe.basculerFavori(region, uid)),
+    relacher: uid => modifierEquipe(region => equipe.relacher(region, uid)),
+    envoyerAuPc: uid => modifierEquipe(region => equipe.envoyerAuPc(region, uid)),
+    placerDansEquipe: uid => modifierEquipe(region => equipe.placerDansEquipe(region, uid), uid),
+    echanger: (uidPc, uidEquipe) => modifierEquipe(region => equipe.echanger(region, uidPc, uidEquipe), undefined, true),
+    annulerEchange() { echange = null; afficher(); },
     carte: { formes: [], badges: { obtenus: 0, total: totalBadges }, nouvelles: [], tutorielRoute1: false },
     voirCarte() {
       if (!initialise) return;
