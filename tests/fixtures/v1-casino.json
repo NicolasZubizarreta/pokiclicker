@@ -1,0 +1,5978 @@
+{
+  "sources": {
+    "legacy/js/data/constants.js": "ebc0f425b51b32e66ccf5d754a315e7351abcab5ead3b6d9253eca4a3f9062c9",
+    "legacy/js/game/stats.js": "47c89eb5b0d00d7502ce8c25228201088e920e7b8d9f9c7d8b6baf2b4e368c1c",
+    "legacy/js/game/team.js": "41251b61fd9db082a8c25f14d701805331395d097c9e4a7ca10e5d745a555c46",
+    "legacy/js/game/casino.js": "75b6b2f238898310736b1f606f7a6f6a961c44bdfbdac76b525423fabbd936ba",
+    "legacy/js/game/save.js": "38a0b89b096f53c4d8c6add39942049c5bd8bfdaf8ef5fe674b5f00465e2220e",
+    "data/regions/kanto/zones.json": "2557337c57127684c79d031ba428c5cd924de34d3e220ab9ff1d394ec2bbe718",
+    "scripts/extraire-casino-v1.mjs": "184333c431e0950ceeea2c81c174e1037efedba9d491ceb5353100407af098a0",
+    "scripts/lib/graine.mjs": "c5017b5d795490fc5010ba92bb00ddea4889a80a1e6e57c9ab63585390d346ee"
+  },
+  "constantes": {
+    "lot": {
+      "cost": 1000,
+      "tokens": 50
+    },
+    "rachat": {
+      "tokens": 50,
+      "money": 1000
+    },
+    "symboles": [
+      "7",
+      "Pikachu",
+      "Staross",
+      "Baie",
+      "Magicarpe"
+    ],
+    "poids": [
+      1,
+      6,
+      10,
+      18,
+      65
+    ],
+    "images": {
+      "7": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/master-ball.png",
+      "Pikachu": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png",
+      "Staross": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/121.png",
+      "Baie": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/cheri-berry.png",
+      "Magicarpe": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/129.png"
+    },
+    "boutique": [
+      {
+        "key": "abra",
+        "name": "Abra",
+        "price": 250,
+        "type": "pokemon",
+        "id": 63
+      },
+      {
+        "key": "candy",
+        "name": "Super Bonbon",
+        "price": 500,
+        "type": "item",
+        "itemKey": "candy"
+      },
+      {
+        "key": "scyther",
+        "name": "Insecateur",
+        "price": 1000,
+        "type": "pokemon",
+        "id": 123
+      },
+      {
+        "key": "dratini",
+        "name": "Minidraco",
+        "price": 4000,
+        "type": "pokemon",
+        "id": 147
+      },
+      {
+        "key": "porygon",
+        "name": "Porygon",
+        "price": 5000,
+        "type": "pokemon",
+        "id": 137
+      },
+      {
+        "key": "ctJackpot",
+        "name": "CT Jackpot",
+        "price": 10000,
+        "type": "upgrade",
+        "itemKey": "ctJackpot"
+      },
+      {
+        "key": "masterball",
+        "name": "Master Ball",
+        "price": 40000,
+        "type": "item",
+        "itemKey": "masterball"
+      }
+    ],
+    "noms": {
+      "candy": "Bonbon",
+      "ctJackpot": "CT Jackpot",
+      "masterball": "Master Ball"
+    }
+  },
+  "animation": {
+    "rouleaux": [
+      700,
+      950,
+      1200
+    ],
+    "defilement": 80,
+    "piece": 500
+  },
+  "acces": {
+    "zone": 11,
+    "nom": "Céladopole",
+    "condition": "zoneId <= state.unlockedZone || state.cheat",
+    "zonePrecedente": {
+      "ancienId": 10,
+      "id": "kanto.tour-pokemon",
+      "nom": "Tour Pokémon"
+    },
+    "conditionV2": {
+      "type": "boss",
+      "zone": "kanto.tour-pokemon"
+    }
+  },
+  "machine": {
+    "table": [
+      {
+        "symboles": [
+          "7",
+          "7",
+          "7"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "7",
+          "7",
+          "Pikachu"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "7",
+          "7",
+          "Staross"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "7",
+          "7",
+          "Baie"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "7",
+          "7",
+          "Magicarpe"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "7",
+          "Pikachu",
+          "7"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "7",
+          "Pikachu",
+          "Pikachu"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "7",
+          "Pikachu",
+          "Staross"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "7",
+          "Pikachu",
+          "Baie"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "7",
+          "Pikachu",
+          "Magicarpe"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "7",
+          "Staross",
+          "7"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "7",
+          "Staross",
+          "Pikachu"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "7",
+          "Staross",
+          "Staross"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "7",
+          "Staross",
+          "Baie"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "7",
+          "Staross",
+          "Magicarpe"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "7",
+          "Baie",
+          "7"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "7",
+          "Baie",
+          "Pikachu"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "7",
+          "Baie",
+          "Staross"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "7",
+          "Baie",
+          "Baie"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "7",
+          "Baie",
+          "Magicarpe"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "7",
+          "Magicarpe",
+          "7"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "7",
+          "Magicarpe",
+          "Pikachu"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "7",
+          "Magicarpe",
+          "Staross"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "7",
+          "Magicarpe",
+          "Baie"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "7",
+          "Magicarpe",
+          "Magicarpe"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Pikachu",
+          "7",
+          "7"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Pikachu",
+          "7",
+          "Pikachu"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Pikachu",
+          "7",
+          "Staross"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Pikachu",
+          "7",
+          "Baie"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Pikachu",
+          "7",
+          "Magicarpe"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Pikachu",
+          "Pikachu",
+          "7"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Pikachu",
+          "Pikachu",
+          "Pikachu"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Pikachu",
+          "Pikachu",
+          "Staross"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Pikachu",
+          "Pikachu",
+          "Baie"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Pikachu",
+          "Pikachu",
+          "Magicarpe"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Pikachu",
+          "Staross",
+          "7"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Pikachu",
+          "Staross",
+          "Pikachu"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Pikachu",
+          "Staross",
+          "Staross"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Pikachu",
+          "Staross",
+          "Baie"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Pikachu",
+          "Staross",
+          "Magicarpe"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Pikachu",
+          "Baie",
+          "7"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Pikachu",
+          "Baie",
+          "Pikachu"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Pikachu",
+          "Baie",
+          "Staross"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Pikachu",
+          "Baie",
+          "Baie"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Pikachu",
+          "Baie",
+          "Magicarpe"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Pikachu",
+          "Magicarpe",
+          "7"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Pikachu",
+          "Magicarpe",
+          "Pikachu"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Pikachu",
+          "Magicarpe",
+          "Staross"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Pikachu",
+          "Magicarpe",
+          "Baie"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Pikachu",
+          "Magicarpe",
+          "Magicarpe"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Staross",
+          "7",
+          "7"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Staross",
+          "7",
+          "Pikachu"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Staross",
+          "7",
+          "Staross"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Staross",
+          "7",
+          "Baie"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Staross",
+          "7",
+          "Magicarpe"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Staross",
+          "Pikachu",
+          "7"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Staross",
+          "Pikachu",
+          "Pikachu"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Staross",
+          "Pikachu",
+          "Staross"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Staross",
+          "Pikachu",
+          "Baie"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Staross",
+          "Pikachu",
+          "Magicarpe"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Staross",
+          "Staross",
+          "7"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Staross",
+          "Staross",
+          "Pikachu"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Staross",
+          "Staross",
+          "Staross"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Staross",
+          "Staross",
+          "Baie"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Staross",
+          "Staross",
+          "Magicarpe"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Staross",
+          "Baie",
+          "7"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Staross",
+          "Baie",
+          "Pikachu"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Staross",
+          "Baie",
+          "Staross"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Staross",
+          "Baie",
+          "Baie"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Staross",
+          "Baie",
+          "Magicarpe"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Staross",
+          "Magicarpe",
+          "7"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Staross",
+          "Magicarpe",
+          "Pikachu"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Staross",
+          "Magicarpe",
+          "Staross"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Staross",
+          "Magicarpe",
+          "Baie"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Staross",
+          "Magicarpe",
+          "Magicarpe"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Baie",
+          "7",
+          "7"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Baie",
+          "7",
+          "Pikachu"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Baie",
+          "7",
+          "Staross"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Baie",
+          "7",
+          "Baie"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Baie",
+          "7",
+          "Magicarpe"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Baie",
+          "Pikachu",
+          "7"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Baie",
+          "Pikachu",
+          "Pikachu"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Baie",
+          "Pikachu",
+          "Staross"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Baie",
+          "Pikachu",
+          "Baie"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Baie",
+          "Pikachu",
+          "Magicarpe"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Baie",
+          "Staross",
+          "7"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Baie",
+          "Staross",
+          "Pikachu"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Baie",
+          "Staross",
+          "Staross"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Baie",
+          "Staross",
+          "Baie"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Baie",
+          "Staross",
+          "Magicarpe"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Baie",
+          "Baie",
+          "7"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Baie",
+          "Baie",
+          "Pikachu"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Baie",
+          "Baie",
+          "Staross"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Baie",
+          "Baie",
+          "Baie"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Baie",
+          "Baie",
+          "Magicarpe"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Baie",
+          "Magicarpe",
+          "7"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Baie",
+          "Magicarpe",
+          "Pikachu"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Baie",
+          "Magicarpe",
+          "Staross"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Baie",
+          "Magicarpe",
+          "Baie"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Baie",
+          "Magicarpe",
+          "Magicarpe"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Magicarpe",
+          "7",
+          "7"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Magicarpe",
+          "7",
+          "Pikachu"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Magicarpe",
+          "7",
+          "Staross"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Magicarpe",
+          "7",
+          "Baie"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Magicarpe",
+          "7",
+          "Magicarpe"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Magicarpe",
+          "Pikachu",
+          "7"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Magicarpe",
+          "Pikachu",
+          "Pikachu"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Magicarpe",
+          "Pikachu",
+          "Staross"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Magicarpe",
+          "Pikachu",
+          "Baie"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Magicarpe",
+          "Pikachu",
+          "Magicarpe"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Magicarpe",
+          "Staross",
+          "7"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Magicarpe",
+          "Staross",
+          "Pikachu"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Magicarpe",
+          "Staross",
+          "Staross"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Magicarpe",
+          "Staross",
+          "Baie"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Magicarpe",
+          "Staross",
+          "Magicarpe"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Magicarpe",
+          "Baie",
+          "7"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Magicarpe",
+          "Baie",
+          "Pikachu"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Magicarpe",
+          "Baie",
+          "Staross"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Magicarpe",
+          "Baie",
+          "Baie"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Magicarpe",
+          "Baie",
+          "Magicarpe"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Magicarpe",
+          "Magicarpe",
+          "7"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Magicarpe",
+          "Magicarpe",
+          "Pikachu"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Magicarpe",
+          "Magicarpe",
+          "Staross"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Magicarpe",
+          "Magicarpe",
+          "Baie"
+        ],
+        "gain": 0
+      },
+      {
+        "symboles": [
+          "Magicarpe",
+          "Magicarpe",
+          "Magicarpe"
+        ],
+        "gain": 0
+      }
+    ],
+    "serie": {
+      "graine": 20261025,
+      "nombre": 100000,
+      "mise": 1,
+      "total": 162634,
+      "histogramme": {
+        "0": 63793,
+        "2": 7887,
+        "5": 27624,
+        "10": 578,
+        "20": 98,
+        "50": 20
+      },
+      "tirages": 300000,
+      "premiers": [
+        {
+          "symboles": [
+            "Staross",
+            "Baie",
+            "Magicarpe"
+          ],
+          "message": "Perdu...",
+          "gain": 0,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Magicarpe",
+            "Magicarpe",
+            "Staross"
+          ],
+          "message": "Perdu...",
+          "gain": 0,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Magicarpe",
+            "Baie",
+            "Magicarpe"
+          ],
+          "message": "Perdu...",
+          "gain": 0,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Magicarpe",
+            "Baie",
+            "Magicarpe"
+          ],
+          "message": "Perdu...",
+          "gain": 0,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Staross",
+            "Magicarpe",
+            "Baie"
+          ],
+          "message": "Perdu...",
+          "gain": 0,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Magicarpe",
+            "Magicarpe",
+            "Magicarpe"
+          ],
+          "message": "Gagne x5 !",
+          "gain": 5,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Magicarpe",
+            "Magicarpe",
+            "Baie"
+          ],
+          "message": "Perdu...",
+          "gain": 0,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Magicarpe",
+            "Magicarpe",
+            "Magicarpe"
+          ],
+          "message": "Gagne x5 !",
+          "gain": 5,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Magicarpe",
+            "Magicarpe",
+            "Magicarpe"
+          ],
+          "message": "Gagne x5 !",
+          "gain": 5,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Magicarpe",
+            "Magicarpe",
+            "Magicarpe"
+          ],
+          "message": "Gagne x5 !",
+          "gain": 5,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Magicarpe",
+            "Staross",
+            "Magicarpe"
+          ],
+          "message": "Perdu...",
+          "gain": 0,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Baie",
+            "Magicarpe",
+            "Magicarpe"
+          ],
+          "message": "Perdu...",
+          "gain": 0,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Staross",
+            "Magicarpe",
+            "Magicarpe"
+          ],
+          "message": "Perdu...",
+          "gain": 0,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Baie",
+            "Baie",
+            "Magicarpe"
+          ],
+          "message": "Baie x2 !",
+          "gain": 2,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Magicarpe",
+            "Baie",
+            "Pikachu"
+          ],
+          "message": "Perdu...",
+          "gain": 0,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Magicarpe",
+            "Staross",
+            "Magicarpe"
+          ],
+          "message": "Perdu...",
+          "gain": 0,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Baie",
+            "Baie",
+            "Magicarpe"
+          ],
+          "message": "Baie x2 !",
+          "gain": 2,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Magicarpe",
+            "Magicarpe",
+            "Staross"
+          ],
+          "message": "Perdu...",
+          "gain": 0,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Magicarpe",
+            "Baie",
+            "Magicarpe"
+          ],
+          "message": "Perdu...",
+          "gain": 0,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Baie",
+            "Staross",
+            "Magicarpe"
+          ],
+          "message": "Perdu...",
+          "gain": 0,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Magicarpe",
+            "Magicarpe",
+            "Magicarpe"
+          ],
+          "message": "Gagne x5 !",
+          "gain": 5,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Magicarpe",
+            "Magicarpe",
+            "Magicarpe"
+          ],
+          "message": "Gagne x5 !",
+          "gain": 5,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Pikachu",
+            "Baie",
+            "Magicarpe"
+          ],
+          "message": "Perdu...",
+          "gain": 0,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Magicarpe",
+            "Pikachu",
+            "Baie"
+          ],
+          "message": "Perdu...",
+          "gain": 0,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Magicarpe",
+            "Baie",
+            "Magicarpe"
+          ],
+          "message": "Perdu...",
+          "gain": 0,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Magicarpe",
+            "Magicarpe",
+            "Pikachu"
+          ],
+          "message": "Perdu...",
+          "gain": 0,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Staross",
+            "Magicarpe",
+            "Staross"
+          ],
+          "message": "Perdu...",
+          "gain": 0,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Magicarpe",
+            "Magicarpe",
+            "Magicarpe"
+          ],
+          "message": "Gagne x5 !",
+          "gain": 5,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Magicarpe",
+            "Magicarpe",
+            "Baie"
+          ],
+          "message": "Perdu...",
+          "gain": 0,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Baie",
+            "Magicarpe",
+            "Magicarpe"
+          ],
+          "message": "Perdu...",
+          "gain": 0,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Magicarpe",
+            "Magicarpe",
+            "Magicarpe"
+          ],
+          "message": "Gagne x5 !",
+          "gain": 5,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Magicarpe",
+            "Magicarpe",
+            "Magicarpe"
+          ],
+          "message": "Gagne x5 !",
+          "gain": 5,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Magicarpe",
+            "Magicarpe",
+            "Magicarpe"
+          ],
+          "message": "Gagne x5 !",
+          "gain": 5,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Staross",
+            "Magicarpe",
+            "Magicarpe"
+          ],
+          "message": "Perdu...",
+          "gain": 0,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Magicarpe",
+            "Pikachu",
+            "Pikachu"
+          ],
+          "message": "Perdu...",
+          "gain": 0,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Pikachu",
+            "Magicarpe",
+            "Staross"
+          ],
+          "message": "Perdu...",
+          "gain": 0,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Staross",
+            "Magicarpe",
+            "Baie"
+          ],
+          "message": "Perdu...",
+          "gain": 0,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Magicarpe",
+            "Magicarpe",
+            "Magicarpe"
+          ],
+          "message": "Gagne x5 !",
+          "gain": 5,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Baie",
+            "Magicarpe",
+            "Magicarpe"
+          ],
+          "message": "Perdu...",
+          "gain": 0,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Magicarpe",
+            "Magicarpe",
+            "Magicarpe"
+          ],
+          "message": "Gagne x5 !",
+          "gain": 5,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Magicarpe",
+            "Magicarpe",
+            "Magicarpe"
+          ],
+          "message": "Gagne x5 !",
+          "gain": 5,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Baie",
+            "Magicarpe",
+            "Magicarpe"
+          ],
+          "message": "Perdu...",
+          "gain": 0,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Magicarpe",
+            "Pikachu",
+            "Magicarpe"
+          ],
+          "message": "Perdu...",
+          "gain": 0,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Magicarpe",
+            "Baie",
+            "Baie"
+          ],
+          "message": "Baie x2 !",
+          "gain": 2,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Magicarpe",
+            "Magicarpe",
+            "Magicarpe"
+          ],
+          "message": "Gagne x5 !",
+          "gain": 5,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Magicarpe",
+            "Magicarpe",
+            "Magicarpe"
+          ],
+          "message": "Gagne x5 !",
+          "gain": 5,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Magicarpe",
+            "Baie",
+            "Magicarpe"
+          ],
+          "message": "Perdu...",
+          "gain": 0,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Pikachu",
+            "Magicarpe",
+            "Magicarpe"
+          ],
+          "message": "Perdu...",
+          "gain": 0,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Magicarpe",
+            "Magicarpe",
+            "Staross"
+          ],
+          "message": "Perdu...",
+          "gain": 0,
+          "tirages": 3
+        },
+        {
+          "symboles": [
+            "Magicarpe",
+            "Magicarpe",
+            "Magicarpe"
+          ],
+          "message": "Gagne x5 !",
+          "gain": 5,
+          "tirages": 3
+        }
+      ]
+    }
+  },
+  "pileOuFace": {
+    "serie": {
+      "graine": 20261025,
+      "nombre": 10000,
+      "mise": 1,
+      "total": 10074,
+      "histogramme": {
+        "0": 4963,
+        "2": 5037
+      },
+      "tirages": 10000,
+      "premiers": [
+        {
+          "choix": "face",
+          "resultat": "face",
+          "gain": 2,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "face",
+          "gain": 2,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "pile",
+          "gain": 0,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "pile",
+          "gain": 0,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "pile",
+          "gain": 0,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "face",
+          "gain": 2,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "pile",
+          "gain": 0,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "face",
+          "gain": 2,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "pile",
+          "gain": 0,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "pile",
+          "gain": 0,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "face",
+          "gain": 2,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "face",
+          "gain": 2,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "face",
+          "gain": 2,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "face",
+          "gain": 2,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "face",
+          "gain": 2,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "face",
+          "gain": 2,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "face",
+          "gain": 2,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "pile",
+          "gain": 0,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "face",
+          "gain": 2,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "pile",
+          "gain": 0,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "face",
+          "gain": 2,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "face",
+          "gain": 2,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "pile",
+          "gain": 0,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "face",
+          "gain": 2,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "face",
+          "gain": 2,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "pile",
+          "gain": 0,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "pile",
+          "gain": 0,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "pile",
+          "gain": 0,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "face",
+          "gain": 2,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "pile",
+          "gain": 0,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "pile",
+          "gain": 0,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "face",
+          "gain": 2,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "pile",
+          "gain": 0,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "face",
+          "gain": 2,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "pile",
+          "gain": 0,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "face",
+          "gain": 2,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "face",
+          "gain": 2,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "pile",
+          "gain": 0,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "pile",
+          "gain": 0,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "face",
+          "gain": 2,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "face",
+          "gain": 2,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "pile",
+          "gain": 0,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "pile",
+          "gain": 0,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "face",
+          "gain": 2,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "face",
+          "gain": 2,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "pile",
+          "gain": 0,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "face",
+          "gain": 2,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "pile",
+          "gain": 0,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "face",
+          "gain": 2,
+          "tirages": 1
+        },
+        {
+          "choix": "face",
+          "resultat": "face",
+          "gain": 2,
+          "tirages": 1
+        }
+      ]
+    }
+  },
+  "blackjack": {
+    "scenarios": [
+      {
+        "nom": "naturel",
+        "mise": 3,
+        "cartes": [
+          "A-S",
+          "K-H",
+          "2-D"
+        ],
+        "actions": [],
+        "donne": {
+          "joueur": [
+            "A-S",
+            "K-H"
+          ],
+          "croupier": [
+            "2-D"
+          ],
+          "valeurJoueur": 21,
+          "valeurCroupier": 2,
+          "paquetRestant": [],
+          "active": false
+        },
+        "joueur": [
+          "A-S",
+          "K-H"
+        ],
+        "croupier": [
+          "2-D"
+        ],
+        "valeurJoueur": 21,
+        "valeurCroupier": 2,
+        "paquetRestant": [],
+        "active": false,
+        "gain": 7.5,
+        "tirages": 0,
+        "message": "Blackjack ! x2.5"
+      },
+      {
+        "nom": "egalite",
+        "mise": 2,
+        "cartes": [
+          "10-S",
+          "8-H",
+          "10-D",
+          "8-C"
+        ],
+        "actions": [
+          "rester"
+        ],
+        "donne": {
+          "joueur": [
+            "10-S",
+            "8-H"
+          ],
+          "croupier": [
+            "10-D"
+          ],
+          "valeurJoueur": 18,
+          "valeurCroupier": 10,
+          "paquetRestant": [
+            "8-C"
+          ],
+          "active": true
+        },
+        "joueur": [
+          "10-S",
+          "8-H"
+        ],
+        "croupier": [
+          "10-D",
+          "8-C"
+        ],
+        "valeurJoueur": 18,
+        "valeurCroupier": 18,
+        "paquetRestant": [],
+        "active": false,
+        "gain": 2,
+        "tirages": 0,
+        "message": "Egalite. Mise rendue."
+      },
+      {
+        "nom": "bust",
+        "mise": 2,
+        "cartes": [
+          "10-S",
+          "9-H",
+          "2-D",
+          "5-C"
+        ],
+        "actions": [
+          "tirer"
+        ],
+        "donne": {
+          "joueur": [
+            "10-S",
+            "9-H"
+          ],
+          "croupier": [
+            "2-D"
+          ],
+          "valeurJoueur": 19,
+          "valeurCroupier": 2,
+          "paquetRestant": [
+            "5-C"
+          ],
+          "active": true
+        },
+        "joueur": [
+          "10-S",
+          "9-H",
+          "5-C"
+        ],
+        "croupier": [
+          "2-D"
+        ],
+        "valeurJoueur": 24,
+        "valeurCroupier": 2,
+        "paquetRestant": [],
+        "active": false,
+        "gain": 0,
+        "tirages": 0,
+        "message": "Bust ! Perdu."
+      },
+      {
+        "nom": "croupier-jusqua-17",
+        "mise": 2,
+        "cartes": [
+          "10-S",
+          "8-H",
+          "2-D",
+          "5-C",
+          "10-H"
+        ],
+        "actions": [
+          "rester"
+        ],
+        "donne": {
+          "joueur": [
+            "10-S",
+            "8-H"
+          ],
+          "croupier": [
+            "2-D"
+          ],
+          "valeurJoueur": 18,
+          "valeurCroupier": 2,
+          "paquetRestant": [
+            "10-H",
+            "5-C"
+          ],
+          "active": true
+        },
+        "joueur": [
+          "10-S",
+          "8-H"
+        ],
+        "croupier": [
+          "2-D",
+          "5-C",
+          "10-H"
+        ],
+        "valeurJoueur": 18,
+        "valeurCroupier": 17,
+        "paquetRestant": [],
+        "active": false,
+        "gain": 4,
+        "tirages": 0,
+        "message": "Gagne x2 !"
+      },
+      {
+        "nom": "soft-17",
+        "mise": 2,
+        "cartes": [
+          "10-S",
+          "8-H",
+          "A-D",
+          "6-C"
+        ],
+        "actions": [
+          "rester"
+        ],
+        "donne": {
+          "joueur": [
+            "10-S",
+            "8-H"
+          ],
+          "croupier": [
+            "A-D"
+          ],
+          "valeurJoueur": 18,
+          "valeurCroupier": 11,
+          "paquetRestant": [
+            "6-C"
+          ],
+          "active": true
+        },
+        "joueur": [
+          "10-S",
+          "8-H"
+        ],
+        "croupier": [
+          "A-D",
+          "6-C"
+        ],
+        "valeurJoueur": 18,
+        "valeurCroupier": 17,
+        "paquetRestant": [],
+        "active": false,
+        "gain": 4,
+        "tirages": 0,
+        "message": "Gagne x2 !"
+      },
+      {
+        "nom": "depassement",
+        "mise": 2,
+        "cartes": [
+          "10-S",
+          "8-H",
+          "6-D",
+          "10-C",
+          "K-S"
+        ],
+        "actions": [
+          "rester"
+        ],
+        "donne": {
+          "joueur": [
+            "10-S",
+            "8-H"
+          ],
+          "croupier": [
+            "6-D"
+          ],
+          "valeurJoueur": 18,
+          "valeurCroupier": 6,
+          "paquetRestant": [
+            "K-S",
+            "10-C"
+          ],
+          "active": true
+        },
+        "joueur": [
+          "10-S",
+          "8-H"
+        ],
+        "croupier": [
+          "6-D",
+          "10-C",
+          "K-S"
+        ],
+        "valeurJoueur": 18,
+        "valeurCroupier": 26,
+        "paquetRestant": [],
+        "active": false,
+        "gain": 4,
+        "tirages": 0,
+        "message": "Gagne x2 !"
+      },
+      {
+        "nom": "as-compte-1",
+        "mise": 2,
+        "cartes": [
+          "A-S",
+          "5-H",
+          "10-D",
+          "9-C",
+          "7-S"
+        ],
+        "actions": [
+          "tirer",
+          "rester"
+        ],
+        "donne": {
+          "joueur": [
+            "A-S",
+            "5-H"
+          ],
+          "croupier": [
+            "10-D"
+          ],
+          "valeurJoueur": 16,
+          "valeurCroupier": 10,
+          "paquetRestant": [
+            "7-S",
+            "9-C"
+          ],
+          "active": true
+        },
+        "joueur": [
+          "A-S",
+          "5-H",
+          "9-C"
+        ],
+        "croupier": [
+          "10-D",
+          "7-S"
+        ],
+        "valeurJoueur": 15,
+        "valeurCroupier": 17,
+        "paquetRestant": [],
+        "active": false,
+        "gain": 0,
+        "tirages": 0,
+        "message": "Perdu."
+      },
+      {
+        "nom": "paquet-vide-reconstruit",
+        "mise": 2,
+        "cartes": [
+          "10-S",
+          "6-H",
+          "10-D"
+        ],
+        "actions": [
+          "tirer",
+          "rester"
+        ],
+        "donne": {
+          "joueur": [
+            "10-S",
+            "6-H"
+          ],
+          "croupier": [
+            "10-D"
+          ],
+          "valeurJoueur": 16,
+          "valeurCroupier": 10,
+          "paquetRestant": [],
+          "active": true
+        },
+        "joueur": [
+          "10-S",
+          "6-H",
+          "2-C"
+        ],
+        "croupier": [
+          "10-D",
+          "5-H",
+          "9-D"
+        ],
+        "valeurJoueur": 18,
+        "valeurCroupier": 24,
+        "paquetRestant": [
+          "7-S",
+          "3-S",
+          "5-C",
+          "2-H",
+          "J-C",
+          "9-S",
+          "Q-D",
+          "A-S",
+          "6-C",
+          "10-H",
+          "8-S",
+          "A-D",
+          "10-C",
+          "K-C",
+          "3-H",
+          "J-S",
+          "5-D",
+          "5-S",
+          "8-C",
+          "6-D",
+          "A-H",
+          "10-D",
+          "K-D",
+          "8-D",
+          "J-D",
+          "9-C",
+          "7-H",
+          "J-H",
+          "Q-C",
+          "8-H",
+          "3-C",
+          "2-D",
+          "7-D",
+          "4-H",
+          "6-H",
+          "Q-H",
+          "Q-S",
+          "3-D",
+          "4-C",
+          "A-C",
+          "6-S",
+          "4-S",
+          "K-H",
+          "7-C",
+          "4-D",
+          "10-S",
+          "2-S",
+          "9-H",
+          "K-S"
+        ],
+        "active": false,
+        "gain": 4,
+        "tirages": 51,
+        "message": "Gagne x2 !"
+      }
+    ],
+    "serie": {
+      "strategie": "tire sous 17",
+      "graine": 20261025,
+      "nombre": 10000,
+      "mise": 2,
+      "total": 18914,
+      "histogramme": {
+        "0": 4885,
+        "2": 995,
+        "4": 3676,
+        "5": 444
+      },
+      "tirages": 510000,
+      "premiers": [
+        {
+          "joueur": [
+            "2-C",
+            "5-H",
+            "K-S"
+          ],
+          "croupier": [
+            "9-D",
+            "9-H"
+          ],
+          "valeurJoueur": 17,
+          "valeurCroupier": 18,
+          "paquetRestant": [
+            "7-S",
+            "3-S",
+            "5-C",
+            "2-H",
+            "J-C",
+            "9-S",
+            "Q-D",
+            "A-S",
+            "6-C",
+            "10-H",
+            "8-S",
+            "A-D",
+            "10-C",
+            "K-C",
+            "3-H",
+            "J-S",
+            "5-D",
+            "5-S",
+            "8-C",
+            "6-D",
+            "A-H",
+            "10-D",
+            "K-D",
+            "8-D",
+            "J-D",
+            "9-C",
+            "7-H",
+            "J-H",
+            "Q-C",
+            "8-H",
+            "3-C",
+            "2-D",
+            "7-D",
+            "4-H",
+            "6-H",
+            "Q-H",
+            "Q-S",
+            "3-D",
+            "4-C",
+            "A-C",
+            "6-S",
+            "4-S",
+            "K-H",
+            "7-C",
+            "4-D",
+            "10-S",
+            "2-S"
+          ],
+          "active": false,
+          "message": "Perdu.",
+          "gain": 0,
+          "tirages": 51
+        },
+        {
+          "joueur": [
+            "8-C",
+            "6-H",
+            "8-D"
+          ],
+          "croupier": [
+            "2-C"
+          ],
+          "valeurJoueur": 22,
+          "valeurCroupier": 2,
+          "paquetRestant": [
+            "K-D",
+            "J-S",
+            "Q-H",
+            "J-D",
+            "J-H",
+            "3-C",
+            "5-C",
+            "6-S",
+            "2-D",
+            "7-C",
+            "3-H",
+            "8-H",
+            "9-H",
+            "4-S",
+            "2-H",
+            "A-C",
+            "2-S",
+            "5-S",
+            "4-H",
+            "K-S",
+            "9-C",
+            "4-C",
+            "7-S",
+            "10-C",
+            "A-D",
+            "10-S",
+            "5-D",
+            "10-D",
+            "6-C",
+            "9-D",
+            "Q-C",
+            "3-S",
+            "A-S",
+            "5-H",
+            "K-C",
+            "Q-S",
+            "A-H",
+            "7-H",
+            "7-D",
+            "6-D",
+            "8-S",
+            "10-H",
+            "J-C",
+            "9-S",
+            "K-H",
+            "3-D",
+            "Q-D",
+            "4-D"
+          ],
+          "active": false,
+          "message": "Bust ! Perdu.",
+          "gain": 0,
+          "tirages": 51
+        },
+        {
+          "joueur": [
+            "9-H",
+            "A-H"
+          ],
+          "croupier": [
+            "A-D",
+            "K-D"
+          ],
+          "valeurJoueur": 20,
+          "valeurCroupier": 21,
+          "paquetRestant": [
+            "4-S",
+            "K-H",
+            "10-D",
+            "J-D",
+            "K-C",
+            "3-S",
+            "9-D",
+            "7-D",
+            "Q-H",
+            "Q-D",
+            "Q-C",
+            "6-S",
+            "A-S",
+            "8-S",
+            "2-H",
+            "10-C",
+            "Q-S",
+            "7-H",
+            "5-C",
+            "5-D",
+            "3-H",
+            "6-H",
+            "2-C",
+            "8-D",
+            "5-H",
+            "9-C",
+            "K-S",
+            "5-S",
+            "10-H",
+            "3-C",
+            "2-D",
+            "8-H",
+            "7-S",
+            "4-H",
+            "10-S",
+            "4-C",
+            "6-C",
+            "J-C",
+            "J-S",
+            "3-D",
+            "9-S",
+            "8-C",
+            "J-H",
+            "4-D",
+            "7-C",
+            "2-S",
+            "A-C",
+            "6-D"
+          ],
+          "active": false,
+          "message": "Perdu.",
+          "gain": 0,
+          "tirages": 51
+        },
+        {
+          "joueur": [
+            "5-S",
+            "3-D",
+            "3-C",
+            "A-H",
+            "J-S"
+          ],
+          "croupier": [
+            "Q-S"
+          ],
+          "valeurJoueur": 22,
+          "valeurCroupier": 10,
+          "paquetRestant": [
+            "7-D",
+            "10-C",
+            "Q-C",
+            "6-S",
+            "8-C",
+            "8-D",
+            "10-D",
+            "4-S",
+            "4-D",
+            "K-C",
+            "3-H",
+            "J-D",
+            "6-D",
+            "Q-D",
+            "K-D",
+            "7-C",
+            "6-H",
+            "2-S",
+            "10-S",
+            "8-S",
+            "2-C",
+            "4-C",
+            "J-C",
+            "8-H",
+            "9-S",
+            "2-H",
+            "9-C",
+            "K-S",
+            "J-H",
+            "9-D",
+            "A-D",
+            "7-H",
+            "Q-H",
+            "6-C",
+            "A-S",
+            "2-D",
+            "A-C",
+            "3-S",
+            "5-C",
+            "K-H",
+            "5-H",
+            "9-H",
+            "4-H",
+            "7-S",
+            "5-D",
+            "10-H"
+          ],
+          "active": false,
+          "message": "Bust ! Perdu.",
+          "gain": 0,
+          "tirages": 51
+        },
+        {
+          "joueur": [
+            "6-H",
+            "8-H",
+            "10-D"
+          ],
+          "croupier": [
+            "5-H"
+          ],
+          "valeurJoueur": 24,
+          "valeurCroupier": 5,
+          "paquetRestant": [
+            "Q-D",
+            "9-D",
+            "J-D",
+            "5-S",
+            "8-C",
+            "10-H",
+            "K-S",
+            "8-S",
+            "6-S",
+            "A-C",
+            "2-D",
+            "J-S",
+            "7-C",
+            "K-C",
+            "2-H",
+            "9-H",
+            "9-C",
+            "10-C",
+            "K-H",
+            "A-D",
+            "J-H",
+            "7-D",
+            "3-C",
+            "9-S",
+            "10-S",
+            "5-C",
+            "4-S",
+            "3-S",
+            "4-H",
+            "8-D",
+            "K-D",
+            "4-C",
+            "7-H",
+            "6-C",
+            "Q-C",
+            "7-S",
+            "3-D",
+            "3-H",
+            "Q-S",
+            "J-C",
+            "2-S",
+            "4-D",
+            "Q-H",
+            "6-D",
+            "A-H",
+            "2-C",
+            "A-S",
+            "5-D"
+          ],
+          "active": false,
+          "message": "Bust ! Perdu.",
+          "gain": 0,
+          "tirages": 51
+        },
+        {
+          "joueur": [
+            "7-H",
+            "5-H",
+            "3-H",
+            "5-D"
+          ],
+          "croupier": [
+            "9-D",
+            "8-D"
+          ],
+          "valeurJoueur": 20,
+          "valeurCroupier": 17,
+          "paquetRestant": [
+            "10-D",
+            "10-C",
+            "8-C",
+            "8-H",
+            "6-S",
+            "J-H",
+            "A-C",
+            "J-D",
+            "3-D",
+            "2-D",
+            "4-C",
+            "A-H",
+            "K-D",
+            "9-H",
+            "Q-C",
+            "7-C",
+            "7-S",
+            "K-H",
+            "5-C",
+            "4-D",
+            "2-S",
+            "J-S",
+            "6-H",
+            "6-D",
+            "4-H",
+            "A-S",
+            "4-S",
+            "Q-H",
+            "J-C",
+            "K-C",
+            "Q-S",
+            "9-S",
+            "5-S",
+            "Q-D",
+            "K-S",
+            "6-C",
+            "2-C",
+            "10-H",
+            "9-C",
+            "7-D",
+            "3-S",
+            "10-S",
+            "A-D",
+            "2-H",
+            "3-C",
+            "8-S"
+          ],
+          "active": false,
+          "message": "Gagne x2 !",
+          "gain": 4,
+          "tirages": 51
+        },
+        {
+          "joueur": [
+            "3-H",
+            "6-C",
+            "3-C",
+            "K-D"
+          ],
+          "croupier": [
+            "3-S"
+          ],
+          "valeurJoueur": 22,
+          "valeurCroupier": 3,
+          "paquetRestant": [
+            "4-S",
+            "2-D",
+            "5-C",
+            "3-D",
+            "8-S",
+            "7-H",
+            "10-H",
+            "7-S",
+            "A-H",
+            "A-S",
+            "J-S",
+            "10-S",
+            "6-D",
+            "K-S",
+            "Q-H",
+            "J-D",
+            "4-H",
+            "5-D",
+            "A-D",
+            "K-C",
+            "5-H",
+            "7-D",
+            "10-D",
+            "8-D",
+            "Q-C",
+            "9-C",
+            "Q-S",
+            "5-S",
+            "2-C",
+            "J-C",
+            "10-C",
+            "K-H",
+            "9-H",
+            "9-D",
+            "2-S",
+            "8-H",
+            "6-H",
+            "Q-D",
+            "4-D",
+            "2-H",
+            "7-C",
+            "4-C",
+            "8-C",
+            "6-S",
+            "9-S",
+            "J-H",
+            "A-C"
+          ],
+          "active": false,
+          "message": "Bust ! Perdu.",
+          "gain": 0,
+          "tirages": 51
+        },
+        {
+          "joueur": [
+            "10-S",
+            "9-H"
+          ],
+          "croupier": [
+            "10-D",
+            "8-C"
+          ],
+          "valeurJoueur": 19,
+          "valeurCroupier": 18,
+          "paquetRestant": [
+            "3-C",
+            "9-S",
+            "6-D",
+            "8-D",
+            "2-S",
+            "A-H",
+            "3-H",
+            "7-S",
+            "9-C",
+            "A-S",
+            "7-C",
+            "4-S",
+            "6-S",
+            "A-D",
+            "K-D",
+            "J-H",
+            "Q-D",
+            "Q-S",
+            "5-C",
+            "9-D",
+            "4-D",
+            "A-C",
+            "10-C",
+            "4-C",
+            "8-S",
+            "J-C",
+            "6-H",
+            "J-S",
+            "6-C",
+            "10-H",
+            "3-S",
+            "7-H",
+            "Q-H",
+            "Q-C",
+            "2-H",
+            "4-H",
+            "K-C",
+            "8-H",
+            "5-D",
+            "7-D",
+            "K-S",
+            "2-D",
+            "J-D",
+            "2-C",
+            "5-H",
+            "K-H",
+            "3-D",
+            "5-S"
+          ],
+          "active": false,
+          "message": "Gagne x2 !",
+          "gain": 4,
+          "tirages": 51
+        },
+        {
+          "joueur": [
+            "7-S",
+            "Q-D"
+          ],
+          "croupier": [
+            "A-C",
+            "5-C",
+            "K-S",
+            "J-H"
+          ],
+          "valeurJoueur": 17,
+          "valeurCroupier": 26,
+          "paquetRestant": [
+            "6-H",
+            "6-C",
+            "5-D",
+            "3-H",
+            "6-S",
+            "2-C",
+            "10-H",
+            "10-C",
+            "10-D",
+            "3-D",
+            "3-S",
+            "6-D",
+            "A-D",
+            "K-D",
+            "4-H",
+            "9-C",
+            "J-C",
+            "8-C",
+            "2-H",
+            "7-C",
+            "9-H",
+            "10-S",
+            "A-S",
+            "4-C",
+            "7-H",
+            "2-D",
+            "9-D",
+            "7-D",
+            "Q-H",
+            "J-S",
+            "9-S",
+            "8-D",
+            "K-H",
+            "Q-S",
+            "8-S",
+            "K-C",
+            "3-C",
+            "2-S",
+            "5-H",
+            "J-D",
+            "8-H",
+            "5-S",
+            "A-H",
+            "4-D",
+            "4-S",
+            "Q-C"
+          ],
+          "active": false,
+          "message": "Gagne x2 !",
+          "gain": 4,
+          "tirages": 51
+        },
+        {
+          "joueur": [
+            "7-H",
+            "K-D"
+          ],
+          "croupier": [
+            "8-S",
+            "Q-H"
+          ],
+          "valeurJoueur": 17,
+          "valeurCroupier": 18,
+          "paquetRestant": [
+            "6-S",
+            "J-C",
+            "A-S",
+            "7-D",
+            "4-D",
+            "4-C",
+            "K-H",
+            "Q-C",
+            "8-C",
+            "2-H",
+            "5-C",
+            "6-D",
+            "A-H",
+            "2-S",
+            "J-S",
+            "K-C",
+            "9-C",
+            "9-H",
+            "10-D",
+            "10-S",
+            "A-D",
+            "A-C",
+            "8-H",
+            "9-S",
+            "3-C",
+            "10-H",
+            "3-H",
+            "5-S",
+            "Q-D",
+            "9-D",
+            "7-S",
+            "K-S",
+            "2-C",
+            "4-S",
+            "6-C",
+            "6-H",
+            "5-D",
+            "5-H",
+            "3-D",
+            "4-H",
+            "3-S",
+            "10-C",
+            "8-D",
+            "2-D",
+            "7-C",
+            "Q-S",
+            "J-H",
+            "J-D"
+          ],
+          "active": false,
+          "message": "Perdu.",
+          "gain": 0,
+          "tirages": 51
+        },
+        {
+          "joueur": [
+            "2-S",
+            "2-C",
+            "9-H",
+            "6-D"
+          ],
+          "croupier": [
+            "9-D",
+            "6-C",
+            "A-H",
+            "7-D"
+          ],
+          "valeurJoueur": 19,
+          "valeurCroupier": 23,
+          "paquetRestant": [
+            "8-C",
+            "10-D",
+            "3-S",
+            "10-C",
+            "J-D",
+            "10-H",
+            "5-D",
+            "4-S",
+            "J-S",
+            "6-H",
+            "10-S",
+            "5-H",
+            "4-C",
+            "Q-H",
+            "J-C",
+            "8-H",
+            "7-H",
+            "A-S",
+            "4-D",
+            "K-S",
+            "5-C",
+            "K-H",
+            "3-D",
+            "3-H",
+            "A-C",
+            "2-H",
+            "7-S",
+            "Q-D",
+            "4-H",
+            "Q-S",
+            "K-C",
+            "9-S",
+            "8-S",
+            "6-S",
+            "J-H",
+            "9-C",
+            "2-D",
+            "A-D",
+            "7-C",
+            "5-S",
+            "K-D",
+            "Q-C",
+            "8-D",
+            "3-C"
+          ],
+          "active": false,
+          "message": "Gagne x2 !",
+          "gain": 4,
+          "tirages": 51
+        },
+        {
+          "joueur": [
+            "4-C",
+            "A-C",
+            "7-S",
+            "2-S",
+            "2-D",
+            "K-S"
+          ],
+          "croupier": [
+            "6-D"
+          ],
+          "valeurJoueur": 26,
+          "valeurCroupier": 6,
+          "paquetRestant": [
+            "2-H",
+            "A-H",
+            "10-H",
+            "K-H",
+            "7-H",
+            "J-H",
+            "7-C",
+            "A-D",
+            "8-H",
+            "7-D",
+            "9-D",
+            "9-C",
+            "9-H",
+            "3-S",
+            "4-S",
+            "4-H",
+            "J-C",
+            "4-D",
+            "Q-S",
+            "5-D",
+            "6-C",
+            "Q-H",
+            "10-D",
+            "10-C",
+            "9-S",
+            "3-H",
+            "3-D",
+            "J-D",
+            "5-H",
+            "6-S",
+            "Q-C",
+            "K-D",
+            "8-C",
+            "A-S",
+            "J-S",
+            "8-D",
+            "8-S",
+            "K-C",
+            "Q-D",
+            "10-S",
+            "3-C",
+            "6-H",
+            "2-C",
+            "5-S",
+            "5-C"
+          ],
+          "active": false,
+          "message": "Bust ! Perdu.",
+          "gain": 0,
+          "tirages": 51
+        },
+        {
+          "joueur": [
+            "A-H",
+            "4-C",
+            "8-C",
+            "10-D"
+          ],
+          "croupier": [
+            "J-S"
+          ],
+          "valeurJoueur": 23,
+          "valeurCroupier": 10,
+          "paquetRestant": [
+            "2-C",
+            "J-C",
+            "5-D",
+            "4-S",
+            "5-H",
+            "8-S",
+            "K-S",
+            "10-H",
+            "A-C",
+            "A-D",
+            "Q-C",
+            "4-D",
+            "K-D",
+            "7-C",
+            "5-S",
+            "J-D",
+            "7-S",
+            "Q-D",
+            "8-D",
+            "5-C",
+            "3-H",
+            "6-D",
+            "Q-S",
+            "2-D",
+            "K-C",
+            "A-S",
+            "8-H",
+            "3-D",
+            "2-H",
+            "6-S",
+            "6-H",
+            "Q-H",
+            "9-H",
+            "4-H",
+            "9-C",
+            "7-H",
+            "10-S",
+            "3-S",
+            "9-S",
+            "J-H",
+            "3-C",
+            "10-C",
+            "7-D",
+            "6-C",
+            "9-D",
+            "K-H",
+            "2-S"
+          ],
+          "active": false,
+          "message": "Bust ! Perdu.",
+          "gain": 0,
+          "tirages": 51
+        },
+        {
+          "joueur": [
+            "K-S",
+            "7-S"
+          ],
+          "croupier": [
+            "8-S",
+            "2-D",
+            "K-C"
+          ],
+          "valeurJoueur": 17,
+          "valeurCroupier": 20,
+          "paquetRestant": [
+            "7-D",
+            "3-H",
+            "7-C",
+            "9-D",
+            "A-C",
+            "10-S",
+            "6-H",
+            "4-D",
+            "Q-D",
+            "10-D",
+            "10-C",
+            "8-C",
+            "6-C",
+            "J-H",
+            "Q-S",
+            "4-S",
+            "9-C",
+            "3-C",
+            "A-S",
+            "5-D",
+            "8-H",
+            "4-H",
+            "2-S",
+            "5-C",
+            "A-H",
+            "6-S",
+            "Q-H",
+            "8-D",
+            "10-H",
+            "3-S",
+            "J-C",
+            "3-D",
+            "5-H",
+            "7-H",
+            "2-C",
+            "J-S",
+            "Q-C",
+            "A-D",
+            "9-H",
+            "9-S",
+            "K-D",
+            "2-H",
+            "6-D",
+            "5-S",
+            "4-C",
+            "J-D",
+            "K-H"
+          ],
+          "active": false,
+          "message": "Perdu.",
+          "gain": 0,
+          "tirages": 51
+        },
+        {
+          "joueur": [
+            "A-S",
+            "4-S",
+            "Q-H",
+            "9-S"
+          ],
+          "croupier": [
+            "7-D"
+          ],
+          "valeurJoueur": 24,
+          "valeurCroupier": 7,
+          "paquetRestant": [
+            "10-H",
+            "7-S",
+            "10-S",
+            "Q-D",
+            "Q-S",
+            "8-D",
+            "6-H",
+            "4-H",
+            "3-D",
+            "7-C",
+            "6-D",
+            "J-C",
+            "10-C",
+            "3-S",
+            "A-D",
+            "2-C",
+            "7-H",
+            "A-H",
+            "K-S",
+            "9-C",
+            "5-D",
+            "5-S",
+            "Q-C",
+            "K-D",
+            "4-C",
+            "K-H",
+            "8-H",
+            "8-C",
+            "9-H",
+            "10-D",
+            "3-H",
+            "2-D",
+            "5-H",
+            "3-C",
+            "2-H",
+            "5-C",
+            "J-S",
+            "A-C",
+            "6-S",
+            "8-S",
+            "J-H",
+            "4-D",
+            "J-D",
+            "K-C",
+            "9-D",
+            "2-S",
+            "6-C"
+          ],
+          "active": false,
+          "message": "Bust ! Perdu.",
+          "gain": 0,
+          "tirages": 51
+        },
+        {
+          "joueur": [
+            "4-D",
+            "Q-C",
+            "7-D"
+          ],
+          "croupier": [
+            "3-C",
+            "K-S",
+            "J-C"
+          ],
+          "valeurJoueur": 21,
+          "valeurCroupier": 23,
+          "paquetRestant": [
+            "4-C",
+            "10-H",
+            "6-C",
+            "9-C",
+            "3-S",
+            "4-S",
+            "8-D",
+            "7-H",
+            "8-C",
+            "2-D",
+            "6-H",
+            "10-S",
+            "A-H",
+            "5-S",
+            "6-S",
+            "3-D",
+            "A-D",
+            "5-H",
+            "Q-D",
+            "K-H",
+            "9-H",
+            "Q-H",
+            "J-S",
+            "5-D",
+            "8-S",
+            "9-S",
+            "2-S",
+            "10-C",
+            "4-H",
+            "K-D",
+            "9-D",
+            "2-H",
+            "A-S",
+            "Q-S",
+            "J-D",
+            "3-H",
+            "A-C",
+            "8-H",
+            "7-S",
+            "J-H",
+            "7-C",
+            "2-C",
+            "6-D",
+            "K-C",
+            "10-D",
+            "5-C"
+          ],
+          "active": false,
+          "message": "Gagne x2 !",
+          "gain": 4,
+          "tirages": 51
+        },
+        {
+          "joueur": [
+            "A-C",
+            "3-C",
+            "8-C",
+            "9-D"
+          ],
+          "croupier": [
+            "4-D",
+            "2-C",
+            "7-D",
+            "K-D"
+          ],
+          "valeurJoueur": 21,
+          "valeurCroupier": 23,
+          "paquetRestant": [
+            "K-C",
+            "5-C",
+            "2-D",
+            "9-C",
+            "5-D",
+            "3-H",
+            "3-D",
+            "J-S",
+            "K-H",
+            "2-H",
+            "J-H",
+            "2-S",
+            "7-C",
+            "Q-D",
+            "5-H",
+            "A-H",
+            "9-S",
+            "4-C",
+            "7-S",
+            "Q-H",
+            "Q-S",
+            "6-D",
+            "8-H",
+            "8-D",
+            "6-C",
+            "10-D",
+            "3-S",
+            "10-C",
+            "10-S",
+            "4-S",
+            "5-S",
+            "Q-C",
+            "6-S",
+            "9-H",
+            "J-D",
+            "7-H",
+            "A-S",
+            "10-H",
+            "K-S",
+            "8-S",
+            "4-H",
+            "6-H",
+            "A-D",
+            "J-C"
+          ],
+          "active": false,
+          "message": "Gagne x2 !",
+          "gain": 4,
+          "tirages": 51
+        },
+        {
+          "joueur": [
+            "J-S",
+            "8-S"
+          ],
+          "croupier": [
+            "7-S",
+            "4-S",
+            "A-D",
+            "10-S"
+          ],
+          "valeurJoueur": 18,
+          "valeurCroupier": 22,
+          "paquetRestant": [
+            "4-D",
+            "7-H",
+            "5-D",
+            "3-C",
+            "4-H",
+            "J-C",
+            "K-C",
+            "K-H",
+            "4-C",
+            "6-H",
+            "6-D",
+            "9-H",
+            "A-S",
+            "8-D",
+            "Q-S",
+            "2-H",
+            "K-S",
+            "6-S",
+            "Q-C",
+            "3-S",
+            "9-D",
+            "3-H",
+            "3-D",
+            "9-S",
+            "8-C",
+            "2-D",
+            "J-D",
+            "5-C",
+            "Q-H",
+            "Q-D",
+            "5-S",
+            "5-H",
+            "10-D",
+            "7-C",
+            "10-C",
+            "2-S",
+            "6-C",
+            "2-C",
+            "9-C",
+            "7-D",
+            "A-C",
+            "K-D",
+            "8-H",
+            "A-H",
+            "J-H",
+            "10-H"
+          ],
+          "active": false,
+          "message": "Gagne x2 !",
+          "gain": 4,
+          "tirages": 51
+        },
+        {
+          "joueur": [
+            "7-H",
+            "K-D"
+          ],
+          "croupier": [
+            "A-D",
+            "K-C"
+          ],
+          "valeurJoueur": 17,
+          "valeurCroupier": 21,
+          "paquetRestant": [
+            "6-D",
+            "3-C",
+            "Q-C",
+            "5-C",
+            "7-D",
+            "J-H",
+            "Q-H",
+            "J-D",
+            "8-H",
+            "3-H",
+            "K-S",
+            "9-C",
+            "10-S",
+            "2-D",
+            "5-D",
+            "8-D",
+            "A-C",
+            "10-H",
+            "5-S",
+            "4-D",
+            "6-S",
+            "10-D",
+            "8-C",
+            "K-H",
+            "3-D",
+            "J-S",
+            "7-C",
+            "7-S",
+            "A-H",
+            "4-S",
+            "Q-S",
+            "2-C",
+            "8-S",
+            "5-H",
+            "J-C",
+            "9-S",
+            "9-D",
+            "10-C",
+            "9-H",
+            "3-S",
+            "2-S",
+            "4-H",
+            "6-C",
+            "4-C",
+            "6-H",
+            "2-H",
+            "Q-D",
+            "A-S"
+          ],
+          "active": false,
+          "message": "Perdu.",
+          "gain": 0,
+          "tirages": 51
+        },
+        {
+          "joueur": [
+            "10-S",
+            "3-D",
+            "5-H"
+          ],
+          "croupier": [
+            "5-C",
+            "Q-C",
+            "7-C"
+          ],
+          "valeurJoueur": 18,
+          "valeurCroupier": 22,
+          "paquetRestant": [
+            "10-C",
+            "8-D",
+            "4-C",
+            "3-S",
+            "4-S",
+            "J-S",
+            "4-D",
+            "2-C",
+            "A-S",
+            "K-H",
+            "9-C",
+            "J-D",
+            "Q-S",
+            "6-H",
+            "10-D",
+            "8-C",
+            "7-S",
+            "3-H",
+            "A-H",
+            "K-C",
+            "7-H",
+            "2-S",
+            "5-D",
+            "6-C",
+            "9-S",
+            "8-S",
+            "A-C",
+            "J-H",
+            "2-H",
+            "A-D",
+            "2-D",
+            "3-C",
+            "Q-H",
+            "5-S",
+            "10-H",
+            "J-C",
+            "K-S",
+            "8-H",
+            "6-S",
+            "7-D",
+            "K-D",
+            "6-D",
+            "Q-D",
+            "4-H",
+            "9-D",
+            "9-H"
+          ],
+          "active": false,
+          "message": "Gagne x2 !",
+          "gain": 4,
+          "tirages": 51
+        }
+      ]
+    }
+  },
+  "jetons": [
+    {
+      "action": "buyCasinoTokens",
+      "avant": {
+        "money": 999,
+        "casinoTokens": 0,
+        "team": [],
+        "pc": [],
+        "pokedex": [],
+        "inv": {},
+        "upgrades": {},
+        "stats": {
+          "totalMoney": 0
+        }
+      },
+      "apres": {
+        "money": 999,
+        "casinoTokens": 0,
+        "team": [],
+        "pc": [],
+        "pokedex": [],
+        "inv": {},
+        "upgrades": {},
+        "stats": {
+          "totalMoney": 0
+        }
+      },
+      "messages": [
+        [
+          "PAS ASSEZ D'ARGENT !",
+          "red"
+        ]
+      ],
+      "tirages": 0
+    },
+    {
+      "action": "buyCasinoTokens",
+      "avant": {
+        "money": 1000,
+        "casinoTokens": 0,
+        "team": [],
+        "pc": [],
+        "pokedex": [],
+        "inv": {},
+        "upgrades": {},
+        "stats": {
+          "totalMoney": 0
+        }
+      },
+      "apres": {
+        "money": 0,
+        "casinoTokens": 50,
+        "team": [],
+        "pc": [],
+        "pokedex": [],
+        "inv": {},
+        "upgrades": {},
+        "stats": {
+          "totalMoney": 0
+        }
+      },
+      "messages": [
+        [
+          "+50 JETONS !",
+          "green"
+        ]
+      ],
+      "tirages": 0
+    },
+    {
+      "action": "cashOutCasinoTokens",
+      "avant": {
+        "money": 0,
+        "casinoTokens": 49,
+        "team": [],
+        "pc": [],
+        "pokedex": [],
+        "inv": {},
+        "upgrades": {},
+        "stats": {
+          "totalMoney": 0
+        }
+      },
+      "apres": {
+        "money": 0,
+        "casinoTokens": 49,
+        "team": [],
+        "pc": [],
+        "pokedex": [],
+        "inv": {},
+        "upgrades": {},
+        "stats": {
+          "totalMoney": 0
+        }
+      },
+      "messages": [
+        [
+          "PAS ASSEZ DE JETONS !",
+          "red"
+        ]
+      ],
+      "tirages": 0
+    },
+    {
+      "action": "cashOutCasinoTokens",
+      "avant": {
+        "money": 0,
+        "casinoTokens": 50,
+        "team": [],
+        "pc": [],
+        "pokedex": [],
+        "inv": {},
+        "upgrades": {},
+        "stats": {
+          "totalMoney": 0
+        }
+      },
+      "apres": {
+        "money": 1000,
+        "casinoTokens": 0,
+        "team": [],
+        "pc": [],
+        "pokedex": [],
+        "inv": {},
+        "upgrades": {},
+        "stats": {
+          "totalMoney": 0
+        }
+      },
+      "messages": [
+        [
+          "+1 000$ !",
+          "green"
+        ]
+      ],
+      "tirages": 0
+    }
+  ],
+  "mise": [
+    {
+      "valeur": "0",
+      "resultat": 0,
+      "messages": [
+        [
+          "MISE INVALIDE !",
+          "red"
+        ]
+      ]
+    },
+    {
+      "valeur": "-1",
+      "resultat": 0,
+      "messages": [
+        [
+          "MISE INVALIDE !",
+          "red"
+        ]
+      ]
+    },
+    {
+      "valeur": "abc",
+      "resultat": 0,
+      "messages": [
+        [
+          "MISE INVALIDE !",
+          "red"
+        ]
+      ]
+    },
+    {
+      "valeur": "1.5",
+      "resultat": 1,
+      "messages": []
+    }
+  ],
+  "boutique": {
+    "achats": [
+      {
+        "cle": "abra",
+        "equipeAvant": 5,
+        "etat": {
+          "money": 0,
+          "casinoTokens": 999750,
+          "team": [
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 63,
+              "name": "Abra",
+              "level": 25,
+              "isShiny": false,
+              "gender": "male",
+              "happiness": 0,
+              "xp": 0,
+              "maxXp": 59489,
+              "uid": 1700000000000.3386,
+              "img": "sprite-fixe",
+              "isFavorite": false,
+              "calciumBoosts": 0
+            }
+          ],
+          "pc": [],
+          "pokedex": [
+            63
+          ],
+          "inv": {},
+          "upgrades": {},
+          "stats": {
+            "totalMoney": 0
+          }
+        },
+        "addToPokedex": [
+          63
+        ],
+        "messages": [
+          [
+            "+Abra !",
+            "green"
+          ]
+        ],
+        "tirages": 2
+      },
+      {
+        "cle": "candy",
+        "equipeAvant": 5,
+        "etat": {
+          "money": 0,
+          "casinoTokens": 999500,
+          "team": [
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            }
+          ],
+          "pc": [],
+          "pokedex": [],
+          "inv": {
+            "candy": 1
+          },
+          "upgrades": {},
+          "stats": {
+            "totalMoney": 0
+          }
+        },
+        "addToPokedex": [],
+        "messages": [
+          [
+            "+1 Bonbon !",
+            "green"
+          ]
+        ],
+        "tirages": 0
+      },
+      {
+        "cle": "scyther",
+        "equipeAvant": 5,
+        "etat": {
+          "money": 0,
+          "casinoTokens": 999000,
+          "team": [
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 123,
+              "name": "Insecateur",
+              "level": 25,
+              "isShiny": false,
+              "gender": "male",
+              "happiness": 0,
+              "xp": 0,
+              "maxXp": 71387,
+              "uid": 1700000000000.3386,
+              "img": "sprite-fixe",
+              "isFavorite": false,
+              "calciumBoosts": 0
+            }
+          ],
+          "pc": [],
+          "pokedex": [
+            123
+          ],
+          "inv": {},
+          "upgrades": {},
+          "stats": {
+            "totalMoney": 0
+          }
+        },
+        "addToPokedex": [
+          123
+        ],
+        "messages": [
+          [
+            "+Insecateur !",
+            "green"
+          ]
+        ],
+        "tirages": 2
+      },
+      {
+        "cle": "dratini",
+        "equipeAvant": 5,
+        "etat": {
+          "money": 0,
+          "casinoTokens": 996000,
+          "team": [
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 147,
+              "name": "Minidraco",
+              "level": 25,
+              "isShiny": false,
+              "gender": "male",
+              "happiness": 0,
+              "xp": 0,
+              "maxXp": 59489,
+              "uid": 1700000000000.3386,
+              "img": "sprite-fixe",
+              "isFavorite": false,
+              "calciumBoosts": 0
+            }
+          ],
+          "pc": [],
+          "pokedex": [
+            147
+          ],
+          "inv": {},
+          "upgrades": {},
+          "stats": {
+            "totalMoney": 0
+          }
+        },
+        "addToPokedex": [
+          147
+        ],
+        "messages": [
+          [
+            "+Minidraco !",
+            "green"
+          ]
+        ],
+        "tirages": 2
+      },
+      {
+        "cle": "porygon",
+        "equipeAvant": 5,
+        "etat": {
+          "money": 0,
+          "casinoTokens": 995000,
+          "team": [
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 137,
+              "name": "Porygon",
+              "level": 25,
+              "isShiny": false,
+              "gender": "genderless",
+              "happiness": 0,
+              "xp": 0,
+              "maxXp": 59489,
+              "uid": 1700000000000.1414,
+              "img": "sprite-fixe",
+              "isFavorite": false,
+              "calciumBoosts": 0
+            }
+          ],
+          "pc": [],
+          "pokedex": [
+            137
+          ],
+          "inv": {},
+          "upgrades": {},
+          "stats": {
+            "totalMoney": 0
+          }
+        },
+        "addToPokedex": [
+          137
+        ],
+        "messages": [
+          [
+            "+Porygon !",
+            "green"
+          ]
+        ],
+        "tirages": 1
+      },
+      {
+        "cle": "ctJackpot",
+        "equipeAvant": 5,
+        "etat": {
+          "money": 0,
+          "casinoTokens": 990000,
+          "team": [
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            }
+          ],
+          "pc": [],
+          "pokedex": [],
+          "inv": {},
+          "upgrades": {
+            "ctJackpot": true
+          },
+          "stats": {
+            "totalMoney": 0
+          }
+        },
+        "addToPokedex": [],
+        "messages": [
+          [
+            "CT JACKPOT OBTENUE !",
+            "green"
+          ]
+        ],
+        "tirages": 0
+      },
+      {
+        "cle": "masterball",
+        "equipeAvant": 5,
+        "etat": {
+          "money": 0,
+          "casinoTokens": 960000,
+          "team": [
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            }
+          ],
+          "pc": [],
+          "pokedex": [],
+          "inv": {
+            "masterball": 1
+          },
+          "upgrades": {},
+          "stats": {
+            "totalMoney": 0
+          }
+        },
+        "addToPokedex": [],
+        "messages": [
+          [
+            "+1 Master Ball !",
+            "green"
+          ]
+        ],
+        "tirages": 0
+      },
+      {
+        "cle": "abra",
+        "equipeAvant": 6,
+        "etat": {
+          "money": 0,
+          "casinoTokens": 999750,
+          "team": [
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            }
+          ],
+          "pc": [
+            {
+              "id": 63,
+              "name": "Abra",
+              "level": 25,
+              "isShiny": false,
+              "gender": "male",
+              "happiness": 0,
+              "xp": 0,
+              "maxXp": 59489,
+              "uid": 1700000000000.3386,
+              "img": "sprite-fixe",
+              "isFavorite": false,
+              "calciumBoosts": 0
+            }
+          ],
+          "pokedex": [
+            63
+          ],
+          "inv": {},
+          "upgrades": {},
+          "stats": {
+            "totalMoney": 0
+          }
+        },
+        "addToPokedex": [
+          63
+        ],
+        "messages": [
+          [
+            "+Abra !",
+            "green"
+          ]
+        ],
+        "tirages": 2
+      },
+      {
+        "cle": "candy",
+        "equipeAvant": 6,
+        "etat": {
+          "money": 0,
+          "casinoTokens": 999500,
+          "team": [
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            }
+          ],
+          "pc": [],
+          "pokedex": [],
+          "inv": {
+            "candy": 1
+          },
+          "upgrades": {},
+          "stats": {
+            "totalMoney": 0
+          }
+        },
+        "addToPokedex": [],
+        "messages": [
+          [
+            "+1 Bonbon !",
+            "green"
+          ]
+        ],
+        "tirages": 0
+      },
+      {
+        "cle": "scyther",
+        "equipeAvant": 6,
+        "etat": {
+          "money": 0,
+          "casinoTokens": 999000,
+          "team": [
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            }
+          ],
+          "pc": [
+            {
+              "id": 123,
+              "name": "Insecateur",
+              "level": 25,
+              "isShiny": false,
+              "gender": "male",
+              "happiness": 0,
+              "xp": 0,
+              "maxXp": 71387,
+              "uid": 1700000000000.3386,
+              "img": "sprite-fixe",
+              "isFavorite": false,
+              "calciumBoosts": 0
+            }
+          ],
+          "pokedex": [
+            123
+          ],
+          "inv": {},
+          "upgrades": {},
+          "stats": {
+            "totalMoney": 0
+          }
+        },
+        "addToPokedex": [
+          123
+        ],
+        "messages": [
+          [
+            "+Insecateur !",
+            "green"
+          ]
+        ],
+        "tirages": 2
+      },
+      {
+        "cle": "dratini",
+        "equipeAvant": 6,
+        "etat": {
+          "money": 0,
+          "casinoTokens": 996000,
+          "team": [
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            }
+          ],
+          "pc": [
+            {
+              "id": 147,
+              "name": "Minidraco",
+              "level": 25,
+              "isShiny": false,
+              "gender": "male",
+              "happiness": 0,
+              "xp": 0,
+              "maxXp": 59489,
+              "uid": 1700000000000.3386,
+              "img": "sprite-fixe",
+              "isFavorite": false,
+              "calciumBoosts": 0
+            }
+          ],
+          "pokedex": [
+            147
+          ],
+          "inv": {},
+          "upgrades": {},
+          "stats": {
+            "totalMoney": 0
+          }
+        },
+        "addToPokedex": [
+          147
+        ],
+        "messages": [
+          [
+            "+Minidraco !",
+            "green"
+          ]
+        ],
+        "tirages": 2
+      },
+      {
+        "cle": "porygon",
+        "equipeAvant": 6,
+        "etat": {
+          "money": 0,
+          "casinoTokens": 995000,
+          "team": [
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            }
+          ],
+          "pc": [
+            {
+              "id": 137,
+              "name": "Porygon",
+              "level": 25,
+              "isShiny": false,
+              "gender": "genderless",
+              "happiness": 0,
+              "xp": 0,
+              "maxXp": 59489,
+              "uid": 1700000000000.1414,
+              "img": "sprite-fixe",
+              "isFavorite": false,
+              "calciumBoosts": 0
+            }
+          ],
+          "pokedex": [
+            137
+          ],
+          "inv": {},
+          "upgrades": {},
+          "stats": {
+            "totalMoney": 0
+          }
+        },
+        "addToPokedex": [
+          137
+        ],
+        "messages": [
+          [
+            "+Porygon !",
+            "green"
+          ]
+        ],
+        "tirages": 1
+      },
+      {
+        "cle": "ctJackpot",
+        "equipeAvant": 6,
+        "etat": {
+          "money": 0,
+          "casinoTokens": 990000,
+          "team": [
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            }
+          ],
+          "pc": [],
+          "pokedex": [],
+          "inv": {},
+          "upgrades": {
+            "ctJackpot": true
+          },
+          "stats": {
+            "totalMoney": 0
+          }
+        },
+        "addToPokedex": [],
+        "messages": [
+          [
+            "CT JACKPOT OBTENUE !",
+            "green"
+          ]
+        ],
+        "tirages": 0
+      },
+      {
+        "cle": "masterball",
+        "equipeAvant": 6,
+        "etat": {
+          "money": 0,
+          "casinoTokens": 960000,
+          "team": [
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            },
+            {
+              "id": 1
+            }
+          ],
+          "pc": [],
+          "pokedex": [],
+          "inv": {
+            "masterball": 1
+          },
+          "upgrades": {},
+          "stats": {
+            "totalMoney": 0
+          }
+        },
+        "addToPokedex": [],
+        "messages": [
+          [
+            "+1 Master Ball !",
+            "green"
+          ]
+        ],
+        "tirages": 0
+      }
+    ],
+    "refus": [
+      {
+        "nom": "jetons-insuffisants",
+        "avant": {
+          "money": 0,
+          "casinoTokens": 249,
+          "team": [],
+          "pc": [],
+          "pokedex": [],
+          "inv": {},
+          "upgrades": {},
+          "stats": {
+            "totalMoney": 0
+          }
+        },
+        "apres": {
+          "money": 0,
+          "casinoTokens": 249,
+          "team": [],
+          "pc": [],
+          "pokedex": [],
+          "inv": {},
+          "upgrades": {},
+          "stats": {
+            "totalMoney": 0
+          }
+        },
+        "tirages": 0,
+        "messages": [
+          [
+            "PAS ASSEZ DE JETONS !",
+            "red"
+          ]
+        ],
+        "addToPokedex": []
+      },
+      {
+        "nom": "ct-deja-acquise",
+        "avant": {
+          "money": 0,
+          "casinoTokens": 1000000,
+          "team": [],
+          "pc": [],
+          "pokedex": [],
+          "inv": {},
+          "upgrades": {
+            "ctJackpot": true
+          },
+          "stats": {
+            "totalMoney": 0
+          }
+        },
+        "apres": {
+          "money": 0,
+          "casinoTokens": 1000000,
+          "team": [],
+          "pc": [],
+          "pokedex": [],
+          "inv": {},
+          "upgrades": {
+            "ctJackpot": true
+          },
+          "stats": {
+            "totalMoney": 0
+          }
+        },
+        "tirages": 0,
+        "messages": [
+          [
+            "DÉJÀ ACQUIS !",
+            "red"
+          ]
+        ],
+        "addToPokedex": []
+      }
+    ],
+    "sexes": [
+      {
+        "numero": 63,
+        "graine": 20261025,
+        "valeurs": [
+          "male",
+          "male",
+          "female",
+          "female",
+          "female",
+          "male",
+          "female",
+          "male",
+          "female",
+          "female",
+          "male",
+          "male",
+          "male",
+          "male",
+          "male",
+          "male",
+          "male",
+          "female",
+          "male",
+          "female",
+          "male",
+          "male",
+          "female",
+          "male",
+          "male",
+          "female",
+          "female",
+          "female",
+          "male",
+          "female",
+          "female",
+          "male",
+          "female",
+          "male",
+          "female",
+          "male",
+          "male",
+          "female",
+          "female",
+          "male",
+          "male",
+          "female",
+          "female",
+          "male",
+          "male",
+          "female",
+          "male",
+          "female",
+          "male",
+          "male",
+          "male",
+          "female",
+          "male",
+          "male",
+          "female",
+          "male",
+          "female",
+          "male",
+          "male",
+          "female",
+          "female",
+          "female",
+          "female",
+          "female",
+          "female",
+          "female",
+          "male",
+          "male",
+          "female",
+          "female",
+          "male",
+          "male",
+          "male",
+          "male",
+          "female",
+          "female",
+          "female",
+          "male",
+          "male",
+          "female",
+          "male",
+          "female",
+          "male",
+          "female",
+          "female",
+          "female",
+          "male",
+          "male",
+          "male",
+          "female",
+          "male",
+          "female",
+          "female",
+          "male",
+          "female",
+          "female",
+          "female",
+          "female",
+          "male",
+          "male"
+        ],
+        "tirages": 100
+      },
+      {
+        "numero": 123,
+        "graine": 20261025,
+        "valeurs": [
+          "male",
+          "male",
+          "female",
+          "female",
+          "female",
+          "male",
+          "female",
+          "male",
+          "female",
+          "female",
+          "male",
+          "male",
+          "male",
+          "male",
+          "male",
+          "male",
+          "male",
+          "female",
+          "male",
+          "female",
+          "male",
+          "male",
+          "female",
+          "male",
+          "male",
+          "female",
+          "female",
+          "female",
+          "male",
+          "female",
+          "female",
+          "male",
+          "female",
+          "male",
+          "female",
+          "male",
+          "male",
+          "female",
+          "female",
+          "male",
+          "male",
+          "female",
+          "female",
+          "male",
+          "male",
+          "female",
+          "male",
+          "female",
+          "male",
+          "male",
+          "male",
+          "female",
+          "male",
+          "male",
+          "female",
+          "male",
+          "female",
+          "male",
+          "male",
+          "female",
+          "female",
+          "female",
+          "female",
+          "female",
+          "female",
+          "female",
+          "male",
+          "male",
+          "female",
+          "female",
+          "male",
+          "male",
+          "male",
+          "male",
+          "female",
+          "female",
+          "female",
+          "male",
+          "male",
+          "female",
+          "male",
+          "female",
+          "male",
+          "female",
+          "female",
+          "female",
+          "male",
+          "male",
+          "male",
+          "female",
+          "male",
+          "female",
+          "female",
+          "male",
+          "female",
+          "female",
+          "female",
+          "female",
+          "male",
+          "male"
+        ],
+        "tirages": 100
+      },
+      {
+        "numero": 147,
+        "graine": 20261025,
+        "valeurs": [
+          "male",
+          "male",
+          "female",
+          "female",
+          "female",
+          "male",
+          "female",
+          "male",
+          "female",
+          "female",
+          "male",
+          "male",
+          "male",
+          "male",
+          "male",
+          "male",
+          "male",
+          "female",
+          "male",
+          "female",
+          "male",
+          "male",
+          "female",
+          "male",
+          "male",
+          "female",
+          "female",
+          "female",
+          "male",
+          "female",
+          "female",
+          "male",
+          "female",
+          "male",
+          "female",
+          "male",
+          "male",
+          "female",
+          "female",
+          "male",
+          "male",
+          "female",
+          "female",
+          "male",
+          "male",
+          "female",
+          "male",
+          "female",
+          "male",
+          "male",
+          "male",
+          "female",
+          "male",
+          "male",
+          "female",
+          "male",
+          "female",
+          "male",
+          "male",
+          "female",
+          "female",
+          "female",
+          "female",
+          "female",
+          "female",
+          "female",
+          "male",
+          "male",
+          "female",
+          "female",
+          "male",
+          "male",
+          "male",
+          "male",
+          "female",
+          "female",
+          "female",
+          "male",
+          "male",
+          "female",
+          "male",
+          "female",
+          "male",
+          "female",
+          "female",
+          "female",
+          "male",
+          "male",
+          "male",
+          "female",
+          "male",
+          "female",
+          "female",
+          "male",
+          "female",
+          "female",
+          "female",
+          "female",
+          "male",
+          "male"
+        ],
+        "tirages": 100
+      },
+      {
+        "numero": 137,
+        "graine": 20261025,
+        "valeurs": [
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless"
+        ],
+        "tirages": 0
+      },
+      {
+        "numero": 63,
+        "graine": 1,
+        "valeurs": [
+          "female",
+          "male",
+          "female",
+          "female",
+          "female",
+          "male",
+          "female",
+          "female",
+          "male",
+          "female",
+          "male",
+          "male",
+          "male",
+          "male",
+          "male",
+          "male",
+          "male",
+          "male",
+          "male",
+          "female",
+          "male",
+          "male",
+          "male",
+          "male",
+          "female",
+          "female",
+          "male",
+          "male",
+          "female",
+          "female",
+          "female",
+          "male",
+          "female",
+          "male",
+          "female",
+          "female",
+          "male",
+          "female",
+          "male",
+          "male",
+          "male",
+          "male",
+          "male",
+          "female",
+          "female",
+          "male",
+          "male",
+          "male",
+          "female",
+          "female",
+          "male",
+          "female",
+          "female",
+          "male",
+          "male",
+          "female",
+          "female",
+          "female",
+          "female",
+          "female",
+          "female",
+          "female",
+          "male",
+          "male",
+          "female",
+          "male",
+          "female",
+          "female",
+          "female",
+          "female",
+          "male",
+          "female",
+          "female",
+          "male",
+          "female",
+          "male",
+          "male",
+          "male",
+          "male",
+          "male",
+          "female",
+          "female",
+          "female",
+          "male",
+          "female",
+          "female",
+          "male",
+          "male",
+          "male",
+          "female",
+          "male",
+          "male",
+          "female",
+          "female",
+          "male",
+          "male",
+          "male",
+          "male",
+          "male",
+          "female"
+        ],
+        "tirages": 100
+      },
+      {
+        "numero": 123,
+        "graine": 1,
+        "valeurs": [
+          "female",
+          "male",
+          "female",
+          "female",
+          "female",
+          "male",
+          "female",
+          "female",
+          "male",
+          "female",
+          "male",
+          "male",
+          "male",
+          "male",
+          "male",
+          "male",
+          "male",
+          "male",
+          "male",
+          "female",
+          "male",
+          "male",
+          "male",
+          "male",
+          "female",
+          "female",
+          "male",
+          "male",
+          "female",
+          "female",
+          "female",
+          "male",
+          "female",
+          "male",
+          "female",
+          "female",
+          "male",
+          "female",
+          "male",
+          "male",
+          "male",
+          "male",
+          "male",
+          "female",
+          "female",
+          "male",
+          "male",
+          "male",
+          "female",
+          "female",
+          "male",
+          "female",
+          "female",
+          "male",
+          "male",
+          "female",
+          "female",
+          "female",
+          "female",
+          "female",
+          "female",
+          "female",
+          "male",
+          "male",
+          "female",
+          "male",
+          "female",
+          "female",
+          "female",
+          "female",
+          "male",
+          "female",
+          "female",
+          "male",
+          "female",
+          "male",
+          "male",
+          "male",
+          "male",
+          "male",
+          "female",
+          "female",
+          "female",
+          "male",
+          "female",
+          "female",
+          "male",
+          "male",
+          "male",
+          "female",
+          "male",
+          "male",
+          "female",
+          "female",
+          "male",
+          "male",
+          "male",
+          "male",
+          "male",
+          "female"
+        ],
+        "tirages": 100
+      },
+      {
+        "numero": 147,
+        "graine": 1,
+        "valeurs": [
+          "female",
+          "male",
+          "female",
+          "female",
+          "female",
+          "male",
+          "female",
+          "female",
+          "male",
+          "female",
+          "male",
+          "male",
+          "male",
+          "male",
+          "male",
+          "male",
+          "male",
+          "male",
+          "male",
+          "female",
+          "male",
+          "male",
+          "male",
+          "male",
+          "female",
+          "female",
+          "male",
+          "male",
+          "female",
+          "female",
+          "female",
+          "male",
+          "female",
+          "male",
+          "female",
+          "female",
+          "male",
+          "female",
+          "male",
+          "male",
+          "male",
+          "male",
+          "male",
+          "female",
+          "female",
+          "male",
+          "male",
+          "male",
+          "female",
+          "female",
+          "male",
+          "female",
+          "female",
+          "male",
+          "male",
+          "female",
+          "female",
+          "female",
+          "female",
+          "female",
+          "female",
+          "female",
+          "male",
+          "male",
+          "female",
+          "male",
+          "female",
+          "female",
+          "female",
+          "female",
+          "male",
+          "female",
+          "female",
+          "male",
+          "female",
+          "male",
+          "male",
+          "male",
+          "male",
+          "male",
+          "female",
+          "female",
+          "female",
+          "male",
+          "female",
+          "female",
+          "male",
+          "male",
+          "male",
+          "female",
+          "male",
+          "male",
+          "female",
+          "female",
+          "male",
+          "male",
+          "male",
+          "male",
+          "male",
+          "female"
+        ],
+        "tirages": 100
+      },
+      {
+        "numero": 137,
+        "graine": 1,
+        "valeurs": [
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless"
+        ],
+        "tirages": 0
+      },
+      {
+        "numero": 63,
+        "graine": 42,
+        "valeurs": [
+          "female",
+          "male",
+          "female",
+          "female",
+          "male",
+          "female",
+          "male",
+          "female",
+          "female",
+          "male",
+          "male",
+          "female",
+          "female",
+          "male",
+          "male",
+          "female",
+          "female",
+          "female",
+          "male",
+          "male",
+          "female",
+          "male",
+          "female",
+          "male",
+          "male",
+          "male",
+          "male",
+          "female",
+          "female",
+          "male",
+          "male",
+          "female",
+          "male",
+          "female",
+          "male",
+          "male",
+          "male",
+          "male",
+          "female",
+          "female",
+          "male",
+          "female",
+          "male",
+          "male",
+          "female",
+          "female",
+          "female",
+          "male",
+          "male",
+          "male",
+          "male",
+          "female",
+          "female",
+          "female",
+          "female",
+          "male",
+          "female",
+          "male",
+          "female",
+          "male",
+          "male",
+          "male",
+          "male",
+          "male",
+          "female",
+          "female",
+          "male",
+          "female",
+          "female",
+          "male",
+          "female",
+          "male",
+          "female",
+          "female",
+          "male",
+          "female",
+          "female",
+          "female",
+          "male",
+          "female",
+          "male",
+          "female",
+          "male",
+          "female",
+          "male",
+          "male",
+          "female",
+          "female",
+          "female",
+          "female",
+          "male",
+          "female",
+          "male",
+          "male",
+          "female",
+          "male",
+          "female",
+          "female",
+          "male",
+          "male"
+        ],
+        "tirages": 100
+      },
+      {
+        "numero": 123,
+        "graine": 42,
+        "valeurs": [
+          "female",
+          "male",
+          "female",
+          "female",
+          "male",
+          "female",
+          "male",
+          "female",
+          "female",
+          "male",
+          "male",
+          "female",
+          "female",
+          "male",
+          "male",
+          "female",
+          "female",
+          "female",
+          "male",
+          "male",
+          "female",
+          "male",
+          "female",
+          "male",
+          "male",
+          "male",
+          "male",
+          "female",
+          "female",
+          "male",
+          "male",
+          "female",
+          "male",
+          "female",
+          "male",
+          "male",
+          "male",
+          "male",
+          "female",
+          "female",
+          "male",
+          "female",
+          "male",
+          "male",
+          "female",
+          "female",
+          "female",
+          "male",
+          "male",
+          "male",
+          "male",
+          "female",
+          "female",
+          "female",
+          "female",
+          "male",
+          "female",
+          "male",
+          "female",
+          "male",
+          "male",
+          "male",
+          "male",
+          "male",
+          "female",
+          "female",
+          "male",
+          "female",
+          "female",
+          "male",
+          "female",
+          "male",
+          "female",
+          "female",
+          "male",
+          "female",
+          "female",
+          "female",
+          "male",
+          "female",
+          "male",
+          "female",
+          "male",
+          "female",
+          "male",
+          "male",
+          "female",
+          "female",
+          "female",
+          "female",
+          "male",
+          "female",
+          "male",
+          "male",
+          "female",
+          "male",
+          "female",
+          "female",
+          "male",
+          "male"
+        ],
+        "tirages": 100
+      },
+      {
+        "numero": 147,
+        "graine": 42,
+        "valeurs": [
+          "female",
+          "male",
+          "female",
+          "female",
+          "male",
+          "female",
+          "male",
+          "female",
+          "female",
+          "male",
+          "male",
+          "female",
+          "female",
+          "male",
+          "male",
+          "female",
+          "female",
+          "female",
+          "male",
+          "male",
+          "female",
+          "male",
+          "female",
+          "male",
+          "male",
+          "male",
+          "male",
+          "female",
+          "female",
+          "male",
+          "male",
+          "female",
+          "male",
+          "female",
+          "male",
+          "male",
+          "male",
+          "male",
+          "female",
+          "female",
+          "male",
+          "female",
+          "male",
+          "male",
+          "female",
+          "female",
+          "female",
+          "male",
+          "male",
+          "male",
+          "male",
+          "female",
+          "female",
+          "female",
+          "female",
+          "male",
+          "female",
+          "male",
+          "female",
+          "male",
+          "male",
+          "male",
+          "male",
+          "male",
+          "female",
+          "female",
+          "male",
+          "female",
+          "female",
+          "male",
+          "female",
+          "male",
+          "female",
+          "female",
+          "male",
+          "female",
+          "female",
+          "female",
+          "male",
+          "female",
+          "male",
+          "female",
+          "male",
+          "female",
+          "male",
+          "male",
+          "female",
+          "female",
+          "female",
+          "female",
+          "male",
+          "female",
+          "male",
+          "male",
+          "female",
+          "male",
+          "female",
+          "female",
+          "male",
+          "male"
+        ],
+        "tirages": 100
+      },
+      {
+        "numero": 137,
+        "graine": 42,
+        "valeurs": [
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless",
+          "genderless"
+        ],
+        "tirages": 0
+      }
+    ]
+  }
+}
