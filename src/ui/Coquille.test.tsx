@@ -4,6 +4,8 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Coquille } from './Coquille';
 import { creerStoreJeu, storeJeu } from './store';
+import { chargerPokemon } from '../core/pokemon';
+import { formaterDps } from './nombres';
 
 const contexte = vi.hoisted(() => ({ store: null as unknown as typeof storeJeu }));
 vi.mock('./store', async (importOriginal) => ({
@@ -94,9 +96,12 @@ describe('Coquille', () => {
     render(<Coquille />);
     for (const nom of noms.slice(1)) {
       await utilisateur.click(screen.getByRole('button', { name: nom }));
-      expect(within(screen.getByRole('main')).getByRole('heading', { level: 1 }).textContent).toBe(nom);
+      expect(within(screen.getByRole('main')).getByRole('heading', { level: 1 }).textContent).toBe(nom === 'Équipe' ? 'Ton équipe' : nom);
       if (nom === 'Carte') expect(screen.getByRole('button', { name: 'Route 1 (Zone 1)' })).toBeTruthy();
-      else expect(screen.getByText('Cette page arrive bientôt.')).toBeTruthy();
+      else if (nom === 'Équipe') {
+        expect(screen.queryByText('Cette page arrive bientôt.')).toBeNull();
+        expect(screen.getAllByRole('listitem')).toHaveLength(6);
+      } else expect(screen.getByText('Cette page arrive bientôt.')).toBeTruthy();
       expect(screen.getAllByRole('button').filter((bouton) => bouton.hasAttribute('aria-current')))
         .toEqual([screen.getByRole('button', { name: nom })]);
     }
@@ -130,9 +135,19 @@ describe('Coquille', () => {
     const autorises = new Set(['Aller au contenu', ...noms, 'Cette page arrive bientôt.']);
     for (const nom of noms.slice(1)) {
       await utilisateur.click(screen.getByRole('button', { name: nom }));
+      const equipe = storeJeu.getState().equipe;
+      const nomPokemon = (c: NonNullable<typeof equipe[number]>) => c.pokemon.surnom ?? chargerPokemon().parNumero(c.pokemon.numero).nom;
+      const premier = equipe.find(c => c)!;
+      if (nom === 'Équipe') {
+        const cases = equipe.map(c => c ? `${nomPokemon(c)}Niv. ${c.pokemon.niveau}${formaterDps(c.dps)} DPS` : 'Emplacement libre').join('');
+        const xp = premier.xpMax === 0 ? 'MAX' : `${premier.pokemon.xp} / ${premier.xpMax} XP`;
+        expect(screen.getByRole('main').textContent).toBe(`Ton équipe${formaterDps(storeJeu.getState().dps)} DPS · ${equipe.filter(Boolean).length} / 6${cases}${nomPokemon(premier)}Niv. ${premier.pokemon.niveau}${xp}${formaterDps(premier.dps)} DPSOuvre la fiche`);
+      }
       const parcours = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
       while (parcours.nextNode()) {
         const texte = parcours.currentNode.textContent?.trim();
+        // Le texte entier de la page Équipe est vérifié exactement ci-dessus.
+        if (nom === 'Équipe' && parcours.currentNode.parentElement?.closest('main')) continue;
         const voyage = parcours.currentNode.parentElement?.closest('section')?.querySelector('h2')?.textContent === 'Ton voyage';
         if (voyage) {
           // Les fragments de la barre « Ton voyage » (nombres, « badges sur ») sont vérifiés en bloc.
@@ -149,7 +164,12 @@ describe('Coquille', () => {
           : element.tagName.toLowerCase() === 'svg' ? 'Carte de Kanto'
             : element.tagName.toLowerCase() === 'progress' ? 'Badges obtenus'
               : element.tagName.toLowerCase() === 'section' && ['Ton voyage', 'Zone sélectionnée'].includes(element.getAttribute('aria-label') ?? '')
-                ? element.getAttribute('aria-label') : 'Navigation principale';
+                ? element.getAttribute('aria-label')
+                : nom === 'Équipe' && element.tagName.toLowerCase() === 'button'
+                  ? equipe.filter(c => c).map(c => `${nomPokemon(c!)}, niveau ${c!.pokemon.niveau}`).find(n => n === element.getAttribute('aria-label'))
+                  : nom === 'Équipe' && element.getAttribute('role') === 'progressbar'
+                    ? equipe.filter(c => c).map(c => `XP de ${nomPokemon(c!)}`).find(n => n === element.getAttribute('aria-label'))
+                    : 'Navigation principale';
         expect(element.getAttribute('aria-label')).toBe(attendu);
       }
     }
