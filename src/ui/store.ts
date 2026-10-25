@@ -5,6 +5,8 @@ import { avancerCombat, calculerClic, calculerDpsEquipe, cliquer, creerCombat, c
   multiplicateurType, reprendreCombat, viderEvenements, lancerCapture, basculerAutoAttaque, basculerAutoClic, suspendreDps,
   faucher as faucherCombat, invoquerBoss } from '../core/combat';
 import { acheter, chargerObjets } from '../core/boutique';
+import { blocage, commandeCourante, declencher, etapeTerminee, type CatalogueEvenements, type Commande, type Declencheur } from '../core/evenements';
+import { evenementsKanto } from '../core/evenements-kanto';
 import { accorderBadge, accorderJalons, actifsDe } from '../core/progression';
 import { clicsAutomatiques } from '../core/clics';
 import { utiliserSurPokemon, poserStase, retirerStase, utiliserJetonShiny } from '../core/objets-equipe';
@@ -44,6 +46,8 @@ export type EtatForme = {
   ouverte: boolean; actuelle: boolean; raison: string | null;
 };
 export type AffichageJeu = {
+  evenement: Commande | null;
+  terminerEtape(): void;
   progression: AffichageProgression;
   obtentionBadge: { id: string; phase: PhaseObtention } | null;
   fermerBoiteBadges(): void;
@@ -88,8 +92,9 @@ function actifsCourants(region: DonneesRegion, maintenant: number): string[] {
   return [...actifsDe(region), ...clesActives(region.chronos, maintenant)];
 }
 
-export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
+export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements = evenementsKanto }: {
   horloge: Horloge; stockage: Stockage; alea: () => number; genererId: () => string;
+  evenements?: CatalogueEvenements;
 }) {
   let coeur: EtatCombat | null = null;
   let initialise = false;
@@ -144,7 +149,11 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
     actualiserActifs();
     if (pokedex !== precedent || paliers.length > 0) enregistrer();
   };
-  const traiter = () => {
+  const acces = (zoneId: string) => {
+    const resultat = blocage(evenements, region, zoneId);
+    return resultat.ok ? kanto.accesZone(zoneId, etatMondeDe(region)) : resultat;
+  };
+  const traiter = (): void => {
     if (!coeur) return;
     region = { ...region, zoneId: coeur.zoneId, etape: coeur.etape };
     let sauvegarder = false;
@@ -189,15 +198,18 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
           }
         }
         sauvegarder = true;
+        executer({ type: 'boss-vaincu', zone: evenement.zoneId });
       }
       if (evenement.type === 'boss-echoue') {
         messagesCapture.push('Temps écoulé !');
       }
     }
     if (messagesCapture.length) { annonce = messagesCapture.join(' · '); finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs; }
-    if (preferences.autoAttaque !== coeur.autoAttaque) { preferences = { ...preferences, autoAttaque: coeur.autoAttaque }; sauvegarder = true; }
-    coeur = { ...coeur, equipe: region.equipe.map(versMembreEquipe), pokedex };
-    coeur = viderEvenements(coeur);
+    if (coeur) {
+      if (preferences.autoAttaque !== coeur.autoAttaque) { preferences = { ...preferences, autoAttaque: coeur.autoAttaque }; sauvegarder = true; }
+      coeur = { ...coeur, equipe: region.equipe.map(versMembreEquipe), pokedex };
+      coeur = viderEvenements(coeur);
+    }
     if (sauvegarder) enregistrer();
   };
   const afficher = () => {
@@ -208,8 +220,8 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
     const lien = lieu.liens[0];
     const destination = (zone: ZoneMonde | undefined): Destination | null => {
       if (!zone) return null;
-      const acces = kanto.accesZone(zone.id, etatMondeDe(region));
-      return { id: zone.id, nom: zone.nom, ouverte: acces.ok, raison: acces.ok ? null : acces.raison ?? null };
+      const resultat = acces(zone.id);
+      return { id: zone.id, nom: zone.nom, ouverte: resultat.ok, raison: resultat.ok ? null : resultat.raison ?? null };
     };
     const equipe: CaseEquipe[] = region.equipe.map(pokemon => ({ pokemon, evolution: evolutionDisponible(pokemon),
       xpMax: calculerMaxXp(pokemon.numero, pokemon.niveau),
@@ -219,17 +231,17 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
     while (equipe.length < 6) equipe.push(null);
     const precedent = store.getState();
     const etatMonde = etatMondeDe(region);
-    const acces = accesPc(kanto, etatMonde);
-    const accesAuPc = { ouvert: acces.ok, raison: acces.ok ? null : acces.raison ?? null };
-    const ouvertes = new Set(kanto.zonesOuvertes(etatMonde).map(zone => zone.id));
+    const conditionPc = accesPc(kanto, etatMonde);
+    const accesAuPc = { ouvert: conditionPc.ok, raison: conditionPc.ok ? null : conditionPc.raison ?? null };
+    const ouvertes = new Set(kanto.zonesOuvertes(etatMonde).filter(zone => acces(zone.id).ok).map(zone => zone.id));
     const carte: AffichageJeu['carte'] = {
       formes: kanto.carte.formes.map(forme => {
         const ouverte = forme.zone !== null && ouvertes.has(forme.zone);
-        const acces = forme.zone !== null && !ouverte ? kanto.accesZone(forme.zone, etatMonde) : null;
+        const resultat = forme.zone !== null && !ouverte ? acces(forme.zone) : null;
         return { forme, zone: forme.zone, nom: forme.nom,
           numero: forme.zone === null ? null : kanto.zone(forme.zone).ancienId,
           ouverte, actuelle: forme.zone === region.zoneId,
-          raison: acces && !acces.ok ? acces.raison ?? null : null };
+          raison: resultat && !resultat.ok ? resultat.raison ?? null : null };
       }),
       badges: { obtenus: region.badges.length, total: totalBadges },
       nouvelles: [...ouvertes].filter(id => !zonesVues.has(id)),
@@ -239,6 +251,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
     const zoneSuivante = destination(lien ? kanto.zone(lien.vers) : undefined);
     const ennemi = coeur ? (({ numero, niveau, pv, pvMax, boss, shiny, rarete }) => ({ numero, niveau, pv, pvMax, boss, shiny, rarete }))(coeur.ennemi) : null;
     store.setState({ lieu, zone: coeur?.zone ?? null, etape: region.etape, ennemi, pv: ennemi?.pv ?? 0,
+      evenement: commandeCourante(evenements, region),
       progression: afficherProgression(region, pokedex),
       obtentionBadge: obtentionBadge ? { id: obtentionBadge.id,
         phase: phaseObtention(obtentionBadge.debutMs, tempsJeuMs) } : null,
@@ -271,6 +284,29 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
     if (imageConnue(cheminDecor(lieu))) void precharger([cheminDecor(lieu)]);
     if (!lieu.sansCombat) void prechargerZone(lieu);
   };
+  const changerDeZone = (zoneId: string): void => {
+    const lieu = kanto.zone(zoneId);
+    const autoClic = coeur?.autoClic ?? false;
+    coeur = lieu.sansCombat ? null : creerCombat(lieu, region.equipe.map(versMembreEquipe), alea, actifsCourants(region, horloge.maintenant()), { ...optionsCombat(), autoClic });
+    resteAutoClicMs = 0;
+    if (coeur && tempsJeuMs < finEvolutionMs) coeur = suspendreDps(coeur, finEvolutionMs - tempsJeuMs);
+    region = { ...region, zoneId, etape: 1 };
+    annonce = null;
+    traiter();
+    degats = [];
+    prechargerLieu();
+  };
+  const appliquerEvenement = (suivante: DonneesRegion): void => {
+    if (suivante === region) return;
+    const ancienneZone = region.zoneId;
+    region = suivante;
+    if (region.zoneId !== ancienneZone) changerDeZone(region.zoneId);
+    enregistrer();
+  };
+  const executer = (fait: Declencheur): void => {
+    if (evenements.liste.length === 0) return;
+    appliquerEvenement(declencher(evenements, region, fait));
+  };
   const cacher = () => { if (document.visibilityState === 'hidden') enregistrer(); };
   const demarrerEvolution = (evolution: { uid: string; de: number; vers: number }) => {
     evolutionEnCours = { uid: evolution.uid, ancien: evolution.de, nouveau: evolution.vers };
@@ -301,6 +337,14 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
     return null;
   };
   const store = createStore<AffichageJeu>(() => ({
+    evenement: null,
+    terminerEtape() {
+      if (!initialise) return;
+      const commande = commandeCourante(evenements, region);
+      if (!commande) return;
+      appliquerEvenement(etapeTerminee(evenements, region, commande));
+      afficher();
+    },
     progression: afficherProgression({ badges: [], jalonsRecus: [] }, []),
     obtentionBadge: null,
     fermerBoiteBadges() { obtentionBadge = null; afficher(); },
@@ -440,17 +484,9 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
       afficher();
     },
     allerVers(zoneId) {
-      if (!initialise || !kanto.accesZone(zoneId, etatMondeDe(region)).ok) return;
-      const lieu = kanto.zone(zoneId);
-      const autoClic = coeur?.autoClic ?? false;
-      coeur = lieu.sansCombat ? null : creerCombat(lieu, region.equipe.map(versMembreEquipe), alea, actifsCourants(region, horloge.maintenant()), { ...optionsCombat(), autoClic });
-      resteAutoClicMs = 0;
-      if (coeur && tempsJeuMs < finEvolutionMs) coeur = suspendreDps(coeur, finEvolutionMs - tempsJeuMs);
-      region = { ...region, zoneId, etape: 1 };
-      annonce = null;
-      traiter();
-      degats = [];
-      prechargerLieu();
+      if (!initialise || !acces(zoneId).ok) return;
+      changerDeZone(zoneId);
+      executer({ type: 'entree-zone', zone: zoneId });
       enregistrer();
       afficher();
     },
@@ -481,8 +517,9 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
           noterDansPokedex();
           traiter();
           prechargerLieu();
-          afficher();
         }
+        executer({ type: 'debut-partie' });
+        afficher();
         boucle = creerBoucle({ horloge, etat: null, avancer: () => {
           tempsJeuMs += reglages.boucle.pasMs;
           if (annonce !== null && tempsJeuMs >= finAnnonceMs) annonce = null;

@@ -13,6 +13,8 @@ import { cheminDecor } from './precharger';
 import { kanto } from '../core/regions';
 import { genererIdentifiant } from './identifiants';
 import { detailDps } from '../core/equipe';
+import * as moteurEvenements from '../core/evenements';
+import { chargerEvenements, type CatalogueEvenements, type Evenement } from '../core/evenements';
 
 const stores: StoreJeu[] = [];
 beforeEach(() => vi.useFakeTimers());
@@ -47,6 +49,129 @@ function vaincre(partie: ReturnType<typeof preparer>) {
   }
   expect(partie.store.getState().etape).not.toBe(etape);
 }
+
+function preparerEvenements(evenements: CatalogueEvenements, stockage = creerStockageMemoire()) {
+  const horloge = creerHorlogeSimulee();
+  const store = creerStoreJeu({ horloge, stockage, alea: () => .1, genererId: () => 'test', evenements });
+  stores.push(store);
+  store.getState().demarrer();
+  expect(store.getState().erreur).toBeNull();
+  return { store, stockage, horloge, avancer: () => { horloge.avancer(100); store.getState().tick(); } };
+}
+
+function catalogueEvenements(...evenements: Partial<Evenement>[]) {
+  return chargerEvenements({ essai: { version: 1, evenements: evenements.map(evenement => ({
+    id: 'essai', declencheur: { type: 'debut-partie' },
+    etapes: [{ type: 'dialogue', locuteur: 'Chen', texte: 'Bonjour' }], ...evenement,
+  })) } }, kanto);
+}
+
+it('expose le dialogue initial, sauvegarde ses effets et reconstruit le combat après un déplacement', () => {
+  const evenements = catalogueEvenements({ etapes: [
+    { type: 'dialogue', locuteur: 'Chen', texte: 'Bonjour' },
+    { type: 'donner', objet: 'pokeball', quantite: 5 },
+    { type: 'deplacer', zone: 'kanto.foret-de-jade' },
+    { type: 'combat', pokemon: 143, niveau: 30 },
+  ] }, { id: 'entree', declencheur: { type: 'entree-zone', zone: 'kanto.foret-de-jade' } });
+  const { store, stockage } = preparerEvenements(evenements);
+  expect(store.getState().evenement).toMatchObject({ type: 'dialogue', evenement: 'essai', etape: 0 });
+  const avant = JSON.parse(stockage.lire('pokiclicker:region:test:kanto')!).donnees.inventaire.pokeball ?? 0;
+  store.getState().terminerEtape();
+  expect(store.getState().zone?.id).toBe('kanto.foret-de-jade');
+  expect(store.getState().etape).toBe(1);
+  expect(store.getState().ennemi?.pv).toBe(store.getState().ennemi?.pvMax);
+  expect(store.getState().evenement).toMatchObject({ type: 'combat', etape: 3 });
+  store.getState().arreter();
+  const recharge = preparerEvenements(evenements, stockage).store;
+  expect(recharge.getState().evenement).toEqual(store.getState().evenement);
+  expect(JSON.parse(stockage.lire('pokiclicker:region:test:kanto')!).donnees.inventaire.pokeball).toBe(avant + 5);
+  recharge.getState().terminerEtape();
+  expect(recharge.getState().evenement).toBeNull();
+  const ecrire = vi.spyOn(stockage, 'ecrire');
+  recharge.getState().terminerEtape();
+  expect(ecrire).not.toHaveBeenCalled();
+});
+
+it('déclenche entrée-zone après le voyage et bloque une zone ouverte avec sa raison sur la carte', () => {
+  const evenements = catalogueEvenements({ declencheur: { type: 'entree-zone', zone: 'kanto.bourg-palette' }, etapes: [
+    { type: 'bloquer', zone: 'kanto.route-1', sauf: 'flute', raison: 'Un Ronflex dort.' },
+    { type: 'dialogue', locuteur: 'Chen', texte: 'Attendre' },
+    { type: 'poser-drapeau', id: 'flute' },
+  ] });
+  const { store, stockage } = preparerEvenements(evenements);
+  expect(store.getState().evenement).toBeNull();
+  store.getState().allerVers('kanto.bourg-palette');
+  expect(store.getState().ennemi).toBeNull();
+  expect(store.getState().evenement?.type).toBe('dialogue');
+  expect(store.getState().zoneSuivante).toMatchObject({ id: 'kanto.route-1', ouverte: false, raison: 'Un Ronflex dort.' });
+  expect(store.getState().carte.formes.find(forme => forme.zone === 'kanto.route-1'))
+    .toMatchObject({ ouverte: false, raison: 'Un Ronflex dort.' });
+  const ecrire = vi.spyOn(stockage, 'ecrire');
+  store.getState().allerVers('kanto.route-1');
+  expect(store.getState().lieu?.id).toBe('kanto.bourg-palette');
+  expect(ecrire).not.toHaveBeenCalled();
+  store.getState().terminerEtape();
+  expect(store.getState().zoneSuivante?.ouverte).toBe(true);
+  store.getState().allerVers('kanto.route-1');
+  expect(store.getState().zone?.id).toBe('kanto.route-1');
+});
+
+it('déclenche début-partie à chaque redémarrage sans rejouer un événement terminé', () => {
+  const evenements = catalogueEvenements({});
+  const { store, stockage } = preparerEvenements(evenements);
+  store.getState().terminerEtape();
+  store.getState().arreter();
+  store.getState().demarrer();
+  expect(store.getState().evenement).toBeNull();
+  expect(JSON.parse(stockage.lire('pokiclicker:region:test:kanto')!).donnees.evenementsJoues).toContain('essai');
+  store.getState().arreter();
+  const repeter = preparerEvenements(catalogueEvenements({ id: 'repetition', repetable: true }), stockage).store;
+  repeter.getState().terminerEtape();
+  repeter.getState().arreter();
+  repeter.getState().demarrer();
+  expect(repeter.getState().evenement?.evenement).toBe('repetition');
+});
+
+it('conserve l’affichage et les écritures avec le catalogue vide et ignore une région inchangée', () => {
+  const initial = preparer();
+  initial.store.getState().arreter();
+  const ecrire = vi.spyOn(initial.stockage, 'ecrire');
+  const declencher = vi.spyOn(moteurEvenements, 'declencher');
+  const vide = preparerEvenements(chargerEvenements({}, kanto), initial.stockage).store;
+  const affichage = (store: StoreJeu) => Object.fromEntries(Object.entries(store.getState()).filter(([, valeur]) => typeof valeur !== 'function'));
+  expect(affichage(vide)).toEqual({ ...affichage(initial.store), evenement: null });
+  vide.getState().terminerEtape();
+  expect(declencher).not.toHaveBeenCalled();
+  expect(ecrire).not.toHaveBeenCalled();
+  vide.getState().arreter();
+  declencher.mockImplementation((_catalogue, region) => region);
+  preparerEvenements(catalogueEvenements({}), initial.stockage);
+  expect(declencher).toHaveBeenCalled();
+  expect(ecrire).not.toHaveBeenCalled();
+});
+
+it('déclenche boss-vaincu après le badge, même pour un boss déjà battu, et peut quitter le combat', () => {
+  const arene = kanto.zones.find(zone => !zone.sansCombat && zone.type === 'arene')!;
+  const initial = preparerRegion(region => ({ ...region, zoneId: arene.id, etape: 10,
+    bossVaincus: [arene.id], equipe: [{ ...region.equipe[0]!, niveau: 100 }] }));
+  const gestionnaire = creerGestionnaire({ stockage: initial.stockage, horloge: initial.horloge, genererId: () => 'test' });
+  const avant = gestionnaire.chargerRegion('test', 'kanto')!.donnees;
+  vaincre(initial);
+  initial.store.getState().arreter();
+  const badge = gestionnaire.chargerRegion('test', 'kanto')!.donnees.badges[0]!;
+  expect(badge).toBeTruthy();
+  gestionnaire.ecrireRegion('test', 'kanto', avant);
+  const partie = preparerEvenements(catalogueEvenements({ declencheur: { type: 'boss-vaincu', zone: arene.id },
+    si: { type: 'badge', id: badge }, etapes: [
+      { type: 'deplacer', zone: 'kanto.bourg-palette' },
+      { type: 'dialogue', locuteur: 'Chen', texte: 'Bravo' },
+    ] }), initial.stockage);
+  vaincre(partie);
+  expect(partie.store.getState().lieu?.id).toBe('kanto.bourg-palette');
+  expect(partie.store.getState().ennemi).toBeNull();
+  expect(partie.store.getState().evenement).toMatchObject({ type: 'dialogue', texte: 'Bravo' });
+  expect(JSON.parse(partie.stockage.lire('pokiclicker:region:test:kanto')!).donnees.badges).toContain(badge);
+});
 
 it('inscrit les trois starters au Pokédex d’une nouvelle partie', () => {
   const { store } = preparer();
