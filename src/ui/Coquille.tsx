@@ -10,6 +10,7 @@ import { PageShop } from './PageShop';
 import { storeJeu } from './store';
 import { MiseAJour } from './MiseAJour';
 import { ObtentionBadge } from './ObtentionBadge';
+import { PageIntro } from './PageIntro';
 
 export function Coquille({ region = 'kanto', theme = 'dark' }: {
   region?: 'kanto' | 'johto' | 'hoenn' | 'atlas';
@@ -25,6 +26,9 @@ export function Coquille({ region = 'kanto', theme = 'dark' }: {
       memoriserDeclencheur(document.activeElement instanceof HTMLElement ? document.activeElement : null);
     }
   }), []);
+  const introActive = useStore(storeJeu, etat => etat.intro.enCours || etat.intro.choixStarter);
+  const [introVue, fixerIntroVue] = useState(false);
+  if (introActive && !introVue) fixerIntroVue(true);
   const tutorielRoute1 = useStore(storeJeu, etat => etat.carte.tutorielRoute1);
   useEffect(() => {
     storeJeu.getState().demarrer();
@@ -37,12 +41,12 @@ export function Coquille({ region = 'kanto', theme = 'dark' }: {
       <a href="#contenu" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-20 focus:bg-surface focus:p-4 focus:text-lien">
         Aller au contenu
       </a>
-      <Navigation page={page} choisir={choisir} signalCarte={tutorielRoute1 && page !== 'Carte'} />
+      <Navigation page={page} choisir={choisir} signalCarte={tutorielRoute1 && page !== 'Carte' && !introActive} inerte={introActive} />
       <main id="contenu" tabIndex={-1} className="mb-14 min-w-0 p-4 lg:mb-0 lg:ml-24 lg:p-8">
         <MiseAJour />
         {page !== 'Combat' && annonce !== null && <div role="status" aria-live="polite"
           className="cadre bg-surface p-2 text-center">{annonce}</div>}
-        {page === 'Combat' ? <EcranCombat /> : page === 'Carte' ? <CarteKanto quandArrive={() => choisir('Combat')} /> : page === 'Équipe' ? <PageEquipe /> : page === 'Plus' ? <PagePlus /> : <PageShop />}
+        {page === 'Combat' ? introVue || introActive ? <PageIntro quandTerminee={() => fixerIntroVue(false)} /> : <EcranCombat /> : page === 'Carte' ? <CarteKanto quandArrive={() => choisir('Combat')} /> : page === 'Équipe' ? <PageEquipe /> : page === 'Plus' ? <PagePlus /> : <PageShop />}
       </main>
       <ObtentionBadge ouvert={obtentionBadge !== null && obtentionBadge.phase !== 'message'} badges={badges}
         cache={obtentionBadge?.phase === 'message' || obtentionBadge?.phase === 'boite' ? obtentionBadge.id : null}

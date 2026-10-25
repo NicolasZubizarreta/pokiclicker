@@ -10,9 +10,9 @@ const entrees = [
 
 export type Page = typeof entrees[number]['titre'];
 
-export function Navigation({ page, choisir, signalCarte = false }: { page: Page; choisir: (page: Page) => void; signalCarte?: boolean }) {
+export function Navigation({ page, choisir, signalCarte = false, inerte = false }: { page: Page; choisir: (page: Page) => void; signalCarte?: boolean; inerte?: boolean }) {
   return (
-    <nav aria-label="Navigation principale"
+    <nav aria-label="Navigation principale" inert={inerte}
       className="fixed inset-x-0 bottom-0 z-10 box-content h-14 rounded-cadre bg-surface pb-[env(safe-area-inset-bottom)] after:pointer-events-none after:absolute after:inset-0 after:rounded-cadre after:border after:border-bordure after:inset-ring after:inset-ring-region-argent lg:inset-x-auto lg:inset-y-0 lg:left-0 lg:h-auto lg:w-24 lg:pb-0">
       <div className="flex h-full lg:flex-col">
         {entrees.map(({ titre, Icone }) => (

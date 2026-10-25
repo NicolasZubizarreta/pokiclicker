@@ -20,11 +20,14 @@ type Props = {
   laboAVisiter?: boolean;
   sortieLaboClignote?: boolean;
   quandLabo?: () => void;
+  quandSortieLabo?: () => void;
+  sceneInitiale?: string;
+  bloquee?: boolean;
   annonce?: string | null;
 };
 
-export function ScenesBourgPalette({ laboAVisiter = false, sortieLaboClignote = false, quandLabo, annonce }: Props) {
-  const [courante, changerScene] = useState(bourg);
+export function ScenesBourgPalette({ laboAVisiter = false, sortieLaboClignote = false, quandLabo, quandSortieLabo, sceneInitiale = bourg, bloquee = false, annonce }: Props) {
+  const [courante, changerScene] = useState(sceneInitiale);
   const [phase, changerPhase] = useState<'repos' | 'couvrir' | 'decouvrir'>('repos');
   const [sortieVue, noterSortie] = useState(false);
   const [reduit] = useState(() => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false);
@@ -46,7 +49,7 @@ export function ScenesBourgPalette({ laboAVisiter = false, sortieLaboClignote = 
     if (verrou.current) return;
     verrou.current = true;
     const changer = () => {
-      if (courante === 'kanto.labo') noterSortie(true);
+      if (courante === 'kanto.labo') { noterSortie(true); quandSortieLabo?.(); }
       changerScene(id);
       rendreFocus.current = true;
       if (id === 'kanto.labo') quandLabo?.();
@@ -66,7 +69,7 @@ export function ScenesBourgPalette({ laboAVisiter = false, sortieLaboClignote = 
 
   return <div ref={cadre} className="relative">
     <SceneLieu key={courante} scene={scene} nom={noms[courante]!} quandChoisir={choisir}
-      raisons={raisons} clignotements={clignotements} occupe={phase !== 'repos'} annonceExterne={annonce} />
+      raisons={raisons} clignotements={clignotements} occupe={phase !== 'repos' || bloquee} annonceExterne={annonce} />
     <div data-voile aria-hidden="true" className={`pointer-events-none absolute inset-0 bg-texte motion-safe:intro-voile ${phase === 'couvrir' ? 'opacity-100' : 'opacity-0'}`} />
   </div>;
 }
