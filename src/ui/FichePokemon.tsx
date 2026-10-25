@@ -11,6 +11,8 @@ import { Image } from './Image';
 import { formaterDps } from './nombres';
 import { cheminSprite } from './precharger';
 import { storeJeu } from './store';
+import { niveauRequis, peutEvoluer, pierresPour } from '../core/evolution';
+import { chargerObjets } from '../core/boutique';
 
 type Props = { uid: string; ouvert: boolean; fermer: () => void; declencheur: RefObject<HTMLButtonElement | null> };
 const catalogue = chargerPokemon();
@@ -177,5 +179,3 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur }: Props) {
     </dialog>
   </>;
 }
-import { niveauRequis, peutEvoluer, pierresPour } from '../core/evolution';
-import { chargerObjets } from '../core/boutique';

@@ -261,7 +261,7 @@ it('propose l’évolution au niveau requis, précharge la cible et relaie les r
   const { container } = render(<PageEquipe />);
   const bouton = screen.getByRole('button', { name: 'Faire évoluer Bourgeon' });
   expect(bouton.textContent).toBe('Évoluer');
-  expect(bouton.className).toContain('border-alerte-base');
+  expect(bouton.className).toContain('cadre-alerte');
   expect(bouton.classList.contains('bg-action')).toBe(false);
   expect(container.querySelector('button button')).toBeNull();
   expect(container.querySelectorAll('.bg-action')).toHaveLength(1);
@@ -269,6 +269,14 @@ it('propose l’évolution au niveau requis, précharge la cible et relaie les r
   fireEvent.click(bouton);
   expect(evoluer).toHaveBeenCalledWith('premier');
   expect(screen.getByRole('alert').textContent).toBe('Évolution bloquée !');
+});
+
+it('rend le focus au bouton de la ligne après une évolution réussie', () => {
+  preparerEvolution();
+  storeJeu.setState({ evoluer: vi.fn(() => null) });
+  render(<PageEquipe />);
+  fireEvent.click(screen.getByRole('button', { name: 'Faire évoluer Bourgeon' }));
+  expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Bourgeon, niveau 16' }));
 });
 
 it.each([{ ...pokemon, niveau: 15 }, { ...pokemon, pierreEternelle: true },

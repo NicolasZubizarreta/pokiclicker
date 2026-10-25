@@ -363,7 +363,7 @@ Fourchette : 2 à 3 jours. Risque : l'auto-attaque désactivable change la boucl
 
 ## K. `feat(evolution): faire évoluer un Pokémon par niveau ou par pierre`
 
-Labels : `type:feat`, `etat:pret`, `est:2`, `prio:2` · branche : `v2` · `agent-ok` : oui
+Labels : `type:feat`, `etat:fait`, `est:2`, `prio:2` · branche : `v2` · `agent-ok` : oui
 
 ### Histoire
 En tant que joueur, je veux faire évoluer mes Pokémon afin d'augmenter leur puissance et de compléter mon Pokédex.
@@ -372,12 +372,12 @@ En tant que joueur, je veux faire évoluer mes Pokémon afin d'augmenter leur pu
 V1 : `legacy/js/game/evolution.js` (62 l.), `constants.js` (`EVOLUTIONS` : 56 entrées par niveau ; `STONE_EVOLUTIONS` : 14 entrées dont Évoli à 3 branches). **Règles V1** : l'évolution par niveau est un **bouton « EVO » manuel** dans l'équipe, proposé quand le niveau requis est atteint ; l'évolution par pierre consomme la pierre ; l'évolution lance une animation de 3 s qui suspend l'auto-DPS ; aucune évolution par bonheur ; l'évolution met le Pokédex à jour. **Corrections de la V1** : l'XP maximale est recalculée après l'évolution ; Évoli devient atteignable pour Voltali, Aquali et Pyroli par les pierres. Fichiers : `data/evolutions.json` (nouveau, converti par script), `src/core/evolution.ts` (nouveau), `src/ui/` (bouton et animation).
 
 ### Critères d'acceptation
-- [ ] Étant donné `EVOLUTIONS` et `STONE_EVOLUTIONS` de la V1, quand le script convertit, alors `data/evolutions.json` contient les 56 + 14 entrées (espèce, niveau ou pierre, cible) ; un test compare avec la V1 (hors Évoli, qui est ajouté avec ses trois pierres).
-- [ ] Étant donné un Pokémon au niveau requis, quand je regarde l'équipe, alors le bouton « Évoluer » apparaît ; en dessous du niveau il est absent ; le niveau requis est affiché dans la fiche.
-- [ ] Étant donné un clic sur « Évoluer », quand l'animation de 3 s se joue, alors l'auto-DPS de ce Pokémon est suspendu (temps de jeu simulé en test), puis l'espèce change, son sprite change, le Pokédex est mis à jour et son `maxXp` est recalculé.
-- [ ] Étant donné une pierre dans l'inventaire et un Pokémon compatible, quand je l'utilise, alors la pierre est consommée et l'évolution se produit ; sur un Pokémon incompatible, un message en français refuse sans consommer la pierre.
-- [ ] Étant donné un Pokémon avec une Pierre Stase, quand je tente d'évoluer, alors c'est bloqué avec la raison.
-- [ ] Étant donné un Évoli, quand j'utilise la pierre Foudre, Eau ou Feu, alors il évolue en Voltali, Aquali ou Pyroli.
+- [x] Étant donné `EVOLUTIONS` et `STONE_EVOLUTIONS` de la V1, quand le script convertit, alors `data/evolutions.json` contient les 56 + 14 entrées (espèce, niveau ou pierre, cible) ; un test compare avec la V1 (hors Évoli, qui est ajouté avec ses trois pierres).
+- [x] Étant donné un Pokémon au niveau requis, quand je regarde l'équipe, alors le bouton « Évoluer » apparaît ; en dessous du niveau il est absent ; le niveau requis est affiché dans la fiche.
+- [x] Étant donné un clic sur « Évoluer », quand l'animation de 3 s se joue, alors l'auto-DPS de ce Pokémon est suspendu (temps de jeu simulé en test), puis l'espèce change, son sprite change, le Pokédex est mis à jour et son `maxXp` est recalculé.
+- [x] Étant donné une pierre dans l'inventaire et un Pokémon compatible, quand je l'utilise, alors la pierre est consommée et l'évolution se produit ; sur un Pokémon incompatible, un message en français refuse sans consommer la pierre.
+- [x] Étant donné un Pokémon avec une Pierre Stase, quand je tente d'évoluer, alors c'est bloqué avec la raison.
+- [x] Étant donné un Évoli, quand j'utilise la pierre Foudre, Eau ou Feu, alors il évolue en Voltali, Aquali ou Pyroli.
 
 ### Hors périmètre
 Évolution par bonheur ou par échange, évolutions de Johto et au-delà, œufs (T).
@@ -447,7 +447,7 @@ V1 : `legacy/js/game/items.js` (394 l.), `stats.js`, `combat.js`. **Règles V1**
 - [ ] Étant donné le Poké-Radar, quand je l'utilise, alors la fenêtre de la V1 affiche les Pokémon possibles de la zone avec leur rareté et ceux déjà capturés.
 
 ### Hors périmètre
-Évolution par pierre (K utilise les pierres de ce ticket), Centre commercial écran (U), Johnny.
+Évolution par pierre (livrée au ticket K : usage des pierres dans le Sac ; M ne gère que la pose et le retrait de la Pierre Stase), Centre commercial écran (U), Johnny.
 
 ### Vérification
 `npm test -- objets-actifs` (horloge simulée) ; `node scripts/extraire-objets-v1.mjs` ; captures du Sac.

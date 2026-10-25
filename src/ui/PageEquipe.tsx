@@ -113,9 +113,9 @@ export function PageEquipe() {
           const valide = mode && (mode.type === 'pierre' ? cibleValidePierre(pokemon, mode.cle)
             : cibleValide(mode.type, pokemon) && maximum > 0);
           return <li key={pokemon.uid} className="min-w-0">
-            <button type="button" aria-label={`${nom}, niveau ${pokemon.niveau}`} aria-pressed={membre?.pokemon.uid === pokemon.uid}
+            <button type="button" aria-label={`${nom}, niveau ${pokemon.niveau}`} aria-pressed={membre?.pokemon.uid === pokemon.uid} data-uid={pokemon.uid}
               disabled={!!mode && mode.type !== 'pierre' && !valide}
-              className={`cadre grid min-h-11 w-full grid-cols-[auto_minmax(0,1fr)] items-center gap-2 p-4 text-left hover:bg-selection ${membre?.pokemon.uid === pokemon.uid ? 'bg-selection' : 'bg-surface'} ${mode ? valide ? 'relative motion-safe:cible-valide' : 'grayscale opacity-50' : ''}`}
+              className={`cadre grid min-h-11 w-full grid-cols-[auto_minmax(0,1fr)] items-center gap-2 p-4 text-left ${mode && !valide ? '' : 'hover:bg-selection'} ${membre?.pokemon.uid === pokemon.uid ? 'bg-selection' : 'bg-surface'} ${mode ? valide ? 'relative motion-safe:cible-valide' : 'grayscale opacity-50' : ''}`}
               onContextMenu={event => {
                 event.preventDefault();
                 if (echange || mode) return;
@@ -141,6 +141,7 @@ export function PageEquipe() {
                   }
                   return;
                 }
+                signalerObjet(null);
                 choisir(pokemon.uid);
                 if (!panneau.current?.getClientRects().length) ouvrirFiche(pokemon.uid, event.currentTarget);
               }}>
@@ -159,8 +160,12 @@ export function PageEquipe() {
               </span>
             </button>
             {!mode && !echange && typeof caseEquipe.evolution === 'number' && <button type="button"
-              aria-label={`Faire évoluer ${nom}`} className="cadre min-h-11 w-full bg-surface border-alerte-base motion-safe:animate-pulse"
-              onClick={() => signalerObjet(storeJeu.getState().evoluer(pokemon.uid))}>Évoluer</button>}
+              aria-label={`Faire évoluer ${nom}`} className="cadre-alerte min-h-11 w-full bg-surface motion-safe:animate-pulse"
+              onClick={() => {
+                const message = storeJeu.getState().evoluer(pokemon.uid);
+                signalerObjet(message);
+                if (!message) liste.current?.querySelector<HTMLElement>(`button[data-uid="${pokemon.uid}"]`)?.focus();
+              }}>Évoluer</button>}
             {mode?.type === 'pierre' && cible === pokemon.uid && valide && <ConfirmationObjet objet={mode.nom} nom={nom}
               annuler={annulerObjet} valider={() => {
                 const message = storeJeu.getState().utiliserPierre(pokemon.uid, mode.cle);

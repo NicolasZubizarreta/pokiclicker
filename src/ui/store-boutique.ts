@@ -3,6 +3,9 @@ import { kanto } from '../core/regions';
 import { reglages } from '../core/reglages';
 import { etatMondeDe } from '../core/sauvegarde';
 import type { DonneesRegion } from '../core/sauvegarde';
+import { chargerEvolutions } from '../core/evolution';
+
+const pierresEvolution = new Set(chargerEvolutions().pierre.map(ligne => ligne.pierre));
 
 type Acces = { ouvert: boolean; raison: string | null };
 type Description = { id: string; nom: string; description: string; image: string | null;
@@ -40,7 +43,7 @@ export function afficherSac(region: DonneesRegion, precedent: AffichageSac | nul
       quantite: objet.inventaire ? region.inventaire[objet.inventaire] ?? 0 : 1,
       actif: region.ameliorations.includes(objet.id),
       utilisable: objet.inventaire === 'bonbon' || objet.inventaire === 'calcium' ? objet.inventaire
-        : ['fireStone', 'waterStone', 'leafStone', 'thunderStone', 'moonStone'].includes(objet.inventaire ?? '') ? 'pierre' : null,
+        : pierresEvolution.has(objet.inventaire ?? '') ? 'pierre' : null,
     })) };
   return JSON.stringify(sac) === JSON.stringify(precedent) ? precedent! : sac;
 }
