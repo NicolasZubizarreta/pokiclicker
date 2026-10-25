@@ -5,6 +5,16 @@ import type { Rarete } from './monde';
 
 export type Bonus = { cle: string; x: number; arrondi?: boolean };
 
+export type Ton = 'hit' | 'coin' | 'catch' | 'up' | 'pc';
+export type ReglagesSons = {
+  actifParDefaut: boolean;
+  volumeDb: number;
+  oscillateur: 'sine' | 'square' | 'sawtooth' | 'triangle';
+  enveloppe: { attaque: number; declin: number; maintien: number; relachement: number };
+  tempo: number;
+  tons: Record<Ton, { notes: string[]; duree: string }>;
+};
+
 export type ReglagesPension = {
   emplacementsMax: number; prixParEmplacement: number; pasEclosion: number;
   bonheurNaissance: number; metamorph: number; especesTirees: number;
@@ -89,6 +99,8 @@ export const reglages: {
   recompenses: ReglagesRecompenses;
   capture: ReglagesCapture;
   evolution: { animationMs: number; alternanceMs: number };
+  animations: { flottementMs: number; secousseMs: number; banniereMs: number };
+  sons: ReglagesSons;
   delais: ReglagesDelais;
   boucle: { pasMs: number; rattrapageMaxMs: number; notificationMinMs: number };
   stats: {
@@ -104,6 +116,28 @@ export const reglages: {
     calciumParBoost: number;
   };
 } = donnees as typeof reglages;
+
+const sons = reglages.sons;
+if (!sons || typeof sons.actifParDefaut !== 'boolean' || !Number.isFinite(sons.volumeDb)
+  || !Number.isFinite(sons.tempo) || sons.tempo <= 0
+  || !['sine', 'square', 'sawtooth', 'triangle'].includes(sons.oscillateur)
+  || !sons.enveloppe
+  || [sons.enveloppe.attaque, sons.enveloppe.declin, sons.enveloppe.relachement]
+    .some(valeur => !Number.isFinite(valeur) || valeur <= 0)
+  || !Number.isFinite(sons.enveloppe.maintien) || sons.enveloppe.maintien <= 0 || sons.enveloppe.maintien > 1
+  || !sons.tons || ['hit', 'coin', 'catch', 'up', 'pc'].some(nom => {
+    const ton = sons.tons[nom as Ton];
+    return !ton || !Array.isArray(ton.notes) || !ton.notes.length
+      || ton.notes.some(note => typeof note !== 'string' || !/^[A-G](?:#|b)?[0-8]$/.test(note))
+      || typeof ton.duree !== 'string' || !/^[1-9]\d*n$/.test(ton.duree);
+  })) {
+  throw new Error('Réglages de sons invalides');
+}
+if (!reglages.animations || Object.values(reglages.animations).length !== 3
+  || [reglages.animations.flottementMs, reglages.animations.secousseMs, reglages.animations.banniereMs]
+    .some(valeur => !Number.isFinite(valeur) || valeur <= 0)) {
+  throw new Error('Réglages d’animations invalides');
+}
 
 const pension = reglages.pension;
 if ([pension.emplacementsMax, pension.prixParEmplacement, pension.pasEclosion,

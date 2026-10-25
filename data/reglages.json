@@ -13,6 +13,21 @@
     }
   },
   "evolution": { "animationMs": 3000, "alternanceMs": 150 },
+  "animations": { "flottementMs": 3000, "secousseMs": 300, "banniereMs": 3000 },
+  "sons": {
+    "actifParDefaut": true,
+    "volumeDb": -12,
+    "oscillateur": "triangle",
+    "enveloppe": { "attaque": 0.005, "declin": 0.1, "maintien": 0.3, "relachement": 1 },
+    "tempo": 120,
+    "tons": {
+      "hit": { "notes": ["C2"], "duree": "32n" },
+      "coin": { "notes": ["B4"], "duree": "16n" },
+      "catch": { "notes": ["C4", "E4", "G4"], "duree": "16n" },
+      "up": { "notes": ["G3", "C4"], "duree": "16n" },
+      "pc": { "notes": ["E5", "C5"], "duree": "16n" }
+    }
+  },
   "badges": { "ouvertureMs": 1200, "claqueDelaiMs": 800, "claqueMs": 1200 },
   "intro": {
     "flashMs": 800, "cadenasMs": 500, "chenEntreeMs": 1500,
