@@ -27,6 +27,12 @@ export function IconeBadge() {
   return <Icone><path d="m12 2 3 4 5 1-1 5 1 5-5 1-3 4-3-4-5-1 1-5-1-5 5-1z" /><circle cx="12" cy="12" r="4" /></Icone>;
 }
 
+export function IconeCadenas() {
+  return <svg viewBox="0 0 24 24" className="inline size-4" fill="none" stroke="currentColor" aria-hidden="true" focusable="false">
+    <path d="M7 10V7a5 5 0 0 1 10 0v3M5 10h14v12H5z" />
+  </svg>;
+}
+
 export function Equipe() {
   return <Icone><path d="M4 3h6v6H4zM14 3h6v6h-6zM4 15h6v6H4zM14 15h6v6h-6z" /></Icone>;
 }

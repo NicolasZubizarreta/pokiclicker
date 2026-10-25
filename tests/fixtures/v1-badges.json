@@ -383,6 +383,118 @@
       "prix": 210
     },
     {
+      "badges": [],
+      "paliers": [],
+      "dps": 126,
+      "clic": 5,
+      "or": {
+        "sauvage": 65,
+        "boss": 651
+      },
+      "xp": {
+        "sauvage": 836,
+        "boss": 4180
+      },
+      "chance": 23.716153127917835,
+      "delai": 2000,
+      "prix": 200
+    },
+    {
+      "badges": [],
+      "paliers": [
+        10
+      ],
+      "dps": 126,
+      "clic": 10,
+      "or": {
+        "sauvage": 65,
+        "boss": 651
+      },
+      "xp": {
+        "sauvage": 836,
+        "boss": 4180
+      },
+      "chance": 23.716153127917835,
+      "delai": 2000,
+      "prix": 200
+    },
+    {
+      "badges": [],
+      "paliers": [
+        30
+      ],
+      "dps": 189,
+      "clic": 5,
+      "or": {
+        "sauvage": 65,
+        "boss": 651
+      },
+      "xp": {
+        "sauvage": 836,
+        "boss": 4180
+      },
+      "chance": 23.716153127917835,
+      "delai": 2000,
+      "prix": 200
+    },
+    {
+      "badges": [],
+      "paliers": [
+        50
+      ],
+      "dps": 126,
+      "clic": 5,
+      "or": {
+        "sauvage": 65,
+        "boss": 651
+      },
+      "xp": {
+        "sauvage": 836,
+        "boss": 4180
+      },
+      "chance": 23.716153127917835,
+      "delai": 1800,
+      "prix": 200
+    },
+    {
+      "badges": [],
+      "paliers": [
+        70
+      ],
+      "dps": 126,
+      "clic": 5,
+      "or": {
+        "sauvage": 65,
+        "boss": 651
+      },
+      "xp": {
+        "sauvage": 836,
+        "boss": 4180
+      },
+      "chance": 23.716153127917835,
+      "delai": 2000,
+      "prix": 170
+    },
+    {
+      "badges": [],
+      "paliers": [
+        90
+      ],
+      "dps": 189,
+      "clic": 7.5,
+      "or": {
+        "sauvage": 65,
+        "boss": 651
+      },
+      "xp": {
+        "sauvage": 836,
+        "boss": 4180
+      },
+      "chance": 23.716153127917835,
+      "delai": 2000,
+      "prix": 200
+    },
+    {
       "badges": [
         "roche",
         "cascade",

@@ -29,14 +29,20 @@ function progressionDe(region: Pick<DonneesRegion, 'badges' | 'jalonsRecus'>, po
 }
 
 export type AffichageProgression = ReturnType<typeof progressionDe>;
+
+export function formaterProchainPalier(prochain: AffichageProgression['prochain']): string {
+  return prochain
+    ? `Prochain palier : ${prochain.palier} (${prochain.titre}) · Encore ${prochain.restantes} ${prochain.restantes === 1 ? 'espèce' : 'espèces'}.`
+    : 'Pokédex complet !';
+}
 let precedent: AffichageProgression | undefined;
 let clePrecedente: string | undefined;
 
 export function afficherProgression(region: Pick<DonneesRegion, 'badges' | 'jalonsRecus'>,
   pokedex: readonly number[]): AffichageProgression {
-  const progression = progressionDe(region, pokedex);
-  const cle = JSON.stringify(progression);
+  const cle = JSON.stringify([region.badges, region.jalonsRecus, pokedex]);
   if (cle === clePrecedente) return precedent!;
+  const progression = progressionDe(region, pokedex);
   clePrecedente = cle;
   precedent = progression;
   return progression;

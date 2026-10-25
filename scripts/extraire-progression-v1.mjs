@@ -83,6 +83,8 @@ const attribution = Array.from({ length: 22 }, (_, zoneIdx) => {
   return { zoneIdx, badges: recus };
 });
 const jeux = [...BADGES.map((b, i) => ({ badges: [ids[i]], noms: [b.name], paliers: [] })),
+  { badges: [], noms: [], paliers: [] },
+  ...[10, 30, 50, 70, 90].map(palier => ({ badges: [], noms: [], paliers: [palier] })),
   { badges: ids, noms: BADGES.map((b) => b.name), paliers: [10, 30, 50, 70, 90] }].map(({ badges: actifs, noms, paliers }) => {
   const preparer = (boss = false) => {
     contexte.state = { ...etatNeuf(), badges: [...noms], milestones: [...paliers] };
@@ -123,7 +125,7 @@ const paliers = [...[9, 10, 20, 40, 110, 130, 151].map((nombre) => ({ nombre, sa
   return resultat;
 });
 assert.equal(badges.length, 8);
-assert.equal(jeux.length, 9);
+assert.equal(jeux.length, 15);
 assert.equal(paliers.at(-1)?.recus.length, 10);
 const fixture = { BADGES, MILESTONES, equipe, cible, consommable: 'pokeball', balle: 'poke', attribution, jeux, paliers };
 const empreinte = createHash('sha256');

@@ -36,7 +36,7 @@ afterEach(() => {
   localStorage.clear();
 });
 
-it('présente seulement les deux entrées françaises, le compteur et le verrou visible lié au PC', () => {
+it('préserve les deux entrées historiques françaises, le compteur et le verrou visible lié au PC', () => {
   const { container } = render(<PagePlus />);
   // Prépare la vue historique ; les ajouts du tableau de bord sont vérifiés séparément.
   container.querySelector('section[aria-labelledby]')?.remove();
@@ -99,6 +99,9 @@ it('affiche le tableau de bord C et ouvre les badges avec le focus aller-retour'
   storeJeu.setState({ progression });
   const { container } = render(<PagePlus />);
   const aventure = screen.getByRole('region', { name: 'Ton aventure' });
+  expect(aventure.textContent).toBe(`Ton aventureRégionKanto · ${storeJeu.getState().lieu!.nom}Pokédex24 / 151Badges2 / 8DPS${formaterDps(storeJeu.getState().dps)}`);
+  expect(screen.getByRole('list').textContent).toBe("PC de LéoLe PC de Léo s'ouvre à l'Arène d'Argenta.Pokédex 24 / 151Prochain palier : 30 (Collectionneur) · Encore 6 espèces.Badges");
+  expect(within(screen.getByRole('list')).getAllByRole('listitem')).toHaveLength(3);
   expect(aventure.querySelector('dl')).toBeTruthy();
   expect(within(aventure).getByText('24 / 151')).toBeTruthy();
   expect(within(aventure).getByText('2 / 8')).toBeTruthy();

@@ -1,6 +1,7 @@
 import donneesBadges from '../../data/badges.json';
 import donneesJalons from '../../data/jalons.json';
 import { objetsActifs } from './boutique';
+import type { Objet } from './boutique';
 import type { DonneesRegion } from './sauvegarde-types';
 
 export type Badge = {
@@ -23,6 +24,10 @@ export function chargerBadges(): readonly Badge[] {
 
 export function chargerJalons(): readonly Jalon[] {
   return donneesJalons.paliers;
+}
+
+export function chargerObjetsRecompense(): readonly Objet[] {
+  return donneesJalons.objetsRecompense as Objet[];
 }
 
 export function badgeDeZone(zoneId: string): Badge | null {

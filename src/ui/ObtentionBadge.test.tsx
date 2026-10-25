@@ -24,6 +24,15 @@ afterEach(() => {
 const badges = [{ id: 'roche', nom: 'Roche', description: 'Dégâts Clic +50%',
   image: 'img/badges/roche.png', arene: "Arène d'Argenta", obtenu: true }];
 
+it.each([
+  [true, 'Survole ou touche un badge pour voir son effet.'],
+  [false, "Aucun badge obtenu. Bats les champions d'arène !"],
+] as const)('compare le texte complet de la boîte (badge obtenu : %s)', (obtenu, texte) => {
+  render(<ObtentionBadge badges={badges.map(badge => ({ ...badge, obtenu }))} fermer={() => {}} ouvert />);
+  expect(screen.getByRole('dialog', { name: 'Boîte à badges' }).textContent).toBe(`FermerBoîte à badges${texte}`);
+  expect(screen.getByRole('status').textContent).toBe(texte);
+});
+
 it('ouvre le dialogue modal nommé et transmet les phases sans rogner le badge', () => {
   const props = { badges, fermer: vi.fn() };
   const { rerender } = render(<ObtentionBadge {...props} ouvert={false} />);

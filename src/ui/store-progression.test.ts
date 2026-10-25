@@ -1,12 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { creerHorlogeSimulee } from '../core/clock';
 import { calculerClic } from '../core/combat';
+import * as combat from '../core/combat';
+import { calculerMaxXp, delaiEnnemiSuivant } from '../core/recompenses';
 import { chargerBadges, chargerJalons } from '../core/progression';
 import { kanto } from '../core/regions';
 import { compteInitial, creerGestionnaire, creerStockageMemoire } from '../core/sauvegarde';
 import type { DonneesRegion } from '../core/sauvegarde';
 import { creerStoreJeu } from './store';
-import { afficherProgression, phaseObtention } from './store-progression';
+import { afficherProgression, formaterProchainPalier, phaseObtention } from './store-progression';
 
 const stores: ReturnType<typeof creerStoreJeu>[] = [];
 beforeEach(() => vi.useFakeTimers());
@@ -44,6 +46,59 @@ function preparer(partiel: Partial<DonneesRegion> = {}, numeros: number[] = [1],
 }
 
 describe('progression du store', () => {
+  it('évite de recalculer les arènes lorsque seuls les autres champs de région changent', () => {
+    const observer = vi.spyOn(kanto, 'zone');
+    try {
+      const region = { badges: ['terre'], jalonsRecus: [10] };
+      const affichage = afficherProgression(region, [1, 4, 7, 25]);
+      expect(observer).toHaveBeenCalledTimes(8);
+      observer.mockClear();
+      expect(afficherProgression({ ...region, badges: [...region.badges] }, [1, 4, 7, 25])).toBe(affichage);
+      expect(observer).not.toHaveBeenCalled();
+      expect(afficherProgression({ ...region, badges: [] }, [1, 4, 7, 25])).not.toBe(affichage);
+      expect(observer).toHaveBeenCalledTimes(8);
+    } finally { observer.mockRestore(); }
+  });
+
+  it('réduit dès la victoire sur Jadielle le premier délai avec le badge Terre', () => {
+    const observer = vi.spyOn(combat, 'viderEvenements');
+    try {
+      const membre = preparer().region.equipe[0]!;
+      const { store, avancer } = preparer({ zoneId: 'kanto.arene-de-jadielle', etape: 10,
+        badges: ['roche', 'cascade', 'foudre', 'prisme', 'ame', 'marais', 'volcan'], jalonsRecus: [10, 30, 90],
+        equipe: Array.from({ length: 6 }, (_, i) => ({ ...membre, uid: `terre-${i}`, numero: 150, sexe: 'sansSexe', niveau: 100 })) }, [1], 100);
+      store.getState().basculerAutoAttaque();
+      for (let i = 0; i < 200 && store.getState().obtentionBadge === null; i++) {
+        store.getState().attaquer();
+        avancer();
+      }
+      expect(store.getState().obtentionBadge?.id).toBe('terre');
+      const victoire = observer.mock.calls.map(([etat]) => etat)
+        .find(etat => etat.evenements.some(e => e.type === 'boss-vaincu'))!;
+      expect(victoire.attenteCapture).toBe(false);
+      expect(victoire.attenteMs).toBe(delaiEnnemiSuivant(['badge:terre']));
+      expect(victoire.attenteMs).toBe(Math.floor(delaiEnnemiSuivant() / 1.2));
+      expect(victoire.attenteMs).toBe(1666);
+    } finally { observer.mockRestore(); }
+  });
+
+  it('joint la montée de niveau, le badge et la zone débloquée dans une même annonce', () => {
+    const membre = preparer().region.equipe[0]!;
+    const { store, avancer } = preparer({ zoneId: 'kanto.arene-d-argenta', etape: 10,
+      equipe: [{ ...membre, surnom: 'Bulbizarre', niveau: 99, xp: calculerMaxXp(1, 99) - 1 }] });
+    store.getState().basculerAutoAttaque();
+    for (let i = 0; i < 200 && store.getState().obtentionBadge === null; i++) avancer();
+    expect(store.getState().annonce).toBe('Bulbizarre passe au niveau 100 ! · Badge Roche obtenu ! · Zone débloquée !');
+  });
+
+  it('formate le prochain palier au singulier, au pluriel et le Pokédex complet', () => {
+    expect(formaterProchainPalier({ palier: 10, titre: 'Débutant', restantes: 1 }))
+      .toBe('Prochain palier : 10 (Débutant) · Encore 1 espèce.');
+    expect(formaterProchainPalier({ palier: 10, titre: 'Débutant', restantes: 7 }))
+      .toBe('Prochain palier : 10 (Débutant) · Encore 7 espèces.');
+    expect(formaterProchainPalier(null)).toBe('Pokédex complet !');
+  });
+
   it('affiche les badges, les paliers et le prochain, sans mutation et avec une référence stable', () => {
     const { region } = preparer({ badges: ['roche'] });
     const avant = structuredClone(region);

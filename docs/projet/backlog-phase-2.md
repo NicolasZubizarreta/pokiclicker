@@ -459,7 +459,7 @@ Fourchette : 3 jours. Risque : nombreux petits effets : un test par objet obliga
 
 ## N. `feat(progression): badges des arènes et paliers de récompenses du Pokédex`
 
-Labels : `type:feat`, `etat:pret`, `est:2`, `prio:1` · branche : `v2` · `agent-ok` : oui
+Labels : `type:feat`, `etat:fait`, `est:2`, `prio:1` · branche : `v2` · `agent-ok` : oui
 
 ### Histoire
 En tant que joueur, je veux gagner des badges en battant les chefs d'arène et des récompenses en complétant mon Pokédex afin de devenir plus fort.
@@ -471,14 +471,14 @@ V1 : `kanto.js` (`BADGES`), `save.js` (`checkBadges`, l. 561, animation `badge-s
 **Choix de Nicolas (24/10).** Page Plus : variante **C** (tableau de bord). Reprendre de la V1 le **carnet de badges** (« Boîte à badges » : 8 cercles en grille de 4, obtenu = fond clair avec halo doré, non obtenu = silhouette grisée, effet au survol) et **l'animation d'obtention d'un badge** (message « Badge X obtenu ! », la boîte s'ouvre à 1,2 s, le badge « claque » à 2 s : échelle 5 → 1 → 1,4 → 1 en 1,2 s). Nicolas : « je veux garder toutes les animations que j'avais faites ; tu peux les retravailler, mais pas les supprimer ». Sources : `docs/projet/choix-variantes-b.md` (choix), `docs/projet/v1-visuel-a-porter.md` (ce que fait la V1).
 
 ### Critères d'acceptation
-- [ ] Étant donné chaque arène, quand son boss est vaincu, alors le badge correspondant est ajouté une seule fois à `badges`, une animation d'obtention de moins d'une seconde se joue (réduite si `prefers-reduced-motion`), et la sauvegarde est écrite.
-- [ ] Étant donné les 8 badges, quand je lis les bonus du jeu, alors chaque effet applique la valeur de la V1 (clic, DPS, or, XP, capture, apparition) via les clés de `data/reglages.json` ; comparaison stricte avec le code V1 pour 8 jeux de badges.
-- [ ] Étant donné le Pokédex à 10, 20, …, 151 espèces, quand je franchis un palier, alors la récompense est donnée une seule fois (`jalonsRecus`), annoncée en français, et reçue à nouveau jamais, même après rechargement.
-- [ ] Étant donné la page Badges, quand je l'ouvre, alors les 8 badges sont visibles (obtenus : image et effet ; non obtenus : silhouette et arène à battre).
-- [ ] Étant donné la page Pokédex, quand je consulte les paliers, alors je vois la récompense du prochain palier et le nombre d'espèces restantes.
-- [ ] Étant donné le palier 70 ou le badge Prisme, quand je consulte les prix et les gains, alors ils changent comme dans la V1 (branchement vers L et E vérifié par un test de bout en bout du cœur).
-- [ ] Étant donné un boss d'arène vaincu, quand le badge est obtenu, alors se joue la séquence de la V1 (message, ouverture de la boîte à badges à 1,2 s, badge qui « claque » à 2 s, ≈ 3,2 s au total), comparée à `badge-slam` de la V1 (mêmes étapes et durées) ; avec `prefers-reduced-motion`, le badge apparaît sans mouvement.
-- [ ] Étant donné la page Plus, quand je l'ouvre, alors je vois le tableau de bord de la variante C (progression, Pokédex n / 151, badges n / 8) et la boîte à badges de la V1 avec l'effet au survol.
+- [x] Étant donné chaque arène, quand son boss est vaincu, alors le badge correspondant est ajouté une seule fois à `badges`, la séquence d'obtention de la V1 se joue (≈ 3,2 s, voir le critère ci-dessous ; sans mouvement si `prefers-reduced-motion`), et la sauvegarde est écrite.
+- [x] Étant donné les 8 badges, quand je lis les bonus du jeu, alors chaque effet applique la valeur de la V1 (clic, DPS, or, XP, capture, apparition) via les clés de `data/reglages.json` ; comparaison stricte avec le code V1 pour 8 jeux de badges.
+- [x] Étant donné le Pokédex à 10, 20, …, 151 espèces, quand je franchis un palier, alors la récompense est donnée une seule fois (`jalonsRecus`), annoncée en français, et reçue à nouveau jamais, même après rechargement.
+- [x] Étant donné la page Badges, quand je l'ouvre, alors les 8 badges sont visibles (obtenus : image et effet ; non obtenus : silhouette et arène à battre).
+- [x] Étant donné la page Pokédex, quand je consulte les paliers, alors je vois la récompense du prochain palier et le nombre d'espèces restantes.
+- [x] Étant donné le palier 70 ou le badge Prisme, quand je consulte les prix et les gains, alors ils changent comme dans la V1 (branchement vers L et E vérifié par un test de bout en bout du cœur).
+- [x] Étant donné un boss d'arène vaincu, quand le badge est obtenu, alors se joue la séquence de la V1 (message, ouverture de la boîte à badges à 1,2 s, badge qui « claque » à 2 s, ≈ 3,2 s au total), comparée à `badge-slam` de la V1 (mêmes étapes et durées) ; avec `prefers-reduced-motion`, le badge apparaît sans mouvement.
+- [x] Étant donné la page Plus, quand je l'ouvre, alors je vois le tableau de bord de la variante C (progression, Pokédex n / 151, badges n / 8) et la boîte à badges de la V1 avec l'effet au survol.
 
 ### Hors périmètre
 Scène de fin du palier 151 (X), Charme Chroma comme objet de capture (J) : le palier le donne seulement.

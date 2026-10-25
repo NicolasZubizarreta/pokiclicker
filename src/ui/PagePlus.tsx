@@ -5,6 +5,7 @@ import { formaterDps } from './nombres';
 import { PagePC } from './PagePC';
 import { Pokedex } from './Pokedex';
 import { storeJeu } from './store';
+import { formaterProchainPalier } from './store-progression';
 
 export function PagePlus() {
   const [sousPage, choisir] = useState<null | 'pc' | 'pokedex' | 'badges'>(null);
@@ -62,9 +63,7 @@ export function PagePlus() {
                 data-entree="pokedex" onClick={() => { entree.current = 'pokedex'; choisir('pokedex'); }}>
                 <span id={pokedexId}>Pokédex</span>{' '}
                 <span id={compteurId} className="text-region-accent">{`${nombre} / ${total}`}</span>
-                <span data-prochain-palier className="w-full text-texte-doux">{progression.prochain
-                  ? `Prochain palier : ${progression.prochain.palier} (${progression.prochain.titre}) · Encore ${progression.prochain.restantes} espèces.`
-                  : 'Pokédex complet !'}</span>
+                <span data-prochain-palier className="w-full text-texte-doux">{formaterProchainPalier(progression.prochain)}</span>
               </button>
             </li>
             <li>

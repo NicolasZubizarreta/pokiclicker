@@ -53,6 +53,20 @@ it('inscrit les trois starters au Pokédex d’une nouvelle partie', () => {
   expect(store.getState().pokedex).toEqual([1, 4, 7]);
 });
 
+it('écrit une seule fois une nouvelle espèce, puis rien pour un doublon ou un rechargement inchangé', () => {
+  const { store, stockage } = preparer();
+  const ecrire = vi.spyOn(stockage, 'ecrire');
+  store.getState().noterEspece(25);
+  expect(ecrire).toHaveBeenCalledTimes(2);
+  store.getState().noterEspece(25);
+  expect(ecrire).toHaveBeenCalledTimes(2);
+  store.getState().arreter();
+  ecrire.mockClear();
+  const recharge = preparer(stockage).store;
+  expect(recharge.getState().pokedex).toEqual([1, 4, 7, 25]);
+  expect(ecrire).not.toHaveBeenCalled();
+});
+
 it('restaure la région et les données de partie après une inscription au Pokédex', () => {
   const { store, stockage } = preparer();
   store.getState().envoyerAuPc(store.getState().equipe[0]!.pokemon.uid);
@@ -424,7 +438,8 @@ it('ne dépasse pas 100 notifications sur 1 000 ticks en dix secondes, même ave
   expect(notification.mock.calls.length).toBe(100);
 });
 it('annonce une seule fois la fin, inscrit le boss et sauvegarde immédiatement', () => {
-  const { store, avancer, stockage } = preparer();
+  const { store, avancer, stockage } = preparerRegion(region => ({ ...region, etape: 10,
+    equipe: region.equipe.map(pokemon => ({ ...pokemon, niveau: 100, xp: 0 })) }));
   const ecrire = vi.spyOn(stockage, 'ecrire');
   let annonces = 0;
   store.subscribe((etat, avant) => { if (etat.annonce === 'Zone débloquée !' && etat.annonce !== avant.annonce) annonces++; });

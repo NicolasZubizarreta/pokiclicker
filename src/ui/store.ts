@@ -18,7 +18,7 @@ import { creerBoucle } from '../core/loop';
 import { chargerPokemon } from '../core/pokemon';
 import { accesPc } from '../core/pc';
 import { ajouterAuPokedex, completerPokedex, pokedexDeKanto } from '../core/pokedex';
-import { appliquerVictoire, calculerMaxXp } from '../core/recompenses';
+import { appliquerVictoire, calculerMaxXp, delaiEnnemiSuivant } from '../core/recompenses';
 import type { FormeCarte, Zone, ZoneMonde } from '../core/monde';
 import { kanto } from '../core/regions';
 import { reglages } from '../core/reglages';
@@ -130,6 +130,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
     catch (cause) { erreur = detailErreur(cause); }
   };
   const noterDansPokedex = (numero?: number, messages?: string[]) => {
+    const precedent = numero === undefined ? persistance.pokedex : pokedex;
     if (numero !== undefined) pokedex = ajouterAuPokedex(pokedex, numero);
     const resultat = accorderJalons(region, pokedexDeKanto(pokedex, catalogue).nombre);
     region = resultat.region;
@@ -141,7 +142,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
     }
     if (coeur) coeur = { ...coeur, pokedex };
     actualiserActifs();
-    enregistrer();
+    if (pokedex !== precedent || paliers.length > 0) enregistrer();
   };
   const traiter = () => {
     if (!coeur) return;
@@ -168,10 +169,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
           messages.push(`${pokemon.surnom ?? catalogue.parNumero(pokemon.numero).nom} passe au niveau ${montee.niveau} !`);
         } else if (r.montees.length > 1) messages.push(`${r.montees.length} Pokémon montent de niveau !`);
         if (evenement.shiny) messages.push(`Chromatique ! +${r.bonbons} Bonbons`);
-        if (messages.length > 0) {
-          annonce = messages.join(' · ');
-          finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs;
-        }
+        messagesCapture.push(...messages);
       }
       if (evenement.type === 'boss-vaincu') {
         const resultat = accorderBadge(region, evenement.zoneId);
@@ -180,6 +178,9 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
           messagesCapture.push(`Badge ${resultat.badge.nom} obtenu !`);
           obtentionBadge = { id: resultat.badge.id, debutMs: tempsJeuMs };
           actualiserActifs();
+          if (coeur.attenteMs > 0 && !coeur.attenteCapture) {
+            coeur = { ...coeur, attenteMs: delaiEnnemiSuivant(coeur.actifs) };
+          }
         }
         if (!region.bossVaincus.includes(evenement.zoneId)) {
           region = { ...region, bossVaincus: [...region.bossVaincus, evenement.zoneId] };
@@ -479,7 +480,6 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
           initialise = true;
           noterDansPokedex();
           traiter();
-          if (pokedex !== persistance.pokedex) enregistrer();
           prechargerLieu();
           afficher();
         }
