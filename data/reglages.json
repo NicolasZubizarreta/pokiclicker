@@ -2,6 +2,13 @@
   "equipe": { "taille": 6, "surnomMax": 12 },
   "evolution": { "animationMs": 3000, "alternanceMs": 150 },
   "badges": { "ouvertureMs": 1200, "claqueDelaiMs": 800, "claqueMs": 1200 },
+  "intro": {
+    "flashMs": 800, "cadenasMs": 500, "chenEntreeMs": 1500,
+    "dialogueDelaiMs": 1600, "caractereMs": 30, "poseDelaiMs": 350, "poseFonduMs": 250,
+    "choixDelaiMs": 500, "voileMs": 300, "sceneDelaiMs": 300, "voileRetraitDelaiMs": 150,
+    "laboDelaiMs": 1000, "interfaceFonduMs": 1000, "starterFonduMs": 300,
+    "starterSurvol": 1.1, "starterChoisi": 1.5
+  },
   "shop": { "zone": "kanto.foret-de-jade", "raison": "Le Shop s'ouvre à la Forêt de Jade." },
   "sac": { "zone": "kanto.route-1", "raison": "Le Sac s'ouvre à la Route 1." },
   "boutique": {

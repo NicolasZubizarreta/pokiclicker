@@ -7,6 +7,8 @@
     "qualiteWebp": 82,
     "perteMax": 0.1
   },
+  "scene": { "ratio": [1, 1], "largeur": 1080, "hauteur": 1080, "qualiteWebp": 82 },
+  "personnage": { "taille": 120 },
   "sprite": { "taille": 96 },
   "objet": { "taille": 30 },
   "badge": { "taille": 96 },

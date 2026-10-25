@@ -878,5 +878,29 @@
   "img/badges/terre.png": {
     "largeur": 96,
     "hauteur": 96
+  },
+  "img/scenes/bourg-palette.webp": {
+    "largeur": 1080,
+    "hauteur": 1080
+  },
+  "img/scenes/labo.webp": {
+    "largeur": 1080,
+    "hauteur": 1080
+  },
+  "img/decors/chez-blue.webp": {
+    "largeur": 1920,
+    "hauteur": 1080
+  },
+  "img/sprites/chen/chen-1.png": {
+    "largeur": 120,
+    "hauteur": 120
+  },
+  "img/sprites/chen/chen-2.png": {
+    "largeur": 120,
+    "hauteur": 120
+  },
+  "img/sprites/chen/chen-3.png": {
+    "largeur": 120,
+    "hauteur": 120
   }
 }

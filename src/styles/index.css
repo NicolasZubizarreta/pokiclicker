@@ -94,6 +94,62 @@ html:has(dialog[open]) { overflow: hidden; }
 /* Durées du ticket H et de sa maquette A ; distances issues de l’espacement. */
 :root { --duree-pv: 120ms; --duree-degats: 500ms; --duree-evolution: 3s; }
 :root { --duree-badge: 1.2s; --ease-badge: cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+/* Intro V1 : styles.css L200-212, main.js, controls.js et index.html.
+   Utilitaires d’animation et de transition à appliquer sous motion-safe:. */
+:root {
+  --duree-intro-flash: 800ms;
+  --duree-intro-cadenas: 500ms;
+  --duree-intro-chen: 1500ms;
+  --delai-intro-dialogue: 1600ms;
+  --duree-intro-caractere: 30ms;
+  --delai-intro-pose: 350ms;
+  --duree-intro-pose: 250ms;
+  --delai-intro-choix: 500ms;
+  --duree-intro-voile: 300ms;
+  --delai-intro-scene: 300ms;
+  --delai-intro-voile-retrait: 150ms;
+  --delai-intro-labo: 1000ms;
+  --duree-intro-interface: 1000ms;
+  --duree-intro-starter: 300ms;
+  --echelle-intro-starter-survol: 1.1;
+  --echelle-intro-starter-choisi: 1.5;
+  --ease-intro-chen: cubic-bezier(0.25, 1, 0.5, 1);
+  --translation-intro-chen-depart: translateX(120%);
+  --translation-intro-chen-arrivee: translateX(-50%);
+  --transformation-intro-cadenas-depart: scale(1);
+  --transformation-intro-cadenas-milieu: scale(1.2) rotate(10deg);
+  --transformation-intro-cadenas-fin: scale(2);
+}
+@utility flash-vert {
+  animation: flash-vert var(--duree-intro-flash) infinite;
+}
+@keyframes flash-vert {
+  0%, 100% { fill: var(--succes-fond); stroke: var(--succes-base); }
+  50% { fill: var(--succes-base); stroke: var(--succes-texte); }
+}
+@utility cadenas-brise {
+  animation: cadenas-brise var(--duree-intro-cadenas) forwards;
+}
+@keyframes cadenas-brise {
+  0% { transform: var(--transformation-intro-cadenas-depart); opacity: 1; }
+  50% { transform: var(--transformation-intro-cadenas-milieu); }
+  100% { transform: var(--transformation-intro-cadenas-fin); opacity: 0; }
+}
+/* Position finale disponible aussi sans animation (mouvement réduit). */
+@utility chen-en-place { transform: var(--translation-intro-chen-arrivee); }
+@utility chen-entree {
+  animation: chen-entree var(--duree-intro-chen) var(--ease-intro-chen) both;
+}
+@keyframes chen-entree {
+  0% { transform: var(--translation-intro-chen-depart); }
+  100% { transform: var(--translation-intro-chen-arrivee); }
+}
+@utility intro-pose-fondu { transition: opacity var(--duree-intro-pose) ease-in-out; }
+@utility intro-voile { transition: opacity var(--duree-intro-voile) ease-in-out; }
+@utility intro-interface-fondu { transition: opacity var(--duree-intro-interface) ease; }
+@utility intro-starter-fondu { transition: opacity var(--duree-intro-starter) ease; }
+@utility intro-starter-survol { scale: var(--echelle-intro-starter-survol); }
+@utility intro-starter-choisi { scale: var(--echelle-intro-starter-choisi); }
 .badge-obtenu {
   background: var(--alerte-fond);
   border: calc(var(--spacing) / 2) solid var(--alerte-base);

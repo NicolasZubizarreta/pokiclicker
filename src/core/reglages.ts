@@ -4,6 +4,14 @@ import type { Rarete } from './monde';
 
 export type Bonus = { cle: string; x: number; arrondi?: boolean };
 
+export type ReglagesIntro = {
+  flashMs: number; cadenasMs: number; chenEntreeMs: number;
+  dialogueDelaiMs: number; caractereMs: number; poseDelaiMs: number; poseFonduMs: number;
+  choixDelaiMs: number; voileMs: number; sceneDelaiMs: number; voileRetraitDelaiMs: number;
+  laboDelaiMs: number; interfaceFonduMs: number; starterFonduMs: number;
+  starterSurvol: number; starterChoisi: number;
+};
+
 export type ReglagesCapture = {
   balles: { cle: string; nom: string; image: string; multiplicateur: number }[];
   multiplicateurCertain: number; bonus: Bonus[];
@@ -35,6 +43,7 @@ export type ReglagesDelais = {
 export const reglages: {
   equipe: { taille: number; surnomMax: number };
   badges: { ouvertureMs: number; claqueDelaiMs: number; claqueMs: number };
+  intro: ReglagesIntro;
   pc: { zone: string; raison: string };
   shop: { zone: string; raison: string };
   sac: { zone: string; raison: string };
@@ -100,6 +109,9 @@ for (const valeur of Object.values(reglages.interface.vol)) {
 }
 for (const valeur of Object.values(reglages.carte)) {
   if (!Number.isFinite(valeur) || valeur <= 0) throw new Error('Réglages de carte invalides');
+}
+for (const valeur of Object.values(reglages.intro)) {
+  if (!Number.isFinite(valeur) || valeur <= 0) throw new Error('Réglages d’intro invalides');
 }
 
 const capture = reglages.capture;
