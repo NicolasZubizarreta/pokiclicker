@@ -8,6 +8,8 @@ import type { Ennemi } from '../core/ennemis';
 import * as equipe from '../core/equipe';
 import { creerBoucle } from '../core/loop';
 import { chargerPokemon } from '../core/pokemon';
+import { accesPc } from '../core/pc';
+import { ajouterAuPokedex, completerPokedex } from '../core/pokedex';
 import { appliquerVictoire, calculerMaxXp } from '../core/recompenses';
 import type { FormeCarte, Zone, ZoneMonde } from '../core/monde';
 import { kanto } from '../core/regions';
@@ -30,6 +32,9 @@ export type EtatForme = {
 export type AffichageJeu = {
   lieu: ZoneMonde | null; zone: Zone | null; etape: number; ennemi: Omit<Ennemi, 'capture'> | null; pv: number;
   equipe: CaseEquipe[]; dps: number; erreur: string | null;
+  pc: PokemonPossede[]; pokedex: readonly number[];
+  accesPc: { ouvert: boolean; raison: string | null };
+  noterEspece(numero: number): void;
   erreurChargement: boolean; zonePrecedente: Destination | null; zoneSuivante: Destination | null;
   minuteur: { restantMs: number; totalMs: number } | null;
   evenementsDegats: Degat[];
@@ -55,6 +60,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
   let zonesVues = new Set<string>();
   const totalBadges = kanto.zones.filter(zone => !zone.sansCombat && zone.type === 'arene').length;
   let region: DonneesRegion;
+  let pokedex: readonly number[] = [];
   let persistance: ReturnType<typeof ouvrirPartie>;
   let boucle: ReturnType<typeof creerBoucle<null>> | undefined;
   let minuteur: ReturnType<typeof setInterval> | undefined;
@@ -72,7 +78,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
   const limiteur = creerLimiteurClics(horloge);
   const enregistrer = () => {
     if (!initialise) return;
-    try { persistance.enregistrer(region); } catch (cause) { erreur = detailErreur(cause); }
+    try { persistance.enregistrer(region, pokedex); } catch (cause) { erreur = detailErreur(cause); }
   };
   const traiter = () => {
     if (!coeur) return;
@@ -130,6 +136,8 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
     while (equipe.length < 6) equipe.push(null);
     const precedent = store.getState();
     const etatMonde = etatMondeDe(region);
+    const acces = accesPc(kanto, etatMonde);
+    const accesAuPc = { ouvert: acces.ok, raison: acces.ok ? null : acces.raison ?? null };
     const ouvertes = new Set(kanto.zonesOuvertes(etatMonde).map(zone => zone.id));
     const carte: AffichageJeu['carte'] = {
       formes: kanto.carte.formes.map(forme => {
@@ -148,6 +156,9 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
     const zoneSuivante = destination(lien ? kanto.zone(lien.vers) : undefined);
     const ennemi = coeur ? (({ numero, niveau, pv, pvMax, boss, shiny, rarete }) => ({ numero, niveau, pv, pvMax, boss, shiny, rarete }))(coeur.ennemi) : null;
     store.setState({ lieu, zone: coeur?.zone ?? null, etape: region.etape, ennemi, pv: ennemi?.pv ?? 0,
+      pc: region.pc, pokedex,
+      accesPc: accesAuPc.ouvert === precedent.accesPc.ouvert && accesAuPc.raison === precedent.accesPc.raison
+        ? precedent.accesPc : accesAuPc,
       carte: JSON.stringify(carte) === JSON.stringify(precedent.carte) ? precedent.carte : carte,
       equipe: JSON.stringify(equipe) === JSON.stringify(precedent.equipe) ? precedent.equipe : equipe,
       dps: coeur ? calculerDpsEquipe(coeur.equipe, coeur.ennemi) : 0, erreur,
@@ -166,7 +177,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
   };
   const cacher = () => { if (document.visibilityState === 'hidden') enregistrer(); };
   const modifierEquipe = (action: (region: DonneesRegion) => equipe.ResultatEquipe,
-    uidPc?: string, fermerEchange = false): string | null => {
+    uidPc?: string, fermerEchange = false, completer = false): string | null => {
     if (!initialise) return 'La partie n’est pas démarrée.';
     const resultat = action(region);
     if (!resultat.ok) return resultat.raison;
@@ -175,6 +186,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
       echange = { uid: uidPc, nom: pokemon.surnom ?? catalogue.parNumero(pokemon.numero).nom };
     } else {
       region = resultat.region;
+      if (completer) pokedex = completerPokedex(pokedex, region);
       if (coeur) coeur = { ...coeur, equipe: region.equipe.map(versMembreEquipe) };
       if (fermerEchange) echange = null;
       enregistrer();
@@ -186,12 +198,21 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
     lieu: null, zone: null, etape: 1, ennemi: null, pv: 0, equipe: [], dps: 0, minuteur: null,
     erreur: null, erreurChargement: false, zonePrecedente: null, zoneSuivante: null, evenementsDegats: [],
     argent: 0, enRecherche: false, annonce: null, echange: null,
+    pc: [], pokedex, accesPc: { ouvert: false, raison: reglages.pc.raison },
+    noterEspece(numero) {
+      if (!initialise) return;
+      const suivant = ajouterAuPokedex(pokedex, numero);
+      if (suivant === pokedex) return;
+      pokedex = suivant;
+      enregistrer();
+      afficher();
+    },
     renommer: (uid, texte) => modifierEquipe(region => equipe.renommer(region, uid, texte)),
     basculerFavori: uid => modifierEquipe(region => equipe.basculerFavori(region, uid)),
     relacher: uid => modifierEquipe(region => equipe.relacher(region, uid)),
     envoyerAuPc: uid => modifierEquipe(region => equipe.envoyerAuPc(region, uid)),
-    placerDansEquipe: uid => modifierEquipe(region => equipe.placerDansEquipe(region, uid), uid),
-    echanger: (uidPc, uidEquipe) => modifierEquipe(region => equipe.echanger(region, uidPc, uidEquipe), undefined, true),
+    placerDansEquipe: uid => modifierEquipe(region => equipe.placerDansEquipe(region, uid), uid, false, true),
+    echanger: (uidPc, uidEquipe) => modifierEquipe(region => equipe.echanger(region, uidPc, uidEquipe), undefined, true, true),
     annulerEchange() { echange = null; afficher(); },
     carte: { formes: [], badges: { obtenus: 0, total: totalBadges }, nouvelles: [], tutorielRoute1: false },
     voirCarte() {
@@ -227,10 +248,12 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
         if (!initialise) {
           persistance = ouvrirPartie({ stockage, horloge, genererId });
           region = persistance.region;
+          pokedex = completerPokedex(persistance.pokedex, region);
           zonesVues = new Set(kanto.zonesOuvertes(etatMondeDe(region)).map(zone => zone.id));
           const lieu = kanto.zone(region.zoneId);
           coeur = lieu.sansCombat ? null : reprendreCombat(lieu, region.equipe.map(versMembreEquipe), alea, region.etape);
           initialise = true;
+          if (pokedex !== persistance.pokedex) enregistrer();
           prechargerLieu();
           afficher();
         }

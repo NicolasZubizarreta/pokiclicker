@@ -25,19 +25,22 @@ export function ouvrirPartie(options: Parameters<typeof creerGestionnaire>[0]) {
   if (!enveloppe) throw new Error('Région de la partie introuvable');
   if (!recente) enveloppe = gestionnaire.ecrireRegion(partie.id, enveloppe.id,
     { ...enveloppe.donnees, equipe: equipeDeDepart() }, { revisionAttendue: enveloppe.revision });
-  let derniere = JSON.stringify(enveloppe.donnees);
+  let derniere = JSON.stringify([enveloppe.donnees, partie.donnees.pokedexNational]);
   let bloquee = false;
   return {
     region: enveloppe.donnees,
-    enregistrer(region: DonneesRegion) {
-      const suivante = JSON.stringify(region);
+    pokedex: partie.donnees.pokedexNational,
+    enregistrer(region: DonneesRegion, pokedex: readonly number[]) {
+      const suivante = JSON.stringify([region, pokedex]);
       if (bloquee || suivante === derniere) return;
       try {
         const actuelle = gestionnaire.chargerPartie(partie.id);
         if (actuelle?.revision !== partie.revision) throw new Error('Conflit de partie');
         enveloppe = gestionnaire.ecrireRegion(partie.id, region.regionId, region,
           { revisionAttendue: enveloppe!.revision });
-        partie = gestionnaire.ecrirePartie(partie.id, partie.donnees, { revisionAttendue: partie.revision });
+        const donnees = JSON.stringify(pokedex) === JSON.stringify(partie.donnees.pokedexNational)
+          ? partie.donnees : { ...partie.donnees, pokedexNational: [...pokedex] };
+        partie = gestionnaire.ecrirePartie(partie.id, donnees, { revisionAttendue: partie.revision });
         derniere = suivante;
       } catch (erreur) {
         bloquee = true;

@@ -43,6 +43,62 @@ function vaincre(partie: ReturnType<typeof preparer>) {
   expect(partie.store.getState().etape).not.toBe(etape);
 }
 
+it('inscrit les trois starters au Pokédex d’une nouvelle partie', () => {
+  const { store } = preparer();
+  expect(store.getState().pokedex).toEqual([1, 4, 7]);
+});
+
+it('restaure la région et les données de partie après une inscription au Pokédex', () => {
+  const { store, stockage } = preparer();
+  store.getState().envoyerAuPc(store.getState().equipe[0]!.pokemon.uid);
+  store.getState().noterEspece(25);
+  const region = JSON.parse(stockage.lire('pokiclicker:region:test:kanto')!).donnees;
+  const partie = JSON.parse(stockage.lire('pokiclicker:partie:test')!).donnees;
+  store.getState().arreter();
+  const second = preparer(stockage).store;
+  expect(second.getState().pokedex).toEqual([1, 4, 7, 25]);
+  expect(second.getState().pc).toEqual(region.pc);
+  expect(JSON.parse(stockage.lire('pokiclicker:region:test:kanto')!).donnees).toEqual(region);
+  expect(JSON.parse(stockage.lire('pokiclicker:partie:test')!).donnees).toEqual(partie);
+});
+
+it('garde les références du PC, du Pokédex et de son accès pendant dix ticks', () => {
+  const { store, avancer } = preparerRegion(region => ({ ...region,
+    pc: [{ ...region.equipe[0]!, uid: 'pc' }] }));
+  const avant = store.getState();
+  expect(avant.pc.map(p => p.uid)).toEqual(['pc']);
+  expect(avant.pokedex).toEqual([1, 4, 7]);
+  expect(avant.accesPc.ouvert).toBe(false);
+  for (let i = 0; i < 10; i++) {
+    avancer();
+    expect(store.getState().pc).toBe(avant.pc);
+    expect(store.getState().pokedex).toBe(avant.pokedex);
+    expect(store.getState().accesPc).toBe(avant.accesPc);
+  }
+});
+
+it('enregistre une seule fois une espèce notée deux fois, région puis partie', () => {
+  const { store, stockage } = preparer();
+  const ecrire = vi.spyOn(stockage, 'ecrire');
+  store.getState().noterEspece(25);
+  const pokedex = store.getState().pokedex;
+  store.getState().noterEspece(25);
+  store.getState().fermer();
+  expect(store.getState().pokedex).toBe(pokedex);
+  expect(ecrire.mock.calls.map(([cle]) => cle)).toEqual([
+    'pokiclicker:region:test:kanto', 'pokiclicker:partie:test',
+  ]);
+});
+
+it('ouvre le PC après les boss de la Route 1 et de la Forêt de Jade', () => {
+  expect(preparer().store.getState().accesPc).toEqual({ ouvert: false, raison: reglages.pc.raison });
+  expect(preparerRegion(region => ({ ...region, bossVaincus: ['kanto.route-1'] }))
+    .store.getState().accesPc).toEqual({ ouvert: false, raison: reglages.pc.raison });
+  expect(preparerRegion(region => ({ ...region,
+    bossVaincus: ['kanto.route-1', 'kanto.foret-de-jade'] }))
+    .store.getState().accesPc).toEqual({ ouvert: true, raison: null });
+});
+
 it('enregistre immédiatement le surnom et le favori pour un nouveau store', () => {
   const { store, stockage } = preparer();
   const uid = store.getState().equipe[0]!.pokemon.uid;
