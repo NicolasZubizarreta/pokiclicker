@@ -412,7 +412,7 @@ V1 : `legacy/js/game/shop.js` (42 l.), `items.js`, `constants.js` (`ITEMS`, 31 e
 - [x] Étant donné les objets à effet permanent, quand je les possède, alors leurs bonus apparaissent dans les calculs de clic, d'or, d'XP et de délai (les clés de `bonus` de `data/reglages.json` sont branchées ; le calcul est comparé à la V1) ; les Restes déclenchent 9 clics automatiques par seconde, sous le plafond de 12.
 - [x] Étant donné le Sac, quand je l'ouvre, alors je vois balles, Bonbons et objets avec leurs quantités et leurs textes ; un Bonbon utilisé sur un Pokémon lui donne +n niveaux (jusqu'à 100).
 - [x] Étant donné le Shop, quand je regarde un objet trop cher, alors son bouton est grisé sans autre message ; il n'y a ni panier ni case « Prépare ta route » ; le tri par catégorie (Balles, Soins, Équipement) fonctionne.
-- [x] Étant donné le Sac, quand je l'ouvre, alors chaque objet a son icône officielle (fichier local) dans une case compacte, groupée par catégorie avec un filtre ; aucune icône n'est chargée depuis Internet.
+- [x] Étant donné le Sac, quand je l'ouvre, alors chaque objet a son icône officielle (fichier local) dans une ligne compacte à deux colonnes (icône 32 px, un clic pour utiliser, comme la V1), avec un filtre par catégorie ; aucune icône n'est chargée depuis Internet.
 - [x] Étant donné un Bonbon ou un Calcium, quand je l'utilise, alors le mode de sélection de la V1 s'enclenche (message, lignes d'équipe en surbrillance, annulation d'un clic ailleurs) puis le sélecteur − / n / + avec confirmation ; les valeurs et messages sont ceux de la V1.
 
 ### Hors périmètre
