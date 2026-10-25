@@ -428,7 +428,7 @@ Fourchette : 3 à 4 jours (le Sac est à refaire). Risque : bonus d'objets dispe
 
 ## M. `feat(objets): objets actifs, repousses, boosts, Calcium, Pierre Stase et Jeton Shiny`
 
-Labels : `type:feat`, `etat:idee`, `est:3`, `prio:2` · branche : `v2` · `agent-ok` : oui
+Labels : `type:feat`, `etat:pret`, `est:3`, `prio:2` · branche : `v2` · `agent-ok` : oui
 
 ### Histoire
 En tant que joueur, je veux utiliser des objets qui changent un combat ou un Pokémon afin de franchir les boss difficiles.
@@ -459,7 +459,7 @@ Fourchette : 3 jours. Risque : nombreux petits effets : un test par objet obliga
 
 ## N. `feat(progression): badges des arènes et paliers de récompenses du Pokédex`
 
-Labels : `type:feat`, `etat:idee`, `est:2`, `prio:1` · branche : `v2` · `agent-ok` : oui
+Labels : `type:feat`, `etat:pret`, `est:2`, `prio:1` · branche : `v2` · `agent-ok` : oui
 
 ### Histoire
 En tant que joueur, je veux gagner des badges en battant les chefs d'arène et des récompenses en complétant mon Pokédex afin de devenir plus fort.
