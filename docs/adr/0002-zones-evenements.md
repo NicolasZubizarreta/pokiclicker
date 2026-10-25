@@ -37,7 +37,7 @@
 ```
    `multiplicateurPv` remplace `ZONE_MULT`. `carte` est en **fractions de l'image** (0 à 1), jamais en pixels. `etapes` vaut 10 : la dixième est le boss.
 3. **Conditions de passage** (`si`, sur un lien ou sur une zone) : `badge`, `boss` (zone dont le boss est vaincu), `objet` (objet-clé possédé), `quete` (terminée), `drapeau` (posé par un événement). Combinables par `tous`, `un_parmi` et `non`. Évaluées par une fonction pure `peutPasser(condition, etat)` qui renvoie aussi la **raison lisible en français** quand c'est refusé.
-4. **Événements** dans `data/regions/<region>/evenements.json` : `{ id, declencheur, si, etapes[] }`. Déclencheurs : `entree-zone`, `boss-vaincu`, `objet-utilise`, `debut-partie`. Étapes : `dialogue` (locuteur, texte), `combat` (rival, boss), `donner` (objet, Pokémon), `poser-drapeau`, `deplacer`. Un événement ne se joue qu'une fois sauf indication contraire ; le drapeau « déjà joué » est dans la sauvegarde de la région (ADR 0001).
+4. **Événements** dans `data/regions/<region>/evenements.json` : `{ id, declencheur, si, etapes[] }`. Déclencheurs : `entree-zone`, `boss-vaincu`, `objet-utilise`, `debut-partie`. Étapes : `dialogue` (locuteur, texte, `pose` facultative : identifiant de l'image du locuteur, ex. `chen-2`), `combat` (rival, boss), `donner` (objet, Pokémon), `poser-drapeau`, `deplacer`. Un événement ne se joue qu'une fois sauf indication contraire ; le drapeau « déjà joué » est dans la sauvegarde de la région (ADR 0001).
 5. **Exemple Ronflex et Pokéflûte** (deux événements, illustratifs : les noms de routes sont à confirmer en phase 2) :
 ```json
 {
