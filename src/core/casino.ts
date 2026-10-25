@@ -1,8 +1,11 @@
 import donnees from '../../data/casino.json';
+import objets from '../../data/objets.json';
 import { evaluer } from './conditions';
 import type { EtatMonde, ResultatCondition } from './conditions';
 import type { chargerMonde } from './monde';
-import type { MainBlackjack } from './sauvegarde-types';
+import type { DonneesRegion, MainBlackjack, PokemonPossede } from './sauvegarde-types';
+import { reglages } from './reglages';
+import { tirerSexe } from './sexe';
 
 export type Casino = typeof donnees;
 export type Face = keyof Casino['pileOuFace']['faces'];
@@ -47,6 +50,47 @@ export function chargerCasino(source: unknown = donnees): Casino {
 }
 
 const casino = chargerCasino();
+
+type RegionBoutiqueCasino = Pick<DonneesRegion, 'jetons' | 'equipe' | 'pc' | 'inventaire' | 'ameliorations'>;
+
+export function objetsDuCasino(region: RegionBoutiqueCasino) {
+  return casino.boutique.map(article => {
+    const inventaire = objets.find(o => o.id === article.itemKey)?.inventaire;
+    const possede = article.type === 'upgrade' ? region.ameliorations.includes(article.key)
+      : article.type === 'pokemon' ? [...region.equipe, ...region.pc].some(p => p.numero === article.id)
+        : inventaire != null && (region.inventaire[inventaire] ?? 0) > 0;
+    const raison = article.type === 'upgrade' && possede ? casino.messages.dejaAcquis
+      : region.jetons < article.price ? casino.messages.jetonsInsuffisants : null;
+    return { id: article.key, nom: article.name, prix: article.price, possede, abordable: raison === null, raison };
+  });
+}
+
+export function acheterAuCasino<R extends RegionBoutiqueCasino>(region: R, id: string,
+  alea: () => number, genererId: () => string): Resultat<R, { numero?: number }> {
+  const article = casino.boutique.find(o => o.key === id);
+  if (!article) return { ok: false, raison: 'Objet inconnu.' };
+  const ligne = objetsDuCasino(region).find(o => o.id === id)!;
+  if (ligne.raison !== null) return { ok: false, raison: ligne.raison };
+  const copie = { ...region, jetons: region.jetons - article.price };
+  if (article.type === 'pokemon') {
+    const numero = article.id!;
+    const sexe = tirerSexe(numero, alea);
+    const pokemon: PokemonPossede = {
+      uid: genererId(), numero, niveau: 25, shiny: false, sexe, xp: 0, bonheur: 0,
+      calcium: 0, pierreEternelle: false, favori: false,
+    };
+    const destination = region.equipe.length < reglages.equipe.taille ? 'equipe' : 'pc';
+    return { ok: true, region: { ...copie, [destination]: [...region[destination], pokemon] }, numero,
+      message: casino.messages.achat.replace('{nom}', article.name) };
+  }
+  if (article.type === 'upgrade') {
+    return { ok: true, region: { ...copie, ameliorations: [...region.ameliorations, article.key] },
+      message: casino.messages.achat.replace('{nom}', casino.noms.ctJackpot) };
+  }
+  const cle = objets.find(o => o.id === article.itemKey)!.inventaire!;
+  return { ok: true, region: { ...copie, inventaire: { ...region.inventaire, [cle]: (region.inventaire[cle] ?? 0) + 1 } },
+    message: casino.messages.achat.replace('{nom}', objets.find(o => o.id === article.itemKey)!.nom) };
+}
 
 export function accesCasino(monde: Pick<ReturnType<typeof chargerMonde>, 'lieu'>, etat: EtatMonde): ResultatCondition {
   const condition = monde.lieu('casino').si;
