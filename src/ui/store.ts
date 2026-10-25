@@ -23,6 +23,7 @@ import { creerBoucle } from '../core/loop';
 import { chargerPokemon } from '../core/pokemon';
 import { accesPc } from '../core/pc';
 import * as pension from '../core/pension';
+import * as casino from '../core/casino';
 import { ajouterAuPokedex, completerPokedex, pokedexDeKanto } from '../core/pokedex';
 import { appliquerVictoire, calculerMaxXp, delaiEnnemiSuivant } from '../core/recompenses';
 import type { FormeCarte, Zone, ZoneMonde } from '../core/monde';
@@ -36,6 +37,7 @@ import { afficherEvolution, type EvolutionAffichee } from './store-evolution';
 import { afficherProgression, phaseObtention, type AffichageProgression, type PhaseObtention } from './store-progression';
 import { afficherEffets, afficherFauchage, type EffetsAffiches, type FauchageAffiche } from './store-objets';
 import { afficherBoutique, afficherCentre, afficherSac, type AffichageBoutique, type AffichageSac } from './store-boutique';
+import { afficherCasino, type ActionsCasino, type AffichageCasino } from './store-casino';
 import { detailErreur, ouvrirPartie } from './persistance';
 import { creerStockageLocal } from './stockage-local';
 import { genererIdentifiant } from './identifiants';
@@ -50,7 +52,8 @@ export type EtatForme = {
   forme: FormeCarte; zone: string | null; nom: string; numero: number | null;
   ouverte: boolean; actuelle: boolean; raison: string | null;
 };
-export type AffichageJeu = {
+export type AffichageJeu = ActionsCasino & {
+  casino: AffichageCasino;
   intro: { enCours: boolean; premiereLigneVue: boolean; choixStarter: boolean;
     sacOuvert: boolean; carteOuverte: boolean; starters: { numero: number; nom: string; shiny: boolean }[] };
   choisirStarter(numero: number): string | null;
@@ -345,6 +348,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       radar: region.ameliorations.includes('pokeradar'),
       capture: afficherCapture(coeur, region.inventaire, precedent.capture),
       boutique: afficherBoutique(region, precedent.boutique), centre: afficherCentre(region, precedent.centre), sac,
+      casino: afficherCasino(region, precedent.casino),
       autoClic: precedent.autoClic.possede === region.ameliorations.includes('leftovers')
         && precedent.autoClic.actif === (coeur?.autoClic ?? false) ? precedent.autoClic
         : { possede: region.ameliorations.includes('leftovers'), actif: coeur?.autoClic ?? false },
@@ -445,6 +449,22 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     }
     return resultat;
   });
+  const modifierCasino = <T extends ReturnType<typeof casino.acheterAuCasino<DonneesRegion>>>(
+    action: (region: DonneesRegion) => T): T | { ok: false; raison: string } => {
+    if (!initialise) return { ok: false, raison: 'La partie n’est pas démarrée.' };
+    const acces = casino.accesCasino(kanto, etatMondeDe(region));
+    if (!acces.ok) return { ok: false, raison: acces.raison! };
+    const resultat = action(region);
+    if (!resultat.ok) return resultat;
+    region = resultat.region;
+    annonce = resultat.message;
+    finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs;
+    if (resultat.numero !== undefined) noterDansPokedex(resultat.numero);
+    if (coeur) coeur = { ...coeur, equipe: region.equipe.map(versMembreEquipe) };
+    actualiserActifs();
+    enregistrer(); afficher();
+    return { ...resultat, region };
+  };
   const frapper = (manuel = false): boolean => {
     if (!coeur || minuteur === undefined) return false;
     actualiserActifs();
@@ -460,6 +480,16 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     return true;
   };
   const store = createStore<AffichageJeu>(() => ({
+    casino: { acces: { ouvert: false, raison: casino.chargerCasino().acces.raison },
+      jetons: 0, blackjackEnCours: null, objets: [] },
+    acheterJetons: () => modifierCasino(casino.acheterJetons),
+    echangerJetons: () => modifierCasino(casino.echangerJetons),
+    jouerMachine: mise => modifierCasino(region => casino.jouerMachine(region, mise, alea)),
+    jouerPileOuFace: (mise, choix) => modifierCasino(region => casino.jouerPileOuFace(region, mise, choix, alea)),
+    distribuerBlackjack: mise => modifierCasino(region => casino.distribuer(region, mise, alea)),
+    tirerBlackjack: () => modifierCasino(region => casino.tirerCarte(region, alea)),
+    resterBlackjack: () => modifierCasino(region => casino.rester(region, alea)),
+    acheterAuCasino: id => modifierCasino(region => casino.acheterAuCasino(region, id, alea, genererId)),
     sonActive,
     basculerSon() {
       if (!initialise) return;
