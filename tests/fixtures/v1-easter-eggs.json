@@ -1,0 +1,902 @@
+{
+  "version": 1,
+  "empreintes": {
+    "legacy/js/data/constants.js": "ebc0f425b51b32e66ccf5d754a315e7351abcab5ead3b6d9253eca4a3f9062c9",
+    "legacy/js/game/stats.js:111-137": "83dd628fef725269223d095fe119c12a05555744254fc6265570a51037dc7f75",
+    "legacy/js/ui/render.js:79-97": "c17dcb5ea0c2dc13564bc48960d027c439c5ddbe02438a8df1132f0e936e48bc",
+    "legacy/js/ui/render.js:186-194": "cd9e500c9619c36d878a695880f501972844a26fd19cfaee93035727167b68ed",
+    "legacy/js/ui/summary.js:14-21": "f7fc68f0eb579c96d51b91f60006d6af69cafea4b04d81e43c98de314e7ead8f",
+    "legacy/js/ui/summary.js:232-237": "42a9028258267da37a84a429100afb399efd190f1ed2d72f7eb3ca07f104e7e2",
+    "legacy/js/game/daycare.js:198-203": "19ee0b8c93622b80769003242956a7c68d4687456e76682b1afa1c066d71566a",
+    "legacy/js/ui/pantheon.js:146-181": "4c9234e94c6cf1bf352139168192fb4340462cbe2e56bad10f65b19557dc56b0",
+    "legacy/css/styles.css:91-91": "cf007079a8f92a476f4b1097d787ed876906a6b3f1a421f600e01fff508fccca",
+    "legacy/css/styles.css:178-190": "47003f05bf6f83cef2094f5fb2a4cceb78be6f963d92e433ba8f5dfd4ed6534d"
+  },
+  "stades": [
+    {
+      "numero": 1,
+      "stade": 1
+    },
+    {
+      "numero": 2,
+      "stade": 2
+    },
+    {
+      "numero": 3,
+      "stade": 3
+    },
+    {
+      "numero": 4,
+      "stade": 1
+    },
+    {
+      "numero": 5,
+      "stade": 2
+    },
+    {
+      "numero": 6,
+      "stade": 3
+    },
+    {
+      "numero": 7,
+      "stade": 1
+    },
+    {
+      "numero": 8,
+      "stade": 2
+    },
+    {
+      "numero": 9,
+      "stade": 3
+    },
+    {
+      "numero": 10,
+      "stade": 1
+    },
+    {
+      "numero": 11,
+      "stade": 2
+    },
+    {
+      "numero": 12,
+      "stade": 3
+    },
+    {
+      "numero": 13,
+      "stade": 1
+    },
+    {
+      "numero": 14,
+      "stade": 2
+    },
+    {
+      "numero": 15,
+      "stade": 3
+    },
+    {
+      "numero": 16,
+      "stade": 1
+    },
+    {
+      "numero": 17,
+      "stade": 2
+    },
+    {
+      "numero": 18,
+      "stade": 3
+    },
+    {
+      "numero": 19,
+      "stade": 1
+    },
+    {
+      "numero": 20,
+      "stade": 2
+    },
+    {
+      "numero": 21,
+      "stade": 1
+    },
+    {
+      "numero": 22,
+      "stade": 2
+    },
+    {
+      "numero": 23,
+      "stade": 1
+    },
+    {
+      "numero": 24,
+      "stade": 2
+    },
+    {
+      "numero": 25,
+      "stade": 1
+    },
+    {
+      "numero": 26,
+      "stade": 2
+    },
+    {
+      "numero": 27,
+      "stade": 1
+    },
+    {
+      "numero": 28,
+      "stade": 2
+    },
+    {
+      "numero": 29,
+      "stade": 1
+    },
+    {
+      "numero": 30,
+      "stade": 2
+    },
+    {
+      "numero": 31,
+      "stade": 3
+    },
+    {
+      "numero": 32,
+      "stade": 1
+    },
+    {
+      "numero": 33,
+      "stade": 2
+    },
+    {
+      "numero": 34,
+      "stade": 3
+    },
+    {
+      "numero": 35,
+      "stade": 1
+    },
+    {
+      "numero": 36,
+      "stade": 2
+    },
+    {
+      "numero": 37,
+      "stade": 1
+    },
+    {
+      "numero": 38,
+      "stade": 2
+    },
+    {
+      "numero": 39,
+      "stade": 1
+    },
+    {
+      "numero": 40,
+      "stade": 2
+    },
+    {
+      "numero": 41,
+      "stade": 1
+    },
+    {
+      "numero": 42,
+      "stade": 2
+    },
+    {
+      "numero": 43,
+      "stade": 1
+    },
+    {
+      "numero": 44,
+      "stade": 2
+    },
+    {
+      "numero": 45,
+      "stade": 3
+    },
+    {
+      "numero": 46,
+      "stade": 1
+    },
+    {
+      "numero": 47,
+      "stade": 2
+    },
+    {
+      "numero": 48,
+      "stade": 1
+    },
+    {
+      "numero": 49,
+      "stade": 2
+    },
+    {
+      "numero": 50,
+      "stade": 1
+    },
+    {
+      "numero": 51,
+      "stade": 2
+    },
+    {
+      "numero": 52,
+      "stade": 1
+    },
+    {
+      "numero": 53,
+      "stade": 2
+    },
+    {
+      "numero": 54,
+      "stade": 1
+    },
+    {
+      "numero": 55,
+      "stade": 2
+    },
+    {
+      "numero": 56,
+      "stade": 1
+    },
+    {
+      "numero": 57,
+      "stade": 2
+    },
+    {
+      "numero": 58,
+      "stade": 1
+    },
+    {
+      "numero": 59,
+      "stade": 2
+    },
+    {
+      "numero": 60,
+      "stade": 1
+    },
+    {
+      "numero": 61,
+      "stade": 2
+    },
+    {
+      "numero": 62,
+      "stade": 3
+    },
+    {
+      "numero": 63,
+      "stade": 1
+    },
+    {
+      "numero": 64,
+      "stade": 2
+    },
+    {
+      "numero": 65,
+      "stade": 3
+    },
+    {
+      "numero": 66,
+      "stade": 1
+    },
+    {
+      "numero": 67,
+      "stade": 2
+    },
+    {
+      "numero": 68,
+      "stade": 3
+    },
+    {
+      "numero": 69,
+      "stade": 1
+    },
+    {
+      "numero": 70,
+      "stade": 2
+    },
+    {
+      "numero": 71,
+      "stade": 3
+    },
+    {
+      "numero": 72,
+      "stade": 1
+    },
+    {
+      "numero": 73,
+      "stade": 2
+    },
+    {
+      "numero": 74,
+      "stade": 1
+    },
+    {
+      "numero": 75,
+      "stade": 2
+    },
+    {
+      "numero": 76,
+      "stade": 3
+    },
+    {
+      "numero": 77,
+      "stade": 1
+    },
+    {
+      "numero": 78,
+      "stade": 2
+    },
+    {
+      "numero": 79,
+      "stade": 1
+    },
+    {
+      "numero": 80,
+      "stade": 2
+    },
+    {
+      "numero": 81,
+      "stade": 1
+    },
+    {
+      "numero": 82,
+      "stade": 2
+    },
+    {
+      "numero": 83,
+      "stade": 1
+    },
+    {
+      "numero": 84,
+      "stade": 1
+    },
+    {
+      "numero": 85,
+      "stade": 2
+    },
+    {
+      "numero": 86,
+      "stade": 1
+    },
+    {
+      "numero": 87,
+      "stade": 2
+    },
+    {
+      "numero": 88,
+      "stade": 1
+    },
+    {
+      "numero": 89,
+      "stade": 2
+    },
+    {
+      "numero": 90,
+      "stade": 1
+    },
+    {
+      "numero": 91,
+      "stade": 2
+    },
+    {
+      "numero": 92,
+      "stade": 1
+    },
+    {
+      "numero": 93,
+      "stade": 2
+    },
+    {
+      "numero": 94,
+      "stade": 3
+    },
+    {
+      "numero": 95,
+      "stade": 1
+    },
+    {
+      "numero": 96,
+      "stade": 1
+    },
+    {
+      "numero": 97,
+      "stade": 2
+    },
+    {
+      "numero": 98,
+      "stade": 1
+    },
+    {
+      "numero": 99,
+      "stade": 2
+    },
+    {
+      "numero": 100,
+      "stade": 1
+    },
+    {
+      "numero": 101,
+      "stade": 2
+    },
+    {
+      "numero": 102,
+      "stade": 1
+    },
+    {
+      "numero": 103,
+      "stade": 2
+    },
+    {
+      "numero": 104,
+      "stade": 1
+    },
+    {
+      "numero": 105,
+      "stade": 2
+    },
+    {
+      "numero": 106,
+      "stade": 1
+    },
+    {
+      "numero": 107,
+      "stade": 1
+    },
+    {
+      "numero": 108,
+      "stade": 1
+    },
+    {
+      "numero": 109,
+      "stade": 1
+    },
+    {
+      "numero": 110,
+      "stade": 2
+    },
+    {
+      "numero": 111,
+      "stade": 1
+    },
+    {
+      "numero": 112,
+      "stade": 2
+    },
+    {
+      "numero": 113,
+      "stade": 1
+    },
+    {
+      "numero": 114,
+      "stade": 1
+    },
+    {
+      "numero": 115,
+      "stade": 1
+    },
+    {
+      "numero": 116,
+      "stade": 1
+    },
+    {
+      "numero": 117,
+      "stade": 2
+    },
+    {
+      "numero": 118,
+      "stade": 1
+    },
+    {
+      "numero": 119,
+      "stade": 2
+    },
+    {
+      "numero": 120,
+      "stade": 1
+    },
+    {
+      "numero": 121,
+      "stade": 2
+    },
+    {
+      "numero": 122,
+      "stade": 1
+    },
+    {
+      "numero": 123,
+      "stade": 1
+    },
+    {
+      "numero": 124,
+      "stade": 1
+    },
+    {
+      "numero": 125,
+      "stade": 1
+    },
+    {
+      "numero": 126,
+      "stade": 1
+    },
+    {
+      "numero": 127,
+      "stade": 1
+    },
+    {
+      "numero": 128,
+      "stade": 1
+    },
+    {
+      "numero": 129,
+      "stade": 1
+    },
+    {
+      "numero": 130,
+      "stade": 2
+    },
+    {
+      "numero": 131,
+      "stade": 1
+    },
+    {
+      "numero": 132,
+      "stade": 1
+    },
+    {
+      "numero": 133,
+      "stade": 1
+    },
+    {
+      "numero": 134,
+      "stade": 2
+    },
+    {
+      "numero": 135,
+      "stade": 2
+    },
+    {
+      "numero": 136,
+      "stade": 2
+    },
+    {
+      "numero": 137,
+      "stade": 1
+    },
+    {
+      "numero": 138,
+      "stade": 1
+    },
+    {
+      "numero": 139,
+      "stade": 2
+    },
+    {
+      "numero": 140,
+      "stade": 1
+    },
+    {
+      "numero": 141,
+      "stade": 2
+    },
+    {
+      "numero": 142,
+      "stade": 1
+    },
+    {
+      "numero": 143,
+      "stade": 1
+    },
+    {
+      "numero": 144,
+      "stade": 1
+    },
+    {
+      "numero": 145,
+      "stade": 1
+    },
+    {
+      "numero": 146,
+      "stade": 1
+    },
+    {
+      "numero": 147,
+      "stade": 1
+    },
+    {
+      "numero": 148,
+      "stade": 2
+    },
+    {
+      "numero": 149,
+      "stade": 3
+    },
+    {
+      "numero": 150,
+      "stade": 1
+    },
+    {
+      "numero": 151,
+      "stade": 1
+    }
+  ],
+  "sites": [
+    {
+      "site": "equipe",
+      "source": "legacy/js/ui/render.js",
+      "lignes": [
+        79,
+        97
+      ],
+      "effets": [
+        {
+          "nom": "dinnerbone",
+          "classe": "upside-down",
+          "transformation": "",
+          "filtre": "",
+          "image": null
+        },
+        {
+          "nom": "grumm",
+          "classe": "upside-down",
+          "transformation": "",
+          "filtre": "",
+          "image": null
+        },
+        {
+          "nom": "jeb_",
+          "classe": "rainbow-anim",
+          "transformation": "",
+          "filtre": "",
+          "image": null
+        },
+        {
+          "nom": "caca",
+          "classe": "caca-filter",
+          "transformation": "",
+          "filtre": "",
+          "image": null
+        },
+        {
+          "nom": "daran",
+          "classe": "",
+          "transformation": "",
+          "filtre": "",
+          "image": "img/kanto/EasterEgg/DaranStade1.png"
+        }
+      ]
+    },
+    {
+      "site": "pc",
+      "source": "legacy/js/ui/render.js",
+      "lignes": [
+        186,
+        194
+      ],
+      "effets": [
+        {
+          "nom": "dinnerbone",
+          "classe": "upside-down",
+          "transformation": "",
+          "filtre": "",
+          "image": null
+        },
+        {
+          "nom": "grumm",
+          "classe": "upside-down",
+          "transformation": "",
+          "filtre": "",
+          "image": null
+        },
+        {
+          "nom": "jeb_",
+          "classe": "rainbow-anim",
+          "transformation": "",
+          "filtre": "",
+          "image": null
+        },
+        {
+          "nom": "caca",
+          "classe": "caca-filter",
+          "transformation": "",
+          "filtre": "",
+          "image": null
+        },
+        {
+          "nom": "daran",
+          "classe": "",
+          "transformation": "",
+          "filtre": "",
+          "image": "img/kanto/EasterEgg/DaranStade1.png"
+        }
+      ]
+    },
+    {
+      "site": "fiche",
+      "source": "legacy/js/ui/summary.js",
+      "lignes": [
+        14,
+        21
+      ],
+      "effets": [
+        {
+          "nom": "dinnerbone",
+          "classe": "upside-down",
+          "transformation": "",
+          "filtre": "",
+          "image": null
+        },
+        {
+          "nom": "grumm",
+          "classe": "upside-down",
+          "transformation": "",
+          "filtre": "",
+          "image": null
+        },
+        {
+          "nom": "jeb_",
+          "classe": "rainbow-anim",
+          "transformation": "",
+          "filtre": "",
+          "image": null
+        },
+        {
+          "nom": "caca",
+          "classe": "caca-filter",
+          "transformation": "",
+          "filtre": "",
+          "image": null
+        },
+        {
+          "nom": "daran",
+          "classe": "",
+          "transformation": "",
+          "filtre": "",
+          "image": "img/kanto/EasterEgg/DaranStade1.png"
+        }
+      ]
+    },
+    {
+      "site": "renommage",
+      "source": "legacy/js/ui/summary.js",
+      "lignes": [
+        232,
+        237
+      ],
+      "effets": [
+        {
+          "nom": "dinnerbone",
+          "classe": "upside-down",
+          "transformation": "",
+          "filtre": "",
+          "image": null
+        },
+        {
+          "nom": "grumm",
+          "classe": "upside-down",
+          "transformation": "",
+          "filtre": "",
+          "image": null
+        },
+        {
+          "nom": "jeb_",
+          "classe": "rainbow-anim",
+          "transformation": "",
+          "filtre": "",
+          "image": null
+        },
+        {
+          "nom": "caca",
+          "classe": "caca-filter",
+          "transformation": "",
+          "filtre": "",
+          "image": null
+        },
+        {
+          "nom": "daran",
+          "classe": "",
+          "transformation": "",
+          "filtre": "",
+          "image": "img/kanto/EasterEgg/DaranStade1.png"
+        }
+      ]
+    },
+    {
+      "site": "pension",
+      "source": "legacy/js/game/daycare.js",
+      "lignes": [
+        198,
+        203
+      ],
+      "effets": [
+        {
+          "nom": "dinnerbone",
+          "classe": "upside-down",
+          "transformation": "",
+          "filtre": "",
+          "image": null
+        },
+        {
+          "nom": "grumm",
+          "classe": "upside-down",
+          "transformation": "",
+          "filtre": "",
+          "image": null
+        },
+        {
+          "nom": "jeb_",
+          "classe": "rainbow-anim",
+          "transformation": "",
+          "filtre": "",
+          "image": null
+        },
+        {
+          "nom": "caca",
+          "classe": "caca-filter",
+          "transformation": "",
+          "filtre": "",
+          "image": null
+        },
+        {
+          "nom": "daran",
+          "classe": "",
+          "transformation": "",
+          "filtre": "",
+          "image": "img/kanto/EasterEgg/DaranStade1.png"
+        }
+      ]
+    },
+    {
+      "site": "pantheon",
+      "source": "legacy/js/ui/pantheon.js",
+      "lignes": [
+        146,
+        181
+      ],
+      "effets": [
+        {
+          "nom": "dinnerbone",
+          "classe": "",
+          "transformation": "rotate(180deg)",
+          "filtre": "drop-shadow(0 10px 10px rgba(0,0,0,0.5))",
+          "image": null
+        },
+        {
+          "nom": "grumm",
+          "classe": "",
+          "transformation": "rotate(180deg)",
+          "filtre": "drop-shadow(0 10px 10px rgba(0,0,0,0.5))",
+          "image": null
+        },
+        {
+          "nom": "jeb_",
+          "classe": "rainbow-anim",
+          "transformation": "",
+          "filtre": "drop-shadow(0 10px 10px rgba(0,0,0,0.5))",
+          "image": null
+        },
+        {
+          "nom": "caca",
+          "classe": "",
+          "transformation": "",
+          "filtre": "sepia(1) hue-rotate(-50deg) saturate(3) brightness(0.7) drop-shadow(0 10px 10px rgba(0,0,0,0.5))",
+          "image": null
+        },
+        {
+          "nom": "daran",
+          "classe": "",
+          "transformation": "",
+          "filtre": "drop-shadow(0 10px 10px rgba(0,0,0,0.5))",
+          "image": "img/kanto/EasterEgg/DaranStade1.png"
+        }
+      ]
+    }
+  ],
+  "css": {
+    "caca-filter": ".caca-filter { filter: sepia(1) hue-rotate(-50deg) saturate(3) brightness(0.7) !important; }",
+    "rainbow": "@keyframes rainbow { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } }",
+    "rainbow-anim": ".rainbow-anim { animation: rainbow 2s linear infinite !important; }",
+    "upside-down": ".upside-down { transform: rotate(180deg); }",
+    "float-upside-down": "@keyframes float-upside-down {\n            0% { transform: translateY(0px) rotate(180deg); }\n            50% { transform: translateY(-10px) rotate(180deg); }\n            100% { transform: translateY(0px) rotate(180deg); }\n        }",
+    "pokemon-float.upside-down": ".pokemon-float.upside-down { animation: float-upside-down 3s ease-in-out infinite; }"
+  },
+  "alternanceEvolutionMs": 150
+}

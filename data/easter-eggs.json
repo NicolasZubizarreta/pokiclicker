@@ -1,0 +1,74 @@
+{
+  "version": 1,
+  "effets": [
+    {
+      "nom": "Dinnerbone / Grumm",
+      "declencheurs": [
+        "dinnerbone",
+        "grumm"
+      ],
+      "effet": "retourne",
+      "assets": [],
+      "inactif": false
+    },
+    {
+      "nom": "Jeb_",
+      "declencheurs": [
+        "jeb_"
+      ],
+      "effet": "arc-en-ciel",
+      "assets": [],
+      "inactif": false
+    },
+    {
+      "nom": "Caca",
+      "declencheurs": [
+        "caca"
+      ],
+      "effet": "caca",
+      "assets": [],
+      "inactif": false
+    },
+    {
+      "nom": "Daran",
+      "declencheurs": [
+        "daran"
+      ],
+      "effet": "photo",
+      "assets": [
+        "img/easter-eggs/daran-stade-1.webp",
+        "img/easter-eggs/daran-stade-2.webp",
+        "img/easter-eggs/daran-stade-3.webp"
+      ],
+      "inactif": false
+    },
+    {
+      "nom": "Bjorn",
+      "declencheurs": [
+        "bjorn"
+      ],
+      "effet": null,
+      "assets": [],
+      "inactif": true,
+      "raison": "Apparence non définie par Nicolas (design/DESIGN.md)"
+    },
+    {
+      "nom": "Gabriel",
+      "declencheurs": [
+        "gabriel"
+      ],
+      "effet": null,
+      "assets": [],
+      "inactif": true,
+      "raison": "Apparence non définie par Nicolas (design/DESIGN.md)"
+    }
+  ],
+  "css": {
+    "caca-filter": ".caca-filter { filter: sepia(1) hue-rotate(-50deg) saturate(3) brightness(0.7) !important; }",
+    "rainbow": "@keyframes rainbow { 0% { filter: hue-rotate(0deg); } 100% { filter: hue-rotate(360deg); } }",
+    "rainbow-anim": ".rainbow-anim { animation: rainbow 2s linear infinite !important; }",
+    "upside-down": ".upside-down { transform: rotate(180deg); }",
+    "float-upside-down": "@keyframes float-upside-down {\n            0% { transform: translateY(0px) rotate(180deg); }\n            50% { transform: translateY(-10px) rotate(180deg); }\n            100% { transform: translateY(0px) rotate(180deg); }\n        }",
+    "pokemon-float.upside-down": ".pokemon-float.upside-down { animation: float-upside-down 3s ease-in-out infinite; }"
+  }
+}
