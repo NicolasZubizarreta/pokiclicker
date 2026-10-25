@@ -84,6 +84,11 @@ export function messageEnchainement(zone: ZoneLigue, etape: number): string | nu
     .replace('{dresseur}', dresseur.nom).replace('{suivant}', suivant?.nom ?? '');
 }
 
+export function messageDefaite(zone: ZoneLigue, etape: number): string | null {
+  const dresseur = dresseurDe(zone, etape);
+  return dresseur ? ligue.messages.defaite.replace('{dresseur}', dresseur.nom) : null;
+}
+
 export function nomAdversaire(zone: Zone, etape: number): string | null {
   const combat = combatDe(zone, etape);
   return combat ? etape === 10 ? zone.boss.nom : combat.nom : null;

@@ -9,8 +9,8 @@ import { blocage, commandeCourante, declencher, etapeTerminee, type CatalogueEve
 import { evenementsKanto } from '../core/evenements-kanto';
 import { choisirStarter, creerStarter, tirerStarters } from '../core/starter';
 import { accorderBadge, accorderJalons, actifsDe } from '../core/progression';
-import { zoneDeLigue, estZoneDeLigue, dresseurDe, messageEnchainement, nomAdversaire, enregistrerVictoireLigue } from '../core/ligue';
-import ligue from '../../data/ligue.json';
+import { zoneDeLigue, estZoneDeLigue, messageDefaite, messageEnchainement, nomAdversaire, enregistrerVictoireLigue } from '../core/ligue';
+import { nomAffiche } from './affichage-pokemon';
 import { clicsAutomatiques } from '../core/clics';
 import { utiliserSurPokemon, poserStase, retirerStase, utiliserJetonShiny } from '../core/objets-equipe';
 import { clesActives, utiliserTemporise, refusPoupee, utiliserPoupee, declencherRecharge } from '../core/objets-actifs';
@@ -166,7 +166,6 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
   };
   const traiter = (): void => {
     if (!coeur) return;
-    const etapePrecedente = region.etape;
     region = { ...region, zoneId: coeur.zoneId, etape: coeur.etape };
     let sauvegarder = false;
     const bossBattus: string[] = [];
@@ -188,11 +187,11 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         if (r.montees.length === 1) {
           const montee = r.montees[0]!;
           const pokemon = region.equipe.find(p => p.uid === montee.uid)!;
-          messages.push(`${pokemon.surnom ?? catalogue.parNumero(pokemon.numero).nom} passe au niveau ${montee.niveau} !`);
+          messages.push(`${nomAffiche(pokemon)} passe au niveau ${montee.niveau} !`);
         } else if (r.montees.length > 1) messages.push(`${r.montees.length} Pokémon montent de niveau !`);
         if (evenement.shiny) messages.push(`Chromatique ! +${r.bonbons} Bonbons`);
         if (evenement.boss && estZoneDeLigue(coeur.zone)) {
-          const message = messageEnchainement(coeur.zone, etapePrecedente);
+          const message = messageEnchainement(coeur.zone, evenement.etape);
           if (message) messages.push(message);
           sauvegarder = true;
         }
@@ -220,9 +219,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         bossBattus.push(evenement.zoneId);
       }
       if (evenement.type === 'boss-echoue') {
-        const dresseur = dresseurDe(coeur.zone, coeur.etape);
-        messagesCapture.push(dresseur
-          ? ligue.messages.defaite.replace('{dresseur}', dresseur.nom) : 'Temps écoulé !');
+        messagesCapture.push(messageDefaite(coeur.zone, coeur.etape) ?? 'Temps écoulé !');
         if (estZoneDeLigue(coeur.zone)) sauvegarder = true;
       }
     }
@@ -323,7 +320,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
   const prechargerLieu = () => {
     const lieu = kanto.zone(region.zoneId);
     if (imageConnue(cheminDecor(lieu))) void precharger([cheminDecor(lieu)]);
-    if (!lieu.sansCombat) void prechargerZone(lieu);
+    if (!lieu.sansCombat) void prechargerZone(zoneDeLigue(lieu, region.starterId));
   };
   const changerDeZone = (zoneId: string): void => {
     const lieu = kanto.zone(zoneId);
@@ -367,7 +364,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     if (!resultat.ok) return resultat.raison;
     if (resultat.echangeRequis && uidPc !== undefined) {
       const pokemon = region.pc.find(p => p.uid === uidPc)!;
-      echange = { uid: uidPc, nom: pokemon.surnom ?? catalogue.parNumero(pokemon.numero).nom };
+      echange = { uid: uidPc, nom: nomAffiche(pokemon) };
     } else {
       region = resultat.region;
       if (resultat.evolution) demarrerEvolution(resultat.evolution);

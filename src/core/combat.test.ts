@@ -180,7 +180,7 @@ describe('Résolution du combat', () => {
     Object.freeze(initial);
     const suivant = avancerCombat(initial, 1000000);
     expect(suivant.etape).toBe(2);
-    expect(suivant.evenements).toEqual([{ type: 'ennemi-vaincu', numero: initial.ennemi.numero,
+    expect(suivant.evenements).toEqual([{ type: 'ennemi-vaincu', etape: initial.etape, numero: initial.ennemi.numero,
       niveau: initial.ennemi.niveau, shiny: initial.ennemi.shiny, boss: false, rarete: initial.ennemi.rarete }]);
     expect(suivant.attenteMs).toBe(2000);
     expect(suivant.ennemi.pv).toBe(suivant.ennemi.pvMax);

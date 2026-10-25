@@ -41,7 +41,7 @@ export function calculerClic(dpsEquipe: number, actifs: readonly string[] = []):
 }
 
 export type EvenementCombat =
-  | { type: 'ennemi-vaincu'; numero: number; niveau: number; shiny: boolean; boss: boolean; rarete: Rarete | null }
+  | { type: 'ennemi-vaincu'; etape: number; numero: number; niveau: number; shiny: boolean; boss: boolean; rarete: Rarete | null }
   | { type: 'boss-vaincu'; zoneId: string }
   | { type: 'boss-echoue'; zoneId: string }
   | { type: 'capture-reussie'; numero: number; niveau: number; shiny: boolean; boss: boolean; rarete: Rarete | null }
@@ -117,7 +117,8 @@ function infliger(etat: EtatCombat, degats: number): EtatCombat {
 function terminerEnnemi(etat: EtatCombat, capture: boolean): EtatCombat {
   const { numero, niveau, shiny, boss, rarete } = etat.ennemi;
   const evenements: EvenementCombat[] = [...etat.evenements,
-    { type: capture ? 'capture-reussie' : 'ennemi-vaincu', numero, niveau, shiny, boss, rarete }];
+    capture ? { type: 'capture-reussie', numero, niveau, shiny, boss, rarete }
+      : { type: 'ennemi-vaincu', etape: etat.etape, numero, niveau, shiny, boss, rarete }];
   const bossFinal = boss && (etat.zone.type !== 'ligue' || etat.etape === reglages.combat.etapeBoss);
   if (bossFinal && !capture) evenements.push({ type: 'boss-vaincu', zoneId: etat.zoneId });
   if (etat.interrompu) evenements.push({ type: 'reprise-auto' });

@@ -558,7 +558,7 @@ Fourchette : 5 jours (4 à 5 si découpé en P1 et P2). Risque : l'équipe de d�
 
 ## Q. `feat(ligue): Ligue Pokémon, dix combats à minuteur et victoire du Maître`
 
-Labels : `type:feat`, `etat:en_cours`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : oui
+Labels : `type:feat`, `etat:fait`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : oui
 
 ### Histoire
 En tant que joueur, je veux affronter la Ligue Pokémon et le Maître afin de terminer l'aventure de Kanto.

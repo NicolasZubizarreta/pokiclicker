@@ -67,6 +67,55 @@ async function reprendreA(page: Page, etape: number) {
   await page.reload();
 }
 
+async function dernierPv(page: Page) {
+  // Mesure avec six espèces fortes niveau 100, calcium 10 et Pierre Éternelle :
+  // 73,5 s pour Lippoutou, 61,6 s pour Florizarre, même avec dix clics/s.
+  // Même préparation que le store : un PV, transitions et récompenses réelles.
+  let injections = 0;
+  await page.route('**/assets/*.js', async route => {
+    const reponse = await route.fetch();
+    const source = await reponse.text();
+    const corps = source.replace(/\bpv:([\w$]+),pvMax:\1\b/g, (_, maximum: string) => {
+      injections++;
+      return `pv:1,pvMax:${maximum}`;
+    });
+    await route.fulfill({ response: reponse, body: corps });
+  });
+  return () => expect(injections, 'Injection du dernier PV dans le combat compilé').toBeGreaterThan(0);
+}
+
+test('Victoire jouée contre Olga : Aldo entre en scène', async ({ page }) => {
+  const verifierInjection = await dernierPv(page);
+  await demarrer(page, 8);
+  await page.getByRole('button', { name: 'Y aller' }).click();
+  await page.clock.runFor(400);
+  await expect(page.getByRole('heading', { name: 'Ligue Pokémon', exact: true })).toBeVisible();
+  await reprendreA(page, 2);
+  verifierInjection();
+  await expect(page.getByRole('heading', { name: 'Olga (Lippoutou)', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Auto-attaque', exact: true }).click();
+  await page.getByRole('button', { name: /^Attaquer / }).click();
+  await page.clock.runFor(100);
+  await expect(page.getByText('Victoire contre Olga ! Aldo entre en scène.', { exact: true })).toBeVisible();
+  expect((await regionSauvee(page)).etape).toBe(3);
+});
+
+test('Victoire jouée contre le counter de Carapuce : une Ligue gagnée et retour à l’étape 1', async ({ page }) => {
+  const verifierInjection = await dernierPv(page);
+  await demarrer(page, 8);
+  await page.getByRole('button', { name: 'Y aller' }).click();
+  await page.clock.runFor(400);
+  await expect(page.getByRole('heading', { name: 'Ligue Pokémon', exact: true })).toBeVisible();
+  await reprendreA(page, 10);
+  verifierInjection();
+  await expect(page.getByRole('heading', { name: 'Maître Blue (Florizarre)', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Auto-attaque', exact: true }).click();
+  await page.getByRole('button', { name: /^Attaquer / }).click();
+  await page.clock.runFor(100);
+  expect((await regionSauvee(page)).ligueGagnee).toBe(1);
+  await expect(page.getByText('Étape 1 sur 10', { exact: true })).toBeVisible();
+});
+
 test('Ligue fermée avec sept badges : raison du badge Terre sur la carte', async ({ page }) => {
   await demarrer(page, 7);
   const fiche = page.getByRole('region', { name: 'Zone sélectionnée' });

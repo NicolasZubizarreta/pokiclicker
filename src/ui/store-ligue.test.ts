@@ -6,6 +6,7 @@ import { kanto } from '../core/regions';
 import { reglages } from '../core/reglages';
 import { compteInitial, creerGestionnaire, creerStockageMemoire } from '../core/sauvegarde';
 import { creerStoreJeu, type StoreJeu } from './store';
+import * as prechargement from './precharger';
 
 const stores: StoreJeu[] = [];
 const zoneId = 'kanto.ligue-pokemon';
@@ -17,7 +18,7 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-function preparer(etape: number, avecEvenement = false) {
+function preparer(etape: number, avecEvenement = false, starterId: number | null = 1) {
   const stockage = creerStockageMemoire();
   const horloge = creerHorlogeSimulee();
   const gestionnaire = creerGestionnaire({ stockage, horloge, genererId: () => 'test' });
@@ -26,7 +27,7 @@ function preparer(etape: number, avecEvenement = false) {
     arretAuto: { ...reglages.depart.preferences.arretAuto, actif: false } } });
   gestionnaire.creerPartie('Test', 'kanto.bourg-palette');
   const lire = () => gestionnaire.chargerRegion('test', 'kanto')!.donnees;
-  gestionnaire.ecrireRegion('test', 'kanto', { ...lire(), zoneId, etape, starterId: 1,
+  gestionnaire.ecrireRegion('test', 'kanto', { ...lire(), zoneId, etape, starterId,
     equipe: [{ uid: 'fort', numero: 6, niveau: 50, xp: 0, shiny: false, bonheur: 0,
       pierreEternelle: false, calcium: 0, sexe: 'male', favori: false }] });
   const evenements = chargerEvenements({ essai: { version: 1, evenements: avecEvenement ? [{
@@ -56,6 +57,20 @@ function preparer(etape: number, avecEvenement = false) {
 }
 
 describe('Ligue dans le store', () => {
+  it.each([
+    [4, 9, 'Maître Blue (Tortank)'],
+    [7, 3, 'Maître Blue (Florizarre)'],
+    [null, 9, 'Maître Blue'],
+  ] as const)('reprend et précharge le counter du starter %s', (starter, numero, nom) => {
+    const precharger = vi.spyOn(prechargement, 'prechargerZone').mockResolvedValue({ charges: 0, echecs: 0 });
+    const { store } = preparer(10, false, starter);
+    expect(store.getState().ennemi?.numero).toBe(numero);
+    expect(store.getState().nomAdversaire).toBe(nom);
+    expect(precharger).toHaveBeenCalledWith(expect.objectContaining({
+      boss: expect.objectContaining({ pokemon: numero, nom }),
+    }));
+  });
+
   it('reprend le counter du starter et expose le nom du Maître', () => {
     const { store } = preparer(10);
     expect(store.getState().ennemi?.numero).toBe(6);
@@ -95,6 +110,19 @@ describe('Ligue dans le store', () => {
     const reprise = ouvrir();
     expect(reprise.getState().etape).toBe(4);
     expect(reprise.getState().minuteur?.restantMs).toBe(30000);
+  });
+
+  it('ne confond pas l’étape expirée avec celle du Pokémon vaincu dans le même pas', () => {
+    const { store, avancer } = preparer(2);
+    const avancerCombat = combat.avancerCombat;
+    vi.spyOn(combat, 'avancerCombat').mockImplementationOnce((etat, pas) => avancerCombat({
+      ...etat, minuteurMs: 1, pauseDpsMs: 1, autoAttaque: true,
+      equipe: [{ numero: 150, niveau: 1e9 }],
+    }, pas));
+    avancer(100);
+    expect(store.getState().etape).toBe(2);
+    expect(store.getState().annonce).toContain('Temps écoulé !');
+    expect(store.getState().annonce).not.toContain('Victoire contre Olga');
   });
 
   it('revient au premier Pokémon du dresseur après expiration et conserve les gains', () => {

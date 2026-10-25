@@ -3,7 +3,7 @@ import donnees from '../../data/ligue.json';
 import references from '../../tests/fixtures/v1-ligue.json';
 import { avancerCombat, creerEnnemi, reprendreCombat } from './combat';
 import { chargerLigue, dresseurDe, enregistrerVictoireLigue, estZoneDeLigue,
-  etapeDeReprise, messageEnchainement, nomAdversaire, zoneDeLigue } from './ligue';
+  etapeDeReprise, messageDefaite, messageEnchainement, nomAdversaire, zoneDeLigue } from './ligue';
 import { refusPoupee, utiliserPoupee } from './objets-actifs';
 import { kanto } from './regions';
 import { regionInitiale } from './sauvegarde';
@@ -82,6 +82,24 @@ describe('Ligue', () => {
         null, 'Victoire contre Agatha ! Peter entre en scène.',
         null, 'Victoire contre Peter ! Maître Blue entre en scène.',
         null, 'Victoire contre Maître Blue !']);
+  });
+
+  it('porte l’étape du vaincu après une expiration dans le même pas', () => {
+    const initial = reprendreCombat(zone, [{ numero: 150, niveau: 1e9 }], alea, 2);
+    const resultat = avancerCombat({ ...initial, minuteurMs: 1, pauseDpsMs: 1 }, 100);
+    expect(resultat.evenements).toEqual([
+      { type: 'boss-echoue', zoneId: zone.id },
+      { type: 'ennemi-vaincu', etape: 1, numero: initial.zone.adversaires![0]!.pokemon,
+        niveau: initial.zone.adversaires![0]!.niveau, shiny: false, boss: true, rarete: null },
+    ]);
+    expect(resultat.etape).toBe(2);
+  });
+
+  it('formate la défaite du dresseur et ignore les étapes ou zones inconnues', () => {
+    expect(messageDefaite(zone, 4)).toBe('Temps écoulé ! Retour au premier Pokémon de Aldo.');
+    expect(messageDefaite(zone, 10)).toBe('Temps écoulé ! Retour au premier Pokémon de Maître Blue.');
+    expect(messageDefaite(zone, 0)).toBeNull();
+    expect(messageDefaite('kanto.route-1', 2)).toBeNull();
   });
 
   it('ajoute une victoire sans modifier la région et refuse la poupée même après victoire', () => {
