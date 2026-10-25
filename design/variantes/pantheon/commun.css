@@ -1,0 +1,50 @@
+@import "../_base/base.css";
+body { padding:calc(var(--spacing) * 4); }
+main { display:grid; justify-items:center; gap:calc(var(--spacing) * 2); margin-inline:auto; max-width:var(--breakpoint-xl); width:100%; min-width:0; }
+button,a { font:inherit; min-height:calc(var(--spacing) * 11); padding:calc(var(--spacing) * 2); border:0; border-radius:var(--rayon); }
+button { background:var(--surface-2); box-shadow:var(--shadow-sm); }
+a { color:var(--lien); display:inline-flex; align-items:center; }
+button:hover { background:var(--selection); }
+button:active { transform:translateY(calc(var(--spacing) / 2)); }
+[aria-pressed="true"],[aria-current] { background:var(--selection); color:var(--region-accent); text-decoration:underline; }
+.variantes,.outils { display:flex; flex-wrap:wrap; justify-content:center; gap:var(--spacing); }
+.ceremonie { display:grid; justify-items:center; gap:calc(var(--spacing) * 2); width:100%; min-width:0; }
+h1 { text-align:center; color:var(--region-accent); }
+.scene { position:relative; width:min(100%, calc(100dvh - var(--spacing) * 124), calc(var(--spacing) * 144)); min-width:0; min-height:0; aspect-ratio:1; background:var(--surface-2); display:grid; align-items:center; padding:calc(var(--spacing) * 2); }
+.socles { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:calc(var(--spacing) * 4) 0; }
+.place { min-width:0; text-align:center; position:relative; }
+.pokemon { position:relative; width:calc(var(--spacing) * 24); margin-inline:auto; overflow:hidden; }
+.pokemon::before { content:""; position:absolute; inset:auto var(--spacing) 0; height:calc(var(--spacing) * 4); border-radius:var(--radius-plein); background:var(--region-socle); box-shadow:var(--shadow-md); }
+.sprite { position:relative; width:calc(var(--spacing) * 24); height:calc(var(--spacing) * 24); object-fit:contain; }
+.shiny img { outline:calc(var(--spacing) / 4) solid var(--region-accent); border-radius:var(--radius-plein); }
+.identite,.honneur > div { display:grid; font-size:var(--text-base); }
+.etoile { color:var(--region-accent); }
+.dialogue { display:flex; align-items:center; gap:calc(var(--spacing) * 2); padding:calc(var(--spacing) * 3); background:var(--surface); width:min(100%,calc(var(--spacing) * 144)); }
+.dialogue > div { min-width:0; }
+.chen { flex-shrink:0; width:calc(var(--spacing) * 20); height:calc(var(--spacing) * 24); }
+.dialogue button { margin-top:var(--spacing); }
+.action { background:var(--action); color:var(--action-texte); padding-inline:calc(var(--spacing) * 8); }
+.action:hover { background:var(--action-survol); }
+#sortir { min-width:calc(var(--spacing) * 40); }
+#statut { text-align:center; }
+.note { color:var(--texte-doux); text-align:center; }
+.honneur { display:none; }
+body:not([data-etat="dialogue"]) .dialogue { display:none; }
+[data-etat="dialogue"] .socles { visibility:hidden; }
+[data-etat="chute"] .pokemon img { animation:chute var(--duree-carte-pulsation) var(--ease-sortie) infinite; }
+[data-etat="chute"] .place:nth-child(even) .pokemon img { animation-delay:var(--duree-signal); }
+@keyframes chute { from { transform:translateY(calc(var(--spacing) * -24)); opacity:0; } to { transform:translateY(0); opacity:1; } }
+[data-reduit="true"] .pokemon img { animation:none; }
+[data-variante="a"][data-etat="dialogue"] .scene { width:min(100%,calc(var(--spacing) * 64)); }
+[data-variante="b"] .scene { width:min(100%,calc(var(--spacing) * 80)); }
+[data-variante="b"] .identite { display:none; }
+[data-variante="b"] .honneur { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:calc(var(--spacing) * 2); padding:calc(var(--spacing) * 3); background:var(--surface); width:min(100%,calc(var(--spacing) * 144)); }
+[data-variante="b"][data-etat="dialogue"] .honneur { display:none; }
+[data-variante="c"] .scene { align-items:start; }
+[data-variante="c"] .socles { padding-top:calc(var(--spacing) * 2); }
+[data-variante="c"] .dialogue { position:absolute; bottom:0; inset-inline:0; width:100%; }
+[data-variante="c"] .place:not(.eclaire) .pokemon::before { background:var(--bordure); }
+[data-variante="c"] .eclaire .pokemon::before { outline:calc(var(--spacing) / 2) solid var(--region-accent); }
+[data-variante="c"][data-etat="dialogue"] .socles { visibility:visible; }
+[data-variante="c"][data-etat="dialogue"] .socles .place:nth-child(n+4) { visibility:hidden; }
+@media (min-width:64rem) { body { padding:calc(var(--spacing) * 8); } }

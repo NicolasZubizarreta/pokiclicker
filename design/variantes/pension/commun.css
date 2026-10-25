@@ -1,0 +1,46 @@
+@import "../_base/base.css";
+body { padding:calc(var(--spacing) * 4); }
+main,.variantes,.notice { max-width:var(--breakpoint-xl); margin-inline:auto; }
+.variantes,.outils,.onglets { display:flex; flex-wrap:wrap; gap:calc(var(--spacing) * 2); margin-bottom:calc(var(--spacing) * 4); }
+a { color:var(--lien); display:inline-flex; align-items:center; min-height:calc(var(--spacing) * 11); }
+.variantes [aria-current] { color:var(--texte); text-decoration-thickness:calc(var(--spacing) / 2); }
+button { min-height:calc(var(--spacing) * 11); padding:calc(var(--spacing) * 2); background:var(--surface-2); border:calc(var(--spacing) / 2) solid var(--bordure); border-radius:var(--rayon); }
+button:hover:enabled { background:var(--selection); }
+button:active:enabled { transform:translateY(calc(var(--spacing) / 2)); }
+button:disabled { color:var(--texte-doux); cursor:not-allowed; }
+button.principal { background:var(--action); color:var(--action-texte); box-shadow:var(--shadow-sm); }
+button.principal:hover:enabled { background:var(--action-survol); }
+:focus-visible { outline:var(--spacing) solid var(--focus); outline-offset:calc(var(--spacing) / 2); }
+#contenu,.disposition,.parents,.parent,.nurserie,.couple,.resume { display:grid; gap:calc(var(--spacing) * 4); min-width:0; }
+.panneau { background:var(--surface); padding:calc(var(--spacing) * 4); min-width:0; }
+.parent { justify-items:center; text-align:center; background:var(--surface-2); padding:calc(var(--spacing) * 4); }
+.portrait { position:relative; isolation:isolate; }
+.portrait::before { content:""; position:absolute; inset:auto calc(var(--spacing) * 4) calc(var(--spacing) * 6); height:calc(var(--spacing) * 8); background:var(--region-socle); border-radius:var(--radius-plein); z-index:-1; }
+.sprite { width:calc(var(--spacing) * 48); height:calc(var(--spacing) * 48); }
+.coeur { color:var(--erreur-base); fill:currentColor; width:calc(var(--spacing) * 8); height:calc(var(--spacing) * 8); animation:battre var(--duree-signal) var(--ease-standard) infinite alternate; }
+.chance { display:flex; align-items:center; justify-content:center; gap:calc(var(--spacing) * 4); padding:calc(var(--spacing) * 4); background:var(--selection); }
+.chance strong { color:var(--region-accent); }
+.rangee { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:var(--spacing); }
+.place { min-width:0; display:grid; justify-items:center; align-content:center; gap:var(--spacing); padding-block:calc(var(--spacing) * 4); background:var(--surface-2); text-align:center; }
+.place img { width:calc(var(--spacing) * 8); height:calc(var(--spacing) * 8); image-rendering:pixelated; animation:rebond var(--duree-signal) var(--ease-standard) infinite alternate; }
+.achats { display:grid; gap:calc(var(--spacing) * 2); }
+#statut { margin-block:calc(var(--spacing) * 4); padding:calc(var(--spacing) * 4); background:var(--surface); }
+[aria-pressed="true"] { background:var(--selection); border-color:var(--region-accent); }
+[hidden] { display:none !important; }
+[data-variante="b"] .nurserie { order:-1; }
+[data-variante="c"] .onglets button { flex:1; }
+@keyframes battre { to { transform:scale(calc(1 + 1 / 8)); } }
+@keyframes rebond { to { transform:translateY(calc(var(--spacing) * -2)); } }
+/* Rupture lg du catalogue : les variables ne sont pas admises en media queries. */
+@media (min-width:64rem) {
+ body { padding:calc(var(--spacing) * 8); }
+ .parents { grid-template-columns:repeat(2,minmax(0,1fr)); }
+ [data-variante="a"] .disposition { grid-template-columns:minmax(0,2fr) minmax(0,1fr); align-items:start; }
+ [data-variante="a"] .sprite { width:calc(var(--spacing) * 72); height:calc(var(--spacing) * 72); }
+ [data-variante="b"] .disposition { grid-template-columns:minmax(0,2fr) minmax(0,1fr); align-items:start; }
+ [data-variante="b"] .parents { grid-template-columns:minmax(0,1fr); }
+ [data-variante="b"] .parent { grid-template-columns:auto minmax(0,1fr); align-items:center; }
+ [data-variante="b"] .portrait { grid-row:span 2; }
+ [data-variante="b"] .parent button { grid-column:2; width:100%; }
+ [data-variante="c"] .disposition { grid-template-columns:minmax(0,1fr) minmax(0,2fr); align-items:start; }
+}

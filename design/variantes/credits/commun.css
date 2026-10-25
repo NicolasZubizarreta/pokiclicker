@@ -1,0 +1,28 @@
+@import "../diplome/commun.css";
+.generique { position:relative; isolation:isolate; min-height:calc(var(--spacing) * 160); background:var(--color-neutre-950); padding:calc(var(--spacing) * 6); }
+.introduction { display:grid; gap:calc(var(--spacing) * 4); text-align:center; max-width:var(--breakpoint-md); margin-inline:auto; }
+.introduction h1 { color:var(--region-accent); }
+.lecture { position:relative; max-width:var(--breakpoint-md); margin:calc(var(--spacing) * 8) auto; }
+.lecture { height:var(--breakpoint-sm); overflow:hidden; }
+.section { display:grid; gap:calc(var(--spacing) * 4); text-align:center; padding-block:calc(var(--spacing) * 6); }
+.section h2 { color:var(--region-accent); }
+.fin-commandes { display:flex; flex-wrap:wrap; justify-content:center; gap:calc(var(--spacing) * 4); margin-top:calc(var(--spacing) * 6); }
+.fin-commandes button { align-self:center; }
+.flottants { position:absolute; inset:0; display:flex; flex-wrap:wrap; align-content:space-between; justify-content:space-between; pointer-events:none; z-index:-1; opacity:calc(1 / 5); }
+.flottants img { width:calc(var(--spacing) * 48); height:calc(var(--spacing) * 48); image-rendering:pixelated; animation:flotter calc(var(--duree-carte-pulsation) * 2) var(--ease-standard) infinite alternate; }
+.flottants img:nth-child(even) { animation-direction:alternate-reverse; }
+@keyframes flotter { to { transform:translateY(calc(var(--spacing) * -4)); } }
+.decor { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:-1; opacity:calc(1 / 5); }
+.chen { width:calc(var(--spacing) * 30); height:auto; image-rendering:pixelated; justify-self:center; }
+[data-variante="b"] .introduction { align-content:center; }
+[data-variante="b"] .lecture { background:var(--fond); padding:calc(var(--spacing) * 4); }
+.page-credits { max-width:var(--breakpoint-md); margin:calc(var(--spacing) * 8) auto; }
+.page-credits .section { text-align:left; }
+.page-credits h1 { margin-block:calc(var(--spacing) * 4); }
+.page-credits progress { width:100%; height:calc(var(--spacing) * 2); accent-color:var(--region-accent); }
+.page-credits .fin-commandes { justify-content:space-between; }
+@media (min-width:64rem) {
+ [data-variante="b"] .generique { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:calc(var(--spacing) * 8); }
+ [data-variante="b"] .fin-commandes { grid-column:1 / -1; }
+ .flottants img { width:calc(var(--spacing) * 72); height:calc(var(--spacing) * 72); }
+}
