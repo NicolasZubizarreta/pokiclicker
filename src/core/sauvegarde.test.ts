@@ -14,6 +14,8 @@ import regionV2 from './migrations/__fixtures__/region-v2.json';
 import compteV1 from './migrations/__fixtures__/compte-v1.json';
 import compteV2 from './migrations/__fixtures__/compte-v2.json';
 import exportV1 from './migrations/__fixtures__/export-v1.json';
+import { validerDonneesCompte } from './sauvegarde-validation';
+import { ouvrirPartie } from '../ui/persistance';
 
 // Les espèces des fixtures v2 (1 et 25) ne figurent dans aucune liste à sexe fixe.
 const v3 = { ...v2, version: 3 };
@@ -33,6 +35,69 @@ function instantane(stockage: ReturnType<typeof creerStockageMemoire>) {
 }
 const cle = 'pokiclicker:partie:partie-1';
 afterEach(() => { delete migrationsParDefaut[0]; });
+
+describe('préférences de combat du compte', () => {
+  it('lit un compte v3 sans les nouveaux champs sans écrire et résout les valeurs par défaut', () => {
+    const { stockage, horloge, jeu } = contexte();
+    jeu.creerPartie('Test');
+    const compte = jeu.ecrireCompte({ ...compteInitial(), preferences: { sombre: true } });
+    const avant = instantane(stockage);
+    const session = ouvrirPartie({ stockage, horloge, genererId: () => 'nouvelle' });
+    expect(jeu.chargerCompte()).toEqual(compte);
+    expect(session.preferences).toMatchObject(reglages.depart.preferences);
+    expect(instantane(stockage)).toEqual(avant);
+    session.enregistrerPreferences(structuredClone(session.preferences));
+    expect(instantane(stockage)).toEqual(avant);
+  });
+  it('exige chaque booléen du bloc arrêt et refuse les champs inconnus', () => {
+    const arretAuto = reglages.depart.preferences.arretAuto;
+    for (const cle of Object.keys(arretAuto)) {
+      const incomplet = { ...arretAuto };
+      Reflect.deleteProperty(incomplet, cle);
+      expect(() => validerDonneesCompte({ ...compteInitial(), preferences: { arretAuto: incomplet } }))
+        .toThrow(`Champ manquant : ${cle}`);
+      expect(() => validerDonneesCompte({ ...compteInitial(), preferences: { arretAuto: { ...arretAuto, [cle]: 1 } } }))
+        .toThrow('Booléen attendu');
+    }
+    expect(() => validerDonneesCompte({ ...compteInitial(), preferences: { autoAttaque: 1 } }))
+      .toThrow('Booléen attendu');
+    expect(() => validerDonneesCompte({ ...compteInitial(), preferences: { arretAuto: { ...arretAuto, inconnu: true } } }))
+      .toThrow('Champ inconnu');
+  });
+  it.each(['autoAttaque', 'arretAuto'] as const)('résout séparément le champ facultatif %s', cle => {
+    const { stockage, horloge, jeu } = contexte();
+    const preferences = { autoAttaque: false, arretAuto: { ...reglages.depart.preferences.arretAuto, actif: false } };
+    jeu.ecrireCompte({ ...compteInitial(), preferences: { [cle]: preferences[cle] } });
+    const session = ouvrirPartie({ stockage, horloge, genererId: () => 'nouvelle' });
+    expect(session.preferences).toMatchObject({ ...reglages.depart.preferences, [cle]: preferences[cle] });
+  });
+  it.each([false, true])('enregistre puis relit les préférences sans doublon (compte présent : %s)', present => {
+    const { stockage, horloge, jeu } = contexte();
+    if (present) jeu.ecrireCompte({ ...compteInitial(), diamants: 18, succes: ['premier'],
+      skins: ['rouge'], preferences: { sombre: true, sonActive: false } });
+    const options = { stockage, horloge, genererId: () => 'nouvelle' };
+    const session = ouvrirPartie(options);
+    const preferences = { autoAttaque: false, arretAuto: { ...reglages.depart.preferences.arretAuto, rare: false } };
+    const avant = structuredClone(preferences);
+    const ecrire = vi.spyOn(stockage, 'ecrire');
+    session.enregistrerPreferences(preferences);
+    expect(preferences).toEqual(avant);
+    expect(ecrire).toHaveBeenCalledTimes(1);
+    expect(ecrire.mock.calls[0]![0]).toBe('pokiclicker:compte:local');
+    const compte = jeu.chargerCompte()!;
+    expect(compte.donnees).toEqual(present
+      ? { ...compteInitial(), diamants: 18, succes: ['premier'], skins: ['rouge'],
+        preferences: { sombre: true, sonActive: false, ...avant } }
+      : { ...compteInitial(), preferences: avant });
+    expect(ouvrirPartie(options).preferences).toMatchObject(avant);
+    session.enregistrerPreferences(structuredClone(preferences));
+    expect(ecrire).toHaveBeenCalledTimes(1);
+    expect(jeu.chargerCompte()).toEqual(compte);
+    preferences.arretAuto.rare = true;
+    expect(ouvrirPartie(options).preferences.arretAuto.rare).toBe(false);
+    expect(reglages.depart.preferences.arretAuto.rare).toBe(true);
+  });
+});
 
 describe('sauvegarde à trois niveaux', () => {
   it('initialise des données indépendantes avec les réglages de départ', () => {

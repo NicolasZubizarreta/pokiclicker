@@ -11,9 +11,14 @@ export type PokemonPossede = {
   sexe: 'male' | 'femelle' | 'sansSexe'; favori: boolean;
   oeuf?: { pasRestants: number; pasMax: number };
 };
+export type ReglagesArret = {
+  actif: boolean; commun: boolean; peuCommun: boolean; rare: boolean; tresRare: boolean;
+  legendaire: boolean; shiny: boolean; nouveau: boolean;
+};
+export type PreferencesCombat = { autoAttaque: boolean; arretAuto: ReglagesArret };
 export type DonneesCompte = {
   diamants: number; succes: string[]; skins: string[];
-  preferences: { sombre?: boolean; sonActive?: boolean };
+  preferences: { sombre?: boolean; sonActive?: boolean } & Partial<PreferencesCombat>;
 };
 export type DonneesPartie = {
   nom: string; regionCourante: string; regionsDebloquees: string[]; pokedexNational: number[];

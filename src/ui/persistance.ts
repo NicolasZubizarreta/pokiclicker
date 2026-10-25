@@ -1,5 +1,7 @@
-import { creerGestionnaire } from '../core/sauvegarde';
+import { compteInitial, creerGestionnaire } from '../core/sauvegarde';
 import type { DonneesRegion } from '../core/sauvegarde';
+import type { PreferencesCombat } from '../core/sauvegarde-types';
+import { reglages } from '../core/reglages';
 import { equipeDeDepart } from './equipe-de-depart';
 
 export const ERREUR_CHARGEMENT = 'Une erreur est survenue. Recharge la page ; ta partie est gardée.';
@@ -18,7 +20,12 @@ export function detailErreur(erreur: unknown): string {
 export function ouvrirPartie(options: Parameters<typeof creerGestionnaire>[0]) {
   const gestionnaire = creerGestionnaire(options);
   // Valider aussi le compte avant toute création ou écriture.
-  gestionnaire.chargerCompte();
+  const compte = gestionnaire.chargerCompte()?.donnees ?? compteInitial();
+  const preferences: PreferencesCombat = {
+    autoAttaque: compte.preferences.autoAttaque ?? reglages.depart.preferences.autoAttaque,
+    arretAuto: structuredClone(compte.preferences.arretAuto ?? reglages.depart.preferences.arretAuto),
+  };
+  let dernieresPreferences = JSON.stringify(preferences);
   const recente = gestionnaire.listerParties()[0];
   let partie = recente ? gestionnaire.chargerPartie(recente.id)! : gestionnaire.creerPartie('Partie 1');
   let enveloppe = gestionnaire.chargerRegion(partie.id, partie.donnees.regionCourante);
@@ -30,6 +37,14 @@ export function ouvrirPartie(options: Parameters<typeof creerGestionnaire>[0]) {
   return {
     region: enveloppe.donnees,
     pokedex: partie.donnees.pokedexNational,
+    preferences,
+    enregistrerPreferences(p: PreferencesCombat) {
+      const suivantes = JSON.stringify(p);
+      if (suivantes === dernieresPreferences) return;
+      const actuel = gestionnaire.chargerCompte()?.donnees ?? compteInitial();
+      gestionnaire.ecrireCompte({ ...actuel, preferences: { ...actuel.preferences, ...structuredClone(p) } });
+      dernieresPreferences = suivantes;
+    },
     enregistrer(region: DonneesRegion, pokedex: readonly number[]) {
       const suivante = JSON.stringify([region, pokedex]);
       if (bloquee || suivante === derniere) return;

@@ -1,8 +1,14 @@
 import donnees from '../../data/reglages.json';
-import type { NouveauxChampsRegion } from './sauvegarde-types';
+import type { NouveauxChampsRegion, PreferencesCombat } from './sauvegarde-types';
 import type { Rarete } from './monde';
 
 export type Bonus = { cle: string; x: number; arrondi?: boolean };
+
+export type ReglagesCapture = {
+  balles: { cle: string; nom: string; image: string; multiplicateur: number }[];
+  multiplicateurCertain: number; bonus: Bonus[];
+  animationMs: number; reapparitionMs: number; raisonImpossible: string;
+};
 
 export type ReglagesRecompenses = {
   niveauMax: number;
@@ -35,7 +41,7 @@ export const reglages: {
     vol: { poseMs: number; delaiOuvertureMs: number; volMs: number; fermetureMs: number; imageMs: number; images: number; pisteMs: number; traitsMs: number; fonduReduitMs: number; changerReduitMs: number; tailleDresseurRatio: number };
   };
   carte: { zoomMax: number; deblocageMs: number; seuilGlissementPx: number; diviseurMolette: number; rayonCiblePx: number };
-  depart: { argent: number; etape: number; region: NouveauxChampsRegion };
+  depart: { argent: number; etape: number; region: NouveauxChampsRegion; preferences: PreferencesCombat };
   combat: {
     minuteurBossMs: number;
     clicBase: number; clicPartDps: number; pvParNiveau: number; pvBoss: number;
@@ -43,6 +49,7 @@ export const reglages: {
   };
   bonus: { dps: Bonus[]; clic: Bonus[] };
   recompenses: ReglagesRecompenses;
+  capture: ReglagesCapture;
   delais: ReglagesDelais;
   boucle: { pasMs: number; rattrapageMaxMs: number; notificationMinMs: number };
   stats: {
@@ -73,4 +80,19 @@ for (const valeur of Object.values(reglages.interface.vol)) {
 }
 for (const valeur of Object.values(reglages.carte)) {
   if (!Number.isFinite(valeur) || valeur <= 0) throw new Error('Réglages de carte invalides');
+}
+
+const capture = reglages.capture;
+if (!capture.raisonImpossible || !capture.balles.length
+  || new Set(capture.balles.map((balle) => balle.cle)).size !== capture.balles.length
+  || capture.balles.some((balle) => !balle.cle || !balle.nom || !balle.image
+    || !Number.isFinite(balle.multiplicateur) || balle.multiplicateur <= 0)
+  || [capture.multiplicateurCertain, capture.animationMs, capture.reapparitionMs]
+    .some((valeur) => !Number.isFinite(valeur) || valeur <= 0)
+  || capture.bonus.some((bonus) => !bonus.cle || !Number.isFinite(bonus.x) || bonus.x <= 0)) {
+  throw new Error('Réglages de capture invalides');
+}
+if (typeof reglages.depart.preferences.autoAttaque !== 'boolean'
+  || Object.values(reglages.depart.preferences.arretAuto).some((valeur) => typeof valeur !== 'boolean')) {
+  throw new Error('Préférences de combat invalides');
 }

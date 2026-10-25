@@ -333,7 +333,7 @@ Fourchette : 2 à 3 jours. Risque : la décision « PC de région » est à conf
 
 ## J. `feat(capture): capturer un Pokémon sauvage avec une balle et régler l'arrêt automatique`
 
-Labels : `type:feat`, `etat:idee`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : oui
+Labels : `type:feat`, `etat:pret`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : oui
 
 ### Histoire
 En tant que joueur, je veux capturer des Pokémon sauvages avec des balles afin de compléter mon Pokédex et de renforcer mon équipe.

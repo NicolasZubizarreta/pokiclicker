@@ -9,6 +9,13 @@
   "depart": {
     "argent": 0,
     "etape": 1,
+    "preferences": {
+      "autoAttaque": true,
+      "arretAuto": {
+        "actif": true, "commun": false, "peuCommun": false, "rare": true,
+        "tresRare": true, "legendaire": true, "shiny": true, "nouveau": true
+      }
+    },
     "region": {
       "pc": [],
       "ameliorations": [],
@@ -46,6 +53,19 @@
     "clicsMaxParSeconde": 12,
     "fenetreClicsMs": 1000,
     "etapeBoss": 10
+  },
+  "capture": {
+    "balles": [
+      { "cle": "pokeball", "nom": "Pokéball", "image": "img/objets/poke-ball.png", "multiplicateur": 1 },
+      { "cle": "superball", "nom": "Superball", "image": "img/objets/great-ball.png", "multiplicateur": 2 },
+      { "cle": "hyperball", "nom": "Hyperball", "image": "img/objets/ultra-ball.png", "multiplicateur": 4 },
+      { "cle": "masterball", "nom": "Master Ball", "image": "img/objets/master-ball.png", "multiplicateur": 255 }
+    ],
+    "multiplicateurCertain": 255,
+    "bonus": [ { "cle": "badge:marais", "x": 1.3 } ],
+    "animationMs": 1000,
+    "reapparitionMs": 1000,
+    "raisonImpossible": "Ce Pokémon ne peut pas être capturé."
   },
   "bonus": {
     "dps": [
