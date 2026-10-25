@@ -94,6 +94,7 @@ html:has(dialog[open]) { overflow: hidden; }
 /* Durées du ticket H et de sa maquette A ; distances issues de l’espacement. */
 :root { --duree-pv: 120ms; --duree-degats: 500ms; --duree-evolution: 3s; }
 :root { --duree-badge: 1.2s; --ease-badge: cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+:root { --duree-flottement: 3s; --translation-flottement: calc(var(--spacing) * -2.5); }
 /* Intro V1 : styles.css L200-212, main.js, controls.js et index.html.
    Utilitaires d’animation et de transition à appliquer sous motion-safe:. */
 :root {
@@ -205,6 +206,21 @@ html:has(dialog[open]) { overflow: hidden; }
 .barre-pv { transition: transform var(--duree-pv) var(--ease-standard); }
 .barre-fantome { transition-delay: var(--duration-lent); }
 .socle { clip-path: ellipse(); }
+@utility flottement {
+  animation: flottement var(--duree-flottement) ease-in-out infinite;
+}
+@keyframes flottement {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(var(--translation-flottement)); }
+  100% { transform: translateY(0); }
+}
+.eclat-touche { filter: brightness(0) invert(1); opacity: 0; }
+.halo-shiny {
+  filter: drop-shadow(calc(var(--spacing) / 4) 0 0 var(--alerte-base))
+    drop-shadow(calc(var(--spacing) / -4) 0 0 var(--alerte-base))
+    drop-shadow(0 calc(var(--spacing) / 4) 0 var(--alerte-base))
+    drop-shadow(0 calc(var(--spacing) / -4) 0 var(--alerte-base)) brightness(1.1);
+}
 .degat-flottant { animation: degats var(--duree-degats) var(--ease-sortie) forwards; }
 .fleche-chen { animation: fleche var(--duree-degats) var(--ease-standard) infinite alternate; }
 @keyframes degats { to { transform: translateY(calc(var(--spacing) * -6)); opacity: 0; } }
