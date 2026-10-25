@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "evenements": [
+    {
+      "id": "kanto.intro",
+      "declencheur": { "type": "debut-partie" },
+      "si": { "type": "drapeau", "id": "nouvelle-partie" },
+      "priorite": 0,
+      "repetable": false,
+      "etapes": [
+        { "type": "bloquer", "zone": "kanto.route-1", "sauf": "starter-choisi", "raison": "Va d'abord voir le Prof. Chen au labo." },
+        { "type": "dialogue", "locuteur": "Prof. Chen", "pose": "chen-1", "texte": "Salutations ! Bienvenue dans le monde merveilleux des Pokémon !" },
+        { "type": "dialogue", "locuteur": "Prof. Chen", "pose": "chen-1", "texte": "Mon nom est Chen. Les gens m'appellent souvent le Professeur Pokémon." },
+        { "type": "dialogue", "locuteur": "Prof. Chen", "pose": "chen-2", "texte": "Ce monde est peuplé de créatures appelées Pokémon. Pour certains, ce sont des animaux domestiques, pour d'autres, des partenaires de combat." },
+        { "type": "donner", "objet": "pokeball", "quantite": 5 },
+        { "type": "poser-drapeau", "id": "sac-ouvert" },
+        { "type": "dialogue", "locuteur": "Prof. Chen", "pose": "chen-2", "texte": "Pour les apprivoiser il ne suffit pas de les regarder... Il faut les capturer ! Tiens, voici 5 Pokéballs pour te lancer." },
+        { "type": "dialogue", "locuteur": "Prof. Chen", "pose": "chen-3", "texte": "Quant à moi... J'étudie les Pokémon comme profession. Mais je suis trop vieux maintenant. J'ai besoin de toi pour compléter le Pokédex !" },
+        { "type": "poser-drapeau", "id": "carte-ouverte" },
+        { "type": "dialogue", "locuteur": "Prof. Chen", "pose": "chen-3", "texte": "Le monde est vaste. Pour t'aider à te repérer entre les différentes zones, je te confie aussi cette Carte de la Région." },
+        { "type": "dialogue", "locuteur": "Prof. Chen", "pose": "chen-3", "texte": "Mais c'est dangereux de partir dans les hautes herbes sans protection ! J'ai ici trois Pokémon rares. Choisis-en un, il t'accompagnera dans ton voyage." }
+      ]
+    }
+  ]
+}

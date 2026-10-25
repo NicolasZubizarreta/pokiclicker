@@ -43,7 +43,7 @@ describe('chargement des événements', () => {
   });
 
   it('ne contient aucun événement de production', () => {
-    expect(evenementsKanto.liste).toEqual([]);
+    expect(evenementsKanto.liste.map(e => e.id)).toEqual(['kanto.intro']);
   });
 
   it.each([
