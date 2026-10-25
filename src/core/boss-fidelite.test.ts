@@ -33,7 +33,7 @@ describe('Fidélité stricte du minuteur des boss et de la Ligue à la V1', () =
     creation.mockClear();
     const echec = avancerCombat(boss, reglages.combat.minuteurBossMs);
 
-    // Correction du ticket F : V1 : zone 20 → étape 1, zone 21 → étape 9 ; V2 corrige : Ligue → étape 1, zone 20 → étape 9
+    // correction du ticket Q : Ligue → étape 9 ; correction du ticket F : zone 20 → étape 9
     if (cas.zoneIdx === 20) {
       expect(cas.subStageFinal).toEqual(1);
       expect(zone.type === 'ligue').toEqual(false);
@@ -41,7 +41,7 @@ describe('Fidélité stricte du minuteur des boss et de la Ligue à la V1', () =
     } else if (cas.zoneIdx === 21) {
       expect(cas.subStageFinal).toEqual(9);
       expect(zone.type).toEqual('ligue');
-      expect(echec.etape).toEqual(1);
+      expect(echec.etape).toEqual(9);
     } else {
       expect(echec.etape).toEqual(cas.subStageFinal);
     }

@@ -1,6 +1,7 @@
 import type { ResultatEquipe } from './equipe';
 import { reglages } from './reglages';
 import type { DonneesRegion } from './sauvegarde-types';
+import { estZoneDeLigue } from './ligue';
 
 type Chronos = DonneesRegion['chronos'];
 type ResultatObjet = (ResultatEquipe & { ok: true; message: string }) | { ok: false; raison: string };
@@ -36,7 +37,7 @@ export function utiliserTemporise(region: DonneesRegion, id: string, maintenant:
 }
 
 export function refusPoupee(region: DonneesRegion, zoneId: string): string | undefined {
-  if (!region.bossVaincus.includes(zoneId)) return 'Boss non vaincu !';
+  if (estZoneDeLigue(zoneId) || !region.bossVaincus.includes(zoneId)) return 'Boss non vaincu !';
   if ((region.inventaire.pokeDoll ?? 0) <= 0) return 'Quantité invalide.';
 }
 

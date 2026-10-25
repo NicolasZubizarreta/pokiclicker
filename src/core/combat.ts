@@ -1,5 +1,6 @@
 import types from '../../data/types.json';
 import type { Rarete, Zone } from './monde';
+import { etapeDeReprise } from './ligue';
 import { chargerPokemon } from './pokemon';
 import { calculerDps } from './stats';
 import { reglages } from './reglages';
@@ -172,7 +173,7 @@ export function avancerCombat(etat: EtatCombat, pasMs: number): EtatCombat {
         evenements: [...etat.evenements, { type: 'capture-echouee' }] };
     }
     if (etat.minuteurMs === 0) {
-      const etape = etat.zone.type === 'ligue' ? 1 : reglages.combat.etapeBoss - 1;
+      const etape = etat.zone.type === 'ligue' ? etapeDeReprise(etat.zone, etat.etape) : reglages.combat.etapeBoss - 1;
       const ennemi = creerEnnemi(etat.zone, etape, etat.alea, reglages.combat, etat.actifs);
       etat = apparaitre({ ...etat, etape, ennemi, attenteMs: 0, capture: null, attenteCapture: false,
         minuteurMs: ennemi.boss ? reglages.combat.minuteurBossMs : null,

@@ -83,10 +83,10 @@ describe('Combats de la Ligue', () => {
     expect(reprendreCombat(ligue, [], alea, etape).minuteurMs).toBe(30000);
   });
 
-  it('revient à l’étape un à l’expiration de l’étape cinq', () => {
+  it('revient à l’étape cinq à l’expiration de l’étape cinq', () => {
     const echec = avancerCombat(reprendreCombat(ligue, [], constant, 5), 30000);
-    expect(echec).toMatchObject({ etape: 1, minuteurMs: 30000, attenteMs: 0,
-      ennemi: { numero: ligue.adversaires![0]!.pokemon, boss: true } });
+    expect(echec).toMatchObject({ etape: 5, minuteurMs: 30000, attenteMs: 0,
+      ennemi: { numero: ligue.adversaires![4]!.pokemon, boss: true } });
     expect(echec.evenements).toEqual([{ type: 'boss-echoue', zoneId: ligue.id }]);
   });
 
