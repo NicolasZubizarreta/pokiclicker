@@ -1,8 +1,10 @@
 import { chargerObjets } from './boutique';
-import { valider, type Condition } from './conditions';
+import { evaluer, valider, type Condition, type ResultatCondition } from './conditions';
 import type { chargerMonde } from './monde';
 import { chargerPokemon } from './pokemon';
 import { chaine, exiger, forme, identifiant, objet } from './sauvegarde-validation';
+import { etatMondeDe } from './sauvegarde';
+import type { DonneesRegion } from './sauvegarde-types';
 
 export type Declencheur =
   | { type: 'debut-partie' }
@@ -37,6 +39,111 @@ export type CatalogueEvenements = {
   liste: Evenement[];
   parId(id: string): Evenement;
 };
+
+function eligible(evenement: Evenement, region: DonneesRegion): boolean {
+  return (evenement.repetable || !region.evenementsJoues.includes(evenement.id))
+    && (!evenement.si || evaluer(evenement.si, etatMondeDe(region)).ok);
+}
+
+function correspond(declencheur: Declencheur, fait: Declencheur): boolean {
+  if (declencheur.type !== fait.type) return false;
+  switch (declencheur.type) {
+    case 'debut-partie': return true;
+    case 'entree-zone':
+    case 'boss-vaincu': return 'zone' in fait && declencheur.zone === fait.zone;
+    case 'objet-utilise': return fait.type === 'objet-utilise' && declencheur.objet === fait.objet
+      && (declencheur.zone === undefined || declencheur.zone === fait.zone);
+  }
+}
+
+// Travaille uniquement sur la copie de région créée par l'appelant.
+function avancer(cat: CatalogueEvenements, region: DonneesRegion): DonneesRegion {
+  while (region.evenementEnCours) {
+    const courant = region.evenementEnCours;
+    const evenement = cat.liste.find(e => e.id === courant.id);
+    const etape = evenement?.etapes[courant.etape];
+    if (!evenement || !etape) {
+      if (evenement && !evenement.repetable && !region.evenementsJoues.includes(evenement.id)) {
+        region.evenementsJoues.push(evenement.id);
+      }
+      delete region.evenementEnCours;
+      while (courant.file.length) {
+        const id = courant.file.shift()!;
+        const suivant = cat.liste.find(e => e.id === id);
+        if (suivant && eligible(suivant, region)) {
+          region.evenementEnCours = { id, etape: 0, file: courant.file };
+          break;
+        }
+      }
+      continue;
+    }
+    switch (etape.type) {
+      case 'dialogue':
+      case 'combat': return region;
+      case 'donner':
+        if ('objetCle' in etape) {
+          if (!region.objetsCles.includes(etape.objetCle)) region.objetsCles.push(etape.objetCle);
+        } else {
+          region.inventaire[etape.objet] = (region.inventaire[etape.objet] ?? 0) + etape.quantite;
+        }
+        break;
+      case 'poser-drapeau':
+        if (!region.drapeaux.includes(etape.id)) region.drapeaux.push(etape.id);
+        break;
+      case 'deplacer':
+        region.zoneId = etape.zone;
+        region.etape = 1;
+        break;
+      case 'bloquer': break; // Son activation est déduite de l'index avancé.
+    }
+    courant.etape++;
+  }
+  return region;
+}
+
+export function declencher(cat: CatalogueEvenements, region: DonneesRegion, fait: Declencheur): DonneesRegion {
+  const copie = structuredClone(region);
+  const courant = copie.evenementEnCours;
+  const dejaEnFile = new Set(courant ? [courant.id, ...courant.file] : []);
+  const nouveaux = cat.liste.filter(e => !dejaEnFile.has(e.id)
+    && correspond(e.declencheur, fait) && eligible(e, copie))
+    .sort((a, b) => b.priorite - a.priorite || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
+    .map(e => e.id);
+  if (courant) courant.file.push(...nouveaux);
+  else if (nouveaux.length) copie.evenementEnCours = { id: nouveaux[0]!, etape: 0, file: nouveaux.slice(1) };
+  return avancer(cat, copie);
+}
+
+export function commandeCourante(cat: CatalogueEvenements, region: DonneesRegion): Commande | null {
+  const courant = region.evenementEnCours;
+  if (!courant) return null;
+  const etape = cat.liste.find(e => e.id === courant.id)?.etapes[courant.etape];
+  return etape && (etape.type === 'dialogue' || etape.type === 'combat')
+    ? { ...etape, evenement: courant.id, etape: courant.etape } : null;
+}
+
+export function etapeTerminee(
+  cat: CatalogueEvenements, region: DonneesRegion, ref: { evenement: string; etape: number },
+): DonneesRegion {
+  const commande = commandeCourante(cat, region);
+  if (!commande || commande.evenement !== ref.evenement || commande.etape !== ref.etape) return region;
+  const copie = structuredClone(region);
+  copie.evenementEnCours!.etape++;
+  return avancer(cat, copie);
+}
+
+export function blocage(cat: CatalogueEvenements, region: DonneesRegion, zoneId: string): ResultatCondition {
+  for (const evenement of cat.liste) {
+    for (const [index, etape] of evenement.etapes.entries()) {
+      if (etape.type === 'bloquer' && etape.zone === zoneId && !region.drapeaux.includes(etape.sauf)
+        && (region.evenementsJoues.includes(evenement.id)
+          || (region.evenementEnCours?.id === evenement.id && region.evenementEnCours.etape > index))) {
+        return { ok: false, raison: etape.raison };
+      }
+    }
+  }
+  return { ok: true };
+}
 
 const entier = (v: unknown) => exiger(typeof v === 'number' && Number.isSafeInteger(v), 'Entier attendu');
 const positif = (v: unknown) => {
