@@ -177,7 +177,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
   };
   const cacher = () => { if (document.visibilityState === 'hidden') enregistrer(); };
   const modifierEquipe = (action: (region: DonneesRegion) => equipe.ResultatEquipe,
-    uidPc?: string, fermerEchange = false, completer = false): string | null => {
+    uidPc?: string, fermerEchange = false): string | null => {
     if (!initialise) return 'La partie n’est pas démarrée.';
     const resultat = action(region);
     if (!resultat.ok) return resultat.raison;
@@ -186,7 +186,6 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
       echange = { uid: uidPc, nom: pokemon.surnom ?? catalogue.parNumero(pokemon.numero).nom };
     } else {
       region = resultat.region;
-      if (completer) pokedex = completerPokedex(pokedex, region);
       if (coeur) coeur = { ...coeur, equipe: region.equipe.map(versMembreEquipe) };
       if (fermerEchange) echange = null;
       enregistrer();
@@ -200,7 +199,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
     argent: 0, enRecherche: false, annonce: null, echange: null,
     pc: [], pokedex, accesPc: { ouvert: false, raison: reglages.pc.raison },
     noterEspece(numero) {
-      if (!initialise) return;
+      if (!initialise || !Number.isSafeInteger(numero) || numero <= 0) return;
       const suivant = ajouterAuPokedex(pokedex, numero);
       if (suivant === pokedex) return;
       pokedex = suivant;
@@ -211,8 +210,8 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
     basculerFavori: uid => modifierEquipe(region => equipe.basculerFavori(region, uid)),
     relacher: uid => modifierEquipe(region => equipe.relacher(region, uid)),
     envoyerAuPc: uid => modifierEquipe(region => equipe.envoyerAuPc(region, uid)),
-    placerDansEquipe: uid => modifierEquipe(region => equipe.placerDansEquipe(region, uid), uid, false, true),
-    echanger: (uidPc, uidEquipe) => modifierEquipe(region => equipe.echanger(region, uidPc, uidEquipe), undefined, true, true),
+    placerDansEquipe: uid => modifierEquipe(region => equipe.placerDansEquipe(region, uid), uid),
+    echanger: (uidPc, uidEquipe) => modifierEquipe(region => equipe.echanger(region, uidPc, uidEquipe), undefined, true),
     annulerEchange() { echange = null; afficher(); },
     carte: { formes: [], badges: { obtenus: 0, total: totalBadges }, nouvelles: [], tutorielRoute1: false },
     voirCarte() {

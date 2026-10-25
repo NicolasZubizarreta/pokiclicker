@@ -90,6 +90,18 @@ it('enregistre une seule fois une espèce notée deux fois, région puis partie'
   ]);
 });
 
+it('ignore un numéro d’espèce invalide sans bloquer la sauvegarde', () => {
+  const { store, stockage } = preparer();
+  const avant = store.getState().pokedex;
+  const ecrire = vi.spyOn(stockage, 'ecrire');
+  for (const numero of [0, -3, 1.5, Number.NaN]) store.getState().noterEspece(numero);
+  expect(store.getState().pokedex).toBe(avant);
+  expect(ecrire).not.toHaveBeenCalled();
+  store.getState().noterEspece(25);
+  expect(store.getState().pokedex).toContain(25);
+  expect(ecrire).toHaveBeenCalled();
+});
+
 it('ouvre le PC après les boss de la Route 1 et de la Forêt de Jade', () => {
   expect(preparer().store.getState().accesPc).toEqual({ ouvert: false, raison: reglages.pc.raison });
   expect(preparerRegion(region => ({ ...region, bossVaincus: ['kanto.route-1'] }))

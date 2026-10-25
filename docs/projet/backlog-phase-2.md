@@ -299,7 +299,7 @@ Fourchette : 2 à 3 jours. Risque : fiche en feuille basse sur mobile (jamais pl
 
 ## I. `feat(pc): ranger les Pokémon dans le PC de la région et suivre le Pokédex de Kanto`
 
-Labels : `type:feat`, `etat:pret`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : oui
+Labels : `type:feat`, `etat:fait`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : oui
 
 ### Histoire
 En tant que joueur, je veux un PC pour ranger mes Pokémon en trop et un Pokédex qui montre ce que j'ai capturé afin de collectionner les 151 Pokémon.
@@ -311,14 +311,14 @@ V1 : `team.js`, `summary.js`, `render.js` (`renderPC`, `renderPokedex`), `state.
 **Choix de Nicolas (24/10).** PC : variante **B** (grille + détail). Ajouts demandés : une **barre de recherche** (par nom ou numéro), un **tri par shiny**, et sur PC la **liste de l'équipe à droite, au-dessus de la fiche du Pokémon** (équipe d'abord, fiche en dessous, défilement si c'est trop grand). Pokédex : celui de la V1 (grille de 151, silhouettes, paliers) dans Plus. Sources : `docs/projet/choix-variantes-b.md` (choix), `docs/projet/v1-visuel-a-porter.md` (ce que fait la V1).
 
 ### Critères d'acceptation
-- [ ] Étant donné la zone 2 ouverte seulement, quand j'ouvre le menu, alors le PC est verrouillé avec la raison en français ; à la zone 3 il est accessible.
-- [ ] Étant donné 30 Pokémon dans le PC, quand je change le tri (numéro, nom, niveau, favori), alors l'ordre change comme dans la V1 (comparaison avec le code V1 sur un jeu d'essai) ; la liste défile sans bloquer la page.
-- [ ] Étant donné un Pokémon du PC, quand je le place dans l'équipe, alors il quitte le PC ; si l'équipe est pleine, le mode échange d'H s'applique ; le PC n'a pas de limite de taille.
-- [ ] Étant donné le Pokédex, quand je l'ouvre, alors 151 cases s'affichent dans l'ordre national (capturé : sprite et nom ; non capturé : silhouette et « ??? »), avec le compteur « n / 151 » ; une espèce n'apparaît capturée qu'après capture, évolution, éclosion, achat de casino ou choix du starter.
-- [ ] Étant donné une capture d'une espèce déjà possédée, quand elle arrive, alors le doublon est autorisé (comme en V1) et le Pokédex ne change pas.
-- [ ] Étant donné un rechargement, quand je rouvre, alors le PC et le Pokédex sont identiques (`toEqual` sur la région et la partie).
-- [ ] Étant donné 30 Pokémon dans le PC, quand je tape une partie d'un nom ou un numéro dans la recherche, alors la grille ne garde que les correspondances (sans tenir compte des accents ni de la casse) ; effacer la recherche rétablit tout.
-- [ ] Étant donné le tri, quand je choisis « Shiny », alors les shiny passent en premier, puis l'ordre par numéro ; la liste de l'équipe est affichée à droite au-dessus de la fiche (sur mobile, au-dessus de la grille ou dans un onglet).
+- [x] Étant donné la zone 2 ouverte seulement, quand j'ouvre le menu, alors le PC est verrouillé avec la raison en français ; à la zone 3 il est accessible.
+- [x] Étant donné 30 Pokémon dans le PC, quand je change le tri (numéro, nom, niveau, favori), alors l'ordre change comme dans la V1 (comparaison avec le code V1 sur un jeu d'essai) ; la liste défile sans bloquer la page.
+- [x] Étant donné un Pokémon du PC, quand je le place dans l'équipe, alors il quitte le PC ; si l'équipe est pleine, le mode échange d'H s'applique ; le PC n'a pas de limite de taille.
+- [x] Étant donné le Pokédex, quand je l'ouvre, alors 151 cases s'affichent dans l'ordre national (capturé : sprite et nom ; non capturé : silhouette et « ??? »), avec le compteur « n / 151 » ; une espèce n'apparaît capturée qu'après capture, évolution, éclosion, achat de casino ou choix du starter.
+- [x] Étant donné une capture d'une espèce déjà possédée, quand elle arrive, alors le doublon est autorisé (comme en V1) et le Pokédex ne change pas. (capture elle-même au ticket J : `noterEspece` est prêt)
+- [x] Étant donné un rechargement, quand je rouvre, alors le PC et le Pokédex sont identiques (`toEqual` sur la région et la partie).
+- [x] Étant donné 30 Pokémon dans le PC, quand je tape une partie d'un nom ou un numéro dans la recherche, alors la grille ne garde que les correspondances (sans tenir compte des accents ni de la casse) ; effacer la recherche rétablit tout.
+- [x] Étant donné le tri, quand je choisis « Shiny », alors les shiny passent en premier, puis l'ordre par numéro ; la liste de l'équipe est affichée à droite au-dessus de la fiche (sur mobile, au-dessus de la grille ou dans un onglet).
 
 ### Hors périmètre
 PC global et Pokédex national complet (phase 6), expéditions, Pokédex « vu » (absent de la V1), paliers de récompenses (N).

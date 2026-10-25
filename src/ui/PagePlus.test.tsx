@@ -67,11 +67,11 @@ it('ouvre le PC après les boss de la Route 1 et de la Forêt de Jade et gère l
   const titre = screen.getByRole('heading', { level: 1, name: 'PC de Léo' });
   expect(document.activeElement).toBe(titre);
   fireEvent.click(screen.getByRole('button', { name: 'Retour' }));
-  expect(document.activeElement).toBe(screen.getByRole('heading', { level: 1, name: 'Plus' }));
+  expect(document.activeElement).toBe(screen.getByRole('button', { name: 'PC de Léo' }));
   expect(screen.queryByRole('button', { name: 'Retour' })).toBeNull();
 });
 
-it('ouvre le Pokédex des trois starters avec ses textes français et rend le focus au titre Plus', () => {
+it('ouvre le Pokédex des trois starters avec ses textes français et rend le focus à l’entrée d’origine', () => {
   const { container } = render(<PagePlus />);
   fireEvent.click(screen.getByRole('button', { name: 'Pokédex 3 / 151' }));
   expect(document.activeElement).toBe(screen.getByRole('heading', { level: 1, name: 'Pokédex' }));
@@ -80,6 +80,6 @@ it('ouvre le Pokédex des trois starters avec ses textes français et rend le fo
   const cases = catalogue.liste.map(p => `N° ${p.numero}${[1, 4, 7].includes(p.numero) ? p.nom : '???'}`).join('');
   expect(container.textContent).toBe(`RetourPokédex3 / 151${cases}`);
   fireEvent.click(screen.getByRole('button', { name: 'Retour' }));
-  expect(document.activeElement).toBe(screen.getByRole('heading', { level: 1, name: 'Plus' }));
+  expect(document.activeElement).toBe(screen.getByRole('button', { name: /^Pokédex/ }));
   expect(screen.getByRole('button', { name: 'Pokédex 3 / 151' })).toBeTruthy();
 });

@@ -243,6 +243,15 @@ it.each(['détail', 'carte mobile'])('ouvre une seule fiche depuis le %s et rest
   expect(document.activeElement).toBe(bouton);
 });
 
+it('garde le focus clavier dans le mode échange puis le rend à l’action', () => {
+  storeJeu.setState({ equipe: Array.from({ length: 6 }, (_, i) => caseDe({ ...base, uid: `e${i}`, surnom: `Partenaire ${i}` })) });
+  render(<PagePC retour={vi.fn()} />);
+  fireEvent.click(screen.getByRole('button', { name: "Placer dans l'équipe" }));
+  expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Annuler' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Annuler' }));
+  expect(document.activeElement).not.toBe(document.body);
+});
+
 it('annule au démontage et désactive le placement sans sélection', () => {
   storeJeu.setState({ pc: [] });
   const { unmount } = render(<PagePC retour={vi.fn()} />);

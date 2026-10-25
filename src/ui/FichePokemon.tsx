@@ -32,8 +32,7 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur }: Props) {
   const pc = useStore(storeJeu, etat => etat.pc);
   const caseEquipe = equipe.find(c => c?.pokemon.uid === uid);
   const pokemonPc = !caseEquipe ? pc.find(p => p.uid === uid) : undefined;
-  const detailPc = pokemonPc ? detailDps(pokemonPc, 1) : null;
-  const membre = caseEquipe ?? (pokemonPc && detailPc ? {
+  const membre = caseEquipe ?? (pokemonPc ? {
     pokemon: pokemonPc, multiplicateur: 1, xpMax: calculerMaxXp(pokemonPc.numero, pokemonPc.niveau),
     dps: dpsSansType(pokemonPc),
   } : undefined);

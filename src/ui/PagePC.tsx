@@ -38,6 +38,20 @@ export function PagePC({ retour }: { retour(): void }) {
 
   useEffect(() => () => storeJeu.getState().annulerEchange(), []);
 
+  // Le mode échange déplace le focus sur « Annuler », puis le rend à l'action ou au titre.
+  const annuler = useRef<HTMLButtonElement>(null);
+  const placer = useRef<HTMLButtonElement>(null);
+  const titre = useRef<HTMLHeadingElement>(null);
+  const echangeAvant = useRef(echange);
+  useEffect(() => {
+    if (echange && !echangeAvant.current) annuler.current?.focus();
+    if (!echange && echangeAvant.current) {
+      const cible = panneau.current?.getClientRects().length ? placer.current : null;
+      (cible ?? titre.current)?.focus();
+    }
+    echangeAvant.current = echange;
+  }, [echange]);
+
   function ouvrirFiche(uid: string, bouton: HTMLButtonElement) {
     declencheur.current = bouton;
     ouvrir(uid);
@@ -69,12 +83,12 @@ export function PagePC({ retour }: { retour(): void }) {
 
   return <section className="mx-auto max-w-screen-xl text-base">
     <button type="button" className="mb-4 min-h-11 bg-surface-2 px-4 py-2 hover:bg-selection" onClick={retour}>Retour</button>
-    <h1 tabIndex={-1} className="font-titre text-2xl font-semibold">PC de Léo</h1>
+    <h1 ref={titre} tabIndex={-1} className="font-titre text-2xl font-semibold">PC de Léo</h1>
     {!accesPc.ouvert ? <p className="mt-4">{accesPc.raison}</p> : <>
       <p className="mt-2 text-region-accent">{pc.length} Pokémon</p>
       {echange && <div role="status" className="cadre mt-4 flex flex-wrap items-center gap-4 bg-surface p-4">
         <p>Choisis le Pokémon à remplacer par {echange.nom}</p>
-        <button type="button" className="min-h-11 bg-surface-2 px-4 py-2" onClick={() => {
+        <button ref={annuler} type="button" className="min-h-11 bg-surface-2 px-4 py-2" onClick={() => {
           storeJeu.getState().annulerEchange();
           signaler(null);
         }}>Annuler</button>
@@ -115,9 +129,9 @@ export function PagePC({ retour }: { retour(): void }) {
                       {(pokemon.sexe === 'femelle' || pokemon.sexe === 'male') && <span role="img"
                         aria-label={pokemon.sexe === 'femelle' ? 'Femelle' : 'Mâle'}
                         className={pokemon.sexe === 'femelle' ? 'text-erreur-base' : 'text-info-base'}>{pokemon.sexe === 'femelle' ? '♀' : '♂'}</span>}
-                      {pokemon.favori && <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" className="size-5 shrink-0 fill-current text-lien">
+                      {pokemon.favori && <><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" className="size-5 shrink-0 fill-current text-lien">
                         <path d="m12 2 3 6 7 1-5 5 1 8-6-4-6 4 1-8-5-5 7-1z" />
-                      </svg>}
+                      </svg><span className="sr-only">Favori</span></>}
                       {pokemon.shiny && <>
                         <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" className="size-5 shrink-0 fill-current text-alerte-base">
                           <path d="m12 1 3 8 8 3-8 3-3 8-3-8-8-3 8-3z" />
@@ -146,7 +160,7 @@ export function PagePC({ retour }: { retour(): void }) {
               signaler(message ? { message, echange } : null);
             }}>{pokemon.favori ? 'Retire des favoris' : 'Ajoute aux favoris'}</button>
         </> : <h2 className="font-titre text-xl font-semibold">Aucune sélection</h2>}
-        {!ouvert && <button type="button" disabled={!pokemon || !!echange}
+        {!ouvert && <button ref={placer} type="button" disabled={!pokemon}
           className="min-h-11 bg-action px-4 py-2 text-action-texte hover:bg-action-survol disabled:text-texte-doux"
           onClick={() => {
             if (!pokemon) return;
