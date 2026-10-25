@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useStore } from 'zustand';
 import { chargerPokemon } from '../core/pokemon';
+import { ECLAT, SECOUSSE } from './animations';
 import { BarrePv } from './BarrePv';
 import { BarreTemps } from './BarreTemps';
 import { BarreCapture } from './BarreCapture';
@@ -42,15 +43,15 @@ function Entete({ store }: { store: StoreJeu }) {
 }
 
 function Scene({ store }: { store: StoreJeu }) {
-  const sprite = useRef<HTMLDivElement>(null);
+  const secousse = useRef<HTMLDivElement>(null);
   const attaquer = () => {
-    store.getState().attaquer();
-    const element = sprite.current;
-    // Recul de 4 px en 90 ms par l'API d'animation (composition hors du fil principal) ;
+    if (!store.getState().attaquer()) return;
+    const element = secousse.current;
+    // Secousse et éclat de la V1 par l'API d'animation (composition hors du fil principal) ;
     // un changement de classe CSS à chaque appui coûtait plus de 400 tâches longues par minute.
     if (typeof element?.animate !== 'function' || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
-    element.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(var(--spacing))' }, { transform: 'translateX(0)' }],
-      { duration: 90, easing: 'cubic-bezier(0.2, 0, 0, 1)' });
+    element.animate(SECOUSSE.keyframes, SECOUSSE.options);
+    element.querySelectorAll('.eclat-touche').forEach(eclat => eclat.animate(ECLAT.keyframes, ECLAT.options));
   };
   const lieu = useStore(store, etat => etat.lieu);
   const zone = useStore(store, etat => etat.zone);
@@ -60,6 +61,7 @@ function Scene({ store }: { store: StoreJeu }) {
   const enRecherche = useStore(store, etat => etat.enRecherche);
   const cache = useStore(store, etat => etat.cache);
   const annonce = useStore(store, etat => etat.annonce);
+  const banniere = useStore(store, etat => etat.banniere);
   const accesPension = useStore(store, etat => etat.pension.acces);
   const captureEnCours = useStore(store, etat => etat.capture.enCours);
   const effets = useStore(store, etat => etat.effets);
@@ -95,17 +97,25 @@ function Scene({ store }: { store: StoreJeu }) {
       {effets.length > 0 && <PastillesEffets effets={effets} />}
       {minuteur && <BarreTemps restantMs={minuteur.restantMs} totalMs={minuteur.totalMs} />}
     </div>
-    <div ref={sprite} aria-hidden={cache} className={`pointer-events-none absolute right-2 bottom-2 flex will-change-transform size-48 items-end justify-center lg:size-72 ${cache ? 'opacity-0' : ''}`}>
+    <div aria-hidden={cache} className={`pointer-events-none absolute right-2 bottom-2 flex will-change-transform size-48 items-end justify-center lg:size-72 ${cache ? 'opacity-0' : ''}`}>
       <div aria-hidden="true" className="socle absolute bottom-10 h-12 w-3/4 bg-region-socle lg:bottom-16 lg:h-16" />
-      <Image src={cheminSprite(ennemi.numero)} genre="sprite" alt={nom} largeurDisponible={192}
-        className={`relative size-48 max-w-none lg:hidden ${captureEnCours ? 'capture-en-cours' : ''}`} />
-      <Image src={cheminSprite(ennemi.numero)} genre="sprite" alt={nom} largeurDisponible={288}
-        className={`relative hidden size-72 max-w-none lg:block ${captureEnCours ? 'capture-en-cours' : ''}`} />
+      <div className={captureEnCours ? '' : 'motion-safe:flottement'}>
+        <div ref={secousse}>
+          {[['size-48 lg:hidden', 192], ['hidden size-72 lg:block', 288]].map(([taille, largeur]) => <span key={largeur} className={`relative ${taille}`}>
+            <Image src={cheminSprite(ennemi.numero)} genre="sprite" alt={nom} largeurDisponible={largeur as number}
+              className={`relative size-full max-w-none ${captureEnCours ? 'capture-en-cours' : ''} ${ennemi.shiny ? 'halo-shiny' : ''}`} />
+            <Image src={cheminSprite(ennemi.numero)} genre="sprite" alt="" largeurDisponible={largeur as number}
+              className="eclat-touche absolute inset-0 size-full max-w-none" />
+          </span>)}
+        </div>
+      </div>
     </div>
     {enRecherche && <div role="status" className="pointer-events-none absolute inset-0 flex items-center justify-center">
-      <span className="cadre bg-surface p-2">Recherche en cours…</span>
+      <span className="cadre bg-surface p-2 motion-safe:animate-pulse">Recherche en cours…</span>
     </div>}
     {notification}
+    {banniere !== null && <div aria-hidden="true"
+      className="pointer-events-none cadre absolute inset-x-4 top-16 z-20 bg-alerte-base p-2 text-center text-texte-inverse">{banniere}</div>}
     <button type="button" aria-label={enRecherche ? 'Attaquer (recherche en cours)' : `Attaquer ${nom}`}
       className="cible-combat cadre absolute inset-0 z-10 touch-manipulation select-none"
       onContextMenu={event => event.preventDefault()}
