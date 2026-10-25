@@ -10,7 +10,7 @@ export default defineConfig({
   projects: [
     { name: 'mobile', testIgnore: '**/pwa.spec.ts', use: { storageState: 'tests-e2e/etat-equipe-de-depart.json', viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true } },
     { name: 'pc', testIgnore: '**/pwa.spec.ts', use: { storageState: 'tests-e2e/etat-equipe-de-depart.json', viewport: { width: 1440, height: 900 } } },
-    { name: 'pwa', testMatch: '**/pwa.spec.ts', use: { serviceWorkers: 'allow', viewport: { width: 390, height: 844 } } },
+    { name: 'pwa', testMatch: '**/pwa.spec.ts', use: { storageState: 'tests-e2e/etat-equipe-de-depart.json', serviceWorkers: 'allow', viewport: { width: 390, height: 844 } } },
   ],
   webServer: {
     command: 'npm run build && npm run preview -- --port 4173 --strictPort',

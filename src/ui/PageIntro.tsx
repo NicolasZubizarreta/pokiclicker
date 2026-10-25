@@ -43,7 +43,7 @@ export function PageIntro({ store = storeJeu, quandTerminee }: { store?: StoreJe
     }} />
   </div>;
 
-  return <div className={`grid gap-2 ${visible ? 'opacity-100' : 'opacity-0'} motion-safe:intro-interface-fondu`}>
+  return <div className={`scene-intro relative ${visible ? 'opacity-100' : 'opacity-0'} motion-safe:intro-interface-fondu`}>
     <ScenesBourgPalette
       sceneInitiale={reprise ? 'kanto.labo' : 'kanto.chez-maman'}
       laboAVisiter={intro.enCours} sortieLaboClignote={!intro.enCours && !intro.choixStarter}
@@ -53,10 +53,12 @@ export function PageIntro({ store = storeJeu, quandTerminee }: { store?: StoreJe
         minuteurs.current.push(setTimeout(() => ouvrirDialogue(true), reduit ? 0 : reglages.intro.laboDelaiMs));
       }}
       quandSortieLabo={quandTerminee} />
-    {parlant && <DialogueIntro commande={evenement} sacOuvert={intro.sacOuvert} carteOuverte={intro.carteOuverte}
-      terminerEtape={terminerEtape} />}
-    {parlant && intro.choixStarter && choixPret && <ChoixStarter starters={intro.starters}
-      choisir={numero => signaler(store.getState().choisirStarter(numero))} />}
+    {parlant && <div className="absolute inset-x-0 bottom-0 z-10 grid">
+      <DialogueIntro commande={evenement} sacOuvert={intro.sacOuvert} carteOuverte={intro.carteOuverte}
+        terminerEtape={terminerEtape} />
+      {intro.choixStarter && choixPret && <ChoixStarter starters={intro.starters}
+        choisir={numero => signaler(store.getState().choisirStarter(numero))} />}
+    </div>}
     {erreur && <p role="alert" className="cadre bg-surface p-2">{erreur}</p>}
   </div>;
 }

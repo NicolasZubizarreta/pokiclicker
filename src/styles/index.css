@@ -194,6 +194,8 @@ html:has(dialog[open]) { overflow: hidden; }
 .commandes-combat button { @apply shrink-0 whitespace-nowrap px-3 py-1; }
 .combat-grille { height: calc(100dvh - var(--spacing) * 52); grid-template-rows: minmax(0, 1fr) auto auto auto; }
 .combat-grille > .scene-limitee { @apply min-h-0 overflow-hidden; height: 100%; max-height: calc(var(--spacing) * 76); }
+/* Scène d’intro : carrée, jamais plus haute que l’écran (la nav mobile et l’en-tête restent visibles). */
+.scene-intro { width: min(100%, calc(100dvh - var(--spacing) * 28)); margin-inline: auto; }
 @media (min-width: 64rem) {
   .scene-limitee { width: min(100%, calc((100dvh - 19rem) * 16 / 9)); margin-inline: auto; }
   .combat-grille { height: auto; grid-template-rows: none; }

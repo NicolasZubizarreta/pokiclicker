@@ -77,7 +77,7 @@ export function DialogueIntro({ commande, sacOuvert, carteOuverte, terminerEtape
 
   return <section aria-label="Prof. Chen" className="relative grid min-h-64 content-end gap-2 overflow-hidden p-2">
     <img src={`img/sprites/chen/${affichee}.png`} alt="" width={120} height={120}
-      className={`image-rendering-pixelated pointer-events-none absolute bottom-24 left-1/2 h-1/2 w-auto max-w-[70%] object-contain object-bottom chen-en-place motion-safe:chen-entree motion-safe:intro-pose-fondu ${opaque ? 'opacity-100' : 'opacity-0'}`} />
+      className={`image-rendering-pixelated pointer-events-none absolute bottom-24 left-1/2 h-40 w-auto max-w-[70%] object-contain object-bottom chen-en-place motion-safe:chen-entree motion-safe:intro-pose-fondu ${opaque ? 'opacity-100' : 'opacity-0'}`} />
     {ligne && boiteVisible && <Boite key={ligne.etape} commande={ligne} reduit={reduit}
       terminer={terminerEtape} annonce={annonce} />}
   </section>;
