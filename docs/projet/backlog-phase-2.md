@@ -523,7 +523,7 @@ Fourchette : 2 à 3 jours. Risque : surdimensionner le moteur ; ne rien ajouter 
 
 ## P. `feat(intro): intro du professeur Chen, choix du starter et lieux de départ`
 
-Labels : `type:feat`, `etat:pret`, `est:3`, `prio:1` · branche : `v2` · `agent-ok` : oui
+Labels : `type:feat`, `etat:fait`, `est:3`, `prio:1` · branche : `v2` · `agent-ok` : oui
 
 ### Histoire
 En tant que joueur, je veux commencer par la rencontre du professeur Chen et choisir mon premier Pokémon afin de démarrer l'aventure comme dans la V1.
@@ -535,15 +535,15 @@ V1 : `legacy/js/game/intro.js`, `render.js` (`renderIntro`, `renderStarterSelect
 **Choix de Nicolas (24/10).** Les trois maquettes d'intro sont **refusées** (« vides et moches »). On reprend l'**intro jouable de la V1** (`v1-visuel-a-porter.md` § 3) : écran titre, on se réveille **Chez Maman** (« Il n'y a rien à faire ici, sortons. »), on sort, on se **balade dans Bourg Palette sur l'image avec zones cliquables** (Chez Maman, Chez Blue et son gag, Labo de Chen qui clignote en vert, Pension plus tard, Bateau), on entre au **Labo** : Chen glisse de la droite, dialogue en machine à écrire (30 ms par caractère, ▼ qui rebondit, trois sprites de Chen), **le cadenas du sac se brise** et +5 Pokéballs, **la carte se débloque** (bouton qui rebondit), puis le **choix du starter** (trois Poké Balls, l'artwork apparaît au survol, ×1,5 au choix, bouton « Choisir X »), sortie du labo qui clignote, carte, vol, Route 1. La télé de Chez Maman (easter egg Daran) est reprise dans le ticket W. Ce ticket devient gros : à découper en P1 (scènes de Bourg Palette navigables) et P2 (dialogue de Chen et choix du starter) au moment du lancement. Sources : `docs/projet/choix-variantes-b.md` (choix), `docs/projet/v1-visuel-a-porter.md` (ce que fait la V1).
 
 ### Critères d'acceptation
-- [ ] Étant donné une partie neuve, quand je démarre, alors l'événement `debut-partie` joue l'intro de 7 lignes à 30 ms par caractère ; toucher saute l'animation de la ligne puis passe à la suivante ; les 5 Pokéballs sont données à la ligne 3 et la carte est débloquée à la ligne 5 (test de l'état après chaque ligne).
-- [ ] Étant donné le choix du starter, quand j'ouvre l'écran, alors trois Poké Balls s'ouvrent sur Bulbizarre, Salamèche et Carapuce (artwork ×1,5) avec « CHOISIR <nom> » ; le choix crée un Pokémon de niveau 5, sexe tiré, shiny avec la probabilité 1/256 (tirage injecté en test), ajouté au Pokédex.
-- [ ] Étant donné le starter choisi, quand je vais au combat, alors l'équipe contient ce seul Pokémon (fini l'équipe provisoire de 3) ; `starterId` est enregistré pour la Ligue (Q).
-- [ ] Étant donné Chez Maman, quand je clique sur « Se reposer », alors mes Pokémon sont soignés ; le Labo et Chez Blue affichent leurs dialogues et sont rejouables.
-- [ ] Étant donné un rechargement pendant l'intro, quand je rouvre, alors l'intro reprend à la ligne en cours (O) sans redonner les Pokéballs.
-- [ ] Étant donné 390 et 1440 px, quand l'intro et le choix s'affichent, alors tout est visible sans défiler ; textes entièrement en français ; `prefers-reduced-motion` désactive la machine à écrire (texte complet immédiat).
-- [ ] Étant donné une partie neuve, quand je clique sur JOUER, alors je me réveille Chez Maman avec le message de la V1 ; la sortie est signalée en vert pulsant ; la transition entre scènes est un voile noir de 300 ms.
-- [ ] Étant donné Bourg Palette, quand je survole ou touche une zone, alors elle réagit comme dans la V1 (Chez Maman, Chez Blue avec son texte, Labo qui clignote en vert tant que non visité, Pension verrouillée avec la raison, Bateau gris) ; les zones sont en pourcentages de l'image et suivent le redimensionnement de la fenêtre.
-- [ ] Étant donné le dialogue de Chen, quand il se joue, alors Chen glisse en 1,5 s, la boîte apparaît à 1,6 s, le texte s'écrit à 30 ms par caractère, un toucher pendant l'écriture n'avance pas la ligne, les cadenas et la carte réagissent aux mêmes lignes qu'en V1.
+- [x] Étant donné une partie neuve, quand je démarre, alors l'événement `debut-partie` joue l'intro de 7 lignes à 30 ms par caractère ; toucher saute l'animation de la ligne puis passe à la suivante ; les 5 Pokéballs sont données à la ligne 3 et la carte est débloquée à la ligne 5 (test de l'état après chaque ligne).
+- [x] Étant donné le choix du starter, quand j'ouvre l'écran, alors trois Poké Balls s'ouvrent sur Bulbizarre, Salamèche et Carapuce (artwork ×1,5) avec « CHOISIR <nom> » ; le choix crée un Pokémon de niveau 5, sexe tiré, shiny avec la probabilité 1/256 (tirage injecté en test), ajouté au Pokédex.
+- [x] Étant donné le starter choisi, quand je vais au combat, alors l'équipe contient ce seul Pokémon (fini l'équipe provisoire de 3) ; `starterId` est enregistré pour la Ligue (Q).
+- [x] Étant donné Chez Maman, quand je clique sur « Se reposer », alors la V1 répond « Il n'y a rien à faire ici, sortons. » (décision de Nicolas le 25/10 : pas de bouton, la V1 n'a ni PV ni soin) ; le Labo et Chez Blue affichent leurs dialogues et sont rejouables.
+- [x] Étant donné un rechargement pendant l'intro, quand je rouvre, alors l'intro reprend à la ligne en cours (O) sans redonner les Pokéballs.
+- [x] Étant donné 390 et 1440 px, quand l'intro et le choix s'affichent, alors tout est visible sans défiler ; textes entièrement en français ; `prefers-reduced-motion` désactive la machine à écrire (texte complet immédiat).
+- [x] Étant donné une partie neuve, quand je clique sur JOUER, alors je me réveille Chez Maman avec le message de la V1 ; la sortie est signalée en vert pulsant ; la transition entre scènes est un voile noir de 300 ms.
+- [x] Étant donné Bourg Palette, quand je survole ou touche une zone, alors elle réagit comme dans la V1 (Chez Maman, Chez Blue avec son texte, Labo qui clignote en vert tant que non visité, Pension verrouillée avec la raison, Bateau gris) ; les zones sont en pourcentages de l'image et suivent le redimensionnement de la fenêtre.
+- [x] Étant donné le dialogue de Chen, quand il se joue, alors Chen glisse en 1,5 s, la boîte apparaît à 1,6 s, le texte s'écrit à 30 ms par caractère, un toucher pendant l'écriture n'avance pas la ligne, les cadenas et la carte réagissent aux mêmes lignes qu'en V1.
 
 ### Hors périmètre
 Nom du jeu (écran titre), choix du nom du dresseur (absent de la V1), Chen en sprite (voir point ouvert « sprite de Chen »).
