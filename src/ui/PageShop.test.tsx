@@ -61,7 +61,8 @@ it('ouvre en zone 2, affiche seulement le catalogue disponible et filtre les cat
   expect(Array.from(container.querySelectorAll('article')).map(c => c.getAttribute('data-objet')).sort())
     .toEqual(objets.map(o => o.id).sort());
   expect(container.querySelector('[data-objet="hyperball"]')).toBeNull();
-  expect(screen.getAllByRole('heading', { level: 2 }).map(h => h.textContent)).toEqual(['Balles', 'Soins', 'Équipement']);
+  // Une catégorie sans objet à vendre (Soins avant la zone du Bonbon) n'affiche pas de titre vide.
+  expect(screen.getAllByRole('heading', { level: 2 }).map(h => h.textContent)).toEqual(['Balles', 'Équipement']);
   for (const [cle, nom] of [['balles', 'Balles'], ['soins', 'Soins'], ['equipement', 'Équipement']]) {
     fireEvent.click(screen.getByRole('button', { name: nom }));
     expect(screen.getByRole('button', { name: nom }).getAttribute('aria-pressed')).toBe('true');
