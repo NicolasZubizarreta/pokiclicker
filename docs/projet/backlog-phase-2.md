@@ -392,7 +392,7 @@ Fourchette : 2 jours. Risque : cohérence des DPS après évolution (stats de ba
 
 ## L. `feat(shop): Sac, Shop, balles, Bonbons et objets à effet permanent`
 
-Labels : `type:feat`, `etat:idee`, `est:3`, `prio:1` · branche : `v2` · `agent-ok` : oui
+Labels : `type:feat`, `etat:pret`, `est:3`, `prio:1` · branche : `v2` · `agent-ok` : oui
 
 ### Histoire
 En tant que joueur, je veux acheter des objets avec mon argent afin d'aller plus vite et de vaincre des boss plus difficiles.

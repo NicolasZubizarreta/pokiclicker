@@ -1,0 +1,3657 @@
+{
+  "zones": [
+    "kanto.bourg-palette",
+    "kanto.route-1",
+    "kanto.foret-de-jade",
+    "kanto.arene-d-argenta",
+    "kanto.mont-selenite",
+    "kanto.arene-d-azuria",
+    "kanto.pont-pepite",
+    "kanto.arene-de-carmin",
+    "kanto.cave-taupiqueur",
+    "kanto.tunnel-rocheux",
+    "kanto.tour-pokemon",
+    "kanto.arene-de-celadopole",
+    "kanto.centrale",
+    "kanto.arene-de-parmanie",
+    "kanto.sylphe-sarl",
+    "kanto.arene-de-safrania",
+    "kanto.iles-ecume",
+    "kanto.arene-de-cramois-ile",
+    "kanto.arene-de-jadielle",
+    "kanto.caverne-azuree",
+    "kanto.route-victoire",
+    "kanto.ligue-pokemon"
+  ],
+  "objets": [
+    {
+      "id": "pokeball",
+      "prix": 200,
+      "zone": 0,
+      "type": "consumable",
+      "shop": null,
+      "noBadgeInflation": false,
+      "invKey": "balls"
+    },
+    {
+      "id": "superball",
+      "prix": 500,
+      "zone": 6,
+      "type": "consumable",
+      "shop": null,
+      "noBadgeInflation": false,
+      "invKey": "superballs"
+    },
+    {
+      "id": "hyperball",
+      "prix": 1200,
+      "zone": 9,
+      "type": "consumable",
+      "shop": null,
+      "noBadgeInflation": false,
+      "invKey": "hyperballs"
+    },
+    {
+      "id": "candy",
+      "prix": 5000,
+      "zone": 8,
+      "type": "consumable",
+      "shop": null,
+      "noBadgeInflation": false,
+      "invKey": "candy"
+    },
+    {
+      "id": "masterball",
+      "prix": 150000,
+      "zone": 16,
+      "type": "consumable",
+      "shop": null,
+      "noBadgeInflation": false,
+      "invKey": "masterball"
+    },
+    {
+      "id": "repel",
+      "prix": 2000,
+      "zone": 4,
+      "type": "consumable",
+      "shop": null,
+      "noBadgeInflation": false,
+      "invKey": "repel"
+    },
+    {
+      "id": "xAttack",
+      "prix": 7500,
+      "zone": 8,
+      "type": "consumable",
+      "shop": "mall",
+      "noBadgeInflation": false,
+      "invKey": "xAttack"
+    },
+    {
+      "id": "xSpecial",
+      "prix": 10000,
+      "zone": 12,
+      "type": "consumable",
+      "shop": "mall",
+      "noBadgeInflation": false,
+      "invKey": "xSpecial"
+    },
+    {
+      "id": "calcium",
+      "prix": 50000,
+      "zone": 0,
+      "type": "consumable",
+      "shop": "mall",
+      "noBadgeInflation": true,
+      "invKey": "calcium"
+    },
+    {
+      "id": "fireStone",
+      "prix": 10000,
+      "zone": 0,
+      "type": "consumable",
+      "shop": "mall",
+      "noBadgeInflation": false,
+      "invKey": "fireStone"
+    },
+    {
+      "id": "waterStone",
+      "prix": 10000,
+      "zone": 0,
+      "type": "consumable",
+      "shop": "mall",
+      "noBadgeInflation": false,
+      "invKey": "waterStone"
+    },
+    {
+      "id": "leafStone",
+      "prix": 10000,
+      "zone": 0,
+      "type": "consumable",
+      "shop": "mall",
+      "noBadgeInflation": false,
+      "invKey": "leafStone"
+    },
+    {
+      "id": "thunderStone",
+      "prix": 10000,
+      "zone": 0,
+      "type": "consumable",
+      "shop": "mall",
+      "noBadgeInflation": false,
+      "invKey": "thunderStone"
+    },
+    {
+      "id": "moonStone",
+      "prix": 10000,
+      "zone": 0,
+      "type": "consumable",
+      "shop": "mall",
+      "noBadgeInflation": false,
+      "invKey": "moonStone"
+    },
+    {
+      "id": "superRepel",
+      "prix": 8000,
+      "zone": 13,
+      "type": "consumable",
+      "shop": null,
+      "noBadgeInflation": false,
+      "invKey": "superRepel"
+    },
+    {
+      "id": "pokeDoll",
+      "prix": 5000,
+      "zone": 15,
+      "type": "consumable",
+      "shop": "mall",
+      "noBadgeInflation": false,
+      "invKey": "pokeDoll"
+    },
+    {
+      "id": "everstone",
+      "prix": 10000,
+      "zone": 10,
+      "type": "consumable",
+      "shop": "mall",
+      "noBadgeInflation": false,
+      "invKey": "everstone"
+    },
+    {
+      "id": "shinyToken",
+      "prix": 250000,
+      "zone": null,
+      "type": "consumable",
+      "shop": "mall",
+      "noBadgeInflation": true,
+      "invKey": "shinyToken"
+    },
+    {
+      "id": "runningShoes",
+      "prix": 2000,
+      "zone": 1,
+      "type": "upgrade",
+      "shop": null,
+      "noBadgeInflation": false,
+      "invKey": null
+    },
+    {
+      "id": "amuletCoin",
+      "prix": 4000,
+      "zone": 2,
+      "type": "upgrade",
+      "shop": null,
+      "noBadgeInflation": false,
+      "invKey": null
+    },
+    {
+      "id": "protein",
+      "prix": 7500,
+      "zone": 3,
+      "type": "upgrade",
+      "shop": null,
+      "noBadgeInflation": false,
+      "invKey": null
+    },
+    {
+      "id": "expShare",
+      "prix": 12000,
+      "zone": 4,
+      "type": "upgrade",
+      "shop": null,
+      "noBadgeInflation": false,
+      "invKey": null
+    },
+    {
+      "id": "hardStone",
+      "prix": 15000,
+      "zone": 6,
+      "type": "upgrade",
+      "shop": null,
+      "noBadgeInflation": false,
+      "invKey": null
+    },
+    {
+      "id": "bicycle",
+      "prix": 30000,
+      "zone": 7,
+      "type": "upgrade",
+      "shop": null,
+      "noBadgeInflation": false,
+      "invKey": null
+    },
+    {
+      "id": "luckyEgg",
+      "prix": 75000,
+      "zone": 10,
+      "type": "upgrade",
+      "shop": null,
+      "noBadgeInflation": false,
+      "invKey": null
+    },
+    {
+      "id": "pokeradar",
+      "prix": 45000,
+      "zone": 8,
+      "type": "upgrade",
+      "shop": null,
+      "noBadgeInflation": false,
+      "invKey": null
+    },
+    {
+      "id": "leftovers",
+      "prix": 150000,
+      "zone": 14,
+      "type": "upgrade",
+      "shop": null,
+      "noBadgeInflation": false,
+      "invKey": null
+    },
+    {
+      "id": "falseSwipe",
+      "prix": 100000,
+      "zone": 12,
+      "type": "upgrade",
+      "shop": null,
+      "noBadgeInflation": false,
+      "invKey": null
+    },
+    {
+      "id": "ctJackpot",
+      "prix": 0,
+      "zone": 0,
+      "type": "upgrade",
+      "shop": "casino",
+      "noBadgeInflation": false,
+      "invKey": null
+    },
+    {
+      "id": "shinyCharm",
+      "prix": 0,
+      "zone": 99,
+      "type": "upgrade",
+      "shop": null,
+      "noBadgeInflation": false,
+      "invKey": null
+    },
+    {
+      "id": "diploma",
+      "prix": 0,
+      "zone": 99,
+      "type": "upgrade",
+      "shop": null,
+      "noBadgeInflation": false,
+      "invKey": null
+    }
+  ],
+  "prix": [
+    {
+      "id": "pokeball",
+      "badges": 0,
+      "palier": false,
+      "prix": 200
+    },
+    {
+      "id": "pokeball",
+      "badges": 0,
+      "palier": true,
+      "prix": 170
+    },
+    {
+      "id": "pokeball",
+      "badges": 1,
+      "palier": false,
+      "prix": 210
+    },
+    {
+      "id": "pokeball",
+      "badges": 1,
+      "palier": true,
+      "prix": 178
+    },
+    {
+      "id": "pokeball",
+      "badges": 2,
+      "palier": false,
+      "prix": 220
+    },
+    {
+      "id": "pokeball",
+      "badges": 2,
+      "palier": true,
+      "prix": 187
+    },
+    {
+      "id": "pokeball",
+      "badges": 3,
+      "palier": false,
+      "prix": 229
+    },
+    {
+      "id": "pokeball",
+      "badges": 3,
+      "palier": true,
+      "prix": 194
+    },
+    {
+      "id": "pokeball",
+      "badges": 4,
+      "palier": false,
+      "prix": 240
+    },
+    {
+      "id": "pokeball",
+      "badges": 4,
+      "palier": true,
+      "prix": 204
+    },
+    {
+      "id": "pokeball",
+      "badges": 5,
+      "palier": false,
+      "prix": 250
+    },
+    {
+      "id": "pokeball",
+      "badges": 5,
+      "palier": true,
+      "prix": 212
+    },
+    {
+      "id": "pokeball",
+      "badges": 6,
+      "palier": false,
+      "prix": 260
+    },
+    {
+      "id": "pokeball",
+      "badges": 6,
+      "palier": true,
+      "prix": 221
+    },
+    {
+      "id": "pokeball",
+      "badges": 7,
+      "palier": false,
+      "prix": 270
+    },
+    {
+      "id": "pokeball",
+      "badges": 7,
+      "palier": true,
+      "prix": 229
+    },
+    {
+      "id": "pokeball",
+      "badges": 8,
+      "palier": false,
+      "prix": 280
+    },
+    {
+      "id": "pokeball",
+      "badges": 8,
+      "palier": true,
+      "prix": 238
+    },
+    {
+      "id": "superball",
+      "badges": 0,
+      "palier": false,
+      "prix": 500
+    },
+    {
+      "id": "superball",
+      "badges": 0,
+      "palier": true,
+      "prix": 425
+    },
+    {
+      "id": "superball",
+      "badges": 1,
+      "palier": false,
+      "prix": 525
+    },
+    {
+      "id": "superball",
+      "badges": 1,
+      "palier": true,
+      "prix": 446
+    },
+    {
+      "id": "superball",
+      "badges": 2,
+      "palier": false,
+      "prix": 550
+    },
+    {
+      "id": "superball",
+      "badges": 2,
+      "palier": true,
+      "prix": 467
+    },
+    {
+      "id": "superball",
+      "badges": 3,
+      "palier": false,
+      "prix": 575
+    },
+    {
+      "id": "superball",
+      "badges": 3,
+      "palier": true,
+      "prix": 488
+    },
+    {
+      "id": "superball",
+      "badges": 4,
+      "palier": false,
+      "prix": 600
+    },
+    {
+      "id": "superball",
+      "badges": 4,
+      "palier": true,
+      "prix": 510
+    },
+    {
+      "id": "superball",
+      "badges": 5,
+      "palier": false,
+      "prix": 625
+    },
+    {
+      "id": "superball",
+      "badges": 5,
+      "palier": true,
+      "prix": 531
+    },
+    {
+      "id": "superball",
+      "badges": 6,
+      "palier": false,
+      "prix": 650
+    },
+    {
+      "id": "superball",
+      "badges": 6,
+      "palier": true,
+      "prix": 552
+    },
+    {
+      "id": "superball",
+      "badges": 7,
+      "palier": false,
+      "prix": 675
+    },
+    {
+      "id": "superball",
+      "badges": 7,
+      "palier": true,
+      "prix": 573
+    },
+    {
+      "id": "superball",
+      "badges": 8,
+      "palier": false,
+      "prix": 700
+    },
+    {
+      "id": "superball",
+      "badges": 8,
+      "palier": true,
+      "prix": 595
+    },
+    {
+      "id": "hyperball",
+      "badges": 0,
+      "palier": false,
+      "prix": 1200
+    },
+    {
+      "id": "hyperball",
+      "badges": 0,
+      "palier": true,
+      "prix": 1020
+    },
+    {
+      "id": "hyperball",
+      "badges": 1,
+      "palier": false,
+      "prix": 1260
+    },
+    {
+      "id": "hyperball",
+      "badges": 1,
+      "palier": true,
+      "prix": 1071
+    },
+    {
+      "id": "hyperball",
+      "badges": 2,
+      "palier": false,
+      "prix": 1320
+    },
+    {
+      "id": "hyperball",
+      "badges": 2,
+      "palier": true,
+      "prix": 1122
+    },
+    {
+      "id": "hyperball",
+      "badges": 3,
+      "palier": false,
+      "prix": 1380
+    },
+    {
+      "id": "hyperball",
+      "badges": 3,
+      "palier": true,
+      "prix": 1173
+    },
+    {
+      "id": "hyperball",
+      "badges": 4,
+      "palier": false,
+      "prix": 1440
+    },
+    {
+      "id": "hyperball",
+      "badges": 4,
+      "palier": true,
+      "prix": 1224
+    },
+    {
+      "id": "hyperball",
+      "badges": 5,
+      "palier": false,
+      "prix": 1500
+    },
+    {
+      "id": "hyperball",
+      "badges": 5,
+      "palier": true,
+      "prix": 1275
+    },
+    {
+      "id": "hyperball",
+      "badges": 6,
+      "palier": false,
+      "prix": 1560
+    },
+    {
+      "id": "hyperball",
+      "badges": 6,
+      "palier": true,
+      "prix": 1326
+    },
+    {
+      "id": "hyperball",
+      "badges": 7,
+      "palier": false,
+      "prix": 1620
+    },
+    {
+      "id": "hyperball",
+      "badges": 7,
+      "palier": true,
+      "prix": 1377
+    },
+    {
+      "id": "hyperball",
+      "badges": 8,
+      "palier": false,
+      "prix": 1680
+    },
+    {
+      "id": "hyperball",
+      "badges": 8,
+      "palier": true,
+      "prix": 1428
+    },
+    {
+      "id": "candy",
+      "badges": 0,
+      "palier": false,
+      "prix": 5000
+    },
+    {
+      "id": "candy",
+      "badges": 0,
+      "palier": true,
+      "prix": 4250
+    },
+    {
+      "id": "candy",
+      "badges": 1,
+      "palier": false,
+      "prix": 5250
+    },
+    {
+      "id": "candy",
+      "badges": 1,
+      "palier": true,
+      "prix": 4462
+    },
+    {
+      "id": "candy",
+      "badges": 2,
+      "palier": false,
+      "prix": 5500
+    },
+    {
+      "id": "candy",
+      "badges": 2,
+      "palier": true,
+      "prix": 4675
+    },
+    {
+      "id": "candy",
+      "badges": 3,
+      "palier": false,
+      "prix": 5750
+    },
+    {
+      "id": "candy",
+      "badges": 3,
+      "palier": true,
+      "prix": 4887
+    },
+    {
+      "id": "candy",
+      "badges": 4,
+      "palier": false,
+      "prix": 6000
+    },
+    {
+      "id": "candy",
+      "badges": 4,
+      "palier": true,
+      "prix": 5100
+    },
+    {
+      "id": "candy",
+      "badges": 5,
+      "palier": false,
+      "prix": 6250
+    },
+    {
+      "id": "candy",
+      "badges": 5,
+      "palier": true,
+      "prix": 5312
+    },
+    {
+      "id": "candy",
+      "badges": 6,
+      "palier": false,
+      "prix": 6500
+    },
+    {
+      "id": "candy",
+      "badges": 6,
+      "palier": true,
+      "prix": 5525
+    },
+    {
+      "id": "candy",
+      "badges": 7,
+      "palier": false,
+      "prix": 6750
+    },
+    {
+      "id": "candy",
+      "badges": 7,
+      "palier": true,
+      "prix": 5737
+    },
+    {
+      "id": "candy",
+      "badges": 8,
+      "palier": false,
+      "prix": 7000
+    },
+    {
+      "id": "candy",
+      "badges": 8,
+      "palier": true,
+      "prix": 5950
+    },
+    {
+      "id": "masterball",
+      "badges": 0,
+      "palier": false,
+      "prix": 150000
+    },
+    {
+      "id": "masterball",
+      "badges": 0,
+      "palier": true,
+      "prix": 127500
+    },
+    {
+      "id": "masterball",
+      "badges": 1,
+      "palier": false,
+      "prix": 157500
+    },
+    {
+      "id": "masterball",
+      "badges": 1,
+      "palier": true,
+      "prix": 133875
+    },
+    {
+      "id": "masterball",
+      "badges": 2,
+      "palier": false,
+      "prix": 165000
+    },
+    {
+      "id": "masterball",
+      "badges": 2,
+      "palier": true,
+      "prix": 140250
+    },
+    {
+      "id": "masterball",
+      "badges": 3,
+      "palier": false,
+      "prix": 172500
+    },
+    {
+      "id": "masterball",
+      "badges": 3,
+      "palier": true,
+      "prix": 146625
+    },
+    {
+      "id": "masterball",
+      "badges": 4,
+      "palier": false,
+      "prix": 180000
+    },
+    {
+      "id": "masterball",
+      "badges": 4,
+      "palier": true,
+      "prix": 153000
+    },
+    {
+      "id": "masterball",
+      "badges": 5,
+      "palier": false,
+      "prix": 187500
+    },
+    {
+      "id": "masterball",
+      "badges": 5,
+      "palier": true,
+      "prix": 159375
+    },
+    {
+      "id": "masterball",
+      "badges": 6,
+      "palier": false,
+      "prix": 195000
+    },
+    {
+      "id": "masterball",
+      "badges": 6,
+      "palier": true,
+      "prix": 165750
+    },
+    {
+      "id": "masterball",
+      "badges": 7,
+      "palier": false,
+      "prix": 202500
+    },
+    {
+      "id": "masterball",
+      "badges": 7,
+      "palier": true,
+      "prix": 172125
+    },
+    {
+      "id": "masterball",
+      "badges": 8,
+      "palier": false,
+      "prix": 210000
+    },
+    {
+      "id": "masterball",
+      "badges": 8,
+      "palier": true,
+      "prix": 178500
+    },
+    {
+      "id": "repel",
+      "badges": 0,
+      "palier": false,
+      "prix": 2000
+    },
+    {
+      "id": "repel",
+      "badges": 0,
+      "palier": true,
+      "prix": 1700
+    },
+    {
+      "id": "repel",
+      "badges": 1,
+      "palier": false,
+      "prix": 2100
+    },
+    {
+      "id": "repel",
+      "badges": 1,
+      "palier": true,
+      "prix": 1785
+    },
+    {
+      "id": "repel",
+      "badges": 2,
+      "palier": false,
+      "prix": 2200
+    },
+    {
+      "id": "repel",
+      "badges": 2,
+      "palier": true,
+      "prix": 1870
+    },
+    {
+      "id": "repel",
+      "badges": 3,
+      "palier": false,
+      "prix": 2300
+    },
+    {
+      "id": "repel",
+      "badges": 3,
+      "palier": true,
+      "prix": 1955
+    },
+    {
+      "id": "repel",
+      "badges": 4,
+      "palier": false,
+      "prix": 2400
+    },
+    {
+      "id": "repel",
+      "badges": 4,
+      "palier": true,
+      "prix": 2040
+    },
+    {
+      "id": "repel",
+      "badges": 5,
+      "palier": false,
+      "prix": 2500
+    },
+    {
+      "id": "repel",
+      "badges": 5,
+      "palier": true,
+      "prix": 2125
+    },
+    {
+      "id": "repel",
+      "badges": 6,
+      "palier": false,
+      "prix": 2600
+    },
+    {
+      "id": "repel",
+      "badges": 6,
+      "palier": true,
+      "prix": 2210
+    },
+    {
+      "id": "repel",
+      "badges": 7,
+      "palier": false,
+      "prix": 2700
+    },
+    {
+      "id": "repel",
+      "badges": 7,
+      "palier": true,
+      "prix": 2295
+    },
+    {
+      "id": "repel",
+      "badges": 8,
+      "palier": false,
+      "prix": 2800
+    },
+    {
+      "id": "repel",
+      "badges": 8,
+      "palier": true,
+      "prix": 2380
+    },
+    {
+      "id": "xAttack",
+      "badges": 0,
+      "palier": false,
+      "prix": 7500
+    },
+    {
+      "id": "xAttack",
+      "badges": 0,
+      "palier": true,
+      "prix": 6375
+    },
+    {
+      "id": "xAttack",
+      "badges": 1,
+      "palier": false,
+      "prix": 7875
+    },
+    {
+      "id": "xAttack",
+      "badges": 1,
+      "palier": true,
+      "prix": 6693
+    },
+    {
+      "id": "xAttack",
+      "badges": 2,
+      "palier": false,
+      "prix": 8250
+    },
+    {
+      "id": "xAttack",
+      "badges": 2,
+      "palier": true,
+      "prix": 7012
+    },
+    {
+      "id": "xAttack",
+      "badges": 3,
+      "palier": false,
+      "prix": 8625
+    },
+    {
+      "id": "xAttack",
+      "badges": 3,
+      "palier": true,
+      "prix": 7331
+    },
+    {
+      "id": "xAttack",
+      "badges": 4,
+      "palier": false,
+      "prix": 9000
+    },
+    {
+      "id": "xAttack",
+      "badges": 4,
+      "palier": true,
+      "prix": 7650
+    },
+    {
+      "id": "xAttack",
+      "badges": 5,
+      "palier": false,
+      "prix": 9375
+    },
+    {
+      "id": "xAttack",
+      "badges": 5,
+      "palier": true,
+      "prix": 7968
+    },
+    {
+      "id": "xAttack",
+      "badges": 6,
+      "palier": false,
+      "prix": 9750
+    },
+    {
+      "id": "xAttack",
+      "badges": 6,
+      "palier": true,
+      "prix": 8287
+    },
+    {
+      "id": "xAttack",
+      "badges": 7,
+      "palier": false,
+      "prix": 10125
+    },
+    {
+      "id": "xAttack",
+      "badges": 7,
+      "palier": true,
+      "prix": 8606
+    },
+    {
+      "id": "xAttack",
+      "badges": 8,
+      "palier": false,
+      "prix": 10500
+    },
+    {
+      "id": "xAttack",
+      "badges": 8,
+      "palier": true,
+      "prix": 8925
+    },
+    {
+      "id": "xSpecial",
+      "badges": 0,
+      "palier": false,
+      "prix": 10000
+    },
+    {
+      "id": "xSpecial",
+      "badges": 0,
+      "palier": true,
+      "prix": 8500
+    },
+    {
+      "id": "xSpecial",
+      "badges": 1,
+      "palier": false,
+      "prix": 10500
+    },
+    {
+      "id": "xSpecial",
+      "badges": 1,
+      "palier": true,
+      "prix": 8925
+    },
+    {
+      "id": "xSpecial",
+      "badges": 2,
+      "palier": false,
+      "prix": 11000
+    },
+    {
+      "id": "xSpecial",
+      "badges": 2,
+      "palier": true,
+      "prix": 9350
+    },
+    {
+      "id": "xSpecial",
+      "badges": 3,
+      "palier": false,
+      "prix": 11500
+    },
+    {
+      "id": "xSpecial",
+      "badges": 3,
+      "palier": true,
+      "prix": 9775
+    },
+    {
+      "id": "xSpecial",
+      "badges": 4,
+      "palier": false,
+      "prix": 12000
+    },
+    {
+      "id": "xSpecial",
+      "badges": 4,
+      "palier": true,
+      "prix": 10200
+    },
+    {
+      "id": "xSpecial",
+      "badges": 5,
+      "palier": false,
+      "prix": 12500
+    },
+    {
+      "id": "xSpecial",
+      "badges": 5,
+      "palier": true,
+      "prix": 10625
+    },
+    {
+      "id": "xSpecial",
+      "badges": 6,
+      "palier": false,
+      "prix": 13000
+    },
+    {
+      "id": "xSpecial",
+      "badges": 6,
+      "palier": true,
+      "prix": 11050
+    },
+    {
+      "id": "xSpecial",
+      "badges": 7,
+      "palier": false,
+      "prix": 13500
+    },
+    {
+      "id": "xSpecial",
+      "badges": 7,
+      "palier": true,
+      "prix": 11475
+    },
+    {
+      "id": "xSpecial",
+      "badges": 8,
+      "palier": false,
+      "prix": 14000
+    },
+    {
+      "id": "xSpecial",
+      "badges": 8,
+      "palier": true,
+      "prix": 11900
+    },
+    {
+      "id": "calcium",
+      "badges": 0,
+      "palier": false,
+      "prix": 50000
+    },
+    {
+      "id": "calcium",
+      "badges": 0,
+      "palier": true,
+      "prix": 42500
+    },
+    {
+      "id": "calcium",
+      "badges": 1,
+      "palier": false,
+      "prix": 50000
+    },
+    {
+      "id": "calcium",
+      "badges": 1,
+      "palier": true,
+      "prix": 42500
+    },
+    {
+      "id": "calcium",
+      "badges": 2,
+      "palier": false,
+      "prix": 50000
+    },
+    {
+      "id": "calcium",
+      "badges": 2,
+      "palier": true,
+      "prix": 42500
+    },
+    {
+      "id": "calcium",
+      "badges": 3,
+      "palier": false,
+      "prix": 50000
+    },
+    {
+      "id": "calcium",
+      "badges": 3,
+      "palier": true,
+      "prix": 42500
+    },
+    {
+      "id": "calcium",
+      "badges": 4,
+      "palier": false,
+      "prix": 50000
+    },
+    {
+      "id": "calcium",
+      "badges": 4,
+      "palier": true,
+      "prix": 42500
+    },
+    {
+      "id": "calcium",
+      "badges": 5,
+      "palier": false,
+      "prix": 50000
+    },
+    {
+      "id": "calcium",
+      "badges": 5,
+      "palier": true,
+      "prix": 42500
+    },
+    {
+      "id": "calcium",
+      "badges": 6,
+      "palier": false,
+      "prix": 50000
+    },
+    {
+      "id": "calcium",
+      "badges": 6,
+      "palier": true,
+      "prix": 42500
+    },
+    {
+      "id": "calcium",
+      "badges": 7,
+      "palier": false,
+      "prix": 50000
+    },
+    {
+      "id": "calcium",
+      "badges": 7,
+      "palier": true,
+      "prix": 42500
+    },
+    {
+      "id": "calcium",
+      "badges": 8,
+      "palier": false,
+      "prix": 50000
+    },
+    {
+      "id": "calcium",
+      "badges": 8,
+      "palier": true,
+      "prix": 42500
+    },
+    {
+      "id": "fireStone",
+      "badges": 0,
+      "palier": false,
+      "prix": 10000
+    },
+    {
+      "id": "fireStone",
+      "badges": 0,
+      "palier": true,
+      "prix": 8500
+    },
+    {
+      "id": "fireStone",
+      "badges": 1,
+      "palier": false,
+      "prix": 10500
+    },
+    {
+      "id": "fireStone",
+      "badges": 1,
+      "palier": true,
+      "prix": 8925
+    },
+    {
+      "id": "fireStone",
+      "badges": 2,
+      "palier": false,
+      "prix": 11000
+    },
+    {
+      "id": "fireStone",
+      "badges": 2,
+      "palier": true,
+      "prix": 9350
+    },
+    {
+      "id": "fireStone",
+      "badges": 3,
+      "palier": false,
+      "prix": 11500
+    },
+    {
+      "id": "fireStone",
+      "badges": 3,
+      "palier": true,
+      "prix": 9775
+    },
+    {
+      "id": "fireStone",
+      "badges": 4,
+      "palier": false,
+      "prix": 12000
+    },
+    {
+      "id": "fireStone",
+      "badges": 4,
+      "palier": true,
+      "prix": 10200
+    },
+    {
+      "id": "fireStone",
+      "badges": 5,
+      "palier": false,
+      "prix": 12500
+    },
+    {
+      "id": "fireStone",
+      "badges": 5,
+      "palier": true,
+      "prix": 10625
+    },
+    {
+      "id": "fireStone",
+      "badges": 6,
+      "palier": false,
+      "prix": 13000
+    },
+    {
+      "id": "fireStone",
+      "badges": 6,
+      "palier": true,
+      "prix": 11050
+    },
+    {
+      "id": "fireStone",
+      "badges": 7,
+      "palier": false,
+      "prix": 13500
+    },
+    {
+      "id": "fireStone",
+      "badges": 7,
+      "palier": true,
+      "prix": 11475
+    },
+    {
+      "id": "fireStone",
+      "badges": 8,
+      "palier": false,
+      "prix": 14000
+    },
+    {
+      "id": "fireStone",
+      "badges": 8,
+      "palier": true,
+      "prix": 11900
+    },
+    {
+      "id": "waterStone",
+      "badges": 0,
+      "palier": false,
+      "prix": 10000
+    },
+    {
+      "id": "waterStone",
+      "badges": 0,
+      "palier": true,
+      "prix": 8500
+    },
+    {
+      "id": "waterStone",
+      "badges": 1,
+      "palier": false,
+      "prix": 10500
+    },
+    {
+      "id": "waterStone",
+      "badges": 1,
+      "palier": true,
+      "prix": 8925
+    },
+    {
+      "id": "waterStone",
+      "badges": 2,
+      "palier": false,
+      "prix": 11000
+    },
+    {
+      "id": "waterStone",
+      "badges": 2,
+      "palier": true,
+      "prix": 9350
+    },
+    {
+      "id": "waterStone",
+      "badges": 3,
+      "palier": false,
+      "prix": 11500
+    },
+    {
+      "id": "waterStone",
+      "badges": 3,
+      "palier": true,
+      "prix": 9775
+    },
+    {
+      "id": "waterStone",
+      "badges": 4,
+      "palier": false,
+      "prix": 12000
+    },
+    {
+      "id": "waterStone",
+      "badges": 4,
+      "palier": true,
+      "prix": 10200
+    },
+    {
+      "id": "waterStone",
+      "badges": 5,
+      "palier": false,
+      "prix": 12500
+    },
+    {
+      "id": "waterStone",
+      "badges": 5,
+      "palier": true,
+      "prix": 10625
+    },
+    {
+      "id": "waterStone",
+      "badges": 6,
+      "palier": false,
+      "prix": 13000
+    },
+    {
+      "id": "waterStone",
+      "badges": 6,
+      "palier": true,
+      "prix": 11050
+    },
+    {
+      "id": "waterStone",
+      "badges": 7,
+      "palier": false,
+      "prix": 13500
+    },
+    {
+      "id": "waterStone",
+      "badges": 7,
+      "palier": true,
+      "prix": 11475
+    },
+    {
+      "id": "waterStone",
+      "badges": 8,
+      "palier": false,
+      "prix": 14000
+    },
+    {
+      "id": "waterStone",
+      "badges": 8,
+      "palier": true,
+      "prix": 11900
+    },
+    {
+      "id": "leafStone",
+      "badges": 0,
+      "palier": false,
+      "prix": 10000
+    },
+    {
+      "id": "leafStone",
+      "badges": 0,
+      "palier": true,
+      "prix": 8500
+    },
+    {
+      "id": "leafStone",
+      "badges": 1,
+      "palier": false,
+      "prix": 10500
+    },
+    {
+      "id": "leafStone",
+      "badges": 1,
+      "palier": true,
+      "prix": 8925
+    },
+    {
+      "id": "leafStone",
+      "badges": 2,
+      "palier": false,
+      "prix": 11000
+    },
+    {
+      "id": "leafStone",
+      "badges": 2,
+      "palier": true,
+      "prix": 9350
+    },
+    {
+      "id": "leafStone",
+      "badges": 3,
+      "palier": false,
+      "prix": 11500
+    },
+    {
+      "id": "leafStone",
+      "badges": 3,
+      "palier": true,
+      "prix": 9775
+    },
+    {
+      "id": "leafStone",
+      "badges": 4,
+      "palier": false,
+      "prix": 12000
+    },
+    {
+      "id": "leafStone",
+      "badges": 4,
+      "palier": true,
+      "prix": 10200
+    },
+    {
+      "id": "leafStone",
+      "badges": 5,
+      "palier": false,
+      "prix": 12500
+    },
+    {
+      "id": "leafStone",
+      "badges": 5,
+      "palier": true,
+      "prix": 10625
+    },
+    {
+      "id": "leafStone",
+      "badges": 6,
+      "palier": false,
+      "prix": 13000
+    },
+    {
+      "id": "leafStone",
+      "badges": 6,
+      "palier": true,
+      "prix": 11050
+    },
+    {
+      "id": "leafStone",
+      "badges": 7,
+      "palier": false,
+      "prix": 13500
+    },
+    {
+      "id": "leafStone",
+      "badges": 7,
+      "palier": true,
+      "prix": 11475
+    },
+    {
+      "id": "leafStone",
+      "badges": 8,
+      "palier": false,
+      "prix": 14000
+    },
+    {
+      "id": "leafStone",
+      "badges": 8,
+      "palier": true,
+      "prix": 11900
+    },
+    {
+      "id": "thunderStone",
+      "badges": 0,
+      "palier": false,
+      "prix": 10000
+    },
+    {
+      "id": "thunderStone",
+      "badges": 0,
+      "palier": true,
+      "prix": 8500
+    },
+    {
+      "id": "thunderStone",
+      "badges": 1,
+      "palier": false,
+      "prix": 10500
+    },
+    {
+      "id": "thunderStone",
+      "badges": 1,
+      "palier": true,
+      "prix": 8925
+    },
+    {
+      "id": "thunderStone",
+      "badges": 2,
+      "palier": false,
+      "prix": 11000
+    },
+    {
+      "id": "thunderStone",
+      "badges": 2,
+      "palier": true,
+      "prix": 9350
+    },
+    {
+      "id": "thunderStone",
+      "badges": 3,
+      "palier": false,
+      "prix": 11500
+    },
+    {
+      "id": "thunderStone",
+      "badges": 3,
+      "palier": true,
+      "prix": 9775
+    },
+    {
+      "id": "thunderStone",
+      "badges": 4,
+      "palier": false,
+      "prix": 12000
+    },
+    {
+      "id": "thunderStone",
+      "badges": 4,
+      "palier": true,
+      "prix": 10200
+    },
+    {
+      "id": "thunderStone",
+      "badges": 5,
+      "palier": false,
+      "prix": 12500
+    },
+    {
+      "id": "thunderStone",
+      "badges": 5,
+      "palier": true,
+      "prix": 10625
+    },
+    {
+      "id": "thunderStone",
+      "badges": 6,
+      "palier": false,
+      "prix": 13000
+    },
+    {
+      "id": "thunderStone",
+      "badges": 6,
+      "palier": true,
+      "prix": 11050
+    },
+    {
+      "id": "thunderStone",
+      "badges": 7,
+      "palier": false,
+      "prix": 13500
+    },
+    {
+      "id": "thunderStone",
+      "badges": 7,
+      "palier": true,
+      "prix": 11475
+    },
+    {
+      "id": "thunderStone",
+      "badges": 8,
+      "palier": false,
+      "prix": 14000
+    },
+    {
+      "id": "thunderStone",
+      "badges": 8,
+      "palier": true,
+      "prix": 11900
+    },
+    {
+      "id": "moonStone",
+      "badges": 0,
+      "palier": false,
+      "prix": 10000
+    },
+    {
+      "id": "moonStone",
+      "badges": 0,
+      "palier": true,
+      "prix": 8500
+    },
+    {
+      "id": "moonStone",
+      "badges": 1,
+      "palier": false,
+      "prix": 10500
+    },
+    {
+      "id": "moonStone",
+      "badges": 1,
+      "palier": true,
+      "prix": 8925
+    },
+    {
+      "id": "moonStone",
+      "badges": 2,
+      "palier": false,
+      "prix": 11000
+    },
+    {
+      "id": "moonStone",
+      "badges": 2,
+      "palier": true,
+      "prix": 9350
+    },
+    {
+      "id": "moonStone",
+      "badges": 3,
+      "palier": false,
+      "prix": 11500
+    },
+    {
+      "id": "moonStone",
+      "badges": 3,
+      "palier": true,
+      "prix": 9775
+    },
+    {
+      "id": "moonStone",
+      "badges": 4,
+      "palier": false,
+      "prix": 12000
+    },
+    {
+      "id": "moonStone",
+      "badges": 4,
+      "palier": true,
+      "prix": 10200
+    },
+    {
+      "id": "moonStone",
+      "badges": 5,
+      "palier": false,
+      "prix": 12500
+    },
+    {
+      "id": "moonStone",
+      "badges": 5,
+      "palier": true,
+      "prix": 10625
+    },
+    {
+      "id": "moonStone",
+      "badges": 6,
+      "palier": false,
+      "prix": 13000
+    },
+    {
+      "id": "moonStone",
+      "badges": 6,
+      "palier": true,
+      "prix": 11050
+    },
+    {
+      "id": "moonStone",
+      "badges": 7,
+      "palier": false,
+      "prix": 13500
+    },
+    {
+      "id": "moonStone",
+      "badges": 7,
+      "palier": true,
+      "prix": 11475
+    },
+    {
+      "id": "moonStone",
+      "badges": 8,
+      "palier": false,
+      "prix": 14000
+    },
+    {
+      "id": "moonStone",
+      "badges": 8,
+      "palier": true,
+      "prix": 11900
+    },
+    {
+      "id": "superRepel",
+      "badges": 0,
+      "palier": false,
+      "prix": 8000
+    },
+    {
+      "id": "superRepel",
+      "badges": 0,
+      "palier": true,
+      "prix": 6800
+    },
+    {
+      "id": "superRepel",
+      "badges": 1,
+      "palier": false,
+      "prix": 8400
+    },
+    {
+      "id": "superRepel",
+      "badges": 1,
+      "palier": true,
+      "prix": 7140
+    },
+    {
+      "id": "superRepel",
+      "badges": 2,
+      "palier": false,
+      "prix": 8800
+    },
+    {
+      "id": "superRepel",
+      "badges": 2,
+      "palier": true,
+      "prix": 7480
+    },
+    {
+      "id": "superRepel",
+      "badges": 3,
+      "palier": false,
+      "prix": 9200
+    },
+    {
+      "id": "superRepel",
+      "badges": 3,
+      "palier": true,
+      "prix": 7820
+    },
+    {
+      "id": "superRepel",
+      "badges": 4,
+      "palier": false,
+      "prix": 9600
+    },
+    {
+      "id": "superRepel",
+      "badges": 4,
+      "palier": true,
+      "prix": 8160
+    },
+    {
+      "id": "superRepel",
+      "badges": 5,
+      "palier": false,
+      "prix": 10000
+    },
+    {
+      "id": "superRepel",
+      "badges": 5,
+      "palier": true,
+      "prix": 8500
+    },
+    {
+      "id": "superRepel",
+      "badges": 6,
+      "palier": false,
+      "prix": 10400
+    },
+    {
+      "id": "superRepel",
+      "badges": 6,
+      "palier": true,
+      "prix": 8840
+    },
+    {
+      "id": "superRepel",
+      "badges": 7,
+      "palier": false,
+      "prix": 10800
+    },
+    {
+      "id": "superRepel",
+      "badges": 7,
+      "palier": true,
+      "prix": 9180
+    },
+    {
+      "id": "superRepel",
+      "badges": 8,
+      "palier": false,
+      "prix": 11200
+    },
+    {
+      "id": "superRepel",
+      "badges": 8,
+      "palier": true,
+      "prix": 9520
+    },
+    {
+      "id": "pokeDoll",
+      "badges": 0,
+      "palier": false,
+      "prix": 5000
+    },
+    {
+      "id": "pokeDoll",
+      "badges": 0,
+      "palier": true,
+      "prix": 4250
+    },
+    {
+      "id": "pokeDoll",
+      "badges": 1,
+      "palier": false,
+      "prix": 5250
+    },
+    {
+      "id": "pokeDoll",
+      "badges": 1,
+      "palier": true,
+      "prix": 4462
+    },
+    {
+      "id": "pokeDoll",
+      "badges": 2,
+      "palier": false,
+      "prix": 5500
+    },
+    {
+      "id": "pokeDoll",
+      "badges": 2,
+      "palier": true,
+      "prix": 4675
+    },
+    {
+      "id": "pokeDoll",
+      "badges": 3,
+      "palier": false,
+      "prix": 5750
+    },
+    {
+      "id": "pokeDoll",
+      "badges": 3,
+      "palier": true,
+      "prix": 4887
+    },
+    {
+      "id": "pokeDoll",
+      "badges": 4,
+      "palier": false,
+      "prix": 6000
+    },
+    {
+      "id": "pokeDoll",
+      "badges": 4,
+      "palier": true,
+      "prix": 5100
+    },
+    {
+      "id": "pokeDoll",
+      "badges": 5,
+      "palier": false,
+      "prix": 6250
+    },
+    {
+      "id": "pokeDoll",
+      "badges": 5,
+      "palier": true,
+      "prix": 5312
+    },
+    {
+      "id": "pokeDoll",
+      "badges": 6,
+      "palier": false,
+      "prix": 6500
+    },
+    {
+      "id": "pokeDoll",
+      "badges": 6,
+      "palier": true,
+      "prix": 5525
+    },
+    {
+      "id": "pokeDoll",
+      "badges": 7,
+      "palier": false,
+      "prix": 6750
+    },
+    {
+      "id": "pokeDoll",
+      "badges": 7,
+      "palier": true,
+      "prix": 5737
+    },
+    {
+      "id": "pokeDoll",
+      "badges": 8,
+      "palier": false,
+      "prix": 7000
+    },
+    {
+      "id": "pokeDoll",
+      "badges": 8,
+      "palier": true,
+      "prix": 5950
+    },
+    {
+      "id": "everstone",
+      "badges": 0,
+      "palier": false,
+      "prix": 10000
+    },
+    {
+      "id": "everstone",
+      "badges": 0,
+      "palier": true,
+      "prix": 8500
+    },
+    {
+      "id": "everstone",
+      "badges": 1,
+      "palier": false,
+      "prix": 10500
+    },
+    {
+      "id": "everstone",
+      "badges": 1,
+      "palier": true,
+      "prix": 8925
+    },
+    {
+      "id": "everstone",
+      "badges": 2,
+      "palier": false,
+      "prix": 11000
+    },
+    {
+      "id": "everstone",
+      "badges": 2,
+      "palier": true,
+      "prix": 9350
+    },
+    {
+      "id": "everstone",
+      "badges": 3,
+      "palier": false,
+      "prix": 11500
+    },
+    {
+      "id": "everstone",
+      "badges": 3,
+      "palier": true,
+      "prix": 9775
+    },
+    {
+      "id": "everstone",
+      "badges": 4,
+      "palier": false,
+      "prix": 12000
+    },
+    {
+      "id": "everstone",
+      "badges": 4,
+      "palier": true,
+      "prix": 10200
+    },
+    {
+      "id": "everstone",
+      "badges": 5,
+      "palier": false,
+      "prix": 12500
+    },
+    {
+      "id": "everstone",
+      "badges": 5,
+      "palier": true,
+      "prix": 10625
+    },
+    {
+      "id": "everstone",
+      "badges": 6,
+      "palier": false,
+      "prix": 13000
+    },
+    {
+      "id": "everstone",
+      "badges": 6,
+      "palier": true,
+      "prix": 11050
+    },
+    {
+      "id": "everstone",
+      "badges": 7,
+      "palier": false,
+      "prix": 13500
+    },
+    {
+      "id": "everstone",
+      "badges": 7,
+      "palier": true,
+      "prix": 11475
+    },
+    {
+      "id": "everstone",
+      "badges": 8,
+      "palier": false,
+      "prix": 14000
+    },
+    {
+      "id": "everstone",
+      "badges": 8,
+      "palier": true,
+      "prix": 11900
+    },
+    {
+      "id": "shinyToken",
+      "badges": 0,
+      "palier": false,
+      "prix": 250000
+    },
+    {
+      "id": "shinyToken",
+      "badges": 0,
+      "palier": true,
+      "prix": 212500
+    },
+    {
+      "id": "shinyToken",
+      "badges": 1,
+      "palier": false,
+      "prix": 250000
+    },
+    {
+      "id": "shinyToken",
+      "badges": 1,
+      "palier": true,
+      "prix": 212500
+    },
+    {
+      "id": "shinyToken",
+      "badges": 2,
+      "palier": false,
+      "prix": 250000
+    },
+    {
+      "id": "shinyToken",
+      "badges": 2,
+      "palier": true,
+      "prix": 212500
+    },
+    {
+      "id": "shinyToken",
+      "badges": 3,
+      "palier": false,
+      "prix": 250000
+    },
+    {
+      "id": "shinyToken",
+      "badges": 3,
+      "palier": true,
+      "prix": 212500
+    },
+    {
+      "id": "shinyToken",
+      "badges": 4,
+      "palier": false,
+      "prix": 250000
+    },
+    {
+      "id": "shinyToken",
+      "badges": 4,
+      "palier": true,
+      "prix": 212500
+    },
+    {
+      "id": "shinyToken",
+      "badges": 5,
+      "palier": false,
+      "prix": 250000
+    },
+    {
+      "id": "shinyToken",
+      "badges": 5,
+      "palier": true,
+      "prix": 212500
+    },
+    {
+      "id": "shinyToken",
+      "badges": 6,
+      "palier": false,
+      "prix": 250000
+    },
+    {
+      "id": "shinyToken",
+      "badges": 6,
+      "palier": true,
+      "prix": 212500
+    },
+    {
+      "id": "shinyToken",
+      "badges": 7,
+      "palier": false,
+      "prix": 250000
+    },
+    {
+      "id": "shinyToken",
+      "badges": 7,
+      "palier": true,
+      "prix": 212500
+    },
+    {
+      "id": "shinyToken",
+      "badges": 8,
+      "palier": false,
+      "prix": 250000
+    },
+    {
+      "id": "shinyToken",
+      "badges": 8,
+      "palier": true,
+      "prix": 212500
+    },
+    {
+      "id": "runningShoes",
+      "badges": 0,
+      "palier": false,
+      "prix": 2000
+    },
+    {
+      "id": "runningShoes",
+      "badges": 0,
+      "palier": true,
+      "prix": 1700
+    },
+    {
+      "id": "runningShoes",
+      "badges": 1,
+      "palier": false,
+      "prix": 2000
+    },
+    {
+      "id": "runningShoes",
+      "badges": 1,
+      "palier": true,
+      "prix": 1700
+    },
+    {
+      "id": "runningShoes",
+      "badges": 2,
+      "palier": false,
+      "prix": 2000
+    },
+    {
+      "id": "runningShoes",
+      "badges": 2,
+      "palier": true,
+      "prix": 1700
+    },
+    {
+      "id": "runningShoes",
+      "badges": 3,
+      "palier": false,
+      "prix": 2000
+    },
+    {
+      "id": "runningShoes",
+      "badges": 3,
+      "palier": true,
+      "prix": 1700
+    },
+    {
+      "id": "runningShoes",
+      "badges": 4,
+      "palier": false,
+      "prix": 2000
+    },
+    {
+      "id": "runningShoes",
+      "badges": 4,
+      "palier": true,
+      "prix": 1700
+    },
+    {
+      "id": "runningShoes",
+      "badges": 5,
+      "palier": false,
+      "prix": 2000
+    },
+    {
+      "id": "runningShoes",
+      "badges": 5,
+      "palier": true,
+      "prix": 1700
+    },
+    {
+      "id": "runningShoes",
+      "badges": 6,
+      "palier": false,
+      "prix": 2000
+    },
+    {
+      "id": "runningShoes",
+      "badges": 6,
+      "palier": true,
+      "prix": 1700
+    },
+    {
+      "id": "runningShoes",
+      "badges": 7,
+      "palier": false,
+      "prix": 2000
+    },
+    {
+      "id": "runningShoes",
+      "badges": 7,
+      "palier": true,
+      "prix": 1700
+    },
+    {
+      "id": "runningShoes",
+      "badges": 8,
+      "palier": false,
+      "prix": 2000
+    },
+    {
+      "id": "runningShoes",
+      "badges": 8,
+      "palier": true,
+      "prix": 1700
+    },
+    {
+      "id": "amuletCoin",
+      "badges": 0,
+      "palier": false,
+      "prix": 4000
+    },
+    {
+      "id": "amuletCoin",
+      "badges": 0,
+      "palier": true,
+      "prix": 3400
+    },
+    {
+      "id": "amuletCoin",
+      "badges": 1,
+      "palier": false,
+      "prix": 4000
+    },
+    {
+      "id": "amuletCoin",
+      "badges": 1,
+      "palier": true,
+      "prix": 3400
+    },
+    {
+      "id": "amuletCoin",
+      "badges": 2,
+      "palier": false,
+      "prix": 4000
+    },
+    {
+      "id": "amuletCoin",
+      "badges": 2,
+      "palier": true,
+      "prix": 3400
+    },
+    {
+      "id": "amuletCoin",
+      "badges": 3,
+      "palier": false,
+      "prix": 4000
+    },
+    {
+      "id": "amuletCoin",
+      "badges": 3,
+      "palier": true,
+      "prix": 3400
+    },
+    {
+      "id": "amuletCoin",
+      "badges": 4,
+      "palier": false,
+      "prix": 4000
+    },
+    {
+      "id": "amuletCoin",
+      "badges": 4,
+      "palier": true,
+      "prix": 3400
+    },
+    {
+      "id": "amuletCoin",
+      "badges": 5,
+      "palier": false,
+      "prix": 4000
+    },
+    {
+      "id": "amuletCoin",
+      "badges": 5,
+      "palier": true,
+      "prix": 3400
+    },
+    {
+      "id": "amuletCoin",
+      "badges": 6,
+      "palier": false,
+      "prix": 4000
+    },
+    {
+      "id": "amuletCoin",
+      "badges": 6,
+      "palier": true,
+      "prix": 3400
+    },
+    {
+      "id": "amuletCoin",
+      "badges": 7,
+      "palier": false,
+      "prix": 4000
+    },
+    {
+      "id": "amuletCoin",
+      "badges": 7,
+      "palier": true,
+      "prix": 3400
+    },
+    {
+      "id": "amuletCoin",
+      "badges": 8,
+      "palier": false,
+      "prix": 4000
+    },
+    {
+      "id": "amuletCoin",
+      "badges": 8,
+      "palier": true,
+      "prix": 3400
+    },
+    {
+      "id": "protein",
+      "badges": 0,
+      "palier": false,
+      "prix": 7500
+    },
+    {
+      "id": "protein",
+      "badges": 0,
+      "palier": true,
+      "prix": 6375
+    },
+    {
+      "id": "protein",
+      "badges": 1,
+      "palier": false,
+      "prix": 7500
+    },
+    {
+      "id": "protein",
+      "badges": 1,
+      "palier": true,
+      "prix": 6375
+    },
+    {
+      "id": "protein",
+      "badges": 2,
+      "palier": false,
+      "prix": 7500
+    },
+    {
+      "id": "protein",
+      "badges": 2,
+      "palier": true,
+      "prix": 6375
+    },
+    {
+      "id": "protein",
+      "badges": 3,
+      "palier": false,
+      "prix": 7500
+    },
+    {
+      "id": "protein",
+      "badges": 3,
+      "palier": true,
+      "prix": 6375
+    },
+    {
+      "id": "protein",
+      "badges": 4,
+      "palier": false,
+      "prix": 7500
+    },
+    {
+      "id": "protein",
+      "badges": 4,
+      "palier": true,
+      "prix": 6375
+    },
+    {
+      "id": "protein",
+      "badges": 5,
+      "palier": false,
+      "prix": 7500
+    },
+    {
+      "id": "protein",
+      "badges": 5,
+      "palier": true,
+      "prix": 6375
+    },
+    {
+      "id": "protein",
+      "badges": 6,
+      "palier": false,
+      "prix": 7500
+    },
+    {
+      "id": "protein",
+      "badges": 6,
+      "palier": true,
+      "prix": 6375
+    },
+    {
+      "id": "protein",
+      "badges": 7,
+      "palier": false,
+      "prix": 7500
+    },
+    {
+      "id": "protein",
+      "badges": 7,
+      "palier": true,
+      "prix": 6375
+    },
+    {
+      "id": "protein",
+      "badges": 8,
+      "palier": false,
+      "prix": 7500
+    },
+    {
+      "id": "protein",
+      "badges": 8,
+      "palier": true,
+      "prix": 6375
+    },
+    {
+      "id": "expShare",
+      "badges": 0,
+      "palier": false,
+      "prix": 12000
+    },
+    {
+      "id": "expShare",
+      "badges": 0,
+      "palier": true,
+      "prix": 10200
+    },
+    {
+      "id": "expShare",
+      "badges": 1,
+      "palier": false,
+      "prix": 12000
+    },
+    {
+      "id": "expShare",
+      "badges": 1,
+      "palier": true,
+      "prix": 10200
+    },
+    {
+      "id": "expShare",
+      "badges": 2,
+      "palier": false,
+      "prix": 12000
+    },
+    {
+      "id": "expShare",
+      "badges": 2,
+      "palier": true,
+      "prix": 10200
+    },
+    {
+      "id": "expShare",
+      "badges": 3,
+      "palier": false,
+      "prix": 12000
+    },
+    {
+      "id": "expShare",
+      "badges": 3,
+      "palier": true,
+      "prix": 10200
+    },
+    {
+      "id": "expShare",
+      "badges": 4,
+      "palier": false,
+      "prix": 12000
+    },
+    {
+      "id": "expShare",
+      "badges": 4,
+      "palier": true,
+      "prix": 10200
+    },
+    {
+      "id": "expShare",
+      "badges": 5,
+      "palier": false,
+      "prix": 12000
+    },
+    {
+      "id": "expShare",
+      "badges": 5,
+      "palier": true,
+      "prix": 10200
+    },
+    {
+      "id": "expShare",
+      "badges": 6,
+      "palier": false,
+      "prix": 12000
+    },
+    {
+      "id": "expShare",
+      "badges": 6,
+      "palier": true,
+      "prix": 10200
+    },
+    {
+      "id": "expShare",
+      "badges": 7,
+      "palier": false,
+      "prix": 12000
+    },
+    {
+      "id": "expShare",
+      "badges": 7,
+      "palier": true,
+      "prix": 10200
+    },
+    {
+      "id": "expShare",
+      "badges": 8,
+      "palier": false,
+      "prix": 12000
+    },
+    {
+      "id": "expShare",
+      "badges": 8,
+      "palier": true,
+      "prix": 10200
+    },
+    {
+      "id": "hardStone",
+      "badges": 0,
+      "palier": false,
+      "prix": 15000
+    },
+    {
+      "id": "hardStone",
+      "badges": 0,
+      "palier": true,
+      "prix": 12750
+    },
+    {
+      "id": "hardStone",
+      "badges": 1,
+      "palier": false,
+      "prix": 15000
+    },
+    {
+      "id": "hardStone",
+      "badges": 1,
+      "palier": true,
+      "prix": 12750
+    },
+    {
+      "id": "hardStone",
+      "badges": 2,
+      "palier": false,
+      "prix": 15000
+    },
+    {
+      "id": "hardStone",
+      "badges": 2,
+      "palier": true,
+      "prix": 12750
+    },
+    {
+      "id": "hardStone",
+      "badges": 3,
+      "palier": false,
+      "prix": 15000
+    },
+    {
+      "id": "hardStone",
+      "badges": 3,
+      "palier": true,
+      "prix": 12750
+    },
+    {
+      "id": "hardStone",
+      "badges": 4,
+      "palier": false,
+      "prix": 15000
+    },
+    {
+      "id": "hardStone",
+      "badges": 4,
+      "palier": true,
+      "prix": 12750
+    },
+    {
+      "id": "hardStone",
+      "badges": 5,
+      "palier": false,
+      "prix": 15000
+    },
+    {
+      "id": "hardStone",
+      "badges": 5,
+      "palier": true,
+      "prix": 12750
+    },
+    {
+      "id": "hardStone",
+      "badges": 6,
+      "palier": false,
+      "prix": 15000
+    },
+    {
+      "id": "hardStone",
+      "badges": 6,
+      "palier": true,
+      "prix": 12750
+    },
+    {
+      "id": "hardStone",
+      "badges": 7,
+      "palier": false,
+      "prix": 15000
+    },
+    {
+      "id": "hardStone",
+      "badges": 7,
+      "palier": true,
+      "prix": 12750
+    },
+    {
+      "id": "hardStone",
+      "badges": 8,
+      "palier": false,
+      "prix": 15000
+    },
+    {
+      "id": "hardStone",
+      "badges": 8,
+      "palier": true,
+      "prix": 12750
+    },
+    {
+      "id": "bicycle",
+      "badges": 0,
+      "palier": false,
+      "prix": 30000
+    },
+    {
+      "id": "bicycle",
+      "badges": 0,
+      "palier": true,
+      "prix": 25500
+    },
+    {
+      "id": "bicycle",
+      "badges": 1,
+      "palier": false,
+      "prix": 30000
+    },
+    {
+      "id": "bicycle",
+      "badges": 1,
+      "palier": true,
+      "prix": 25500
+    },
+    {
+      "id": "bicycle",
+      "badges": 2,
+      "palier": false,
+      "prix": 30000
+    },
+    {
+      "id": "bicycle",
+      "badges": 2,
+      "palier": true,
+      "prix": 25500
+    },
+    {
+      "id": "bicycle",
+      "badges": 3,
+      "palier": false,
+      "prix": 30000
+    },
+    {
+      "id": "bicycle",
+      "badges": 3,
+      "palier": true,
+      "prix": 25500
+    },
+    {
+      "id": "bicycle",
+      "badges": 4,
+      "palier": false,
+      "prix": 30000
+    },
+    {
+      "id": "bicycle",
+      "badges": 4,
+      "palier": true,
+      "prix": 25500
+    },
+    {
+      "id": "bicycle",
+      "badges": 5,
+      "palier": false,
+      "prix": 30000
+    },
+    {
+      "id": "bicycle",
+      "badges": 5,
+      "palier": true,
+      "prix": 25500
+    },
+    {
+      "id": "bicycle",
+      "badges": 6,
+      "palier": false,
+      "prix": 30000
+    },
+    {
+      "id": "bicycle",
+      "badges": 6,
+      "palier": true,
+      "prix": 25500
+    },
+    {
+      "id": "bicycle",
+      "badges": 7,
+      "palier": false,
+      "prix": 30000
+    },
+    {
+      "id": "bicycle",
+      "badges": 7,
+      "palier": true,
+      "prix": 25500
+    },
+    {
+      "id": "bicycle",
+      "badges": 8,
+      "palier": false,
+      "prix": 30000
+    },
+    {
+      "id": "bicycle",
+      "badges": 8,
+      "palier": true,
+      "prix": 25500
+    },
+    {
+      "id": "luckyEgg",
+      "badges": 0,
+      "palier": false,
+      "prix": 75000
+    },
+    {
+      "id": "luckyEgg",
+      "badges": 0,
+      "palier": true,
+      "prix": 63750
+    },
+    {
+      "id": "luckyEgg",
+      "badges": 1,
+      "palier": false,
+      "prix": 75000
+    },
+    {
+      "id": "luckyEgg",
+      "badges": 1,
+      "palier": true,
+      "prix": 63750
+    },
+    {
+      "id": "luckyEgg",
+      "badges": 2,
+      "palier": false,
+      "prix": 75000
+    },
+    {
+      "id": "luckyEgg",
+      "badges": 2,
+      "palier": true,
+      "prix": 63750
+    },
+    {
+      "id": "luckyEgg",
+      "badges": 3,
+      "palier": false,
+      "prix": 75000
+    },
+    {
+      "id": "luckyEgg",
+      "badges": 3,
+      "palier": true,
+      "prix": 63750
+    },
+    {
+      "id": "luckyEgg",
+      "badges": 4,
+      "palier": false,
+      "prix": 75000
+    },
+    {
+      "id": "luckyEgg",
+      "badges": 4,
+      "palier": true,
+      "prix": 63750
+    },
+    {
+      "id": "luckyEgg",
+      "badges": 5,
+      "palier": false,
+      "prix": 75000
+    },
+    {
+      "id": "luckyEgg",
+      "badges": 5,
+      "palier": true,
+      "prix": 63750
+    },
+    {
+      "id": "luckyEgg",
+      "badges": 6,
+      "palier": false,
+      "prix": 75000
+    },
+    {
+      "id": "luckyEgg",
+      "badges": 6,
+      "palier": true,
+      "prix": 63750
+    },
+    {
+      "id": "luckyEgg",
+      "badges": 7,
+      "palier": false,
+      "prix": 75000
+    },
+    {
+      "id": "luckyEgg",
+      "badges": 7,
+      "palier": true,
+      "prix": 63750
+    },
+    {
+      "id": "luckyEgg",
+      "badges": 8,
+      "palier": false,
+      "prix": 75000
+    },
+    {
+      "id": "luckyEgg",
+      "badges": 8,
+      "palier": true,
+      "prix": 63750
+    },
+    {
+      "id": "pokeradar",
+      "badges": 0,
+      "palier": false,
+      "prix": 45000
+    },
+    {
+      "id": "pokeradar",
+      "badges": 0,
+      "palier": true,
+      "prix": 38250
+    },
+    {
+      "id": "pokeradar",
+      "badges": 1,
+      "palier": false,
+      "prix": 45000
+    },
+    {
+      "id": "pokeradar",
+      "badges": 1,
+      "palier": true,
+      "prix": 38250
+    },
+    {
+      "id": "pokeradar",
+      "badges": 2,
+      "palier": false,
+      "prix": 45000
+    },
+    {
+      "id": "pokeradar",
+      "badges": 2,
+      "palier": true,
+      "prix": 38250
+    },
+    {
+      "id": "pokeradar",
+      "badges": 3,
+      "palier": false,
+      "prix": 45000
+    },
+    {
+      "id": "pokeradar",
+      "badges": 3,
+      "palier": true,
+      "prix": 38250
+    },
+    {
+      "id": "pokeradar",
+      "badges": 4,
+      "palier": false,
+      "prix": 45000
+    },
+    {
+      "id": "pokeradar",
+      "badges": 4,
+      "palier": true,
+      "prix": 38250
+    },
+    {
+      "id": "pokeradar",
+      "badges": 5,
+      "palier": false,
+      "prix": 45000
+    },
+    {
+      "id": "pokeradar",
+      "badges": 5,
+      "palier": true,
+      "prix": 38250
+    },
+    {
+      "id": "pokeradar",
+      "badges": 6,
+      "palier": false,
+      "prix": 45000
+    },
+    {
+      "id": "pokeradar",
+      "badges": 6,
+      "palier": true,
+      "prix": 38250
+    },
+    {
+      "id": "pokeradar",
+      "badges": 7,
+      "palier": false,
+      "prix": 45000
+    },
+    {
+      "id": "pokeradar",
+      "badges": 7,
+      "palier": true,
+      "prix": 38250
+    },
+    {
+      "id": "pokeradar",
+      "badges": 8,
+      "palier": false,
+      "prix": 45000
+    },
+    {
+      "id": "pokeradar",
+      "badges": 8,
+      "palier": true,
+      "prix": 38250
+    },
+    {
+      "id": "leftovers",
+      "badges": 0,
+      "palier": false,
+      "prix": 150000
+    },
+    {
+      "id": "leftovers",
+      "badges": 0,
+      "palier": true,
+      "prix": 127500
+    },
+    {
+      "id": "leftovers",
+      "badges": 1,
+      "palier": false,
+      "prix": 150000
+    },
+    {
+      "id": "leftovers",
+      "badges": 1,
+      "palier": true,
+      "prix": 127500
+    },
+    {
+      "id": "leftovers",
+      "badges": 2,
+      "palier": false,
+      "prix": 150000
+    },
+    {
+      "id": "leftovers",
+      "badges": 2,
+      "palier": true,
+      "prix": 127500
+    },
+    {
+      "id": "leftovers",
+      "badges": 3,
+      "palier": false,
+      "prix": 150000
+    },
+    {
+      "id": "leftovers",
+      "badges": 3,
+      "palier": true,
+      "prix": 127500
+    },
+    {
+      "id": "leftovers",
+      "badges": 4,
+      "palier": false,
+      "prix": 150000
+    },
+    {
+      "id": "leftovers",
+      "badges": 4,
+      "palier": true,
+      "prix": 127500
+    },
+    {
+      "id": "leftovers",
+      "badges": 5,
+      "palier": false,
+      "prix": 150000
+    },
+    {
+      "id": "leftovers",
+      "badges": 5,
+      "palier": true,
+      "prix": 127500
+    },
+    {
+      "id": "leftovers",
+      "badges": 6,
+      "palier": false,
+      "prix": 150000
+    },
+    {
+      "id": "leftovers",
+      "badges": 6,
+      "palier": true,
+      "prix": 127500
+    },
+    {
+      "id": "leftovers",
+      "badges": 7,
+      "palier": false,
+      "prix": 150000
+    },
+    {
+      "id": "leftovers",
+      "badges": 7,
+      "palier": true,
+      "prix": 127500
+    },
+    {
+      "id": "leftovers",
+      "badges": 8,
+      "palier": false,
+      "prix": 150000
+    },
+    {
+      "id": "leftovers",
+      "badges": 8,
+      "palier": true,
+      "prix": 127500
+    },
+    {
+      "id": "falseSwipe",
+      "badges": 0,
+      "palier": false,
+      "prix": 100000
+    },
+    {
+      "id": "falseSwipe",
+      "badges": 0,
+      "palier": true,
+      "prix": 85000
+    },
+    {
+      "id": "falseSwipe",
+      "badges": 1,
+      "palier": false,
+      "prix": 100000
+    },
+    {
+      "id": "falseSwipe",
+      "badges": 1,
+      "palier": true,
+      "prix": 85000
+    },
+    {
+      "id": "falseSwipe",
+      "badges": 2,
+      "palier": false,
+      "prix": 100000
+    },
+    {
+      "id": "falseSwipe",
+      "badges": 2,
+      "palier": true,
+      "prix": 85000
+    },
+    {
+      "id": "falseSwipe",
+      "badges": 3,
+      "palier": false,
+      "prix": 100000
+    },
+    {
+      "id": "falseSwipe",
+      "badges": 3,
+      "palier": true,
+      "prix": 85000
+    },
+    {
+      "id": "falseSwipe",
+      "badges": 4,
+      "palier": false,
+      "prix": 100000
+    },
+    {
+      "id": "falseSwipe",
+      "badges": 4,
+      "palier": true,
+      "prix": 85000
+    },
+    {
+      "id": "falseSwipe",
+      "badges": 5,
+      "palier": false,
+      "prix": 100000
+    },
+    {
+      "id": "falseSwipe",
+      "badges": 5,
+      "palier": true,
+      "prix": 85000
+    },
+    {
+      "id": "falseSwipe",
+      "badges": 6,
+      "palier": false,
+      "prix": 100000
+    },
+    {
+      "id": "falseSwipe",
+      "badges": 6,
+      "palier": true,
+      "prix": 85000
+    },
+    {
+      "id": "falseSwipe",
+      "badges": 7,
+      "palier": false,
+      "prix": 100000
+    },
+    {
+      "id": "falseSwipe",
+      "badges": 7,
+      "palier": true,
+      "prix": 85000
+    },
+    {
+      "id": "falseSwipe",
+      "badges": 8,
+      "palier": false,
+      "prix": 100000
+    },
+    {
+      "id": "falseSwipe",
+      "badges": 8,
+      "palier": true,
+      "prix": 85000
+    },
+    {
+      "id": "ctJackpot",
+      "badges": 0,
+      "palier": false,
+      "prix": 0
+    },
+    {
+      "id": "ctJackpot",
+      "badges": 0,
+      "palier": true,
+      "prix": 0
+    },
+    {
+      "id": "ctJackpot",
+      "badges": 1,
+      "palier": false,
+      "prix": 0
+    },
+    {
+      "id": "ctJackpot",
+      "badges": 1,
+      "palier": true,
+      "prix": 0
+    },
+    {
+      "id": "ctJackpot",
+      "badges": 2,
+      "palier": false,
+      "prix": 0
+    },
+    {
+      "id": "ctJackpot",
+      "badges": 2,
+      "palier": true,
+      "prix": 0
+    },
+    {
+      "id": "ctJackpot",
+      "badges": 3,
+      "palier": false,
+      "prix": 0
+    },
+    {
+      "id": "ctJackpot",
+      "badges": 3,
+      "palier": true,
+      "prix": 0
+    },
+    {
+      "id": "ctJackpot",
+      "badges": 4,
+      "palier": false,
+      "prix": 0
+    },
+    {
+      "id": "ctJackpot",
+      "badges": 4,
+      "palier": true,
+      "prix": 0
+    },
+    {
+      "id": "ctJackpot",
+      "badges": 5,
+      "palier": false,
+      "prix": 0
+    },
+    {
+      "id": "ctJackpot",
+      "badges": 5,
+      "palier": true,
+      "prix": 0
+    },
+    {
+      "id": "ctJackpot",
+      "badges": 6,
+      "palier": false,
+      "prix": 0
+    },
+    {
+      "id": "ctJackpot",
+      "badges": 6,
+      "palier": true,
+      "prix": 0
+    },
+    {
+      "id": "ctJackpot",
+      "badges": 7,
+      "palier": false,
+      "prix": 0
+    },
+    {
+      "id": "ctJackpot",
+      "badges": 7,
+      "palier": true,
+      "prix": 0
+    },
+    {
+      "id": "ctJackpot",
+      "badges": 8,
+      "palier": false,
+      "prix": 0
+    },
+    {
+      "id": "ctJackpot",
+      "badges": 8,
+      "palier": true,
+      "prix": 0
+    },
+    {
+      "id": "shinyCharm",
+      "badges": 0,
+      "palier": false,
+      "prix": 0
+    },
+    {
+      "id": "shinyCharm",
+      "badges": 0,
+      "palier": true,
+      "prix": 0
+    },
+    {
+      "id": "shinyCharm",
+      "badges": 1,
+      "palier": false,
+      "prix": 0
+    },
+    {
+      "id": "shinyCharm",
+      "badges": 1,
+      "palier": true,
+      "prix": 0
+    },
+    {
+      "id": "shinyCharm",
+      "badges": 2,
+      "palier": false,
+      "prix": 0
+    },
+    {
+      "id": "shinyCharm",
+      "badges": 2,
+      "palier": true,
+      "prix": 0
+    },
+    {
+      "id": "shinyCharm",
+      "badges": 3,
+      "palier": false,
+      "prix": 0
+    },
+    {
+      "id": "shinyCharm",
+      "badges": 3,
+      "palier": true,
+      "prix": 0
+    },
+    {
+      "id": "shinyCharm",
+      "badges": 4,
+      "palier": false,
+      "prix": 0
+    },
+    {
+      "id": "shinyCharm",
+      "badges": 4,
+      "palier": true,
+      "prix": 0
+    },
+    {
+      "id": "shinyCharm",
+      "badges": 5,
+      "palier": false,
+      "prix": 0
+    },
+    {
+      "id": "shinyCharm",
+      "badges": 5,
+      "palier": true,
+      "prix": 0
+    },
+    {
+      "id": "shinyCharm",
+      "badges": 6,
+      "palier": false,
+      "prix": 0
+    },
+    {
+      "id": "shinyCharm",
+      "badges": 6,
+      "palier": true,
+      "prix": 0
+    },
+    {
+      "id": "shinyCharm",
+      "badges": 7,
+      "palier": false,
+      "prix": 0
+    },
+    {
+      "id": "shinyCharm",
+      "badges": 7,
+      "palier": true,
+      "prix": 0
+    },
+    {
+      "id": "shinyCharm",
+      "badges": 8,
+      "palier": false,
+      "prix": 0
+    },
+    {
+      "id": "shinyCharm",
+      "badges": 8,
+      "palier": true,
+      "prix": 0
+    },
+    {
+      "id": "diploma",
+      "badges": 0,
+      "palier": false,
+      "prix": 0
+    },
+    {
+      "id": "diploma",
+      "badges": 0,
+      "palier": true,
+      "prix": 0
+    },
+    {
+      "id": "diploma",
+      "badges": 1,
+      "palier": false,
+      "prix": 0
+    },
+    {
+      "id": "diploma",
+      "badges": 1,
+      "palier": true,
+      "prix": 0
+    },
+    {
+      "id": "diploma",
+      "badges": 2,
+      "palier": false,
+      "prix": 0
+    },
+    {
+      "id": "diploma",
+      "badges": 2,
+      "palier": true,
+      "prix": 0
+    },
+    {
+      "id": "diploma",
+      "badges": 3,
+      "palier": false,
+      "prix": 0
+    },
+    {
+      "id": "diploma",
+      "badges": 3,
+      "palier": true,
+      "prix": 0
+    },
+    {
+      "id": "diploma",
+      "badges": 4,
+      "palier": false,
+      "prix": 0
+    },
+    {
+      "id": "diploma",
+      "badges": 4,
+      "palier": true,
+      "prix": 0
+    },
+    {
+      "id": "diploma",
+      "badges": 5,
+      "palier": false,
+      "prix": 0
+    },
+    {
+      "id": "diploma",
+      "badges": 5,
+      "palier": true,
+      "prix": 0
+    },
+    {
+      "id": "diploma",
+      "badges": 6,
+      "palier": false,
+      "prix": 0
+    },
+    {
+      "id": "diploma",
+      "badges": 6,
+      "palier": true,
+      "prix": 0
+    },
+    {
+      "id": "diploma",
+      "badges": 7,
+      "palier": false,
+      "prix": 0
+    },
+    {
+      "id": "diploma",
+      "badges": 7,
+      "palier": true,
+      "prix": 0
+    },
+    {
+      "id": "diploma",
+      "badges": 8,
+      "palier": false,
+      "prix": 0
+    },
+    {
+      "id": "diploma",
+      "badges": 8,
+      "palier": true,
+      "prix": 0
+    }
+  ]
+}
