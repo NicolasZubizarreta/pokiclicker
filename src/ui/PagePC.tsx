@@ -9,12 +9,11 @@ import { dpsSansType } from './dps-pc';
 import { FichePokemon } from './FichePokemon';
 import { Image } from './Image';
 import { formaterDps } from './nombres';
-import { cheminSprite } from './precharger';
+import { nomAffiche as nomDe, progressionOeuf, spriteAffiche } from './affichage-pokemon';
 import { storeJeu } from './store';
 
 const catalogue = chargerPokemon();
-const nomEspece = (pokemon: PokemonPossede) => catalogue.parNumero(pokemon.numero).nom;
-const nomDe = (pokemon: PokemonPossede) => pokemon.surnom ?? nomEspece(pokemon);
+const nomEspece = (pokemon: PokemonPossede) => pokemon.oeuf ? nomDe(pokemon) : catalogue.parNumero(pokemon.numero).nom;
 const tris: [TriPc, string][] = [
   ['numero', 'Numéro'], ['nom', 'Nom'], ['niveau', 'Niveau'], ['favori', 'Favori'], ['shiny', 'Shiny'],
 ];
@@ -68,12 +67,12 @@ export function PagePC({ retour }: { retour(): void }) {
       const { pokemon, dps } = membre;
       const nom = nomDe(pokemon);
       const contenu = <>
-        <Image src={cheminSprite(pokemon.numero)} genre="sprite" alt="" className="size-14 shrink-0" />
+        <Image src={spriteAffiche(pokemon)} genre="sprite" alt="" className="size-14 shrink-0" />
         <span className={mobile ? 'sr-only' : 'grid min-w-0 gap-1 break-words'}>
-          <strong>{nom}</strong><span>Niv. {pokemon.niveau}</span><span>{formaterDps(dps)} DPS</span>
+          <strong>{nom}</strong><span>{pokemon.oeuf ? progressionOeuf(pokemon.oeuf) : `Niv. ${pokemon.niveau}`}</span><span>{formaterDps(dps)} DPS</span>
         </span>
       </>;
-      return echange ? <button key={index} type="button" aria-label={`${nom}, niveau ${pokemon.niveau}`}
+      return echange ? <button key={index} type="button" aria-label={pokemon.oeuf ? `${nom}, ${progressionOeuf(pokemon.oeuf)}` : `${nom}, niveau ${pokemon.niveau}`}
         className={`${classe} hover:bg-selection`} onClick={() => {
           const message = storeJeu.getState().echanger(echange.uid, pokemon.uid);
           signaler(message ? { message, echange } : null);
@@ -114,7 +113,7 @@ export function PagePC({ retour }: { retour(): void }) {
               {liste.map(pokemon => {
                 const nom = nomDe(pokemon);
                 return <li key={pokemon.uid} className="min-w-0">
-                  <button type="button" aria-label={`${nom}, niveau ${pokemon.niveau}`} aria-pressed={selection === pokemon.uid}
+                  <button type="button" aria-label={pokemon.oeuf ? `${nom}, ${progressionOeuf(pokemon.oeuf)}` : `${nom}, niveau ${pokemon.niveau}`} aria-pressed={selection === pokemon.uid}
                     className={`cadre grid min-h-11 w-full justify-items-center gap-2 p-4 text-center hover:bg-selection ${selection === pokemon.uid ? 'bg-selection' : 'bg-surface'}`}
                     onClick={event => {
                       choisir(pokemon.uid);
@@ -122,7 +121,7 @@ export function PagePC({ retour }: { retour(): void }) {
                     }}>
                     <span className="relative isolate grid place-items-center">
                       <span aria-hidden="true" className="socle absolute bottom-2 -z-10 h-4 w-20 bg-region-socle" />
-                      <Image src={cheminSprite(pokemon.numero)} genre="sprite" alt="" className="size-24 max-w-none" />
+                      <Image src={spriteAffiche(pokemon)} genre="sprite" alt="" className="size-24 max-w-none" />
                     </span>
                     <strong className="flex max-w-full flex-wrap items-center justify-center gap-2 break-words">
                       <span className="min-w-0">{nom}</span>
@@ -139,7 +138,7 @@ export function PagePC({ retour }: { retour(): void }) {
                         <span className="sr-only">Shiny</span>
                       </>}
                     </strong>
-                    <span>N° {pokemon.numero} · Niveau {pokemon.niveau}</span>
+                    <span>{pokemon.oeuf ? progressionOeuf(pokemon.oeuf) : `N° ${pokemon.numero} · Niveau ${pokemon.niveau}`}</span>
                   </button>
                 </li>;
               })}
@@ -149,11 +148,11 @@ export function PagePC({ retour }: { retour(): void }) {
         <h2 className="font-titre text-xl font-semibold">Équipe · {equipe.filter(Boolean).length} / 6</h2>
         <div className="grid gap-2">{places(false)}</div>
         {pokemon ? <>
-          <Image src={cheminSprite(pokemon.numero)} genre="sprite" alt="" className="mx-auto size-24 max-w-full" />
+          <Image src={spriteAffiche(pokemon)} genre="sprite" alt="" className="mx-auto size-24 max-w-full" />
           <h2 className="break-words font-titre text-xl font-semibold">{nomDe(pokemon)}</h2>
-          <p>N° {pokemon.numero} · Niveau {pokemon.niveau}</p>
+          <p>{pokemon.oeuf ? progressionOeuf(pokemon.oeuf) : `N° ${pokemon.numero} · Niveau ${pokemon.niveau}`}</p>
           <p className="text-region-accent">{formaterDps(dpsSansType(pokemon))} DPS</p>
-          <BarreXp xp={pokemon.xp} maximum={calculerMaxXp(pokemon.numero, pokemon.niveau)} nom={nomDe(pokemon)} />
+          {!pokemon.oeuf && <BarreXp xp={pokemon.xp} maximum={calculerMaxXp(pokemon.numero, pokemon.niveau)} nom={nomDe(pokemon)} />}
           <button type="button" aria-pressed={pokemon.favori} className="min-h-11 bg-surface-2 px-4 py-2 hover:bg-selection"
             onClick={() => {
               const message = storeJeu.getState().basculerFavori(pokemon.uid);

@@ -9,7 +9,7 @@ import { BarreXp } from './BarreXp';
 import { dpsSansType } from './dps-pc';
 import { Image } from './Image';
 import { formaterDps } from './nombres';
-import { cheminSprite } from './precharger';
+import { nomAffiche, progressionOeuf, spriteAffiche } from './affichage-pokemon';
 import { storeJeu } from './store';
 import { niveauRequis, peutEvoluer, pierresPour } from '../core/evolution';
 import { chargerObjets } from '../core/boutique';
@@ -73,7 +73,7 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur }: Props) {
   };
   const pokemon = membre?.pokemon;
   const espece = pokemon ? catalogue.parNumero(pokemon.numero) : null;
-  const nom = pokemon?.surnom ?? espece?.nom ?? 'Pokémon';
+  const nom = pokemon ? nomAffiche(pokemon) : 'Pokémon';
   // La règle pure ne consulte que ces deux listes ; aucune mutation du store.
   const regionVerification = { equipe: equipe.flatMap(c => c ? [c.pokemon] : []), pc } as unknown as Parameters<typeof verifierRelachement>[0];
   const verification = verifierRelachement(regionVerification, uid);
@@ -90,13 +90,13 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur }: Props) {
         <button type="button" className={`${bouton} justify-self-end`} onClick={fermerFiche}>Ferme la fiche</button>
         <header>
           <h2 id={titre} className="break-words font-titre text-2xl">{nom}</h2>
-          {pokemon && espece && <p>{espece.nom} · N° {pokemon.numero} · Niveau {pokemon.niveau}</p>}
+          {pokemon && espece && <p>{pokemon.oeuf ? progressionOeuf(pokemon.oeuf) : `${espece.nom} · N° ${pokemon.numero} · Niveau ${pokemon.niveau}`}</p>}
         </header>
         {pokemonPc && <p>Dans le PC</p>}
         {pokemon && espece && membre && detail && <>
           <div className="relative isolate grid place-items-center">
             <div className="socle absolute bottom-4 -z-10 h-8 w-40 bg-region-socle" />
-            <Image src={cheminSprite(pokemon.numero)} genre="sprite" alt={espece.nom} className="size-48 image-rendering-pixelated" />
+            <Image src={spriteAffiche(pokemon)} genre="sprite" alt={pokemon.oeuf ? nom : espece.nom} className="size-48 image-rendering-pixelated" />
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {pokemon.sexe === 'male' && <span className="text-info-base" role="img" aria-label="Mâle">♂</span>}
@@ -109,10 +109,10 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur }: Props) {
             </button>
             {espece.types.map(type => <span key={type} className="bg-surface-2 px-2 py-1">{nomType(type)}</span>)}
           </div>
-          <div>
+          {!pokemon.oeuf && <div>
             <p>XP : {pokemon.niveau >= 100 ? <span>MAX</span> : <span>{Math.floor(pokemon.xp)} / {membre.xpMax}</span>}</p>
             <BarreXp xp={pokemon.xp} maximum={membre.xpMax} nom={nom} />
-          </div>
+          </div>}
           <p className="text-xl text-region-accent">{formaterDps(membre.dps)} DPS</p>
           <dl className="grid grid-cols-2 gap-2">
             <dt>Base</dt><dd>{nombre(detail.base)}</dd>

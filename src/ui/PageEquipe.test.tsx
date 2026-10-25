@@ -195,7 +195,7 @@ it('laisse les œufs et les niveaux maximum inertes et borne les Bonbons au nive
     { ...storeJeu.getState().equipe[2]!, pokemon: { ...pokemon, uid: 'oeuf', surnom: 'Œuf', oeuf: { pasRestants: 10, pasMax: 10 } } },
   ] });
   preparerObjet();
-  for (const nom of ['Maximum, niveau 100', 'Œuf, niveau 16']) {
+  for (const nom of ['Maximum, niveau 100', 'Œuf, Éclosion : 0/10']) {
     const cible = screen.getByRole('button', { name: nom }) as HTMLButtonElement;
     expect(cible.disabled).toBe(true);
     expect(cible.className).toContain('grayscale');
@@ -324,7 +324,7 @@ it.each([
   const utiliserPierre = vi.fn(() => null);
   storeJeu.setState({ utiliserPierre });
   preparerPierre(p);
-  const ligne = screen.getByRole('button', { name: 'Bourgeon, niveau 16' });
+  const ligne = screen.getByRole('button', { name: 'oeuf' in p ? 'Œuf, Éclosion : 0/10' : 'Bourgeon, niveau 16' });
   expect(ligne.hasAttribute('disabled')).toBe(false);
   expect(ligne.className).toContain('grayscale');
   fireEvent.click(ligne);
@@ -436,7 +436,7 @@ it.each([
   [{ ...pokemon, pierreEternelle: true }, 'Retire-la via le menu !', true],
 ] as const)('explique le refus de Stase sur une ligne grisée cliquable (%j)', (p, raison, ferme) => {
   const declencheur = preparerActif('stase', p);
-  const ligne = screen.getByRole('button', { name: 'Bourgeon, niveau 16' });
+  const ligne = screen.getByRole('button', { name: 'oeuf' in p ? 'Œuf, Éclosion : 0/10' : 'Bourgeon, niveau 16' });
   expect(ligne.hasAttribute('disabled')).toBe(false);
   expect(ligne.className).toContain('grayscale');
   fireEvent.click(ligne);
@@ -465,7 +465,7 @@ it.each(['validation', 'annulation', 'refus'] as const)('confirme le Jeton et re
 
 it('fait pulser aussi les chromatiques et les œufs pour le Jeton', () => {
   preparerActif('jeton', { ...pokemon, shiny: true, oeuf: { pasRestants: 10, pasMax: 10 } });
-  const ligne = screen.getByRole('button', { name: 'Bourgeon, niveau 16' });
+  const ligne = screen.getByRole('button', { name: 'Œuf, Éclosion : 0/10' });
   expect(ligne.className).toContain('motion-safe:cible-valide');
   fireEvent.click(ligne);
   expect(screen.getByRole('alert').textContent).toBe('Déjà chromatique !');
