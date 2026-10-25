@@ -569,10 +569,10 @@ V1 : `legacy/js/game/league.js`, `kanto.js` (`LEAGUE`), `combat.js`. V2 : zone 2
 ### Critères d'acceptation
 - [x] Étant donné la V1, quand le script extrait les dix boss, alors `data/ligue.json` contient pour chacun nom, Pokémon (espèce, niveau), minuteur ; un test compare avec le code V1.
 - [x] Étant donné moins de 8 badges, quand j'essaie d'entrer dans la zone 21, alors c'est refusé avec la raison ; avec 8 badges c'est autorisé.
-- [ ] Étant donné la Ligue, quand j'enchaîne les boss, alors ils arrivent dans l'ordre de la V1, chacun avec son minuteur (F) et son nombre de Pokémon ; la victoire du boss n suit sur le boss n+1 avec un dialogue d'enchaînement.
-- [ ] Étant donné le Maître Blue, quand il entre, alors son « counter » est celui du starter choisi (table de la V1, test des trois starters) ; sa défaite incrémente `leagueWins` une seule fois et déclenche l'événement `boss-vaincu` consommé par R.
-- [ ] Étant donné une défaite sur un boss de la Ligue, quand le minuteur expire ou que l'équipe est vaincue, alors le jeu revient au début de ce boss avec un message ; aucun gain n'est perdu.
-- [ ] Étant donné un rechargement pendant la Ligue, quand je rouvre, alors je reprends au boss en cours.
+- [x] Étant donné la Ligue, quand j'enchaîne les boss, alors ils arrivent dans l'ordre de la V1, chacun avec son minuteur (F) et son nombre de Pokémon ; la victoire du boss n suit sur le boss n+1 avec un dialogue d'enchaînement.
+- [x] Étant donné le Maître Blue, quand il entre, alors son « counter » est celui du starter choisi (table de la V1, test des trois starters) ; sa défaite incrémente `leagueWins` une seule fois et déclenche l'événement `boss-vaincu` consommé par R.
+- [x] Étant donné une défaite sur un boss de la Ligue, quand le minuteur expire ou que l'équipe est vaincue, alors le jeu revient au début de ce boss avec un message ; aucun gain n'est perdu.
+- [x] Étant donné un rechargement pendant la Ligue, quand je rouvre, alors je reprends au boss en cours.
 
 ### Hors périmètre
 Panthéon (R), annonce de Johto, défi secret de Chen (X).
