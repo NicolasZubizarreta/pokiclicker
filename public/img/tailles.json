@@ -902,5 +902,9 @@
   "img/sprites/chen/chen-3.png": {
     "largeur": 120,
     "hauteur": 120
+  },
+  "img/objets/JetonShiny.png": {
+    "largeur": 30,
+    "hauteur": 30
   }
 }

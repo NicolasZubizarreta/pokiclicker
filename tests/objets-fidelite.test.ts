@@ -38,6 +38,8 @@ it('conserve les noms et images des balles de capture', () => {
 });
 
 it('garde les images absentes à null et les corrections décidées', () => {
+  // Catalogue historique sans l’icône ajoutée en U-T2 ; le catalogue réel est testé dans icones-objets.
+  const objets = structuredClone([...chargerObjets()]).map(objet => objet.id === 'shinyToken' ? { ...objet, image: null } : objet);
   for (const id of ['runningShoes', 'pokeradar', 'falseSwipe', 'ctJackpot', 'shinyToken', 'shinyCharm', 'diploma']) {
     expect(objets.find(objet => objet.id === id)!.image).toBe(null);
   }

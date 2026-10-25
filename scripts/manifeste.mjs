@@ -1,3 +1,13 @@
+import { readFile, writeFile } from 'node:fs/promises';
+
+/** @param {string} chemin @param {number} largeur @param {number} hauteur */
+export async function enregistrerTailleImage(chemin, largeur, hauteur) {
+  const manifeste = new URL('../public/img/tailles.json', import.meta.url);
+  const tailles = JSON.parse(await readFile(manifeste, 'utf8'));
+  tailles[chemin] = { largeur, hauteur };
+  await writeFile(manifeste, `${JSON.stringify(tailles, null, 2)}\n`);
+}
+
 /**
  * @param {{ jeu: { nom: string, nomCourt: string, description: string }, jetons: { fond: string } }} options
  * @returns {Partial<import('vite-plugin-pwa').ManifestOptions>}

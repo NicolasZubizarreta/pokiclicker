@@ -247,7 +247,7 @@
     "boutique": "mall",
     "sansInflation": true,
     "inventaire": "shinyToken",
-    "image": null,
+    "image": "img/objets/JetonShiny.png",
     "categorie": "soins",
     "sac": null
   },

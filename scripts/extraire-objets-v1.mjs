@@ -12,7 +12,7 @@ for (const [fichier, lignes] of sources) {
   runInContext(source.replace(/^\uFEFF/, '').split(/\r?\n/).slice(0, lignes).join('\n'), contexte);
 }
 const items = runInContext('ITEMS', contexte);
-const zones = [...(await readFile(new URL('data/regions/kanto/zones.json', racine), 'utf8')).matchAll(/"id":\s*"([^"]+)"/g)].map(match => match[1]);
+const zones = JSON.parse(await readFile(new URL('data/regions/kanto/zones.json', racine), 'utf8')).zones.map(/** @param {{ id: string }} zone */ zone => zone.id);
 if (zones.length !== 22 || zones[2] !== 'kanto.foret-de-jade') throw new Error('Ordre des zones Kanto inattendu.');
 if (Object.keys(items).length !== 31) throw new Error('31 objets V1 attendus.');
 const images = new Set(await readdir(new URL('public/img/objets/', racine)));
