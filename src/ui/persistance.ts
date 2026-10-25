@@ -2,6 +2,7 @@ import { compteInitial, creerGestionnaire } from '../core/sauvegarde';
 import type { DonneesRegion } from '../core/sauvegarde';
 import type { PreferencesCombat } from '../core/sauvegarde-types';
 import { reglages } from '../core/reglages';
+import { kanto } from '../core/regions';
 import { equipeDeDepart } from './equipe-de-depart';
 
 export const ERREUR_CHARGEMENT = 'Une erreur est survenue. Recharge la page ; ta partie est gardée.';
@@ -17,7 +18,8 @@ export function detailErreur(erreur: unknown): string {
   return `Une erreur inattendue est survenue.\n${erreur instanceof Error ? `${erreur.name}: ${erreur.message}` : String(erreur)}`;
 }
 
-export function ouvrirPartie(options: Parameters<typeof creerGestionnaire>[0]) {
+export function ouvrirPartie(options: Parameters<typeof creerGestionnaire>[0],
+  depart: Pick<DonneesRegion, 'equipe' | 'drapeaux'> = { equipe: equipeDeDepart(), drapeaux: [] }) {
   const gestionnaire = creerGestionnaire(options);
   // Valider aussi le compte avant toute création ou écriture.
   const compte = gestionnaire.chargerCompte()?.donnees ?? compteInitial();
@@ -27,11 +29,12 @@ export function ouvrirPartie(options: Parameters<typeof creerGestionnaire>[0]) {
   };
   let dernieresPreferences = JSON.stringify(preferences);
   const recente = gestionnaire.listerParties()[0];
-  let partie = recente ? gestionnaire.chargerPartie(recente.id)! : gestionnaire.creerPartie('Partie 1');
+  let partie = recente ? gestionnaire.chargerPartie(recente.id)! : gestionnaire.creerPartie('Partie 1',
+    depart.drapeaux.includes('nouvelle-partie') ? kanto.depart : undefined);
   let enveloppe = gestionnaire.chargerRegion(partie.id, partie.donnees.regionCourante);
   if (!enveloppe) throw new Error('Région de la partie introuvable');
   if (!recente) enveloppe = gestionnaire.ecrireRegion(partie.id, enveloppe.id,
-    { ...enveloppe.donnees, equipe: equipeDeDepart() }, { revisionAttendue: enveloppe.revision });
+    { ...enveloppe.donnees, ...depart }, { revisionAttendue: enveloppe.revision });
   let derniere = JSON.stringify([enveloppe.donnees, partie.donnees.pokedexNational]);
   let bloquee = false;
   return {

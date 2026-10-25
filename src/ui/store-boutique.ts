@@ -38,7 +38,9 @@ export function afficherBoutique(region: DonneesRegion, precedent: AffichageBout
 
 export function afficherSac(region: DonneesRegion, precedent: AffichageSac | null): AffichageSac {
   const etat = etatMondeDe(region);
-  const acces = accesSac(kanto, etat);
+  const acces = region.drapeaux.includes('sac-ouvert') ? { ok: true }
+    : region.evenementEnCours?.id === 'kanto.intro' ? { ok: false, raison: reglages.sac.raison }
+      : accesSac(kanto, etat);
   const sac: AffichageSac = { acces: { ouvert: acces.ok, raison: acces.ok ? null : acces.raison ?? null },
     entrees: contenuSac(region, [...objets, ...chargerObjetsRecompense()], kanto, etat).map(objet => ({
       id: objet.id, nom: objet.nom, description: objet.description, image: objet.image, categorie: objet.categorie,

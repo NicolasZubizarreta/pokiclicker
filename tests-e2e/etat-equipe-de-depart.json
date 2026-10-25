@@ -1,0 +1,7 @@
+{
+  "cookies": [],
+  "origins": [{
+    "origin": "http://localhost:4173",
+    "localStorage": [{ "name": "pokiclicker-dev:equipe-de-depart", "value": "1" }]
+  }]
+}

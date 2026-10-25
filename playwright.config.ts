@@ -8,8 +8,8 @@ export default defineConfig({
   reporter: 'list',
   use: { baseURL: 'http://localhost:4173', browserName: 'chromium', trace: 'retain-on-failure', serviceWorkers: 'block' },
   projects: [
-    { name: 'mobile', testIgnore: '**/pwa.spec.ts', use: { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true } },
-    { name: 'pc', testIgnore: '**/pwa.spec.ts', use: { viewport: { width: 1440, height: 900 } } },
+    { name: 'mobile', testIgnore: '**/pwa.spec.ts', use: { storageState: 'tests-e2e/etat-equipe-de-depart.json', viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true } },
+    { name: 'pc', testIgnore: '**/pwa.spec.ts', use: { storageState: 'tests-e2e/etat-equipe-de-depart.json', viewport: { width: 1440, height: 900 } } },
     { name: 'pwa', testMatch: '**/pwa.spec.ts', use: { serviceWorkers: 'allow', viewport: { width: 390, height: 844 } } },
   ],
   webServer: {

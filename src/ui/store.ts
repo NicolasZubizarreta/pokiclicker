@@ -7,6 +7,7 @@ import { avancerCombat, calculerClic, calculerDpsEquipe, cliquer, creerCombat, c
 import { acheter, chargerObjets } from '../core/boutique';
 import { blocage, commandeCourante, declencher, etapeTerminee, type CatalogueEvenements, type Commande, type Declencheur } from '../core/evenements';
 import { evenementsKanto } from '../core/evenements-kanto';
+import { choisirStarter, creerStarter, tirerStarters } from '../core/starter';
 import { accorderBadge, accorderJalons, actifsDe } from '../core/progression';
 import { clicsAutomatiques } from '../core/clics';
 import { utiliserSurPokemon, poserStase, retirerStase, utiliserJetonShiny } from '../core/objets-equipe';
@@ -35,6 +36,7 @@ import { afficherBoutique, afficherSac, type AffichageBoutique, type AffichageSa
 import { detailErreur, ouvrirPartie } from './persistance';
 import { creerStockageLocal } from './stockage-local';
 import { genererIdentifiant } from './identifiants';
+import { equipeDeDepart } from './equipe-de-depart';
 import { imageConnue } from './Image';
 import { cheminDecor, precharger, prechargerZone } from './precharger';
 
@@ -46,6 +48,9 @@ export type EtatForme = {
   ouverte: boolean; actuelle: boolean; raison: string | null;
 };
 export type AffichageJeu = {
+  intro: { enCours: boolean; premiereLigneVue: boolean; choixStarter: boolean;
+    sacOuvert: boolean; carteOuverte: boolean; starters: { numero: number; nom: string; shiny: boolean }[] };
+  choisirStarter(numero: number): string | null;
   evenement: Commande | null;
   terminerEtape(): void;
   progression: AffichageProgression;
@@ -92,15 +97,18 @@ function actifsCourants(region: DonneesRegion, maintenant: number): string[] {
   return [...actifsDe(region), ...clesActives(region.chronos, maintenant)];
 }
 
-export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements = evenementsKanto }: {
+export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements = evenementsKanto,
+  nouvellePartie = 'equipe-de-depart' }: {
   horloge: Horloge; stockage: Stockage; alea: () => number; genererId: () => string;
   evenements?: CatalogueEvenements;
+  nouvellePartie?: 'equipe-de-depart' | 'intro';
 }) {
   let coeur: EtatCombat | null = null;
   let initialise = false;
   let zonesVues = new Set<string>();
   const totalBadges = kanto.zones.filter(zone => !zone.sansCombat && zone.type === 'arene').length;
   let region: DonneesRegion;
+  let starters: ReturnType<typeof tirerStarters> | undefined;
   let pokedex: readonly number[] = [];
   let persistance: ReturnType<typeof ouvrirPartie>;
   let preferences: PreferencesCombat = structuredClone(reglages.depart.preferences);
@@ -252,8 +260,24 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     const zonePrecedente = destination(kanto.zonePrecedente(lieu.id));
     const zoneSuivante = destination(lien ? kanto.zone(lien.vers) : undefined);
     const evenement = commandeCourante(evenements, region);
+    const enCours = region.evenementEnCours?.id === 'kanto.intro';
+    const introJouee = region.evenementsJoues.includes('kanto.intro');
+    const choixStarter = introJouee && region.starterId === null;
+    if (choixStarter && !starters) starters = tirerStarters(alea, reglages.combat.chanceShiny);
+    const sac = afficherSac(region, precedent.sac);
+    const intro: AffichageJeu['intro'] = {
+      enCours, choixStarter,
+      premiereLigneVue: introJouee || (enCours && region.evenementEnCours!.etape
+        > evenements.parId('kanto.intro').etapes.findIndex(etape => etape.type === 'dialogue')),
+      sacOuvert: sac.acces.ouvert,
+      carteOuverte: (!enCours && !choixStarter) || region.drapeaux.includes('carte-ouverte'),
+      starters: choixStarter ? ([1, 4, 7] as const).map(numero => ({
+        numero, nom: catalogue.parNumero(numero).nom, shiny: starters![numero],
+      })) : [],
+    };
     const ennemi = coeur ? (({ numero, niveau, pv, pvMax, boss, shiny, rarete }) => ({ numero, niveau, pv, pvMax, boss, shiny, rarete }))(coeur.ennemi) : null;
     store.setState({ lieu, zone: coeur?.zone ?? null, etape: region.etape, ennemi, pv: ennemi?.pv ?? 0,
+      intro: JSON.stringify(intro) === JSON.stringify(precedent.intro) ? precedent.intro : intro,
       evenement: JSON.stringify(evenement) === JSON.stringify(precedent.evenement) ? precedent.evenement : evenement,
       progression: afficherProgression(region, pokedex),
       obtentionBadge: obtentionBadge ? { id: obtentionBadge.id,
@@ -262,7 +286,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       fauchage: afficherFauchage(region, coeur, maintenant, precedent.fauchage),
       radar: region.ameliorations.includes('pokeradar'),
       capture: afficherCapture(coeur, region.inventaire, precedent.capture),
-      boutique: afficherBoutique(region, precedent.boutique), sac: afficherSac(region, precedent.sac),
+      boutique: afficherBoutique(region, precedent.boutique), sac,
       autoClic: precedent.autoClic.possede === region.ameliorations.includes('leftovers')
         && precedent.autoClic.actif === (coeur?.autoClic ?? false) ? precedent.autoClic
         : { possede: region.ameliorations.includes('leftovers'), actif: coeur?.autoClic ?? false },
@@ -341,6 +365,17 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     return null;
   };
   const store = createStore<AffichageJeu>(() => ({
+    intro: { enCours: false, premiereLigneVue: false, choixStarter: false,
+      sacOuvert: false, carteOuverte: true, starters: [] },
+    choisirStarter(numero) {
+      if (!initialise || !store.getState().intro.choixStarter) return 'Le choix du starter n’est pas disponible.';
+      if (numero !== 1 && numero !== 4 && numero !== 7) return 'Starter inconnu.';
+      region = choisirStarter(region, creerStarter(numero, starters![numero], alea, genererId));
+      if (coeur) coeur = { ...coeur, equipe: region.equipe.map(versMembreEquipe) };
+      noterDansPokedex(numero);
+      enregistrer(); afficher();
+      return null;
+    },
     evenement: null,
     terminerEtape() {
       if (!initialise) return;
@@ -510,7 +545,8 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       if (minuteur !== undefined || store.getState().erreurChargement) return;
       try {
         if (!initialise) {
-          persistance = ouvrirPartie({ stockage, horloge, genererId });
+          persistance = ouvrirPartie({ stockage, horloge, genererId }, nouvellePartie === 'intro'
+            ? { equipe: [], drapeaux: ['nouvelle-partie'] } : { equipe: equipeDeDepart(), drapeaux: [] });
           region = persistance.region;
           preferences = persistance.preferences;
           pokedex = completerPokedex(persistance.pokedex, region);
@@ -571,4 +607,10 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
 
 export type StoreJeu = ReturnType<typeof creerStoreJeu>;
 export const storeJeu = creerStoreJeu({ horloge: creerHorlogeSysteme(), stockage: creerStockageLocal(),
-  alea: Math.random, genererId: genererIdentifiant });
+  alea: Math.random, genererId: genererIdentifiant,
+  nouvellePartie: import.meta.env.MODE === 'test' || equipeDeDeveloppement() ? 'equipe-de-depart' : 'intro' });
+
+function equipeDeDeveloppement(): boolean {
+  try { return typeof localStorage !== 'undefined' && localStorage.getItem('pokiclicker-dev:equipe-de-depart') !== null; }
+  catch { return false; }
+}
