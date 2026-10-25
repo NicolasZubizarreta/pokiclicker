@@ -642,7 +642,7 @@ Fourchette : 2 à 3 jours **après** décision. Risque : spécification incompl�
 
 ## T. `feat(pension): pension, œufs et éclosions`
 
-Labels : `type:feat`, `etat:idee`, `est:2-3`, `prio:2` · branche : `v2` · `agent-ok` : oui
+Labels : `type:feat`, `etat:en_cours`, `est:2-3`, `prio:2` · branche : `v2` · `agent-ok` : oui
 
 ### Histoire
 En tant que joueur, je veux déposer deux Pokémon à la pension et faire éclore des œufs afin d'obtenir de nouveaux Pokémon et d'améliorer mon Pokédex.
