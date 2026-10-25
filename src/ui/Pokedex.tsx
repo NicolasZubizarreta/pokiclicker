@@ -18,7 +18,7 @@ export function Pokedex({ retour }: { retour(): void }) {
       <h1 tabIndex={-1} className="font-titre text-2xl font-semibold">Pokédex</h1>
       <p className="text-region-accent">{`${nombre} / ${total}`}</p>
     </header>
-    <ol className="grid grid-cols-4 gap-2 lg:grid-cols-10">
+    <ol className="grid grid-cols-3 gap-2 sm:grid-cols-5 lg:grid-cols-10">
       {Array.from({ length: total }, (_, index) => {
         const numero = index + 1;
         const capture = captures.has(numero);

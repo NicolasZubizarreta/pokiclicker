@@ -10,6 +10,8 @@
   image-rendering: pixelated;
 }
 
+.pc-panneau { max-height: calc(100dvh - var(--spacing) * 16); }
+
 html:has(dialog[open]) { overflow: hidden; }
 .menu-pokemon { transform: translate(calc(var(--menu-x) * 1px), calc(var(--menu-y) * 1px)); }
 .fiche-pokemon {

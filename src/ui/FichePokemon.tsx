@@ -6,6 +6,7 @@ import { calculerMaxXp } from '../core/recompenses';
 import { chargerPokemon, nomType } from '../core/pokemon';
 import { reglages } from '../core/reglages';
 import { BarreXp } from './BarreXp';
+import { dpsSansType } from './dps-pc';
 import { Image } from './Image';
 import { formaterDps } from './nombres';
 import { cheminSprite } from './precharger';
@@ -34,7 +35,7 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur }: Props) {
   const detailPc = pokemonPc ? detailDps(pokemonPc, 1) : null;
   const membre = caseEquipe ?? (pokemonPc && detailPc ? {
     pokemon: pokemonPc, multiplicateur: 1, xpMax: calculerMaxXp(pokemonPc.numero, pokemonPc.niveau),
-    dps: Object.values(detailPc).reduce((produit, facteur) => produit * facteur, 1),
+    dps: dpsSansType(pokemonPc),
   } : undefined);
   const dialogue = useRef<HTMLDialogElement>(null);
   const confirmation = useRef<HTMLDialogElement>(null);

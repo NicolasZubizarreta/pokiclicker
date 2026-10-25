@@ -1,9 +1,14 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useStore } from 'zustand';
 import { filtrerPc, trierPc, type TriPc } from '../core/pc';
 import { chargerPokemon } from '../core/pokemon';
 import type { PokemonPossede } from '../core/sauvegarde';
+import { calculerMaxXp } from '../core/recompenses';
+import { BarreXp } from './BarreXp';
+import { dpsSansType } from './dps-pc';
+import { FichePokemon } from './FichePokemon';
 import { Image } from './Image';
+import { formaterDps } from './nombres';
 import { cheminSprite } from './precharger';
 import { storeJeu } from './store';
 
@@ -17,18 +22,66 @@ const tris: [TriPc, string][] = [
 export function PagePC({ retour }: { retour(): void }) {
   const pc = useStore(storeJeu, etat => etat.pc);
   const accesPc = useStore(storeJeu, etat => etat.accesPc);
+  const equipe = useStore(storeJeu, etat => etat.equipe);
+  const echange = useStore(storeJeu, etat => etat.echange);
+  const [fiche, ouvrir] = useState<string | null>(null);
+  const [ouvert, afficher] = useState(false);
+  const [erreur, signaler] = useState<{ message: string; echange: typeof echange } | null>(null);
+  const declencheur = useRef<HTMLButtonElement>(null);
+  const panneau = useRef<HTMLElement>(null);
   const [tri, trier] = useState<TriPc>('numero');
   const [recherche, rechercher] = useState('');
   const liste = useMemo(() => trierPc(filtrerPc(pc, recherche, nomDe, nomEspece), tri, nomDe), [pc, tri, recherche]);
   const [choisi, choisir] = useState(() => liste[0]?.uid);
   const selection = liste.find(pokemon => pokemon.uid === choisi)?.uid ?? liste[0]?.uid;
+  const pokemon = liste.find(p => p.uid === selection);
+
+  useEffect(() => () => storeJeu.getState().annulerEchange(), []);
+
+  function ouvrirFiche(uid: string, bouton: HTMLButtonElement) {
+    declencheur.current = bouton;
+    ouvrir(uid);
+    afficher(true);
+  }
+
+  function places(mobile: boolean) {
+    return Array.from({ length: 6 }, (_, index) => {
+      const membre = equipe[index];
+      const classe = mobile ? 'size-14 shrink-0 border border-bordure bg-surface' : 'flex min-h-14 w-full items-center gap-2 bg-surface-2 text-left';
+      if (!membre) return <div key={index} className={classe}>
+        <span className={mobile ? 'sr-only' : 'p-2 text-texte-doux'}>Emplacement libre</span>
+      </div>;
+      const { pokemon, dps } = membre;
+      const nom = nomDe(pokemon);
+      const contenu = <>
+        <Image src={cheminSprite(pokemon.numero)} genre="sprite" alt="" className="size-14 shrink-0" />
+        <span className={mobile ? 'sr-only' : 'grid min-w-0 gap-1 break-words'}>
+          <strong>{nom}</strong><span>Niv. {pokemon.niveau}</span><span>{formaterDps(dps)} DPS</span>
+        </span>
+      </>;
+      return echange ? <button key={index} type="button" aria-label={`${nom}, niveau ${pokemon.niveau}`}
+        className={`${classe} hover:bg-selection`} onClick={() => {
+          const message = storeJeu.getState().echanger(echange.uid, pokemon.uid);
+          signaler(message ? { message, echange } : null);
+        }}>{contenu}</button> : <div key={index} className={classe}>{contenu}</div>;
+    });
+  }
 
   return <section className="mx-auto max-w-screen-xl text-base">
     <button type="button" className="mb-4 min-h-11 bg-surface-2 px-4 py-2 hover:bg-selection" onClick={retour}>Retour</button>
     <h1 tabIndex={-1} className="font-titre text-2xl font-semibold">PC de Léo</h1>
     {!accesPc.ouvert ? <p className="mt-4">{accesPc.raison}</p> : <>
       <p className="mt-2 text-region-accent">{pc.length} Pokémon</p>
-      <div className="mt-4 grid min-w-0 gap-4">
+      {echange && <div role="status" className="cadre mt-4 flex flex-wrap items-center gap-4 bg-surface p-4">
+        <p>Choisis le Pokémon à remplacer par {echange.nom}</p>
+        <button type="button" className="min-h-11 bg-surface-2 px-4 py-2" onClick={() => {
+          storeJeu.getState().annulerEchange();
+          signaler(null);
+        }}>Annuler</button>
+      </div>}
+      {erreur && erreur.echange === echange && <p role="alert" className="mt-4 text-erreur-base">{erreur.message}</p>}
+      <div className="mt-4 grid min-w-0 items-start gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+      <div className="grid min-w-0 gap-4">
         <div role="group" aria-label="Trie les Pokémon" className="flex flex-wrap items-center gap-2">
           <span>Trie par :</span>
           {tris.map(([valeur, texte]) => <button key={valeur} type="button" aria-pressed={tri === valeur}
@@ -40,6 +93,7 @@ export function PagePC({ retour }: { retour(): void }) {
           <input id="recherche-pc" type="search" value={recherche} onChange={event => rechercher(event.target.value)}
             className="min-h-11 min-w-0 w-full border border-bordure bg-surface px-4 py-2 text-texte" />
         </div>
+        <div role="group" aria-label="Équipe mobile" className="flex min-w-0 gap-1 overflow-x-auto overscroll-contain lg:hidden">{places(true)}</div>
         {pc.length === 0 ? <p>Ton PC est vide. Capture des Pokémon pour les ranger ici.</p>
           : liste.length === 0 ? <p role="status">Aucun Pokémon ne correspond à « {recherche} ».</p>
             : <ul className="grid min-w-0 grid-cols-[repeat(auto-fill,minmax(calc(var(--spacing)*36),1fr))] items-start gap-4">
@@ -48,7 +102,10 @@ export function PagePC({ retour }: { retour(): void }) {
                 return <li key={pokemon.uid} className="min-w-0">
                   <button type="button" aria-label={`${nom}, niveau ${pokemon.niveau}`} aria-pressed={selection === pokemon.uid}
                     className={`cadre grid min-h-11 w-full justify-items-center gap-2 p-4 text-center hover:bg-selection ${selection === pokemon.uid ? 'bg-selection' : 'bg-surface'}`}
-                    onClick={() => choisir(pokemon.uid)}>
+                    onClick={event => {
+                      choisir(pokemon.uid);
+                      if (!panneau.current?.getClientRects().length) ouvrirFiche(pokemon.uid, event.currentTarget);
+                    }}>
                     <span className="relative isolate grid place-items-center">
                       <span aria-hidden="true" className="socle absolute bottom-2 -z-10 h-4 w-20 bg-region-socle" />
                       <Image src={cheminSprite(pokemon.numero)} genre="sprite" alt="" className="size-24 max-w-none" />
@@ -74,6 +131,33 @@ export function PagePC({ retour }: { retour(): void }) {
               })}
             </ul>}
       </div>
+      <aside ref={panneau} className="pc-panneau cadre sticky top-8 hidden min-w-0 space-y-4 overflow-y-auto overscroll-contain bg-surface p-4 lg:block">
+        <h2 className="font-titre text-xl font-semibold">Équipe · {equipe.filter(Boolean).length} / 6</h2>
+        <div className="grid gap-2">{places(false)}</div>
+        {pokemon ? <>
+          <Image src={cheminSprite(pokemon.numero)} genre="sprite" alt="" className="mx-auto size-24 max-w-full" />
+          <h2 className="break-words font-titre text-xl font-semibold">{nomDe(pokemon)}</h2>
+          <p>N° {pokemon.numero} · Niveau {pokemon.niveau}</p>
+          <p className="text-region-accent">{formaterDps(dpsSansType(pokemon))} DPS</p>
+          <BarreXp xp={pokemon.xp} maximum={calculerMaxXp(pokemon.numero, pokemon.niveau)} nom={nomDe(pokemon)} />
+          <button type="button" aria-pressed={pokemon.favori} className="min-h-11 bg-surface-2 px-4 py-2 hover:bg-selection"
+            onClick={() => {
+              const message = storeJeu.getState().basculerFavori(pokemon.uid);
+              signaler(message ? { message, echange } : null);
+            }}>{pokemon.favori ? 'Retire des favoris' : 'Ajoute aux favoris'}</button>
+        </> : <h2 className="font-titre text-xl font-semibold">Aucune sélection</h2>}
+        {!ouvert && <button type="button" disabled={!pokemon || !!echange}
+          className="min-h-11 bg-action px-4 py-2 text-action-texte hover:bg-action-survol disabled:text-texte-doux"
+          onClick={() => {
+            if (!pokemon) return;
+            const message = storeJeu.getState().placerDansEquipe(pokemon.uid);
+            signaler(message ? { message, echange } : null);
+          }}>Placer dans l'équipe</button>}
+        {pokemon && <button type="button" className="min-h-11 bg-surface-2 px-4 py-2 text-lien hover:bg-selection"
+          onClick={event => ouvrirFiche(pokemon.uid, event.currentTarget)}>Ouvre la fiche</button>}
+      </aside>
+      </div>
     </>}
+    {fiche !== null && <FichePokemon uid={fiche} ouvert={ouvert} fermer={() => afficher(false)} declencheur={declencheur} />}
   </section>;
 }

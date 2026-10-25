@@ -6,6 +6,8 @@ import { trierPc, type TriPc } from '../core/pc';
 import type { PokemonPossede } from '../core/sauvegarde';
 import { PagePC } from './PagePC';
 import { storeJeu } from './store';
+import { dpsSansType } from './dps-pc';
+import { formaterDps } from './nombres';
 
 vi.mock('./store', async original => {
   const module = await original<typeof import('./store')>();
@@ -127,4 +129,125 @@ it('appelle retour', () => {
   render(<PagePC retour={retour} />);
   fireEvent.click(screen.getByRole('button', { name: 'Retour' }));
   expect(retour).toHaveBeenCalledOnce();
+});
+
+const caseDe = (pokemon: PokemonPossede) => ({ pokemon, dps: 42, xpMax: 100, multiplicateur: 1 });
+const annulerEchange = vi.fn(() => storeJeu.setState({ echange: null }));
+const placerDansEquipe = vi.fn((uid: string): string | null => {
+  const { pc, equipe } = storeJeu.getState();
+  const pokemon = pc.find(p => p.uid === uid)!;
+  const libre = equipe.indexOf(null);
+  if (libre < 0) storeJeu.setState({ echange: { uid, nom: nomDe(pokemon) } });
+  else storeJeu.setState({ pc: pc.filter(p => p.uid !== uid), equipe: equipe.map((c, i) => i === libre ? caseDe(pokemon) : c) });
+  return null;
+});
+const echanger = vi.fn((uid: string, cible: string): string | null => {
+  const { pc, equipe } = storeJeu.getState();
+  const entrant = pc.find(p => p.uid === uid)!;
+  const sortant = equipe.find(c => c?.pokemon.uid === cible)!.pokemon;
+  storeJeu.setState({ pc: pc.map(p => p.uid === uid ? sortant : p),
+    equipe: equipe.map(c => c?.pokemon.uid === cible ? caseDe(entrant) : c), echange: null });
+  return null;
+});
+const basculerFavori = vi.fn((uid: string): string | null => {
+  storeJeu.setState({ pc: storeJeu.getState().pc.map(p => p.uid === uid ? { ...p, favori: !p.favori } : p) });
+  return null;
+});
+
+beforeEach(() => {
+  vi.spyOn(HTMLElement.prototype, 'getClientRects').mockReturnValue({ length: 1 } as DOMRectList);
+  Object.defineProperties(HTMLDialogElement.prototype, {
+    showModal: { configurable: true, value(this: HTMLDialogElement) { this.setAttribute('open', ''); } },
+    close: { configurable: true, value(this: HTMLDialogElement) {
+      this.removeAttribute('open'); this.dispatchEvent(new Event('close'));
+    } },
+  });
+  vi.clearAllMocks();
+  storeJeu.setState({ equipe: [caseDe({ ...base, uid: 'e1' }), caseDe({ ...base, uid: 'e2' }), null, null, null, null],
+    echange: null, annulerEchange, placerDansEquipe, echanger, basculerFavori });
+});
+afterEach(() => vi.restoreAllMocks());
+
+it('présente le détail choisi, ses DPS sans type et six emplacements par affichage', () => {
+  render(<PagePC retour={vi.fn()} />);
+  const panneau = screen.getByRole('complementary');
+  expect(within(panneau).getByRole('heading', { name: 'Zéphyr' })).toBeTruthy();
+  expect(within(panneau).getByText(`${formaterDps(dpsSansType(pc[3]!))} DPS`)).toBeTruthy();
+  expect(within(panneau).getByRole('progressbar', { name: 'XP de Zéphyr' })).toBeTruthy();
+  expect(within(panneau).getAllByText('Emplacement libre')).toHaveLength(4);
+  expect(within(panneau).queryByRole('button', { name: 'Pikachu, niveau 8' })).toBeNull();
+  expect(screen.getByRole('group', { name: 'Équipe mobile' }).children).toHaveLength(6);
+});
+
+it('place le Pokémon dans une équipe incomplète et sélectionne le suivant', () => {
+  render(<PagePC retour={vi.fn()} />);
+  fireEvent.click(screen.getByRole('button', { name: "Placer dans l'équipe" }));
+  expect(placerDansEquipe).toHaveBeenCalledWith('autre');
+  expect(storeJeu.getState().equipe.some(c => c?.pokemon.uid === 'autre')).toBe(true);
+  expect(storeJeu.getState().pc.some(p => p.uid === 'autre')).toBe(false);
+  expect(within(screen.getByRole('list')).getByRole('button', { pressed: true }).getAttribute('aria-label')).toBe('Bulbizarre, niveau 12');
+});
+
+it.each(['colonne', 'mobile'])('échange avec une équipe pleine depuis la %s, puis annule', affichage => {
+  storeJeu.setState({ equipe: Array.from({ length: 6 }, (_, i) => caseDe({ ...base, uid: `e${i}`, surnom: `Partenaire ${i}` })) });
+  render(<PagePC retour={vi.fn()} />);
+  fireEvent.click(screen.getByRole('button', { name: "Placer dans l'équipe" }));
+  expect(screen.getByRole('status').textContent).toContain('Choisis le Pokémon à remplacer par Zéphyr');
+  const zone = affichage === 'mobile' ? screen.getByRole('group', { name: 'Équipe mobile' }) : screen.getByRole('complementary');
+  fireEvent.click(within(zone).getByRole('button', { name: 'Partenaire 0, niveau 8' }));
+  expect(echanger).toHaveBeenCalledWith('autre', 'e0');
+  expect(storeJeu.getState().equipe[0]?.pokemon.uid).toBe('autre');
+  expect(storeJeu.getState().pc.some(p => p.uid === 'e0')).toBe(true);
+  expect(screen.queryByRole('status')).toBeNull();
+  fireEvent.click(screen.getByRole('button', { name: "Placer dans l'équipe" }));
+  fireEvent.click(screen.getByRole('button', { name: 'Annuler' }));
+  expect(annulerEchange).toHaveBeenCalledOnce();
+  expect(screen.queryByRole('status')).toBeNull();
+});
+
+it('affiche les erreurs de placement, de favori et d’échange', () => {
+  placerDansEquipe.mockReturnValueOnce('Placement impossible. Réessaie.');
+  basculerFavori.mockReturnValueOnce('Favori impossible. Réessaie.');
+  echanger.mockReturnValueOnce('Échange impossible. Réessaie.');
+  render(<PagePC retour={vi.fn()} />);
+  fireEvent.click(screen.getByRole('button', { name: "Placer dans l'équipe" }));
+  expect(screen.getByRole('alert').textContent).toBe('Placement impossible. Réessaie.');
+  fireEvent.click(screen.getByRole('button', { name: 'Ajoute aux favoris' }));
+  expect(screen.getByRole('alert').textContent).toBe('Favori impossible. Réessaie.');
+  cleanup();
+  storeJeu.setState({ echange: { uid: 'autre', nom: 'Zéphyr' } });
+  render(<PagePC retour={vi.fn()} />);
+  fireEvent.click(within(screen.getByRole('complementary')).getAllByRole('button', { name: 'Pikachu, niveau 8' })[0]!);
+  expect(screen.getByRole('alert').textContent).toBe('Échange impossible. Réessaie.');
+  fireEvent.click(screen.getByRole('button', { name: 'Annuler' }));
+  expect(screen.queryByRole('alert')).toBeNull();
+});
+
+it('bascule le favori depuis le détail', () => {
+  render(<PagePC retour={vi.fn()} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Ajoute aux favoris' }));
+  expect(basculerFavori).toHaveBeenCalledWith('autre');
+  expect(storeJeu.getState().pc.find(p => p.uid === 'autre')?.favori).toBe(true);
+  expect(screen.getByRole('button', { name: 'Retire des favoris', pressed: true })).toBeTruthy();
+});
+
+it.each(['détail', 'carte mobile'])('ouvre une seule fiche depuis le %s et restaure le focus', origine => {
+  if (origine === 'carte mobile') vi.spyOn(HTMLElement.prototype, 'getClientRects').mockReturnValue({ length: 0 } as DOMRectList);
+  render(<PagePC retour={vi.fn()} />);
+  const bouton = screen.getByRole('button', { name: origine === 'détail' ? 'Ouvre la fiche' : 'Zéphyr, niveau 30' });
+  fireEvent.click(bouton);
+  expect(screen.getByRole('dialog', { name: 'Zéphyr' })).toBeTruthy();
+  expect(document.querySelectorAll('dialog[open]')).toHaveLength(1);
+  fireEvent.click(screen.getByRole('button', { name: 'Ferme la fiche' }));
+  expect(screen.queryByRole('dialog')).toBeNull();
+  expect(document.activeElement).toBe(bouton);
+});
+
+it('annule au démontage et désactive le placement sans sélection', () => {
+  storeJeu.setState({ pc: [] });
+  const { unmount } = render(<PagePC retour={vi.fn()} />);
+  expect(screen.getByRole('heading', { name: 'Aucune sélection' })).toBeTruthy();
+  expect((screen.getByRole('button', { name: "Placer dans l'équipe" }) as HTMLButtonElement).disabled).toBe(true);
+  unmount();
+  expect(annulerEchange).toHaveBeenCalledOnce();
 });

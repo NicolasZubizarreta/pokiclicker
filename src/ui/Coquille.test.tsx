@@ -101,10 +101,27 @@ describe('Coquille', () => {
       else if (nom === 'Équipe') {
         expect(screen.queryByText('Cette page arrive bientôt.')).toBeNull();
         expect(screen.getAllByRole('listitem')).toHaveLength(6);
+      } else if (nom === 'Plus') {
+        expect(screen.queryByText('Cette page arrive bientôt.')).toBeNull();
+        expect(screen.getByRole('button', { name: 'PC de Léo' })).toBeTruthy();
+        expect(screen.getByRole('button', { name: /^Pokédex \d+ \/ 151$/ })).toBeTruthy();
       } else expect(screen.getByText('Cette page arrive bientôt.')).toBeTruthy();
       expect(screen.getAllByRole('button').filter((bouton) => bouton.hasAttribute('aria-current')))
         .toEqual([screen.getByRole('button', { name: nom })]);
     }
+  });
+
+  it('revient au menu Plus après avoir quitté son onglet depuis une sous-page', async () => {
+    const utilisateur = userEvent.setup();
+    render(<Coquille />);
+    await utilisateur.click(screen.getByRole('button', { name: 'Plus' }));
+    await utilisateur.click(screen.getByRole('button', { name: /^Pokédex \d+ \/ 151$/ }));
+    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Pokédex');
+    await utilisateur.click(screen.getByRole('button', { name: 'Shop' }));
+    expect(screen.getByText('Cette page arrive bientôt.')).toBeTruthy();
+    await utilisateur.click(screen.getByRole('button', { name: 'Plus' }));
+    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Plus');
+    expect(screen.queryByRole('button', { name: 'Retour' })).toBeNull();
   });
 
   it('place le lien d’évitement puis les cinq boutons dans le parcours clavier', async () => {
@@ -132,7 +149,8 @@ describe('Coquille', () => {
   it('emploie les textes français prévus et masque les icônes aux lecteurs d’écran', async () => {
     const utilisateur = userEvent.setup();
     const { container } = render(<Coquille />);
-    const autorises = new Set(['Aller au contenu', ...noms, 'Cette page arrive bientôt.']);
+    const autorises = new Set(['Aller au contenu', ...noms, 'Cette page arrive bientôt.',
+      'PC de Léo', 'Pokédex', "Le PC de Léo s'ouvre à l'Arène d'Argenta."]);
     for (const nom of noms.slice(1)) {
       await utilisateur.click(screen.getByRole('button', { name: nom }));
       const equipe = storeJeu.getState().equipe;
@@ -156,7 +174,7 @@ describe('Coquille', () => {
         }
         const textesCarte = new Set(['Ton voyage', 'Touche une zone pour la voir.', ...storeJeu.getState().carte.formes.map(f =>
           f.numero === null || f.numero === 0 ? f.nom : `${f.nom} (Zone ${f.numero})`)]);
-        if (texte) expect(autorises.has(texte) || textesCarte.has(texte), texte).toBe(true);
+        if (texte) expect(autorises.has(texte) || textesCarte.has(texte) || (nom === 'Plus' && /^\d+ \/ 151$/.test(texte)), texte).toBe(true);
       }
       for (const element of container.querySelectorAll('[aria-label]')) {
         const forme = storeJeu.getState().carte.formes.find(f => f.nom === element.getAttribute('data-forme'));

@@ -23,7 +23,7 @@ it('présente les 151 espèces dans l’ordre national et compte les captures de
   expect(liste.tagName).toBe('OL');
   const entrees = within(liste).getAllByRole('listitem');
   expect(entrees).toHaveLength(151);
-  expect(liste.classList.contains('grid-cols-4')).toBe(true);
+  expect(liste.classList.contains('grid-cols-3')).toBe(true);
   expect(liste.classList.contains('lg:grid-cols-10')).toBe(true);
   entrees.forEach((entree, index) => {
     expect(within(entree).getByText(`N° ${index + 1}`)).toBeTruthy();
