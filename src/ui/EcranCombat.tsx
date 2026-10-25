@@ -119,7 +119,7 @@ function Scene({ store }: { store: StoreJeu }) {
     </div>}
     {notification}
     {banniere !== null && <div aria-hidden="true"
-      className="pointer-events-none cadre absolute inset-x-4 top-16 z-20 bg-alerte-base p-2 text-center text-texte-inverse">{banniere}</div>}
+      className="pointer-events-none cadre absolute inset-x-4 top-20 z-20 bg-alerte-base p-2 text-center text-texte-inverse">{banniere}</div>}
     <button type="button" aria-label={enRecherche ? 'Attaquer (recherche en cours)' : `Attaquer ${nom}`}
       className="cible-combat cadre absolute inset-0 z-10 touch-manipulation select-none"
       onContextMenu={event => event.preventDefault()}
