@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import donnees from '../../data/regions/kanto/zones.json';
 import fixture from '../../tests/fixtures/v1-zones.json';
+import badges from '../../data/badges.json';
 import { kanto } from './regions';
 import { chargerMonde } from './monde';
 import type { FichierZones, Rarete, Zone } from './monde';
@@ -105,15 +106,28 @@ describe('fidélité des zones de Kanto à la V1', () => {
     expect(kanto.zones.map(({ id }) => id)).toEqual(ids);
     ids.forEach((id, index) => {
       const suivant = ids[index + 1];
+      if (index === 20) {
+        // Correction du ticket Q : seul le lien Route Victoire → Ligue exige les huit badges.
+        expect(kanto.liensDepuis(id)).toEqual([{
+          vers: suivant,
+          si: { tous: [
+            { type: 'boss', zone: id },
+            ...[...badges].sort((a, b) => a.ordre - b.ordre)
+              .map(({ id, nom }) => ({ type: 'badge', id, nom })),
+          ] },
+        }]);
+      } else {
       expect(kanto.liensDepuis(id)).toEqual(suivant
         ? [index === 0 ? { vers: suivant } : { vers: suivant, si: { type: 'boss', zone: id } }]
         : []);
+      }
       if (index > 0) expect(kanto.peutPasser(id, ids[index - 1]!, vide).ok).toBe(false);
     });
   });
 
   it('ouvre exactement une zone par boss vaincu jusqu’aux 22 zones', () => {
     const etat = structuredClone(vide);
+    etat.badges = badges.map(({ id }) => id);
     expect(kanto.zonesOuvertes(etat).map(({ id }) => id)).toEqual([bourg, route]);
     for (let index = 1; index < ids.length - 1; index++) {
       etat.bossVaincus.push(ids[index]!);

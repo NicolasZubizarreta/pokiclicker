@@ -1294,8 +1294,52 @@
         {
           "vers": "kanto.ligue-pokemon",
           "si": {
-            "type": "boss",
-            "zone": "kanto.route-victoire"
+            "tous": [
+              {
+                "type": "boss",
+                "zone": "kanto.route-victoire"
+              },
+              {
+                "type": "badge",
+                "id": "roche",
+                "nom": "Roche"
+              },
+              {
+                "type": "badge",
+                "id": "cascade",
+                "nom": "Cascade"
+              },
+              {
+                "type": "badge",
+                "id": "foudre",
+                "nom": "Foudre"
+              },
+              {
+                "type": "badge",
+                "id": "prisme",
+                "nom": "Prisme"
+              },
+              {
+                "type": "badge",
+                "id": "ame",
+                "nom": "Âme"
+              },
+              {
+                "type": "badge",
+                "id": "marais",
+                "nom": "Marais"
+              },
+              {
+                "type": "badge",
+                "id": "volcan",
+                "nom": "Volcan"
+              },
+              {
+                "type": "badge",
+                "id": "terre",
+                "nom": "Terre"
+              }
+            ]
           }
         }
       ],

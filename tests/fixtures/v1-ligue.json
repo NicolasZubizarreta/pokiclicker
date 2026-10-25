@@ -1,0 +1,1900 @@
+{
+  "source": "legacy/js/game/combat.js",
+  "aleatoire": [
+    0.5
+  ],
+  "combats": [
+    {
+      "etape": 1,
+      "starterId": null,
+      "name": "Olga (Lokhlass)",
+      "id": 131,
+      "level": 74,
+      "maxHp": 2928624,
+      "isBoss": true,
+      "catchRate": 0,
+      "minuteur": {
+        "periodeMs": 1000,
+        "tops": [
+          {
+            "largeur": "96.66666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "93.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "90%",
+            "expire": false
+          },
+          {
+            "largeur": "86.66666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "83.33333333333334%",
+            "expire": false
+          },
+          {
+            "largeur": "80%",
+            "expire": false
+          },
+          {
+            "largeur": "76.66666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "73.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "70%",
+            "expire": false
+          },
+          {
+            "largeur": "66.66666666666666%",
+            "expire": false
+          },
+          {
+            "largeur": "63.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "60%",
+            "expire": false
+          },
+          {
+            "largeur": "56.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "53.333333333333336%",
+            "expire": false
+          },
+          {
+            "largeur": "50%",
+            "expire": false
+          },
+          {
+            "largeur": "46.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "43.333333333333336%",
+            "expire": false
+          },
+          {
+            "largeur": "40%",
+            "expire": false
+          },
+          {
+            "largeur": "36.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "33.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "30%",
+            "expire": false
+          },
+          {
+            "largeur": "26.666666666666668%",
+            "expire": false
+          },
+          {
+            "largeur": "23.333333333333332%",
+            "expire": false
+          },
+          {
+            "largeur": "20%",
+            "expire": false
+          },
+          {
+            "largeur": "16.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "13.333333333333334%",
+            "expire": false
+          },
+          {
+            "largeur": "10%",
+            "expire": false
+          },
+          {
+            "largeur": "6.666666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "3.3333333333333335%",
+            "expire": false
+          },
+          {
+            "largeur": "0%",
+            "expire": true
+          }
+        ]
+      }
+    },
+    {
+      "etape": 2,
+      "starterId": null,
+      "name": "Olga (Lippoutou)",
+      "id": 124,
+      "level": 76,
+      "maxHp": 2005184,
+      "isBoss": true,
+      "catchRate": 0,
+      "minuteur": {
+        "periodeMs": 1000,
+        "tops": [
+          {
+            "largeur": "96.66666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "93.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "90%",
+            "expire": false
+          },
+          {
+            "largeur": "86.66666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "83.33333333333334%",
+            "expire": false
+          },
+          {
+            "largeur": "80%",
+            "expire": false
+          },
+          {
+            "largeur": "76.66666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "73.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "70%",
+            "expire": false
+          },
+          {
+            "largeur": "66.66666666666666%",
+            "expire": false
+          },
+          {
+            "largeur": "63.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "60%",
+            "expire": false
+          },
+          {
+            "largeur": "56.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "53.333333333333336%",
+            "expire": false
+          },
+          {
+            "largeur": "50%",
+            "expire": false
+          },
+          {
+            "largeur": "46.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "43.333333333333336%",
+            "expire": false
+          },
+          {
+            "largeur": "40%",
+            "expire": false
+          },
+          {
+            "largeur": "36.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "33.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "30%",
+            "expire": false
+          },
+          {
+            "largeur": "26.666666666666668%",
+            "expire": false
+          },
+          {
+            "largeur": "23.333333333333332%",
+            "expire": false
+          },
+          {
+            "largeur": "20%",
+            "expire": false
+          },
+          {
+            "largeur": "16.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "13.333333333333334%",
+            "expire": false
+          },
+          {
+            "largeur": "10%",
+            "expire": false
+          },
+          {
+            "largeur": "6.666666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "3.3333333333333335%",
+            "expire": false
+          },
+          {
+            "largeur": "0%",
+            "expire": true
+          }
+        ]
+      }
+    },
+    {
+      "etape": 3,
+      "starterId": null,
+      "name": "Aldo (Mackogneur)",
+      "id": 68,
+      "level": 78,
+      "maxHp": 2663232,
+      "isBoss": true,
+      "catchRate": 0,
+      "minuteur": {
+        "periodeMs": 1000,
+        "tops": [
+          {
+            "largeur": "96.66666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "93.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "90%",
+            "expire": false
+          },
+          {
+            "largeur": "86.66666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "83.33333333333334%",
+            "expire": false
+          },
+          {
+            "largeur": "80%",
+            "expire": false
+          },
+          {
+            "largeur": "76.66666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "73.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "70%",
+            "expire": false
+          },
+          {
+            "largeur": "66.66666666666666%",
+            "expire": false
+          },
+          {
+            "largeur": "63.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "60%",
+            "expire": false
+          },
+          {
+            "largeur": "56.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "53.333333333333336%",
+            "expire": false
+          },
+          {
+            "largeur": "50%",
+            "expire": false
+          },
+          {
+            "largeur": "46.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "43.333333333333336%",
+            "expire": false
+          },
+          {
+            "largeur": "40%",
+            "expire": false
+          },
+          {
+            "largeur": "36.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "33.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "30%",
+            "expire": false
+          },
+          {
+            "largeur": "26.666666666666668%",
+            "expire": false
+          },
+          {
+            "largeur": "23.333333333333332%",
+            "expire": false
+          },
+          {
+            "largeur": "20%",
+            "expire": false
+          },
+          {
+            "largeur": "16.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "13.333333333333334%",
+            "expire": false
+          },
+          {
+            "largeur": "10%",
+            "expire": false
+          },
+          {
+            "largeur": "6.666666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "3.3333333333333335%",
+            "expire": false
+          },
+          {
+            "largeur": "0%",
+            "expire": true
+          }
+        ]
+      }
+    },
+    {
+      "etape": 4,
+      "starterId": null,
+      "name": "Aldo (Onix)",
+      "id": 95,
+      "level": 80,
+      "maxHp": 2483200,
+      "isBoss": true,
+      "catchRate": 0,
+      "minuteur": {
+        "periodeMs": 1000,
+        "tops": [
+          {
+            "largeur": "96.66666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "93.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "90%",
+            "expire": false
+          },
+          {
+            "largeur": "86.66666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "83.33333333333334%",
+            "expire": false
+          },
+          {
+            "largeur": "80%",
+            "expire": false
+          },
+          {
+            "largeur": "76.66666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "73.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "70%",
+            "expire": false
+          },
+          {
+            "largeur": "66.66666666666666%",
+            "expire": false
+          },
+          {
+            "largeur": "63.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "60%",
+            "expire": false
+          },
+          {
+            "largeur": "56.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "53.333333333333336%",
+            "expire": false
+          },
+          {
+            "largeur": "50%",
+            "expire": false
+          },
+          {
+            "largeur": "46.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "43.333333333333336%",
+            "expire": false
+          },
+          {
+            "largeur": "40%",
+            "expire": false
+          },
+          {
+            "largeur": "36.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "33.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "30%",
+            "expire": false
+          },
+          {
+            "largeur": "26.666666666666668%",
+            "expire": false
+          },
+          {
+            "largeur": "23.333333333333332%",
+            "expire": false
+          },
+          {
+            "largeur": "20%",
+            "expire": false
+          },
+          {
+            "largeur": "16.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "13.333333333333334%",
+            "expire": false
+          },
+          {
+            "largeur": "10%",
+            "expire": false
+          },
+          {
+            "largeur": "6.666666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "3.3333333333333335%",
+            "expire": false
+          },
+          {
+            "largeur": "0%",
+            "expire": true
+          }
+        ]
+      }
+    },
+    {
+      "etape": 5,
+      "starterId": null,
+      "name": "Agatha (Ectoplasma)",
+      "id": 94,
+      "level": 82,
+      "maxHp": 2386200,
+      "isBoss": true,
+      "catchRate": 0,
+      "minuteur": {
+        "periodeMs": 1000,
+        "tops": [
+          {
+            "largeur": "96.66666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "93.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "90%",
+            "expire": false
+          },
+          {
+            "largeur": "86.66666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "83.33333333333334%",
+            "expire": false
+          },
+          {
+            "largeur": "80%",
+            "expire": false
+          },
+          {
+            "largeur": "76.66666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "73.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "70%",
+            "expire": false
+          },
+          {
+            "largeur": "66.66666666666666%",
+            "expire": false
+          },
+          {
+            "largeur": "63.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "60%",
+            "expire": false
+          },
+          {
+            "largeur": "56.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "53.333333333333336%",
+            "expire": false
+          },
+          {
+            "largeur": "50%",
+            "expire": false
+          },
+          {
+            "largeur": "46.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "43.333333333333336%",
+            "expire": false
+          },
+          {
+            "largeur": "40%",
+            "expire": false
+          },
+          {
+            "largeur": "36.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "33.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "30%",
+            "expire": false
+          },
+          {
+            "largeur": "26.666666666666668%",
+            "expire": false
+          },
+          {
+            "largeur": "23.333333333333332%",
+            "expire": false
+          },
+          {
+            "largeur": "20%",
+            "expire": false
+          },
+          {
+            "largeur": "16.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "13.333333333333334%",
+            "expire": false
+          },
+          {
+            "largeur": "10%",
+            "expire": false
+          },
+          {
+            "largeur": "6.666666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "3.3333333333333335%",
+            "expire": false
+          },
+          {
+            "largeur": "0%",
+            "expire": true
+          }
+        ]
+      }
+    },
+    {
+      "etape": 6,
+      "starterId": null,
+      "name": "Agatha (Arbok)",
+      "id": 24,
+      "level": 84,
+      "maxHp": 2379216,
+      "isBoss": true,
+      "catchRate": 0,
+      "minuteur": {
+        "periodeMs": 1000,
+        "tops": [
+          {
+            "largeur": "96.66666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "93.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "90%",
+            "expire": false
+          },
+          {
+            "largeur": "86.66666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "83.33333333333334%",
+            "expire": false
+          },
+          {
+            "largeur": "80%",
+            "expire": false
+          },
+          {
+            "largeur": "76.66666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "73.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "70%",
+            "expire": false
+          },
+          {
+            "largeur": "66.66666666666666%",
+            "expire": false
+          },
+          {
+            "largeur": "63.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "60%",
+            "expire": false
+          },
+          {
+            "largeur": "56.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "53.333333333333336%",
+            "expire": false
+          },
+          {
+            "largeur": "50%",
+            "expire": false
+          },
+          {
+            "largeur": "46.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "43.333333333333336%",
+            "expire": false
+          },
+          {
+            "largeur": "40%",
+            "expire": false
+          },
+          {
+            "largeur": "36.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "33.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "30%",
+            "expire": false
+          },
+          {
+            "largeur": "26.666666666666668%",
+            "expire": false
+          },
+          {
+            "largeur": "23.333333333333332%",
+            "expire": false
+          },
+          {
+            "largeur": "20%",
+            "expire": false
+          },
+          {
+            "largeur": "16.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "13.333333333333334%",
+            "expire": false
+          },
+          {
+            "largeur": "10%",
+            "expire": false
+          },
+          {
+            "largeur": "6.666666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "3.3333333333333335%",
+            "expire": false
+          },
+          {
+            "largeur": "0%",
+            "expire": true
+          }
+        ]
+      }
+    },
+    {
+      "etape": 7,
+      "starterId": null,
+      "name": "Peter (Dracolosse)",
+      "id": 149,
+      "level": 86,
+      "maxHp": 3436904,
+      "isBoss": true,
+      "catchRate": 0,
+      "minuteur": {
+        "periodeMs": 1000,
+        "tops": [
+          {
+            "largeur": "96.66666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "93.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "90%",
+            "expire": false
+          },
+          {
+            "largeur": "86.66666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "83.33333333333334%",
+            "expire": false
+          },
+          {
+            "largeur": "80%",
+            "expire": false
+          },
+          {
+            "largeur": "76.66666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "73.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "70%",
+            "expire": false
+          },
+          {
+            "largeur": "66.66666666666666%",
+            "expire": false
+          },
+          {
+            "largeur": "63.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "60%",
+            "expire": false
+          },
+          {
+            "largeur": "56.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "53.333333333333336%",
+            "expire": false
+          },
+          {
+            "largeur": "50%",
+            "expire": false
+          },
+          {
+            "largeur": "46.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "43.333333333333336%",
+            "expire": false
+          },
+          {
+            "largeur": "40%",
+            "expire": false
+          },
+          {
+            "largeur": "36.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "33.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "30%",
+            "expire": false
+          },
+          {
+            "largeur": "26.666666666666668%",
+            "expire": false
+          },
+          {
+            "largeur": "23.333333333333332%",
+            "expire": false
+          },
+          {
+            "largeur": "20%",
+            "expire": false
+          },
+          {
+            "largeur": "16.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "13.333333333333334%",
+            "expire": false
+          },
+          {
+            "largeur": "10%",
+            "expire": false
+          },
+          {
+            "largeur": "6.666666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "3.3333333333333335%",
+            "expire": false
+          },
+          {
+            "largeur": "0%",
+            "expire": true
+          }
+        ]
+      }
+    },
+    {
+      "etape": 8,
+      "starterId": null,
+      "name": "Peter (Léviator)",
+      "id": 130,
+      "level": 88,
+      "maxHp": 3243680,
+      "isBoss": true,
+      "catchRate": 0,
+      "minuteur": {
+        "periodeMs": 1000,
+        "tops": [
+          {
+            "largeur": "96.66666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "93.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "90%",
+            "expire": false
+          },
+          {
+            "largeur": "86.66666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "83.33333333333334%",
+            "expire": false
+          },
+          {
+            "largeur": "80%",
+            "expire": false
+          },
+          {
+            "largeur": "76.66666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "73.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "70%",
+            "expire": false
+          },
+          {
+            "largeur": "66.66666666666666%",
+            "expire": false
+          },
+          {
+            "largeur": "63.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "60%",
+            "expire": false
+          },
+          {
+            "largeur": "56.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "53.333333333333336%",
+            "expire": false
+          },
+          {
+            "largeur": "50%",
+            "expire": false
+          },
+          {
+            "largeur": "46.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "43.333333333333336%",
+            "expire": false
+          },
+          {
+            "largeur": "40%",
+            "expire": false
+          },
+          {
+            "largeur": "36.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "33.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "30%",
+            "expire": false
+          },
+          {
+            "largeur": "26.666666666666668%",
+            "expire": false
+          },
+          {
+            "largeur": "23.333333333333332%",
+            "expire": false
+          },
+          {
+            "largeur": "20%",
+            "expire": false
+          },
+          {
+            "largeur": "16.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "13.333333333333334%",
+            "expire": false
+          },
+          {
+            "largeur": "10%",
+            "expire": false
+          },
+          {
+            "largeur": "6.666666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "3.3333333333333335%",
+            "expire": false
+          },
+          {
+            "largeur": "0%",
+            "expire": true
+          }
+        ]
+      }
+    },
+    {
+      "etape": 9,
+      "starterId": null,
+      "name": "Maître Blue (Roucarnage)",
+      "id": 18,
+      "level": 92,
+      "maxHp": 2748592,
+      "isBoss": true,
+      "catchRate": 0,
+      "minuteur": {
+        "periodeMs": 1000,
+        "tops": [
+          {
+            "largeur": "96.66666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "93.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "90%",
+            "expire": false
+          },
+          {
+            "largeur": "86.66666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "83.33333333333334%",
+            "expire": false
+          },
+          {
+            "largeur": "80%",
+            "expire": false
+          },
+          {
+            "largeur": "76.66666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "73.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "70%",
+            "expire": false
+          },
+          {
+            "largeur": "66.66666666666666%",
+            "expire": false
+          },
+          {
+            "largeur": "63.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "60%",
+            "expire": false
+          },
+          {
+            "largeur": "56.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "53.333333333333336%",
+            "expire": false
+          },
+          {
+            "largeur": "50%",
+            "expire": false
+          },
+          {
+            "largeur": "46.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "43.333333333333336%",
+            "expire": false
+          },
+          {
+            "largeur": "40%",
+            "expire": false
+          },
+          {
+            "largeur": "36.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "33.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "30%",
+            "expire": false
+          },
+          {
+            "largeur": "26.666666666666668%",
+            "expire": false
+          },
+          {
+            "largeur": "23.333333333333332%",
+            "expire": false
+          },
+          {
+            "largeur": "20%",
+            "expire": false
+          },
+          {
+            "largeur": "16.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "13.333333333333334%",
+            "expire": false
+          },
+          {
+            "largeur": "10%",
+            "expire": false
+          },
+          {
+            "largeur": "6.666666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "3.3333333333333335%",
+            "expire": false
+          },
+          {
+            "largeur": "0%",
+            "expire": true
+          }
+        ]
+      }
+    },
+    {
+      "etape": 10,
+      "starterId": null,
+      "name": "Maître Blue",
+      "id": 9,
+      "level": 100,
+      "maxHp": 3686000,
+      "isBoss": true,
+      "catchRate": 0,
+      "minuteur": {
+        "periodeMs": 1000,
+        "tops": [
+          {
+            "largeur": "96.66666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "93.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "90%",
+            "expire": false
+          },
+          {
+            "largeur": "86.66666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "83.33333333333334%",
+            "expire": false
+          },
+          {
+            "largeur": "80%",
+            "expire": false
+          },
+          {
+            "largeur": "76.66666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "73.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "70%",
+            "expire": false
+          },
+          {
+            "largeur": "66.66666666666666%",
+            "expire": false
+          },
+          {
+            "largeur": "63.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "60%",
+            "expire": false
+          },
+          {
+            "largeur": "56.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "53.333333333333336%",
+            "expire": false
+          },
+          {
+            "largeur": "50%",
+            "expire": false
+          },
+          {
+            "largeur": "46.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "43.333333333333336%",
+            "expire": false
+          },
+          {
+            "largeur": "40%",
+            "expire": false
+          },
+          {
+            "largeur": "36.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "33.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "30%",
+            "expire": false
+          },
+          {
+            "largeur": "26.666666666666668%",
+            "expire": false
+          },
+          {
+            "largeur": "23.333333333333332%",
+            "expire": false
+          },
+          {
+            "largeur": "20%",
+            "expire": false
+          },
+          {
+            "largeur": "16.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "13.333333333333334%",
+            "expire": false
+          },
+          {
+            "largeur": "10%",
+            "expire": false
+          },
+          {
+            "largeur": "6.666666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "3.3333333333333335%",
+            "expire": false
+          },
+          {
+            "largeur": "0%",
+            "expire": true
+          }
+        ]
+      }
+    }
+  ],
+  "counter": [
+    {
+      "etape": 10,
+      "starterId": 1,
+      "name": "Maître Blue (Dracaufeu)",
+      "id": 6,
+      "level": 100,
+      "maxHp": 3298000,
+      "isBoss": true,
+      "catchRate": 0,
+      "minuteur": {
+        "periodeMs": 1000,
+        "tops": [
+          {
+            "largeur": "96.66666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "93.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "90%",
+            "expire": false
+          },
+          {
+            "largeur": "86.66666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "83.33333333333334%",
+            "expire": false
+          },
+          {
+            "largeur": "80%",
+            "expire": false
+          },
+          {
+            "largeur": "76.66666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "73.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "70%",
+            "expire": false
+          },
+          {
+            "largeur": "66.66666666666666%",
+            "expire": false
+          },
+          {
+            "largeur": "63.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "60%",
+            "expire": false
+          },
+          {
+            "largeur": "56.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "53.333333333333336%",
+            "expire": false
+          },
+          {
+            "largeur": "50%",
+            "expire": false
+          },
+          {
+            "largeur": "46.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "43.333333333333336%",
+            "expire": false
+          },
+          {
+            "largeur": "40%",
+            "expire": false
+          },
+          {
+            "largeur": "36.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "33.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "30%",
+            "expire": false
+          },
+          {
+            "largeur": "26.666666666666668%",
+            "expire": false
+          },
+          {
+            "largeur": "23.333333333333332%",
+            "expire": false
+          },
+          {
+            "largeur": "20%",
+            "expire": false
+          },
+          {
+            "largeur": "16.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "13.333333333333334%",
+            "expire": false
+          },
+          {
+            "largeur": "10%",
+            "expire": false
+          },
+          {
+            "largeur": "6.666666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "3.3333333333333335%",
+            "expire": false
+          },
+          {
+            "largeur": "0%",
+            "expire": true
+          }
+        ]
+      }
+    },
+    {
+      "etape": 10,
+      "starterId": 4,
+      "name": "Maître Blue (Tortank)",
+      "id": 9,
+      "level": 100,
+      "maxHp": 3686000,
+      "isBoss": true,
+      "catchRate": 0,
+      "minuteur": {
+        "periodeMs": 1000,
+        "tops": [
+          {
+            "largeur": "96.66666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "93.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "90%",
+            "expire": false
+          },
+          {
+            "largeur": "86.66666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "83.33333333333334%",
+            "expire": false
+          },
+          {
+            "largeur": "80%",
+            "expire": false
+          },
+          {
+            "largeur": "76.66666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "73.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "70%",
+            "expire": false
+          },
+          {
+            "largeur": "66.66666666666666%",
+            "expire": false
+          },
+          {
+            "largeur": "63.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "60%",
+            "expire": false
+          },
+          {
+            "largeur": "56.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "53.333333333333336%",
+            "expire": false
+          },
+          {
+            "largeur": "50%",
+            "expire": false
+          },
+          {
+            "largeur": "46.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "43.333333333333336%",
+            "expire": false
+          },
+          {
+            "largeur": "40%",
+            "expire": false
+          },
+          {
+            "largeur": "36.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "33.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "30%",
+            "expire": false
+          },
+          {
+            "largeur": "26.666666666666668%",
+            "expire": false
+          },
+          {
+            "largeur": "23.333333333333332%",
+            "expire": false
+          },
+          {
+            "largeur": "20%",
+            "expire": false
+          },
+          {
+            "largeur": "16.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "13.333333333333334%",
+            "expire": false
+          },
+          {
+            "largeur": "10%",
+            "expire": false
+          },
+          {
+            "largeur": "6.666666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "3.3333333333333335%",
+            "expire": false
+          },
+          {
+            "largeur": "0%",
+            "expire": true
+          }
+        ]
+      }
+    },
+    {
+      "etape": 10,
+      "starterId": 7,
+      "name": "Maître Blue (Florizarre)",
+      "id": 3,
+      "level": 100,
+      "maxHp": 3414400,
+      "isBoss": true,
+      "catchRate": 0,
+      "minuteur": {
+        "periodeMs": 1000,
+        "tops": [
+          {
+            "largeur": "96.66666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "93.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "90%",
+            "expire": false
+          },
+          {
+            "largeur": "86.66666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "83.33333333333334%",
+            "expire": false
+          },
+          {
+            "largeur": "80%",
+            "expire": false
+          },
+          {
+            "largeur": "76.66666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "73.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "70%",
+            "expire": false
+          },
+          {
+            "largeur": "66.66666666666666%",
+            "expire": false
+          },
+          {
+            "largeur": "63.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "60%",
+            "expire": false
+          },
+          {
+            "largeur": "56.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "53.333333333333336%",
+            "expire": false
+          },
+          {
+            "largeur": "50%",
+            "expire": false
+          },
+          {
+            "largeur": "46.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "43.333333333333336%",
+            "expire": false
+          },
+          {
+            "largeur": "40%",
+            "expire": false
+          },
+          {
+            "largeur": "36.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "33.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "30%",
+            "expire": false
+          },
+          {
+            "largeur": "26.666666666666668%",
+            "expire": false
+          },
+          {
+            "largeur": "23.333333333333332%",
+            "expire": false
+          },
+          {
+            "largeur": "20%",
+            "expire": false
+          },
+          {
+            "largeur": "16.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "13.333333333333334%",
+            "expire": false
+          },
+          {
+            "largeur": "10%",
+            "expire": false
+          },
+          {
+            "largeur": "6.666666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "3.3333333333333335%",
+            "expire": false
+          },
+          {
+            "largeur": "0%",
+            "expire": true
+          }
+        ]
+      }
+    },
+    {
+      "etape": 10,
+      "starterId": null,
+      "name": "Maître Blue",
+      "id": 9,
+      "level": 100,
+      "maxHp": 3686000,
+      "isBoss": true,
+      "catchRate": 0,
+      "minuteur": {
+        "periodeMs": 1000,
+        "tops": [
+          {
+            "largeur": "96.66666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "93.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "90%",
+            "expire": false
+          },
+          {
+            "largeur": "86.66666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "83.33333333333334%",
+            "expire": false
+          },
+          {
+            "largeur": "80%",
+            "expire": false
+          },
+          {
+            "largeur": "76.66666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "73.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "70%",
+            "expire": false
+          },
+          {
+            "largeur": "66.66666666666666%",
+            "expire": false
+          },
+          {
+            "largeur": "63.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "60%",
+            "expire": false
+          },
+          {
+            "largeur": "56.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "53.333333333333336%",
+            "expire": false
+          },
+          {
+            "largeur": "50%",
+            "expire": false
+          },
+          {
+            "largeur": "46.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "43.333333333333336%",
+            "expire": false
+          },
+          {
+            "largeur": "40%",
+            "expire": false
+          },
+          {
+            "largeur": "36.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "33.33333333333333%",
+            "expire": false
+          },
+          {
+            "largeur": "30%",
+            "expire": false
+          },
+          {
+            "largeur": "26.666666666666668%",
+            "expire": false
+          },
+          {
+            "largeur": "23.333333333333332%",
+            "expire": false
+          },
+          {
+            "largeur": "20%",
+            "expire": false
+          },
+          {
+            "largeur": "16.666666666666664%",
+            "expire": false
+          },
+          {
+            "largeur": "13.333333333333334%",
+            "expire": false
+          },
+          {
+            "largeur": "10%",
+            "expire": false
+          },
+          {
+            "largeur": "6.666666666666667%",
+            "expire": false
+          },
+          {
+            "largeur": "3.3333333333333335%",
+            "expire": false
+          },
+          {
+            "largeur": "0%",
+            "expire": true
+          }
+        ]
+      }
+    }
+  ]
+}

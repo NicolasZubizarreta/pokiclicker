@@ -1,0 +1,130 @@
+{
+  "version": 1,
+  "zone": "kanto.ligue-pokemon",
+  "combats": [
+    {
+      "etape": 1,
+      "dresseur": "olga",
+      "nom": "Olga (Lokhlass)",
+      "pokemon": 131,
+      "niveau": 74,
+      "minuteurMs": 30000
+    },
+    {
+      "etape": 2,
+      "dresseur": "olga",
+      "nom": "Olga (Lippoutou)",
+      "pokemon": 124,
+      "niveau": 76,
+      "minuteurMs": 30000
+    },
+    {
+      "etape": 3,
+      "dresseur": "aldo",
+      "nom": "Aldo (Mackogneur)",
+      "pokemon": 68,
+      "niveau": 78,
+      "minuteurMs": 30000
+    },
+    {
+      "etape": 4,
+      "dresseur": "aldo",
+      "nom": "Aldo (Onix)",
+      "pokemon": 95,
+      "niveau": 80,
+      "minuteurMs": 30000
+    },
+    {
+      "etape": 5,
+      "dresseur": "agatha",
+      "nom": "Agatha (Ectoplasma)",
+      "pokemon": 94,
+      "niveau": 82,
+      "minuteurMs": 30000
+    },
+    {
+      "etape": 6,
+      "dresseur": "agatha",
+      "nom": "Agatha (Arbok)",
+      "pokemon": 24,
+      "niveau": 84,
+      "minuteurMs": 30000
+    },
+    {
+      "etape": 7,
+      "dresseur": "peter",
+      "nom": "Peter (Dracolosse)",
+      "pokemon": 149,
+      "niveau": 86,
+      "minuteurMs": 30000
+    },
+    {
+      "etape": 8,
+      "dresseur": "peter",
+      "nom": "Peter (Léviator)",
+      "pokemon": 130,
+      "niveau": 88,
+      "minuteurMs": 30000
+    },
+    {
+      "etape": 9,
+      "dresseur": "maitre-blue",
+      "nom": "Maître Blue (Roucarnage)",
+      "pokemon": 18,
+      "niveau": 92,
+      "minuteurMs": 30000
+    },
+    {
+      "etape": 10,
+      "dresseur": "maitre-blue",
+      "nom": "Maître Blue",
+      "pokemon": 9,
+      "niveau": 100,
+      "minuteurMs": 30000
+    }
+  ],
+  "dresseurs": [
+    {
+      "id": "olga",
+      "nom": "Olga"
+    },
+    {
+      "id": "aldo",
+      "nom": "Aldo"
+    },
+    {
+      "id": "agatha",
+      "nom": "Agatha"
+    },
+    {
+      "id": "peter",
+      "nom": "Peter"
+    },
+    {
+      "id": "maitre-blue",
+      "nom": "Maître Blue"
+    }
+  ],
+  "counter": [
+    {
+      "starter": 1,
+      "pokemon": 6,
+      "nom": "Maître Blue (Dracaufeu)"
+    },
+    {
+      "starter": 4,
+      "pokemon": 9,
+      "nom": "Maître Blue (Tortank)"
+    },
+    {
+      "starter": 7,
+      "pokemon": 3,
+      "nom": "Maître Blue (Florizarre)"
+    }
+  ],
+  "messages": {
+    "enchainement": "Victoire contre {dresseur} ! {suivant} entre en scène.",
+    "victoire": "Victoire contre {dresseur} !",
+    "defaite": "Temps écoulé ! Retour au premier Pokémon de {dresseur}."
+  }
+}

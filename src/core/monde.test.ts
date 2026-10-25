@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import donnees from '../../data/regions/kanto/zones.json';
+import badges from '../../data/badges.json';
 import { chargerMonde } from './monde';
 import type { FichierZones, Zone } from './monde';
 import type { EtatMonde } from './conditions';
@@ -76,6 +77,35 @@ describe('monde Kanto', () => {
     expect(kanto.peutPasser(foret, depart, etat)).toEqual({ ok: false, raison: `Pas de chemin de ${foret} vers ${depart}.` });
     expect(kanto.zonesOuvertes(vide).map((zone) => zone.id)).toEqual([bourg, depart]);
     expect(kanto.zonesOuvertes(etat).map((zone) => zone.id)).toEqual([bourg, depart, foret]);
+  });
+
+  it('exige les huit badges après le boss de la Route Victoire pour accéder à la Ligue', () => {
+    const ordonnes = [...badges].sort((a, b) => a.ordre - b.ordre);
+    const etat: EtatMonde = {
+      ...vide, bossVaincus: ['kanto.route-victoire'],
+      badges: ordonnes.slice(0, 7).map(({ id }) => id),
+    };
+    const avant = structuredClone(etat);
+    expect(kanto.accesZone('kanto.ligue-pokemon', etat)).toEqual({
+      ok: false, raison: 'Il te faut le badge Terre.',
+    });
+    expect(kanto.accesZone('kanto.ligue-pokemon', {
+      ...etat, badges: ordonnes.map(({ id }) => id),
+    })).toEqual({ ok: true });
+    expect(etat).toEqual(avant);
+  });
+
+  it.each(badges)('exige aussi le badge $nom pour accéder à la Ligue', (badge) => {
+    expect(kanto.accesZone('kanto.ligue-pokemon', {
+      ...vide, bossVaincus: ['kanto.route-victoire'],
+      badges: badges.filter(({ id }) => id !== badge.id).map(({ id }) => id),
+    })).toEqual({ ok: false, raison: `Il te faut le badge ${badge.nom}.` });
+  });
+
+  it('exige encore le boss de la Route Victoire avec les huit badges', () => {
+    expect(kanto.accesZone('kanto.ligue-pokemon', {
+      ...vide, badges: badges.map(({ id }) => id),
+    })).toEqual({ ok: false, raison: 'Bats le boss de Route Victoire.' });
   });
 
   it('parcourt un cycle et un lien sans condition sans boucler', () => {

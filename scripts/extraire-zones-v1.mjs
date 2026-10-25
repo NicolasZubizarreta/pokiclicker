@@ -9,6 +9,9 @@ for (const fichier of ['legacy/js/data/constants.js', 'legacy/js/regions/kanto.j
 }
 const { ZONES, ZONE_MULT, BADGES, MAP_DATA } = runInContext('({ ZONES, ZONE_MULT, BADGES, MAP_DATA })', contexte);
 const image = await lireTaillePng(new URL('legacy/img/kanto/kanto.png', racine));
+/** @type {{ id: string, nom: string, ordre: number }[]} */
+const badges = JSON.parse(await readFile(new URL('data/badges.json', racine), 'utf8'));
+badges.sort((a, b) => a.ordre - b.ordre);
 
 const slugsAttendus = [
   'bourg-palette', 'route-1', 'foret-de-jade', 'arene-d-argenta',
@@ -46,7 +49,9 @@ const adversaire = pokemon => ({
 const zones = Array.from(ZONES, (zone, indice) => {
   const liens = indice === 21 ? [] : [{
     vers: identifiant(indice + 1),
-    ...(indice === 0 ? {} : { si: conditionBoss(indice) }),
+    ...(indice === 0 ? {} : { si: indice === 20
+      ? { tous: [conditionBoss(indice), ...badges.map(({ id, nom }) => ({ type: 'badge', id, nom }))] }
+      : conditionBoss(indice) }),
   }];
   const debut = { id: identifiant(indice), nom: zone.name };
   const decor = `kanto/${slugs[indice]}.webp`;
