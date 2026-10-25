@@ -299,7 +299,7 @@ Fourchette : 2 à 3 jours. Risque : fiche en feuille basse sur mobile (jamais pl
 
 ## I. `feat(pc): ranger les Pokémon dans le PC de la région et suivre le Pokédex de Kanto`
 
-Labels : `type:feat`, `etat:idee`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : oui
+Labels : `type:feat`, `etat:pret`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : oui
 
 ### Histoire
 En tant que joueur, je veux un PC pour ranger mes Pokémon en trop et un Pokédex qui montre ce que j'ai capturé afin de collectionner les 151 Pokémon.
