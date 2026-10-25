@@ -1,4 +1,4 @@
-import { accesSac, accesShop, chargerObjets, contenuSac, objetsDuShop, prixObjet } from '../core/boutique';
+import { accesCentre, accesSac, accesShop, chargerObjets, contenuSac, objetsDuCentre, objetsDuShop, prixObjet } from '../core/boutique';
 import { kanto } from '../core/regions';
 import { reglages } from '../core/reglages';
 import { etatMondeDe } from '../core/sauvegarde';
@@ -23,9 +23,18 @@ const direct = [...Object.keys(reglages.objetsActifs.temporises), 'pokeDoll'];
 
 export function afficherBoutique(region: DonneesRegion, precedent: AffichageBoutique | null): AffichageBoutique {
   const etat = etatMondeDe(region);
-  const acces = accesShop(kanto, etat);
+  return afficherCatalogue(region, precedent, accesShop(kanto, etat), objetsDuShop(objets, kanto, etat));
+}
+
+export function afficherCentre(region: DonneesRegion, precedent: AffichageBoutique | null): AffichageBoutique {
+  const etat = etatMondeDe(region);
+  return afficherCatalogue(region, precedent, accesCentre(kanto, etat), objetsDuCentre(objets, kanto, etat));
+}
+
+function afficherCatalogue(region: DonneesRegion, precedent: AffichageBoutique | null,
+  acces: ReturnType<typeof accesShop>, catalogue: ReturnType<typeof chargerObjets>): AffichageBoutique {
   const boutique = { acces: { ouvert: acces.ok, raison: acces.ok ? null : acces.raison ?? null },
-    objets: objetsDuShop(objets, kanto, etat).map(objet => {
+    objets: catalogue.map(objet => {
       const prix = prixObjet(objet, { badges: region.badges.length,
         palier: region.jalonsRecus.includes(reglages.boutique.palierRemise) });
       const possede = region.ameliorations.includes(objet.id);

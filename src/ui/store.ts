@@ -35,7 +35,7 @@ import { afficherCapture, annonceCapture, conditionCapture, type AffichageCaptur
 import { afficherEvolution, type EvolutionAffichee } from './store-evolution';
 import { afficherProgression, phaseObtention, type AffichageProgression, type PhaseObtention } from './store-progression';
 import { afficherEffets, afficherFauchage, type EffetsAffiches, type FauchageAffiche } from './store-objets';
-import { afficherBoutique, afficherSac, type AffichageBoutique, type AffichageSac } from './store-boutique';
+import { afficherBoutique, afficherCentre, afficherSac, type AffichageBoutique, type AffichageSac } from './store-boutique';
 import { detailErreur, ouvrirPartie } from './persistance';
 import { creerStockageLocal } from './stockage-local';
 import { genererIdentifiant } from './identifiants';
@@ -65,7 +65,7 @@ export type AffichageJeu = {
   poserStase(uid: string): string | null;
   retirerStase(uid: string): string | null;
   utiliserJeton(uid: string): string | null;
-  boutique: AffichageBoutique; sac: AffichageSac; autoClic: { possede: boolean; actif: boolean };
+  boutique: AffichageBoutique; centre: AffichageBoutique; sac: AffichageSac; autoClic: { possede: boolean; actif: boolean };
   acheter(id: string, quantite: number): string | null;
   utiliserObjet(type: 'bonbon' | 'calcium', uid: string, n: number): string | null;
   evoluer(uid: string): string | null;
@@ -330,7 +330,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       fauchage: afficherFauchage(region, coeur, maintenant, precedent.fauchage),
       radar: region.ameliorations.includes('pokeradar'),
       capture: afficherCapture(coeur, region.inventaire, precedent.capture),
-      boutique: afficherBoutique(region, precedent.boutique), sac,
+      boutique: afficherBoutique(region, precedent.boutique), centre: afficherCentre(region, precedent.centre), sac,
       autoClic: precedent.autoClic.possede === region.ameliorations.includes('leftovers')
         && precedent.autoClic.actif === (coeur?.autoClic ?? false) ? precedent.autoClic
         : { possede: region.ameliorations.includes('leftovers'), actif: coeur?.autoClic ?? false },
@@ -503,11 +503,13 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       return resultat;
     }),
     boutique: { acces: { ouvert: false, raison: reglages.shop.raison }, objets: [] },
+    centre: { acces: { ouvert: false, raison: null }, objets: [] },
     sac: { acces: { ouvert: false, raison: reglages.sac.raison }, entrees: [] },
     autoClic: { possede: false, actif: false },
     acheter(id, quantite) {
       if (!initialise) return 'La partie n’est pas démarrée.';
-      const disponible = afficherBoutique(region, null).objets.find(objet => objet.id === id);
+      const disponible = afficherBoutique(region, null).objets.find(objet => objet.id === id)
+        ?? afficherCentre(region, null).objets.find(objet => objet.id === id);
       if (!disponible) return 'Objet indisponible.';
       const objet = objets.find(objet => objet.id === id)!;
       const resultat = acheter(region, objet, quantite, disponible.prix);
