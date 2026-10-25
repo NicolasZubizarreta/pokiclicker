@@ -22,6 +22,7 @@ import * as equipe from '../core/equipe';
 import { creerBoucle } from '../core/loop';
 import { chargerPokemon } from '../core/pokemon';
 import { accesPc } from '../core/pc';
+import * as pension from '../core/pension';
 import { ajouterAuPokedex, completerPokedex, pokedexDeKanto } from '../core/pokedex';
 import { appliquerVictoire, calculerMaxXp, delaiEnnemiSuivant } from '../core/recompenses';
 import type { FormeCarte, Zone, ZoneMonde } from '../core/monde';
@@ -78,6 +79,15 @@ export type AffichageJeu = {
   equipe: CaseEquipe[]; dps: number; erreur: string | null;
   pc: PokemonPossede[]; pokedex: readonly number[];
   accesPc: { ouvert: boolean; raison: string | null };
+  pension: {
+    acces: { ouvert: boolean; raison: string | null }; parents: PokemonPossede[]; oeufs: PokemonPossede[];
+    emplacements: number; emplacementsMax: number; chance: number;
+    prochainEmplacement: { prix: number; raison: string | null } | null;
+  };
+  deposerParent(uid: string): string | null;
+  retirerParent(uid: string): string | null;
+  prendreOeuf(uid: string): string | null;
+  acheterEmplacementOeuf(): string | null;
   noterEspece(numero: number): void;
   erreurChargement: boolean; zonePrecedente: Destination | null; zoneSuivante: Destination | null;
   minuteur: { restantMs: number; totalMs: number } | null;
@@ -181,9 +191,19 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         if (resultat.bonbons > 0) messagesCapture.push(`Chromatique ! +${resultat.bonbons} Bonbons`);
       }
       if (evenement.type === 'ennemi-vaincu') {
+        if (region.equipe.some(p => p.oeuf)) sauvegarder = true;
         const r = appliquerVictoire(region, evenement, coeur.actifs);
         region = r.region;
+        if (pension.accesPension(kanto, etatMondeDe(region)).ouvert) {
+          const suivante = pension.pondre(region, alea, genererId);
+          if (suivante !== region) sauvegarder = true;
+          region = suivante;
+        }
         const messages: string[] = [];
+        for (const eclosion of r.eclosions) {
+          noterDansPokedex(eclosion.numero, messages);
+          messages.push(reglages.pension.messages.eclosion.replace('{nom}', catalogue.parNumero(eclosion.numero).nom));
+        }
         if (r.montees.length === 1) {
           const montee = r.montees[0]!;
           const pokemon = region.equipe.find(p => p.uid === montee.uid)!;
@@ -198,6 +218,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         messagesCapture.push(...messages);
       }
       if (evenement.type === 'boss-vaincu') {
+        const pensionOuverte = pension.accesPension(kanto, etatMondeDe(region)).ouvert;
         if (estZoneDeLigue(coeur.zone)) region = enregistrerVictoireLigue(region);
         const resultat = accorderBadge(region, evenement.zoneId);
         region = resultat.region;
@@ -211,6 +232,9 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         }
         if (!region.bossVaincus.includes(evenement.zoneId)) {
           region = { ...region, bossVaincus: [...region.bossVaincus, evenement.zoneId] };
+          if (!pensionOuverte && pension.accesPension(kanto, etatMondeDe(region)).ouvert) {
+            messagesCapture.push(reglages.pension.messages.debloquee);
+          }
           if (kanto.liensDepuis(evenement.zoneId).length > 0) {
             messagesCapture.push('Zone débloquée !');
           }
@@ -253,6 +277,15 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     const etatMonde = etatMondeDe(region);
     const conditionPc = accesPc(kanto, etatMonde);
     const accesAuPc = { ouvert: conditionPc.ok, raison: conditionPc.ok ? null : conditionPc.raison ?? null };
+    const accesPension = pension.accesPension(kanto, etatMonde);
+    const prix = pension.prixEmplacementOeuf(region);
+    const affichagePension: AffichageJeu['pension'] = {
+      acces: { ouvert: accesPension.ouvert, raison: accesPension.raison ?? null },
+      parents: region.pension.parents, oeufs: region.pension.oeufs,
+      emplacements: region.pension.emplacementsOeuf, emplacementsMax: reglages.pension.emplacementsMax,
+      chance: pension.chancePonte(region.pension.parents),
+      prochainEmplacement: prix === null ? null : { prix, raison: region.argent < prix ? "Pas assez d'argent." : null },
+    };
     const ouvertes = new Set(kanto.zonesOuvertes(etatMonde).filter(zone => blocage(evenements, region, zone.id).ok).map(zone => zone.id));
     const carte: AffichageJeu['carte'] = {
       formes: kanto.carte.formes.map(forme => {
@@ -303,6 +336,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         : { possede: region.ameliorations.includes('leftovers'), actif: coeur?.autoClic ?? false },
       autoAttaque: preferences.autoAttaque, arretAuto: preferences.arretAuto,
       pc: region.pc, pokedex,
+      pension: JSON.stringify(affichagePension) === JSON.stringify(precedent.pension) ? precedent.pension : affichagePension,
       accesPc: accesAuPc.ouvert === precedent.accesPc.ouvert && accesAuPc.raison === precedent.accesPc.raison
         ? precedent.accesPc : accesAuPc,
       carte: JSON.stringify(carte) === JSON.stringify(precedent.carte) ? precedent.carte : carte,
@@ -375,6 +409,26 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     afficher();
     return null;
   };
+  const modifierPension = (action: (region: DonneesRegion) => equipe.ResultatEquipe & {
+    destination?: 'equipe' | 'pc'; numero?: number;
+  }, noter = false): string | null => modifierEquipe(courante => {
+    const acces = pension.accesPension(kanto, etatMondeDe(courante));
+    if (!acces.ouvert) return { ok: false, raison: acces.raison! };
+    const resultat = action(courante);
+    if (resultat.ok) {
+      if (resultat.destination === 'pc') {
+        annonce = reglages.pension.messages.envoyePc.replace('{nom}', nomAffiche(resultat.region.pc.at(-1)!));
+        finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs;
+      }
+      // Le Pokédex doit être enregistré avec la région après le retrait.
+      if (noter && resultat.numero !== undefined) {
+        region = resultat.region;
+        noterDansPokedex(resultat.numero);
+        return { ...resultat, region };
+      }
+    }
+    return resultat;
+  });
   const store = createStore<AffichageJeu>(() => ({
     intro: { enCours: false, premiereLigneVue: false, choixStarter: false,
       sacOuvert: false, carteOuverte: true, starters: [] },
@@ -515,6 +569,13 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     erreur: null, erreurChargement: false, zonePrecedente: null, zoneSuivante: null, evenementsDegats: [],
     evolution: null, argent: 0, enRecherche: false, cache: false, annonce: null, echange: null,
     pc: [], pokedex, accesPc: { ouvert: false, raison: reglages.pc.raison },
+    pension: { acces: { ouvert: false, raison: null }, parents: [], oeufs: [],
+      emplacements: reglages.depart.region.pension.emplacementsOeuf, emplacementsMax: reglages.pension.emplacementsMax,
+      chance: 0, prochainEmplacement: null },
+    deposerParent: uid => modifierPension(region => pension.deposerParent(region, uid)),
+    retirerParent: uid => modifierPension(region => pension.retirerParent(region, uid)),
+    prendreOeuf: uid => modifierPension(region => pension.prendreOeuf(region, uid), true),
+    acheterEmplacementOeuf: () => modifierPension(pension.acheterEmplacementOeuf),
     noterEspece(numero) {
       if (!initialise || !Number.isSafeInteger(numero) || numero <= 0) return;
       if (pokedex.includes(numero)) return;
