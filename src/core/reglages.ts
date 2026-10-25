@@ -35,6 +35,9 @@ export type ReglagesDelais = {
 export const reglages: {
   equipe: { taille: number; surnomMax: number };
   pc: { zone: string; raison: string };
+  shop: { zone: string; raison: string };
+  sac: { zone: string; raison: string };
+  boutique: { inflationParBadge: number; palierRemise: number; remise: number; quantiteMax: number; reportes: string[] };
   interface: {
     sauvegardeAutoMs: number; annonceMs: number;
     // Calendrier V1 : legacy/js/game/save.js L759-797.
@@ -43,6 +46,7 @@ export const reglages: {
   carte: { zoomMax: number; deblocageMs: number; seuilGlissementPx: number; diviseurMolette: number; rayonCiblePx: number };
   depart: { argent: number; etape: number; region: NouveauxChampsRegion; preferences: PreferencesCombat };
   combat: {
+    autoClicIntervalleMs: number;
     minuteurBossMs: number;
     clicBase: number; clicPartDps: number; pvParNiveau: number; pvBoss: number;
     chanceShiny: number; clicsMaxParSeconde: number; fenetreClicsMs: number; etapeBoss: number;
@@ -57,6 +61,7 @@ export const reglages: {
     pv: { coefPv: number; coefDefense: number; coefDefenseSpe: number; constante: number };
   };
   degats: {
+    calciumMax: number;
     diviseurNiveau: number;
     shiny: number;
     bonheurParPoint: number;

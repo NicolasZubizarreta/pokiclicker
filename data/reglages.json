@@ -1,5 +1,11 @@
 {
   "equipe": { "taille": 6, "surnomMax": 12 },
+  "shop": { "zone": "kanto.foret-de-jade", "raison": "Le Shop s'ouvre à la Forêt de Jade." },
+  "sac": { "zone": "kanto.route-1", "raison": "Le Sac s'ouvre à la Route 1." },
+  "boutique": {
+    "inflationParBadge": 0.05, "palierRemise": 70, "remise": 0.85, "quantiteMax": 99,
+    "reportes": ["repel", "superRepel", "pokeradar", "falseSwipe"]
+  },
   "pc": { "zone": "kanto.arene-d-argenta", "raison": "Le PC de Léo s'ouvre à l'Arène d'Argenta." },
   "interface": {
     "sauvegardeAutoMs": 30000, "annonceMs": 1200,
@@ -44,6 +50,7 @@
     "pv": { "coefPv": 0.33, "coefDefense": 0.3, "coefDefenseSpe": 0.3, "constante": 10 }
   },
   "combat": {
+    "autoClicIntervalleMs": 111,
     "minuteurBossMs": 30000,
     "clicBase": 5,
     "clicPartDps": 0.002,
@@ -111,6 +118,7 @@
     "reducteurs": [ { "cle": "badge:terre", "diviseur": 1.2 }, { "cle": "jalon:50", "x": 0.9 } ]
   },
   "degats": {
+    "calciumMax": 10,
     "diviseurNiveau": 5,
     "shiny": 1.5,
     "bonheurParPoint": 0.001,

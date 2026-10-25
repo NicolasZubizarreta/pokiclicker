@@ -2,6 +2,7 @@ import { expect, it } from 'vitest';
 import objets from '../data/objets.json';
 import fixture from './fixtures/v1-objets.json';
 import { reglages } from '../src/core/reglages';
+import { chargerObjets, prixObjet } from '../src/core/boutique';
 
 it('conserve les 31 objets V1 et convertit leurs zones', () => {
   expect(objets.length).toBe(31);
@@ -17,6 +18,14 @@ it('conserve les 31 objets V1 et convertit leurs zones', () => {
   }
   expect(fixture.zones.length).toBe(22);
   expect(fixture.zones[2]).toBe('kanto.foret-de-jade');
+});
+
+it('calcule strictement chaque prix de la fixture V1', () => {
+  const catalogue = chargerObjets();
+  for (const cas of fixture.prix) {
+    const objet = catalogue.find(entree => entree.id === cas.id)!;
+    expect(prixObjet(objet, { badges: cas.badges, palier: cas.palier })).toBe(cas.prix);
+  }
 });
 
 it('conserve les noms et images des balles de capture', () => {
