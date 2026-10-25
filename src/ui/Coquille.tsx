@@ -2,11 +2,11 @@ import { useEffect, useState } from 'react';
 import { useStore } from 'zustand';
 import { Navigation } from './Navigation';
 import type { Page } from './Navigation';
-import { PageBientot } from './pages';
 import { EcranCombat } from './EcranCombat';
 import { CarteKanto } from './CarteKanto';
 import { PageEquipe } from './PageEquipe';
 import { PagePlus } from './PagePlus';
+import { PageShop } from './PageShop';
 import { storeJeu } from './store';
 import { MiseAJour } from './MiseAJour';
 
@@ -30,7 +30,7 @@ export function Coquille({ region = 'kanto', theme = 'dark' }: {
       <Navigation page={page} choisir={choisir} signalCarte={tutorielRoute1 && page !== 'Carte'} />
       <main id="contenu" tabIndex={-1} className="mb-14 min-w-0 p-4 lg:mb-0 lg:ml-24 lg:p-8">
         <MiseAJour />
-        {page === 'Combat' ? <EcranCombat /> : page === 'Carte' ? <CarteKanto quandArrive={() => choisir('Combat')} /> : page === 'Équipe' ? <PageEquipe /> : page === 'Plus' ? <PagePlus /> : <PageBientot titre={page} />}
+        {page === 'Combat' ? <EcranCombat /> : page === 'Carte' ? <CarteKanto quandArrive={() => choisir('Combat')} /> : page === 'Équipe' ? <PageEquipe /> : page === 'Plus' ? <PagePlus /> : <PageShop />}
       </main>
     </div>
   );

@@ -5,6 +5,8 @@ import type { PokemonPossede } from '../core/sauvegarde';
 import { formaterDps } from './nombres';
 import { PageEquipe } from './PageEquipe';
 import { storeJeu } from './store';
+import { utiliserSurPokemon } from '../core/objets-equipe';
+import type { DonneesRegion } from '../core/sauvegarde';
 
 vi.mock('./store', async original => {
   const module = await original<typeof import('./store')>();
@@ -112,4 +114,103 @@ it('le clic droit ouvre Résumé, puis la fiche du Pokémon et rend le focus à 
   expect(carte.getAttribute('aria-pressed')).toBe('true');
   fireEvent.click(screen.getByRole('button', { name: 'Ferme la fiche' }));
   expect(document.activeElement).toBe(carte);
+});
+
+function preparerObjet(type: 'bonbon' | 'calcium' = 'bonbon', stock = 5) {
+  storeJeu.setState({ sac: { acces: { ouvert: true, raison: null }, entrees: [{
+    id: type === 'bonbon' ? 'candy' : 'calcium', nom: type === 'bonbon' ? 'Bonbon' : 'Calcium',
+    description: 'Objet pour ton équipe.', image: null, categorie: 'soins', quantite: stock,
+    actif: false, utilisable: type,
+  }] } });
+  render(<PageEquipe />);
+  fireEvent.click(screen.getByRole('button', { name: `${type === 'bonbon' ? 'Bonbon' : 'Calcium'} ×${stock}` }));
+  fireEvent.click(screen.getByRole('button', { name: 'Utiliser' }));
+}
+
+it('utilise deux Bonbons pour gagner exactement deux niveaux sans changer l’XP', () => {
+  const utiliserObjet = vi.fn((type: 'bonbon' | 'calcium', uid: string, n: number) => {
+    const equipe = storeJeu.getState().equipe;
+    const resultat = utiliserSurPokemon({ equipe: equipe.flatMap(c => c ? [c.pokemon] : []),
+      inventaire: { bonbon: 5 } } as unknown as DonneesRegion, type, 'bonbon', uid, n);
+    if (!resultat.ok) return resultat.raison;
+    storeJeu.setState({ equipe: equipe.map(c => c ? { ...c,
+      pokemon: resultat.region.equipe.find(p => p.uid === c.pokemon.uid)! } : null) });
+    return null;
+  });
+  storeJeu.setState({ utiliserObjet });
+  preparerObjet();
+  expect(screen.getByRole('status').textContent).toBe('Sélectionne un Pokémon.');
+  const cible = screen.getByRole('button', { name: 'Bourgeon, niveau 16' });
+  expect(cible.className).toContain('motion-safe:cible-valide');
+  fireEvent.contextMenu(cible);
+  expect(screen.queryByRole('menu')).toBeNull();
+  fireEvent.click(cible);
+  expect(screen.queryByRole('dialog')).toBeNull();
+  expect(document.querySelectorAll('.bg-action')).toHaveLength(1);
+  fireEvent.click(screen.getByRole('button', { name: 'Plus' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Valider' }));
+  expect(utiliserObjet).toHaveBeenCalledWith('bonbon', 'premier', 2);
+  expect(storeJeu.getState().equipe[0]?.pokemon.niveau).toBe(18);
+  expect(storeJeu.getState().equipe[0]?.pokemon.xp).toBe(30);
+  expect(screen.queryByRole('group', { name: 'Quantité' })).toBeNull();
+  expect(screen.queryByRole('status')).toBeNull();
+});
+
+it('laisse les œufs et les niveaux maximum inertes et borne les Bonbons au niveau 100', () => {
+  storeJeu.setState({ equipe: [
+    { ...storeJeu.getState().equipe[0]!, pokemon: { ...pokemon, niveau: 98 } },
+    { ...storeJeu.getState().equipe[1]!, pokemon: { ...pokemon, uid: 'max', surnom: 'Maximum', niveau: 100 } },
+    { ...storeJeu.getState().equipe[2]!, pokemon: { ...pokemon, uid: 'oeuf', surnom: 'Œuf', oeuf: { pasRestants: 10, pasMax: 10 } } },
+  ] });
+  preparerObjet();
+  for (const nom of ['Maximum, niveau 100', 'Œuf, niveau 16']) {
+    const cible = screen.getByRole('button', { name: nom }) as HTMLButtonElement;
+    expect(cible.disabled).toBe(true);
+    expect(cible.className).toContain('grayscale');
+    fireEvent.click(cible);
+    fireEvent.contextMenu(cible);
+  }
+  expect(screen.queryByRole('group', { name: 'Quantité' })).toBeNull();
+  expect(screen.queryByRole('menu')).toBeNull();
+  fireEvent.click(screen.getByRole('button', { name: 'Bourgeon, niveau 98' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Plus' }));
+  expect((screen.getByRole('button', { name: 'Plus' }) as HTMLButtonElement).disabled).toBe(true);
+  expect(screen.getByLabelText('Quantité', { selector: 'output' }).textContent).toBe('2');
+});
+
+it('borne le Calcium au stock et à la limite et affiche une erreur du store', () => {
+  storeJeu.setState({ equipe: [{ ...storeJeu.getState().equipe[0]!, pokemon: { ...pokemon, calcium: 9 } },
+    { ...storeJeu.getState().equipe[1]!, pokemon: { ...pokemon, uid: 'limite', surnom: 'Limite', calcium: 10 } }],
+  utiliserObjet: vi.fn(() => 'Quantité invalide.') });
+  preparerObjet('calcium', 1);
+  expect((screen.getByRole('button', { name: 'Limite, niveau 16' }) as HTMLButtonElement).disabled).toBe(true);
+  fireEvent.click(screen.getByRole('button', { name: 'Bourgeon, niveau 16' }));
+  expect((screen.getByRole('button', { name: 'Plus' }) as HTMLButtonElement).disabled).toBe(true);
+  fireEvent.click(screen.getByRole('button', { name: 'Valider' }));
+  expect(storeJeu.getState().utiliserObjet).toHaveBeenCalledWith('calcium', 'premier', 1);
+  expect(screen.getByRole('alert').textContent).toBe('Quantité invalide.');
+});
+
+it.each(['bouton', 'Échap', 'extérieur'])('annule la sélection par %s et conserve les clics dans le Sac', moyen => {
+  preparerObjet();
+  fireEvent.click(screen.getByRole('button', { name: 'Bourgeon, niveau 16' }));
+  fireEvent.click(screen.getByText('Objet pour ton équipe.'));
+  expect(screen.getByRole('group', { name: 'Quantité' })).toBeTruthy();
+  if (moyen === 'bouton') fireEvent.click(screen.getByRole('button', { name: 'Annuler' }));
+  else if (moyen === 'Échap') fireEvent.keyDown(document, { key: 'Escape' });
+  else fireEvent.click(document.body);
+  expect(screen.queryByRole('status')).toBeNull();
+  expect(screen.queryByRole('group', { name: 'Quantité' })).toBeNull();
+});
+
+it('garde le mode échange prioritaire sur les objets et bloque le menu contextuel', () => {
+  storeJeu.setState({ echange: { uid: 'pc', nom: 'Pikachu' } });
+  preparerObjet();
+  const cible = screen.getByRole('button', { name: 'Bourgeon, niveau 16' });
+  fireEvent.contextMenu(cible);
+  expect(screen.queryByRole('menu')).toBeNull();
+  fireEvent.click(cible);
+  expect(echanger).toHaveBeenCalledWith('pc', 'premier');
+  expect(screen.queryByRole('group', { name: 'Quantité' })).toBeNull();
+  expect(screen.queryByRole('dialog')).toBeNull();
 });

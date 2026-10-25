@@ -2,7 +2,10 @@ import { createStore } from 'zustand/vanilla';
 import { creerHorlogeSysteme } from '../core/clock';
 import type { Horloge } from '../core/clock';
 import { avancerCombat, calculerClic, calculerDpsEquipe, cliquer, creerCombat, creerLimiteurClics,
-  multiplicateurType, reprendreCombat, viderEvenements, lancerCapture, basculerAutoAttaque } from '../core/combat';
+  multiplicateurType, reprendreCombat, viderEvenements, lancerCapture, basculerAutoAttaque, basculerAutoClic } from '../core/combat';
+import { acheter, chargerObjets, objetsActifs } from '../core/boutique';
+import { clicsAutomatiques } from '../core/clics';
+import { utiliserSurPokemon } from '../core/objets-equipe';
 import { appliquerCapture, chanceCapture, retirerBalle } from '../core/capture';
 import type { EtatCombat } from '../core/combat';
 import type { Ennemi } from '../core/ennemis';
@@ -19,6 +22,7 @@ import { etatMondeDe, versMembreEquipe } from '../core/sauvegarde';
 import type { DonneesRegion, PokemonPossede, Stockage } from '../core/sauvegarde';
 import type { PreferencesCombat, ReglagesArret } from '../core/sauvegarde-types';
 import { afficherCapture, annonceCapture, conditionCapture, type AffichageCapture } from './store-capture';
+import { afficherBoutique, afficherSac, type AffichageBoutique, type AffichageSac } from './store-boutique';
 import { detailErreur, ouvrirPartie } from './persistance';
 import { creerStockageLocal } from './stockage-local';
 import { genererIdentifiant } from './identifiants';
@@ -33,6 +37,10 @@ export type EtatForme = {
   ouverte: boolean; actuelle: boolean; raison: string | null;
 };
 export type AffichageJeu = {
+  boutique: AffichageBoutique; sac: AffichageSac; autoClic: { possede: boolean; actif: boolean };
+  acheter(id: string, quantite: number): string | null;
+  utiliserObjet(type: 'bonbon' | 'calcium', uid: string, n: number): string | null;
+  basculerAutoClic(): void;
   capture: AffichageCapture; autoAttaque: boolean; arretAuto: ReglagesArret;
   capturer(cle: string): void; basculerAutoAttaque(): void; reglerArretAuto(partiel: Partial<ReglagesArret>): void;
   lieu: ZoneMonde | null; zone: Zone | null; etape: number; ennemi: Omit<Ennemi, 'capture'> | null; pv: number;
@@ -81,6 +89,8 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
   let finAnnonceMs = 0;
   // Temps effectivement simulé par la boucle utilisant l'horloge injectée.
   let tempsJeuMs = 0;
+  let resteAutoClicMs = 0;
+  const objets = chargerObjets();
   const abonnesDegats = new Set<(degat: Degat) => void>();
   const limiteur = creerLimiteurClics(horloge);
   const enregistrer = () => {
@@ -152,7 +162,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
       xpMax: calculerMaxXp(pokemon.numero, pokemon.niveau),
       multiplicateur: coeur ? multiplicateurType(catalogue.parNumero(pokemon.numero).types,
         catalogue.parNumero(coeur.ennemi.numero).types) : 1,
-      dps: coeur ? calculerDpsEquipe([versMembreEquipe(pokemon)], coeur.ennemi) : 0 }));
+      dps: coeur ? calculerDpsEquipe([versMembreEquipe(pokemon)], coeur.ennemi, coeur.actifs) : 0 }));
     while (equipe.length < 6) equipe.push(null);
     const precedent = store.getState();
     const etatMonde = etatMondeDe(region);
@@ -177,13 +187,17 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
     const ennemi = coeur ? (({ numero, niveau, pv, pvMax, boss, shiny, rarete }) => ({ numero, niveau, pv, pvMax, boss, shiny, rarete }))(coeur.ennemi) : null;
     store.setState({ lieu, zone: coeur?.zone ?? null, etape: region.etape, ennemi, pv: ennemi?.pv ?? 0,
       capture: afficherCapture(coeur, region.inventaire, precedent.capture),
+      boutique: afficherBoutique(region, precedent.boutique), sac: afficherSac(region, precedent.sac),
+      autoClic: precedent.autoClic.possede === region.ameliorations.includes('leftovers')
+        && precedent.autoClic.actif === (coeur?.autoClic ?? false) ? precedent.autoClic
+        : { possede: region.ameliorations.includes('leftovers'), actif: coeur?.autoClic ?? false },
       autoAttaque: preferences.autoAttaque, arretAuto: preferences.arretAuto,
       pc: region.pc, pokedex,
       accesPc: accesAuPc.ouvert === precedent.accesPc.ouvert && accesAuPc.raison === precedent.accesPc.raison
         ? precedent.accesPc : accesAuPc,
       carte: JSON.stringify(carte) === JSON.stringify(precedent.carte) ? precedent.carte : carte,
       equipe: JSON.stringify(equipe) === JSON.stringify(precedent.equipe) ? precedent.equipe : equipe,
-      dps: coeur ? calculerDpsEquipe(coeur.equipe, coeur.ennemi) : 0, erreur,
+      dps: coeur ? calculerDpsEquipe(coeur.equipe, coeur.ennemi, coeur.actifs) : 0, erreur,
       argent: region.argent, enRecherche: (coeur?.attenteMs ?? 0) > 0 && !coeur?.attenteCapture, cache: (coeur?.attenteMs ?? 0) > 0, annonce, echange,
       minuteur: coeur && coeur.attenteMs === 0 && coeur.minuteurMs !== null
         ? { restantMs: coeur.minuteurMs, totalMs: reglages.combat.minuteurBossMs } : null,
@@ -216,6 +230,36 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
     return null;
   };
   const store = createStore<AffichageJeu>(() => ({
+    boutique: { acces: { ouvert: false, raison: reglages.shop.raison }, objets: [] },
+    sac: { acces: { ouvert: false, raison: reglages.sac.raison }, entrees: [] },
+    autoClic: { possede: false, actif: false },
+    acheter(id, quantite) {
+      if (!initialise) return 'La partie n’est pas démarrée.';
+      const disponible = afficherBoutique(region, null).objets.find(objet => objet.id === id);
+      if (!disponible) return 'Objet indisponible.';
+      const objet = objets.find(objet => objet.id === id)!;
+      const resultat = acheter(region, objet, quantite, disponible.prix);
+      if (!resultat.ok) return resultat.raison;
+      region = resultat.region;
+      if (coeur) coeur = { ...coeur, actifs: objetsActifs(region) };
+      annonce = `${objet.nom} ×${quantite} acheté. ${disponible.prix * quantite} pièces dépensées.`;
+      finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs;
+      enregistrer(); afficher();
+      return null;
+    },
+    utiliserObjet(type, uid, n) {
+      return modifierEquipe(region => {
+        const resultat = utiliserSurPokemon(region, type, type, uid, n);
+        if (resultat.ok) { annonce = resultat.message; finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs; }
+        return resultat;
+      });
+    },
+    basculerAutoClic() {
+      if (!coeur || !region.ameliorations.includes('leftovers')) return;
+      coeur = basculerAutoClic(coeur, !coeur.autoClic);
+      resteAutoClicMs = 0;
+      afficher();
+    },
     capture: { balles: [], possible: false, raison: 'Aucun Pokémon à capturer.', enCours: false },
     autoAttaque: preferences.autoAttaque, arretAuto: preferences.arretAuto,
     capturer(cle) {
@@ -271,7 +315,9 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
     allerVers(zoneId) {
       if (!initialise || !kanto.accesZone(zoneId, etatMondeDe(region)).ok) return;
       const lieu = kanto.zone(zoneId);
-      coeur = lieu.sansCombat ? null : creerCombat(lieu, region.equipe.map(versMembreEquipe), alea, [], optionsCombat());
+      const autoClic = coeur?.autoClic ?? false;
+      coeur = lieu.sansCombat ? null : creerCombat(lieu, region.equipe.map(versMembreEquipe), alea, objetsActifs(region), { ...optionsCombat(), autoClic });
+      resteAutoClicMs = 0;
       region = { ...region, zoneId, etape: 1 };
       annonce = null;
       traiter();
@@ -286,7 +332,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
       coeur = cliquer(coeur, limiteur);
       if (avant === coeur) return;
       const degat = { id: ++identifiantDegat,
-        valeur: Math.min(avant.ennemi.pv, calculerClic(calculerDpsEquipe(avant.equipe, avant.ennemi))) };
+        valeur: Math.min(avant.ennemi.pv, calculerClic(calculerDpsEquipe(avant.equipe, avant.ennemi, avant.actifs), avant.actifs)) };
       degats.push(degat);
       abonnesDegats.forEach(abonne => abonne(degat));
       traiter();
@@ -301,7 +347,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
           pokedex = completerPokedex(persistance.pokedex, region);
           zonesVues = new Set(kanto.zonesOuvertes(etatMondeDe(region)).map(zone => zone.id));
           const lieu = kanto.zone(region.zoneId);
-          coeur = lieu.sansCombat ? null : reprendreCombat(lieu, region.equipe.map(versMembreEquipe), alea, region.etape, [], optionsCombat());
+          coeur = lieu.sansCombat ? null : reprendreCombat(lieu, region.equipe.map(versMembreEquipe), alea, region.etape, objetsActifs(region), optionsCombat());
           initialise = true;
           traiter();
           if (pokedex !== persistance.pokedex) enregistrer();
@@ -311,6 +357,11 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
         boucle = creerBoucle({ horloge, etat: null, avancer: () => {
           tempsJeuMs += reglages.boucle.pasMs;
           if (annonce !== null && tempsJeuMs >= finAnnonceMs) annonce = null;
+          if (coeur?.autoClic && coeur.attenteMs === 0) {
+            const resultat = clicsAutomatiques(resteAutoClicMs, reglages.boucle.pasMs, reglages.combat.autoClicIntervalleMs);
+            resteAutoClicMs = resultat.resteMs;
+            for (let i = 0; i < resultat.clics; i++) store.getState().attaquer();
+          } else resteAutoClicMs = 0;
           if (coeur) coeur = avancerCombat(coeur, reglages.boucle.pasMs);
           traiter();
           return null;

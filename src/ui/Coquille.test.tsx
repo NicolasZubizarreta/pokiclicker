@@ -100,12 +100,14 @@ describe('Coquille', () => {
       if (nom === 'Carte') expect(screen.getByRole('button', { name: 'Route 1 (Zone 1)' })).toBeTruthy();
       else if (nom === 'Équipe') {
         expect(screen.queryByText('Cette page arrive bientôt.')).toBeNull();
-        expect(screen.getAllByRole('listitem')).toHaveLength(6);
+        // Six cases d'équipe, plus la Pokéball et le Bonbon que le Sac affiche toujours.
+        expect(screen.getAllByRole('listitem')).toHaveLength(8);
       } else if (nom === 'Plus') {
         expect(screen.queryByText('Cette page arrive bientôt.')).toBeNull();
         expect(screen.getByRole('button', { name: 'PC de Léo' })).toBeTruthy();
         expect(screen.getByRole('button', { name: /^Pokédex \d+ \/ 151$/ })).toBeTruthy();
-      } else expect(screen.getByText('Cette page arrive bientôt.')).toBeTruthy();
+      } else expect(screen.getByText("Le Shop s'ouvre à la Forêt de Jade.")).toBeTruthy();
+      expect(screen.queryByText('Cette page arrive bientôt.')).toBeNull();
       expect(screen.getAllByRole('button').filter((bouton) => bouton.hasAttribute('aria-current')))
         .toEqual([screen.getByRole('button', { name: nom })]);
     }
@@ -118,7 +120,8 @@ describe('Coquille', () => {
     await utilisateur.click(screen.getByRole('button', { name: /^Pokédex \d+ \/ 151$/ }));
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Pokédex');
     await utilisateur.click(screen.getByRole('button', { name: 'Shop' }));
-    expect(screen.getByText('Cette page arrive bientôt.')).toBeTruthy();
+    expect(screen.getByText("Le Shop s'ouvre à la Forêt de Jade.")).toBeTruthy();
+    expect(screen.queryByText('Cette page arrive bientôt.')).toBeNull();
     await utilisateur.click(screen.getByRole('button', { name: 'Plus' }));
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Plus');
     expect(screen.queryByRole('button', { name: 'Retour' })).toBeNull();
@@ -149,7 +152,7 @@ describe('Coquille', () => {
   it('emploie les textes français prévus et masque les icônes aux lecteurs d’écran', async () => {
     const utilisateur = userEvent.setup();
     const { container } = render(<Coquille />);
-    const autorises = new Set(['Aller au contenu', ...noms, 'Cette page arrive bientôt.',
+    const autorises = new Set(['Aller au contenu', ...noms, "Le Shop s'ouvre à la Forêt de Jade.",
       'PC de Léo', 'Pokédex', "Le PC de Léo s'ouvre à l'Arène d'Argenta."]);
     for (const nom of noms.slice(1)) {
       await utilisateur.click(screen.getByRole('button', { name: nom }));
@@ -159,7 +162,7 @@ describe('Coquille', () => {
       if (nom === 'Équipe') {
         const cases = equipe.map(c => c ? `${nomPokemon(c)}Niv. ${c.pokemon.niveau}${formaterDps(c.dps)} DPS` : 'Emplacement libre').join('');
         const xp = premier.xpMax === 0 ? 'MAX' : `${premier.pokemon.xp} / ${premier.xpMax} XP`;
-        expect(screen.getByRole('main').textContent).toBe(`Ton équipe${formaterDps(storeJeu.getState().dps)} DPS · ${equipe.filter(Boolean).length} / 6${cases}${nomPokemon(premier)}Niv. ${premier.pokemon.niveau}${xp}${formaterDps(premier.dps)} DPSOuvre la fiche`);
+        expect(screen.getByRole('main').textContent).toBe(`Ton équipe${formaterDps(storeJeu.getState().dps)} DPS · ${equipe.filter(Boolean).length} / 6${cases}${nomPokemon(premier)}Niv. ${premier.pokemon.niveau}${xp}${formaterDps(premier.dps)} DPSOuvre la ficheTon SacToutBallesSoinsÉquipement×0×0`);
       }
       const parcours = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
       while (parcours.nextNode()) {
@@ -188,6 +191,8 @@ describe('Coquille', () => {
                   : nom === 'Équipe' && element.getAttribute('role') === 'progressbar'
                     ? equipe.filter(c => c).map(c => `XP de ${nomPokemon(c!)}`).find(n => n === element.getAttribute('aria-label'))
                     : 'Navigation principale';
+        // Le Sac de l'onglet Équipe : région, filtre, liste et pastilles « <objet> ×n ».
+        if (nom === 'Équipe' && /^(Sac|Catégories|Objets du Sac|.+ ×\d+)$/.test(element.getAttribute('aria-label') ?? '')) continue;
         expect(element.getAttribute('aria-label')).toBe(attendu);
       }
     }

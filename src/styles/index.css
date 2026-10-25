@@ -10,6 +10,19 @@
   image-rendering: pixelated;
 }
 
+/* Aucun pulse/target dans styles.css V1 ; durée et courbe des jetons existants. */
+@utility cible-valide {
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border: calc(var(--spacing) / 2) solid var(--succes-base);
+    animation: cible-pulsation var(--duree-carte-pulsation) var(--ease-standard) infinite;
+  }
+}
+@keyframes cible-pulsation { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+
 .pc-panneau { max-height: calc(100dvh - var(--spacing) * 16); }
 
 html:has(dialog[open]) { overflow: hidden; }
