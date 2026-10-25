@@ -1,0 +1,1926 @@
+{
+  "sources": [
+    {
+      "fichier": "legacy/js/data/constants.js",
+      "debut": 1,
+      "fin": 36,
+      "sha256": "e4168503e644804c5588aaa5865d116b5306bb374aa3bb7e16b4882d294df7c1"
+    },
+    {
+      "fichier": "legacy/js/game/shop.js",
+      "debut": 1,
+      "fin": 41,
+      "sha256": "23cac77d5d10aeb63709490756b33f47f68d6ee1175842f3809bd7fdd64cc8e4"
+    },
+    {
+      "fichier": "legacy/js/ui/render.js",
+      "debut": 475,
+      "fin": 509,
+      "sha256": "a4e00a4c5d7fbb9d5d98cd74556a56774085de36b251946079dfcce5e50d5a61"
+    },
+    {
+      "fichier": "legacy/js/game/save.js",
+      "debut": 800,
+      "fin": 851,
+      "sha256": "99713cae64d5314fa6c569fdd10ea8ea4b1a23df295b06eb1b36a08c2303ae92"
+    }
+  ],
+  "ordre": [
+    "xAttack",
+    "xSpecial",
+    "pokeDoll",
+    "everstone",
+    "calcium",
+    "fireStone",
+    "waterStone",
+    "leafStone",
+    "thunderStone",
+    "moonStone",
+    "shinyToken"
+  ],
+  "affichage": [
+    {
+      "badges": 0,
+      "palier": false,
+      "objets": [
+        {
+          "id": "xAttack",
+          "prix": 7500,
+          "stock": 2
+        },
+        {
+          "id": "xSpecial",
+          "prix": 10000,
+          "stock": 3
+        },
+        {
+          "id": "pokeDoll",
+          "prix": 5000,
+          "stock": 4
+        },
+        {
+          "id": "everstone",
+          "prix": 10000,
+          "stock": 5
+        },
+        {
+          "id": "calcium",
+          "prix": 50000,
+          "stock": 6
+        },
+        {
+          "id": "fireStone",
+          "prix": 10000,
+          "stock": 7
+        },
+        {
+          "id": "waterStone",
+          "prix": 10000,
+          "stock": 8
+        },
+        {
+          "id": "leafStone",
+          "prix": 10000,
+          "stock": 9
+        },
+        {
+          "id": "thunderStone",
+          "prix": 10000,
+          "stock": 10
+        },
+        {
+          "id": "moonStone",
+          "prix": 10000,
+          "stock": 11
+        },
+        {
+          "id": "shinyToken",
+          "prix": 250000,
+          "stock": 12
+        }
+      ]
+    },
+    {
+      "badges": 0,
+      "palier": true,
+      "objets": [
+        {
+          "id": "xAttack",
+          "prix": 6375,
+          "stock": 2
+        },
+        {
+          "id": "xSpecial",
+          "prix": 8500,
+          "stock": 3
+        },
+        {
+          "id": "pokeDoll",
+          "prix": 4250,
+          "stock": 4
+        },
+        {
+          "id": "everstone",
+          "prix": 8500,
+          "stock": 5
+        },
+        {
+          "id": "calcium",
+          "prix": 42500,
+          "stock": 6
+        },
+        {
+          "id": "fireStone",
+          "prix": 8500,
+          "stock": 7
+        },
+        {
+          "id": "waterStone",
+          "prix": 8500,
+          "stock": 8
+        },
+        {
+          "id": "leafStone",
+          "prix": 8500,
+          "stock": 9
+        },
+        {
+          "id": "thunderStone",
+          "prix": 8500,
+          "stock": 10
+        },
+        {
+          "id": "moonStone",
+          "prix": 8500,
+          "stock": 11
+        },
+        {
+          "id": "shinyToken",
+          "prix": 212500,
+          "stock": 12
+        }
+      ]
+    },
+    {
+      "badges": 1,
+      "palier": false,
+      "objets": [
+        {
+          "id": "xAttack",
+          "prix": 7875,
+          "stock": 2
+        },
+        {
+          "id": "xSpecial",
+          "prix": 10500,
+          "stock": 3
+        },
+        {
+          "id": "pokeDoll",
+          "prix": 5250,
+          "stock": 4
+        },
+        {
+          "id": "everstone",
+          "prix": 10500,
+          "stock": 5
+        },
+        {
+          "id": "calcium",
+          "prix": 50000,
+          "stock": 6
+        },
+        {
+          "id": "fireStone",
+          "prix": 10500,
+          "stock": 7
+        },
+        {
+          "id": "waterStone",
+          "prix": 10500,
+          "stock": 8
+        },
+        {
+          "id": "leafStone",
+          "prix": 10500,
+          "stock": 9
+        },
+        {
+          "id": "thunderStone",
+          "prix": 10500,
+          "stock": 10
+        },
+        {
+          "id": "moonStone",
+          "prix": 10500,
+          "stock": 11
+        },
+        {
+          "id": "shinyToken",
+          "prix": 250000,
+          "stock": 12
+        }
+      ]
+    },
+    {
+      "badges": 1,
+      "palier": true,
+      "objets": [
+        {
+          "id": "xAttack",
+          "prix": 6693,
+          "stock": 2
+        },
+        {
+          "id": "xSpecial",
+          "prix": 8925,
+          "stock": 3
+        },
+        {
+          "id": "pokeDoll",
+          "prix": 4462,
+          "stock": 4
+        },
+        {
+          "id": "everstone",
+          "prix": 8925,
+          "stock": 5
+        },
+        {
+          "id": "calcium",
+          "prix": 42500,
+          "stock": 6
+        },
+        {
+          "id": "fireStone",
+          "prix": 8925,
+          "stock": 7
+        },
+        {
+          "id": "waterStone",
+          "prix": 8925,
+          "stock": 8
+        },
+        {
+          "id": "leafStone",
+          "prix": 8925,
+          "stock": 9
+        },
+        {
+          "id": "thunderStone",
+          "prix": 8925,
+          "stock": 10
+        },
+        {
+          "id": "moonStone",
+          "prix": 8925,
+          "stock": 11
+        },
+        {
+          "id": "shinyToken",
+          "prix": 212500,
+          "stock": 12
+        }
+      ]
+    },
+    {
+      "badges": 2,
+      "palier": false,
+      "objets": [
+        {
+          "id": "xAttack",
+          "prix": 8250,
+          "stock": 2
+        },
+        {
+          "id": "xSpecial",
+          "prix": 11000,
+          "stock": 3
+        },
+        {
+          "id": "pokeDoll",
+          "prix": 5500,
+          "stock": 4
+        },
+        {
+          "id": "everstone",
+          "prix": 11000,
+          "stock": 5
+        },
+        {
+          "id": "calcium",
+          "prix": 50000,
+          "stock": 6
+        },
+        {
+          "id": "fireStone",
+          "prix": 11000,
+          "stock": 7
+        },
+        {
+          "id": "waterStone",
+          "prix": 11000,
+          "stock": 8
+        },
+        {
+          "id": "leafStone",
+          "prix": 11000,
+          "stock": 9
+        },
+        {
+          "id": "thunderStone",
+          "prix": 11000,
+          "stock": 10
+        },
+        {
+          "id": "moonStone",
+          "prix": 11000,
+          "stock": 11
+        },
+        {
+          "id": "shinyToken",
+          "prix": 250000,
+          "stock": 12
+        }
+      ]
+    },
+    {
+      "badges": 2,
+      "palier": true,
+      "objets": [
+        {
+          "id": "xAttack",
+          "prix": 7012,
+          "stock": 2
+        },
+        {
+          "id": "xSpecial",
+          "prix": 9350,
+          "stock": 3
+        },
+        {
+          "id": "pokeDoll",
+          "prix": 4675,
+          "stock": 4
+        },
+        {
+          "id": "everstone",
+          "prix": 9350,
+          "stock": 5
+        },
+        {
+          "id": "calcium",
+          "prix": 42500,
+          "stock": 6
+        },
+        {
+          "id": "fireStone",
+          "prix": 9350,
+          "stock": 7
+        },
+        {
+          "id": "waterStone",
+          "prix": 9350,
+          "stock": 8
+        },
+        {
+          "id": "leafStone",
+          "prix": 9350,
+          "stock": 9
+        },
+        {
+          "id": "thunderStone",
+          "prix": 9350,
+          "stock": 10
+        },
+        {
+          "id": "moonStone",
+          "prix": 9350,
+          "stock": 11
+        },
+        {
+          "id": "shinyToken",
+          "prix": 212500,
+          "stock": 12
+        }
+      ]
+    },
+    {
+      "badges": 3,
+      "palier": false,
+      "objets": [
+        {
+          "id": "xAttack",
+          "prix": 8625,
+          "stock": 2
+        },
+        {
+          "id": "xSpecial",
+          "prix": 11500,
+          "stock": 3
+        },
+        {
+          "id": "pokeDoll",
+          "prix": 5750,
+          "stock": 4
+        },
+        {
+          "id": "everstone",
+          "prix": 11500,
+          "stock": 5
+        },
+        {
+          "id": "calcium",
+          "prix": 50000,
+          "stock": 6
+        },
+        {
+          "id": "fireStone",
+          "prix": 11500,
+          "stock": 7
+        },
+        {
+          "id": "waterStone",
+          "prix": 11500,
+          "stock": 8
+        },
+        {
+          "id": "leafStone",
+          "prix": 11500,
+          "stock": 9
+        },
+        {
+          "id": "thunderStone",
+          "prix": 11500,
+          "stock": 10
+        },
+        {
+          "id": "moonStone",
+          "prix": 11500,
+          "stock": 11
+        },
+        {
+          "id": "shinyToken",
+          "prix": 250000,
+          "stock": 12
+        }
+      ]
+    },
+    {
+      "badges": 3,
+      "palier": true,
+      "objets": [
+        {
+          "id": "xAttack",
+          "prix": 7331,
+          "stock": 2
+        },
+        {
+          "id": "xSpecial",
+          "prix": 9775,
+          "stock": 3
+        },
+        {
+          "id": "pokeDoll",
+          "prix": 4887,
+          "stock": 4
+        },
+        {
+          "id": "everstone",
+          "prix": 9775,
+          "stock": 5
+        },
+        {
+          "id": "calcium",
+          "prix": 42500,
+          "stock": 6
+        },
+        {
+          "id": "fireStone",
+          "prix": 9775,
+          "stock": 7
+        },
+        {
+          "id": "waterStone",
+          "prix": 9775,
+          "stock": 8
+        },
+        {
+          "id": "leafStone",
+          "prix": 9775,
+          "stock": 9
+        },
+        {
+          "id": "thunderStone",
+          "prix": 9775,
+          "stock": 10
+        },
+        {
+          "id": "moonStone",
+          "prix": 9775,
+          "stock": 11
+        },
+        {
+          "id": "shinyToken",
+          "prix": 212500,
+          "stock": 12
+        }
+      ]
+    },
+    {
+      "badges": 4,
+      "palier": false,
+      "objets": [
+        {
+          "id": "xAttack",
+          "prix": 9000,
+          "stock": 2
+        },
+        {
+          "id": "xSpecial",
+          "prix": 12000,
+          "stock": 3
+        },
+        {
+          "id": "pokeDoll",
+          "prix": 6000,
+          "stock": 4
+        },
+        {
+          "id": "everstone",
+          "prix": 12000,
+          "stock": 5
+        },
+        {
+          "id": "calcium",
+          "prix": 50000,
+          "stock": 6
+        },
+        {
+          "id": "fireStone",
+          "prix": 12000,
+          "stock": 7
+        },
+        {
+          "id": "waterStone",
+          "prix": 12000,
+          "stock": 8
+        },
+        {
+          "id": "leafStone",
+          "prix": 12000,
+          "stock": 9
+        },
+        {
+          "id": "thunderStone",
+          "prix": 12000,
+          "stock": 10
+        },
+        {
+          "id": "moonStone",
+          "prix": 12000,
+          "stock": 11
+        },
+        {
+          "id": "shinyToken",
+          "prix": 250000,
+          "stock": 12
+        }
+      ]
+    },
+    {
+      "badges": 4,
+      "palier": true,
+      "objets": [
+        {
+          "id": "xAttack",
+          "prix": 7650,
+          "stock": 2
+        },
+        {
+          "id": "xSpecial",
+          "prix": 10200,
+          "stock": 3
+        },
+        {
+          "id": "pokeDoll",
+          "prix": 5100,
+          "stock": 4
+        },
+        {
+          "id": "everstone",
+          "prix": 10200,
+          "stock": 5
+        },
+        {
+          "id": "calcium",
+          "prix": 42500,
+          "stock": 6
+        },
+        {
+          "id": "fireStone",
+          "prix": 10200,
+          "stock": 7
+        },
+        {
+          "id": "waterStone",
+          "prix": 10200,
+          "stock": 8
+        },
+        {
+          "id": "leafStone",
+          "prix": 10200,
+          "stock": 9
+        },
+        {
+          "id": "thunderStone",
+          "prix": 10200,
+          "stock": 10
+        },
+        {
+          "id": "moonStone",
+          "prix": 10200,
+          "stock": 11
+        },
+        {
+          "id": "shinyToken",
+          "prix": 212500,
+          "stock": 12
+        }
+      ]
+    },
+    {
+      "badges": 5,
+      "palier": false,
+      "objets": [
+        {
+          "id": "xAttack",
+          "prix": 9375,
+          "stock": 2
+        },
+        {
+          "id": "xSpecial",
+          "prix": 12500,
+          "stock": 3
+        },
+        {
+          "id": "pokeDoll",
+          "prix": 6250,
+          "stock": 4
+        },
+        {
+          "id": "everstone",
+          "prix": 12500,
+          "stock": 5
+        },
+        {
+          "id": "calcium",
+          "prix": 50000,
+          "stock": 6
+        },
+        {
+          "id": "fireStone",
+          "prix": 12500,
+          "stock": 7
+        },
+        {
+          "id": "waterStone",
+          "prix": 12500,
+          "stock": 8
+        },
+        {
+          "id": "leafStone",
+          "prix": 12500,
+          "stock": 9
+        },
+        {
+          "id": "thunderStone",
+          "prix": 12500,
+          "stock": 10
+        },
+        {
+          "id": "moonStone",
+          "prix": 12500,
+          "stock": 11
+        },
+        {
+          "id": "shinyToken",
+          "prix": 250000,
+          "stock": 12
+        }
+      ]
+    },
+    {
+      "badges": 5,
+      "palier": true,
+      "objets": [
+        {
+          "id": "xAttack",
+          "prix": 7968,
+          "stock": 2
+        },
+        {
+          "id": "xSpecial",
+          "prix": 10625,
+          "stock": 3
+        },
+        {
+          "id": "pokeDoll",
+          "prix": 5312,
+          "stock": 4
+        },
+        {
+          "id": "everstone",
+          "prix": 10625,
+          "stock": 5
+        },
+        {
+          "id": "calcium",
+          "prix": 42500,
+          "stock": 6
+        },
+        {
+          "id": "fireStone",
+          "prix": 10625,
+          "stock": 7
+        },
+        {
+          "id": "waterStone",
+          "prix": 10625,
+          "stock": 8
+        },
+        {
+          "id": "leafStone",
+          "prix": 10625,
+          "stock": 9
+        },
+        {
+          "id": "thunderStone",
+          "prix": 10625,
+          "stock": 10
+        },
+        {
+          "id": "moonStone",
+          "prix": 10625,
+          "stock": 11
+        },
+        {
+          "id": "shinyToken",
+          "prix": 212500,
+          "stock": 12
+        }
+      ]
+    },
+    {
+      "badges": 6,
+      "palier": false,
+      "objets": [
+        {
+          "id": "xAttack",
+          "prix": 9750,
+          "stock": 2
+        },
+        {
+          "id": "xSpecial",
+          "prix": 13000,
+          "stock": 3
+        },
+        {
+          "id": "pokeDoll",
+          "prix": 6500,
+          "stock": 4
+        },
+        {
+          "id": "everstone",
+          "prix": 13000,
+          "stock": 5
+        },
+        {
+          "id": "calcium",
+          "prix": 50000,
+          "stock": 6
+        },
+        {
+          "id": "fireStone",
+          "prix": 13000,
+          "stock": 7
+        },
+        {
+          "id": "waterStone",
+          "prix": 13000,
+          "stock": 8
+        },
+        {
+          "id": "leafStone",
+          "prix": 13000,
+          "stock": 9
+        },
+        {
+          "id": "thunderStone",
+          "prix": 13000,
+          "stock": 10
+        },
+        {
+          "id": "moonStone",
+          "prix": 13000,
+          "stock": 11
+        },
+        {
+          "id": "shinyToken",
+          "prix": 250000,
+          "stock": 12
+        }
+      ]
+    },
+    {
+      "badges": 6,
+      "palier": true,
+      "objets": [
+        {
+          "id": "xAttack",
+          "prix": 8287,
+          "stock": 2
+        },
+        {
+          "id": "xSpecial",
+          "prix": 11050,
+          "stock": 3
+        },
+        {
+          "id": "pokeDoll",
+          "prix": 5525,
+          "stock": 4
+        },
+        {
+          "id": "everstone",
+          "prix": 11050,
+          "stock": 5
+        },
+        {
+          "id": "calcium",
+          "prix": 42500,
+          "stock": 6
+        },
+        {
+          "id": "fireStone",
+          "prix": 11050,
+          "stock": 7
+        },
+        {
+          "id": "waterStone",
+          "prix": 11050,
+          "stock": 8
+        },
+        {
+          "id": "leafStone",
+          "prix": 11050,
+          "stock": 9
+        },
+        {
+          "id": "thunderStone",
+          "prix": 11050,
+          "stock": 10
+        },
+        {
+          "id": "moonStone",
+          "prix": 11050,
+          "stock": 11
+        },
+        {
+          "id": "shinyToken",
+          "prix": 212500,
+          "stock": 12
+        }
+      ]
+    },
+    {
+      "badges": 7,
+      "palier": false,
+      "objets": [
+        {
+          "id": "xAttack",
+          "prix": 10125,
+          "stock": 2
+        },
+        {
+          "id": "xSpecial",
+          "prix": 13500,
+          "stock": 3
+        },
+        {
+          "id": "pokeDoll",
+          "prix": 6750,
+          "stock": 4
+        },
+        {
+          "id": "everstone",
+          "prix": 13500,
+          "stock": 5
+        },
+        {
+          "id": "calcium",
+          "prix": 50000,
+          "stock": 6
+        },
+        {
+          "id": "fireStone",
+          "prix": 13500,
+          "stock": 7
+        },
+        {
+          "id": "waterStone",
+          "prix": 13500,
+          "stock": 8
+        },
+        {
+          "id": "leafStone",
+          "prix": 13500,
+          "stock": 9
+        },
+        {
+          "id": "thunderStone",
+          "prix": 13500,
+          "stock": 10
+        },
+        {
+          "id": "moonStone",
+          "prix": 13500,
+          "stock": 11
+        },
+        {
+          "id": "shinyToken",
+          "prix": 250000,
+          "stock": 12
+        }
+      ]
+    },
+    {
+      "badges": 7,
+      "palier": true,
+      "objets": [
+        {
+          "id": "xAttack",
+          "prix": 8606,
+          "stock": 2
+        },
+        {
+          "id": "xSpecial",
+          "prix": 11475,
+          "stock": 3
+        },
+        {
+          "id": "pokeDoll",
+          "prix": 5737,
+          "stock": 4
+        },
+        {
+          "id": "everstone",
+          "prix": 11475,
+          "stock": 5
+        },
+        {
+          "id": "calcium",
+          "prix": 42500,
+          "stock": 6
+        },
+        {
+          "id": "fireStone",
+          "prix": 11475,
+          "stock": 7
+        },
+        {
+          "id": "waterStone",
+          "prix": 11475,
+          "stock": 8
+        },
+        {
+          "id": "leafStone",
+          "prix": 11475,
+          "stock": 9
+        },
+        {
+          "id": "thunderStone",
+          "prix": 11475,
+          "stock": 10
+        },
+        {
+          "id": "moonStone",
+          "prix": 11475,
+          "stock": 11
+        },
+        {
+          "id": "shinyToken",
+          "prix": 212500,
+          "stock": 12
+        }
+      ]
+    },
+    {
+      "badges": 8,
+      "palier": false,
+      "objets": [
+        {
+          "id": "xAttack",
+          "prix": 10500,
+          "stock": 2
+        },
+        {
+          "id": "xSpecial",
+          "prix": 14000,
+          "stock": 3
+        },
+        {
+          "id": "pokeDoll",
+          "prix": 7000,
+          "stock": 4
+        },
+        {
+          "id": "everstone",
+          "prix": 14000,
+          "stock": 5
+        },
+        {
+          "id": "calcium",
+          "prix": 50000,
+          "stock": 6
+        },
+        {
+          "id": "fireStone",
+          "prix": 14000,
+          "stock": 7
+        },
+        {
+          "id": "waterStone",
+          "prix": 14000,
+          "stock": 8
+        },
+        {
+          "id": "leafStone",
+          "prix": 14000,
+          "stock": 9
+        },
+        {
+          "id": "thunderStone",
+          "prix": 14000,
+          "stock": 10
+        },
+        {
+          "id": "moonStone",
+          "prix": 14000,
+          "stock": 11
+        },
+        {
+          "id": "shinyToken",
+          "prix": 250000,
+          "stock": 12
+        }
+      ]
+    },
+    {
+      "badges": 8,
+      "palier": true,
+      "objets": [
+        {
+          "id": "xAttack",
+          "prix": 8925,
+          "stock": 2
+        },
+        {
+          "id": "xSpecial",
+          "prix": 11900,
+          "stock": 3
+        },
+        {
+          "id": "pokeDoll",
+          "prix": 5950,
+          "stock": 4
+        },
+        {
+          "id": "everstone",
+          "prix": 11900,
+          "stock": 5
+        },
+        {
+          "id": "calcium",
+          "prix": 42500,
+          "stock": 6
+        },
+        {
+          "id": "fireStone",
+          "prix": 11900,
+          "stock": 7
+        },
+        {
+          "id": "waterStone",
+          "prix": 11900,
+          "stock": 8
+        },
+        {
+          "id": "leafStone",
+          "prix": 11900,
+          "stock": 9
+        },
+        {
+          "id": "thunderStone",
+          "prix": 11900,
+          "stock": 10
+        },
+        {
+          "id": "moonStone",
+          "prix": 11900,
+          "stock": 11
+        },
+        {
+          "id": "shinyToken",
+          "prix": 212500,
+          "stock": 12
+        }
+      ]
+    }
+  ],
+  "achats": [
+    {
+      "id": "xAttack",
+      "badges": 0,
+      "argent": 7499,
+      "argentApres": 7499,
+      "stockApres": 2
+    },
+    {
+      "id": "xAttack",
+      "badges": 0,
+      "argent": 7500,
+      "argentApres": 0,
+      "stockApres": 3
+    },
+    {
+      "id": "xAttack",
+      "badges": 0,
+      "argent": 22500,
+      "argentApres": 15000,
+      "stockApres": 3
+    },
+    {
+      "id": "xAttack",
+      "badges": 4,
+      "argent": 8999,
+      "argentApres": 8999,
+      "stockApres": 2
+    },
+    {
+      "id": "xAttack",
+      "badges": 4,
+      "argent": 9000,
+      "argentApres": 0,
+      "stockApres": 3
+    },
+    {
+      "id": "xAttack",
+      "badges": 4,
+      "argent": 27000,
+      "argentApres": 18000,
+      "stockApres": 3
+    },
+    {
+      "id": "xAttack",
+      "badges": 8,
+      "argent": 10499,
+      "argentApres": 10499,
+      "stockApres": 2
+    },
+    {
+      "id": "xAttack",
+      "badges": 8,
+      "argent": 10500,
+      "argentApres": 0,
+      "stockApres": 3
+    },
+    {
+      "id": "xAttack",
+      "badges": 8,
+      "argent": 31500,
+      "argentApres": 21000,
+      "stockApres": 3
+    },
+    {
+      "id": "xSpecial",
+      "badges": 0,
+      "argent": 9999,
+      "argentApres": 9999,
+      "stockApres": 2
+    },
+    {
+      "id": "xSpecial",
+      "badges": 0,
+      "argent": 10000,
+      "argentApres": 0,
+      "stockApres": 3
+    },
+    {
+      "id": "xSpecial",
+      "badges": 0,
+      "argent": 30000,
+      "argentApres": 20000,
+      "stockApres": 3
+    },
+    {
+      "id": "xSpecial",
+      "badges": 4,
+      "argent": 11999,
+      "argentApres": 11999,
+      "stockApres": 2
+    },
+    {
+      "id": "xSpecial",
+      "badges": 4,
+      "argent": 12000,
+      "argentApres": 0,
+      "stockApres": 3
+    },
+    {
+      "id": "xSpecial",
+      "badges": 4,
+      "argent": 36000,
+      "argentApres": 24000,
+      "stockApres": 3
+    },
+    {
+      "id": "xSpecial",
+      "badges": 8,
+      "argent": 13999,
+      "argentApres": 13999,
+      "stockApres": 2
+    },
+    {
+      "id": "xSpecial",
+      "badges": 8,
+      "argent": 14000,
+      "argentApres": 0,
+      "stockApres": 3
+    },
+    {
+      "id": "xSpecial",
+      "badges": 8,
+      "argent": 42000,
+      "argentApres": 28000,
+      "stockApres": 3
+    },
+    {
+      "id": "pokeDoll",
+      "badges": 0,
+      "argent": 4999,
+      "argentApres": 4999,
+      "stockApres": 2
+    },
+    {
+      "id": "pokeDoll",
+      "badges": 0,
+      "argent": 5000,
+      "argentApres": 0,
+      "stockApres": 3
+    },
+    {
+      "id": "pokeDoll",
+      "badges": 0,
+      "argent": 15000,
+      "argentApres": 10000,
+      "stockApres": 3
+    },
+    {
+      "id": "pokeDoll",
+      "badges": 4,
+      "argent": 5999,
+      "argentApres": 5999,
+      "stockApres": 2
+    },
+    {
+      "id": "pokeDoll",
+      "badges": 4,
+      "argent": 6000,
+      "argentApres": 0,
+      "stockApres": 3
+    },
+    {
+      "id": "pokeDoll",
+      "badges": 4,
+      "argent": 18000,
+      "argentApres": 12000,
+      "stockApres": 3
+    },
+    {
+      "id": "pokeDoll",
+      "badges": 8,
+      "argent": 6999,
+      "argentApres": 6999,
+      "stockApres": 2
+    },
+    {
+      "id": "pokeDoll",
+      "badges": 8,
+      "argent": 7000,
+      "argentApres": 0,
+      "stockApres": 3
+    },
+    {
+      "id": "pokeDoll",
+      "badges": 8,
+      "argent": 21000,
+      "argentApres": 14000,
+      "stockApres": 3
+    },
+    {
+      "id": "everstone",
+      "badges": 0,
+      "argent": 9999,
+      "argentApres": 9999,
+      "stockApres": 2
+    },
+    {
+      "id": "everstone",
+      "badges": 0,
+      "argent": 10000,
+      "argentApres": 0,
+      "stockApres": 3
+    },
+    {
+      "id": "everstone",
+      "badges": 0,
+      "argent": 30000,
+      "argentApres": 20000,
+      "stockApres": 3
+    },
+    {
+      "id": "everstone",
+      "badges": 4,
+      "argent": 11999,
+      "argentApres": 11999,
+      "stockApres": 2
+    },
+    {
+      "id": "everstone",
+      "badges": 4,
+      "argent": 12000,
+      "argentApres": 0,
+      "stockApres": 3
+    },
+    {
+      "id": "everstone",
+      "badges": 4,
+      "argent": 36000,
+      "argentApres": 24000,
+      "stockApres": 3
+    },
+    {
+      "id": "everstone",
+      "badges": 8,
+      "argent": 13999,
+      "argentApres": 13999,
+      "stockApres": 2
+    },
+    {
+      "id": "everstone",
+      "badges": 8,
+      "argent": 14000,
+      "argentApres": 0,
+      "stockApres": 3
+    },
+    {
+      "id": "everstone",
+      "badges": 8,
+      "argent": 42000,
+      "argentApres": 28000,
+      "stockApres": 3
+    },
+    {
+      "id": "calcium",
+      "badges": 0,
+      "argent": 49999,
+      "argentApres": 49999,
+      "stockApres": 2
+    },
+    {
+      "id": "calcium",
+      "badges": 0,
+      "argent": 50000,
+      "argentApres": 0,
+      "stockApres": 3
+    },
+    {
+      "id": "calcium",
+      "badges": 0,
+      "argent": 150000,
+      "argentApres": 100000,
+      "stockApres": 3
+    },
+    {
+      "id": "calcium",
+      "badges": 4,
+      "argent": 49999,
+      "argentApres": 49999,
+      "stockApres": 2
+    },
+    {
+      "id": "calcium",
+      "badges": 4,
+      "argent": 50000,
+      "argentApres": 0,
+      "stockApres": 3
+    },
+    {
+      "id": "calcium",
+      "badges": 4,
+      "argent": 150000,
+      "argentApres": 100000,
+      "stockApres": 3
+    },
+    {
+      "id": "calcium",
+      "badges": 8,
+      "argent": 49999,
+      "argentApres": 49999,
+      "stockApres": 2
+    },
+    {
+      "id": "calcium",
+      "badges": 8,
+      "argent": 50000,
+      "argentApres": 0,
+      "stockApres": 3
+    },
+    {
+      "id": "calcium",
+      "badges": 8,
+      "argent": 150000,
+      "argentApres": 100000,
+      "stockApres": 3
+    },
+    {
+      "id": "fireStone",
+      "badges": 0,
+      "argent": 9999,
+      "argentApres": 9999,
+      "stockApres": 2
+    },
+    {
+      "id": "fireStone",
+      "badges": 0,
+      "argent": 10000,
+      "argentApres": 0,
+      "stockApres": 3
+    },
+    {
+      "id": "fireStone",
+      "badges": 0,
+      "argent": 30000,
+      "argentApres": 20000,
+      "stockApres": 3
+    },
+    {
+      "id": "fireStone",
+      "badges": 4,
+      "argent": 11999,
+      "argentApres": 11999,
+      "stockApres": 2
+    },
+    {
+      "id": "fireStone",
+      "badges": 4,
+      "argent": 12000,
+      "argentApres": 0,
+      "stockApres": 3
+    },
+    {
+      "id": "fireStone",
+      "badges": 4,
+      "argent": 36000,
+      "argentApres": 24000,
+      "stockApres": 3
+    },
+    {
+      "id": "fireStone",
+      "badges": 8,
+      "argent": 13999,
+      "argentApres": 13999,
+      "stockApres": 2
+    },
+    {
+      "id": "fireStone",
+      "badges": 8,
+      "argent": 14000,
+      "argentApres": 0,
+      "stockApres": 3
+    },
+    {
+      "id": "fireStone",
+      "badges": 8,
+      "argent": 42000,
+      "argentApres": 28000,
+      "stockApres": 3
+    },
+    {
+      "id": "waterStone",
+      "badges": 0,
+      "argent": 9999,
+      "argentApres": 9999,
+      "stockApres": 2
+    },
+    {
+      "id": "waterStone",
+      "badges": 0,
+      "argent": 10000,
+      "argentApres": 0,
+      "stockApres": 3
+    },
+    {
+      "id": "waterStone",
+      "badges": 0,
+      "argent": 30000,
+      "argentApres": 20000,
+      "stockApres": 3
+    },
+    {
+      "id": "waterStone",
+      "badges": 4,
+      "argent": 11999,
+      "argentApres": 11999,
+      "stockApres": 2
+    },
+    {
+      "id": "waterStone",
+      "badges": 4,
+      "argent": 12000,
+      "argentApres": 0,
+      "stockApres": 3
+    },
+    {
+      "id": "waterStone",
+      "badges": 4,
+      "argent": 36000,
+      "argentApres": 24000,
+      "stockApres": 3
+    },
+    {
+      "id": "waterStone",
+      "badges": 8,
+      "argent": 13999,
+      "argentApres": 13999,
+      "stockApres": 2
+    },
+    {
+      "id": "waterStone",
+      "badges": 8,
+      "argent": 14000,
+      "argentApres": 0,
+      "stockApres": 3
+    },
+    {
+      "id": "waterStone",
+      "badges": 8,
+      "argent": 42000,
+      "argentApres": 28000,
+      "stockApres": 3
+    },
+    {
+      "id": "leafStone",
+      "badges": 0,
+      "argent": 9999,
+      "argentApres": 9999,
+      "stockApres": 2
+    },
+    {
+      "id": "leafStone",
+      "badges": 0,
+      "argent": 10000,
+      "argentApres": 0,
+      "stockApres": 3
+    },
+    {
+      "id": "leafStone",
+      "badges": 0,
+      "argent": 30000,
+      "argentApres": 20000,
+      "stockApres": 3
+    },
+    {
+      "id": "leafStone",
+      "badges": 4,
+      "argent": 11999,
+      "argentApres": 11999,
+      "stockApres": 2
+    },
+    {
+      "id": "leafStone",
+      "badges": 4,
+      "argent": 12000,
+      "argentApres": 0,
+      "stockApres": 3
+    },
+    {
+      "id": "leafStone",
+      "badges": 4,
+      "argent": 36000,
+      "argentApres": 24000,
+      "stockApres": 3
+    },
+    {
+      "id": "leafStone",
+      "badges": 8,
+      "argent": 13999,
+      "argentApres": 13999,
+      "stockApres": 2
+    },
+    {
+      "id": "leafStone",
+      "badges": 8,
+      "argent": 14000,
+      "argentApres": 0,
+      "stockApres": 3
+    },
+    {
+      "id": "leafStone",
+      "badges": 8,
+      "argent": 42000,
+      "argentApres": 28000,
+      "stockApres": 3
+    },
+    {
+      "id": "thunderStone",
+      "badges": 0,
+      "argent": 9999,
+      "argentApres": 9999,
+      "stockApres": 2
+    },
+    {
+      "id": "thunderStone",
+      "badges": 0,
+      "argent": 10000,
+      "argentApres": 0,
+      "stockApres": 3
+    },
+    {
+      "id": "thunderStone",
+      "badges": 0,
+      "argent": 30000,
+      "argentApres": 20000,
+      "stockApres": 3
+    },
+    {
+      "id": "thunderStone",
+      "badges": 4,
+      "argent": 11999,
+      "argentApres": 11999,
+      "stockApres": 2
+    },
+    {
+      "id": "thunderStone",
+      "badges": 4,
+      "argent": 12000,
+      "argentApres": 0,
+      "stockApres": 3
+    },
+    {
+      "id": "thunderStone",
+      "badges": 4,
+      "argent": 36000,
+      "argentApres": 24000,
+      "stockApres": 3
+    },
+    {
+      "id": "thunderStone",
+      "badges": 8,
+      "argent": 13999,
+      "argentApres": 13999,
+      "stockApres": 2
+    },
+    {
+      "id": "thunderStone",
+      "badges": 8,
+      "argent": 14000,
+      "argentApres": 0,
+      "stockApres": 3
+    },
+    {
+      "id": "thunderStone",
+      "badges": 8,
+      "argent": 42000,
+      "argentApres": 28000,
+      "stockApres": 3
+    },
+    {
+      "id": "moonStone",
+      "badges": 0,
+      "argent": 9999,
+      "argentApres": 9999,
+      "stockApres": 2
+    },
+    {
+      "id": "moonStone",
+      "badges": 0,
+      "argent": 10000,
+      "argentApres": 0,
+      "stockApres": 3
+    },
+    {
+      "id": "moonStone",
+      "badges": 0,
+      "argent": 30000,
+      "argentApres": 20000,
+      "stockApres": 3
+    },
+    {
+      "id": "moonStone",
+      "badges": 4,
+      "argent": 11999,
+      "argentApres": 11999,
+      "stockApres": 2
+    },
+    {
+      "id": "moonStone",
+      "badges": 4,
+      "argent": 12000,
+      "argentApres": 0,
+      "stockApres": 3
+    },
+    {
+      "id": "moonStone",
+      "badges": 4,
+      "argent": 36000,
+      "argentApres": 24000,
+      "stockApres": 3
+    },
+    {
+      "id": "moonStone",
+      "badges": 8,
+      "argent": 13999,
+      "argentApres": 13999,
+      "stockApres": 2
+    },
+    {
+      "id": "moonStone",
+      "badges": 8,
+      "argent": 14000,
+      "argentApres": 0,
+      "stockApres": 3
+    },
+    {
+      "id": "moonStone",
+      "badges": 8,
+      "argent": 42000,
+      "argentApres": 28000,
+      "stockApres": 3
+    },
+    {
+      "id": "shinyToken",
+      "badges": 0,
+      "argent": 249999,
+      "argentApres": 249999,
+      "stockApres": 2
+    },
+    {
+      "id": "shinyToken",
+      "badges": 0,
+      "argent": 250000,
+      "argentApres": 0,
+      "stockApres": 3
+    },
+    {
+      "id": "shinyToken",
+      "badges": 0,
+      "argent": 750000,
+      "argentApres": 500000,
+      "stockApres": 3
+    },
+    {
+      "id": "shinyToken",
+      "badges": 4,
+      "argent": 249999,
+      "argentApres": 249999,
+      "stockApres": 2
+    },
+    {
+      "id": "shinyToken",
+      "badges": 4,
+      "argent": 250000,
+      "argentApres": 0,
+      "stockApres": 3
+    },
+    {
+      "id": "shinyToken",
+      "badges": 4,
+      "argent": 750000,
+      "argentApres": 500000,
+      "stockApres": 3
+    },
+    {
+      "id": "shinyToken",
+      "badges": 8,
+      "argent": 249999,
+      "argentApres": 249999,
+      "stockApres": 2
+    },
+    {
+      "id": "shinyToken",
+      "badges": 8,
+      "argent": 250000,
+      "argentApres": 0,
+      "stockApres": 3
+    },
+    {
+      "id": "shinyToken",
+      "badges": 8,
+      "argent": 750000,
+      "argentApres": 500000,
+      "stockApres": 3
+    }
+  ],
+  "acces": [
+    {
+      "unlockedZone": 0,
+      "actif": false
+    },
+    {
+      "unlockedZone": 1,
+      "actif": false
+    },
+    {
+      "unlockedZone": 2,
+      "actif": false
+    },
+    {
+      "unlockedZone": 3,
+      "actif": false
+    },
+    {
+      "unlockedZone": 4,
+      "actif": false
+    },
+    {
+      "unlockedZone": 5,
+      "actif": false
+    },
+    {
+      "unlockedZone": 6,
+      "actif": false
+    },
+    {
+      "unlockedZone": 7,
+      "actif": false
+    },
+    {
+      "unlockedZone": 8,
+      "actif": false
+    },
+    {
+      "unlockedZone": 9,
+      "actif": false
+    },
+    {
+      "unlockedZone": 10,
+      "actif": false
+    },
+    {
+      "unlockedZone": 11,
+      "actif": true
+    },
+    {
+      "unlockedZone": 12,
+      "actif": true
+    },
+    {
+      "unlockedZone": 13,
+      "actif": true
+    },
+    {
+      "unlockedZone": 14,
+      "actif": true
+    },
+    {
+      "unlockedZone": 15,
+      "actif": true
+    },
+    {
+      "unlockedZone": 16,
+      "actif": true
+    },
+    {
+      "unlockedZone": 17,
+      "actif": true
+    },
+    {
+      "unlockedZone": 18,
+      "actif": true
+    },
+    {
+      "unlockedZone": 19,
+      "actif": true
+    },
+    {
+      "unlockedZone": 20,
+      "actif": true
+    },
+    {
+      "unlockedZone": 21,
+      "actif": true
+    }
+  ]
+}
