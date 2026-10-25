@@ -9,6 +9,8 @@ import { blocage, commandeCourante, declencher, etapeTerminee, type CatalogueEve
 import { evenementsKanto } from '../core/evenements-kanto';
 import { choisirStarter, creerStarter, tirerStarters } from '../core/starter';
 import { accorderBadge, accorderJalons, actifsDe } from '../core/progression';
+import { zoneDeLigue, estZoneDeLigue, dresseurDe, messageEnchainement, nomAdversaire, enregistrerVictoireLigue } from '../core/ligue';
+import ligue from '../../data/ligue.json';
 import { clicsAutomatiques } from '../core/clics';
 import { utiliserSurPokemon, poserStase, retirerStase, utiliserJetonShiny } from '../core/objets-equipe';
 import { clesActives, utiliserTemporise, refusPoupee, utiliserPoupee, declencherRecharge } from '../core/objets-actifs';
@@ -72,6 +74,7 @@ export type AffichageJeu = {
   capture: AffichageCapture; autoAttaque: boolean; arretAuto: ReglagesArret;
   capturer(cle: string): void; basculerAutoAttaque(): void; reglerArretAuto(partiel: Partial<ReglagesArret>): void;
   lieu: ZoneMonde | null; zone: Zone | null; etape: number; ennemi: Omit<Ennemi, 'capture'> | null; pv: number;
+  nomAdversaire: string | null; ligueGagnee: number;
   equipe: CaseEquipe[]; dps: number; erreur: string | null;
   pc: PokemonPossede[]; pokedex: readonly number[];
   accesPc: { ouvert: boolean; raison: string | null };
@@ -163,6 +166,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
   };
   const traiter = (): void => {
     if (!coeur) return;
+    const etapePrecedente = region.etape;
     region = { ...region, zoneId: coeur.zoneId, etape: coeur.etape };
     let sauvegarder = false;
     const bossBattus: string[] = [];
@@ -187,9 +191,15 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
           messages.push(`${pokemon.surnom ?? catalogue.parNumero(pokemon.numero).nom} passe au niveau ${montee.niveau} !`);
         } else if (r.montees.length > 1) messages.push(`${r.montees.length} Pokémon montent de niveau !`);
         if (evenement.shiny) messages.push(`Chromatique ! +${r.bonbons} Bonbons`);
+        if (evenement.boss && estZoneDeLigue(coeur.zone)) {
+          const message = messageEnchainement(coeur.zone, etapePrecedente);
+          if (message) messages.push(message);
+          sauvegarder = true;
+        }
         messagesCapture.push(...messages);
       }
       if (evenement.type === 'boss-vaincu') {
+        if (estZoneDeLigue(coeur.zone)) region = enregistrerVictoireLigue(region);
         const resultat = accorderBadge(region, evenement.zoneId);
         region = resultat.region;
         if (resultat.badge) {
@@ -210,7 +220,10 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         bossBattus.push(evenement.zoneId);
       }
       if (evenement.type === 'boss-echoue') {
-        messagesCapture.push('Temps écoulé !');
+        const dresseur = dresseurDe(coeur.zone, coeur.etape);
+        messagesCapture.push(dresseur
+          ? ligue.messages.defaite.replace('{dresseur}', dresseur.nom) : 'Temps écoulé !');
+        if (estZoneDeLigue(coeur.zone)) sauvegarder = true;
       }
     }
     if (messagesCapture.length) { annonce = messagesCapture.join(' · '); finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs; }
@@ -277,6 +290,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     };
     const ennemi = coeur ? (({ numero, niveau, pv, pvMax, boss, shiny, rarete }) => ({ numero, niveau, pv, pvMax, boss, shiny, rarete }))(coeur.ennemi) : null;
     store.setState({ lieu, zone: coeur?.zone ?? null, etape: region.etape, ennemi, pv: ennemi?.pv ?? 0,
+      nomAdversaire: coeur ? nomAdversaire(coeur.zone, coeur.etape) : null, ligueGagnee: region.ligueGagnee,
       intro: JSON.stringify(intro) === JSON.stringify(precedent.intro) ? precedent.intro : intro,
       evenement: JSON.stringify(evenement) === JSON.stringify(precedent.evenement) ? precedent.evenement : evenement,
       progression: afficherProgression(region, pokedex),
@@ -314,7 +328,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
   const changerDeZone = (zoneId: string): void => {
     const lieu = kanto.zone(zoneId);
     const autoClic = coeur?.autoClic ?? false;
-    coeur = lieu.sansCombat ? null : creerCombat(lieu, region.equipe.map(versMembreEquipe), alea, actifsCourants(region, horloge.maintenant()), { ...optionsCombat(), autoClic });
+    coeur = lieu.sansCombat ? null : creerCombat(zoneDeLigue(lieu, region.starterId), region.equipe.map(versMembreEquipe), alea, actifsCourants(region, horloge.maintenant()), { ...optionsCombat(), autoClic });
     resteAutoClicMs = 0;
     if (coeur && tempsJeuMs < finEvolutionMs) coeur = suspendreDps(coeur, finEvolutionMs - tempsJeuMs);
     region = { ...region, zoneId, etape: 1 };
@@ -500,6 +514,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       enregistrer(); afficher();
     },
     lieu: null, zone: null, etape: 1, ennemi: null, pv: 0, equipe: [], dps: 0, minuteur: null,
+    nomAdversaire: null, ligueGagnee: 0,
     erreur: null, erreurChargement: false, zonePrecedente: null, zoneSuivante: null, evenementsDegats: [],
     evolution: null, argent: 0, enRecherche: false, cache: false, annonce: null, echange: null,
     pc: [], pokedex, accesPc: { ouvert: false, raison: reglages.pc.raison },
@@ -552,7 +567,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
           pokedex = completerPokedex(persistance.pokedex, region);
           zonesVues = new Set(kanto.zonesOuvertes(etatMondeDe(region)).map(zone => zone.id));
           const lieu = kanto.zone(region.zoneId);
-          coeur = lieu.sansCombat ? null : reprendreCombat(lieu, region.equipe.map(versMembreEquipe), alea, region.etape, actifsCourants(region, horloge.maintenant()), optionsCombat());
+          coeur = lieu.sansCombat ? null : reprendreCombat(zoneDeLigue(lieu, region.starterId), region.equipe.map(versMembreEquipe), alea, region.etape, actifsCourants(region, horloge.maintenant()), optionsCombat());
           initialise = true;
           noterDansPokedex();
           traiter();
