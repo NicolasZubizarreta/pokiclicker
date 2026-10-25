@@ -19,7 +19,7 @@ afterEach(cleanup);
 it('présente les 151 espèces dans l’ordre national et compte les captures de Kanto sans doublons', () => {
   render(<Pokedex retour={() => {}} />);
   // Isole la liste historique des espèces ; les paliers ont leur propre test.
-  screen.queryByRole('list', { name: 'Paliers du Pokédex' })?.remove();
+  screen.queryByRole('region', { name: 'Paliers du Pokédex' })?.remove();
   expect(screen.getByRole('heading', { level: 1, name: 'Pokédex' }).tabIndex).toBe(-1);
   expect(screen.getByText('2 / 151')).toBeTruthy();
   const liste = screen.getByRole('list');
@@ -51,9 +51,9 @@ it('présente les dix paliers automatiques et le prochain objectif accessible', 
   const { container } = render(<Pokedex retour={() => {}} />);
   expect(screen.getByText('24 / 151')).toBeTruthy();
   expect(screen.getByText('Prochain palier : 30 (Collectionneur) · Encore 6 espèces.')).toBeTruthy();
-  const liste = screen.getByRole('list', { name: 'Paliers du Pokédex' });
-  expect(liste.tagName).toBe('UL');
-  const entrees = within(liste).getAllByRole('listitem');
+  const liste = screen.getByRole('region', { name: 'Paliers du Pokédex' });
+  expect(liste.querySelector('dl')).toBeTruthy();
+  const entrees = Array.from(liste.querySelectorAll<HTMLElement>('dl > div'));
   expect(entrees).toHaveLength(10);
   progression.paliers.forEach((palier, index) => {
     expect(entrees[index]!.textContent).toContain(`${palier.palier} — ${palier.titre} — ${palier.description}`);

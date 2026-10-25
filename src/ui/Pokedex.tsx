@@ -22,14 +22,14 @@ export function Pokedex({ retour }: { retour(): void }) {
     <p data-prochain-palier>{prochain
       ? `Prochain palier : ${prochain.palier} (${prochain.titre}) · Encore ${prochain.restantes} espèces.`
       : 'Pokédex complet !'}</p>
-    <ul aria-label="Paliers du Pokédex" className="space-y-2">
-      {paliers.map(palier => <li key={palier.palier}>
-        <span aria-hidden="true">{palier.recu ? '✓' : <svg viewBox="0 0 24 24" className="inline size-4" fill="none" stroke="currentColor">
+    <section aria-label="Paliers du Pokédex"><dl className="space-y-2">
+      {paliers.map(palier => <div key={palier.palier}>
+        <dt className="inline"><span aria-hidden="true">{palier.recu ? '✓' : <svg viewBox="0 0 24 24" className="inline size-4" fill="none" stroke="currentColor">
           <path d="M7 10V7a5 5 0 0 1 10 0v3M5 10h14v12H5z" />
         </svg>}</span>{' '}
-        {`${palier.palier} — ${palier.titre} — ${palier.description}`} · <span>{palier.recu ? 'reçu' : 'à venir'}</span>
-      </li>)}
-    </ul>
+        {`${palier.palier} — ${palier.titre} — ${palier.description}`}</dt> · <dd className="inline">{palier.recu ? 'reçu' : 'à venir'}</dd>
+      </div>)}
+    </dl></section>
     <ol className="grid grid-cols-3 gap-2 sm:grid-cols-5 lg:grid-cols-10">
       {Array.from({ length: total }, (_, index) => {
         const numero = index + 1;
