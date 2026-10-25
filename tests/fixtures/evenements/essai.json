@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "evenements": [
+    {
+      "id": "kanto.essai",
+      "declencheur": { "type": "entree-zone", "zone": "kanto.route-1" },
+      "si": { "non": { "type": "drapeau", "id": "essai-fait" } },
+      "priorite": 0,
+      "repetable": false,
+      "etapes": [
+        { "type": "dialogue", "locuteur": "Prof. Chen", "texte": "Bonjour !" },
+        { "type": "donner", "objet": "pokeball", "quantite": 5 },
+        { "type": "poser-drapeau", "id": "essai-fait" },
+        { "type": "bloquer", "zone": "kanto.foret-de-jade", "sauf": "flute", "raison": "Un Ronflex dort." },
+        { "type": "combat", "pokemon": 143, "niveau": 30, "capture": 25 },
+        { "type": "deplacer", "zone": "kanto.bourg-palette" }
+      ]
+    }
+  ]
+}

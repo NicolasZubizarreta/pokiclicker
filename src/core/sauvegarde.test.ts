@@ -36,6 +36,40 @@ function instantane(stockage: ReturnType<typeof creerStockageMemoire>) {
 const cle = 'pokiclicker:partie:partie-1';
 afterEach(() => { delete migrationsParDefaut[0]; });
 
+describe('sauvegarde des evenements', () => {
+  it('accepte une region sans evenement en cours', () => {
+    const region = regionInitiale('kanto', 'kanto.route-1');
+    expect(region).not.toHaveProperty('evenementEnCours');
+    expect(() => validerDonneesRegion(region)).not.toThrow();
+  });
+  it.each([0, 2])('accepte un evenement en cours a l’etape %i', etape => {
+    expect(() => validerDonneesRegion({ ...regionInitiale('kanto', 'kanto.route-1'),
+      evenementEnCours: { id: 'kanto.essai', etape, file: ['kanto.suite'] } })).not.toThrow();
+  });
+  it.each([
+    { id: 'kanto.essai', etape: -1, file: [] },
+    { id: 'kanto.essai', etape: 0.5, file: [] },
+    { id: 'kanto.essai', etape: 0, file: [3] },
+    { id: '', etape: 0, file: [] },
+    { id: 'kanto.essai', etape: 0, file: [''] },
+  ])('refuse un evenement en cours invalide : %j', evenementEnCours => {
+    expect(() => validerDonneesRegion({ ...regionInitiale('kanto', 'kanto.route-1'),
+      evenementEnCours })).toThrow();
+  });
+  it('conserve les drapeaux, les evenements joues et la reprise apres export et import', () => {
+    const { jeu } = contexte();
+    const partie = jeu.creerPartie('Evenements');
+    const region: DonneesRegion = { ...regionInitiale('kanto', 'kanto.route-1'),
+      drapeaux: ['essai-fait', 'flute'], evenementsJoues: ['depart', 'kanto.termine'],
+      evenementEnCours: { id: 'kanto.essai', etape: 2, file: ['kanto.suite', 'kanto.fin'] } };
+    const avant = structuredClone(region);
+    jeu.ecrireRegion(partie.id, 'kanto', region);
+    const copie = jeu.importerPartie(jeu.exporterPartie(partie.id));
+    expect(jeu.chargerRegion(copie.id, 'kanto')?.donnees).toEqual(avant);
+    expect(region).toEqual(avant);
+  });
+});
+
 describe('préférences de combat du compte', () => {
   it('lit un compte v3 sans les nouveaux champs sans écrire et résout les valeurs par défaut', () => {
     const { stockage, horloge, jeu } = contexte();

@@ -28,7 +28,7 @@ const liste = (valider: Validateur): Validateur => v => {
   for (const element of v) valider(element);
 };
 const textes = liste(chaine);
-function forme(v: unknown, requis: Record<string, Validateur>, facultatifs: Record<string, Validateur> = {}) {
+export function forme(v: unknown, requis: Record<string, Validateur>, facultatifs: Record<string, Validateur> = {}) {
   objet(v);
   exiger(Object.keys(v).every(cle => Object.hasOwn(requis, cle) || Object.hasOwn(facultatifs, cle)), 'Champ inconnu');
   for (const [cle, valider] of Object.entries(requis)) {
@@ -90,7 +90,11 @@ export function validerDonneesRegion(v: unknown): asserts v is DonneesRegion {
     },
     jetons: entier,
     arretAuto: a => forme(a, { commun: booleen, peuCommun: booleen, rare: booleen, tresRare: booleen,
-      legendaire: booleen, shiny: booleen, nouveau: booleen }) });
+      legendaire: booleen, shiny: booleen, nouveau: booleen }) }, {
+    evenementEnCours: e => forme(e, { id: identifiant,
+      etape: i => { entier(i); exiger((i as number) >= 0, 'Etape invalide'); },
+      file: liste(identifiant) }),
+  });
 }
 export function dateUtc(v: unknown): void {
   chaine(v);

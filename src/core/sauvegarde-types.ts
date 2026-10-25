@@ -29,6 +29,7 @@ export type DonneesRegion = {
   regionId: string; zoneId: string; etape: number; equipe: PokemonPossede[];
   badges: string[]; bossVaincus: string[]; objetsCles: string[]; quetes: string[];
   drapeaux: string[]; evenementsJoues: string[]; argent: number;
+  evenementEnCours?: { id: string; etape: number; file: string[] };
   inventaire: Record<string, number>; ligueGagnee: number;
   pc: PokemonPossede[]; ameliorations: string[]; jalonsRecus: number[]; starterId: number | null;
   statistiques: { eliminations: number; argentTotalGagne: number };
