@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import essai from '../../tests/fixtures/evenements/essai.json';
 import { creerHorlogeSimulee } from '../core/clock';
+import * as combat from '../core/combat';
 import { chargerEvenements, type Evenement } from '../core/evenements';
 import { kanto } from '../core/regions';
 import { reglages } from '../core/reglages';
@@ -12,6 +13,7 @@ beforeEach(() => vi.useFakeTimers());
 afterEach(() => {
   stores.forEach(store => store.getState().arreter());
   stores.length = 0;
+  vi.restoreAllMocks();
   vi.useRealTimers();
 });
 
@@ -38,6 +40,68 @@ function preparer(evenements: unknown = essai, modifier: (region: DonneesRegion)
 }
 
 describe('événements du store de bout en bout', () => {
+  it('conserve la référence de la commande entre deux affichages', () => {
+    const partie = preparer();
+    partie.store.getState().allerVers('kanto.route-1');
+    const commande = partie.store.getState().evenement;
+    expect(commande).not.toBeNull();
+    partie.horloge.avancer(100);
+    partie.store.getState().tick();
+    expect(partie.store.getState().evenement).toBe(commande);
+    partie.store.getState().terminerEtape();
+    expect(partie.store.getState().evenement).not.toBe(commande);
+  });
+
+  it('reconstruit le combat à l’étape 1 après deplacer vers la zone courante', () => {
+    const partie = preparer({ version: 1, evenements: [{ id: 'retour', declencheur: { type: 'debut-partie' },
+      etapes: [{ type: 'dialogue', locuteur: 'Chen', texte: 'Retour' },
+        { type: 'deplacer', zone: 'kanto.route-1' }] }] }, region => ({ ...region, zoneId: 'kanto.route-1', etape: 5 }));
+    expect(partie.store.getState().etape).toBe(5);
+    partie.store.getState().terminerEtape();
+    expect(partie.store.getState().etape).toBe(1);
+    expect(partie.store.getState().ennemi?.pv).toBe(partie.store.getState().ennemi?.pvMax);
+    partie.horloge.avancer(100);
+    partie.store.getState().tick();
+    expect(partie.store.getState().etape).toBe(1);
+    expect(partie.lire().etape).toBe(1);
+  });
+
+  it.each([essai, { version: 1, evenements: [] }])('abandonne sans exception un événement absent du catalogue %j', catalogue => {
+    const partie = preparer(catalogue, region => ({ ...region,
+      evenementEnCours: { id: 'absent', etape: 0, file: ['disparu'] } }));
+    expect(partie.store.getState().evenement).toBeNull();
+    expect(partie.lire().evenementEnCours).toBeUndefined();
+  });
+
+  it('termine le lot boss-vaincu et reprise-auto avant de quitter le combat', () => {
+    const reprendre = combat.reprendreCombat;
+    vi.spyOn(combat, 'reprendreCombat').mockImplementation((...args) => ({ ...reprendre(...args), interrompu: true }));
+    const vider = combat.viderEvenements;
+    let repriseApresBoss = false;
+    vi.spyOn(combat, 'viderEvenements').mockImplementation(etat => {
+      if (etat.evenements.some(e => e.type === 'boss-vaincu')) {
+        repriseApresBoss = etat.evenements.some(e => e.type === 'reprise-auto');
+      }
+      return vider(etat);
+    });
+    const partie = preparer({ version: 1, evenements: [{ id: 'retour',
+      declencheur: { type: 'boss-vaincu', zone: 'kanto.route-1' },
+      etapes: [{ type: 'deplacer', zone: 'kanto.bourg-palette' }] }] }, region => ({ ...region,
+      zoneId: 'kanto.route-1', etape: reglages.combat.etapeBoss,
+      equipe: [{ uid: 'fort', numero: 6, niveau: reglages.recompenses.niveauMax, xp: 0, shiny: false, bonheur: 0,
+        pierreEternelle: false, calcium: 0, sexe: 'male', favori: false }] }));
+    expect(() => {
+      for (let i = 0; i < 10000 && partie.store.getState().lieu?.id !== 'kanto.bourg-palette'; i++) {
+        partie.store.getState().attaquer();
+        partie.horloge.avancer(100);
+        partie.store.getState().tick();
+      }
+    }).not.toThrow();
+    expect(repriseApresBoss).toBe(true);
+    expect(partie.store.getState().lieu?.id).toBe('kanto.bourg-palette');
+    expect(partie.store.getState().ennemi).toBeNull();
+  });
+
   it('écrit le don avec la progression, reprend le combat et termine sans rejouer', () => {
     const partie = preparer();
     const stock = partie.lire().inventaire.pokeball ?? 0;

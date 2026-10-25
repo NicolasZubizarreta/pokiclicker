@@ -26,6 +26,19 @@ const essai = () => catalogue(evenement('essai', {
 }));
 
 describe('moteur des événements', () => {
+  it('conserve la référence quand aucun nouvel événement n’est éligible', () => {
+    const cat = catalogue(evenement('ferme', { si: { type: 'drapeau', id: 'absent' } }));
+    const r = region();
+    expect(declencher(cat, r, entree)).toBe(r);
+    const enCours = declencher(catalogue(evenement('actif')), r, entree);
+    expect(declencher(catalogue(evenement('actif')), enCours, entree)).toBe(enCours);
+  });
+
+  it('trie B avant a selon la comparaison des identifiants', () => {
+    const r = declencher(catalogue(evenement('a'), evenement('B')), region(), entree);
+    expect(r.evenementEnCours).toEqual({ id: 'B', etape: 0, file: ['a'] });
+  });
+
   it('enchaîne les six étapes, reprend après JSON et ne récompense qu’une fois', () => {
     const cat = essai();
     const initiale = region();

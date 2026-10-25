@@ -3,6 +3,7 @@ import essai from '../../tests/fixtures/evenements/essai.json';
 import { chargerEvenements } from './evenements';
 import { evenementsKanto } from './evenements-kanto';
 import { kanto } from './regions';
+import { reglages } from './reglages';
 
 const fichier = 'tests/fixtures/evenements/essai.json';
 const evenement = essai.evenements[0];
@@ -11,6 +12,26 @@ function charger(modifications: Record<string, unknown> = {}) {
 }
 
 describe('chargement des événements', () => {
+  it('refuse un id dupliqué dans un même fichier', () => {
+    expect(() => chargerEvenements({ [fichier]: { version: 1, evenements: [evenement, evenement] } }, kanto))
+      .toThrow(`Événement invalide (${fichier}, kanto.essai) : Identifiant d'événement dupliqué : kanto.essai`);
+  });
+
+  it('refuse la version 2', () => {
+    expect(() => chargerEvenements({ [fichier]: { ...essai, version: 2 } }, kanto))
+      .toThrow(`Événement invalide (${fichier}, ?) : Version inconnue`);
+  });
+
+  it.each([-1, 256, Infinity])('refuse la capture hors bornes %s avec fichier et id', capture => {
+    expect(() => charger({ etapes: [{ type: 'combat', pokemon: 143, niveau: 1, capture }] }))
+      .toThrow(`Événement invalide (${fichier}, kanto.essai) : Capture invalide`);
+  });
+
+  it.each([0, 255])('accepte la borne de capture %s et le niveau maximal', capture => {
+    expect(charger({ etapes: [{ type: 'combat', pokemon: 143, niveau: reglages.recompenses.niveauMax, capture }] })
+      .liste[0]?.etapes[0]).toMatchObject({ capture, niveau: reglages.recompenses.niveauMax });
+  });
+
   it('charge les six étapes du fichier d’essai sans modifier les entrées', () => {
     const avant = structuredClone(essai);
     const catalogue = chargerEvenements({ [fichier]: essai }, kanto);
@@ -26,6 +47,9 @@ describe('chargement des événements', () => {
   });
 
   it.each([
+    [{ etapes: [] }, 'Étapes attendues'],
+    [{ etapes: [{ type: 'combat', pokemon: 143, niveau: 1.5 }] }, 'Entier attendu'],
+    [{ etapes: [{ type: 'combat', pokemon: 143, niveau: reglages.recompenses.niveauMax + 1 }] }, 'Niveau supérieur au maximum'],
     [{ declencheur: { type: 'entree-zone', zone: 'kanto.route-99' } }, 'Zone inconnue : kanto.route-99'],
     [{ etapes: [{ type: 'donner', objet: 'bidon', quantite: 1 }] }, 'Objet inconnu : bidon'],
     [{ etapes: [{ type: 'danser' }] }, 'Étape inconnue : danser'],

@@ -92,7 +92,7 @@ export function validerDonneesRegion(v: unknown): asserts v is DonneesRegion {
     arretAuto: a => forme(a, { commun: booleen, peuCommun: booleen, rare: booleen, tresRare: booleen,
       legendaire: booleen, shiny: booleen, nouveau: booleen }) }, {
     evenementEnCours: e => forme(e, { id: identifiant,
-      etape: i => { entier(i); exiger((i as number) >= 0, 'Etape invalide'); },
+      etape: i => { entier(i); exiger((i as number) >= 0, 'Étape invalide'); },
       file: liste(identifiant) }),
   });
 }

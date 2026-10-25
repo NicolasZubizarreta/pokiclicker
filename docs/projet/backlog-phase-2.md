@@ -494,7 +494,7 @@ Fourchette : 2 jours. Risque : les bonus dispersés dans `stats.js` et `combat.j
 
 ## O. `feat(evenements): moteur d'événements en données (déclencheurs, étapes, drapeaux)`
 
-Labels : `type:feat`, `etat:pret`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : oui
+Labels : `type:feat`, `etat:fait`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : oui
 
 ### Histoire
 En tant que développeur, je veux un moteur qui joue des événements décrits en JSON afin d'ajouter l'intro, le rival ou les scènes de fin sans écrire de code pour chacun.
@@ -503,12 +503,12 @@ En tant que développeur, je veux un moteur qui joue des événements décrits e
 ADR 0002 (`docs/adr/0002-*.md`, à relire : points ouverts listés en fin de ticket). V1 : les scènes sont codées en dur dans `legacy/js/` (`intro`, `rival`, `snorlax`, `league`). V2 : `DonneesRegion.drapeaux` et `evenementsJoues` existent déjà dans le schéma ; `src/core/evenements.ts` (nouveau, pur : aucun accès au DOM). **Déclencheurs** : `entree-zone`, `boss-vaincu`, `objet-utilise`, `debut-partie`. **Étapes** : `dialogue`, `combat`, `donner`, `poser-drapeau`, `deplacer`, `bloquer`. Chaque événement a un identifiant, des conditions (drapeaux requis ou interdits, badge, zone) et une liste d'étapes ; il ne se joue qu'une fois sauf mention `repetable`. Le moteur produit des **commandes d'affichage** (dialogue à montrer, combat à lancer) que l'interface exécute et reconnaît par un accusé (`etapeTerminee`) ; il est déterministe et sérialisable (reprise après rechargement au milieu d'un événement).
 
 ### Critères d'acceptation
-- [ ] Étant donné un fichier `data/evenements/*.json` valide, quand le chargeur le lit, alors un schéma (validation à la main comme le reste (Valibot n’est pas installé)) le valide ; une étape inconnue, un déclencheur inconnu ou une cible introuvable donne une erreur claire en français citant le fichier et l'identifiant.
-- [ ] Étant donné un événement `entree-zone` avec condition `drapeau:x` absent, quand j'entre dans la zone, alors il se déclenche ; une fois terminé, il est ajouté à `evenementsJoues` et ne se rejoue pas.
-- [ ] Étant donné les six étapes, quand j'exécute un événement d'essai, alors chaque étape produit sa commande (ou son effet : `donner` ajoute des objets, `poser-drapeau` écrit un drapeau, `deplacer` change de zone, `bloquer` interdit l'accès à une zone tant qu'un drapeau manque).
-- [ ] Étant donné un rechargement au milieu d'un événement, quand je rouvre, alors il reprend à l'étape en cours (index d'étape sauvegardé) sans double récompense.
-- [ ] Étant donné deux événements éligibles en même temps, quand ils se déclenchent, alors l'ordre est celui d'un champ `priorite` puis de l'identifiant (déterministe, testé).
-- [ ] Étant donné la sauvegarde, quand elle est exportée puis importée, alors `drapeaux` et `evenementsJoues` sont conservés (test de bout en bout du cœur).
+- [x] Étant donné un fichier `data/evenements/*.json` valide, quand le chargeur le lit, alors un schéma (validation à la main comme le reste (Valibot n’est pas installé)) le valide ; une étape inconnue, un déclencheur inconnu ou une cible introuvable donne une erreur claire en français citant le fichier et l'identifiant.
+- [x] Étant donné un événement `entree-zone` avec condition `drapeau:x` absent, quand j'entre dans la zone, alors il se déclenche ; une fois terminé, il est ajouté à `evenementsJoues` et ne se rejoue pas.
+- [x] Étant donné les six étapes, quand j'exécute un événement d'essai, alors chaque étape produit sa commande (ou son effet : `donner` ajoute des objets, `poser-drapeau` écrit un drapeau, `deplacer` change de zone, `bloquer` interdit l'accès à une zone tant qu'un drapeau manque).
+- [x] Étant donné un rechargement au milieu d'un événement, quand je rouvre, alors il reprend à l'étape en cours (index d'étape sauvegardé) sans double récompense.
+- [x] Étant donné deux événements éligibles en même temps, quand ils se déclenchent, alors l'ordre est celui d'un champ `priorite` puis de l'identifiant (déterministe, testé).
+- [x] Étant donné la sauvegarde, quand elle est exportée puis importée, alors `drapeaux` et `evenementsJoues` sont conservés (test de bout en bout du cœur).
 
 ### Hors périmètre
 Contenu des scènes (P, Q, R, S), éditeur d'événements, scripts arbitraires dans les données (pas de code exécutable en JSON).
@@ -523,7 +523,7 @@ Fourchette : 2 à 3 jours. Risque : surdimensionner le moteur ; ne rien ajouter 
 
 ## P. `feat(intro): intro du professeur Chen, choix du starter et lieux de départ`
 
-Labels : `type:feat`, `etat:idee`, `est:3`, `prio:1` · branche : `v2` · `agent-ok` : oui
+Labels : `type:feat`, `etat:pret`, `est:3`, `prio:1` · branche : `v2` · `agent-ok` : oui
 
 ### Histoire
 En tant que joueur, je veux commencer par la rencontre du professeur Chen et choisir mon premier Pokémon afin de démarrer l'aventure comme dans la V1.

@@ -2,6 +2,7 @@ import { chargerObjets } from './boutique';
 import { evaluer, valider, type Condition, type ResultatCondition } from './conditions';
 import type { chargerMonde } from './monde';
 import { chargerPokemon } from './pokemon';
+import { reglages } from './reglages';
 import { chaine, exiger, forme, identifiant, objet } from './sauvegarde-validation';
 import { etatMondeDe } from './sauvegarde';
 import type { DonneesRegion } from './sauvegarde-types';
@@ -102,14 +103,15 @@ function avancer(cat: CatalogueEvenements, region: DonneesRegion): DonneesRegion
 }
 
 export function declencher(cat: CatalogueEvenements, region: DonneesRegion, fait: Declencheur): DonneesRegion {
-  const copie = structuredClone(region);
-  const courant = copie.evenementEnCours;
+  const courant = region.evenementEnCours;
   const dejaEnFile = new Set(courant ? [courant.id, ...courant.file] : []);
   const nouveaux = cat.liste.filter(e => !dejaEnFile.has(e.id)
-    && correspond(e.declencheur, fait) && eligible(e, copie))
+    && correspond(e.declencheur, fait) && eligible(e, region))
     .sort((a, b) => b.priorite - a.priorite || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
     .map(e => e.id);
-  if (courant) courant.file.push(...nouveaux);
+  if (!nouveaux.length && (!courant || commandeCourante(cat, region))) return region;
+  const copie = structuredClone(region);
+  if (copie.evenementEnCours) copie.evenementEnCours.file.push(...nouveaux);
   else if (nouveaux.length) copie.evenementEnCours = { id: nouveaux[0]!, etape: 0, file: nouveaux.slice(1) };
   return avancer(cat, copie);
 }
@@ -207,8 +209,12 @@ export function chargerEvenements(
       case 'bloquer': forme(v, { type: chaine, zone, sauf: identifiant, raison: chaine }); break;
       case 'deplacer': forme(v, { type: chaine, zone }); break;
       case 'combat':
-        forme(v, { type: chaine, pokemon: numeroPokemon, niveau: positif }, {
-          capture: n => exiger(typeof n === 'number' && Number.isFinite(n) && n >= 0, 'Capture invalide'),
+        forme(v, { type: chaine, pokemon: numeroPokemon, niveau: n => {
+          positif(n);
+          exiger((n as number) <= reglages.recompenses.niveauMax, 'Niveau supérieur au maximum');
+        } }, {
+          // Même échelle que le taux de capture du combat (capture / 255).
+          capture: n => exiger(typeof n === 'number' && Number.isFinite(n) && n >= 0 && n <= 255, 'Capture invalide'),
           nom: chaine,
         });
         break;

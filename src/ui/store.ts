@@ -157,6 +157,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     if (!coeur) return;
     region = { ...region, zoneId: coeur.zoneId, etape: coeur.etape };
     let sauvegarder = false;
+    const bossBattus: string[] = [];
     const messagesCapture: string[] = [];
     for (const evenement of coeur.evenements) {
       const message = annonceCapture(evenement, coeur.ennemi.numero);
@@ -198,7 +199,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
           }
         }
         sauvegarder = true;
-        executer({ type: 'boss-vaincu', zone: evenement.zoneId });
+        bossBattus.push(evenement.zoneId);
       }
       if (evenement.type === 'boss-echoue') {
         messagesCapture.push('Temps écoulé !');
@@ -211,6 +212,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       coeur = viderEvenements(coeur);
     }
     if (sauvegarder) enregistrer();
+    for (const zone of bossBattus) executer({ type: 'boss-vaincu', zone });
   };
   const afficher = () => {
     if (!initialise) return;
@@ -233,7 +235,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     const etatMonde = etatMondeDe(region);
     const conditionPc = accesPc(kanto, etatMonde);
     const accesAuPc = { ouvert: conditionPc.ok, raison: conditionPc.ok ? null : conditionPc.raison ?? null };
-    const ouvertes = new Set(kanto.zonesOuvertes(etatMonde).filter(zone => acces(zone.id).ok).map(zone => zone.id));
+    const ouvertes = new Set(kanto.zonesOuvertes(etatMonde).filter(zone => blocage(evenements, region, zone.id).ok).map(zone => zone.id));
     const carte: AffichageJeu['carte'] = {
       formes: kanto.carte.formes.map(forme => {
         const ouverte = forme.zone !== null && ouvertes.has(forme.zone);
@@ -249,9 +251,10 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     };
     const zonePrecedente = destination(kanto.zonePrecedente(lieu.id));
     const zoneSuivante = destination(lien ? kanto.zone(lien.vers) : undefined);
+    const evenement = commandeCourante(evenements, region);
     const ennemi = coeur ? (({ numero, niveau, pv, pvMax, boss, shiny, rarete }) => ({ numero, niveau, pv, pvMax, boss, shiny, rarete }))(coeur.ennemi) : null;
     store.setState({ lieu, zone: coeur?.zone ?? null, etape: region.etape, ennemi, pv: ennemi?.pv ?? 0,
-      evenement: commandeCourante(evenements, region),
+      evenement: JSON.stringify(evenement) === JSON.stringify(precedent.evenement) ? precedent.evenement : evenement,
       progression: afficherProgression(region, pokedex),
       obtentionBadge: obtentionBadge ? { id: obtentionBadge.id,
         phase: phaseObtention(obtentionBadge.debutMs, tempsJeuMs) } : null,
@@ -299,12 +302,13 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
   const appliquerEvenement = (suivante: DonneesRegion): void => {
     if (suivante === region) return;
     const ancienneZone = region.zoneId;
+    const ancienneEtape = region.etape;
     region = suivante;
-    if (region.zoneId !== ancienneZone) changerDeZone(region.zoneId);
+    if (region.zoneId !== ancienneZone || region.etape !== ancienneEtape) changerDeZone(region.zoneId);
     enregistrer();
   };
   const executer = (fait: Declencheur): void => {
-    if (evenements.liste.length === 0) return;
+    if (evenements.liste.length === 0 && !region.evenementEnCours) return;
     appliquerEvenement(declencher(evenements, region, fait));
   };
   const cacher = () => { if (document.visibilityState === 'hidden') enregistrer(); };

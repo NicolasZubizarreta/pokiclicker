@@ -13,7 +13,6 @@ import { cheminDecor } from './precharger';
 import { kanto } from '../core/regions';
 import { genererIdentifiant } from './identifiants';
 import { detailDps } from '../core/equipe';
-import * as moteurEvenements from '../core/evenements';
 import { chargerEvenements, type CatalogueEvenements, type Evenement } from '../core/evenements';
 
 const stores: StoreJeu[] = [];
@@ -136,17 +135,13 @@ it('conserve l’affichage et les écritures avec le catalogue vide et ignore un
   const initial = preparer();
   initial.store.getState().arreter();
   const ecrire = vi.spyOn(initial.stockage, 'ecrire');
-  const declencher = vi.spyOn(moteurEvenements, 'declencher');
   const vide = preparerEvenements(chargerEvenements({}, kanto), initial.stockage).store;
   const affichage = (store: StoreJeu) => Object.fromEntries(Object.entries(store.getState()).filter(([, valeur]) => typeof valeur !== 'function'));
   expect(affichage(vide)).toEqual({ ...affichage(initial.store), evenement: null });
   vide.getState().terminerEtape();
-  expect(declencher).not.toHaveBeenCalled();
   expect(ecrire).not.toHaveBeenCalled();
   vide.getState().arreter();
-  declencher.mockImplementation((_catalogue, region) => region);
-  preparerEvenements(catalogueEvenements({}), initial.stockage);
-  expect(declencher).toHaveBeenCalled();
+  preparerEvenements(catalogueEvenements({ si: { type: 'drapeau', id: 'absent' } }), initial.stockage);
   expect(ecrire).not.toHaveBeenCalled();
 });
 
