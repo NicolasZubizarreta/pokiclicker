@@ -1,0 +1,366 @@
+{
+  "niveau": [
+    {
+      "de": 1,
+      "vers": 2,
+      "niveau": 16
+    },
+    {
+      "de": 2,
+      "vers": 3,
+      "niveau": 32
+    },
+    {
+      "de": 4,
+      "vers": 5,
+      "niveau": 16
+    },
+    {
+      "de": 5,
+      "vers": 6,
+      "niveau": 36
+    },
+    {
+      "de": 7,
+      "vers": 8,
+      "niveau": 16
+    },
+    {
+      "de": 8,
+      "vers": 9,
+      "niveau": 36
+    },
+    {
+      "de": 10,
+      "vers": 11,
+      "niveau": 7
+    },
+    {
+      "de": 11,
+      "vers": 12,
+      "niveau": 10
+    },
+    {
+      "de": 13,
+      "vers": 14,
+      "niveau": 7
+    },
+    {
+      "de": 14,
+      "vers": 15,
+      "niveau": 10
+    },
+    {
+      "de": 16,
+      "vers": 17,
+      "niveau": 18
+    },
+    {
+      "de": 17,
+      "vers": 18,
+      "niveau": 36
+    },
+    {
+      "de": 19,
+      "vers": 20,
+      "niveau": 20
+    },
+    {
+      "de": 21,
+      "vers": 22,
+      "niveau": 20
+    },
+    {
+      "de": 23,
+      "vers": 24,
+      "niveau": 22
+    },
+    {
+      "de": 27,
+      "vers": 28,
+      "niveau": 22
+    },
+    {
+      "de": 29,
+      "vers": 30,
+      "niveau": 16
+    },
+    {
+      "de": 32,
+      "vers": 33,
+      "niveau": 16
+    },
+    {
+      "de": 41,
+      "vers": 42,
+      "niveau": 22
+    },
+    {
+      "de": 43,
+      "vers": 44,
+      "niveau": 21
+    },
+    {
+      "de": 46,
+      "vers": 47,
+      "niveau": 24
+    },
+    {
+      "de": 48,
+      "vers": 49,
+      "niveau": 31
+    },
+    {
+      "de": 50,
+      "vers": 51,
+      "niveau": 26
+    },
+    {
+      "de": 52,
+      "vers": 53,
+      "niveau": 28
+    },
+    {
+      "de": 54,
+      "vers": 55,
+      "niveau": 33
+    },
+    {
+      "de": 56,
+      "vers": 57,
+      "niveau": 28
+    },
+    {
+      "de": 60,
+      "vers": 61,
+      "niveau": 25
+    },
+    {
+      "de": 63,
+      "vers": 64,
+      "niveau": 16
+    },
+    {
+      "de": 64,
+      "vers": 65,
+      "niveau": 36
+    },
+    {
+      "de": 66,
+      "vers": 67,
+      "niveau": 28
+    },
+    {
+      "de": 67,
+      "vers": 68,
+      "niveau": 40
+    },
+    {
+      "de": 69,
+      "vers": 70,
+      "niveau": 21
+    },
+    {
+      "de": 72,
+      "vers": 73,
+      "niveau": 30
+    },
+    {
+      "de": 74,
+      "vers": 75,
+      "niveau": 25
+    },
+    {
+      "de": 75,
+      "vers": 76,
+      "niveau": 36
+    },
+    {
+      "de": 77,
+      "vers": 78,
+      "niveau": 40
+    },
+    {
+      "de": 79,
+      "vers": 80,
+      "niveau": 37
+    },
+    {
+      "de": 81,
+      "vers": 82,
+      "niveau": 30
+    },
+    {
+      "de": 84,
+      "vers": 85,
+      "niveau": 31
+    },
+    {
+      "de": 86,
+      "vers": 87,
+      "niveau": 34
+    },
+    {
+      "de": 88,
+      "vers": 89,
+      "niveau": 38
+    },
+    {
+      "de": 92,
+      "vers": 93,
+      "niveau": 25
+    },
+    {
+      "de": 93,
+      "vers": 94,
+      "niveau": 40
+    },
+    {
+      "de": 96,
+      "vers": 97,
+      "niveau": 26
+    },
+    {
+      "de": 98,
+      "vers": 99,
+      "niveau": 28
+    },
+    {
+      "de": 100,
+      "vers": 101,
+      "niveau": 30
+    },
+    {
+      "de": 104,
+      "vers": 105,
+      "niveau": 28
+    },
+    {
+      "de": 109,
+      "vers": 110,
+      "niveau": 35
+    },
+    {
+      "de": 111,
+      "vers": 112,
+      "niveau": 42
+    },
+    {
+      "de": 116,
+      "vers": 117,
+      "niveau": 32
+    },
+    {
+      "de": 118,
+      "vers": 119,
+      "niveau": 33
+    },
+    {
+      "de": 129,
+      "vers": 130,
+      "niveau": 20
+    },
+    {
+      "de": 138,
+      "vers": 139,
+      "niveau": 40
+    },
+    {
+      "de": 140,
+      "vers": 141,
+      "niveau": 40
+    },
+    {
+      "de": 147,
+      "vers": 148,
+      "niveau": 30
+    },
+    {
+      "de": 148,
+      "vers": 149,
+      "niveau": 55
+    }
+  ],
+  "pierre": [
+    {
+      "de": 25,
+      "vers": 26,
+      "pierre": "thunderStone"
+    },
+    {
+      "de": 30,
+      "vers": 31,
+      "pierre": "moonStone"
+    },
+    {
+      "de": 33,
+      "vers": 34,
+      "pierre": "moonStone"
+    },
+    {
+      "de": 35,
+      "vers": 36,
+      "pierre": "moonStone"
+    },
+    {
+      "de": 37,
+      "vers": 38,
+      "pierre": "fireStone"
+    },
+    {
+      "de": 39,
+      "vers": 40,
+      "pierre": "moonStone"
+    },
+    {
+      "de": 44,
+      "vers": 45,
+      "pierre": "leafStone"
+    },
+    {
+      "de": 58,
+      "vers": 59,
+      "pierre": "fireStone"
+    },
+    {
+      "de": 61,
+      "vers": 62,
+      "pierre": "waterStone"
+    },
+    {
+      "de": 70,
+      "vers": 71,
+      "pierre": "leafStone"
+    },
+    {
+      "de": 90,
+      "vers": 91,
+      "pierre": "waterStone"
+    },
+    {
+      "de": 102,
+      "vers": 103,
+      "pierre": "leafStone"
+    },
+    {
+      "de": 120,
+      "vers": 121,
+      "pierre": "waterStone"
+    },
+    {
+      "de": 133,
+      "vers": 134,
+      "pierre": "waterStone"
+    },
+    {
+      "de": 133,
+      "vers": 135,
+      "pierre": "thunderStone"
+    },
+    {
+      "de": 133,
+      "vers": 136,
+      "pierre": "fireStone"
+    }
+  ]
+}

@@ -53,7 +53,7 @@ type OptionsCombat = {
 export type EtatCombat = {
   zoneId: string; etape: number; ennemi: Ennemi; equipe: readonly MembreEquipe[];
   actifs: readonly string[]; evenements: readonly EvenementCombat[];
-  zone: Zone; alea: () => number; attenteMs: number; minuteurMs: number | null;
+  zone: Zone; alea: () => number; attenteMs: number; minuteurMs: number | null; pauseDpsMs: number;
   autoAttaque: boolean; interrompu: boolean; arret: ReglagesArret | null; pokedex: readonly number[];
   autoClic: boolean; avantArret: { autoAttaque: boolean; autoClic: boolean } | null;
   capture: { chance: number; restantMs: number } | null; attenteCapture: boolean;
@@ -102,7 +102,7 @@ export function reprendreCombat(zone: Zone, equipe: readonly MembreEquipe[], ale
   if (!Number.isInteger(etape) || etape < 1 || etape > zone.etapes) throw new Error('Étape de reprise invalide');
   const ennemi = creerEnnemi(zone, etape, alea);
   return apparaitre({ zoneId: zone.id, etape, ennemi, autoAttaque, autoClic, avantArret: null, interrompu: false, arret, pokedex,
-    equipe, actifs, evenements: [], zone, alea, attenteMs: 0, capture: null, attenteCapture: false,
+    equipe, actifs, evenements: [], zone, alea, attenteMs: 0, pauseDpsMs: 0, capture: null, attenteCapture: false,
     minuteurMs: ennemi.boss ? reglages.combat.minuteurBossMs : null });
 }
 
@@ -130,6 +130,11 @@ function terminerEnnemi(etat: EtatCombat, capture: boolean): EtatCombat {
   return attenteMs === 0 ? apparaitre(suivant) : suivant;
 }
 
+export function suspendreDps(etat: EtatCombat, ms: number): EtatCombat {
+  if (!Number.isFinite(ms) || ms < 0) throw new Error('Durée de pause invalide');
+  return { ...etat, pauseDpsMs: ms };
+}
+
 export function avancerCombat(etat: EtatCombat, pasMs: number): EtatCombat {
   if (!Number.isFinite(pasMs) || pasMs < 0) throw new Error('Durée de combat invalide');
   // Conversion d'unité, indépendante des réglages d'équilibrage.
@@ -138,7 +143,8 @@ export function avancerCombat(etat: EtatCombat, pasMs: number): EtatCombat {
     if (etat.attenteMs > 0) {
       const attente = Math.min(pasMs, etat.attenteMs);
       const attenteMs = etat.attenteMs - attente;
-      etat = { ...etat, attenteMs, attenteCapture: etat.attenteCapture && attenteMs > 0,
+      etat = { ...etat, attenteMs, pauseDpsMs: Math.max(0, etat.pauseDpsMs - attente),
+        attenteCapture: etat.attenteCapture && attenteMs > 0,
         minuteurMs: attenteMs === 0 && etat.ennemi.boss
         ? reglages.combat.minuteurBossMs : etat.minuteurMs };
       pasMs -= attente;
@@ -146,8 +152,10 @@ export function avancerCombat(etat: EtatCombat, pasMs: number): EtatCombat {
       if (pasMs === 0) return etat;
     }
     const minuteur = etat.minuteurMs;
-    const dt = Math.min(pasMs, minuteur ?? Infinity, etat.capture?.restantMs ?? Infinity);
-    const suivant = infliger(etat, etat.autoAttaque
+    const dt = Math.min(pasMs, minuteur ?? Infinity, etat.capture?.restantMs ?? Infinity,
+      etat.pauseDpsMs > 0 ? etat.pauseDpsMs : Infinity);
+    const suivant = infliger({ ...etat, pauseDpsMs: Math.max(0, etat.pauseDpsMs - dt) },
+      etat.autoAttaque && etat.pauseDpsMs === 0
       ? calculerDpsEquipe(etat.equipe, etat.ennemi, etat.actifs) * dt / 1e3 : 0);
     pasMs -= dt;
     // La victoire prime sur l’expiration, même dans la dernière tranche ; une seule mort par pas, comme avant.
