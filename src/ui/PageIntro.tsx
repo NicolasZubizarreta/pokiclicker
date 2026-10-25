@@ -16,6 +16,7 @@ const mouvementReduit = () => typeof window !== 'undefined' && typeof window.mat
  */
 export function PageIntro({ store = storeJeu, quandTerminee }: { store?: StoreJeu; quandTerminee: () => void }) {
   const intro = useStore(store, etat => etat.intro);
+  const accesPension = useStore(store, etat => etat.pension.acces);
   const evenement = useStore(store, etat => etat.evenement);
   const terminerEtape = useStore(store, etat => etat.terminerEtape);
   const [reduit] = useState(mouvementReduit);
@@ -46,6 +47,7 @@ export function PageIntro({ store = storeJeu, quandTerminee }: { store?: StoreJe
 
   return <div className={`scene-intro relative ${visible ? 'opacity-100' : 'opacity-0'} motion-safe:intro-interface-fondu`}>
     <ScenesBourgPalette
+      accesPension={accesPension}
       sceneInitiale={reprise ? 'kanto.labo' : 'kanto.chez-maman'}
       laboAVisiter={intro.enCours} sortieLaboClignote={!intro.enCours && !intro.choixStarter}
       bloquee={parlant || (intro.enCours && enLabo)} quandScene={id => noterLabo(id === 'kanto.labo')}

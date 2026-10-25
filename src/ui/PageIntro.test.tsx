@@ -31,6 +31,17 @@ function ouvrir(stockage = creerStockageMemoire()) {
 const cliquer = (nom: string | RegExp) => act(() => { fireEvent.click(screen.getByRole('button', { name: nom })); });
 const avancer = (ms: number) => act(() => { vi.advanceTimersByTime(ms); });
 
+it('transmet l’accès pension du store pendant l’introduction', () => {
+  const { store } = ouvrir();
+  render(<PageIntro store={store} quandTerminee={vi.fn()} />);
+  cliquer('JOUER');
+  avancer(1);
+  cliquer('Sortie');
+  expect(screen.getByRole('button', { name: 'Pension Pokémon' }).getAttribute('aria-disabled')).toBe('true');
+  act(() => store.setState({ pension: { ...store.getState().pension, acces: { ouvert: true, raison: null } } }));
+  expect(screen.getByRole('button', { name: 'Pension Pokémon' }).hasAttribute('aria-disabled')).toBe(false);
+});
+
 it('montre le titre, puis Chez Maman, et laisse le Labo clignoter tant que l’intro est en cours', () => {
   const { store } = ouvrir();
   const terminee = vi.fn();

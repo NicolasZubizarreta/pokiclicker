@@ -12,6 +12,19 @@ import type { StoreJeu } from './store';
 import { ERREUR_CHARGEMENT } from './persistance';
 
 let store: StoreJeu;
+it('transmet l’accès pension du store et garde Bourg Palette après le clic', () => {
+  preparer();
+  act(() => store.getState().allerVers('kanto.bourg-palette'));
+  expect(screen.getByRole('button', { name: 'Pension Pokémon' }).getAttribute('aria-disabled')).toBe('true');
+  act(() => store.setState({ pension: { ...store.getState().pension, acces: { ouvert: true, raison: null } } }));
+  const pension = screen.getByRole('button', { name: 'Pension Pokémon' });
+  expect(pension.hasAttribute('aria-disabled')).toBe(false);
+  fireEvent.click(pension);
+  act(() => vi.advanceTimersByTime(450));
+  expect(screen.getByRole('region', { name: 'Bourg Palette' })).toBeTruthy();
+  expect(store.getState().lieu?.id).toBe('kanto.bourg-palette');
+});
+
 it('affiche les deux outils verrouillés et leurs raisons sans aucun objet', () => {
   preparer();
   for (const [nom, raison] of [['Fauchage', 'Nécessite la CT Fauchage.'],

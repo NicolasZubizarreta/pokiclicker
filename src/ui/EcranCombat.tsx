@@ -26,6 +26,10 @@ const catalogue = chargerPokemon();
 const formateurArgent = new Intl.NumberFormat('fr-FR');
 const sousTitres: Record<string, string> = { 'kanto.route-1': 'Jadielle' };
 
+function ouvrirPension() {
+  // La page de la pension attend le choix de Nicolas parmi 3 variantes.
+}
+
 function Entete({ store }: { store: StoreJeu }) {
   const lieu = useStore(store, etat => etat.lieu);
   const zone = useStore(store, etat => etat.zone);
@@ -56,6 +60,7 @@ function Scene({ store }: { store: StoreJeu }) {
   const enRecherche = useStore(store, etat => etat.enRecherche);
   const cache = useStore(store, etat => etat.cache);
   const annonce = useStore(store, etat => etat.annonce);
+  const accesPension = useStore(store, etat => etat.pension.acces);
   const captureEnCours = useStore(store, etat => etat.capture.enCours);
   const effets = useStore(store, etat => etat.effets);
   useEffect(() => {
@@ -67,7 +72,7 @@ function Scene({ store }: { store: StoreJeu }) {
   if (lieu?.id === kanto.depart) return <div
     className="scene-limitee relative grid h-76 grid-rows-[minmax(0,1fr)_auto] bg-surface-2 lg:col-span-3 lg:aspect-video lg:h-auto">
     <div className="min-h-0 [&>div]:h-full [&_section]:grid [&_section]:h-full [&_section]:grid-rows-[minmax(0,1fr)_auto_auto] [&_section>div]:h-full [&_section>div]:w-auto [&_section>div]:max-w-full [&_section>div]:justify-self-center [&_section>p:not([role])]:sr-only">
-      <ScenesBourgPalette annonce={annonce} />
+      <ScenesBourgPalette annonce={annonce} accesPension={accesPension} quandPension={ouvrirPension} />
     </div>
     {'message' in lieu && lieu.message && <p className="bg-surface p-2">{lieu.message}</p>}
   </div>;

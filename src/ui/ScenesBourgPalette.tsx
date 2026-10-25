@@ -4,11 +4,12 @@ import { reglages } from '../core/reglages';
 import { kanto } from '../core/regions';
 import { evaluer } from '../core/conditions';
 import { SceneLieu } from './SceneLieu';
+import type { AffichageJeu } from './store';
 
 const scenes = chargerScenes();
 const bourg = 'kanto.bourg-palette';
 const pension = kanto.lieu('pension');
-const raisons = { 'kanto.pension': pension.si ? evaluer(pension.si, {
+const accesPensionParDefaut = { ouvert: false, raison: pension.si ? evaluer(pension.si, {
   badges: [], bossVaincus: [], objets: [], quetes: [], drapeaux: [],
 }, { nomZone: id => kanto.zone(id).nom }).raison! : 'Bientôt disponible.' };
 const noms: Record<string, string> = {
@@ -22,12 +23,14 @@ type Props = {
   quandLabo?: () => void;
   quandSortieLabo?: () => void;
   quandScene?: (id: string) => void;
+  accesPension?: AffichageJeu['pension']['acces'];
+  quandPension?: () => void;
   sceneInitiale?: string;
   bloquee?: boolean;
   annonce?: string | null;
 };
 
-export function ScenesBourgPalette({ laboAVisiter = false, sortieLaboClignote = false, quandLabo, quandSortieLabo, quandScene, sceneInitiale = bourg, bloquee = false, annonce }: Props) {
+export function ScenesBourgPalette({ laboAVisiter = false, sortieLaboClignote = false, quandLabo, quandSortieLabo, quandScene, accesPension = accesPensionParDefaut, quandPension, sceneInitiale = bourg, bloquee = false, annonce }: Props) {
   const [courante, changerScene] = useState(sceneInitiale);
   const [phase, changerPhase] = useState<'repos' | 'couvrir' | 'decouvrir'>('repos');
   const [sortieVue, noterSortie] = useState(false);
@@ -37,6 +40,7 @@ export function ScenesBourgPalette({ laboAVisiter = false, sortieLaboClignote = 
   const cadre = useRef<HTMLDivElement>(null);
   const rendreFocus = useRef(false);
   const scene = scenes.find(s => s.id === courante)!;
+  const raisons: Record<string, string> = accesPension.ouvert ? {} : { 'kanto.pension': accesPension.raison ?? accesPensionParDefaut.raison };
 
   useEffect(() => () => minuteurs.current.forEach(id => clearTimeout(id)), []);
   useEffect(() => {
@@ -48,6 +52,7 @@ export function ScenesBourgPalette({ laboAVisiter = false, sortieLaboClignote = 
 
   function choisir(id: string) {
     if (verrou.current) return;
+    if (id === 'kanto.pension') { quandPension?.(); return; }
     verrou.current = true;
     const changer = () => {
       if (courante === 'kanto.labo') { noterSortie(true); quandSortieLabo?.(); }

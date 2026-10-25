@@ -13,6 +13,35 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.useRealTimers(); vi.unstubAllGlobals(); });
 const avancer = (ms: number) => act(() => { vi.advanceTimersByTime(ms); });
 
+it('ouvre la pension sans changer de scène ni lancer de transition', () => {
+  const quandPension = vi.fn();
+  const quandScene = vi.fn();
+  const { container } = render(<ScenesBourgPalette accesPension={{ ouvert: true, raison: null }}
+    quandPension={quandPension} quandScene={quandScene} />);
+  const pension = screen.getByRole('button', { name: 'Pension Pokémon' });
+  expect(pension.hasAttribute('aria-disabled')).toBe(false);
+  fireEvent.click(pension);
+  expect(quandPension).toHaveBeenCalledTimes(1);
+  avancer(450);
+  expect(quandScene).not.toHaveBeenCalled();
+  expect(screen.getByRole('region', { name: 'Bourg Palette' })).toBeTruthy();
+  expect(container.querySelector('[data-voile]')?.classList.contains('opacity-0')).toBe(true);
+  expect(vi.getTimerCount()).toBe(0);
+  fireEvent.click(pension);
+  expect(quandPension).toHaveBeenCalledTimes(2);
+});
+
+it('affiche la raison reçue et refuse le clic quand la pension est fermée', () => {
+  const quandPension = vi.fn();
+  render(<ScenesBourgPalette accesPension={{ ouvert: false, raison: 'Accès fermé.' }} quandPension={quandPension} />);
+  const pension = screen.getByRole('button', { name: 'Pension Pokémon' });
+  expect(pension.getAttribute('aria-disabled')).toBe('true');
+  fireEvent.focus(pension);
+  expect(screen.getByRole('status').textContent).toBe('Accès fermé.');
+  fireEvent.click(pension);
+  expect(quandPension).not.toHaveBeenCalled();
+});
+
 it('visite Maman sous le voile de 300 + 150 ms, puis revient par la sortie pulsante', () => {
   const { container } = render(<ScenesBourgPalette />);
   expect(screen.getByRole('status').textContent).toBe('');
