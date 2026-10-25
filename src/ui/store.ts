@@ -2,7 +2,8 @@ import { createStore } from 'zustand/vanilla';
 import { creerHorlogeSysteme } from '../core/clock';
 import type { Horloge } from '../core/clock';
 import { avancerCombat, calculerClic, calculerDpsEquipe, cliquer, creerCombat, creerLimiteurClics,
-  multiplicateurType, reprendreCombat, viderEvenements } from '../core/combat';
+  multiplicateurType, reprendreCombat, viderEvenements, lancerCapture, basculerAutoAttaque } from '../core/combat';
+import { appliquerCapture, chanceCapture, retirerBalle } from '../core/capture';
 import type { EtatCombat } from '../core/combat';
 import type { Ennemi } from '../core/ennemis';
 import * as equipe from '../core/equipe';
@@ -16,6 +17,8 @@ import { kanto } from '../core/regions';
 import { reglages } from '../core/reglages';
 import { etatMondeDe, versMembreEquipe } from '../core/sauvegarde';
 import type { DonneesRegion, PokemonPossede, Stockage } from '../core/sauvegarde';
+import type { PreferencesCombat, ReglagesArret } from '../core/sauvegarde-types';
+import { afficherCapture, annonceCapture, conditionCapture, type AffichageCapture } from './store-capture';
 import { detailErreur, ouvrirPartie } from './persistance';
 import { creerStockageLocal } from './stockage-local';
 import { genererIdentifiant } from './identifiants';
@@ -30,6 +33,8 @@ export type EtatForme = {
   ouverte: boolean; actuelle: boolean; raison: string | null;
 };
 export type AffichageJeu = {
+  capture: AffichageCapture; autoAttaque: boolean; arretAuto: ReglagesArret;
+  capturer(cle: string): void; basculerAutoAttaque(): void; reglerArretAuto(partiel: Partial<ReglagesArret>): void;
   lieu: ZoneMonde | null; zone: Zone | null; etape: number; ennemi: Omit<Ennemi, 'capture'> | null; pv: number;
   equipe: CaseEquipe[]; dps: number; erreur: string | null;
   pc: PokemonPossede[]; pokedex: readonly number[];
@@ -62,6 +67,8 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
   let region: DonneesRegion;
   let pokedex: readonly number[] = [];
   let persistance: ReturnType<typeof ouvrirPartie>;
+  let preferences: PreferencesCombat = structuredClone(reglages.depart.preferences);
+  const optionsCombat = () => ({ autoAttaque: preferences.autoAttaque, arret: preferences.arretAuto, pokedex });
   let boucle: ReturnType<typeof creerBoucle<null>> | undefined;
   let minuteur: ReturnType<typeof setInterval> | undefined;
   let sauvegarde: ReturnType<typeof setInterval> | undefined;
@@ -78,13 +85,23 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
   const limiteur = creerLimiteurClics(horloge);
   const enregistrer = () => {
     if (!initialise) return;
-    try { persistance.enregistrer(region, pokedex); } catch (cause) { erreur = detailErreur(cause); }
+    try { persistance.enregistrer(region, pokedex); persistance.enregistrerPreferences(preferences); }
+    catch (cause) { erreur = detailErreur(cause); }
   };
   const traiter = () => {
     if (!coeur) return;
     region = { ...region, zoneId: coeur.zoneId, etape: coeur.etape };
     let sauvegarder = false;
+    const messagesCapture: string[] = [];
     for (const evenement of coeur.evenements) {
+      const message = annonceCapture(evenement, coeur.ennemi.numero);
+      if (message) { messagesCapture.push(message); sauvegarder = true; }
+      if (evenement.type === 'capture-reussie') {
+        const resultat = appliquerCapture(region, evenement, coeur.actifs, alea, genererId);
+        region = resultat.region;
+        pokedex = ajouterAuPokedex(pokedex, evenement.numero);
+        if (resultat.destination === 'pc') messagesCapture.push(`${catalogue.parNumero(evenement.numero).nom} est envoyé au PC.`);
+      }
       if (evenement.type === 'ennemi-vaincu') {
         const r = appliquerVictoire(region, evenement, coeur.actifs);
         region = r.region;
@@ -115,7 +132,9 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
         finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs;
       }
     }
-    coeur = { ...coeur, equipe: region.equipe.map(versMembreEquipe) };
+    if (messagesCapture.length) { annonce = messagesCapture.join(' · '); finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs; }
+    if (preferences.autoAttaque !== coeur.autoAttaque) { preferences = { ...preferences, autoAttaque: coeur.autoAttaque }; sauvegarder = true; }
+    coeur = { ...coeur, equipe: region.equipe.map(versMembreEquipe), pokedex };
     coeur = viderEvenements(coeur);
     if (sauvegarder) enregistrer();
   };
@@ -156,13 +175,15 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
     const zoneSuivante = destination(lien ? kanto.zone(lien.vers) : undefined);
     const ennemi = coeur ? (({ numero, niveau, pv, pvMax, boss, shiny, rarete }) => ({ numero, niveau, pv, pvMax, boss, shiny, rarete }))(coeur.ennemi) : null;
     store.setState({ lieu, zone: coeur?.zone ?? null, etape: region.etape, ennemi, pv: ennemi?.pv ?? 0,
+      capture: afficherCapture(coeur, region.inventaire, precedent.capture),
+      autoAttaque: preferences.autoAttaque, arretAuto: preferences.arretAuto,
       pc: region.pc, pokedex,
       accesPc: accesAuPc.ouvert === precedent.accesPc.ouvert && accesAuPc.raison === precedent.accesPc.raison
         ? precedent.accesPc : accesAuPc,
       carte: JSON.stringify(carte) === JSON.stringify(precedent.carte) ? precedent.carte : carte,
       equipe: JSON.stringify(equipe) === JSON.stringify(precedent.equipe) ? precedent.equipe : equipe,
       dps: coeur ? calculerDpsEquipe(coeur.equipe, coeur.ennemi) : 0, erreur,
-      argent: region.argent, enRecherche: (coeur?.attenteMs ?? 0) > 0, annonce, echange,
+      argent: region.argent, enRecherche: (coeur?.attenteMs ?? 0) > 0 && !coeur?.attenteCapture, annonce, echange,
       minuteur: coeur && coeur.attenteMs === 0 && coeur.minuteurMs !== null
         ? { restantMs: coeur.minuteurMs, totalMs: reglages.combat.minuteurBossMs } : null,
       zonePrecedente: JSON.stringify(zonePrecedente) === JSON.stringify(precedent.zonePrecedente) ? precedent.zonePrecedente : zonePrecedente,
@@ -194,6 +215,32 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
     return null;
   };
   const store = createStore<AffichageJeu>(() => ({
+    capture: { balles: [], possible: false, raison: 'Aucun Pokémon à capturer.', enCours: false },
+    autoAttaque: preferences.autoAttaque, arretAuto: preferences.arretAuto,
+    capturer(cle) {
+      if (!initialise) return;
+      const condition = conditionCapture(coeur, region.inventaire, cle);
+      if (!condition.ok) { annonce = condition.raison ?? null; finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs; }
+      else if (coeur) {
+        const chance = chanceCapture(coeur.ennemi, cle, coeur.actifs);
+        region = { ...region, inventaire: retirerBalle(region.inventaire, cle) };
+        coeur = lancerCapture(coeur, chance);
+        enregistrer();
+      }
+      afficher();
+    },
+    basculerAutoAttaque() {
+      if (!initialise) return;
+      preferences = { ...preferences, autoAttaque: !preferences.autoAttaque };
+      if (coeur) coeur = basculerAutoAttaque(coeur, preferences.autoAttaque);
+      enregistrer(); afficher();
+    },
+    reglerArretAuto(partiel) {
+      if (!initialise) return;
+      preferences = { ...preferences, arretAuto: { ...preferences.arretAuto, ...partiel } };
+      if (coeur) coeur = { ...coeur, arret: preferences.arretAuto };
+      enregistrer(); afficher();
+    },
     lieu: null, zone: null, etape: 1, ennemi: null, pv: 0, equipe: [], dps: 0, minuteur: null,
     erreur: null, erreurChargement: false, zonePrecedente: null, zoneSuivante: null, evenementsDegats: [],
     argent: 0, enRecherche: false, annonce: null, echange: null,
@@ -203,6 +250,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
       const suivant = ajouterAuPokedex(pokedex, numero);
       if (suivant === pokedex) return;
       pokedex = suivant;
+      if (coeur) coeur = { ...coeur, pokedex };
       enregistrer();
       afficher();
     },
@@ -222,9 +270,10 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
     allerVers(zoneId) {
       if (!initialise || !kanto.accesZone(zoneId, etatMondeDe(region)).ok) return;
       const lieu = kanto.zone(zoneId);
-      coeur = lieu.sansCombat ? null : creerCombat(lieu, region.equipe.map(versMembreEquipe), alea);
+      coeur = lieu.sansCombat ? null : creerCombat(lieu, region.equipe.map(versMembreEquipe), alea, [], optionsCombat());
       region = { ...region, zoneId, etape: 1 };
       annonce = null;
+      traiter();
       degats = [];
       prechargerLieu();
       enregistrer();
@@ -247,11 +296,13 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId }: {
         if (!initialise) {
           persistance = ouvrirPartie({ stockage, horloge, genererId });
           region = persistance.region;
+          preferences = persistance.preferences;
           pokedex = completerPokedex(persistance.pokedex, region);
           zonesVues = new Set(kanto.zonesOuvertes(etatMondeDe(region)).map(zone => zone.id));
           const lieu = kanto.zone(region.zoneId);
-          coeur = lieu.sansCombat ? null : reprendreCombat(lieu, region.equipe.map(versMembreEquipe), alea, region.etape);
+          coeur = lieu.sansCombat ? null : reprendreCombat(lieu, region.equipe.map(versMembreEquipe), alea, region.etape, [], optionsCombat());
           initialise = true;
+          traiter();
           if (pokedex !== persistance.pokedex) enregistrer();
           prechargerLieu();
           afficher();

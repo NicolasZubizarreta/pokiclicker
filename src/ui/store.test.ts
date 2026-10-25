@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { creerHorlogeSimulee } from '../core/clock';
-import { creerGestionnaire, creerStockageMemoire, etatMondeDe } from '../core/sauvegarde';
+import { compteInitial, creerGestionnaire, creerStockageMemoire, etatMondeDe } from '../core/sauvegarde';
 import type { DonneesRegion } from '../core/sauvegarde';
 import { calculerMaxXp } from '../core/recompenses';
 import { reglages } from '../core/reglages';
@@ -19,6 +19,11 @@ beforeEach(() => vi.useFakeTimers());
 afterEach(() => { stores.forEach(store => store.getState().arreter()); stores.length = 0; vi.useRealTimers(); vi.unstubAllGlobals(); vi.restoreAllMocks(); });
 function preparer(stockage = creerStockageMemoire(), alea = () => .1) {
   const horloge = creerHorlogeSimulee();
+  if (stockage.cles().length === 0) {
+    const compte = compteInitial();
+    creerGestionnaire({ stockage, horloge, genererId: () => 'test' }).ecrireCompte({ ...compte,
+      preferences: { ...compte.preferences, arretAuto: { ...reglages.depart.preferences.arretAuto, actif: false } } });
+  }
   const store = creerStoreJeu({ horloge, stockage, alea, genererId: () => 'test' });
   stores.push(store);
   store.getState().demarrer();

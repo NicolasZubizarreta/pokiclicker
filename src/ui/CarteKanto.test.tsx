@@ -3,7 +3,15 @@ import { act, cleanup, fireEvent, render, screen, within } from '@testing-librar
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { CarteKanto } from './CarteKanto';
 import { storeJeu } from './store';
+import { creerHorlogeSysteme } from '../core/clock';
+import { compteInitial, creerGestionnaire } from '../core/sauvegarde';
+import { reglages } from '../core/reglages';
+import { creerStockageLocal } from './stockage-local';
 
+const gestionnaire = creerGestionnaire({ stockage: creerStockageLocal(), horloge: creerHorlogeSysteme(), genererId: () => 'test' });
+const compte = compteInitial();
+gestionnaire.ecrireCompte({ ...compte,
+  preferences: { ...compte.preferences, arretAuto: { ...reglages.depart.preferences.arretAuto, actif: false } } });
 beforeEach(() => { storeJeu.getState().demarrer(); });
 afterEach(() => {
   cleanup();

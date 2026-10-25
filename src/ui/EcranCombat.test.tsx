@@ -3,7 +3,8 @@ import { readFileSync } from 'node:fs';
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { creerHorlogeSimulee } from '../core/clock';
-import { creerStockageMemoire } from '../core/sauvegarde';
+import { compteInitial, creerGestionnaire, creerStockageMemoire } from '../core/sauvegarde';
+import { reglages } from '../core/reglages';
 import { EcranCombat } from './EcranCombat';
 import { formaterDps } from './nombres';
 import { creerStoreJeu } from './store';
@@ -11,11 +12,78 @@ import type { StoreJeu } from './store';
 import { ERREUR_CHARGEMENT } from './persistance';
 
 let store: StoreJeu;
+it('branche la capture sous la scène et garde une seule action principale', () => {
+  const { container } = preparer();
+  const capturer = vi.fn();
+  act(() => store.setState({ capturer, capture: { ...store.getState().capture,
+    possible: true, raison: null, balles: [
+      { cle: 'pokeball', nom: 'Pokéball', image: 'img/objets/poke-ball.png', quantite: 3 },
+      { cle: 'superball', nom: 'Superball', image: 'img/objets/great-ball.png', quantite: 2 },
+    ] } }));
+  const capture = screen.getByRole('region', { name: 'Capture' });
+  const scene = screen.getByRole('region', { name: 'Combat contre Rattata' });
+  expect(scene.contains(capture)).toBe(false);
+  expect(scene.compareDocumentPosition(capture) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  expect(capture.closest('.lg\\:col-span-3')).toBeTruthy();
+  expect(container.querySelectorAll('.bg-action')).toHaveLength(1);
+  fireEvent.click(screen.getByRole('button', { name: 'Superball ×2' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Capturer' }));
+  expect(capturer).toHaveBeenCalledWith('superball');
+  for (const bouton of within(capture).getAllByRole('button')) {
+    expect(bouton.classList.contains('min-h-11')).toBe(true);
+    expect(bouton.classList.contains('min-w-11')).toBe(true);
+  }
+});
+it('désactive les balles et la capture sur un boss avec une raison visible', () => {
+  preparer();
+  const raison = 'Ce Pokémon ne peut pas être capturé.';
+  act(() => store.setState({ ennemi: { ...store.getState().ennemi!, boss: true },
+    capture: { ...store.getState().capture, possible: false, raison,
+      balles: [{ cle: 'pokeball', nom: 'Pokéball', image: 'img/objets/poke-ball.png', quantite: 3 }] } }));
+  const capture = screen.getByRole('region', { name: 'Capture' });
+  expect(within(capture).getByText(raison)).toBeTruthy();
+  for (const bouton of within(capture).getAllByRole('button')) expect(bouton.matches(':disabled')).toBe(true);
+  const bouton = within(capture).getByRole('button', { name: 'Capturer' });
+  expect(document.getElementById(bouton.getAttribute('aria-describedby')!)?.textContent).toBe(raison);
+});
+it('anime les sprites uniquement pendant la capture et désactive la bande', () => {
+  preparer();
+  act(() => store.setState({ capture: { ...store.getState().capture, enCours: true } }));
+  for (const sprite of screen.getAllByRole('img', { name: 'Rattata' })) {
+    expect(sprite.classList.contains('capture-en-cours')).toBe(true);
+  }
+  expect(screen.getByRole('button', { name: 'Capturer' }).matches(':disabled')).toBe(true);
+  act(() => store.setState({ capture: { ...store.getState().capture, enCours: false } }));
+  for (const sprite of screen.getAllByRole('img', { name: 'Rattata' })) {
+    expect(sprite.classList.contains('capture-en-cours')).toBe(false);
+  }
+});
+it('branche les réglages du store avec des cibles tactiles de 44 px', () => {
+  preparer();
+  const basculerAutoAttaque = vi.fn();
+  const reglerArretAuto = vi.fn();
+  act(() => store.setState({ autoAttaque: false, basculerAutoAttaque, reglerArretAuto,
+    arretAuto: { ...store.getState().arretAuto, actif: true } }));
+  for (const nom of ['Auto-attaque', 'Arrêt auto', "Réglages de l'arrêt"]) {
+    const bouton = screen.getByRole('button', { name: nom });
+    expect(bouton.classList.contains('min-h-11')).toBe(true);
+    expect(bouton.classList.contains('min-w-11')).toBe(true);
+  }
+  expect(screen.getByRole('button', { name: 'Auto-attaque' }).getAttribute('aria-pressed')).toBe('false');
+  expect(screen.getByRole('button', { name: 'Arrêt auto' }).getAttribute('aria-pressed')).toBe('true');
+  fireEvent.click(screen.getByRole('button', { name: 'Auto-attaque' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Arrêt auto' }));
+  expect(basculerAutoAttaque).toHaveBeenCalledOnce();
+  expect(reglerArretAuto).toHaveBeenCalledWith({ actif: false });
+});
 beforeEach(() => vi.useFakeTimers());
 afterEach(() => { cleanup(); store?.getState().arreter(); vi.useRealTimers(); });
 function preparer(corrompu = false) {
   const horloge = creerHorlogeSimulee();
   const stockage = creerStockageMemoire();
+  const compte = compteInitial();
+  creerGestionnaire({ stockage, horloge, genererId: () => 'test' }).ecrireCompte({ ...compte,
+    preferences: { ...compte.preferences, arretAuto: { ...reglages.depart.preferences.arretAuto, actif: false } } });
   if (corrompu) stockage.ecrire('pokiclicker:partie:test', '{abîmée');
   store = creerStoreJeu({ horloge, stockage, alea: () => .1, genererId: () => 'test' });
   store.getState().demarrer();
