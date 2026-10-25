@@ -436,3 +436,14 @@ it('compte les pointeurs principaux et le clavier sans doubler le clic souris', 
   fireEvent.click(bouton, { detail: 0 });
   expect(attaquer).toHaveBeenCalledTimes(2);
 });
+
+it('affiche le nom de l’adversaire de la Ligue à la place de « (Géant) »', () => {
+  preparer();
+  act(() => store.setState({ ennemi: { ...store.getState().ennemi!, boss: true } }));
+  expect(screen.getByRole('heading', { name: 'Rattata (Géant)' })).toBeTruthy();
+  act(() => store.setState({ nomAdversaire: 'Olga (Lokhlass)' }));
+  expect(screen.getByRole('heading', { name: 'Olga (Lokhlass)' })).toBeTruthy();
+  expect(screen.getByRole('region', { name: 'Combat contre Olga (Lokhlass)' })).toBeTruthy();
+  expect(screen.getAllByAltText('Olga (Lokhlass)').length).toBeGreaterThan(0);
+  expect(screen.getByRole('progressbar', { name: 'PV de Olga (Lokhlass)' })).toBeTruthy();
+});
