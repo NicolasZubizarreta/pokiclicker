@@ -1,0 +1,109 @@
+{
+  "version": 1,
+  "titre": "POKÉ-CLICKER : KANTO ORIGINS",
+  "message": "FÉLICITATIONS ! Vous avez vaincu la Ligue, complété le Pokédex et surpassé le Professeur Chen.\n\nVous êtes considéré comme le dresseur de légende de KANTO",
+  "sections": [
+    {
+      "titre": "CRÉATION & RÉALISATION ;",
+      "lignes": [
+        "Concept Original Nicolas Zubizarreta",
+        "Game Design & Équilibrage Nicolas Zubizarreta",
+        "Programmation Lead Nicolas Zubizarreta",
+        "Scénario & Dialogues Nicolas Zubizarreta",
+        "Interface & UI Nicolas Zubizarreta"
+      ]
+    },
+    {
+      "titre": "ASSISTANT TECHNIQUE :",
+      "lignes": [
+        "Gemini Code Assistant",
+        "Support Syntaxique : VS Code"
+      ]
+    },
+    {
+      "titre": "ÉQUIPE D'ASSURANCE QUALITÉ (QA)",
+      "lignes": [
+        "Daran Jacquet, Bjorn Silvester, Maé François"
+      ]
+    },
+    {
+      "titre": "GUEST STAR & REMERCIEMENTS SPÉCIAUX",
+      "lignes": [
+        "DARAN Pour le don de sa personne. A inspiré et débloqué le skin Pokémon Exclusif \"Daran\"."
+      ]
+    },
+    {
+      "titre": "BASÉ SUR L'UNIVERS DE",
+      "lignes": [
+        "POKÉMON © Nintendo / Creatures Inc. / GAME FREAK inc. Ceci est un fan-game gratuit réalisé par passion."
+      ]
+    },
+    {
+      "titre": "MERCI D'AVOIR JOUÉ !",
+      "lignes": [
+        "Votre sauvegarde a été mise à jour. Vous pouvez maintenant retourner explorer Kanto librement.",
+        "À SUIVRE... ?"
+      ]
+    }
+  ],
+  "temps": {
+    "delaiMs": 1000,
+    "dureeMs": 110000,
+    "finMs": 4000,
+    "fonduMs": 1300
+  },
+  "imagesFlottantes": {
+    "maximum": 3,
+    "intervalleMs": 3200,
+    "taillePourcent": [
+      8,
+      30
+    ],
+    "vieMs": [
+      3500,
+      5500
+    ],
+    "opacite": 0.6,
+    "images": [
+      "img/kanto/sprites/SpriteChen1.png",
+      "img/kanto/sprites/SpriteChen2.png",
+      "img/kanto/sprites/SpriteChen3.png",
+      "img/kanto/sprites/SpriteFly1.png",
+      "img/kanto/sprites/SpriteFly2.png",
+      "img/kanto/sprites/SpriteFly3.png",
+      "img/kanto/sprites/SpriteFly4.png",
+      "img/kanto/sprites/SpriteFly5.png",
+      "img/kanto/background/Casino.png",
+      "img/kanto/background/CentreCommercial.png",
+      "img/kanto/background/Chez Blue.png",
+      "img/kanto/background/Chez Maman.png",
+      "img/kanto/background/LaboPokemon.png",
+      "img/kanto/background/Pension.png",
+      "img/kanto/background/Zone 0.png",
+      "img/kanto/background/Zone 1.png",
+      "img/kanto/background/Zone 2.png",
+      "img/kanto/background/Zone 3.png",
+      "img/kanto/background/Zone 4.png",
+      "img/kanto/background/Zone 5.png",
+      "img/kanto/background/Zone 6.png",
+      "img/kanto/background/Zone 7.png",
+      "img/kanto/background/Zone 8.png",
+      "img/kanto/background/Zone 9.png",
+      "img/kanto/background/Zone 10.png",
+      "img/kanto/background/Zone 11.png",
+      "img/kanto/background/Zone 12.png",
+      "img/kanto/background/Zone 13.png",
+      "img/kanto/background/Zone 14.png",
+      "img/kanto/background/Zone 15.png",
+      "img/kanto/background/Zone 16.png",
+      "img/kanto/background/Zone 17.png",
+      "img/kanto/background/Zone 18.png",
+      "img/kanto/background/Zone 19.png",
+      "img/kanto/background/Zone 20.png",
+      "img/kanto/background/Zone 21.png"
+    ]
+  },
+  "imagesOmises": [
+    "img/kanto/background/Pantheon.png"
+  ]
+}

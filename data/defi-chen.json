@@ -1,0 +1,100 @@
+{
+  "version": 1,
+  "combats": [
+    {
+      "etape": 1,
+      "nom": "Tauros",
+      "pokemon": 128,
+      "niveau": 100,
+      "capture": 0,
+      "minuteurMs": 30000
+    },
+    {
+      "etape": 2,
+      "nom": "Noadkoko",
+      "pokemon": 103,
+      "niveau": 100,
+      "capture": 0,
+      "minuteurMs": 30000
+    },
+    {
+      "etape": 3,
+      "nom": "Arcanin",
+      "pokemon": 59,
+      "niveau": 100,
+      "capture": 0,
+      "minuteurMs": 30000
+    },
+    {
+      "etape": 4,
+      "nom": "Léviator",
+      "pokemon": 130,
+      "niveau": 100,
+      "capture": 0,
+      "minuteurMs": 30000
+    },
+    {
+      "etape": 5,
+      "nom": "Florizarre",
+      "pokemon": 3,
+      "niveau": 100,
+      "capture": 0,
+      "minuteurMs": 30000
+    },
+    {
+      "etape": 6,
+      "nom": "Dracolosse",
+      "pokemon": 149,
+      "niveau": 100,
+      "capture": 0,
+      "minuteurMs": 30000
+    }
+  ],
+  "counter": [
+    {
+      "starter": 1,
+      "pokemon": 9,
+      "nom": "Tortank"
+    },
+    {
+      "starter": 4,
+      "pokemon": 3,
+      "nom": "Florizarre"
+    },
+    {
+      "starter": 7,
+      "pokemon": 6,
+      "nom": "Dracaufeu"
+    },
+    {
+      "starter": null,
+      "pokemon": 3,
+      "nom": "Florizarre"
+    }
+  ],
+  "dialogues": {
+    "fin": [
+      "Incroyable... Je n'en crois pas mes yeux !",
+      "Ton Pokédex... Il est complet ! Tu as attrapé les 151 Pokémon de Kanto !",
+      "C'était mon rêve depuis toujours. Tu l'as réalisé pour moi.",
+      "Tu es officiellement le plus grand Collectionneur Pokémon de la région !",
+      "En guise de reconnaissance, voici ton Diplôme officiel.",
+      "Félicitations !",
+      "Prends aussi ceci : le Charme Chroma. Les Pokémon Shinies apparaîtront beaucoup plus souvent !",
+      "Qui sait peut être qu'un jour tu attraperas tous les pokémons du monde... L'aventure continue !"
+    ],
+    "intro": [
+      "Te voilà. Champion de la Ligue ET Pokédex complet... Tu as surpassé toutes mes attentes.",
+      "Mais il reste une dernière épreuve. Autrefois, avant d'être chercheur, j'étais moi-même un dresseur redoutable.",
+      "Prouve-moi que tu es la véritable Légende de Kanto. En garde !"
+    ],
+    "victoire": [
+      "Magnifique ! Je n'avais pas ressenti un tel frisson depuis des années !",
+      "Tu as définitivement surpassé le maître. Il n'y a plus aucun doute : tu es la véritable Légende de Kanto.",
+      "Je n'ai aucun doute que tu feras sensation dans les autres régions. Le monde t'appartient maintenant !"
+    ]
+  },
+  "messages": {
+    "echec": "Continue de t'entraîner pour réussir ton dernier défi..."
+  }
+}
