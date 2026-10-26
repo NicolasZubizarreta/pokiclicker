@@ -175,7 +175,7 @@ export function avancerCombat(etat: EtatCombat, pasMs: number): EtatCombat {
     }
     if (etat.minuteurMs === 0) {
       const etape = etat.zone.type !== 'ligue' ? reglages.combat.etapeBoss - 1
-        : etat.zone.id.startsWith('evenement:') ? 1 : etapeDeReprise(etat.zone, etat.etape);
+        : etat.zone.id === 'kanto.labo' || etat.zone.id.startsWith('evenement:') ? 1 : etapeDeReprise(etat.zone, etat.etape);
       const ennemi = creerEnnemi(etat.zone, etape, etat.alea, reglages.combat, etat.actifs);
       etat = apparaitre({ ...etat, etape, ennemi, attenteMs: 0, capture: null, attenteCapture: false,
         minuteurMs: ennemi.boss ? reglages.combat.minuteurBossMs : null,
