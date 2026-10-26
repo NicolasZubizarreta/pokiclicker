@@ -25,6 +25,7 @@ async function preparer() {
   const images = [
     { source: 'background/Zone 0.png', destination: 'scenes/bourg-palette.webp', type: 'scene' },
     { source: 'background/LaboPokemon.png', destination: 'scenes/labo.webp', type: 'scene' },
+    { source: 'background/Pantheon.png', destination: 'scenes/pantheon.webp', type: 'scene' },
     { source: 'background/Chez Blue.png', destination: 'decors/chez-blue.webp', type: 'decor' },
     ...[1, 2, 3].map((n) => ({ source: `sprites/SpriteChen${n}.png`, destination: `sprites/chen/chen-${n}.png`, type: 'personnage' })),
   ];

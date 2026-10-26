@@ -10,6 +10,7 @@ const script = fileURLToPath(new URL('../scripts/preparer-scenes-v1.mjs', import
 const fichiers = [
   ['background/Zone 0.png', 'scenes/bourg-palette.webp', 1080, 1080],
   ['background/LaboPokemon.png', 'scenes/labo.webp', 1080, 1080],
+  ['background/Pantheon.png', 'scenes/pantheon.webp', 1080, 1080],
   ['background/Chez Blue.png', 'decors/chez-blue.webp', 1920, 1080],
   ...[1, 2, 3].map((n) => [`sprites/SpriteChen${n}.png`, `sprites/chen/chen-${n}.png`, 120, 120] as const),
 ] as const;
