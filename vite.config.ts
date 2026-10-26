@@ -30,9 +30,9 @@ export default defineConfig(({ command, mode, isPreview }) => ({
       globPatterns: ['**/*.{js,css,html,webp,png,woff,woff2,json,webmanifest}'],
       // Les décors (≈ 170 ko pièce), artworks et animations lourds ne sont pas préchargés à l'installation :
       // ils entrent dans le cache à leur première vue. Seul le décor de départ (Route 1) est préchargé.
-      globIgnores: ['**/img/decors/!(route-1).webp', '**/img/scenes/pantheon.webp', '**/img/artworks/**', '**/img/animes/**', '**/img/sprites/dresseur/**', '**/img/easter-eggs/**'],
+      globIgnores: ['**/img/decors/!(route-1).webp', '**/img/scenes/pantheon.webp', '**/img/artworks/**', '**/img/animes/**', '**/img/sprites/dresseur/**', '**/img/easter-eggs/**', '**/img/fin/**'],
       runtimeCaching: [{
-        urlPattern: ({ url }: { url: URL }) => /\/img\/(decors|artworks|animes|sprites\/dresseur|easter-eggs)\//.test(url.pathname),
+        urlPattern: ({ url }: { url: URL }) => /\/img\/(decors|artworks|animes|sprites\/dresseur|easter-eggs|fin)\//.test(url.pathname),
         handler: 'CacheFirst',
         options: { cacheName: 'images-lourdes', cacheableResponse: { statuses: [200] } },
       }],

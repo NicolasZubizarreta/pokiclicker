@@ -59,8 +59,9 @@ it('contient les décors de combat et documente chaque autre décor absent', asy
 });
 
 it('contient 24 objets, six artworks carrés et l’animation de Roucarnage', async () => {
-  // Prépare le lot historique ; icones-objets vérifie toutes les images, y compris le Jeton Shiny.
-  const { 'img/objets/JetonShiny.png': jeton, ...tailles } = JSON.parse(await lire('public/img/tailles.json'));
+  // Prépare le lot historique ; les ajouts Jeton Shiny et diplôme ont leurs tests dédiés.
+  const { 'img/objets/JetonShiny.png': jeton, 'img/objets/Diplome.png': diplome, ...tailles } = JSON.parse(await lire('public/img/tailles.json'));
+  expect(diplome).toEqual({ largeur: images.objet.taille, hauteur: images.objet.taille });
   expect(jeton).toEqual({ largeur: images.objet.taille, hauteur: images.objet.taille });
   const objets = Object.keys(tailles).filter((cle) => cle.startsWith('img/objets/'));
   const artworks = Object.keys(tailles).filter((cle) => cle.startsWith('img/artworks/'));

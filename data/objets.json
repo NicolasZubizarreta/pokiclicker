@@ -429,7 +429,7 @@
     "boutique": null,
     "sansInflation": false,
     "inventaire": null,
-    "image": null,
+    "image": "img/objets/Diplome.png",
     "categorie": "equipement",
     "sac": null
   }

@@ -922,5 +922,13 @@
   "img/easter-eggs/daran-stade-3.webp": {
     "largeur": 288,
     "hauteur": 288
+  },
+  "img/objets/Diplome.png": {
+    "largeur": 30,
+    "hauteur": 30
+  },
+  "img/fin/diplome.webp": {
+    "largeur": 1280,
+    "hauteur": 698
   }
 }

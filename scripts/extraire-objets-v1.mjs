@@ -31,7 +31,7 @@ const descriptions = {
   bicycle: "Réduit l'attente entre deux ennemis à 0,5 s (remplace les Chaussures).",
 };
 const objets = Object.entries(items).map(([id, item]) => {
-  const fichier = item.img?.split('/').pop();
+  const fichier = id === 'diploma' ? 'Diplome.png' : item.img?.split('/').pop();
   if (item.zone != null && item.zone !== 99 && !zones[item.zone]) throw new Error(`Zone inconnue : ${id}`);
   return {
     id, nom: id === 'luckyEgg' ? 'Œuf Chance' : item.name,
