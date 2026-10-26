@@ -11,6 +11,8 @@ import { choisirStarter, creerStarter, tirerStarters } from '../core/starter';
 import { accorderBadge, accorderJalons, actifsDe } from '../core/progression';
 import { zoneDeLigue, estZoneDeLigue, messageDefaite, messageEnchainement, nomAdversaire, enregistrerVictoireLigue } from '../core/ligue';
 import { nomAffiche } from './affichage-pokemon';
+import { issueDuPantheon } from '../core/pantheon';
+import donneesPantheon from '../../data/pantheon.json';
 import { clicsAutomatiques } from '../core/clics';
 import { utiliserSurPokemon, poserStase, retirerStase, utiliserJetonShiny } from '../core/objets-equipe';
 import { clesActives, utiliserTemporise, refusPoupee, utiliserPoupee, declencherRecharge } from '../core/objets-actifs';
@@ -53,6 +55,9 @@ export type EtatForme = {
   ouverte: boolean; actuelle: boolean; raison: string | null;
 };
 export type AffichageJeu = ActionsCasino & {
+  pantheon: { ouvert: boolean; premiereVictoire: boolean; equipe: PokemonPossede[]; defiChenEnAttente: boolean } | null;
+  quitterPantheon(): void;
+  lancerDefiChen?(): void;
   casino: AffichageCasino;
   intro: { enCours: boolean; premiereLigneVue: boolean; choixStarter: boolean;
     sacOuvert: boolean; carteOuverte: boolean; starters: { numero: number; nom: string; shiny: boolean }[] };
@@ -149,6 +154,8 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
   let evolutionEnCours: EvolutionAffichee | null = null;
   let finEvolutionMs = 0;
   let obtentionBadge: { id: string; debutMs: number } | null = null;
+  let pantheon: AffichageJeu['pantheon'] = null;
+  let debutDefiChenMs: number | null = null;
   const objets = chargerObjets();
   const abonnesDegats = new Set<(degat: Degat) => void>();
   const abonnesSons = new Set<(ton: Ton) => void>();
@@ -187,6 +194,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     if (!coeur) return;
     region = { ...region, zoneId: coeur.zoneId, etape: coeur.etape };
     let sauvegarder = false;
+    let ouvrirPantheon = false;
     const bossBattus: string[] = [];
     const messagesCapture: string[] = [];
     for (const evenement of coeur.evenements) {
@@ -235,7 +243,10 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       }
       if (evenement.type === 'boss-vaincu') {
         const pensionOuverte = pension.accesPension(kanto, etatMondeDe(region)).ouvert;
-        if (estZoneDeLigue(coeur.zone)) region = enregistrerVictoireLigue(region);
+        if (coeur.zone.id === 'kanto.ligue-pokemon' && evenement.zoneId === 'kanto.ligue-pokemon') {
+          region = enregistrerVictoireLigue(region);
+          ouvrirPantheon = true;
+        }
         const resultat = accorderBadge(region, evenement.zoneId);
         region = resultat.region;
         if (resultat.badge) {
@@ -269,6 +280,14 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       if (preferences.autoAttaque !== coeur.autoAttaque) { preferences = { ...preferences, autoAttaque: coeur.autoAttaque }; sauvegarder = true; }
       coeur = { ...coeur, equipe: region.equipe.map(versMembreEquipe), pokedex };
       coeur = viderEvenements(coeur);
+    }
+    if (ouvrirPantheon) {
+      pantheon = { ouvert: true, premiereVictoire: region.ligueGagnee === 1,
+        equipe: structuredClone(region.equipe), defiChenEnAttente: false };
+      region = { ...region, zoneId: 'kanto.bourg-palette', etape: 1 };
+      coeur = null;
+      resteAutoClicMs = 0;
+      prechargerLieu();
     }
     if (sauvegarder) enregistrer();
     for (const zone of bossBattus) executer({ type: 'boss-vaincu', zone });
@@ -336,7 +355,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       })) : [],
     };
     const ennemi = coeur ? (({ numero, niveau, pv, pvMax, boss, shiny, rarete }) => ({ numero, niveau, pv, pvMax, boss, shiny, rarete }))(coeur.ennemi) : null;
-    store.setState({ lieu, zone: coeur?.zone ?? null, etape: region.etape, ennemi, pv: ennemi?.pv ?? 0,
+    store.setState({ pantheon, lieu, zone: coeur?.zone ?? null, etape: region.etape, ennemi, pv: ennemi?.pv ?? 0,
       nomAdversaire: coeur ? nomAdversaire(coeur.zone, coeur.etape) : null, ligueGagnee: region.ligueGagnee,
       intro: JSON.stringify(intro) === JSON.stringify(precedent.intro) ? precedent.intro : intro,
       evenement: JSON.stringify(evenement) === JSON.stringify(precedent.evenement) ? precedent.evenement : evenement,
@@ -480,6 +499,18 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     return true;
   };
   const store = createStore<AffichageJeu>(() => ({
+    pantheon: null,
+    quitterPantheon() {
+      const courant = store.getState().pantheon;
+      if (!initialise || !courant?.ouvert) return;
+      const sortie = issueDuPantheon({ ligueGagnee: region.ligueGagnee,
+        defiEnAttente: courant.defiChenEnAttente });
+      pantheon = null;
+      annonce = sortie.annonceJohto ? 'Johto arrive bientôt !' : null;
+      finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs;
+      if (sortie.issue === 'defi-chen') debutDefiChenMs = horloge.maintenant() + donneesPantheon.delais.defiChenMs;
+      afficher();
+    },
     casino: { acces: { ouvert: false, raison: casino.chargerCasino().acces.raison },
       jetons: 0, blackjackEnCours: null, objets: [] },
     acheterJetons: () => modifierCasino(casino.acheterJetons),
@@ -710,7 +741,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
           return null;
         } });
         boucle.abonner(afficher);
-        minuteur = setInterval(() => boucle!.tick(), reglages.boucle.pasMs);
+        minuteur = setInterval(() => store.getState().tick(), reglages.boucle.pasMs);
         sauvegarde = setInterval(enregistrer, reglages.interface.sauvegardeAutoMs);
         if (typeof window !== 'undefined') {
           window.addEventListener('pagehide', enregistrer);
@@ -725,13 +756,20 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       clearInterval(sauvegarde);
       minuteur = undefined;
       boucle = undefined;
+      debutDefiChenMs = null;
       if (typeof window !== 'undefined') {
         window.removeEventListener('pagehide', enregistrer);
         document.removeEventListener('visibilitychange', cacher);
       }
     },
     fermer: enregistrer,
-    tick: () => { boucle?.tick(); },
+    tick: () => {
+      if (boucle && debutDefiChenMs !== null && horloge.maintenant() >= debutDefiChenMs) {
+        debutDefiChenMs = null;
+        store.getState().lancerDefiChen?.();
+      }
+      boucle?.tick();
+    },
   }));
   return Object.assign(store, {
     abonnerSons(abonne: (ton: Ton) => void) {

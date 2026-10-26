@@ -87,6 +87,9 @@ describe('Ligue dans le store', () => {
     expect(store.getState().annonce).toContain('Victoire contre Maître Blue !');
     for (let i = 0; i < 10; i++) avancer(100);
     expect(lire().ligueGagnee).toBe(1);
+    store.getState().quitterPantheon();
+    vi.spyOn(kanto, 'accesZone').mockReturnValueOnce({ ok: true });
+    store.getState().allerVers(zoneId);
     for (let i = 0; i < 10; i++) vaincre();
     expect(lire().ligueGagnee).toBe(2);
     expect(store.getState().ligueGagnee).toBe(2);
