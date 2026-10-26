@@ -13,7 +13,7 @@ export function creerEnnemi(zone: Zone, etape: number, alea: () => number,
   options: typeof reglages.combat = reglages.combat, actifs: readonly string[] = []): Ennemi {
   const ligue = zone.type === 'ligue';
   const boss = ligue || etape === options.etapeBoss;
-  const adversaire = ligue && etape < options.etapeBoss ? zone.adversaires![etape - 1]! : zone.boss;
+  const adversaire = ligue && etape < zone.etapes ? zone.adversaires![etape - 1]! : zone.boss;
   let pool = zone.sauvages;
   // La V1 tire le shiny avant l'espèce et le niveau ; le boss ne consomme aucun tirage.
   const bonusShiny = options.shiny.find(bonus => actifs.includes(bonus.cle));

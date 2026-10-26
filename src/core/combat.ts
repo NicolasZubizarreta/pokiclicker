@@ -119,7 +119,7 @@ function terminerEnnemi(etat: EtatCombat, capture: boolean): EtatCombat {
   const evenements: EvenementCombat[] = [...etat.evenements,
     capture ? { type: 'capture-reussie', numero, niveau, shiny, boss, rarete }
       : { type: 'ennemi-vaincu', etape: etat.etape, numero, niveau, shiny, boss, rarete }];
-  const bossFinal = boss && (etat.zone.type !== 'ligue' || etat.etape === reglages.combat.etapeBoss);
+  const bossFinal = boss && (etat.zone.type !== 'ligue' || etat.etape === etat.zone.etapes);
   if (bossFinal && !capture) evenements.push({ type: 'boss-vaincu', zoneId: etat.zoneId });
   if (etat.interrompu) evenements.push({ type: 'reprise-auto' });
   const etape = bossFinal ? 1 : etat.etape + 1;
@@ -174,7 +174,8 @@ export function avancerCombat(etat: EtatCombat, pasMs: number): EtatCombat {
         evenements: [...etat.evenements, { type: 'capture-echouee' }] };
     }
     if (etat.minuteurMs === 0) {
-      const etape = etat.zone.type === 'ligue' ? etapeDeReprise(etat.zone, etat.etape) : reglages.combat.etapeBoss - 1;
+      const etape = etat.zone.type !== 'ligue' ? reglages.combat.etapeBoss - 1
+        : etat.zone.id.startsWith('evenement:') ? 1 : etapeDeReprise(etat.zone, etat.etape);
       const ennemi = creerEnnemi(etat.zone, etape, etat.alea, reglages.combat, etat.actifs);
       etat = apparaitre({ ...etat, etape, ennemi, attenteMs: 0, capture: null, attenteCapture: false,
         minuteurMs: ennemi.boss ? reglages.combat.minuteurBossMs : null,
