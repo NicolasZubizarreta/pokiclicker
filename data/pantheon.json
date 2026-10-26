@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "socles": [
+    {
+      "x": 0.123046875,
+      "y": 0.63671875
+    },
+    {
+      "x": 0.26171875,
+      "y": 0.576171875
+    },
+    {
+      "x": 0.412109375,
+      "y": 0.55078125
+    },
+    {
+      "x": 0.587890625,
+      "y": 0.55078125
+    },
+    {
+      "x": 0.73828125,
+      "y": 0.576171875
+    },
+    {
+      "x": 0.8837890625,
+      "y": 0.634765625
+    }
+  ],
+  "geometrie": {
+    "tailleSprite": 0.15625,
+    "decalageBase": 0.01953125,
+    "decalageNiveau": 0.0341796875,
+    "departChute": -0.29296875
+  },
+  "delais": {
+    "fonduNoirMs": 1000,
+    "fonduRetourMs": 1000,
+    "entreeChenMs": 1600,
+    "sortieChenMs": 1000,
+    "apresChenMs": 1000,
+    "entrePokemonMs": 2000,
+    "niveauMs": 1000,
+    "finalApresEquipeMs": 500,
+    "defiChenMs": 800,
+    "annonceJohtoMs": 500
+  },
+  "effets": {
+    "confettiPeriodeMs": 50,
+    "confettiVieMs": 4000,
+    "confettiDureeMinMs": 2000,
+    "confettiDureeMaxMs": 4000,
+    "feuPeriodeMs": 800,
+    "feuVieMs": 1000
+  },
+  "dialogues": [
+    "Splendide ! Simplement splendide !",
+    "Tu as vaincu le Conseil des 4 et le Maître actuel. Tu es le nouveau Maître de la Ligue de Kanto !",
+    "Mais tu n'as pas gagné seul. Viens avec moi, allons enregistrer tes partenaires au Panthéon."
+  ],
+  "titre": "MAÎTRE DE LA\nLIGUE DE KANTO",
+  "boutonSortie": "SORTIR"
+}
