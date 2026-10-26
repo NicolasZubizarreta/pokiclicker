@@ -114,6 +114,13 @@ test('Boss et zones : barre de temps, zone suivante, retour et reprise', async (
   await page.reload();
   await expect(page.getByRole('heading', { name: 'Forêt de Jade', exact: true })).toBeVisible();
   await expect(page.getByText('Étape 1 sur 10', { exact: true })).toBeVisible();
+  // Entrer dans la Forêt de Jade déclenche la rencontre du rival : sa scène reprend au rechargement.
+  const scene = page.getByRole('dialog', { name: 'Dialogue de scène' });
+  await expect(scene).toBeVisible();
+  // Un premier clic termine la machine à écrire, le suivant passe la réplique.
+  await scene.getByRole('button').click();
+  await scene.getByRole('button').click({ timeout: 1000 }).catch(() => {});
+  await expect(scene).toHaveCount(0);
   await page.getByRole('button', { name: /^Zone précédente/ }).click();
   await expect(page.getByRole('heading', { name: 'Route 1', exact: true })).toBeVisible();
 });

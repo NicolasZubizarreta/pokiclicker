@@ -100,7 +100,7 @@ test('Victoire jouée contre Olga : Aldo entre en scène', async ({ page }) => {
   expect((await regionSauvee(page)).etape).toBe(3);
 });
 
-test('Victoire jouée contre le counter de Carapuce : une Ligue gagnée et retour à l’étape 1', async ({ page }) => {
+test('Victoire jouée contre le counter de Carapuce : une Ligue gagnée et retour à Bourg Palette', async ({ page }) => {
   const verifierInjection = await dernierPv(page);
   await demarrer(page, 8);
   await page.getByRole('button', { name: 'Y aller' }).click();
@@ -112,8 +112,11 @@ test('Victoire jouée contre le counter de Carapuce : une Ligue gagnée et retou
   await page.getByRole('button', { name: 'Auto-attaque', exact: true }).click();
   await page.getByRole('button', { name: /^Attaquer / }).click();
   await page.clock.runFor(100);
-  expect((await regionSauvee(page)).ligueGagnee).toBe(1);
-  await expect(page.getByText('Étape 1 sur 10', { exact: true })).toBeVisible();
+  const region = await regionSauvee(page);
+  expect(region.ligueGagnee).toBe(1);
+  // La victoire ouvre le Panthéon puis ramène à Bourg Palette (R4) ; la page du Panthéon est testée dans pantheon.spec.ts.
+  expect(region.zoneId).toBe('kanto.bourg-palette');
+  expect(region.etape).toBe(1);
 });
 
 test('Ligue fermée avec sept badges : raison du badge Terre sur la carte', async ({ page }) => {
