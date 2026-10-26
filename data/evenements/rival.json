@@ -1,0 +1,163 @@
+{
+  "version": 1,
+  "evenements": [
+    {
+      "id": "kanto.rival-foret",
+      "declencheur": { "type": "entree-zone", "zone": "kanto.foret-de-jade" },
+      "si": { "non": { "type": "boss", "zone": "kanto.foret-de-jade" } },
+      "priorite": 0,
+      "repetable": false,
+      "etapes": [
+        { "type": "dialogue", "locuteur": "Blue", "texte": "Hé ! Tu comptes traverser la Forêt de Jade ? Voyons si ton Pokémon est aussi fort que le mien !" },
+        { "type": "combat", "dresseur": "Blue", "equipes": {
+          "1": [
+            { "pokemon": 16, "niveau": 4, "nom": "Roucool" },
+            { "pokemon": 4, "niveau": 6, "nom": "Salamèche" }
+          ],
+          "4": [
+            { "pokemon": 16, "niveau": 4, "nom": "Roucool" },
+            { "pokemon": 7, "niveau": 6, "nom": "Carapuce" }
+          ],
+          "7": [
+            { "pokemon": 16, "niveau": 4, "nom": "Roucool" },
+            { "pokemon": 1, "niveau": 6, "nom": "Bulbizarre" }
+          ]
+        } },
+        { "type": "dialogue", "locuteur": "Blue", "texte": "Tu progresses, mais je serai toujours devant toi ! À la prochaine !" }
+      ]
+    },
+    {
+      "id": "kanto.rival-carmin",
+      "declencheur": { "type": "entree-zone", "zone": "kanto.arene-de-carmin" },
+      "si": { "non": { "type": "boss", "zone": "kanto.arene-de-carmin" } },
+      "priorite": 0,
+      "repetable": false,
+      "etapes": [
+        { "type": "dialogue", "locuteur": "Blue", "texte": "Tiens, te voilà à Carmin ! Avant de défier le Champion, montre-moi ce que vaut ton équipe !" },
+        { "type": "combat", "dresseur": "Blue", "equipes": {
+          "1": [
+            { "pokemon": 17, "niveau": 18, "nom": "Roucoups" },
+            { "pokemon": 20, "niveau": 19, "nom": "Rattatac" },
+            { "pokemon": 64, "niveau": 20, "nom": "Kadabra" },
+            { "pokemon": 5, "niveau": 23, "nom": "Reptincel" }
+          ],
+          "4": [
+            { "pokemon": 17, "niveau": 18, "nom": "Roucoups" },
+            { "pokemon": 20, "niveau": 19, "nom": "Rattatac" },
+            { "pokemon": 64, "niveau": 20, "nom": "Kadabra" },
+            { "pokemon": 8, "niveau": 23, "nom": "Carabaffe" }
+          ],
+          "7": [
+            { "pokemon": 17, "niveau": 18, "nom": "Roucoups" },
+            { "pokemon": 20, "niveau": 19, "nom": "Rattatac" },
+            { "pokemon": 64, "niveau": 20, "nom": "Kadabra" },
+            { "pokemon": 2, "niveau": 23, "nom": "Herbizarre" }
+          ]
+        } },
+        { "type": "dialogue", "locuteur": "Blue", "texte": "Pas mal ! Va donc tenter ta chance à l'Arène. Moi, j'ai encore de l'avance !" }
+      ]
+    },
+    {
+      "id": "kanto.rival-tour",
+      "declencheur": { "type": "entree-zone", "zone": "kanto.tour-pokemon" },
+      "si": { "non": { "type": "boss", "zone": "kanto.tour-pokemon" } },
+      "priorite": 0,
+      "repetable": false,
+      "etapes": [
+        { "type": "dialogue", "locuteur": "Blue", "texte": "Tu viens explorer la Tour Pokémon ? J'espère que ton équipe n'a pas peur des combats ! Fais-moi voir ça !" },
+        { "type": "combat", "dresseur": "Blue", "equipes": {
+          "1": [
+            { "pokemon": 17, "niveau": 28, "nom": "Roucoups" },
+            { "pokemon": 64, "niveau": 29, "nom": "Kadabra" },
+            { "pokemon": 102, "niveau": 30, "nom": "Noeunoeuf" },
+            { "pokemon": 5, "niveau": 33, "nom": "Reptincel" }
+          ],
+          "4": [
+            { "pokemon": 17, "niveau": 28, "nom": "Roucoups" },
+            { "pokemon": 64, "niveau": 29, "nom": "Kadabra" },
+            { "pokemon": 58, "niveau": 30, "nom": "Caninos" },
+            { "pokemon": 8, "niveau": 33, "nom": "Carabaffe" }
+          ],
+          "7": [
+            { "pokemon": 17, "niveau": 28, "nom": "Roucoups" },
+            { "pokemon": 64, "niveau": 29, "nom": "Kadabra" },
+            { "pokemon": 130, "niveau": 30, "nom": "Léviator" },
+            { "pokemon": 2, "niveau": 33, "nom": "Herbizarre" }
+          ]
+        } },
+        { "type": "dialogue", "locuteur": "Blue", "texte": "Tu tiens le coup ! Continue ton exploration, je vais entraîner mes Pokémon !" }
+      ]
+    },
+    {
+      "id": "kanto.rival-sylphe",
+      "declencheur": { "type": "entree-zone", "zone": "kanto.sylphe-sarl" },
+      "si": { "non": { "type": "boss", "zone": "kanto.sylphe-sarl" } },
+      "priorite": 0,
+      "repetable": false,
+      "etapes": [
+        { "type": "dialogue", "locuteur": "Blue", "texte": "Même chez Sylphe SARL, on se retrouve ! Mon équipe a bien grandi. Tu crois pouvoir me battre ?" },
+        { "type": "combat", "dresseur": "Blue", "equipes": {
+          "1": [
+            { "pokemon": 18, "niveau": 40, "nom": "Roucarnage" },
+            { "pokemon": 65, "niveau": 41, "nom": "Alakazam" },
+            { "pokemon": 111, "niveau": 42, "nom": "Rhinocorne" },
+            { "pokemon": 130, "niveau": 43, "nom": "Léviator" },
+            { "pokemon": 6, "niveau": 45, "nom": "Dracaufeu" }
+          ],
+          "4": [
+            { "pokemon": 18, "niveau": 40, "nom": "Roucarnage" },
+            { "pokemon": 65, "niveau": 41, "nom": "Alakazam" },
+            { "pokemon": 111, "niveau": 42, "nom": "Rhinocorne" },
+            { "pokemon": 58, "niveau": 43, "nom": "Caninos" },
+            { "pokemon": 9, "niveau": 45, "nom": "Tortank" }
+          ],
+          "7": [
+            { "pokemon": 18, "niveau": 40, "nom": "Roucarnage" },
+            { "pokemon": 65, "niveau": 41, "nom": "Alakazam" },
+            { "pokemon": 111, "niveau": 42, "nom": "Rhinocorne" },
+            { "pokemon": 130, "niveau": 43, "nom": "Léviator" },
+            { "pokemon": 3, "niveau": 45, "nom": "Florizarre" }
+          ]
+        } },
+        { "type": "dialogue", "locuteur": "Blue", "texte": "Encore toi ! Je vais devenir plus fort. On réglera ça sur la route de la Ligue !" }
+      ]
+    },
+    {
+      "id": "kanto.rival-route-victoire",
+      "declencheur": { "type": "entree-zone", "zone": "kanto.route-victoire" },
+      "si": { "non": { "type": "boss", "zone": "kanto.route-victoire" } },
+      "priorite": 0,
+      "repetable": false,
+      "etapes": [
+        { "type": "dialogue", "locuteur": "Blue", "texte": "La Route Victoire ! Tu as donc obtenu tous tes badges ? Pour aller à la Ligue, il faudra d'abord battre mon équipe !" },
+        { "type": "combat", "dresseur": "Blue", "equipes": {
+          "1": [
+            { "pokemon": 18, "niveau": 65, "nom": "Roucarnage" },
+            { "pokemon": 65, "niveau": 66, "nom": "Alakazam" },
+            { "pokemon": 111, "niveau": 67, "nom": "Rhinocorne" },
+            { "pokemon": 102, "niveau": 68, "nom": "Noeunoeuf" },
+            { "pokemon": 130, "niveau": 68, "nom": "Léviator" },
+            { "pokemon": 6, "niveau": 70, "nom": "Dracaufeu" }
+          ],
+          "4": [
+            { "pokemon": 18, "niveau": 65, "nom": "Roucarnage" },
+            { "pokemon": 65, "niveau": 66, "nom": "Alakazam" },
+            { "pokemon": 111, "niveau": 67, "nom": "Rhinocorne" },
+            { "pokemon": 102, "niveau": 68, "nom": "Noeunoeuf" },
+            { "pokemon": 58, "niveau": 68, "nom": "Caninos" },
+            { "pokemon": 9, "niveau": 70, "nom": "Tortank" }
+          ],
+          "7": [
+            { "pokemon": 18, "niveau": 65, "nom": "Roucarnage" },
+            { "pokemon": 65, "niveau": 66, "nom": "Alakazam" },
+            { "pokemon": 111, "niveau": 67, "nom": "Rhinocorne" },
+            { "pokemon": 130, "niveau": 68, "nom": "Léviator" },
+            { "pokemon": 58, "niveau": 68, "nom": "Caninos" },
+            { "pokemon": 3, "niveau": 70, "nom": "Florizarre" }
+          ]
+        } },
+        { "type": "dialogue", "locuteur": "Blue", "texte": "D'accord, tu peux passer ! Mais je compte bien devenir Maître avant toi. Rendez-vous à la Ligue !" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "evenements": [
+    {
+      "id": "kanto.pokeflute",
+      "declencheur": { "type": "boss-vaincu", "zone": "kanto.tour-pokemon" },
+      "si": { "non": { "type": "objet", "id": "pokeflute" } },
+      "priorite": 0,
+      "repetable": false,
+      "etapes": [
+        { "type": "donner", "objetCle": "pokeflute" },
+        { "type": "dialogue", "locuteur": "M. Fuji", "texte": "Merci d'avoir apaisé les Pokémon de la Tour. Prends cette Pokéflûte : sa mélodie réveille les Pokémon endormis." }
+      ]
+    },
+    {
+      "id": "kanto.pokeflute-rattrapage",
+      "declencheur": { "type": "entree-zone", "zone": "kanto.centrale" },
+      "si": { "tous": [
+        { "type": "boss", "zone": "kanto.tour-pokemon" },
+        { "non": { "type": "objet", "id": "pokeflute" } }
+      ] },
+      "priorite": 10,
+      "repetable": false,
+      "etapes": [
+        { "type": "donner", "objetCle": "pokeflute" }
+      ]
+    },
+    {
+      "id": "kanto.ronflex-blocage",
+      "declencheur": { "type": "entree-zone", "zone": "kanto.centrale" },
+      "si": { "non": { "type": "boss", "zone": "kanto.arene-de-parmanie" } },
+      "priorite": 0,
+      "repetable": false,
+      "etapes": [
+        { "type": "bloquer", "zone": "kanto.arene-de-parmanie", "sauf": "ronflex-vaincu", "raison": "Un Ronflex endormi bloque la route de Parmanie. Joue de la Pokéflûte pour le réveiller." },
+        { "type": "dialogue", "locuteur": "narration", "texte": "Un Ronflex endormi bloque la route de Parmanie. Joue de la Pokéflûte pour le réveiller." }
+      ]
+    },
+    {
+      "id": "kanto.ronflex-reveil",
+      "declencheur": { "type": "objet-utilise", "objet": "pokeflute", "zone": "kanto.centrale" },
+      "si": { "non": { "type": "drapeau", "id": "ronflex-vaincu" } },
+      "priorite": 0,
+      "repetable": false,
+      "etapes": [
+        { "type": "dialogue", "locuteur": "narration", "texte": "La mélodie de la Pokéflûte réveille Ronflex ! Il se lève et se prépare au combat." },
+        { "type": "combat", "pokemon": 143, "niveau": 45, "capture": 0, "nom": "Ronflex" },
+        { "type": "poser-drapeau", "id": "ronflex-vaincu" },
+        { "type": "dialogue", "locuteur": "narration", "texte": "Ronflex s'écarte. La route de Parmanie est libre !" }
+      ]
+    }
+  ]
+}

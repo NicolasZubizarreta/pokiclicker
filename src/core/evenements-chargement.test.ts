@@ -91,8 +91,19 @@ describe('chargement des événements', () => {
     expect(essai).toEqual(avant);
   });
 
-  it('ne contient aucun événement de production', () => {
-    expect(evenementsKanto.liste.map(e => e.id)).toEqual(['kanto.intro']);
+  it('charge exactement l’intro, les cinq rivaux et les quatre événements Ronflex', () => {
+    expect(evenementsKanto.liste.map(e => e.id)).toEqual([
+      'kanto.pokeflute-rattrapage',
+      'kanto.intro',
+      'kanto.pokeflute',
+      'kanto.rival-carmin',
+      'kanto.rival-foret',
+      'kanto.rival-route-victoire',
+      'kanto.rival-sylphe',
+      'kanto.rival-tour',
+      'kanto.ronflex-blocage',
+      'kanto.ronflex-reveil',
+    ]);
   });
 
   it.each([
