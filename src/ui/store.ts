@@ -7,6 +7,7 @@ import { avancerCombat, calculerClic, calculerDpsEquipe, cliquer, creerCombat, c
 import { acheter, chargerObjets } from '../core/boutique';
 import { blocage, commandeCourante, declencher, etapeTerminee, type CatalogueEvenements, type Commande, type Declencheur } from '../core/evenements';
 import { evenementsKanto } from '../core/evenements-kanto';
+import { nomAdversaireEvenement, zoneDeCombatEvenement, zoneDuCombat } from '../core/combat-evenement';
 import { choisirStarter, creerStarter, tirerStarters } from '../core/starter';
 import { accorderBadge, accorderJalons, actifsDe } from '../core/progression';
 import { zoneDeLigue, estZoneDeLigue, messageDefaite, messageEnchainement, nomAdversaire, enregistrerVictoireLigue } from '../core/ligue';
@@ -63,6 +64,8 @@ export type AffichageJeu = ActionsCasino & {
     sacOuvert: boolean; carteOuverte: boolean; starters: { numero: number; nom: string; shiny: boolean }[] };
   choisirStarter(numero: number): string | null;
   evenement: Commande | null;
+  objetsCles: string[];
+  utiliserObjetCle(id: string): string | null;
   terminerEtape(): void;
   progression: AffichageProgression;
   obtentionBadge: { id: string; phase: PhaseObtention } | null;
@@ -192,8 +195,11 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
   };
   const traiter = (): void => {
     if (!coeur) return;
-    region = { ...region, zoneId: coeur.zoneId, etape: coeur.etape };
+    const commande = commandeCourante(evenements, region);
+    const combatEvenement = commande?.type === 'combat' && zoneDuCombat(evenements, region) === region.zoneId;
+    if (!combatEvenement) region = { ...region, zoneId: coeur.zoneId, etape: coeur.etape };
     let sauvegarder = false;
+    let terminerCombatEvenement = false;
     let ouvrirPantheon = false;
     const bossBattus: string[] = [];
     const messagesCapture: string[] = [];
@@ -234,7 +240,8 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
           messages.push(`${nomAffiche(pokemon)} passe au niveau ${montee.niveau} !`);
         } else if (r.montees.length > 1) messages.push(`${r.montees.length} Pokémon montent de niveau !`);
         if (evenement.shiny) messages.push(`Chromatique ! +${r.bonbons} Bonbons`);
-        if (evenement.boss && estZoneDeLigue(coeur.zone)) {
+        if (combatEvenement) sauvegarder = true;
+        if (!combatEvenement && evenement.boss && estZoneDeLigue(coeur.zone)) {
           const message = messageEnchainement(coeur.zone, evenement.etape);
           if (message) messages.push(message);
           sauvegarder = true;
@@ -242,6 +249,11 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         messagesCapture.push(...messages);
       }
       if (evenement.type === 'boss-vaincu') {
+        if (combatEvenement) {
+          terminerCombatEvenement = true;
+          sauvegarder = true;
+          continue;
+        }
         const pensionOuverte = pension.accesPension(kanto, etatMondeDe(region)).ouvert;
         if (coeur.zone.id === 'kanto.ligue-pokemon' && evenement.zoneId === 'kanto.ligue-pokemon') {
           region = enregistrerVictoireLigue(region);
@@ -271,7 +283,9 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         bossBattus.push(evenement.zoneId);
       }
       if (evenement.type === 'boss-echoue') {
-        messagesCapture.push(messageDefaite(coeur.zone, coeur.etape) ?? 'Temps écoulé !');
+        messagesCapture.push(combatEvenement
+          ? `Temps écoulé ! ${'dresseur' in commande ? commande.dresseur : commande.nom ?? catalogue.parNumero(commande.pokemon).nom} reprend avec son premier Pokémon.`
+          : messageDefaite(coeur.zone, coeur.etape) ?? 'Temps écoulé !');
         if (estZoneDeLigue(coeur.zone)) sauvegarder = true;
       }
     }
@@ -290,6 +304,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       prechargerLieu();
     }
     if (sauvegarder) enregistrer();
+    if (terminerCombatEvenement && commande) appliquerEvenement(etapeTerminee(evenements, region, commande));
     for (const zone of bossBattus) executer({ type: 'boss-vaincu', zone });
   };
   const afficher = () => {
@@ -356,7 +371,10 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     };
     const ennemi = coeur ? (({ numero, niveau, pv, pvMax, boss, shiny, rarete }) => ({ numero, niveau, pv, pvMax, boss, shiny, rarete }))(coeur.ennemi) : null;
     store.setState({ pantheon, lieu, zone: coeur?.zone ?? null, etape: region.etape, ennemi, pv: ennemi?.pv ?? 0,
-      nomAdversaire: coeur ? nomAdversaire(coeur.zone, coeur.etape) : null, ligueGagnee: region.ligueGagnee,
+      nomAdversaire: coeur ? evenement?.type === 'combat' && zoneDuCombat(evenements, region) === region.zoneId
+        ? nomAdversaireEvenement(evenement, region.starterId, coeur.etape)
+        : nomAdversaire(coeur.zone, coeur.etape) : null, ligueGagnee: region.ligueGagnee,
+      objetsCles: region.objetsCles,
       intro: JSON.stringify(intro) === JSON.stringify(precedent.intro) ? precedent.intro : intro,
       evenement: JSON.stringify(evenement) === JSON.stringify(precedent.evenement) ? precedent.evenement : evenement,
       progression: afficherProgression(region, pokedex),
@@ -393,6 +411,23 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     if (imageConnue(cheminDecor(lieu))) void precharger([cheminDecor(lieu)]);
     if (!lieu.sansCombat) void prechargerZone(zoneDeLigue(lieu, region.starterId));
   };
+  const synchroniserCombatEvenement = () => {
+    const commande = commandeCourante(evenements, region);
+    const lieu = kanto.zone(region.zoneId);
+    const combatEvenement = commande?.type === 'combat' && zoneDuCombat(evenements, region) === region.zoneId;
+    if (combatEvenement && !lieu.sansCombat) {
+      const zone = zoneDeCombatEvenement(commande, lieu, region.starterId);
+      if (coeur?.zone.id === zone.id) return;
+      coeur = creerCombat(zone, region.equipe.map(versMembreEquipe), alea,
+        actifsCourants(region, horloge.maintenant()), { ...optionsCombat(), autoClic: coeur?.autoClic ?? false });
+    } else if (coeur?.zone.id.startsWith('evenement:')) {
+      coeur = lieu.sansCombat ? null : reprendreCombat(zoneDeLigue(lieu, region.starterId),
+        region.equipe.map(versMembreEquipe), alea, region.etape,
+        actifsCourants(region, horloge.maintenant()), { ...optionsCombat(), autoClic: coeur.autoClic });
+    } else return;
+    resteAutoClicMs = 0;
+    if (coeur && tempsJeuMs < finEvolutionMs) coeur = suspendreDps(coeur, finEvolutionMs - tempsJeuMs);
+  };
   const changerDeZone = (zoneId: string): void => {
     const lieu = kanto.zone(zoneId);
     const autoClic = coeur?.autoClic ?? false;
@@ -400,6 +435,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     resteAutoClicMs = 0;
     if (coeur && tempsJeuMs < finEvolutionMs) coeur = suspendreDps(coeur, finEvolutionMs - tempsJeuMs);
     region = { ...region, zoneId, etape: 1 };
+    synchroniserCombatEvenement();
     annonce = null;
     traiter();
     degats = [];
@@ -411,6 +447,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     const ancienneEtape = region.etape;
     region = suivante;
     if (region.zoneId !== ancienneZone || region.etape !== ancienneEtape) changerDeZone(region.zoneId);
+    synchroniserCombatEvenement();
     enregistrer();
   };
   const executer = (fait: Declencheur): void => {
@@ -541,6 +578,16 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       return null;
     },
     evenement: null,
+    objetsCles: [],
+    utiliserObjetCle(id) {
+      if (!initialise) return 'La partie n’est pas démarrée.';
+      if (!region.objetsCles.includes(id)) return 'Objet clé non possédé.';
+      const suivante = declencher(evenements, region, { type: 'objet-utilise', objet: id, zone: region.zoneId });
+      if (suivante === region) return "Ce n'est pas le moment d'utiliser ça !";
+      appliquerEvenement(suivante);
+      afficher();
+      return null;
+    },
     terminerEtape() {
       if (!initialise) return;
       const commande = commandeCourante(evenements, region);
@@ -719,6 +766,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
           zonesVues = new Set(kanto.zonesOuvertes(etatMondeDe(region)).map(zone => zone.id));
           const lieu = kanto.zone(region.zoneId);
           coeur = lieu.sansCombat ? null : reprendreCombat(zoneDeLigue(lieu, region.starterId), region.equipe.map(versMembreEquipe), alea, region.etape, actifsCourants(region, horloge.maintenant()), optionsCombat());
+          synchroniserCombatEvenement();
           initialise = true;
           noterDansPokedex();
           traiter();
