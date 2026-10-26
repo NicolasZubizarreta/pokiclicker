@@ -226,6 +226,18 @@ html:has(dialog[open]) { overflow: hidden; }
 @keyframes degats { to { transform: translateY(calc(var(--spacing) * -6)); opacity: 0; } }
 @keyframes fleche { to { transform: translateY(var(--spacing)); } }
 
+/* Filtres V1 : exception d’animation identique à evolution-flash. */
+.ee-retourne { rotate: 180deg; }
+.ee-arc-en-ciel { filter: hue-rotate(180deg); }
+.ee-caca { filter: sepia(1) hue-rotate(-50deg) saturate(3) brightness(0.7); }
+@utility ee-arc-en-ciel-anime {
+  animation: ee-arc-en-ciel var(--duree-carte-pulsation) linear infinite;
+}
+@keyframes ee-arc-en-ciel {
+  from { filter: hue-rotate(0deg); }
+  to { filter: hue-rotate(360deg); }
+}
+
 @utility evolution-flash {
   animation: evolution-flash var(--duree-evolution) linear forwards;
 }
