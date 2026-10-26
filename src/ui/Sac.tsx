@@ -1,7 +1,12 @@
 import { useState } from 'react';
+import { useStore } from 'zustand';
+import { chargerObjetsCles } from '../core/evenements';
 import { FiltreCategories } from './FiltreCategories';
 import { IconeObjet } from './icones';
 import type { AffichageSac } from './store-boutique';
+import { storeJeu } from './store';
+
+const catalogueObjetsCles = chargerObjetsCles();
 
 const categories = [{ cle: 'tout', nom: 'Tout' }, { cle: 'balles', nom: 'Balles' },
   { cle: 'soins', nom: 'Soins' }, { cle: 'equipement', nom: 'Équipement' }];
@@ -11,6 +16,9 @@ export function Sac({ sac, utiliser }: {
   utiliser(entree: AffichageSac['entrees'][number], declencheur: HTMLButtonElement): void;
 }) {
   const [categorie, filtrer] = useState('tout');
+  const objetsCles = useStore(storeJeu, etat => etat.objetsCles);
+  const utiliserObjetCle = useStore(storeJeu, etat => etat.utiliserObjetCle);
+  const [message, annoncer] = useState<string | null>(null);
   if (!sac.acces.ouvert) return <p className="text-texte-doux">{sac.acces.raison}</p>;
   return <section aria-label="Sac" className="cadre min-w-0 space-y-2 bg-surface p-2 text-base">
     <h2 className="font-titre text-xl font-semibold">Ton Sac</h2>
@@ -34,5 +42,19 @@ export function Sac({ sac, utiliser }: {
           </button>
         </li>)}
     </ul>
+    {objetsCles.length > 0 && <section aria-label="Objets clés" className="space-y-2">
+      <h3 className="font-titre text-xl font-semibold">Objets clés</h3>
+      <ul role="list" aria-label="Objets clés du Sac" className="grid grid-cols-2 gap-2">
+        {catalogueObjetsCles.filter(objet => objetsCles.includes(objet.id)).map(objet =>
+          <li key={objet.id} className="cadre flex min-w-0 flex-wrap items-center gap-2 bg-surface-2 p-2">
+            <IconeObjet image={null} nom={objet.nom} taille="petite" />
+            <span className="min-w-0 text-sm">{objet.nom}</span>
+            <button type="button" aria-label={`Utiliser ${objet.nom}`} title={objet.description}
+              className="cadre min-h-11 min-w-11 bg-surface p-2 hover:bg-selection"
+              onClick={() => annoncer(utiliserObjetCle(objet.id))}>Utiliser</button>
+          </li>)}
+      </ul>
+      <p role="status">{message ?? ''}</p>
+    </section>}
   </section>;
 }

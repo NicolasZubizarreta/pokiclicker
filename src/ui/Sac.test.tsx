@@ -1,8 +1,13 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import { afterEach, expect, it, vi } from 'vitest';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Sac } from './Sac';
 import type { AffichageSac } from './store-boutique';
+import { storeJeu } from './store';
+import { commandeCourante, declencher, etapeTerminee } from '../core/evenements';
+import { evenementsKanto } from '../core/evenements-kanto';
+import { regionInitiale } from '../core/sauvegarde';
 
 const sac: AffichageSac = { acces: { ouvert: true, raison: null }, entrees: [
   { id: 'pokeball', nom: 'Pokéball', description: 'Capture un Pokémon.', image: 'img/objets/pokeball.png',
@@ -92,4 +97,65 @@ it.each(['stase', 'jeton', 'direct'] as const)('transmet le nouvel usage %s sans
   expect(utiliser).toHaveBeenCalledWith(entree, bouton);
   expect(container.querySelector('button button')).toBeNull();
   expect(container.querySelectorAll('.bg-action')).toHaveLength(0);
+});
+
+describe('objets clés', () => {
+  let avant: ReturnType<typeof storeJeu.getState>;
+  beforeEach(() => {
+    avant = storeJeu.getState();
+    storeJeu.setState({ objetsCles: [] });
+  });
+  afterEach(() => { storeJeu.setState(avant); });
+
+  it('masque la section sans objet clé', () => {
+    render(<Sac sac={sac} utiliser={vi.fn()} />);
+    expect(screen.queryByRole('region', { name: 'Objets clés' })).toBeNull();
+    expect(screen.queryByText('Objets clés')).toBeNull();
+  });
+
+  it('affiche la Pokéflûte obtenue après la Tour, même avec un filtre du Sac', () => {
+    render(<Sac sac={sac} utiliser={vi.fn()} />);
+    let region = declencher(evenementsKanto, regionInitiale('kanto', 'kanto.tour-pokemon'),
+      { type: 'boss-vaincu', zone: 'kanto.tour-pokemon' });
+    for (let i = 0; i < 10; i++) {
+      const commande = commandeCourante(evenementsKanto, region);
+      if (commande?.type !== 'dialogue') break;
+      region = etapeTerminee(evenementsKanto, region, commande);
+    }
+    act(() => { storeJeu.setState({ objetsCles: region.objetsCles }); });
+    fireEvent.click(screen.getByRole('button', { name: 'Soins' }));
+    expect(screen.getByRole('region', { name: 'Objets clés' })).toBeTruthy();
+    expect(screen.getByRole('img', { name: 'Pokéflûte' }).tagName).toBe('svg');
+    const bouton = screen.getByRole('button', { name: 'Utiliser Pokéflûte' });
+    expect(bouton.textContent).toContain('Utiliser');
+    expect(bouton.className).toContain('min-h-11');
+    expect(bouton.className).toContain('min-w-11');
+  });
+
+  it('appelle une fois le store par clic et annonce le refus, puis efface la raison au succès', async () => {
+    const utiliserObjetCle = vi.fn().mockReturnValueOnce("Ce n'est pas le moment d'utiliser ça !").mockReturnValue(null);
+    storeJeu.setState({ objetsCles: ['pokeflute'], utiliserObjetCle });
+    render(<Sac sac={sac} utiliser={vi.fn()} />);
+    const bouton = screen.getByRole('button', { name: 'Utiliser Pokéflûte' });
+    await userEvent.click(bouton);
+    expect(utiliserObjetCle).toHaveBeenCalledTimes(1);
+    expect(utiliserObjetCle).toHaveBeenCalledWith('pokeflute');
+    expect(screen.getByRole('status').textContent).toBe("Ce n'est pas le moment d'utiliser ça !");
+    await userEvent.click(bouton);
+    expect(utiliserObjetCle).toHaveBeenCalledTimes(2);
+    expect(screen.queryByText("Ce n'est pas le moment d'utiliser ça !")).toBeNull();
+  });
+
+  it.each(['{Enter}', ' '])('permet un usage unique au clavier avec %s', async touche => {
+    const utiliserObjetCle = vi.fn().mockReturnValue(null);
+    storeJeu.setState({ objetsCles: ['pokeflute'], utiliserObjetCle });
+    render(<Sac sac={sac} utiliser={vi.fn()} />);
+    const utilisateur = userEvent.setup();
+    const bouton = screen.getByRole('button', { name: 'Utiliser Pokéflûte' });
+    for (let i = 0; i < 10 && document.activeElement !== bouton; i++) await utilisateur.tab();
+    expect(document.activeElement).toBe(bouton);
+    await utilisateur.keyboard(touche);
+    expect(utiliserObjetCle).toHaveBeenCalledTimes(1);
+    expect(utiliserObjetCle).toHaveBeenCalledWith('pokeflute');
+  });
 });
