@@ -1,50 +1,84 @@
-@import "../_base/base.css";
-body { padding:calc(var(--spacing) * 4); }
-main { display:grid; justify-items:center; gap:calc(var(--spacing) * 2); margin-inline:auto; max-width:var(--breakpoint-xl); width:100%; min-width:0; }
-button,a { font:inherit; min-height:calc(var(--spacing) * 11); padding:calc(var(--spacing) * 2); border:0; border-radius:var(--rayon); }
-button { background:var(--surface-2); box-shadow:var(--shadow-sm); }
-a { color:var(--lien); display:inline-flex; align-items:center; }
-button:hover { background:var(--selection); }
-button:active { transform:translateY(calc(var(--spacing) / 2)); }
-[aria-pressed="true"],[aria-current] { background:var(--selection); color:var(--region-accent); text-decoration:underline; }
-.variantes,.outils { display:flex; flex-wrap:wrap; justify-content:center; gap:var(--spacing); }
-.ceremonie { display:grid; justify-items:center; gap:calc(var(--spacing) * 2); width:100%; min-width:0; }
-h1 { text-align:center; color:var(--region-accent); }
-.scene { position:relative; width:min(100%, calc(100dvh - var(--spacing) * 124), calc(var(--spacing) * 144)); min-width:0; min-height:0; aspect-ratio:1; background:var(--surface-2); display:grid; align-items:center; padding:calc(var(--spacing) * 2); }
-.socles { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:calc(var(--spacing) * 4) 0; }
-.place { min-width:0; text-align:center; position:relative; }
-.pokemon { position:relative; width:calc(var(--spacing) * 24); margin-inline:auto; overflow:hidden; }
-.pokemon::before { content:""; position:absolute; inset:auto var(--spacing) 0; height:calc(var(--spacing) * 4); border-radius:var(--radius-plein); background:var(--region-socle); box-shadow:var(--shadow-md); }
-.sprite { position:relative; width:calc(var(--spacing) * 24); height:calc(var(--spacing) * 24); object-fit:contain; }
-.shiny img { outline:calc(var(--spacing) / 4) solid var(--region-accent); border-radius:var(--radius-plein); }
-.identite,.honneur > div { display:grid; font-size:var(--text-base); }
-.etoile { color:var(--region-accent); }
-.dialogue { display:flex; align-items:center; gap:calc(var(--spacing) * 2); padding:calc(var(--spacing) * 3); background:var(--surface); width:min(100%,calc(var(--spacing) * 144)); }
-.dialogue > div { min-width:0; }
-.chen { flex-shrink:0; width:calc(var(--spacing) * 20); height:calc(var(--spacing) * 24); }
-.dialogue button { margin-top:var(--spacing); }
-.action { background:var(--action); color:var(--action-texte); padding-inline:calc(var(--spacing) * 8); }
-.action:hover { background:var(--action-survol); }
-#sortir { min-width:calc(var(--spacing) * 40); }
-#statut { text-align:center; }
-.note { color:var(--texte-doux); text-align:center; }
-.honneur { display:none; }
-body:not([data-etat="dialogue"]) .dialogue { display:none; }
-[data-etat="dialogue"] .socles { visibility:hidden; }
-[data-etat="chute"] .pokemon img { animation:chute var(--duree-carte-pulsation) var(--ease-sortie) infinite; }
-[data-etat="chute"] .place:nth-child(even) .pokemon img { animation-delay:var(--duree-signal); }
-@keyframes chute { from { transform:translateY(calc(var(--spacing) * -24)); opacity:0; } to { transform:translateY(0); opacity:1; } }
-[data-reduit="true"] .pokemon img { animation:none; }
-[data-variante="a"][data-etat="dialogue"] .scene { width:min(100%,calc(var(--spacing) * 64)); }
-[data-variante="b"] .scene { width:min(100%,calc(var(--spacing) * 80)); }
-[data-variante="b"] .identite { display:none; }
-[data-variante="b"] .honneur { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:calc(var(--spacing) * 2); padding:calc(var(--spacing) * 3); background:var(--surface); width:min(100%,calc(var(--spacing) * 144)); }
-[data-variante="b"][data-etat="dialogue"] .honneur { display:none; }
-[data-variante="c"] .scene { align-items:start; }
-[data-variante="c"] .socles { padding-top:calc(var(--spacing) * 2); }
-[data-variante="c"] .dialogue { position:absolute; bottom:0; inset-inline:0; width:100%; }
-[data-variante="c"] .place:not(.eclaire) .pokemon::before { background:var(--bordure); }
-[data-variante="c"] .eclaire .pokemon::before { outline:calc(var(--spacing) / 2) solid var(--region-accent); }
-[data-variante="c"][data-etat="dialogue"] .socles { visibility:visible; }
-[data-variante="c"][data-etat="dialogue"] .socles .place:nth-child(n+4) { visibility:hidden; }
-@media (min-width:64rem) { body { padding:calc(var(--spacing) * 8); } }
+@import "../../tokens.css";
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--fond); color: var(--texte); font: 14px/1.4 var(--font-texte); }
+button, a { font: inherit; color: var(--texte); }
+button { cursor: pointer; background: var(--surface); border: 1px solid var(--bordure); border-radius: var(--radius-md); padding: 8px 12px; min-height: 44px; }
+a { display: inline-flex; align-items: center; min-height: 36px; padding: 4px 8px; color: var(--lien); }
+button:hover, [aria-pressed="true"], [aria-current] { background: var(--selection); }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.commandes { position: relative; z-index: 10; padding: 8px; }
+.variantes, .outils { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; }
+.ceremonie { position: relative; margin: 0 auto; width: fit-content; max-width: 100%; overflow: hidden; }
+.scene { position: relative; width: min(100vw, calc(100dvh - 160px)); aspect-ratio: 1; overflow: hidden; }
+.monde { position: absolute; inset: 0; }
+.decor { display: block; width: 100%; height: 100%; object-fit: cover; }
+.place { position: absolute; aspect-ratio: 1; transform: translateX(-50%); visibility: hidden; text-align: center; }
+.place.visible { visibility: visible; }
+.pokemon { width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
+.identite { position: absolute; top: var(--niveau); left: 50%; transform: translateX(-50%); visibility: hidden; font-size: clamp(9px, 1.2vw, 15px); background: var(--fond); padding: 2px 5px; border-radius: var(--radius-sm); white-space: nowrap; }
+.identite span:not(.etoile) { display: block; }
+.nom-visible .identite { visibility: visible; }
+.etoile { color: var(--alerte-base); }
+.halo-shiny { filter: drop-shadow(calc(var(--spacing) / 4) 0 0 var(--alerte-base)) drop-shadow(calc(var(--spacing) / -4) 0 0 var(--alerte-base)) drop-shadow(0 calc(var(--spacing) / 4) 0 var(--alerte-base)) drop-shadow(0 calc(var(--spacing) / -4) 0 var(--alerte-base)) brightness(1.1); }
+h1 { position: absolute; top: 4%; left: 8%; width: 84%; margin: 0; text-align: center; font: bold clamp(20px, 3vw, 38px)/1.15 var(--font-titre); color: var(--color-secondaire-200); background: var(--fond); padding: 12px; }
+#sortir { position: absolute; bottom: 5%; left: 50%; transform: translateX(-50%); background: var(--action); color: var(--action-texte); min-width: 140px; }
+.dialogue { position: absolute; z-index: 3; bottom: 3%; left: 4%; width: 92%; display: flex; align-items: end; }
+.chen { width: 22%; image-rendering: pixelated; object-fit: contain; }
+.bulle { flex: 1; min-width: 0; background: var(--surface); border: 2px solid var(--bordure); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); padding: 12px; }
+.bulle strong { color: var(--color-secondaire-300); }
+.bulle p { min-height: 4.2em; margin: 8px 0; }
+#suite { float: right; }
+.bulle::after { content: ''; display: block; clear: both; }
+.honneur, .spot { display: none; }
+#statut { position: relative; z-index: 5; text-align: center; margin: 8px auto; max-width: 90vw; min-height: 20px; }
+body[data-etat="dialogue"] #statut { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.effets, .rideau { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 4; }
+.rideau { background: var(--fond); opacity: 0; z-index: 6; }
+.confetti { position: absolute; top: -10px; width: 6px; height: 10px; background: var(--teinte); animation: confetti linear forwards; }
+.feu { position: absolute; width: 8px; aspect-ratio: 1; border-radius: var(--radius-plein); border: 2px dotted var(--teinte); animation: feu ease-out forwards; }
+@keyframes confetti { to { transform: translate(50px, 100vh) rotate(720deg); } }
+@keyframes feu { to { transform: scale(14); opacity: 0; } }
+body[data-variante="b"] .ceremonie { display: grid; grid-template-columns: minmax(0, 1fr) 310px; align-items: center; gap: 16px 24px; padding: 0 20px; }
+body[data-variante="b"] .scene { width: min(56vw, calc(100dvh - 330px)); }
+body[data-variante="b"] .dialogue { position: relative; grid-column: 1 / -1; grid-row: 1; left: auto; bottom: auto; width: 100%; max-width: 800px; justify-self: center; }
+body[data-variante="b"] .chen { width: 72px; height: 110px; }
+body[data-variante="b"] .bulle { border-color: var(--color-secondaire-500); }
+body[data-variante="b"] .bulle p { min-height: 2.8em; }
+body[data-variante="b"] .honneur { display: block; align-self: stretch; background: var(--surface); border: 3px double var(--color-secondaire-400); padding: 18px; box-shadow: var(--shadow-lg); }
+.honneur h2 { font-family: var(--font-titre); color: var(--color-secondaire-300); margin: 0; }
+.honneur p { color: var(--texte-doux); }
+.honneur ol { padding: 0; margin: 0; list-style: none; }
+.honneur li { display: grid; grid-template-columns: 44px 1fr auto; gap: 8px; align-items: center; min-height: 60px; border-top: 1px solid var(--bordure); visibility: hidden; }
+.honneur li.visible { visibility: visible; }
+.honneur img { width: 44px; image-rendering: pixelated; }
+body[data-variante="b"] .identite { display: none; }
+body[data-variante="c"] .ceremonie { position: fixed; inset: 0; width: 100%; max-width: none; }
+body[data-variante="c"] .scene { width: 100%; height: 100%; aspect-ratio: auto; }
+body[data-variante="c"] .monde { width: max(100vw, 100dvh); height: max(100vw, 100dvh); inset: auto; left: calc((100vw - max(100vw, 100dvh)) / 2); top: 50%; translate: 0 -50%; transition: left 1.5s ease, transform-origin 1.8s ease; }
+body[data-variante="c"] .commandes { background: var(--fond); width: fit-content; max-width: 100%; margin: auto; }
+body[data-variante="c"] h1 { top: 17%; }
+body[data-variante="c"] .dialogue { left: 4%; bottom: 0; width: min(850px, 92%); align-items: center; }
+body[data-variante="c"] .chen { width: clamp(150px, 25vw, 350px); height: min(55dvh, 500px); }
+body[data-variante="c"] .bulle { position: relative; border-color: var(--color-secondaire-300); }
+body[data-variante="c"] .bulle::before { content: ''; position: absolute; width: 16px; height: 16px; background: var(--surface); border-left: 2px solid var(--color-secondaire-300); border-bottom: 2px solid var(--color-secondaire-300); left: -10px; top: 50%; transform: rotate(45deg); }
+body[data-variante="c"] .identite { top: -30%; font-size: clamp(12px, 1.3vw, 18px); }
+body[data-variante="c"] .place:not(.active) .identite { visibility: hidden; }
+body[data-variante="c"] .spot { display: block; position: absolute; width: 30%; aspect-ratio: 1; translate: -50% -50%; background: radial-gradient(circle, color-mix(in srgb, var(--color-secondaire-200) 45%, transparent), transparent 65%); transition: left 1s, top 1s; pointer-events: none; }
+body[data-variante="c"][data-etat="dialogue"] .spot { display: none; }
+body[data-variante="c"] #statut { position: fixed; bottom: 0; left: 5%; width: 90%; background: var(--fond); }
+body[data-reduit="true"] * { animation: none !important; transition: none !important; }
+@media (max-width: 700px) {
+  .commandes { font-size: 12px; }
+  .scene { width: 100vw; }
+  .bulle { padding: 8px; font-size: 12px; }
+  body[data-variante="b"] .ceremonie { grid-template-columns: minmax(0, 1fr); gap: 10px; padding: 0 10px; width: 100%; }
+  body[data-variante="b"] .scene { width: 100%; }
+  body[data-variante="b"] .dialogue { grid-column: 1; }
+  body[data-variante="b"] .honneur { padding: 10px; }
+  .honneur li { min-height: 42px; grid-template-columns: 36px 1fr auto; }
+  .honneur img { width: 36px; }
+  .honneur p { margin: 4px 0; }
+  body[data-variante="c"] .dialogue { left: 0; width: 98%; }
+  body[data-variante="c"] .chen { width: 34%; }
+}
