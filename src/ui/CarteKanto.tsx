@@ -175,7 +175,7 @@ export function CarteKanto({ quandArrive, quandCentre }: { quandArrive: () => vo
       </svg>
       {vol.actif && !reduit && <VolGen1 ms={vol.ms} />}
       </div>
-      {vol.actif && <p role="status" className="sr-only">Vol en cours vers {carte.formes.find(f => f.zone === vol.cible)?.nom}…</p>}
+      {vol.actif && <p role="status" className="sr-only">Vol en cours vers {vol.cible === 'centre-commercial' ? 'Centre commercial' : carte.formes.find(f => f.zone === vol.cible)?.nom}…</p>}
       <section aria-label="Zone sélectionnée" className="carte-bande-reservee mt-2 bg-surface-2 p-4 text-base">
         {nouvelles.length > 0 && !choisie && <p role="status" className="mb-2">
           Zone débloquée ! {carte.formes.filter(f => f.zone && nouvelles.includes(f.zone)).map(f => f.nom).join(', ')}
@@ -190,7 +190,8 @@ export function CarteKanto({ quandArrive, quandCentre }: { quandArrive: () => vo
                 disabled={vol.actif} onClick={() => lancer(choisie.zone!, actuelle?.forme ?? null)}>{choisie.nom === 'Céladopole' ? 'Arène' : 'Y aller'}</button>}
           {choisie.nom === 'Céladopole' && <div className="mt-2 grid gap-2">
             <div>
-              <button type="button" disabled={!centreOuvert} onClick={quandCentre}
+              <button type="button" data-centre disabled={!centreOuvert || vol.actif}
+                onClick={() => lancer('centre-commercial', actuelle?.forme ?? null, quandCentre)}
                 aria-describedby={!centreOuvert && raisonCentre ? 'carte-commerce' : undefined}
                 className={`min-h-11 min-w-11 px-4 py-2 ${centreOuvert
                   ? 'bg-action text-action-texte shadow-sm hover:bg-action-survol' : 'bg-surface text-texte-doux'}`}>Centre commercial</button>

@@ -19,7 +19,7 @@ export function useVol(allerVers: (zone: string) => void, quandArrive: () => voi
   const minuteurs = useRef<ReturnType<typeof setTimeout>[]>([]);
   useEffect(() => () => { minuteurs.current.forEach(clearTimeout); }, []);
 
-  function lancer(cible: string, depart: FormeCarte | null = null) {
+  function lancer(cible: string, depart: FormeCarte | null = null, ouvrirLieu?: () => void) {
     if (actif.current) return;
     actif.current = true;
     changer({ actif: true, ms: 0, cible, depart });
@@ -32,11 +32,11 @@ export function useVol(allerVers: (zone: string) => void, quandArrive: () => voi
     ];
     minuteurs.current = [...new Set(seuils)].map(ms => setTimeout(() => {
       const etape = etapeVol(ms);
-      if (ms === changement && (reduit || etape.changerZone)) allerVers(cible);
+      if (!ouvrirLieu && ms === changement && (reduit || etape.changerZone)) allerVers(cible);
       if (ms === fin && (reduit || etape.fini)) {
         actif.current = false;
         changer(inactif);
-        quandArrive();
+        (ouvrirLieu ?? quandArrive)();
       } else changer({ actif: true, ms, cible, depart });
     }, ms));
   }

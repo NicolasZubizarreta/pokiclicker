@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { CarteKanto } from './CarteKanto';
 import { storeJeu } from './store';
+import { reglages } from '../core/reglages';
 
 const raison = 'Bats le boss de Tour Pokémon.';
 
@@ -43,6 +44,7 @@ it('appelle une seule fois quandCentre par clic lorsque le Centre est ouvert', a
   expect(bouton.disabled).toBe(false);
   expect(bouton.hasAttribute('aria-describedby')).toBe(false);
   await userEvent.click(bouton);
+  await act(async () => { await new Promise(resolve => setTimeout(resolve, reglages.interface.vol.poseMs + reglages.interface.vol.volMs + reglages.interface.vol.fermetureMs)); });
   expect(quandCentre).toHaveBeenCalledTimes(1);
   const casino = screen.getByRole<HTMLButtonElement>('button', { name: 'Casino', description: 'Bientôt disponible.' });
   expect(casino.disabled).toBe(true);
@@ -60,6 +62,7 @@ it.each(['{Enter}', ' '])('active le Centre au clavier avec %s', async touche =>
   await utilisateur.tab();
   expect(document.activeElement).toBe(bouton);
   await utilisateur.keyboard(touche);
+  await act(async () => { await new Promise(resolve => setTimeout(resolve, reglages.interface.vol.poseMs + reglages.interface.vol.volMs + reglages.interface.vol.fermetureMs)); });
   expect(quandCentre).toHaveBeenCalledTimes(1);
 });
 

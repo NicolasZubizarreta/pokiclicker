@@ -24,6 +24,22 @@ afterEach(() => {
 });
 const avancer = (ms: number) => act(() => { vi.advanceTimersByTime(ms); });
 
+it.each([false, true])('vole vers un lieu sans changer de zone (réduit : %s)', reduit => {
+  vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: reduit })));
+  const aller = vi.fn(), arrive = vi.fn(), ouvrir = vi.fn();
+  const { result } = renderHook(() => useVol(aller, arrive));
+  act(() => result.current.lancer('centre-commercial', null, ouvrir));
+  const vol = reglages.interface.vol;
+  const fin = reduit ? vol.fonduReduitMs : vol.poseMs + vol.volMs + vol.fermetureMs;
+  avancer(fin - 1);
+  expect(ouvrir).not.toHaveBeenCalled();
+  avancer(1);
+  expect(ouvrir).toHaveBeenCalledTimes(1);
+  expect(aller).not.toHaveBeenCalled();
+  expect(arrive).not.toHaveBeenCalled();
+  expect(result.current.etat.actif).toBe(false);
+});
+
 it('ignore deux lancements rapprochés et respecte les seuils puis revient inactif', () => {
   const aller = vi.fn(), arrive = vi.fn();
   const { result } = renderHook(() => useVol(aller, arrive));
