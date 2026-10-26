@@ -82,6 +82,8 @@ async function vaincre(page: Page, nom: string) {
   await expect(page.getByRole('heading', { name: nom, exact: true })).toBeVisible();
   await page.getByRole('button', { name: /^Attaquer / }).click();
   await page.clock.runFor(100);
+  // Le Pokémon suivant apparaît après `delais.ennemiSuivantMs` (2 000 ms).
+  await page.clock.runFor(2100);
 }
 
 for (const largeur of [390, 1440]) {
