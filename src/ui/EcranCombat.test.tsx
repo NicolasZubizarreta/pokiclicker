@@ -20,6 +20,7 @@ it('transmet l’accès pension du store et garde Bourg Palette après le clic',
   const pension = screen.getByRole('button', { name: 'Pension Pokémon' });
   expect(pension.hasAttribute('aria-disabled')).toBe(false);
   fireEvent.click(pension);
+  fireEvent.click(screen.getByRole('button', { name: 'Sortir de la pension' }));
   act(() => vi.advanceTimersByTime(450));
   expect(screen.getByRole('region', { name: 'Bourg Palette' })).toBeTruthy();
   expect(store.getState().lieu?.id).toBe('kanto.bourg-palette');

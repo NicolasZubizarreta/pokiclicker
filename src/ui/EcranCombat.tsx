@@ -10,6 +10,7 @@ import { CarteEquipe } from './CarteEquipe';
 import { DegatsFlottants } from './DegatsFlottants';
 import { DialogueChen } from './DialogueChen';
 import { ScenesBourgPalette } from './ScenesBourgPalette';
+import { PagePension } from './PagePension';
 import { kanto } from '../core/regions';
 import { Etapes } from './Etapes';
 import { Image, imageConnue } from './Image';
@@ -28,10 +29,6 @@ const catalogue = chargerPokemon();
 const formateurArgent = new Intl.NumberFormat('fr-FR');
 const sousTitres: Record<string, string> = { 'kanto.route-1': 'Jadielle' };
 
-function ouvrirPension() {
-  // La page de la pension attend le choix de Nicolas parmi 3 variantes.
-}
-
 function Entete({ store }: { store: StoreJeu }) {
   const lieu = useStore(store, etat => etat.lieu);
   const zone = useStore(store, etat => etat.zone);
@@ -43,7 +40,7 @@ function Entete({ store }: { store: StoreJeu }) {
   </header>;
 }
 
-function Scene({ store }: { store: StoreJeu }) {
+function Scene({ store, ouvrirPension }: { store: StoreJeu; ouvrirPension(): void }) {
   const secousse = useRef<HTMLDivElement>(null);
   const attaquer = () => {
     if (!store.getState().attaquer()) return;
@@ -176,17 +173,30 @@ function CommandesCombat({ store }: { store: StoreJeu }) {
 }
 
 export function EcranCombat({ store = storeJeu }: { store?: StoreJeu }) {
+  const [pensionOuverte, ouvrirPension] = useState(false);
+  const cadre = useRef<HTMLDivElement>(null);
+  const rendreFocus = useRef(false);
   const erreur = useStore(store, etat => etat.erreur);
   const fatale = useStore(store, etat => etat.erreurChargement);
-  return <>
+  useEffect(() => {
+    if (!pensionOuverte && rendreFocus.current) {
+      cadre.current?.querySelector<HTMLButtonElement>('button[aria-label="Pension Pokémon"]')?.focus();
+      rendreFocus.current = false;
+    }
+  }, [pensionOuverte]);
+  if (pensionOuverte) return <PagePension store={store} retour={() => {
+    rendreFocus.current = true;
+    ouvrirPension(false);
+  }} />;
+  return <div ref={cadre}>
     {erreur && <div role="alert" className="cadre mb-4 bg-surface p-4">
       {fatale && <p>{ERREUR_CHARGEMENT}</p>}<p>{erreur.split('\n')[0]}</p>
       {erreur.includes('\n') && <p className="mt-2 break-words text-sm">{erreur.slice(erreur.indexOf('\n') + 1)}</p>}
     </div>}
     {!fatale && <><Entete store={store} /><div className="combat-grille grid gap-2 lg:grid-cols-4 lg:gap-4">
-      <Scene store={store} />
+      <Scene store={store} ouvrirPension={() => ouvrirPension(true)} />
       <CommandesCombat store={store} />
       <Equipe store={store} /><DialogueChen store={store} />
     </div></>}
-  </>;
+  </div>;
 }

@@ -1,0 +1,10 @@
+@keyframes pension-battre {
+  to { transform: scale(calc(1 + 1 / 8)); }
+}
+@keyframes pension-rebond {
+  to { transform: translateY(calc(var(--spacing) * -2)); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .pension-coeur { animation: pension-battre var(--duree-signal) var(--ease-standard) infinite alternate; }
+  .pension-oeuf { animation: pension-rebond var(--duree-signal) var(--ease-standard) infinite alternate; }
+}
