@@ -587,7 +587,7 @@ Fourchette : 2 à 3 jours. Risque : équilibrage des minuteurs (30 s) à confirm
 
 ## R. `feat(pantheon): Panthéon, fondu, socles, chute des Pokémon et confettis`
 
-Labels : `type:feat`, `etat:idee`, `est:2-3`, `prio:2` · branche : `v2` · `agent-ok` : oui
+Labels : `type:feat`, `etat:en_cours`, `est:2-3`, `prio:2` · branche : `v2` · `agent-ok` : oui
 
 ### Histoire
 En tant que joueur, je veux voir mon équipe honorée au Panthéon après la Ligue afin de ressentir la fin du parcours.
@@ -616,7 +616,7 @@ Fourchette : 2 à 3 jours (hors choix des variantes). Risque : animation séquen
 
 ## S. `feat(scenes): rival, Ronflex et Pokéflûte`
 
-Labels : `type:feat`, `etat:idee`, `est:2-3`, `prio:3` · branche : `v2` · `agent-ok` : non (prêt sous condition : décisions de Nicolas sur l'ADR 0002)
+Labels : `type:feat`, `etat:fait`, `est:2-3`, `prio:3` · branche : `v2` · `agent-ok` : oui (décisions de Nicolas du 25/10 appliquées ; fait le 26/10, CI verte, e2e `scenes.spec.ts`)
 
 ### Histoire
 En tant que joueur, je veux des rencontres avec le rival et un obstacle (Ronflex) levé par la Pokéflûte afin que Kanto ne soit pas qu'une suite de zones.
@@ -625,9 +625,9 @@ En tant que joueur, je veux des rencontres avec le rival et un obstacle (Ronflex
 V1 : `legacy/js/game/rival.js`, `snorlax.js` (le rival et Ronflex ne sont pas dans les 22 zones). **Nouveau en V2** : la Pokéflûte comme objet clé et Ronflex comme obstacle (tel que décidé en phase 2 ; la V1 gère Ronflex autrement). **Règles V1 à vérifier** : rival aux Blue de Route 22, Azuria, Lavanville, Safrania (équipes selon le starter choisi) ; Ronflex bloque la route entre deux zones tant que la flûte manque. **Ce ticket n'est pas prêt** : l'ADR 0002 a trois points ouverts (conditions multi-drapeaux, reprise en combat, objets clés) ; Nicolas doit les trancher et dire où, dans Kanto, tombent les rencontres exactes. Pas de `agent-ok` tant que ce n'est pas fait.
 
 ### Critères d'acceptation
-- [ ] Étant donné chaque rencontre du rival, quand je l'atteins, alors l'équipe du rival dépend du starter du joueur selon la table de la V1 (test des trois starters) ; la défaite du rival ne bloque pas la progression, la victoire donne la récompense de la V1.
-- [ ] Étant donné Ronflex, quand j'essaie de passer sans Pokéflûte, alors l'accès est `bloquer`é avec la raison en français ; la Pokéflûte s'obtient à l'endroit décidé (objet clé, non achetable) et, une fois utilisée, Ronflex devient un combat de boss (capturable ou non selon la décision de Nicolas).
-- [ ] Étant donné un rechargement après la rencontre, quand je rouvre, alors le drapeau est conservé et la scène ne se rejoue pas.
+- [x] Étant donné chaque rencontre du rival (5 : Forêt de Jade, Arène de Carmin, Tour Pokémon, Sylphe SARL, Route Victoire ; contenu V2 inspiré des jeux, la V1 n'a pas de rival), quand je l'atteins, alors l'équipe dépend du starter (test des trois starters) ; le rival est obligatoire pour passer (décision de Nicolas du 25/10), une défaite renvoie au premier Pokémon du rival ; ces combats n'écrivent ni badge, ni `bossVaincus`, ni `ligueGagnee`, et n'ouvrent pas le Panthéon.
+- [x] Étant donné Ronflex, quand j'essaie de passer sans Pokéflûte, alors l'accès est bloqué avec la raison en français ; la Pokéflûte (objet clé, non achetable) se donne à la Tour Pokémon, se joue depuis le Sac « Objets clés », réveille Ronflex puis combat ; une fois battu, la route s'ouvre.
+- [x] Étant donné un rechargement après la rencontre, quand je rouvre, alors le drapeau est conservé et la scène ne se rejoue pas (e2e `scenes.spec.ts` à 390 et 1440 px).
 
 ### Hors périmètre
 Autres objets clés (Vélo, Canne : absents de la V1), quêtes annexes.
@@ -728,7 +728,7 @@ Fourchette : 3 jours. Risque : état de jeu intermédiaire (main de blackjack) �
 
 ## W. `feat(easter-eggs): easter eggs de renommage en données`
 
-Labels : `type:feat`, `etat:idee`, `est:1`, `prio:3` · branche : `v2` · `agent-ok` : oui (sous réserve des assets)
+Labels : `type:feat`, `etat:en_cours`, `est:1`, `prio:3` · branche : `v2` · `agent-ok` : oui (sous réserve des assets)
 
 ### Histoire
 En tant que joueur, je veux retrouver les surprises cachées de la V1 quand je renomme un Pokémon afin de garder l'esprit du jeu.
@@ -756,7 +756,7 @@ Fourchette : 1 jour. Risque : assets (images de stade, vidéo) à reprendre de l
 
 ## X. `feat(fin): fin de partie, diplôme, défi secret de Chen et crédits`
 
-Labels : `type:feat`, `etat:idee`, `est:3`, `prio:3` · branche : `v2` · `agent-ok` : oui (hors jalon 2)
+Labels : `type:feat`, `etat:en_cours`, `est:3`, `prio:3` · branche : `v2` · `agent-ok` : oui (hors jalon 2)
 
 ### Histoire
 En tant que joueur, je veux une vraie fin quand j'ai complété le Pokédex afin de ressentir l'accomplissement.
