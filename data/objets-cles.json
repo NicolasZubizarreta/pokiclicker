@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "objets": [
+    {
+      "id": "pokeflute",
+      "nom": "Pokéflûte",
+      "description": "Une flûte qui réveille les Pokémon endormis.",
+      "image": null
+    }
+  ]
+}

@@ -1,3 +1,4 @@
+import donneesObjetsCles from '../../data/objets-cles.json';
 import { chargerObjets } from './boutique';
 import { evaluer, valider, type Condition, type ResultatCondition } from './conditions';
 import type { chargerMonde } from './monde';
@@ -6,6 +7,14 @@ import { reglages } from './reglages';
 import { chaine, exiger, forme, identifiant, objet } from './sauvegarde-validation';
 import { etatMondeDe } from './sauvegarde';
 import type { DonneesRegion } from './sauvegarde-types';
+
+export type ObjetCle = { id: string; nom: string; description: string; image: string | null };
+
+export function chargerObjetsCles(): ObjetCle[] {
+  return structuredClone(donneesObjetsCles.objets);
+}
+
+export type MembreEquipe = { pokemon: number; niveau: number; nom: string };
 
 export type Declencheur =
   | { type: 'debut-partie' }
@@ -20,6 +29,8 @@ export type Etape =
   | { type: 'poser-drapeau'; id: string }
   | { type: 'bloquer'; zone: string; sauf: string; raison: string }
   | { type: 'combat'; pokemon: number; niveau: number; capture?: number; nom?: string }
+  | { type: 'combat'; dresseur: string; equipes: Record<'1' | '4' | '7', MembreEquipe[]>;
+      pokemon?: never; niveau?: never; capture?: never; nom?: never }
   | { type: 'deplacer'; zone: string };
 
 export type Evenement = {
@@ -178,14 +189,27 @@ export function chargerEvenements(
   pokemon = chargerPokemon(),
 ): CatalogueEvenements {
   const index = new Map<string, Evenement>();
+  const objetsCles = chargerObjetsCles();
   const zone = (v: unknown) => { identifiant(v); monde.zone(v); };
   const objetInventaire = (v: unknown) => {
     identifiant(v);
     exiger(objets.some(o => o.inventaire === v), `Objet inconnu : ${v}`);
   };
+  const objetConnu = (v: unknown) => {
+    identifiant(v);
+    exiger(objets.some(o => o.inventaire === v) || objetsCles.some(o => o.id === v), `Objet inconnu : ${v}`);
+  };
   const numeroPokemon = (v: unknown) => {
     positif(v);
     exiger(pokemon.parNumero(v as number), `Pokémon inconnu : ${v}`);
+  };
+  const niveau = (n: unknown) => {
+    positif(n);
+    exiger((n as number) <= reglages.recompenses.niveauMax, 'Niveau supérieur au maximum');
+  };
+  const equipe = (v: unknown) => {
+    exiger(Array.isArray(v) && v.length >= 1 && v.length <= 6, 'Équipe attendue : de 1 à 6 Pokémon');
+    for (const membre of v) forme(membre, { pokemon: numeroPokemon, niveau, nom: chaine });
   };
   function declencheur(v: unknown) {
     objet(v);
@@ -193,7 +217,7 @@ export function chargerEvenements(
       case 'debut-partie': forme(v, { type: chaine }); break;
       case 'entree-zone':
       case 'boss-vaincu': forme(v, { type: chaine, zone }); break;
-      case 'objet-utilise': forme(v, { type: chaine, objet: objetInventaire }, { zone }); break;
+      case 'objet-utilise': forme(v, { type: chaine, objet: objetConnu }, { zone }); break;
       default: throw new Error(`Déclencheur inconnu : ${String(v.type)}`);
     }
   }
@@ -202,17 +226,20 @@ export function chargerEvenements(
     switch (v.type) {
       case 'dialogue': forme(v, { type: chaine, locuteur: chaine, texte: chaine }, { pose: identifiant }); break;
       case 'donner':
-        if (Object.hasOwn(v, 'objetCle')) forme(v, { type: chaine, objetCle: identifiant });
+        if (Object.hasOwn(v, 'objetCle')) forme(v, { type: chaine, objetCle: objetConnu });
         else forme(v, { type: chaine, objet: objetInventaire, quantite: positif });
         break;
       case 'poser-drapeau': forme(v, { type: chaine, id: identifiant }); break;
       case 'bloquer': forme(v, { type: chaine, zone, sauf: identifiant, raison: chaine }); break;
       case 'deplacer': forme(v, { type: chaine, zone }); break;
       case 'combat':
-        forme(v, { type: chaine, pokemon: numeroPokemon, niveau: n => {
-          positif(n);
-          exiger((n as number) <= reglages.recompenses.niveauMax, 'Niveau supérieur au maximum');
-        } }, {
+        if (Object.hasOwn(v, 'equipes') || Object.hasOwn(v, 'dresseur')) {
+          forme(v, { type: chaine, dresseur: chaine,
+            equipes: e => forme(e, { '1': equipe, '4': equipe, '7': equipe }),
+          });
+          break;
+        }
+        forme(v, { type: chaine, pokemon: numeroPokemon, niveau }, {
           // Même échelle que le taux de capture du combat (capture / 255).
           capture: n => exiger(typeof n === 'number' && Number.isFinite(n) && n >= 0 && n <= 255, 'Capture invalide'),
           nom: chaine,

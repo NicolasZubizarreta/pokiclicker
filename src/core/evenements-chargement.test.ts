@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import essai from '../../tests/fixtures/evenements/essai.json';
-import { chargerEvenements } from './evenements';
+import { chargerEvenements, chargerObjetsCles } from './evenements';
 import { evenementsKanto } from './evenements-kanto';
 import { kanto } from './regions';
 import { reglages } from './reglages';
@@ -12,6 +12,55 @@ function charger(modifications: Record<string, unknown> = {}) {
 }
 
 describe('chargement des événements', () => {
+  it('charge la Pokéflûte sans partager les données du catalogue', () => {
+    const objets = chargerObjetsCles();
+    expect(objets).toEqual([{ id: 'pokeflute', nom: 'Pokéflûte',
+      description: 'Une flûte qui réveille les Pokémon endormis.', image: null }]);
+    objets[0]!.nom = 'Modifié';
+    expect(chargerObjetsCles()[0]?.nom).toBe('Pokéflûte');
+  });
+
+  it.each(['pokeflute', 'pokeball'])('charge l’utilisation et le don de l’objet connu %s', objet => {
+    const modifications = {
+      declencheur: { type: 'objet-utilise', objet },
+      etapes: [{ type: 'donner', objetCle: objet }],
+    };
+    const avant = structuredClone(modifications);
+    expect(charger(modifications).liste[0]).toMatchObject(modifications);
+    expect(modifications).toEqual(avant);
+  });
+
+  it.each([
+    { declencheur: { type: 'objet-utilise', objet: 'x' } },
+    { etapes: [{ type: 'donner', objetCle: 'x' }] },
+  ])('refuse un objet inconnu avec son contexte : %j', modifications => {
+    expect(() => charger(modifications))
+      .toThrow(`Événement invalide (${fichier}, kanto.essai) : Objet inconnu : x`);
+  });
+
+  it('charge les trois équipes du dresseur sans modifier les entrées', () => {
+    const membre = { pokemon: 4, niveau: reglages.recompenses.niveauMax, nom: 'Salamèche' };
+    const combat = { type: 'combat', dresseur: 'Blue', equipes: {
+      '1': [membre], '4': Array.from({ length: 6 }, () => ({ ...membre })), '7': [membre],
+    } };
+    const avant = structuredClone(combat);
+    expect(charger({ etapes: [combat] }).liste[0]?.etapes[0]).toEqual(combat);
+    expect(combat).toEqual(avant);
+  });
+
+  it.each([
+    [{ '1': [], '4': [], '7': [], '2': [] }, 'Champ inconnu'],
+    [{ '1': [], '4': [], '7': [] }, 'Équipe attendue : de 1 à 6 Pokémon'],
+    [{ '1': Array(7).fill({ pokemon: 4, niveau: 1, nom: 'Salamèche' }), '4': [], '7': [] }, 'Équipe attendue : de 1 à 6 Pokémon'],
+    [{ '1': [{ pokemon: 4, niveau: reglages.recompenses.niveauMax + 1, nom: 'Salamèche' }], '4': [], '7': [] }, 'Niveau supérieur au maximum'],
+    [{ '1': [{ pokemon: 999999, niveau: 1, nom: 'Inconnu' }], '4': [], '7': [] }, 'Pokémon inconnu : 999999'],
+    [{ '1': [{ pokemon: 4, niveau: 1 }], '4': [], '7': [] }, 'Champ manquant : nom'],
+    [{ '1': [{ pokemon: 4, niveau: 1, nom: 'Salamèche' }], '4': [{ pokemon: 7, niveau: 1, nom: 'Carapuce' }] }, 'Champ manquant : 7'],
+  ])('refuse les équipes invalides %j', (equipes, raison) => {
+    expect(() => charger({ etapes: [{ type: 'combat', dresseur: 'Blue', equipes }] }))
+      .toThrow(`Événement invalide (${fichier}, kanto.essai) : ${raison}`);
+  });
+
   it('refuse un id dupliqué dans un même fichier', () => {
     expect(() => chargerEvenements({ [fichier]: { version: 1, evenements: [evenement, evenement] } }, kanto))
       .toThrow(`Événement invalide (${fichier}, kanto.essai) : Identifiant d'événement dupliqué : kanto.essai`);
@@ -87,7 +136,7 @@ describe('chargement des événements', () => {
     ]) {
       expect(charger({ declencheur, repetable: true, priorite: -1,
         si: { tous: [{ un_parmi: [{ type: 'drapeau', id: 'flute' }] }] },
-        etapes: [{ type: 'donner', objetCle: 'flute' }],
+        etapes: [{ type: 'donner', objetCle: 'pokeflute' }],
       }).liste[0]).toMatchObject({ declencheur, repetable: true, priorite: -1 });
     }
   });
