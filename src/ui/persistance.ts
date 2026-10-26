@@ -39,6 +39,7 @@ export function ouvrirPartie(options: Parameters<typeof creerGestionnaire>[0],
   let bloquee = false;
   return {
     region: enveloppe.donnees,
+    nom: partie.donnees.nom,
     pokedex: partie.donnees.pokedexNational,
     preferences,
     sonActive: compte.preferences.sonActive ?? reglages.sons.actifParDefaut,

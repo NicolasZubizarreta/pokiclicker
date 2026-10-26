@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import essai from '../../tests/fixtures/evenements/essai.json';
 import { chargerEvenements, chargerObjetsCles } from './evenements';
-import { evenementsKanto } from './evenements-kanto';
+import { evenementsKanto as catalogueKanto } from './evenements-kanto';
 import { kanto } from './regions';
 import { reglages } from './reglages';
 
@@ -12,6 +12,11 @@ function charger(modifications: Record<string, unknown> = {}) {
 }
 
 describe('chargement des événements', () => {
+  it('charge aussi les trois événements de fin dans le catalogue complet', () => {
+    for (const id of ['kanto.fin-pokedex', 'kanto.defi-chen-intro', 'kanto.defi-chen-victoire']) {
+      expect(catalogueKanto.parId(id).id).toBe(id);
+    }
+  });
   it('charge la Pokéflûte sans partager les données du catalogue', () => {
     const objets = chargerObjetsCles();
     expect(objets).toEqual([{ id: 'pokeflute', nom: 'Pokéflûte',
@@ -92,6 +97,10 @@ describe('chargement des événements', () => {
   });
 
   it('charge exactement l’intro, les cinq rivaux et les quatre événements Ronflex', () => {
+    // Prépare le catalogue décrit par ce test ; la fin est vérifiée séparément.
+    const evenementsKanto = chargerEvenements(
+      import.meta.glob('../../data/evenements/{intro,rival,ronflex}.json', { eager: true, import: 'default' }), kanto,
+    );
     expect(evenementsKanto.liste.map(e => e.id)).toEqual([
       'kanto.pokeflute-rattrapage',
       'kanto.intro',

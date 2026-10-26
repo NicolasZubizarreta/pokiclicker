@@ -18,6 +18,7 @@ export type MembreEquipe = { pokemon: number; niveau: number; nom: string };
 
 export type Declencheur =
   | { type: 'debut-partie' }
+  | { type: 'palier-pokedex'; palier: number }
   | { type: 'entree-zone'; zone: string }
   | { type: 'boss-vaincu'; zone: string }
   | { type: 'objet-utilise'; objet: string; zone?: string };
@@ -26,6 +27,7 @@ export type Etape =
   | { type: 'dialogue'; locuteur: string; texte: string; pose?: string }
   | { type: 'donner'; objet: string; quantite: number }
   | { type: 'donner'; objetCle: string }
+  | { type: 'donner'; amelioration: string }
   | { type: 'poser-drapeau'; id: string }
   | { type: 'bloquer'; zone: string; sauf: string; raison: string }
   | { type: 'combat'; pokemon: number; niveau: number; capture?: number; nom?: string }
@@ -61,6 +63,7 @@ function correspond(declencheur: Declencheur, fait: Declencheur): boolean {
   if (declencheur.type !== fait.type) return false;
   switch (declencheur.type) {
     case 'debut-partie': return true;
+    case 'palier-pokedex': return fait.type === 'palier-pokedex' && declencheur.palier === fait.palier;
     case 'entree-zone':
     case 'boss-vaincu': return 'zone' in fait && declencheur.zone === fait.zone;
     case 'objet-utilise': return fait.type === 'objet-utilise' && declencheur.objet === fait.objet
@@ -95,6 +98,8 @@ function avancer(cat: CatalogueEvenements, region: DonneesRegion): DonneesRegion
       case 'donner':
         if ('objetCle' in etape) {
           if (!region.objetsCles.includes(etape.objetCle)) region.objetsCles.push(etape.objetCle);
+        } else if ('amelioration' in etape) {
+          if (!region.ameliorations.includes(etape.amelioration)) region.ameliorations.push(etape.amelioration);
         } else {
           region.inventaire[etape.objet] = (region.inventaire[etape.objet] ?? 0) + etape.quantite;
         }
@@ -215,6 +220,7 @@ export function chargerEvenements(
     objet(v);
     switch (v.type) {
       case 'debut-partie': forme(v, { type: chaine }); break;
+      case 'palier-pokedex': forme(v, { type: chaine, palier: positif }); break;
       case 'entree-zone':
       case 'boss-vaincu': forme(v, { type: chaine, zone }); break;
       case 'objet-utilise': forme(v, { type: chaine, objet: objetConnu }, { zone }); break;
@@ -227,6 +233,10 @@ export function chargerEvenements(
       case 'dialogue': forme(v, { type: chaine, locuteur: chaine, texte: chaine }, { pose: identifiant }); break;
       case 'donner':
         if (Object.hasOwn(v, 'objetCle')) forme(v, { type: chaine, objetCle: objetConnu });
+        else if (Object.hasOwn(v, 'amelioration')) forme(v, { type: chaine, amelioration: a => {
+          identifiant(a);
+          exiger(objets.some(o => o.id === a && o.type === 'amelioration'), `Amélioration inconnue : ${a}`);
+        } });
         else forme(v, { type: chaine, objet: objetInventaire, quantite: positif });
         break;
       case 'poser-drapeau': forme(v, { type: chaine, id: identifiant }); break;
