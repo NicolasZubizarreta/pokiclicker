@@ -11,6 +11,7 @@ import { storeJeu } from './store';
 import { MiseAJour } from './MiseAJour';
 import { ObtentionBadge } from './ObtentionBadge';
 import { PageIntro } from './PageIntro';
+import { DialogueScene } from './DialogueScene';
 
 export function Coquille({ region = 'kanto', theme = 'dark' }: {
   region?: 'kanto' | 'johto' | 'hoenn' | 'atlas';
@@ -27,6 +28,9 @@ export function Coquille({ region = 'kanto', theme = 'dark' }: {
     }
   }), []);
   const introActive = useStore(storeJeu, etat => etat.intro.enCours || etat.intro.choixStarter);
+  const evenement = useStore(storeJeu, etat => etat.evenement);
+  const evolution = useStore(storeJeu, etat => etat.evolution);
+  const terminerEtape = useStore(storeJeu, etat => etat.terminerEtape);
   const [introVue, fixerIntroVue] = useState(false);
   if (introActive && !introVue) fixerIntroVue(true);
   const tutorielRoute1 = useStore(storeJeu, etat => etat.carte.tutorielRoute1);
@@ -48,6 +52,9 @@ export function Coquille({ region = 'kanto', theme = 'dark' }: {
           className="cadre bg-surface p-2 text-center">{annonce}</div>}
         {page === 'Combat' ? introVue || introActive ? <PageIntro quandTerminee={() => fixerIntroVue(false)} /> : <EcranCombat /> : page === 'Carte' ? <PageCarte quandArrive={() => choisir('Combat')} /> : page === 'Équipe' ? <PageEquipe /> : page === 'Plus' ? <PagePlus /> : <PageShop />}
       </main>
+      {/* La Carte reste montée jusqu’à la fin du vol ; l’évolution garde aussi la priorité. */}
+      {!introActive && !introVue && page !== 'Carte' && !evolution && evenement?.type === 'dialogue'
+        && <DialogueScene commande={evenement} terminerEtape={terminerEtape} />}
       <ObtentionBadge ouvert={obtentionBadge !== null && obtentionBadge.phase !== 'message'} badges={badges}
         cache={obtentionBadge?.phase === 'message' || obtentionBadge?.phase === 'boite' ? obtentionBadge.id : null}
         claque={obtentionBadge?.phase === 'claque' ? obtentionBadge.id : null}
