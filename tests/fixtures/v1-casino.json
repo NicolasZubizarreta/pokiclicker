@@ -6,7 +6,7 @@
     "legacy/js/game/casino.js": "75b6b2f238898310736b1f606f7a6f6a961c44bdfbdac76b525423fabbd936ba",
     "legacy/js/game/save.js": "38a0b89b096f53c4d8c6add39942049c5bd8bfdaf8ef5fe674b5f00465e2220e",
     "data/regions/kanto/zones.json": "2557337c57127684c79d031ba428c5cd924de34d3e220ab9ff1d394ec2bbe718",
-    "scripts/extraire-casino-v1.mjs": "184333c431e0950ceeea2c81c174e1037efedba9d491ceb5353100407af098a0",
+    "scripts/extraire-casino-v1.mjs": "4197f5dafa3f91e46c580685128a0794f4908e28d6b3e852d84ad10da7b6736b",
     "scripts/lib/graine.mjs": "c5017b5d795490fc5010ba92bb00ddea4889a80a1e6e57c9ab63585390d346ee"
   },
   "constantes": {
@@ -1136,6 +1136,9 @@
         "50": 20
       },
       "tirages": 300000,
+      "tiragesParTour": {
+        "3": 100000
+      },
       "premiers": [
         {
           "symboles": [
@@ -1651,6 +1654,9 @@
         "2": 5037
       },
       "tirages": 10000,
+      "tiragesParTour": {
+        "1": 10000
+      },
       "premiers": [
         {
           "choix": "face",
@@ -2369,6 +2375,9 @@
         "5": 444
       },
       "tirages": 510000,
+      "tiragesParTour": {
+        "51": 10000
+      },
       "premiers": [
         {
           "joueur": [

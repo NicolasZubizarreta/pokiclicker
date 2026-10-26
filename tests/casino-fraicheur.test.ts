@@ -39,3 +39,10 @@ it('la fixture casino provient du code V1 et affiche son empreinte', async () =>
   expect(fixture.acces.zonePrecedente).toEqual({ ancienId: 10, id: 'kanto.tour-pokemon', nom: 'Tour Pokémon' });
   expect(fixture.acces.conditionV2).toEqual({ type: 'boss', zone: 'kanto.tour-pokemon' });
 }, 30_000);
+
+it('chaque tour respecte le nombre de tirages V1 sur la série entière', async () => {
+  const fixture = JSON.parse(await readFile(new URL('./fixtures/v1-casino.json', import.meta.url), 'utf8'));
+  expect(fixture.machine.serie.tiragesParTour).toEqual({ 3: 100_000 });
+  expect(fixture.pileOuFace.serie.tiragesParTour).toEqual({ 1: 10_000 });
+  expect(fixture.blackjack.serie.tiragesParTour).toEqual({ 51: 10_000 });
+});

@@ -102,6 +102,8 @@ function serie(nombre, mise, jouer, resultat, limite) {
   const etat = reinitialiser();
   /** @type {Record<number, number>} */
   const histogramme = {};
+  /** @type {Record<number, number>} */
+  const tiragesParTour = {};
   const premiers = [];
   let total = 0;
   for (let i = 0; i < nombre; i++) {
@@ -110,11 +112,12 @@ function serie(nombre, mise, jouer, resultat, limite) {
     executer(jouer);
     const gain = etat.casinoTokens - avant + mise;
     const ligne = { ...resultat(), gain, tirages: tirages - tiragesAvant };
+    tiragesParTour[ligne.tirages] = (tiragesParTour[ligne.tirages] || 0) + 1;
     total += gain;
     histogramme[gain] = (histogramme[gain] || 0) + 1;
     if (i < limite) premiers.push(ligne);
   }
-  return { graine: valeurGraine, nombre, mise, total, histogramme, tirages, premiers };
+  return { graine: valeurGraine, nombre, mise, total, histogramme, tirages, tiragesParTour, premiers };
 }
 const machine = { table, serie: serie(100000, 1, 'spinSlots(1)', () => ({
   symboles: rouleaux.slice(),
