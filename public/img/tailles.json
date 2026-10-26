@@ -910,5 +910,17 @@
   "img/objets/JetonShiny.png": {
     "largeur": 30,
     "hauteur": 30
+  },
+  "img/easter-eggs/daran-stade-1.webp": {
+    "largeur": 288,
+    "hauteur": 288
+  },
+  "img/easter-eggs/daran-stade-2.webp": {
+    "largeur": 288,
+    "hauteur": 288
+  },
+  "img/easter-eggs/daran-stade-3.webp": {
+    "largeur": 288,
+    "hauteur": 288
   }
 }
