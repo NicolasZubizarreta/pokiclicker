@@ -28,8 +28,7 @@ const test = base.extend<{ surveillance: void }>({
 async function preparer(page: Page, ouvert: boolean) {
   const kanto = JSON.parse(await readFile('data/regions/kanto/zones.json', 'utf8')) as { zones: { ancienId: number; id: string }[] };
   await page.goto('/');
-  await page.getByRole('button', { name: 'JOUER', exact: true }).click();
-  await expect(page.getByRole('region', { name: 'Chez Maman' })).toBeVisible();
+  await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
   await page.addInitScript(({ boss, ouvert }) => {
     const cle = Object.keys(localStorage).find(c => c.startsWith('pokiclicker:region:') && c.endsWith(':kanto'));
     if (!cle || sessionStorage.getItem('centre-prepare')) return;
