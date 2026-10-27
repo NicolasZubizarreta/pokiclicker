@@ -587,7 +587,7 @@ Fourchette : 2 à 3 jours. Risque : équilibrage des minuteurs (30 s) à confirm
 
 ## R. `feat(pantheon): Panthéon, fondu, socles, chute des Pokémon et confettis`
 
-Labels : `type:feat`, `etat:en_cours`, `est:2-3`, `prio:2` · branche : `v2` · `agent-ok` : oui
+Labels : `type:feat`, `etat:fait`, `est:2-3`, `prio:2` · branche : `v2` · `agent-ok` : oui
 
 ### Histoire
 En tant que joueur, je veux voir mon équipe honorée au Panthéon après la Ligue afin de ressentir la fin du parcours.
@@ -596,12 +596,12 @@ En tant que joueur, je veux voir mon équipe honorée au Panthéon après la Lig
 V1 : `legacy/js/game/hall-of-fame.js`, `render.js` (`renderHallOfFame`), `confetti.js`. Décors : D. **Règles V1** : fondu depuis la Ligue, Chen parle (**3 lignes à la première victoire**, une ligne ensuite), l'équipe se place sur **6 socles** (positions à convertir en fractions de la scène), puis **un Pokémon chute toutes les 2 s** à sa place, confettis, puis le jeu propose de continuer ; l'annonce de Johto est un **stub** (message « bientôt »). **Première étape : trois variantes** de l'écran (convention de Nicolas pour toute nouvelle page) ; Nicolas choisit avant le code. Fichiers : `src/ui/Pantheon.tsx`, `src/ui/confettis.ts`, `data/pantheon.json` (socles).
 
 ### Critères d'acceptation
-- [ ] Étant donné trois variantes de l'écran (A, B, C) livrées sous `design/variantes/pantheon/`, quand Nicolas en choisit une, alors seule celle-là est implémentée (étape bloquante).
-- [ ] Étant donné la victoire du Maître (Q), quand le Panthéon s'ouvre, alors un fondu de 800 ms démarre, Chen dit 3 lignes à la première victoire (`leagueWins === 1`) et une seule ensuite.
-- [ ] Étant donné une équipe de 1 à 6 Pokémon, quand l'animation joue, alors les Pokémon tombent un par un toutes les 2 s sur leurs socles (fractions de la scène, aucune position en pixels) ; les socles inutilisés restent vides.
-- [ ] Étant donné la fin de l'animation, quand les confettis partent, alors ils durent moins de 4 s, ne bloquent pas les clics et se désactivent avec `prefers-reduced-motion`.
-- [ ] Étant donné « Continuer », quand je clique, alors je reviens au jeu (zone 1 en mode « après la Ligue » : le contenu de Johto est un message « bientôt » ; rien d'autre n'est inventé).
-- [ ] Étant donné 390 et 1440 px, quand le Panthéon s'affiche, alors tout est visible sans défiler ; textes en français ; l'équipe affichée est celle de la sauvegarde.
+- [x] Étant donné trois variantes de l'écran (A, B, C) livrées sous `design/variantes/pantheon/`, quand Nicolas en choisit une, alors seule celle-là est implémentée (étape bloquante).
+- [x] Étant donné la victoire du Maître (Q), quand le Panthéon s'ouvre, alors un fondu de 800 ms démarre, Chen dit 3 lignes à la première victoire (`leagueWins === 1`) et une seule ensuite.
+- [x] Étant donné une équipe de 1 à 6 Pokémon, quand l'animation joue, alors les Pokémon tombent un par un toutes les 2 s sur leurs socles (fractions de la scène, aucune position en pixels) ; les socles inutilisés restent vides.
+- [x] Étant donné la fin de l'animation, quand les confettis partent, alors ils durent moins de 4 s, ne bloquent pas les clics et se désactivent avec `prefers-reduced-motion`.
+- [x] Étant donné « Continuer », quand je clique, alors je reviens au jeu (zone 1 en mode « après la Ligue » : le contenu de Johto est un message « bientôt » ; rien d'autre n'est inventé).
+- [x] Étant donné 390 et 1440 px, quand le Panthéon s'affiche, alors tout est visible sans défiler ; textes en français ; l'équipe affichée est celle de la sauvegarde.
 
 ### Hors périmètre
 Contenu de Johto, défi secret et crédits (X), enregistrement de l'équipe dans un « livre d'or » (phase 6).
@@ -642,7 +642,7 @@ Fourchette : 2 à 3 jours **après** décision. Risque : spécification incompl�
 
 ## T. `feat(pension): pension, œufs et éclosions`
 
-Labels : `type:feat`, `etat:en_cours`, `est:2-3`, `prio:2` · branche : `v2` · `agent-ok` : oui
+Labels : `type:feat`, `etat:fait`, `est:2-3`, `prio:2` · branche : `v2` · `agent-ok` : oui
 
 ### Histoire
 En tant que joueur, je veux déposer deux Pokémon à la pension et faire éclore des œufs afin d'obtenir de nouveaux Pokémon et d'améliorer mon Pokédex.
@@ -653,10 +653,10 @@ V1 : `legacy/js/game/daycare.js`, `render.js` (`renderDaycare`). Pages : choix d
 ### Critères d'acceptation
 - [x] Étant donné la zone 10 ouverte, quand j'ouvre le menu, alors la pension est verrouillée avec la raison ; à la zone 11 elle s'ouvre.
 - [x] Étant donné 2 parents compatibles, quand ils sont déposés, alors le test de ponte utilise exactement les probabilités de la V1 (4 %, 2 %, 0) sur 1 000 tirages injectés, comparés à la V1 (fixture) ; avec des parents incompatibles aucun œuf n'apparaît.
-- [ ] Étant donné les emplacements d'œuf, quand j'en achète un, alors le prix est `slots × 5000` et jamais plus de 5 ; sans argent le bouton est désactivé avec la raison.
+- [x] Étant donné les emplacements d'œuf, quand j'en achète un, alors le prix est `slots × 5000` et jamais plus de 5 ; sans argent le bouton est désactivé avec la raison.
 - [x] Étant donné un œuf, quand 25 ennemis sont éliminés (compteur partagé avec le combat), alors il éclot : un Pokémon de niveau 1, bonheur 125, ajouté au Pokédex et à l'équipe (ou au PC si l'équipe est pleine) ; la progression est sauvegardée (`pension` dans la région).
 - [x] Étant donné un rechargement, quand je rouvre, alors parents, œufs et compteurs sont identiques.
-- [ ] Étant donné 390 et 1440 px, quand la pension s'ouvre, alors tout est lisible sans défiler en largeur ; textes en français.
+- [x] Étant donné 390 et 1440 px, quand la pension s'ouvre, alors tout est lisible sans défiler en largeur ; textes en français.
 
 ### Hors périmètre
 Attaques héritées (absentes de la V1), natures, IV ; bonheur et évolutions par bonheur.
@@ -671,7 +671,7 @@ Fourchette : 2 à 3 jours. Risque : le compteur d'éliminations n'existe pas dan
 
 ## U. `feat(centre-commercial): Centre commercial de la zone 11`
 
-Labels : `type:feat`, `etat:en_cours`, `est:1-2`, `prio:3` · branche : `v2` · `agent-ok` : oui
+Labels : `type:feat`, `etat:fait`, `est:1-2`, `prio:3` · branche : `v2` · `agent-ok` : oui
 
 ### Histoire
 En tant que joueur, je veux un Centre commercial où acheter des objets temporaires afin de varier mes stratégies.
@@ -680,10 +680,10 @@ En tant que joueur, je veux un Centre commercial où acheter des objets temporai
 V1 : `legacy/js/game/mall.js` (21 l.), `constants.js` (`ITEMS` du Centre). **Règles V1** : débloqué à la zone 11 ; il vend Attaque + (7 500) et Attaque Spé + (10 000), leurs effets étant ceux du ticket M ; la page utilise la même mise en page que le Shop. Le Centre n'a pas de stock limité. Fichiers : `src/ui/PageCentre.tsx`, `data/objets.json` (entrées `lieu: "centre-commercial"`).
 
 ### Critères d'acceptation
-- [ ] Étant donné la zone 10, quand j'ouvre le menu, alors le Centre est verrouillé avec la raison ; à la zone 11 il s'ouvre.
-- [ ] Étant donné le Centre, quand je regarde les objets, alors Attaque + et Attaque Spé + sont proposés à 7 500 et 10 000 avec leurs effets décrits (« ×1,5 pendant 30 s »).
-- [ ] Étant donné un achat, quand je confirme, alors l'objet arrive dans le Sac et l'argent baisse comme au Shop (L) ; sans argent, bouton désactivé avec la raison.
-- [ ] Étant donné 390 et 1440 px, quand la page s'ouvre, alors elle reste cohérente avec la variante de Shop choisie en B.
+- [x] Étant donné la zone 10, quand j'ouvre le menu, alors le Centre est verrouillé avec la raison ; à la zone 11 il s'ouvre.
+- [x] Étant donné le Centre, quand je regarde les objets, alors Attaque + et Attaque Spé + sont proposés à 7 500 et 10 000 avec leurs effets décrits (« ×1,5 pendant 30 s »).
+- [x] Étant donné un achat, quand je confirme, alors l'objet arrive dans le Sac et l'argent baisse comme au Shop (L) ; sans argent, bouton désactivé avec la raison.
+- [x] Étant donné 390 et 1440 px, quand la page s'ouvre, alors elle reste cohérente avec la variante de Shop choisie en B.
 
 ### Hors périmètre
 Nouveaux objets absents de la V1, vente d'objets.
@@ -698,7 +698,7 @@ Fourchette : 1 à 2 jours. Risque : minimal (réutilise L). Dépend de : L, M, G
 
 ## V. `feat(casino): casino, machine à sous, blackjack, pile ou face et boutique de jetons`
 
-Labels : `type:feat`, `etat:en_cours`, `est:3`, `prio:3` · branche : `v2` · `agent-ok` : oui
+Labels : `type:feat`, `etat:fait`, `est:3`, `prio:3` · branche : `v2` · `agent-ok` : oui
 
 ### Histoire
 En tant que joueur, je veux jouer au casino avec l'argent du jeu afin de tenter ma chance et d'obtenir des objets rares.
@@ -707,13 +707,13 @@ En tant que joueur, je veux jouer au casino avec l'argent du jeu afin de tenter 
 V1 : `legacy/js/game/casino.js` (nombreux modules), `render.js` (`renderCasino`). **Argent virtuel seulement : aucune monnaie réelle, aucun paiement, aucune donnée personnelle.** Pages : choix de Nicolas (B). **Règles V1** : le casino se débloque dans la zone du Casino de Céladopole (voir le champ `lieu` de C) ; **jetons : 1 000 $ → 50 jetons ; rachat : 50 jetons → 1 000 $** ; **machine à sous** : poids des symboles 1 / 6 / 10 / 18 / 65, gains ×500 / ×50 / ×20 / ×10 / ×5, **deux baies = ×2** ; **blackjack** : mise ×2 si victoire, blackjack naturel ×2,5, égalité remboursée, le croupier tire jusqu'à 17 ; **pile ou face** : ×2 ; **boutique de jetons** : Abra 250, Bonbon 500, Insécateur 1 000, Minidraco 4 000, Porygon 5 000, CT Jackpot 10 000, Master Ball 40 000 ; les Pokémon achetés s'ajoutent au Pokédex. Fichiers : `src/core/casino.ts` (fonctions pures avec tirage injecté), `src/ui/Casino*.tsx`, `data/casino.json`.
 
 ### Critères d'acceptation
-- [ ] Étant donné la V1, quand le script extrait les poids et gains, alors `data/casino.json` contient ces valeurs ; un test tire 100 000 mains avec un générateur graine et compare l'espérance au code V1 (fixture).
-- [ ] Étant donné la machine à sous, quand je tire avec un générateur injecté, alors trois symboles identiques paient le gain de la V1, deux baies paient ×2, sinon rien ; la mise est débitée avant le tirage.
-- [ ] Étant donné le blackjack, quand je joue des mains scénarisées (blackjack naturel, égalité, dépassement, croupier à 17), alors les gains sont ceux de la V1.
-- [ ] Étant donné pile ou face, quand je gagne, alors la mise est doublée ; sinon perdue.
-- [ ] Étant donné la boutique, quand j'achète un Pokémon avec des jetons, alors il rejoint l'équipe (ou le PC) et le Pokédex ; les objets (Bonbon, CT Jackpot, Master Ball) arrivent dans le Sac ; jetons insuffisants → bouton désactivé avec la raison.
-- [ ] Étant donné un rechargement, quand je rouvre, alors jetons et état sont conservés ; une partie de blackjack en cours est abandonnée proprement (mise remboursée) ou reprise, selon le choix du ticket (à trancher à la livraison et à écrire).
-- [ ] Étant donné la page, quand elle s'ouvre, alors un rappel « Argent virtuel uniquement » est affiché ; aucune réclame de jeu d'argent réel.
+- [x] Étant donné la V1, quand le script extrait les poids et gains, alors `data/casino.json` contient ces valeurs ; un test tire 100 000 mains avec un générateur graine et compare l'espérance au code V1 (fixture).
+- [x] Étant donné la machine à sous, quand je tire avec un générateur injecté, alors trois symboles identiques paient le gain de la V1, deux baies paient ×2, sinon rien ; la mise est débitée avant le tirage.
+- [x] Étant donné le blackjack, quand je joue des mains scénarisées (blackjack naturel, égalité, dépassement, croupier à 17), alors les gains sont ceux de la V1.
+- [x] Étant donné pile ou face, quand je gagne, alors la mise est doublée ; sinon perdue.
+- [x] Étant donné la boutique, quand j'achète un Pokémon avec des jetons, alors il rejoint l'équipe (ou le PC) et le Pokédex ; les objets (Bonbon, CT Jackpot, Master Ball) arrivent dans le Sac ; jetons insuffisants → bouton désactivé avec la raison.
+- [x] Étant donné un rechargement, quand je rouvre, alors jetons et état sont conservés ; une partie de blackjack en cours est abandonnée proprement (mise remboursée) ou reprise, selon le choix du ticket (à trancher à la livraison et à écrire).
+- [x] Étant donné la page, quand elle s'ouvre, alors un rappel « Argent virtuel uniquement » est affiché ; aucune réclame de jeu d'argent réel.
 
 ### Hors périmètre
 Salles de jeu supplémentaires, tournois, classement.
@@ -728,7 +728,7 @@ Fourchette : 3 jours. Risque : état de jeu intermédiaire (main de blackjack) �
 
 ## W. `feat(easter-eggs): easter eggs de renommage en données`
 
-Labels : `type:feat`, `etat:en_cours`, `est:1`, `prio:3` · branche : `v2` · `agent-ok` : oui (sous réserve des assets)
+Labels : `type:feat`, `etat:fait`, `est:1`, `prio:3` · branche : `v2` · `agent-ok` : oui (sous réserve des assets)
 
 ### Histoire
 En tant que joueur, je veux retrouver les surprises cachées de la V1 quand je renomme un Pokémon afin de garder l'esprit du jeu.
@@ -737,11 +737,11 @@ En tant que joueur, je veux retrouver les surprises cachées de la V1 quand je r
 V1 : `legacy/js/game/easter-eggs.js`, `render.js`. **Règles V1** : renommer un Pokémon avec **dinnerbone** ou **grumm** retourne son sprite ; **jeb_** change ses couleurs en arc-en-ciel animé ; **caca** applique le texte et l'effet de la V1 ; **Daran** (affichage d'images de stade et lecture de `Daran.mp4`). Les noms sont comparés sans casse. Le renommage est limité à 12 caractères (H). **Bjorn et Gabriel** : inactifs tant que Nicolas n'a pas défini leur apparence (point ouvert dans `design/DESIGN.md`). Fichiers : `data/easter-eggs.json` (registre : nom, effet, assets), `src/ui/easter-eggs.ts`.
 
 ### Critères d'acceptation
-- [ ] Étant donné chaque easter egg de la V1, quand je renomme un Pokémon avec le nom déclencheur (insensible à la casse), alors l'effet visuel de la V1 s'applique à son sprite et il disparaît au renommage suivant.
-- [ ] Étant donné « Daran », quand je renomme, alors les images de stade s'affichent et la vidéo se lance sur action de l'utilisateur seulement (pas d'autoplay avec son).
-- [ ] Étant donné Bjorn et Gabriel, quand je les saisis, alors rien de spécial ne se passe (entrées du registre marquées `inactif` avec la raison dans le fichier).
-- [ ] Étant donné `prefers-reduced-motion`, quand j'active jeb_, alors la couleur est fixe (pas d'animation).
-- [ ] Étant donné un rechargement, quand je rouvre, alors le surnom est conservé et l'effet toujours appliqué.
+- [x] Étant donné chaque easter egg de la V1, quand je renomme un Pokémon avec le nom déclencheur (insensible à la casse), alors l'effet visuel de la V1 s'applique à son sprite et il disparaît au renommage suivant.
+- [x] Étant donné « Daran », quand je renomme, alors les images de stade s'affichent et la vidéo se lance sur action de l'utilisateur seulement (pas d'autoplay avec son).
+- [x] Étant donné Bjorn et Gabriel, quand je les saisis, alors rien de spécial ne se passe (entrées du registre marquées `inactif` avec la raison dans le fichier).
+- [x] Étant donné `prefers-reduced-motion`, quand j'active jeb_, alors la couleur est fixe (pas d'animation).
+- [x] Étant donné un rechargement, quand je rouvre, alors le surnom est conservé et l'effet toujours appliqué.
 
 ### Hors périmètre
 Nouveaux easter eggs, apparence de Bjorn et Gabriel.
@@ -756,7 +756,7 @@ Fourchette : 1 jour. Risque : assets (images de stade, vidéo) à reprendre de l
 
 ## X. `feat(fin): fin de partie, diplôme, défi secret de Chen et crédits`
 
-Labels : `type:feat`, `etat:en_cours`, `est:3`, `prio:3` · branche : `v2` · `agent-ok` : oui (hors jalon 2)
+Labels : `type:feat`, `etat:fait`, `est:3`, `prio:3` · branche : `v2` · `agent-ok` : oui (hors jalon 2)
 
 ### Histoire
 En tant que joueur, je veux une vraie fin quand j'ai complété le Pokédex afin de ressentir l'accomplissement.
@@ -765,10 +765,10 @@ En tant que joueur, je veux une vraie fin quand j'ai complété le Pokédex afin
 V1 : `legacy/js/game/endgame.js`, `credits.js`, `render.js`. **Règles V1** : Pokédex à 151 → diplôme (page avec nom et date, impression possible), Charme Chroma (palier 151 de N), **défi secret de Chen** : combat contre une équipe de 6 Pokémon de niveau 100 ; les **crédits** défilent pendant 110 s (texte, image, musique si présente). Priorité 3 : hors jalon 2, à faire si le temps le permet. Fichiers : `src/ui/Diplome.tsx`, `src/ui/Credits.tsx`, `data/credits.json`.
 
 ### Critères d'acceptation
-- [ ] Étant donné 151 espèces au Pokédex (I), quand le palier est atteint, alors le diplôme s'affiche avec le nom du dresseur et la date, et peut être fermé ; il est rejouable depuis la page Plus.
-- [ ] Étant donné la victoire du Panthéon (R) et le diplôme obtenu, quand Chen propose le défi secret, alors le combat contre ses 6 Pokémon de niveau 100 s'enchaîne (données extraites de la V1) ; la victoire est enregistrée une seule fois.
-- [ ] Étant donné les crédits, quand ils démarrent, alors ils durent 110 s, défilent sans saccade, peuvent être sautés d'un geste ; le texte vient de `data/credits.json`.
-- [ ] Étant donné `prefers-reduced-motion`, quand les crédits défilent, alors le défilement est remplacé par un affichage par pages.
+- [x] Étant donné 151 espèces au Pokédex (I), quand le palier est atteint, alors le diplôme s'affiche avec le nom du dresseur et la date, et peut être fermé ; il est rejouable depuis la page Plus.
+- [x] Étant donné la victoire du Panthéon (R) et le diplôme obtenu, quand Chen propose le défi secret, alors le combat contre ses 6 Pokémon de niveau 100 s'enchaîne (données extraites de la V1) ; la victoire est enregistrée une seule fois.
+- [x] Étant donné les crédits, quand ils démarrent, alors ils durent 110 s, défilent sans saccade, peuvent être sautés d'un geste ; le texte vient de `data/credits.json`.
+- [x] Étant donné `prefers-reduced-motion`, quand les crédits défilent, alors le défilement est remplacé par un affichage par pages.
 
 ### Hors périmètre
 Contenu de Johto, succès supplémentaires.
@@ -816,7 +816,7 @@ Fourchette : 3 à 4 jours. Risque : fluidité (règle de DESIGN.md, 59 images/s 
 
 ## Y. `test(jalon): test de jalon 2 de bout en bout avec des sauvegardes de test`
 
-Labels : `type:test`, `etat:idee`, `est:1-2`, `prio:1` · branche : `v2` · `agent-ok` : oui
+Labels : `type:test`, `etat:fait`, `est:1-2`, `prio:1` · branche : `v2` · `agent-ok` : oui
 
 ### Histoire
 En tant que Nicolas, je veux un test automatique qui parcourt Kanto de l'intro à la Ligue afin d'être certain que le jeu est jouable avant d'y jouer moi-même.
@@ -825,12 +825,12 @@ En tant que Nicolas, je veux un test automatique qui parcourt Kanto de l'intro �
 Le jalon 2 = « Kanto jouable de bout en bout ». Aucune triche : le test n'ajoute ni argent ni niveaux hors des sauvegardes de test, chacune construite par le cœur à une étape précise. `tests-e2e/jalon-2.spec.ts` (nouveau). Sauvegardes de test dans `tests-e2e/fixtures/jalon-2/` (générées par `scripts/creer-sauvegarde-test.mjs`, versionnées, avec le numéro de schéma). Le test de fluidité reste séparé et se relance au repos.
 
 ### Critères d'acceptation
-- [ ] Étant donné une sauvegarde neuve, quand le test joue l'intro et choisit chacun des trois starters (trois projets), alors l'équipe contient un seul Pokémon de niveau 5.
-- [ ] Étant donné des sauvegardes aux étapes clés (zone 3 avec badge Roche, zone 11 avec pension, zone 18 avec badge Volcan, zone 21 avec 8 badges), quand le test les charge, alors elles se migrent sans erreur et le jeu affiche la zone attendue.
-- [ ] Étant donné une capture, une évolution, un achat au Shop, une éclosion et un tour de casino scénarisés, quand le test les joue, alors l'état final de chacun est vérifié par l'interface (pas par le cœur).
-- [ ] Étant donné la Ligue, quand le test bat les dix boss avec l'équipe de la sauvegarde, alors le Panthéon s'ouvre et `leagueWins === 1`.
-- [ ] Étant donné les trois tailles (390, 1440, 1915 px), quand le test parcourt les pages principales, alors aucune ne défile horizontalement, aucune erreur console, aucun texte en anglais (liste de contrôle).
-- [ ] Étant donné la CI, quand le test tourne, alors il dure moins de 10 minutes et la CI complète reste verte.
+- [x] Étant donné une sauvegarde neuve, quand le test joue l'intro et choisit chacun des trois starters (trois projets), alors l'équipe contient un seul Pokémon de niveau 5.
+- [x] Étant donné des sauvegardes aux étapes clés (zone 3 avec badge Roche, zone 11 avec pension, zone 18 avec badge Volcan, zone 21 avec 8 badges), quand le test les charge, alors elles se migrent sans erreur et le jeu affiche la zone attendue.
+- [x] Étant donné une capture, une évolution, un achat au Shop, une éclosion et un tour de casino scénarisés, quand le test les joue, alors l'état final de chacun est vérifié par l'interface (pas par le cœur).
+- [x] Étant donné la Ligue, quand le test bat les dix boss avec l'équipe de la sauvegarde, alors le Panthéon s'ouvre et `leagueWins === 1`.
+- [x] Étant donné les trois tailles (390, 1440, 1915 px), quand le test parcourt les pages principales, alors aucune ne défile horizontalement, aucune erreur console, aucun texte en anglais (liste de contrôle).
+- [x] Étant donné la CI, quand le test tourne, alors il dure moins de 10 minutes et la CI complète reste verte.
 
 ### Hors périmètre
 Essai de Nicolas (jalon humain, hors CI), équilibrage fin.
