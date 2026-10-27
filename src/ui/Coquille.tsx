@@ -13,6 +13,7 @@ import { ObtentionBadge } from './ObtentionBadge';
 import { PageIntro } from './PageIntro';
 import { DialogueScene } from './DialogueScene';
 import { Credits } from './Credits';
+import { Pantheon } from './Pantheon';
 
 export function Coquille({ region = 'kanto', theme = 'dark' }: {
   region?: 'kanto' | 'johto' | 'hoenn' | 'atlas';
@@ -21,6 +22,7 @@ export function Coquille({ region = 'kanto', theme = 'dark' }: {
   const [page, choisir] = useState<Page>('Combat');
   const annonce = useStore(storeJeu, etat => etat.annonce);
   const credits = useStore(storeJeu, etat => etat.fin.credits);
+  const pantheon = useStore(storeJeu, etat => etat.pantheon);
   const obtentionBadge = useStore(storeJeu, etat => etat.obtentionBadge);
   const badges = useStore(storeJeu, etat => etat.progression.badges);
   const [declencheur, memoriserDeclencheur] = useState<HTMLElement | null>(null);
@@ -47,7 +49,7 @@ export function Coquille({ region = 'kanto', theme = 'dark' }: {
       <a href="#contenu" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-20 focus:bg-surface focus:p-4 focus:text-lien">
         Aller au contenu
       </a>
-      <Navigation page={page} choisir={choisir} signalCarte={tutorielRoute1 && page !== 'Carte' && !introActive && !introVue} inerte={introActive || introVue || credits} />
+      <Navigation page={page} choisir={choisir} signalCarte={tutorielRoute1 && page !== 'Carte' && !introActive && !introVue} inerte={introActive || introVue || credits || !!pantheon?.ouvert} />
       <main id="contenu" tabIndex={-1} className="mb-14 min-w-0 p-4 lg:mb-0 lg:ml-24 lg:p-8">
         <MiseAJour />
         {page !== 'Combat' && page !== 'Carte' && annonce !== null && <div role="status" aria-live="polite"
@@ -62,6 +64,8 @@ export function Coquille({ region = 'kanto', theme = 'dark' }: {
         claque={obtentionBadge?.phase === 'claque' ? obtentionBadge.id : null}
         fermer={() => storeJeu.getState().fermerBoiteBadges()} declencheur={declencheur} />
       {credits && <Credits fermerCredits={() => storeJeu.getState().fermerCredits()} />}
+      {pantheon?.ouvert && <Pantheon equipe={pantheon.equipe} premiereVictoire={pantheon.premiereVictoire}
+        quitter={() => storeJeu.getState().quitterPantheon()} />}
     </div>
   );
 }
