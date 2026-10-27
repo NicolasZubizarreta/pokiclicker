@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Essai des cartes de Kanto</title>
+<style>
+  body { font-family: system-ui, sans-serif; background: #141821; color: #e8ecf1; padding: 24px; max-width: 36rem; margin: auto; line-height: 1.5; }
+  a { display: block; margin: 8px 0; padding: 12px 16px; background: #2c3039; color: #e8ecf1; text-decoration: none; min-height: 24px; }
+  a:hover, a:focus-visible { background: #444851; }
+  small { color: #a6abb5; }
+</style>
+</head>
+<body>
+<h1>Essai des cartes de Kanto</h1>
+<p id="etat">Préparation d'une partie de test (6 badges, Tour Pokémon en cours)…</p>
+<div id="liens" hidden>
+  <a href="/?carte=v1">Carte actuelle (V1)</a>
+  <a href="/?carte=chatgpt">ChatGPT · pixel-art</a>
+  <a href="/?carte=pixel-riche">ChatGPT · pixel riche</a>
+  <a href="/?carte=realiste">ChatGPT · réaliste</a>
+  <a href="/?carte=diorama">ChatGPT · diorama</a>
+  <a href="/?carte=gemini">Gemini</a>
+  <small>Cette partie de test est séparée de ta vraie partie (autre port).</small>
+</div>
+<script type="module">
+const etat = document.querySelector('#etat');
+const cible = new URLSearchParams(location.search).get('carte');
+const attendre = ms => new Promise(r => setTimeout(r, ms));
+const cleRegion = () => Object.keys(localStorage).find(c => c.startsWith('pokiclicker:region:') && c.endsWith(':kanto'));
+
+if (!localStorage.getItem('essai-carte-pret')) {
+  localStorage.setItem('pokiclicker-dev:equipe-de-depart', '1');
+  const cadre = document.createElement('iframe');
+  cadre.src = '/';
+  cadre.style.cssText = 'position:absolute;width:390px;height:700px;left:-9999px';
+  document.body.append(cadre);
+  for (let i = 0; i < 40 && !cleRegion(); i++) await attendre(250);
+  await attendre(1000);
+  cadre.remove();
+  await attendre(500);
+  const cle = cleRegion();
+  if (!cle) { etat.textContent = "Impossible de créer la partie de test : recharge la page."; throw new Error('pas de sauvegarde'); }
+  const zones = (await (await fetch('/data/regions/kanto/zones.json')).json()).zones;
+  const fin = zones.findIndex(z => z.id === 'kanto.tour-pokemon');
+  const enveloppe = JSON.parse(localStorage.getItem(cle));
+  const r = enveloppe.donnees;
+  r.bossVaincus = zones.slice(1, fin + 1).map(z => z.id);
+  r.zoneId = 'kanto.tour-pokemon'; r.etape = 1;
+  r.badges = ['roche', 'cascade', 'foudre', 'prisme', 'ame', 'marais'];
+  enveloppe.revision += 1;
+  localStorage.setItem(cle, JSON.stringify(enveloppe));
+  localStorage.setItem('essai-carte-pret', '1');
+}
+
+if (cible) location.href = `/?carte=${encodeURIComponent(cible)}`;
+else { etat.textContent = 'Choisis une carte :'; document.querySelector('#liens').hidden = false; }
+</script>
+</body>
+</html>

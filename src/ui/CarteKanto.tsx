@@ -47,7 +47,7 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
   const dimensions = tailles['img/decors/carte-kanto.webp'];
   // Essai de fonds de carte (dev seulement) : ?carte=<nom> charge design/cartes-candidates/carte-<nom>.webp.
   const essaiFond = import.meta.env.DEV ? new URLSearchParams(window.location.search).get('carte') : null;
-  const decorCarte = essaiFond && /^[a-z0-9-]+$/.test(essaiFond) ? `/design/cartes-candidates/carte-${essaiFond}.webp` : 'img/decors/carte-kanto.webp';
+  const decorCarte = essaiFond && essaiFond !== 'v1' && /^[a-z0-9-]+$/.test(essaiFond) ? `/design/cartes-candidates/carte-${essaiFond}.webp` : 'img/decors/carte-kanto.webp';
   const decor = choisie?.zone ? cheminDecor(kanto.zone(choisie.zone)) : null;
 
   useLayoutEffect(() => {
