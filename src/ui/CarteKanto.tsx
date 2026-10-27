@@ -19,11 +19,13 @@ const couleur = (f: EtatForme) => !f.ouverte ? 'fill-texte-doux/50'
     : f.nom === 'Caverne Azurée' ? 'fill-info-texte/30'
       : /route|bourg/i.test(f.nom) ? 'fill-alerte-base/30' : 'fill-info-base/30';
 
-export function CarteKanto({ quandArrive, quandCentre }: { quandArrive: () => void; quandCentre?: () => void }) {
+export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArrive: () => void; quandCentre?: () => void; quandCasino?: () => void }) {
   const { etat: vol, reduit, lancer } = useVol(zone => storeJeu.getState().allerVers(zone), quandArrive);
   const carte = useStore(storeJeu, etat => etat.carte);
   const lieu = useStore(storeJeu, etat => etat.lieu);
   const centre = useStore(storeJeu, etat => etat.centre.acces);
+  const casino = useStore(storeJeu, etat => etat.casino.acces);
+  const raisonCasino = quandCasino ? casino.raison : 'Bientôt disponible.';
   const centreOuvert = !!quandCentre && centre.ouvert;
   const raisonCentre = quandCentre ? centre.raison : 'Bientôt disponible.';
   const [nouvelles] = useState(() => carte.nouvelles);
@@ -198,9 +200,10 @@ export function CarteKanto({ quandArrive, quandCentre }: { quandArrive: () => vo
               {!centreOuvert && raisonCentre && <p id="carte-commerce">{raisonCentre}</p>}
             </div>
             <div>
-              <button type="button" disabled aria-describedby="carte-casino"
-                className="min-h-11 min-w-11 bg-surface px-4 py-2 text-texte-doux">Casino</button>
-              <p id="carte-casino">Bientôt disponible.</p>
+              <button type="button" data-casino disabled={!casino.ouvert || !quandCasino || vol.actif}
+                onClick={quandCasino} aria-describedby={raisonCasino ? 'carte-casino' : undefined}
+                className="min-h-11 min-w-11 bg-surface px-4 py-2 disabled:text-texte-doux">Casino</button>
+              {raisonCasino && <p id="carte-casino">{raisonCasino}</p>}
             </div>
           </div>}
         </>}

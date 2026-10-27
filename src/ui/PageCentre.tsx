@@ -5,22 +5,26 @@ import { CarteKanto } from './CarteKanto';
 import { IconeObjet } from './icones';
 import { Image } from './Image';
 import { storeJeu } from './store';
+import { PageCasino } from './PageCasino';
 
 export function PageCarte({ quandArrive }: { quandArrive: () => void }) {
-  const [ouvert, ouvrir] = useState<'centre' | null>(null);
+  const [ouvert, ouvrir] = useState<'centre' | 'casino' | null>(null);
+  const dernier = useRef('centre');
   const annonce = useStore(storeJeu, etat => etat.annonce);
   const conteneur = useRef<HTMLDivElement>(null);
   const visite = useRef(false);
   useEffect(() => {
     if (!visite.current) { visite.current = true; return; }
-    conteneur.current?.querySelector<HTMLElement>(ouvert ? 'h1[tabindex]' : '[data-centre]')?.focus();
+    if (ouvert) dernier.current = ouvert;
+    conteneur.current?.querySelector<HTMLElement>(ouvert ? 'h1[tabindex]' : `[data-${dernier.current}]`)?.focus();
   }, [ouvert]);
   return <div ref={conteneur}>
     <div hidden={ouvert !== null}>
       {annonce !== null && <div aria-live="polite" className="cadre bg-surface p-2 text-center">{annonce}</div>}
-      <CarteKanto quandArrive={quandArrive} quandCentre={() => ouvrir('centre')} />
+      <CarteKanto quandArrive={quandArrive} quandCentre={() => ouvrir('centre')} quandCasino={() => ouvrir('casino')} />
     </div>
     {ouvert === 'centre' && <PageCentre retour={() => ouvrir(null)} />}
+    {ouvert === 'casino' && <PageCasino retour={() => ouvrir(null)} />}
   </div>;
 }
 

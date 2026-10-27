@@ -1,0 +1,7 @@
+@keyframes coin-spin {
+  to { transform: rotateY(720deg); }
+}
+.coin-spin { animation: coin-spin calc(var(--duree-signal) / 2) var(--ease-standard); }
+@media (prefers-reduced-motion: reduce) {
+  .coin-spin { animation: none; }
+}
