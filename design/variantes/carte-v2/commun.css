@@ -1,0 +1,58 @@
+@import "../../tokens.css";
+* { box-sizing:border-box; }
+body { margin:0; padding:calc(var(--spacing) * 4); background:var(--fond); color:var(--texte); font-family:var(--font-texte); font-size:var(--text-base); line-height:var(--text-base--line-height); }
+main { max-width:calc(var(--spacing) * 360); margin-inline:auto; }
+h1 { font-family:var(--font-titre); font-size:var(--text-3xl); line-height:var(--text-3xl--line-height); }
+h2 { margin:0; font-size:var(--text-lg); line-height:var(--text-lg--line-height); }
+p { margin-block:calc(var(--spacing) * 2); }
+a { display:inline-flex; align-items:center; min-height:calc(var(--spacing) * 11); color:var(--lien); }
+button { min-width:calc(var(--spacing) * 11); min-height:calc(var(--spacing) * 11); padding:calc(var(--spacing) * 2); font:inherit; color:var(--texte); background:var(--surface); border:calc(var(--spacing) / 2) solid var(--bordure); border-radius:var(--radius-md); cursor:pointer; }
+button:hover { background:var(--selection); }
+button:disabled { background:var(--surface-2); color:var(--texte-doux); cursor:not-allowed; }
+:focus-visible { outline:calc(var(--spacing) * .75) solid var(--focus); outline-offset:var(--spacing); }
+[hidden] { display:none !important; }
+.demos,.actions { display:flex; flex-wrap:wrap; gap:calc(var(--spacing) * 2); }
+.demos [aria-pressed="true"] { border-color:var(--focus); background:var(--info-fond); color:var(--info-texte); }
+.voyage,.liste { padding:calc(var(--spacing) * 3); background:var(--surface); }
+.voyage { margin-block:calc(var(--spacing) * 4); }
+progress { width:100%; accent-color:var(--succes-base); }
+.disposition { display:grid; gap:calc(var(--spacing) * 4); align-items:start; }
+.atlas,.liste { min-width:0; }
+[data-carte] { position:relative; aspect-ratio:16 / 9; isolation:isolate; overflow:hidden; }
+.legende { font-size:var(--text-sm); color:var(--texte-doux); }
+.liste ol { list-style:none; padding:0; margin:calc(var(--spacing) * 2) 0 0; display:grid; gap:var(--spacing); }
+.liste button { display:flex; gap:calc(var(--spacing) * 2); align-items:center; width:100%; text-align:left; }
+.numero { min-width:calc(var(--spacing) * 7); text-align:center; }
+.raison { display:block; font-size:var(--text-xs); line-height:var(--text-xs--line-height); }
+.liste .symbole { margin-left:auto; }
+[data-etat="verrouillee"] { color:var(--texte-doux); background:var(--surface-2); }
+[data-etat="terminee"] .symbole::after { content:'✓'; }
+[data-etat="verrouillee"] .symbole::after { content:'🔒'; filter:grayscale(1); }
+.liste [data-actuelle="true"] .symbole::before { content:'◎'; }
+.liste [data-selectionnee="true"] { border-color:var(--succes-base); box-shadow:inset 0 0 0 calc(var(--spacing) / 2) var(--succes-base); }
+.fiche { position:absolute; z-index:10; display:flex; flex-direction:column; width:calc(var(--spacing) * 76); max-width:calc(100% - var(--spacing) * 4); max-height:calc(100% - var(--spacing) * 4); background:var(--surface); border:calc(var(--spacing) / 2) solid var(--succes-base); box-shadow:var(--shadow-md); border-radius:var(--radius-lg); padding:calc(var(--spacing) * 2); font-size:var(--text-sm); line-height:var(--text-sm--line-height); }
+.contenu-fiche { min-height:0; overflow:auto; }
+.fiche::before { content:''; position:absolute; top:calc(var(--spacing) * -2); left:var(--pointe-x); transform:translateX(-50%); width:calc(var(--spacing) * 3); height:calc(var(--spacing) * 2); background:var(--succes-base); clip-path:polygon(50% 0,100% 100%,0 100%); }
+.fiche[data-direction="bas"]::before { top:auto; bottom:calc(var(--spacing) * -2); transform:translateX(-50%) rotate(180deg); }
+.entete-fiche { display:flex; justify-content:space-between; gap:var(--spacing); align-items:start; }
+.action { background:var(--action); color:var(--action-texte); }
+.action:hover:not(:disabled) { background:var(--action-survol); }
+.carte-a > img { display:block; width:100%; height:100%; object-fit:fill; }
+.repere { position:absolute; transform:translate(-50%, -50%); width:calc(var(--spacing) * 11); height:calc(var(--spacing) * 11); padding:0; display:grid; place-content:center; border-radius:var(--radius-plein); border-color:var(--surface); background:var(--color-accent-800); color:var(--color-neutre-50); font-size:var(--text-base); font-weight:700; line-height:var(--text-base--line-height); box-shadow:var(--shadow-sm); outline:none; }
+.repere .symbole { position:absolute; right:0; bottom:calc(var(--spacing) * -1); font-size:var(--text-xs); line-height:var(--text-xs--line-height); background:var(--surface); color:var(--succes-texte); border-radius:var(--radius-plein); }
+.repere[data-etat="verrouillee"] { background:var(--color-neutre-200); color:var(--color-neutre-700); }
+.repere[data-etat="terminee"] { background:var(--succes-fond); color:var(--succes-texte); }
+.repere[data-actuelle="true"]::before { content:''; position:absolute; inset:calc(var(--spacing) * -1); border:calc(var(--spacing) / 2) solid var(--color-secondaire-400); border-radius:var(--radius-plein); animation:pulsation var(--duree-carte-pulsation) infinite; }
+.repere[data-selectionnee="true"] { box-shadow:0 0 0 var(--spacing) var(--succes-base); z-index:3; }
+.repere:focus-visible { outline:none; border-color:var(--focus); box-shadow:0 0 0 var(--spacing) var(--focus); z-index:4; }
+.repere:hover { z-index:4; background:var(--selection); color:var(--texte); }
+.carte-a [data-zone="14"],.carte-a [data-zone="8"] { margin-left:calc(var(--spacing) * 5); }
+.carte-a [data-zone="15"],.carte-a [data-zone="7"] { margin-left:calc(var(--spacing) * -5); }
+.carte-a [data-zone="6"],.carte-a [data-zone="21"] { margin-top:calc(var(--spacing) * -4); }
+.carte-a [data-zone="5"],.carte-a [data-zone="20"] { margin-top:calc(var(--spacing) * 4); }
+.carte-a [data-zone="16"],.carte-a [data-zone="17"] { margin-top:calc(var(--spacing) * -2); }
+@keyframes pulsation { 50% { transform:scale(1.15); opacity:.5; } }
+[data-mouvement-reduit] .repere::before { animation:none; }
+@media (prefers-reduced-motion:reduce) { .repere::before { animation:none !important; } }
+/* Seuil --breakpoint-lg ; les variables CSS ne sont pas admises dans les media queries. */
+@media (min-width:64rem) { .disposition { grid-template-columns:minmax(0, 2fr) minmax(0, 1fr); } }
