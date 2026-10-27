@@ -1,18 +1,31 @@
-# Prompts pour générer des cartes de Kanto (à donner à ChatGPT et à Gemini)
+﻿# Prompts pour générer des cartes de Kanto (ChatGPT)
 
-À chaque fois : joindre l'image `reference-carte-v1.png` (la carte actuelle du jeu) et coller le prompt de base puis UN des trois styles. Générer la même chose dans les deux IA et m'envoyer les meilleures.
+Chaque génération : joindre `reference-carte-v1.png` (la disposition à respecter). Pour le style réaliste, joindre aussi `reference-style-carte-monde.jpg` (le style de ta carte monde). Demander une image 16:9, la plus grande taille possible.
 
-## Prompt de base (commun)
-Redraw the attached Pokémon Kanto region map as a brand-new illustrated map, keeping EXACTLY the same geography and layout as the attached reference: same coastline shape, same position of the 15 towns and cities (they sit where the orange orbs are in the reference), same road network connecting them, same two small islands at the bottom, sea on the right and bottom. Landscape format 16:9 (1920x1080). The land fills the left two thirds of the image; the right third is open sea. Top-down view. NO text, NO labels, NO title box, NO user interface, NO frame, NO orange orbs, NO blue squares, NO icons or markers, NO watermark: these are added later by the game. Settlements are shown only as small clusters of buildings drawn into the terrain. Keep the colors saturated and readable on a dark background. Clean, crisp, consistent style across the whole image, no blur, no noise, no messy details.
+## Bloc POSITIONS (à coller dans chaque prompt)
+Place these locations at these exact positions, given as percentage of the image width (x, from the left) and height (y, from the top). Everything else (coast, relief, forests, rivers, sea) is up to you but must make geographic sense.
+- Pallet Town 17 / 75 (south-west, small village)
+- Route 1: a path from Pallet Town north to Viridian City, 17 / 67
+- Viridian City 17 / 58
+- Viridian Forest 17 / 47 (dense forest, north of Viridian)
+- Pewter City 17 / 36 (rocky town, north)
+- Indigo Plateau 11 / 31 and Victory Road 11 / 36 (far north-west, mountain pass leading to the League building)
+- Mt. Moon 33 / 31 (mountain with caves, east of Pewter)
+- Cerulean City 48.5 / 31 (water city on a river), Nugget Bridge 48.5 / 25 (bridge just north), Cerulean Cave 49 / 15 (isolated cave, far north)
+- Rock Tunnel 61 / 31 (rocky pass, east of Cerulean) and Power Plant 61 / 36 (industrial building, east coast)
+- Celadon City 39 / 47 (big city, west of Saffron)
+- Saffron City 48.5 / 47 (largest city, the centre of the region, with a tall office tower, the Silph Co. building)
+- Lavender Town 62 / 48.5 (small town with a tall tower, east coast)
+- Vermilion City 48.5 / 64 (harbour city, south of Saffron) and Diglett's Cave 51.5 / 64 (small cave entrance next to it)
+- Fuchsia City 42 / 81 (southern coastal town, safari park nearby)
+- Cinnabar Island 17 / 92 (volcanic island, south of Pallet Town) and Seafoam Islands 30 / 92 (small rocky islands between Cinnabar and Fuchsia)
+Roads: Pallet to Viridian to Pewter along the west side; Pewter east to Mt. Moon to Cerulean; Cerulean south to Saffron to Vermilion; Saffron west to Celadon and east to Lavender; Cerulean east to Rock Tunnel then south to Lavender; Lavender south to Vermilion then south-west to Fuchsia; sea routes from Fuchsia to Seafoam Islands to Cinnabar. Geography follows the Pokémon games and the anime: Kanto is a landmass with its west coast on the left, a big bay in the middle south (between Celadon and Fuchsia), the open sea to the east and south.
 
-## Style A : pixel art 16 bits
-Style: authentic 16-bit pixel art in the look of Pokémon FireRed/LeafGreen and HeartGold/SoulSilver overworld maps, hard pixel edges, limited palette, tiny tree and mountain tiles, animated-looking waves drawn as pixel patterns along the coast.
+## Prompt 2 : réaliste illustré, comme la carte monde (joindre aussi `reference-style-carte-monde.jpg`)
+Create a detailed, realistic hand-illustrated fantasy map of the Pokémon region of Kanto, top-down view, 16:9 landscape. Use the same painterly illustrated style as the second attached image (inked outlines, rich natural colours, dense forests, rocky mountains with snow, rivers, sandy beaches, small harbour towns), but keep the layout of the first attached image (reference map) and the positions listed below. The land fills the left two thirds, the right third is open sea with a few waves. Much more detail than the reference: individual trees, cliffs, rivers, bridges, lakes, farmland, harbours with tiny boats, small buildings in every settlement, a visible dirt road network between towns. No text, no labels, no title, no frame, no user interface, no icons, no watermark. Bright daylight, saturated colours, readable on a dark interface. [coller ici le bloc POSITIONS]
 
-## Style B : peinture de jeu de rôle
-Style: hand-painted illustrated JRPG world map, soft painterly shading, lush forests, snowy peaks in the north-west, rivers, beaches, small harbour towns, clear readable silhouettes. Bright, warm daylight, vivid blue sea (not beige, not parchment).
+## Prompt 3 : diorama stylisé en relief
+Create a polished stylized top-down diorama map of the Pokémon region of Kanto, 16:9 landscape, in the look of a modern Pokémon game world map: soft lighting, rounded low-poly terrain, tiny detailed 3D buildings in each town, clusters of round trees, glossy blue water with a light foam line along the coast, small cliffs, winding roads in warm sand colour. Keep the layout of the attached reference map and the positions listed below. The land fills the left two thirds, the right third is open sea. No text, no labels, no title, no frame, no user interface, no icons, no watermark. [coller ici le bloc POSITIONS]
 
-## Style C : diorama en relief
-Style: clean stylized 3D diorama look seen from above at a slight angle, like a modern Pokémon game map: low-poly terrain with soft ambient light, rounded hills, tiny 3D buildings, forests as clusters of round trees, glossy blue water with a light foam line along the coast.
-
-## Si le résultat est presque bon
-Demander : « Keep everything identical, but make the image exactly 16:9 and remove any text or icons. » Je peux aussi recadrer, nettoyer et caler sur la grille de pixels moi-même.
+## Ensuite
+Envoie-moi les images : je les recadre en 16:9, je les teste sur la vraie page avec ?carte=<nom> et je corrige les positions des zones si besoin.
