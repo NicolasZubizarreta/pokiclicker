@@ -7,6 +7,15 @@ import type { ImagePrechargeable } from './precharger';
 const zone = zones.zones.find(({ id }) => id === 'kanto.route-1') as Zone;
 beforeEach(() => vi.resetModules());
 
+it('choisit le sprite chromatique uniquement sur demande', async () => {
+  const { cheminSprite } = await import('./precharger');
+  for (const numero of [1, 25, 151]) {
+    expect(cheminSprite(numero)).toBe(`img/sprites/pokemon/${numero}.png`);
+    expect(cheminSprite(numero, false)).toBe(`img/sprites/pokemon/${numero}.png`);
+    expect(cheminSprite(numero, true)).toBe(`img/sprites/pokemon-shiny/${numero}.png`);
+  }
+});
+
 function fabrique(demandes: Set<string>, echec?: string) {
   return vi.fn((): ImagePrechargeable => ({
     onload: null,

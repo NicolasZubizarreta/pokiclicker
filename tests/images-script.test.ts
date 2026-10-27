@@ -15,7 +15,7 @@ async function preparer() {
   temporaires.push(dossier);
   const sources = join(dossier, 'sources');
   const sorties = join(dossier, 'sorties');
-  await Promise.all(['decors', 'sprites', 'objets', 'artworks', 'animes', 'dresseur'].map((genre) => mkdir(join(sources, genre), { recursive: true })));
+  await Promise.all(['decors', 'sprites', 'sprites-shiny', 'objets', 'artworks', 'animes', 'dresseur'].map((genre) => mkdir(join(sources, genre), { recursive: true })));
   const creer = (chemin: string, width: number, height: number) => sharp({
     create: { width, height, channels: 4, background: { r: 23, g: 78, b: 139, alpha: 0.7 } },
   }).png().toFile(join(sources, chemin));
@@ -75,6 +75,30 @@ it('copie les sprites sans modifier les octets ni les pixels', async () => {
   expect(JSON.parse(await readFile(join(sorties, 'tailles.json'), 'utf8'))).toEqual({
     'img/sprites/pokemon/19.png': { largeur: 96, hauteur: 96 },
   });
+});
+
+it('copie les sprites chromatiques en PNG sans modifier les octets et inscrit leurs tailles', async () => {
+  const { sources, sorties, creer, lancer } = await preparer();
+  await creer('sprites-shiny/151.png', 96, 96);
+  await writeFile(join(sources, 'sprites-shiny/ignore.jpg'), 'ignoré');
+  expect(await lancer()).toEqual({ code: 0, message: '' });
+  expect(await readdir(join(sorties, 'sprites/pokemon-shiny'))).toEqual(['151.png']);
+  const sortie = await readFile(join(sorties, 'sprites/pokemon-shiny/151.png'));
+  expect(sortie).toEqual(await readFile(join(sources, 'sprites-shiny/151.png')));
+  const image = await sharp(sortie).metadata();
+  expect([image.format, image.width, image.height]).toEqual(['png', 96, 96]);
+  expect(JSON.parse(await readFile(join(sorties, 'tailles.json'), 'utf8'))).toEqual({
+    'img/sprites/pokemon-shiny/151.png': { largeur: 96, hauteur: 96 },
+  });
+});
+
+it('refuse un sprite chromatique de taille incorrecte sans rien écrire', async () => {
+  const { sorties, creer, lancer } = await preparer();
+  await creer('sprites-shiny/1.png', 96, 64);
+  const resultat = await lancer();
+  expect(resultat.code).toBe(1);
+  expect(resultat.message).toContain('Sprite chromatique refusé : 1.png mesure 96 × 64 (attendu 96 × 96).');
+  await expect(readdir(sorties)).rejects.toMatchObject({ code: 'ENOENT' });
 });
 
 it('copie les cinq images du dresseur sans changer leurs dimensions ni leurs octets', async () => {

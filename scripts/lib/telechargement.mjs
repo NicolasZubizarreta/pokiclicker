@@ -1,6 +1,6 @@
 /**
  * @typedef {{ source: string, destination: string }} Ressource
- * @typedef {{ hote: string, base: string, fixes: Ressource[], sprites: Ressource & { taille: number } }} Ressources
+ * @typedef {{ hote: string, base: string, fixes: Ressource[], sprites: Ressource & { taille: number }, spritesShiny: Ressource & { taille: number } }} Ressources
  * @typedef {{ url: string, destination: string }} Telechargement
  */
 
@@ -10,10 +10,10 @@
  * @returns {Telechargement[]}
  */
 export function planifier({ ressources, numeros, existe }) {
-  const fichiers = [...ressources.fixes, ...numeros.map((numero) => ({
-    source: ressources.sprites.source.replaceAll('{id}', String(numero)),
-    destination: ressources.sprites.destination.replaceAll('{id}', String(numero)),
-  }))];
+  const fichiers = [...ressources.fixes, ...[ressources.sprites, ressources.spritesShiny].flatMap((sprite) => numeros.map((numero) => ({
+    source: sprite.source.replaceAll('{id}', String(numero)),
+    destination: sprite.destination.replaceAll('{id}', String(numero)),
+  })))];
   return fichiers.map(({ source, destination }) => {
     let url;
     try {
@@ -44,7 +44,7 @@ export async function telecharger({ plan, fetch, ecrire, mesurer, tailleSprite }
       if (!reponse.ok) throw new Error(`Réponse HTTP ${reponse.status} pour ${url}`);
       const octets = new Uint8Array(await reponse.arrayBuffer());
       const { largeur, hauteur } = await mesurer(octets);
-      if (/^sprites[/\\]/.test(destination) && (largeur !== tailleSprite || hauteur !== tailleSprite)) {
+      if (/^sprites(-shiny)?[/\\]/.test(destination) && (largeur !== tailleSprite || hauteur !== tailleSprite)) {
         throw new Error(`Dimensions refusées pour ${destination} : ${largeur} × ${hauteur}, attendu ${tailleSprite} × ${tailleSprite}`);
       }
       await ecrire(destination, octets);

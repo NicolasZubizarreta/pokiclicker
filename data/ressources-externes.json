@@ -34,5 +34,6 @@
     { "source": "sprites/pokemon/other/home/shiny/7.png", "destination": "artworks/7-shiny.png" },
     { "source": "sprites/pokemon/versions/generation-v/black-white/animated/18.gif", "destination": "animes/roucarnage-vol.gif" }
   ],
-  "sprites": { "source": "sprites/pokemon/{id}.png", "destination": "sprites/{id}.png", "taille": 96 }
+  "sprites": { "source": "sprites/pokemon/{id}.png", "destination": "sprites/{id}.png", "taille": 96 },
+  "spritesShiny": { "source": "sprites/pokemon/shiny/{id}.png", "destination": "sprites-shiny/{id}.png", "taille": 96 }
 }

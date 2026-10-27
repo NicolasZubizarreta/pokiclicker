@@ -15,12 +15,13 @@ const plan = planifier({
   ressources,
   numeros: pokemon.pokemon.map(({ numero }) => numero),
   existe: (destination) => existsSync(resolve(racine, 'assets-src', destination))
-    || (destination.startsWith('sprites/') && existsSync(resolve(racine, 'public/img/sprites/pokemon', destination.slice('sprites/'.length)))),
+    || (destination.startsWith('sprites/') && existsSync(resolve(racine, 'public/img/sprites/pokemon', destination.slice('sprites/'.length))))
+    || (destination.startsWith('sprites-shiny/') && existsSync(resolve(racine, 'public/img/sprites/pokemon-shiny', destination.slice('sprites-shiny/'.length)))),
 });
-const ignores = ressources.fixes.length + pokemon.pokemon.length - plan.length;
+const ignores = ressources.fixes.length + pokemon.pokemon.length * 2 - plan.length;
 
 if (process.argv.includes('--essai')) {
-  console.log(`Essai : ${['objets', 'artworks', 'animes', 'sprites'].map((genre) => `${genre} : ${plan.filter(({ destination }) => destination.startsWith(`${genre}/`)).length}`).join(', ')} ; ${plan.length} fichiers à télécharger ; ${ignores} déjà présents ignorés.`);
+  console.log(`Essai : ${['objets', 'artworks', 'animes', 'sprites', 'sprites-shiny'].map((genre) => `${genre} : ${plan.filter(({ destination }) => destination.startsWith(`${genre}/`)).length}`).join(', ')} ; ${plan.length} fichiers à télécharger ; ${ignores} déjà présents ignorés.`);
   for (const { url, destination } of plan) console.log(`${url} → assets-src/${destination}`);
 } else {
   let ecrits = 0;

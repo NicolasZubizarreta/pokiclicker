@@ -930,5 +930,609 @@
   "img/fin/diplome.webp": {
     "largeur": 1280,
     "hauteur": 698
+  },
+  "img/sprites/pokemon-shiny/1.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/10.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/100.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/101.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/102.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/103.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/104.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/105.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/106.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/107.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/108.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/109.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/11.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/110.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/111.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/112.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/113.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/114.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/115.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/116.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/117.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/118.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/119.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/12.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/120.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/121.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/122.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/123.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/124.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/125.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/126.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/127.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/128.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/129.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/13.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/130.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/131.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/132.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/133.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/134.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/135.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/136.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/137.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/138.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/139.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/14.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/140.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/141.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/142.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/143.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/144.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/145.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/146.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/147.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/148.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/149.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/15.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/150.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/151.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/16.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/17.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/18.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/19.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/2.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/20.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/21.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/22.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/23.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/24.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/25.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/26.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/27.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/28.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/29.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/3.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/30.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/31.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/32.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/33.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/34.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/35.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/36.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/37.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/38.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/39.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/4.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/40.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/41.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/42.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/43.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/44.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/45.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/46.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/47.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/48.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/49.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/5.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/50.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/51.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/52.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/53.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/54.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/55.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/56.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/57.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/58.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/59.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/6.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/60.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/61.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/62.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/63.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/64.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/65.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/66.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/67.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/68.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/69.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/7.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/70.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/71.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/72.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/73.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/74.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/75.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/76.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/77.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/78.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/79.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/8.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/80.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/81.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/82.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/83.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/84.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/85.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/86.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/87.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/88.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/89.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/9.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/90.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/91.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/92.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/93.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/94.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/95.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/96.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/97.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/98.png": {
+    "largeur": 96,
+    "hauteur": 96
+  },
+  "img/sprites/pokemon-shiny/99.png": {
+    "largeur": 96,
+    "hauteur": 96
   }
 }

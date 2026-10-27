@@ -13,6 +13,7 @@ const ressources = {
   hote: 'raw.githubusercontent.com', base,
   fixes: [{ source: 'sprites/items/poke-ball.png', destination: 'objets/poke-ball.png' }],
   sprites: { source: 'sprites/pokemon/{id}.png', destination: 'sprites/{id}.png', taille: 96 },
+  spritesShiny: { source: 'sprites/pokemon/shiny/{id}.png', destination: 'sprites-shiny/{id}.png', taille: 96 },
 };
 const octets = new Uint8Array([1, 2, 3]);
 const reponse = () => Promise.resolve({ ok: true, status: 200, arrayBuffer: async () => octets.buffer });
@@ -26,8 +27,47 @@ describe('téléchargement des images sans réseau', () => {
       { url: `${base}sprites/items/poke-ball.png`, destination: 'objets/poke-ball.png' },
       { url: `${base}sprites/pokemon/1.png`, destination: 'sprites/1.png' },
       { url: `${base}sprites/pokemon/3.png`, destination: 'sprites/3.png' },
+      { url: `${base}sprites/pokemon/shiny/1.png`, destination: 'sprites-shiny/1.png' },
+      { url: `${base}sprites/pokemon/shiny/2.png`, destination: 'sprites-shiny/2.png' },
+      { url: `${base}sprites/pokemon/shiny/3.png`, destination: 'sprites-shiny/3.png' },
     ]);
     expect(planifier({ ressources, numeros: [1], existe: () => true })).toEqual([]);
+  });
+
+  it('planifie les 151 sprites chromatiques et ignore ceux déjà présents', () => {
+    const numeros = Array.from({ length: 151 }, (_, index) => index + 1);
+    const plan = planifier({ ressources, numeros, existe: () => false });
+    expect(plan.filter(({ destination }) => destination.startsWith('sprites-shiny/'))).toEqual(numeros.map((numero) => ({
+      url: `${base}sprites/pokemon/shiny/${numero}.png`, destination: `sprites-shiny/${numero}.png`,
+    })));
+    expect(planifier({ ressources, numeros, existe: (destination) => destination.startsWith('sprites-shiny/') }))
+      .toEqual(plan.filter(({ destination }) => !destination.startsWith('sprites-shiny/')));
+  });
+
+  it.each([
+    { source: 'https://exemple.fr/{id}.png' },
+    { source: 'http://raw.githubusercontent.com/{id}.png' },
+    { destination: '../sprites-shiny/{id}.png' },
+    { destination: 'sprites-shiny/../{id}.png' },
+    { destination: 'sprites-shiny\\..\\{id}.png' },
+    { destination: '/sprites-shiny/{id}.png' },
+    { destination: 'C:\\sprites-shiny\\{id}.png' },
+  ])('refuse une ressource chromatique interdite : %o', (modification) => {
+    expect(() => planifier({
+      ressources: { ...ressources, spritesShiny: { ...ressources.spritesShiny, ...modification } },
+      numeros: [1], existe: () => true,
+    })).toThrow(/interdit/);
+  });
+
+  it.each(['sprites-shiny/1.png', 'sprites-shiny\\1.png'])('contrôle les dimensions chromatiques : %s', async (destination) => {
+    const ecrire = vi.fn().mockResolvedValue(undefined);
+    await expect(telecharger({
+      plan: [element(destination)], fetch: vi.fn(reponse), ecrire,
+      mesurer: async () => ({ largeur: 96, hauteur: 100 }), tailleSprite: 96,
+    })).rejects.toThrow('Dimensions refusées');
+    expect(ecrire).not.toHaveBeenCalled();
+    await telecharger({ plan: [element(destination)], fetch: vi.fn(reponse), ecrire, mesurer, tailleSprite: 96 });
+    expect(ecrire).toHaveBeenCalledWith(destination, octets);
   });
 
   it('ne fait jamais appel à fetch pendant la planification', () => {
@@ -122,14 +162,16 @@ describe('téléchargement des images sans réseau', () => {
       const plan = planifier({
         ressources: catalogue, numeros: pokemon.pokemon.map(({ numero }) => numero),
         existe: (destination) => existsSync(join(racine, 'assets-src', destination))
-          || (destination.startsWith('sprites/') && existsSync(join(racine, 'public/img/sprites/pokemon', destination.slice(8)))),
+          || (destination.startsWith('sprites/') && existsSync(join(racine, 'public/img/sprites/pokemon', destination.slice(8))))
+          || (destination.startsWith('sprites-shiny/') && existsSync(join(racine, 'public/img/sprites/pokemon-shiny', destination.slice('sprites-shiny/'.length)))),
       });
       expect(stdout.split(/\r?\n/)[0]).toBe('Hôte unique contacté : raw.githubusercontent.com');
-      for (const genre of ['objets', 'artworks', 'animes', 'sprites']) {
+      for (const genre of ['objets', 'artworks', 'animes', 'sprites', 'sprites-shiny']) {
         expect(stdout).toContain(`${genre} : ${plan.filter(({ destination }) => destination.startsWith(`${genre}/`)).length}`);
       }
       expect(catalogue.fixes).toHaveLength(31);
       expect(stdout).toContain(`${plan.length} fichiers à télécharger`);
+      expect(stdout).toContain(`${catalogue.fixes.length + pokemon.pokemon.length * 2 - plan.length} déjà présents ignorés`);
       for (const { url, destination } of plan) expect(stdout).toContain(`${url} → assets-src/${destination}`);
       expect(stderr).toBe('');
       expect(await readdir(dossier)).toEqual(['garde.cjs']);

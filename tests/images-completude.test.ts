@@ -31,6 +31,16 @@ it('contient exactement les 151 sprites du Pokédex aux dimensions configurées'
   }
 });
 
+it('les 151 sprites chromatiques existent', async () => {
+  const attendus = pokemon.map(({ numero }) => `img/sprites/pokemon-shiny/${numero}.png`);
+  expect(attendus).toHaveLength(151);
+  expect(Object.keys(tailles).filter((cle) => cle.startsWith('img/sprites/pokemon-shiny/')).sort()).toEqual([...attendus].sort());
+  for (const chemin of attendus) {
+    expect(tailles[chemin], chemin).toEqual({ largeur: images.sprite.taille, hauteur: images.sprite.taille });
+    await existe(chemin);
+  }
+});
+
 it('contient les sprites de tous les Pokémon cités dans les zones', () => {
   for (const zone of zones) {
     const rencontres = [...(zone.sauvages ?? []), ...(zone.adversaires ?? []), ...(zone.boss ? [zone.boss] : [])];

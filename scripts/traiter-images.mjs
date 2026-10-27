@@ -20,6 +20,7 @@ async function traiter() {
   const genres = {
     decors: { extension: 'webp', filtre: /\.(png|jpe?g|webp)$/i, dossier: 'decors' },
     sprites: { extension: 'png', filtre: /\.png$/i, dossier: 'sprites/pokemon', taille: reglages.sprite.taille, libelle: 'Sprite' },
+    'sprites-shiny': { extension: 'png', filtre: /\.png$/i, dossier: 'sprites/pokemon-shiny', taille: reglages.sprite.taille, libelle: 'Sprite chromatique' },
     dresseur: { extension: 'png', filtre: /\.png$/i, dossier: 'sprites/dresseur' },
     objets: { extension: 'png', filtre: /\.png$/i, dossier: 'objets', taille: reglages.objet.taille, libelle: 'Objet' },
     artworks: { extension: 'png', filtre: /\.png$/i, dossier: 'artworks' },
