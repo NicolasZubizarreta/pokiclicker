@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Finitions de la V1 à choisir</title>
+<link rel="stylesheet" href="../_base/base.css">
+<!-- Press Start 2P n'est pas dans le projet : elle est chargée ici seulement pour la comparer (page d'essai, pas le jeu). -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap">
+<style>
+body { padding-bottom: calc(var(--spacing) * 10); }
+main { max-width: 64rem; margin-inline: auto; display: grid; gap: calc(var(--spacing) * 10); }
+section.essai { display: grid; gap: calc(var(--spacing) * 4); }
+.choix { display: flex; flex-wrap: wrap; gap: calc(var(--spacing) * 2); }
+.choix label { display: inline-flex; align-items: center; min-height: calc(var(--spacing) * 11); padding: calc(var(--spacing) * 2) calc(var(--spacing) * 4); background: var(--surface-2); cursor: pointer; border: calc(var(--spacing) / 2) solid transparent; }
+.choix input { position: absolute; opacity: 0; pointer-events: none; }
+.choix label:has(input:checked) { border-color: var(--region-accent); background: var(--surface); }
+.choix label:has(input:focus-visible) { outline: 3px solid var(--focus); outline-offset: 2px; }
+.note { color: var(--texte-doux); }
+.decor { position: relative; aspect-ratio: 16 / 9; min-height: 18rem; background: center / cover no-repeat url("../../../public/img/decors/arene-de-jadielle.webp"); overflow: hidden; border-radius: var(--rayon); }
+.decor > * { position: absolute; }
+.sur-image { font-weight: 700; color: #fff; }
+.zone { inset: calc(var(--spacing) * 3) auto auto calc(var(--spacing) * 3); font-family: var(--font-titre); font-size: var(--text-xl); }
+.recherche { inset: auto auto calc(var(--spacing) * 3) calc(var(--spacing) * 3); }
+.degats-v { inset: 38% auto auto 58%; font-size: var(--text-2xl); color: #7be08a; }
+.degats-r { inset: 52% auto auto 30%; font-size: var(--text-2xl); color: #ff8a80; }
+.pokemon { inset: 30% auto auto 40%; width: 28%; image-rendering: pixelated; }
+.panneau { inset: auto calc(var(--spacing) * 3) calc(var(--spacing) * 3) auto; padding: calc(var(--spacing) * 3) calc(var(--spacing) * 4); display: grid; gap: calc(var(--spacing) * 1); min-width: 11rem; color: var(--texte); background: var(--surface); }
+.panneau .barre { height: calc(var(--spacing) * 2); background: var(--surface-2); }
+.panneau .barre i { display: block; height: 100%; width: 70%; background: var(--region-accent); }
+.banniere { inset: calc(var(--spacing) * 3) calc(var(--spacing) * 3) auto auto; padding: calc(var(--spacing) * 2) calc(var(--spacing) * 3); background: var(--surface); color: var(--texte); }
+/* Contours */
+.decor[data-contour="fin"] .sur-image { text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; }
+.decor[data-contour="epais"] .sur-image { text-shadow: -2px -2px 0 #000, 0 -2px 0 #000, 2px -2px 0 #000, -2px 0 0 #000, 2px 0 0 #000, -2px 2px 0 #000, 0 2px 0 #000, 2px 2px 0 #000, 0 3px 4px rgb(0 0 0 / .6); }
+/* Panneaux */
+.decor[data-panneau="verre"] .panneau, .decor[data-panneau="verre"] .banniere { background: color-mix(in srgb, var(--surface) 45%, transparent); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.decor[data-panneau="translucide"] .panneau, .decor[data-panneau="translucide"] .banniere { background: color-mix(in srgb, var(--surface) 82%, transparent); }
+/* Polices */
+.polices { display: grid; gap: calc(var(--spacing) * 4); grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); }
+.carte-police { display: grid; gap: calc(var(--spacing) * 3); padding: calc(var(--spacing) * 4); background: var(--surface); align-content: start; }
+.carte-police h3 { margin: 0; font-size: var(--text-xl); }
+.carte-police .titre { font-size: var(--text-2xl); line-height: 1.3; }
+.carte-police .bouton { justify-self: start; min-height: calc(var(--spacing) * 11); padding: calc(var(--spacing) * 2) calc(var(--spacing) * 4); background: var(--action); color: var(--action-texte); border: 0; }
+.f-v2 .titre, .f-v2 .bouton, .f-v2 .chiffre { font-family: var(--font-titre); font-weight: 600; }
+.f-v1 .titre, .f-v1 .bouton, .f-v1 .chiffre { font-family: "Press Start 2P", monospace; font-weight: 400; }
+.f-v1 .titre { font-size: var(--text-lg); line-height: 1.6; }
+.f-v1 .bouton { font-size: var(--text-sm); }
+.f-v1 .chiffre { font-size: var(--text-base); }
+.f-v1 .corps, .f-v2 .corps { font-family: var(--font-texte); }
+/* Étoile des chromatiques */
+.etoiles { display: grid; gap: calc(var(--spacing) * 4); grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
+.etoile { display: grid; gap: calc(var(--spacing) * 3); padding: calc(var(--spacing) * 4); background: var(--surface); align-content: start; }
+.etoile h3 { margin: 0; font-size: var(--text-lg); }
+.ligne { display: flex; align-items: center; gap: calc(var(--spacing) * 2); padding: calc(var(--spacing) * 2) calc(var(--spacing) * 3); background: var(--surface-2); }
+.ligne img { width: calc(var(--spacing) * 12); image-rendering: pixelated; }
+.ligne strong { font-size: var(--text-base); }
+.ligne.sur-decor { background: center / cover url("../../../public/img/decors/route-1.webp"); }
+.ligne.sur-decor strong { color: #fff; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; }
+.ligne .fiche { font-size: var(--text-2xl); font-family: var(--font-titre); font-weight: 600; }
+.e-glyphe { color: #facc15; }                                  /* jaune de la V1 (text-yellow-400) */
+.e-dore { color: var(--color-alerte-base-sombre); }            /* doré de la charte */
+.e-contour { color: var(--color-alerte-base-sombre); text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; }
+.e-svg { display: inline-block; width: 1em; height: 1em; vertical-align: middle; stroke: none; }
+</style>
+</head>
+<body>
+<main id="contenu">
+<header><h1>Finitions de la V1</h1></header>
+<p class="note">Tout est en direct : clique sur les choix, ils changent l'écran. Rien n'est enregistré, tu me dis ensuite ce que tu gardes. Les étoiles ✦ sont déjà acceptées : on compare seulement leur couleur.</p>
+
+<section class="essai" aria-labelledby="t-contour">
+  <h2 id="t-contour">1. Contour noir des textes posés sur l'image</h2>
+  <p class="note">La V1 met un contour noir autour du texte qui n'a pas de panneau derrière (nom de zone, nombres de dégâts, « Recherche en cours… »). Regarde surtout le texte blanc en haut à gauche et en bas, posé directement sur l'image.</p>
+  <div class="choix" role="radiogroup" aria-label="Contour des textes">
+    <label><input type="radio" name="contour" value="aucun" checked>Sans contour (actuel)</label>
+    <label><input type="radio" name="contour" value="fin">Contour fin</label>
+    <label><input type="radio" name="contour" value="epais">Contour épais (V1)</label>
+  </div>
+  <div class="decor" id="scene-contour" data-contour="aucun" data-panneau="plein">
+    <span class="zone sur-image">Arène de Jadielle · Étape 4 / 10</span>
+    <span class="degats-v sur-image">-1 234</span>
+    <span class="degats-r sur-image">-87</span>
+    <span class="recherche sur-image">Recherche en cours…</span>
+    <img class="pokemon" src="../../../public/img/sprites/pokemon/6.png" alt="Dracaufeu">
+  </div>
+</section>
+
+<section class="essai" aria-labelledby="t-verre">
+  <h2 id="t-verre">2. Fond des panneaux : plein ou verre dépoli</h2>
+  <p class="note">Le verre dépoli est un fond transparent qui floute le décor derrière. La charte actuelle l'interdit (coût sur téléphone, lisibilité). Le « semi-transparent » donne presque le même effet sans flou. Regarde le panneau en bas à droite et le bandeau en haut à droite.</p>
+  <div class="choix" role="radiogroup" aria-label="Fond des panneaux">
+    <label><input type="radio" name="panneau" value="plein" checked>Plein (actuel)</label>
+    <label><input type="radio" name="panneau" value="translucide">Semi-transparent, sans flou</label>
+    <label><input type="radio" name="panneau" value="verre">Verre dépoli (V1)</label>
+  </div>
+  <div class="decor" id="scene-verre" data-contour="aucun" data-panneau="plein">
+    <span class="banniere">Shiny apparu ! Auto stoppé !</span>
+    <img class="pokemon" src="../../../public/img/sprites/pokemon-shiny/6.png" alt="Dracaufeu chromatique">
+    <div class="panneau">
+      <strong>Dracaufeu</strong>
+      <span>Niveau 36</span>
+      <span class="barre"><i></i></span>
+      <span>1 543 / 2 200 PV</span>
+    </div>
+  </div>
+</section>
+
+<section class="essai" aria-labelledby="t-police">
+  <h2 id="t-police">3. Police des titres</h2>
+  <p class="note">Le texte courant reste Atkinson Hyperlegible dans les deux cas. Seuls les titres, les boutons et les chiffres changent. Press Start 2P (V1) est plus large : à 390 px elle prend plus de place.</p>
+  <div class="polices">
+    <article class="carte-police f-v2 cadre">
+      <h3>Pixelify Sans (V2 actuelle)</h3>
+      <p class="titre">Arène de Jadielle</p>
+      <p class="chiffre">12 345 pièces · Niveau 36</p>
+      <p class="corps">Le Pokémon sauvage a pris la fuite. Continue ton chemin vers la zone suivante.</p>
+      <button class="bouton" type="button">ATTAQUER</button>
+    </article>
+    <article class="carte-police f-v1 cadre">
+      <h3 style="font-family: var(--font-titre)">Press Start 2P (V1)</h3>
+      <p class="titre">Arène de Jadielle</p>
+      <p class="chiffre">12 345 pièces · Niveau 36</p>
+      <p class="corps">Le Pokémon sauvage a pris la fuite. Continue ton chemin vers la zone suivante.</p>
+      <button class="bouton" type="button">ATTAQUER</button>
+    </article>
+  </div>
+</section>
+
+<section class="essai" aria-labelledby="t-etoile">
+  <h2 id="t-etoile">4. Étoile des chromatiques ✦</h2>
+  <p class="note">Aujourd'hui l'icône est un double éclat bleu qui tourne au vert. La V1 mettait une étoile ✦ jaune après le nom. Chaque carte montre l'étoile dans une liste, sur un décor de route et dans un titre de fiche.</p>
+  <div class="etoiles">
+    <article class="etoile cadre"><h3>A · ✦ jaune de la V1</h3>
+      <div class="ligne"><img src="../../../public/img/sprites/pokemon-shiny/6.png" alt=""><strong>Dracaufeu <span class="e-glyphe">✦</span></strong></div>
+      <div class="ligne sur-decor"><strong>Dracaufeu <span class="e-glyphe">✦</span></strong></div>
+      <div class="ligne"><span class="fiche">Dracaufeu <span class="e-glyphe">✦</span></span></div></article>
+    <article class="etoile cadre"><h3>B · ✦ doré de la charte</h3>
+      <div class="ligne"><img src="../../../public/img/sprites/pokemon-shiny/6.png" alt=""><strong>Dracaufeu <span class="e-dore">✦</span></strong></div>
+      <div class="ligne sur-decor"><strong>Dracaufeu <span class="e-dore">✦</span></strong></div>
+      <div class="ligne"><span class="fiche">Dracaufeu <span class="e-dore">✦</span></span></div></article>
+    <article class="etoile cadre"><h3>C · ✦ doré avec contour noir</h3>
+      <div class="ligne"><img src="../../../public/img/sprites/pokemon-shiny/6.png" alt=""><strong>Dracaufeu <span class="e-contour">✦</span></strong></div>
+      <div class="ligne sur-decor"><strong>Dracaufeu <span class="e-contour">✦</span></strong></div>
+      <div class="ligne"><span class="fiche">Dracaufeu <span class="e-contour">✦</span></span></div></article>
+    <article class="etoile cadre"><h3>D · Double éclat actuel (bleu → vert)</h3>
+      <div class="ligne"><img src="../../../public/img/sprites/pokemon-shiny/6.png" alt=""><strong>Dracaufeu <svg class="e-svg" viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop stop-color="var(--color-accent-400)"/><stop offset="1" stop-color="var(--color-succes-base-sombre)"/></linearGradient></defs><g fill="url(#g1)" stroke="var(--color-neutre-950)" stroke-width="1.8" stroke-linejoin="round"><path d="m9 4 2.5 6.5L18 13l-6.5 2.5L9 22l-2.5-6.5L1 13l5.5-2.5Z"/><path d="m19 1 1.2 3.8L23 6l-2.8 1.2L19 11l-1.2-3.8L15 6l2.8-1.2Z"/></g></svg></strong></div>
+      <div class="ligne sur-decor"><strong>Dracaufeu <svg class="e-svg" viewBox="0 0 24 24" aria-hidden="true"><g fill="url(#g1)" stroke="var(--color-neutre-950)" stroke-width="1.8" stroke-linejoin="round"><path d="m9 4 2.5 6.5L18 13l-6.5 2.5L9 22l-2.5-6.5L1 13l5.5-2.5Z"/><path d="m19 1 1.2 3.8L23 6l-2.8 1.2L19 11l-1.2-3.8L15 6l2.8-1.2Z"/></g></svg></strong></div>
+      <div class="ligne"><span class="fiche">Dracaufeu <svg class="e-svg" viewBox="0 0 24 24" aria-hidden="true"><g fill="url(#g1)" stroke="var(--color-neutre-950)" stroke-width="1.8" stroke-linejoin="round"><path d="m9 4 2.5 6.5L18 13l-6.5 2.5L9 22l-2.5-6.5L1 13l5.5-2.5Z"/><path d="m19 1 1.2 3.8L23 6l-2.8 1.2L19 11l-1.2-3.8L15 6l2.8-1.2Z"/></g></svg></span></div></article>
+  </div>
+</section>
+</main>
+<script>
+for (const [nom, scenes] of [['contour', ['scene-contour', 'scene-verre']], ['panneau', ['scene-contour', 'scene-verre']]]) {
+  for (const radio of document.querySelectorAll(`input[name="${nom}"]`)) {
+    radio.addEventListener('change', () => { for (const id of scenes) document.getElementById(id).dataset[nom] = radio.value; });
+  }
+}
+</script>
+</body>
+</html>
