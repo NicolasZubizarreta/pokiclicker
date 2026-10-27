@@ -150,7 +150,7 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
             return <Fragment key={f.nom}>
               {nouvelle && <Forme {...attributsSvg(f.forme)} className="pointer-events-none fill-texte-doux/50" />}
               <Forme {...attributsSvg(f.forme)} data-forme={f.nom} data-zone={f.zone}
-              className={`${couleur(f)} focus-visible:outline-none focus-visible:stroke-focus focus-visible:stroke-3 ${nouvelle ? fondu ? 'carte-deblocage' : 'opacity-0' : ''} ${debug ? 'stroke-focus' : ''} ${f.zone ? 'cursor-pointer' : 'pointer-events-none'}`}
+              className={`${couleur(f)} outline-none focus-visible:stroke-focus focus-visible:stroke-3 ${nouvelle ? fondu ? 'carte-deblocage' : 'opacity-0' : ''} ${debug ? 'stroke-focus' : ''} ${f.zone ? 'cursor-pointer' : 'pointer-events-none'}`}
               vectorEffect="non-scaling-stroke" role={f.zone ? 'button' : undefined}
               tabIndex={f.zone ? 0 : undefined} aria-label={nomAccessible(f)}
               onClick={() => { if (f.zone && !glissement.current) selectionner(f.zone); }}
