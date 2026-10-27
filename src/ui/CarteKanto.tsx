@@ -56,6 +56,9 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
     fetch(`/design/cartes-candidates/zones-${essaiFond}.json`).then(r => r.ok ? r.json() : null)
       .then((positions: Record<string, Point> | null) => chargerPositions(positions)).catch(() => undefined);
   }, [essaiFond]);
+  // Repères de la carte redessinée : 21 px de rayon sur grand écran, plus petits quand la carte est étroite.
+  const rayonRepere = Math.min(21, largeur / 34);
+  const epaisseurRepere = rayonRepere < 15 ? 2 : 3;
   const centreDe = (f: EtatForme): Point => {
     const p = f.zone ? positionsEssai?.[f.zone] : undefined;
     return p ? { x: p.x * 16, y: p.y * 9 } : centreForme(f.forme);
@@ -186,8 +189,8 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
               transform={`translate(${c.x} ${c.y}) scale(${1 / pxParUnite})`} className="group cursor-pointer outline-none"
               onClick={() => { if (!glissement.current) selectionner(f.zone); }}
               onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); selectionner(f.zone); } }}>
-              <circle r={choisieIci ? 17 : 14} className={`${!f.ouverte ? 'fill-texte-doux' : f.actuelle ? 'fill-succes-base' : 'fill-alerte-base'} ${choisieIci ? 'stroke-succes-base' : 'stroke-fond group-focus-visible:stroke-focus'} stroke-3`} />
-              <text textAnchor="middle" dominantBaseline="central" className="pointer-events-none fill-fond text-xs font-bold">{f.numero}</text>
+              <circle r={rayonRepere + (choisieIci ? 4 : 1)} strokeWidth={epaisseurRepere * 2} className="fill-transparent stroke-fond/70" />
+              <circle r={rayonRepere + (choisieIci ? 3 : 0)} strokeWidth={epaisseurRepere} className={`${!f.ouverte ? 'fill-texte-doux/30 stroke-texte-doux' : f.actuelle ? 'fill-succes-base/35 stroke-succes-base' : 'fill-alerte-base/30 stroke-alerte-base'} ${choisieIci ? 'stroke-succes-base' : 'group-focus-visible:stroke-focus'}`} />
             </g>;
           })}
         </g>}
@@ -214,8 +217,8 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
             ...attributsSvg(f.forme), key: f.nom, className: 'carte-clignotement',
           }))}
           {actuelle && <circle data-actuelle={actuelle.zone} cx={centreDe(actuelle).x} cy={centreDe(actuelle).y}
-            r={positionsEssai ? 21 / pxParUnite : rayonCible(pxParUnite) / 2}
-            className={positionsEssai ? 'carte-pulsation fill-transparent stroke-succes-base stroke-3' : 'carte-pulsation'}
+            r={positionsEssai ? (rayonRepere + 11) / pxParUnite : rayonCible(pxParUnite) / 2}
+            className={positionsEssai ? 'carte-pulsation fill-transparent stroke-succes-base stroke-2' : 'carte-pulsation'}
             vectorEffect={positionsEssai ? 'non-scaling-stroke' : undefined} />}
         </g>
         {debug && <g className="pointer-events-none fill-texte font-texte text-base">
