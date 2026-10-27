@@ -8,6 +8,30 @@ import { afficherProgression } from './store-progression';
 import { formaterDps } from './nombres';
 
 const contexte = vi.hoisted(() => ({ store: null as unknown as typeof storeJeu }));
+
+it('réserve le diplôme aux détenteurs et ouvre sa fenêtre depuis Plus', () => {
+  const { unmount } = render(<PagePlus />);
+  expect(screen.queryByRole('button', { name: 'Diplôme du Pokédex' })).toBeNull();
+  unmount();
+  storeJeu.setState({ fin: { diplome: { nom: 'Nicolas', date: '2026-10-25T00:00:00Z' }, credits: false } });
+  Object.defineProperties(HTMLDialogElement.prototype, {
+    showModal: { configurable: true, value(this: HTMLDialogElement) { this.open = true; } },
+    close: { configurable: true, value(this: HTMLDialogElement) { this.open = false; } },
+  });
+  try {
+    render(<PagePlus />);
+    const entree = screen.getByRole('button', { name: 'Diplôme du Pokédex' });
+    entree.focus();
+    fireEvent.click(entree);
+    expect(screen.getByRole('dialog', { name: 'Diplôme du Pokédex' })).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Fermer' }));
+    expect(document.activeElement).toBe(entree);
+  } finally {
+    cleanup();
+    Reflect.deleteProperty(HTMLDialogElement.prototype, 'showModal');
+    Reflect.deleteProperty(HTMLDialogElement.prototype, 'close');
+  }
+});
 vi.mock('./store', async original => ({
   ...await original<typeof import('./store')>(),
   get storeJeu() { return contexte.store; },

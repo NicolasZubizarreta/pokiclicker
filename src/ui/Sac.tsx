@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useStore } from 'zustand';
 import { chargerObjetsCles } from '../core/evenements';
 import { FiltreCategories } from './FiltreCategories';
+import { Diplome } from './Diplome';
 import { IconeObjet } from './icones';
 import type { AffichageSac } from './store-boutique';
 import { storeJeu } from './store';
@@ -16,6 +17,8 @@ export function Sac({ sac, utiliser }: {
   utiliser(entree: AffichageSac['entrees'][number], declencheur: HTMLButtonElement): void;
 }) {
   const [categorie, filtrer] = useState('tout');
+  const diplome = useStore(storeJeu, etat => etat.fin.diplome);
+  const [diplomeOuvert, ouvrirDiplome] = useState(false);
   const objetsCles = useStore(storeJeu, etat => etat.objetsCles);
   const utiliserObjetCle = useStore(storeJeu, etat => etat.utiliserObjetCle);
   const [message, annoncer] = useState<string | null>(null);
@@ -40,6 +43,9 @@ export function Sac({ sac, utiliser }: {
               </span>
             </span>
           </button>
+          {entree.id === 'diploma' && entree.quantite > 0 && diplome && <button type="button"
+            className="min-h-11 w-full bg-surface-2 px-4 py-2 text-region-accent hover:bg-selection"
+            onClick={() => ouvrirDiplome(true)}>Voir</button>}
         </li>)}
     </ul>
     {objetsCles.length > 0 && <section aria-label="Objets clés" className="space-y-2">
@@ -56,5 +62,6 @@ export function Sac({ sac, utiliser }: {
       </ul>
       <p role="status">{message ?? ''}</p>
     </section>}
+    {diplomeOuvert && diplome && <Diplome diplome={diplome} fermer={() => ouvrirDiplome(false)} />}
   </section>;
 }

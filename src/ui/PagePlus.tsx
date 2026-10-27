@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { useStore } from 'zustand';
 import { BoiteBadges } from './BoiteBadges';
+import { Diplome } from './Diplome';
 import { formaterDps } from './nombres';
 import { PagePC } from './PagePC';
 import { Pokedex } from './Pokedex';
@@ -8,6 +9,8 @@ import { storeJeu } from './store';
 import { formaterProchainPalier } from './store-progression';
 
 export function PagePlus() {
+  const diplome = useStore(storeJeu, etat => etat.fin.diplome);
+  const [diplomeOuvert, ouvrirDiplome] = useState(false);
   const [sousPage, choisir] = useState<null | 'pc' | 'pokedex' | 'badges'>(null);
   const accesPc = useStore(storeJeu, etat => etat.accesPc);
   const progression = useStore(storeJeu, etat => etat.progression);
@@ -73,6 +76,8 @@ export function PagePlus() {
                 data-entree="badges" onClick={() => { entree.current = 'badges'; choisir('badges'); }}>Badges</button>
             </li>
           </ul>
+          {diplome && <button type="button" onClick={() => ouvrirDiplome(true)}
+            className="cadre mt-4 min-h-11 w-full bg-surface p-4 text-left hover:bg-selection">Diplôme du Pokédex</button>}
           <section aria-labelledby={reglagesId} className="cadre mt-4 space-y-4 bg-surface p-4">
             <h2 id={reglagesId} className="font-titre text-xl font-semibold">Réglages</h2>
             <button type="button" role="switch" aria-checked={sonActive} onClick={() => storeJeu.getState().basculerSon()}
@@ -81,5 +86,6 @@ export function PagePlus() {
             </button>
           </section>
         </section>}
+    {diplomeOuvert && diplome && <Diplome diplome={diplome} fermer={() => ouvrirDiplome(false)} />}
   </div>;
 }

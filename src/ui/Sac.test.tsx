@@ -19,6 +19,36 @@ const sac: AffichageSac = { acces: { ouvert: true, raison: null }, entrees: [
 ] };
 afterEach(cleanup);
 
+it('propose Voir seulement pour le diplôme obtenu et ouvre la même fenêtre', () => {
+  const avant = storeJeu.getState();
+  const contenu: AffichageSac = { ...sac, entrees: [{ ...sac.entrees[2]!, id: 'diploma', nom: 'Diplôme' }] };
+  storeJeu.setState({ fin: { diplome: null, credits: false } });
+  Object.defineProperties(HTMLDialogElement.prototype, {
+    showModal: { configurable: true, value(this: HTMLDialogElement) { this.open = true; } },
+    close: { configurable: true, value(this: HTMLDialogElement) { this.open = false; } },
+  });
+  try {
+    const utiliser = vi.fn();
+    const { unmount } = render(<Sac sac={contenu} utiliser={utiliser} />);
+    expect(screen.queryByRole('button', { name: 'Voir' })).toBeNull();
+    unmount();
+    storeJeu.setState({ fin: { diplome: { nom: 'Nicolas', date: '2026-10-25T00:00:00Z' }, credits: false } });
+    render(<Sac sac={contenu} utiliser={utiliser} />);
+    const voir = screen.getByRole('button', { name: 'Voir' });
+    voir.focus();
+    fireEvent.click(voir);
+    expect(screen.getByRole('dialog', { name: 'Diplôme du Pokédex' })).toBeTruthy();
+    expect(utiliser).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'Fermer' }));
+    expect(document.activeElement).toBe(voir);
+  } finally {
+    cleanup();
+    storeJeu.setState(avant);
+    Reflect.deleteProperty(HTMLDialogElement.prototype, 'showModal');
+    Reflect.deleteProperty(HTMLDialogElement.prototype, 'close');
+  }
+});
+
 it('transmet le bouton déclencheur avec l’objet utilisé', () => {
   const utiliser = vi.fn();
   render(<Sac sac={sac} utiliser={utiliser} />);

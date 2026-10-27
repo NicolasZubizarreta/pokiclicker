@@ -1,0 +1,41 @@
+.diplome-fenetre {
+  max-width: min(var(--breakpoint-lg), calc(100% - var(--spacing) * 8));
+  max-height: calc(100dvh - var(--spacing) * 8);
+  overflow-x: hidden;
+}
+.diplome-fenetre::backdrop { background: var(--fond); opacity: 0.5; }
+
+/* Rebond V1 ; le centrage est assuré par le dialogue natif. */
+@keyframes diploma-entrance {
+  0% { transform: scale(0.3); opacity: 0; }
+  60% { transform: scale(1.1); opacity: 1; }
+  80% { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .diplome-feuille { animation: diploma-entrance calc(var(--duration-lent) * 4) var(--ease-sortie) both; }
+}
+
+@media print {
+  @page { size: A4 landscape; }
+  html:has(.diplome-fenetre[open]), body:has(.diplome-fenetre[open]) { overflow: visible; }
+  body:has(.diplome-fenetre[open]) { margin: 0; padding: 0; }
+  body:has(.diplome-fenetre[open]) > :not(.diplome-fenetre),
+  .diplome-fenetre > header, .diplome-fenetre > footer { display: none !important; }
+  .diplome-fenetre[open] {
+    position: static;
+    width: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    overflow: visible;
+    box-shadow: none;
+    background: var(--blanc);
+    color: var(--color-neutre-950);
+  }
+  .diplome-fenetre::backdrop { display: none; }
+  .diplome-feuille { animation: none; break-inside: avoid; }
+  .diplome-identite { background: var(--blanc); }
+}
