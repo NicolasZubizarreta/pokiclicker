@@ -3,12 +3,16 @@ import type { FormeCarte } from './monde';
 import { exiger, forme, identifiant, objet } from './sauvegarde-validation';
 
 export type FormeScene = Exclude<FormeCarte, { forme: 'cercle' }>;
+type Rectangle = { x: number; y: number; l: number; h: number };
+/** Télé cachée (easter egg) : écran où joue la vidéo, bouton qui l'allume, en fractions de la scène. */
+export type TeleScene = { video: string; ecran: Rectangle; bouton: Rectangle };
 export type Scene = {
   id: string;
   image: string;
   ratio: [number, number];
   formes: FormeScene[];
   bulle?: string;
+  tele?: TeleScene;
 };
 
 function texte(v: unknown): asserts v is string {
@@ -52,6 +56,16 @@ function validerForme(v: unknown) {
   }
 }
 
+function validerRectangle(v: unknown) {
+  forme(v, { x: fraction, y: fraction, l: fraction, h: fraction });
+  const r = v as Rectangle;
+  exiger(r.l > 0 && r.h > 0 && r.x + r.l <= 1 && r.y + r.h <= 1, 'Rectangle vide ou hors de la scène');
+}
+
+function validerTele(v: unknown) {
+  forme(v, { video: texte, ecran: validerRectangle, bouton: validerRectangle });
+}
+
 /** Charge et copie les scènes sans conserver de référence aux données fournies. */
 export function chargerScenes(fichier: unknown = donnees): Scene[] {
   let id = 'fichier';
@@ -74,7 +88,7 @@ export function chargerScenes(fichier: unknown = donnees): Scene[] {
           exiger(Array.isArray(v), 'Tableau de formes attendu');
           v.forEach(validerForme);
         },
-      }, { bulle: texte });
+      }, { bulle: texte, tele: validerTele });
       exiger(!ids.has(id), 'Identifiant dupliqué');
       ids.add(id);
     }

@@ -18,6 +18,11 @@
       "image": "decors/chez-maman.webp",
       "ratio": [16, 9],
       "bulle": "Il n'y a rien à faire ici, sortons.",
+      "tele": {
+        "video": "img/easter-eggs/daran.mp4",
+        "ecran": { "x": 0.0990840965861782, "y": 0.1585365853658537, "l": 0.1248959200666112, "h": 0.1143292682926829 },
+        "bouton": { "x": 0.2173189009159034, "y": 0.2759146341463415, "l": 0.0066611157368859, "h": 0.0106707317073171 }
+      },
       "formes": [
         { "zone": "kanto.bourg-palette", "nom": "Sortie", "teinte": "green", "forme": "rect", "x": 0.2281303602058319, "y": 0.8704268292682927, "l": 0.12006861063464837, "h": 0.10823170731707317 }
       ]

@@ -1,4 +1,4 @@
-import { useId, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import type { Scene } from '../core/scenes';
 import { attributsSvg, centreForme } from './carte-geometrie';
 
@@ -14,11 +14,30 @@ type Props = {
 
 export function SceneLieu({ scene, nom, quandChoisir, raisons = {}, clignotements = [], occupe = false, annonceExterne }: Props) {
   const [annonce, annoncer] = useState('');
+  const [teleAllumee, allumer] = useState(false);
+  const video = useRef<HTMLVideoElement>(null);
   const id = useId();
   const dimensions = { aspectRatio: scene.ratio.join(' / ') };
+  const pourcent = (r: { x: number; y: number; l: number; h: number }) => ({
+    left: `${r.x * 100}%`, top: `${r.y * 100}%`, width: `${r.l * 100}%`, height: `${r.h * 100}%`,
+  });
+  const milieu = (r: { x: number; y: number; l: number; h: number }) => ({
+    left: `${(r.x + r.l / 2) * 100}%`, top: `${(r.y + r.h / 2) * 100}%`,
+  });
+  // La vidéo (muette, comme en V1) ne part que sur un clic du joueur.
+  function basculerTele() {
+    const lecteur = video.current;
+    if (lecteur) {
+      if (teleAllumee) lecteur.pause?.();
+      else { lecteur.currentTime = 0; void lecteur.play?.()?.catch(() => undefined); }
+    }
+    allumer(!teleAllumee);
+  }
   return <section aria-label={nom} className="text-base">
     <div className="relative w-full" style={dimensions}>
       <img src={`img/${scene.image}`} alt={nom} className="absolute inset-0 h-full w-full object-contain" />
+      {scene.tele && <video ref={video} src={scene.tele.video} muted playsInline preload="metadata" aria-hidden="true" hidden={!teleAllumee}
+        style={pourcent(scene.tele.ecran)} className="pointer-events-none absolute object-cover" />}
       <svg viewBox="0 0 16 9" preserveAspectRatio="none" aria-hidden="true" focusable="false"
         className="pointer-events-none absolute inset-0 h-full w-full">
         {scene.formes.map(f => {
@@ -41,6 +60,9 @@ export function SceneLieu({ scene, nom, quandChoisir, raisons = {}, clignotement
           onFocus={() => annoncer(texte)} onPointerEnter={() => annoncer(texte)} onPointerDown={() => annoncer(texte)}
           onClick={() => { annoncer(texte); if (!raison && f.zone) quandChoisir(f.zone); }} />;
       })}
+      {scene.tele && <button type="button" aria-label="Télé" aria-pressed={teleAllumee} onClick={basculerTele}
+        style={milieu(scene.tele.bouton)}
+        className="absolute min-h-11 min-w-11 -translate-x-1/2 -translate-y-1/2 bg-transparent focus-visible:outline-focus" />}
     </div>
     <p role="status" aria-live="polite" className="min-h-11 bg-surface p-2">{annonceExterne ?? annonce}</p>
     {scene.bulle && <aside aria-label="Dialogue" className="cadre bg-surface p-4">{scene.bulle}</aside>}

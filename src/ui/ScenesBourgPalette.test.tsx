@@ -61,6 +61,26 @@ it('visite Maman sous le voile de 300 + 150 ms, puis revient par la sortie pulsa
   expect(screen.getByRole('button', { name: 'Chez Maman' })).toBeTruthy();
 });
 
+it('Chez Maman : la télé cachée ne lance la vidéo muette que sur un clic, et l\'éteint au second', () => {
+  const lecture = vi.spyOn(HTMLMediaElement.prototype, 'play').mockResolvedValue(undefined);
+  const pause = vi.spyOn(HTMLMediaElement.prototype, 'pause').mockImplementation(() => undefined);
+  const { container } = render(<ScenesBourgPalette sceneInitiale="kanto.chez-maman" />);
+  const video = container.querySelector('video')!;
+  expect(video.hidden).toBe(true);
+  expect(video.muted).toBe(true);
+  expect(video.getAttribute('src')).toBe('img/easter-eggs/daran.mp4');
+  expect(lecture).not.toHaveBeenCalled();
+  const tele = screen.getByRole('button', { name: 'Télé' });
+  fireEvent.click(tele);
+  expect(lecture).toHaveBeenCalledTimes(1);
+  expect(video.hidden).toBe(false);
+  expect(tele.getAttribute('aria-pressed')).toBe('true');
+  fireEvent.click(tele);
+  expect(pause).toHaveBeenCalledTimes(1);
+  expect(video.hidden).toBe(true);
+  lecture.mockRestore(); pause.mockRestore();
+});
+
 it('annonce les raisons au focus et au toucher et bloque Pension et Bateau', () => {
   const { container } = render(<ScenesBourgPalette />);
   const pension = screen.getByRole('button', { name: 'Pension Pokémon' });

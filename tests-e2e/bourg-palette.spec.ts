@@ -1,6 +1,30 @@
 import { mkdir } from 'node:fs/promises';
 import { test, expect } from '@playwright/test';
 
+test('Chez Maman : la télé cachée joue la vidéo sur un clic, l’éteint au second', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.clock.install();
+  await page.clock.pauseAt(new Date());
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Carte', exact: true }).click();
+  await page.getByRole('button', { name: 'Bourg Palette', exact: true }).click();
+  await page.getByRole('button', { name: 'Y aller' }).click();
+  await page.clock.runFor(400);
+  await page.getByRole('button', { name: 'Chez Maman', exact: true }).focus();
+  await page.keyboard.press('Enter');
+  const video = page.locator('video');
+  const etat = () => video.evaluate((v: HTMLVideoElement) => ({ cachee: v.hidden, enPause: v.paused, muette: v.muted }));
+  expect(await etat()).toEqual({ cachee: true, enPause: true, muette: true });
+  const tele = page.getByRole('button', { name: 'Télé' });
+  const cible = (await tele.boundingBox())!;
+  expect(cible.width).toBeGreaterThanOrEqual(44);
+  expect(cible.height).toBeGreaterThanOrEqual(44);
+  await tele.click();
+  await expect.poll(etat).toEqual({ cachee: false, enPause: false, muette: true });
+  await tele.click();
+  expect(await etat()).toEqual({ cachee: true, enPause: true, muette: true });
+});
+
 for (const largeur of [390, 1440]) {
   test(`Bourg Palette : visites sans défilement à ${largeur} px`, async ({ page }) => {
     await page.setViewportSize({ width: largeur, height: largeur === 390 ? 844 : 900 });
