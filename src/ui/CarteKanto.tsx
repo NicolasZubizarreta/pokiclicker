@@ -1,23 +1,31 @@
-import { createElement, Fragment, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { PointerEvent as EvenementPointeur } from 'react';
 import { useStore } from 'zustand';
 import tailles from '../../public/img/tailles.json';
-import { attributsSvg, centreForme, deplacer, positionFiche, rayonCible, vueInitiale, zoomer } from './carte-geometrie';
+import positionsCarte from '../../data/regions/kanto/carte-positions.json';
+import { centreForme, deplacer, positionFiche, rayonCible, vueInitiale, zoomer } from './carte-geometrie';
 import type { Point, Vue } from './carte-geometrie';
 import { storeJeu } from './store';
 import type { EtatForme } from './store';
 import { kanto } from '../core/regions';
+import type { FormeCarte } from '../core/monde';
 import { reglages } from '../core/reglages';
 import { Image, imageConnue } from './Image';
 import { cheminDecor, precharger } from './precharger';
 import { DresseurVol, imagesVol, useVol, VolGen1 } from './VolGen1';
 
 const nomAccessible = (f: EtatForme) => f.numero === null || f.numero === 0 ? f.nom : `${f.nom} (Zone ${f.numero})`;
-const balise = (f: EtatForme) => f.forme.forme === 'cercle' ? 'circle' : f.forme.forme === 'polygone' ? 'polygon' : 'rect';
-const couleur = (f: EtatForme) => !f.ouverte ? 'fill-texte-doux/50'
-  : f.actuelle ? 'fill-succes-base/60' : /arène/i.test(f.nom) ? 'fill-erreur-base/30'
-    : f.nom === 'Caverne Azurée' ? 'fill-info-texte/30'
-      : /route|bourg/i.test(f.nom) ? 'fill-alerte-base/30' : 'fill-info-base/30';
+// Positions des repères sur l'image, en fractions de sa largeur et de sa hauteur (data/regions/kanto/carte-positions.json).
+const positions = positionsCarte as Record<string, Point>;
+const centreDe = (f: EtatForme): Point => {
+  const p = f.zone ? positions[f.zone] : undefined;
+  return p ? { x: p.x * 16, y: p.y * 9 } : centreForme(f.forme);
+};
+// Le vol part du repère de la zone actuelle : on le représente par un petit cercle posé dessus.
+const formeDepart = (f: EtatForme): FormeCarte => {
+  const c = centreDe(f);
+  return { zone: f.zone, nom: f.nom, teinte: f.forme.teinte, forme: 'cercle', x: c.x / 16, y: c.y / 9, r: 0.01 };
+};
 
 export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArrive: () => void; quandCentre?: () => void; quandCasino?: () => void }) {
   const { etat: vol, reduit, lancer } = useVol(zone => storeJeu.getState().allerVers(zone), quandArrive);
@@ -45,23 +53,9 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
   const actuelle = carte.formes.find(f => f.actuelle);
   const zones = carte.formes.filter(f => f.zone !== null).sort((a, b) => (a.numero ?? 0) - (b.numero ?? 0));
   const dimensions = tailles['img/decors/carte-kanto.webp'];
-  // Essai de fonds de carte (dev seulement) : ?carte=<nom> charge design/cartes-candidates/carte-<nom>.webp.
-  const essaiFond = import.meta.env.DEV ? new URLSearchParams(window.location.search).get('carte') : null;
-  const decorCarte = essaiFond && essaiFond !== 'v1' && /^[a-z0-9-]+$/.test(essaiFond) ? `/design/cartes-candidates/carte-${essaiFond}.webp` : 'img/decors/carte-kanto.webp';
   const decor = choisie?.zone ? cheminDecor(kanto.zone(choisie.zone)) : null;
-  // Positions des zones propres à un fond d'essai (dev seulement) : design/cartes-candidates/zones-<nom>.json.
-  const [positionsEssai, chargerPositions] = useState<Record<string, Point> | null>(null);
-  useEffect(() => {
-    if (!essaiFond || essaiFond === 'v1' || !/^[a-z0-9-]+$/.test(essaiFond)) return;
-    fetch(`/design/cartes-candidates/zones-${essaiFond}.json`).then(r => r.ok ? r.json() : null)
-      .then((positions: Record<string, Point> | null) => chargerPositions(positions)).catch(() => undefined);
-  }, [essaiFond]);
-  // Repères de la carte redessinée : 14 px de rayon sur grand écran, plus petits quand la carte est étroite.
+  // Repères : 14 px de rayon sur grand écran, plus petits quand la carte est étroite.
   const rayonRepere = Math.min(14, largeur / 30);
-  const centreDe = (f: EtatForme): Point => {
-    const p = f.zone ? positionsEssai?.[f.zone] : undefined;
-    return p ? { x: p.x * 16, y: p.y * 9 } : centreForme(f.forme);
-  };
 
   useLayoutEffect(() => {
     const element = fiche.current;
@@ -74,7 +68,7 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
       { largeur: element.offsetWidth, hauteur: element.offsetHeight }, parseFloat(style.paddingLeft));
     element.style.setProperty('--fiche-x', `${position.x}px`);
     element.style.setProperty('--fiche-y', `${position.y}px`);
-  }, [choisie, vue, largeur, vol.actif, centreOuvert, raisonCentre, raisonCasino, positionsEssai]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [choisie, vue, largeur, vol.actif, centreOuvert, raisonCentre, raisonCasino]);
 
   useEffect(() => { void precharger(imagesVol); }, []);
 
@@ -172,7 +166,7 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
         viewBox={`${vue.x} ${vue.y} ${vue.largeur} ${vue.hauteur}`}
         onPointerDown={commencer} onPointerMove={bouger} onPointerUp={terminer}
         onPointerCancel={terminer} onLostPointerCapture={event => { pointeurs.current.delete(event.pointerId); }}>
-        <image href={decorCarte} width={16} height={16 * dimensions.hauteur / dimensions.largeur} />
+        <image href="img/decors/carte-kanto.webp" width={16} height={16 * dimensions.hauteur / dimensions.largeur} />
         <g data-halos className={debug ? 'fill-focus/30 stroke-focus' : 'fill-transparent'}>
           {carte.formes.filter(f => f.ouverte && f.zone).map(f => {
             const centre = centreDe(f);
@@ -180,42 +174,27 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
               vectorEffect="non-scaling-stroke" onClick={() => { if (!glissement.current) selectionner(f.zone); }} />;
           })}
         </g>
-        {positionsEssai && <g>
-          {carte.formes.filter(f => f.zone).map(f => {
+        <g>
+          {zones.map(f => {
             const c = centreDe(f);
             const choisieIci = selection === f.zone;
+            const nouvelle = nouvelles.includes(f.zone!);
             return <g key={f.zone} data-zone={f.zone} data-forme={f.nom} role="button" tabIndex={0} aria-label={nomAccessible(f)}
-              transform={`translate(${c.x} ${c.y}) scale(${1 / pxParUnite})`} className="group cursor-pointer outline-none"
+              transform={`translate(${c.x} ${c.y}) scale(${1 / pxParUnite})`}
+              className={`group cursor-pointer outline-none ${nouvelle ? fondu ? 'carte-deblocage' : 'opacity-0' : ''}`}
               onClick={() => { if (!glissement.current) selectionner(f.zone); }}
               onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); selectionner(f.zone); } }}>
               <circle r={rayonRepere} strokeWidth={choisieIci ? 3 : 1.5} className={`${!f.ouverte ? 'fill-texte-doux/30' : f.actuelle ? 'fill-succes-base/35' : 'fill-alerte-base/30'} ${choisieIci ? 'stroke-succes-base' : 'stroke-neutre-950 group-focus-visible:stroke-focus'}`} />
+              <title>{nomAccessible(f)}</title>
             </g>;
           })}
-        </g>}
-        {!positionsEssai && <g>
-          {carte.formes.map(f => {
-            const Forme = balise(f);
-            const nouvelle = f.zone !== null && nouvelles.includes(f.zone);
-            return <Fragment key={f.nom}>
-              {nouvelle && <Forme {...attributsSvg(f.forme)} className="pointer-events-none fill-texte-doux/50" />}
-              <Forme {...attributsSvg(f.forme)} data-forme={f.nom} data-zone={f.zone}
-              className={`${couleur(f)} outline-none focus-visible:stroke-focus focus-visible:stroke-3 ${nouvelle ? fondu ? 'carte-deblocage' : 'opacity-0' : ''} ${selection !== null && selection === f.zone ? 'stroke-succes-base stroke-2' : debug ? 'stroke-focus' : ''} ${f.zone ? 'cursor-pointer' : 'pointer-events-none'}`}
-              vectorEffect="non-scaling-stroke" role={f.zone ? 'button' : undefined}
-              tabIndex={f.zone ? 0 : undefined} aria-label={nomAccessible(f)}
-              onClick={() => { if (f.zone && !glissement.current) selectionner(f.zone); }}
-              onKeyDown={event => {
-              if (f.zone && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); selectionner(f.zone); }
-              }}><title>{nomAccessible(f)}</title></Forme>
-            </Fragment>;
-          })}
-        </g>}
+        </g>
         {vol.actif && !reduit && vol.depart && <DresseurVol ms={vol.ms} forme={vol.depart} />}
         <g className="pointer-events-none fill-succes-base">
-          {carte.tutorielRoute1 && carte.formes.filter(f => f.numero === 1).map(f => createElement(balise(f), {
-            ...attributsSvg(f.forme), key: f.nom, className: 'carte-clignotement',
-          }))}
+          {carte.tutorielRoute1 && carte.formes.filter(f => f.numero === 1).map(f => <circle key={f.nom}
+            cx={centreDe(f).x} cy={centreDe(f).y} r={rayonRepere / pxParUnite} className="carte-clignotement" />)}
           {actuelle && <circle data-actuelle={actuelle.zone} cx={centreDe(actuelle).x} cy={centreDe(actuelle).y}
-            r={positionsEssai ? rayonRepere / pxParUnite : rayonCible(pxParUnite) / 2} className="carte-pulsation" />}
+            r={rayonRepere / pxParUnite} className="carte-pulsation" />}
         </g>
         {debug && <g className="pointer-events-none fill-texte font-texte text-base">
           {carte.formes.map(f => {
@@ -237,11 +216,11 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
           {!choisie.ouverte ? <><p>Bloquée</p><p>{choisie.raison ?? 'Pas encore accessible.'}</p></>
             : choisie.actuelle && !vol.actif ? <p>Tu es ici.</p>
               : <button type="button" className="min-h-11 min-w-11 w-full bg-action px-4 py-2 text-action-texte shadow-sm hover:bg-action-survol focus-visible:outline-2 focus-visible:outline-focus"
-                disabled={vol.actif} onClick={() => lancer(choisie.zone!, actuelle?.forme ?? null)}>{choisie.nom === 'Céladopole' ? 'Arène' : 'Y aller'}</button>}
+                disabled={vol.actif} onClick={() => lancer(choisie.zone!, actuelle ? formeDepart(actuelle) : null)}>{choisie.nom === 'Céladopole' ? 'Arène' : 'Y aller'}</button>}
           {choisie.nom === 'Céladopole' && <div className="mt-2 grid gap-2">
             <div>
               <button type="button" data-centre disabled={!centreOuvert || vol.actif}
-                onClick={() => lancer('centre-commercial', actuelle?.forme ?? null, quandCentre)}
+                onClick={() => lancer('centre-commercial', actuelle ? formeDepart(actuelle) : null, quandCentre)}
                 aria-describedby={!centreOuvert && raisonCentre ? 'carte-commerce' : undefined}
                 className={`min-h-11 min-w-11 w-full px-4 py-2 focus-visible:outline-2 focus-visible:outline-focus ${centreOuvert
                   ? 'bg-action text-action-texte shadow-sm hover:bg-action-survol' : 'bg-surface text-texte-doux'}`}>Centre commercial</button>

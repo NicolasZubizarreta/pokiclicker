@@ -19,8 +19,8 @@ export function Coquille({ region = 'kanto', theme = 'dark' }: {
   region?: 'kanto' | 'johto' | 'hoenn' | 'atlas';
   theme?: 'dark' | 'light';
 }) {
-  // Lien d'essai (dev seulement) : ?carte=<nom> ouvre directement l'onglet Carte.
-  const [page, choisir] = useState<Page>(() => import.meta.env.DEV && new URLSearchParams(window.location.search).has('carte') ? 'Carte' : 'Combat');
+  // Lien d'essai (dev seulement) : ?onglet=carte ouvre directement l'onglet Carte.
+  const [page, choisir] = useState<Page>(() => import.meta.env.DEV && new URLSearchParams(window.location.search).get('onglet') === 'carte' ? 'Carte' : 'Combat');
   const annonce = useStore(storeJeu, etat => etat.annonce);
   const credits = useStore(storeJeu, etat => etat.fin.credits);
   const pantheon = useStore(storeJeu, etat => etat.pantheon);

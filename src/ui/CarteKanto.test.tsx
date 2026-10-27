@@ -61,10 +61,10 @@ it('sélectionne une zone verrouillée depuis la liste et relie son contour à l
   expect(within(fiche).getByRole('heading', { name: 'Forêt de Jade' })).toBeTruthy();
   expect(within(fiche).getByText('Bloquée')).toBeTruthy();
   const forme = screen.getByRole('button', { name: /Forêt de Jade/ });
-  expect(forme.getAttribute('class')).toContain('stroke-succes-base stroke-2');
+  expect(forme.querySelector('circle')?.getAttribute('class')).toContain('stroke-succes-base');
   fireEvent.click(screen.getByRole('button', { name: 'Route 1 (Zone 1)' }));
   expect(option.getAttribute('aria-selected')).toBe('false');
-  expect(forme.getAttribute('class')).not.toContain('stroke-succes-base');
+  expect(forme.querySelector('circle')?.getAttribute('class')).not.toContain('stroke-succes-base');
   expect(screen.getByRole('option', { name: 'Route 1 (Zone 1)' }).getAttribute('aria-selected')).toBe('true');
 });
 
@@ -87,12 +87,13 @@ it('sélectionne avec Entrée et Espace et déplace le focus avec les flèches',
   expect(document.activeElement).toBe(premiere);
 });
 
-it('dessine les 24 formes dans l’ordre, marque la zone actuelle et ne pose aucun style inline', () => {
+it('dessine un repère par zone dans l’ordre, marque la zone actuelle et ne pose aucun style inline', () => {
   const voir = vi.spyOn(storeJeu.getState(), 'voirCarte');
   const { container } = afficher();
+  const zones = storeJeu.getState().carte.formes.filter(f => f.zone !== null).sort((a, b) => (a.numero ?? 0) - (b.numero ?? 0));
   expect([...container.querySelectorAll('[data-forme]')].map(e => e.getAttribute('data-forme')))
-    .toEqual(storeJeu.getState().carte.formes.map(f => f.nom));
-  expect(container.querySelectorAll('[data-forme]')).toHaveLength(24);
+    .toEqual(zones.map(f => f.nom));
+  expect(container.querySelectorAll('[data-forme]')).toHaveLength(22);
   expect(container.querySelector('[data-actuelle]')?.getAttribute('data-actuelle'))
     .toBe(storeJeu.getState().carte.formes.find(f => f.actuelle)?.zone);
   expect(container.querySelectorAll('svg')).toHaveLength(1);
