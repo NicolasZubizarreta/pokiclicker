@@ -1,0 +1,39 @@
+{
+  "actifParDefaut": true,
+  "volumeDb": -18,
+  "pistes": {
+    "route": {
+      "fichier": "audio/route.ogg", "boucle": true,
+      "titre": "Chiptune Adventures : Stage 1", "auteur": "Juhani Junkala (SubspaceAudio)",
+      "licence": "CC0"
+    },
+    "carte": {
+      "fichier": "audio/carte.ogg", "boucle": true,
+      "titre": "Chiptune Adventures : Stage Select", "auteur": "Juhani Junkala (SubspaceAudio)",
+      "licence": "CC0"
+    },
+    "boss": {
+      "fichier": "audio/boss.ogg", "boucle": true,
+      "titre": "Chiptune Adventures : Boss Fight", "auteur": "Juhani Junkala (SubspaceAudio)",
+      "licence": "CC0"
+    },
+    "combat": {
+      "fichier": "audio/combat.ogg", "boucle": true,
+      "titre": "8-Bit Battle Loop", "auteur": "Wolfgang_",
+      "licence": "CC0"
+    },
+    "victoire": {
+      "fichier": "audio/victoire.mp3", "boucle": false,
+      "titre": "Victory", "auteur": "celestialghost8",
+      "licence": "CC0"
+    }
+  },
+  "scenes": {
+    "combat": "route",
+    "adversaire": "combat",
+    "boss": "boss",
+    "hors-combat": "carte",
+    "pantheon": "victoire",
+    "intro": null
+  }
+}

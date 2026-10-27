@@ -46,7 +46,7 @@ it('présente le titre focalisable, le compteur et des cartes en français', () 
   const bulbizarre = screen.getByRole('button', { name: 'Bulbizarre, niveau 12' });
   expect(within(boule).getByText('Shiny').className).toBe('sr-only');
   expect(bulbizarre.querySelector('svg.text-lien')).toBeTruthy();
-  expect(boule.querySelector('strong svg linearGradient')).toBeTruthy();
+  expect(boule.querySelector('strong svg path')).toBeTruthy();
   expect(boule.querySelector('img.halo-shiny')?.getAttribute('src')).toBe('img/sprites/pokemon-shiny/101.png');
   expect(boule.querySelector('img')?.classList.contains('size-24')).toBe(true);
   expect(screen.queryByText(/Search|Sort|Level|Back|Empty|Favorite/)).toBeNull();

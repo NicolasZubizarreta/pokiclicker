@@ -1,7 +1,9 @@
-import { useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState, useSyncExternalStore } from 'react';
 import { useStore } from 'zustand';
 import { BoiteBadges } from './BoiteBadges';
 import { Diplome } from './Diplome';
+import { creditPiste, musiques } from '../core/musiques';
+import { musique } from './musique';
 import { formaterDps } from './nombres';
 import { PagePC } from './PagePC';
 import { Pokedex } from './Pokedex';
@@ -17,6 +19,7 @@ export function PagePlus() {
   const lieu = useStore(storeJeu, etat => etat.lieu);
   const dps = useStore(storeJeu, etat => etat.dps);
   const sonActive = useStore(storeJeu, etat => etat.sonActive);
+  const musiqueActive = useSyncExternalStore(musique.abonner, musique.estActive);
   const reglagesId = useId();
   const { nombre, total } = progression.pokedex;
   const conteneur = useRef<HTMLDivElement>(null);
@@ -84,6 +87,16 @@ export function PagePlus() {
               className="flex min-h-11 w-full items-center justify-between gap-2 bg-surface-2 px-4 py-2 text-left hover:bg-selection">
               <span>Son</span><span className="text-region-accent">{sonActive ? 'Activé' : 'Coupé'}</span>
             </button>
+            <button type="button" role="switch" aria-checked={musiqueActive} onClick={() => musique.basculer()}
+              className="flex min-h-11 w-full items-center justify-between gap-2 bg-surface-2 px-4 py-2 text-left hover:bg-selection">
+              <span>Musique</span><span className="text-region-accent">{musiqueActive ? 'Activée' : 'Coupée'}</span>
+            </button>
+            <details className="bg-surface-2 px-4 py-2">
+              <summary className="min-h-11 cursor-pointer py-2">Crédits des musiques</summary>
+              <div className="space-y-2 pb-2">
+                {Object.values(musiques.pistes).map(piste => <p key={piste.fichier}>{creditPiste(piste)}</p>)}
+              </div>
+            </details>
           </section>
         </section>}
     {diplomeOuvert && diplome && <Diplome diplome={diplome} fermer={() => ouvrirDiplome(false)} />}

@@ -43,7 +43,7 @@ it('garde sprite, halo et icône chromatiques dans les cartes, le détail et l�
   const { container } = render(<PageEquipe />);
   expect(precharger).toHaveBeenCalledWith(['img/sprites/pokemon-shiny/2.png']);
   expect(container.querySelectorAll('img.halo-shiny[src="img/sprites/pokemon-shiny/1.png"]')).toHaveLength(2);
-  expect(screen.getByRole('button', { name: 'Bourgeon, niveau 16' }).querySelector('strong svg linearGradient')).toBeTruthy();
+  expect(screen.getByRole('button', { name: 'Bourgeon, niveau 16' }).querySelector('strong svg path')).toBeTruthy();
   expect(within(screen.getByRole('complementary')).getByRole('heading').querySelector('svg')).toBeTruthy();
   act(() => storeJeu.setState({ evolution: { uid: pokemon.uid, ancien: 1, nouveau: 2 } }));
   expect(container.querySelectorAll('img.halo-shiny[src="img/sprites/pokemon-shiny/2.png"]')).toHaveLength(2);

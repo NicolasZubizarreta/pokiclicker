@@ -14,6 +14,8 @@ import { PageIntro } from './PageIntro';
 import { DialogueScene } from './DialogueScene';
 import { Credits } from './Credits';
 import { Pantheon } from './Pantheon';
+import { musique } from './musique';
+import { sceneMusicale } from '../core/musiques';
 
 export function Coquille({ region = 'kanto', theme = 'dark' }: {
   region?: 'kanto' | 'johto' | 'hoenn' | 'atlas';
@@ -39,6 +41,14 @@ export function Coquille({ region = 'kanto', theme = 'dark' }: {
   const [introVue, fixerIntroVue] = useState(false);
   if (introActive && !introVue) fixerIntroVue(true);
   const tutorielRoute1 = useStore(storeJeu, etat => etat.carte.tutorielRoute1);
+  const boss = useStore(storeJeu, etat => etat.ennemi?.boss === true);
+  const adversaire = useStore(storeJeu, etat => etat.nomAdversaire !== null);
+  const pantheonOuvert = !!pantheon?.ouvert;
+  useEffect(() => {
+    musique.definirScene(sceneMusicale({ pantheon: pantheonOuvert, intro: introActive || introVue,
+      horsCombat: page !== 'Combat', boss, adversaire }));
+  }, [pantheonOuvert, introActive, introVue, page, boss, adversaire]);
+  useEffect(() => () => musique.arreter(), []);
   useLayoutEffect(() => {
     storeJeu.getState().demarrer();
     return () => { storeJeu.getState().fermer(); storeJeu.getState().arreter(); };

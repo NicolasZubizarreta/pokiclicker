@@ -31,8 +31,11 @@ Keyframes de `styles.css` : `float` (sprite ennemi, 3 s), `shake` (chaque clic, 
 - **Retravaillée** : minuteur de boss violet → `alerte-base` (jeton de la charte) ; ombre dorée floue du `shiny-glow` → contour net (la charte interdit l'ombre floue).
 - **À porter dans leur ticket** : `rainbow`, `float-upside-down` (W) ; `coin-spin`, machine à sous (V) ; `flicker-black`, `zoom-in-entrance`, `fly-to-bag`, `diploma-entrance`, `title-slam`, générique, défi de Chen (X) ; confettis, chute sur les socles (R) ; cœur pulsant et œufs qui rebondissent de la pension (T, page en attente de ton choix).
 - **« Recherche en cours… »** : reprise (`EcranCombat.tsx`, pulsation, coupée en mouvement réduit).
-- **Finitions à trancher par Nicolas** (aucune supprimée sans son accord) : verre dépoli (la charte interdit `backdrop-filter`), contour noir des textes posés sur l'image, étoiles ✦ (non localisées dans la V1), police Press Start 2P (la V2 utilise Pixelify Sans).
-**Polices et détails à garder** : Press Start 2P pour les titres, contour noir sur les textes, verre dépoli des panneaux, étoiles ✦. (Dans la V2 les polices de marque sont Pixelify Sans et Atkinson : à trancher dans `design/DESIGN.md`, pas à changer sans toi.)
+- **Finitions tranchées par Nicolas le 27/10** (page d'essai `design/variantes/finitions/index.html`) :
+  - contour noir des textes posés sur l'image : **repris, version fine** (1 px, ombre pleine sans flou, `.contour-texte` dans `src/styles/index.css`) ; appliqué aux nombres de dégâts et à « Recherche en cours… », qui n'ont plus de panneau ;
+  - verre dépoli : **écarté** (la charte interdit `backdrop-filter`) ; remplacé par des panneaux semi-transparents à 82 % sans flou (`bg-surface/82`) sur la scène de combat (fiche de l'ennemi, annonce, message de lieu) ;
+  - police Press Start 2P : **écartée**, Pixelify Sans reste la police des titres ;
+  - étoiles ✦ : **reprises** pour les chromatiques, en doré de la charte (`--color-alerte-base-sombre`), à la place du double éclat bleu-vert (`src/ui/IconeShiny.tsx`).
 
 ## 5. Icônes (tickets L, D)
 - **Objets** : 20 sur 31 viennent de `raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/<nom>.png` (poke-ball, great-ball, ultra-ball, master-ball, rare-candy, repel, super-repel, x-attack, x-sp-atk, calcium, 5 pierres, poke-doll, everstone, amulet-coin, protein, exp-share, hard-stone, bicycle, lucky-egg, leftovers). Locaux : `JetonShiny`, `CharmeChroma`, `Diplôme`, `OmniExp`, `PokeRadar`, `Carte` (dans `img/kanto/icones/`). Material Symbols pour Chaussures (`sprint`), Radar, CT Fauchage, CT Jackpot. **Ce sont les « icônes officielles » que Nicolas veut** : à rapatrier en local (règle « aucune ressource externe au chargement ») avec son accord pour le téléchargement.
@@ -43,7 +46,7 @@ Keyframes de `styles.css` : `float` (sprite ennemi, 3 s), `shake` (chaque clic, 
 Renommage : **dinnerbone / grumm** (sprite retourné), **jeb_** (arc-en-ciel), **caca** (filtre brun), **Daran** (photos `DaranStade1-3.png` selon le stade ; pendant l'évolution elles alternent), **Johnny** (×1,5 contre les Ténèbres : décision précédente = non porté), **Évoli** renommé jolteon/vaporeon/flareon → évolution voulue. **Télé de Chez Maman** qui joue `Daran.mp4` (muet). **Zone fantôme « Daran Ass »** sur la carte. Cheat par mot de passe (non porté). Défi secret de Chen après 2 victoires de Ligue et 151 espèces.
 
 ## 7. Sons
-Aucun fichier audio. Un synthé Tone.js (5 tons : `hit` clic, `coin` kill, `catch` capture / arrivée au Panthéon, `up` niveau / badge / évolution / bonbon, `pc`). Pas de musique. À reproduire avec la Web Audio de base (sans bibliothèque ni CDN).
+Aucun fichier audio. Un synthé Tone.js (5 tons : `hit` clic, `coin` kill, `catch` capture / arrivée au Panthéon, `up` niveau / badge / évolution / bonbon, `pc`). Pas de musique. À reproduire avec la Web Audio de base (sans bibliothèque ni CDN). **Repris** dans `src/ui/sons.ts`. La musique de la V2 est nouvelle (pistes CC0, voir `docs/projet/musiques.md`).
 
 ## 8. Utilisation des objets dans le Sac (ticket L)
 - Balles : clic direct (capture).

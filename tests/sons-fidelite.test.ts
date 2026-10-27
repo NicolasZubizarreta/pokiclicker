@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { expect, it, vi } from 'vitest';
 import donnees from '../data/reglages.json';
 import { reglages } from '../src/core/reglages';
+import { musiques } from '../src/core/musiques';
 
 const v1 = readFileSync('legacy/js/app/main.js', 'utf8').split(/\r?\n/).slice(430, 451).join('\n');
 
@@ -47,12 +48,13 @@ it('reprend toutes les notes, durées et le volume de la V1', () => {
   expect(reglages.animations).toEqual({ flottementMs: 3000, secousseMs: 300, banniereMs: 3000 });
 });
 
-it('reste sans Tone ni fichiers audio', () => {
+it('reste sans Tone et sans fichier audio hors des musiques déclarées', () => {
   const paquet = JSON.parse(readFileSync('package.json', 'utf8'));
   expect({ ...paquet.dependencies, ...paquet.devDependencies }).not.toHaveProperty('tone');
   const audio = (dossier: string): string[] => readdirSync(dossier, { withFileTypes: true }).flatMap(entree => {
     const chemin = join(dossier, entree.name);
     return entree.isDirectory() ? audio(chemin) : /\.(mp3|ogg|wav)$/i.test(entree.name) ? [chemin] : [];
   });
-  expect([...audio('public'), ...audio('src')]).toEqual([]);
+  const declares = Object.values(musiques.pistes).map(piste => join('public', piste.fichier));
+  expect([...audio('public'), ...audio('src')].sort()).toEqual(declares.sort());
 });

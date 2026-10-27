@@ -215,6 +215,14 @@ html:has(dialog[open]) { overflow: hidden; }
   100% { transform: translateY(0); }
 }
 .eclat-touche { filter: brightness(0) invert(1); opacity: 0; }
+/* Contour fin des textes posés directement sur l'image (V1) : ombre pleine, sans flou, 1 px. */
+@utility contour-texte {
+  --contour: var(--color-neutre-950);
+  text-shadow: calc(var(--spacing) / -4) calc(var(--spacing) / -4) 0 var(--contour),
+    calc(var(--spacing) / 4) calc(var(--spacing) / -4) 0 var(--contour),
+    calc(var(--spacing) / -4) calc(var(--spacing) / 4) 0 var(--contour),
+    calc(var(--spacing) / 4) calc(var(--spacing) / 4) 0 var(--contour);
+}
 .halo-shiny {
   filter: drop-shadow(calc(var(--spacing) / 4) 0 0 var(--alerte-base))
     drop-shadow(calc(var(--spacing) / -4) 0 0 var(--alerte-base))

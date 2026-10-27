@@ -7,6 +7,7 @@ import { creerStoreJeu, storeJeu } from './store';
 import { chargerPokemon } from '../core/pokemon';
 import { formaterDps } from './nombres';
 import { reglages } from '../core/reglages';
+import { creditPiste, musiques } from '../core/musiques';
 
 const contexte = vi.hoisted(() => ({ store: null as unknown as typeof storeJeu }));
 vi.mock('./store', async (importOriginal) => ({
@@ -221,7 +222,8 @@ describe('Coquille', () => {
     const autorises = new Set(['Aller au contenu', ...noms, "Le Shop s'ouvre à la Forêt de Jade.",
       'Ton aventure', 'Région', `Kanto · ${storeJeu.getState().lieu!.nom}`, 'Badges', '0 / 8', 'DPS',
       formaterDps(storeJeu.getState().dps), 'Prochain palier : 10 (Débutant) · Encore 7 espèces.',
-      'PC de Léo', 'Pokédex', "Le PC de Léo s'ouvre à l'Arène d'Argenta.", 'Réglages', 'Son', 'Activé']);
+      'PC de Léo', 'Pokédex', "Le PC de Léo s'ouvre à l'Arène d'Argenta.", 'Réglages', 'Son', 'Activé',
+      'Musique', 'Activée', 'Crédits des musiques', ...Object.values(musiques.pistes).map(creditPiste)]);
     for (const nom of noms.slice(1)) {
       await utilisateur.click(screen.getByRole('button', { name: nom }));
       const equipe = storeJeu.getState().equipe;

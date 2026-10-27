@@ -23,7 +23,7 @@ it('précharge le chromatique courant et garde ses deux couches sur chaque taill
     expect(precharger).toHaveBeenCalledWith([src]);
     expect(container.querySelectorAll(`img[src="${src}"]`)).toHaveLength(4);
     expect(container.querySelectorAll(`img.halo-shiny[src="${src}"]`)).toHaveLength(2);
-    expect(container.querySelector('h2 svg linearGradient')).toBeTruthy();
+    expect(container.querySelector('h2 svg path')).toBeTruthy();
     precharger.mockClear();
     act(() => store.setState({ ennemi: { ...ennemi, shiny: true, pv: ennemi.pv - 1 } }));
     expect(precharger).not.toHaveBeenCalled();

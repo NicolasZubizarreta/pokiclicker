@@ -77,7 +77,7 @@ function Scene({ store, ouvrirPension }: { store: StoreJeu; ouvrirPension(): voi
     if (numeroEnnemi !== undefined) void precharger([cheminSprite(numeroEnnemi, shinyEnnemi)]);
   }, [numeroEnnemi, shinyEnnemi]);
   const notification = annonce !== null && <div role="status" aria-live="polite"
-    className="pointer-events-none cadre absolute inset-x-4 top-4 z-20 bg-surface p-2 text-center">{annonce}</div>;
+    className="pointer-events-none cadre absolute inset-x-4 top-4 z-20 bg-surface/82 p-2 text-center">{annonce}</div>;
   if (lieu?.id === kanto.depart) return <div
     className="scene-limitee relative grid h-76 grid-rows-[minmax(0,1fr)_auto] bg-surface-2 lg:col-span-3 lg:aspect-video lg:h-auto">
     <div className="min-h-0 [&>div]:h-full [&_section]:grid [&_section]:h-full [&_section]:grid-rows-[minmax(0,1fr)_auto_auto] [&_section>div]:h-full [&_section>div]:w-auto [&_section>div]:max-w-full [&_section>div]:justify-self-center [&_section>p:not([role])]:sr-only">
@@ -88,14 +88,14 @@ function Scene({ store, ouvrirPension }: { store: StoreJeu; ouvrirPension(): voi
   if (!zone && !ennemi && lieu) return <section aria-label={lieu.nom}
     className="scene-limitee relative isolate flex h-76 items-end bg-surface-2 p-4 lg:col-span-3 lg:aspect-video lg:h-auto">
     {imageConnue(cheminDecor(lieu)) && <Image src={cheminDecor(lieu)} genre="decor" alt="" couvrir className="absolute inset-0 -z-10 size-full" />}
-    {'message' in lieu && lieu.message && <p className="cadre bg-surface p-3">{lieu.message}</p>}
+    {'message' in lieu && lieu.message && <p className="cadre bg-surface/82 p-3">{lieu.message}</p>}
     {notification}
   </section>;
   if (!zone || !ennemi) return null;
   const nom = nomAdversaire ?? catalogue.parNumero(ennemi.numero).nom;
   return <section aria-label={enRecherche ? 'Combat contre un Pokémon en approche' : `Combat contre ${nom}`} className="scene-limitee relative isolate h-76 bg-surface-2 lg:col-span-3 lg:aspect-video lg:h-auto">
     <Image src={cheminDecor(zone)} genre="decor" alt="" couvrir className="absolute inset-0 -z-10 size-full" />
-    <div aria-hidden={cache} className={`pointer-events-none cadre absolute top-4 left-4 z-10 w-3/5 bg-surface p-3 ${cache ? 'opacity-0' : ''}`}>
+    <div aria-hidden={cache} className={`pointer-events-none cadre absolute top-4 left-4 z-10 w-3/5 bg-surface/82 p-3 ${cache ? 'opacity-0' : ''}`}>
       <div className="flex flex-wrap items-center justify-between gap-1">
         <h2 className="font-titre text-xl">{nom} {ennemi.shiny && <IconeShiny />}{ennemi.boss && nomAdversaire === null ? ' (Géant)' : ''}</h2><span>Niv. {ennemi.niveau}</span>
       </div>
@@ -118,7 +118,7 @@ function Scene({ store, ouvrirPension }: { store: StoreJeu; ouvrirPension(): voi
       </div>
     </div>
     {enRecherche && <div role="status" className="pointer-events-none absolute inset-0 flex items-center justify-center">
-      <span className="cadre bg-surface p-2 motion-safe:animate-pulse">Recherche en cours…</span>
+      <span className="contour-texte p-2 text-neutre-50 motion-safe:animate-pulse">Recherche en cours…</span>
     </div>}
     {notification}
     {banniere !== null && <div aria-hidden="true"
