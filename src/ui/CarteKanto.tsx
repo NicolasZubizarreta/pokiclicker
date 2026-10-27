@@ -1,8 +1,8 @@
-import { createElement, Fragment, useEffect, useRef, useState } from 'react';
+import { createElement, Fragment, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { PointerEvent as EvenementPointeur } from 'react';
 import { useStore } from 'zustand';
 import tailles from '../../public/img/tailles.json';
-import { attributsSvg, centreForme, deplacer, rayonCible, vueInitiale, zoomer } from './carte-geometrie';
+import { attributsSvg, centreForme, deplacer, positionFiche, rayonCible, vueInitiale, zoomer } from './carte-geometrie';
 import type { Point, Vue } from './carte-geometrie';
 import { storeJeu } from './store';
 import type { EtatForme } from './store';
@@ -34,6 +34,7 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
   const [vue, changerVue] = useState(vueInitiale);
   const [largeur, mesurer] = useState(0);
   const svg = useRef<SVGSVGElement>(null);
+  const fiche = useRef<HTMLElement>(null);
   const pointeurs = useRef(new Map<number, Point>());
   const origine = useRef<Point | null>(null);
   const zoneTouchee = useRef<string | null>(null);
@@ -45,6 +46,19 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
   const zones = carte.formes.filter(f => f.zone !== null).sort((a, b) => (a.numero ?? 0) - (b.numero ?? 0));
   const dimensions = tailles['img/decors/carte-kanto.webp'];
   const decor = choisie?.zone ? cheminDecor(kanto.zone(choisie.zone)) : null;
+
+  useLayoutEffect(() => {
+    const element = fiche.current;
+    if (!element || !choisie || !svg.current) return;
+    const style = getComputedStyle(element);
+    if (style.getPropertyValue('--fiche-ancree').trim() !== '1') return;
+    const rect = svg.current.getBoundingClientRect();
+    const position = positionFiche(centreForme(choisie.forme), vue,
+      { largeur: rect.width, hauteur: rect.height },
+      { largeur: element.offsetWidth, hauteur: element.offsetHeight }, parseFloat(style.paddingLeft));
+    element.style.setProperty('--fiche-x', `${position.x}px`);
+    element.style.setProperty('--fiche-y', `${position.y}px`);
+  }, [choisie, vue, largeur, vol.actif, centreOuvert, raisonCentre, raisonCasino]);
 
   useEffect(() => { void precharger(imagesVol); }, []);
 
@@ -120,6 +134,7 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
   function terminer(event: EvenementPointeur<SVGSVGElement>) {
     if (event.type !== 'pointerup') glissement.current = true;
     if (pointeurs.current.has(event.pointerId) && !glissement.current && zoneTouchee.current) selectionner(zoneTouchee.current);
+    if (pointeurs.current.has(event.pointerId) && !glissement.current && !zoneTouchee.current) selectionner(null);
     pointeurs.current.delete(event.pointerId);
   }
 
@@ -129,10 +144,14 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
       <h2 className="font-titre text-xl font-semibold">Ton voyage</h2>
       <p>{carte.badges.obtenus} badges sur {carte.badges.total} · {lieu?.nom ?? actuelle?.nom} en cours</p>
       <progress className="w-full accent-region-accent" value={carte.badges.obtenus} max={carte.badges.total} aria-label="Badges obtenus" />
+      {nouvelles.length > 0 && !choisie && <p role="status">
+        Zone débloquée ! {carte.formes.filter(f => f.zone && nouvelles.includes(f.zone)).map(f => f.nom).join(', ')}
+      </p>}
     </section>
     <div className="carte-grille grid gap-x-4">
     <div className="cadre overflow-hidden bg-surface p-2">
-      <div className={`relative ${vol.actif && reduit ? 'fondu-carte' : ''}`}>
+      <div className={`carte-support relative ${vol.actif && reduit ? 'fondu-carte' : ''}`}
+        onKeyDown={event => { if (event.key === 'Escape') selectionner(null); }}>
       <svg ref={svg} aria-label="Carte de Kanto" className="block aspect-video w-full touch-none select-none"
         viewBox={`${vue.x} ${vue.y} ${vue.largeur} ${vue.hauteur}`}
         onPointerDown={commencer} onPointerMove={bouger} onPointerUp={terminer}
@@ -178,39 +197,40 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
         </g>}
       </svg>
       {vol.actif && !reduit && <VolGen1 ms={vol.ms} />}
-      </div>
-      {vol.actif && <p role="status" className="sr-only">Vol en cours vers {vol.cible === 'centre-commercial' ? 'Centre commercial' : carte.formes.find(f => f.zone === vol.cible)?.nom}…</p>}
-    </div>
-      <section aria-label="Zone sélectionnée" className="carte-bande-reservee mt-2 bg-surface-2 p-4 text-base">
-        {nouvelles.length > 0 && !choisie && <p role="status" className="mb-2">
-          Zone débloquée ! {carte.formes.filter(f => f.zone && nouvelles.includes(f.zone)).map(f => f.nom).join(', ')}
-        </p>}
-        {!choisie ? <p>Touche une zone pour la voir.</p> : <>
-          <h2 className="font-titre text-xl font-semibold">{choisie.nom}</h2>
-          {choisie.numero !== null && choisie.numero !== 0 && <p>Zone {choisie.numero}</p>}
-          {decor && imageConnue(decor) && <Image genre="decor" src={decor} alt={`Décor de ${choisie.nom}`} className="carte-miniature my-2" />}
+      {choisie && <section ref={fiche} aria-label="Zone sélectionnée" className="carte-fiche cadre absolute flex gap-2 overflow-y-auto bg-surface p-2 text-base text-texte outline-none"
+        onKeyDown={event => { if (event.key === 'Escape') selectionner(null); }}>
+        <button type="button" aria-label="Fermer" className="absolute right-0 top-0 min-h-11 min-w-11 text-xl focus-visible:outline-2 focus-visible:outline-focus" onClick={() => selectionner(null)}>×</button>
+        {decor && imageConnue(decor) && <Image genre="decor" src={decor} alt={`Décor de ${choisie.nom}`} className="carte-miniature shrink-0 object-cover" />}
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-baseline gap-x-2 pr-11">
+            <h2 className="font-titre text-base font-semibold">{choisie.nom}</h2>
+            {choisie.numero !== null && choisie.numero !== 0 && <p className="text-info-texte">Zone {choisie.numero}</p>}
+          </div>
           {!choisie.ouverte ? <><p>Bloquée</p><p>{choisie.raison ?? 'Pas encore accessible.'}</p></>
             : choisie.actuelle && !vol.actif ? <p>Tu es ici.</p>
-              : <button type="button" className="min-h-11 min-w-11 bg-action px-4 py-2 text-action-texte shadow-sm hover:bg-action-survol"
+              : <button type="button" className="min-h-11 min-w-11 w-full bg-action px-4 py-2 text-action-texte shadow-sm hover:bg-action-survol focus-visible:outline-2 focus-visible:outline-focus"
                 disabled={vol.actif} onClick={() => lancer(choisie.zone!, actuelle?.forme ?? null)}>{choisie.nom === 'Céladopole' ? 'Arène' : 'Y aller'}</button>}
           {choisie.nom === 'Céladopole' && <div className="mt-2 grid gap-2">
             <div>
               <button type="button" data-centre disabled={!centreOuvert || vol.actif}
                 onClick={() => lancer('centre-commercial', actuelle?.forme ?? null, quandCentre)}
                 aria-describedby={!centreOuvert && raisonCentre ? 'carte-commerce' : undefined}
-                className={`min-h-11 min-w-11 px-4 py-2 ${centreOuvert
+                className={`min-h-11 min-w-11 w-full px-4 py-2 focus-visible:outline-2 focus-visible:outline-focus ${centreOuvert
                   ? 'bg-action text-action-texte shadow-sm hover:bg-action-survol' : 'bg-surface text-texte-doux'}`}>Centre commercial</button>
               {!centreOuvert && raisonCentre && <p id="carte-commerce">{raisonCentre}</p>}
             </div>
             <div>
               <button type="button" data-casino disabled={!casino.ouvert || !quandCasino || vol.actif}
                 onClick={quandCasino} aria-describedby={raisonCasino ? 'carte-casino' : undefined}
-                className="min-h-11 min-w-11 bg-surface px-4 py-2 disabled:text-texte-doux">Casino</button>
+                className="min-h-11 min-w-11 w-full bg-surface px-4 py-2 focus-visible:outline-2 focus-visible:outline-focus disabled:text-texte-doux">Casino</button>
               {raisonCasino && <p id="carte-casino">{raisonCasino}</p>}
             </div>
           </div>}
-        </>}
-      </section>
+        </div>
+      </section>}
+      </div>
+      {vol.actif && <p role="status" className="sr-only">Vol en cours vers {vol.cible === 'centre-commercial' ? 'Centre commercial' : carte.formes.find(f => f.zone === vol.cible)?.nom}…</p>}
+    </div>
       <div className="carte-liste relative min-w-0">
         <ul role="listbox" aria-label="Zones de Kanto" className="max-h-64 overflow-y-auto overscroll-contain p-1 lg:absolute lg:inset-0 lg:max-h-none">
           {zones.map(f => <li key={f.zone} role="option" aria-label={nomAccessible(f)}

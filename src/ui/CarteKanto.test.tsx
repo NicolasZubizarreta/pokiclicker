@@ -158,7 +158,7 @@ it('capture les pointeurs, distingue toucher et glisser et zoome à deux doigts'
   pointer(route, 'pointerdown', 1, 100);
   pointer(svg, 'pointermove', 1, 109);
   pointer(svg, 'pointerup', 1, 109);
-  expect(screen.getByText('Touche une zone pour la voir.')).toBeTruthy();
+  expect(screen.queryByRole('region', { name: 'Zone sélectionnée' })).toBeNull();
   pointer(route, 'pointerdown', 1, 100);
   pointer(svg, 'pointerup', 1, 100);
   expect(screen.getByRole('heading', { name: 'Route 1' })).toBeTruthy();
@@ -172,6 +172,10 @@ it('capture les pointeurs, distingue toucher et glisser et zoome à deux doigts'
   expect(svg.getAttribute('viewBox')).not.toBe(avant);
   pointer(svg, 'pointercancel', 1, 80);
   expect(capture).toHaveBeenCalledWith(2);
+  expect(screen.getByRole('region', { name: 'Zone sélectionnée' })).toBeTruthy();
+  pointer(svg, 'pointerdown', 1, 100);
+  pointer(svg, 'pointerup', 1, 100);
+  expect(screen.queryByRole('region', { name: 'Zone sélectionnée' })).toBeNull();
 });
 
 it('présente le voyage avec une progression native accessible', () => {
@@ -194,7 +198,7 @@ it('voyage vers une zone ouverte avant de signaler l’arrivée', () => {
   expect(screen.getByRole('heading', { name: 'Route 1' })).toBeTruthy();
   expect(screen.getByText('Zone 1')).toBeTruthy();
   const image = screen.getByRole('img', { name: 'Décor de Route 1' });
-  expect(image.className).toContain('aspect-video');
+  expect(image.className).toContain('carte-miniature');
   fireEvent.click(screen.getByRole('button', { name: 'Y aller' }));
   act(() => { vi.advanceTimersByTime(3800); });
   expect(aller).toHaveBeenCalledWith(storeJeu.getState().carte.formes.find(f => f.numero === 1)!.zone);
@@ -217,8 +221,8 @@ it('propose les trois entrées de Céladopole et explique les deux indisponibles
   storeJeu.setState({ carte: { ...carte, formes: carte.formes.map(f => f === ville ? { ...f, ouverte: true, actuelle: false } : f) } });
   const aller = vi.spyOn(storeJeu.getState(), 'allerVers').mockImplementation(() => {});
   afficher();
-  const fiche = screen.getByRole('region', { name: 'Zone sélectionnée' });
   fireEvent.click(screen.getByRole('button', { name: /Céladopole/ }));
+  const fiche = screen.getByRole('region', { name: 'Zone sélectionnée' });
   expect(within(fiche).getByRole('heading', { name: 'Céladopole' })).toBeTruthy();
   expect(within(fiche).getByRole('button', { name: 'Arène' })).toBeTruthy();
   expect(within(fiche).queryByRole('heading', { name: 'Arène' })).toBeNull();
@@ -231,23 +235,39 @@ it('propose les trois entrées de Céladopole et explique les deux indisponibles
   expect(aller).toHaveBeenCalledWith(ville.zone);
 });
 
-it('réserve la même bande sous l’image et indique la zone actuelle sans action', () => {
+it('affiche la fiche seulement après sélection, sur la carte, et indique la zone actuelle sans action', () => {
   const { container } = afficher();
-  const fiche = screen.getByRole('region', { name: 'Zone sélectionnée' });
-  const classes = fiche.className;
-  expect(classes).toContain('carte-bande-reservee');
-  expect(fiche.previousElementSibling?.querySelector('svg[aria-label="Carte de Kanto"]')).toBeTruthy();
-  expect(fiche.previousElementSibling?.className).toContain('cadre');
-  expect(fiche.parentElement?.className).toContain('carte-grille');
+  expect(screen.queryByRole('region', { name: 'Zone sélectionnée' })).toBeNull();
   for (const nom of [/Céladopole/, /Forêt de Jade/, /Route 1 \(Zone 1\)/]) {
     fireEvent.click(screen.getByRole('button', { name: nom }));
-    expect(fiche.className).toBe(classes);
+    const fiche = screen.getByRole('region', { name: 'Zone sélectionnée' });
+    expect(fiche.className).toContain('carte-fiche');
+    expect(fiche.parentElement).toBe(container.querySelector('svg')?.parentElement);
   }
   const actuelle = storeJeu.getState().carte.formes.find(f => f.actuelle)!;
   fireEvent.click(screen.getByRole('button', { name: actuelle.numero ? `${actuelle.nom} (Zone ${actuelle.numero})` : actuelle.nom }));
   expect(screen.getByText('Tu es ici.')).toBeTruthy();
+  const fiche = screen.getByRole('region', { name: 'Zone sélectionnée' });
   expect(within(fiche).queryByRole('button', { name: 'Y aller' })).toBeNull();
   expect(container.textContent).not.toMatch(/\b(locked|travel|current|coming soon|select a zone)\b/i);
+});
+
+it('ferme avec × et Échap depuis la fiche ou la carte, mais pas au clic dans la fiche', () => {
+  afficher();
+  const route = screen.getByRole('button', { name: 'Route 1 (Zone 1)' });
+  fireEvent.click(route);
+  fireEvent.click(screen.getByRole('heading', { name: 'Route 1' }));
+  expect(screen.getByRole('region', { name: 'Zone sélectionnée' })).toBeTruthy();
+  const fermer = screen.getByRole('button', { name: 'Fermer' });
+  expect(fermer.textContent).toBe('×');
+  fireEvent.click(fermer);
+  expect(screen.queryByRole('region', { name: 'Zone sélectionnée' })).toBeNull();
+  fireEvent.click(route);
+  fireEvent.keyDown(screen.getByRole('button', { name: 'Fermer' }), { key: 'Escape' });
+  expect(screen.queryByRole('region', { name: 'Zone sélectionnée' })).toBeNull();
+  fireEvent.click(route);
+  fireEvent.keyDown(route, { key: 'Escape' });
+  expect(screen.queryByRole('region', { name: 'Zone sélectionnée' })).toBeNull();
 });
 
 it('annonce les zones débloquées puis les marque vues après 600 ms', () => {
@@ -263,6 +283,7 @@ it('annonce les zones débloquées puis les marque vues après 600 ms', () => {
   expect(nouvelles.length).toBeGreaterThan(0);
   const { container } = afficher();
   expect(screen.getByRole('status').textContent).toContain('Zone débloquée !');
+  expect(within(screen.getByRole('region', { name: 'Ton voyage' })).getByRole('status')).toBe(screen.getByRole('status'));
   expect(screen.getByRole('status').textContent).toContain('Forêt de Jade');
   expect(container.querySelector('[data-forme="Forêt de Jade"]')?.getAttribute('class')).not.toContain('carte-deblocage');
   act(() => { vi.advanceTimersByTime(599); });

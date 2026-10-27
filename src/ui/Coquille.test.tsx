@@ -246,7 +246,7 @@ describe('Coquille', () => {
           expect(parcours.currentNode.parentElement?.closest('section')?.textContent).toMatch(/Ton voyage\d+ badges? sur \d+ · .+ en cours/);
           continue;
         }
-        const textesCarte = new Set(['Ton voyage', 'Touche une zone pour la voir.', ...storeJeu.getState().carte.formes.map(f =>
+        const textesCarte = new Set(['Ton voyage', ...storeJeu.getState().carte.formes.map(f =>
           f.numero === null || f.numero === 0 ? f.nom : `${f.nom} (Zone ${f.numero})`)]);
         if (texte) expect(autorises.has(texte) || textesCarte.has(texte) || (nom === 'Plus' && /^\d+ \/ 151$/.test(texte)), texte).toBe(true);
       }

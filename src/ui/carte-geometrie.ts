@@ -4,6 +4,16 @@ import { reglages } from '../core/reglages';
 export type Point = { x: number; y: number };
 export type Vue = { x: number; y: number; largeur: number; hauteur: number };
 
+export function positionFiche(centre: Point, vue: Vue, carte: { largeur: number; hauteur: number }, fiche: { largeur: number; hauteur: number }, marge: number): Point {
+  const x = (centre.x - vue.x) / vue.largeur * carte.largeur;
+  const y = (centre.y - vue.y) / vue.hauteur * carte.hauteur;
+  const dessus = y - fiche.hauteur - marge;
+  return {
+    x: Math.max(marge, Math.min(carte.largeur - fiche.largeur - marge, x - fiche.largeur / 2)),
+    y: Math.max(marge, Math.min(carte.hauteur - fiche.hauteur - marge, dessus >= marge ? dessus : y + marge)),
+  };
+}
+
 /** Coordonnées en unités du viewBox 0 0 16 9. */
 export function centreForme(forme: FormeCarte): Point {
   if (forme.forme === 'cercle') return { x: forme.x * 16, y: forme.y * 9 };

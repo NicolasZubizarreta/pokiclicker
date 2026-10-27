@@ -2,7 +2,25 @@ import { describe, expect, it } from 'vitest';
 import kanto from '../../data/regions/kanto/zones.json';
 import type { FormeCarte } from '../core/monde';
 import { reglages } from '../core/reglages';
-import { attributsSvg, borner, centreForme, deplacer, rayonCible, vueInitiale, zoomer } from './carte-geometrie';
+import { attributsSvg, borner, centreForme, deplacer, positionFiche, rayonCible, vueInitiale, zoomer } from './carte-geometrie';
+
+describe('position de la fiche', () => {
+  const carte = { largeur: 800, hauteur: 450 };
+  const fiche = { largeur: 200, hauteur: 100 };
+  it('se place au-dessus par défaut', () => {
+    expect(positionFiche({ x: 8, y: 4.5 }, vueInitiale(), carte, fiche, 8)).toEqual({ x: 300, y: 117 });
+  });
+  it('bascule en dessous si le haut manque de place', () => {
+    expect(positionFiche({ x: 8, y: 1 }, vueInitiale(), carte, fiche, 8)).toEqual({ x: 300, y: 58 });
+  });
+  it('borne les côtés et le bas, même pour une zone hors vue', () => {
+    expect(positionFiche({ x: -4, y: 20 }, vueInitiale(), carte, fiche, 8)).toEqual({ x: 8, y: 342 });
+    expect(positionFiche({ x: 16, y: 4.5 }, vueInitiale(), carte, fiche, 8)).toEqual({ x: 592, y: 117 });
+  });
+  it('tient compte du zoom et du déplacement de la vue', () => {
+    expect(positionFiche({ x: 6, y: 4 }, { x: 4, y: 2, largeur: 8, hauteur: 4.5 }, carte, fiche, 8)).toEqual({ x: 100, y: 92 });
+  });
+});
 
 describe('géométrie de la carte', () => {
   it('centre les vraies formes de Kanto dans le viewBox', () => {

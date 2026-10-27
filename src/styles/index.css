@@ -318,13 +318,32 @@ html:has(dialog[open]) { overflow: hidden; }
 
 .carte-grille > .cadre { min-width: 0; }
 .carte-liste { grid-row: 2; }
+.carte-support { container-type: inline-size; }
+.carte-fiche {
+  --fiche-ancree: 0;
+  left: calc(var(--spacing) * 2);
+  right: calc(var(--spacing) * 2);
+  bottom: calc(var(--spacing) * 2);
+  max-height: calc(100% - var(--spacing) * 4);
+}
+.carte-miniature { width: calc(var(--spacing) * 24); height: calc(var(--spacing) * 24); }
+@container (width < calc(theme(--spacing) * 120)) {
+  .carte-miniature { display: none; }
+}
 @media (width >= theme(--breakpoint-lg)) {
   .carte-grille { grid-template-columns: minmax(0, 1fr) calc(var(--spacing) * 80); }
   .carte-liste { grid-column: 2; grid-row: 1; }
-  .carte-grille > section { grid-column: 1; grid-row: 2; }
+  .carte-fiche {
+    --fiche-ancree: 1;
+    left: var(--fiche-x);
+    top: var(--fiche-y);
+    right: auto;
+    bottom: auto;
+    width: calc(var(--spacing) * 80);
+    max-width: calc(100% - var(--spacing) * 4);
+    max-height: calc(100% - var(--spacing) * 4);
+  }
 }
-.carte-bande-reservee { height: calc(var(--spacing) * 80); overflow-y: auto; }
-.carte-miniature { width: calc(var(--spacing) * 32); max-width: 100%; }
 .carte-deblocage { opacity: 1; transition: opacity calc(var(--duration-lent) * 2) var(--ease-standard); }
 @starting-style { .carte-deblocage { opacity: 0; } }
 
