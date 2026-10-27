@@ -37,6 +37,28 @@ afterEach(() => {
 });
 const noms = ['Combat', 'Équipe', 'Shop', 'Carte', 'Plus'];
 
+it('affiche les crédits seulement lorsque fin.credits est vrai et rend la navigation inerte', () => {
+  const montrer = Object.getOwnPropertyDescriptor(HTMLDialogElement.prototype, 'showModal');
+  const clore = Object.getOwnPropertyDescriptor(HTMLDialogElement.prototype, 'close');
+  Object.defineProperty(HTMLDialogElement.prototype, 'showModal', { configurable: true, value: function () { this.open = true; } });
+  Object.defineProperty(HTMLDialogElement.prototype, 'close', { configurable: true, value: function () { this.open = false; } });
+  try {
+    const { container, unmount } = render(<Coquille />);
+    expect(container.querySelector('dialog.credits')).toBeNull();
+    act(() => storeJeu.setState({ fin: { ...storeJeu.getState().fin, credits: true } }));
+    expect(screen.getByRole('dialog', { name: 'POKÉ-CLICKER : KANTO ORIGINS' })).toBeTruthy();
+    expect(container.querySelector('nav')?.hasAttribute('inert')).toBe(true);
+    act(() => storeJeu.setState({ fin: { ...storeJeu.getState().fin, credits: false } }));
+    expect(container.querySelector('dialog.credits')).toBeNull();
+    unmount();
+  } finally {
+    if (montrer) Object.defineProperty(HTMLDialogElement.prototype, 'showModal', montrer);
+    else Reflect.deleteProperty(HTMLDialogElement.prototype, 'showModal');
+    if (clore) Object.defineProperty(HTMLDialogElement.prototype, 'close', clore);
+    else Reflect.deleteProperty(HTMLDialogElement.prototype, 'close');
+  }
+});
+
 it('annonce un achat formaté au Shop et retire la notification expirée', () => {
   const { unmount } = render(<Coquille />);
   unmount();
