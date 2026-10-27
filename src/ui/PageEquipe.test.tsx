@@ -36,6 +36,21 @@ beforeEach(() => {
 });
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
+it('garde sprite, halo et icône chromatiques dans les cartes, le détail et l’évolution', () => {
+  const shiny = { ...pokemon, shiny: true };
+  storeJeu.setState({ equipe: [{ pokemon: shiny, dps: 42, xpMax: 100, multiplicateur: 1, evolution: 2 }], evolution: null });
+  const precharger = vi.spyOn(chargement, 'precharger').mockResolvedValue({ charges: 1, echecs: 0 });
+  const { container } = render(<PageEquipe />);
+  expect(precharger).toHaveBeenCalledWith(['img/sprites/pokemon-shiny/2.png']);
+  expect(container.querySelectorAll('img.halo-shiny[src="img/sprites/pokemon-shiny/1.png"]')).toHaveLength(2);
+  expect(screen.getByRole('button', { name: 'Bourgeon, niveau 16' }).querySelector('strong svg linearGradient')).toBeTruthy();
+  expect(within(screen.getByRole('complementary')).getByRole('heading').querySelector('svg')).toBeTruthy();
+  act(() => storeJeu.setState({ evolution: { uid: pokemon.uid, ancien: 1, nouveau: 2 } }));
+  expect(container.querySelectorAll('img.halo-shiny[src="img/sprites/pokemon-shiny/2.png"]')).toHaveLength(2);
+  expect(container.querySelectorAll('img.halo-shiny[src="img/sprites/pokemon-shiny/1.png"]')).toHaveLength(2);
+  expect(container.querySelector('img[src^="img/sprites/pokemon/"]')).toBeNull();
+});
+
 it('présente six cases, le total formaté et les noms français', () => {
   render(<PageEquipe />);
   expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Ton équipe');

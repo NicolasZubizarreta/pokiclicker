@@ -7,6 +7,7 @@ import { BarrePv } from './BarrePv';
 import { BarreTemps } from './BarreTemps';
 import { BarreCapture } from './BarreCapture';
 import { CarteEquipe } from './CarteEquipe';
+import { IconeShiny } from './IconeShiny';
 import { DegatsFlottants } from './DegatsFlottants';
 import { DialogueChen } from './DialogueChen';
 import { ScenesBourgPalette } from './ScenesBourgPalette';
@@ -66,10 +67,15 @@ function Scene({ store, ouvrirPension }: { store: StoreJeu; ouvrirPension(): voi
   const accesPension = useStore(store, etat => etat.pension.acces);
   const captureEnCours = useStore(store, etat => etat.capture.enCours);
   const effets = useStore(store, etat => etat.effets);
+  const numeroEnnemi = ennemi?.numero;
+  const shinyEnnemi = ennemi?.shiny;
   useEffect(() => {
     if (zone) void prechargerZone(zone);
     if (lieu && imageConnue(cheminDecor(lieu))) void precharger([cheminDecor(lieu)]);
   }, [zone, lieu]);
+  useEffect(() => {
+    if (numeroEnnemi !== undefined) void precharger([cheminSprite(numeroEnnemi, shinyEnnemi)]);
+  }, [numeroEnnemi, shinyEnnemi]);
   const notification = annonce !== null && <div role="status" aria-live="polite"
     className="pointer-events-none cadre absolute inset-x-4 top-4 z-20 bg-surface p-2 text-center">{annonce}</div>;
   if (lieu?.id === kanto.depart) return <div
@@ -91,7 +97,7 @@ function Scene({ store, ouvrirPension }: { store: StoreJeu; ouvrirPension(): voi
     <Image src={cheminDecor(zone)} genre="decor" alt="" couvrir className="absolute inset-0 -z-10 size-full" />
     <div aria-hidden={cache} className={`pointer-events-none cadre absolute top-4 left-4 z-10 w-3/5 bg-surface p-3 ${cache ? 'opacity-0' : ''}`}>
       <div className="flex flex-wrap items-center justify-between gap-1">
-        <h2 className="font-titre text-xl">{nom}{ennemi.boss && nomAdversaire === null ? ' (Géant)' : ''}</h2><span>Niv. {ennemi.niveau}</span>
+        <h2 className="font-titre text-xl">{nom} {ennemi.shiny && <IconeShiny />}{ennemi.boss && nomAdversaire === null ? ' (Géant)' : ''}</h2><span>Niv. {ennemi.niveau}</span>
       </div>
       {ennemi.shiny && <p>Chromatique</p>}
       <BarrePv key={`${ennemi.numero}-${ennemi.niveau}-${ennemi.boss}`} pv={ennemi.pv} maximum={ennemi.pvMax} nom={nom} />
@@ -103,9 +109,9 @@ function Scene({ store, ouvrirPension }: { store: StoreJeu; ouvrirPension(): voi
       <div className={captureEnCours ? '' : 'motion-safe:flottement'}>
         <div ref={secousse}>
           {[['size-48 lg:hidden', 192], ['hidden size-72 lg:block', 288]].map(([taille, largeur]) => <span key={largeur} className={`relative ${taille}`}>
-            <Image src={cheminSprite(ennemi.numero)} genre="sprite" alt={nom} largeurDisponible={largeur as number}
+            <Image src={cheminSprite(ennemi.numero, ennemi.shiny)} genre="sprite" alt={nom} largeurDisponible={largeur as number}
               className={`relative size-full max-w-none ${captureEnCours ? 'capture-en-cours' : ''} ${ennemi.shiny ? 'halo-shiny' : ''}`} />
-            <Image src={cheminSprite(ennemi.numero)} genre="sprite" alt="" largeurDisponible={largeur as number}
+            <Image src={cheminSprite(ennemi.numero, ennemi.shiny)} genre="sprite" alt="" largeurDisponible={largeur as number}
               className="eclat-touche will-change-[opacity] absolute inset-0 size-full max-w-none" />
           </span>)}
         </div>

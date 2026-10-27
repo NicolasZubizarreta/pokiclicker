@@ -10,8 +10,25 @@ import { formaterDps } from './nombres';
 import { creerStoreJeu } from './store';
 import type { StoreJeu } from './store';
 import { ERREUR_CHARGEMENT } from './persistance';
+import * as chargement from './precharger';
 
 let store: StoreJeu;
+it('précharge le chromatique courant et garde ses deux couches sur chaque taille', () => {
+  const precharger = vi.spyOn(chargement, 'precharger').mockResolvedValue({ charges: 1, echecs: 0 });
+  try {
+    const { container } = preparer();
+    const ennemi = store.getState().ennemi!;
+    act(() => store.setState({ ennemi: { ...ennemi, shiny: true } }));
+    const src = `img/sprites/pokemon-shiny/${ennemi.numero}.png`;
+    expect(precharger).toHaveBeenCalledWith([src]);
+    expect(container.querySelectorAll(`img[src="${src}"]`)).toHaveLength(4);
+    expect(container.querySelectorAll(`img.halo-shiny[src="${src}"]`)).toHaveLength(2);
+    expect(container.querySelector('h2 svg linearGradient')).toBeTruthy();
+    precharger.mockClear();
+    act(() => store.setState({ ennemi: { ...ennemi, shiny: true, pv: ennemi.pv - 1 } }));
+    expect(precharger).not.toHaveBeenCalled();
+  } finally { precharger.mockRestore(); }
+});
 it('transmet l’accès pension du store et garde Bourg Palette après le clic', () => {
   preparer();
   act(() => store.getState().allerVers('kanto.bourg-palette'));

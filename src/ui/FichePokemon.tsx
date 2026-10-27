@@ -8,6 +8,7 @@ import { reglages } from '../core/reglages';
 import { BarreXp } from './BarreXp';
 import { dpsSansType } from './dps-pc';
 import { Image } from './Image';
+import { IconeShiny } from './IconeShiny';
 import { formaterDps } from './nombres';
 import { nomAffiche, progressionOeuf, spriteAffiche } from './affichage-pokemon';
 import { storeJeu } from './store';
@@ -89,19 +90,19 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur }: Props) {
       <div className="fiche-contenu grid min-w-0 gap-4 p-4 lg:p-8">
         <button type="button" className={`${bouton} justify-self-end`} onClick={fermerFiche}>Ferme la fiche</button>
         <header>
-          <h2 id={titre} className="break-words font-titre text-2xl">{nom}</h2>
+          <h2 id={titre} className="break-words font-titre text-2xl">{nom}{pokemon?.shiny && !pokemon.oeuf && <IconeShiny />}</h2>
           {pokemon && espece && <p>{pokemon.oeuf ? progressionOeuf(pokemon.oeuf) : `${espece.nom} · N° ${pokemon.numero} · Niveau ${pokemon.niveau}`}</p>}
         </header>
         {pokemonPc && <p>Dans le PC</p>}
         {pokemon && espece && membre && detail && <>
           <div className="relative isolate grid place-items-center">
             <div className="socle absolute bottom-4 -z-10 h-8 w-40 bg-region-socle" />
-            <Image src={spriteAffiche(pokemon)} genre="sprite" alt={pokemon.oeuf ? nom : espece.nom} className="size-48 image-rendering-pixelated" />
+            <Image src={spriteAffiche(pokemon)} genre="sprite" alt={pokemon.oeuf ? nom : espece.nom} className={`size-48 image-rendering-pixelated ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''}`} />
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {pokemon.sexe === 'male' && <span className="text-info-base" role="img" aria-label="Mâle">♂</span>}
             {pokemon.sexe === 'femelle' && <span className="text-erreur-base" role="img" aria-label="Femelle">♀</span>}
-            {pokemon.shiny && <span className="inline-flex items-center gap-1 text-alerte-base"><Etoile />Shiny</span>}
+            {pokemon.shiny && <span className="inline-flex items-center gap-1"><IconeShiny />Shiny</span>}
             <button type="button" aria-pressed={pokemon.favori}
               className={`${bouton} inline-flex items-center gap-2 ${pokemon.favori ? 'text-lien' : ''}`}
               onClick={() => signaler(storeJeu.getState().basculerFavori(uid))}>

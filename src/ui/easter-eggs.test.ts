@@ -10,6 +10,15 @@ const pokemon: PokemonPossede = {
 };
 
 describe('apparence des easter eggs', () => {
+  it('affiche le sprite chromatique et conserve les effets et priorités', () => {
+    const shiny = { ...pokemon, shiny: true };
+    expect(apparenceSprite(shiny)).toEqual({ src: 'img/sprites/pokemon-shiny/1.png', classe: '', photo: false });
+    expect(apparenceSprite({ ...shiny, surnom: 'DinnerBone' })).toEqual({
+      src: 'img/sprites/pokemon-shiny/1.png', classe: 'ee-retourne', photo: false,
+    });
+    expect(apparenceSprite({ ...shiny, surnom: 'Daran' })).toEqual(apparenceSprite({ ...pokemon, surnom: 'Daran' }));
+    expect(apparenceSprite({ ...shiny, oeuf: { pasRestants: 1, pasMax: 2 } }).src).toBe('img/objets/lucky-egg.png');
+  });
   it.each([
     [' DinnerBone ', 'ee-retourne'],
     ['GRUMM', 'ee-retourne'],

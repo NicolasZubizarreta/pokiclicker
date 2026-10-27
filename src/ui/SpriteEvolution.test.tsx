@@ -11,6 +11,11 @@ vi.mock('../../public/img/tailles.json', () => ({ default: {
 const props = { ancien: 'img/pokemon/1.png', nouveau: 'img/pokemon/2.png', nom: 'Herbizarre' };
 
 describe('SpriteEvolution', () => {
+  it.each([true, false])('garde le halo chromatique pendant et après l’évolution (%s)', actif => {
+    const element = document.createElement('div');
+    element.innerHTML = renderToStaticMarkup(<SpriteEvolution {...props} actif={actif} shiny />);
+    expect(element.querySelectorAll('img.halo-shiny')).toHaveLength(actif ? 2 : 1);
+  });
   it('superpose deux Image dimensionnées et réserve les animations au mouvement autorisé', () => {
     const element = document.createElement('div');
     element.innerHTML = renderToStaticMarkup(<SpriteEvolution {...props} actif />);

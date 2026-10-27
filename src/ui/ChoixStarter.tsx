@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { IconeShiny } from './IconeShiny';
 
 type Starter = { numero: number; nom: string; shiny: boolean };
 
@@ -22,19 +23,19 @@ export function ChoixStarter({ starters, choisir }: { starters: Starter[]; chois
             <img src="img/objets/poke-ball.png" alt="" width={80} height={80}
               className={`image-rendering-pixelated size-full object-contain motion-safe:intro-starter-fondu ${actif ? 'opacity-0' : 'opacity-100'}`} />
             <img src={artwork} alt="" width={80} height={80}
-              className={`absolute inset-0 size-full object-contain motion-safe:intro-starter-fondu ${actif
+              className={`absolute inset-0 size-full object-contain motion-safe:intro-starter-fondu ${starter.shiny ? 'halo-shiny' : ''} ${actif
                 ? 'opacity-100 intro-starter-choisi'
                 : 'scale-0 opacity-0 group-hover:scale-100 group-hover:opacity-100 group-focus-visible:scale-100 group-focus-visible:opacity-100'}`} />
           </span>
           <span className={`cadre bg-surface px-2 py-1 text-xs ${actif ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100'}`}>
-            {starter.nom.toUpperCase()}
+            {starter.nom.toUpperCase()} {starter.shiny && <IconeShiny />}
           </span>
         </button>;
       })}
     </div>
     {choisi && <button type="button" onClick={() => choisir(choisi.numero)}
       className="min-h-11 bg-action px-6 py-2 font-titre text-action-texte hover:bg-action-survol">
-      CHOISIR {choisi.nom.toUpperCase()}
+      CHOISIR {choisi.nom.toUpperCase()} {choisi.shiny && <IconeShiny />}
     </button>}
   </section>;
 }

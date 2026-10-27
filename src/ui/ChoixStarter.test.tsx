@@ -44,6 +44,10 @@ it('marque le starter chromatique par son artwork chromatique et un anneau doré
   const { container } = render(<ChoixStarter starters={starters} choisir={vi.fn()} />);
   expect(container.querySelector('img[src="img/artworks/4-shiny.png"]')).toBeTruthy();
   expect(container.querySelector('img[src="img/artworks/4.png"]')).toBeNull();
+  expect(container.querySelector('img[src="img/artworks/4-shiny.png"]')?.classList.contains('halo-shiny')).toBe(true);
+  expect(screen.getByRole('button', { name: 'Salamèche chromatique' }).querySelector('svg[aria-hidden="true"]')).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: 'Salamèche chromatique' }));
+  expect(screen.getByRole('button', { name: 'CHOISIR SALAMÈCHE' }).querySelector('svg')).toBeTruthy();
   expect(screen.getByRole('button', { name: 'Salamèche chromatique' }).innerHTML).toContain('ring-alerte-base');
   expect(screen.getByRole('button', { name: 'Bulbizarre' }).innerHTML).not.toContain('ring-alerte-base');
 });

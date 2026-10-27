@@ -40,7 +40,8 @@ it('dépose depuis le PC, affiche le refus du cœur et retire les parents', () =
   fireEvent.click(screen.getByRole('button', { name: 'Déposer un parent' }));
   fireEvent.click(within(screen.getByRole('region', { name: 'PC' })).getByRole('button'));
   expect(screen.getByText('4 % par élimination')).toBeTruthy();
-  expect(screen.getByLabelText('Shiny')).toBeTruthy();
+  expect(document.querySelector('strong svg[aria-hidden="true"]')).toBeTruthy();
+  expect(document.querySelector('img.halo-shiny')?.getAttribute('src')).toBe('img/sprites/pokemon-shiny/1.png');
   expect(document.querySelector('.halo-shiny')).toBeTruthy();
   fireEvent.click(screen.getAllByRole('button', { name: 'Retirer Bulbizarre' })[0]!);
   expect(store.getState().pension.parents).toHaveLength(1);

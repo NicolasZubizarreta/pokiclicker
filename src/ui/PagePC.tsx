@@ -10,6 +10,7 @@ import { FichePokemon } from './FichePokemon';
 import { Image } from './Image';
 import { formaterDps } from './nombres';
 import { nomAffiche as nomDe, progressionOeuf, spriteAffiche } from './affichage-pokemon';
+import { IconeShiny } from './IconeShiny';
 import { storeJeu } from './store';
 
 const catalogue = chargerPokemon();
@@ -67,9 +68,9 @@ export function PagePC({ retour }: { retour(): void }) {
       const { pokemon, dps } = membre;
       const nom = nomDe(pokemon);
       const contenu = <>
-        <Image src={spriteAffiche(pokemon)} genre="sprite" alt="" className="size-14 shrink-0" />
+        <Image src={spriteAffiche(pokemon)} genre="sprite" alt="" className={`size-14 shrink-0 ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''}`} />
         <span className={mobile ? 'sr-only' : 'grid min-w-0 gap-1 break-words'}>
-          <strong>{nom}</strong><span>{pokemon.oeuf ? progressionOeuf(pokemon.oeuf) : `Niv. ${pokemon.niveau}`}</span><span>{formaterDps(dps)} DPS</span>
+          <strong>{nom}{pokemon.shiny && !pokemon.oeuf && <IconeShiny />}</strong><span>{pokemon.oeuf ? progressionOeuf(pokemon.oeuf) : `Niv. ${pokemon.niveau}`}</span><span>{formaterDps(dps)} DPS</span>
         </span>
       </>;
       return echange ? <button key={index} type="button" aria-label={pokemon.oeuf ? `${nom}, ${progressionOeuf(pokemon.oeuf)}` : `${nom}, niveau ${pokemon.niveau}`}
@@ -121,22 +122,17 @@ export function PagePC({ retour }: { retour(): void }) {
                     }}>
                     <span className="relative isolate grid place-items-center">
                       <span aria-hidden="true" className="socle absolute bottom-2 -z-10 h-4 w-20 bg-region-socle" />
-                      <Image src={spriteAffiche(pokemon)} genre="sprite" alt="" className="size-24 max-w-none" />
+                      <Image src={spriteAffiche(pokemon)} genre="sprite" alt="" className={`size-24 max-w-none ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''}`} />
                     </span>
                     <strong className="flex max-w-full flex-wrap items-center justify-center gap-2 break-words">
-                      <span className="min-w-0">{nom}</span>
+                      <span className="min-w-0">{nom}</span>{pokemon.shiny && !pokemon.oeuf && <IconeShiny />}
                       {(pokemon.sexe === 'femelle' || pokemon.sexe === 'male') && <span role="img"
                         aria-label={pokemon.sexe === 'femelle' ? 'Femelle' : 'Mâle'}
                         className={pokemon.sexe === 'femelle' ? 'text-erreur-base' : 'text-info-base'}>{pokemon.sexe === 'femelle' ? '♀' : '♂'}</span>}
                       {pokemon.favori && <><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" className="size-5 shrink-0 fill-current text-lien">
                         <path d="m12 2 3 6 7 1-5 5 1 8-6-4-6 4 1-8-5-5 7-1z" />
                       </svg><span className="sr-only">Favori</span></>}
-                      {pokemon.shiny && <>
-                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" className="size-5 shrink-0 fill-current text-alerte-base">
-                          <path d="m12 1 3 8 8 3-8 3-3 8-3-8-8-3 8-3z" />
-                        </svg>
-                        <span className="sr-only">Shiny</span>
-                      </>}
+                      {pokemon.shiny && !pokemon.oeuf && <span className="sr-only">Shiny</span>}
                     </strong>
                     <span>{pokemon.oeuf ? progressionOeuf(pokemon.oeuf) : `N° ${pokemon.numero} · Niveau ${pokemon.niveau}`}</span>
                   </button>
@@ -148,8 +144,8 @@ export function PagePC({ retour }: { retour(): void }) {
         <h2 className="font-titre text-xl font-semibold">Équipe · {equipe.filter(Boolean).length} / 6</h2>
         <div className="grid gap-2">{places(false)}</div>
         {pokemon ? <>
-          <Image src={spriteAffiche(pokemon)} genre="sprite" alt="" className="mx-auto size-24 max-w-full" />
-          <h2 className="break-words font-titre text-xl font-semibold">{nomDe(pokemon)}</h2>
+          <Image src={spriteAffiche(pokemon)} genre="sprite" alt="" className={`mx-auto size-24 max-w-full ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''}`} />
+          <h2 className="break-words font-titre text-xl font-semibold">{nomDe(pokemon)}{pokemon.shiny && !pokemon.oeuf && <IconeShiny />}</h2>
           <p>{pokemon.oeuf ? progressionOeuf(pokemon.oeuf) : `N° ${pokemon.numero} · Niveau ${pokemon.niveau}`}</p>
           <p className="text-region-accent">{formaterDps(dpsSansType(pokemon))} DPS</p>
           {!pokemon.oeuf && <BarreXp xp={pokemon.xp} maximum={calculerMaxXp(pokemon.numero, pokemon.niveau)} nom={nomDe(pokemon)} />}

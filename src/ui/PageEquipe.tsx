@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useStore } from 'zustand';
 import { nomAffiche, progressionOeuf, spriteAffiche } from './affichage-pokemon';
+import { IconeShiny } from './IconeShiny';
 import { chargerObjets } from '../core/boutique';
 import { reglages } from '../core/reglages';
 import { cibleValide, cibleValideStase, quantiteMax } from '../core/objets-equipe';
@@ -51,7 +52,7 @@ export function PageEquipe() {
 
   useEffect(() => {
     for (const membre of equipe) {
-      if (typeof membre?.evolution === 'number') void precharger([cheminSprite(membre.evolution)]);
+      if (typeof membre?.evolution === 'number') void precharger([cheminSprite(membre.evolution, membre.pokemon.shiny)]);
     }
   }, [equipe]);
 
@@ -164,11 +165,11 @@ export function PageEquipe() {
                 if (!panneau.current?.getClientRects().length) ouvrirFiche(pokemon.uid, event.currentTarget);
               }}>
               {evolution?.uid === pokemon.uid
-                ? <span className="grid size-24 max-w-none place-items-center [&_img]:size-24"><SpriteEvolution ancien={cheminSprite(evolution.ancien)}
-                  nouveau={cheminSprite(evolution.nouveau)} nom={nom} actif /></span>
-                : <Image src={spriteAffiche(pokemon)} genre="sprite" alt="" className="size-24 max-w-none" />}
+                ? <span className="grid size-24 max-w-none place-items-center [&_img]:size-24"><SpriteEvolution ancien={spriteAffiche({ ...pokemon, numero: evolution.ancien })}
+                  nouveau={spriteAffiche({ ...pokemon, numero: evolution.nouveau })} nom={nom} actif shiny={pokemon.shiny} /></span>
+                : <Image src={spriteAffiche(pokemon)} genre="sprite" alt="" className={`size-24 max-w-none ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''}`} />}
               <span className="grid min-w-0 gap-2">
-                <strong className="flex items-center gap-2 break-words">{nom}{pokemon.favori &&
+                <strong className="flex items-center gap-2 break-words">{nom}{pokemon.shiny && !pokemon.oeuf && <IconeShiny />}{pokemon.favori &&
                   <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" className="size-5 shrink-0 fill-current text-lien">
                     <path d="m12 2 3 6 7 1-5 5 1 8-6-4-6 4 1-8-5-5 7-1z" />
                   </svg>}</strong>
@@ -218,11 +219,11 @@ export function PageEquipe() {
         <div className="relative isolate grid place-items-center">
           <span className="socle absolute bottom-6 -z-10 h-8 w-40 bg-region-socle" aria-hidden="true" />
           {evolution?.uid === membre.pokemon.uid
-            ? <span className="grid size-48 max-w-full place-items-center [&_img]:size-48"><SpriteEvolution ancien={cheminSprite(evolution.ancien)}
-              nouveau={cheminSprite(evolution.nouveau)} nom={nom} actif /></span>
-            : <Image src={spriteAffiche(membre.pokemon)} genre="sprite" alt="" className="size-48 max-w-full" />}
+            ? <span className="grid size-48 max-w-full place-items-center [&_img]:size-48"><SpriteEvolution ancien={spriteAffiche({ ...membre.pokemon, numero: evolution.ancien })}
+              nouveau={spriteAffiche({ ...membre.pokemon, numero: evolution.nouveau })} nom={nom} actif shiny={membre.pokemon.shiny} /></span>
+            : <Image src={spriteAffiche(membre.pokemon)} genre="sprite" alt="" className={`size-48 max-w-full ${membre.pokemon.shiny && !membre.pokemon.oeuf ? 'halo-shiny' : ''}`} />}
         </div>
-        <h2 className="break-words font-titre text-xl font-semibold">{nom}</h2>
+        <h2 className="break-words font-titre text-xl font-semibold">{nom}{membre.pokemon.shiny && !membre.pokemon.oeuf && <IconeShiny />}</h2>
         <p>{membre.pokemon.oeuf ? progressionOeuf(membre.pokemon.oeuf) : `Niv. ${membre.pokemon.niveau}`}</p>
         {!membre.pokemon.oeuf && <>
           <BarreXp xp={membre.pokemon.xp} maximum={membre.xpMax} nom={nom} />

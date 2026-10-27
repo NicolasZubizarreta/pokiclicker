@@ -35,6 +35,8 @@ it('masque le nom et le sprite jusqu’à l’éclosion, puis retrouve le surnom
   expect(nomAffiche({ ...oeuf, oeuf: undefined })).toBe('Secret');
   expect(nomAffiche({ ...oeuf, oeuf: undefined, surnom: undefined })).toBe('Bulbizarre');
   expect(spriteAffiche({ ...oeuf, oeuf: undefined })).toBe('img/sprites/pokemon/1.png');
+  expect(spriteAffiche({ ...oeuf, shiny: true })).toBe('img/objets/lucky-egg.png');
+  expect(spriteAffiche({ ...oeuf, shiny: true, oeuf: undefined })).toBe('img/sprites/pokemon-shiny/1.png');
 });
 
 it.each(['équipe', 'PC', 'fiche'])('cache l’espèce dans %s et garde le ratio carré de l’œuf', page => {

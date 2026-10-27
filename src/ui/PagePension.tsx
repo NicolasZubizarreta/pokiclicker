@@ -5,6 +5,7 @@ import { filtrerPc, trierPc } from '../core/pc';
 import type { PokemonPossede } from '../core/sauvegarde';
 import { nomAffiche, progressionOeuf, spriteAffiche } from './affichage-pokemon';
 import { Image, imageConnue } from './Image';
+import { IconeShiny } from './IconeShiny';
 import { storeJeu, type StoreJeu } from './store';
 import './PagePension.css';
 
@@ -13,14 +14,13 @@ const principal = 'min-h-11 rounded-sm border-2 border-bordure bg-action p-2 tex
 const nombre = (n: number) => n.toLocaleString('fr-FR');
 function Portrait({ pokemon, grand = false }: { pokemon: PokemonPossede; grand?: boolean }) {
   const sprite = spriteAffiche(pokemon);
-  const shiny = sprite.replace('.png', '-shiny.png');
   return <>
     <span className="relative isolate">
       <span aria-hidden="true" className="absolute inset-x-4 bottom-6 -z-10 h-8 rounded-full bg-region-socle" />
-      <Image src={pokemon.shiny && !pokemon.oeuf && imageConnue(shiny) ? shiny : sprite} genre="sprite" alt=""
-        className={`${grand ? 'size-48 lg:size-72' : 'size-24'} max-w-full ${pokemon.shiny ? 'halo-shiny' : ''}`} />
+      <Image src={sprite} genre="sprite" alt=""
+        className={`${grand ? 'size-48 lg:size-72' : 'size-24'} max-w-full ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''}`} />
     </span>
-    <strong className="break-words">{nomAffiche(pokemon)} {pokemon.shiny && <span aria-label="Shiny" className="text-alerte-base">★</span>}</strong>
+    <strong className="break-words">{nomAffiche(pokemon)} {pokemon.shiny && !pokemon.oeuf && <IconeShiny />}</strong>
     <span>{pokemon.oeuf ? progressionOeuf(pokemon.oeuf) : `${pokemon.sexe === 'femelle' ? 'Femelle' : pokemon.sexe === 'male' ? 'Mâle' : 'Sans sexe'} · Niveau ${pokemon.niveau}`}</span>
   </>;
 }

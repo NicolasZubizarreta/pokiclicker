@@ -9,6 +9,12 @@ const base: PokemonPossede = { uid: 'a', numero: 1, niveau: 1, xp: 0, sexe: 'mal
 
 afterEach(cleanup);
 
+it('affiche un chromatique avec son sprite, son halo et son icône près du nom', () => {
+  const { container } = render(<CarteEquipe membre={{ pokemon: { ...base, shiny: true }, dps: 3, xpMax: 100, multiplicateur: 1 }} />);
+  expect(container.querySelector('img.halo-shiny')?.getAttribute('src')).toBe('img/sprites/pokemon-shiny/1.png');
+  expect(container.querySelector('strong svg[aria-hidden="true"]')).toBeTruthy();
+});
+
 it('cache l’espèce d’un œuf et montre sa progression', () => {
   const { container } = render(<CarteEquipe membre={{ pokemon: { ...base, oeuf: { pasRestants: 18, pasMax: 25 } },
     dps: 0, xpMax: 100, multiplicateur: 1 }} />);

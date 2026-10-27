@@ -16,5 +16,5 @@ export function apparenceSprite(pokemon: PokemonPossede): { src: string; classe:
   if (effet === 'photo') {
     return { src: photos[stadeEvolution(pokemon.numero) - 1]!, classe: '', photo: true };
   }
-  return { src: cheminSprite(pokemon.numero), classe: effet ? classes[effet] : '', photo: false };
+  return { src: cheminSprite(pokemon.numero, pokemon.shiny), classe: effet ? classes[effet] : '', photo: false };
 }

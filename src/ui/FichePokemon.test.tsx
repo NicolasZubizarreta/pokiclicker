@@ -50,6 +50,12 @@ function afficher() {
   return vue;
 }
 
+it('affiche le sprite chromatique, le halo et l’icône dans le titre', () => {
+  const { container } = afficher();
+  expect(container.querySelector('img.halo-shiny')?.getAttribute('src')).toBe('img/sprites/pokemon-shiny/1.png');
+  expect(screen.getByRole('heading', { name: 'Bourgeon' }).querySelector('svg[aria-hidden="true"]')).toBeTruthy();
+});
+
 it.each([
   [{ ...pokemon, niveau: 15, pierreEternelle: false }, 'Évolution : niveau 16'],
   [{ ...pokemon, numero: 25, pierreEternelle: false }, 'Évolution : Pierre Foudre'],
