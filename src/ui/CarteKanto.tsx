@@ -45,6 +45,9 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
   const actuelle = carte.formes.find(f => f.actuelle);
   const zones = carte.formes.filter(f => f.zone !== null).sort((a, b) => (a.numero ?? 0) - (b.numero ?? 0));
   const dimensions = tailles['img/decors/carte-kanto.webp'];
+  // Essai de fonds de carte (dev seulement) : ?carte=nuit | gameboy | plan.
+  const essaiFond = import.meta.env.DEV ? new URLSearchParams(window.location.search).get('carte') : null;
+  const decorCarte = essaiFond && ['nuit', 'gameboy', 'plan'].includes(essaiFond) ? `/design/cartes-candidates/carte-${essaiFond}.webp` : 'img/decors/carte-kanto.webp';
   const decor = choisie?.zone ? cheminDecor(kanto.zone(choisie.zone)) : null;
 
   useLayoutEffect(() => {
@@ -156,7 +159,7 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
         viewBox={`${vue.x} ${vue.y} ${vue.largeur} ${vue.hauteur}`}
         onPointerDown={commencer} onPointerMove={bouger} onPointerUp={terminer}
         onPointerCancel={terminer} onLostPointerCapture={event => { pointeurs.current.delete(event.pointerId); }}>
-        <image href="img/decors/carte-kanto.webp" width={16} height={16 * dimensions.hauteur / dimensions.largeur} />
+        <image href={decorCarte} width={16} height={16 * dimensions.hauteur / dimensions.largeur} />
         <g data-halos className={debug ? 'fill-focus/30 stroke-focus' : 'fill-transparent'}>
           {carte.formes.filter(f => f.ouverte && f.zone).map(f => {
             const centre = centreForme(f.forme);
