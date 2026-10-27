@@ -26,6 +26,7 @@
     { "source": "sprites/items/bicycle.png", "destination": "objets/bicycle.png" },
     { "source": "sprites/items/lucky-egg.png", "destination": "objets/lucky-egg.png" },
     { "source": "sprites/items/leftovers.png", "destination": "objets/leftovers.png" },
+    { "source": "sprites/items/cheri-berry.png", "destination": "objets/cheri-berry.png" },
     { "source": "sprites/pokemon/other/official-artwork/1.png", "destination": "artworks/1.png" },
     { "source": "sprites/pokemon/other/home/shiny/1.png", "destination": "artworks/1-shiny.png" },
     { "source": "sprites/pokemon/other/official-artwork/4.png", "destination": "artworks/4.png" },

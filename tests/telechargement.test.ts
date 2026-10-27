@@ -169,7 +169,7 @@ describe('téléchargement des images sans réseau', () => {
       for (const genre of ['objets', 'artworks', 'animes', 'sprites', 'sprites-shiny']) {
         expect(stdout).toContain(`${genre} : ${plan.filter(({ destination }) => destination.startsWith(`${genre}/`)).length}`);
       }
-      expect(catalogue.fixes).toHaveLength(31);
+      expect(catalogue.fixes).toHaveLength(32);
       expect(stdout).toContain(`${plan.length} fichiers à télécharger`);
       expect(stdout).toContain(`${catalogue.fixes.length + pokemon.pokemon.length * 2 - plan.length} déjà présents ignorés`);
       for (const { url, destination } of plan) expect(stdout).toContain(`${url} → assets-src/${destination}`);

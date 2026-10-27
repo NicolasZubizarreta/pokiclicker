@@ -118,7 +118,7 @@ export function Pantheon({ equipe, premiereVictoire, quitter }: {
           const niveau = { top: `${(geometrie.tailleSprite - geometrie.decalageBase + geometrie.decalageNiveau) / geometrie.tailleSprite * 100}%` };
           return <div key={pokemon.uid} data-partenaire={index} hidden style={position} className="absolute aspect-square text-center">
             <img src={apparence.src} alt={nomAffiche(pokemon)} className={`size-full object-contain ${apparence.photo ? '' : 'image-rendering-pixelated'} ${apparence.classe} ${pokemon.shiny ? 'halo-shiny' : ''}`} />
-            <div data-identite={index} hidden style={niveau} className="absolute left-1/2 -translate-x-1/2 whitespace-nowrap rounded-sm bg-fond px-1 text-xs lg:text-sm">
+            <div data-identite={index} hidden style={niveau} className={`absolute left-1/2 -translate-x-1/2 whitespace-nowrap rounded-sm bg-fond px-1 text-xs lg:text-sm ${index % 2 ? 'max-lg:translate-y-9' : ''}`}>
               <strong>{nomAffiche(pokemon)} {pokemon.shiny && <IconeShiny decoratif={false} />}</strong>
               {!pokemon.oeuf && <span className="block">Niv. {pokemon.niveau}</span>}
             </div>

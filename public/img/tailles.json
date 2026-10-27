@@ -1534,5 +1534,9 @@
   "img/sprites/pokemon-shiny/99.png": {
     "largeur": 96,
     "hauteur": 96
+  },
+  "img/objets/cheri-berry.png": {
+    "largeur": 30,
+    "hauteur": 30
   }
 }

@@ -6,7 +6,7 @@
     { "id": "7", "nom": "7", "image": "objets/master-ball.png", "poids": 1, "gain": 500 },
     { "id": "Pikachu", "nom": "Pikachu", "image": "pokemon/25", "poids": 6, "gain": 50 },
     { "id": "Staross", "nom": "Staross", "image": "pokemon/121", "poids": 10, "gain": 20 },
-    { "id": "Baie", "nom": "Baie", "image": null, "poids": 18, "gain": 10 },
+    { "id": "Baie", "nom": "Baie", "image": "objets/cheri-berry.png", "poids": 18, "gain": 10 },
     { "id": "Magicarpe", "nom": "Magicarpe", "image": "pokemon/129", "poids": 65, "gain": 5 }
   ],
   "deuxBaies": { "symbole": "Baie", "nombre": 2, "gain": 2 },
