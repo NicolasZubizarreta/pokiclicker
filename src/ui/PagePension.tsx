@@ -3,7 +3,7 @@ import { useStore } from 'zustand';
 import { reglages } from '../core/reglages';
 import { filtrerPc, trierPc } from '../core/pc';
 import type { PokemonPossede } from '../core/sauvegarde';
-import { nomAffiche, progressionOeuf, spriteAffiche } from './affichage-pokemon';
+import { classeSprite, nomAffiche, progressionOeuf, spriteAffiche } from './affichage-pokemon';
 import { Image, imageConnue } from './Image';
 import { IconeShiny } from './IconeShiny';
 import { storeJeu, type StoreJeu } from './store';
@@ -18,7 +18,7 @@ function Portrait({ pokemon, grand = false }: { pokemon: PokemonPossede; grand?:
     <span className="relative isolate">
       <span aria-hidden="true" className="absolute inset-x-4 bottom-6 -z-10 h-8 rounded-full bg-region-socle" />
       <Image src={sprite} genre="sprite" alt=""
-        className={`${grand ? 'size-48 lg:size-72' : 'size-24'} max-w-full ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''}`} />
+        className={`${grand ? 'size-48 lg:size-72' : 'size-24'} max-w-full ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(pokemon)}`} />
     </span>
     <strong className="break-words">{nomAffiche(pokemon)} {pokemon.shiny && !pokemon.oeuf && <IconeShiny />}</strong>
     <span>{pokemon.oeuf ? progressionOeuf(pokemon.oeuf) : `${pokemon.sexe === 'femelle' ? 'Femelle' : pokemon.sexe === 'male' ? 'Mâle' : 'Sans sexe'} · Niveau ${pokemon.niveau}`}</span>

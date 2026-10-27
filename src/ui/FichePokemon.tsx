@@ -10,7 +10,7 @@ import { dpsSansType } from './dps-pc';
 import { Image } from './Image';
 import { IconeShiny } from './IconeShiny';
 import { formaterDps } from './nombres';
-import { nomAffiche, progressionOeuf, spriteAffiche } from './affichage-pokemon';
+import { classeSprite, nomAffiche, progressionOeuf, spriteAffiche } from './affichage-pokemon';
 import { storeJeu } from './store';
 import { niveauRequis, peutEvoluer, pierresPour } from '../core/evolution';
 import { chargerObjets } from '../core/boutique';
@@ -97,7 +97,7 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur }: Props) {
         {pokemon && espece && membre && detail && <>
           <div className="relative isolate grid place-items-center">
             <div className="socle absolute bottom-4 -z-10 h-8 w-40 bg-region-socle" />
-            <Image src={spriteAffiche(pokemon)} genre="sprite" alt={pokemon.oeuf ? nom : espece.nom} className={`size-48 image-rendering-pixelated ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''}`} />
+            <Image src={spriteAffiche(pokemon)} genre="sprite" alt={pokemon.oeuf ? nom : espece.nom} className={`size-48 image-rendering-pixelated ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(pokemon)}`} />
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {pokemon.sexe === 'male' && <span className="text-info-base" role="img" aria-label="Mâle">♂</span>}

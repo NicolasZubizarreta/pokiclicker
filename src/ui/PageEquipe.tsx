@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useStore } from 'zustand';
-import { nomAffiche, progressionOeuf, spriteAffiche } from './affichage-pokemon';
+import { classeSprite, nomAffiche, progressionOeuf, spriteAffiche } from './affichage-pokemon';
 import { IconeShiny } from './IconeShiny';
 import { chargerObjets } from '../core/boutique';
 import { reglages } from '../core/reglages';
@@ -167,7 +167,7 @@ export function PageEquipe() {
               {evolution?.uid === pokemon.uid
                 ? <span className="grid size-24 max-w-none place-items-center [&_img]:size-24"><SpriteEvolution ancien={spriteAffiche({ ...pokemon, numero: evolution.ancien })}
                   nouveau={spriteAffiche({ ...pokemon, numero: evolution.nouveau })} nom={nom} actif shiny={pokemon.shiny} /></span>
-                : <Image src={spriteAffiche(pokemon)} genre="sprite" alt="" className={`size-24 max-w-none ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''}`} />}
+                : <Image src={spriteAffiche(pokemon)} genre="sprite" alt="" className={`size-24 max-w-none ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(pokemon)}`} />}
               <span className="grid min-w-0 gap-2">
                 <strong className="flex items-center gap-2 break-words">{nom}{pokemon.shiny && !pokemon.oeuf && <IconeShiny />}{pokemon.favori &&
                   <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" className="size-5 shrink-0 fill-current text-lien">
@@ -221,7 +221,7 @@ export function PageEquipe() {
           {evolution?.uid === membre.pokemon.uid
             ? <span className="grid size-48 max-w-full place-items-center [&_img]:size-48"><SpriteEvolution ancien={spriteAffiche({ ...membre.pokemon, numero: evolution.ancien })}
               nouveau={spriteAffiche({ ...membre.pokemon, numero: evolution.nouveau })} nom={nom} actif shiny={membre.pokemon.shiny} /></span>
-            : <Image src={spriteAffiche(membre.pokemon)} genre="sprite" alt="" className={`size-48 max-w-full ${membre.pokemon.shiny && !membre.pokemon.oeuf ? 'halo-shiny' : ''}`} />}
+            : <Image src={spriteAffiche(membre.pokemon)} genre="sprite" alt="" className={`size-48 max-w-full ${membre.pokemon.shiny && !membre.pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(membre.pokemon)}`} />}
         </div>
         <h2 className="break-words font-titre text-xl font-semibold">{nom}{membre.pokemon.shiny && !membre.pokemon.oeuf && <IconeShiny />}</h2>
         <p>{membre.pokemon.oeuf ? progressionOeuf(membre.pokemon.oeuf) : `Niv. ${membre.pokemon.niveau}`}</p>

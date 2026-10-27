@@ -9,5 +9,8 @@ export const nomAffiche = (pokemon: PokemonPossede): string => pokemon.oeuf
 
 export const spriteAffiche = (pokemon: PokemonPossede): string => apparenceSprite(pokemon).src;
 
+/** Classes de l'easter egg du surnom (retourné, arc-en-ciel, caca), à poser sur chaque image du Pokémon. */
+export const classeSprite = (pokemon: PokemonPossede): string => apparenceSprite(pokemon).classe;
+
 export const progressionOeuf = (oeuf: NonNullable<PokemonPossede['oeuf']>): string =>
   `Éclosion : ${oeuf.pasMax - oeuf.pasRestants}/${oeuf.pasMax}`;
