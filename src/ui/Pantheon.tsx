@@ -8,10 +8,14 @@ import { nomAffiche } from './affichage-pokemon';
 import { IconeShiny } from './IconeShiny';
 import { creerConfettis } from './confettis';
 
+// Écart entre les deux rangées d'étiquettes sur écran étroit, en tailles de sprite (deux lignes de texte).
+const rangeeMobile = .55;
+
 export function Pantheon({ equipe, premiereVictoire, quitter }: {
   equipe: readonly PokemonPossede[]; premiereVictoire: boolean; quitter(): void;
 }) {
   const [reduit] = useState(mouvementReduit);
+  const [large] = useState(() => window.matchMedia?.('(min-width: 1024px)').matches ?? true);
   const [ligne, changerLigne] = useState<number | null>(null);
   const [ferme, fermer] = useState(false);
   const dialogue = useRef<HTMLDialogElement>(null);
@@ -104,6 +108,7 @@ export function Pantheon({ equipe, premiereVictoire, quitter }: {
     quitter();
   }
   const geometrie = donnees.geometrie;
+  const basSocles = Math.max(...donnees.socles.map(socle => socle.y));
   const tailleScene = { width: 'min(100vw, 100dvh)' };
   return <dialog ref={dialogue} aria-label="Panthéon" onCancel={event => { event.preventDefault(); sortir(); }}
     className="fixed inset-0 m-0 h-dvh max-h-none w-screen max-w-none overflow-hidden border-0 bg-fond p-0 text-texte backdrop:bg-fond">
@@ -115,10 +120,15 @@ export function Pantheon({ equipe, premiereVictoire, quitter }: {
           const apparence = apparenceSprite(pokemon);
           const position = { left: `${(socle.x - geometrie.tailleSprite / 2) * 100}%`,
             top: `${(socle.y - geometrie.tailleSprite + geometrie.decalageBase) * 100}%`, width: `${geometrie.tailleSprite * 100}%` };
-          const niveau = { top: `${(geometrie.tailleSprite - geometrie.decalageBase + geometrie.decalageNiveau) / geometrie.tailleSprite * 100}%` };
+          // Écran large : l'étiquette est sous son socle. Écran étroit : deux rangées fixes sous le plus bas
+          // des socles (les étiquettes voisines se chevauchaient), un Pokémon sur deux par rangée.
+          const hautSprite = socle.y - geometrie.tailleSprite + geometrie.decalageBase;
+          const hautEtiquette = large ? socle.y + geometrie.decalageNiveau
+            : basSocles + geometrie.decalageNiveau + (index % 2) * geometrie.tailleSprite * rangeeMobile;
+          const niveau = { top: `${(hautEtiquette - hautSprite) / geometrie.tailleSprite * 100}%` };
           return <div key={pokemon.uid} data-partenaire={index} hidden style={position} className="absolute aspect-square text-center">
             <img src={apparence.src} alt={nomAffiche(pokemon)} className={`size-full object-contain ${apparence.photo ? '' : 'image-rendering-pixelated'} ${apparence.classe} ${pokemon.shiny ? 'halo-shiny' : ''}`} />
-            <div data-identite={index} hidden style={niveau} className={`absolute left-1/2 -translate-x-1/2 whitespace-nowrap rounded-sm bg-fond px-1 text-xs lg:text-sm ${index % 2 ? 'max-lg:translate-y-9' : ''}`}>
+            <div data-identite={index} hidden style={niveau} className={`absolute left-1/2 -translate-x-1/2 whitespace-nowrap rounded-sm bg-fond px-1 text-xs lg:text-sm`}>
               <strong>{nomAffiche(pokemon)} {pokemon.shiny && <IconeShiny decoratif={false} />}</strong>
               {!pokemon.oeuf && <span className="block">Niv. {pokemon.niveau}</span>}
             </div>
