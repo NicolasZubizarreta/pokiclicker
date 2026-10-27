@@ -253,6 +253,9 @@ describe('Coquille', () => {
       for (const element of container.querySelectorAll('[aria-label]')) {
         const forme = storeJeu.getState().carte.formes.find(f => f.nom === element.getAttribute('data-forme'));
         const attendu = forme ? (forme.numero === null || forme.numero === 0 ? forme.nom : `${forme.nom} (Zone ${forme.numero})`)
+          : element.getAttribute('role') === 'listbox' ? 'Zones de Kanto'
+            : element.getAttribute('role') === 'option'
+              ? storeJeu.getState().carte.formes.map(f => f.numero === null || f.numero === 0 ? f.nom : `${f.nom} (Zone ${f.numero})`).find(n => n === element.getAttribute('aria-label'))
           : element.tagName.toLowerCase() === 'svg' ? 'Carte de Kanto'
             : element.tagName.toLowerCase() === 'progress' ? 'Badges obtenus'
               : element.tagName.toLowerCase() === 'section' && ['Ton voyage', 'Zone sélectionnée'].includes(element.getAttribute('aria-label') ?? '')

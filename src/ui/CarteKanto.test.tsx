@@ -22,6 +22,71 @@ afterEach(() => {
 });
 const afficher = () => render(<CarteKanto quandArrive={vi.fn()} />);
 
+it('liste les 22 zones par numéro, avec les zones verrouillées grisées sans icône', () => {
+  afficher();
+  const liste = screen.getByRole('listbox', { name: 'Zones de Kanto' });
+  const options = within(liste).getAllByRole('option');
+  const zones = storeJeu.getState().carte.formes.filter(f => f.zone !== null)
+    .sort((a, b) => (a.numero ?? 0) - (b.numero ?? 0));
+  expect(options).toHaveLength(22);
+  expect(options.map(option => option.getAttribute('aria-label')))
+    .toEqual(zones.map(f => f.numero ? `${f.nom} (Zone ${f.numero})` : f.nom));
+  expect(options[0]?.getAttribute('aria-label')).toBe('Bourg Palette');
+  expect(zones.some(f => !f.ouverte)).toBe(true);
+  zones.forEach((f, index) => {
+    const option = options[index]!;
+    expect(option.className.includes('text-texte-doux')).toBe(!f.ouverte);
+    expect(option.className).toContain('min-h-11');
+    expect(option.className).toContain('border-transparent');
+    if (!f.ouverte) {
+      expect(option.textContent).toBe(`${f.numero}${f.nom}`);
+      expect(option.querySelector('svg, img, i, button')).toBeNull();
+    }
+  });
+  const actuelle = zones.find(f => f.actuelle)!;
+  const position = within(liste).getByText('position actuelle');
+  expect(position.className).toBe('sr-only');
+  expect(position.closest('[role="option"]')?.getAttribute('aria-label'))
+    .toBe(actuelle.numero ? `${actuelle.nom} (Zone ${actuelle.numero})` : actuelle.nom);
+  expect(position.previousElementSibling?.className).toContain('bg-succes-base');
+});
+
+it('sélectionne une zone verrouillée depuis la liste et relie son contour à la carte', () => {
+  afficher();
+  const option = screen.getByRole('option', { name: /Forêt de Jade/ });
+  fireEvent.click(option);
+  expect(option.getAttribute('aria-selected')).toBe('true');
+  expect(option.className).toContain('border-succes-base');
+  const fiche = screen.getByRole('region', { name: 'Zone sélectionnée' });
+  expect(within(fiche).getByRole('heading', { name: 'Forêt de Jade' })).toBeTruthy();
+  expect(within(fiche).getByText('Bloquée')).toBeTruthy();
+  const forme = screen.getByRole('button', { name: /Forêt de Jade/ });
+  expect(forme.getAttribute('class')).toContain('stroke-succes-base stroke-2');
+  fireEvent.click(screen.getByRole('button', { name: 'Route 1 (Zone 1)' }));
+  expect(option.getAttribute('aria-selected')).toBe('false');
+  expect(forme.getAttribute('class')).not.toContain('stroke-succes-base');
+  expect(screen.getByRole('option', { name: 'Route 1 (Zone 1)' }).getAttribute('aria-selected')).toBe('true');
+});
+
+it('sélectionne avec Entrée et Espace et déplace le focus avec les flèches', () => {
+  afficher();
+  const options = screen.getAllByRole('option');
+  const premiere = options[0]!, deuxieme = options[1]!;
+  premiere.focus();
+  fireEvent.keyDown(premiere, { key: 'Enter' });
+  expect(premiere.getAttribute('aria-selected')).toBe('true');
+  expect(within(screen.getByRole('region', { name: 'Zone sélectionnée' }))
+    .getByRole('heading', { name: 'Bourg Palette' })).toBeTruthy();
+  fireEvent.keyDown(premiere, { key: 'ArrowDown' });
+  expect(document.activeElement).toBe(deuxieme);
+  expect(premiere.getAttribute('aria-selected')).toBe('true');
+  expect(fireEvent.keyDown(deuxieme, { key: ' ' })).toBe(false);
+  expect(deuxieme.getAttribute('aria-selected')).toBe('true');
+  expect(premiere.getAttribute('aria-selected')).toBe('false');
+  fireEvent.keyDown(deuxieme, { key: 'ArrowUp' });
+  expect(document.activeElement).toBe(premiere);
+});
+
 it('dessine les 24 formes dans l’ordre, marque la zone actuelle et ne pose aucun style inline', () => {
   const voir = vi.spyOn(storeJeu.getState(), 'voirCarte');
   const { container } = afficher();
@@ -172,7 +237,8 @@ it('réserve la même bande sous l’image et indique la zone actuelle sans acti
   const classes = fiche.className;
   expect(classes).toContain('carte-bande-reservee');
   expect(fiche.previousElementSibling?.querySelector('svg[aria-label="Carte de Kanto"]')).toBeTruthy();
-  expect(fiche.parentElement?.className).toContain('cadre');
+  expect(fiche.previousElementSibling?.className).toContain('cadre');
+  expect(fiche.parentElement?.className).toContain('carte-grille');
   for (const nom of [/Céladopole/, /Forêt de Jade/, /Route 1 \(Zone 1\)/]) {
     fireEvent.click(screen.getByRole('button', { name: nom }));
     expect(fiche.className).toBe(classes);

@@ -316,6 +316,13 @@ html:has(dialog[open]) { overflow: hidden; }
 .carte-clignotement { animation: carte-opacite var(--duree-carte-clignotement) var(--ease-standard) infinite; }
 @keyframes carte-opacite { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
 
+.carte-grille > .cadre { min-width: 0; }
+.carte-liste { grid-row: 2; }
+@media (width >= theme(--breakpoint-lg)) {
+  .carte-grille { grid-template-columns: minmax(0, 1fr) calc(var(--spacing) * 80); }
+  .carte-liste { grid-column: 2; grid-row: 1; }
+  .carte-grille > section { grid-column: 1; grid-row: 2; }
+}
 .carte-bande-reservee { height: calc(var(--spacing) * 80); overflow-y: auto; }
 .carte-miniature { width: calc(var(--spacing) * 32); max-width: 100%; }
 .carte-deblocage { opacity: 1; transition: opacity calc(var(--duration-lent) * 2) var(--ease-standard); }

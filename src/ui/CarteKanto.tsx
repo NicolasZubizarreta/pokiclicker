@@ -42,6 +42,7 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
   const pxParUnite = largeur > 0 ? largeur / vue.largeur : 1;
   const choisie = carte.formes.find(f => f.zone === selection && selection !== null);
   const actuelle = carte.formes.find(f => f.actuelle);
+  const zones = carte.formes.filter(f => f.zone !== null).sort((a, b) => (a.numero ?? 0) - (b.numero ?? 0));
   const dimensions = tailles['img/decors/carte-kanto.webp'];
   const decor = choisie?.zone ? cheminDecor(kanto.zone(choisie.zone)) : null;
 
@@ -129,6 +130,7 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
       <p>{carte.badges.obtenus} badges sur {carte.badges.total} · {lieu?.nom ?? actuelle?.nom} en cours</p>
       <progress className="w-full accent-region-accent" value={carte.badges.obtenus} max={carte.badges.total} aria-label="Badges obtenus" />
     </section>
+    <div className="carte-grille grid gap-x-4">
     <div className="cadre overflow-hidden bg-surface p-2">
       <div className={`relative ${vol.actif && reduit ? 'fondu-carte' : ''}`}>
       <svg ref={svg} aria-label="Carte de Kanto" className="block aspect-video w-full touch-none select-none"
@@ -150,7 +152,7 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
             return <Fragment key={f.nom}>
               {nouvelle && <Forme {...attributsSvg(f.forme)} className="pointer-events-none fill-texte-doux/50" />}
               <Forme {...attributsSvg(f.forme)} data-forme={f.nom} data-zone={f.zone}
-              className={`${couleur(f)} outline-none focus-visible:stroke-focus focus-visible:stroke-3 ${nouvelle ? fondu ? 'carte-deblocage' : 'opacity-0' : ''} ${debug ? 'stroke-focus' : ''} ${f.zone ? 'cursor-pointer' : 'pointer-events-none'}`}
+              className={`${couleur(f)} outline-none focus-visible:stroke-focus focus-visible:stroke-3 ${nouvelle ? fondu ? 'carte-deblocage' : 'opacity-0' : ''} ${selection !== null && selection === f.zone ? 'stroke-succes-base stroke-2' : debug ? 'stroke-focus' : ''} ${f.zone ? 'cursor-pointer' : 'pointer-events-none'}`}
               vectorEffect="non-scaling-stroke" role={f.zone ? 'button' : undefined}
               tabIndex={f.zone ? 0 : undefined} aria-label={nomAccessible(f)}
               onClick={() => { if (f.zone && !glissement.current) selectionner(f.zone); }}
@@ -178,6 +180,7 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
       {vol.actif && !reduit && <VolGen1 ms={vol.ms} />}
       </div>
       {vol.actif && <p role="status" className="sr-only">Vol en cours vers {vol.cible === 'centre-commercial' ? 'Centre commercial' : carte.formes.find(f => f.zone === vol.cible)?.nom}…</p>}
+    </div>
       <section aria-label="Zone sélectionnée" className="carte-bande-reservee mt-2 bg-surface-2 p-4 text-base">
         {nouvelles.length > 0 && !choisie && <p role="status" className="mb-2">
           Zone débloquée ! {carte.formes.filter(f => f.zone && nouvelles.includes(f.zone)).map(f => f.nom).join(', ')}
@@ -208,6 +211,26 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
           </div>}
         </>}
       </section>
+      <div className="carte-liste relative min-w-0">
+        <ul role="listbox" aria-label="Zones de Kanto" className="max-h-64 overflow-y-auto overscroll-contain p-1 lg:absolute lg:inset-0 lg:max-h-none">
+          {zones.map(f => <li key={f.zone} role="option" aria-label={nomAccessible(f)}
+            aria-selected={selection === f.zone} tabIndex={0}
+            className={`flex min-h-11 cursor-pointer items-center gap-2 border-2 px-2 py-1 ${selection === f.zone ? 'border-succes-base' : 'border-transparent'} ${f.ouverte ? 'bg-surface text-texte' : 'bg-surface-2 text-texte-doux'}`}
+            onClick={() => selectionner(f.zone)}
+            onKeyDown={event => {
+              if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); selectionner(f.zone); }
+              if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+                event.preventDefault();
+                const suivante = event.key === 'ArrowDown' ? event.currentTarget.nextElementSibling : event.currentTarget.previousElementSibling;
+                (suivante as HTMLElement | null)?.focus();
+              }
+            }}>
+            <span className="w-2 shrink-0">{f.actuelle && <><span className="block size-2 rounded-full bg-succes-base" /><span className="sr-only">position actuelle</span></>}</span>
+            <span className="w-6 shrink-0 tabular-nums">{f.numero}</span>
+            <span>{f.nom}</span>
+          </li>)}
+        </ul>
+      </div>
     </div>
   </section>;
 }
