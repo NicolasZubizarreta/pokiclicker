@@ -49,6 +49,17 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
   const essaiFond = import.meta.env.DEV ? new URLSearchParams(window.location.search).get('carte') : null;
   const decorCarte = essaiFond && essaiFond !== 'v1' && /^[a-z0-9-]+$/.test(essaiFond) ? `/design/cartes-candidates/carte-${essaiFond}.webp` : 'img/decors/carte-kanto.webp';
   const decor = choisie?.zone ? cheminDecor(kanto.zone(choisie.zone)) : null;
+  // Positions des zones propres à un fond d'essai (dev seulement) : design/cartes-candidates/zones-<nom>.json.
+  const [positionsEssai, chargerPositions] = useState<Record<string, Point> | null>(null);
+  useEffect(() => {
+    if (!essaiFond || essaiFond === 'v1' || !/^[a-z0-9-]+$/.test(essaiFond)) return;
+    fetch(`/design/cartes-candidates/zones-${essaiFond}.json`).then(r => r.ok ? r.json() : null)
+      .then((positions: Record<string, Point> | null) => chargerPositions(positions)).catch(() => undefined);
+  }, [essaiFond]);
+  const centreDe = (f: EtatForme): Point => {
+    const p = f.zone ? positionsEssai?.[f.zone] : undefined;
+    return p ? { x: p.x * 16, y: p.y * 9 } : centreForme(f.forme);
+  };
 
   useLayoutEffect(() => {
     const element = fiche.current;
@@ -56,12 +67,12 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
     const style = getComputedStyle(element);
     if (style.getPropertyValue('--fiche-ancree').trim() !== '1') return;
     const rect = svg.current.getBoundingClientRect();
-    const position = positionFiche(centreForme(choisie.forme), vue,
+    const position = positionFiche(centreDe(choisie), vue,
       { largeur: rect.width, hauteur: rect.height },
       { largeur: element.offsetWidth, hauteur: element.offsetHeight }, parseFloat(style.paddingLeft));
     element.style.setProperty('--fiche-x', `${position.x}px`);
     element.style.setProperty('--fiche-y', `${position.y}px`);
-  }, [choisie, vue, largeur, vol.actif, centreOuvert, raisonCentre, raisonCasino]);
+  }, [choisie, vue, largeur, vol.actif, centreOuvert, raisonCentre, raisonCasino, positionsEssai]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => { void precharger(imagesVol); }, []);
 
@@ -162,12 +173,25 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
         <image href={decorCarte} width={16} height={16 * dimensions.hauteur / dimensions.largeur} />
         <g data-halos className={debug ? 'fill-focus/30 stroke-focus' : 'fill-transparent'}>
           {carte.formes.filter(f => f.ouverte && f.zone).map(f => {
-            const centre = centreForme(f.forme);
+            const centre = centreDe(f);
             return <circle key={f.zone} data-zone={f.zone} cx={centre.x} cy={centre.y} r={rayonCible(pxParUnite)}
               vectorEffect="non-scaling-stroke" onClick={() => { if (!glissement.current) selectionner(f.zone); }} />;
           })}
         </g>
-        <g>
+        {positionsEssai && <g>
+          {carte.formes.filter(f => f.zone).map(f => {
+            const c = centreDe(f);
+            const choisieIci = selection === f.zone;
+            return <g key={f.zone} data-zone={f.zone} data-forme={f.nom} role="button" tabIndex={0} aria-label={nomAccessible(f)}
+              transform={`translate(${c.x} ${c.y}) scale(${1 / pxParUnite})`} className="group cursor-pointer outline-none"
+              onClick={() => { if (!glissement.current) selectionner(f.zone); }}
+              onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); selectionner(f.zone); } }}>
+              <circle r={choisieIci ? 17 : 14} className={`${!f.ouverte ? 'fill-texte-doux' : f.actuelle ? 'fill-succes-base' : 'fill-alerte-base'} ${choisieIci ? 'stroke-succes-base' : 'stroke-fond group-focus-visible:stroke-focus'} stroke-3`} />
+              <text textAnchor="middle" dominantBaseline="central" className="pointer-events-none fill-fond text-xs font-bold">{f.numero}</text>
+            </g>;
+          })}
+        </g>}
+        {!positionsEssai && <g>
           {carte.formes.map(f => {
             const Forme = balise(f);
             const nouvelle = f.zone !== null && nouvelles.includes(f.zone);
@@ -183,18 +207,20 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
               }}><title>{nomAccessible(f)}</title></Forme>
             </Fragment>;
           })}
-        </g>
+        </g>}
         {vol.actif && !reduit && vol.depart && <DresseurVol ms={vol.ms} forme={vol.depart} />}
         <g className="pointer-events-none fill-succes-base">
           {carte.tutorielRoute1 && carte.formes.filter(f => f.numero === 1).map(f => createElement(balise(f), {
             ...attributsSvg(f.forme), key: f.nom, className: 'carte-clignotement',
           }))}
-          {actuelle && <circle data-actuelle={actuelle.zone} cx={centreForme(actuelle.forme).x} cy={centreForme(actuelle.forme).y}
-            r={rayonCible(pxParUnite) / 2} className="carte-pulsation" />}
+          {actuelle && <circle data-actuelle={actuelle.zone} cx={centreDe(actuelle).x} cy={centreDe(actuelle).y}
+            r={positionsEssai ? 21 / pxParUnite : rayonCible(pxParUnite) / 2}
+            className={positionsEssai ? 'carte-pulsation fill-transparent stroke-succes-base stroke-3' : 'carte-pulsation'}
+            vectorEffect={positionsEssai ? 'non-scaling-stroke' : undefined} />}
         </g>
         {debug && <g className="pointer-events-none fill-texte font-texte text-base">
           {carte.formes.map(f => {
-            const centre = centreForme(f.forme);
+            const centre = centreDe(f);
             return <text key={f.nom} transform={`translate(${centre.x} ${centre.y}) scale(${1 / pxParUnite})`} textAnchor="middle">{f.nom}</text>;
           })}
         </g>}
