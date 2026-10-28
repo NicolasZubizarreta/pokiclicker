@@ -67,16 +67,27 @@ it('présente immédiatement le texte entier en mouvement réduit, avec la pose 
   expect(terminerEtape).toHaveBeenCalledOnce();
 });
 
-it('montre Blue (silhouette tant que son image manque) à côté du texte, animé sauf en mouvement réduit', () => {
+it('montre Blue avec son image, animée sauf en mouvement réduit', () => {
   const { container, unmount } = render(<DialogueScene commande={{ ...ligne(), pose: 'blue-1' }} terminerEtape={vi.fn()} />);
+  expect(container.querySelector('img')?.getAttribute('src')).toBe('img/sprites/blue/blue-1.png');
+  expect(container.querySelector('img')?.className).toContain('sprite-entree');
+  expect(container.querySelector('[data-silhouette]')).toBeNull();
+  expect(screen.getByRole('button', { name: 'Blue : Prêt pour un combat ?' })).toBeTruthy();
+  unmount();
+  reduire(true);
+  expect(render(<DialogueScene commande={{ ...ligne(), pose: 'blue-1' }} terminerEtape={vi.fn()} />)
+    .container.querySelector('img')?.className).not.toContain('sprite-entree');
+});
+
+it('montre une silhouette quand la pose de Blue n’a pas d’image, animée sauf en mouvement réduit', () => {
+  const { container, unmount } = render(<DialogueScene commande={{ ...ligne(), pose: 'blue-9' }} terminerEtape={vi.fn()} />);
   const sprite = container.querySelector('[data-silhouette]');
   expect(sprite).not.toBeNull();
   expect(sprite?.getAttribute('class')).toContain('sprite-entree');
   expect(container.querySelector('img')).toBeNull();
-  expect(screen.getByRole('button', { name: 'Blue : Prêt pour un combat ?' })).toBeTruthy();
   unmount();
   reduire(true);
-  const reduit = render(<DialogueScene commande={{ ...ligne(), pose: 'blue-1' }} terminerEtape={vi.fn()} />);
+  const reduit = render(<DialogueScene commande={{ ...ligne(), pose: 'blue-9' }} terminerEtape={vi.fn()} />);
   expect(reduit.container.querySelector('[data-silhouette]')).not.toBeNull();
   expect(reduit.container.querySelector('[data-silhouette]')?.getAttribute('class')).not.toContain('sprite-entree');
 });

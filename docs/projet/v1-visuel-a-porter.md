@@ -70,10 +70,10 @@ Les 13 sections de la V1 (`legacy/index.html:800-890`) sont dans `data/guide.jso
 | Parcours, 7 et Fauchage | « Pokéshop » | L'onglet s'appelle « Shop » en V2. — corrigé le 28/10 |
 | Fonctionnalités | « Auto-attaque: … (bouton épées) » | Le bouton est un bouton texte « Auto-attaque » (le ticket AE pourrait le passer en icône). — corrigé le 28/10 |
 | Fonctionnalités | « Auto-stop: … bouton “main” … icône “settings” » | Les boutons s'appellent « Arrêt auto » et « Réglages de l'arrêt ». — corrigé le 28/10 |
-| Fonctionnalités | « Menu Stats: accessible via Profil. » | Il n'y a ni Profil ni menu Stats en V2 (la page Plus a seulement « Ton aventure »). Fonction de la V1 non portée. |
+| Fonctionnalités | « Menu Stats: accessible via Profil. » | Il n'y a ni Profil ni menu Stats en V2 (la page Plus a seulement « Ton aventure »). Fonction de la V1 non portée. **Décidé le 28/10 : à porter, ticket AN.** |
 | Pokédex | « une récompense visible dans le menu “Récompenses” » | Les paliers sont affichés dans la page Pokédex, sans menu « Récompenses ». — corrigé le 28/10 |
-| Sauvegarde | « utilise “Sauver” dans le profil … “Importer une sauvegarde (JSON)” dans le menu de début du jeu » | Aucun export ni import de fichier en V2 pour l'instant, seulement la sauvegarde automatique locale. |
-| Reset | « Le bouton Reset réinitialise la progression… » | Aucun bouton Reset en V2. |
+| Sauvegarde | « utilise “Sauver” dans le profil … “Importer une sauvegarde (JSON)” dans le menu de début du jeu » | Aucun export ni import de fichier en V2 pour l'instant, seulement la sauvegarde automatique locale. **Décidé le 28/10 : inutile avec le système de compte, section retirée du guide.** |
+| Reset | « Le bouton Reset réinitialise la progression… » | Aucun bouton Reset en V2. **Décidé le 28/10 : inutile, il sera proposé depuis le compte à la création des parties ; section retirée du guide.** |
 | Centre Commercial | « Retrait via la fiche Résumé. » (Pierre Stase) | En V2 le retrait passe par le menu du Pokémon dans l'équipe (la V1 elle-même le faisait par le clic droit). — corrigé le 28/10 |
 | Centre Commercial | liste des « objets exclusifs » | Incomplète depuis la V1 : le Centre vend aussi le Calcium et le Jeton Shiny. — corrigé le 28/10 |
 | Ligue | « En battant la Ligue, tu accèdes à la prochaine région. » | Johto n'est pas jouable : la V2 affiche « bientôt » à la première victoire. |

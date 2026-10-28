@@ -25,11 +25,11 @@ function Exemple() {
     {ouvert && <Guide fermer={() => ouvrir(false)} />}</>;
 }
 
-it('montre les 13 sections de la V1 dans l\'ordre, chacune repliable, avec le texte lu dans les données', () => {
+it('montre les 11 sections du guide dans l\'ordre, chacune repliable, avec le texte lu dans les données', () => {
   render(<Guide fermer={vi.fn()} />);
   const fenetre = screen.getByRole('dialog', { name: 'Guide du jeu' });
   const sections = fenetre.querySelectorAll('details');
-  expect(sections).toHaveLength(13);
+  expect(sections).toHaveLength(11);
   expect([...sections].map(section => section.querySelector('summary')!.textContent)).toEqual(guide.sections.map(s => s.titre));
   expect(sections[0]!.open).toBe(true);
   expect(sections[1]!.open).toBe(false);

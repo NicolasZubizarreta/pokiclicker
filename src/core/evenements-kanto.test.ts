@@ -101,9 +101,10 @@ describe('Présentation de Blue (AI)', () => {
 });
 
 describe('sprites de personnages', () => {
-  it('Chen : image du dépôt ; Blue : silhouette tant que son image manque ; sans pose : rien', () => {
+  it('Chen et Blue : image du dépôt ; pose sans image : silhouette ; sans pose : rien', () => {
     expect(spriteDe('Prof. Chen', 'chen-2')).toEqual({ type: 'image', src: 'img/sprites/chen/chen-2.png' });
-    expect(spriteDe('Blue', 'blue-1')).toEqual({ type: 'silhouette' });
+    expect(spriteDe('Blue', 'blue-1')).toEqual({ type: 'image', src: 'img/sprites/blue/blue-1.png' });
+    expect(spriteDe('Blue', 'blue-9')).toEqual({ type: 'silhouette' });
     expect(spriteDe('Blue', undefined)).toBeNull();
   });
 });

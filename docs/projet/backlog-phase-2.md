@@ -1248,3 +1248,31 @@ Annonce d'un objet du Centre commercial ou du Casino, annonce de la possibilité
 
 ### Effort et risques
 Fourchette : 0,5 jour. Risque : une sauvegarde faite avec `annoncesVues` avant ce ticket verra l'annonce du Shop une fois (ses identifiants manquent). Dépend de : AH.
+
+---
+
+## AN. `feat(stats): menu Statistiques de la V1 dans la page Plus`
+
+Labels : `type:feat`, `etat:idee`, `est:1-1.5`, `prio:2` · branche : `feat/an-stats` · `agent-ok` : oui (écran de lecture simple, à valider en variantes avant de coder)
+
+### Histoire
+En tant que joueur, je veux retrouver le menu Statistiques de la V1 pour voir mon aventure en chiffres. Décidé par Nicolas le 28/10 : « Stats il faut le mettre dans la V2 ». Le guide du jeu en parle déjà (« Menu Stats »).
+
+### Contexte
+Dans la V1, le menu Stats (`legacy/index.html`, `id="stats-modal"` ; remplissage par `renderStats` dans `legacy/js/`) récapitule les statistiques principales du joueur. La liste exacte des chiffres est à relever dans le code de la V1 puis à brancher sur les données de la sauvegarde V2 (`src/core/sauvegarde-types.ts`) ; une statistique que la V2 ne suit pas encore est listée dans le rapport, pas inventée. Entrée dans la page Plus à côté de « Ton aventure », sur le modèle de « Guide du jeu » (fenêtre modale, `src/ui/Guide.tsx`). Le guide dit « accessible via Profil » : à corriger en « page Plus » quand l'écran existe.
+
+### Critères d'acceptation
+- [ ] Étant donné la page Plus, quand j'ouvre « Statistiques », alors je vois les mêmes statistiques que la V1, chacune avec sa valeur lue dans la sauvegarde.
+- [ ] Étant donné une statistique de la V1 que la V2 ne suit pas, quand je lis le rapport du ticket, alors elle y figure avec la raison.
+- [ ] Étant donné un écran de 390 px, quand la fenêtre est ouverte, alors seul son contenu défile, la croix fait 44 px et Échap ferme.
+- [ ] Étant donné une ancienne sauvegarde, quand j'ouvre la fenêtre, alors les statistiques absentes valent 0 et rien ne casse.
+- [ ] Étant donné `prefers-reduced-motion`, alors l'ouverture se fait sans animation.
+
+### Hors périmètre
+Nouvelles statistiques, graphiques, comparaison avec d'autres joueurs, export.
+
+### Vérification
+Test vitest de la liste des statistiques, e2e `tests-e2e/stats.spec.ts`, captures 390 et 1440 px. Variantes de présentation dans `design/variantes/` avant le code final.
+
+### Effort et risques
+Fourchette : 1 à 1,5 jour. Risque : des statistiques de la V1 dépendent de compteurs que la V2 n'enregistre pas encore. Dépend de : AL (même fenêtre que le guide).

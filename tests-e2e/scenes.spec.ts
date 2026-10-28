@@ -158,13 +158,13 @@ for (const largeur of [390, 1440]) {
       await expect(fenetre).toBeVisible();
       await expect(fenetre).toContainText('Blue');
       await expect(fenetre).toContainText('petit-fils du Prof. Chen');
-      const sprite = fenetre.locator('[data-silhouette]');
+      const sprite = fenetre.locator('img[src$="img/sprites/blue/blue-1.png"]');
       await expect(sprite).toBeVisible();
       const [haut, bas] = await Promise.all([sprite.boundingBox(), fenetre.getByRole('button').boundingBox()]);
       expect(haut!.y + haut!.height).toBeLessThanOrEqual(bas!.y + 1);
       await dialogue(page, 'petit-fils du Prof. Chen');
       await dialogue(page, 'Je suis ton rival');
-      await expect(fenetre.locator('[data-silhouette]')).toBeVisible();
+      await expect(sprite).toBeVisible();
       await dialogue(page, 'Voyons si ton Pokémon est aussi fort');
       const region = await regionSauvee(page);
       expect(region.evenementsJoues).toContain('kanto.blue-presentation');

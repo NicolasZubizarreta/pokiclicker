@@ -59,21 +59,6 @@
       ]
     },
     {
-      "id": "sauvegarde",
-      "titre": "Sauvegarde",
-      "paragraphes": [
-        "La sauvegarde est stockée en cache dans le navigateur (local). Pour être sûr de la garder ou pour jouer sur un autre appareil, utilise “Sauver” dans le profil: un fichier JSON est exporté.",
-        "Pour restaurer, utilise “Importer une sauvegarde (JSON)” dans le menu de début du jeu."
-      ]
-    },
-    {
-      "id": "reset",
-      "titre": "Reset",
-      "paragraphes": [
-        "Le bouton Reset réinitialise la progression de la région en cours. Attention: c’est définitif."
-      ]
-    },
-    {
       "id": "centre",
       "titre": "Centre Commercial",
       "paragraphes": [

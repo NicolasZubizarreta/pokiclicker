@@ -87,7 +87,7 @@ it('ouvre le Guide du jeu depuis Plus et rend le focus au bouton à la fermeture
     entree.focus();
     fireEvent.click(entree);
     const fenetre = screen.getByRole('dialog', { name: 'Guide du jeu' });
-    expect(fenetre.querySelectorAll('details')).toHaveLength(13);
+    expect(fenetre.querySelectorAll('details')).toHaveLength(11);
     fireEvent.click(screen.getByRole('button', { name: 'Fermer le guide' }));
     expect(screen.queryByRole('dialog')).toBeNull();
     expect(document.activeElement).toBe(entree);

@@ -36,9 +36,14 @@ const ECARTS_GUIDE = [
     v2: 'trier par numéro, nom, niveau, favori ou Shiny, ou chercher par nom' },
 ];
 
+/** Sections retirées le 28/10 sur décision de Nicolas : sauvegarde par fichier et reset sont remplacés par les comptes. */
+const SECTIONS_RETIREES = ['Sauvegarde', 'Reset'];
+
 it('reprend toutes les sections de la V1, dans le même ordre, avec les seuls écarts décidés', () => {
-  const v1 = guideDeLaV1();
-  expect(v1).toHaveLength(13);
+  const toutes = guideDeLaV1();
+  expect(toutes).toHaveLength(13);
+  for (const titre of SECTIONS_RETIREES) expect(toutes.some(section => section.titre === titre), titre).toBe(true);
+  const v1 = toutes.filter(section => !SECTIONS_RETIREES.includes(section.titre));
   for (const ecart of ECARTS_GUIDE) {
     const sectionV1 = v1.find(section => section.titre === ecart.section);
     const sectionV2 = guide.sections.find(section => section.titre === ecart.section);

@@ -17,10 +17,10 @@ test('le Guide du jeu défile seul, se ferme avec Échap ou la croix et rend le 
   expect(boite!.height).toBeLessThanOrEqual(fenetreVue.height);
   expect(boite!.width).toBeLessThanOrEqual(fenetreVue.width);
 
-  // Les 13 sections sont là ; en déplier plusieurs force le défilement interne, jamais celui de la page.
+  // Les 11 sections sont là ; en déplier plusieurs force le défilement interne, jamais celui de la page.
   const sections = fenetre.locator('details');
-  await expect(sections).toHaveCount(13);
-  for (let i = 0; i < 13; i++) await sections.nth(i).locator('summary').evaluate(el => { (el.parentElement as HTMLDetailsElement).open = true; });
+  await expect(sections).toHaveCount(11);
+  for (let i = 0; i < 11; i++) await sections.nth(i).locator('summary').evaluate(el => { (el.parentElement as HTMLDetailsElement).open = true; });
   const contenu = fenetre.locator('[data-guide-contenu]');
   const defilable = await contenu.evaluate(el => el.scrollHeight > el.clientHeight && getComputedStyle(el).overflowY === 'auto');
   expect(defilable).toBe(true);
