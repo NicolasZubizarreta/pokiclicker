@@ -1,5 +1,6 @@
 import { expect, it } from 'vitest';
 import fixture from './fixtures/v1-capture.json';
+import { MULTIPLICATEUR_OR_V2 } from './ecarts-v1';
 import { appliquerCapture, chanceCapture, retirerBalle } from '../src/core/capture';
 import { motifArret } from '../src/core/combat';
 import { reglages } from '../src/core/reglages';
@@ -33,7 +34,7 @@ it('compare les stocks, récompenses et destinations des quatre lancers V1', () 
       expect(inventaire[cle]).toBe(cas.stocks[cle as keyof typeof cas.stocks]);
     }
     expect(resultat?.destination ?? null).toBe(cas.destination);
-    expect((resultat?.region.argent ?? avant.argent) - avant.argent).toBe(cas.or);
+    expect((resultat?.region.argent ?? avant.argent) - avant.argent).toBe(cas.or * MULTIPLICATEUR_OR_V2);
     const prise = resultat ? resultat.region[resultat.destination].at(-1) : null;
     expect(prise?.numero ?? null).toBe(cas.succes ? 19 : null);
     expect(prise?.niveau ?? null).toBe(cas.niveau);

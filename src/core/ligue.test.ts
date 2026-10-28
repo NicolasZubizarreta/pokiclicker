@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import donnees from '../../data/ligue.json';
 import references from '../../tests/fixtures/v1-ligue.json';
+import { ARRONDI_PV_BOSS_V2, pvAdoucisV2 } from '../../tests/ecarts-v1';
 import { avancerCombat, creerEnnemi, reprendreCombat } from './combat';
 import { chargerLigue, dresseurDe, enregistrerVictoireLigue, estZoneDeLigue,
   etapeDeReprise, messageDefaite, messageEnchainement, nomAdversaire, zoneDeLigue } from './ligue';
@@ -36,9 +37,10 @@ describe('Ligue', () => {
   it.each(references.counter)('reproduit le counter V1 du starter $starterId', (cas) => {
     const avant = structuredClone(zone);
     const derivee = zoneDeLigue(zone, cas.starterId);
-    expect(creerEnnemi(derivee, 10, alea)).toMatchObject({
-      numero: cas.id, niveau: cas.level, pvMax: cas.maxHp,
-    });
+    const ennemi = creerEnnemi(derivee, 10, alea);
+    expect(ennemi).toMatchObject({ numero: cas.id, niveau: cas.level });
+    // Écart voulu du ticket AB : PV des ennemis à 80 % de la V1 à partir de la Centrale, Ligue comprise.
+    expect(Math.abs(ennemi.pvMax - pvAdoucisV2(cas.maxHp))).toBeLessThanOrEqual(ARRONDI_PV_BOSS_V2);
     expect(nomAdversaire(derivee, 10)).toBe(cas.name);
     expect({ ...derivee, boss: zone.boss }).toEqual(zone);
     expect(zone).toEqual(avant);

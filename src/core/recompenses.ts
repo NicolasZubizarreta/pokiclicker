@@ -28,7 +28,8 @@ export function calculerOr(v: Victoire, actifs: readonly string[] = [], t = regl
   or = Math.floor(appliquerBonus(or, t.or.bonusAvantArrondi, actifs));
   or = appliquerBonus(or, t.or.bonus, actifs);
   if (v.shiny) or *= t.or.shiny;
-  return or;
+  // Ticket AB : tous les gains d'argent sont multipliés, une seule fois, ici (la capture passe par cette fonction).
+  return or * t.or.multiplicateur;
 }
 
 export function calculerXp(v: Victoire, actifs: readonly string[] = [], t = reglages.recompenses): number {

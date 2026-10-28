@@ -104,7 +104,7 @@ describe('Récompenses de victoire', () => {
   });
 
   it('calcule l’or d’un commun au niveau 2', () => {
-    expect(calculerOr(victoire)).toBe(Math.floor(2 * 4 + Math.pow(2, 1.4)));
+    expect(calculerOr(victoire)).toBe(Math.floor(2 * 4 + Math.pow(2, 1.4)) * reglages.recompenses.or.multiplicateur);
   });
 });
 
@@ -122,5 +122,33 @@ describe('Délai avant l’ennemi suivant', () => {
     },
   ])('calcule le délai $nom', ({ actifs, ms }) => {
     expect(delaiEnnemiSuivant(actifs)).toBe(ms);
+  });
+});
+
+describe('Argent multiplié par deux (ticket AB)', () => {
+  const sansMultiplicateur = { ...reglages.recompenses, or: { ...reglages.recompenses.or, multiplicateur: 1 } };
+
+  it('lit le multiplicateur dans data/reglages.json', () => {
+    expect(reglages.recompenses.or.multiplicateur).toBe(2);
+  });
+
+  it.each([
+    { nom: 'un ennemi commun', v: victoire },
+    { nom: 'un rare', v: { ...victoire, rarete: 'rare' as const } },
+    { nom: 'un légendaire', v: { ...victoire, niveau: 70, rarete: 'legendaire' as const } },
+    { nom: 'un boss', v: { ...victoire, niveau: 20, boss: true, rarete: null } },
+    { nom: 'un chromatique', v: { ...victoire, shiny: true } },
+    { nom: 'un boss chromatique avec bonus', v: { ...victoire, niveau: 40, boss: true, shiny: true, rarete: null } },
+  ])('double l’or pour , bonus compris', ({ v }) => {
+    const actifs = ['objet:amuletCoin', 'objet:ctJackpot', 'badge:prisme'];
+    expect(calculerOr(v, [])).toBe(calculerOr(v, [], sansMultiplicateur) * 2);
+    expect(calculerOr(v, actifs)).toBe(calculerOr(v, actifs, sansMultiplicateur) * 2);
+  });
+
+  it('crédite l’or doublé dans la région et dans les statistiques', () => {
+    const resultat = appliquerVictoire(region([pokemon()]), victoire);
+    expect(resultat.or).toBe(calculerOr(victoire, [], sansMultiplicateur) * 2);
+    expect(resultat.region.argent).toBe(10 + resultat.or);
+    expect(resultat.region.statistiques.argentTotalGagne).toBe(resultat.or);
   });
 });

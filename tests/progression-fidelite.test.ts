@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import fixture from './fixtures/v1-badges.json';
+import { MULTIPLICATEUR_OR_V2 } from './ecarts-v1';
 import donneesZones from '../data/regions/kanto/zones.json';
 import { actifsDe, accorderJalons, badgeDeZone, chargerBadges, chargerJalons } from '../src/core/progression';
 import { calculerClic, calculerDpsEquipe } from '../src/core/combat';
@@ -50,7 +51,7 @@ describe('progression : fidélité V1 de bout en bout', () => {
     expect(dps).toBe(jeu.dps);
     expect(calculerClic(dps, actifs)).toBe(jeu.clic);
     for (const [mode, boss] of [['sauvage', false], ['boss', true]] as const) {
-      expect(calculerOr({ ...victoire, boss }, actifs)).toBe(jeu.or[mode]);
+      expect(calculerOr({ ...victoire, boss }, actifs)).toBe(jeu.or[mode] * MULTIPLICATEUR_OR_V2);
       expect(calculerXp({ ...victoire, boss }, actifs)).toBe(jeu.xp[mode]);
     }
     // V1 exprime la chance en pourcentage ; V2 renvoie une probabilité.
@@ -116,8 +117,8 @@ describe('progression : fidélité V1 de bout en bout', () => {
     expect(prixObjet(objet, { badges: avecPalier.badges.length,
       palier: avecPalier.jalonsRecus.includes(70) })).toBe(Math.floor(reference.prix * 0.85));
     for (const entree of [sansPalier, avecPalier]) {
-      expect(calculerOr(victoire, actifsDe(entree))).toBe(reference.or.sauvage);
-      expect(calculerOr({ ...victoire, boss: true }, actifsDe(entree))).toBe(reference.or.boss);
+      expect(calculerOr(victoire, actifsDe(entree))).toBe(reference.or.sauvage * MULTIPLICATEUR_OR_V2);
+      expect(calculerOr({ ...victoire, boss: true }, actifsDe(entree))).toBe(reference.or.boss * MULTIPLICATEUR_OR_V2);
     }
   });
 });

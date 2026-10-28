@@ -5,7 +5,7 @@
     "legacy/js/game/team.js": "41251b61fd9db082a8c25f14d701805331395d097c9e4a7ca10e5d745a555c46",
     "legacy/js/game/casino.js": "75b6b2f238898310736b1f606f7a6f6a961c44bdfbdac76b525423fabbd936ba",
     "legacy/js/game/save.js": "38a0b89b096f53c4d8c6add39942049c5bd8bfdaf8ef5fe674b5f00465e2220e",
-    "data/regions/kanto/zones.json": "2557337c57127684c79d031ba428c5cd924de34d3e220ab9ff1d394ec2bbe718",
+    "data/regions/kanto/zones.json": "2f2fd909beb8de32649926d3ed4e7e5a8ee231127cf16c30f654d94a0b7438a8",
     "scripts/extraire-casino-v1.mjs": "4197f5dafa3f91e46c580685128a0794f4908e28d6b3e852d84ad10da7b6736b",
     "scripts/lib/graine.mjs": "c5017b5d795490fc5010ba92bb00ddea4889a80a1e6e57c9ab63585390d346ee"
   },

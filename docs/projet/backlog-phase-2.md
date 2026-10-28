@@ -23,7 +23,7 @@ Jalon : **Kanto terminable** (`docs/plan.md`). Brouillon du 24/10/2026, validé 
    - l'évolution ne recalcule pas l'XP maximale du Pokémon : recalculée ;
    - l'easter egg Évoli → Voltali/Aquali/Pyroli est inatteignable (Évoli absent de `EVOLUTIONS`) : rendu atteignable par l'évolution par pierre ;
    - le bonus « Johnny » (+50 % contre le type Ténèbres) ne sert à rien en génération 1 : non porté, noté ;
-   - écarts décidés par Nicolas le 28/10 (ticket AA et AC) : le Calcium coûte 20 000 (50 000 en V1), les cinq pierres d'évolution (Pierre Feu, Eau, Plante, Foudre, Lune) n'ont plus d'inflation par badge, la recharge du Fauchage passe de 30 à 20 s, et le clic sur l'ennemi ne fait plus de son. Les fixtures de la V1 gardent les valeurs d'origine ; `tests/ecarts-v1.ts` liste ces écarts.
+   - écarts décidés par Nicolas le 28/10 (tickets AA, AB et AC) : le Calcium coûte 20 000 (50 000 en V1) sans inflation ; les cinq pierres d'évolution (Pierre Feu, Eau, Plante, Foudre, Lune) et la Pierre Stase coûtent 8 000 (10 000 en V1) et gardent l'inflation par badge ; la recharge du Fauchage passe de 30 à 20 s ; le clic sur l'ennemi ne fait plus de son ; tous les gains d'argent (ennemi, boss, capture, chromatique) sont doublés, et la capture garde sa règle V1 (le double d'une victoire), donc elle vaut 4 fois l'or de base de la V1 ; de la Centrale à la Ligue, les ennemis ont 20 % de PV en moins (`multiplicateurPv` × 0,8, les dégâts ne changent pas), les zones 1 et 2 restent à la valeur de la V1. Les fixtures de la V1 gardent les valeurs d'origine ; `tests/ecarts-v1.ts` liste ces écarts.
 4. **Rival, Ronflex, Pokéflûte** (ADR 0002, points ouverts) : **non tranchés**. Le ticket S reste « prêt sous condition » : Nicolas répond à « Ronflex : combat avant le passage ou réveil seul ? » et « rival : combat obligatoire ou facultatif ? ». La V1 n'a ni Ronflex bloquant ni rival scénarisé (le rival n'est qu'un boss de zone).
 5. **Triche de la V1** (mot de passe en clair dans `cheats.js`) : **non portée**. Le ticket Y n'utilise aucune triche : il charge des sauvegardes de test à des étapes précises.
 6. **Pages nouvelles** : trois variantes par page, en une fois pour les pages communes (ticket B), puis dans chaque ticket annexe.
@@ -895,7 +895,7 @@ Fourchette : 0,5 à 1 jour. Risque : question à confirmer par Nicolas, « pierr
 
 ## AB. `feat(equilibrage): argent ×2, début de partie plus exigeant, fin de Kanto 20 % plus douce`
 
-Labels : `type:feat`, `etat:idee`, `est:2-3`, `prio:1` · branche : `feat/ab-equilibrage-28-10` · `agent-ok` : **non, relecture humaine** (change les règles de jeu)
+Labels : `type:feat`, `etat:fait`, `est:2-3`, `prio:1` · branche : `feat/ab-equilibrage-28-10` · `agent-ok` : **non, relecture humaine** (change les règles de jeu ; fait le 28/10, commit local, non poussé ; argent ×2 et PV -20 % de la Centrale à la Ligue appliqués dans `data/`, simulateur et `docs/projet/equilibrage-28-10.md` livrés ; écarts au ticket : zones 1 et 2 inchangées sur consigne de Nicolas donc critère 2 non tenu (valeurs candidates mesurées, non appliquées), critère 6 non tenu par le simulateur, capture à 4 fois l'or de base de la V1, Ligue incluse dans les -20 % ; questions posées à Nicolas)
 
 ### Histoire
 En tant que joueur, je veux que les deux premières zones demandent de jouer, que la suite se paie avec l'argent gagné en jouant et que Kanto après la Centrale soit environ 20 % moins dur afin que les bonus du Pokédex et du Shop comptent sans bloquer. [6, 10, 18, 31, 33, 27]

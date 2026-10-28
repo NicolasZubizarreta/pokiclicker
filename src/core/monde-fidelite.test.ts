@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import donnees from '../../data/regions/kanto/zones.json';
 import fixture from '../../tests/fixtures/v1-zones.json';
+import { COEFFICIENT_PV_ADOUCI_V2, PREMIERE_ZONE_ADOUCIE_V1, multiplicateurPvAttendu } from '../../tests/ecarts-v1';
 import badges from '../../data/badges.json';
 import { kanto } from './regions';
 import { chargerMonde } from './monde';
@@ -47,7 +48,7 @@ describe('fidélité des zones de Kanto à la V1', () => {
     const combat = kanto.zoneDeCombat(id);
     expect(combat.niveaux).toEqual([v1.minLevel, v1.maxLevel]);
     expect(combat.etapes).toBe(10);
-    expect(combat.multiplicateurPv).toBe(multiplicateurs.get(v1.id));
+    expect(combat.multiplicateurPv).toBe(multiplicateurPvAttendu(v1.id, multiplicateurs.get(v1.id)!));
     expect(combat.boss).toEqual(rencontre(v1.boss));
     if (v1.id !== 21) {
       expect(combat.sauvages).toEqual(v1.pokemons.map((pokemon) => {
@@ -58,6 +59,19 @@ describe('fidélité des zones de Kanto à la V1', () => {
         };
       }));
     }
+  });
+
+  it('garde les PV de la V1 avant la Centrale et les réduit de 20 % à partir d’elle (ticket AB)', () => {
+    for (const [ancienId, valeurV1] of multiplicateurs) {
+      if (ancienId < 1) continue;
+      const zone = kanto.zoneDeCombat(ids[ancienId]!);
+      if (ancienId < PREMIERE_ZONE_ADOUCIE_V1) expect(zone.multiplicateurPv).toBe(valeurV1);
+      else expect(zone.multiplicateurPv).toBeCloseTo(valeurV1 * COEFFICIENT_PV_ADOUCI_V2, 9);
+    }
+    expect(ids[PREMIERE_ZONE_ADOUCIE_V1]).toBe('kanto.centrale');
+    // Les zones 1 et 2 ne sont pas touchées : Nicolas règle leur difficulté lui-même.
+    expect(kanto.zoneDeCombat('kanto.route-1').multiplicateurPv).toBe(1);
+    expect(kanto.zoneDeCombat('kanto.foret-de-jade').multiplicateurPv).toBe(1.5);
   });
 
   it('conserve les neuf adversaires de la Ligue dans l’ordre et le boss Maître Blue', () => {

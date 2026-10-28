@@ -46,6 +46,14 @@ const conditionBoss = indice => ({ type: 'boss', zone: identifiant(indice) });
 const adversaire = pokemon => ({
   pokemon: pokemon.id, nom: pokemon.name, niveau: pokemon.level, capture: pokemon.catchRate,
 });
+// Écart voulu avec la V1 (rapport de Nicolas du 28/10/2026, ticket AB) : à partir de la Centrale, les ennemis ont
+// 20 % de PV en moins (le multiplicateur de PV de la zone est multiplié par 0,8, les dégâts ne changent pas).
+// La fixture tests/fixtures/v1-zones.json garde les valeurs d'origine ; tests/ecarts-v1.ts liste cet écart.
+const PREMIERE_ZONE_ADOUCIE = slugs.indexOf('centrale');
+const COEFFICIENT_PV_ADOUCI = 0.8;
+/** @param {number} indice */
+const multiplicateurPv = indice => indice < PREMIERE_ZONE_ADOUCIE ? ZONE_MULT[indice]
+  : Math.round(ZONE_MULT[indice] * COEFFICIENT_PV_ADOUCI * 1e4) / 1e4;
 const zones = Array.from(ZONES, (zone, indice) => {
   const liens = indice === 21 ? [] : [{
     vers: identifiant(indice + 1),
@@ -66,7 +74,7 @@ const zones = Array.from(ZONES, (zone, indice) => {
     decor,
     niveaux: [zone.minLevel, zone.maxLevel],
     etapes: 10,
-    multiplicateurPv: ZONE_MULT[indice],
+    multiplicateurPv: multiplicateurPv(indice),
     sauvages: indice === 21 ? [] : Array.from(zone.pokemons, pokemon => {
       if (!Object.hasOwn(raretes, pokemon.rarity)) {
         throw new Error(`Rareté V1 inconnue dans la zone ${indice} : ${pokemon.rarity}`);

@@ -155,6 +155,7 @@
     "niveauMax": 100,
     "or": {
       "coefNiveau": 4, "exposant": 1.4, "boss": 10,
+      "multiplicateur": 2, "capture": 2,
       "rarete": { "rare": 3, "tres-rare": 3, "legendaire": 20 },
       "bonusAvantArrondi": [ { "cle": "objet:amuletCoin", "x": 1.3 }, { "cle": "objet:ctJackpot", "x": 1.2 } ],
       "bonus": [ { "cle": "badge:prisme", "x": 1.2, "arrondi": true } ],

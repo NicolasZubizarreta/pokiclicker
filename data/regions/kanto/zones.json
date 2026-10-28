@@ -709,7 +709,7 @@
         38
       ],
       "etapes": 10,
-      "multiplicateurPv": 26,
+      "multiplicateurPv": 20.8,
       "sauvages": [
         {
           "pokemon": 100,
@@ -775,7 +775,7 @@
         40
       ],
       "etapes": 10,
-      "multiplicateurPv": 28.5,
+      "multiplicateurPv": 22.8,
       "sauvages": [
         {
           "pokemon": 33,
@@ -864,7 +864,7 @@
         43
       ],
       "etapes": 10,
-      "multiplicateurPv": 31,
+      "multiplicateurPv": 24.8,
       "sauvages": [
         {
           "pokemon": 23,
@@ -930,7 +930,7 @@
         45
       ],
       "etapes": 10,
-      "multiplicateurPv": 33.5,
+      "multiplicateurPv": 26.8,
       "sauvages": [
         {
           "pokemon": 63,
@@ -995,7 +995,7 @@
         48
       ],
       "etapes": 10,
-      "multiplicateurPv": 36,
+      "multiplicateurPv": 28.8,
       "sauvages": [
         {
           "pokemon": 86,
@@ -1067,7 +1067,7 @@
         50
       ],
       "etapes": 10,
-      "multiplicateurPv": 38.5,
+      "multiplicateurPv": 30.8,
       "sauvages": [
         {
           "pokemon": 77,
@@ -1133,7 +1133,7 @@
         58
       ],
       "etapes": 10,
-      "multiplicateurPv": 41,
+      "multiplicateurPv": 32.8,
       "sauvages": [
         {
           "pokemon": 33,
@@ -1192,7 +1192,7 @@
         65
       ],
       "etapes": 10,
-      "multiplicateurPv": 43.5,
+      "multiplicateurPv": 34.8,
       "sauvages": [
         {
           "pokemon": 47,
@@ -1251,7 +1251,7 @@
         70
       ],
       "etapes": 10,
-      "multiplicateurPv": 46,
+      "multiplicateurPv": 36.8,
       "sauvages": [
         {
           "pokemon": 67,
@@ -1355,7 +1355,7 @@
         90
       ],
       "etapes": 10,
-      "multiplicateurPv": 48.5,
+      "multiplicateurPv": 38.8,
       "sauvages": [],
       "adversaires": [
         {

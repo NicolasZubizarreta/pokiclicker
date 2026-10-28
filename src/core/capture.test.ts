@@ -102,3 +102,13 @@ describe('capture réussie', () => {
     expect(alea).not.toHaveBeenCalled();
   });
 });
+
+describe('argent de la capture (ticket AB)', () => {
+  it('double le gain une seule fois : règle V1 de la capture (×2) puis multiplicateur global (×2)', () => {
+    const sansMultiplicateur = { ...reglages.recompenses, or: { ...reglages.recompenses.or, multiplicateur: 1 } };
+    const base = calculerOr(prise, [], sansMultiplicateur);
+    const resultat = appliquerCapture(region(), prise, [], () => 0.9, () => 'capture-1');
+    expect(resultat.region.argent - 100).toBe(base * 2 * 2);
+    expect(reglages.recompenses.or.capture).toBe(2);
+  });
+});

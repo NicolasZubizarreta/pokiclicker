@@ -67,7 +67,7 @@ export function appliquerCapture(
   return {
     region: {
       ...region, [destination]: [...region[destination], pokemon], inventaire,
-      argent: region.argent + calculerOr(prise, actifs) * 2,
+      argent: region.argent + calculerOr(prise, actifs) * reglages.recompenses.or.capture,
     },
     destination, bonbons,
   };

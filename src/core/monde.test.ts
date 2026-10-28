@@ -62,7 +62,8 @@ describe('monde Kanto', () => {
     const ligue = kanto.zoneDeCombat('kanto.ligue-pokemon');
     expect(ligue.adversaires![8]).toEqual({ pokemon: 18, nom: 'Maître Blue (Roucarnage)', niveau: 92, capture: 0 });
     expect(ligue.boss).toEqual({ pokemon: 9, nom: 'Maître Blue', niveau: 100, capture: 0 });
-    expect(ligue.multiplicateurPv).toBe(48.5);
+    // 48,5 dans la V1 ; 38,8 depuis l'écart du ticket AB (PV des ennemis -20 % à partir de la Centrale).
+    expect(ligue.multiplicateurPv).toBe(38.8);
     const celadopole = kanto.zoneDeCombat('kanto.arene-de-celadopole');
     expect(celadopole.boss).toMatchObject({ pokemon: 71, niveau: 39 });
     expect(celadopole.multiplicateurPv).toBe(23.5);

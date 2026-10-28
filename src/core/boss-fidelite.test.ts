@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import references from '../../tests/fixtures/v1-boss.json';
+import { ARRONDI_PV_BOSS_V2, pvAdoucisV2 } from '../../tests/ecarts-v1';
 import { avancerCombat, creerEnnemi, reprendreCombat } from './combat';
 import * as ennemis from './ennemis';
 import { kanto } from './regions';
@@ -55,12 +56,14 @@ describe('Fidélité stricte du minuteur des boss et de la Ligue à la V1', () =
   it.each(references.ligue)('reproduit le boss de Ligue à l’étape $etape', (cas) => {
     const ennemi = creerEnnemi(ligue, cas.etape, alea);
     expect({
-      id: ennemi.numero, niveau: ennemi.niveau, pvMax: ennemi.pvMax,
+      id: ennemi.numero, niveau: ennemi.niveau,
       boss: ennemi.boss, tauxCapture: ennemi.capture,
     }).toEqual({
-      id: cas.id, niveau: cas.niveau, pvMax: cas.pvMax,
+      id: cas.id, niveau: cas.niveau,
       boss: cas.boss, tauxCapture: cas.tauxCapture,
     });
+    // Écart voulu du ticket AB : PV des ennemis à 80 % de la V1 à partir de la Centrale, Ligue comprise.
+    expect(Math.abs(ennemi.pvMax - pvAdoucisV2(cas.pvMax))).toBeLessThanOrEqual(ARRONDI_PV_BOSS_V2);
     expect(ennemi.boss).toEqual(true);
   });
 

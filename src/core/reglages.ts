@@ -45,6 +45,10 @@ export type ReglagesRecompenses = {
   niveauMax: number;
   or: {
     coefNiveau: number; exposant: number; boss: number;
+    /** Multiplicateur de tous les gains d'argent (ennemi, boss, capture, chromatique), ticket AB. */
+    multiplicateur: number;
+    /** Règle V1 de la capture : elle rapporte le double d'une victoire, avant le multiplicateur global. */
+    capture: number;
     rarete: Partial<Record<Rarete, number>>;
     bonusAvantArrondi: Bonus[]; bonus: Bonus[]; shiny: number;
   };
