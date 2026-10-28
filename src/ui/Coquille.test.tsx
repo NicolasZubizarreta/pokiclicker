@@ -36,7 +36,7 @@ afterEach(() => {
   cleanup();
   localStorage.clear();
 });
-const noms = ['Combat', 'Équipe', 'Shop', 'Carte', 'Plus'];
+const noms = ['Combat', 'Équipe', 'PC', 'Shop', 'Carte', 'Plus'];
 
 it('affiche les crédits seulement lorsque fin.credits est vrai et rend la navigation inerte', () => {
   const montrer = Object.getOwnPropertyDescriptor(HTMLDialogElement.prototype, 'showModal');
@@ -142,7 +142,7 @@ describe('Coquille', () => {
     expect(carte.classList.contains('rebond-signal')).toBe(false);
   });
 
-  it('présente les cinq destinations dans l’ordre et active seulement Combat', () => {
+  it('présente les six destinations dans l’ordre et active seulement Combat', () => {
     render(<Coquille />);
     const boutons = within(screen.getByRole('navigation')).getAllByRole('button');
     expect(boutons.map((bouton) => bouton.textContent)).toEqual(noms);
@@ -156,15 +156,19 @@ describe('Coquille', () => {
     render(<Coquille />);
     for (const nom of noms.slice(1)) {
       await utilisateur.click(screen.getByRole('button', { name: nom }));
-      expect(within(screen.getByRole('main')).getByRole('heading', { level: 1 }).textContent).toBe(nom === 'Équipe' ? 'Ton équipe' : nom);
-      if (nom === 'Carte') expect(screen.getByRole('button', { name: 'Route 1 (Zone 1)' })).toBeTruthy();
+      expect(within(screen.getByRole('main')).getByRole('heading', { level: 1 }).textContent).toBe(nom === 'Équipe' ? 'Ton équipe' : nom === 'PC' ? 'PC de Léo' : nom);
+      if (nom === 'PC') {
+        // Fermé avant Argenta : l'entrée reste grisée mais s'ouvre et donne la raison (AD).
+        expect(screen.getByText("Le PC de Léo s'ouvre à l'Arène d'Argenta.")).toBeTruthy();
+        expect(screen.queryByRole('button', { name: 'Retour' })).toBeNull();
+      } else if (nom === 'Carte') expect(screen.getByRole('button', { name: 'Route 1 (Zone 1)' })).toBeTruthy();
       else if (nom === 'Équipe') {
         expect(screen.queryByText('Cette page arrive bientôt.')).toBeNull();
         // Six cases d'équipe, plus la Pokéball et le Bonbon que le Sac affiche toujours.
         expect(screen.getAllByRole('listitem')).toHaveLength(8);
       } else if (nom === 'Plus') {
         expect(screen.queryByText('Cette page arrive bientôt.')).toBeNull();
-        expect(screen.getByRole('button', { name: 'PC de Léo' })).toBeTruthy();
+        expect(screen.queryByRole('button', { name: 'PC de Léo' })).toBeNull();
         expect(screen.getByRole('button', { name: /^Pokédex \d+ \/ 151$/ })).toBeTruthy();
       } else expect(screen.getByText("Le Shop s'ouvre à la Forêt de Jade.")).toBeTruthy();
       expect(screen.queryByText('Cette page arrive bientôt.')).toBeNull();
@@ -187,7 +191,15 @@ describe('Coquille', () => {
     expect(screen.queryByRole('button', { name: 'Retour' })).toBeNull();
   });
 
-  it('place le lien d’évitement puis les cinq boutons dans le parcours clavier', async () => {
+  it('grise l’entrée PC tant que le PC est fermé et la remet en couleur à son ouverture', () => {
+    render(<Coquille />);
+    const pc = screen.getByRole('button', { name: 'PC' });
+    expect(pc.className).toContain('opacity-60');
+    act(() => storeJeu.setState({ accesPc: { ouvert: true, raison: null } }));
+    expect(screen.getByRole('button', { name: 'PC' }).className).not.toContain('opacity-60');
+  });
+
+  it('place le lien d’évitement puis les six boutons dans le parcours clavier', async () => {
     const utilisateur = userEvent.setup();
     render(<Coquille />);
     for (const element of [screen.getByRole('link', { name: 'Aller au contenu' }), ...screen.getAllByRole('button').filter(b => !b.hasAttribute('disabled'))]) {
@@ -223,7 +235,7 @@ describe('Coquille', () => {
       'Ton aventure', 'Région', `Kanto · ${storeJeu.getState().lieu!.nom}`, 'Badges', '0 / 8', 'DPS',
       formaterDps(storeJeu.getState().dps), 'Prochain palier : 10 (Débutant) · Encore 7 espèces.',
       'PC de Léo', 'Pokédex', "Le PC de Léo s'ouvre à l'Arène d'Argenta.", 'Réglages', 'Son', 'Activé',
-      'Musique', 'Activée', 'Crédits des musiques', ...Object.values(musiques.pistes).map(creditPiste)]);
+      'Musique', 'Activée', 'Volume des effets', 'Volume de la musique', 'Crédits des musiques', ...Object.values(musiques.pistes).map(creditPiste)]);
     for (const nom of noms.slice(1)) {
       await utilisateur.click(screen.getByRole('button', { name: nom }));
       const equipe = storeJeu.getState().equipe;
@@ -250,7 +262,7 @@ describe('Coquille', () => {
         }
         const textesCarte = new Set(['Ton voyage', ...storeJeu.getState().carte.formes.map(f =>
           f.numero === null || f.numero === 0 ? f.nom : `${f.nom} (Zone ${f.numero})`)]);
-        if (texte) expect(autorises.has(texte) || textesCarte.has(texte) || (nom === 'Plus' && /^\d+ \/ 151$/.test(texte)), texte).toBe(true);
+        if (texte) expect(autorises.has(texte) || textesCarte.has(texte) || (nom === 'Plus' && /^(\d+ \/ 151|\d+ %)$/.test(texte)), texte).toBe(true);
       }
       for (const element of container.querySelectorAll('[aria-label]')) {
         const forme = storeJeu.getState().carte.formes.find(f => f.nom === element.getAttribute('data-forme'));
@@ -273,7 +285,7 @@ describe('Coquille', () => {
       }
     }
     const icones = container.querySelectorAll('svg');
-    expect(icones).toHaveLength(5);
+    expect(icones).toHaveLength(6);
     for (const icone of icones) {
       expect(icone.getAttribute('aria-hidden')).toBe('true');
       expect(icone.getAttribute('focusable')).toBe('false');

@@ -128,12 +128,12 @@ describe('objets du store', () => {
     expect(store.getState().radar).toBe(true);
     expect(store.getState().faucher()).toBeNull();
     expect(store.getState().fauchage).toEqual({ possede: true, disponible: false,
-      raison: 'Recharge : 30 s', rechargeS: 30, actif: true });
-    expect(sauvee().chronos.rechargeFauchage).toBe(31000);
+      raison: 'Recharge : 20 s', rechargeS: 20, actif: true });
+    expect(sauvee().chronos.rechargeFauchage).toBe(21000);
     const recharge = ouvrir();
-    expect(recharge.getState().fauchage.rechargeS).toBe(30);
+    expect(recharge.getState().fauchage.rechargeS).toBe(20);
     expect(recharge.getState().fauchage.actif).toBe(false);
-    avancer(300);
+    avancer(200);
     expect(store.getState().fauchage.rechargeS).toBe(0);
     expect(store.getState().fauchage.disponible).toBe(true);
     expect(ouvrir().getState().fauchage.rechargeS).toBe(0);

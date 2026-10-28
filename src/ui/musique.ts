@@ -1,4 +1,5 @@
 import { musiques, pisteDeScene, type Scene } from '../core/musiques';
+import { volumes } from './volumes';
 
 const cle = 'pokiclicker:musique';
 
@@ -19,7 +20,13 @@ export function creerMusique({
   creerLecteur = fichier => new Audio(fichier),
   actifInitial = lireActif(),
   enregistrer = ecrireActif,
-}: { creerLecteur?: (fichier: string) => Lecteur; actifInitial?: boolean; enregistrer?: (actif: boolean) => void } = {}) {
+  volume = () => 100,
+}: {
+  creerLecteur?: (fichier: string) => Lecteur; actifInitial?: boolean; enregistrer?: (actif: boolean) => void;
+  /** Curseur « Musique », de 0 à 100. */
+  volume?: () => number;
+} = {}) {
+  const gainLecteur = () => 10 ** (musiques.volumeDb / 20) * volume() / 100;
   const lecteurs = new Map<string, Lecteur>();
   const abonnes = new Set<() => void>();
   let actif = actifInitial;
@@ -34,7 +41,7 @@ export function creerMusique({
       const piste = musiques.pistes[id]!;
       const nouveau = creerLecteur(piste.fichier);
       nouveau.loop = piste.boucle;
-      nouveau.volume = 10 ** (musiques.volumeDb / 20);
+      nouveau.volume = gainLecteur();
       lecteurs.set(id, nouveau);
       return nouveau;
     })() : undefined;
@@ -62,7 +69,10 @@ export function creerMusique({
     masquer(masque: boolean) { cache = masque; appliquer(); },
     basculer() { actif = !actif; enregistrer(actif); appliquer(); prevenir(); },
     arreter() { scene = null; appliquer(); },
+    /** À appeler quand le curseur de musique bouge : les pistes déjà créées suivent tout de suite. */
+    ajusterVolume() { lecteurs.forEach(lecteur => { lecteur.volume = gainLecteur(); }); },
   };
 }
 
-export const musique = creerMusique();
+export const musique = creerMusique({ volume: () => volumes.lire('musique') });
+volumes.abonner(musique.ajusterVolume);

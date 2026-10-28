@@ -60,7 +60,7 @@ afterEach(() => {
   localStorage.clear();
 });
 
-it('préserve les deux entrées historiques françaises, le compteur et le verrou visible lié au PC', () => {
+it('garde le Pokédex et ne propose plus le PC, déplacé dans la navigation (AD)', () => {
   const { container } = render(<PagePlus />);
   // Prépare la vue historique ; les ajouts du tableau de bord sont vérifiés séparément.
   container.querySelectorAll('section[aria-labelledby]').forEach(section => section.remove());
@@ -68,37 +68,11 @@ it('préserve les deux entrées historiques françaises, le compteur et le verro
   container.querySelector('[data-prochain-palier]')?.remove();
   expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Plus');
   const liste = screen.getByRole('list');
-  expect(within(liste).getAllByRole('listitem')).toHaveLength(2);
-  expect(within(liste).getAllByRole('button').map(b => b.textContent)).toEqual(['PC de Léo', 'Pokédex 3 / 151']);
-  const pc = screen.getByRole('button', { name: 'PC de Léo' }) as HTMLButtonElement;
-  expect(pc.disabled).toBe(true);
-  const raison = screen.getByText("Le PC de Léo s'ouvre à l'Arène d'Argenta.");
-  expect(raison.hidden).toBe(false);
-  expect(document.getElementById(pc.getAttribute('aria-describedby')!)).toBe(raison);
-  fireEvent.click(pc);
-  expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Plus');
-  expect(container.textContent).toBe("PlusPC de LéoLe PC de Léo s'ouvre à l'Arène d'Argenta.Pokédex 3 / 151");
+  expect(within(liste).getAllByRole('listitem')).toHaveLength(1);
+  expect(within(liste).getAllByRole('button').map(b => b.textContent)).toEqual(['Pokédex 3 / 151']);
+  expect(screen.queryByRole('button', { name: 'PC de Léo' })).toBeNull();
+  expect(container.textContent).toBe('PlusPokédex 3 / 151');
   expect(container.querySelector('[class~="bg-action"]')).toBeNull();
-});
-
-it('ouvre le PC après les boss de la Route 1 et de la Forêt de Jade et gère le focus aller-retour', () => {
-  storeJeu.getState().fermer();
-  storeJeu.getState().arreter();
-  const cle = Object.keys(localStorage).find(cle => cle.startsWith('pokiclicker:region:') && cle.endsWith(':kanto'))!;
-  const sauvegarde = JSON.parse(localStorage.getItem(cle)!);
-  sauvegarde.donnees.bossVaincus = ['kanto.route-1', 'kanto.foret-de-jade'];
-  localStorage.setItem(cle, JSON.stringify(sauvegarde));
-  nouvellePartie();
-  render(<PagePlus />);
-  const pc = screen.getByRole('button', { name: 'PC de Léo' }) as HTMLButtonElement;
-  expect(pc.disabled).toBe(false);
-  expect(pc.hasAttribute('aria-describedby')).toBe(false);
-  fireEvent.click(pc);
-  const titre = screen.getByRole('heading', { level: 1, name: 'PC de Léo' });
-  expect(document.activeElement).toBe(titre);
-  fireEvent.click(screen.getByRole('button', { name: 'Retour' }));
-  expect(document.activeElement).toBe(screen.getByRole('button', { name: 'PC de Léo' }));
-  expect(screen.queryByRole('button', { name: 'Retour' })).toBeNull();
 });
 
 it('ouvre le Pokédex des trois starters avec ses textes français et rend le focus à l’entrée d’origine', () => {
@@ -124,8 +98,8 @@ it('affiche le tableau de bord C et ouvre les badges avec le focus aller-retour'
   const { container } = render(<PagePlus />);
   const aventure = screen.getByRole('region', { name: 'Ton aventure' });
   expect(aventure.textContent).toBe(`Ton aventureRégionKanto · ${storeJeu.getState().lieu!.nom}Pokédex24 / 151Badges2 / 8DPS${formaterDps(storeJeu.getState().dps)}`);
-  expect(screen.getByRole('list').textContent).toBe("PC de LéoLe PC de Léo s'ouvre à l'Arène d'Argenta.Pokédex 24 / 151Prochain palier : 30 (Collectionneur) · Encore 6 espèces.Badges");
-  expect(within(screen.getByRole('list')).getAllByRole('listitem')).toHaveLength(3);
+  expect(screen.getByRole('list').textContent).toBe('Pokédex 24 / 151Prochain palier : 30 (Collectionneur) · Encore 6 espèces.Badges');
+  expect(within(screen.getByRole('list')).getAllByRole('listitem')).toHaveLength(2);
   expect(aventure.querySelector('dl')).toBeTruthy();
   expect(within(aventure).getByText('24 / 151')).toBeTruthy();
   expect(within(aventure).getByText('2 / 8')).toBeTruthy();

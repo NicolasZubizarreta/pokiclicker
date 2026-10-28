@@ -45,6 +45,10 @@ export function Carte() {
   return <Icone><path d="m2 5 6-3 8 3 6-3v17l-6 3-8-3-6 3zM8 2v17M16 5v17" /></Icone>;
 }
 
+export function PC() {
+  return <Icone><path d="M3 4h18v12H3zM9 20h6M12 16v4" /></Icone>;
+}
+
 export function Plus() {
   return <Icone><path d="M3 10h3v4H3zM10 10h3v4h-3zM17 10h3v4h-3z" /></Icone>;
 }

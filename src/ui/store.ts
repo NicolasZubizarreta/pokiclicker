@@ -587,7 +587,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     enregistrer(); afficher();
     return { ...resultat, region };
   };
-  const frapper = (manuel = false): boolean => {
+  const frapper = (): boolean => {
     if (!coeur || minuteur === undefined) return false;
     actualiserActifs();
     const avant = coeur;
@@ -597,7 +597,6 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       valeur: Math.min(avant.ennemi.pv, calculerClic(calculerDpsEquipe(avant.equipe, avant.ennemi, avant.actifs), avant.actifs)) };
     degats.push(degat);
     abonnesDegats.forEach(abonne => abonne(degat));
-    if (manuel) emettreSon('hit');
     traiter();
     return true;
   };
@@ -832,7 +831,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       afficher();
     },
     attaquer() {
-      return frapper(true);
+      return frapper();
     },
     demarrer() {
       if (minuteur !== undefined || store.getState().erreurChargement) return;

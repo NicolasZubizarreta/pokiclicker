@@ -63,6 +63,18 @@ it('se coupe depuis Plus, enregistre le choix et se coupe quand l\'onglet est ma
   expect(lecteurs['audio/route.ogg']!.paused).toBe(false);
 });
 
+it('applique le curseur de musique aux pistes, créées ou déjà en cours', () => {
+  const { lecteurs, creerLecteur } = fabrique();
+  let niveau = 50;
+  const musique = creerMusique({ creerLecteur, actifInitial: true, enregistrer: () => {}, volume: () => niveau });
+  musique.deverrouiller();
+  musique.definirScene('combat');
+  expect(lecteurs['audio/route.ogg']!.volume).toBeCloseTo(10 ** (-18 / 20) * 0.5);
+  niveau = 0;
+  musique.ajusterVolume();
+  expect(lecteurs['audio/route.ogg']!.volume).toBe(0);
+});
+
 it('reste silencieuse quand la lecture est refusée', async () => {
   const lecteur = { currentTime: 0, loop: false, volume: 1, paused: true, pause: vi.fn(),
     play: vi.fn(() => Promise.reject(new Error('refusé'))) };

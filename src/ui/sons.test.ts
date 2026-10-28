@@ -1,4 +1,5 @@
 import { expect, it, vi } from 'vitest';
+import { reglages } from '../core/reglages';
 import { brancherSons, creerSons, frequenceNote } from './sons';
 
 function fauxContexte() {
@@ -74,6 +75,34 @@ it('reste muet si coupé ou suspendu et reprend au prochain geste', async () => 
   expect(faux.oscillateurs[0]!.stop).toHaveBeenCalledWith(11.0625);
 });
 
+it('applique le curseur d’effets au gain de sortie et le suit quand il bouge', async () => {
+  const faux = fauxContexte();
+  let niveau = 50;
+  const sons = creerSons({ creerContexte: faux.creerContexte, estActif: () => true, volume: () => niveau });
+  sons.ajusterVolume();
+  await sons.deverrouiller();
+  expect(faux.gains[0]!.gain.setValueAtTime).toHaveBeenLastCalledWith(10 ** (-12 / 20) * 0.5, 10);
+  niveau = 0;
+  sons.ajusterVolume();
+  expect(faux.gains[0]!.gain.setValueAtTime).toHaveBeenLastCalledWith(0, 10);
+});
+
+it('ne rejoue pas le même ton dans la fenêtre anti-rebond, mais laisse passer un autre ton', async () => {
+  const faux = fauxContexte();
+  const sons = creerSons({ creerContexte: faux.creerContexte, estActif: () => true });
+  await sons.deverrouiller();
+  sons.jouer('coin');
+  const premier = faux.oscillateurs.length;
+  sons.jouer('coin');
+  expect(faux.oscillateurs).toHaveLength(premier);
+  sons.jouer('up');
+  expect(faux.oscillateurs.length).toBeGreaterThan(premier);
+  const apres = faux.oscillateurs.length;
+  faux.contexte.currentTime += reglages.sons.antiRebondMs / 1000 + 0.01;
+  sons.jouer('coin');
+  expect(faux.oscillateurs.length).toBeGreaterThan(apres);
+});
+
 it('tolère un contexte absent, une création ou une reprise refusée', async () => {
   const faux = fauxContexte();
   faux.contexte.state = 'suspended';
@@ -103,7 +132,8 @@ it('branche les événements et lit la préférence actuelle, puis se désabonne
     abonnerSons: vi.fn<(abonne: (ton: 'hit') => void) => () => void>(() => desabonner),
   };
   try {
-    const sons = brancherSons(store);
+    const desabonnerVolume = vi.fn();
+    const sons = brancherSons(store, { lire: () => 100, abonner: vi.fn(() => desabonnerVolume) });
     expect(store.abonnerSons).toHaveBeenCalledTimes(1);
     await sons.deverrouiller();
     const jouer = store.abonnerSons.mock.calls[0]![0];
@@ -114,6 +144,7 @@ it('branche les événements et lit la préférence actuelle, puis se désabonne
     expect(faux.oscillateurs).toHaveLength(1);
     await sons.fermer();
     expect(desabonner).toHaveBeenCalledTimes(1);
+    expect(desabonnerVolume).toHaveBeenCalledTimes(1);
     expect(faux.contexte.close).toHaveBeenCalledTimes(1);
   } finally { vi.unstubAllGlobals(); }
 });

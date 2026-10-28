@@ -54,7 +54,9 @@ export function etatFauchage(region: DonneesRegion, boss: boolean, maintenant: n
   possede: boolean; raison: string | undefined; rechargeS: number;
 } {
   const possede = region.ameliorations.includes('falseSwipe');
-  const rechargeS = Math.max(0, Math.ceil((region.chronos.rechargeFauchage - maintenant) / 1000));
+  // Plafonné à la durée actuelle : une sauvegarde faite avec une recharge plus longue n'attend pas l'ancien délai.
+  const restantMs = Math.min(region.chronos.rechargeFauchage - maintenant, reglages.objetsActifs.rechargeFauchageMs);
+  const rechargeS = Math.max(0, Math.ceil(restantMs / 1000));
   const raison = !possede ? 'Nécessite la CT Fauchage.'
     : boss ? 'Inutile sur un boss !' : rechargeS > 0 ? `Recharge : ${rechargeS} s` : undefined;
   return { possede, raison, rechargeS };

@@ -38,15 +38,14 @@ function preparer(modifier: (region: DonneesRegion) => DonneesRegion = r => r, a
   return { store, ouvrir, avancer, tons, gestionnaire };
 }
 
-it('émet hit seulement pour un toucher manuel accepté et permet le désabonnement', () => {
+it('n’émet plus de son à chaque toucher (AC) et permet le désabonnement', () => {
   const { store, tons } = preparer();
   const retirer = store.abonnerSons(ton => tons.push(ton));
   expect(store.getState().attaquer()).toBe(true);
-  expect(tons).toEqual(['hit']);
+  expect(tons).not.toContain('hit');
   for (let i = 0; i < 100; i++) store.getState().attaquer();
-  const avant = tons.length;
+  expect(tons).not.toContain('hit');
   expect(store.getState().attaquer()).toBe(false);
-  expect(tons).toHaveLength(avant);
   retirer();
   store.getState().arreter();
   expect(store.getState().attaquer()).toBe(false);

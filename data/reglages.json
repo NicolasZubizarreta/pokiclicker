@@ -17,6 +17,8 @@
   "sons": {
     "actifParDefaut": true,
     "volumeDb": -12,
+    "volumeParDefaut": 40,
+    "antiRebondMs": 80,
     "oscillateur": "triangle",
     "enveloppe": { "attaque": 0.005, "declin": 0.1, "maintien": 0.3, "relachement": 1 },
     "tempo": 120,
@@ -48,7 +50,7 @@
   },
   "objetsActifs": {
     "dureeMs": 30000,
-    "rechargeFauchageMs": 30000,
+    "rechargeFauchageMs": 20000,
     "temporises": {
       "xAttack": { "chrono": "finBoostAttaque", "cle": "boost:attaque", "message": "Attaque + active !", "pastille": "Attaque + ×1,5" },
       "xSpecial": { "chrono": "finBoostAttaqueSpeciale", "cle": "boost:dps", "message": "DPS ×1,5 actif !", "pastille": "DPS ×1,5" },

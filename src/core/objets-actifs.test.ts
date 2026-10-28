@@ -99,17 +99,24 @@ describe('objets actifs', () => {
 
   it('ordonne les refus Fauchage et conserve la recharge sans mutation', () => {
     const entree = region();
-    entree.chronos.rechargeFauchage = 31000;
-    expect(etatFauchage(entree, true, 1000)).toEqual({ possede: false, raison: 'Nécessite la CT Fauchage.', rechargeS: 30 });
+    entree.chronos.rechargeFauchage = 21000;
+    expect(etatFauchage(entree, true, 1000)).toEqual({ possede: false, raison: 'Nécessite la CT Fauchage.', rechargeS: 20 });
     entree.ameliorations = ['falseSwipe'];
-    expect(etatFauchage(entree, true, 1000)).toEqual({ possede: true, raison: 'Inutile sur un boss !', rechargeS: 30 });
-    expect(etatFauchage(entree, false, 30999)).toEqual({ possede: true, raison: 'Recharge : 1 s', rechargeS: 1 });
-    expect(etatFauchage(entree, false, 31000)).toEqual({ possede: true, raison: undefined, rechargeS: 0 });
+    expect(etatFauchage(entree, true, 1000)).toEqual({ possede: true, raison: 'Inutile sur un boss !', rechargeS: 20 });
+    expect(etatFauchage(entree, false, 20999)).toEqual({ possede: true, raison: 'Recharge : 1 s', rechargeS: 1 });
+    expect(etatFauchage(entree, false, 21000)).toEqual({ possede: true, raison: undefined, rechargeS: 0 });
     const avant = structuredClone(entree);
     Object.freeze(entree.chronos);
     Object.freeze(entree);
     const resultat = declencherRecharge(entree, 40000);
-    expect(resultat.chronos.rechargeFauchage).toBe(70000);
+    expect(resultat.chronos.rechargeFauchage).toBe(60000);
     expect(entree).toEqual(avant);
+  });
+
+  it('plafonne la recharge d’une ancienne sauvegarde à 20 s', () => {
+    const entree = region();
+    entree.ameliorations = ['falseSwipe'];
+    entree.chronos.rechargeFauchage = 31000;
+    expect(etatFauchage(entree, false, 1000)).toEqual({ possede: true, raison: 'Recharge : 20 s', rechargeS: 20 });
   });
 });

@@ -3,17 +3,18 @@ import objets from '../data/objets.json';
 import fixture from './fixtures/v1-objets.json';
 import { reglages } from '../src/core/reglages';
 import { chargerObjets, prixObjet } from '../src/core/boutique';
+import { ECARTS_V1, prixAttendu } from './ecarts-v1';
 
 it('conserve les 31 objets V1 et convertit leurs zones', () => {
   expect(objets.length).toBe(31);
   expect(fixture.objets.length).toBe(31);
   for (const source of fixture.objets) {
     const objet = objets.find(entree => entree.id === source.id)!;
-    expect(objet.prix).toBe(source.prix);
+    expect(objet.prix).toBe(ECARTS_V1[source.id]?.prix ?? source.prix);
     expect(objet.type).toBe(source.type === 'consumable' ? 'consommable' : 'amelioration');
     expect(objet.zone).toBe(source.zone == null || source.zone === 99 ? null : fixture.zones[source.zone]);
     expect(objet.boutique).toBe(source.zone === 99 ? null : source.shop ?? 'shop');
-    expect(objet.sansInflation).toBe(source.noBadgeInflation);
+    expect(objet.sansInflation).toBe(ECARTS_V1[source.id]?.sansInflation ?? source.noBadgeInflation);
     expect(objet.inventaire).toBe(source.type === 'consumable' ? source.id === 'candy' ? 'bonbon' : source.id : null);
   }
   expect(fixture.zones.length).toBe(22);
@@ -24,7 +25,8 @@ it('calcule strictement chaque prix de la fixture V1', () => {
   const catalogue = chargerObjets();
   for (const cas of fixture.prix) {
     const objet = catalogue.find(entree => entree.id === cas.id)!;
-    expect(prixObjet(objet, { badges: cas.badges, palier: cas.palier })).toBe(cas.prix);
+    const source = fixture.objets.find(entree => entree.id === cas.id)!;
+    expect(prixObjet(objet, { badges: cas.badges, palier: cas.palier })).toBe(prixAttendu(source, cas.badges, cas.palier));
   }
 });
 

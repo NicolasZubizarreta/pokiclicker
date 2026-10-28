@@ -86,7 +86,7 @@ for (const largeur of [390, 1440, 1915]) {
     page.on('pageerror', e => erreurs.push(e.message));
     page.on('console', m => { if (m.type() === 'error') erreurs.push(m.text()); });
     await charger(page, 'kanto.arene-de-jadielle', 7);
-    for (const onglet of ['Combat', 'Équipe', 'Shop', 'Carte', 'Plus']) {
+    for (const onglet of ['Combat', 'Équipe', 'PC', 'Shop', 'Carte', 'Plus']) {
       await page.getByRole('button', { name: onglet, exact: true }).click();
       await expect(page.getByRole('main')).toBeVisible();
       await page.evaluate(() => Promise.all([...document.images].map(image => image.decode().catch(() => undefined))));

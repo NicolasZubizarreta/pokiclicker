@@ -19,7 +19,7 @@ const tris: [TriPc, string][] = [
   ['numero', 'Numéro'], ['nom', 'Nom'], ['niveau', 'Niveau'], ['favori', 'Favori'], ['shiny', 'Shiny'],
 ];
 
-export function PagePC({ retour }: { retour(): void }) {
+export function PagePC({ retour }: { retour?(): void }) {
   const pc = useStore(storeJeu, etat => etat.pc);
   const accesPc = useStore(storeJeu, etat => etat.accesPc);
   const equipe = useStore(storeJeu, etat => etat.equipe);
@@ -82,7 +82,7 @@ export function PagePC({ retour }: { retour(): void }) {
   }
 
   return <section className="mx-auto max-w-screen-xl text-base">
-    <button type="button" className="mb-4 min-h-11 bg-surface-2 px-4 py-2 hover:bg-selection" onClick={retour}>Retour</button>
+    {retour && <button type="button" className="mb-4 min-h-11 bg-surface-2 px-4 py-2 hover:bg-selection" onClick={retour}>Retour</button>}
     <h1 ref={titre} tabIndex={-1} className="font-titre text-2xl font-semibold">PC de Léo</h1>
     {!accesPc.ouvert ? <p className="mt-4">{accesPc.raison}</p> : <>
       <p className="mt-2 text-region-accent">{pc.length} Pokémon</p>

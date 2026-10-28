@@ -9,6 +9,10 @@ export type Ton = 'hit' | 'coin' | 'catch' | 'up' | 'pc';
 export type ReglagesSons = {
   actifParDefaut: boolean;
   volumeDb: number;
+  /** Curseur « Effets » d'une partie neuve, de 0 à 100. */
+  volumeParDefaut: number;
+  /** Deux tons identiques plus proches que cela n'en font qu'un (anti-bourdonnement). */
+  antiRebondMs: number;
   oscillateur: 'sine' | 'square' | 'sawtooth' | 'triangle';
   enveloppe: { attaque: number; declin: number; maintien: number; relachement: number };
   tempo: number;
@@ -119,6 +123,8 @@ export const reglages: {
 
 const sons = reglages.sons;
 if (!sons || typeof sons.actifParDefaut !== 'boolean' || !Number.isFinite(sons.volumeDb)
+  || !Number.isFinite(sons.volumeParDefaut) || sons.volumeParDefaut < 0 || sons.volumeParDefaut > 100
+  || !Number.isFinite(sons.antiRebondMs) || sons.antiRebondMs < 0
   || !Number.isFinite(sons.tempo) || sons.tempo <= 0
   || !['sine', 'square', 'sawtooth', 'triangle'].includes(sons.oscillateur)
   || !sons.enveloppe

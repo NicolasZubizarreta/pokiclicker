@@ -5,6 +5,7 @@ import type { Page } from './Navigation';
 import { EcranCombat } from './EcranCombat';
 import { PageCarte } from './PageCentre';
 import { PageEquipe } from './PageEquipe';
+import { PagePC } from './PagePC';
 import { PagePlus } from './PagePlus';
 import { PageShop } from './PageShop';
 import { storeJeu } from './store';
@@ -28,6 +29,7 @@ export function Coquille({ region = 'kanto', theme = 'dark' }: {
   const pantheon = useStore(storeJeu, etat => etat.pantheon);
   const obtentionBadge = useStore(storeJeu, etat => etat.obtentionBadge);
   const badges = useStore(storeJeu, etat => etat.progression.badges);
+  const pcOuvert = useStore(storeJeu, etat => etat.accesPc.ouvert);
   const [declencheur, memoriserDeclencheur] = useState<HTMLElement | null>(null);
   useEffect(() => storeJeu.subscribe((etat, avant) => {
     if (etat.obtentionBadge !== null && avant.obtentionBadge === null) {
@@ -60,12 +62,12 @@ export function Coquille({ region = 'kanto', theme = 'dark' }: {
       <a href="#contenu" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-20 focus:bg-surface focus:p-4 focus:text-lien">
         Aller au contenu
       </a>
-      <Navigation page={page} choisir={choisir} signalCarte={tutorielRoute1 && page !== 'Carte' && !introActive && !introVue} inerte={introActive || introVue || credits || !!pantheon?.ouvert} />
+      <Navigation page={page} choisir={choisir} pcOuvert={pcOuvert} signalCarte={tutorielRoute1 && page !== 'Carte' && !introActive && !introVue} inerte={introActive || introVue || credits || !!pantheon?.ouvert} />
       <main id="contenu" tabIndex={-1} className="mb-14 min-w-0 p-4 lg:mb-0 lg:ml-24 lg:p-8">
         <MiseAJour />
         {page !== 'Combat' && page !== 'Carte' && annonce !== null && <div role="status" aria-live="polite"
           className="cadre bg-surface p-2 text-center">{annonce}</div>}
-        {page === 'Combat' ? introVue || introActive ? <PageIntro quandTerminee={() => fixerIntroVue(false)} /> : <EcranCombat /> : page === 'Carte' ? <PageCarte quandArrive={() => choisir('Combat')} /> : page === 'Équipe' ? <PageEquipe /> : page === 'Plus' ? <PagePlus /> : <PageShop />}
+        {page === 'Combat' ? introVue || introActive ? <PageIntro quandTerminee={() => fixerIntroVue(false)} /> : <EcranCombat /> : page === 'Carte' ? <PageCarte quandArrive={() => choisir('Combat')} /> : page === 'Équipe' ? <PageEquipe /> : page === 'PC' ? <PagePC /> : page === 'Plus' ? <PagePlus /> : <PageShop />}
       </main>
       {/* La Carte reste montée jusqu’à la fin du vol ; l’évolution garde aussi la priorité. */}
       {!introActive && !introVue && page !== 'Carte' && !evolution && evenement?.type === 'dialogue'

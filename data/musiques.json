@@ -1,6 +1,7 @@
 {
   "actifParDefaut": true,
   "volumeDb": -18,
+  "volumeParDefaut": 30,
   "pistes": {
     "route": {
       "fichier": "audio/route.ogg", "boucle": true,

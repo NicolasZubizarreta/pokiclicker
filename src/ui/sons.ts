@@ -1,4 +1,5 @@
 import { reglages, type Ton } from '../core/reglages';
+import { volumes } from './volumes';
 
 export type { Ton } from '../core/reglages';
 
@@ -14,10 +15,13 @@ export function frequenceNote(note: string): number {
 export function creerSons({
   creerContexte = () => typeof AudioContext === 'undefined' ? undefined : new AudioContext(),
   estActif,
-}: { creerContexte?: () => AudioContext | undefined; estActif: () => boolean }) {
+  volume = () => 100,
+}: { creerContexte?: () => AudioContext | undefined; estActif: () => boolean; volume?: () => number }) {
   let contexte: AudioContext | undefined;
   let sortie: GainNode | undefined;
   let ferme = false;
+  const dernier = new Map<Ton, number>();
+  const gainSortie = () => 10 ** (reglages.sons.volumeDb / 20) * volume() / 100;
 
   return {
     async deverrouiller() {
@@ -27,16 +31,25 @@ export function creerSons({
         if (!contexte) return;
         if (!sortie) {
           sortie = contexte.createGain();
-          sortie.gain.setValueAtTime(10 ** (reglages.sons.volumeDb / 20), contexte.currentTime);
+          sortie.gain.setValueAtTime(gainSortie(), contexte.currentTime);
           sortie.connect(contexte.destination);
         }
         if (contexte.state === 'suspended') await contexte.resume();
       } catch { /* Audio indisponible ou geste refusé par le navigateur. */ }
     },
+    /** À appeler quand le curseur d'effets bouge : le volume change sans attendre le prochain ton. */
+    ajusterVolume() {
+      if (ferme || !contexte || !sortie) return;
+      sortie.gain.setValueAtTime(gainSortie(), contexte.currentTime);
+    },
     jouer(ton: Ton) {
       if (ferme || !estActif() || contexte?.state !== 'running' || !sortie) return;
-      const { enveloppe, tempo, oscillateur, tons } = reglages.sons;
+      const { enveloppe, tempo, oscillateur, tons, antiRebondMs } = reglages.sons;
       const maintenant = contexte.currentTime;
+      // Le même ton joué en rafale (capture, montée de niveau) ne s'empile pas : il bourdonne.
+      const precedent = dernier.get(ton);
+      if (precedent !== undefined && (maintenant - precedent) * 1000 < antiRebondMs) return;
+      dernier.set(ton, maintenant);
       const duree = 60 / tempo * 4 / Number(tons[ton].duree.slice(0, -1));
       const attaque = Math.min(enveloppe.attaque, duree);
       const declin = Math.min(enveloppe.declin, duree - attaque);
@@ -70,8 +83,9 @@ export function creerSons({
 export function brancherSons(store: {
   getState: () => { sonActive: boolean };
   abonnerSons: (abonne: (ton: Ton) => void) => () => void;
-}) {
-  const sons = creerSons({ estActif: () => store.getState().sonActive });
+}, niveaux: Pick<typeof volumes, 'lire' | 'abonner'> = volumes) {
+  const sons = creerSons({ estActif: () => store.getState().sonActive, volume: () => niveaux.lire('effets') });
   const desabonner = store.abonnerSons(sons.jouer);
-  return { ...sons, fermer: async () => { desabonner(); await sons.fermer(); } };
+  const desabonnerVolume = niveaux.abonner(sons.ajusterVolume);
+  return { ...sons, fermer: async () => { desabonner(); desabonnerVolume(); await sons.fermer(); } };
 }

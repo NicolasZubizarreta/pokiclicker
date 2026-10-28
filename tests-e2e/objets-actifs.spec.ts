@@ -102,7 +102,7 @@ test('Fauchage : un PV, recharge ; Poupée : boss invoqué', async ({ page }) =>
   await fauchage.click();
   await expect(fauchage).toHaveAttribute('aria-pressed', 'true');
   await expect(fauchage).toBeDisabled();
-  await expect(page.getByText('Recharge : 30 s', { exact: true })).toBeVisible();
+  await expect(page.getByText('Recharge : 20 s', { exact: true })).toBeVisible();
   const pv = page.getByRole('progressbar', { name: /^PV/ });
   for (let appui = 0; appui < 100 && await pv.getAttribute('aria-valuenow') !== '1'; appui++) {
     await page.clock.runFor(90);
@@ -112,7 +112,7 @@ test('Fauchage : un PV, recharge ; Poupée : boss invoqué', async ({ page }) =>
   await page.clock.runFor(90);
   await page.getByRole('button', { name: /^Attaquer / }).click();
   await expect(pv).toHaveAttribute('aria-valuenow', '1');
-  await page.clock.fastForward(30000);
+  await page.clock.fastForward(20000);
   await expect(fauchage).toBeEnabled();
   await utiliser(page, 'Poké Poupée');
   await expect(page.getByRole('status').filter({ hasText: 'Boss invoqué !' })).toHaveText('Boss invoqué !');

@@ -5,16 +5,28 @@ import { Diplome } from './Diplome';
 import { creditPiste, musiques } from '../core/musiques';
 import { musique } from './musique';
 import { formaterDps } from './nombres';
-import { PagePC } from './PagePC';
 import { Pokedex } from './Pokedex';
 import { storeJeu } from './store';
 import { formaterProchainPalier } from './store-progression';
+import { volumes, type Canal } from './volumes';
+
+function CurseurVolume({ canal, libelle }: { canal: Canal; libelle: string }) {
+  const valeur = useSyncExternalStore(volumes.abonner, () => volumes.instantane()[canal]);
+  return <label className="flex min-h-11 flex-wrap items-center justify-between gap-x-4 bg-surface-2 px-4 py-2">
+    <span>{libelle}</span>
+    <span className="flex w-full items-center gap-2 sm:w-auto">
+      <input type="range" min={0} max={100} step={5} value={valeur} aria-valuetext={`${valeur} %`}
+        onChange={evenement => volumes.definir(canal, Number(evenement.target.value))}
+        className="min-h-11 flex-1 accent-region-accent sm:w-48 sm:flex-none" />
+      <span className="w-12 text-right text-region-accent">{`${valeur} %`}</span>
+    </span>
+  </label>;
+}
 
 export function PagePlus() {
   const diplome = useStore(storeJeu, etat => etat.fin.diplome);
   const [diplomeOuvert, ouvrirDiplome] = useState(false);
-  const [sousPage, choisir] = useState<null | 'pc' | 'pokedex' | 'badges'>(null);
-  const accesPc = useStore(storeJeu, etat => etat.accesPc);
+  const [sousPage, choisir] = useState<null | 'pokedex' | 'badges'>(null);
   const progression = useStore(storeJeu, etat => etat.progression);
   const lieu = useStore(storeJeu, etat => etat.lieu);
   const dps = useStore(storeJeu, etat => etat.dps);
@@ -23,13 +35,12 @@ export function PagePlus() {
   const reglagesId = useId();
   const { nombre, total } = progression.pokedex;
   const conteneur = useRef<HTMLDivElement>(null);
-  const raisonId = useId();
   const aventureId = useId();
   const pokedexId = useId();
   const compteurId = useId();
 
   const monte = useRef(false);
-  const entree = useRef<'pc' | 'pokedex' | 'badges'>('pc');
+  const entree = useRef<'pokedex' | 'badges'>('pokedex');
   useEffect(() => {
     // Pas de déplacement du focus au premier rendu : seul le changement de sous-page compte.
     if (!monte.current) { monte.current = true; return; }
@@ -39,8 +50,7 @@ export function PagePlus() {
   }, [sousPage]);
 
   return <div ref={conteneur}>
-    {sousPage === 'pc' ? <PagePC retour={() => choisir(null)} />
-      : sousPage === 'pokedex' ? <Pokedex retour={() => choisir(null)} />
+    {sousPage === 'pokedex' ? <Pokedex retour={() => choisir(null)} />
         : sousPage === 'badges' ? <section className="mx-auto max-w-screen-xl space-y-4 text-base">
           <button type="button" onClick={() => choisir(null)}
             className="min-h-11 bg-surface-2 px-4 py-2 hover:bg-selection">Retour</button>
@@ -59,12 +69,6 @@ export function PagePlus() {
             </dl>
           </section>
           <ul className="mt-4 grid gap-4">
-            <li>
-              <button type="button" disabled={!accesPc.ouvert} aria-describedby={!accesPc.ouvert ? raisonId : undefined}
-                className="cadre min-h-11 w-full bg-surface p-4 text-left enabled:hover:bg-selection disabled:text-texte-doux"
-                data-entree="pc" onClick={() => { entree.current = 'pc'; choisir('pc'); }}>PC de Léo</button>
-              {!accesPc.ouvert && <p id={raisonId} className="mt-2 text-texte-doux">{accesPc.raison}</p>}
-            </li>
             <li>
               <button type="button" className="cadre flex min-h-11 w-full flex-wrap items-center justify-between gap-2 bg-surface p-4 text-left hover:bg-selection"
                 aria-labelledby={`${pokedexId} ${compteurId}`}
@@ -91,6 +95,8 @@ export function PagePlus() {
               className="flex min-h-11 w-full items-center justify-between gap-2 bg-surface-2 px-4 py-2 text-left hover:bg-selection">
               <span>Musique</span><span className="text-region-accent">{musiqueActive ? 'Activée' : 'Coupée'}</span>
             </button>
+            <CurseurVolume canal="effets" libelle="Volume des effets" />
+            <CurseurVolume canal="musique" libelle="Volume de la musique" />
             <details className="bg-surface-2 px-4 py-2">
               <summary className="min-h-11 cursor-pointer py-2">Crédits des musiques</summary>
               <div className="space-y-2 pb-2">

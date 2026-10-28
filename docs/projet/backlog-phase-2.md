@@ -22,7 +22,8 @@ Jalon : **Kanto terminable** (`docs/plan.md`). Brouillon du 24/10/2026, validé 
    - le Jeton Shiny dit « force la prochaine rencontre » mais transforme un Pokémon de l'équipe en shiny : le texte est corrigé, la règle (transformer un Pokémon de l'équipe) est conservée ;
    - l'évolution ne recalcule pas l'XP maximale du Pokémon : recalculée ;
    - l'easter egg Évoli → Voltali/Aquali/Pyroli est inatteignable (Évoli absent de `EVOLUTIONS`) : rendu atteignable par l'évolution par pierre ;
-   - le bonus « Johnny » (+50 % contre le type Ténèbres) ne sert à rien en génération 1 : non porté, noté.
+   - le bonus « Johnny » (+50 % contre le type Ténèbres) ne sert à rien en génération 1 : non porté, noté ;
+   - écarts décidés par Nicolas le 28/10 (ticket AA et AC) : le Calcium coûte 20 000 (50 000 en V1), les cinq pierres d'évolution (Pierre Feu, Eau, Plante, Foudre, Lune) n'ont plus d'inflation par badge, la recharge du Fauchage passe de 30 à 20 s, et le clic sur l'ennemi ne fait plus de son. Les fixtures de la V1 gardent les valeurs d'origine ; `tests/ecarts-v1.ts` liste ces écarts.
 4. **Rival, Ronflex, Pokéflûte** (ADR 0002, points ouverts) : **non tranchés**. Le ticket S reste « prêt sous condition » : Nicolas répond à « Ronflex : combat avant le passage ou réveil seul ? » et « rival : combat obligatoire ou facultatif ? ». La V1 n'a ni Ronflex bloquant ni rival scénarisé (le rival n'est qu'un boss de zone).
 5. **Triche de la V1** (mot de passe en clair dans `cheats.js`) : **non portée**. Le ticket Y n'utilise aucune triche : il charge des sauvegardes de test à des étapes précises.
 6. **Pages nouvelles** : trois variantes par page, en une fois pour les pages communes (ticket B), puis dans chaque ticket annexe.
@@ -840,3 +841,382 @@ Essai de Nicolas (jalon humain, hors CI), équilibrage fin.
 
 ### Effort et risques
 Fourchette : 1 à 2 jours. Risque : fragile si les temps de combat varient ; utiliser l'horloge simulée de l'interface de test. Dépend de : A à W et Z.
+
+---
+
+# Retours d'essai du 28/10/2026 (rapport 2)
+
+Source : `docs/projet/essai-nicolas-28-10-rapport-2.md` (34 points de Nicolas, recopiés mot pour mot, plus les vérifications faites dans le code). Nicolas a joué de la Route 1 à la Sylphe SARL. Tickets AA à AL, tous `etat:idee` tant que Nicolas ne les a pas passés en « prêt ». Rien n'est codé, rien n'est créé sur un dépôt distant. Le numéro entre crochets renvoie au point du rapport.
+
+Règles communes à ces tickets :
+- Toute valeur de jeu vient de `data/*.json`, jamais du code. Une règle qui s'écarte de la V1 est annoncée dans le ticket et approuvée par Nicolas (c'est le cas de AA et AB).
+- Tout ticket d'interface renvoie à `design/DESIGN.md`. Captures à 390 et 1440 px (et 1915 px pour l'écran de combat) regardées avant de montrer.
+- AE, AF, AG et AJ touchent à des écrans : trois variantes navigables à choisir par Nicolas avant le code (règle de `CLAUDE.md`), dans la vraie appli et pas sur des captures.
+
+Ordre conseillé : AA, AC, AD, AK, AL (petits, sans variantes), puis AB (simulation), AE à AG (écran de combat, variantes), AH, AI, AJ.
+
+| Lot | Tickets | Points du rapport |
+|---|---|---|
+| A. Valeurs et règles | AA, AB | 6, 10, 17, 18, 23, 24, 27, 31, 32, 33 |
+| B. Écran de combat | AE, AF, AG, AD | 1, 4, 11, 12, 15, 16, 19, 20, 21, 26, 28 |
+| C. Sons | AC | 2, 3 |
+| D. Narration et notifications | AH, AI, AJ | 5, 7, 14, 22, 25, 30 |
+| E. Divers | AK, AL | 9, 29 |
+
+---
+
+## AA. `fix(regles): calcium à 20 000, pierres à prix fixe et recharge du Fauchage à 20 s`
+
+Labels : `type:fix`, `etat:fait`, `est:0.5-1`, `prio:1` · branche : `fix/aa-prix-calcium-pierres-fauchage` · `agent-ok` : oui (fait le 28/10, commit local, non poussé ; Pierre Stase laissée à 10 000 avec inflation, question posée à Nicolas)
+
+### Histoire
+En tant que joueur, je veux un Calcium à 20 000, des Pierres d'évolution qui restent à 10 000 et un Fauchage qui se recharge en 20 s afin que ces objets soient accessibles au rythme où le jeu donne l'argent. [23, 24, 32]
+
+### Contexte
+Valeurs actuelles, identiques à la V1 : Calcium 50 000 sans inflation (`data/objets.json`, id `calcium`), les cinq pierres 10 000 mais **avec** l'inflation de 5 % par badge (`data/reglages.json`, `boutique.inflationParBadge`, `sansInflation: false`), Fauchage `objetsActifs.rechargeFauchageMs` 30 000. À la Sylphe SARL (au moins 6 badges) une pierre coûte donc déjà 13 000 ou plus : c'est probablement ce que Nicolas a vu. **Écarts avec la V1 voulus par Nicolas**, à noter dans « Corrections de la V1 » en tête du backlog. Fichiers : `data/objets.json`, `data/reglages.json`, tests `src/core/boutique.test.ts` et les tests de fidélité qui lisent les prix de la V1 (`tests/progression-fidelite.test.ts`, à adapter avec la raison de l'écart).
+
+### Critères d'acceptation
+- [ ] Étant donné le Centre commercial ouvert, quand je regarde le Calcium, alors son prix est 20 000, quel que soit le nombre de badges.
+- [ ] Étant donné 0 puis 8 badges, quand je regarde chaque Pierre (Feu, Eau, Plante, Foudre, Lune), alors le prix est 10 000 dans les deux cas.
+- [ ] Étant donné un Fauchage utilisé, quand 20 s se sont écoulées, alors il est de nouveau disponible ; à 19,9 s il ne l'est pas.
+- [ ] Étant donné une sauvegarde où le Fauchage était en recharge avec l'ancienne durée, quand je la charge, alors le chrono restant ne dépasse pas 20 s.
+- [ ] Étant donné les tests de fidélité à la V1, quand ils tournent, alors les trois écarts sont listés comme « écarts voulus » avec la décision de Nicolas du 28/10, et rien d'autre ne change.
+
+### Hors périmètre
+Inflation des autres objets, autres prix du Centre commercial, durée d'effet des objets actifs (30 s).
+
+### Vérification
+`npx.cmd vitest run --configLoader runner --no-file-parallelism src/core/boutique.test.ts tests/progression-fidelite.test.ts` puis `npm.cmd run ci`.
+
+### Effort et risques
+Fourchette : 0,5 à 1 jour. Risque : question à confirmer par Nicolas, « pierres à 10k » veut-il dire sans inflation ? Dépend de : rien.
+
+---
+
+## AB. `feat(equilibrage): argent ×2, début de partie plus exigeant, fin de Kanto 20 % plus douce`
+
+Labels : `type:feat`, `etat:idee`, `est:2-3`, `prio:1` · branche : `feat/ab-equilibrage-28-10` · `agent-ok` : **non, relecture humaine** (change les règles de jeu)
+
+### Histoire
+En tant que joueur, je veux que les deux premières zones demandent de jouer, que la suite se paie avec l'argent gagné en jouant et que Kanto après la Centrale soit environ 20 % moins dur afin que les bonus du Pokédex et du Shop comptent sans bloquer. [6, 10, 18, 31, 33, 27]
+
+### Contexte
+Retours de Nicolas : début « beaucoup trop facile, on n'a même pas besoin de cliquer » (zones 1 et 2) ; à partir du Mont Sélénite « ça va » ; à partir de la Centrale « un peu trop dur, mes Pokémon sont over level, je ne peux pas battre les boss sans Attaque + et Attaque Spé + » alors que son Pokédex est presque rempli ; argent « un peu trop dur à avoir », il propose ×2 sur les gains globaux, sinon l'XP monte trop vite par rapport à ce qu'on peut acheter ; « 20 % moins dur ou quelque chose comme ça » ; les bonus du Pokédex et du Shop doivent être « quasiment indispensables ». Aujourd'hui : l'or d'un ennemi vaincu vient de `data/reglages.json` (`recompenses.or`, avec `coefNiveau` 4 et `exposant` 1,4), le ×2 de la V1 n'existe que sur la capture (`src/core/capture.ts:70`). PV des ennemis par `zone.multiplicateurPv` dans `data/regions/kanto/zones.json` et `combat.pvParNiveau`. **Ce ticket modifie des règles de jeu** : Nicolas valide les chiffres proposés avant de les appliquer. Il recoupe la phase 3 (« Kanto en 60-90 min à 7 clics/s ») : il prépare l'outil de simulation que la phase 3 réutilisera au lieu de le refaire.
+
+### Critères d'acceptation
+- [ ] Étant donné un joueur à 7 clics/s qui suit le parcours normal, quand le simulateur (`scripts/simuler-parcours.mjs`, nouveau, appelle `src/core` sans DOM) joue Kanto, alors il sort un tableau par zone : temps passé, niveau moyen de l'équipe, argent gagné, argent dépensé, victoire ou échec du boss.
+- [ ] Étant donné les zones 1 et 2 (Route 1 et Forêt de Jade), quand le simulateur joue sans aucun clic, alors le boss n'est pas battu dans les 30 s avec l'équipe de départ ; avec 7 clics/s il l'est.
+- [ ] Étant donné la Centrale et les zones suivantes, quand le simulateur joue avec le Pokédex tel qu'il est à ce moment du parcours et sans Attaque + ni Attaque Spé +, alors les boss sont battus avec une marge d'environ 20 % de moins qu'avant le changement (marge mesurée : PV du boss ÷ dégâts cumulés en 30 s).
+- [ ] Étant donné un joueur sans les bonus du Pokédex ni les objets du Shop (Attaque +, Attaque Spé +, Restes, Protéine…), quand le simulateur joue à partir de la Centrale, alors il échoue sur au moins un boss ; avec eux il passe. Les bonus sont donc utiles sans être bloquants pour un joueur qui sait s'en servir.
+- [ ] Étant donné un ennemi vaincu, quand l'or est calculé, alors tous les gains (ennemi, boss, capture, shiny) sont multipliés par 2, la capture ne l'est pas deux fois ; la valeur vient de `data/reglages.json`.
+- [ ] Étant donné les zones 1 à 10, quand le simulateur joue, alors l'argent gagné dans une zone permet d'acheter les balles et les objets de cette zone sans refaire la zone précédente (critère mesuré : temps de farm hors progression inférieur à 20 % du temps total).
+- [ ] Étant donné 10 000 rencontres simulées dans chaque zone qui a un légendaire, quand le simulateur les compte, alors la fréquence mesurée de chaque légendaire est celle des données (Mew 1 %, Artikodin 2 %, Électhor, Sulfura et Mewtwo 5 %) à un écart près de la statistique, et la table est jointe à `docs/projet/equilibrage-28-10.md`.
+- [ ] Étant donné la sauvegarde d'un joueur existant, quand je la charge, alors rien n'est modifié dans son argent ni ses niveaux.
+
+### Hors périmètre
+Refonte complète de l'équilibrage (phase 3), nouveaux objets, difficulté des zones après la Ligue, mode de difficulté choisi par le joueur.
+
+### Vérification
+`node scripts/simuler-parcours.mjs --clics 7` (tableau joint à `docs/projet/equilibrage-28-10.md`) ; tests `src/core/recompenses.test.ts`, `src/core/ennemis.test.ts` ; essai de Nicolas de la Route 1 à la Sylphe.
+
+### Effort et risques
+Fourchette : 2 à 3 jours. Risques : les cibles (« 20 % ») sont à interpréter ; le simulateur doit reproduire la boucle de jeu sans copier sa logique (le brancher sur `src/core/loop.ts`). Je propose les chiffres, Nicolas tranche avant le code. Dépend de : AA (mêmes fichiers `data/reglages.json` et `data/objets.json`).
+
+---
+
+## AC. `fix(son): retirer le son de clic, régler le volume du son et de la musique`
+
+Labels : `type:fix`, `etat:fait`, `est:1-1.5`, `prio:1` · branche : `fix/ac-sons-volumes` · `agent-ok` : oui (fait le 28/10 ; volumes de départ 40 / 30 et anti-rebond 80 ms dans `data/`, à ajuster à l'écoute)
+
+### Histoire
+En tant que joueur qui clique vite, je veux que le clic ne fasse plus de bruit continu et pouvoir régler le volume des effets et de la musique afin de jouer sans me fatiguer les oreilles. [2, 3]
+
+### Contexte
+Le son de clic de la V1 est repris dans `src/ui/sons.ts` ; à 12 clics/s il bourdonne. La musique est dans `src/ui/musique.ts` (pistes dans `data/musiques.json`). `PagePlus.tsx` a aujourd'hui un interrupteur « Son » et un pour la musique, pas de volume. Nicolas dit aussi que le volume par défaut est « trop fort ». Fichiers : `src/ui/sons.ts`, `src/ui/musique.ts`, `src/ui/PagePlus.tsx`, `src/core/sauvegarde-types.ts` (préférences), `data/reglages.json`. Les durées et le volume viennent des données.
+
+### Critères d'acceptation
+- [ ] Étant donné un clic sur l'ennemi, quand je clique, alors aucun son n'est joué ; la mort d'un ennemi, la capture, le niveau gagné et l'envoi au PC gardent leur son.
+- [ ] Étant donné deux sons identiques déclenchés à moins de 80 ms l'un de l'autre, quand ils arrivent, alors un seul est joué (durée dans `data/reglages.json`).
+- [ ] Étant donné la page Plus, quand je l'ouvre, alors deux curseurs « Effets » et « Musique » de 0 à 100 existent, chacun avec son libellé et sa valeur en pourcentage, utilisables au clavier et au toucher (cible de 44 px).
+- [ ] Étant donné une partie neuve, quand je lance le jeu, alors les effets sont à 40 et la musique à 30 (valeurs de départ dans `data/reglages.json`, à ajuster par Nicolas à l'écoute).
+- [ ] Étant donné un réglage modifié, quand je recharge la page, alors les deux valeurs sont conservées (préférence de l'appareil, pas de la région).
+- [ ] Étant donné une ancienne sauvegarde sans volume, quand je la charge, alors les valeurs de départ s'appliquent sans erreur.
+
+### Hors périmètre
+Nouvelles pistes, égaliseur, son par type d'événement.
+
+### Vérification
+`npx.cmd vitest run --configLoader runner --no-file-parallelism src/ui/sons.test.ts src/ui/musique.test.ts` ; `tests/sons-fidelite.test.ts` adapté (le son de clic n'existe plus : écart voulu, noté) ; essai de Nicolas au casque.
+
+### Effort et risques
+Fourchette : 1 à 1,5 jour. Risque : un test de fidélité aux sons de la V1 devra accepter l'écart. Dépend de : rien.
+
+---
+
+## AD. `feat(navigation): le PC dans la barre de navigation, grisé jusqu'à Argenta`
+
+Labels : `type:feat`, `etat:fait`, `est:1-1.5`, `prio:2` · branche : `feat/ad-pc-navigation` · `agent-ok` : oui (fait le 28/10 ; écart au ticket : l'entrée grisée ouvre la page PC qui donne la raison, au lieu d'une annonce sans changer de page ; pas d'`aria-disabled`, question posée à Nicolas)
+
+### Histoire
+En tant que joueur, je veux le PC dans la barre de navigation, grisé tant que je n'ai pas battu le boss d'Argenta afin de le trouver sans fouiller le menu Plus et de savoir qu'il viendra. [4]
+
+### Contexte
+`src/ui/Navigation.tsx` liste les entrées de la barre ; `PagePC.tsx` est aujourd'hui atteint par `PagePlus.tsx`. La règle d'ouverture est dans `data/reglages.json` (`pc.zone` = `kanto.arene-d-argenta`, `pc.raison`). Le Plus n'est pas encore décidé pour la barre à 5 entrées sur mobile : vérifier la place à 390 px (cible de 44 px, `design/DESIGN.md`).
+
+### Critères d'acceptation
+- [ ] Étant donné une partie avant Argenta, quand je regarde la barre, alors « PC » est visible, grisé, et un toucher affiche la raison « Le PC de Léo s'ouvre à l'Arène d'Argenta. » sans changer de page.
+- [ ] Étant donné le boss d'Argenta battu, quand je regarde la barre, alors « PC » est actif et ouvre `PagePC`.
+- [ ] Étant donné la page Plus, quand je l'ouvre, alors le PC n'y est plus listé (pas de doublon).
+- [ ] Étant donné 390 px de large, quand je regarde la barre, alors toutes les entrées tiennent sans défilement horizontal, chacune avec une cible d'au moins 44 px.
+- [ ] Étant donné le clavier, quand je navigue avec Tab, alors l'entrée grisée reste atteignable et annonce sa raison (`aria-disabled`, pas `disabled`).
+
+### Hors périmètre
+Refonte de la barre, ordre des autres entrées.
+
+### Vérification
+`src/ui/Navigation.test.tsx`, e2e `tests-e2e/navigation.spec.ts` (390 et 1440 px) ; capture jointe.
+
+### Effort et risques
+Fourchette : 1 à 1,5 jour. Risque : place sur mobile. Dépend de : rien.
+
+---
+
+## AE. `feat(combat): boutons d'action en icônes, entre « Ton équipe » et le DPS`
+
+Labels : `type:feat`, `etat:idee`, `est:2-3`, `prio:1` · branche : `feat/ae-actions-icones` · `agent-ok` : oui après le choix des variantes
+
+### Histoire
+En tant que joueur, je veux les actions du combat (Auto-clic, Auto-attaque, Arrêt auto et ses réglages, Fauchage, Poké-Radar) sous forme d'icônes à côté de l'équipe, et seulement quand elles sont débloquées afin que l'écran ne ressemble plus à une zone de test. [1, 20, 21, 28]
+
+### Contexte
+Capture du rapport : `EcranCombat.tsx` empile des gros boutons « Pokéball ×5 », « Capturer », « Auto-attaque », « Auto-clic — Nécessite l'objet Restes », « Arrêt auto », « Réglages de l'arrêt », « Fauchage — Nécessite la CT Fauchage », « Poké-Radar — Nécessite le Poké-Radar ». Nicolas veut, comme dans sa V1, des icônes placées entre le titre « Ton équipe » et le nombre de DPS ; Auto-clic verrouillé de base (visible mais grisé), Fauchage et Poké-Radar invisibles tant que l'objet manque. Il dit aussi « je préférais l'interface de la V1 ou du moins son agencement ». Fichiers : `src/ui/EcranCombat.tsx`, `src/ui/OutilsCombat.tsx`, `src/ui/ReglagesCombat.tsx`, `src/ui/icones.tsx`, `src/ui/CarteEquipe.tsx`. V1 : `legacy/index.html` (barre d'équipe) et `legacy/js/ui/controls.js`.
+
+### Première étape, avant tout code
+Trois variantes navigables de l'écran de combat (390 et 1440 px) : (1) agencement de la V1 repris à l'identique, adapté à la charte ; (2) icônes dans l'en-tête de l'équipe, balles et Capturer regroupées sous l'ennemi ; (3) barre d'actions flottante. Nicolas choisit dans la vraie appli. Le choix est noté dans `docs/projet/choix-variantes-b.md`.
+
+### Critères d'acceptation
+- [ ] Étant donné la variante choisie, quand je joue la Route 1 sans Restes, alors Auto-attaque et Arrêt auto sont des icônes actives, Auto-clic est une icône grisée avec l'infobulle « Nécessite l'objet Restes », Fauchage et Poké-Radar n'apparaissent pas.
+- [ ] Étant donné la CT Fauchage achetée, quand je reviens au combat, alors l'icône Fauchage apparaît ; de même pour le Poké-Radar.
+- [ ] Étant donné chaque icône, quand je la survole, la touche ou la focalise, alors un libellé en français dit ce qu'elle fait et son état (activée, désactivée, en recharge avec les secondes restantes pour le Fauchage).
+- [ ] Étant donné les actions de capture, quand je regarde l'écran, alors le choix de la balle et « Capturer » sont regroupés près de l'ennemi, sans bloc de texte long.
+- [ ] Étant donné 390, 1440 et 1915 px, quand je capture l'écran, alors aucune icône ne fait moins de 44 px, rien ne défile horizontalement, aucun bouton ne dépasse de sa zone.
+- [ ] Étant donné les actions existantes (auto-attaque, arrêt auto, fauchage, radar), quand je les utilise, alors leur comportement est celui d'avant (aucune règle de jeu changée).
+
+### Hors périmètre
+Nouveaux pouvoirs, autres pages, icônes de la page Plus.
+
+### Vérification
+`src/ui/EcranCombat.test.tsx`, `OutilsCombat.test.tsx`, e2e `combat.spec.ts` ; captures aux trois tailles regardées avant de les montrer ; `tests/ui-valeurs-en-dur.test.ts` vert.
+
+### Effort et risques
+Fourchette : 2 à 3 jours après le choix. Risque : lisibilité des icônes seules sur mobile (infobulles tactiles). Dépend de : AD ne bloque pas ; AF et AG réutilisent le choix de ce ticket, à lancer ensuite.
+
+---
+
+## AF. `feat(ui): icône du Poké-Radar, raretés en couleurs, pastille « capturé » et crayon de renommage`
+
+Labels : `type:feat`, `etat:idee`, `est:2-3`, `prio:2` · branche : `feat/af-radar-raretes-captures-renommage` · `agent-ok` : oui
+
+### Histoire
+En tant que joueur, je veux une vraie icône de Poké-Radar, des raretés qui se distinguent par la couleur, une pokéball à côté des Pokémon déjà capturés et un crayon pour renommer afin de lire les listes d'un coup d'œil et d'atteindre les easter eggs. [15, 16, 19]
+
+### Contexte
+`FenetreRadar.tsx` liste les Pokémon d'une zone avec une étiquette de rareté toute grise (capture du rapport : Commun, Peu Commun, Rare, Très Rare identiques). La V1 avait une icône de radar, une pokéball à côté des capturés et un crayon (`legacy/js/ui/summary.js`, `render.js`). Le renommage existe dans `FichePokemon.tsx` mais sans crayon visible, donc les easter eggs sont introuvables. Couleurs : jetons de `design/tokens.css` (une couleur par rareté, vérifier le contraste à 4,5 sur le fond des cartes) ; pas de couleur en dur. Les icônes sont des SVG locaux dans `src/ui/icones.tsx` ; aucune image externe.
+
+### Critères d'acceptation
+- [ ] Étant donné la liste du Poké-Radar, quand je l'ouvre, alors chaque rareté (Commun, Peu Commun, Rare, Très Rare, Légendaire) a sa couleur et son libellé texte (la couleur n'est jamais seule), contraste d'au moins 4,5.
+- [ ] Étant donné un Pokémon déjà capturé, quand il apparaît dans la liste du Poké-Radar, le Pokédex ou le nom de l'ennemi à l'écran, alors une petite pokéball est affichée à côté de son nom avec le libellé accessible « Déjà capturé » ; absente sinon.
+- [ ] Étant donné le Poké-Radar, quand je regarde le bouton d'ouverture, alors c'est l'icône de radar (pas un bouton texte au milieu de l'écran), avec un libellé accessible.
+- [ ] Étant donné un Pokémon de l'équipe, quand je regarde son nom (carte d'équipe et fiche), alors un crayon est à côté ; au toucher, un champ de saisie s'ouvre avec le nom actuel, Entrée valide, Échap annule, 12 caractères au plus (valeur de la V1).
+- [ ] Étant donné le nom « dinnerbone », « grumm », « jeb_ » ou « caca », quand je le valide, alors l'effet correspondant de la V1 s'applique (déjà codé dans `src/core/easter-eggs.ts` : le test existant reste vert).
+- [ ] Étant donné 390 et 1440 px, quand je capture les trois écrans, alors rien ne dépasse et les cibles font au moins 44 px.
+
+### Hors périmètre
+Nouveaux easter eggs, changement des règles de rareté.
+
+### Vérification
+`src/ui/FenetreRadar.test.tsx`, `FichePokemon.test.tsx`, `CarteEquipe.test.tsx` ; e2e de renommage ; captures regardées.
+
+### Effort et risques
+Fourchette : 2 à 3 jours. Risque : trouver des couleurs de rareté lisibles dans la charte sans en inventer ; à défaut, poser la question avant. Dépend de : rien (indépendant du choix de AE).
+
+---
+
+## AG. `feat(evolution): notifier l'évolution possible et l'offrir depuis le combat, avec un accès au Sac`
+
+Labels : `type:feat`, `etat:idee`, `est:2-3`, `prio:1` · branche : `feat/ag-evolution-combat-sac` · `agent-ok` : oui après le choix des variantes de AE
+
+### Histoire
+En tant que joueur, je veux être prévenu qu'un Pokémon peut évoluer, le faire évoluer depuis l'écran de combat et ouvrir le Sac sans quitter le combat afin de ne pas passer 30 niveaux sans savoir qu'il fallait aller dans Équipe. [12, 26]
+
+### Contexte
+Nicolas a des Pokémon niveau 30 qui n'ont pas évolué : l'évolution se fait dans `PageEquipe.tsx` / `FichePokemon.tsx` (règles dans `src/core/evolution.ts`, store `store-evolution.ts`), sans aucun signal. Il note « animation évolution niquel » : `SpriteEvolution.tsx` ne change pas. Le Sac (`Sac.tsx`) n'est affiché que dans `PageEquipe.tsx` : il dit « on n'a pas de sac d'objet ?? » alors que la règle l'ouvre à la Route 1 (`data/reglages.json`, `sac.zone`). Fichiers : `src/ui/EcranCombat.tsx`, `src/ui/CarteEquipe.tsx`, `src/ui/Sac.tsx`, `src/ui/store-evolution.ts`, `src/ui/Coquille.tsx` (annonces).
+
+### Critères d'acceptation
+- [ ] Étant donné un Pokémon de l'équipe qui atteint le niveau d'évolution, quand il le franchit, alors une annonce « <nom> peut évoluer ! » apparaît une seule fois (rejeu non répété au rechargement) et sa carte d'équipe porte un repère visible.
+- [ ] Étant donné ce repère, quand je le touche depuis l'écran de combat, alors l'évolution se lance avec l'animation existante, sans changer de page, et l'XP maximale est recalculée comme aujourd'hui.
+- [ ] Étant donné un Pokémon évolutif par pierre, quand j'ai la pierre dans le Sac, alors le repère propose « Utiliser la <pierre> » sur sa carte ; sans pierre, rien ne s'affiche.
+- [ ] Étant donné la Pierre Stase équipée, quand le niveau d'évolution est atteint, alors aucune annonce ni repère n'apparaît.
+- [ ] Étant donné le Sac ouvert (zone Route 1), quand je regarde l'écran de combat, alors un accès au Sac est présent (icône avec le nombre d'objets), s'ouvre en panneau sur l'écran de combat, se ferme en revenant au combat sans perdre l'ennemi ; avant la Route 1, l'accès n'existe pas.
+- [ ] Étant donné un clavier, quand j'ouvre le panneau, alors le focus y entre, Échap le ferme et le focus revient sur l'accès.
+
+### Hors périmètre
+Évolutions par échange, nouvelles pierres, Sac redessiné (page Équipe inchangée).
+
+### Vérification
+`src/ui/store-evolution.test.ts`, `Sac.test.tsx`, e2e `evolution.spec.ts` (390 et 1440 px) ; capture.
+
+### Effort et risques
+Fourchette : 2 à 3 jours. Risque : où poser le repère sans surcharger l'écran de AE ; décidé avec la variante choisie. Dépend de : AE (agencement).
+
+---
+
+## AH. `feat(annonces): prévenir quand le PC, le Centre commercial, le Casino ou une fonction se débloque`
+
+Labels : `type:feat`, `etat:idee`, `est:1.5-2`, `prio:2` · branche : `feat/ah-annonces-deblocage` · `agent-ok` : oui
+
+### Histoire
+En tant que joueur, je veux une annonce quand une fonction ou une zone annexe s'ouvre afin de ne pas devoir ouvrir la carte et les menus pour le découvrir. [7, 22]
+
+### Contexte
+Aujourd'hui rien ne signale : l'ouverture du PC (Argenta), du Sac (Route 1), de la Pension, du Poké-Radar, de la Fauchage, du Centre commercial et du Casino (zones annexes de Céladopole). Les règles d'ouverture sont dans `data/reglages.json` (clés `sac`, `pc`, `centre`, `casino`…) et `src/core/progression.ts`. Le moteur d'événements existe (`src/core/evenements.ts`, `evenements-kanto.ts`) : un déblocage est un événement. L'annonce passe par la même mécanique que « CARTE DÉBLOQUÉE ! » (`DialogueIntro.tsx`, `data/reglages.json` : `interface.annonceMs`). Textes en français dans `data/`, jamais dans le code.
+
+### Critères d'acceptation
+- [ ] Étant donné un boss qui ouvre une fonction (PC, Pension, Centre commercial, Casino, Poké-Radar, Fauchage, Auto-clic), quand je le bats, alors une annonce nomme la fonction et dit où la trouver (« PC débloqué ! Il est dans la barre du bas. »).
+- [ ] Étant donné une zone annexe qui s'ouvre (Centre commercial, Casino), quand elle devient accessible, alors l'annonce le dit sans que j'aie à ouvrir la carte.
+- [ ] Étant donné une annonce déjà vue, quand je recharge la page, alors elle ne se rejoue pas (drapeau dans la sauvegarde de région).
+- [ ] Étant donné deux déblocages au même boss, quand ils arrivent ensemble, alors les annonces s'enchaînent l'une après l'autre sans se superposer.
+- [ ] Étant donné une ancienne sauvegarde qui a déjà tout débloqué, quand je la charge, alors aucune annonce ne se rejoue.
+- [ ] Étant donné `prefers-reduced-motion`, quand une annonce apparaît, alors elle est affichée sans animation, avec le même texte.
+
+### Hors périmètre
+Journal des annonces, notifications système du navigateur.
+
+### Vérification
+`src/core/evenements-kanto.test.ts`, `src/ui/Coquille.test.tsx`, e2e `deblocages.spec.ts` ; liste des fonctions et de leur déclencheur jointe à `docs/projet/`.
+
+### Effort et risques
+Fourchette : 1,5 à 2 jours. Risque : migration de la sauvegarde pour les drapeaux (rester dans la version 2 de la sauvegarde, champ optionnel). Dépend de : AD (pour le texte du PC).
+
+---
+
+## AI. `feat(histoire): dialogue de Chen au premier boss et présentation de Blue`
+
+Labels : `type:feat`, `etat:idee`, `est:2-3`, `prio:2` · branche : `feat/ai-chen-boss-blue` · `agent-ok` : oui
+
+### Histoire
+En tant que nouveau joueur, je veux que Chen m'explique le fonctionnement des zones au premier boss et que Blue soit présenté avant de me défier afin de comprendre ce qu'on attend de moi. [5, 14]
+
+### Contexte
+Chen : à la Route 1, rien n'explique « 10 Pokémon à vaincre, puis le boss en 30 s, pour ouvrir la zone suivante » (règle de la V1, `legacy/index.html:803`, guide). Blue : le rival est un boss de zone dont la première rencontre arrive sans présentation, et sans sprite pendant les dialogues. Moteur : `src/core/evenements.ts`, textes et déclencheurs en données (`data/regions/kanto/`), `DialogueChen.tsx`, `DialogueScene.tsx`, `BoiteDialogue.tsx`. Sprites de Blue : voir `data/ressources-externes.json` et `img/sprites/` (à vérifier avant ; s'il en manque, le téléchargement demande l'accord de Nicolas).
+
+### Critères d'acceptation
+- [ ] Étant donné la première arrivée sur un boss (étape 10 de la Route 1), quand la zone atteint l'étape du boss, alors un dialogue de Chen explique en 3 à 5 courtes répliques : 10 Pokémon à battre, le boss en 30 s, la zone suivante s'ouvre, l'échec ramène à l'étape 9. Il ne se rejoue pas au rechargement ni aux boss suivants.
+- [ ] Étant donné le dialogue de Chen, quand il s'affiche, alors le sprite de Chen est visible et le combat est en pause, sans que le minuteur de 30 s ne démarre avant la fin.
+- [ ] Étant donné la première rencontre avec Blue, quand elle approche, alors une scène de présentation le montre (sprite, son nom, une phrase qui dit qui il est : rival et petit-fils de Chen) avant son défi.
+- [ ] Étant donné chacun de ses dialogues de défi, quand ils s'affichent, alors le sprite de Blue est à l'écran, à côté de la boîte de dialogue, sans chevaucher le texte à 390 px.
+- [ ] Étant donné les rencontres suivantes avec Blue, quand elles arrivent, alors la présentation n'est pas rejouée.
+- [ ] Étant donné `prefers-reduced-motion`, quand les dialogues s'affichent, alors les entrées de sprite sont sans animation.
+
+### Hors périmètre
+Équipes de Blue (déjà dans le ticket S), refonte de l'intro, doublage.
+
+### Vérification
+`src/core/evenements-kanto.test.ts`, `src/ui/DialogueScene.test.tsx`, e2e `scenes.spec.ts` (390 et 1440 px) ; capture.
+
+### Effort et risques
+Fourchette : 2 à 3 jours. Risque : le sprite de Blue n'est peut-être pas dans le dépôt. Dépend de : rien (S et O sont faits).
+
+---
+
+## AJ. `feat(scenes): Ronflex après la Centrale et Flûte Pokémon jouée sur une interzone dédiée`
+
+Labels : `type:feat`, `etat:idee`, `est:3`, `prio:3` · branche : `feat/aj-ronflex-interzone` · `agent-ok` : après le choix des variantes
+
+### Histoire
+En tant que joueur, je veux rencontrer Ronflex après le boss de la Centrale et le réveiller en jouant la Flûte Pokémon sur une scène à part afin que ce passage soit un moment du jeu et pas un clic dans l'équipe. [25, 30]
+
+### Contexte
+Livré dans le ticket S : le dialogue de Ronflex arrive trop tôt et la Flûte se joue d'un clic depuis le Sac « Objets clés », sans qu'on sache comment faire. Nicolas veut : le dialogue de Ronflex après le boss de la Centrale (pas au début), et une **interzone dédiée** avec Ronflex au milieu où l'on joue la Flûte pour le réveiller. Fichiers : `data/regions/kanto/scenes.json` (nouvelle scène), `src/ui/SceneLieu.tsx`, `DialogueScene.tsx`, `src/core/scenes.ts`, `src/core/evenements-kanto.ts`, `Sac.tsx`. **À confirmer avec Nicolas avant la première étape** : le lieu exact de la scène (entre quelles zones), et si la Flûte se joue en touchant Ronflex, en touchant un instrument ou par une courte suite de notes.
+
+### Première étape, avant tout code
+Trois variantes de la scène (390 et 1440 px) : (1) Ronflex au centre, la Flûte à cliquer pour jouer, quatre notes qui apparaissent ; (2) Ronflex au centre, un geste de glissement sur le tapis ; (3) petit jeu de rythme en trois notes. Nicolas choisit dans la vraie appli.
+
+### Critères d'acceptation
+- [ ] Étant donné la partie avant le boss de la Centrale, quand je joue, alors aucun dialogue de Ronflex ne se déclenche.
+- [ ] Étant donné le boss de la Centrale battu, quand j'arrive à la zone de Ronflex, alors un dialogue explique : Ronflex dort, il bloque la route, une Flûte peut le réveiller.
+- [ ] Étant donné la Flûte Pokémon dans le Sac, quand je suis sur la scène de Ronflex, alors un indicateur dit comment l'utiliser (texte court, en français) et la Flûte se joue sur la scène ; depuis le Sac ou l'équipe, elle ne fait plus rien (message « À utiliser devant Ronflex »).
+- [ ] Étant donné la Flûte jouée, quand l'action se termine, alors Ronflex se réveille (animation courte), le combat de Ronflex commence, et la route s'ouvre une fois battu.
+- [ ] Étant donné un rechargement après le réveil ou après la victoire, quand je rouvre, alors l'état est conservé et la scène ne se rejoue pas.
+- [ ] Étant donné `prefers-reduced-motion`, quand la scène se joue, alors l'animation est un changement d'état sans mouvement.
+
+### Hors périmètre
+Autres objets clés, combat de Ronflex (déjà fait), nouvelle musique.
+
+### Vérification
+`src/core/scenes.test.ts`, e2e `scenes.spec.ts` (390 et 1440 px) ; captures.
+
+### Effort et risques
+Fourchette : 3 jours après le choix. Risque : place de la scène dans le graphe des zones. Dépend de : AI (dialogues), S (fait).
+
+---
+
+## AK. `fix(vol): faire passer le cercle vert sous le sprite du dresseur pendant le vol`
+
+Labels : `type:fix`, `etat:fait`, `est:0.5`, `prio:3` · branche : `fix/ak-vol-cercle-sous-sprite` · `agent-ok` : oui (fait le 28/10, test dans `VolGen1.test.tsx`)
+
+### Histoire
+En tant que joueur, je veux que le cercle vert clignotant passe sous le sprite pendant l'animation de vol afin que le dresseur et son Pokémon restent lisibles. [29]
+
+### Contexte
+Animation de vol : `src/ui/vol.ts`, `VolGen1.tsx`, durées dans `data/reglages.json` (`interface.vol`). Le cercle vert (halo de la zone visée) est rendu après le sprite dans l'ordre d'empilement, donc il passe dessus. Nicolas : « le cercle vert qui clignote doit passer en dessous du sprite, là il passe pas dessus c'est moche ».
+
+### Critères d'acceptation
+- [ ] Étant donné un vol vers une zone, quand le cercle vert clignote, alors il est dessiné sous le sprite (couche inférieure, vérifiée par l'ordre dans le DOM ou le `z-index` testé).
+- [ ] Étant donné les durées de l'animation, quand elle se joue, alors elles sont inchangées (2 500 ms de vol).
+- [ ] Étant donné `prefers-reduced-motion`, quand je pars en vol, alors le comportement reste sans overlay.
+
+### Hors périmètre
+Refonte de l'animation de vol.
+
+### Vérification
+`src/ui/VolGen1.test.tsx`, e2e `carte.spec.ts` ; captures d'une image du vol avant et après, comparées par Claude.
+
+### Effort et risques
+Fourchette : 0,5 jour. Risque : aucun notable. Dépend de : rien.
+
+---
+
+## AL. `feat(aide): porter le guide complet de la V1 dans la V2`
+
+Labels : `type:feat`, `etat:idee`, `est:1-2`, `prio:3` · branche : `feat/al-guide-du-jeu` · `agent-ok` : oui
+
+### Histoire
+En tant que joueur, je veux retrouver le « Guide du jeu » complet que Nicolas avait écrit dans la V1 afin de comprendre les règles sans demander. [9]
+
+### Contexte
+Le guide n'a pas été retiré : il n'a jamais été porté. Il est dans `legacy/index.html:800-890` (modale « GUIDE DU JEU » : parcours de A à Z, fonctionnalités clés, capture et repousses, Pokédex, PC, sauvegarde, reset, Centre commercial, CT Fauchage, Ligue, Casino, Défi du Professeur Chen, easter eggs) et figure dans `docs/projet/v1-visuel-a-porter.md` sans ticket. **Le texte est celui de Nicolas, à reprendre mot pour mot** là où la règle de la V2 est la même, et à corriger seulement là où la V2 diffère (zones d'ouverture qui ont changé, CT Fauchage, emplacements, ce rapport). Le texte vit en données (`data/guide.json`, nouveau), affiché par un composant `Guide.tsx` (nouveau) ouvert depuis la page Plus.
+
+### Critères d'acceptation
+- [ ] Étant donné la page Plus, quand j'ouvre « Guide du jeu », alors toutes les sections de la V1 sont là, dans le même ordre, chacune repliable.
+- [ ] Étant donné chaque phrase du guide, quand elle décrit une règle, alors elle correspond au jeu actuel ; une liste des phrases changées par rapport à la V1 est notée dans `docs/projet/v1-visuel-a-porter.md` avec la raison.
+- [ ] Étant donné les zones d'ouverture citées (Pension, PC, Poké-Radar, Auto-clic, Fauchage), quand le guide les nomme, alors les valeurs viennent de `data/reglages.json` et non d'un texte recopié, pour qu'elles ne se désynchronisent pas.
+- [ ] Étant donné 390 et 1440 px, quand j'ouvre le guide, alors il défile verticalement seul, se ferme avec Échap ou la croix (44 px), et le focus revient sur le bouton d'ouverture.
+- [ ] Étant donné la V1, quand je compare, alors aucune section de la V1 n'a été supprimée sans l'accord de Nicolas.
+
+### Hors périmètre
+Tutoriel interactif, traduction, nouveau contenu au-delà de ce rapport.
+
+### Vérification
+`src/ui/Guide.test.tsx` ; capture à 390 et 1440 px ; relecture par Nicolas du texte.
+
+### Effort et risques
+Fourchette : 1 à 2 jours. Risque : textes de la V1 devenus faux ; à lister avant l'écriture. Dépend de : AA, AB et AD (pour que les chiffres du guide soient les bons).
+
+---
+
+## Vérifications sans ticket (28/10)
+
+- **Taux de capture de Leveinard [17]** : 30/255 de base (12 %), Très Rare, apparition 0,05, identique à la V1. Super Ball sur niveau 20 à PV pleins : environ 4 % ; à PV presque nuls : environ 13 %. Vingt échecs d'affilée n'est pas un bug. Piste proposée à Nicolas, non demandée : afficher la chance de capture actuelle sur le bouton (la V1 la cachait derrière le mode triche).
+- **Taux des légendaires [27]** : probabilité par rencontre dans la zone concernée, Mew 1 %, Artikodin 2 %, Électhor 5 %, Sulfura 5 %, Mewtwo 5 % (`data/regions/kanto/zones.json`), identique à la V1. Chaque légendaire n'apparaît que dans sa zone. Un test de simulation (10 000 rencontres) est inclus dans AB pour confirmer.
+- **Animations de badges et d'évolution [8, 13]** : jugées bonnes par Nicolas, à ne pas toucher.
