@@ -19,9 +19,33 @@ function guideDeLaV1() {
   return sections;
 }
 
-it('reprend toutes les sections de la V1, dans le même ordre, mot pour mot', () => {
+const ECARTS_GUIDE = [
+  { section: 'Parcours principal (A à Z)', v1: 'Pokéshop', v2: 'Shop' },
+  { section: 'CT Fauchage', v1: 'Pokéshop', v2: 'Shop' },
+  { section: 'Fonctionnalités clés', v1: '(bouton épées).', v2: '(bouton « Auto-attaque »).' },
+  { section: 'Fonctionnalités clés', v1: 'le bouton “main”', v2: 'le bouton « Arrêt auto »' },
+  { section: 'Fonctionnalités clés', v1: 'l’icône “settings”', v2: 'le bouton « Réglages de l’arrêt »' },
+  { section: 'Pokédex & Récompenses', v1: 'une récompense visible dans le menu “Récompenses”',
+    v2: 'une récompense visible dans la page Pokédex' },
+  { section: 'Centre Commercial', v1: 'Retrait via la fiche Résumé.',
+    v2: 'Retrait via le menu du Pokémon dans l’équipe.' },
+  { section: 'Centre Commercial',
+    v1: 'Objets exclusifs: Attaque +, Attaque Spé +, Pierres d’évolution, Poké Poupée, Pierre Stase.',
+    v2: 'Objets exclusifs: Attaque +, Attaque Spé +, Pierres d’évolution, Poké Poupée, Pierre Stase, Calcium, Jeton Shiny.' },
+  { section: 'PC', v1: 'trier par numéro, nom, niveau ou favori',
+    v2: 'trier par numéro, nom, niveau, favori ou Shiny, ou chercher par nom' },
+];
+
+it('reprend toutes les sections de la V1, dans le même ordre, avec les seuls écarts décidés', () => {
   const v1 = guideDeLaV1();
   expect(v1).toHaveLength(13);
+  for (const ecart of ECARTS_GUIDE) {
+    const sectionV1 = v1.find(section => section.titre === ecart.section);
+    const sectionV2 = guide.sections.find(section => section.titre === ecart.section);
+    expect(sectionV1?.paragraphes.some(texte => texte.includes(ecart.v1)), `${ecart.section}: ${ecart.v1}`).toBe(true);
+    expect(sectionV2?.paragraphes.some(texte => texte.includes(ecart.v2)), `${ecart.section}: ${ecart.v2}`).toBe(true);
+    sectionV1!.paragraphes = sectionV1!.paragraphes.map(texte => texte.replace(ecart.v1, ecart.v2));
+  }
   expect(guide.sections.map(({ titre, paragraphes }) => ({ titre, paragraphes }))).toEqual(v1);
 });
 

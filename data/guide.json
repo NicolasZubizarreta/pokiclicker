@@ -12,7 +12,7 @@
         "4) Chaque zone a {nombre:reglages.combat.etapeBoss} étapes. Au boss (étape {nombre:reglages.combat.etapeBoss}), tu débloques la zone suivante.",
         "5) Tu as {secondes:reglages.combat.minuteurBossMs} secondes pour tuer le boss: si le timer expire, tu reviens à l’étape {moins1:reglages.combat.etapeBoss}.",
         "6) Capture les Pokémon sauvages pour te faire une équipe solide et avancer plus vite.",
-        "7) Utilise le Pokéshop pour acheter des consommables et améliorations. Plus tu avances dans les zones, plus d’objets et d’améliorations se débloquent.",
+        "7) Utilise le Shop pour acheter des consommables et améliorations. Plus tu avances dans les zones, plus d’objets et d’améliorations se débloquent.",
         "8) Récupère les badges en battant les Arènes: bonus permanents. Tu peux voir leurs effets dans le menu Badges.",
         "9) Complète le Pokédex pour débloquer des paliers et le Charme Chroma. Accès via le menu Pokédex.",
         "10) Bats la Ligue pour accéder au Panthéon."
@@ -22,9 +22,9 @@
       "id": "fonctions",
       "titre": "Fonctionnalités clés",
       "paragraphes": [
-        "- Auto-attaque: active le DPS des Pokémon de l’équipe (bouton épées).",
+        "- Auto-attaque: active le DPS des Pokémon de l’équipe (bouton « Auto-attaque »).",
         "- Auto-clique (Restes): débloqué en zone {zoneObjet:leftovers} via l’amélioration Restes. Active un clic automatique via le bouton Auto-clic.",
-        "- Auto-stop: stoppe l’auto-combat sur Commun/Peu Commun/Rare/Très Rare/Légendaire/Shiny/Nouveau. Active/désactive via le bouton “main”, et configure via l’icône “settings”.",
+        "- Auto-stop: stoppe l’auto-combat sur Commun/Peu Commun/Rare/Très Rare/Légendaire/Shiny/Nouveau. Active/désactive via le bouton « Arrêt auto », et configure via le bouton « Réglages de l’arrêt ».",
         "- Poké-Radar: affiche les Pokémon trouvables par zone. Débloqué en zone {zoneObjet:pokeradar} via l’amélioration Poké-Radar.",
         "- Fiche résumé: clique sur un Pokémon puis “Résumé” pour voir sexe, types, niveau et bonheur. Depuis cette fiche, tu peux aussi renommer, mettre en favori, relâcher, ou échanger un Pokémon avec le PC.",
         "- Pension: débloquée en zone {zoneLieu:pension} (Bourg Palette). Dépose 2 Pokémon pour tenter d’obtenir des œufs. Métamorph = bonus. Même type: {pourcent:reglages.pension.chances.typePartage}% de chance d’œuf par combat. Même espèce: {pourcent:reglages.pension.chances.memeEspece}% par combat. Tu peux acheter plus de slots d’œufs.",
@@ -46,7 +46,7 @@
       "id": "pokedex",
       "titre": "Pokédex & Récompenses",
       "paragraphes": [
-        "Accès via le menu Pokédex. Capture des Pokémon pour remplir le Pokédex: chaque palier donne une récompense visible dans le menu “Récompenses”.",
+        "Accès via le menu Pokédex. Capture des Pokémon pour remplir le Pokédex: chaque palier donne une récompense visible dans la page Pokédex.",
         "Compléter le Pokédex déclenche une scène avec le Prof. Chen qui te remet le Diplôme et le Charme Chroma."
       ]
     },
@@ -54,7 +54,7 @@
       "id": "pc",
       "titre": "PC",
       "paragraphes": [
-        "Débloqué en zone {zoneReglage:reglages.pc.zone}. Le PC stocke tes Pokémon capturés. Tu peux trier par numéro, nom, niveau ou favori.",
+        "Débloqué en zone {zoneReglage:reglages.pc.zone}. Le PC stocke tes Pokémon capturés. Tu peux trier par numéro, nom, niveau, favori ou Shiny, ou chercher par nom.",
         "Depuis ta team, utilise la fiche Résumé pour envoyer un Pokémon au PC ou en récupérer un."
       ]
     },
@@ -78,16 +78,16 @@
       "titre": "Centre Commercial",
       "paragraphes": [
         "Débloqué via progression (à Céladopole) et accessible depuis la Carte.",
-        "Objets exclusifs: Attaque +, Attaque Spé +, Pierres d’évolution, Poké Poupée, Pierre Stase.",
+        "Objets exclusifs: Attaque +, Attaque Spé +, Pierres d’évolution, Poké Poupée, Pierre Stase, Calcium, Jeton Shiny.",
         "Les pierres font évoluer certains Pokémon (impossible si Pierre Stase équipée).",
-        "Pierre Stase: s’équipe via le Sac sur un Pokémon compatible. Elle bloque toute évolution et donne +{surplus:reglages.degats.pierreEternelle}% dégâts. Retrait via la fiche Résumé."
+        "Pierre Stase: s’équipe via le Sac sur un Pokémon compatible. Elle bloque toute évolution et donne +{surplus:reglages.degats.pierreEternelle}% dégâts. Retrait via le menu du Pokémon dans l’équipe."
       ]
     },
     {
       "id": "fauchage",
       "titre": "CT Fauchage",
       "paragraphes": [
-        "Débloquée en zone {zoneObjet:falseSwipe} via l’amélioration CT Fauchage au Pokéshop.",
+        "Débloquée en zone {zoneObjet:falseSwipe} via l’amélioration CT Fauchage au Shop.",
         "Effet: empêche un Pokémon sauvage de mourir (le laisse à 1 PV). Inutilisable sur les boss, avec un cooldown."
       ]
     },
