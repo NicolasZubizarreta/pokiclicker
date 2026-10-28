@@ -1,0 +1,136 @@
+/* Variantes AJ : scène de Ronflex. Le CSS du jeu (jeu.css, copie de dist/assets) donne le rendu réel ;
+   ce fichier ajoute seulement les pièces nouvelles, avec les jetons de design/tokens.css et regions.css.
+   Aucune couleur, aucune durée ni aucune taille en dur : tout vient des jetons. */
+:root { color-scheme: dark; }
+* { box-sizing: border-box; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+button { font: inherit; color: inherit; cursor: pointer; touch-action: manipulation; }
+[hidden] { display: none !important; }
+.sr-seulement { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.t-doux { color: var(--texte-doux); }
+
+/* Barre de la maquette (hors du jeu) */
+.maquette { display: grid; gap: calc(var(--spacing) * 2); margin-bottom: calc(var(--spacing) * 4); padding: calc(var(--spacing) * 3); background: var(--surface-2); }
+.maquette h1 { font-family: var(--font-texte); font-size: var(--text-xl); line-height: var(--text-xl--line-height); font-weight: 700; margin: 0; }
+.maquette p { margin: 0; color: var(--texte-doux); }
+.maquette .rangee { display: flex; flex-wrap: wrap; gap: calc(var(--spacing) * 2); align-items: center; }
+.puce { display: inline-flex; align-items: center; min-height: calc(var(--spacing) * 11); min-width: calc(var(--spacing) * 11); padding: calc(var(--spacing) * 2) calc(var(--spacing) * 3); background: var(--surface); color: var(--texte); border: calc(var(--spacing) / 2) solid var(--bordure); text-decoration: none; }
+.puce[aria-pressed="true"] { background: var(--selection); border-color: var(--region-accent); }
+.puce:hover { background: var(--selection); }
+
+/* Scène : décor, carte de Ronflex, sprite */
+.cadre-scene { width: 100%; }
+@media (min-width: 64rem) { .cadre-scene { width: min(100%, calc((100dvh - var(--spacing) * 72) * 16 / 9)); margin-inline: auto; } }
+.scene-ronflex { position: relative; isolation: isolate; overflow: hidden; height: calc(var(--spacing) * 96); background: var(--surface-2); }
+@media (min-width: 64rem) { .scene-ronflex { height: auto; aspect-ratio: 16 / 9; } }
+.decor { position: absolute; inset: 0; z-index: -1; width: 100%; height: 100%; object-fit: cover; }
+.carte-ronflex { position: absolute; top: calc(var(--spacing) * 4); left: calc(var(--spacing) * 4); z-index: 10; display: grid; gap: calc(var(--spacing) * 1); min-width: calc(var(--spacing) * 40); padding: calc(var(--spacing) * 3); pointer-events: none; }
+.carte-ronflex .ligne { display: flex; align-items: baseline; justify-content: space-between; gap: calc(var(--spacing) * 2); }
+.carte-ronflex h2 { margin: 0; font-family: var(--font-titre); font-size: var(--text-xl); line-height: var(--text-xl--line-height); font-weight: 600; }
+.etat-ronflex { color: var(--texte-doux); }
+[data-etat="reveil"] .etat-ronflex { color: var(--alerte-texte); font-weight: 700; }
+
+.ronflex { position: absolute; left: 50%; top: calc(var(--spacing) * 22); z-index: 1; translate: -50% 0; width: calc(var(--spacing) * 48); height: calc(var(--spacing) * 48); display: flex; align-items: flex-end; justify-content: center; pointer-events: none; }
+@media (min-width: 64rem) { .ronflex { top: 14%; width: calc(var(--spacing) * 72); height: calc(var(--spacing) * 72); } }
+.sprite-r { position: relative; width: 100%; height: 100%; max-width: none; transform-origin: bottom center; transform: scaleY(.9); }
+[data-etat="reveil"] .sprite-r { transform: none; }
+.zzz { position: absolute; top: calc(var(--spacing) * 6); right: calc(var(--spacing) * 2); padding: calc(var(--spacing) * 1) calc(var(--spacing) * 2); background: var(--surface); color: var(--texte); font-family: var(--font-titre); font-size: var(--text-xl); line-height: var(--text-xl--line-height); }
+.alerte-r { position: absolute; top: calc(var(--spacing) * 6); right: calc(var(--spacing) * 4); display: none; place-items: center; min-width: calc(var(--spacing) * 10); min-height: calc(var(--spacing) * 10); background: var(--alerte-fond); color: var(--alerte-texte); font-family: var(--font-titre); font-size: var(--text-2xl); line-height: var(--text-2xl--line-height); }
+[data-etat="reveil"] .zzz { display: none; }
+[data-etat="reveil"] .alerte-r { display: grid; }
+@media (prefers-reduced-motion: no-preference) {
+  [data-etat="avant"] .sprite-r, [data-etat="jeu"] .sprite-r { animation: respire var(--duree-carte-pulsation) var(--ease-standard) infinite alternate; }
+  [data-etat="reveil"] .sprite-r { animation: saut var(--duration-lent) var(--ease-standard) 6 alternate; }
+}
+@keyframes respire { from { transform: scaleY(.9); } to { transform: scaleY(.94); } }
+@keyframes saut { from { transform: translateY(0); } to { transform: translateY(calc(var(--spacing) * -4)); } }
+
+/* Notes de musique */
+.note { position: absolute; z-index: 5; display: grid; place-items: center; width: calc(var(--spacing) * 10); height: calc(var(--spacing) * 10); background: var(--surface); color: var(--region-accent); pointer-events: none; visibility: hidden; opacity: 0; }
+.note svg { width: calc(var(--spacing) * 7); height: calc(var(--spacing) * 7); fill: currentColor; stroke: currentColor; stroke-width: 2; }
+.note.visible { visibility: visible; opacity: 1; }
+@media (min-width: 64rem) { .note { width: calc(var(--spacing) * 14); height: calc(var(--spacing) * 14); } .note svg { width: calc(var(--spacing) * 10); height: calc(var(--spacing) * 10); } }
+@media (prefers-reduced-motion: no-preference) {
+  .note { transform: translateY(calc(var(--spacing) * 2)); transition: opacity var(--duration-lent) var(--ease-standard), transform var(--duration-lent) var(--ease-standard), visibility var(--duration-lent); }
+  .note.visible { transform: none; }
+}
+.note[data-i="0"] { left: 4%; top: 52%; }
+.note[data-i="1"] { left: 13%; top: 36%; }
+.note[data-i="2"] { right: 13%; top: 30%; }
+.note[data-i="3"] { right: 4%; top: 46%; }
+
+/* Variante A : la Pokéflûte à toucher, posée sur la scène */
+.commande-scene { position: absolute; left: calc(var(--spacing) * 4); right: calc(var(--spacing) * 4); bottom: calc(var(--spacing) * 4); z-index: 10; display: flex; justify-content: center; }
+.flute { display: inline-flex; align-items: center; justify-content: center; gap: calc(var(--spacing) * 3); min-width: calc(var(--spacing) * 16); min-height: calc(var(--spacing) * 16); padding: calc(var(--spacing) * 2) calc(var(--spacing) * 5); background: var(--surface); color: var(--texte); box-shadow: var(--shadow-md); transition: transform var(--duration-rapide) var(--ease-standard); }
+.flute:hover:not([aria-disabled="true"]) { background: var(--selection); }
+.flute:active:not([aria-disabled="true"]) { transform: translateY(calc(var(--spacing) / 2)); }
+.flute[aria-disabled="true"] { background: var(--surface-2); color: var(--texte-doux); box-shadow: none; cursor: default; }
+.flute svg { width: calc(var(--spacing) * 9); height: calc(var(--spacing) * 9); fill: none; stroke: currentColor; stroke-width: 2; flex: none; }
+.flute strong { font-family: var(--font-titre); font-weight: 600; font-size: var(--text-xl); line-height: var(--text-xl--line-height); }
+.flute-icone { color: var(--region-accent); }
+
+/* Variante B : glissement sur le tapis */
+.tapis { position: relative; width: 100%; height: calc(var(--spacing) * 18); touch-action: none; user-select: none; background: var(--surface); box-shadow: var(--shadow-md); cursor: grab; }
+.tapis:active { cursor: grabbing; }
+.tapis .piste { position: absolute; inset: calc(var(--spacing) * 2); background: var(--surface-2); }
+.tapis .remplie { position: absolute; inset: 0 auto 0 0; width: calc((100% - var(--spacing) * 14) * var(--p, 0) + var(--spacing) * 7); background: var(--selection); }
+.tapis .marque { position: absolute; top: 50%; translate: -50% -50%; display: grid; place-items: center; width: calc(var(--spacing) * 8); height: calc(var(--spacing) * 8); color: var(--texte-doux); }
+.tapis .marque svg { width: calc(var(--spacing) * 6); height: calc(var(--spacing) * 6); fill: none; stroke: currentColor; stroke-width: 2; }
+.tapis .marque.jouee { color: var(--region-accent); }
+.tapis .marque.jouee svg { fill: currentColor; }
+.tapis .curseur { position: absolute; top: calc(var(--spacing) * 2); bottom: calc(var(--spacing) * 2); left: calc(var(--spacing) * 2 + (100% - var(--spacing) * 4 - var(--spacing) * 14) * var(--p, 0)); display: grid; place-items: center; width: calc(var(--spacing) * 14); background: var(--action); color: var(--action-texte); box-shadow: var(--shadow-sm); }
+.tapis .curseur svg { width: calc(var(--spacing) * 8); height: calc(var(--spacing) * 8); fill: none; stroke: currentColor; stroke-width: 2; }
+@media (prefers-reduced-motion: no-preference) { .tapis:not(.glisse) .curseur, .tapis:not(.glisse) .remplie { transition: left var(--duration-normal) var(--ease-standard), width var(--duration-normal) var(--ease-standard); } }
+.tapis[aria-disabled="true"] { cursor: default; }
+.tapis[aria-disabled="true"] .curseur { background: var(--surface-2); color: var(--texte-doux); box-shadow: none; }
+
+/* Variante C : rythme en trois notes */
+.rythme { display: flex; align-items: stretch; justify-content: center; gap: calc(var(--spacing) * 2); }
+.rythme .pads { display: flex; gap: calc(var(--spacing) * 2); }
+.pad { display: grid; place-items: center; width: calc(var(--spacing) * 14); min-height: calc(var(--spacing) * 16); background: var(--surface); color: var(--texte-doux); box-shadow: var(--shadow-md); }
+.pad svg { width: calc(var(--spacing) * 8); height: calc(var(--spacing) * 8); fill: none; stroke: currentColor; stroke-width: 2; }
+.pad.actif { background: var(--selection); color: var(--region-accent); outline: calc(var(--spacing) / 2) solid var(--region-accent); }
+.pad.actif svg { fill: currentColor; }
+.pad.reussi { background: var(--succes-fond); color: var(--succes-texte); }
+.pad.reussi svg { fill: currentColor; }
+.rythme .flute { min-width: calc(var(--spacing) * 28); padding-inline: calc(var(--spacing) * 3); }
+
+/* Indicateur d'usage, sous la scène */
+.indicateur { display: grid; gap: calc(var(--spacing) * 2); padding: calc(var(--spacing) * 3) calc(var(--spacing) * 4); background: var(--surface); }
+.indicateur .ligne-i { display: flex; align-items: center; gap: calc(var(--spacing) * 3); min-width: 0; }
+.indicateur svg.ic { width: calc(var(--spacing) * 8); height: calc(var(--spacing) * 8); fill: none; stroke: currentColor; stroke-width: 2; flex: none; color: var(--region-accent); }
+.indicateur p { margin: 0; }
+.indicateur .nom { font-family: var(--font-titre); font-weight: 600; }
+.points { display: flex; gap: calc(var(--spacing) * 2); align-items: center; }
+.points span { width: calc(var(--spacing) * 3); height: calc(var(--spacing) * 3); background: var(--bordure); }
+.points span.plein { background: var(--region-accent); }
+.indicateur.reveil { border-color: var(--alerte-base); }
+
+/* Dialogue de scène : même pièce que DialogueScene / BoiteDialogue */
+.dial-scene::backdrop { background: var(--fond); opacity: .7; }
+
+/* Index et tableaux */
+.page { max-width: calc(var(--spacing) * 288); margin-inline: auto; padding: calc(var(--spacing) * 4); display: grid; gap: calc(var(--spacing) * 4); }
+.page h1 { font-family: var(--font-titre); font-size: var(--text-2xl); line-height: var(--text-2xl--line-height); font-weight: 600; margin: 0; }
+.page h2 { font-family: var(--font-titre); font-size: var(--text-xl); line-height: var(--text-xl--line-height); font-weight: 600; margin: 0; }
+.page p { margin: 0; }
+.cartes { display: grid; gap: calc(var(--spacing) * 4); }
+@media (min-width: 64rem) { .cartes { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.var { display: grid; gap: calc(var(--spacing) * 2); align-content: start; padding: calc(var(--spacing) * 4); background: var(--surface); }
+.var .liens { display: grid; gap: calc(var(--spacing) * 2); }
+.var .lien { display: flex; align-items: center; min-height: calc(var(--spacing) * 11); padding: calc(var(--spacing) * 2) calc(var(--spacing) * 3); background: var(--surface-2); color: var(--lien); }
+.var .lien.principal { background: var(--action); color: var(--action-texte); font-weight: 700; }
+table.compare { width: 100%; border-collapse: collapse; }
+table.compare th, table.compare td { text-align: left; vertical-align: top; padding: calc(var(--spacing) * 2); border-bottom: calc(var(--spacing) / 2) solid var(--bordure); }
+table.compare thead th { color: var(--texte-doux); }
+.reco { padding: calc(var(--spacing) * 3) calc(var(--spacing) * 4); background: var(--surface-2); border-left: calc(var(--spacing) * 1) solid var(--region-accent); }
+@media (max-width: 47.999rem) {
+  table.compare thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  table.compare, table.compare tbody, table.compare tr, table.compare td, table.compare th { display: block; }
+  table.compare tr { padding-block: calc(var(--spacing) * 2); border-bottom: calc(var(--spacing) / 2) solid var(--bordure); }
+  table.compare td, table.compare th { border: 0; padding: var(--spacing) 0; }
+  table.compare td::before { content: attr(data-l) " : "; font-weight: 700; color: var(--texte-doux); }
+}
+
+/* Pixelify Sans lit « fl » comme un A : on coupe les ligatures sur les titres de la maquette. */
+.font-titre, .nom, .flute strong, h1, h2 { font-variant-ligatures: none; font-feature-settings: "liga" 0, "clig" 0, "dlig" 0; }

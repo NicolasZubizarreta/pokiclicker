@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Combat : icônes d’action et Sac</title><link rel="stylesheet" href="jeu.css"><link rel="stylesheet" href="commun.css"></head>
+<body>
+<main class="page">
+  <header>
+    <h1>Combat : icônes d’action, évolution et Sac</h1>
+    <p>Tickets AE et AG. Trois façons de ranger Auto-attaque, Auto-clic, Arrêt auto, Fauchage, Poké-Radar, la capture, le repère « peut évoluer » et l’accès au Sac. Chaque page est jouable : touche les icônes, ouvre le Sac, appuie sur Échap pour le fermer. Bouton « Avec Fauchage et Radar » en haut de chaque page pour voir l’écran une fois les objets obtenus.</p>
+  </header>
+  <section class="cartes" aria-label="Les trois variantes">
+    <article class="var cadre">
+      <h2>A · V1 reprise</h2>
+      <p>Bandeau rouge d’équipe, icônes juste dessous, radar rond sur la scène, repère d’évolution dans le coin de la carte.</p>
+      <div class="liens"><a class="lien principal" href="a-v1.html">Ouvrir A</a><a class="lien" href="a-v1.html#avec">A avec Fauchage et Radar</a><a class="lien" href="a-v1.html#avec-sac">A avec le Sac ouvert</a></div>
+    </article>
+    <article class="var cadre">
+      <h2>B · Icônes dans l’en-tête</h2>
+      <p>Icônes en groupes dans le cadre de l’équipe, balles et Capturer sous l’ennemi, bouton « Évoluer » sous la liste d’équipe.</p>
+      <div class="liens"><a class="lien principal" href="b-entete.html">Ouvrir B</a><a class="lien" href="b-entete.html#avec">B avec Fauchage et Radar</a><a class="lien" href="b-entete.html#avec-sac">B avec le Sac ouvert</a></div>
+    </article>
+    <article class="var cadre">
+      <h2>C · Barre flottante</h2>
+      <p>Une barre posée près du pouce (sur la scène à gauche en PC) avec toutes les actions et la capture ; l’évolution passe par l’annonce.</p>
+      <div class="liens"><a class="lien principal" href="c-flottante.html">Ouvrir C</a><a class="lien" href="c-flottante.html#avec">C avec Fauchage et Radar</a><a class="lien" href="c-flottante.html#avec-sac">C avec le Sac ouvert</a></div>
+    </article>
+  </section>
+  <section aria-labelledby="comparatif">
+    <h2 id="comparatif">Comparatif</h2>
+    <table class="compare">
+      <thead><tr><th scope="col">Variante</th><th scope="col">Ce qui change</th><th scope="col">Avantage</th><th scope="col">Risque</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">A</th><td data-l="Ce qui change">Les icônes sont sous « Ton équipe », comme en V1 ; le radar est rond sur la scène.</td><td data-l="Avantage">C’est l’agencement que tu connais : tout est dans la colonne d’équipe.</td><td data-l="Risque">Le bandeau rouge ressemble à un bouton d’action, alors qu’il n’y en a qu’un par écran.</td></tr>
+        <tr><th scope="row">B</th><td data-l="Ce qui change">Icônes regroupées par rôle dans un cadre neutre ; la capture passe sous l’ennemi ; « Évoluer » devient une ligne sous l’équipe.</td><td data-l="Avantage">Le texte « Pikachu : utiliser la Pierre Foudre » est lisible même sur téléphone.</td><td data-l="Risque">La colonne d’équipe s’allonge ; le Sac est un peu isolé à côté du titre.</td></tr>
+        <tr><th scope="row">C</th><td data-l="Ce qui change">Toutes les actions et la capture montent dans une barre flottante ; la colonne d’équipe ne garde que les cartes.</td><td data-l="Avantage">Tout est sous le pouce, l’équipe reste nette.</td><td data-l="Risque">La barre cache un coin de la scène (PC) ou 110 px du bas (téléphone) ; elle s’éloigne de la V1.</td></tr>
+      </tbody>
+    </table>
+    <p class="reco">Je recommande A : c’est ce que tu as demandé (la V1, les icônes entre « Ton équipe » et le DPS). Si le bandeau rouge te gêne, on passe en cadre neutre comme B.</p>
+  </section>
+  <section aria-labelledby="notes">
+    <h2 id="notes">Ce que la maquette simule</h2>
+    <p>Route 1, sans l’objet Restes : Auto-attaque et Arrêt auto actifs, Auto-clic grisé avec son cadenas, Fauchage et Poké-Radar absents. Bulbizarre peut évoluer (niveau 16), Pikachu a sa Pierre Foudre dans le Sac. Touche une carte marquée pour lancer l’évolution. Le Sac affiche 8 objets.</p>
+  </section>
+</main>
+</body>
+</html>

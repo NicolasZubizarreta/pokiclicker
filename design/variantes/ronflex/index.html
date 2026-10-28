@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Ronflex et la Pokéflûte</title><link rel="stylesheet" href="jeu.css"><link rel="stylesheet" href="commun.css"></head>
+<body>
+<main class="page">
+  <header>
+    <h1>Ronflex et la Pokéflûte</h1>
+    <p>Ticket AJ. Trois façons de jouer la Pokéflûte devant Ronflex, sur une scène à part. Chaque page est jouable : elle s’ouvre sur le dialogue d’avant (« Un Ronflex endormi bloque la route… »), puis tu joues, puis Ronflex se réveille. En haut de chaque page, des boutons reviennent au dialogue, rejouent la scène, montrent le réveil ou affichent le message du Sac (« À utiliser devant Ronflex »).</p>
+  </header>
+  <section class="cartes" aria-label="Les trois variantes">
+    <article class="var cadre">
+      <h2>A · Toucher la Pokéflûte</h2>
+      <p>Ronflex au centre, la Pokéflûte posée devant lui. Un toucher, quatre notes qui apparaissent l’une après l’autre.</p>
+      <div class="liens"><a class="lien principal" href="a-toucher.html">Ouvrir A</a><a class="lien" href="a-toucher.html#notes">A avec deux notes jouées</a><a class="lien" href="a-toucher.html#reveil">A après le réveil</a></div>
+    </article>
+    <article class="var cadre">
+      <h2>B · Glisser sur le tapis</h2>
+      <p>Un tapis devant Ronflex. On fait glisser la flûte de gauche à droite ; chaque marque franchie fait apparaître une note.</p>
+      <div class="liens"><a class="lien principal" href="b-glisser.html">Ouvrir B</a><a class="lien" href="b-glisser.html#notes">B avec deux notes jouées</a><a class="lien" href="b-glisser.html#reveil">B après le réveil</a></div>
+    </article>
+    <article class="var cadre">
+      <h2>C · Rythme en trois notes</h2>
+      <p>Trois notes s’allument à tour de rôle. On touche Jouer quand la bonne brille. Une erreur ne coûte rien.</p>
+      <div class="liens"><a class="lien principal" href="c-rythme.html">Ouvrir C</a><a class="lien" href="c-rythme.html#notes">C avec une note jouée</a><a class="lien" href="c-rythme.html#reveil">C après le réveil</a></div>
+    </article>
+  </section>
+  <section aria-labelledby="comparatif">
+    <h2 id="comparatif">Comparatif</h2>
+    <table class="compare">
+      <thead><tr><th scope="col">Variante</th><th scope="col">Ce qui change</th><th scope="col">Avantage</th><th scope="col">Risque</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">A</th><td data-l="Ce qui change">Un seul toucher lance la mélodie de quatre notes.</td><td data-l="Avantage">Rien à rater ; marche au pouce, à la souris et au clavier sans adaptation.</td><td data-l="Risque">Peu de jeu : c’est un bouton qui déclenche une animation.</td></tr>
+        <tr><th scope="row">B</th><td data-l="Ce qui change">Un geste de glissement sur un tapis, une note par marque franchie.</td><td data-l="Avantage">On joue vraiment de la flûte ; un relâché à mi-course garde les notes.</td><td data-l="Risque">Geste à apprendre ; il faut une alternative clavier (flèches, prévue) et un tapis bien visible sur petit écran.</td></tr>
+        <tr><th scope="row">C</th><td data-l="Ce qui change">Trois notes à toucher au bon moment, au rythme d’une note par seconde.</td><td data-l="Avantage">Le seul qui demande un peu d’attention : le moment est plus marquant.</td><td data-l="Risque">Peut frustrer, gêne les joueurs lents ; sans mouvement, il ne reste que le changement de couleur des notes.</td></tr>
+      </tbody>
+    </table>
+    <p class="reco">Je recommande A pour une première version : il tient les critères du ticket sans rien à rater, et le geste de B se rajoute plus tard sans toucher au reste.</p>
+  </section>
+  <section aria-labelledby="notes">
+    <h2 id="notes">Ce que la maquette simule</h2>
+    <p>Le lieu est provisoire : la scène reprend le décor du Pont Pépite en attendant celui de la route de Parmanie. Le nom de l’objet est celui du jeu, « Pokéflûte » (le ticket dit « Flûte Pokémon »). Le sprite de Ronflex est le même éveillé ou endormi ; l’état se lit aussi dans la carte (« Endormi » / « Réveillé »), le « Zzz » et le « ! », donc sans mouvement. Sous « mouvement réduit », les quatre notes de A apparaissent d’un coup et il n’y a ni respiration ni saut ; le rythme de C ne change que de couleur. Aucun son.</p>
+  </section>
+</main>
+</body>
+</html>
