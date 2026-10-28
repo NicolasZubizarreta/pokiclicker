@@ -26,6 +26,7 @@ import * as equipe from '../core/equipe';
 import { creerBoucle } from '../core/loop';
 import { chargerPokemon } from '../core/pokemon';
 import { accesPc } from '../core/pc';
+import { deblocagesAtteints, nouveauxDeblocages, type Deblocage } from '../core/deblocages';
 import * as pension from '../core/pension';
 import * as casino from '../core/casino';
 import { ajouterAuPokedex, completerPokedex, pokedexDeKanto } from '../core/pokedex';
@@ -107,6 +108,8 @@ export type AffichageJeu = ActionsCasino & {
   minuteur: { restantMs: number; totalMs: number } | null;
   evenementsDegats: Degat[];
   argent: number; enRecherche: boolean; cache: boolean; annonce: string | null; banniere: string | null;
+  /** Texte de l'annonce de déblocage affichée (PC, Pension, Casino…) ; les suivantes attendent leur tour. */
+  deblocage: string | null;
   sonActive: boolean; basculerSon(): void;
   echange: { uid: string; nom: string } | null;
   renommer(uid: string, texte: string): string | null;
@@ -163,6 +166,9 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
   let sonActive = reglages.sons.actifParDefaut;
   let echange: AffichageJeu['echange'] = null;
   let finAnnonceMs = 0;
+  let fileDeblocages: Deblocage[] = [];
+  let deblocageEnCours: Deblocage | null = null;
+  let finDeblocageMs = 0;
   // Temps effectivement simulé par la boucle utilisant l'horloge injectée.
   let tempsJeuMs = 0;
   let resteAutoClicMs = 0;
@@ -206,6 +212,31 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       else executer({ type: 'palier-pokedex', palier: 151 });
     }
     if (pokedex !== precedent || paliers.length > 0) enregistrer();
+  };
+  const marquerAnnoncesVues = (ids: string[]) => {
+    if (!ids.length) return;
+    region = { ...region, annoncesVues: [...new Set([...(region.annoncesVues ?? []), ...ids])] };
+    enregistrer();
+  };
+  // Une annonce de déblocage attend la fin de tout ce qui occupe l'écran (badge, dialogue, intro, évolution, annonce du jeu).
+  const ecranLibre = () => {
+    const introEnCours = region.evenementEnCours?.id === 'kanto.intro'
+      || (region.evenementsJoues.includes('kanto.intro') && region.starterId === null);
+    const credits = region.drapeaux.includes('credits-disponibles') && !region.drapeaux.includes('credits-vus');
+    return annonce === null && obtentionBadge === null && pantheon === null && !introEnCours && !credits
+      && tempsJeuMs >= finEvolutionMs && !commandeCourante(evenements, region);
+  };
+  const avancerDeblocages = () => {
+    if (deblocageEnCours && tempsJeuMs >= finDeblocageMs) deblocageEnCours = null;
+    if (deblocageEnCours || fileDeblocages.length === 0 || !ecranLibre()) return;
+    deblocageEnCours = fileDeblocages.shift()!;
+    finDeblocageMs = tempsJeuMs + reglages.interface.annonceMs;
+    marquerAnnoncesVues([deblocageEnCours.id]);
+  };
+  const detecterDeblocages = () => {
+    const { annoncer, silencieux } = nouveauxDeblocages(region, kanto, fileDeblocages.map(deblocage => deblocage.id));
+    marquerAnnoncesVues(silencieux);
+    fileDeblocages = [...fileDeblocages, ...annoncer];
   };
   const acces = (zoneId: string) => {
     const resultat = blocage(evenements, region, zoneId);
@@ -281,7 +312,6 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
           sauvegarder = true;
           continue;
         }
-        const pensionOuverte = pension.accesPension(kanto, etatMondeDe(region)).ouvert;
         if (coeur.zone.id === 'kanto.ligue-pokemon' && evenement.zoneId === 'kanto.ligue-pokemon') {
           region = enregistrerVictoireLigue(region);
           ouvrirPantheon = true;
@@ -299,9 +329,6 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         }
         if (!region.bossVaincus.includes(evenement.zoneId)) {
           region = { ...region, bossVaincus: [...region.bossVaincus, evenement.zoneId] };
-          if (!pensionOuverte && pension.accesPension(kanto, etatMondeDe(region)).ouvert) {
-            messagesCapture.push(reglages.pension.messages.debloquee);
-          }
           if (kanto.liensDepuis(evenement.zoneId).length > 0) {
             messagesCapture.push('Zone débloquée !');
           }
@@ -352,6 +379,8 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
   };
   const afficher = () => {
     if (!initialise) return;
+    detecterDeblocages();
+    avancerDeblocages();
     const maintenant = horloge.maintenant();
     const actifs = actifsCourants(region, maintenant);
     const lieu = lieuDe(region.zoneId);
@@ -447,7 +476,8 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       equipe: JSON.stringify(equipe) === JSON.stringify(precedent.equipe) ? precedent.equipe : equipe,
       dps: coeur ? calculerDpsEquipe(coeur.equipe, coeur.ennemi, actifs) : 0, erreur,
       evolution: afficherEvolution(evolutionEnCours, finEvolutionMs, tempsJeuMs),
-      argent: region.argent, enRecherche: (coeur?.attenteMs ?? 0) > 0 && !coeur?.attenteCapture, cache: (coeur?.attenteMs ?? 0) > 0, annonce, banniere, sonActive, echange,
+      argent: region.argent, enRecherche: (coeur?.attenteMs ?? 0) > 0 && !coeur?.attenteCapture, cache: (coeur?.attenteMs ?? 0) > 0, annonce, banniere,
+      deblocage: deblocageEnCours?.texte ?? null, sonActive, echange,
       minuteur: coeur && coeur.attenteMs === 0 && coeur.minuteurMs !== null
         ? { restantMs: coeur.minuteurMs, totalMs: reglages.combat.minuteurBossMs } : null,
       zonePrecedente: JSON.stringify(zonePrecedente) === JSON.stringify(precedent.zonePrecedente) ? precedent.zonePrecedente : zonePrecedente,
@@ -795,7 +825,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     lieu: null, zone: null, etape: 1, ennemi: null, pv: 0, equipe: [], dps: 0, minuteur: null,
     nomAdversaire: null, ligueGagnee: 0,
     erreur: null, erreurChargement: false, zonePrecedente: null, zoneSuivante: null, evenementsDegats: [],
-    evolution: null, argent: 0, enRecherche: false, cache: false, annonce: null, banniere: null, echange: null,
+    evolution: null, argent: 0, enRecherche: false, cache: false, annonce: null, banniere: null, deblocage: null, echange: null,
     pc: [], pokedex, accesPc: { ouvert: false, raison: reglages.pc.raison },
     pension: { acces: { ouvert: false, raison: null }, parents: [], oeufs: [],
       emplacements: reglages.depart.region.pension.emplacementsOeuf, emplacementsMax: reglages.pension.emplacementsMax,
@@ -840,6 +870,8 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
           persistance = ouvrirPartie({ stockage, horloge, genererId }, nouvellePartie === 'intro'
             ? { equipe: [], drapeaux: ['nouvelle-partie'] } : { equipe: equipeDeDepart(), drapeaux: [] });
           region = persistance.region;
+          // Ancienne sauvegarde sans le champ : tout ce qui est déjà ouvert compte comme vu, rien ne se rejoue.
+          if (region.annoncesVues === undefined) region = { ...region, annoncesVues: deblocagesAtteints(region, kanto) };
           preferences = persistance.preferences;
           sonActive = persistance.sonActive;
           pokedex = completerPokedex(persistance.pokedex, region);
@@ -858,6 +890,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
           tempsJeuMs += reglages.boucle.pasMs;
           if (annonce !== null && tempsJeuMs >= finAnnonceMs) annonce = null;
           if (banniere !== null && tempsJeuMs >= finBanniereMs) banniere = null;
+          avancerDeblocages();
           actualiserActifs();
           if (coeur?.autoClic && coeur.attenteMs === 0) {
             const resultat = clicsAutomatiques(resteAutoClicMs, reglages.boucle.pasMs, reglages.combat.autoClicIntervalleMs);

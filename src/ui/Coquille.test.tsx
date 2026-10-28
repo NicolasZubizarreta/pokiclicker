@@ -38,6 +38,23 @@ afterEach(() => {
 });
 const noms = ['Combat', 'Équipe', 'PC', 'Shop', 'Carte', 'Plus'];
 
+it('affiche l’annonce de déblocage sur toutes les pages, en aria-live sans second role status', async () => {
+  const { container } = render(<Coquille />);
+  const region = () => container.querySelector('[data-annonce-deblocage]')!;
+  expect(region().textContent).toBe('');
+  act(() => storeJeu.setState({ deblocage: 'PC débloqué ! Il est dans la barre de navigation.' }));
+  expect(region().textContent).toBe('PC débloqué ! Il est dans la barre de navigation.');
+  expect(region().getAttribute('role')).toBeNull();
+  expect(screen.queryAllByRole('status').filter(zone => zone.textContent?.includes('PC débloqué'))).toHaveLength(0);
+  await userEvent.click(screen.getByRole('button', { name: 'Shop' }));
+  expect(region().textContent).toContain('PC débloqué');
+  act(() => storeJeu.setState({ deblocage: 'Casino débloqué ! Il est sur la Carte, dans la fiche de Céladopole.' }));
+  expect(region().querySelectorAll('p')).toHaveLength(1);
+  expect(region().textContent).toContain('Casino débloqué');
+  act(() => storeJeu.setState({ deblocage: null }));
+  expect(region().textContent).toBe('');
+});
+
 it('affiche les crédits seulement lorsque fin.credits est vrai et rend la navigation inerte', () => {
   const montrer = Object.getOwnPropertyDescriptor(HTMLDialogElement.prototype, 'showModal');
   const clore = Object.getOwnPropertyDescriptor(HTMLDialogElement.prototype, 'close');

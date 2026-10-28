@@ -32,6 +32,8 @@ export type DonneesRegion = {
   drapeaux: string[]; evenementsJoues: string[]; argent: number;
   evenementEnCours?: { id: string; etape: number; file: string[] };
   diplomeLe?: string;
+  /** Annonces de déblocage déjà affichées (`data/deblocages.json`). Absent dans une sauvegarde ancienne : alors tout ce qui est ouvert au chargement compte comme vu. */
+  annoncesVues?: string[];
   inventaire: Record<string, number>; ligueGagnee: number;
   pc: PokemonPossede[]; ameliorations: string[]; jalonsRecus: number[]; starterId: number | null;
   statistiques: { eliminations: number; argentTotalGagne: number };

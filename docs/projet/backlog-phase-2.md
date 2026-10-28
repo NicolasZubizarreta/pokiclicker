@@ -1073,7 +1073,7 @@ Fourchette : 2 à 3 jours. Risque : où poser le repère sans surcharger l'écra
 
 ## AH. `feat(annonces): prévenir quand le PC, le Centre commercial, le Casino ou une fonction se débloque`
 
-Labels : `type:feat`, `etat:idee`, `est:1.5-2`, `prio:2` · branche : `feat/ah-annonces-deblocage` · `agent-ok` : oui
+Labels : `type:feat`, `etat:fait` (28/10 : codé en local ; Poké-Radar, Fauchage et Auto-clic s'annoncent à l'achat de l'objet, pas à un boss ; PC dit « barre de navigation » car elle est à gauche sur PC ; tableau dans `docs/projet/deblocages-annonces.md`), `est:1.5-2`, `prio:2` · branche : `feat/ah-annonces-deblocage` · `agent-ok` : oui
 
 ### Histoire
 En tant que joueur, je veux une annonce quand une fonction ou une zone annexe s'ouvre afin de ne pas devoir ouvrir la carte et les menus pour le découvrir. [7, 22]

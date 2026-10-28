@@ -1,0 +1,45 @@
+{
+  "deblocages": [
+    {
+      "id": "sac",
+      "declencheur": { "zone": "kanto.route-1" },
+      "dejaAnnonceSi": "sac-ouvert",
+      "texte": "Sac débloqué ! Il est dans l'onglet Équipe."
+    },
+    {
+      "id": "pc",
+      "declencheur": { "zone": "kanto.arene-d-argenta" },
+      "texte": "PC débloqué ! Il est dans la barre de navigation."
+    },
+    {
+      "id": "pension",
+      "declencheur": { "lieu": "pension" },
+      "texte": "Pension débloquée ! Elle est à Bourg Palette."
+    },
+    {
+      "id": "centre-commercial",
+      "declencheur": { "lieu": "centre-commercial" },
+      "texte": "Centre commercial débloqué ! Il est sur la Carte, dans la fiche de Céladopole."
+    },
+    {
+      "id": "casino",
+      "declencheur": { "lieu": "casino" },
+      "texte": "Casino débloqué ! Il est sur la Carte, dans la fiche de Céladopole."
+    },
+    {
+      "id": "poke-radar",
+      "declencheur": { "amelioration": "pokeradar" },
+      "texte": "Poké-Radar débloqué ! Il est dans les outils du combat."
+    },
+    {
+      "id": "fauchage",
+      "declencheur": { "amelioration": "falseSwipe" },
+      "texte": "Fauchage débloqué ! Il est dans les outils du combat."
+    },
+    {
+      "id": "auto-clic",
+      "declencheur": { "amelioration": "leftovers" },
+      "texte": "Auto-clic débloqué ! Le bouton est dans les réglages du combat."
+    }
+  ]
+}

@@ -14,6 +14,7 @@ import { ObtentionBadge } from './ObtentionBadge';
 import { PageIntro } from './PageIntro';
 import { DialogueScene } from './DialogueScene';
 import { Credits } from './Credits';
+import { AnnonceDeblocage } from './AnnonceDeblocage';
 import { Pantheon } from './Pantheon';
 import { musique } from './musique';
 import { sceneMusicale } from '../core/musiques';
@@ -76,6 +77,7 @@ export function Coquille({ region = 'kanto', theme = 'dark' }: {
         cache={obtentionBadge?.phase === 'message' || obtentionBadge?.phase === 'boite' ? obtentionBadge.id : null}
         claque={obtentionBadge?.phase === 'claque' ? obtentionBadge.id : null}
         fermer={() => storeJeu.getState().fermerBoiteBadges()} declencheur={declencheur} />
+      <AnnonceDeblocage />
       {credits && <Credits fermerCredits={() => storeJeu.getState().fermerCredits()} />}
       {pantheon?.ouvert && <Pantheon equipe={pantheon.equipe} premiereVictoire={pantheon.premiereVictoire}
         quitter={() => storeJeu.getState().quitterPantheon()} />}

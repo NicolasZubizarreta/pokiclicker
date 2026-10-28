@@ -24,7 +24,7 @@ export type ReglagesPension = {
   bonheurNaissance: number; metamorph: number; especesTirees: number;
   chances: { metamorph: number; memeEspece: number; typePartage: number };
   chanceShiny: number;
-  messages: { debloquee: string; pleine: string; envoyePc: string; eclosion: string };
+  messages: { pleine: string; envoyePc: string; eclosion: string };
 };
 
 export type ReglagesIntro = {
@@ -151,7 +151,7 @@ if ([pension.emplacementsMax, pension.prixParEmplacement, pension.pasEclosion,
   || !Number.isSafeInteger(pension.bonheurNaissance) || pension.bonheurNaissance < 0
   || [pension.chanceShiny, pension.chances.metamorph, pension.chances.memeEspece, pension.chances.typePartage]
     .some(valeur => !Number.isFinite(valeur) || valeur < 0 || valeur > 1)
-  || [pension.messages.debloquee, pension.messages.pleine, pension.messages.envoyePc, pension.messages.eclosion]
+  || [pension.messages.pleine, pension.messages.envoyePc, pension.messages.eclosion]
     .some(valeur => typeof valeur !== 'string' || !valeur.trim())) {
   throw new Error('Réglages de pension invalides');
 }

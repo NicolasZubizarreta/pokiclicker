@@ -84,3 +84,13 @@ Tickets AA à AL écrits dans `backlog-phase-2.md`. Faits : AA, AC, AD, AK (CI v
 - **Où est le crayon** : sur chaque carte de la page Équipe (en haut à droite de la carte, mobile et PC), sur la fiche à côté du nom, et sur les cartes d'équipe de l'écran de combat à partir de 1024 px de large seulement (en dessous, les cartes n'affichent pas le nom). Pas de crayon sur un œuf, puisque son nom reste « Œuf ». Le crayon de la carte ouvre la fiche avec le champ déjà ouvert.
 - **Champ de renommage** : j'ai gardé deux boutons « Valider » et « Annuler » sous le champ, pour qui n'a pas de touche Entrée ou Échap. Valider sans rien changer ferme simplement le champ.
 - **Bouton Radar sur mobile** : c'est maintenant une icône, mais la rangée d'outils reste celle d'avant ; à 390 px l'icône est au bout de la rangée défilante, hors de l'écran tant qu'on ne fait pas défiler. La nouvelle disposition viendra avec le ticket AE.
+
+## Ticket AH (28/10)
+
+- **Poké-Radar, Fauchage et Auto-clic** : le ticket parle d'un boss qui ouvre ces fonctions, mais dans le jeu ce sont des objets du Shop (Radar à la Cave Taupiqueur, CT Fauchage à la Centrale, Restes à Sylphe SARL). J'ai annoncé la fonction au moment de l'achat. Veux-tu aussi une annonce quand l'objet arrive au Shop (« Poké-Radar en vente à la Cave Taupiqueur ») ?
+- **Texte du PC** : j'ai écrit « Il est dans la barre de navigation » et non « barre du bas », parce qu'à 1440 px la barre est à gauche. Tous les textes sont dans data/deblocages.json si tu veux les changer.
+- **Durée** : elle suit interface.annonceMs comme demandé, soit 1,2 s. C'est court pour une phrase de deux parties. Veux-tu une durée à part, par exemple 2,5 s ?
+- **Sac** : l'intro de Chen l'annonce déjà (« +5 POKÉBALLS ! »), donc le Sac est noté comme vu sans seconde annonce. Il n'est annoncé que pour une partie sans intro.
+- **Attente** : une annonce de déblocage attend la fin du dialogue (M. Fuji après la Tour Pokémon), de la boîte à badges et de l'annonce du jeu. Elle peut donc arriver quelques secondes après le boss.
+- **Pension** : l'ancien message « Pension débloquée (Bourg Palette) ! » dans l'annonce du boss est supprimé (il serait doublé). Le nouveau texte est « Pension débloquée ! Elle est à Bourg Palette. ».
+- **Anciennes sauvegardes** : tout ce qui est déjà ouvert à la première ouverture après cette mise à jour est noté comme vu. Quelqu'un qui avait battu la Tour Pokémon avant ne verra donc aucune annonce pour la Pension, le Centre commercial et le Casino.

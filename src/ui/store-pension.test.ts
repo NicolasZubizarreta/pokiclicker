@@ -110,13 +110,24 @@ it('bloque la ponte avant la Tour Pokémon et annonce le déblocage une seule fo
   p.victoire();
   expect(p.store.getState().pension.oeufs).toHaveLength(0);
   expect(p.store.getState().pension.acces).toEqual({ ouvert: true, raison: null });
-  expect(p.store.getState().annonce).toContain('Pension débloquée (Bourg Palette) !');
+  const annonces = (cible: StoreJeu) => {
+    const textes: string[] = [];
+    for (let i = 0; i < 200; i++) {
+      p.horloge.avancer(100);
+      cible.getState().tick();
+      const texte = cible.getState().deblocage;
+      if (texte !== null && !textes.includes(texte)) textes.push(texte);
+    }
+    return textes;
+  };
+  expect(annonces(p.store)[0]).toBe('Pension débloquée ! Elle est à Bourg Palette.');
+  expect(p.lire().annoncesVues).toContain('pension');
   p.store.getState().arreter();
   p.gestionnaire.ecrireRegion('test', 'kanto', { ...p.lire(), etape: reglages.combat.etapeBoss });
   const reprise = p.ouvrir();
-  expect(reprise.getState().annonce).toBeNull();
+  expect(reprise.getState().deblocage).toBeNull();
   p.victoire(reprise);
-  expect(reprise.getState().annonce ?? '').not.toContain('Pension débloquée');
+  expect(annonces(reprise)).not.toContain('Pension débloquée ! Elle est à Bourg Palette.');
 });
 
 it('inscrit aussi au Pokédex une espèce inconnue lors de l’éclosion', () => {

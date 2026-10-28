@@ -6,7 +6,6 @@
     "chances": { "metamorph": 0.04, "memeEspece": 0.04, "typePartage": 0.02 },
     "chanceShiny": 0.125,
     "messages": {
-      "debloquee": "Pension débloquée (Bourg Palette) !",
       "pleine": "La pension est pleine.",
       "envoyePc": "{nom} est envoyé au PC.",
       "eclosion": "{nom} éclot !"
