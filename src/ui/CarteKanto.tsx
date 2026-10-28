@@ -189,13 +189,13 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
             </g>;
           })}
         </g>
-        {vol.actif && !reduit && vol.depart && <DresseurVol ms={vol.ms} forme={vol.depart} />}
         <g className="pointer-events-none fill-succes-base">
           {carte.tutorielRoute1 && carte.formes.filter(f => f.numero === 1).map(f => <circle key={f.nom}
             cx={centreDe(f).x} cy={centreDe(f).y} r={rayonRepere / pxParUnite} className="carte-clignotement" />)}
           {actuelle && <circle data-actuelle={actuelle.zone} cx={centreDe(actuelle).x} cy={centreDe(actuelle).y}
             r={rayonRepere / pxParUnite} className="carte-pulsation" />}
         </g>
+        {vol.actif && !reduit && vol.depart && <DresseurVol ms={vol.ms} forme={vol.depart} />}
         {debug && <g className="pointer-events-none fill-texte font-texte text-base">
           {carte.formes.map(f => {
             const centre = centreDe(f);

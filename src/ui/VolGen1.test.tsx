@@ -83,6 +83,16 @@ it('affiche les cinq images dans le SVG à 150 ms d’intervalle et ferme la fic
   expect(screen.queryByRole('button', { name: 'Y aller' })).toBeNull();
 });
 
+it('dessine le cercle vert de la zone actuelle sous le dresseur pendant le vol', () => {
+  const { container } = render(<CarteKanto quandArrive={vi.fn()} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Route 1 (Zone 1)' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Y aller' }));
+  const cercle = container.querySelector('circle[data-actuelle]')!;
+  const dresseur = container.querySelector('[data-dresseur]')!.parentElement!;
+  expect(cercle.compareDocumentPosition(dresseur) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  expect(dresseur.parentElement).toBe(cercle.closest('svg'));
+});
+
 it('anime la piste en 400 ms et répète les traits en 200 ms sans trou', () => {
   const { container } = render(<CarteKanto quandArrive={vi.fn()} />);
   fireEvent.click(screen.getByRole('button', { name: 'Route 1 (Zone 1)' }));
