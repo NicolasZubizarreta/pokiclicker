@@ -74,6 +74,11 @@ html:has(dialog[open]) { overflow: hidden; }
 }
 
 @layer base {
+  html {
+    /* Pixelify Sans rend la ligature « fl » comme « A ». */
+    font-variant-ligatures: none;
+  }
+
   body {
     @apply bg-fond text-texte font-texte tabular-nums;
     -webkit-tap-highlight-color: transparent;
