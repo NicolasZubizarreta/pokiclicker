@@ -1,4 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import chenBoss from '../../data/evenements/chen-boss.json';
+import rivaux from '../../data/evenements/rival.json';
 import essai from '../../tests/fixtures/evenements/essai.json';
 import { creerHorlogeSimulee } from '../core/clock';
 import * as combat from '../core/combat';
@@ -161,6 +163,51 @@ describe('événements du store de bout en bout', () => {
     partie.store.getState().demarrer();
     expect(partie.lire().inventaire.pokeball).toBe(stock);
     expect(partie.lire().evenementsJoues).toEqual(['test.depart']);
+  });
+
+  it('Chen au premier boss : combat figé et minuteur intact pendant ses répliques, puis le chrono part', () => {
+    const faible = [{ uid: 'faible', numero: 10, niveau: 1, xp: 0, shiny: false, bonheur: 0,
+      pierreEternelle: false, calcium: 0, sexe: 'male' as const, favori: false }];
+    const partie = preparer(chenBoss, region => ({ ...region, zoneId: 'kanto.route-1',
+      etape: reglages.combat.etapeBoss, equipe: faible }));
+    const { store } = partie;
+    partie.horloge.avancer(100);
+    store.getState().tick();
+    const premiere = store.getState().evenement;
+    expect(premiere).toMatchObject({ type: 'dialogue', evenement: 'kanto.chen-premier-boss', etape: 0 });
+    const plein = { restantMs: reglages.combat.minuteurBossMs, totalMs: reglages.combat.minuteurBossMs };
+    for (let i = 0; i < 400; i++) { partie.horloge.avancer(100); store.getState().tick(); }
+    expect(store.getState().minuteur).toEqual(plein);
+    expect(store.getState().attaquer()).toBe(false);
+    expect(store.getState().ennemi?.pv).toBe(store.getState().ennemi?.pvMax);
+    for (let i = 0; i < 4; i++) store.getState().terminerEtape();
+    expect(store.getState().evenement).toBeNull();
+    expect(partie.lire().evenementsJoues).toContain('kanto.chen-premier-boss');
+    partie.horloge.avancer(1000);
+    store.getState().tick();
+    expect(store.getState().minuteur?.restantMs).toBeLessThan(reglages.combat.minuteurBossMs);
+    // Échec après les 30 s : retour à l'étape 9, et Chen ne reparle pas au retour sur le boss.
+    for (let i = 0; i < 400 && store.getState().etape === reglages.combat.etapeBoss; i++) {
+      partie.horloge.avancer(100);
+      store.getState().tick();
+    }
+    expect(store.getState().etape).toBe(reglages.combat.etapeBoss - 1);
+    expect(store.getState().evenement).toBeNull();
+  });
+
+  it('Blue : présenté avant son premier défi, jamais présenté après coup à une ancienne sauvegarde', () => {
+    const tous = (region: DonneesRegion) => ({ ...region,
+      bossVaincus: kanto.zones.filter(zone => !zone.sansCombat && zone.id !== 'kanto.foret-de-jade').map(zone => zone.id) });
+    const neuve = preparer(rivaux, tous);
+    neuve.store.getState().allerVers('kanto.foret-de-jade');
+    expect(neuve.store.getState().evenement).toMatchObject({ evenement: 'kanto.blue-presentation', locuteur: 'Blue' });
+    neuve.store.getState().terminerEtape();
+    neuve.store.getState().terminerEtape();
+    expect(neuve.store.getState().evenement).toMatchObject({ evenement: 'kanto.rival-foret' });
+    const ancienne = preparer(rivaux, region => ({ ...tous(region), evenementsJoues: ['kanto.rival-foret'] }));
+    ancienne.store.getState().allerVers('kanto.foret-de-jade');
+    expect(ancienne.store.getState().evenement).toBeNull();
+    expect(ancienne.lire().evenementsJoues).toContain('kanto.blue-presentation');
   });
 
   it('déclenche le dialogue après une victoire sur le boss', () => {

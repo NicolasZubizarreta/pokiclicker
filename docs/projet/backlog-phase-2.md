@@ -1102,7 +1102,7 @@ Fourchette : 1,5 à 2 jours. Risque : migration de la sauvegarde pour les drapea
 
 ## AI. `feat(histoire): dialogue de Chen au premier boss et présentation de Blue`
 
-Labels : `type:feat`, `etat:idee`, `est:2-3`, `prio:2` · branche : `feat/ai-chen-boss-blue` · `agent-ok` : oui
+Labels : `type:feat`, `etat:fait` (28/10 : codé en local ; le sprite de Blue n'est pas dans le dépôt, une silhouette de remplacement s'affiche tant que `public/img/sprites/blue/blue-1.png` manque, rien téléchargé), `est:2-3`, `prio:2` · branche : `feat/ai-chen-boss-blue` · `agent-ok` : oui
 
 ### Histoire
 En tant que nouveau joueur, je veux que Chen m'explique le fonctionnement des zones au premier boss et que Blue soit présenté avant de me défier afin de comprendre ce qu'on attend de moi. [5, 14]

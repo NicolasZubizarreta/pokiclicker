@@ -59,11 +59,31 @@ it('écrit la ligne puis un toucher la complète et les suivants ne terminent qu
 it('présente immédiatement le texte entier en mouvement réduit, avec la pose demandée', () => {
   reduire(true);
   const terminerEtape = vi.fn();
-  const { container } = render(<DialogueScene commande={{ ...ligne(), pose: 'chen-2' }} terminerEtape={terminerEtape} />);
+  const { container } = render(<DialogueScene commande={{ ...ligne(0, 'Prof. Chen'), pose: 'chen-2' }} terminerEtape={terminerEtape} />);
   expect(container.querySelector('img')?.getAttribute('src')).toBe('img/sprites/chen/chen-2.png');
+  expect(container.querySelector('img')?.className).not.toContain('sprite-entree');
   expect(screen.getByRole('button').textContent).toContain('Prêt pour un combat ?');
   fireEvent.click(screen.getByRole('button'));
   expect(terminerEtape).toHaveBeenCalledOnce();
+});
+
+it('montre Blue (silhouette tant que son image manque) à côté du texte, animé sauf en mouvement réduit', () => {
+  const { container, unmount } = render(<DialogueScene commande={{ ...ligne(), pose: 'blue-1' }} terminerEtape={vi.fn()} />);
+  const sprite = container.querySelector('[data-silhouette]');
+  expect(sprite).not.toBeNull();
+  expect(sprite?.getAttribute('class')).toContain('sprite-entree');
+  expect(container.querySelector('img')).toBeNull();
+  expect(screen.getByRole('button', { name: 'Blue : Prêt pour un combat ?' })).toBeTruthy();
+  unmount();
+  reduire(true);
+  const reduit = render(<DialogueScene commande={{ ...ligne(), pose: 'blue-1' }} terminerEtape={vi.fn()} />);
+  expect(reduit.container.querySelector('[data-silhouette]')).not.toBeNull();
+  expect(reduit.container.querySelector('[data-silhouette]')?.getAttribute('class')).not.toContain('sprite-entree');
+});
+
+it('anime l’image de Chen sauf en mouvement réduit', () => {
+  const { container } = render(<DialogueScene commande={{ ...ligne(0, 'Prof. Chen'), pose: 'chen-1' }} terminerEtape={vi.fn()} />);
+  expect(container.querySelector('img')?.className).toContain('sprite-entree');
 });
 
 it('réinitialise écriture, focus et validation même si un autre événement réutilise le numéro d’étape', () => {

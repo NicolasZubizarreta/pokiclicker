@@ -96,13 +96,14 @@ describe('chargement des événements', () => {
     expect(essai).toEqual(avant);
   });
 
-  it('charge exactement l’intro, les cinq rivaux et les quatre événements Ronflex', () => {
+  it('charge exactement l’intro, la présentation de Blue, les cinq rivaux et les quatre événements Ronflex', () => {
     // Prépare le catalogue décrit par ce test ; la fin est vérifiée séparément.
     const evenementsKanto = chargerEvenements(
       import.meta.glob('../../data/evenements/{intro,rival,ronflex}.json', { eager: true, import: 'default' }), kanto,
     );
     expect(evenementsKanto.liste.map(e => e.id)).toEqual([
       'kanto.pokeflute-rattrapage',
+      'kanto.blue-presentation',
       'kanto.intro',
       'kanto.pokeflute',
       'kanto.rival-carmin',

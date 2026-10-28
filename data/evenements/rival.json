@@ -2,13 +2,24 @@
   "version": 1,
   "evenements": [
     {
+      "id": "kanto.blue-presentation",
+      "declencheur": { "type": "entree-zone", "zone": "kanto.foret-de-jade" },
+      "si": { "non": { "type": "boss", "zone": "kanto.foret-de-jade" } },
+      "priorite": 1,
+      "repetable": false,
+      "etapes": [
+        { "type": "dialogue", "locuteur": "Blue", "pose": "blue-1", "texte": "Hé, toi ! Moi, c'est Blue, le petit-fils du Prof. Chen." },
+        { "type": "dialogue", "locuteur": "Blue", "pose": "blue-1", "texte": "Je suis ton rival. Le prochain Maître Pokémon, ce sera moi, pas toi !" }
+      ]
+    },
+    {
       "id": "kanto.rival-foret",
       "declencheur": { "type": "entree-zone", "zone": "kanto.foret-de-jade" },
       "si": { "non": { "type": "boss", "zone": "kanto.foret-de-jade" } },
       "priorite": 0,
       "repetable": false,
       "etapes": [
-        { "type": "dialogue", "locuteur": "Blue", "texte": "Hé ! Tu comptes traverser la Forêt de Jade ? Voyons si ton Pokémon est aussi fort que le mien !" },
+        { "type": "dialogue", "locuteur": "Blue", "pose": "blue-1", "texte": "Hé ! Tu comptes traverser la Forêt de Jade ? Voyons si ton Pokémon est aussi fort que le mien !" },
         { "type": "combat", "dresseur": "Blue", "equipes": {
           "1": [
             { "pokemon": 16, "niveau": 4, "nom": "Roucool" },
@@ -23,7 +34,7 @@
             { "pokemon": 1, "niveau": 6, "nom": "Bulbizarre" }
           ]
         } },
-        { "type": "dialogue", "locuteur": "Blue", "texte": "Tu progresses, mais je serai toujours devant toi ! À la prochaine !" }
+        { "type": "dialogue", "locuteur": "Blue", "pose": "blue-1", "texte": "Tu progresses, mais je serai toujours devant toi ! À la prochaine !" }
       ]
     },
     {
@@ -33,7 +44,7 @@
       "priorite": 0,
       "repetable": false,
       "etapes": [
-        { "type": "dialogue", "locuteur": "Blue", "texte": "Tiens, te voilà à Carmin ! Avant de défier le Champion, montre-moi ce que vaut ton équipe !" },
+        { "type": "dialogue", "locuteur": "Blue", "pose": "blue-1", "texte": "Tiens, te voilà à Carmin ! Avant de défier le Champion, montre-moi ce que vaut ton équipe !" },
         { "type": "combat", "dresseur": "Blue", "equipes": {
           "1": [
             { "pokemon": 17, "niveau": 18, "nom": "Roucoups" },
@@ -54,7 +65,7 @@
             { "pokemon": 2, "niveau": 23, "nom": "Herbizarre" }
           ]
         } },
-        { "type": "dialogue", "locuteur": "Blue", "texte": "Pas mal ! Va donc tenter ta chance à l'Arène. Moi, j'ai encore de l'avance !" }
+        { "type": "dialogue", "locuteur": "Blue", "pose": "blue-1", "texte": "Pas mal ! Va donc tenter ta chance à l'Arène. Moi, j'ai encore de l'avance !" }
       ]
     },
     {
@@ -64,7 +75,7 @@
       "priorite": 0,
       "repetable": false,
       "etapes": [
-        { "type": "dialogue", "locuteur": "Blue", "texte": "Tu viens explorer la Tour Pokémon ? J'espère que ton équipe n'a pas peur des combats ! Fais-moi voir ça !" },
+        { "type": "dialogue", "locuteur": "Blue", "pose": "blue-1", "texte": "Tu viens explorer la Tour Pokémon ? J'espère que ton équipe n'a pas peur des combats ! Fais-moi voir ça !" },
         { "type": "combat", "dresseur": "Blue", "equipes": {
           "1": [
             { "pokemon": 17, "niveau": 28, "nom": "Roucoups" },
@@ -85,7 +96,7 @@
             { "pokemon": 2, "niveau": 33, "nom": "Herbizarre" }
           ]
         } },
-        { "type": "dialogue", "locuteur": "Blue", "texte": "Tu tiens le coup ! Continue ton exploration, je vais entraîner mes Pokémon !" }
+        { "type": "dialogue", "locuteur": "Blue", "pose": "blue-1", "texte": "Tu tiens le coup ! Continue ton exploration, je vais entraîner mes Pokémon !" }
       ]
     },
     {
@@ -95,7 +106,7 @@
       "priorite": 0,
       "repetable": false,
       "etapes": [
-        { "type": "dialogue", "locuteur": "Blue", "texte": "Même chez Sylphe SARL, on se retrouve ! Mon équipe a bien grandi. Tu crois pouvoir me battre ?" },
+        { "type": "dialogue", "locuteur": "Blue", "pose": "blue-1", "texte": "Même chez Sylphe SARL, on se retrouve ! Mon équipe a bien grandi. Tu crois pouvoir me battre ?" },
         { "type": "combat", "dresseur": "Blue", "equipes": {
           "1": [
             { "pokemon": 18, "niveau": 40, "nom": "Roucarnage" },
@@ -119,7 +130,7 @@
             { "pokemon": 3, "niveau": 45, "nom": "Florizarre" }
           ]
         } },
-        { "type": "dialogue", "locuteur": "Blue", "texte": "Encore toi ! Je vais devenir plus fort. On réglera ça sur la route de la Ligue !" }
+        { "type": "dialogue", "locuteur": "Blue", "pose": "blue-1", "texte": "Encore toi ! Je vais devenir plus fort. On réglera ça sur la route de la Ligue !" }
       ]
     },
     {
@@ -129,7 +140,7 @@
       "priorite": 0,
       "repetable": false,
       "etapes": [
-        { "type": "dialogue", "locuteur": "Blue", "texte": "La Route Victoire ! Tu as donc obtenu tous tes badges ? Pour aller à la Ligue, il faudra d'abord battre mon équipe !" },
+        { "type": "dialogue", "locuteur": "Blue", "pose": "blue-1", "texte": "La Route Victoire ! Tu as donc obtenu tous tes badges ? Pour aller à la Ligue, il faudra d'abord battre mon équipe !" },
         { "type": "combat", "dresseur": "Blue", "equipes": {
           "1": [
             { "pokemon": 18, "niveau": 65, "nom": "Roucarnage" },
@@ -156,7 +167,7 @@
             { "pokemon": 3, "niveau": 70, "nom": "Florizarre" }
           ]
         } },
-        { "type": "dialogue", "locuteur": "Blue", "texte": "D'accord, tu peux passer ! Mais je compte bien devenir Maître avant toi. Rendez-vous à la Ligue !" }
+        { "type": "dialogue", "locuteur": "Blue", "pose": "blue-1", "texte": "D'accord, tu peux passer ! Mais je compte bien devenir Maître avant toi. Rendez-vous à la Ligue !" }
       ]
     }
   ]

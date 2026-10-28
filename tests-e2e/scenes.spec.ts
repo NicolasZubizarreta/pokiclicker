@@ -5,7 +5,7 @@ import zones from '../data/regions/kanto/zones.json' with { type: 'json' };
 const instant = new Date('2026-10-25T12:00:00Z');
 const raisonRonflex = 'Un Ronflex endormi bloque la route de Parmanie. Joue de la Pokéflûte pour le réveiller.';
 
-async function preparer(page: Page, ronflex: boolean) {
+async function preparer(page: Page, ronflex: boolean, surcharge: Partial<DonneesRegion> = {}) {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.clock.install({ time: instant });
   await page.clock.pauseAt(instant);
@@ -25,7 +25,7 @@ async function preparer(page: Page, ronflex: boolean) {
   await page.goto('/');
   await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
   const vaincus = zones.zones.slice(1, ronflex ? 13 : 7).map(zone => zone.id);
-  await page.addInitScript(({ centrale, boss }) => {
+  await page.addInitScript(({ centrale, boss, surcharge }) => {
     if (sessionStorage.getItem('scenes-prepare')) return;
     sessionStorage.setItem('scenes-prepare', '1');
     const cle = Object.keys(localStorage).find(c => c.startsWith('pokiclicker:region:') && c.endsWith(':kanto'))!;
@@ -42,9 +42,10 @@ async function preparer(page: Page, ronflex: boolean) {
     region.starterId = 4;
     region.ligueGagnee = 0;
     region.objetsCles = [];
+    Object.assign(region, surcharge);
     enveloppe.revision += 1;
     localStorage.setItem(cle, JSON.stringify(enveloppe));
-  }, { centrale: ronflex, boss: vaincus });
+  }, { centrale: ronflex, boss: vaincus, surcharge });
   await page.reload();
   await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
   expect(injections, 'Injection du dernier PV dans le combat compilé').toBeGreaterThan(0);
@@ -116,6 +117,58 @@ for (const largeur of [390, 1440]) {
       await expect(page.getByRole('dialog', { name: 'Dialogue de scène' })).toHaveCount(0);
       await expect(page.getByRole('heading', { name: /^Blue \(/ })).toHaveCount(0);
       expect((await regionSauvee(page)).evenementsJoues).toContain('kanto.rival-carmin');
+    });
+
+    test('Route 1, premier boss : Chen explique les zones, le combat attend, puis aucun rejeu', async ({ page }) => {
+      await preparer(page, false, { zoneId: 'kanto.route-1', etape: 10, bossVaincus: [], badges: [] });
+      await page.clock.runFor(200);
+      const fenetre = page.getByRole('dialog', { name: 'Dialogue de scène' });
+      await expect(fenetre).toBeVisible();
+      await expect(fenetre).toContainText('Prof. Chen');
+      const sprite = fenetre.locator('img[src="img/sprites/chen/chen-1.png"]');
+      await expect(sprite).toBeVisible();
+      const boite = fenetre.getByRole('button');
+      const [haut, bas] = await Promise.all([sprite.boundingBox(), boite.boundingBox()]);
+      expect(haut!.y + haut!.height).toBeLessThanOrEqual(bas!.y + 1);
+      expect(bas!.x + bas!.width).toBeLessThanOrEqual(largeur);
+      // Le chrono de 30 s ne tourne pas pendant les explications : 40 s plus tard, on est toujours à l'étape 10.
+      await page.clock.runFor(40_000);
+      await expect(page.getByText('Étape 10 sur 10')).toBeVisible();
+      await dialogue(page, 'Chaque zone a 10 étapes');
+      await dialogue(page, 'Tu as 30 secondes');
+      await dialogue(page, 'tu reviens à l\'étape 9');
+      await dialogue(page, 'tu débloques la zone suivante');
+      await expect(fenetre).toHaveCount(0);
+      expect((await regionSauvee(page)).evenementsJoues).toContain('kanto.chen-premier-boss');
+      await expect(page.getByText('Étape 10 sur 10')).toBeVisible();
+      // Le chrono démarre à la fin du dialogue : l'échec ramène à l'étape 9, sans nouveau dialogue.
+      await page.clock.runFor(31_000);
+      await expect(page.getByText('Étape 9 sur 10')).toBeVisible();
+      await expect(fenetre).toHaveCount(0);
+      await page.reload();
+      await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
+      await page.clock.runFor(200);
+      await expect(fenetre).toHaveCount(0);
+    });
+
+    test('Forêt de Jade : Blue est présenté avant son défi, sprite à côté du texte, puis plus jamais', async ({ page }) => {
+      await preparer(page, false, { zoneId: 'kanto.route-1', etape: 1, bossVaincus: ['kanto.route-1'], badges: [] });
+      await voyager(page, 'Forêt de Jade');
+      const fenetre = page.getByRole('dialog', { name: 'Dialogue de scène' });
+      await expect(fenetre).toBeVisible();
+      await expect(fenetre).toContainText('Blue');
+      await expect(fenetre).toContainText('petit-fils du Prof. Chen');
+      const sprite = fenetre.locator('[data-silhouette]');
+      await expect(sprite).toBeVisible();
+      const [haut, bas] = await Promise.all([sprite.boundingBox(), fenetre.getByRole('button').boundingBox()]);
+      expect(haut!.y + haut!.height).toBeLessThanOrEqual(bas!.y + 1);
+      await dialogue(page, 'petit-fils du Prof. Chen');
+      await dialogue(page, 'Je suis ton rival');
+      await expect(fenetre.locator('[data-silhouette]')).toBeVisible();
+      await dialogue(page, 'Voyons si ton Pokémon est aussi fort');
+      const region = await regionSauvee(page);
+      expect(region.evenementsJoues).toContain('kanto.blue-presentation');
+      expect(region.evenementEnCours?.id).toBe('kanto.rival-foret');
     });
 
     test('Centrale : Parmanie fermée, Pokéflûte du Sac, victoire contre Ronflex et passage ouvert', async ({ page }) => {

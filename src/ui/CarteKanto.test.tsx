@@ -278,6 +278,8 @@ it('annonce les zones débloquées puis les marque vues après 600 ms', () => {
   storeJeu.getState().allerVers(route.zone!);
   for (let i = 0; i < 10000 && !storeJeu.getState().carte.nouvelles.length; i++) {
     vi.advanceTimersByTime(100);
+    // Chen explique le premier boss (ticket AI) : on lit ses répliques pour reprendre le combat.
+    if (storeJeu.getState().evenement) storeJeu.getState().terminerEtape();
     storeJeu.getState().attaquer();
     storeJeu.getState().tick();
   }

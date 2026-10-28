@@ -149,6 +149,13 @@ html:has(dialog[open]) { overflow: hidden; }
 @keyframes annonce-entree {
   from { opacity: 0; transform: translateY(calc(var(--spacing) * -2)); }
 }
+/* Sprite de personnage dans un dialogue : monte en fondu ; absent quand l'utilisateur réduit les animations. */
+@utility sprite-entree {
+  animation: sprite-entree var(--duration-lent) var(--ease-sortie) both;
+}
+@keyframes sprite-entree {
+  from { opacity: 0; transform: translateY(calc(var(--spacing) * 2)); }
+}
 /* Position finale disponible aussi sans animation (mouvement réduit). */
 @utility chen-en-place { transform: var(--translation-intro-chen-arrivee); }
 @utility chen-entree {

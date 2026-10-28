@@ -46,6 +46,15 @@ async function atteindre(page: Page, etape: number) {
   throw new Error(`Étape ${etape} non atteinte après 1500 appuis espacés de 90 ms`);
 }
 
+// Chen explique le premier boss, puis Blue se présente : on lit toutes les répliques affichées (un clic complète
+// la ligne, le suivant la passe).
+async function lireDialogues(page: Page) {
+  const scene = page.getByRole('dialog', { name: 'Dialogue de scène' });
+  for (let i = 0; i < 40 && await scene.isVisible(); i++) {
+    await scene.getByRole('button').click({ timeout: 1000 }).catch(() => {});
+  }
+  await expect(scene).toHaveCount(0);
+}
 async function stockage(page: Page) {
   return page.evaluate(() => Object.fromEntries(Object.keys(localStorage).sort()
     .filter(cle => cle.startsWith('pokiclicker:')).map(cle => [cle, localStorage.getItem(cle)])));
@@ -77,6 +86,9 @@ test('Parcours : dix étapes, boss, fin de route et captures', async ({ page }, 
     await page.setViewportSize({ width: 1440, height: 900 });
   }
   await atteindre(page, 10);
+  await page.clock.runFor(2500); // le boss apparaît, Chen parle
+  await expect(page.getByRole('dialog', { name: 'Dialogue de scène' })).toContainText('Prof. Chen');
+  await lireDialogues(page);
   await expect(page.getByRole('heading', { name: 'Rattata (Géant)', exact: true })).toBeVisible();
   await page.evaluate(() => Promise.all([...document.images].map(image => image.decode())));
   await page.screenshot({ path: `design/captures/h-combat-${largeur}-boss.png`, animations: 'disabled' });
@@ -102,6 +114,8 @@ test('Boss et zones : barre de temps, zone suivante, retour et reprise', async (
   await page.getByRole('button', { name: /^Zone suivante/ }).click();
   await expect(page.getByRole('heading', { name: 'Route 1', exact: true })).toBeVisible();
   await atteindre(page, 10);
+  await page.clock.runFor(2500); // le boss apparaît, Chen parle
+  await lireDialogues(page);
   const temps = page.getByRole('progressbar', { name: 'Temps restant' });
   await expect(temps).toBeVisible();
   await expect(temps).toHaveAttribute('aria-valuemax', '30');
@@ -117,10 +131,8 @@ test('Boss et zones : barre de temps, zone suivante, retour et reprise', async (
   // Entrer dans la Forêt de Jade déclenche la rencontre du rival : sa scène reprend au rechargement.
   const scene = page.getByRole('dialog', { name: 'Dialogue de scène' });
   await expect(scene).toBeVisible();
-  // Un premier clic termine la machine à écrire, le suivant passe la réplique.
-  await scene.getByRole('button').click();
-  await scene.getByRole('button').click({ timeout: 1000 }).catch(() => {});
-  await expect(scene).toHaveCount(0);
+  // Blue se présente (2 répliques) puis lance son défi (1 réplique) avant le combat.
+  await lireDialogues(page);
   await page.getByRole('button', { name: /^Zone précédente/ }).click();
   await expect(page.getByRole('heading', { name: 'Route 1', exact: true })).toBeVisible();
 });

@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "personnages": {
+    "Prof. Chen": { "dossier": "chen", "poses": ["chen-1", "chen-2", "chen-3"] },
+    "Blue": { "dossier": "blue", "poses": [] }
+  }
+}

@@ -5,7 +5,7 @@ import { avancerCombat, calculerClic, calculerDpsEquipe, cliquer, creerCombat, c
   multiplicateurType, reprendreCombat, viderEvenements, lancerCapture, basculerAutoAttaque, basculerAutoClic, suspendreDps,
   faucher as faucherCombat, invoquerBoss } from '../core/combat';
 import { acheter, chargerObjets } from '../core/boutique';
-import { blocage, commandeCourante, declencher, etapeTerminee, type CatalogueEvenements, type Commande, type Declencheur } from '../core/evenements';
+import { blocage, combatEnPause, commandeCourante, declencher, etapeTerminee, type CatalogueEvenements, type Commande, type Declencheur } from '../core/evenements';
 import { evenementsKanto } from '../core/evenements-kanto';
 import { peutLancer, zoneDuDefi, echec as echecDefi, victoire as victoireDefi } from '../core/defi-chen';
 import { nomAdversaireEvenement, zoneDeCombatEvenement, zoneDuCombat } from '../core/combat-evenement';
@@ -550,6 +550,18 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     if (evenements.liste.length === 0 && !region.evenementEnCours) return;
     appliquerEvenement(declencher(evenements, region, fait));
   };
+  // Le boss est à l'écran et attaquable : les événements « boss-atteint » (Chen, première fois) peuvent se jouer.
+  // Si l'un démarre, le minuteur repart de zéro pour que la lecture ne coûte aucune seconde au joueur.
+  const detecterBossAtteint = () => {
+    if (!coeur || coeur.attenteMs > 0 || !coeur.ennemi.boss || region.evenementEnCours
+      || coeur.zone.id.startsWith('evenement:') || coeur.zoneId === 'kanto.labo') return;
+    const avant = region;
+    executer({ type: 'boss-atteint', zone: coeur.zoneId });
+    if (region !== avant && coeur && coeur.minuteurMs !== null) {
+      coeur = { ...coeur, minuteurMs: reglages.combat.minuteurBossMs,
+        ennemi: { ...coeur.ennemi, pv: coeur.ennemi.pvMax } };
+    }
+  };
   const cacher = () => { if (document.visibilityState === 'hidden') enregistrer(); };
   const demarrerEvolution = (evolution: { uid: string; de: number; vers: number }) => {
     emettreSon('up');
@@ -618,7 +630,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     return { ...resultat, region };
   };
   const frapper = (): boolean => {
-    if (!coeur || minuteur === undefined) return false;
+    if (!coeur || minuteur === undefined || combatEnPause(evenements, region)) return false;
     actualiserActifs();
     const avant = coeur;
     coeur = cliquer(coeur, limiteur);
@@ -872,6 +884,11 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
           region = persistance.region;
           // Ancienne sauvegarde sans le champ : tout ce qui est déjà ouvert compte comme vu, rien ne se rejoue.
           if (region.annoncesVues === undefined) region = { ...region, annoncesVues: deblocagesAtteints(region, kanto) };
+          // Ancienne sauvegarde : si Blue a déjà défié le joueur à la Forêt de Jade, on ne le présente pas après coup.
+          if ((region.evenementsJoues.includes('kanto.rival-foret') || region.evenementEnCours?.id === 'kanto.rival-foret')
+            && !region.evenementsJoues.includes('kanto.blue-presentation')) {
+            region = { ...region, evenementsJoues: [...region.evenementsJoues, 'kanto.blue-presentation'] };
+          }
           preferences = persistance.preferences;
           sonActive = persistance.sonActive;
           pokedex = completerPokedex(persistance.pokedex, region);
@@ -892,13 +909,17 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
           if (banniere !== null && tempsJeuMs >= finBanniereMs) banniere = null;
           avancerDeblocages();
           actualiserActifs();
-          if (coeur?.autoClic && coeur.attenteMs === 0) {
+          detecterBossAtteint();
+          // Une réplique à `pauseCombat` (Chen au premier boss) fige le combat : ni dégâts ni minuteur.
+          const enPause = combatEnPause(evenements, region);
+          if (coeur?.autoClic && coeur.attenteMs === 0 && !enPause) {
             const resultat = clicsAutomatiques(resteAutoClicMs, reglages.boucle.pasMs, reglages.combat.autoClicIntervalleMs);
             resteAutoClicMs = resultat.resteMs;
             for (let i = 0; i < resultat.clics; i++) frapper();
           } else resteAutoClicMs = 0;
-          if (coeur) coeur = avancerCombat(coeur, reglages.boucle.pasMs);
+          if (coeur && !enPause) coeur = avancerCombat(coeur, reglages.boucle.pasMs);
           traiter();
+          detecterBossAtteint();
           return null;
         } });
         boucle.abonner(afficher);

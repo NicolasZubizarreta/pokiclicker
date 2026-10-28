@@ -36,7 +36,10 @@ function preparerRegion(modifier: (region: DonneesRegion) => DonneesRegion, alea
   const initial = preparer();
   initial.store.getState().arreter();
   const gestionnaire = creerGestionnaire({ stockage: initial.stockage, horloge: initial.horloge, genererId: () => 'test' });
-  gestionnaire.ecrireRegion('test', 'kanto', modifier(gestionnaire.chargerRegion('test', 'kanto')!.donnees));
+  // Chen explique le premier boss une seule fois (ticket AI) : ces tests visent le combat, pas son dialogue.
+  const region = modifier(gestionnaire.chargerRegion('test', 'kanto')!.donnees);
+  gestionnaire.ecrireRegion('test', 'kanto', { ...region,
+    evenementsJoues: [...new Set([...region.evenementsJoues, 'kanto.chen-premier-boss'])] });
   return preparer(initial.stockage, alea);
 }
 

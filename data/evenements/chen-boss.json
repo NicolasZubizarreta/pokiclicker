@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "evenements": [
+    {
+      "id": "kanto.chen-premier-boss",
+      "declencheur": { "type": "boss-atteint", "zone": "kanto.route-1" },
+      "si": { "non": { "type": "boss", "zone": "kanto.route-1" } },
+      "priorite": 0,
+      "repetable": false,
+      "pauseCombat": true,
+      "etapes": [
+        { "type": "dialogue", "locuteur": "Prof. Chen", "pose": "chen-1", "texte": "Te voilà devant ton premier boss ! Chaque zone a 10 étapes : 9 Pokémon à vaincre, puis le boss." },
+        { "type": "dialogue", "locuteur": "Prof. Chen", "pose": "chen-2", "texte": "Tu as 30 secondes pour le vaincre. Le chrono démarre dès que j'ai fini de parler." },
+        { "type": "dialogue", "locuteur": "Prof. Chen", "pose": "chen-2", "texte": "Si le temps est écoulé, tu reviens à l'étape 9 et tu peux réessayer." },
+        { "type": "dialogue", "locuteur": "Prof. Chen", "pose": "chen-3", "texte": "Si tu gagnes, tu débloques la zone suivante. Capture des Pokémon sauvages pour te faire une équipe solide : tu avanceras plus vite." }
+      ]
+    }
+  ]
+}

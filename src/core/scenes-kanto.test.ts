@@ -98,7 +98,8 @@ describe('scènes Kanto : rival obligatoire', () => {
       const combat = dialogues(debut);
       const commande = commandeCourante(cat, combat);
       expect(commande).toMatchObject({ type: 'combat', dresseur: 'Blue' });
-      expect(combat.evenementsJoues).toEqual([]);
+      // Blue est présenté (ticket AI) avant son tout premier défi, à la Forêt de Jade.
+      expect(combat.evenementsJoues).toEqual(id === 'foret-de-jade' ? ['kanto.blue-presentation'] : []);
       const fin = dialogues(etapeTerminee(cat, combat, commande!));
       expect(fin.evenementsJoues).toContain(commande!.evenement);
       expect(fin.bossVaincus).toEqual([]);

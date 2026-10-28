@@ -21,6 +21,7 @@ export type Declencheur =
   | { type: 'palier-pokedex'; palier: number }
   | { type: 'entree-zone'; zone: string }
   | { type: 'boss-vaincu'; zone: string }
+  | { type: 'boss-atteint'; zone: string }
   | { type: 'objet-utilise'; objet: string; zone?: string };
 
 export type Etape =
@@ -41,6 +42,8 @@ export type Evenement = {
   si?: Condition;
   priorite: number;
   repetable: boolean;
+  /** Le combat est figé (ni dégâts, ni minuteur de boss) tant qu'une réplique de cet événement est affichée. */
+  pauseCombat?: boolean;
   etapes: Etape[];
 };
 
@@ -65,6 +68,7 @@ function correspond(declencheur: Declencheur, fait: Declencheur): boolean {
     case 'debut-partie': return true;
     case 'palier-pokedex': return fait.type === 'palier-pokedex' && declencheur.palier === fait.palier;
     case 'entree-zone':
+    case 'boss-atteint':
     case 'boss-vaincu': return 'zone' in fait && declencheur.zone === fait.zone;
     case 'objet-utilise': return fait.type === 'objet-utilise' && declencheur.objet === fait.objet
       && (declencheur.zone === undefined || declencheur.zone === fait.zone);
@@ -138,6 +142,13 @@ export function commandeCourante(cat: CatalogueEvenements, region: DonneesRegion
   const etape = cat.liste.find(e => e.id === courant.id)?.etapes[courant.etape];
   return etape && (etape.type === 'dialogue' || etape.type === 'combat')
     ? { ...etape, evenement: courant.id, etape: courant.etape } : null;
+}
+
+/** Vrai tant qu'une réplique d'un événement à `pauseCombat` attend le joueur. */
+export function combatEnPause(cat: CatalogueEvenements, region: DonneesRegion): boolean {
+  const courant = region.evenementEnCours;
+  if (!courant || !commandeCourante(cat, region)) return false;
+  return cat.liste.find(e => e.id === courant.id)?.pauseCombat === true;
 }
 
 export function etapeTerminee(
@@ -222,6 +233,7 @@ export function chargerEvenements(
       case 'debut-partie': forme(v, { type: chaine }); break;
       case 'palier-pokedex': forme(v, { type: chaine, palier: positif }); break;
       case 'entree-zone':
+      case 'boss-atteint':
       case 'boss-vaincu': forme(v, { type: chaine, zone }); break;
       case 'objet-utilise': forme(v, { type: chaine, objet: objetConnu }, { zone }); break;
       default: throw new Error(`Déclencheur inconnu : ${String(v.type)}`);
@@ -277,7 +289,7 @@ export function chargerEvenements(
           id: identifiant,
           declencheur,
           etapes: v => { exiger(Array.isArray(v) && v.length > 0, 'Étapes attendues'); v.forEach(etape); },
-        }, { si: condition, priorite: entier, repetable: booleen });
+        }, { si: condition, priorite: entier, repetable: booleen, pauseCombat: booleen });
         const evenement = structuredClone(valeur) as Evenement;
         evenement.priorite ??= 0;
         evenement.repetable ??= false;
