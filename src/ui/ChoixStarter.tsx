@@ -21,7 +21,7 @@ export function ChoixStarter({ starters, choisir }: { starters: Starter[]; chois
           className="group grid justify-items-center gap-2 p-1 motion-safe:transition-transform motion-safe:hover:intro-starter-survol">
           <span className={`relative grid size-20 place-items-center rounded-full ${starter.shiny ? 'ring-2 ring-alerte-base' : ''}`}>
             <img src="img/objets/poke-ball.png" alt="" width={80} height={80}
-              className={`image-rendering-pixelated size-full object-contain motion-safe:intro-starter-fondu ${actif ? 'opacity-0' : 'opacity-100'}`} />
+              className={`image-rendering-pixelated size-full object-contain motion-safe:intro-starter-fondu ${actif ? 'opacity-0' : 'opacity-100 group-hover:opacity-0 group-focus-visible:opacity-0'}`} />
             <img src={artwork} alt="" width={80} height={80}
               className={`absolute inset-0 size-full object-contain motion-safe:intro-starter-fondu ${starter.shiny ? 'halo-shiny' : ''} ${actif
                 ? 'opacity-100 intro-starter-choisi'

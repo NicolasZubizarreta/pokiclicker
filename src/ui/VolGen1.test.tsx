@@ -56,7 +56,7 @@ it('ignore deux lancements rapprochés et respecte les seuils puis revient inact
   expect(result.current.etat).toEqual({ actif: false, ms: 0, cible: null, depart: null });
 });
 
-it('affiche les cinq images dans le SVG à 150 ms d’intervalle et désactive Y aller', () => {
+it('affiche les cinq images dans le SVG à 150 ms d’intervalle et ferme la fiche au clic sur Y aller', () => {
   const aller = vi.spyOn(storeJeu.getState(), 'allerVers');
   const { container } = render(<CarteKanto quandArrive={vi.fn()} />);
   fireEvent.click(screen.getByRole('button', { name: 'Route 1 (Zone 1)' }));
@@ -66,7 +66,7 @@ it('affiche les cinq images dans le SVG à 150 ms d’intervalle et désactive Y
   const depart = container.querySelector('[data-dresseur]')!.parentElement!;
   const position = [depart.getAttribute('x'), depart.getAttribute('y')];
   expect(Number(depart.getAttribute('height'))).toBe(9 * reglages.interface.vol.tailleDresseurRatio);
-  expect((bouton as HTMLButtonElement).disabled).toBe(true);
+  expect(screen.queryByRole('region', { name: 'Zone sélectionnée' })).toBeNull();
   expect(screen.getByRole('status').textContent).toBe('Vol en cours vers Route 1…');
   for (let image = 1; image <= 5; image++) {
     expect(container.querySelector('svg image[data-dresseur]')?.getAttribute('href')).toBe(`img/sprites/dresseur/vol-${image}.png`);
@@ -80,7 +80,7 @@ it('affiche les cinq images dans le SVG à 150 ms d’intervalle et désactive Y
   expect([dresseur.getAttribute('x'), dresseur.getAttribute('y')]).toEqual(position);
   avancer(499);
   expect(container.querySelector('[data-dresseur]')!.parentElement!.getAttribute('x')).toBe(position[0]);
-  expect((screen.getByRole('button', { name: 'Y aller' }) as HTMLButtonElement).disabled).toBe(true);
+  expect(screen.queryByRole('button', { name: 'Y aller' })).toBeNull();
 });
 
 it('anime la piste en 400 ms et répète les traits en 200 ms sans trou', () => {

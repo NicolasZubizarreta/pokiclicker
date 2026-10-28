@@ -79,7 +79,7 @@ function Scene({ store, ouvrirPension }: { store: StoreJeu; ouvrirPension(): voi
   const notification = annonce !== null && <div role="status" aria-live="polite"
     className="pointer-events-none cadre absolute inset-x-4 top-4 z-20 bg-surface/82 p-2 text-center">{annonce}</div>;
   if (lieu?.id === kanto.depart) return <div
-    className="scene-limitee relative grid h-76 grid-rows-[minmax(0,1fr)_auto] bg-surface-2 lg:col-span-3 lg:aspect-video lg:h-auto">
+    className="scene-limitee scene-depart relative grid h-76 grid-rows-[minmax(0,1fr)_auto] bg-surface-2 lg:col-span-3 lg:aspect-6/5 lg:h-auto">
     <div className="min-h-0 [&>div]:h-full [&_section]:grid [&_section]:h-full [&_section]:grid-rows-[minmax(0,1fr)_auto_auto] [&_section>div]:h-full [&_section>div]:w-auto [&_section>div]:max-w-full [&_section>div]:justify-self-center [&_section>p:not([role])]:sr-only">
       <ScenesBourgPalette annonce={annonce} accesPension={accesPension} quandPension={ouvrirPension} />
     </div>

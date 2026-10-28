@@ -121,8 +121,14 @@ html:has(dialog[open]) { overflow: hidden; }
   --transformation-intro-cadenas-milieu: scale(1.2) rotate(10deg);
   --transformation-intro-cadenas-fin: scale(2);
 }
+/* Zones cliquables d'une scène : contour fin (le viewBox est étiré, sans cela 1 unité = 1/16 de la largeur). */
+@utility forme-scene {
+  vector-effect: non-scaling-stroke;
+  stroke-width: calc(var(--spacing) / 2);
+}
 @utility flash-vert {
   animation: flash-vert var(--duree-intro-flash) infinite;
+  fill-opacity: 0.35;
 }
 @keyframes flash-vert {
   0%, 100% { fill: var(--succes-fond); stroke: var(--succes-base); }
@@ -197,10 +203,14 @@ html:has(dialog[open]) { overflow: hidden; }
 .combat-grille > .scene-limitee { @apply min-h-0 overflow-hidden; height: 100%; max-height: calc(var(--spacing) * 76); }
 /* Scène d’intro : carrée, jamais plus haute que l’écran (la nav mobile et l’en-tête restent visibles). */
 .scene-intro { width: min(100%, calc(100dvh - var(--spacing) * 28)); margin-inline: auto; }
+/* Scène en 16/9 : limitée par la hauteur de l'écran (image + ligne d'état + bulle), pas par un carré. */
+.scene-intro-paysage { width: min(100%, calc((100dvh - var(--spacing) * 44) * 16 / 9)); margin-inline: auto; }
 @media (min-width: 64rem) {
   .scene-limitee { width: min(100%, calc((100dvh - 19rem) * 16 / 9)); margin-inline: auto; }
   .combat-grille { height: auto; grid-template-rows: none; }
   .combat-grille > .scene-limitee { height: auto; max-height: none; width: min(100%, calc((100dvh - var(--spacing) * 108) * 16 / 9)); }
+  /* Bourg Palette (image carrée) : un cadre moins large que le 16/9, donc une image plus grande. */
+  .combat-grille > .scene-depart { width: min(100%, calc((100dvh - var(--spacing) * 84) * 6 / 5)); }
   .toast { bottom: 1rem; right: 1rem; left: auto; transform: none; }
 }
 .barre-pv { transition: transform var(--duree-pv) var(--ease-standard); }

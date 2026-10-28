@@ -35,7 +35,7 @@ it('change de piste avec la scène, reprend une boucle et relance la fanfare du 
   expect(lecteurs['audio/carte.ogg']!.play).toHaveBeenCalledTimes(1);
   musique.definirScene('pantheon');
   lecteurs['audio/victoire.mp3']!.currentTime = 12;
-  musique.definirScene('intro');
+  musique.definirScene('combat');
   musique.definirScene('pantheon');
   expect(lecteurs['audio/victoire.mp3']!.currentTime).toBe(0);
   expect(lecteurs['audio/victoire.mp3']!.play).toHaveBeenCalledTimes(2);

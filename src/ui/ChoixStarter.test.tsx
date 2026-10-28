@@ -26,7 +26,15 @@ it('affiche l’artwork du choix agrandi et laisse les autres balles visibles', 
   const artwork = container.querySelector('img[src="img/artworks/7.png"]')!;
   expect(artwork.className).toContain('intro-starter-choisi');
   const balles = Array.from(container.querySelectorAll('img[src="img/objets/poke-ball.png"]'));
-  expect(balles.map(balle => balle.className.includes('opacity-0'))).toEqual([false, false, true]);
+  expect(balles.map(balle => balle.className.split(' ').includes('opacity-0'))).toEqual([false, false, true]);
+});
+
+it('efface la balle sous le Pokémon survolé ou ciblé au clavier', () => {
+  const { container } = render(<ChoixStarter starters={starters} choisir={vi.fn()} />);
+  for (const balle of container.querySelectorAll('img[src="img/objets/poke-ball.png"]')) {
+    expect(balle.className).toContain('group-hover:opacity-0');
+    expect(balle.className).toContain('group-focus-visible:opacity-0');
+  }
 });
 
 it('confirme avec le nom du Pokémon et transmet son numéro', () => {

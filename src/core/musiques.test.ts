@@ -14,7 +14,7 @@ it('choisit la scène d\'après ce qui est à l\'écran', () => {
 });
 
 it('associe chaque scène à une piste connue, ou au silence', () => {
-  expect(pisteDeScene('intro')).toBeNull();
+  expect(pisteDeScene('intro')).toBe('carte');
   expect(pisteDeScene('pantheon')).toBe('victoire');
   expect(musiques.pistes.victoire!.boucle).toBe(false);
 });

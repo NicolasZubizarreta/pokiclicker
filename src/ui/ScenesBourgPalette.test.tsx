@@ -93,7 +93,7 @@ it('annonce les raisons au focus et au toucher et bloque Pension et Bateau', () 
   fireEvent.pointerDown(bateau);
   expect(screen.getByRole('status').textContent).toContain('Bientôt disponible');
   fireEvent.click(bateau);
-  expect(container.querySelector('[data-forme="Bateau en direction de Johto"]')?.classList.contains('fill-texte-doux/50')).toBe(true);
+  expect(container.querySelector('[data-forme="Bateau en direction de Johto"]')?.classList.contains('fill-texte-doux/70')).toBe(true);
   expect(screen.getByRole('button', { name: 'Chez Maman' })).toBeTruthy();
 });
 
@@ -114,6 +114,16 @@ it('cale les formes et cibles sur les fractions, même après redimensionnement'
     expect(cible.style.left).toBe(`${centre.x / 16 * 100}%`);
   }
   expect(container.querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');
+});
+
+it('ajuste la cible à la boîte de la forme et ne met le curseur main que sur une zone ouverte', () => {
+  render(<ScenesBourgPalette />);
+  const labo = chargerScenes()[0]!.formes.find(f => f.zone === 'kanto.labo')!;
+  const cible = screen.getByRole('button', { name: labo.nom });
+  expect(cible.style.width).toBe(`${(labo as { l: number }).l * 100}%`);
+  expect(cible.style.height).toBe(`${(labo as { h: number }).h * 100}%`);
+  expect(cible.classList.contains('enabled:cursor-pointer')).toBe(true);
+  expect(screen.getByRole('button', { name: 'Pension Pokémon' }).classList.contains('enabled:cursor-pointer')).toBe(false);
 });
 
 it('permet la visite de Blue et le retour au clavier', async () => {

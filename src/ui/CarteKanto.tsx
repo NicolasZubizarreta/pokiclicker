@@ -216,7 +216,7 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
           {!choisie.ouverte ? <><p>Bloquée</p><p>{choisie.raison ?? 'Pas encore accessible.'}</p></>
             : choisie.actuelle && !vol.actif ? <p>Tu es ici.</p>
               : <button type="button" className="min-h-11 min-w-11 w-full bg-action px-4 py-2 text-action-texte shadow-sm hover:bg-action-survol focus-visible:outline-2 focus-visible:outline-focus"
-                disabled={vol.actif} onClick={() => lancer(choisie.zone!, actuelle ? formeDepart(actuelle) : null)}>{choisie.nom === 'Céladopole' ? 'Arène' : 'Y aller'}</button>}
+                disabled={vol.actif} onClick={() => { lancer(choisie.zone!, actuelle ? formeDepart(actuelle) : null); selectionner(null); }}>{choisie.nom === 'Céladopole' ? 'Arène' : 'Y aller'}</button>}
           {choisie.nom === 'Céladopole' && <div className="mt-2 grid gap-2">
             <div>
               <button type="button" data-centre disabled={!centreOuvert || vol.actif}

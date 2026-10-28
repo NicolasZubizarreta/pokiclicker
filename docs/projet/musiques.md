@@ -11,7 +11,8 @@ Téléchargées le 27/10/2026 avec l'accord de Nicolas. Fichiers dans `public/au
 | boss (Géant) | Chiptune Adventures : Boss Fight | `boss.ogg` | idem | idem |
 | adversaire (champion d'arène, Ligue, défi de Chen) | 8-Bit Battle Loop | `combat.ogg` | Wolfgang_ | https://opengameart.org/content/8-bit-battle-loop |
 | Panthéon (victoire de la Ligue) | Victory | `victoire.mp3` | celestialghost8 | https://opengameart.org/content/victory |
-| intro, crédits | silence | | | |
+| intro (écran titre, chez Maman, labo) | Chiptune Adventures : Stage Select | `carte.ogg` | idem | idem (provisoire : Nicolas pourra choisir une autre piste) |
+| crédits | silence | | | |
 
 Non retenues dans le pack Chiptune Adventures : « Stage 2 » (2,4 Mo), disponible si besoin.
 

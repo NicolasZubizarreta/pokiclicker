@@ -1,6 +1,14 @@
 import { useId, useRef, useState } from 'react';
-import type { Scene } from '../core/scenes';
+import type { FormeScene, Scene } from '../core/scenes';
 import { attributsSvg, centreForme } from './carte-geometrie';
+
+/** Boîte englobante de la forme, en fractions de la scène. */
+function boiteForme(f: FormeScene): { l: number; h: number } {
+  if (f.forme === 'rect') return { l: f.l, h: f.h };
+  const xs = f.points.map(([x]) => x);
+  const ys = f.points.map(([, y]) => y);
+  return { l: Math.max(...xs) - Math.min(...xs), h: Math.max(...ys) - Math.min(...ys) };
+}
 
 type Props = {
   scene: Scene;
@@ -42,21 +50,22 @@ export function SceneLieu({ scene, nom, quandChoisir, raisons = {}, clignotement
         className="pointer-events-none absolute inset-0 h-full w-full">
         {scene.formes.map(f => {
           const Forme = f.forme === 'polygone' ? 'polygon' : 'rect';
-          const couleur = !f.zone || raisons[f.zone] ? 'fill-texte-doux/50'
-            : f.teinte === 'red' ? 'fill-erreur-base/30'
-              : f.teinte === 'blue' ? 'fill-info-base/30' : 'fill-succes-base/60';
+          const couleur = !f.zone || raisons[f.zone] ? 'fill-texte-doux/70'
+            : f.teinte === 'red' ? 'fill-erreur-base/45'
+              : f.teinte === 'blue' ? 'fill-info-base/45' : 'fill-succes-base/25';
           return <Forme key={f.nom} {...attributsSvg(f)} data-forme={f.nom}
-            className={`${couleur} ${f.zone && clignotements.includes(f.zone) ? 'motion-safe:flash-vert' : ''}`} />;
+            className={`forme-scene ${couleur} ${f.zone && clignotements.includes(f.zone) ? 'motion-safe:flash-vert' : ''}`} />;
         })}
       </svg>
       {scene.formes.map((f, index) => {
         const centre = centreForme(f);
-        const position = { left: `${centre.x / 16 * 100}%`, top: `${centre.y / 9 * 100}%` };
+        const boite = boiteForme(f);
+        const position = { left: `${centre.x / 16 * 100}%`, top: `${centre.y / 9 * 100}%`, width: `${boite.l * 100}%`, height: `${boite.h * 100}%` };
         const raison = f.zone ? raisons[f.zone] : 'Bientôt disponible.';
         const texte = raison ?? f.nom;
         return <button key={f.nom} type="button" aria-label={f.nom}
           aria-disabled={raison ? true : undefined} aria-describedby={raison ? `${id}-${index}` : undefined} disabled={occupe}
-          style={position} className="absolute min-h-11 min-w-11 -translate-x-1/2 -translate-y-1/2 bg-transparent focus-visible:outline-focus"
+          style={position} className={`absolute min-h-11 min-w-11 -translate-x-1/2 -translate-y-1/2 bg-transparent focus-visible:outline-focus ${raison ? '' : 'enabled:cursor-pointer'}`}
           onFocus={() => annoncer(texte)} onPointerEnter={() => annoncer(texte)} onPointerDown={() => annoncer(texte)}
           onClick={() => { annoncer(texte); if (!raison && f.zone) quandChoisir(f.zone); }} />;
       })}

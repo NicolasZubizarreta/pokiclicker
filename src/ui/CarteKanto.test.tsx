@@ -201,6 +201,7 @@ it('voyage vers une zone ouverte avant de signaler l’arrivée', () => {
   const image = screen.getByRole('img', { name: 'Décor de Route 1' });
   expect(image.className).toContain('carte-miniature');
   fireEvent.click(screen.getByRole('button', { name: 'Y aller' }));
+  expect(screen.queryByRole('region', { name: 'Zone sélectionnée' })).toBeNull();
   act(() => { vi.advanceTimersByTime(3800); });
   expect(aller).toHaveBeenCalledWith(storeJeu.getState().carte.formes.find(f => f.numero === 1)!.zone);
   expect(arrive).toHaveBeenCalledTimes(1);

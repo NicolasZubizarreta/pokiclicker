@@ -1,13 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { useStore } from 'zustand';
 import { reglages } from '../core/reglages';
+import { chargerScenes } from '../core/scenes';
 import { ChoixStarter } from './ChoixStarter';
 import { DialogueIntro } from './DialogueIntro';
 import { EcranTitre } from './EcranTitre';
 import { ScenesBourgPalette } from './ScenesBourgPalette';
 import { storeJeu, type StoreJeu } from './store';
 
-const mouvementReduit = () => typeof window !== 'undefined' && typeof window.matchMedia === 'function'
+const scenes = chargerScenes();
+const mouvementReduit =() => typeof window !== 'undefined' && typeof window.matchMedia === 'function'
   && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /**
@@ -25,6 +27,8 @@ export function PageIntro({ store = storeJeu, quandTerminee }: { store?: StoreJe
   const [visible, rendreVisible] = useState(reprise);
   const [dialogueOuvert, ouvrirDialogue] = useState(reprise);
   const [enLabo, noterLabo] = useState(reprise);
+  const sceneDepart = reprise ? 'kanto.labo' : 'kanto.chez-maman';
+  const [idScene, changerIdScene] = useState(sceneDepart);
   const [choixPret, preparerChoix] = useState(false);
   const [erreur, signaler] = useState<string | null>(null);
   const minuteurs = useRef<ReturnType<typeof setTimeout>[]>([]);
@@ -45,18 +49,19 @@ export function PageIntro({ store = storeJeu, quandTerminee }: { store?: StoreJe
     }} />
   </div>;
 
-  return <div className={`scene-intro relative ${visible ? 'opacity-100' : 'opacity-0'} motion-safe:intro-interface-fondu`}>
+  const ratio = scenes.find(scene => scene.id === idScene)!.ratio;
+  return <div className={`${ratio[0] > ratio[1] ? 'scene-intro-paysage' : 'scene-intro'} relative ${visible ? 'opacity-100' : 'opacity-0'} motion-safe:intro-interface-fondu`}>
     <ScenesBourgPalette
       accesPension={accesPension}
-      sceneInitiale={reprise ? 'kanto.labo' : 'kanto.chez-maman'}
+      sceneInitiale={sceneDepart}
       laboAVisiter={intro.enCours} sortieLaboClignote={!intro.enCours && !intro.choixStarter}
-      bloquee={parlant || (intro.enCours && enLabo)} quandScene={id => noterLabo(id === 'kanto.labo')}
+      bloquee={parlant || (intro.enCours && enLabo)} quandScene={id => { noterLabo(id === 'kanto.labo'); changerIdScene(id); }}
       quandLabo={() => {
         if (!intro.enCours) return;
         minuteurs.current.push(setTimeout(() => ouvrirDialogue(true), reduit ? 0 : reglages.intro.laboDelaiMs));
       }}
       quandSortieLabo={quandTerminee} />
-    {parlant && <div className="absolute inset-x-0 bottom-0 z-10 grid">
+    {parlant && <div className="absolute inset-0 z-10 grid content-end overflow-hidden">
       <DialogueIntro commande={evenement} sacOuvert={intro.sacOuvert} carteOuverte={intro.carteOuverte}
         terminerEtape={terminerEtape} />
       {intro.choixStarter && choixPret && <ChoixStarter starters={intro.starters}

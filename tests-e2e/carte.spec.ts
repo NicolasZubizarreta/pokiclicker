@@ -64,7 +64,7 @@ test('Carte : image sans bande, cibles tactiles, zone fermée et captures', asyn
   await page.screenshot({ path: `design/captures/g-carte-${largeur}.png`, animations: 'disabled' });
 });
 
-test('Carte : vol vers une zone, second clic ignoré, puis retour au combat', async ({ page }) => {
+test('Carte : vol vers une zone, fiche fermée au départ, puis retour au combat', async ({ page }) => {
   await ouvrirCarte(page);
   await page.getByRole('button', { name: 'Bourg Palette', exact: true }).focus();
   await page.keyboard.press('Enter');
@@ -72,7 +72,7 @@ test('Carte : vol vers une zone, second clic ignoré, puis retour au combat', as
   await allerVers.click();
   await page.clock.runFor(900);
   await expect(page.locator('[data-vol-overlay]')).toBeAttached();
-  await allerVers.click({ force: true }).catch(() => undefined);
+  await expect(allerVers).toHaveCount(0);
   await page.clock.runFor(2300);
   await expect(page.getByRole('button', { name: 'Carte', exact: true })).toHaveAttribute('aria-current', 'page');
   await page.clock.runFor(700);
