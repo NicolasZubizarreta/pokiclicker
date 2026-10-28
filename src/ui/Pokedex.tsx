@@ -5,7 +5,7 @@ import { Image } from './Image';
 import { cheminSprite } from './precharger';
 import { storeJeu } from './store';
 import { formaterProchainPalier } from './store-progression';
-import { IconeCadenas } from './icones';
+import { IconeCadenas, PastilleCapture } from './icones';
 
 const catalogue = chargerPokemon();
 
@@ -37,7 +37,7 @@ export function Pokedex({ retour }: { retour(): void }) {
           <span>N° {numero}</span>
           <Image src={cheminSprite(numero)} genre="sprite" alt={capture ? nom : 'Pokémon inconnu'}
             className={`size-16 max-w-full ${capture ? '' : 'brightness-0'}`} />
-          <span className="w-full break-words">{nom}</span>
+          <span className="w-full break-words">{nom}{capture && <PastilleCapture />}</span>
         </li>;
       })}
     </ol>

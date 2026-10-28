@@ -15,8 +15,9 @@ async function renommer(page: Page, ancien: string, nouveau: string) {
   const fiche = page.locator('dialog[open]').first();
   if (!(await fiche.isVisible())) await page.getByRole('button', { name: 'Ouvre la fiche' }).click();
   await expect(fiche).toBeVisible();
+  await fiche.getByRole('button', { name: `Renommer ${ancien}` }).click();
   await fiche.getByRole('textbox').fill(nouveau);
-  await fiche.getByRole('button', { name: 'Renommer' }).click();
+  await fiche.getByRole('textbox').press('Enter');
   await expect(fiche.getByRole('heading', { level: 2 }).first()).toContainText(nouveau);
   await page.keyboard.press('Escape');
   await expect(page.locator('dialog[open]')).toHaveCount(0);

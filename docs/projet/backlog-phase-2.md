@@ -1015,7 +1015,7 @@ Fourchette : 2 à 3 jours après le choix. Risque : lisibilité des icônes seul
 
 ## AF. `feat(ui): icône du Poké-Radar, raretés en couleurs, pastille « capturé » et crayon de renommage`
 
-Labels : `type:feat`, `etat:idee`, `est:2-3`, `prio:2` · branche : `feat/af-radar-raretes-captures-renommage` · `agent-ok` : oui
+Labels : `type:feat`, `etat:fait` (28/10 : codé en local, crayon sur les cartes de la page Équipe et de l'écran de combat grand écran ; le champ « Surnom » du bas de la fiche est remplacé), `est:2-3`, `prio:2` · branche : `feat/af-radar-raretes-captures-renommage` · `agent-ok` : oui
 
 ### Histoire
 En tant que joueur, je veux une vraie icône de Poké-Radar, des raretés qui se distinguent par la couleur, une pokéball à côté des Pokémon déjà capturés et un crayon pour renommer afin de lire les listes d'un coup d'œil et d'atteindre les easter eggs. [15, 16, 19]

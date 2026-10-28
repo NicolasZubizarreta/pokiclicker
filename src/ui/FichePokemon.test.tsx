@@ -38,11 +38,11 @@ beforeEach(() => {
 });
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
-function Exemple() {
+function Exemple({ renommer = false }: { renommer?: boolean }) {
   const declencheur = useRef<HTMLButtonElement>(null);
   const [ouvert, ouvrir] = useState(false);
   return <><button ref={declencheur} onClick={() => ouvrir(true)}>Ouvre la fiche</button>
-    <FichePokemon uid="fiche" ouvert={ouvert} fermer={() => ouvrir(false)} declencheur={declencheur} /></>;
+    <FichePokemon uid="fiche" ouvert={ouvert} fermer={() => ouvrir(false)} declencheur={declencheur} renommer={renommer} /></>;
 }
 function afficher() {
   const vue = render(<Exemple />);
@@ -92,21 +92,60 @@ it('ne ferme pas la fiche quand on appuie à l’intérieur', () => {
   expect(dialogue.hasAttribute('open')).toBe(true);
 });
 
-it('renomme avec validation du cœur, compteur et en-tête réactif', () => {
+it('renomme par le crayon avec validation du cœur, compteur et en-tête réactif', () => {
   afficher();
-  const champ = screen.getByRole('textbox', { name: 'Surnom' });
+  expect(screen.queryByRole('textbox')).toBeNull();
+  expect(screen.queryByText('Surnom')).toBeNull();
+  const crayon = screen.getByRole('button', { name: 'Renommer Bourgeon' });
+  fireEvent.click(crayon);
+  const champ = screen.getByRole('textbox', { name: 'Surnom' }) as HTMLInputElement;
+  expect(champ.value).toBe('Bourgeon');
+  expect(document.activeElement).toBe(champ);
   expect(champ.hasAttribute('maxlength')).toBe(false);
   for (const texte of ['abcdefghijklm', '']) {
     fireEvent.change(champ, { target: { value: texte } });
-    fireEvent.click(screen.getByText('Renommer'));
+    fireEvent.submit(champ.form!);
     expect(screen.getByRole('alert').textContent).toBe('Entre un nom de 1 à 12 caractères.');
   }
   fireEvent.change(champ, { target: { value: 'abcdefghijkl' } });
   expect(screen.getByText('12 / 12 caractères')).toBeTruthy();
-  fireEvent.click(screen.getByText('Renommer'));
+  fireEvent.submit(champ.form!);
   expect(storeJeu.getState().equipe[0]?.pokemon.surnom).toBe('abcdefghijkl');
   expect(screen.getByRole('heading', { name: 'abcdefghijkl' })).toBeTruthy();
   expect(screen.getByText('Bulbizarre · N° 1 · Niveau 16')).toBeTruthy();
+  expect(screen.queryByRole('textbox')).toBeNull();
+  expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Renommer abcdefghijkl' }));
+});
+
+it('annule le renommage avec Échap sans fermer la fiche ni changer le surnom', () => {
+  afficher();
+  const dialogue = screen.getByRole('dialog', { name: 'Bourgeon' });
+  fireEvent.click(screen.getByRole('button', { name: 'Renommer Bourgeon' }));
+  const champ = screen.getByRole('textbox', { name: 'Surnom' });
+  fireEvent.change(champ, { target: { value: 'Autre' } });
+  fireEvent.keyDown(champ, { key: 'Escape' });
+  expect(screen.queryByRole('textbox')).toBeNull();
+  expect(dialogue.hasAttribute('open')).toBe(true);
+  expect(storeJeu.getState().equipe[0]?.pokemon.surnom).toBe('Bourgeon');
+  expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Renommer Bourgeon' }));
+  // L'événement natif « cancel » pendant l'édition annule aussi l'édition, pas la fiche.
+  fireEvent.click(screen.getByRole('button', { name: 'Renommer Bourgeon' }));
+  fireEvent(dialogue, new Event('cancel', { cancelable: true }));
+  expect(screen.queryByRole('textbox')).toBeNull();
+  expect(dialogue.hasAttribute('open')).toBe(true);
+});
+
+it('ouvre la fiche avec le champ de surnom déjà ouvert et le focus dedans', () => {
+  const vue = render(<Exemple renommer />);
+  fireEvent.click(vue.getByText('Ouvre la fiche'));
+  const champ = vue.getByRole('textbox', { name: 'Surnom' });
+  expect(document.activeElement).toBe(champ);
+});
+
+it('n’affiche pas de crayon pour un œuf', () => {
+  storeJeu.setState({ equipe: [{ pokemon: { ...pokemon, oeuf: { pasRestants: 10, pasMax: 10 } }, dps: 42, xpMax: 100, multiplicateur: 1 }] });
+  afficher();
+  expect(screen.queryByRole('button', { name: /^Renommer/ })).toBeNull();
 });
 
 it('affiche les données en français et bascule le favori', () => {
@@ -253,8 +292,10 @@ it('relâche un Pokémon du PC malgré une équipe d’un seul', () => {
 it('renomme et bascule le favori dans le PC par uid', () => {
   mettreAuPc();
   afficher();
-  fireEvent.change(screen.getByRole('textbox', { name: 'Surnom' }), { target: { value: 'Pousse' } });
-  fireEvent.click(screen.getByText('Renommer'));
+  fireEvent.click(screen.getByRole('button', { name: 'Renommer Bourgeon' }));
+  const champ = screen.getByRole('textbox', { name: 'Surnom' }) as HTMLInputElement;
+  fireEvent.change(champ, { target: { value: 'Pousse' } });
+  fireEvent.submit(champ.form!);
   fireEvent.click(screen.getByRole('button', { name: 'Ajoute aux favoris' }));
   expect(storeJeu.getState().pc[0]).toEqual({ ...pokemon, surnom: 'Pousse', favori: true });
   expect(storeJeu.getState().equipe[0]?.pokemon.surnom).toBe('Bourgeon');

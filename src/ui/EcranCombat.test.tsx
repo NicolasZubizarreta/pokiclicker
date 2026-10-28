@@ -7,7 +7,7 @@ import { compteInitial, creerGestionnaire, creerStockageMemoire } from '../core/
 import { reglages } from '../core/reglages';
 import { EcranCombat } from './EcranCombat';
 import { formaterDps } from './nombres';
-import { creerStoreJeu } from './store';
+import { creerStoreJeu, storeJeu } from './store';
 import type { StoreJeu } from './store';
 import { ERREUR_CHARGEMENT } from './persistance';
 import * as chargement from './precharger';
@@ -129,12 +129,15 @@ it('ouvre le Radar sur les sauvages du lieu, applique le Pokédex et rend le foc
     fireEvent.click(bouton);
     const fenetre = screen.getByRole('dialog', { name: store.getState().lieu!.nom });
     expect(showModal).toHaveBeenCalledOnce();
-    const images = within(fenetre).getAllByRole('img');
+    const images = Array.from(fenetre.querySelectorAll('img'));
     expect(images).toHaveLength(zone.sauvages.length);
     for (const [index, image] of images.entries()) {
       expect(image.classList.contains('brightness-0')).toBe(zone.sauvages[index]!.pokemon !== premier);
       expect(image.getAttribute('src')).toMatch(/^img\//);
     }
+    const captures = zone.sauvages.filter(sauvage => sauvage.pokemon === premier).length;
+    expect(within(fenetre).getAllByRole('img', { name: 'Déjà capturé' })).toHaveLength(captures);
+    expect(within(fenetre).getAllByText('???')).toHaveLength(zone.sauvages.length - captures);
     expect(within(fenetre).getAllByText('Commun').length).toBeGreaterThan(0);
     fireEvent.click(within(fenetre).getByRole('button', { name: 'Fermer' }));
     expect(screen.queryByRole('dialog', { name: store.getState().lieu!.nom })).toBeNull();
@@ -299,6 +302,42 @@ it('affiche puis retire l’annonce du store sans déplacer la scène', () => {
   act(() => store.setState({ annonce: null }));
   expect(screen.queryByRole('status')).toBeNull();
   expect(screen.queryByText(annonce)).toBeNull();
+});
+it('pose la pokéball « Déjà capturé » près du nom de l’ennemi seulement si son espèce est au Pokédex', () => {
+  preparer();
+  const titre = () => screen.getByRole('heading', { level: 2, name: /^Rattata/ });
+  act(() => store.setState({ pokedex: [1] }));
+  expect(within(titre()).queryByRole('img', { name: 'Déjà capturé' })).toBeNull();
+  act(() => store.setState({ pokedex: [1, store.getState().ennemi!.numero] }));
+  expect(within(titre()).getByRole('img', { name: 'Déjà capturé' })).toBeTruthy();
+  act(() => store.setState({ nomAdversaire: 'Pierre' }));
+  expect(screen.queryByRole('img', { name: 'Déjà capturé' })).toBeNull();
+});
+it('propose le crayon de renommage sur chaque carte d’équipe et ouvre la fiche avec le champ de surnom', () => {
+  preparer();
+  const prototype = HTMLDialogElement.prototype;
+  const modalInitial = Object.getOwnPropertyDescriptor(prototype, 'showModal');
+  const closeInitial = Object.getOwnPropertyDescriptor(prototype, 'close');
+  Object.defineProperty(prototype, 'showModal', { configurable: true, value(this: HTMLDialogElement) { this.setAttribute('open', ''); } });
+  Object.defineProperty(prototype, 'close', { configurable: true, value(this: HTMLDialogElement) {
+    this.removeAttribute('open'); fireEvent(this, new Event('close'));
+  } });
+  try {
+    for (const nom of ['Bulbizarre', 'Salamèche', 'Carapuce']) {
+      expect(screen.getByRole('button', { name: `Renommer ${nom}` })).toBeTruthy();
+    }
+    // La fiche lit le store global du jeu : on lui donne la même équipe que le store de test.
+    storeJeu.setState({ equipe: store.getState().equipe, pc: [] });
+    fireEvent.click(screen.getByRole('button', { name: 'Renommer Salamèche' }));
+    const champ = screen.getByRole('textbox', { name: 'Surnom' }) as HTMLInputElement;
+    expect(champ.value).toBe('Salamèche');
+    expect(document.activeElement).toBe(champ);
+  } finally {
+    if (modalInitial) Object.defineProperty(prototype, 'showModal', modalInitial);
+    else Reflect.deleteProperty(prototype, 'showModal');
+    if (closeInitial) Object.defineProperty(prototype, 'close', closeInitial);
+    else Reflect.deleteProperty(prototype, 'close');
+  }
 });
 it('masque l’ennemi pendant la recherche en gardant la cible d’attaque et les éléments en place', () => {
   const { container } = preparer();

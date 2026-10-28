@@ -49,6 +49,25 @@ export function PC() {
   return <Icone><path d="M3 4h18v12H3zM9 20h6M12 16v4" /></Icone>;
 }
 
+export function Radar() {
+  return <Icone><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="4.5" /><path d="m12 12 6.4-6.4" /><circle cx="15.5" cy="15.5" r="1" className="fill-current" /></Icone>;
+}
+
+export function Crayon() {
+  return <Icone><path d="m4 20 1-5L16 4l4 4L9 19zM14 6l4 4" /></Icone>;
+}
+
+/** Petite pokéball posée à côté du nom d'une espèce déjà capturée (Pokédex, Radar, ennemi). */
+export function PastilleCapture() {
+  return <svg role="img" aria-label="Déjà capturé" focusable="false" viewBox="0 0 24 24"
+    className="ms-1 inline size-5 shrink-0 align-text-bottom" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M2 12a10 10 0 0 1 20 0z" className="fill-erreur-base" />
+    <circle cx="12" cy="12" r="10" />
+    <path d="M2 12h20" />
+    <circle cx="12" cy="12" r="3.5" className="fill-surface" />
+  </svg>;
+}
+
 export function Plus() {
   return <Icone><path d="M3 10h3v4H3zM10 10h3v4h-3zM17 10h3v4h-3z" /></Icone>;
 }

@@ -49,8 +49,8 @@ describe('objets du store', () => {
     expect(radar.map(e => e.numero)).toEqual(zone.adversaires!.map(e => e.pokemon));
     expect(radar.map(e => e.libelle)).toEqual([...Array<string>(8).fill('Conseil 4'), 'Maître']);
     expect(radar.some(e => e.numero === zone.boss.pokemon)).toBe(false);
-    expect(radar[0]!.vu).toBe(true);
-    expect(radar.slice(1).every(e => !e.vu)).toBe(true);
+    expect(radar[0]!.capture).toBe(true);
+    expect(radar.slice(1).every(e => !e.capture)).toBe(true);
   });
 
   it('désactive Fauchage pendant la recherche sans afficher de raison', () => {
@@ -204,8 +204,8 @@ describe('objets du store', () => {
     if (zone.sansCombat) throw new Error('Zone sans combat');
     const radar = entreesRadar(zone, []);
     expect(radar).toHaveLength(zone.sauvages.length);
-    expect(radar.every(e => !e.vu && e.nom.length > 0 && e.libelle.length > 0)).toBe(true);
-    expect(entreesRadar(zone, [radar[0]!.numero])[0]!.vu).toBe(true);
+    expect(radar.every(e => !e.capture && e.nom.length > 0 && e.libelle.length > 0)).toBe(true);
+    expect(entreesRadar(zone, [radar[0]!.numero])[0]!.capture).toBe(true);
     expect(region).toEqual(avant);
   });
 });

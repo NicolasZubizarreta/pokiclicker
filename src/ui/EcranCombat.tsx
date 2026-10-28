@@ -7,7 +7,9 @@ import { BarrePv } from './BarrePv';
 import { BarreTemps } from './BarreTemps';
 import { BarreCapture } from './BarreCapture';
 import { CarteEquipe } from './CarteEquipe';
+import { FichePokemon } from './FichePokemon';
 import { IconeShiny } from './IconeShiny';
+import { PastilleCapture } from './icones';
 import { DegatsFlottants } from './DegatsFlottants';
 import { DialogueChen } from './DialogueChen';
 import { ScenesBourgPalette } from './ScenesBourgPalette';
@@ -67,6 +69,7 @@ function Scene({ store, ouvrirPension }: { store: StoreJeu; ouvrirPension(): voi
   const accesPension = useStore(store, etat => etat.pension.acces);
   const captureEnCours = useStore(store, etat => etat.capture.enCours);
   const effets = useStore(store, etat => etat.effets);
+  const pokedex = useStore(store, etat => etat.pokedex);
   const numeroEnnemi = ennemi?.numero;
   const shinyEnnemi = ennemi?.shiny;
   useEffect(() => {
@@ -97,7 +100,7 @@ function Scene({ store, ouvrirPension }: { store: StoreJeu; ouvrirPension(): voi
     <Image src={cheminDecor(zone)} genre="decor" alt="" couvrir className="absolute inset-0 -z-10 size-full" />
     <div aria-hidden={cache} className={`pointer-events-none cadre absolute top-4 left-4 z-10 w-3/5 bg-surface/82 p-3 ${cache ? 'opacity-0' : ''}`}>
       <div className="flex flex-wrap items-center justify-between gap-1">
-        <h2 className="font-titre text-xl">{nom} {ennemi.shiny && <IconeShiny />}{ennemi.boss && nomAdversaire === null ? ' (Géant)' : ''}</h2><span>Niv. {ennemi.niveau}</span>
+        <h2 className="font-titre text-xl">{nom}{nomAdversaire === null && pokedex.includes(ennemi.numero) && <PastilleCapture />} {ennemi.shiny && <IconeShiny />}{ennemi.boss && nomAdversaire === null ? ' (Géant)' : ''}</h2><span>Niv. {ennemi.niveau}</span>
       </div>
       {ennemi.shiny && <p>Chromatique</p>}
       <BarrePv key={`${ennemi.numero}-${ennemi.niveau}-${ennemi.boss}`} pv={ennemi.pv} maximum={ennemi.pvMax} nom={nom} />
@@ -135,10 +138,19 @@ function Scene({ store, ouvrirPension }: { store: StoreJeu; ouvrirPension(): voi
 function Equipe({ store }: { store: StoreJeu }) {
   const equipe = useStore(store, etat => etat.equipe);
   const dps = useStore(store, etat => etat.dps);
+  const [fiche, ouvrirFiche] = useState<{ uid: string; ouverture: number } | null>(null);
+  const [ouvert, afficher] = useState(false);
+  const declencheur = useRef<HTMLButtonElement>(null);
   return <section aria-label="Ton équipe" className="min-w-0 lg:col-start-4 lg:row-start-1 lg:row-end-4">
     <h2 className="mb-2 flex justify-between gap-2 font-titre text-xl">Ton équipe <span>{formaterDps(dps)} DPS</span></h2>
     <div className="grid grid-cols-6 gap-1 lg:grid-cols-1">{equipe.map((membre, i) =>
-      <CarteEquipe key={membre?.pokemon.uid ?? i} membre={membre} />)}</div>
+      <CarteEquipe key={membre?.pokemon.uid ?? i} membre={membre} renommer={(uid, bouton) => {
+        declencheur.current = bouton;
+        ouvrirFiche(precedente => ({ uid, ouverture: (precedente?.ouverture ?? 0) + 1 }));
+        afficher(true);
+      }} />)}</div>
+    {fiche !== null && <FichePokemon key={fiche.ouverture} uid={fiche.uid} renommer ouvert={ouvert}
+      fermer={() => afficher(false)} declencheur={declencheur} />}
   </section>;
 }
 
@@ -172,7 +184,7 @@ function CommandesCombat({ store }: { store: StoreJeu }) {
           ouvrirRadar={ouvrirRadar} />
       </div>
       <FenetreRadar ouvert={declencheurRadar !== null} nomZone={lieu?.nom ?? zone.nom}
-        especes={entreesRadar(zone, pokedex).map(espece => ({ ...espece, rarete: espece.libelle }))}
+        especes={entreesRadar(zone, pokedex)}
         fermer={() => ouvrirRadar(null)} declencheur={declencheurRadar} />
     </>
   </div>;

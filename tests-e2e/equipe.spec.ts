@@ -59,13 +59,24 @@ test('Équipe : six cases, fiche en fenêtre et captures', async ({ page }, info
 test('Équipe : renommer, favori et reprise après rechargement', async ({ page }) => {
   await ouvrirEquipe(page);
   let fiche = await ouvrirFiche(page, /^Salamèche, niveau/);
+  await expect(fiche.getByRole('textbox')).toHaveCount(0);
+  await fiche.getByRole('button', { name: 'Renommer Salamèche' }).click();
   const champ = fiche.getByRole('textbox');
+  await expect(champ).toBeFocused();
+  await expect(champ).toHaveValue('Salamèche');
   await champ.fill('Nom beaucoup trop long');
-  await fiche.getByRole('button', { name: 'Renommer' }).click();
+  await champ.press('Enter');
   await expect(fiche.getByRole('alert')).toContainText('1 à 12 caractères');
+  // Échap annule l'édition sans fermer la fiche ni changer le nom.
+  await champ.press('Escape');
+  await expect(fiche.getByRole('textbox')).toHaveCount(0);
+  await expect(fiche).toBeVisible();
+  await expect(fiche.getByRole('heading', { level: 2 }).first()).toContainText('Salamèche');
+  await fiche.getByRole('button', { name: 'Renommer Salamèche' }).click();
   await champ.fill('Flammèche');
-  await fiche.getByRole('button', { name: 'Renommer' }).click();
+  await champ.press('Enter');
   await expect(fiche.getByRole('heading', { level: 2 }).first()).toContainText('Flammèche');
+  await expect(fiche.getByRole('button', { name: 'Renommer Flammèche' })).toBeFocused();
   await fiche.getByRole('button', { name: 'Ajoute aux favoris' }).click();
   await expect(fiche.getByRole('button', { name: 'Retire des favoris' })).toHaveAttribute('aria-pressed', 'true');
   // Relâcher demande une confirmation, « Annuler » garde le Pokémon.

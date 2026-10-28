@@ -30,9 +30,10 @@ it('présente les 151 espèces dans l’ordre national et compte les captures de
   expect(liste.classList.contains('lg:grid-cols-10')).toBe(true);
   entrees.forEach((entree, index) => {
     expect(within(entree).getByText(`N° ${index + 1}`)).toBeTruthy();
-    const image = within(entree).getByRole('img');
+    const image = entree.querySelector('img')!;
     expect(image.getAttribute('src')).toBe(cheminSprite(index + 1));
     const capture = index === 0 || index === 24;
+    expect(within(entree).queryAllByRole('img', { name: 'Déjà capturé' })).toHaveLength(capture ? 1 : 0);
     expect(image.classList.contains('brightness-0')).toBe(!capture);
     expect(image.getAttribute('alt')).toBe(capture ? (index === 0 ? 'Bulbizarre' : 'Pikachu') : 'Pokémon inconnu');
   });

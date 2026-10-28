@@ -34,5 +34,6 @@ export function entreesRadar(zone: Zone, pokedex: readonly number[]) {
     : zone.sauvages;
   return rencontres.map(({ pokemon, rarete }) => ({ numero: pokemon,
     nom: catalogue.parNumero(pokemon).nom, rarete, libelle: reglages.objetsActifs.raretes[rarete],
-    vu: pokedex.includes(pokemon) }));
+    // Le Pokédex ne reçoit une espèce qu'à la capture, à l'éclosion ou à l'évolution : « au Pokédex » veut dire « capturé ».
+    capture: pokedex.includes(pokemon) }));
 }

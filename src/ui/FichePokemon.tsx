@@ -6,6 +6,7 @@ import { calculerMaxXp } from '../core/recompenses';
 import { chargerPokemon, nomType } from '../core/pokemon';
 import { reglages } from '../core/reglages';
 import { BarreXp } from './BarreXp';
+import { BoutonRenommer } from './BoutonRenommer';
 import { dpsSansType } from './dps-pc';
 import { Image } from './Image';
 import { IconeShiny } from './IconeShiny';
@@ -15,7 +16,11 @@ import { storeJeu } from './store';
 import { niveauRequis, peutEvoluer, pierresPour } from '../core/evolution';
 import { chargerObjets } from '../core/boutique';
 
-type Props = { uid: string; ouvert: boolean; fermer: () => void; declencheur: RefObject<HTMLButtonElement | null> };
+type Props = {
+  uid: string; ouvert: boolean; fermer: () => void; declencheur: RefObject<HTMLButtonElement | null>;
+  /** Ouvre la fiche avec le champ de renommage déjà ouvert (crayon de la carte d'équipe). */
+  renommer?: boolean;
+};
 const catalogue = chargerPokemon();
 const bouton = 'min-h-11 px-4 py-2 bg-surface-2 disabled:text-texte-doux';
 const nombre = (valeur: number) => valeur.toLocaleString('fr-FR', { maximumFractionDigits: 2 });
@@ -30,7 +35,7 @@ export function FichePokemon(props: Props) {
   return <FenetrePokemon key={props.uid} {...props} />;
 }
 
-function FenetrePokemon({ uid, ouvert, fermer, declencheur }: Props) {
+function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: Props) {
   const equipe = useStore(storeJeu, etat => etat.equipe);
   const pc = useStore(storeJeu, etat => etat.pc);
   const caseEquipe = equipe.find(c => c?.pokemon.uid === uid);
@@ -48,7 +53,12 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur }: Props) {
   const raisonRelachement = useId();
   const compteur = useId();
   const champ = useId();
-  const [surnom, saisir] = useState(membre?.pokemon.surnom ?? '');
+  const erreurFichier = useId();
+  const saisie = useRef<HTMLInputElement>(null);
+  const crayon = useRef<HTMLButtonElement>(null);
+  const [edition, editer] = useState(renommer && !membre?.pokemon.oeuf);
+  const [surnom, saisir] = useState(membre ? nomAffiche(membre.pokemon) : '');
+  const [erreurSurnom, signalerSurnom] = useState<string | null>(null);
   const [erreur, signaler] = useState<string | null>(null);
   const [erreurConfirmation, signalerConfirmation] = useState<string | null>(null);
 
@@ -61,10 +71,36 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur }: Props) {
     }
   }, [ouvert]);
 
+  // Déclaré après l'ouverture de la fenêtre : showModal() donne d'abord le focus à son premier bouton.
+  useEffect(() => {
+    if (!edition || !ouvert) return;
+    saisie.current?.focus();
+    saisie.current?.select();
+  }, [edition, ouvert]);
+
+  const ouvrirEdition = () => {
+    saisir(membre ? nomAffiche(membre.pokemon) : '');
+    signalerSurnom(null);
+    editer(true);
+  };
+  const fermerEdition = () => {
+    editer(false);
+    signalerSurnom(null);
+    crayon.current?.focus();
+  };
+  const validerSurnom = () => {
+    if (!membre || surnom === nomAffiche(membre.pokemon)) { fermerEdition(); return; }
+    const raison = storeJeu.getState().renommer(uid, surnom);
+    signalerSurnom(raison);
+    if (raison === null) fermerEdition();
+  };
+
   useEffect(() => () => { declencheur.current?.focus(); }, [declencheur]);
 
   const fermerFiche = () => dialogue.current?.close();
   const aLaFermeture = () => {
+    editer(false);
+    signalerSurnom(null);
     if (confirmation.current?.open) confirmation.current.close();
     fermer();
     const origine = declencheur.current;
@@ -85,12 +121,28 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur }: Props) {
 
   return <>
     <dialog ref={dialogue} aria-labelledby={titre} className="fiche-pokemon cadre w-full max-w-3xl bg-surface p-0 text-base text-texte"
-      onClose={aLaFermeture} onCancel={event => { event.preventDefault(); fermerFiche(); }}
+      onClose={aLaFermeture} onCancel={event => { event.preventDefault(); if (edition) fermerEdition(); else fermerFiche(); }}
       onPointerDown={event => { if (event.target === event.currentTarget) fermerFiche(); }}>
       <div className="fiche-contenu grid min-w-0 gap-4 p-4 lg:p-8">
         <button type="button" className={`${bouton} justify-self-end`} onClick={fermerFiche}>Ferme la fiche</button>
         <header>
-          <h2 id={titre} className="break-words font-titre text-2xl">{nom}{pokemon?.shiny && !pokemon.oeuf && <IconeShiny />}</h2>
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            <h2 id={titre} className="min-w-0 break-words font-titre text-2xl">{nom}{pokemon?.shiny && !pokemon.oeuf && <IconeShiny />}</h2>
+            {pokemon && !pokemon.oeuf && <BoutonRenommer ref={crayon} nom={nom} ouvrir={ouvrirEdition} />}
+          </div>
+          {edition && pokemon && !pokemon.oeuf && <form className="mt-2 grid gap-2" onSubmit={event => { event.preventDefault(); validerSurnom(); }}>
+            <label htmlFor={champ}>Surnom</label>
+            <input ref={saisie} id={champ} type="text" value={surnom} autoComplete="off"
+              aria-describedby={`${compteur}${erreurSurnom ? ` ${erreurFichier}` : ''}`}
+              className="min-h-11 min-w-0 border border-bordure bg-fond p-2" onChange={event => saisir(event.target.value)}
+              onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); fermerEdition(); } }} />
+            <p id={compteur}>{surnom.length} / {reglages.equipe.surnomMax} caractères</p>
+            {erreurSurnom && <p id={erreurFichier} role="alert">{erreurSurnom}</p>}
+            <div className="flex flex-wrap gap-2">
+              <button type="submit" className={bouton}>Valider</button>
+              <button type="button" className={bouton} onClick={fermerEdition}>Annuler</button>
+            </div>
+          </form>}
           {pokemon && espece && <p>{pokemon.oeuf ? progressionOeuf(pokemon.oeuf) : `${espece.nom} · N° ${pokemon.numero} · Niveau ${pokemon.niveau}`}</p>}
         </header>
         {pokemonPc && <p>Dans le PC</p>}
@@ -139,13 +191,6 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur }: Props) {
           </div>
           <p>Calcium : {pokemon.calcium} · +{nombre(pokemon.calcium * reglages.degats.calciumParBoost * 100)} % de dégâts</p>
           <p>Objet tenu : {pokemon.pierreEternelle ? 'Pierre Stase' : 'aucun'}</p>
-          <form className="grid gap-2" onSubmit={event => { event.preventDefault(); signaler(storeJeu.getState().renommer(uid, surnom)); }}>
-            <label htmlFor={champ}>Surnom</label>
-            <input id={champ} type="text" value={surnom} aria-describedby={compteur}
-              className="min-h-11 min-w-0 border border-bordure bg-fond p-2" onChange={event => saisir(event.target.value)} />
-            <p id={compteur}>{surnom.length} / {reglages.equipe.surnomMax} caractères</p>
-            <button type="submit" className={bouton}>Renommer</button>
-          </form>
           {erreur && <p role="alert">{erreur}</p>}
           <button type="button" disabled={refusPc !== null} aria-describedby={refusPc ? raisonPc : undefined}
             className="min-h-11 bg-action px-4 py-2 text-action-texte" onClick={() => {

@@ -9,6 +9,7 @@ import { cibleValidePierre } from '../core/evolution';
 import { ConfirmationObjet } from './ConfirmationObjet';
 import { SpriteEvolution } from './SpriteEvolution';
 import { BarreXp } from './BarreXp';
+import { BoutonRenommer } from './BoutonRenommer';
 import { FichePokemon } from './FichePokemon';
 import { Image } from './Image';
 import { IconeObjet } from './icones';
@@ -35,6 +36,8 @@ export function PageEquipe() {
   const [messageObjet, annoncerObjet] = useState<string | null>(null);
   const [choisi, choisir] = useState(() => equipe.find(c => c)?.pokemon.uid);
   const [fiche, ouvrir] = useState<string | null>(null);
+  const [ouverture, compterOuverture] = useState(0);
+  const [renommage, renommer] = useState(false);
   const [ouvert, afficher] = useState(false);
   const [menu, placerMenu] = useState<{ uid: string; x: number; y: number; carte: HTMLButtonElement } | null>(null);
   const [erreur, signaler] = useState<{ echange: typeof echange; message: string } | null>(null);
@@ -89,9 +92,11 @@ export function PageEquipe() {
     };
   }, [mode]);
 
-  function ouvrirFiche(uid: string, bouton: HTMLButtonElement) {
+  function ouvrirFiche(uid: string, bouton: HTMLButtonElement, avecRenommage = false) {
     declencheur.current = bouton;
     ouvrir(uid);
+    renommer(avecRenommage);
+    compterOuverture(n => n + 1);
     afficher(true);
   }
 
@@ -118,10 +123,10 @@ export function PageEquipe() {
           const valide = mode && (mode.type === 'pierre' ? cibleValidePierre(pokemon, mode.cle)
             : mode.type === 'stase' ? cibleValideStase(pokemon) : mode.type === 'jeton' ? true
             : cibleValide(mode.type, pokemon) && maximum > 0);
-          return <li key={pokemon.uid} className="min-w-0">
+          return <li key={pokemon.uid} className="relative min-w-0">
             <button type="button" aria-label={pokemon.oeuf ? `${nom}, ${progressionOeuf(pokemon.oeuf)}` : `${nom}, niveau ${pokemon.niveau}`} aria-pressed={membre?.pokemon.uid === pokemon.uid} data-uid={pokemon.uid}
               disabled={!!mode && (mode.type === 'bonbon' || mode.type === 'calcium') && !valide}
-              className={`cadre grid min-h-11 w-full grid-cols-[auto_minmax(0,1fr)] items-center gap-2 p-4 text-left ${mode && !valide ? '' : 'hover:bg-selection'} ${membre?.pokemon.uid === pokemon.uid ? 'bg-selection' : 'bg-surface'} ${mode ? valide ? 'relative motion-safe:cible-valide' : 'grayscale opacity-50' : ''}`}
+              className={`cadre grid min-h-11 w-full grid-cols-[auto_minmax(0,1fr)] items-center gap-2 p-4 pe-16 text-left ${mode && !valide ? '' : 'hover:bg-selection'} ${membre?.pokemon.uid === pokemon.uid ? 'bg-selection' : 'bg-surface'} ${mode ? valide ? 'relative motion-safe:cible-valide' : 'grayscale opacity-50' : ''}`}
               onContextMenu={event => {
                 event.preventDefault();
                 if (echange || mode) return;
@@ -178,6 +183,11 @@ export function PageEquipe() {
                 <span className="text-region-accent">{formaterDps(dps)} DPS</span>
               </span>
             </button>
+            {!mode && !echange && !pokemon.oeuf && <BoutonRenommer nom={nom} className="absolute top-2 right-2"
+              ouvrir={bouton => {
+                choisir(pokemon.uid);
+                ouvrirFiche(pokemon.uid, bouton, true);
+              }} />}
             {pokemon.pierreEternelle && (stase.image !== null
               ? <img src={stase.image} alt={stase.nom} width={32} height={32} className="size-8 image-rendering-pixelated" />
               : <IconeObjet image={null} nom={stase.nom} />)}
@@ -260,6 +270,6 @@ export function PageEquipe() {
         choisir(menu.uid);
         ouvrirFiche(menu.uid, menu.carte);
       }} />}
-    {fiche !== null && <FichePokemon uid={fiche} ouvert={ouvert} fermer={() => afficher(false)} declencheur={declencheur} />}
+    {fiche !== null && <FichePokemon key={ouverture} uid={fiche} renommer={renommage} ouvert={ouvert} fermer={() => afficher(false)} declencheur={declencheur} />}
   </section>;
 }

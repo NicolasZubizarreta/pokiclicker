@@ -275,7 +275,7 @@ describe('Coquille', () => {
               : element.tagName.toLowerCase() === 'section' && ['Ton voyage', 'Zone sélectionnée'].includes(element.getAttribute('aria-label') ?? '')
                 ? element.getAttribute('aria-label')
                 : nom === 'Équipe' && element.tagName.toLowerCase() === 'button'
-                  ? equipe.filter(c => c).map(c => `${nomPokemon(c!)}, niveau ${c!.pokemon.niveau}`).find(n => n === element.getAttribute('aria-label'))
+                  ? equipe.filter(c => c).flatMap(c => [`${nomPokemon(c!)}, niveau ${c!.pokemon.niveau}`, `Renommer ${nomPokemon(c!)}`]).find(n => n === element.getAttribute('aria-label'))
                   : nom === 'Équipe' && element.getAttribute('role') === 'progressbar'
                     ? equipe.filter(c => c).map(c => `XP de ${nomPokemon(c!)}`).find(n => n === element.getAttribute('aria-label'))
                     : 'Navigation principale';

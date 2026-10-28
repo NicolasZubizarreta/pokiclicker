@@ -57,11 +57,31 @@ it('présente six cases, le total formaté et les noms français', () => {
   expect(screen.getByText(`${formaterDps(127.5)} DPS · 3 / 6`)).toBeTruthy();
   const liste = screen.getByRole('list');
   expect(within(liste).getAllByRole('listitem')).toHaveLength(6);
-  expect(within(liste).getAllByRole('button')).toHaveLength(3);
+  expect(within(liste).getAllByRole('button', { name: /, niveau / })).toHaveLength(3);
+  expect(within(liste).getAllByRole('button', { name: /^Renommer / })).toHaveLength(3);
   expect(within(liste).getAllByText('Emplacement libre')).toHaveLength(3);
   expect(screen.getByRole('button', { name: 'Salamèche, niveau 16' })).toBeTruthy();
   expect(within(liste).getAllByRole('progressbar')).toHaveLength(3);
   expect(liste.textContent).toBe('BourgeonNiv. 1642,5 DPSSalamècheNiv. 1642,5 DPSCarapuceNiv. 1642,5 DPSEmplacement libreEmplacement libreEmplacement libre');
+});
+
+it('le crayon de la carte ouvre la fiche avec le champ de surnom, le focus dedans, et rend le focus au crayon', () => {
+  render(<PageEquipe />);
+  const crayon = screen.getByRole('button', { name: 'Renommer Carapuce' });
+  expect(crayon.classList.contains('min-h-11')).toBe(true);
+  expect(crayon.classList.contains('min-w-11')).toBe(true);
+  expect(crayon.closest('li')).toBe(screen.getByRole('button', { name: 'Carapuce, niveau 16' }).closest('li'));
+  fireEvent.click(crayon);
+  const champ = screen.getByRole('textbox', { name: 'Surnom' }) as HTMLInputElement;
+  expect(screen.getByRole('dialog', { name: 'Carapuce' })).toBeTruthy();
+  expect(champ.value).toBe('Carapuce');
+  expect(document.activeElement).toBe(champ);
+  fireEvent.keyDown(champ, { key: 'Escape' });
+  fireEvent.click(screen.getByRole('button', { name: 'Ferme la fiche' }));
+  expect(document.activeElement).toBe(crayon);
+  // Une ouverture par la carte repart d'une fiche sans champ ouvert.
+  fireEvent.click(screen.getByRole('button', { name: 'Carapuce, niveau 16' }));
+  expect(screen.queryByRole('textbox')).toBeNull();
 });
 
 it('choisit une case et conserve le choix, le défilement et le focus après fermeture', () => {

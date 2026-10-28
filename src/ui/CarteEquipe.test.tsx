@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen } from '@testing-library/react';
-import { afterEach, expect, it } from 'vitest';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { afterEach, expect, it, vi } from 'vitest';
 import type { PokemonPossede } from '../core/sauvegarde';
 import { CarteEquipe } from './CarteEquipe';
 
@@ -27,4 +27,27 @@ it('cache l’espèce d’un œuf et montre sa progression', () => {
 it('garde le nom et le niveau d’un Pokémon éclos', () => {
   render(<CarteEquipe membre={{ pokemon: base, dps: 3, xpMax: 100, multiplicateur: 1 }} />);
   expect(screen.getByLabelText(/^Bulbizarre, niveau 1, /)).toBeTruthy();
+});
+
+it('n’affiche aucun crayon sans action de renommage', () => {
+  render(<CarteEquipe membre={{ pokemon: base, dps: 3, xpMax: 100, multiplicateur: 1 }} />);
+  expect(screen.queryByRole('button')).toBeNull();
+});
+
+it('propose un crayon « Renommer <nom> » de 44 px qui transmet l’uid et le bouton', () => {
+  const renommer = vi.fn();
+  render(<CarteEquipe membre={{ pokemon: { ...base, surnom: 'Bourgeon' }, dps: 3, xpMax: 100, multiplicateur: 1 }}
+    renommer={renommer} />);
+  const crayon = screen.getByRole('button', { name: 'Renommer Bourgeon' });
+  expect(crayon.classList.contains('min-h-11')).toBe(true);
+  expect(crayon.classList.contains('min-w-11')).toBe(true);
+  expect(crayon.querySelector('svg[aria-hidden="true"]')).toBeTruthy();
+  fireEvent.click(crayon);
+  expect(renommer).toHaveBeenCalledWith('a', crayon);
+});
+
+it('n’affiche pas de crayon sur un œuf', () => {
+  render(<CarteEquipe membre={{ pokemon: { ...base, oeuf: { pasRestants: 18, pasMax: 25 } }, dps: 0, xpMax: 100, multiplicateur: 1 }}
+    renommer={vi.fn()} />);
+  expect(screen.queryByRole('button')).toBeNull();
 });
