@@ -1189,7 +1189,7 @@ Fourchette : 0,5 jour. Risque : aucun notable. Dépend de : rien.
 
 ## AL. `feat(aide): porter le guide complet de la V1 dans la V2`
 
-Labels : `type:feat`, `etat:idee`, `est:1-2`, `prio:3` · branche : `feat/al-guide-du-jeu` · `agent-ok` : oui
+Labels : `type:feat`, `etat:fait` (28/10 : texte V1 repris mot pour mot, sans correction des phrases devenues fausses, listées dans `v1-visuel-a-porter.md` section 10 ; pas de variantes, rendu précisé par le ticket), `est:1-2`, `prio:3` · branche : `feat/al-guide-du-jeu` · `agent-ok` : oui
 
 ### Histoire
 En tant que joueur, je veux retrouver le « Guide du jeu » complet que Nicolas avait écrit dans la V1 afin de comprendre les règles sans demander. [9]

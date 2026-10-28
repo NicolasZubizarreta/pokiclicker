@@ -57,4 +57,25 @@ Aucun fichier audio. Un synthé Tone.js (5 tons : `hit` clic, `coin` kill, `catc
 
 ## 9. À ne pas oublier
 Pension (cœur, œufs), Casino complet (jetons, machine à sous à 5 symboles, blackjack contre « Croupier Rocket », pile ou face, boutique de jetons), Centre commercial, Poké-Radar (grille de la zone, silhouettes, pastille de rareté), Pokédex 151 + 10 paliers, fiche résumé (anneau de bonheur), Stats détaillées, auto-stop paramétrable avec bannière, menu contextuel clic droit, **Guide du jeu** complet, intro de Johto et bateau, menu mobile en grille 4 × 2.
+**Guide du jeu : porté le 28/10 (ticket AL)** : voir la section 10.
 Défauts hérités à ne pas reproduire : encodage cassé (`controls.js` en Windows-1252, « ? » à la place de ♥ ★ ♂ ♀, « Nidoran? »), texte « DÉBLOQUÉ ZONE 4 » du PC alors que le code l'ouvre à la zone 3, keyframes jamais utilisées (`coin-blink`, `shiny-filter`, `end-credits-intro`…).
+
+## 10. Guide du jeu (ticket AL, 28/10)
+Les 13 sections de la V1 (`legacy/index.html:800-890`) sont dans `data/guide.json`, dans le même ordre, **mot pour mot** (un test relit la V1 et compare). Affichage : `src/ui/Guide.tsx`, ouvert par le bouton « Guide du jeu » de la page Plus. Les numéros de zone d'ouverture (Auto-clic, Poké-Radar, Pension, PC, Fauchage) et les chiffres (10 étapes, 30 s, 2 % / 4 %, 125 de bonheur, +25 %, 10 combats de Ligue, 6 combats du défi, 151 espèces) sont des marqueurs `{…}` remplacés par les valeurs de `data/` (`src/core/guide.ts`) : ils ne peuvent plus se désynchroniser. Les marqueurs donnent aujourd'hui exactement les chiffres de la V1.
+
+**Phrases devenues fausses ou obsolètes en V2.** Le texte n'a pas été corrigé à la place de Nicolas ; à lui de dire quoi réécrire.
+| Section | Phrase de la V1 | Pourquoi elle ne correspond plus |
+|---|---|---|
+| Parcours, 1 | « Départ chez Maman (Bourg Palette): sors, puis va au Labo du Prof. Chen. » | La V2 enchaîne titre, Chez Maman, Bourg Palette puis Labo dans l'intro : on ne sort pas soi-même de chez Maman. À vérifier. |
+| Parcours, 7 et Fauchage | « Pokéshop » | L'onglet s'appelle « Shop » en V2. |
+| Fonctionnalités | « Auto-attaque: … (bouton épées) » | Le bouton est un bouton texte « Auto-attaque » (le ticket AE pourrait le passer en icône). |
+| Fonctionnalités | « Auto-stop: … bouton “main” … icône “settings” » | Les boutons s'appellent « Arrêt auto » et « Réglages de l'arrêt ». |
+| Fonctionnalités | « Menu Stats: accessible via Profil. » | Il n'y a ni Profil ni menu Stats en V2 (la page Plus a seulement « Ton aventure »). Fonction de la V1 non portée. |
+| Pokédex | « une récompense visible dans le menu “Récompenses” » | Les paliers sont affichés dans la page Pokédex, sans menu « Récompenses ». |
+| Sauvegarde | « utilise “Sauver” dans le profil … “Importer une sauvegarde (JSON)” dans le menu de début du jeu » | Aucun export ni import de fichier en V2 pour l'instant, seulement la sauvegarde automatique locale. |
+| Reset | « Le bouton Reset réinitialise la progression… » | Aucun bouton Reset en V2. |
+| Centre Commercial | « Retrait via la fiche Résumé. » (Pierre Stase) | En V2 le retrait passe par le menu du Pokémon dans l'équipe (la V1 elle-même le faisait par le clic droit). |
+| Centre Commercial | liste des « objets exclusifs » | Incomplète depuis la V1 : le Centre vend aussi le Calcium et le Jeton Shiny. |
+| Ligue | « En battant la Ligue, tu accèdes à la prochaine région. » | Johto n'est pas jouable : la V2 affiche « bientôt » à la première victoire. |
+| PC | « trier par numéro, nom, niveau ou favori » | La V2 ajoute le tri « Shiny » et une recherche. |
+Ce qui ne bouge pas malgré les écarts décidés : le guide ne cite ni prix, ni recharge, ni inflation, donc ni le Calcium à 20 000, ni les pierres sans inflation, ni la recharge du Fauchage à 20 s ne le rendent faux.

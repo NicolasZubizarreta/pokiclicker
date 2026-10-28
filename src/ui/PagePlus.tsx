@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState, useSyncExternalStore } from 'react'
 import { useStore } from 'zustand';
 import { BoiteBadges } from './BoiteBadges';
 import { Diplome } from './Diplome';
+import { Guide } from './Guide';
 import { creditPiste, musiques } from '../core/musiques';
 import { musique } from './musique';
 import { formaterDps } from './nombres';
@@ -26,6 +27,7 @@ function CurseurVolume({ canal, libelle }: { canal: Canal; libelle: string }) {
 export function PagePlus() {
   const diplome = useStore(storeJeu, etat => etat.fin.diplome);
   const [diplomeOuvert, ouvrirDiplome] = useState(false);
+  const [guideOuvert, ouvrirGuide] = useState(false);
   const [sousPage, choisir] = useState<null | 'pokedex' | 'badges'>(null);
   const progression = useStore(storeJeu, etat => etat.progression);
   const lieu = useStore(storeJeu, etat => etat.lieu);
@@ -83,6 +85,8 @@ export function PagePlus() {
                 data-entree="badges" onClick={() => { entree.current = 'badges'; choisir('badges'); }}>Badges</button>
             </li>
           </ul>
+          <button type="button" onClick={() => ouvrirGuide(true)}
+            className="cadre mt-4 min-h-11 w-full bg-surface p-4 text-left hover:bg-selection">Guide du jeu</button>
           {diplome && <button type="button" onClick={() => ouvrirDiplome(true)}
             className="cadre mt-4 min-h-11 w-full bg-surface p-4 text-left hover:bg-selection">Diplôme du Pokédex</button>}
           <section aria-labelledby={reglagesId} className="cadre mt-4 space-y-4 bg-surface p-4">
@@ -106,5 +110,6 @@ export function PagePlus() {
           </section>
         </section>}
     {diplomeOuvert && diplome && <Diplome diplome={diplome} fermer={() => ouvrirDiplome(false)} />}
+    {guideOuvert && <Guide fermer={() => ouvrirGuide(false)} />}
   </div>;
 }

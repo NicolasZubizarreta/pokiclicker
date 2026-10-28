@@ -43,6 +43,10 @@ html:has(dialog[open]) { overflow: hidden; }
 @media (width >= theme(--breakpoint-lg)) {
   .fiche-pokemon { margin: auto; max-height: calc(100dvh - var(--spacing) * 16); }
 }
+/* Guide du jeu : fenêtre centrée, l'en-tête reste visible et seul le contenu défile. */
+.guide-fenetre { margin: auto; max-height: calc(100dvh - var(--spacing) * 8); }
+.guide-fenetre[open] { display: flex; flex-direction: column; }
+.guide-fenetre::backdrop { @apply bg-fond/50; }
 
 @theme inline {
   --color-fond: var(--fond);

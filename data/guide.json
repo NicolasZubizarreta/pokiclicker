@@ -1,0 +1,127 @@
+{
+  "version": 1,
+  "titre": "Guide du jeu",
+  "sections": [
+    {
+      "id": "parcours",
+      "titre": "Parcours principal (A à Z)",
+      "paragraphes": [
+        "1) Départ chez Maman (Bourg Palette): sors, puis va au Labo du Prof. Chen.",
+        "2) Choisis ton starter. Une fois choisi, ouvre la Carte et va sur la Route 1 (première zone).",
+        "3) Les dégâts viennent des clics ET du DPS des Pokémon de ton équipe.",
+        "4) Chaque zone a {nombre:reglages.combat.etapeBoss} étapes. Au boss (étape {nombre:reglages.combat.etapeBoss}), tu débloques la zone suivante.",
+        "5) Tu as {secondes:reglages.combat.minuteurBossMs} secondes pour tuer le boss: si le timer expire, tu reviens à l’étape {moins1:reglages.combat.etapeBoss}.",
+        "6) Capture les Pokémon sauvages pour te faire une équipe solide et avancer plus vite.",
+        "7) Utilise le Pokéshop pour acheter des consommables et améliorations. Plus tu avances dans les zones, plus d’objets et d’améliorations se débloquent.",
+        "8) Récupère les badges en battant les Arènes: bonus permanents. Tu peux voir leurs effets dans le menu Badges.",
+        "9) Complète le Pokédex pour débloquer des paliers et le Charme Chroma. Accès via le menu Pokédex.",
+        "10) Bats la Ligue pour accéder au Panthéon."
+      ]
+    },
+    {
+      "id": "fonctions",
+      "titre": "Fonctionnalités clés",
+      "paragraphes": [
+        "- Auto-attaque: active le DPS des Pokémon de l’équipe (bouton épées).",
+        "- Auto-clique (Restes): débloqué en zone {zoneObjet:leftovers} via l’amélioration Restes. Active un clic automatique via le bouton Auto-clic.",
+        "- Auto-stop: stoppe l’auto-combat sur Commun/Peu Commun/Rare/Très Rare/Légendaire/Shiny/Nouveau. Active/désactive via le bouton “main”, et configure via l’icône “settings”.",
+        "- Poké-Radar: affiche les Pokémon trouvables par zone. Débloqué en zone {zoneObjet:pokeradar} via l’amélioration Poké-Radar.",
+        "- Fiche résumé: clique sur un Pokémon puis “Résumé” pour voir sexe, types, niveau et bonheur. Depuis cette fiche, tu peux aussi renommer, mettre en favori, relâcher, ou échanger un Pokémon avec le PC.",
+        "- Pension: débloquée en zone {zoneLieu:pension} (Bourg Palette). Dépose 2 Pokémon pour tenter d’obtenir des œufs. Métamorph = bonus. Même type: {pourcent:reglages.pension.chances.typePartage}% de chance d’œuf par combat. Même espèce: {pourcent:reglages.pension.chances.memeEspece}% par combat. Tu peux acheter plus de slots d’œufs.",
+        "- Carte: permet de téléporter vers les zones débloquées.",
+        "- Bonheur: augmente en combattant. Il donne un bonus de dégâts. Un Pokémon qui sort d’un œuf démarre à {nombre:reglages.pension.bonheurNaissance} de bonheur.",
+        "- Œufs: récupère un œuf à la pension, mets-le dans ton équipe, puis fais des combats pour l’éclore.",
+        "- Menu Stats: accessible via Profil. Il récapitule tes statistiques principales."
+      ]
+    },
+    {
+      "id": "capture",
+      "titre": "Capture & Repousses",
+      "paragraphes": [
+        "Affaiblis un Pokémon puis utilise des Pokéballs. Les balls plus fortes augmentent la chance de capture (Super/Hyper/Master).",
+        "Repousse: bloque les Pokémon “Commun” pendant un temps. Super Repousse: bloque “Commun” et “Peu Commun”."
+      ]
+    },
+    {
+      "id": "pokedex",
+      "titre": "Pokédex & Récompenses",
+      "paragraphes": [
+        "Accès via le menu Pokédex. Capture des Pokémon pour remplir le Pokédex: chaque palier donne une récompense visible dans le menu “Récompenses”.",
+        "Compléter le Pokédex déclenche une scène avec le Prof. Chen qui te remet le Diplôme et le Charme Chroma."
+      ]
+    },
+    {
+      "id": "pc",
+      "titre": "PC",
+      "paragraphes": [
+        "Débloqué en zone {zoneReglage:reglages.pc.zone}. Le PC stocke tes Pokémon capturés. Tu peux trier par numéro, nom, niveau ou favori.",
+        "Depuis ta team, utilise la fiche Résumé pour envoyer un Pokémon au PC ou en récupérer un."
+      ]
+    },
+    {
+      "id": "sauvegarde",
+      "titre": "Sauvegarde",
+      "paragraphes": [
+        "La sauvegarde est stockée en cache dans le navigateur (local). Pour être sûr de la garder ou pour jouer sur un autre appareil, utilise “Sauver” dans le profil: un fichier JSON est exporté.",
+        "Pour restaurer, utilise “Importer une sauvegarde (JSON)” dans le menu de début du jeu."
+      ]
+    },
+    {
+      "id": "reset",
+      "titre": "Reset",
+      "paragraphes": [
+        "Le bouton Reset réinitialise la progression de la région en cours. Attention: c’est définitif."
+      ]
+    },
+    {
+      "id": "centre",
+      "titre": "Centre Commercial",
+      "paragraphes": [
+        "Débloqué via progression (à Céladopole) et accessible depuis la Carte.",
+        "Objets exclusifs: Attaque +, Attaque Spé +, Pierres d’évolution, Poké Poupée, Pierre Stase.",
+        "Les pierres font évoluer certains Pokémon (impossible si Pierre Stase équipée).",
+        "Pierre Stase: s’équipe via le Sac sur un Pokémon compatible. Elle bloque toute évolution et donne +{surplus:reglages.degats.pierreEternelle}% dégâts. Retrait via la fiche Résumé."
+      ]
+    },
+    {
+      "id": "fauchage",
+      "titre": "CT Fauchage",
+      "paragraphes": [
+        "Débloquée en zone {zoneObjet:falseSwipe} via l’amélioration CT Fauchage au Pokéshop.",
+        "Effet: empêche un Pokémon sauvage de mourir (le laisse à 1 PV). Inutilisable sur les boss, avec un cooldown."
+      ]
+    },
+    {
+      "id": "ligue",
+      "titre": "Ligue Pokémon",
+      "paragraphes": [
+        "La Ligue est composée de {compte:ligue.combats} boss à la suite. Tu affrontes un boss par étape, avec un timer de {secondes:ligue.combats.0.minuteurMs}s pour chaque combat.",
+        "En battant la Ligue, tu accèdes à la prochaine région."
+      ]
+    },
+    {
+      "id": "casino",
+      "titre": "Casino",
+      "paragraphes": [
+        "Débloqué via progression (à Céladopole). Vous pouvez y acheter des jetons avec vos Pokédollars pour jouer à 3 mini-jeux : la Machine à sous, le Blackjack et le Pile ou Face. Les jetons gagnés peuvent être échangés contre des Pokémon rares (Abra, Insecateur, Minidraco, Porygon) et des objets exclusifs comme la CT Jackpot ou une Master Ball."
+      ]
+    },
+    {
+      "id": "defi-chen",
+      "titre": "Défi du Professeur Chen",
+      "paragraphes": [
+        "Une fois la ligue vaincue et le Pokédex de Kanto complété ({compte:pokemon.pokemon} Pokémon capturés), un défi ultime vous attend au laboratoire du Professeur Chen. Il vous affrontera avec une équipe de {compte:defi.combats} Pokémon, tous au niveau {nombre:defi.combats.0.niveau}, incluant un starter avantagé sur le vôtre, Tauros, Noadkoko, Arcanin, Léviator et son puissant Dracolosse. Chaque Pokémon doit être vaincu en moins de {secondes:defi.combats.0.minuteurMs} secondes. C'est le test final pour devenir le véritable maître de Kanto."
+      ]
+    },
+    {
+      "id": "easter-eggs",
+      "titre": "Easter Eggs",
+      "paragraphes": [
+        "- Renomme un Pokémon en “dinnerbone” ou “grumm” pour l’inverser.",
+        "- Renomme en “jeb_” pour un effet arc-en-ciel.",
+        "- Renomme en “caca” pour un filtre spécial.",
+        "- Renomme en “Daran” pour obtenir un skin de Pokémon exclusif."
+      ]
+    }
+  ]
+}
