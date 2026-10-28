@@ -27,14 +27,29 @@
       "texte": "Casino débloqué ! Il est sur la Carte, dans la fiche de Céladopole."
     },
     {
+      "id": "poke-radar-au-shop",
+      "declencheur": { "objetShop": "pokeradar" },
+      "texte": "Poké-Radar disponible au Shop !"
+    },
+    {
       "id": "poke-radar",
       "declencheur": { "amelioration": "pokeradar" },
       "texte": "Poké-Radar débloqué ! Il est dans les outils du combat."
     },
     {
+      "id": "fauchage-au-shop",
+      "declencheur": { "objetShop": "falseSwipe" },
+      "texte": "CT Fauchage disponible au Shop !"
+    },
+    {
       "id": "fauchage",
       "declencheur": { "amelioration": "falseSwipe" },
       "texte": "Fauchage débloqué ! Il est dans les outils du combat."
+    },
+    {
+      "id": "auto-clic-au-shop",
+      "declencheur": { "objetShop": "leftovers" },
+      "texte": "Auto-clic (Restes) disponible au Shop !"
     },
     {
       "id": "auto-clic",

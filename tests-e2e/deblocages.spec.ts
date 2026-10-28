@@ -6,7 +6,10 @@ const instant = new Date('2026-10-28T12:00:00Z');
 const zones = (JSON.parse(readFileSync('data/regions/kanto/zones.json', 'utf8')) as { zones: { id: string }[] }).zones.map(z => z.id);
 const textes = Object.fromEntries((JSON.parse(readFileSync('data/deblocages.json', 'utf8')) as
   { deblocages: { id: string; texte: string }[] }).deblocages.map(d => [d.id, d.texte]));
-const annoncesVuesComplet = ['sac', 'pc', 'pension', 'centre-commercial', 'casino', 'poke-radar', 'fauchage', 'auto-clic'];
+const annoncesVuesComplet = ['sac', 'pc', 'pension', 'centre-commercial', 'casino', 'poke-radar-au-shop', 'poke-radar',
+  'fauchage-au-shop', 'fauchage', 'auto-clic-au-shop', 'auto-clic'];
+/** Durée d'une annonce de déblocage (interface.annonceDeblocageMs), en pas de 100 ms. */
+const dureeAnnonce = (JSON.parse(readFileSync('data/reglages.json', 'utf8')) as { interface: { annonceDeblocageMs: number } }).interface.annonceDeblocageMs;
 
 const test = base.extend<{ surveillance: void }>({
   surveillance: [async ({ page }, utiliser) => {
@@ -90,18 +93,40 @@ test('Tour Pokémon : l’annonce attend le dialogue de M. Fuji, puis Pension, C
   await auto.evaluate(bouton => (bouton as HTMLButtonElement).click());
   await dialogue.click();
   await expect(dialogue).not.toBeVisible();
-  const suite = await relever(page, 6000);
+  const suite = await relever(page, 11000);
   expect(distincts(suite)).toEqual([textes.pension, textes['centre-commercial'], textes.casino]);
   expect(suite.every(e => e.cadres <= 1)).toBe(true);
   for (const texte of [textes.pension, textes['centre-commercial'], textes.casino]) {
-    // 1,2 s par annonce, relevées toutes les 100 ms (la première est déjà entamée quand le relevé commence).
-    expect(suite.filter(e => e.texte === texte).length).toBeGreaterThanOrEqual(11);
-    expect(suite.filter(e => e.texte === texte).length).toBeLessThanOrEqual(12);
+    // 3 s par annonce, relevées toutes les 100 ms (la première est déjà entamée quand le relevé commence).
+    expect(suite.filter(e => e.texte === texte).length).toBeGreaterThanOrEqual(dureeAnnonce / 100 - 1);
+    expect(suite.filter(e => e.texte === texte).length).toBeLessThanOrEqual(dureeAnnonce / 100);
   }
   expect((await regionSauvee(page)).annoncesVues).toEqual(['sac', 'pc', 'pension', 'centre-commercial', 'casino']);
   await page.reload();
   await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
-  expect(distincts(await relever(page, 6000))).toEqual([]);
+  expect(distincts(await relever(page, 11000))).toEqual([]);
+});
+
+test('Poké-Radar, CT Fauchage et Auto-clic arrivent au Shop : trois annonces de 3 s, une à la fois, dans l’ordre, sans attendre l’achat', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await demarrer(page, {
+    zoneId: 'kanto.route-1', etape: 1, starterId: 1, equipe, drapeaux: [], evenementsJoues: ['kanto.intro'],
+    bossVaincus: zones, ameliorations: [],
+    annoncesVues: annoncesVuesComplet.filter(id => !id.endsWith('-au-shop') && !['poke-radar', 'fauchage', 'auto-clic'].includes(id)),
+  }, ['evenementEnCours']);
+  const suite = await relever(page, 11000);
+  const attendu = [textes['poke-radar-au-shop'], textes['fauchage-au-shop'], textes['auto-clic-au-shop']];
+  expect(attendu).toEqual(['Poké-Radar disponible au Shop !', 'CT Fauchage disponible au Shop !', 'Auto-clic (Restes) disponible au Shop !']);
+  expect(distincts(suite)).toEqual(attendu);
+  expect(suite.every(e => e.cadres <= 1)).toBe(true);
+  for (const texte of attendu) {
+    expect(suite.filter(e => e.texte === texte).length).toBeGreaterThanOrEqual(dureeAnnonce / 100 - 1);
+    expect(suite.filter(e => e.texte === texte).length).toBeLessThanOrEqual(dureeAnnonce / 100);
+  }
+  expect((await regionSauvee(page)).annoncesVues).toEqual(annoncesVuesComplet.filter(id => !['poke-radar', 'fauchage', 'auto-clic'].includes(id)));
+  await page.reload();
+  await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
+  expect(distincts(await relever(page, 3000))).toEqual([]);
 });
 
 test('Ancienne sauvegarde qui a déjà tout débloqué : aucune annonce, tout est noté comme vu', async ({ page }) => {
@@ -124,11 +149,11 @@ for (const mouvement of ['reduce', 'no-preference'] as const) {
       zoneId: 'kanto.route-1', etape: 1, starterId: 1, equipe, drapeaux: [], evenementsJoues: ['kanto.intro'],
       bossVaincus: zones, ameliorations: ['pokeradar'], annoncesVues: annoncesVuesComplet.filter(id => id !== 'poke-radar'),
     }, ['evenementEnCours']);
-    const suite = await relever(page, 2000);
+    const suite = await relever(page, 4000);
     expect(distincts(suite)).toEqual([textes['poke-radar']]);
     const visibles = suite.filter(e => e.texte);
-    expect(visibles.length).toBeGreaterThanOrEqual(11);
-    expect(visibles.length).toBeLessThanOrEqual(12);
+    expect(visibles.length).toBeGreaterThanOrEqual(dureeAnnonce / 100 - 1);
+    expect(visibles.length).toBeLessThanOrEqual(dureeAnnonce / 100);
     expect(visibles.some(e => e.animations > 0)).toBe(mouvement === 'no-preference');
   });
 }

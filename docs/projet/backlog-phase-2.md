@@ -1220,3 +1220,31 @@ Fourchette : 1 à 2 jours. Risque : textes de la V1 devenus faux ; à lister ava
 - **Taux de capture de Leveinard [17]** : 30/255 de base (12 %), Très Rare, apparition 0,05, identique à la V1. Super Ball sur niveau 20 à PV pleins : environ 4 % ; à PV presque nuls : environ 13 %. Vingt échecs d'affilée n'est pas un bug. Piste proposée à Nicolas, non demandée : afficher la chance de capture actuelle sur le bouton (la V1 la cachait derrière le mode triche).
 - **Taux des légendaires [27]** : probabilité par rencontre dans la zone concernée, Mew 1 %, Artikodin 2 %, Électhor 5 %, Sulfura 5 %, Mewtwo 5 % (`data/regions/kanto/zones.json`), identique à la V1. Chaque légendaire n'apparaît que dans sa zone. Un test de simulation (10 000 rencontres) est inclus dans AB pour confirmer.
 - **Animations de badges et d'évolution [8, 13]** : jugées bonnes par Nicolas, à ne pas toucher.
+
+---
+
+## AM. `feat(annonces): annoncer l'arrivée au Shop du Poké-Radar, du Fauchage et de l'Auto-clic`
+
+Labels : `type:feat`, `etat:fait` (28/10 : codé en local ; trois annonces ajoutées au mécanisme du ticket AH, durée dédiée de 3 s pour toutes les annonces de déblocage ; tableau dans `docs/projet/deblocages-annonces.md`), `est:0.5`, `prio:3` · branche : `feat/am-annonces-shop` · `agent-ok` : oui
+
+### Histoire
+En tant que joueur, je veux une annonce le jour où le Poké-Radar, le CT Fauchage ou l'Auto-clic (Restes) arrive au Shop, afin de ne pas devoir ouvrir le Shop à chaque zone pour voir s'il y a du nouveau. Nicolas a répondu oui à la question posée au ticket AH.
+
+### Contexte
+Le ticket AH (commit 03caf67) annonce déjà le PC, la Pension, le Sac, le Centre commercial et le Casino, plus le Poké-Radar, le Fauchage et l'Auto-clic mais seulement à l'achat. Ces trois objets deviennent achetables quand leur zone s'ouvre : Poké-Radar à la Cave Taupiqueur (zone 8, boss de l'Arène de Carmin), CT Fauchage à la Centrale (zone 12, boss de l'Arène de Céladopole), Restes à Sylphe SARL (zone 14, boss de l'Arène de Parmanie), le Shop étant ouvert depuis la Forêt de Jade. La condition exacte est celle de `objetsDuShop` (`src/core/boutique.ts`). Mécanisme : `data/deblocages.json`, `src/core/deblocages.ts`, `src/ui/AnnonceDeblocage.tsx`, drapeaux `annoncesVues`. Les annonces de déblocage utilisent `interface.annonceMs` (1,2 s), trop court pour lire une phrase.
+
+### Critères d'acceptation
+- [x] Étant donné le boss de l'Arène de Carmin, de l'Arène de Céladopole ou de l'Arène de Parmanie battu, quand la zone de l'objet s'ouvre, alors une annonce « Poké-Radar disponible au Shop ! », « CT Fauchage disponible au Shop ! » ou « Auto-clic (Restes) disponible au Shop ! » s'affiche, sans que j'aie acheté l'objet.
+- [x] Étant donné une annonce déjà vue, quand je recharge la page ou j'achète l'objet, alors l'annonce du Shop ne se rejoue pas (identifiant propre dans `annoncesVues`, distinct de l'annonce d'achat).
+- [x] Étant donné une ancienne sauvegarde sans `annoncesVues` qui a déjà ouvert ces zones, quand je la charge, alors aucune annonce ne se rejoue.
+- [x] Étant donné une annonce de déblocage, quand elle s'affiche, alors elle dure `interface.annonceDeblocageMs` (3 000 ms, `data/reglages.json`), alors que « CARTE DÉBLOQUÉE ! » et les autres annonces gardent `interface.annonceMs` (1 200 ms).
+- [x] Étant donné plusieurs annonces en attente, quand elles s'enchaînent, alors elles restent dans l'ordre du fichier, une à la fois, sans superposition.
+
+### Hors périmètre
+Annonce d'un objet du Centre commercial ou du Casino, annonce de la possibilité d'acheter assez cher pour l'argent possédé, durée réglable par le joueur.
+
+### Vérification
+`src/core/deblocages.test.ts`, `src/ui/store-deblocages.test.ts`, e2e `tests-e2e/deblocages.spec.ts` ; `docs/projet/deblocages-annonces.md` mis à jour.
+
+### Effort et risques
+Fourchette : 0,5 jour. Risque : une sauvegarde faite avec `annoncesVues` avant ce ticket verra l'annonce du Shop une fois (ses identifiants manquent). Dépend de : AH.

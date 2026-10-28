@@ -115,3 +115,10 @@ Tickets AA à AL écrits dans `backlog-phase-2.md`. Faits : AA, AC, AD, AK (CI v
 - **Rendu** : le ticket décrit déjà l'écran (fenêtre modale, sections repliables), donc pas de trois variantes. Fenêtre centrée, en-tête fixe avec la croix de 44 px, la première section ouverte et les douze autres repliées (la V1 les montrait toutes ouvertes). Dis-moi si tu préfères tout ouvert.
 - **Dépendance AB** : le guide ne cite aucun chiffre que l'équilibrage change (argent, PV, difficulté des zones 1 et 2), donc AB n'a pas besoin d'être fait pour lui. AA et AD ne changent pas non plus de phrase.
 - **Police** : « fl » n'apparaît dans aucune phrase du guide, rien à signaler.
+
+## Ticket AM (28/10)
+
+- **Objet et nom** : l'Auto-clic est vendu sous le nom « Restes » dans le Shop. L'annonce dit « Auto-clic (Restes) disponible au Shop ! » pour qu'on reconnaisse l'objet en ouvrant le Shop. Le Fauchage dit « CT Fauchage », comme dans le Shop. Les textes sont dans data/deblocages.json si tu préfères d'autres mots.
+- **Deux annonces par objet** : l'annonce d'arrivée au Shop et l'annonce d'achat (« Poké-Radar débloqué ! Il est dans les outils du combat. ») existent toutes les deux. Veux-tu garder l'annonce d'achat, ou la retirer maintenant que le joueur est déjà prévenu ?
+- **Durée de 3 s pour toutes les annonces de déblocage** : j'ai appliqué les 3 s à toutes (PC, Pension, Centre commercial, Casino, Sac, Radar, Fauchage, Auto-clic), pas seulement aux trois nouvelles. Trois annonces d'affilée durent 9 s (Tour Pokémon : Pension, Centre commercial, Casino). Veux-tu raccourcir la file, par exemple 2 s ?
+- **Sauvegarde déjà utilisée** : une partie enregistrée depuis le ticket AH qui avait déjà ouvert la Cave Taupiqueur, la Centrale ou Sylphe SARL verra ces annonces une fois à la prochaine ouverture. Une partie plus ancienne (sans le champ) ne verra rien. À savoir si tu rejoues avec ta sauvegarde de test.

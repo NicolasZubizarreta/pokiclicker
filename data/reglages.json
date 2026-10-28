@@ -64,7 +64,7 @@
   },
   "pc": { "zone": "kanto.arene-d-argenta", "raison": "Le PC de Léo s'ouvre à l'Arène d'Argenta." },
   "interface": {
-    "sauvegardeAutoMs": 30000, "annonceMs": 1200,
+    "sauvegardeAutoMs": 30000, "annonceMs": 1200, "annonceDeblocageMs": 3000,
     "vol": { "poseMs": 800, "delaiOuvertureMs": 50, "volMs": 2500, "fermetureMs": 500, "imageMs": 150, "images": 5, "pisteMs": 400, "traitsMs": 200, "fonduReduitMs": 300, "changerReduitMs": 150, "tailleDresseurRatio": 0.23148148148148148 }
   },
   "carte": { "zoomMax": 6, "deblocageMs": 600, "seuilGlissementPx": 8, "diviseurMolette": 500, "rayonCiblePx": 22 },

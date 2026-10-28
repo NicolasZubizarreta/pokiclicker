@@ -230,7 +230,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     if (deblocageEnCours && tempsJeuMs >= finDeblocageMs) deblocageEnCours = null;
     if (deblocageEnCours || fileDeblocages.length === 0 || !ecranLibre()) return;
     deblocageEnCours = fileDeblocages.shift()!;
-    finDeblocageMs = tempsJeuMs + reglages.interface.annonceMs;
+    finDeblocageMs = tempsJeuMs + reglages.interface.annonceDeblocageMs;
     marquerAnnoncesVues([deblocageEnCours.id]);
   };
   const detecterDeblocages = () => {

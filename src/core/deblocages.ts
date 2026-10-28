@@ -1,4 +1,5 @@
 import donnees from '../../data/deblocages.json';
+import { chargerObjets, objetsDuShop } from './boutique';
 import { evaluer } from './conditions';
 import type { chargerMonde } from './monde';
 import type { DonneesRegion } from './sauvegarde-types';
@@ -7,14 +8,17 @@ import { etatMondeDe } from './sauvegarde';
 /**
  * Une fonction se débloque quand sa zone s'ouvre, quand son lieu annexe devient accessible
  * ou quand son objet est possédé. Le texte et le déclencheur vivent dans `data/deblocages.json`.
+ * `objetShop` : l'objet devient achetable au Shop (même règle que la liste du Shop : Shop ouvert et zone de l'objet ouverte).
  */
-export type DeclencheurDeblocage = { zone: string } | { lieu: string } | { amelioration: string };
+export type DeclencheurDeblocage = { zone: string } | { lieu: string } | { amelioration: string } | { objetShop: string };
 export type Deblocage = {
   id: string; declencheur: DeclencheurDeblocage; texte: string;
   /** Drapeau posé par un événement qui annonce déjà la fonction lui-même (l'intro pour le Sac). */
   dejaAnnonceSi?: string;
 };
 type Monde = Pick<ReturnType<typeof chargerMonde>, 'zonesOuvertes' | 'lieu' | 'zone'>;
+
+const objets = chargerObjets();
 
 export function chargerDeblocages(): Deblocage[] {
   const liste = structuredClone(donnees.deblocages) as Deblocage[];
@@ -25,8 +29,11 @@ export function chargerDeblocages(): Deblocage[] {
     if (typeof deblocage.texte !== 'string' || !deblocage.texte.trim()) throw new Error(`Texte de déblocage manquant : ${deblocage.id}`);
     const declencheur = deblocage.declencheur as Record<string, unknown>;
     const cles = Object.keys(declencheur);
-    if (cles.length !== 1 || !['zone', 'lieu', 'amelioration'].includes(cles[0]!) || typeof declencheur[cles[0]!] !== 'string') {
+    if (cles.length !== 1 || !['zone', 'lieu', 'amelioration', 'objetShop'].includes(cles[0]!) || typeof declencheur[cles[0]!] !== 'string') {
       throw new Error(`Déclencheur de déblocage invalide : ${deblocage.id}`);
+    }
+    if (cles[0] === 'objetShop' && !objets.some(objet => objet.id === declencheur.objetShop && objet.boutique === 'shop')) {
+      throw new Error(`Objet du Shop inconnu pour le déblocage : ${deblocage.id}`);
     }
   }
   return liste;
@@ -45,6 +52,7 @@ export function deblocagesAtteints(region: DonneesRegion, monde: Monde, catalogu
   return catalogue.filter(({ declencheur }) => {
     if ('zone' in declencheur) return monde.zonesOuvertes(etat).some(zone => zone.id === declencheur.zone);
     if ('amelioration' in declencheur) return region.ameliorations.includes(declencheur.amelioration);
+    if ('objetShop' in declencheur) return objetsDuShop(objets, monde, etat).some(objet => objet.id === declencheur.objetShop);
     const condition = monde.lieu(declencheur.lieu).si;
     return !condition || evaluer(condition, etat, { nomZone }).ok;
   }).map(deblocage => deblocage.id);

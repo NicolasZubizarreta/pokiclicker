@@ -67,7 +67,8 @@ function suivre(p: ReturnType<typeof preparer>, store: StoreJeu, ms: number) {
   return suite;
 }
 
-const deblocagesSansRadar = deblocages.map(d => d.id).filter(id => id !== 'poke-radar');
+const tousSauf = (...retires: string[]) => deblocages.map(d => d.id).filter(id => !retires.includes(id));
+const deblocagesSansRadar = tousSauf('poke-radar');
 const tour = (region: DonneesRegion): DonneesRegion => ({ ...region, bossVaincus: [], zoneId: 'kanto.tour-pokemon',
   etape: reglages.combat.etapeBoss, annoncesVues: ['sac', 'pc'] });
 
@@ -76,10 +77,12 @@ it('enchaîne Pension, Centre commercial et Casino après le boss de la Tour Pok
   const store = p.ouvrir();
   expect(store.getState().deblocage).toBeNull();
   p.gagner(store);
-  const suite = suivre(p, store, 8000);
+  const suite = suivre(p, store, 13000);
   const annonces = suite.filter(etape => etape.texte !== null);
   expect(annonces.map(etape => etape.texte)).toEqual([texte('pension'), texte('centre-commercial'), texte('casino')]);
-  for (const etape of annonces) expect(etape.pas * reglages.boucle.pasMs).toBe(reglages.interface.annonceMs);
+  // Chaque annonce de déblocage dure 3 s, sans trou ni superposition entre deux annonces.
+  for (const etape of annonces) expect(etape.pas * reglages.boucle.pasMs).toBe(reglages.interface.annonceDeblocageMs);
+  expect(suite.filter(etape => etape.texte === null).length).toBeLessThanOrEqual(2);
   expect(store.getState().deblocage).toBeNull();
   expect(p.lire().annoncesVues).toEqual(['sac', 'pc', 'pension', 'centre-commercial', 'casino']);
 });
@@ -101,13 +104,13 @@ it('ne rejoue rien au rechargement ni quand la page est rouverte au milieu de la
   const store = p.ouvrir();
   p.gagner(store);
   const annonces = (suite: ReturnType<typeof suivre>) => suite.map(etape => etape.texte).filter(Boolean);
-  expect(annonces(suivre(p, store, 3000))).toEqual([texte('pension'), texte('centre-commercial')]);
+  expect(annonces(suivre(p, store, 5000))).toEqual([texte('pension'), texte('centre-commercial')]);
   store.getState().arreter();
   const reprise = p.ouvrir();
-  expect(annonces(suivre(p, reprise, 5000))).toEqual([texte('casino')]);
+  expect(annonces(suivre(p, reprise, 6000))).toEqual([texte('casino')]);
   reprise.getState().arreter();
   const encore = p.ouvrir();
-  expect(annonces(suivre(p, encore, 5000))).toEqual([]);
+  expect(annonces(suivre(p, encore, 8000))).toEqual([]);
 });
 
 it('ne rejoue rien pour une ancienne sauvegarde qui a déjà tout débloqué, et marque tout comme vu', () => {
@@ -118,7 +121,7 @@ it('ne rejoue rien pour une ancienne sauvegarde qui a déjà tout débloqué, et
   expect(suivre(p, store, 5000).map(etape => etape.texte)).toEqual([null]);
   expect(store.getState().deblocage).toBeNull();
   expect(p.lire().annoncesVues).toEqual(['sac', 'pc', 'pension', 'centre-commercial', 'casino',
-    'poke-radar', 'fauchage', 'auto-clic']);
+    'poke-radar-au-shop', 'poke-radar', 'fauchage-au-shop', 'fauchage', 'auto-clic-au-shop', 'auto-clic']);
 });
 
 it('annonce le Poké-Radar à l’achat, une seule fois', () => {
@@ -127,7 +130,34 @@ it('annonce le Poké-Radar à l’achat, une seule fois', () => {
   const store = p.ouvrir();
   expect(suivre(p, store, 1000).map(etape => etape.texte)).toEqual([null]);
   expect(store.getState().acheter('pokeradar', 1)).toBeNull();
-  const suite = suivre(p, store, 4000).map(etape => etape.texte);
-  expect(suite.filter(Boolean)).toEqual([texte('poke-radar')]);
+  const suite = suivre(p, store, 4000);
+  expect(suite.map(etape => etape.texte).filter(Boolean)).toEqual([texte('poke-radar')]);
+  // L'achat tombe en cours de pas : la durée relevée peut perdre un pas au début.
+  expect(suite.find(etape => etape.texte)!.pas * reglages.boucle.pasMs).toBeGreaterThanOrEqual(reglages.interface.annonceDeblocageMs - reglages.boucle.pasMs);
+  expect(suite.find(etape => etape.texte)!.pas * reglages.boucle.pasMs).toBeLessThanOrEqual(reglages.interface.annonceDeblocageMs);
   expect(p.lire().annoncesVues).toContain('poke-radar');
+});
+
+const avantCarmin = (region: DonneesRegion): DonneesRegion => ({ ...region, bossVaincus: toutesLesZones.slice(1, 7),
+  zoneId: 'kanto.arene-de-carmin', etape: reglages.combat.etapeBoss, annoncesVues: tousSauf('poke-radar-au-shop') });
+
+it('annonce le Poké-Radar au Shop quand la Cave Taupiqueur s’ouvre, 3 s, sans attendre l’achat ni rejouer ensuite', () => {
+  expect(reglages.interface.annonceDeblocageMs).toBe(3000);
+  expect(reglages.interface.annonceDeblocageMs).toBeGreaterThan(reglages.interface.annonceMs);
+  const p = preparer(avantCarmin);
+  const store = p.ouvrir();
+  expect(suivre(p, store, 1000).map(etape => etape.texte)).toEqual([null]);
+  p.gagner(store);
+  // Le boss d'arène donne un badge : l'annonce attend que la boîte à badges soit fermée.
+  p.avancer(store, reglages.boucle.pasMs);
+  expect(store.getState().obtentionBadge).not.toBeNull();
+  store.getState().fermerBoiteBadges();
+  const suite = suivre(p, store, 8000);
+  const annonces = suite.filter(etape => etape.texte !== null);
+  expect(annonces.map(etape => etape.texte)).toEqual([texte('poke-radar-au-shop')]);
+  expect(texte('poke-radar-au-shop')).toBe('Poké-Radar disponible au Shop !');
+  expect(annonces[0]!.pas * reglages.boucle.pasMs).toBe(reglages.interface.annonceDeblocageMs);
+  expect(p.lire().annoncesVues).toContain('poke-radar-au-shop');
+  store.getState().arreter();
+  expect(suivre(p, p.ouvrir(), 5000).map(etape => etape.texte)).toEqual([null]);
 });
