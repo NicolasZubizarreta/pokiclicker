@@ -7,7 +7,7 @@ import { reglages } from '../core/reglages';
 import { compteInitial, creerGestionnaire, creerStockageMemoire, versMembreEquipe } from '../core/sauvegarde';
 import type { DonneesRegion, Stockage } from '../core/sauvegarde';
 import { creerStoreJeu } from './store';
-import { afficherEvolution } from './store-evolution';
+import { afficherEvolution, annonceEvolution } from './store-evolution';
 
 describe('afficherEvolution', () => {
   it('expose les deux espèces jusqu’à la fin exacte de l’animation', () => {
@@ -55,6 +55,29 @@ function preparer(numero = 1, niveau = 16, inventaire: DonneesRegion['inventaire
   gestionnaire.ecrireRegion('test', 'kanto', region);
   return { ...ouvrir(stockage), stockage, region };
 }
+
+describe('annonceEvolution', () => {
+  it('ignore une équipe vide et les annonces déjà vues, puis choisit le premier non vu', () => {
+    const { region } = preparer();
+    const premier = region.equipe[0]!;
+    const second = { ...premier, uid: 'second' };
+    expect(annonceEvolution([], [])).toBeNull();
+    expect(annonceEvolution([premier], ['evolution:bulbi:1'])).toBeNull();
+    expect(annonceEvolution([premier, second], [])).toEqual({
+      id: 'evolution:bulbi:1', texte: 'Bulbizarre peut évoluer !',
+    });
+    expect(annonceEvolution([premier, second], ['evolution:bulbi:1'])).toEqual({
+      id: 'evolution:second:1', texte: 'Bulbizarre peut évoluer !',
+    });
+  });
+
+  it('ignore un niveau insuffisant et la Pierre Stase', () => {
+    const { region } = preparer();
+    const pokemon = region.equipe[0]!;
+    expect(annonceEvolution([{ ...pokemon, niveau: 15 }], [])).toBeNull();
+    expect(annonceEvolution([{ ...pokemon, pierreEternelle: true }], [])).toBeNull();
+  });
+});
 
 describe('évolution dans le store', () => {
   it('évolue, annonce, expose les sprites et recharge la cible et le Pokédex', () => {

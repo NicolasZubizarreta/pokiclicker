@@ -38,7 +38,7 @@ import { etatMondeDe, versMembreEquipe } from '../core/sauvegarde';
 import type { DonneesRegion, PokemonPossede, Stockage } from '../core/sauvegarde';
 import type { PreferencesCombat, ReglagesArret } from '../core/sauvegarde-types';
 import { afficherCapture, annonceCapture, banniereArret, conditionCapture, type AffichageCapture } from './store-capture';
-import { afficherEvolution, type EvolutionAffichee } from './store-evolution';
+import { afficherEvolution, annonceEvolution, type EvolutionAffichee } from './store-evolution';
 import { afficherProgression, phaseObtention, type AffichageProgression, type PhaseObtention } from './store-progression';
 import { afficherEffets, afficherFauchage, type EffetsAffiches, type FauchageAffiche } from './store-objets';
 import { afficherBoutique, afficherCentre, afficherSac, type AffichageBoutique, type AffichageSac } from './store-boutique';
@@ -381,6 +381,14 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     if (!initialise) return;
     detecterDeblocages();
     avancerDeblocages();
+    if (!deblocageEnCours && ecranLibre()) {
+      const prochaine = annonceEvolution(region.equipe, region.annoncesVues ?? []);
+      if (prochaine) {
+        annonce = prochaine.texte;
+        finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs;
+        marquerAnnoncesVues([prochaine.id]);
+      }
+    }
     const maintenant = horloge.maintenant();
     const actifs = actifsCourants(region, maintenant);
     const lieu = lieuDe(region.zoneId);
