@@ -2,6 +2,7 @@ import { BarreXp } from './BarreXp';
 import { BoutonRenommer } from './BoutonRenommer';
 import { Image } from './Image';
 import { IconeShiny } from './IconeShiny';
+import { IconeObjet } from './icones';
 import { SpriteEvolution } from './SpriteEvolution';
 import type { EvolutionAffichee } from './store-evolution';
 import { formaterDps } from './nombres';
@@ -12,7 +13,7 @@ import type { CaseEquipe } from './store';
 export function CarteEquipe({ membre, renommer, evolution, evoluer, animation }: {
   membre: CaseEquipe;
   renommer?(uid: string, declencheur: HTMLButtonElement): void;
-  evolution?: { vers: number; pierre: { id: string; nom: string; image: string } | null } | null;
+  evolution?: { vers: number; pierre: { id: string; nom: string; image: string | null } | null } | null;
   evoluer?(bouton: HTMLButtonElement): void;
   animation?: EvolutionAffichee | null;
 }) {
@@ -45,7 +46,7 @@ export function CarteEquipe({ membre, renommer, evolution, evoluer, animation }:
         <span className="text-2xl" aria-hidden="true">→</span>
         <span className="relative shrink-0">
           <Image src={spriteAffiche(forme)} genre="sprite" alt="" className="size-12 max-w-none" />
-          {evolution.pierre && <Image src={evolution.pierre.image} genre="objet" alt="" className="absolute bottom-0 right-0 size-5 bg-surface" />}
+          {evolution.pierre && <span className="absolute bottom-0 right-0 bg-surface"><IconeObjet image={evolution.pierre.image} nom={evolution.pierre.nom} taille="petite" /></span>}
         </span>
         <span className="carte-evo-nom text-sm">{nomAffiche(forme)}</span>
       </button>}

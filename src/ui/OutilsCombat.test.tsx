@@ -12,7 +12,7 @@ it.each([
   [{ ...disponible, disponible: false, rechargeS: 12 }, 'Recharge : 12 s'],
 ])('désactive Fauchage avec une explication visible (%j)', (fauchage, raison) => {
   const faucher = vi.fn();
-  render(<OutilsCombat fauchage={fauchage} radar={false} faucher={faucher} ouvrirRadar={vi.fn()} />);
+  render(<OutilsCombat fauchage={fauchage} faucher={faucher} />);
   expect(screen.queryByRole('button', { name: 'Poké-Radar' })).toBeNull();
   if (!fauchage.possede) {
     expect(screen.queryByRole('button', { name: 'Fauchage' })).toBeNull();
@@ -26,11 +26,10 @@ it.each([
   expect(faucher).not.toHaveBeenCalled();
 });
 
-it('transmet les actions et le déclencheur, avec des cibles de 44 px sans bg-action', () => {
+it('transmet Fauchage, avec une cible de 44 px sans bg-action', () => {
   const faucher = vi.fn();
-  const ouvrirRadar = vi.fn();
-  const { container } = render(<OutilsCombat fauchage={{ ...disponible, actif: true }} radar
-    faucher={faucher} ouvrirRadar={ouvrirRadar} />);
+  const { container } = render(<OutilsCombat fauchage={{ ...disponible, actif: true }}
+    faucher={faucher} />);
   const boutons = screen.getAllByRole('button');
   expect(boutons[0]!.getAttribute('aria-pressed')).toBe('true');
   for (const bouton of boutons) {
@@ -39,6 +38,6 @@ it('transmet les actions et le déclencheur, avec des cibles de 44 px sans bg-ac
     fireEvent.click(bouton);
   }
   expect(faucher).toHaveBeenCalledOnce();
-  expect(ouvrirRadar).toHaveBeenCalledWith(boutons[1]);
+  expect(boutons).toHaveLength(1);
   expect(container.querySelector('.bg-action')).toBeNull();
 });

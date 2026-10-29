@@ -8,7 +8,7 @@ const racine = new URL('../', import.meta.url);
 async function preparer() {
   const { objet, decor } = JSON.parse(await readFile(new URL('data/images.json', racine), 'utf8'));
   await mkdir(new URL('public/img/objets/', racine), { recursive: true });
-  for (const [source, fichier] of [['JetonShiny.png', 'JetonShiny.png'], ['Diplôme.png', 'Diplome.png']]) {
+  for (const [source, fichier] of [['JetonShiny.png', 'JetonShiny.png'], ['Diplôme.png', 'Diplome.png'], ['PokeRadar.png', 'PokeRadar.png']]) {
     const chemin = `img/objets/${fichier}`;
     await sharp(fileURLToPath(new URL(`legacy/img/kanto/icones/${source}`, racine)))
       .resize(objet.taille, objet.taille, {

@@ -72,6 +72,10 @@ function Scene({ store, ouvrirPension }: { store: StoreJeu; ouvrirPension(): voi
   const banniere = useStore(store, etat => etat.banniere);
   const accesPension = useStore(store, etat => etat.pension.acces);
   const captureEnCours = useStore(store, etat => etat.capture.enCours);
+  const capture = useStore(store, etat => etat.capture);
+  const capturer = useStore(store, etat => etat.capturer);
+  const radar = useStore(store, etat => etat.radar);
+  const [declencheurRadar, ouvrirRadar] = useState<HTMLButtonElement | null>(null);
   const effets = useStore(store, etat => etat.effets);
   const pokedex = useStore(store, etat => etat.pokedex);
   const numeroEnnemi = ennemi?.numero;
@@ -111,7 +115,7 @@ function Scene({ store, ouvrirPension }: { store: StoreJeu; ouvrirPension(): voi
       {effets.length > 0 && <PastillesEffets effets={effets} />}
       {minuteur && <BarreTemps restantMs={minuteur.restantMs} totalMs={minuteur.totalMs} />}
     </div>
-    <div aria-hidden={cache} className={`pointer-events-none absolute right-2 bottom-2 flex will-change-transform size-48 items-end justify-center lg:size-72 ${cache ? 'opacity-0' : ''}`}>
+    <div aria-hidden={cache} className={`pointer-events-none absolute right-2 bottom-18 flex will-change-transform size-48 items-end justify-center lg:bottom-22 lg:size-72 ${cache ? 'opacity-0' : ''}`}>
       <div aria-hidden="true" className="socle absolute bottom-10 h-12 w-3/4 bg-region-socle lg:bottom-16 lg:h-16" />
       <div className={captureEnCours ? '' : 'motion-safe:flottement'}>
         <div ref={secousse}>
@@ -136,6 +140,17 @@ function Scene({ store, ouvrirPension }: { store: StoreJeu; ouvrirPension(): voi
       onPointerDown={event => { if (event.button === 0) attaquer(); }}
       onClick={event => { if (event.detail === 0) attaquer(); }} />
     <DegatsFlottants store={store} />
+    <div className="dock-capture cadre absolute bottom-3 left-1 z-20 bg-surface p-1 shadow-lg">
+      <BarreCapture {...capture} capturer={capturer} />
+    </div>
+    {radar && <button type="button" aria-label="Poké-Radar"
+      className="radar-rond cadre absolute right-4 bottom-4 z-20 flex size-12 items-center justify-center rounded-full bg-surface shadow-md lg:size-16"
+      onClick={event => ouvrirRadar(event.currentTarget)}>
+      <img src="img/objets/PokeRadar.png" alt="" className="size-7 image-rendering-pixelated lg:size-9" />
+    </button>}
+    <FenetreRadar ouvert={declencheurRadar !== null} nomZone={lieu?.nom ?? zone.nom}
+      especes={entreesRadar(zone, pokedex)}
+      fermer={() => ouvrirRadar(null)} declencheur={declencheurRadar} />
   </section>;
 }
 
@@ -147,10 +162,32 @@ function Equipe({ store }: { store: StoreJeu }) {
   const [fiche, ouvrirFiche] = useState<{ uid: string; ouverture: number } | null>(null);
   const [ouvert, afficher] = useState(false);
   const declencheur = useRef<HTMLButtonElement>(null);
-  return <section aria-label="Ton équipe" className="min-w-0 lg:col-start-4 lg:row-start-1 lg:row-end-4">
+  const [declencheurSac, ouvrirSac] = useState<HTMLButtonElement | null>(null);
+  const utiliserObjetActif = useStore(store, etat => etat.utiliserObjetActif);
+  const zone = useStore(store, etat => etat.zone);
+  const fauchage = useStore(store, etat => etat.fauchage);
+  const faucher = useStore(store, etat => etat.faucher);
+  const autoAttaque = useStore(store, etat => etat.autoAttaque);
+  const autoClic = useStore(store, etat => etat.autoClic);
+  const basculerAutoClic = useStore(store, etat => etat.basculerAutoClic);
+  const arret = useStore(store, etat => etat.arretAuto);
+  const basculer = useStore(store, etat => etat.basculerAutoAttaque);
+  const regler = useStore(store, etat => etat.reglerArretAuto);
+  return <section aria-label="Ton équipe" className="min-w-0 lg:col-start-4 lg:row-start-1 lg:row-end-3">
     <div className="bandeau-action">
       <h2 className="flex justify-between gap-2 font-titre text-xl">Ton équipe <span>{formaterDps(dps)} DPS</span></h2>
-      <CommandesCombat store={store} />
+      {zone && <div className="bandeau-action-rangee" role="group" aria-label="Actions du combat">
+        <ReglagesCombat autoAttaque={autoAttaque} arret={arret} basculer={basculer} regler={regler}
+          autoClic={autoClic} basculerAutoClic={basculerAutoClic} />
+        <OutilsCombat fauchage={fauchage} faucher={faucher} />
+        {sac.acces.ouvert && <div className="relative"><BoutonAction nom="Sac" onClick={event => ouvrirSac(event.currentTarget)}
+          icone={<><IconeSac />
+            {sac.entrees.some(entree => entree.quantite > 0) && <span aria-hidden="true"
+              className="absolute -right-2 -top-2 rounded-full bg-selection px-1 text-xs tabular-nums text-texte">
+              {sac.entrees.reduce((total, entree) => total + entree.quantite, 0)}
+            </span>}
+          </>} /></div>}
+      </div>}
     </div>
     <div className="grid grid-cols-6 gap-1 lg:grid-cols-1">{equipe.map((membre, i) => {
       const niveau = membre ? evolutionDisponible(membre.pokemon) : null;
@@ -172,59 +209,9 @@ function Equipe({ store }: { store: StoreJeu }) {
     })}</div>
     {fiche !== null && <FichePokemon key={fiche.ouverture} uid={fiche.uid} renommer ouvert={ouvert}
       fermer={() => afficher(false)} declencheur={declencheur} />}
+    {zone && sac.acces.ouvert && declencheurSac && <PanneauSac sac={sac} utiliserObjetActif={utiliserObjetActif}
+      fermer={() => ouvrirSac(null)} declencheur={declencheurSac} />}
   </section>;
-}
-
-function CaptureCombat({ store }: { store: StoreJeu }) {
-  const zone = useStore(store, etat => etat.zone);
-  const capture = useStore(store, etat => etat.capture);
-  const capturer = useStore(store, etat => etat.capturer);
-  return zone ? <fieldset className="min-w-0 lg:col-span-3">
-    <BarreCapture {...capture} capturer={capturer} />
-  </fieldset> : <div aria-hidden="true" className="lg:col-span-3" />;
-}
-
-function CommandesCombat({ store }: { store: StoreJeu }) {
-  const [declencheurRadar, ouvrirRadar] = useState<HTMLButtonElement | null>(null);
-  const [declencheurSac, ouvrirSac] = useState<HTMLButtonElement | null>(null);
-  const sac = useStore(store, etat => etat.sac);
-  const utiliserObjetActif = useStore(store, etat => etat.utiliserObjetActif);
-  const zone = useStore(store, etat => etat.zone);
-  const lieu = useStore(store, etat => etat.lieu);
-  const pokedex = useStore(store, etat => etat.pokedex);
-  const fauchage = useStore(store, etat => etat.fauchage);
-  const radar = useStore(store, etat => etat.radar);
-  const faucher = useStore(store, etat => etat.faucher);
-  const autoAttaque = useStore(store, etat => etat.autoAttaque);
-  const autoClic = useStore(store, etat => etat.autoClic);
-  const basculerAutoClic = useStore(store, etat => etat.basculerAutoClic);
-  const arret = useStore(store, etat => etat.arretAuto);
-  const basculer = useStore(store, etat => etat.basculerAutoAttaque);
-  const regler = useStore(store, etat => etat.reglerArretAuto);
-  if (!zone) return null;
-  const reglages = <ReglagesCombat autoAttaque={autoAttaque} arret={arret} basculer={basculer} regler={regler}
-    autoClic={autoClic} basculerAutoClic={basculerAutoClic} />;
-  return <div className="commandes-combat">
-    <>
-      <div className="bandeau-action-rangee" role="group" aria-label="Actions du combat">
-        {reglages}
-        <OutilsCombat fauchage={fauchage} radar={radar} faucher={faucher}
-          ouvrirRadar={ouvrirRadar} />
-        {sac.acces.ouvert && <div className="relative"><BoutonAction nom="Sac" onClick={event => ouvrirSac(event.currentTarget)}
-          icone={<><IconeSac />
-            {sac.entrees.some(entree => entree.quantite > 0) && <span aria-hidden="true"
-              className="absolute -right-2 -top-2 rounded-full bg-selection px-1 text-xs tabular-nums text-texte">
-              {sac.entrees.reduce((total, entree) => total + entree.quantite, 0)}
-            </span>}
-          </>} /></div>}
-      </div>
-      {sac.acces.ouvert && declencheurSac && <PanneauSac sac={sac} utiliserObjetActif={utiliserObjetActif}
-        fermer={() => ouvrirSac(null)} declencheur={declencheurSac} />}
-      <FenetreRadar ouvert={declencheurRadar !== null} nomZone={lieu?.nom ?? zone.nom}
-        especes={entreesRadar(zone, pokedex)}
-        fermer={() => ouvrirRadar(null)} declencheur={declencheurRadar} />
-    </>
-  </div>;
 }
 
 export function EcranCombat({ store = storeJeu }: { store?: StoreJeu }) {
@@ -250,7 +237,6 @@ export function EcranCombat({ store = storeJeu }: { store?: StoreJeu }) {
     </div>}
     {!fatale && <><Entete store={store} /><div className="combat-grille grid gap-2 lg:grid-cols-4 lg:gap-4">
       <Scene store={store} ouvrirPension={() => ouvrirPension(true)} />
-      <CaptureCombat store={store} />
       <Equipe store={store} /><DialogueChen store={store} />
     </div></>}
   </div>;

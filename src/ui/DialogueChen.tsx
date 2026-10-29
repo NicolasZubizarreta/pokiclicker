@@ -5,7 +5,7 @@ export function DialogueChen({ store }: { store: StoreJeu }) {
   const lieu = useStore(store, etat => etat.lieu);
   const precedente = useStore(store, etat => etat.zonePrecedente);
   const suivante = useStore(store, etat => etat.zoneSuivante);
-  return <aside aria-label="Dialogue" className="cadre flex items-center gap-2 bg-surface p-4 lg:col-span-3">
+  return <aside aria-label="Dialogue" className="cadre flex items-center gap-2 bg-surface p-4 lg:col-span-3 lg:self-start">
     <div className="min-w-0 grow lg:flex lg:items-center lg:justify-between lg:gap-4"><div className="min-w-0"><h2 className="font-titre text-xl text-lien">Prof. Chen</h2>
       <p>{lieu?.sansCombat ? 'Choisis une zone pour partir à l’aventure.'
         : lieu?.id === 'kanto.route-1' ? 'Les Rattata sont ici. Touche le Pokémon pour attaquer.' : 'Touche le Pokémon pour attaquer.'}</p></div>

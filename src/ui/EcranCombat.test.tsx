@@ -165,9 +165,14 @@ it('regroupe les icônes dans le bandeau de l’équipe sans action principale s
   expect(rangees).toHaveLength(1);
   const rangee = rangees[0]!;
   expect(screen.getByRole('region', { name: 'Ton équipe' }).contains(rangee)).toBe(true);
-  for (const nom of ['Auto-attaque', 'Auto-clic', 'Arrêt auto', "Réglages de l'arrêt", 'Fauchage', 'Poké-Radar']) {
+  for (const nom of ['Auto-attaque', 'Auto-clic', 'Arrêt auto', "Réglages de l'arrêt", 'Fauchage']) {
     expect(rangee.contains(screen.getByRole('button', { name: nom }))).toBe(true);
   }
+  const radar = screen.getByRole('button', { name: 'Poké-Radar' });
+  expect(rangee.contains(radar)).toBe(false);
+  expect(screen.getByRole('region', { name: 'Combat contre Rattata' }).contains(radar)).toBe(true);
+  expect(radar.classList.contains('rounded-full')).toBe(true);
+  expect(radar.querySelector('img')?.getAttribute('src')).toBe('img/objets/PokeRadar.png');
   for (const bouton of within(rangee as HTMLElement).getAllByRole('button')) {
     expect(bouton.querySelector('svg[aria-hidden="true"]')).toBeTruthy();
     expect(bouton.childNodes[0]!.nodeName.toLowerCase()).toBe('svg');
@@ -186,7 +191,7 @@ it('affiche Auto-clic et le rend utilisable avec les Restes', () => {
   fireEvent.click(bouton);
   expect(basculerAutoClic).toHaveBeenCalledOnce();
 });
-it('branche la capture sous la scène et garde une seule action principale', () => {
+it('branche la capture dans le dock de la scène et garde une seule action principale', () => {
   const { container } = preparer();
   const capturer = vi.fn();
   act(() => store.setState({ capturer, capture: { ...store.getState().capture,
@@ -196,9 +201,9 @@ it('branche la capture sous la scène et garde une seule action principale', () 
     ] } }));
   const capture = screen.getByRole('region', { name: 'Capture' });
   const scene = screen.getByRole('region', { name: 'Combat contre Rattata' });
-  expect(scene.contains(capture)).toBe(false);
-  expect(scene.compareDocumentPosition(capture) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-  expect(capture.closest('.lg\\:col-span-3')).toBeTruthy();
+  expect(scene.contains(capture)).toBe(true);
+  expect(screen.getByRole('region', { name: 'Ton équipe' }).contains(capture)).toBe(false);
+  expect(capture.closest('.dock-capture')).toBeTruthy();
   expect(container.querySelectorAll('.bg-action')).toHaveLength(1);
   fireEvent.click(screen.getByRole('button', { name: 'Superball ×2' }));
   fireEvent.click(screen.getByRole('button', { name: 'Capturer' }));
