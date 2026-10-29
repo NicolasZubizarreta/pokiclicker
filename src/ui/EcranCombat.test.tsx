@@ -50,6 +50,19 @@ it('cache les deux outils sans aucun objet', () => {
   }
 });
 
+it('réserve le bouton Sac à son accès et affiche la somme des quantités', () => {
+  preparer();
+  const sac = store.getState().sac;
+  act(() => store.setState({ sac: { ...sac, acces: { ouvert: false, raison: 'Route 1' } } }));
+  expect(screen.queryByRole('button', { name: 'Sac' })).toBeNull();
+  act(() => store.setState({ sac: { ...sac, acces: { ouvert: true, raison: null },
+    entrees: sac.entrees.slice(0, 2).map((entree, index) => ({ ...entree, quantite: index + 2 })) } }));
+  const bouton = within(screen.getByRole('group', { name: 'Actions du combat' })).getByRole('button', { name: 'Sac' });
+  expect(bouton.querySelector('span[aria-hidden="true"]')?.textContent).toBe('5');
+  act(() => store.setState({ sac: { ...store.getState().sac, entrees: [] } }));
+  expect(bouton.querySelector('span[aria-hidden="true"]')).toBeNull();
+});
+
 it('affiche les effets sous les PV sans annonce en direct et suit le store', () => {
   preparer();
   expect(screen.queryByRole('list', { name: 'Effets actifs' })).toBeNull();

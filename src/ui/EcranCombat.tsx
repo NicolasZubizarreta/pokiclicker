@@ -11,7 +11,7 @@ import { BarreCapture } from './BarreCapture';
 import { CarteEquipe } from './CarteEquipe';
 import { FichePokemon } from './FichePokemon';
 import { IconeShiny } from './IconeShiny';
-import { PastilleCapture } from './icones';
+import { PastilleCapture, Sac as IconeSac } from './icones';
 import { DegatsFlottants } from './DegatsFlottants';
 import { DialogueChen } from './DialogueChen';
 import { ScenesBourgPalette } from './ScenesBourgPalette';
@@ -27,6 +27,8 @@ import { ReglagesCombat } from './ReglagesCombat';
 import { PastillesEffets } from './PastillesEffets';
 import { OutilsCombat } from './OutilsCombat';
 import { FenetreRadar } from './FenetreRadar';
+import { BoutonAction } from './BoutonAction';
+import { PanneauSac } from './PanneauSac';
 import { entreesRadar } from './store-objets';
 import type { StoreJeu } from './store';
 
@@ -184,6 +186,9 @@ function CaptureCombat({ store }: { store: StoreJeu }) {
 
 function CommandesCombat({ store }: { store: StoreJeu }) {
   const [declencheurRadar, ouvrirRadar] = useState<HTMLButtonElement | null>(null);
+  const [declencheurSac, ouvrirSac] = useState<HTMLButtonElement | null>(null);
+  const sac = useStore(store, etat => etat.sac);
+  const utiliserObjetActif = useStore(store, etat => etat.utiliserObjetActif);
   const zone = useStore(store, etat => etat.zone);
   const lieu = useStore(store, etat => etat.lieu);
   const pokedex = useStore(store, etat => etat.pokedex);
@@ -205,7 +210,16 @@ function CommandesCombat({ store }: { store: StoreJeu }) {
         {reglages}
         <OutilsCombat fauchage={fauchage} radar={radar} faucher={faucher}
           ouvrirRadar={ouvrirRadar} />
+        {sac.acces.ouvert && <div className="relative"><BoutonAction nom="Sac" onClick={event => ouvrirSac(event.currentTarget)}
+          icone={<><IconeSac />
+            {sac.entrees.some(entree => entree.quantite > 0) && <span aria-hidden="true"
+              className="absolute -right-2 -top-2 rounded-full bg-selection px-1 text-xs tabular-nums text-texte">
+              {sac.entrees.reduce((total, entree) => total + entree.quantite, 0)}
+            </span>}
+          </>} /></div>}
       </div>
+      {sac.acces.ouvert && declencheurSac && <PanneauSac sac={sac} utiliserObjetActif={utiliserObjetActif}
+        fermer={() => ouvrirSac(null)} declencheur={declencheurSac} />}
       <FenetreRadar ouvert={declencheurRadar !== null} nomZone={lieu?.nom ?? zone.nom}
         especes={entreesRadar(zone, pokedex)}
         fermer={() => ouvrirRadar(null)} declencheur={declencheurRadar} />
