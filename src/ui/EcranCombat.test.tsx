@@ -43,14 +43,10 @@ it('transmet l’accès pension du store et garde Bourg Palette après le clic',
   expect(store.getState().lieu?.id).toBe('kanto.bourg-palette');
 });
 
-it('affiche les deux outils verrouillés et leurs raisons sans aucun objet', () => {
+it('cache les deux outils sans aucun objet', () => {
   preparer();
-  for (const [nom, raison] of [['Fauchage', 'Nécessite la CT Fauchage.'],
-    ['Poké-Radar', 'Nécessite le Poké-Radar.']]) {
-    const bouton = screen.getByRole('button', { name: nom });
-    expect(bouton.matches(':disabled')).toBe(true);
-    expect(screen.getByText(raison!).hidden).toBe(false);
-    expect(document.getElementById(bouton.getAttribute('aria-describedby')!)?.textContent).toBe(raison);
+  for (const nom of ['Fauchage', 'Poké-Radar']) {
+    expect(screen.queryByRole('button', { name: nom })).toBeNull();
   }
 });
 
@@ -75,16 +71,15 @@ it('cache les outils sans objet et explique chaque verrou quand un outil est pos
   expect(screen.queryByRole('button', { name: 'Fauchage' })).toBeNull();
   expect(screen.queryByRole('button', { name: 'Poké-Radar' })).toBeNull();
   act(() => store.setState({ zone, radar: true }));
-  const fauchage = screen.getByRole('button', { name: 'Fauchage' });
-  expect(fauchage.matches(':disabled')).toBe(true);
-  expect(document.getElementById(fauchage.getAttribute('aria-describedby')!)?.textContent)
-    .toBe('Nécessite la CT Fauchage.');
+  expect(screen.queryByRole('button', { name: 'Fauchage' })).toBeNull();
+  expect(screen.getByRole('button', { name: 'Poké-Radar' }).hasAttribute('aria-disabled')).toBe(false);
   act(() => store.setState({ radar: false, fauchage: { ...store.getState().fauchage,
-    possede: true, disponible: true, raison: null } }));
-  const radar = screen.getByRole('button', { name: 'Poké-Radar' });
-  expect(radar.matches(':disabled')).toBe(true);
-  expect(document.getElementById(radar.getAttribute('aria-describedby')!)?.textContent)
-    .toBe('Nécessite le Poké-Radar.');
+    possede: true, disponible: false, raison: 'Inutile sur un boss !' } }));
+  const fauchage = screen.getByRole('button', { name: 'Fauchage' });
+  expect(fauchage.getAttribute('aria-disabled')).toBe('true');
+  expect(document.getElementById(fauchage.getAttribute('aria-describedby')!)?.textContent)
+    .toBe('Inutile sur un boss !');
+  expect(screen.queryByRole('button', { name: 'Poké-Radar' })).toBeNull();
 });
 
 it('branche Fauchage et affiche son état actif, sa recharge et le refus sur un boss', () => {
@@ -101,7 +96,7 @@ it('branche Fauchage et affiche son état actif, sa recharge et le refus sur un 
   expect(screen.getByText('Recharge : 30 s')).toBeTruthy();
   act(() => store.setState({ ennemi: { ...store.getState().ennemi!, boss: true },
     fauchage: { ...store.getState().fauchage, actif: false, raison: 'Inutile sur un boss !' } }));
-  expect(bouton.matches(':disabled')).toBe(true);
+  expect(bouton.getAttribute('aria-disabled')).toBe('true');
   expect(screen.getByText('Inutile sur un boss !')).toBeTruthy();
   fireEvent.click(bouton);
   expect(faucher).toHaveBeenCalledOnce();
@@ -150,30 +145,30 @@ it('ouvre le Radar sur les sauvages du lieu, applique le Pokédex et rend le foc
   }
 });
 
-it('regroupe réglages et outils dans une seule rangée défilante sans action principale supplémentaire', () => {
+it('regroupe les icônes dans le bandeau de l’équipe sans action principale supplémentaire', () => {
   const { container } = preparer();
-  act(() => store.setState({ radar: true }));
-  const rangees = container.querySelectorAll('.commandes-combat .overflow-x-auto');
+  act(() => store.setState({ radar: true, fauchage: { ...store.getState().fauchage, possede: true } }));
+  const rangees = container.querySelectorAll('.bandeau-action .bandeau-action-rangee');
   expect(rangees).toHaveLength(1);
   const rangee = rangees[0]!;
-  expect(rangee.classList.contains('flex')).toBe(true);
+  expect(screen.getByRole('region', { name: 'Ton équipe' }).contains(rangee)).toBe(true);
   for (const nom of ['Auto-attaque', 'Auto-clic', 'Arrêt auto', "Réglages de l'arrêt", 'Fauchage', 'Poké-Radar']) {
     expect(rangee.contains(screen.getByRole('button', { name: nom }))).toBe(true);
   }
-  for (const groupe of rangee.children) {
-    expect(rangee.className).toContain('[&>div]:flex-nowrap');
-    expect(groupe.classList.contains('overflow-x-auto')).toBe(false);
+  for (const bouton of within(rangee as HTMLElement).getAllByRole('button')) {
+    expect(bouton.querySelector('svg[aria-hidden="true"]')).toBeTruthy();
+    expect(bouton.childNodes[0]!.nodeName.toLowerCase()).toBe('svg');
   }
   expect(container.querySelectorAll('.bg-action')).toHaveLength(1);
 });
 
 it('affiche Auto-clic et le rend utilisable avec les Restes', () => {
   preparer();
-  expect(screen.getByRole('button', { name: 'Auto-clic' }).matches(':disabled')).toBe(true);
+  expect(screen.getByRole('button', { name: 'Auto-clic' }).getAttribute('aria-disabled')).toBe('true');
   const basculerAutoClic = vi.fn();
   act(() => store.setState({ autoClic: { possede: true, actif: true }, basculerAutoClic }));
   const bouton = screen.getByRole('button', { name: 'Auto-clic' });
-  expect(bouton.matches(':disabled')).toBe(false);
+  expect(bouton.hasAttribute('aria-disabled')).toBe(false);
   expect(bouton.getAttribute('aria-pressed')).toBe('true');
   fireEvent.click(bouton);
   expect(basculerAutoClic).toHaveBeenCalledOnce();

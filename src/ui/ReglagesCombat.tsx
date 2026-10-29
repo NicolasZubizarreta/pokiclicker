@@ -1,5 +1,7 @@
 import { useId, useRef } from 'react';
 import type { ReglagesArret } from '../core/sauvegarde-types';
+import { BoutonAction } from './BoutonAction';
+import { ArretAuto, AutoAttaque, AutoClic, ReglagesArret as IconeReglagesArret } from './icones';
 
 const options = [
   ['commun', 'Commun'], ['peuCommun', 'Peu commun'], ['rare', 'Rare'],
@@ -19,21 +21,17 @@ export function ReglagesCombat({ autoAttaque, arret, basculer, regler, autoClic,
   const dialogue = useRef<HTMLDialogElement>(null);
   const declencheur = useRef<HTMLButtonElement>(null);
   const titre = useId();
-  const raisonAutoClic = useId();
   const fermer = () => dialogue.current?.close();
 
-  return <div className="flex min-w-0 flex-wrap gap-2 text-base text-texte">
-    <button type="button" className={bouton} aria-pressed={autoAttaque} onClick={basculer}>Auto-attaque</button>
-    {autoClic && basculerAutoClic && <>
-      <button type="button" className={bouton} aria-pressed={autoClic.actif}
-        disabled={!autoClic.possede} aria-describedby={!autoClic.possede ? raisonAutoClic : undefined}
-        onClick={basculerAutoClic}>Auto-clic</button>
-      {!autoClic.possede && <p id={raisonAutoClic} className="self-center text-texte-doux">Nécessite l'objet Restes.</p>}
-    </>}
-    <button type="button" className={bouton} aria-pressed={arret.actif}
-      onClick={() => regler({ actif: !arret.actif })}>Arrêt auto</button>
-    <button type="button" ref={declencheur} className={bouton}
-      onClick={() => dialogue.current?.showModal()}>Réglages de l'arrêt</button>
+  return <div className="bandeau-action-groupe">
+    <BoutonAction icone={<AutoAttaque />} nom="Auto-attaque" actif={autoAttaque} onClick={basculer} />
+    {autoClic && basculerAutoClic && <BoutonAction icone={<AutoClic />} nom="Auto-clic" actif={autoClic.actif}
+      verrouille={!autoClic.possede} infobulle={!autoClic.possede ? "Nécessite l'objet Restes" : undefined}
+      onClick={basculerAutoClic} />}
+    <BoutonAction icone={<ArretAuto />} nom="Arrêt auto" actif={arret.actif}
+      onClick={() => regler({ actif: !arret.actif })} />
+    <BoutonAction icone={<IconeReglagesArret />} nom="Réglages de l'arrêt"
+      onClick={event => { declencheur.current = event.currentTarget; dialogue.current?.showModal(); }} />
     <dialog ref={dialogue} aria-labelledby={titre}
       className="fiche-pokemon cadre w-full max-w-3xl bg-surface p-0 text-base text-texte"
       onClose={() => declencheur.current?.focus()}

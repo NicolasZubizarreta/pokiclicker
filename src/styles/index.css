@@ -10,6 +10,55 @@
   image-rendering: pixelated;
 }
 
+.bandeau-action {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+  padding: calc(var(--spacing) * 2);
+  margin-bottom: calc(var(--spacing) * 2);
+  background: var(--action);
+  color: var(--action-texte);
+}
+.bandeau-action-rangee {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--spacing);
+  min-width: 0;
+}
+.bandeau-action-groupe { display: contents; }
+.bandeau-action-bouton {
+  display: grid;
+  place-items: center;
+  width: calc(var(--spacing) * 11);
+  height: calc(var(--spacing) * 11);
+  background: var(--surface);
+  color: var(--texte);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+}
+.bandeau-action-bouton:hover,
+.bandeau-action-bouton:focus-visible { background: var(--selection); }
+.bandeau-action-bouton[aria-pressed="true"] {
+  background: var(--selection);
+  color: var(--region-accent);
+  border-bottom: var(--spacing) solid var(--succes-base);
+}
+.bandeau-action-bouton[aria-disabled="true"] { color: var(--texte-doux); cursor: default; }
+.bandeau-action-infobulle {
+  position: absolute;
+  inset-inline: 0;
+  top: calc(100% + var(--spacing));
+  z-index: 30;
+  padding: calc(var(--spacing) * 2);
+  background: var(--surface);
+  color: var(--texte);
+  box-shadow: var(--shadow-md);
+  overflow-wrap: anywhere;
+  pointer-events: none;
+}
+.bandeau-action-infobulle[data-annonce="true"] { visibility: visible; }
+
 /* Aucun pulse/target dans styles.css V1 ; durée et courbe des jetons existants. */
 @utility cible-valide {
   &::after {

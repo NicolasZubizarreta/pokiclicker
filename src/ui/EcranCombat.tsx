@@ -146,7 +146,10 @@ function Equipe({ store }: { store: StoreJeu }) {
   const [ouvert, afficher] = useState(false);
   const declencheur = useRef<HTMLButtonElement>(null);
   return <section aria-label="Ton équipe" className="min-w-0 lg:col-start-4 lg:row-start-1 lg:row-end-4">
-    <h2 className="mb-2 flex justify-between gap-2 font-titre text-xl">Ton équipe <span>{formaterDps(dps)} DPS</span></h2>
+    <div className="bandeau-action">
+      <h2 className="flex justify-between gap-2 font-titre text-xl">Ton équipe <span>{formaterDps(dps)} DPS</span></h2>
+      <CommandesCombat store={store} />
+    </div>
     <div className="grid grid-cols-6 gap-1 lg:grid-cols-1">{equipe.map((membre, i) => {
       const niveau = membre ? evolutionDisponible(membre.pokemon) : null;
       const pierre = membre && niveau === null ? pierreProposee(membre.pokemon, sac.entrees) : null;
@@ -170,6 +173,15 @@ function Equipe({ store }: { store: StoreJeu }) {
   </section>;
 }
 
+function CaptureCombat({ store }: { store: StoreJeu }) {
+  const zone = useStore(store, etat => etat.zone);
+  const capture = useStore(store, etat => etat.capture);
+  const capturer = useStore(store, etat => etat.capturer);
+  return zone ? <fieldset className="min-w-0 lg:col-span-3">
+    <BarreCapture {...capture} capturer={capturer} />
+  </fieldset> : <div aria-hidden="true" className="lg:col-span-3" />;
+}
+
 function CommandesCombat({ store }: { store: StoreJeu }) {
   const [declencheurRadar, ouvrirRadar] = useState<HTMLButtonElement | null>(null);
   const zone = useStore(store, etat => etat.zone);
@@ -178,23 +190,18 @@ function CommandesCombat({ store }: { store: StoreJeu }) {
   const fauchage = useStore(store, etat => etat.fauchage);
   const radar = useStore(store, etat => etat.radar);
   const faucher = useStore(store, etat => etat.faucher);
-  const capture = useStore(store, etat => etat.capture);
   const autoAttaque = useStore(store, etat => etat.autoAttaque);
   const autoClic = useStore(store, etat => etat.autoClic);
   const basculerAutoClic = useStore(store, etat => etat.basculerAutoClic);
   const arret = useStore(store, etat => etat.arretAuto);
-  const capturer = useStore(store, etat => etat.capturer);
   const basculer = useStore(store, etat => etat.basculerAutoAttaque);
   const regler = useStore(store, etat => etat.reglerArretAuto);
-  if (!zone) return <div aria-hidden="true" className="lg:col-span-3" />;
+  if (!zone) return null;
   const reglages = <ReglagesCombat autoAttaque={autoAttaque} arret={arret} basculer={basculer} regler={regler}
     autoClic={autoClic} basculerAutoClic={basculerAutoClic} />;
-  return <div className="commandes-combat grid min-w-0 gap-1 lg:col-span-3">
-    <fieldset className="min-w-0">
-      <BarreCapture {...capture} capturer={capturer} />
-    </fieldset>
+  return <div className="commandes-combat">
     <>
-      <div className="flex min-w-0 gap-2 overflow-x-auto [&>div]:shrink-0 [&>div]:flex-nowrap [&_button]:shrink-0 [&_p]:whitespace-nowrap">
+      <div className="bandeau-action-rangee" role="group" aria-label="Actions du combat">
         {reglages}
         <OutilsCombat fauchage={fauchage} radar={radar} faucher={faucher}
           ouvrirRadar={ouvrirRadar} />
@@ -229,7 +236,7 @@ export function EcranCombat({ store = storeJeu }: { store?: StoreJeu }) {
     </div>}
     {!fatale && <><Entete store={store} /><div className="combat-grille grid gap-2 lg:grid-cols-4 lg:gap-4">
       <Scene store={store} ouvrirPension={() => ouvrirPension(true)} />
-      <CommandesCombat store={store} />
+      <CaptureCombat store={store} />
       <Equipe store={store} /><DialogueChen store={store} />
     </div></>}
   </div>;

@@ -13,13 +13,17 @@ it.each([
 ])('désactive Fauchage avec une explication visible (%j)', (fauchage, raison) => {
   const faucher = vi.fn();
   render(<OutilsCombat fauchage={fauchage} radar={false} faucher={faucher} ouvrirRadar={vi.fn()} />);
+  expect(screen.queryByRole('button', { name: 'Poké-Radar' })).toBeNull();
+  if (!fauchage.possede) {
+    expect(screen.queryByRole('button', { name: 'Fauchage' })).toBeNull();
+    expect(faucher).not.toHaveBeenCalled();
+    return;
+  }
   const bouton = screen.getByRole('button', { name: 'Fauchage' }) as HTMLButtonElement;
-  expect(bouton.disabled).toBe(true);
+  expect(bouton.getAttribute('aria-disabled')).toBe('true');
   expect(screen.getByText(raison).id).toBe(bouton.getAttribute('aria-describedby'));
   fireEvent.click(bouton);
   expect(faucher).not.toHaveBeenCalled();
-  expect((screen.getByRole('button', { name: 'Poké-Radar' }) as HTMLButtonElement).disabled).toBe(true);
-  expect(screen.getByText('Nécessite le Poké-Radar.')).toBeTruthy();
 });
 
 it('transmet les actions et le déclencheur, avec des cibles de 44 px sans bg-action', () => {

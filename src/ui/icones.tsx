@@ -23,6 +23,30 @@ export function Combat() {
   return <Icone><path d="m3 3 5 1 12 14-3 3L4 8zM21 3l-5 1-5 6m-3 5-5 5m12-1 5-5M4 14l6 6" /></Icone>;
 }
 
+export function AutoAttaque() {
+  return <Icone><path d="m13 2-9 12h7l-1 8 10-13h-7z" /></Icone>;
+}
+
+export function ArretAuto() {
+  return <Icone><path d="M8 3h8l5 5v8l-5 5H8l-5-5V8zM9 8v8M15 8v8" /></Icone>;
+}
+
+export function ReglagesArret() {
+  return <Icone><path d="M4 6h16M4 12h16M4 18h16M8 3v6M16 9v6M10 15v6" /></Icone>;
+}
+
+export function AutoClic() {
+  return <Icone><path d="m5 3 14 10-7 1-3 7zM15 3v4M19 6l3-2" /></Icone>;
+}
+
+export function Fauchage() {
+  return <Icone><path d="M5 22 15 3M10 5c6-3 10 0 11 6-4-3-7-3-11-1" /></Icone>;
+}
+
+export function Sac() {
+  return <Icone><path d="M8 6V3h8v3M6 6h12l3 15H3zM7 13h10v5H7z" /></Icone>;
+}
+
 export function IconeBadge() {
   return <Icone><path d="m12 2 3 4 5 1-1 5 1 5-5 1-3 4-3-4-5-1 1-5-1-5 5-1z" /><circle cx="12" cy="12" r="4" /></Icone>;
 }
