@@ -29,6 +29,6 @@ export function BarreCapture({ balles, possible, raison, enCours, capturer }: {
     <button type="button" className="cadre min-h-11 min-w-11 shrink-0 bg-surface px-2 py-1"
       disabled={!possible || enCours || !selection} aria-describedby={explication ? description : undefined}
       onClick={() => { if (selection) capturer(selection.cle); }}>Capturer</button>
-    {selection && explication && <p id={description} className="absolute bottom-full left-0 hidden w-full bg-surface p-1 text-texte-doux group-focus-within:block group-hover:block lg:static lg:block lg:bg-transparent lg:p-0">{explication}</p>}
+    {selection && explication && <p id={description} className="absolute bottom-full left-0 w-full bg-surface p-1 text-texte-doux lg:static lg:bg-transparent lg:p-0">{explication}</p>}
   </section>;
 }
