@@ -30,7 +30,7 @@ export function CarteEquipe({ membre, renommer, evolution, evoluer, animation }:
       </span> : <Image src={spriteAffiche(membre.pokemon)} genre="sprite" alt=""
         className={`carte-evo-sprite absolute size-24 max-w-none lg:static lg:row-span-3 ${membre.pokemon.shiny && !oeuf ? 'halo-shiny' : ''} ${classeSprite(membre.pokemon)}`} />}
       {!oeuf && <span className="absolute bottom-1 left-0 bg-surface px-1 text-base tabular-nums lg:hidden">{membre.pokemon.niveau}</span>}
-      <div className="hidden min-w-0 justify-self-start self-end lg:block">
+      <div className="carte-equipe-identite hidden min-w-0 justify-self-start self-end lg:block">
         <div className="flex min-w-0 items-center gap-1">
           <strong className="block min-w-0 break-words">{nom}{membre.pokemon.shiny && !oeuf && <IconeShiny />}</strong>
           {renommer && !oeuf && <BoutonRenommer nom={nom} ouvrir={bouton => renommer(membre.pokemon.uid, bouton)} />}
@@ -44,9 +44,9 @@ export function CarteEquipe({ membre, renommer, evolution, evoluer, animation }:
         aria-label={`Faire évoluer ${nom} en ${nomAffiche(forme)}${evolution.pierre ? ` avec la ${evolution.pierre.nom}` : ''}`}
         onClick={event => evoluer?.(event.currentTarget)}>
         <span className="text-2xl" aria-hidden="true">→</span>
-        <span className="relative shrink-0">
+        <span className="flex shrink-0 items-center gap-1">
           <Image src={spriteAffiche(forme)} genre="sprite" alt="" className="size-12 max-w-none" />
-          {evolution.pierre && <span className="absolute bottom-0 right-0 bg-surface"><IconeObjet image={evolution.pierre.image} nom={evolution.pierre.nom} taille="petite" /></span>}
+          {evolution.pierre && <span className="flex bg-surface [&_img]:size-5 [&_svg]:size-5"><IconeObjet image={evolution.pierre.image} nom={evolution.pierre.nom} taille="petite" /></span>}
         </span>
         <span className="carte-evo-nom text-sm">{nomAffiche(forme)}</span>
       </button>}

@@ -102,6 +102,7 @@ test('Fauchage : un PV, recharge ; Poupée : boss invoqué', async ({ page }) =>
   await fauchage.click();
   await expect(fauchage).toHaveAttribute('aria-pressed', 'true');
   await expect(fauchage).toBeDisabled();
+  await fauchage.click({ force: true });
   await expect(page.getByText('Recharge : 20 s', { exact: true })).toBeVisible();
   const pv = page.getByRole('progressbar', { name: /^PV/ });
   for (let appui = 0; appui < 100 && await pv.getAttribute('aria-valuenow') !== '1'; appui++) {
@@ -120,6 +121,7 @@ test('Fauchage : un PV, recharge ; Poupée : boss invoqué', async ({ page }) =>
   await expect(page.getByText('Étape 10 sur 10', { exact: true })).toBeVisible();
   await expect(page.getByRole('progressbar', { name: 'Temps restant' })).toBeVisible();
   await expect(fauchage).toBeDisabled();
+  await fauchage.click({ force: true });
   await expect(page.getByText('Inutile sur un boss !', { exact: true })).toBeVisible();
 });
 

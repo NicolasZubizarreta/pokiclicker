@@ -13,20 +13,22 @@ export function BarreCapture({ balles, possible, raison, enCours, capturer }: {
   const selection = possedees.find(balle => balle.cle === choix) ?? possedees[0];
   const explication = raison ?? (!selection ? "Tu n'as aucune balle." : null);
 
-  return <section aria-label="Capture" className="grid min-w-0 gap-1 text-sm text-texte lg:flex lg:flex-wrap lg:items-center lg:gap-2">
-    {!selection && explication && <p id={description} className="self-center text-texte-doux">{explication}</p>}
-    {selection && <div className="grid grid-cols-3 gap-1 lg:flex lg:flex-wrap lg:gap-2">
+  return <section aria-label="Capture" tabIndex={selection && explication ? 0 : undefined}
+    aria-describedby={selection && explication ? description : undefined}
+    className="group relative flex min-w-0 items-center gap-1 text-sm text-texte lg:flex-wrap lg:gap-2">
+    {!selection && explication && <p id={description} className="min-w-0 self-center text-texte-doux">{explication}</p>}
+    {selection && <div className="capture-balles flex min-w-0 items-center gap-1 overflow-x-auto lg:flex-wrap lg:gap-2 lg:overflow-visible">
       {possedees.map(balle => <button key={balle.cle} type="button"
         aria-label={`${balle.nom} ×${balle.quantite}`} aria-pressed={selection?.cle === balle.cle} disabled={raison !== null}
-        className="cadre flex min-h-11 min-w-11 items-center justify-center gap-1 bg-surface p-1 aria-pressed:bg-selection"
+        className="cadre flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-1 bg-surface p-1 aria-pressed:bg-selection"
         onClick={() => choisir(balle.cle)}>
         <img src={balle.image} alt="" width={24} height={24} className="image-rendering-pixelated h-6 w-6 shrink-0" />
         <span aria-hidden="true">×{balle.quantite}</span>
       </button>)}
     </div>}
-    <button type="button" className="cadre min-h-11 min-w-11 bg-surface px-2 py-1"
+    <button type="button" className="cadre min-h-11 min-w-11 shrink-0 bg-surface px-2 py-1"
       disabled={!possible || enCours || !selection} aria-describedby={explication ? description : undefined}
       onClick={() => { if (selection) capturer(selection.cle); }}>Capturer</button>
-    {selection && explication && <p id={description} className="w-full text-texte-doux">{explication}</p>}
+    {selection && explication && <p id={description} className="absolute bottom-full left-0 hidden w-full bg-surface p-1 text-texte-doux group-focus-within:block group-hover:block lg:static lg:block lg:bg-transparent lg:p-0">{explication}</p>}
   </section>;
 }

@@ -270,13 +270,23 @@ html:has(dialog[open]) { overflow: hidden; }
   .carte-evo { grid-column: span 3; height: calc(var(--spacing) * 27); padding-bottom: calc(var(--spacing) * 12); }
   .carte-evo > .carte-evo-sprite { top: calc(var(--spacing) * -5); }
   .carte-evo > .bottom-1 { bottom: calc(var(--spacing) * 13); }
-  .carte-evo > .carte-evo-action { position: absolute; bottom: var(--spacing); left: var(--spacing); right: var(--spacing); }
-  .carte-evo > .bottom-0 { z-index: 1; }
+  .carte-evo > .carte-evo-action { position: absolute; bottom: calc(var(--spacing) * 2); left: var(--spacing); right: var(--spacing); }
+  .carte-evo > .bottom-0 { bottom: var(--spacing); z-index: 1; }
+  .carte-evo-action > span > img { width: calc(var(--spacing) * 8); height: calc(var(--spacing) * 8); }
+  .dock-capture { width: max-content; padding: 0; }
+  .capture-balles { scrollbar-width: none; }
 }
 @media (min-width: 64rem) {
-  .carte-evo { grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr); padding-inline-end: 0; }
-  .carte-evo > .carte-evo-action { grid-column: 3; grid-row: 1 / span 3; margin-inline: var(--spacing); flex-wrap: wrap; justify-self: stretch; }
-  .carte-evo-nom { flex-basis: 100%; text-align: center; }
+  .carte-evo { grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: calc(var(--spacing) * 11) calc(var(--spacing) * 6) calc(var(--spacing) * 6) minmax(0, 1fr); padding-inline-end: 0; }
+  .carte-evo > .carte-evo-sprite { grid-row: 1 / -1; }
+  .carte-evo > .carte-equipe-identite { display: contents; }
+  .carte-evo > .carte-equipe-identite > div { grid-column: 2 / -1; grid-row: 1; justify-self: stretch; padding-inline-end: var(--spacing); }
+  .carte-evo > .carte-equipe-identite > span { grid-column: 2; grid-row: 2; justify-self: start; }
+  .carte-evo > .text-region-accent { grid-column: 2; grid-row: 3; }
+  .carte-evo > .bottom-0 { grid-column: 2; grid-row: 4; }
+  .carte-evo > .carte-evo-action { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; grid-column: 3; grid-row: 2 / -1; height: calc(var(--spacing) * 14); max-height: 100%; min-width: 0; margin-inline: var(--spacing); padding: calc(var(--spacing) / 2); gap: 0 var(--spacing); justify-self: stretch; align-self: end; }
+  .carte-evo-action > span > img { width: calc(var(--spacing) * 9); height: calc(var(--spacing) * 9); }
+  .carte-evo-nom { grid-column: 1 / -1; min-width: 0; overflow-wrap: anywhere; text-align: center; font-size: var(--text-xs); line-height: var(--text-xs--line-height); }
 }
 .toast {
   bottom: calc(4.5rem + env(safe-area-inset-bottom));

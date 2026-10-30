@@ -1,4 +1,4 @@
-# Backlog — phase 2 « Kanto jouable »
+﻿# Backlog — phase 2 « Kanto jouable »
 
 Jalon : **Kanto terminable** (`docs/plan.md`). Brouillon du 24/10/2026, validé dans son découpage par Nicolas le 24/10 ; rien n'est créé sur un dépôt distant.
 
@@ -983,7 +983,7 @@ Fourchette : 1 à 1,5 jour. Risque : place sur mobile. Dépend de : rien.
 
 ## AE. `feat(combat): boutons d'action en icônes, entre « Ton équipe » et le DPS`
 
-Labels : `type:feat`, `etat:idee`, `est:2-3`, `prio:1` · branche : `feat/ae-actions-icones` · `agent-ok` : oui après le choix des variantes
+Labels : `type:feat`, `etat:fait` (30/10 : codé en local par Codex ; bandeau à icônes, dock de capture à gauche, Poké-Radar rond à droite ; critère 390/1440/1915 px : 1915 pas encore regardé), `est:2-3`, `prio:1` · branche : `feat/ae-actions-icones` · `agent-ok` : oui après le choix des variantes
 
 ### Histoire
 En tant que joueur, je veux les actions du combat (Auto-clic, Auto-attaque, Arrêt auto et ses réglages, Fauchage, Poké-Radar) sous forme d'icônes à côté de l'équipe, et seulement quand elles sont débloquées afin que l'écran ne ressemble plus à une zone de test. [1, 20, 21, 28]
@@ -994,13 +994,16 @@ Capture du rapport : `EcranCombat.tsx` empile des gros boutons « Pokéball ×5 
 ### Première étape, avant tout code
 Trois variantes navigables de l'écran de combat (390 et 1440 px) : (1) agencement de la V1 repris à l'identique, adapté à la charte ; (2) icônes dans l'en-tête de l'équipe, balles et Capturer regroupées sous l'ennemi ; (3) barre d'actions flottante. Nicolas choisit dans la vraie appli. Le choix est noté dans `docs/projet/choix-variantes-b.md`.
 
+### Décision de Nicolas (29/10) : variante A (V1 reprise) avec corrections
+Variantes en cours de refonte dans `design/variantes/combat-v3/`. Corrections voulues : (1) barre flottante de la variante C **uniquement pour la capture** (balles + Capturer), posée à gauche dans la scène ; (2) le reste garde le bandeau rouge de la V1 ; (3) Poké-Radar en bouton rond **à droite** dans la scène, avec l'image de la V1 (`PokeRadar.png`, cadenas tant que verrouillé), et le Pokémon remonté pour ne pas le chevaucher ; (4) cartes d'équipe : contours jaunes gardés, ancienne barre d'XP (celle de `BarreXp.tsx`, dans la case) ; (5) plus de texte « Peut évoluer » sous les DPS. Les boutons d'évolution (AG) sont revus dans ce même jeu de variantes.
+
 ### Critères d'acceptation
-- [ ] Étant donné la variante choisie, quand je joue la Route 1 sans Restes, alors Auto-attaque et Arrêt auto sont des icônes actives, Auto-clic est une icône grisée avec l'infobulle « Nécessite l'objet Restes », Fauchage et Poké-Radar n'apparaissent pas.
-- [ ] Étant donné la CT Fauchage achetée, quand je reviens au combat, alors l'icône Fauchage apparaît ; de même pour le Poké-Radar.
-- [ ] Étant donné chaque icône, quand je la survole, la touche ou la focalise, alors un libellé en français dit ce qu'elle fait et son état (activée, désactivée, en recharge avec les secondes restantes pour le Fauchage).
-- [ ] Étant donné les actions de capture, quand je regarde l'écran, alors le choix de la balle et « Capturer » sont regroupés près de l'ennemi, sans bloc de texte long.
+- [x] Étant donné la variante choisie, quand je joue la Route 1 sans Restes, alors Auto-attaque et Arrêt auto sont des icônes actives, Auto-clic est une icône grisée avec l'infobulle « Nécessite l'objet Restes », Fauchage et Poké-Radar n'apparaissent pas.
+- [x] Étant donné la CT Fauchage achetée, quand je reviens au combat, alors l'icône Fauchage apparaît ; de même pour le Poké-Radar.
+- [x] Étant donné chaque icône, quand je la survole, la touche ou la focalise, alors un libellé en français dit ce qu'elle fait et son état (activée, désactivée, en recharge avec les secondes restantes pour le Fauchage).
+- [x] Étant donné les actions de capture, quand je regarde l'écran, alors le choix de la balle et « Capturer » sont regroupés près de l'ennemi, sans bloc de texte long.
 - [ ] Étant donné 390, 1440 et 1915 px, quand je capture l'écran, alors aucune icône ne fait moins de 44 px, rien ne défile horizontalement, aucun bouton ne dépasse de sa zone.
-- [ ] Étant donné les actions existantes (auto-attaque, arrêt auto, fauchage, radar), quand je les utilise, alors leur comportement est celui d'avant (aucune règle de jeu changée).
+- [x] Étant donné les actions existantes (auto-attaque, arrêt auto, fauchage, radar), quand je les utilise, alors leur comportement est celui d'avant (aucune règle de jeu changée).
 
 ### Hors périmètre
 Nouveaux pouvoirs, autres pages, icônes de la page Plus.
@@ -1044,7 +1047,7 @@ Fourchette : 2 à 3 jours. Risque : trouver des couleurs de rareté lisibles dan
 
 ## AG. `feat(evolution): notifier l'évolution possible et l'offrir depuis le combat, avec un accès au Sac`
 
-Labels : `type:feat`, `etat:idee`, `est:2-3`, `prio:1` · branche : `feat/ag-evolution-combat-sac` · `agent-ok` : oui après le choix des variantes de AE
+Labels : `type:feat`, `etat:fait` (30/10 : codé en local ; annonce unique, carte évolutive « version 2 », Sac en combat ; objets à cible : message renvoyant à Équipe), `est:2-3`, `prio:1` · branche : `feat/ag-evolution-combat-sac` · `agent-ok` : oui après le choix des variantes de AE
 
 ### Histoire
 En tant que joueur, je veux être prévenu qu'un Pokémon peut évoluer, le faire évoluer depuis l'écran de combat et ouvrir le Sac sans quitter le combat afin de ne pas passer 30 niveaux sans savoir qu'il fallait aller dans Équipe. [12, 26]
@@ -1052,13 +1055,16 @@ En tant que joueur, je veux être prévenu qu'un Pokémon peut évoluer, le fair
 ### Contexte
 Nicolas a des Pokémon niveau 30 qui n'ont pas évolué : l'évolution se fait dans `PageEquipe.tsx` / `FichePokemon.tsx` (règles dans `src/core/evolution.ts`, store `store-evolution.ts`), sans aucun signal. Il note « animation évolution niquel » : `SpriteEvolution.tsx` ne change pas. Le Sac (`Sac.tsx`) n'est affiché que dans `PageEquipe.tsx` : il dit « on n'a pas de sac d'objet ?? » alors que la règle l'ouvre à la Route 1 (`data/reglages.json`, `sac.zone`). Fichiers : `src/ui/EcranCombat.tsx`, `src/ui/CarteEquipe.tsx`, `src/ui/Sac.tsx`, `src/ui/store-evolution.ts`, `src/ui/Coquille.tsx` (annonces).
 
+### Décision de Nicolas (29/10)
+Le petit repère « >> » dans le coin est rejeté (trop petit, peu clair, laid) ; les textes « Peut évoluer » et « Utiliser la Pierre Foudre » sous les DPS sont retirés. Il veut un **bouton d'évolution gros et évident** dans la place libre à droite du Pokémon dans la carte ; trois propositions à comparer dans `design/variantes/combat-v3/` (bouton plein, aperçu de la forme suivante, bandeau « Évolution ! »). Contours jaunes des cartes gardés.
+
 ### Critères d'acceptation
-- [ ] Étant donné un Pokémon de l'équipe qui atteint le niveau d'évolution, quand il le franchit, alors une annonce « <nom> peut évoluer ! » apparaît une seule fois (rejeu non répété au rechargement) et sa carte d'équipe porte un repère visible.
-- [ ] Étant donné ce repère, quand je le touche depuis l'écran de combat, alors l'évolution se lance avec l'animation existante, sans changer de page, et l'XP maximale est recalculée comme aujourd'hui.
-- [ ] Étant donné un Pokémon évolutif par pierre, quand j'ai la pierre dans le Sac, alors le repère propose « Utiliser la <pierre> » sur sa carte ; sans pierre, rien ne s'affiche.
-- [ ] Étant donné la Pierre Stase équipée, quand le niveau d'évolution est atteint, alors aucune annonce ni repère n'apparaît.
-- [ ] Étant donné le Sac ouvert (zone Route 1), quand je regarde l'écran de combat, alors un accès au Sac est présent (icône avec le nombre d'objets), s'ouvre en panneau sur l'écran de combat, se ferme en revenant au combat sans perdre l'ennemi ; avant la Route 1, l'accès n'existe pas.
-- [ ] Étant donné un clavier, quand j'ouvre le panneau, alors le focus y entre, Échap le ferme et le focus revient sur l'accès.
+- [x] Étant donné un Pokémon de l'équipe qui atteint le niveau d'évolution, quand il le franchit, alors une annonce « <nom> peut évoluer ! » apparaît une seule fois (rejeu non répété au rechargement) et sa carte d'équipe porte un repère visible.
+- [x] Étant donné ce repère, quand je le touche depuis l'écran de combat, alors l'évolution se lance avec l'animation existante, sans changer de page, et l'XP maximale est recalculée comme aujourd'hui.
+- [x] Étant donné un Pokémon évolutif par pierre, quand j'ai la pierre dans le Sac, alors le repère propose « Utiliser la <pierre> » sur sa carte ; sans pierre, rien ne s'affiche.
+- [x] Étant donné la Pierre Stase équipée, quand le niveau d'évolution est atteint, alors aucune annonce ni repère n'apparaît.
+- [x] Étant donné le Sac ouvert (zone Route 1), quand je regarde l'écran de combat, alors un accès au Sac est présent (icône avec le nombre d'objets), s'ouvre en panneau sur l'écran de combat, se ferme en revenant au combat sans perdre l'ennemi ; avant la Route 1, l'accès n'existe pas.
+- [x] Étant donné un clavier, quand j'ouvre le panneau, alors le focus y entre, Échap le ferme et le focus revient sur l'accès.
 
 ### Hors périmètre
 Évolutions par échange, nouvelles pierres, Sac redessiné (page Équipe inchangée).
@@ -1139,7 +1145,10 @@ En tant que joueur, je veux rencontrer Ronflex après le boss de la Centrale et 
 ### Contexte
 Livré dans le ticket S : le dialogue de Ronflex arrive trop tôt et la Flûte se joue d'un clic depuis le Sac « Objets clés », sans qu'on sache comment faire. Nicolas veut : le dialogue de Ronflex après le boss de la Centrale (pas au début), et une **interzone dédiée** avec Ronflex au milieu où l'on joue la Flûte pour le réveiller. Fichiers : `data/regions/kanto/scenes.json` (nouvelle scène), `src/ui/SceneLieu.tsx`, `DialogueScene.tsx`, `src/core/scenes.ts`, `src/core/evenements-kanto.ts`, `Sac.tsx`. **À confirmer avec Nicolas avant la première étape** : le lieu exact de la scène (entre quelles zones), et si la Flûte se joue en touchant Ronflex, en touchant un instrument ou par une courte suite de notes.
 
-### Première étape, avant tout code
+### Décision de Nicolas (29/10)
+Il garde le concept « Ronflex au centre, on le réveille, on le combat », mais : (a) le fond de la maquette (Pont Pépite) était faux, la scène se passe sur la route de Ronflex entre la Centrale et l'Arène de Parmanie ; le vrai décor reste à trouver (provisoire : `centrale.webp`) ; (b) le réveil par un simple clic ne le convainc pas : **petit mini-jeu pour jouer correctement de la Pokéflûte** (trois propositions dans `design/variantes/ronflex-v2/` : Écho, Notes qui tombent, Souffle) ; (c) une fois Ronflex battu, **passage automatique à la zone suivante** (Arène de Parmanie) et **la zone de Ronflex n'est plus accessible** ensuite.
+
+### Première étape, avant tout code (ancienne, remplacée)
 Trois variantes de la scène (390 et 1440 px) : (1) Ronflex au centre, la Flûte à cliquer pour jouer, quatre notes qui apparaissent ; (2) Ronflex au centre, un geste de glissement sur le tapis ; (3) petit jeu de rythme en trois notes. Nicolas choisit dans la vraie appli.
 
 ### Critères d'acceptation
@@ -1147,6 +1156,7 @@ Trois variantes de la scène (390 et 1440 px) : (1) Ronflex au centre, la Flûte
 - [ ] Étant donné le boss de la Centrale battu, quand j'arrive à la zone de Ronflex, alors un dialogue explique : Ronflex dort, il bloque la route, une Flûte peut le réveiller.
 - [ ] Étant donné la Flûte Pokémon dans le Sac, quand je suis sur la scène de Ronflex, alors un indicateur dit comment l'utiliser (texte court, en français) et la Flûte se joue sur la scène ; depuis le Sac ou l'équipe, elle ne fait plus rien (message « À utiliser devant Ronflex »).
 - [ ] Étant donné la Flûte jouée, quand l'action se termine, alors Ronflex se réveille (animation courte), le combat de Ronflex commence, et la route s'ouvre une fois battu.
+- [ ] Étant donné Ronflex battu, quand le dialogue de fin se ferme, alors le jeu passe tout seul à la zone suivante (Arène de Parmanie) et la zone de Ronflex n'est plus accessible depuis la Carte (mention « Terminée »).
 - [ ] Étant donné un rechargement après le réveil ou après la victoire, quand je rouvre, alors l'état est conservé et la scène ne se rejoue pas.
 - [ ] Étant donné `prefers-reduced-motion`, quand la scène se joue, alors l'animation est un changement d'état sans mouvement.
 

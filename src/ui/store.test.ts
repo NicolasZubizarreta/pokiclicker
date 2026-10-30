@@ -562,7 +562,8 @@ it('ne dépasse pas 100 notifications sur 1 000 ticks en dix secondes, même ave
 });
 it('annonce une seule fois la fin, inscrit le boss et sauvegarde immédiatement', () => {
   const { store, avancer, stockage } = preparerRegion(region => ({ ...region, etape: 10,
-    equipe: region.equipe.map(pokemon => ({ ...pokemon, niveau: 100, xp: 0 })) }));
+    // Florizarre n'a plus d'évolution : l'annonce « peut évoluer ! » ne se mêle pas à celle de la zone.
+    equipe: region.equipe.map(pokemon => ({ ...pokemon, numero: 3, niveau: 100, xp: 0 })) }));
   const ecrire = vi.spyOn(stockage, 'ecrire');
   let annonces = 0;
   store.subscribe((etat, avant) => { if (etat.annonce === 'Zone débloquée !' && etat.annonce !== avant.annonce) annonces++; });

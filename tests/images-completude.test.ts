@@ -70,7 +70,8 @@ it('contient les décors de combat et documente chaque autre décor absent', asy
 
 it('contient 25 objets (dont la Baie du casino), six artworks carrés et l’animation de Roucarnage', async () => {
   // Prépare le lot historique ; les ajouts Jeton Shiny et diplôme ont leurs tests dédiés.
-  const { 'img/objets/JetonShiny.png': jeton, 'img/objets/Diplome.png': diplome, ...tailles } = JSON.parse(await lire('public/img/tailles.json'));
+  const { 'img/objets/JetonShiny.png': jeton, 'img/objets/Diplome.png': diplome, 'img/objets/PokeRadar.png': radar, ...tailles } = JSON.parse(await lire('public/img/tailles.json'));
+  expect(radar).toEqual({ largeur: images.objet.taille, hauteur: images.objet.taille });
   expect(diplome).toEqual({ largeur: images.objet.taille, hauteur: images.objet.taille });
   expect(jeton).toEqual({ largeur: images.objet.taille, hauteur: images.objet.taille });
   const objets = Object.keys(tailles).filter((cle) => cle.startsWith('img/objets/'));
