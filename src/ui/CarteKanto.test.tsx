@@ -7,6 +7,7 @@ import { creerHorlogeSysteme } from '../core/clock';
 import { compteInitial, creerGestionnaire } from '../core/sauvegarde';
 import { reglages } from '../core/reglages';
 import { creerStockageLocal } from './stockage-local';
+import { kanto } from '../core/regions';
 
 const gestionnaire = creerGestionnaire({ stockage: creerStockageLocal(), horloge: creerHorlogeSysteme(), genererId: () => 'test' });
 const compte = compteInitial();
@@ -22,15 +23,30 @@ afterEach(() => {
 });
 const afficher = () => render(<CarteKanto quandArrive={vi.fn()} />);
 
-it('liste les 22 zones par numéro, avec les zones verrouillées grisées sans icône', () => {
+it('laisse consulter la route terminée sans proposer de déplacement', () => {
+  const carte = storeJeu.getState().carte;
+  storeJeu.setState({ carte: { ...carte, formes: carte.formes.map(f => f.zone === 'kanto.route-de-ronflex'
+    ? { ...f, terminee: true, ouverte: false } : f) } });
+  const aller = vi.spyOn(storeJeu.getState(), 'allerVers');
+  afficher();
+  const option = screen.getByRole('option', { name: 'Route de Ronflex' });
+  expect(within(option).getByText('Terminée')).toBeTruthy();
+  fireEvent.click(option);
+  const fiche = screen.getByRole('region', { name: 'Zone sélectionnée' });
+  expect(within(fiche).getByText('Terminée, plus accessible')).toBeTruthy();
+  expect(within(fiche).queryByRole('button', { name: 'Y aller' })).toBeNull();
+  expect(aller).not.toHaveBeenCalled();
+});
+
+it('liste les zones et l’interzone, avec les zones verrouillées grisées sans icône', () => {
   afficher();
   const liste = screen.getByRole('listbox', { name: 'Zones de Kanto' });
   const options = within(liste).getAllByRole('option');
   const zones = storeJeu.getState().carte.formes.filter(f => f.zone !== null)
-    .sort((a, b) => (a.numero ?? 0) - (b.numero ?? 0));
-  expect(options).toHaveLength(22);
+    .sort((a, b) => kanto.zones.findIndex(z => z.id === a.zone) - kanto.zones.findIndex(z => z.id === b.zone));
+  expect(options).toHaveLength(23);
   expect(options.map(option => option.getAttribute('aria-label')))
-    .toEqual(zones.map(f => f.numero ? `${f.nom} (Zone ${f.numero})` : f.nom));
+    .toEqual(zones.map(f => f.numero !== null && f.numero > 0 ? `${f.nom} (Zone ${f.numero})` : f.nom));
   expect(options[0]?.getAttribute('aria-label')).toBe('Bourg Palette');
   expect(zones.some(f => !f.ouverte)).toBe(true);
   zones.forEach((f, index) => {
@@ -39,7 +55,7 @@ it('liste les 22 zones par numéro, avec les zones verrouillées grisées sans i
     expect(option.className).toContain('min-h-11');
     expect(option.className).toContain('border-transparent');
     if (!f.ouverte) {
-      expect(option.textContent).toBe(`${f.numero}${f.nom}`);
+      expect(option.textContent).toBe(`${f.numero !== null && f.numero >= 0 ? f.numero : ''}${f.nom}`);
       expect(option.querySelector('svg, img, i, button')).toBeNull();
     }
   });
@@ -90,10 +106,11 @@ it('sélectionne avec Entrée et Espace et déplace le focus avec les flèches',
 it('dessine un repère par zone dans l’ordre, marque la zone actuelle et ne pose aucun style inline', () => {
   const voir = vi.spyOn(storeJeu.getState(), 'voirCarte');
   const { container } = afficher();
-  const zones = storeJeu.getState().carte.formes.filter(f => f.zone !== null).sort((a, b) => (a.numero ?? 0) - (b.numero ?? 0));
+  const zones = storeJeu.getState().carte.formes.filter(f => f.zone !== null)
+    .sort((a, b) => kanto.zones.findIndex(z => z.id === a.zone) - kanto.zones.findIndex(z => z.id === b.zone));
   expect([...container.querySelectorAll('[data-forme]')].map(e => e.getAttribute('data-forme')))
     .toEqual(zones.map(f => f.nom));
-  expect(container.querySelectorAll('[data-forme]')).toHaveLength(22);
+  expect(container.querySelectorAll('[data-forme]')).toHaveLength(23);
   expect(container.querySelector('[data-actuelle]')?.getAttribute('data-actuelle'))
     .toBe(storeJeu.getState().carte.formes.find(f => f.actuelle)?.zone);
   expect(container.querySelectorAll('svg')).toHaveLength(1);
@@ -129,7 +146,7 @@ it('montre les noms et halos en debug seulement', () => {
   unmount();
   window.history.replaceState(null, '', '/?debug=carte');
   const debug = afficher().container;
-  expect(debug.querySelectorAll('text')).toHaveLength(24);
+  expect(debug.querySelectorAll('text')).toHaveLength(storeJeu.getState().carte.formes.length);
   expect(debug.querySelector('[data-halos]')?.getAttribute('class')).toContain('stroke-focus');
 });
 

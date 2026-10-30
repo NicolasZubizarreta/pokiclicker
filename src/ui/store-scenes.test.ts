@@ -3,6 +3,7 @@ import { creerHorlogeSimulee } from '../core/clock';
 import * as combat from '../core/combat';
 import { evenementsKanto } from '../core/evenements-kanto';
 import { kanto } from '../core/regions';
+import { calculerOr } from '../core/recompenses';
 import { compteInitial, creerGestionnaire, creerStockageMemoire, type DonneesRegion } from '../core/sauvegarde';
 import { creerStoreJeu, type StoreJeu } from './store';
 
@@ -57,7 +58,7 @@ function preparer(modifier: (region: DonneesRegion) => DonneesRegion = region =>
     expect(store.getState().capture.possible).toBe(false);
     expect(store.getState().minuteur?.totalMs).toBe(30000);
   };
-  return { store, lire, ouvrir, avancer, vaincre, blue };
+  return { store, lire, ouvrir, avancer, vaincre, blue, horloge };
 }
 
 it('joue Blue à Carmin, sans badge, boss, Ligue ni Panthéon, puis reprend l’étape sauvegardée', () => {
@@ -119,23 +120,117 @@ it('recharge Blue depuis le début sans donner les gains une seconde fois', () =
   expect(partie.lire().etape).toBe(1);
 });
 
-it('expose les objets clés et refuse la flûte hors Centrale sans la consommer', () => {
+it('expose les objets clés et refuse la flûte hors route sans la consommer', () => {
   const partie = preparer(region => ({ ...region, objetsCles: ['pokeflute'] }));
   expect(partie.store.getState().objetsCles).toEqual(['pokeflute']);
-  expect(partie.store.getState().utiliserObjetCle('pokeflute')).toBe("Ce n'est pas le moment d'utiliser ça !");
+  expect(partie.store.getState().utiliserObjetCle('pokeflute')).toBe('À utiliser devant Ronflex');
   expect(partie.lire().objetsCles).toEqual(['pokeflute']);
 });
 
-it('joue Ronflex avec la flûte, pose son drapeau et reprend la Centrale sans boss gagné', () => {
-  const partie = preparer(region => ({ ...region, zoneId: 'kanto.centrale', etape: 9, objetsCles: ['pokeflute'] }));
+it('reprend le dialogue final ancien sur la route sans boss ni gain supplémentaire', () => {
+  const partie = preparer(region => ({ ...region, zoneId: 'kanto.centrale', etape: 9,
+    bossVaincus: ['kanto.centrale'], objetsCles: ['pokeflute'], drapeaux: ['ronflex-vaincu'],
+    evenementEnCours: { id: 'kanto.ronflex-reveil', etape: 3, file: [] } }));
   const avant = partie.lire();
-  expect(partie.store.getState().utiliserObjetCle('pokeflute')).toBeNull();
-  partie.store.getState().terminerEtape();
-  expect(partie.store.getState().nomAdversaire).toBe('Ronflex');
-  partie.vaincre();
+  expect(partie.store.getState().evenement).toMatchObject({ type: 'dialogue', evenement: 'kanto.ronflex-reveil', etape: 4 });
+  partie.store.getState().fermer();
   expect(partie.lire().drapeaux).toContain('ronflex-vaincu');
   expect(partie.lire().bossVaincus).toEqual(avant.bossVaincus);
-  expect(partie.store.getState().zone?.id).toBe('kanto.centrale');
-  expect(partie.store.getState().etape).toBe(9);
+  expect(partie.lire().argent).toBe(avant.argent);
+  expect(partie.lire().zoneId).toBe('kanto.route-de-ronflex');
   expect(partie.store.getState().pantheon).toBeNull();
+});
+
+it('persiste Souffle, réveil, combat et victoire puis rejoint Parmanie une seule fois', () => {
+  const route = 'kanto.route-de-ronflex';
+  const partie = preparer(region => ({ ...region, zoneId: 'kanto.centrale',
+    bossVaincus: kanto.zones.filter(z => !z.sansCombat && z.ancienId <= 12).map(z => z.id),
+    objetsCles: ['pokeflute'] }));
+  let store = partie.store;
+  const recharger = () => {
+    store.getState().fermer();
+    store.getState().arreter();
+    store = partie.ouvrir();
+  };
+  store.getState().allerVers(route);
+  expect(store.getState().evenement).toMatchObject({ type: 'dialogue', evenement: 'kanto.ronflex-blocage' });
+  store.getState().terminerEtape();
+  const ref = store.getState().evenement!;
+  expect(ref.type).toBe('souffle');
+  expect(store.getState().ennemi).toBeNull();
+  expect(store.getState().utiliserObjetCle('pokeflute')).toBe('À utiliser devant Ronflex');
+  store.getState().terminerEtape();
+  expect(store.getState().evenement).toEqual(ref);
+  recharger();
+  expect(store.getState().evenement).toEqual(ref);
+  store.getState().reussirSouffle({ ...ref, etape: ref.etape + 1 });
+  expect(store.getState().evenement).toEqual(ref);
+  store.getState().reussirSouffle(ref);
+  store.getState().reussirSouffle(ref);
+  expect(store.getState().evenement).toMatchObject({ type: 'dialogue', etape: 1 });
+  recharger();
+  expect(store.getState().evenement).toMatchObject({ type: 'dialogue', etape: 1 });
+  expect(store.getState().ennemi).toBeNull();
+  store.getState().terminerEtape();
+  expect(store.getState().ennemi).toMatchObject({ numero: 143, niveau: 45 });
+  expect(store.getState().capture.possible).toBe(false);
+  expect(store.getState().zone?.multiplicateurPv).toBe(kanto.zoneDeCombat('kanto.centrale').multiplicateurPv);
+  expect(store.getState().evenement?.type).toBe('combat');
+  recharger();
+  expect(store.getState().evenement).toMatchObject({ type: 'combat', etape: 2 });
+  const avant = partie.lire();
+  for (let i = 0; i < 1000 && store.getState().evenement?.type === 'combat'; i++) {
+    store.getState().attaquer();
+    partie.horloge.avancer(100);
+    store.getState().tick();
+  }
+  expect(store.getState().evenement).toMatchObject({ type: 'dialogue', etape: 4 });
+  expect(store.getState().ennemi).toBeNull();
+  const victoire = partie.lire();
+  expect(victoire.drapeaux).toContain('ronflex-vaincu');
+  expect(victoire.zoneId).toBe(route);
+  expect(victoire.bossVaincus).toEqual(avant.bossVaincus);
+  expect(victoire.argent - avant.argent).toBe(calculerOr({ numero: 143, niveau: 45, boss: true, shiny: false, rarete: null }));
+  recharger();
+  expect(store.getState().evenement).toMatchObject({ type: 'dialogue', etape: 4 });
+  expect(store.getState().argent).toBe(victoire.argent);
+  store.getState().terminerEtape();
+  expect(partie.lire().zoneId).toBe('kanto.arene-de-parmanie');
+  expect(partie.lire().evenementsJoues).toContain('kanto.ronflex-reveil');
+  recharger();
+  expect(store.getState().argent).toBe(victoire.argent);
+  expect(store.getState().evenement).toBeNull();
+  store.getState().allerVers(route);
+  expect(partie.lire().zoneId).toBe('kanto.arene-de-parmanie');
+});
+
+it('partage les accès entre Carte et déplacement avant et après Ronflex', () => {
+  const route = 'kanto.route-de-ronflex';
+  const parmanie = 'kanto.arene-de-parmanie';
+  for (const phase of ['avant', 'boss', 'victoire'] as const) {
+    const partie = preparer(region => ({ ...region, zoneId: 'kanto.centrale',
+      bossVaincus: kanto.zones.filter(z => !z.sansCombat && z.ancienId < 13
+        && (phase !== 'avant' || z.id !== 'kanto.centrale')).map(z => z.id),
+      drapeaux: phase === 'victoire' ? ['ronflex-vaincu'] : [] }));
+    const etat = partie.store.getState();
+    expect(etat.evenement).toBeNull();
+    expect(etat.carte.formes.find(f => f.zone === route)).toMatchObject({
+      ouverte: phase === 'boss', terminee: phase === 'victoire',
+    });
+    expect(etat.carte.formes.find(f => f.zone === parmanie)?.ouverte).toBe(phase === 'victoire');
+    etat.allerVers(parmanie);
+    expect(partie.store.getState().zone?.id).toBe(phase === 'victoire' ? parmanie : 'kanto.centrale');
+    partie.store.getState().allerVers(route);
+    partie.store.getState().fermer();
+    expect(partie.lire().zoneId).toBe(phase === 'boss' ? route : phase === 'victoire' ? parmanie : 'kanto.centrale');
+  }
+});
+
+it('normalise une ancienne sauvegarde avancée au chargement sans rejouer Ronflex', () => {
+  const partie = preparer(region => ({ ...region, zoneId: 'kanto.arene-de-parmanie', drapeaux: [] }));
+  partie.store.getState().fermer();
+  expect(partie.lire().drapeaux).toContain('ronflex-vaincu');
+  expect(partie.store.getState().evenement).toBeNull();
+  partie.store.getState().allerVers('kanto.route-de-ronflex');
+  expect(partie.store.getState().zone?.id).toBe('kanto.arene-de-parmanie');
 });

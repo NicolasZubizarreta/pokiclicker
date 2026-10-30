@@ -4,6 +4,8 @@ import { nomAdversaireEvenement, zoneDeCombatEvenement, zoneDuCombat } from './c
 import { chargerEvenements, type Commande, type MembreEquipe } from './evenements';
 import type { Zone } from './monde';
 import { regionInitiale } from './sauvegarde';
+import { evenementsKanto } from './evenements-kanto';
+import { kanto } from './regions';
 
 const zone: Zone = {
   id: 'kanto.route-1', nom: 'Route 1', decor: 'route', niveaux: [2, 3], etapes: 10,
@@ -23,6 +25,18 @@ const commande: Combat = { type: 'combat', evenement: 'rival', etape: 1, dresseu
 const alea = () => { throw new Error('Un boss ne doit pas tirer d’aléa'); };
 
 describe('combat d’événement', () => {
+  it('conserve les paramètres et les PV de Ronflex hérités de la Centrale', () => {
+    const etape = evenementsKanto.parId('kanto.ronflex-reveil').etapes.find(e => e.type === 'combat');
+    if (etape?.type !== 'combat' || !('zone' in etape) || !etape.zone) throw new Error('Combat Ronflex absent');
+    const combat: Combat = { ...etape, evenement: 'kanto.ronflex-reveil', etape: 2 };
+    const centrale = kanto.zoneDeCombat(etape.zone);
+    const synthetique = zoneDeCombatEvenement(combat, centrale, null);
+    const historique = zoneDeCombatEvenement({ ...combat, zone: undefined }, kanto.zoneDeCombat('kanto.centrale'), null);
+    expect(synthetique).toEqual(historique);
+    expect(synthetique.multiplicateurPv).toBe(centrale.multiplicateurPv);
+    expect(creerEnnemi(synthetique, 1, alea)).toEqual(creerEnnemi(historique, 1, alea));
+    expect(synthetique.boss).toMatchObject({ pokemon: 143, niveau: 45, capture: 0 });
+  });
   it.each([1, 4, 7, null] as const)('joue l’équipe du starter %s avec des boss à 30 secondes', starter => {
     const avant = structuredClone({ zone, commande });
     const synthetique = zoneDeCombatEvenement(commande, zone, starter);

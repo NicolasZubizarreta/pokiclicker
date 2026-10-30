@@ -14,7 +14,7 @@ import { Image, imageConnue } from './Image';
 import { cheminDecor, precharger } from './precharger';
 import { DresseurVol, imagesVol, useVol, VolGen1 } from './VolGen1';
 
-const nomAccessible = (f: EtatForme) => f.numero === null || f.numero === 0 ? f.nom : `${f.nom} (Zone ${f.numero})`;
+const nomAccessible = (f: EtatForme) => f.numero === null || f.numero <= 0 ? f.nom : `${f.nom} (Zone ${f.numero})`;
 // Positions des repères sur l'image, en fractions de sa largeur et de sa hauteur (data/regions/kanto/carte-positions.json).
 const positions = positionsCarte as Record<string, Point>;
 const centreDe = (f: EtatForme): Point => {
@@ -51,7 +51,8 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
   const pxParUnite = largeur > 0 ? largeur / vue.largeur : 1;
   const choisie = carte.formes.find(f => f.zone === selection && selection !== null);
   const actuelle = carte.formes.find(f => f.actuelle);
-  const zones = carte.formes.filter(f => f.zone !== null).sort((a, b) => (a.numero ?? 0) - (b.numero ?? 0));
+  const zones = carte.formes.filter(f => f.zone !== null)
+    .sort((a, b) => kanto.zones.findIndex(z => z.id === a.zone) - kanto.zones.findIndex(z => z.id === b.zone));
   const dimensions = tailles['img/decors/carte-kanto.webp'];
   const decor = choisie?.zone ? cheminDecor(kanto.zone(choisie.zone)) : null;
   // Repères : 14 px de rayon sur grand écran, plus petits quand la carte est étroite.
@@ -211,9 +212,10 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-baseline gap-x-2 pr-11">
             <h2 className="font-titre text-base font-semibold">{choisie.nom}</h2>
-            {choisie.numero !== null && choisie.numero !== 0 && <p className="text-info-texte">Zone {choisie.numero}</p>}
+            {choisie.numero !== null && choisie.numero > 0 && <p className="text-info-texte">Zone {choisie.numero}</p>}
           </div>
-          {!choisie.ouverte ? <><p>Bloquée</p><p>{choisie.raison ?? 'Pas encore accessible.'}</p></>
+          {choisie.terminee ? <p>Terminée, plus accessible</p>
+            : !choisie.ouverte ? <><p>Bloquée</p><p>{choisie.raison ?? 'Pas encore accessible.'}</p></>
             : choisie.actuelle && !vol.actif ? <p>Tu es ici.</p>
               : <button type="button" className="min-h-11 min-w-11 w-full bg-action px-4 py-2 text-action-texte shadow-sm hover:bg-action-survol focus-visible:outline-2 focus-visible:outline-focus"
                 disabled={vol.actif} onClick={() => { lancer(choisie.zone!, actuelle ? formeDepart(actuelle) : null); selectionner(null); }}>{choisie.nom === 'Céladopole' ? 'Arène' : 'Y aller'}</button>}
@@ -253,8 +255,9 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
               }
             }}>
             <span className="w-2 shrink-0">{f.actuelle && <><span className="block size-2 rounded-full bg-succes-base" /><span className="sr-only">position actuelle</span></>}</span>
-            <span className="w-6 shrink-0 tabular-nums">{f.numero}</span>
+            <span className="w-6 shrink-0 tabular-nums">{f.numero !== null && f.numero >= 0 ? f.numero : ''}</span>
             <span>{f.nom}</span>
+            {f.terminee && <span className="text-texte-doux">Terminée</span>}
           </li>)}
         </ul>
       </div>

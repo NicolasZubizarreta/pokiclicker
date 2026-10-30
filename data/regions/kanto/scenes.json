@@ -43,6 +43,12 @@
       "formes": [
         { "zone": "kanto.bourg-palette", "nom": "Sortie", "teinte": "green", "forme": "rect", "x": 0.4306640625, "y": 0.88623046875, "l": 0.1376953125, "h": 0.06005859375 }
       ]
+    },
+    {
+      "id": "kanto.route-de-ronflex",
+      "image": "decors/centrale.webp",
+      "ratio": [16, 9],
+      "formes": []
     }
   ]
 }

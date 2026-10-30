@@ -5,7 +5,8 @@ import { kanto } from './regions';
 import { etatMondeDe, regionInitiale, validerDonneesRegion } from './sauvegarde';
 
 const depart = () => regionInitiale('kanto', 'kanto.route-1');
-const avecBoss = (...zones: string[]) => ({ ...depart(), bossVaincus: zones });
+// Ronflex est vaincu d'office : l'interzone « Route de Ronflex » (ticket AJ) n'existe plus sur ce chemin.
+const avecBoss = (...zones: string[]) => ({ ...depart(), bossVaincus: zones, drapeaux: [...depart().drapeaux, 'ronflex-vaincu'] });
 
 it('décrit chaque fonction avec un texte français et un déclencheur connu du monde', () => {
   expect(deblocages.map(d => d.id)).toEqual(['sac', 'pc', 'pension', 'centre-commercial', 'casino',
@@ -31,7 +32,7 @@ it('ouvre le Poké-Radar, le Fauchage et l’Auto-clic à l’achat de l’objet
   expect(deblocagesAtteints(region, kanto)).toEqual(['sac', 'poke-radar', 'fauchage', 'auto-clic']);
 });
 
-const idsZones = kanto.zones.map(zone => zone.id).filter(id => id !== 'kanto.bourg-palette');
+const idsZones = kanto.zones.map(zone => zone.id).filter(id => id !== 'kanto.bourg-palette' && id !== 'kanto.route-de-ronflex');
 
 it.each([
   ['poke-radar-au-shop', 'pokeradar', 'kanto.cave-taupiqueur', 'Poké-Radar disponible au Shop !'],

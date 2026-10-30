@@ -15,13 +15,36 @@ const fichierEssai = () => structuredClone(donnees) as FichierZones;
 const routeEssai = (fichier: FichierZones) => fichier.zones.find(({ id }) => id === depart) as Zone;
 
 describe('monde Kanto', () => {
-  it('charge les 22 zones avec le vrai catalogue de 151 Pokémon', () => {
+  it('ouvre la route après la Centrale puis la ferme sans couper le graphe après Ronflex', () => {
+    const centrale = 'kanto.centrale';
+    const route = 'kanto.route-de-ronflex';
+    const parmanie = 'kanto.arene-de-parmanie';
+    const avant = { ...vide, bossVaincus: kanto.zones.slice(0, kanto.zones.findIndex(z => z.id === centrale)).map(z => z.id) };
+    const apres = { ...avant, bossVaincus: [...avant.bossVaincus, centrale] };
+    const victoire = { ...apres, drapeaux: ['ronflex-vaincu'] };
+    expect(kanto.zone(centrale).ancienId).toBe(12);
+    expect(kanto.zone(parmanie).ancienId).toBe(13);
+    expect(kanto.zone(route)).toMatchObject({ sansCombat: true, decor: kanto.zone(centrale).decor });
+    expect(kanto.accesZone(route, avant).ok).toBe(false);
+    expect(kanto.accesZone(parmanie, avant).ok).toBe(false);
+    expect(kanto.accesZone(route, apres).ok).toBe(true);
+    expect(kanto.accesZone(parmanie, apres).ok).toBe(false);
+    expect(kanto.accesZone(route, victoire).ok).toBe(false);
+    expect(kanto.accesZone(parmanie, victoire).ok).toBe(true);
+    expect(kanto.peutPasser(route, parmanie, victoire).ok).toBe(true);
+    expect(kanto.zonesOuvertes(victoire).map(z => z.id)).toContain(parmanie);
+    expect(kanto.zonesOuvertes(victoire).map(z => z.id)).not.toContain(route);
+    const suite = { ...victoire, bossVaincus: [...victoire.bossVaincus, parmanie] };
+    expect(kanto.zonesOuvertes(suite).map(z => z.id)).toContain('kanto.sylphe-sarl');
+  });
+
+  it('charge les 23 zones avec le vrai catalogue de 151 Pokémon', () => {
     const catalogue = chargerPokemon();
     expect(catalogue.liste).toHaveLength(151);
     expect(() => chargerMonde(fichierEssai(), catalogue)).not.toThrow();
     expect(kanto.region).toBe('kanto');
     expect(kanto.depart).toBe(bourg);
-    expect(kanto.zones).toHaveLength(22);
+    expect(kanto.zones).toHaveLength(23);
     expect(kanto.zones.filter(({ fin }) => fin).map(({ id }) => id)).toEqual(['kanto.ligue-pokemon']);
     expect(kanto.zone(depart).fin).toBeUndefined();
   });

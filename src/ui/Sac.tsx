@@ -55,6 +55,7 @@ export function Sac({ sac, utiliser }: {
           <li key={objet.id} className="cadre flex min-w-0 flex-wrap items-center gap-2 bg-surface-2 p-2">
             <IconeObjet image={null} nom={objet.nom} taille="petite" />
             <span className="min-w-0 text-sm">{objet.nom}</span>
+            {objet.id === 'pokeflute' && <p className="text-sm text-texte-doux">À utiliser devant Ronflex</p>}
             <button type="button" aria-label={`Utiliser ${objet.nom}`} title={objet.description}
               className="cadre min-h-11 min-w-11 bg-surface p-2 hover:bg-selection"
               onClick={() => annoncer(utiliserObjetCle(objet.id))}>Utiliser</button>

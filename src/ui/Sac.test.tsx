@@ -143,6 +143,16 @@ describe('objets clés', () => {
     expect(screen.queryByText('Objets clés')).toBeNull();
   });
 
+  it('indique où jouer la Pokéflûte et annonce le refus du Sac', () => {
+    const utiliserObjetCle = vi.fn().mockReturnValue('À utiliser devant Ronflex');
+    storeJeu.setState({ objetsCles: ['pokeflute'], utiliserObjetCle });
+    render(<Sac sac={sac} utiliser={vi.fn()} />);
+    expect(screen.getByText('À utiliser devant Ronflex')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Utiliser Pokéflûte' }));
+    expect(utiliserObjetCle).toHaveBeenCalledExactlyOnceWith('pokeflute');
+    expect(screen.getByRole('status').textContent).toBe('À utiliser devant Ronflex');
+  });
+
   it('affiche la Pokéflûte obtenue après la Tour, même avec un filtre du Sac', () => {
     render(<Sac sac={sac} utiliser={vi.fn()} />);
     let region = declencher(evenementsKanto, regionInitiale('kanto', 'kanto.tour-pokemon'),

@@ -348,11 +348,11 @@ it('expose le multiplicateur du DPS et conserve la référence d’équipe entre
   expect(store.getState().equipe).toBe(equipe);
 });
 
-it('expose les 24 formes dans l’ordre, leurs accès et les badges au démarrage', () => {
+it('expose les 25 formes dans l’ordre (24 de la V1, puis la Route de Ronflex), leurs accès et les badges au démarrage', () => {
   const { store, stockage } = preparer();
   const region = JSON.parse(stockage.lire('pokiclicker:region:test:kanto')!).donnees as DonneesRegion;
   const { carte } = store.getState();
-  expect(carte.formes).toHaveLength(24);
+  expect(carte.formes).toHaveLength(25);
   expect(carte.formes.map(entree => entree.forme)).toEqual(kanto.carte.formes);
   const ouvertes = kanto.zonesOuvertes(etatMondeDe(region)).map(zone => zone.id);
   for (const entree of carte.formes) {

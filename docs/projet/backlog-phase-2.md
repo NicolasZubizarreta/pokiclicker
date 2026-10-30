@@ -1,4 +1,4 @@
-﻿# Backlog — phase 2 « Kanto jouable »
+# Backlog — phase 2 « Kanto jouable »
 
 Jalon : **Kanto terminable** (`docs/plan.md`). Brouillon du 24/10/2026, validé dans son découpage par Nicolas le 24/10 ; rien n'est créé sur un dépôt distant.
 
@@ -1137,7 +1137,7 @@ Fourchette : 2 à 3 jours. Risque : le sprite de Blue n'est peut-être pas dans 
 
 ## AJ. `feat(scenes): Ronflex après la Centrale et Flûte Pokémon jouée sur une interzone dédiée`
 
-Labels : `type:feat`, `etat:idee`, `est:3`, `prio:3` · branche : `feat/aj-ronflex-interzone` · `agent-ok` : après le choix des variantes
+Labels : `type:feat`, `etat:fait` (30/10 : codé en local par Codex ; interzone « Route de Ronflex » entre la Centrale et Parmanie, mini-jeu Souffle option C de la maquette `ronflex-v2`, paramètres dans `data/reglages.json` clé `ronflex.souffle` ; décor provisoire `centrale.webp`, aucun téléchargement ; la durée cumulée à atteindre suit le jeton `--duree-signal` comme la maquette), `est:3`, `prio:3` · branche : `feat/aj-ronflex-interzone` · `agent-ok` : oui
 
 ### Histoire
 En tant que joueur, je veux rencontrer Ronflex après le boss de la Centrale et le réveiller en jouant la Flûte Pokémon sur une scène à part afin que ce passage soit un moment du jeu et pas un clic dans l'équipe. [25, 30]
@@ -1152,13 +1152,13 @@ Il garde le concept « Ronflex au centre, on le réveille, on le combat », mais
 Trois variantes de la scène (390 et 1440 px) : (1) Ronflex au centre, la Flûte à cliquer pour jouer, quatre notes qui apparaissent ; (2) Ronflex au centre, un geste de glissement sur le tapis ; (3) petit jeu de rythme en trois notes. Nicolas choisit dans la vraie appli.
 
 ### Critères d'acceptation
-- [ ] Étant donné la partie avant le boss de la Centrale, quand je joue, alors aucun dialogue de Ronflex ne se déclenche.
-- [ ] Étant donné le boss de la Centrale battu, quand j'arrive à la zone de Ronflex, alors un dialogue explique : Ronflex dort, il bloque la route, une Flûte peut le réveiller.
-- [ ] Étant donné la Flûte Pokémon dans le Sac, quand je suis sur la scène de Ronflex, alors un indicateur dit comment l'utiliser (texte court, en français) et la Flûte se joue sur la scène ; depuis le Sac ou l'équipe, elle ne fait plus rien (message « À utiliser devant Ronflex »).
-- [ ] Étant donné la Flûte jouée, quand l'action se termine, alors Ronflex se réveille (animation courte), le combat de Ronflex commence, et la route s'ouvre une fois battu.
-- [ ] Étant donné Ronflex battu, quand le dialogue de fin se ferme, alors le jeu passe tout seul à la zone suivante (Arène de Parmanie) et la zone de Ronflex n'est plus accessible depuis la Carte (mention « Terminée »).
-- [ ] Étant donné un rechargement après le réveil ou après la victoire, quand je rouvre, alors l'état est conservé et la scène ne se rejoue pas.
-- [ ] Étant donné `prefers-reduced-motion`, quand la scène se joue, alors l'animation est un changement d'état sans mouvement.
+- [x] Étant donné la partie avant le boss de la Centrale, quand je joue, alors aucun dialogue de Ronflex ne se déclenche.
+- [x] Étant donné le boss de la Centrale battu, quand j'arrive à la zone de Ronflex, alors un dialogue explique : Ronflex dort, il bloque la route, une Flûte peut le réveiller.
+- [x] Étant donné la Flûte Pokémon dans le Sac, quand je suis sur la scène de Ronflex, alors un indicateur dit comment l'utiliser (texte court, en français) et la Flûte se joue sur la scène ; depuis le Sac ou l'équipe, elle ne fait plus rien (message « À utiliser devant Ronflex »).
+- [x] Étant donné la Flûte jouée, quand l'action se termine, alors Ronflex se réveille (animation courte), le combat de Ronflex commence, et la route s'ouvre une fois battu.
+- [x] Étant donné Ronflex battu, quand le dialogue de fin se ferme, alors le jeu passe tout seul à la zone suivante (Arène de Parmanie) et la zone de Ronflex n'est plus accessible depuis la Carte (mention « Terminée »).
+- [x] Étant donné un rechargement après le réveil ou après la victoire, quand je rouvre, alors l'état est conservé et la scène ne se rejoue pas.
+- [x] Étant donné `prefers-reduced-motion`, quand la scène se joue, alors l'animation est un changement d'état sans mouvement.
 
 ### Hors périmètre
 Autres objets clés, combat de Ronflex (déjà fait), nouvelle musique.

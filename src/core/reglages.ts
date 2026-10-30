@@ -68,6 +68,10 @@ export type ReglagesDelais = {
 };
 
 export const reglages: {
+  ronflex: { souffle: {
+    dureeCumuleeS: number; largeurCible: number; centreCible: number; amplitudeCible: number;
+    facteurNiveau: number; facteurCible: number; plafondPas: number;
+  } };
   pension: ReglagesPension;
   equipe: { taille: number; surnomMax: number };
   badges: { ouvertureMs: number; claqueDelaiMs: number; claqueMs: number };

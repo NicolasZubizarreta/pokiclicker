@@ -15,6 +15,7 @@ import { PastilleCapture, Sac as IconeSac } from './icones';
 import { DegatsFlottants } from './DegatsFlottants';
 import { DialogueChen } from './DialogueChen';
 import { ScenesBourgPalette } from './ScenesBourgPalette';
+import { SceneRonflex } from './SceneRonflex';
 import { PagePension } from './PagePension';
 import { kanto } from '../core/regions';
 import { Etapes } from './Etapes';
@@ -64,6 +65,9 @@ function Scene({ store, ouvrirPension }: { store: StoreJeu; ouvrirPension(): voi
   const lieu = useStore(store, etat => etat.lieu);
   const zone = useStore(store, etat => etat.zone);
   const ennemi = useStore(store, etat => etat.ennemi);
+  const commande = useStore(store, etat => etat.evenement);
+  const objetsCles = useStore(store, etat => etat.objetsCles);
+  const reussirSouffle = useStore(store, etat => etat.reussirSouffle);
   const nomAdversaire = useStore(store, etat => etat.nomAdversaire);
   const minuteur = useStore(store, etat => etat.minuteur);
   const enRecherche = useStore(store, etat => etat.enRecherche);
@@ -96,6 +100,8 @@ function Scene({ store, ouvrirPension }: { store: StoreJeu; ouvrirPension(): voi
     </div>
     {'message' in lieu && lieu.message && <p className="bg-surface p-2">{lieu.message}</p>}
   </div>;
+  if (lieu?.id === 'kanto.route-de-ronflex' && !ennemi) return <SceneRonflex decor={cheminDecor(lieu)}
+    commande={commande} possedeFlute={objetsCles.includes('pokeflute')} reussirSouffle={reussirSouffle} />;
   if (!zone && !ennemi && lieu) return <section aria-label={lieu.nom}
     className="scene-limitee relative isolate flex h-76 items-end bg-surface-2 p-4 lg:col-span-3 lg:aspect-video lg:h-auto">
     {imageConnue(cheminDecor(lieu)) && <Image src={cheminDecor(lieu)} genre="decor" alt="" couvrir className="absolute inset-0 -z-10 size-full" />}
@@ -220,6 +226,7 @@ export function EcranCombat({ store = storeJeu }: { store?: StoreJeu }) {
   const rendreFocus = useRef(false);
   const erreur = useStore(store, etat => etat.erreur);
   const fatale = useStore(store, etat => etat.erreurChargement);
+  const sceneRonflex = useStore(store, etat => etat.lieu?.id === 'kanto.route-de-ronflex' && !etat.ennemi);
   useEffect(() => {
     if (!pensionOuverte && rendreFocus.current) {
       cadre.current?.querySelector<HTMLButtonElement>('button[aria-label="Pension Pokémon"]')?.focus();
@@ -235,7 +242,7 @@ export function EcranCombat({ store = storeJeu }: { store?: StoreJeu }) {
       {fatale && <p>{ERREUR_CHARGEMENT}</p>}<p>{erreur.split('\n')[0]}</p>
       {erreur.includes('\n') && <p className="mt-2 break-words text-sm">{erreur.slice(erreur.indexOf('\n') + 1)}</p>}
     </div>}
-    {!fatale && <><Entete store={store} /><div className="combat-grille grid gap-2 lg:grid-cols-4 lg:gap-4">
+    {!fatale && <><Entete store={store} /><div className={`${sceneRonflex ? '' : 'combat-grille'} grid gap-2 lg:grid-cols-4 lg:gap-4`}>
       <Scene store={store} ouvrirPension={() => ouvrirPension(true)} />
       <Equipe store={store} /><DialogueChen store={store} />
     </div></>}

@@ -2,7 +2,8 @@ import { test, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import zones from '../data/regions/kanto/zones.json' with { type: 'json' };
 
-const bossAvantLigue = zones.zones.slice(1, 21).map(zone => zone.id);
+// Sans l'interzone « Route de Ronflex » (ticket AJ), qui n'a pas de boss.
+const bossAvantLigue = zones.zones.filter(zone => zone.id !== 'kanto.route-de-ronflex').slice(1, 21).map(zone => zone.id);
 
 const instant = new Date('2026-10-25T12:00:00Z');
 const noms = [

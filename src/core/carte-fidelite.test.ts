@@ -92,7 +92,8 @@ describe('fidélité de la carte de Kanto à la V1', () => {
 
   it('compare exactement 24 formes dont deux sans zone', () => {
     expect(fixture.carte).toHaveLength(24);
-    expect(kanto.carte.formes).toHaveLength(24);
+    // La Route de Ronflex (ticket AJ) est ajoutée après les 24 formes V1.
+    expect(kanto.carte.formes.filter((forme) => forme.zone !== 'kanto.route-de-ronflex')).toHaveLength(24);
     expect(fixture.carte.filter((forme) => forme.zoneId === null)).toHaveLength(2);
     expect(kanto.carte.formes.filter((forme) => forme.zone === null)).toHaveLength(2);
   });

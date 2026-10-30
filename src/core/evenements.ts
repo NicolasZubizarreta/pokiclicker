@@ -25,13 +25,14 @@ export type Declencheur =
   | { type: 'objet-utilise'; objet: string; zone?: string };
 
 export type Etape =
+  | { type: 'souffle' }
   | { type: 'dialogue'; locuteur: string; texte: string; pose?: string }
   | { type: 'donner'; objet: string; quantite: number }
   | { type: 'donner'; objetCle: string }
   | { type: 'donner'; amelioration: string }
   | { type: 'poser-drapeau'; id: string }
   | { type: 'bloquer'; zone: string; sauf: string; raison: string }
-  | { type: 'combat'; pokemon: number; niveau: number; capture?: number; nom?: string }
+  | { type: 'combat'; pokemon: number; niveau: number; capture?: number; nom?: string; zone?: string }
   | { type: 'combat'; dresseur: string; equipes: Record<'1' | '4' | '7', MembreEquipe[]>;
       pokemon?: never; niveau?: never; capture?: never; nom?: never }
   | { type: 'deplacer'; zone: string };
@@ -47,7 +48,7 @@ export type Evenement = {
   etapes: Etape[];
 };
 
-export type Commande = (Extract<Etape, { type: 'dialogue' | 'combat' }>) & {
+export type Commande = (Extract<Etape, { type: 'dialogue' | 'combat' | 'souffle' }>) & {
   evenement: string;
   etape: number;
 };
@@ -97,6 +98,7 @@ function avancer(cat: CatalogueEvenements, region: DonneesRegion): DonneesRegion
       continue;
     }
     switch (etape.type) {
+      case 'souffle':
       case 'dialogue':
       case 'combat': return region;
       case 'donner':
@@ -140,7 +142,7 @@ export function commandeCourante(cat: CatalogueEvenements, region: DonneesRegion
   const courant = region.evenementEnCours;
   if (!courant) return null;
   const etape = cat.liste.find(e => e.id === courant.id)?.etapes[courant.etape];
-  return etape && (etape.type === 'dialogue' || etape.type === 'combat')
+  return etape && (etape.type === 'dialogue' || etape.type === 'combat' || etape.type === 'souffle')
     ? { ...etape, evenement: courant.id, etape: courant.etape } : null;
 }
 
@@ -242,6 +244,7 @@ export function chargerEvenements(
   function etape(v: unknown) {
     objet(v);
     switch (v.type) {
+      case 'souffle': forme(v, { type: chaine }); break;
       case 'dialogue': forme(v, { type: chaine, locuteur: chaine, texte: chaine }, { pose: identifiant }); break;
       case 'donner':
         if (Object.hasOwn(v, 'objetCle')) forme(v, { type: chaine, objetCle: objetConnu });
@@ -262,6 +265,7 @@ export function chargerEvenements(
           break;
         }
         forme(v, { type: chaine, pokemon: numeroPokemon, niveau }, {
+          zone: v => { zone(v); exiger(!monde.zone(v as string).sansCombat, 'Zone de combat attendue'); },
           // Même échelle que le taux de capture du combat (capture / 255).
           capture: n => exiger(typeof n === 'number' && Number.isFinite(n) && n >= 0 && n <= 255, 'Capture invalide'),
           nom: chaine,

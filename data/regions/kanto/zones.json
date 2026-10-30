@@ -756,14 +756,55 @@
       },
       "liens": [
         {
+          "vers": "kanto.route-de-ronflex",
+          "si": {
+            "tous": [
+              {
+                "type": "boss",
+                "zone": "kanto.centrale"
+              },
+              {
+                "non": {
+                  "type": "drapeau",
+                  "id": "ronflex-vaincu"
+                }
+              }
+            ]
+          }
+        },
+        {
           "vers": "kanto.arene-de-parmanie",
           "si": {
-            "type": "boss",
-            "zone": "kanto.centrale"
+            "tous": [
+              {
+                "type": "boss",
+                "zone": "kanto.centrale"
+              },
+              {
+                "type": "drapeau",
+                "id": "ronflex-vaincu"
+              }
+            ]
           }
         }
       ],
       "ancienId": 12
+    },
+    {
+      "id": "kanto.route-de-ronflex",
+      "nom": "Route de Ronflex",
+      "sansCombat": true,
+      "decor": "kanto/centrale.webp",
+      "liens": [
+        {
+          "vers": "kanto.arene-de-parmanie",
+          "si": {
+            "type": "drapeau",
+            "id": "ronflex-vaincu"
+          }
+        }
+      ],
+      "ancienId": -8
     },
     {
       "id": "kanto.arene-de-parmanie",
@@ -1786,6 +1827,15 @@
         "y": 0.3962962962962963,
         "l": 0.022916666666666665,
         "h": 0.04259259259259259
+      },
+      {
+        "zone": "kanto.route-de-ronflex",
+        "nom": "Route de Ronflex",
+        "teinte": "blue",
+        "forme": "cercle",
+        "x": 0.51,
+        "y": 0.72,
+        "r": 0.019791666666666666
       }
     ]
   }

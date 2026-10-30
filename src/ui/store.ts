@@ -6,7 +6,7 @@ import { avancerCombat, calculerClic, calculerDpsEquipe, cliquer, creerCombat, c
   faucher as faucherCombat, invoquerBoss } from '../core/combat';
 import { acheter, chargerObjets } from '../core/boutique';
 import { blocage, combatEnPause, commandeCourante, declencher, etapeTerminee, type CatalogueEvenements, type Commande, type Declencheur } from '../core/evenements';
-import { evenementsKanto } from '../core/evenements-kanto';
+import { evenementsKanto, normaliserRonflex, routeRonflexTerminee } from '../core/evenements-kanto';
 import { peutLancer, zoneDuDefi, echec as echecDefi, victoire as victoireDefi } from '../core/defi-chen';
 import { nomAdversaireEvenement, zoneDeCombatEvenement, zoneDuCombat } from '../core/combat-evenement';
 import { choisirStarter, creerStarter, tirerStarters } from '../core/starter';
@@ -56,6 +56,7 @@ export type Destination = { id: string; nom: string; ouverte: boolean; raison: s
 export type EtatForme = {
   forme: FormeCarte; zone: string | null; nom: string; numero: number | null;
   ouverte: boolean; actuelle: boolean; raison: string | null;
+  terminee?: boolean;
 };
 export type AffichageJeu = ActionsCasino & {
   pantheon: { ouvert: boolean; premiereVictoire: boolean; equipe: PokemonPossede[]; defiChenEnAttente: boolean } | null;
@@ -71,6 +72,7 @@ export type AffichageJeu = ActionsCasino & {
   objetsCles: string[];
   utiliserObjetCle(id: string): string | null;
   terminerEtape(): void;
+  reussirSouffle(ref: { evenement: string; etape: number }): void;
   progression: AffichageProgression;
   obtentionBadge: { id: string; phase: PhaseObtention } | null;
   fermerBoiteBadges(): void;
@@ -239,6 +241,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     fileDeblocages = [...fileDeblocages, ...annoncer];
   };
   const acces = (zoneId: string) => {
+    if (routeRonflexTerminee(region, zoneId)) return { ok: false, raison: 'Terminée' };
     const resultat = blocage(evenements, region, zoneId);
     return resultat.ok ? kanto.accesZone(zoneId, etatMondeDe(region)) : resultat;
   };
@@ -417,7 +420,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       chance: pension.chancePonte(region.pension.parents),
       prochainEmplacement: prix === null ? null : { prix, raison: region.argent < prix ? "Pas assez d'argent." : null },
     };
-    const ouvertes = new Set(kanto.zonesOuvertes(etatMonde).filter(zone => blocage(evenements, region, zone.id).ok).map(zone => zone.id));
+    const ouvertes = new Set(kanto.zonesOuvertes(etatMonde).filter(zone => acces(zone.id).ok).map(zone => zone.id));
     const carte: AffichageJeu['carte'] = {
       formes: kanto.carte.formes.map(forme => {
         const ouverte = forme.zone !== null && ouvertes.has(forme.zone);
@@ -425,6 +428,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         return { forme, zone: forme.zone, nom: forme.nom,
           numero: forme.zone === null ? null : kanto.zone(forme.zone).ancienId,
           ouverte, actuelle: forme.zone === region.zoneId,
+          terminee: forme.zone !== null && routeRonflexTerminee(region, forme.zone),
           raison: resultat && !resultat.ok ? resultat.raison ?? null : null };
       }),
       badges: { obtenus: region.badges.length, total: totalBadges },
@@ -512,8 +516,10 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       return;
     }
     const combatEvenement = commande?.type === 'combat' && zoneDuCombat(evenements, region) === region.zoneId;
-    if (combatEvenement && !lieu.sansCombat) {
-      const zone = zoneDeCombatEvenement(commande, lieu, region.starterId);
+    if (combatEvenement && (!lieu.sansCombat || ('zone' in commande && commande.zone))) {
+      const origine = 'zone' in commande && commande.zone ? kanto.zoneDeCombat(commande.zone) : lieu;
+      if (origine.sansCombat) return;
+      const zone = zoneDeCombatEvenement(commande, origine, region.starterId);
       if (coeur?.zone.id === zone.id) return;
       coeur = creerCombat(zone, region.equipe.map(versMembreEquipe), alea,
         actifsCourants(region, horloge.maintenant()), { ...optionsCombat(), autoClic: coeur?.autoClic ?? false });
@@ -712,6 +718,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     utiliserObjetCle(id) {
       if (!initialise) return 'La partie n’est pas démarrée.';
       if (!region.objetsCles.includes(id)) return 'Objet clé non possédé.';
+      if (id === 'pokeflute') return 'À utiliser devant Ronflex';
       const suivante = declencher(evenements, region, { type: 'objet-utilise', objet: id, zone: region.zoneId });
       if (suivante === region) return "Ce n'est pas le moment d'utiliser ça !";
       appliquerEvenement(suivante);
@@ -721,8 +728,17 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     terminerEtape() {
       if (!initialise) return;
       const commande = commandeCourante(evenements, region);
-      if (!commande) return;
+      if (!commande || commande.type === 'souffle') return;
       appliquerEvenement(etapeTerminee(evenements, region, commande));
+      afficher();
+    },
+    reussirSouffle(ref) {
+      if (!initialise || !region.objetsCles.includes('pokeflute')) return;
+      const commande = commandeCourante(evenements, region);
+      if (commande?.type !== 'souffle') return;
+      const declencheur = evenements.parId(commande.evenement).declencheur;
+      if (!('zone' in declencheur) || declencheur.zone !== region.zoneId) return;
+      appliquerEvenement(etapeTerminee(evenements, region, ref));
       afficher();
     },
     progression: afficherProgression({ badges: [], jalonsRecus: [] }, []),
@@ -889,7 +905,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         if (!initialise) {
           persistance = ouvrirPartie({ stockage, horloge, genererId }, nouvellePartie === 'intro'
             ? { equipe: [], drapeaux: ['nouvelle-partie'] } : { equipe: equipeDeDepart(), drapeaux: [] });
-          region = persistance.region;
+          region = normaliserRonflex(persistance.region);
           // Ancienne sauvegarde sans le champ : tout ce qui est déjà ouvert compte comme vu, rien ne se rejoue.
           if (region.annoncesVues === undefined) region = { ...region, annoncesVues: deblocagesAtteints(region, kanto) };
           // Ancienne sauvegarde : si Blue a déjà défié le joueur à la Forêt de Jade, on ne le présente pas après coup.

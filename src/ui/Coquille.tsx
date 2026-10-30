@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useStore } from 'zustand';
 import { Navigation } from './Navigation';
 import type { Page } from './Navigation';
@@ -39,6 +39,15 @@ export function Coquille({ region = 'kanto', theme = 'dark' }: {
   }), []);
   const introActive = useStore(storeJeu, etat => etat.intro.enCours || etat.intro.choixStarter);
   const evenement = useStore(storeJeu, etat => etat.evenement);
+  const lieuId = useStore(storeJeu, etat => etat.lieu?.id);
+  const ancienLieu = useRef(lieuId);
+  useEffect(() => {
+    if ((ancienLieu.current === 'kanto.route-de-ronflex' && lieuId !== ancienLieu.current)
+      || (lieuId === 'kanto.route-de-ronflex' && evenement?.type === 'combat')) {
+      document.getElementById('contenu')?.focus();
+    }
+    ancienLieu.current = lieuId;
+  }, [lieuId, evenement?.type]);
   const evolution = useStore(storeJeu, etat => etat.evolution);
   const terminerEtape = useStore(storeJeu, etat => etat.terminerEtape);
   const [introVue, fixerIntroVue] = useState(false);

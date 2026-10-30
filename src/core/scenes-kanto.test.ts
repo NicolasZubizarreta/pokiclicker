@@ -2,12 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { blocage, commandeCourante, declencher, etapeTerminee } from './evenements';
 import { evenementsKanto as cat } from './evenements-kanto';
 import { regionInitiale, type DonneesRegion } from './sauvegarde';
+import { chargerScenes } from './scenes';
 
 const centrale = 'kanto.centrale';
 const parmanie = 'kanto.arene-de-parmanie';
 const tour = 'kanto.tour-pokemon';
+const route = 'kanto.route-de-ronflex';
 const entree = { type: 'entree-zone', zone: centrale } as const;
-const flute = { type: 'objet-utilise', objet: 'pokeflute', zone: centrale } as const;
+const flute = { type: 'objet-utilise', objet: 'pokeflute', zone: route } as const;
 const raison = 'Un Ronflex endormi bloque la route de Parmanie. Joue de la Pokéflûte pour le réveiller.';
 const region = () => regionInitiale('kanto', centrale);
 const recharger = (r: DonneesRegion): DonneesRegion => JSON.parse(JSON.stringify(r));
@@ -21,6 +23,15 @@ function dialogues(r: DonneesRegion): DonneesRegion {
 }
 
 describe('scènes Kanto : Pokéflûte et Ronflex', () => {
+  it('déclare une scène locale sans rencontre ordinaire', () => {
+    expect(chargerScenes().find(s => s.id === route)).toMatchObject({ image: 'decors/centrale.webp', formes: [] });
+  });
+
+  it('ne présente pas Ronflex à la Centrale ni sur la route avant le boss', () => {
+    expect(commandeCourante(cat, declencher(cat, region(), entree))).toBeNull();
+    expect(commandeCourante(cat, declencher(cat, region(), { ...entree, zone: route }))).toBeNull();
+    expect(declencher(cat, region(), flute)).toEqual(region());
+  });
   it('donne la Pokéflûte après la Tour sans modifier les entrées ni la redonner au rechargement', () => {
     const initiale = region();
     const avant = structuredClone(initiale);
@@ -38,10 +49,10 @@ describe('scènes Kanto : Pokéflûte et Ronflex', () => {
     const initiale = { ...region(), bossVaincus: [tour] };
     const debut = declencher(cat, initiale, entree);
     expect(debut.objetsCles).toEqual(['pokeflute']);
-    expect(blocage(cat, debut, parmanie)).toEqual({ ok: false, raison });
+    expect(blocage(cat, debut, parmanie)).toEqual({ ok: true });
     const fin = dialogues(debut);
     expect(fin.objetsCles).toEqual(['pokeflute']);
-    expect(blocage(cat, fin, parmanie)).toEqual({ ok: false, raison });
+    expect(blocage(cat, fin, parmanie)).toEqual({ ok: true });
     const sansTour = dialogues(declencher(cat, region(), entree));
     expect(sansTour.objetsCles).toEqual([]);
     const dejaDonnee = dialogues(declencher(cat, { ...initiale, objetsCles: ['pokeflute'] }, entree));
@@ -49,13 +60,16 @@ describe('scènes Kanto : Pokéflûte et Ronflex', () => {
     expect(dejaDonnee.evenementsJoues).toEqual(sansTour.evenementsJoues);
   });
 
-  it('bloque dès l’entrée, réveille puis combat Ronflex et ouvre seulement après la victoire', () => {
-    const initiale = { ...region(), objetsCles: ['pokeflute'] };
+  it('bloque sur la route après le boss, réveille puis combat Ronflex et ouvre après la victoire', () => {
+    const initiale = { ...region(), zoneId: route, bossVaincus: [centrale], objetsCles: ['pokeflute'] };
     expect(blocage(cat, initiale, parmanie)).toEqual({ ok: true });
-    const debut = declencher(cat, initiale, entree);
+    const debut = declencher(cat, initiale, { ...entree, zone: route });
     expect(blocage(cat, debut, parmanie)).toEqual({ ok: false, raison });
     const bloque = dialogues(debut);
-    const reveil = declencher(cat, bloque, flute);
+    expect(declencher(cat, bloque, flute)).toEqual(bloque);
+    const souffle = commandeCourante(cat, bloque)!;
+    expect(souffle.type).toBe('souffle');
+    const reveil = etapeTerminee(cat, bloque, souffle);
     expect(commandeCourante(cat, reveil)?.type).toBe('dialogue');
     const combat = dialogues(reveil);
     const commande = commandeCourante(cat, combat);
@@ -66,7 +80,7 @@ describe('scènes Kanto : Pokéflûte et Ronflex', () => {
     const fin = dialogues(etapeTerminee(cat, recharger(combat), commande!));
     expect(fin.drapeaux).toContain('ronflex-vaincu');
     expect(fin.objetsCles).toEqual(['pokeflute']);
-    expect(fin.bossVaincus).toEqual([]);
+    expect(fin.bossVaincus).toEqual([centrale]);
     expect(blocage(cat, fin, parmanie)).toEqual({ ok: true });
     const reprise = recharger(fin);
     expect(declencher(cat, reprise, entree)).toBe(reprise);

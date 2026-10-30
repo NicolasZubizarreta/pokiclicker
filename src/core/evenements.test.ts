@@ -26,6 +26,17 @@ const essai = () => catalogue(evenement('essai', {
 }));
 
 describe('moteur des événements', () => {
+  it('conserve Souffle au rechargement et ignore une validation répétée', () => {
+    const cat = catalogue(evenement('souffle', { etapes: [{ type: 'souffle' }, dialogue] }));
+    const debut = declencher(cat, region(), entree);
+    const reprise = JSON.parse(JSON.stringify(debut));
+    const ref = { evenement: 'souffle', etape: 0 };
+    expect(commandeCourante(cat, reprise)).toEqual({ type: 'souffle', ...ref });
+    expect(declencher(cat, reprise, entree)).toBe(reprise);
+    const reveil = etapeTerminee(cat, reprise, ref);
+    expect(commandeCourante(cat, reveil)).toMatchObject({ type: 'dialogue', etape: 1 });
+    expect(etapeTerminee(cat, reveil, ref)).toBe(reveil);
+  });
   it('conserve la référence quand aucun nouvel événement n’est éligible', () => {
     const cat = catalogue(evenement('ferme', { si: { type: 'drapeau', id: 'absent' } }));
     const r = region();

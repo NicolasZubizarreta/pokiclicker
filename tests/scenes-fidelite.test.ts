@@ -7,7 +7,7 @@ const lignes = readFileSync('legacy/js/ui/update.js', 'utf8').split(/\r?\n/);
 
 describe('scènes fidèles à la V1', () => {
   it('recalcule chaque rectangle et chaque sommet depuis les pixels V1', () => {
-    const scenes = chargerScenes();
+    const scenes = chargerScenes().filter(scene => scene.id !== 'kanto.route-de-ronflex');
     const sources = [
       ['kanto.chez-maman', 0, 314, 1166, 656, -17],
       ['kanto.labo', 0, 334, 2048, 2048, 0],
@@ -41,7 +41,7 @@ describe('scènes fidèles à la V1', () => {
   });
 
   it('conserve les images, ratios, bulles et destinations', () => {
-    const scenes = chargerScenes();
+    const scenes = chargerScenes().filter(scene => scene.id !== 'kanto.route-de-ronflex');
     expect(scenes.map(scene => [scene.id, scene.image, scene.ratio])).toEqual([
       ['kanto.bourg-palette', 'scenes/bourg-palette.webp', [1, 1]],
       ['kanto.chez-maman', 'decors/chez-maman.webp', [16, 9]],

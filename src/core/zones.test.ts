@@ -12,10 +12,10 @@ const route = 'kanto.route-1';
 const foret = 'kanto.foret-de-jade';
 
 describe('carte de Kanto', () => {
-  it('expose 24 formes pour les 22 zones et deux lieux non jouables', () => {
-    expect(kanto.carte.formes).toHaveLength(24);
+  it('expose 25 formes pour les 23 zones (22 de la V1 et la Route de Ronflex) et deux lieux non jouables', () => {
+    expect(kanto.carte.formes).toHaveLength(25);
     const zones = kanto.carte.formes.filter(forme => forme.zone !== null).map(forme => forme.zone);
-    expect(new Set(zones).size).toBe(22);
+    expect(new Set(zones).size).toBe(23);
     expect(kanto.carte.formes.filter(forme => forme.zone === null)).toHaveLength(2);
     expect(new Set(zones)).toEqual(new Set(kanto.zones.map(zone => zone.id)));
   });

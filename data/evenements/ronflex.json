@@ -27,8 +27,11 @@
     },
     {
       "id": "kanto.ronflex-blocage",
-      "declencheur": { "type": "entree-zone", "zone": "kanto.centrale" },
-      "si": { "non": { "type": "boss", "zone": "kanto.arene-de-parmanie" } },
+      "declencheur": { "type": "entree-zone", "zone": "kanto.route-de-ronflex" },
+      "si": { "tous": [
+        { "type": "boss", "zone": "kanto.centrale" },
+        { "non": { "type": "drapeau", "id": "ronflex-vaincu" } }
+      ] },
       "priorite": 0,
       "repetable": false,
       "etapes": [
@@ -38,15 +41,20 @@
     },
     {
       "id": "kanto.ronflex-reveil",
-      "declencheur": { "type": "objet-utilise", "objet": "pokeflute", "zone": "kanto.centrale" },
-      "si": { "non": { "type": "drapeau", "id": "ronflex-vaincu" } },
+      "declencheur": { "type": "entree-zone", "zone": "kanto.route-de-ronflex" },
+      "si": { "tous": [
+        { "type": "boss", "zone": "kanto.centrale" },
+        { "non": { "type": "drapeau", "id": "ronflex-vaincu" } }
+      ] },
       "priorite": 0,
       "repetable": false,
       "etapes": [
+        { "type": "souffle" },
         { "type": "dialogue", "locuteur": "narration", "texte": "La mélodie de la Pokéflûte réveille Ronflex ! Il se lève et se prépare au combat." },
-        { "type": "combat", "pokemon": 143, "niveau": 45, "capture": 0, "nom": "Ronflex" },
+        { "type": "combat", "pokemon": 143, "niveau": 45, "capture": 0, "nom": "Ronflex", "zone": "kanto.centrale" },
         { "type": "poser-drapeau", "id": "ronflex-vaincu" },
-        { "type": "dialogue", "locuteur": "narration", "texte": "Ronflex s'écarte. La route de Parmanie est libre !" }
+        { "type": "dialogue", "locuteur": "narration", "texte": "Ronflex s'écarte. La route de Parmanie est libre !" },
+        { "type": "deplacer", "zone": "kanto.arene-de-parmanie" }
       ]
     }
   ]

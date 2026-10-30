@@ -1,4 +1,15 @@
 {
+  "ronflex": {
+    "souffle": {
+      "dureeCumuleeS": 3,
+      "largeurCible": 0.05,
+      "centreCible": 0.5,
+      "amplitudeCible": 0.08,
+      "facteurNiveau": 9,
+      "facteurCible": 0.8333333333333334,
+      "plafondPas": 2
+    }
+  },
   "equipe": { "taille": 6, "surnomMax": 12 },
   "pension": {
     "emplacementsMax": 5, "prixParEmplacement": 5000, "pasEclosion": 25,

@@ -5,6 +5,7 @@ import type { Commande } from '../core/evenements';
 import { DialogueScene } from './DialogueScene';
 import { Coquille } from './Coquille';
 import { creerStoreJeu, type StoreJeu } from './store';
+import { kanto } from '../core/regions';
 
 const contexte = vi.hoisted(() => ({ store: null as unknown as StoreJeu }));
 vi.mock('./store', async importer => ({
@@ -119,9 +120,10 @@ it('ne permet pas à Échap de fermer le dialogue sans terminer la ligne', () =>
   expect(terminerEtape).not.toHaveBeenCalled();
 });
 
-function coquille() {
+function coquille(preparer?: (store: StoreJeu) => void) {
   contexte.store = creerStoreJeu({ horloge: { maintenant: () => 0 }, alea: () => 0.5,
     genererId: () => 'scene', stockage: { lire: () => null, ecrire() {}, supprimer() {}, cles: () => [] } });
+  preparer?.(contexte.store);
   render(<Coquille />);
   const terminerEtape = vi.fn();
   act(() => contexte.store.setState({ evenement: ligne(), terminerEtape }));
@@ -135,6 +137,27 @@ it('branche le dialogue de scène au store et le retire quand la commande se ter
   expect(terminerEtape).toHaveBeenCalledOnce();
   act(() => contexte.store.setState({ evenement: null }));
   expect(screen.queryByRole('dialog', { name: 'Dialogue de scène' })).toBeNull();
+});
+
+it('affiche Souffle sur la route puis le réveil et donne le focus à l’arrivée', () => {
+  reduire(true);
+  coquille(store => {
+    vi.spyOn(store.getState(), 'demarrer').mockImplementation(() => {});
+    store.setState({ lieu: kanto.zone('kanto.route-de-ronflex'), zone: null, ennemi: null, objetsCles: ['pokeflute'] });
+  });
+  act(() => contexte.store.setState({ evenement: { type: 'souffle', evenement: 'kanto.ronflex-reveil', etape: 0 } }));
+  expect(screen.getByRole('button', { name: 'Souffler' })).toBe(document.activeElement);
+  expect(screen.getByRole('img', { name: 'Ronflex endormi' })).toBeTruthy();
+  act(() => contexte.store.setState({ evenement: { ...ligne(1, 'narration', 'kanto.ronflex-reveil'), texte: 'Ronflex se réveille.' } }));
+  expect(screen.queryByRole('button', { name: 'Souffler' })).toBeNull();
+  expect(screen.getByRole('img', { name: 'Ronflex réveillé' })).toBeTruthy();
+  expect(screen.getByRole('button', { name: 'narration : Ronflex se réveille.' })).toBe(document.activeElement);
+  act(() => contexte.store.setState({ evenement: {
+    type: 'combat', evenement: 'kanto.ronflex-reveil', etape: 2, pokemon: 143, niveau: 45,
+  } }));
+  expect(document.activeElement).toBe(document.getElementById('contenu'));
+  act(() => contexte.store.setState({ lieu: kanto.zone('kanto.arene-de-parmanie'), evenement: null }));
+  expect(document.activeElement).toBe(document.getElementById('contenu'));
 });
 
 it('attend la sortie de la Carte pour laisser le vol se terminer', () => {

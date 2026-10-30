@@ -94,6 +94,27 @@ const zones = Array.from(ZONES, (zone, indice) => {
 if (/** @type {{ adversaires?: unknown[] }} */ (zones[21]).adversaires?.length !== 9) {
   throw new Error('La Ligue V1 doit contenir neuf adversaires.');
 }
+const carte = convertirCarte(MAP_DATA, image, zones);
+
+// Écart voulu avec la V1 (ticket AJ, décision de Nicolas du 29/10/2026) : Ronflex dort sur une interzone entre la
+// Centrale et l'Arène de Parmanie. Elle n'a pas de combat sauvage, se ferme après la victoire sur Ronflex et reprend le
+// décor de la Centrale. Les 22 zones V1 gardent leur ordre et leurs identifiants ; tests/ecarts-v1.ts la liste.
+const indiceCentrale = slugs.indexOf('centrale');
+const routeRonflex = 'kanto.route-de-ronflex';
+const ronflexVaincu = { type: 'drapeau', id: 'ronflex-vaincu' };
+// Même tableau, vu comme des objets libres : les types déduits plus haut ne connaissent que les conditions V1.
+const zonesLibres = /** @type {Record<string, unknown>[]} */ (/** @type {unknown} */ (zones));
+/** @type {Record<string, unknown>} */ (zonesLibres[indiceCentrale]).liens = [
+  { vers: routeRonflex, si: { tous: [conditionBoss(indiceCentrale), { non: ronflexVaincu }] } },
+  { vers: identifiant(indiceCentrale + 1), si: { tous: [conditionBoss(indiceCentrale), ronflexVaincu] } },
+];
+zonesLibres.splice(indiceCentrale + 1, 0, {
+  id: routeRonflex, nom: 'Route de Ronflex', sansCombat: true, decor: 'kanto/centrale.webp',
+  liens: [{ vers: identifiant(indiceCentrale + 1), si: ronflexVaincu }], ancienId: -8,
+});
+// Repère ajouté après les 24 formes V1 : leurs indices, donc leur ordre de dessin, ne changent pas.
+/** @type {Record<string, unknown>[]} */ (carte.formes).push({ zone: routeRonflex, nom: 'Route de Ronflex', teinte: 'blue', forme: 'cercle', x: 0.51, y: 0.72,
+  r: 0.019791666666666666 });
 
 // Seules les conditions d'accès des lieux proviennent de l'interface V1.
 const accesLieux = [
@@ -136,7 +157,7 @@ for (const [fichier, donnees] of [
   }],
   ['data/regions/kanto/zones.json', {
     version: 1, region: 'kanto', depart: identifiant(0), premierCombat: identifiant(1), zones, lieux,
-    carte: convertirCarte(MAP_DATA, image, zones),
+    carte,
   }],
 ]) {
   const texte = JSON.stringify(donnees, null, 2) + '\n';

@@ -117,10 +117,14 @@ describe('fidélité des zones de Kanto à la V1', () => {
   });
 
   it('forme un chemin de 22 zones sans retour, de Bourg Palette à la Ligue', () => {
-    expect(kanto.zones.map(({ id }) => id)).toEqual(ids);
+    // Seul écart voulu avec la V1 (ticket AJ) : l'interzone « Route de Ronflex » entre la Centrale et Parmanie.
+    expect(kanto.zones.map(({ id }) => id).filter(id => id !== 'kanto.route-de-ronflex')).toEqual(ids);
+    expect(kanto.liensDepuis('kanto.centrale').map(lien => lien.vers)).toEqual(['kanto.route-de-ronflex', 'kanto.arene-de-parmanie']);
     ids.forEach((id, index) => {
       const suivant = ids[index + 1];
-      if (index === 20) {
+      if (id === 'kanto.centrale') {
+        // Deux liens depuis la Centrale (ticket AJ), vérifiés plus haut ; l'accès à Parmanie exige aussi la victoire sur Ronflex.
+      } else if (index === 20) {
         // Correction du ticket Q : seul le lien Route Victoire → Ligue exige les huit badges.
         expect(kanto.liensDepuis(id)).toEqual([{
           vers: suivant,
@@ -142,6 +146,7 @@ describe('fidélité des zones de Kanto à la V1', () => {
   it('ouvre exactement une zone par boss vaincu jusqu’aux 22 zones', () => {
     const etat = structuredClone(vide);
     etat.badges = badges.map(({ id }) => id);
+    etat.drapeaux.push('ronflex-vaincu');
     expect(kanto.zonesOuvertes(etat).map(({ id }) => id)).toEqual([bourg, route]);
     for (let index = 1; index < ids.length - 1; index++) {
       etat.bossVaincus.push(ids[index]!);

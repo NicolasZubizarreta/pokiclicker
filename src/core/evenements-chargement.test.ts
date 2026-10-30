@@ -12,6 +12,15 @@ function charger(modifications: Record<string, unknown> = {}) {
 }
 
 describe('chargement des événements', () => {
+  it('charge Souffle et la zone source du combat, refuse leurs champs invalides', () => {
+    expect(charger({ etapes: [{ type: 'souffle' }] }).liste[0]?.etapes).toEqual([{ type: 'souffle' }]);
+    expect(() => charger({ etapes: [{ type: 'souffle', duree: 3 }] })).toThrow('Champ inconnu');
+    const combat = { type: 'combat', pokemon: 143, niveau: 45, zone: 'kanto.centrale' };
+    expect(charger({ etapes: [combat] }).liste[0]?.etapes[0]).toEqual(combat);
+    expect(() => charger({ etapes: [{ ...combat, zone: 'kanto.route-de-ronflex' }] }))
+      .toThrow('Zone de combat attendue');
+    expect(() => charger({ etapes: [{ ...combat, zone: 'kanto.inconnue' }] })).toThrow('Zone inconnue');
+  });
   it('charge aussi les trois événements de fin dans le catalogue complet', () => {
     for (const id of ['kanto.fin-pokedex', 'kanto.defi-chen-intro', 'kanto.defi-chen-victoire']) {
       expect(catalogueKanto.parId(id).id).toBe(id);

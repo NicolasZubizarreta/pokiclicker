@@ -1,12 +1,57 @@
 import { describe, expect, it } from 'vitest';
 import { combatEnPause, commandeCourante, declencher, etapeTerminee, type Commande } from './evenements';
-import { evenementsKanto as catalogue } from './evenements-kanto';
+import { evenementsKanto as catalogue, normaliserRonflex, routeRonflex } from './evenements-kanto';
 import { spriteDe } from './personnages';
 import { reglages } from './reglages';
 import { regionInitiale } from './sauvegarde';
 
 const depart = () => regionInitiale('kanto', 'kanto.route-1');
 const texte = (c: Commande | null) => (c?.type === 'dialogue' ? c.texte : null);
+
+describe('compatibilité Ronflex', () => {
+  it.each([0, 1, 3])('conserve la position ancienne %i du réveil et ses gains', etape => {
+    const ancienne = { ...depart(), zoneId: 'kanto.centrale', objetsCles: ['pokeflute'],
+      bossVaincus: ['kanto.centrale'], drapeaux: etape === 3 ? ['ronflex-vaincu'] : [],
+      evenementEnCours: { id: 'kanto.ronflex-reveil', etape, file: [] } };
+    const copie = structuredClone(ancienne);
+    const reprise = normaliserRonflex(ancienne);
+    expect(reprise.zoneId).toBe(routeRonflex);
+    expect(reprise.evenementEnCours).toEqual({ ...ancienne.evenementEnCours, etape: etape + 1 });
+    expect(reprise.bossVaincus).toEqual(ancienne.bossVaincus);
+    expect(reprise.argent).toBe(ancienne.argent);
+    expect(ancienne).toEqual(copie);
+    expect(normaliserRonflex(reprise)).toBe(reprise);
+  });
+
+  it.each(['kanto.arene-de-parmanie', 'kanto.sylphe-sarl', 'kanto.ligue-pokemon'])(
+    'ne rejoue pas Ronflex pour une sauvegarde avancée à %s', zoneId => {
+      for (const ancienne of [{ ...depart(), zoneId }, { ...depart(), bossVaincus: [zoneId] }]) {
+        const reprise = normaliserRonflex(ancienne);
+        expect(reprise.drapeaux).toContain('ronflex-vaincu');
+        expect(reprise.zoneId).toBe(ancienne.zoneId);
+        expect(normaliserRonflex(reprise)).toBe(reprise);
+      }
+    });
+
+  it('rattrape un réveil terminé et sort une sauvegarde sur la route fermée', () => {
+    const reprise = normaliserRonflex({ ...depart(), zoneId: routeRonflex,
+      evenementsJoues: ['kanto.ronflex-reveil'] });
+    expect(reprise.drapeaux).toContain('ronflex-vaincu');
+    expect(reprise.zoneId).toBe('kanto.arene-de-parmanie');
+    expect(reprise.evenementEnCours).toBeUndefined();
+  });
+
+  it('retire le dialogue prématuré et permet sa présentation sur la route', () => {
+    const ancienne = { ...depart(), zoneId: 'kanto.centrale',
+      evenementsJoues: ['kanto.ronflex-blocage'],
+      evenementEnCours: { id: 'kanto.ronflex-blocage', etape: 1, file: [] } };
+    const reprise = normaliserRonflex(ancienne);
+    expect(reprise.evenementEnCours).toBeUndefined();
+    expect(reprise.evenementsJoues).not.toContain('kanto.ronflex-blocage');
+    expect(reprise.drapeaux).not.toContain('ronflex-vaincu');
+    expect(normaliserRonflex(depart())).toEqual(depart());
+  });
+});
 
 function jouer(region: ReturnType<typeof depart>) {
   const repliques: Commande[] = [];
