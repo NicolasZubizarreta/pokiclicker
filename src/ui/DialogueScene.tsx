@@ -28,7 +28,7 @@ export function DialogueScene({ commande, terminerEtape }: {
   return <dialog ref={dialogue} aria-label="Dialogue de scène" onCancel={event => event.preventDefault()}
     className="fixed inset-0 m-auto max-h-full w-full max-w-xl overflow-y-auto bg-transparent p-4 text-texte backdrop:bg-fond/70">
     {sprite?.type === 'image' && <img key={sprite.src} src={sprite.src} alt="" width={120} height={120}
-      className={`image-rendering-pixelated mx-auto h-40 max-w-full object-contain ${reduit ? '' : 'sprite-entree'}`} />}
+      className={`image-rendering-pixelated mx-auto h-56 w-auto max-w-full object-contain lg:h-96 ${reduit ? '' : 'sprite-entree'}`} />}
     {sprite?.type === 'silhouette' && <Silhouette key={commande.locuteur} animee={!reduit} />}
     <BoiteDialogue key={`${commande.evenement}:${commande.etape}`} commande={commande} reduit={reduit}
       terminer={terminerEtape} />

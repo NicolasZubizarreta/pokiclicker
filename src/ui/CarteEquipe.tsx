@@ -22,7 +22,7 @@ export function CarteEquipe({ membre, renommer, evolution, evoluer, animation }:
   const niveau = oeuf ? progressionOeuf(oeuf) : membre ? `niveau ${membre.pokemon.niveau}` : '';
   const forme = membre && evolution ? { ...membre.pokemon, numero: evolution.vers, surnom: undefined } : null;
   return <div aria-label={membre ? `${nom}, ${niveau}, ${formaterDps(membre.dps)} DPS` : 'Case libre'}
-    className={`cadre relative grid h-14 min-w-0 place-items-center overflow-hidden bg-surface lg:h-26 ${membre ? 'lg:grid-cols-[auto_minmax(0,1fr)] lg:pe-4' : ''} ${forme ? 'carte-evo cadre-alerte' : ''}`}>
+    className={`cadre relative grid h-14 min-w-0 place-items-center overflow-hidden bg-surface lg:h-26 ${membre ? 'lg:grid-cols-[auto_minmax(0,1fr)] lg:pb-1 lg:pe-4' : ''} ${forme ? 'carte-evo cadre-alerte' : ''}`}>
     {membre ? <>
       {animation ? <span className="carte-evo-sprite absolute grid size-24 max-w-none place-items-center lg:static lg:row-span-3 [&_img]:size-24">
         <SpriteEvolution ancien={spriteAffiche({ ...membre.pokemon, numero: animation.ancien })}
@@ -37,7 +37,7 @@ export function CarteEquipe({ membre, renommer, evolution, evoluer, animation }:
         </div><span>{oeuf ? progressionOeuf(oeuf) : `Niv. ${membre.pokemon.niveau}`}</span>
       </div>
       <span className="hidden justify-self-start self-start text-region-accent lg:block">{formaterDps(membre.dps)} DPS</span>
-      {!oeuf && <div className="absolute inset-x-0 bottom-0 lg:static lg:col-start-2 lg:w-full lg:self-start">
+      {!oeuf && <div className="absolute inset-x-0 bottom-0 mx-1 mb-1 lg:static lg:mx-0 lg:mb-0 lg:col-start-2 lg:w-full lg:self-start">
         <BarreXp xp={membre.pokemon.xp} maximum={membre.xpMax} nom={nom} />
       </div>}
       {forme && evolution && <button type="button" className="carte-evo-action min-h-11 min-w-11"

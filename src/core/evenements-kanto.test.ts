@@ -103,10 +103,17 @@ describe('Chen au premier boss (AI)', () => {
     expect(commandeCourante(catalogue, declencher(catalogue, ancienne, { type: 'boss-atteint', zone: 'kanto.route-1' }))).toBeNull();
   });
 
-  it('ne fige pas le combat pour les autres événements', () => {
-    const region = declencher(catalogue, depart(), { type: 'entree-zone', zone: 'kanto.foret-de-jade' });
-    expect(commandeCourante(catalogue, region)).not.toBeNull();
-    expect(combatEnPause(catalogue, region)).toBe(false);
+  it('fige le combat de la zone pendant les répliques de Blue, pas pendant son combat', () => {
+    let region = declencher(catalogue, depart(), { type: 'entree-zone', zone: 'kanto.foret-de-jade' });
+    const vues: boolean[] = [];
+    for (let c = commandeCourante(catalogue, region); c; c = commandeCourante(catalogue, region)) {
+      vues.push(combatEnPause(catalogue, region));
+      expect(combatEnPause(catalogue, region)).toBe(c.type === 'dialogue');
+      if (c.type === 'combat') break;
+      region = etapeTerminee(catalogue, region, c);
+    }
+    expect(vues).toContain(true);
+    expect(vues.at(-1)).toBe(false);
   });
 });
 

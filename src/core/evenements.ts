@@ -146,10 +146,10 @@ export function commandeCourante(cat: CatalogueEvenements, region: DonneesRegion
     ? { ...etape, evenement: courant.id, etape: courant.etape } : null;
 }
 
-/** Vrai tant qu'une réplique d'un événement à `pauseCombat` attend le joueur. */
+/** Vrai tant qu'une réplique d'un événement à `pauseCombat` attend le joueur (jamais pendant l'étape de combat elle-même). */
 export function combatEnPause(cat: CatalogueEvenements, region: DonneesRegion): boolean {
   const courant = region.evenementEnCours;
-  if (!courant || !commandeCourante(cat, region)) return false;
+  if (!courant || commandeCourante(cat, region)?.type !== 'dialogue') return false;
   return cat.liste.find(e => e.id === courant.id)?.pauseCombat === true;
 }
 

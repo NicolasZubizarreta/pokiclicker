@@ -121,7 +121,7 @@ function Scene({ store, ouvrirPension }: { store: StoreJeu; ouvrirPension(): voi
       {effets.length > 0 && <PastillesEffets effets={effets} />}
       {minuteur && <BarreTemps restantMs={minuteur.restantMs} totalMs={minuteur.totalMs} />}
     </div>
-    <div aria-hidden={cache} className={`pointer-events-none absolute right-2 bottom-18 flex will-change-transform size-48 items-end justify-center lg:bottom-22 lg:size-72 ${cache ? 'opacity-0' : ''}`}>
+    <div aria-hidden={cache} className={`pointer-events-none absolute right-2 bottom-6 flex will-change-transform size-48 items-end justify-center lg:bottom-8 lg:size-72 ${cache ? 'opacity-0' : ''}`}>
       <div aria-hidden="true" className="socle absolute bottom-10 h-12 w-3/4 bg-region-socle lg:bottom-16 lg:h-16" />
       <div className={captureEnCours ? '' : 'motion-safe:flottement'}>
         <div ref={secousse}>
