@@ -110,12 +110,12 @@ export function PagePC({ retour }: { retour?(): void }) {
         <div role="group" aria-label="Équipe mobile" className="flex min-w-0 gap-1 overflow-x-auto overscroll-contain lg:hidden">{places(true)}</div>
         {pc.length === 0 ? <p>Ton PC est vide. Capture des Pokémon pour les ranger ici.</p>
           : liste.length === 0 ? <p role="status">Aucun Pokémon ne correspond à « {recherche} ».</p>
-            : <ul className="grid min-w-0 grid-cols-[repeat(auto-fill,minmax(calc(var(--spacing)*36),1fr))] items-start gap-4">
+            : <ul className="grid min-w-0 auto-rows-fr grid-cols-[repeat(auto-fill,minmax(calc(var(--spacing)*36),1fr))] gap-4">
               {liste.map(pokemon => {
                 const nom = nomDe(pokemon);
                 return <li key={pokemon.uid} className="min-w-0">
                   <button type="button" aria-label={pokemon.oeuf ? `${nom}, ${progressionOeuf(pokemon.oeuf)}` : `${nom}, niveau ${pokemon.niveau}`} aria-pressed={selection === pokemon.uid}
-                    className={`cadre grid min-h-11 w-full justify-items-center gap-2 p-4 text-center hover:bg-selection ${selection === pokemon.uid ? 'bg-selection' : 'bg-surface'}`}
+                    className={`cadre grid h-full min-h-11 w-full grid-rows-[auto_1fr_auto] justify-items-center gap-2 p-4 text-center hover:bg-selection ${selection === pokemon.uid ? 'bg-selection' : 'bg-surface'}`}
                     onClick={event => {
                       choisir(pokemon.uid);
                       if (!panneau.current?.getClientRects().length) ouvrirFiche(pokemon.uid, event.currentTarget);
@@ -134,7 +134,8 @@ export function PagePC({ retour }: { retour?(): void }) {
                       </svg><span className="sr-only">Favori</span></>}
                       {pokemon.shiny && !pokemon.oeuf && <span className="sr-only">Shiny</span>}
                     </strong>
-                    <span>{pokemon.oeuf ? progressionOeuf(pokemon.oeuf) : `N° ${pokemon.numero} · Niveau ${pokemon.niveau}`}</span>
+                    {pokemon.oeuf ? <span>{progressionOeuf(pokemon.oeuf)}</span>
+                      : <span className="grid"><span>N° {pokemon.numero}</span><span>Niveau {pokemon.niveau}</span></span>}
                   </button>
                 </li>;
               })}

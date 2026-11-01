@@ -16,6 +16,7 @@ const sac: AffichageSac = { acces: { ouvert: true, raison: null }, entrees: type
   quantite: 1, actif: false, utilisable: type,
 })) };
 const utiliserObjetActif = vi.fn<(id: string) => string | null>();
+const choisirObjet = vi.fn();
 const modalInitial = Object.getOwnPropertyDescriptor(HTMLDialogElement.prototype, 'showModal');
 const closeInitial = Object.getOwnPropertyDescriptor(HTMLDialogElement.prototype, 'close');
 const showModal = vi.fn(function (this: HTMLDialogElement) {
@@ -25,6 +26,7 @@ const showModal = vi.fn(function (this: HTMLDialogElement) {
 
 beforeEach(() => {
   utiliserObjetActif.mockReset().mockReturnValue(null);
+  choisirObjet.mockReset();
   showModal.mockClear();
   Object.defineProperties(HTMLDialogElement.prototype, {
     showModal: { configurable: true, value: showModal },
@@ -44,7 +46,7 @@ afterEach(() => {
 function Exemple() {
   const [declencheur, ouvrir] = useState<HTMLButtonElement | null>(null);
   return <><button onClick={event => ouvrir(event.currentTarget)}>Sac</button>
-    {declencheur && <PanneauSac sac={sac} utiliserObjetActif={utiliserObjetActif}
+    {declencheur && <PanneauSac sac={sac} utiliserObjetActif={utiliserObjetActif} choisirObjet={choisirObjet}
       fermer={() => ouvrir(null)} declencheur={declencheur} />}</>;
 }
 function preparer() {
@@ -71,12 +73,13 @@ it('ouvre une modale, ferme par le bouton et Échap et rend le focus au déclenc
   expect(document.activeElement).toBe(bouton);
 });
 
-it.each(types.filter(type => type !== 'direct'))('annonce la cible pour %s sans utiliser un objet', type => {
-  preparer();
+it.each(types.filter(type => type !== 'direct'))('ferme le sac et passe %s à l’équipe sans l’utiliser', type => {
+  const bouton = preparer();
   fireEvent.click(screen.getByRole('button', { name: type }));
-  expect(screen.getByRole('status').textContent).toBe(type === 'pierre'
-    ? 'Touche la carte du Pokémon' : 'Choisis le Pokémon dans Équipe');
+  expect(choisirObjet).toHaveBeenCalledExactlyOnceWith({ type, cle: type, nom: type });
   expect(utiliserObjetActif).not.toHaveBeenCalled();
+  expect(screen.queryByRole('dialog')).toBeNull();
+  expect(document.activeElement).toBe(bouton);
 });
 
 it('utilise un objet direct comme la page Sac et annonce le résultat du store', () => {
@@ -84,6 +87,7 @@ it('utilise un objet direct comme la page Sac et annonce le résultat du store',
   utiliserObjetActif.mockReturnValueOnce('Boss non vaincu !');
   fireEvent.click(screen.getByRole('button', { name: 'direct' }));
   expect(utiliserObjetActif).toHaveBeenCalledExactlyOnceWith('direct');
+  expect(choisirObjet).not.toHaveBeenCalled();
   expect(screen.getByRole('status').textContent).toBe('Boss non vaincu !');
   fireEvent.click(screen.getByRole('button', { name: 'direct' }));
   expect(screen.getByRole('status').textContent).toBe('');

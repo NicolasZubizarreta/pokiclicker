@@ -2,9 +2,13 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { Sac } from './Sac';
 import type { AffichageSac } from './store-boutique';
 
-export function PanneauSac({ sac, utiliserObjetActif, fermer, declencheur }: {
+export type ObjetAChoisir = { type: 'bonbon' | 'calcium' | 'pierre' | 'stase' | 'jeton'; cle: string; nom: string };
+
+/** Un objet « direct » s'utilise ici ; un objet qui vise un Pokémon ferme le sac et laisse l'équipe le recevoir (`choisirObjet`). */
+export function PanneauSac({ sac, utiliserObjetActif, choisirObjet, fermer, declencheur }: {
   sac: AffichageSac;
   utiliserObjetActif(id: string): string | null;
+  choisirObjet(objet: ObjetAChoisir): void;
   fermer(): void;
   declencheur: HTMLButtonElement;
 }) {
@@ -23,8 +27,12 @@ export function PanneauSac({ sac, utiliserObjetActif, fermer, declencheur }: {
       <h2 id={titre} className="font-titre text-2xl">Ton Sac</h2>
       <Sac sac={sac} utiliser={entree => {
         if (!entree.utilisable || entree.quantite <= 0) return;
-        annoncer(entree.utilisable === 'direct' ? utiliserObjetActif(entree.id)
-          : entree.utilisable === 'pierre' ? 'Touche la carte du Pokémon' : 'Choisis le Pokémon dans Équipe');
+        if (entree.utilisable === 'direct') {
+          annoncer(utiliserObjetActif(entree.id));
+          return;
+        }
+        choisirObjet({ type: entree.utilisable, cle: entree.id, nom: entree.nom });
+        clore();
       }} />
       <p role="status">{message ?? ''}</p>
     </div>

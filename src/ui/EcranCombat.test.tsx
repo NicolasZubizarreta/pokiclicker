@@ -63,6 +63,42 @@ it('réserve le bouton Sac à son accès et affiche la somme des quantités', ()
   expect(bouton.querySelector('span[aria-hidden="true"]')).toBeNull();
 });
 
+it('ferme le sac, fait clignoter les Pokémon éligibles et applique l’objet au clic sur la carte', () => {
+  const showModal = vi.fn(function (this: HTMLDialogElement) { this.setAttribute('open', ''); });
+  const close = vi.fn(function (this: HTMLDialogElement) { this.removeAttribute('open'); this.dispatchEvent(new Event('close')); });
+  Object.defineProperties(HTMLDialogElement.prototype, { showModal: { configurable: true, value: showModal },
+    close: { configurable: true, value: close } });
+  preparer();
+  const poserStase = vi.fn<(uid: string) => string | null>(() => null);
+  const sac = store.getState().sac;
+  act(() => store.setState({ poserStase, sac: { ...sac, acces: { ouvert: true, raison: null },
+    entrees: [{ id: 'everstone', nom: 'Pierre Stase', description: '', image: null, categorie: 'equipement',
+      quantite: 1, actif: false, utilisable: 'stase' }] } }));
+  fireEvent.click(within(screen.getByRole('group', { name: 'Actions du combat' })).getByRole('button', { name: 'Sac' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Pierre Stase ×1' }));
+  expect(screen.queryByRole('dialog')).toBeNull();
+  expect(screen.getByRole('heading', { name: /^Choisis un Pokémon/ })).toBeTruthy();
+  const choix = screen.getAllByRole('button', { name: /^Choisir / });
+  expect(choix.length).toBeGreaterThan(0);
+  fireEvent.click(choix[0]!);
+  expect(poserStase).toHaveBeenCalledOnce();
+  expect(screen.queryAllByRole('button', { name: /^Choisir / })).toHaveLength(0);
+  expect(screen.getByRole('heading', { name: /Pierre Stase utilisé\./ })).toBeTruthy();
+});
+
+it('abandonne le choix du Pokémon avec Annuler', () => {
+  preparer();
+  const sac = store.getState().sac;
+  act(() => store.setState({ sac: { ...sac, acces: { ouvert: true, raison: null },
+    entrees: [{ id: 'everstone', nom: 'Pierre Stase', description: '', image: null, categorie: 'equipement',
+      quantite: 1, actif: false, utilisable: 'stase' }] } }));
+  fireEvent.click(within(screen.getByRole('group', { name: 'Actions du combat' })).getByRole('button', { name: 'Sac' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Pierre Stase ×1' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Annuler' }));
+  expect(screen.queryAllByRole('button', { name: /^Choisir / })).toHaveLength(0);
+  expect(screen.getByRole('heading', { name: /^Ton équipe/ })).toBeTruthy();
+});
+
 it('affiche les effets sous les PV sans annonce en direct et suit le store', () => {
   preparer();
   expect(screen.queryByRole('list', { name: 'Effets actifs' })).toBeNull();
@@ -213,14 +249,14 @@ it('branche la capture dans le dock de la scène et garde une seule action princ
     expect(bouton.classList.contains('min-w-11')).toBe(true);
   }
 });
-it('désactive les balles et la capture sur un boss avec une raison visible', () => {
+it('désactive les balles et la capture sur un boss sans afficher la raison (lecteur d’écran seulement)', () => {
   preparer();
   const raison = 'Ce Pokémon ne peut pas être capturé.';
   act(() => store.setState({ ennemi: { ...store.getState().ennemi!, boss: true },
     capture: { ...store.getState().capture, possible: false, raison,
       balles: [{ cle: 'pokeball', nom: 'Pokéball', image: 'img/objets/poke-ball.png', quantite: 3 }] } }));
   const capture = screen.getByRole('region', { name: 'Capture' });
-  expect(within(capture).getByText(raison)).toBeTruthy();
+  expect(within(capture).getByText(raison).classList.contains('sr-only')).toBe(true);
   for (const bouton of within(capture).getAllByRole('button')) expect(bouton.matches(':disabled')).toBe(true);
   const bouton = within(capture).getByRole('button', { name: 'Capturer' });
   expect(document.getElementById(bouton.getAttribute('aria-describedby')!)?.textContent).toBe(raison);

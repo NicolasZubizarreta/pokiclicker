@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { useStore } from 'zustand';
 import { chargerPokemon } from '../core/pokemon';
-import { evolutionDisponible, evolutionParPierre } from '../core/evolution';
+import { cibleValidePierre, evolutionDisponible, evolutionParPierre } from '../core/evolution';
+import { cibleValideStase, quantiteMax } from '../core/objets-equipe';
+import { reglages } from '../core/reglages';
+import type { PokemonPossede } from '../core/sauvegarde-types';
 import { pierreProposee } from './evolution-proposee';
 import { ECLAT, SECOUSSE } from './animations';
 import { rejouer } from './rejouer';
@@ -29,7 +32,7 @@ import { PastillesEffets } from './PastillesEffets';
 import { OutilsCombat } from './OutilsCombat';
 import { FenetreRadar } from './FenetreRadar';
 import { BoutonAction } from './BoutonAction';
-import { PanneauSac } from './PanneauSac';
+import { PanneauSac, type ObjetAChoisir } from './PanneauSac';
 import { entreesRadar } from './store-objets';
 import type { StoreJeu } from './store';
 
@@ -42,9 +45,12 @@ function Entete({ store }: { store: StoreJeu }) {
   const zone = useStore(store, etat => etat.zone);
   const etape = useStore(store, etat => etat.etape);
   const argent = useStore(store, etat => etat.argent);
-  return <header className="mb-4 flex flex-wrap items-center justify-between gap-2">
-    <div><h1 className="font-titre text-2xl font-semibold">{lieu?.nom}</h1><p>{lieu && (sousTitres[lieu.id] ?? lieu.nom)}</p></div>
-    <span className="text-region-accent tabular-nums">{formateurArgent.format(argent)} pièces</span>{zone && <Etapes etape={etape} />}
+  return <header className="mb-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 lg:col-span-3 lg:mb-0">
+    <div className="flex min-w-0 flex-wrap items-center gap-x-6 gap-y-2">
+      <div><h1 className="font-titre text-2xl font-semibold">{lieu?.nom}</h1><p>{lieu && (sousTitres[lieu.id] ?? lieu.nom)}</p></div>
+      {zone && <Etapes etape={etape} />}
+    </div>
+    <span className="text-region-accent tabular-nums">{formateurArgent.format(argent)} pièces</span>
   </header>;
 }
 
@@ -179,9 +185,45 @@ function Equipe({ store }: { store: StoreJeu }) {
   const arret = useStore(store, etat => etat.arretAuto);
   const basculer = useStore(store, etat => etat.basculerAutoAttaque);
   const regler = useStore(store, etat => etat.reglerArretAuto);
-  return <section aria-label="Ton équipe" className="min-w-0 lg:col-start-4 lg:row-start-1 lg:row-end-3">
+  const [objet, choisirObjet] = useState<ObjetAChoisir | null>(null);
+  const [retour, signaler] = useState<string | null>(null);
+  useEffect(() => {
+    if (!objet) return;
+    const clavier = (event: KeyboardEvent) => { if (event.key === 'Escape') choisirObjet(null); };
+    document.addEventListener('keydown', clavier);
+    return () => document.removeEventListener('keydown', clavier);
+  }, [objet]);
+  useEffect(() => {
+    if (retour === null) return;
+    const minuterie = setTimeout(() => signaler(null), reglages.interface.annonceMs);
+    return () => clearTimeout(minuterie);
+  }, [retour]);
+  const stockObjet = objet ? sac.entrees.find(entree => entree.id === objet.cle)?.quantite ?? 0 : 0;
+  const eligible = (pokemon: PokemonPossede) => {
+    if (!objet || pokemon.oeuf) return false;
+    if (objet.type === 'pierre') return cibleValidePierre(pokemon, objet.cle);
+    if (objet.type === 'stase') return cibleValideStase(pokemon);
+    if (objet.type === 'jeton') return !pokemon.shiny;
+    return quantiteMax(objet.type, pokemon, stockObjet) > 0;
+  };
+  const appliquer = (uid: string) => {
+    if (!objet) return;
+    const etat = store.getState();
+    const message = objet.type === 'stase' ? etat.poserStase(uid)
+      : objet.type === 'pierre' ? etat.utiliserPierre(uid, objet.cle)
+        : objet.type === 'jeton' ? etat.utiliserJeton(uid) : etat.utiliserObjet(objet.type, uid, 1);
+    signaler(message ?? `${objet.nom} utilisé.`);
+    const repetable = objet.type === 'bonbon' || objet.type === 'calcium';
+    const reste = etat.sac.entrees.find(entree => entree.id === objet.cle)?.quantite ?? 0;
+    if (message || !repetable || reste <= 0) choisirObjet(null);
+  };
+  return <section aria-label="Ton équipe" className="min-w-0 lg:col-start-4 lg:row-start-1 lg:row-end-4">
     <div className="bandeau-action">
-      <h2 className="flex justify-between gap-2 font-titre text-xl">Ton équipe <span>{formaterDps(dps)} DPS</span></h2>
+      <h2 aria-live="polite" className="flex items-center justify-between gap-2 font-titre text-xl">
+        <span className="min-w-0 truncate" title={objet ? objet.nom : undefined}>{objet ? 'Choisis un Pokémon' : retour ?? 'Ton équipe'}</span>
+        {objet ? <button type="button" className="cadre min-h-11 bg-surface px-2 text-base text-texte lg:min-h-0" onClick={() => choisirObjet(null)}>Annuler</button>
+          : <span>{formaterDps(dps)} DPS</span>}
+      </h2>
       {zone && <div className="bandeau-action-rangee" role="group" aria-label="Actions du combat">
         <ReglagesCombat autoAttaque={autoAttaque} arret={arret} basculer={basculer} regler={regler}
           autoClic={autoClic} basculerAutoClic={basculerAutoClic} />
@@ -200,8 +242,9 @@ function Equipe({ store }: { store: StoreJeu }) {
       const pierre = membre && niveau === null ? pierreProposee(membre.pokemon, sac.entrees) : null;
       const vers = membre ? niveau
         ?? (pierre ? evolutionParPierre(membre.pokemon.numero, pierre.id) : null) : null;
-      const evolution = vers !== null ? { vers, pierre } : null;
+      const evolution = vers !== null && !objet ? { vers, pierre } : null;
       return <CarteEquipe key={membre?.pokemon.uid ?? i} membre={membre} evolution={evolution}
+        cible={objet && membre ? { valide: eligible(membre.pokemon), choisir: () => appliquer(membre.pokemon.uid) } : null}
         animation={animation?.uid === membre?.pokemon.uid ? animation : null}
         evoluer={() => {
           if (!membre || !evolution) return;
@@ -215,7 +258,7 @@ function Equipe({ store }: { store: StoreJeu }) {
     })}</div>
     {fiche !== null && <FichePokemon key={fiche.ouverture} uid={fiche.uid} renommer ouvert={ouvert}
       fermer={() => afficher(false)} declencheur={declencheur} />}
-    {zone && sac.acces.ouvert && declencheurSac && <PanneauSac sac={sac} utiliserObjetActif={utiliserObjetActif}
+    {zone && sac.acces.ouvert && declencheurSac && <PanneauSac sac={sac} utiliserObjetActif={utiliserObjetActif} choisirObjet={choisirObjet}
       fermer={() => ouvrirSac(null)} declencheur={declencheurSac} />}
   </section>;
 }
@@ -242,9 +285,11 @@ export function EcranCombat({ store = storeJeu }: { store?: StoreJeu }) {
       {fatale && <p>{ERREUR_CHARGEMENT}</p>}<p>{erreur.split('\n')[0]}</p>
       {erreur.includes('\n') && <p className="mt-2 break-words text-sm">{erreur.slice(erreur.indexOf('\n') + 1)}</p>}
     </div>}
-    {!fatale && <><Entete store={store} /><div className={`${sceneRonflex ? '' : 'combat-grille'} grid gap-2 lg:grid-cols-4 lg:gap-4`}>
-      <Scene store={store} ouvrirPension={() => ouvrirPension(true)} />
-      <Equipe store={store} /><DialogueChen store={store} />
-    </div></>}
+    {/* Sur PC, la colonne équipe remonte presque jusqu'en haut : on reprend 24 px du remplissage de <main> (haut et bas) pour que les 6 cartes tiennent sans défilement dès 768 px de haut. */}
+    {!fatale && <div className="lg:-my-6 lg:grid lg:grid-cols-4 lg:gap-x-4 lg:gap-y-2">
+      <Entete store={store} /><div className={`${sceneRonflex ? '' : 'combat-grille'} grid gap-2 lg:contents`}>
+        <Scene store={store} ouvrirPension={() => ouvrirPension(true)} />
+        <Equipe store={store} /><DialogueChen store={store} />
+      </div></div>}
   </div>;
 }

@@ -68,8 +68,7 @@ it('présente six cases, le total formaté et les noms français', () => {
 it('le crayon de la carte ouvre la fiche avec le champ de surnom, le focus dedans, et rend le focus au crayon', () => {
   render(<PageEquipe />);
   const crayon = screen.getByRole('button', { name: 'Renommer Carapuce' });
-  expect(crayon.classList.contains('min-h-11')).toBe(true);
-  expect(crayon.classList.contains('min-w-11')).toBe(true);
+  expect(crayon.className).toContain('after:size-11');
   expect(crayon.closest('li')).toBe(screen.getByRole('button', { name: 'Carapuce, niveau 16' }).closest('li'));
   fireEvent.click(crayon);
   const champ = screen.getByRole('textbox', { name: 'Surnom' }) as HTMLInputElement;

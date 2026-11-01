@@ -109,7 +109,8 @@ it('annonce un achat formaté au Shop et retire la notification expirée', () =>
       storeJeu.getState().tick();
     }
   });
-  expect(screen.queryByRole('status', { name: '' })).toBeNull();
+  // Au Shop, la zone d'annonce reste en place (ligne de hauteur fixe à droite du titre) : elle se vide sans rien décaler.
+  expect(screen.getByRole('status', { name: '' }).textContent).toBe('');
 });
 
 describe('Coquille', () => {

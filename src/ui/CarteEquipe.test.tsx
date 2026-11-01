@@ -41,8 +41,8 @@ it('propose un crayon « Renommer <nom> » de 44 px qui transmet l’uid et le b
   render(<CarteEquipe membre={{ pokemon: { ...base, surnom: 'Bourgeon' }, dps: 3, xpMax: 100, multiplicateur: 1 }}
     renommer={renommer} />);
   const crayon = screen.getByRole('button', { name: 'Renommer Bourgeon' });
-  expect(crayon.classList.contains('min-h-11')).toBe(true);
-  expect(crayon.classList.contains('min-w-11')).toBe(true);
+  expect(crayon.className).toContain('after:size-11');
+  expect(crayon.classList.contains('cadre')).toBe(false);
   expect(crayon.querySelector('svg[aria-hidden="true"]')).toBeTruthy();
   fireEvent.click(crayon);
   expect(renommer).toHaveBeenCalledWith('a', crayon);

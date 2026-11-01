@@ -44,6 +44,7 @@ afterEach(() => {
 });
 
 it('ne montre que le titre et la raison en zone 1', () => {
+  storeJeu.setState({ annonce: null });
   const { container } = render(<PageShop />);
   expect(screen.getByRole('heading', { level: 1, name: 'Shop' }).tabIndex).toBe(-1);
   expect(container.textContent).toBe("ShopLe Shop s'ouvre à la Forêt de Jade.");

@@ -1,4 +1,4 @@
-import { useId, useState } from 'react';
+import { Fragment, useId, useState } from 'react';
 
 export function BarreCapture({ balles, possible, raison, enCours, capturer }: {
   balles: { cle: string; nom: string; image: string; quantite: number }[];
@@ -15,20 +15,23 @@ export function BarreCapture({ balles, possible, raison, enCours, capturer }: {
 
   return <section aria-label="Capture" tabIndex={selection && explication ? 0 : undefined}
     aria-describedby={selection && explication ? description : undefined}
-    className="group relative flex min-w-0 items-center gap-1 text-sm text-texte lg:flex-wrap lg:gap-2">
-    {!selection && explication && <p id={description} className="min-w-0 self-center text-texte-doux">{explication}</p>}
-    {selection && <div className="capture-balles flex min-w-0 items-center gap-1 overflow-x-auto lg:flex-wrap lg:gap-2 lg:overflow-visible">
-      {possedees.map(balle => <button key={balle.cle} type="button"
-        aria-label={`${balle.nom} ×${balle.quantite}`} aria-pressed={selection?.cle === balle.cle} disabled={raison !== null}
-        className="cadre flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-1 bg-surface p-1 aria-pressed:bg-selection"
-        onClick={() => choisir(balle.cle)}>
-        <img src={balle.image} alt="" width={24} height={24} className="image-rendering-pixelated h-6 w-6 shrink-0" />
-        <span aria-hidden="true">×{balle.quantite}</span>
-      </button>)}
+    className="group relative flex min-w-0 items-center text-sm text-texte">
+    {!selection && explication && <p id={description} className="min-w-0 self-center px-2 text-texte-doux">{explication}</p>}
+    {selection && <div className="capture-balles flex min-w-0 items-center overflow-x-auto">
+      {possedees.map(balle => <Fragment key={balle.cle}>
+        <button type="button" aria-label={`${balle.nom} ×${balle.quantite}`} aria-pressed={selection?.cle === balle.cle}
+          disabled={raison !== null}
+          className="flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-1 px-2 py-1 aria-pressed:bg-selection disabled:opacity-60"
+          onClick={() => choisir(balle.cle)}>
+          <img src={balle.image} alt="" width={24} height={24} className="image-rendering-pixelated h-6 w-6 shrink-0" />
+          <span aria-hidden="true">×{balle.quantite}</span>
+        </button>
+        <span aria-hidden="true" className="text-texte-doux">|</span>
+      </Fragment>)}
     </div>}
-    <button type="button" className="cadre min-h-11 min-w-11 shrink-0 bg-surface px-2 py-1"
+    <button type="button" className="min-h-11 min-w-11 shrink-0 px-2 py-1 disabled:text-texte-doux disabled:opacity-60"
       disabled={!possible || enCours || !selection} aria-describedby={explication ? description : undefined}
       onClick={() => { if (selection) capturer(selection.cle); }}>Capturer</button>
-    {selection && explication && <p id={description} className="absolute bottom-full left-0 w-full bg-surface p-1 text-texte-doux lg:static lg:bg-transparent lg:p-0">{explication}</p>}
+    {selection && explication && <p id={description} className="sr-only">{explication}</p>}
   </section>;
 }

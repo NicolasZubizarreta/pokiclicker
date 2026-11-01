@@ -112,7 +112,7 @@ export function PageEquipe() {
     <p role="status" className={mode || messageObjet ? 'mt-4' : undefined}>{mode ? 'Sélectionne un Pokémon.' : messageObjet ?? ''}</p>
     {erreurObjet && <p role="alert" className="mt-4 text-erreur-base">{erreurObjet}</p>}
     <div className="mt-4 grid items-start gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-      <ul ref={liste} className="grid min-w-0 gap-4">
+      <ul ref={liste} className="grid min-w-0 auto-rows-fr gap-4">
         {Array.from({ length: reglages.equipe.taille }, (_, index) => {
           const caseEquipe = equipe[index];
           if (!caseEquipe) return <li key={index} className="cadre min-h-11 bg-surface p-4 text-texte-doux">Emplacement libre</li>;
@@ -126,7 +126,7 @@ export function PageEquipe() {
           return <li key={pokemon.uid} className="relative min-w-0">
             <button type="button" aria-label={pokemon.oeuf ? `${nom}, ${progressionOeuf(pokemon.oeuf)}` : `${nom}, niveau ${pokemon.niveau}`} aria-pressed={membre?.pokemon.uid === pokemon.uid} data-uid={pokemon.uid}
               disabled={!!mode && (mode.type === 'bonbon' || mode.type === 'calcium') && !valide}
-              className={`cadre grid min-h-11 w-full grid-cols-[auto_minmax(0,1fr)] items-center gap-2 p-4 pe-16 text-left ${mode && !valide ? '' : 'hover:bg-selection'} ${membre?.pokemon.uid === pokemon.uid ? 'bg-selection' : 'bg-surface'} ${mode ? valide ? 'relative motion-safe:cible-valide' : 'grayscale opacity-50' : ''}`}
+              className={`cadre grid h-full min-h-11 w-full grid-cols-[auto_minmax(0,1fr)] items-center gap-2 p-4 pe-24 text-left ${mode && !valide ? '' : 'hover:bg-selection'} ${membre?.pokemon.uid === pokemon.uid ? 'bg-selection' : 'bg-surface'} ${mode ? valide ? 'relative motion-safe:cible-valide' : 'grayscale opacity-50' : ''}`}
               onContextMenu={event => {
                 event.preventDefault();
                 if (echange || mode) return;
@@ -183,14 +183,16 @@ export function PageEquipe() {
                 <span className="text-region-accent">{formaterDps(dps)} DPS</span>
               </span>
             </button>
-            {!mode && !echange && !pokemon.oeuf && <BoutonRenommer nom={nom} className="absolute top-2 right-2"
-              ouvrir={bouton => {
-                choisir(pokemon.uid);
-                ouvrirFiche(pokemon.uid, bouton, true);
-              }} />}
-            {pokemon.pierreEternelle && (stase.image !== null
-              ? <img src={stase.image} alt={stase.nom} width={32} height={32} className="size-8 image-rendering-pixelated" />
-              : <IconeObjet image={null} nom={stase.nom} />)}
+            <div className="pointer-events-none absolute top-2 right-2 flex items-center gap-1 [&>*]:pointer-events-auto">
+              {pokemon.pierreEternelle && (stase.image !== null
+                ? <img src={stase.image} alt={stase.nom} width={32} height={32} className="size-8 image-rendering-pixelated" />
+                : <IconeObjet image={null} nom={stase.nom} />)}
+              {!mode && !echange && !pokemon.oeuf && <BoutonRenommer nom={nom}
+                ouvrir={bouton => {
+                  choisir(pokemon.uid);
+                  ouvrirFiche(pokemon.uid, bouton, true);
+                }} />}
+            </div>
             {!mode && !echange && typeof caseEquipe.evolution === 'number' && <button type="button"
               aria-label={`Faire évoluer ${nom}`} className="cadre-alerte min-h-11 w-full bg-surface motion-safe:animate-pulse"
               onClick={() => {
@@ -225,7 +227,7 @@ export function PageEquipe() {
         })}
       </ul>
       <div className="min-w-0 space-y-4">
-      {membre && <aside ref={panneau} className="cadre sticky top-8 hidden min-w-0 space-y-4 bg-surface p-4 lg:block">
+      {membre && <aside ref={panneau} className="cadre sticky top-8 z-10 hidden min-w-0 space-y-4 bg-surface p-4 lg:block">
         <div className="relative isolate grid place-items-center">
           <span className="socle absolute bottom-6 -z-10 h-8 w-40 bg-region-socle" aria-hidden="true" />
           {evolution?.uid === membre.pokemon.uid

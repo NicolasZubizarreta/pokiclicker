@@ -39,7 +39,7 @@ it('présente le titre focalisable, le compteur et des cartes en français', () 
   expect(cartes().map(c => c.getAttribute('aria-label'))).toEqual([
     'Zéphyr, niveau 30', 'Bulbizarre, niveau 12', 'Pikachu, niveau 8', 'Boule, niveau 20',
   ]);
-  expect(screen.getByText('N° 101 · Niveau 20')).toBeTruthy();
+  expect(screen.getByRole('button', { name: 'Boule, niveau 20' }).textContent).toContain('N° 101Niveau 20');
   expect(screen.getByRole('img', { name: 'Femelle' })).toBeTruthy();
   expect(screen.getAllByRole('img', { name: 'Mâle' })).toHaveLength(3);
   const boule = screen.getByRole('button', { name: 'Boule, niveau 20' });

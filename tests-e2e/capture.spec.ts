@@ -113,5 +113,6 @@ test('boss : capture désactivée avec sa raison', async ({ page }) => {
   }
   await expect(page.getByText('Étape 10 sur 10', { exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Capturer', exact: true })).toBeDisabled();
-  await expect(page.getByText('Ce Pokémon ne peut pas être capturé.', { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Capturer', exact: true })).toHaveAccessibleDescription('Ce Pokémon ne peut pas être capturé.');
+  await expect(page.getByText('Ce Pokémon ne peut pas être capturé.', { exact: true })).toHaveClass(/sr-only/);
 });

@@ -13,7 +13,7 @@ export function DialogueChen({ store }: { store: StoreJeu }) {
         {([['Zone précédente', precedente], ['Zone suivante', suivante]] as const).map(([libelle, destination], index) =>
           destination && <div key={destination.id} className="min-w-0">
             <button type="button" disabled={!destination.ouverte}
-              className={`cadre min-h-11 w-full px-2 py-1 text-base disabled:opacity-50 ${index === 1
+              className={`cadre flex h-16 w-full items-center justify-center px-2 py-1 text-center text-sm leading-tight disabled:opacity-50 lg:text-base ${index === 1
                 ? 'bg-action text-action-texte shadow-md enabled:hover:bg-action-survol enabled:active:translate-y-0.5'
                 : 'bg-surface text-texte'}`}
               onClick={() => store.getState().allerVers(destination.id)}>{libelle} : {destination.nom}</button>

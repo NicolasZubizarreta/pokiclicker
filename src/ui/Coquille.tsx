@@ -75,7 +75,7 @@ export function Coquille({ region = 'kanto', theme = 'dark' }: {
       <Navigation page={page} choisir={choisir} pcOuvert={pcOuvert} signalCarte={tutorielRoute1 && page !== 'Carte' && !introActive && !introVue} inerte={introActive || introVue || credits || !!pantheon?.ouvert} />
       <main id="contenu" tabIndex={-1} className="mb-14 min-w-0 p-4 lg:mb-0 lg:ml-24 lg:p-8">
         <MiseAJour />
-        {page !== 'Combat' && page !== 'Carte' && annonce !== null && <div role="status" aria-live="polite"
+        {page !== 'Combat' && page !== 'Carte' && page !== 'Shop' && annonce !== null && <div role="status" aria-live="polite"
           className="cadre bg-surface p-2 text-center">{annonce}</div>}
         {page === 'Combat' ? introVue || introActive ? <PageIntro quandTerminee={() => fixerIntroVue(false)} /> : <EcranCombat /> : page === 'Carte' ? <PageCarte quandArrive={() => choisir('Combat')} /> : page === 'Équipe' ? <PageEquipe /> : page === 'PC' ? <PagePC /> : page === 'Plus' ? <PagePlus /> : <PageShop />}
       </main>

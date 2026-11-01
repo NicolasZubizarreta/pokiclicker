@@ -10,8 +10,10 @@ import { classeSprite, nomAffiche, progressionOeuf, spriteAffiche } from './affi
 import type { CaseEquipe } from './store';
 
 /** `renommer` : affiche le crayon (grand écran, là où le nom est visible) ; il ouvre la fiche avec le champ de surnom. */
-export function CarteEquipe({ membre, renommer, evolution, evoluer, animation }: {
+export function CarteEquipe({ membre, renommer, evolution, evoluer, animation, cible }: {
   membre: CaseEquipe;
+  /** Un objet attend un Pokémon : la carte éligible clignote et se choisit d'un clic, les autres sont grisées. */
+  cible?: { valide: boolean; choisir(): void } | null;
   renommer?(uid: string, declencheur: HTMLButtonElement): void;
   evolution?: { vers: number; pierre: { id: string; nom: string; image: string | null } | null } | null;
   evoluer?(bouton: HTMLButtonElement): void;
@@ -22,7 +24,7 @@ export function CarteEquipe({ membre, renommer, evolution, evoluer, animation }:
   const niveau = oeuf ? progressionOeuf(oeuf) : membre ? `niveau ${membre.pokemon.niveau}` : '';
   const forme = membre && evolution ? { ...membre.pokemon, numero: evolution.vers, surnom: undefined } : null;
   return <div aria-label={membre ? `${nom}, ${niveau}, ${formaterDps(membre.dps)} DPS` : 'Case libre'}
-    className={`cadre relative grid h-14 min-w-0 place-items-center overflow-hidden bg-surface lg:h-26 ${membre ? 'lg:grid-cols-[auto_minmax(0,1fr)] lg:pb-1 lg:pe-4' : ''} ${forme ? 'carte-evo cadre-alerte' : ''}`}>
+    className={`cadre relative grid h-14 min-w-0 place-items-center overflow-hidden bg-surface lg:h-26 ${membre ? 'lg:grid-cols-[auto_minmax(0,1fr)] lg:pb-1 lg:pe-4' : ''} ${forme ? 'carte-evo cadre-alerte' : ''} ${cible ? cible.valide ? 'motion-safe:cible-valide' : 'grayscale opacity-50' : ''}`}>
     {membre ? <>
       {animation ? <span className="carte-evo-sprite absolute grid size-24 max-w-none place-items-center lg:static lg:row-span-3 [&_img]:size-24">
         <SpriteEvolution ancien={spriteAffiche({ ...membre.pokemon, numero: animation.ancien })}
@@ -30,8 +32,8 @@ export function CarteEquipe({ membre, renommer, evolution, evoluer, animation }:
       </span> : <Image src={spriteAffiche(membre.pokemon)} genre="sprite" alt=""
         className={`carte-evo-sprite absolute size-24 max-w-none lg:static lg:row-span-3 ${membre.pokemon.shiny && !oeuf ? 'halo-shiny' : ''} ${classeSprite(membre.pokemon)}`} />}
       {!oeuf && <span className="absolute bottom-1 left-0 bg-surface px-1 text-base tabular-nums lg:hidden">{membre.pokemon.niveau}</span>}
-      <div className="carte-equipe-identite hidden min-w-0 justify-self-start self-end lg:block">
-        <div className="flex min-w-0 items-center gap-1">
+      <div className="carte-equipe-identite hidden min-w-0 justify-self-stretch self-end lg:block">
+        <div className="flex min-w-0 items-center justify-between gap-1">
           <strong className="block min-w-0 break-words">{nom}{membre.pokemon.shiny && !oeuf && <IconeShiny />}</strong>
           {renommer && !oeuf && <BoutonRenommer nom={nom} ouvrir={bouton => renommer(membre.pokemon.uid, bouton)} />}
         </div><span>{oeuf ? progressionOeuf(oeuf) : `Niv. ${membre.pokemon.niveau}`}</span>
@@ -50,6 +52,8 @@ export function CarteEquipe({ membre, renommer, evolution, evoluer, animation }:
         </span>
         <span className="carte-evo-nom text-sm">{nomAffiche(forme)}</span>
       </button>}
+      {cible?.valide && <button type="button" aria-label={`Choisir ${nom}`} className="absolute inset-0 z-10 hover:bg-selection/30"
+        onClick={cible.choisir} />}
     </> : <span>—</span>}
   </div>;
 }
