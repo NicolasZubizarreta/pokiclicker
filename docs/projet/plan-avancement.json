@@ -1,4 +1,4 @@
-﻿{
+{
   "projet": "PokiClicker v2",
   "phases": [
     { "id": 0, "nom": "Cadrage", "jalon": "documents validés", "statut": "fait" },
