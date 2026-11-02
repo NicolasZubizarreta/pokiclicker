@@ -139,6 +139,21 @@ it('branche le dialogue de scène au store et le retire quand la commande se ter
   expect(screen.queryByRole('dialog', { name: 'Dialogue de scène' })).toBeNull();
 });
 
+it('monte la scène de fin (décor, Chen, vitrine) pour un événement qui en déclare une, sans remonter entre deux répliques', () => {
+  reduire(true);
+  coquille();
+  const scene = { zone: 'kanto.labo', pose: 'chen-1', entree: 'montee', entreeMs: 2000, boiteMs: 2000, glitchMs: 2000 } as const;
+  const chen = (etape: number, vitrine?: Extract<Commande, { type: 'dialogue' }>['vitrine']) => ({
+    ...ligne(etape, 'Chen', 'kanto.fin-pokedex'), scene, vitrine });
+  act(() => contexte.store.setState({ evenement: chen(0) }));
+  const dialogue = screen.getByRole('dialog', { name: 'Dialogue de scène' });
+  expect(dialogue.className).toContain('scene-fin');
+  expect(dialogue.querySelector('.scene-fin-chen')?.getAttribute('src')).toBe('img/sprites/chen/chen-1.png');
+  act(() => contexte.store.setState({ evenement: chen(1, { image: 'img/fin/diplome.webp', animation: 'entree' }) }));
+  expect(screen.getByRole('dialog', { name: 'Dialogue de scène' })).toBe(dialogue);
+  expect(dialogue.querySelector('[data-vitrine="entree"]')).not.toBeNull();
+});
+
 it('affiche Souffle sur la route puis le réveil et donne le focus à l’arrivée', () => {
   reduire(true);
   coquille(store => {

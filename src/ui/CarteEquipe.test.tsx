@@ -48,6 +48,19 @@ it('propose un crayon « Renommer <nom> » de 44 px qui transmet l’uid et le b
   expect(renommer).toHaveBeenCalledWith('a', crayon);
 });
 
+it('propose de retirer la Pierre Stase portée et transmet l’uid', () => {
+  const retirerObjet = vi.fn();
+  render(<CarteEquipe membre={{ pokemon: { ...base, surnom: 'Bourgeon', pierreEternelle: true }, dps: 3, xpMax: 100, multiplicateur: 1 }}
+    retirerObjet={retirerObjet} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Retirer Pierre Stase de Bourgeon' }));
+  expect(retirerObjet).toHaveBeenCalledWith('a');
+});
+
+it('n’affiche pas de bouton de retrait sans objet porté', () => {
+  render(<CarteEquipe membre={{ pokemon: base, dps: 3, xpMax: 100, multiplicateur: 1 }} retirerObjet={vi.fn()} />);
+  expect(screen.queryByRole('button')).toBeNull();
+});
+
 it('n’affiche pas de crayon sur un œuf', () => {
   render(<CarteEquipe membre={{ pokemon: { ...base, oeuf: { pasRestants: 18, pasMax: 25 } }, dps: 0, xpMax: 100, multiplicateur: 1 }}
     renommer={vi.fn()} />);

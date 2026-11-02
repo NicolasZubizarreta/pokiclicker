@@ -12,7 +12,7 @@ Téléchargées le 27/10/2026 avec l'accord de Nicolas. Fichiers dans `public/au
 | adversaire (champion d'arène, Ligue, défi de Chen) | 8-Bit Battle Loop | `combat.ogg` | Wolfgang_ | https://opengameart.org/content/8-bit-battle-loop |
 | Panthéon (victoire de la Ligue) | Victory | `victoire.mp3` | celestialghost8 | https://opengameart.org/content/victory |
 | intro (écran titre, chez Maman, labo) | Chiptune Adventures : Stage Select | `carte.ogg` | idem | idem (provisoire : Nicolas pourra choisir une autre piste) |
-| crédits | silence | | | |
+| crédits (fin de partie) | Générique de Pokémon (crédits) | `PokemonCreditKanto.mp3` (3 min 21, 8 Mo) | fichier fourni par Nicolas (02/11) | hors dépôt public : droits réservés, usage privé entre amis. Exclu de git (`.gitignore`) ; avant toute sortie publique, remettre `carte` à la scène `credits` dans `data/musiques.json` ou fournir une piste libre. |
 
 Non retenues dans le pack Chiptune Adventures : « Stage 2 » (2,4 Mo), disponible si besoin.
 

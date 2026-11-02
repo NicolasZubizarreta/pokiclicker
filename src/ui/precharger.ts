@@ -1,7 +1,13 @@
 import type { Zone } from '../core/monde';
+import taillesImages from '../../public/img/tailles.json';
 
 export const cheminSprite = (numero: number, shiny = false): string => `img/sprites/${shiny ? 'pokemon-shiny' : 'pokemon'}/${numero}.png`;
-export const cheminDecor = (zone: Pick<Zone, 'decor'>): string => `img/decors/${zone.decor.split('/').at(-1)}`;
+/** Décor d'une zone ; un lieu livré parmi les scènes carrées (le labo) y est repris tant qu'il n'a pas de décor 16/9. */
+export const cheminDecor = (zone: Pick<Zone, 'decor'>): string => {
+  const fichier = zone.decor.split('/').at(-1)!;
+  const scene = `img/scenes/${fichier}`;
+  return `img/decors/${fichier}` in taillesImages || !(scene in taillesImages) ? `img/decors/${fichier}` : scene;
+};
 
 export function spritesPossibles(zone: Zone): string[] {
   return [...new Set([...zone.sauvages, ...(zone.adversaires ?? []), zone.boss].map(({ pokemon }) => cheminSprite(pokemon)))].sort();

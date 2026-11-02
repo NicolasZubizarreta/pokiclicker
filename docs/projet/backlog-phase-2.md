@@ -1263,7 +1263,9 @@ Fourchette : 0,5 jour. Risque : une sauvegarde faite avec `annoncesVues` avant c
 
 ## AN. `feat(stats): menu Statistiques de la V1 dans la page Plus`
 
-Labels : `type:feat`, `etat:idee`, `est:1-1.5`, `prio:2` · branche : `feat/an-stats` · `agent-ok` : oui (écran de lecture simple, à valider en variantes avant de coder)
+Labels : `type:feat`, `etat:fait`, `est:1-1.5`, `prio:2` · branche : `v2` · `agent-ok` : oui (modèle du Guide demandé)
+
+Bilan du 02/11/2026 : les sept rubriques V1 sont reprises, sans statistique écartée ni nouveau compteur ; la V2 suit toutes les données nécessaires. Libellés en casse de phrase : « Pokémon vaincus », « Argent total », « Dégâts clic », « DPS équipe », « Gains argent », « Gains XP », « Taux capture ». Les deux compteurs viennent de `region.statistiques.eliminations` et `argentTotalGagne` (absents ou incomplets : zéro) ; les autres chiffres et boosts viennent de l'équipe, des badges, jalons, améliorations, de l'inventaire et des chronos sauvegardés. Les calculs neutres utilisent l'équilibrage V2 (dont gains d'argent ×2 et boosts temporaires ×1,5), sans dépendre du type de l'ennemi. Le guide renvoie à la page Plus. Modale identique au Guide, Échap, retour du focus, croix 44 px, contenu seul défilant et aucune animation.
 
 ### Histoire
 En tant que joueur, je veux retrouver le menu Statistiques de la V1 pour voir mon aventure en chiffres. Décidé par Nicolas le 28/10 : « Stats il faut le mettre dans la V2 ». Le guide du jeu en parle déjà (« Menu Stats »).
@@ -1272,17 +1274,17 @@ En tant que joueur, je veux retrouver le menu Statistiques de la V1 pour voir mo
 Dans la V1, le menu Stats (`legacy/index.html`, `id="stats-modal"` ; remplissage par `renderStats` dans `legacy/js/`) récapitule les statistiques principales du joueur. La liste exacte des chiffres est à relever dans le code de la V1 puis à brancher sur les données de la sauvegarde V2 (`src/core/sauvegarde-types.ts`) ; une statistique que la V2 ne suit pas encore est listée dans le rapport, pas inventée. Entrée dans la page Plus à côté de « Ton aventure », sur le modèle de « Guide du jeu » (fenêtre modale, `src/ui/Guide.tsx`). Le guide dit « accessible via Profil » : à corriger en « page Plus » quand l'écran existe.
 
 ### Critères d'acceptation
-- [ ] Étant donné la page Plus, quand j'ouvre « Statistiques », alors je vois les mêmes statistiques que la V1, chacune avec sa valeur lue dans la sauvegarde.
-- [ ] Étant donné une statistique de la V1 que la V2 ne suit pas, quand je lis le rapport du ticket, alors elle y figure avec la raison.
-- [ ] Étant donné un écran de 390 px, quand la fenêtre est ouverte, alors seul son contenu défile, la croix fait 44 px et Échap ferme.
-- [ ] Étant donné une ancienne sauvegarde, quand j'ouvre la fenêtre, alors les statistiques absentes valent 0 et rien ne casse.
-- [ ] Étant donné `prefers-reduced-motion`, alors l'ouverture se fait sans animation.
+- [x] Étant donné la page Plus, quand j'ouvre « Statistiques », alors je vois les mêmes statistiques que la V1, chacune avec sa valeur lue dans la sauvegarde.
+- [x] Étant donné une statistique de la V1 que la V2 ne suit pas, quand je lis le rapport du ticket, alors elle y figure avec la raison.
+- [x] Étant donné un écran de 390 px, quand la fenêtre est ouverte, alors seul son contenu défile, la croix fait 44 px et Échap ferme.
+- [x] Étant donné une ancienne sauvegarde, quand j'ouvre la fenêtre, alors les statistiques absentes valent 0 et rien ne casse.
+- [x] Étant donné `prefers-reduced-motion`, alors l'ouverture se fait sans animation.
 
 ### Hors périmètre
 Nouvelles statistiques, graphiques, comparaison avec d'autres joueurs, export.
 
 ### Vérification
-Test vitest de la liste des statistiques, e2e `tests-e2e/stats.spec.ts`, captures 390 et 1440 px. Variantes de présentation dans `design/variantes/` avant le code final.
+Tests Vitest de la liste, des valeurs par défaut, des bonus et du chargement des sauvegardes ; 162 tests ciblés réussis, typecheck et ESLint réussis, CI complète réussie (179 fichiers, 2 328 tests, build). E2e `tests-e2e/stats.spec.ts` réussi à 390 et 1440 px. Captures : `design/captures/an-stats-390.png` et `an-stats-1440.png` (script hors dépôt). Présentation reprise du Guide conformément à la demande.
 
 ### Effort et risques
 Fourchette : 1 à 1,5 jour. Risque : des statistiques de la V1 dépendent de compteurs que la V2 n'enregistre pas encore. Dépend de : AL (même fenêtre que le guide).

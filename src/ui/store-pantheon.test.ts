@@ -2,6 +2,7 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { creerHorlogeSimulee } from '../core/clock';
 import * as combat from '../core/combat';
 import { chargerEvenements } from '../core/evenements';
+import { chargerBadges } from '../core/progression';
 import { kanto } from '../core/regions';
 import { reglages } from '../core/reglages';
 import { compteInitial, creerGestionnaire, creerStockageMemoire } from '../core/sauvegarde';
@@ -16,17 +17,21 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-function preparer(ligueGagnee = 0, etape = 10) {
+function preparer(ligueGagnee = 0, etape = 10, finVue = false) {
   const stockage = creerStockageMemoire();
   const horloge = creerHorlogeSimulee();
   const gestionnaire = creerGestionnaire({ stockage, horloge, genererId: () => 'test' });
   const compte = compteInitial();
   gestionnaire.ecrireCompte({ ...compte, preferences: { ...compte.preferences, autoAttaque: false,
     arretAuto: { ...reglages.depart.preferences.arretAuto, actif: false } } });
-  gestionnaire.creerPartie('Test', 'kanto.bourg-palette');
+  const partie = gestionnaire.creerPartie('Test', 'kanto.bourg-palette');
   const lire = () => gestionnaire.chargerRegion('test', 'kanto')!.donnees;
+  if (finVue) gestionnaire.ecrirePartie('test', { ...partie.donnees, pokedexNational: Array.from({ length: 151 }, (_, i) => i + 1) });
   gestionnaire.ecrireRegion('test', 'kanto', { ...lire(), zoneId: 'kanto.ligue-pokemon', etape,
-    starterId: 1, ligueGagnee, equipe: [{ uid: 'fort', numero: 6, niveau: 50, xp: 0,
+    starterId: 1, ligueGagnee,
+    ...(finVue ? { badges: chargerBadges().map(badge => badge.id),
+      bossVaincus: kanto.zones.filter(zone => !zone.sansCombat && zone.type !== 'ligue').map(zone => zone.id) } : {}),
+    evenementsJoues: finVue ? ['kanto.fin-pokedex'] : [], equipe: [{ uid: 'fort', numero: 6, niveau: 50, xp: 0,
       shiny: true, bonheur: 0, pierreEternelle: false, calcium: 0, sexe: 'male', favori: false }] });
   const evenements = chargerEvenements({ essai: { version: 1, evenements: [] } }, kanto);
   const ouvrir = () => {
@@ -42,7 +47,7 @@ function preparer(ligueGagnee = 0, etape = 10) {
   vi.spyOn(combat, 'cliquer').mockImplementation((etat, limiteur) =>
     cliquer({ ...etat, ennemi: { ...etat.ennemi, pv: 1 } }, limiteur));
   const vaincre = () => { horloge.avancer(100); store.getState().attaquer(); store.getState().tick(); };
-  return { store, ouvrir, lire, avancer, vaincre };
+  return { store, ouvrir, lire, avancer, vaincre, horloge };
 }
 
 it.each([0, 1, 4])('ouvre une seule fois le Panthéon après %s victoires, sauvegarde et reprend au Bourg', nombre => {
@@ -94,6 +99,57 @@ it('lance le défi de Chen une fois à +800 ms avec l’horloge injectée', () =
   expect(lancerDefiChen).toHaveBeenCalledTimes(1);
   avancer(1000);
   expect(lancerDefiChen).toHaveBeenCalledTimes(1);
+});
+
+// V1 (combat.js l.317-319) : le défi ne suit pas la première victoire à la Ligue, mais les suivantes si la fin est vue.
+it.each([[0, false], [1, true]])('après %s victoire(s) précédente(s), le Panthéon réserve le défi de Chen : %s', (avant, attendu) => {
+  const { store, lire, vaincre, avancer } = preparer(avant, 10, true);
+  vaincre();
+  expect(store.getState().pantheon?.defiChenEnAttente).toBe(attendu);
+  store.getState().quitterPantheon();
+  avancer(800);
+  expect(lire().drapeaux.includes('defi-chen-actif')).toBe(attendu);
+  expect(lire().zoneId).toBe(attendu ? 'kanto.labo' : 'kanto.bourg-palette');
+});
+
+// Parcours de Nicolas : Pokédex complet et fin vue, Ligue gagnée deux fois de suite en jeu réel (pas de sauvegarde bricolée entre les deux).
+it('enchaîne deux victoires à la Ligue : rien après la première, le défi de Chen après la deuxième', () => {
+  const { store, lire, vaincre, avancer } = preparer(0, 10, true);
+  vaincre();
+  expect(store.getState().pantheon).toMatchObject({ premiereVictoire: true, defiChenEnAttente: false });
+  store.getState().quitterPantheon();
+  avancer(2000);
+  expect(lire().drapeaux).not.toContain('defi-chen-actif');
+  expect(store.getState().lieu?.id).toBe('kanto.bourg-palette');
+  store.getState().allerVers('kanto.ligue-pokemon');
+  expect(store.getState().lieu?.id).toBe('kanto.ligue-pokemon');
+  for (let i = 0; i < 80 && !store.getState().pantheon; i++) { vaincre(); avancer(1500); }
+  expect(lire().ligueGagnee).toBe(2);
+  expect(store.getState().pantheon).toMatchObject({ premiereVictoire: false, defiChenEnAttente: true });
+  store.getState().quitterPantheon();
+  avancer(800);
+  expect(lire().drapeaux).toContain('defi-chen-actif');
+  expect(store.getState().lieu?.id).toBe('kanto.labo');
+});
+
+it('un rechargement pendant le Panthéon ne fait pas perdre le défi de Chen réservé', () => {
+  const { store, ouvrir, lire, vaincre, horloge } = preparer(1, 10, true);
+  vaincre();
+  expect(store.getState().pantheon?.defiChenEnAttente).toBe(true);
+  expect(lire().drapeaux).toContain('defi-chen-reserve');
+  store.getState().arreter();
+  const reprise = ouvrir();
+  expect(reprise.getState().pantheon).toBeNull();
+  horloge.avancer(800); reprise.getState().tick();
+  expect(lire().drapeaux).toContain('defi-chen-actif');
+  expect(lire().drapeaux).not.toContain('defi-chen-reserve');
+  expect(reprise.getState().lieu?.id).toBe('kanto.labo');
+});
+
+it('ne réserve pas le défi de Chen quand la fin du Pokédex n’a pas été vue', () => {
+  const { store, vaincre } = preparer(1);
+  vaincre();
+  expect(store.getState().pantheon?.defiChenEnAttente).toBe(false);
 });
 
 it('un rival dans une zone synthétique de type ligue ne compte pas comme la Ligue', () => {

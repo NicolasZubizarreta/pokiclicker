@@ -1,24 +1,24 @@
-import { useEffect, useId, useMemo, useRef, useState } from 'react';
-import { planCredits, tirerImageFlottante, type ImageFlottante } from '../core/credits';
-import { cheminDecor, cheminSprite } from './precharger';
-import { imageConnue } from './Image';
+import { useEffect, useId, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { imageDesCredits, planCredits, tirerImageFlottante, type ImageFlottante } from '../core/credits';
+import taillesImages from '../../public/img/tailles.json';
 import './Credits.css';
 
 const bouton = 'cadre min-h-11 min-w-11 bg-surface px-4 py-2';
-const decorLabo = cheminDecor({ decor: 'kanto/labo.webp' });
-// Le laboratoire est actuellement livré parmi les scènes de l’introduction.
-const laboratoire = imageConnue(decorLabo) ? decorLabo : 'img/scenes/labo.webp';
+const tailles: Record<string, { largeur: number; hauteur: number }> = taillesImages;
 
+/**
+ * Générique de fin (V1 : `startFinalCreditsSequence`) : écran noir, texte qui défile 110 s, images du jeu qui flottent
+ * derrière, fondu de sortie de 1,3 s. En mouvement réduit, le défilement devient un affichage par pages.
+ */
 export function Credits({ fermerCredits, alea = Math.random }: {
   fermerCredits(): void;
   alea?: () => number;
 }) {
   const [pages, lireParPages] = useState(() => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false);
   const [page, choisirPage] = useState(0);
-  const [fini, terminer] = useState(false);
+  const [sortie, sortir] = useState(false);
   const plan = useMemo(() => planCredits(pages), [pages]);
   const dialogue = useRef<HTMLDialogElement>(null);
-  const lecture = useRef<HTMLDivElement>(null);
   const ruban = useRef<HTMLDivElement>(null);
   const flottants = useRef<HTMLDivElement>(null);
   const contenu = useRef<HTMLDivElement>(null);
@@ -42,26 +42,32 @@ export function Credits({ fermerCredits, alea = Math.random }: {
     return () => preference?.removeEventListener('change', changer);
   }, []);
 
-  useEffect(() => { contenu.current?.focus(); }, [page, pages, fini]);
+  // Fondu de sortie puis retour au jeu (un seul appel, quelle que soit la façon de sortir).
+  useEffect(() => {
+    if (!sortie) return;
+    const fin = window.setTimeout(fermerCredits, pages ? 0 : plan.temps.fonduMs);
+    return () => window.clearTimeout(fin);
+  }, [sortie, pages, plan, fermerCredits]);
 
   useEffect(() => {
-    if (pages || fini) return;
+    if (pages || sortie) return;
+    // Le texte entre par le bas de l'écran et sort par le haut, à vitesse constante.
     const animation = ruban.current?.animate?.([
-      { transform: 'translateY(0)' },
+      { transform: `translateY(${dialogue.current?.clientHeight ?? 0}px)` },
       { transform: `translateY(-${ruban.current.scrollHeight}px)` },
-    ], { delay: plan.temps.delaiMs, duration: plan.temps.dureeMs, fill: 'forwards' });
-    const fin = window.setTimeout(() => terminer(true), plan.temps.delaiMs + plan.temps.dureeMs + plan.temps.finMs);
+    ], { delay: plan.temps.delaiMs, duration: plan.temps.dureeMs, easing: 'linear', fill: 'both' });
+    const fin = window.setTimeout(() => sortir(true), plan.temps.delaiMs + plan.temps.dureeMs + plan.temps.finMs);
     const actifs = new Map<HTMLElement, ImageFlottante>();
     const expirations = new Set<number>();
     const intervalle = window.setInterval(() => {
       const tirage = tirerImageFlottante([...actifs.values()], alea);
-      if (!tirage || !flottants.current) return;
+      const source = tirage && imageDesCredits(tirage.image);
+      if (!tirage || !source || !flottants.current) return;
       const image = document.createElement('img');
-      // Les chemins V1 du tirage sont remplacés par les starters disponibles en V2.
-      image.src = cheminSprite([1, 4, 7][Math.floor(alea() * 3)]!);
+      const taille = tailles[source];
+      image.src = source;
       image.alt = '';
-      image.width = 96;
-      image.height = 96;
+      if (taille) { image.width = taille.largeur; image.height = taille.hauteur; }
       image.className = 'credits-flottant image-rendering-pixelated';
       image.style.left = `${tirage.x}%`;
       image.style.top = `${tirage.y}%`;
@@ -84,44 +90,34 @@ export function Credits({ fermerCredits, alea = Math.random }: {
       expirations.forEach(id => window.clearTimeout(id));
       actifs.forEach((_, image) => image.remove());
     };
-  }, [pages, fini, plan, alea]);
+  }, [pages, sortie, plan, alea]);
 
   const sections = pages ? [plan.pages[page]!.section] : plan.sections;
+  const style = { '--credits-fondu': `${plan.temps.fonduMs}ms` } as CSSProperties;
   return <dialog ref={dialogue} aria-labelledby={titre} aria-modal="true" data-region="kanto" data-theme="dark"
-    className="credits bg-fond text-texte font-texte text-base"
-    onCancel={event => { event.preventDefault(); fermerCredits(); }}>
-    <img src={laboratoire} alt="" width={imageConnue(decorLabo) ? 1920 : 1080} height={1080}
-      className="pointer-events-none absolute inset-0 size-full object-cover opacity-20" />
-    <div ref={flottants} aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden" />
-    <div className="relative flex h-full min-w-0 flex-col gap-4 p-4 lg:p-8">
-      <div ref={contenu} tabIndex={-1} className="min-h-0 flex-1 overflow-y-auto break-words">
-        {fini ? <section className="cadre mx-auto grid max-w-3xl gap-4 bg-fond p-6">
-          <h1 id={titre} className="font-titre text-2xl">Retour à Kanto</h1>
-          <p>Ta sauvegarde est à jour. Tu peux continuer ton aventure.</p>
-          <button className={`${bouton} bg-action text-action-texte`} onClick={fermerCredits}>Retour à Kanto</button>
-        </section> : <div className="credits-contenu mx-auto h-full max-w-5xl gap-8 lg:grid lg:grid-cols-2">
-          <header className="grid content-center gap-4 text-center">
-            <h1 id={titre} className="font-titre text-2xl text-region-accent">{plan.titre}</h1>
-            <p className="whitespace-pre-line">{plan.message}</p>
-          </header>
-          <div ref={lecture} className={pages ? 'cadre bg-fond p-4' : 'credits-lecture bg-fond/80 p-4'}>
-            {pages && <p>Page {page + 1} / {plan.pages.length}</p>}
-            <div ref={ruban}>
-              {sections.map(section => <section key={section.titre} className="grid gap-4 py-6 text-center">
-                <h2 className="font-titre text-xl text-region-accent">{section.titre}</h2>
-                {section.lignes.map(ligne => <p key={ligne}>{ligne}</p>)}
-              </section>)}
-            </div>
-          </div>
-        </div>}
+    className={`credits bg-fond text-texte font-texte text-base ${sortie ? 'credits-sortie' : ''}`}
+    style={style}
+    onCancel={event => { event.preventDefault(); sortir(true); }}>
+    <div ref={flottants} aria-hidden="true" className="credits-couche" />
+    <div ref={contenu} tabIndex={-1} className="credits-defilement break-words">
+      <div ref={ruban} className="credits-ruban">
+        <header className="grid gap-4 text-center">
+          <h1 id={titre} className="font-titre text-2xl text-region-accent">{plan.titre}</h1>
+          <p className="whitespace-pre-line">{plan.message}</p>
+        </header>
+        {pages && <p className="py-4 text-center">Page {page + 1} / {plan.pages.length}</p>}
+        {sections.map(section => <section key={section.titre} className="grid gap-3 pt-8 text-center">
+          <h2 className="font-titre text-xl text-region-accent">{section.titre}</h2>
+          {section.lignes.map(ligne => <p key={ligne}>{ligne}</p>)}
+        </section>)}
       </div>
-      <div className="flex shrink-0 flex-wrap justify-center gap-4">
-        {!fini && (pages ? <>
-          <button className={bouton} disabled={page === 0} onClick={() => choisirPage(page - 1)}>Précédent</button>
-          <button className={bouton} onClick={() => page === plan.pages.length - 1 ? terminer(true) : choisirPage(page + 1)}>{page === plan.pages.length - 1 ? 'Terminer' : 'Suivant'}</button>
-        </> : <button className={bouton} onClick={() => lireParPages(true)}>Lire par pages</button>)}
-        <button className={bouton} onClick={fermerCredits}>{fini ? 'Fermer' : 'Passer'}</button>
-      </div>
+    </div>
+    <div className="credits-commandes flex flex-wrap justify-center gap-4">
+      {pages ? <>
+        <button className={bouton} disabled={page === 0} onClick={() => choisirPage(page - 1)}>Précédent</button>
+        <button className={bouton} onClick={() => page === plan.pages.length - 1 ? sortir(true) : choisirPage(page + 1)}>{page === plan.pages.length - 1 ? 'Terminer' : 'Suivant'}</button>
+      </> : <button className={bouton} onClick={() => lireParPages(true)}>Lire par pages</button>}
+      <button className={bouton} onClick={() => sortir(true)}>Passer</button>
     </div>
   </dialog>;
 }

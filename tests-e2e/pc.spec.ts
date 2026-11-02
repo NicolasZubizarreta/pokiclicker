@@ -70,7 +70,7 @@ test('PC : tris, recherche, captures et pas de défilement horizontal', async ({
   await expect(page.getByText('200 Pokémon')).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
   const premier = () => grille(page).getByRole('button').first();
-  await expect(premier()).toContainText('N° 1 ·');
+  await expect(premier()).toContainText('N° 1');
   await page.getByRole('button', { name: 'Niveau', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Niveau', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(premier()).toContainText(/Niveau 6[0-9]/);

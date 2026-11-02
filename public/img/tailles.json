@@ -1542,5 +1542,29 @@
   "img/objets/PokeRadar.png": {
     "largeur": 30,
     "hauteur": 30
+  },
+  "img/fin/charme-chroma.webp": {
+    "largeur": 512,
+    "hauteur": 512
+  },
+  "img/fin/vol-1.webp": {
+    "largeur": 256,
+    "hauteur": 280
+  },
+  "img/fin/vol-2.webp": {
+    "largeur": 226,
+    "hauteur": 250
+  },
+  "img/fin/vol-3.webp": {
+    "largeur": 206,
+    "hauteur": 243
+  },
+  "img/fin/vol-4.webp": {
+    "largeur": 259,
+    "hauteur": 267
+  },
+  "img/fin/vol-5.webp": {
+    "largeur": 236,
+    "hauteur": 276
   }
 }

@@ -23,6 +23,11 @@
       "titre": "8-Bit Battle Loop", "auteur": "Wolfgang_",
       "licence": "CC0"
     },
+    "credits": {
+      "fichier": "audio/PokemonCreditKanto.mp3", "boucle": false,
+      "titre": "Générique de Pokémon (crédits)", "auteur": "Fichier fourni par Nicolas",
+      "licence": "droits réservés, usage privé"
+    },
     "victoire": {
       "fichier": "audio/victoire.mp3", "boucle": false,
       "titre": "Victory", "auteur": "celestialghost8",
@@ -35,6 +40,7 @@
     "boss": "boss",
     "hors-combat": "carte",
     "pantheon": "victoire",
-    "intro": "carte"
+    "intro": "carte",
+    "credits": "credits"
   }
 }

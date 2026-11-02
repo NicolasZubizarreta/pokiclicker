@@ -445,9 +445,10 @@ it('pose la Stase sans confirmation, affiche son icône et le DPS puis la retire
   fireEvent.click(ligne);
   expect(storeJeu.getState().poserStase).toHaveBeenCalledWith('premier');
   expect(screen.queryByRole('group', { name: /^Utiliser/ })).toBeNull();
-  const icone = within(ligne.parentElement!).getByRole('img', { name: 'Pierre Stase' });
+  const retrait = within(ligne.parentElement!).getByRole('button', { name: /^Retirer Pierre Stase de / });
+  const icone = retrait.querySelector('img')!;
   expect(icone.getAttribute('src')).toBe('img/objets/everstone.png');
-  expect(ligne.contains(icone)).toBe(false);
+  expect(ligne.contains(retrait)).toBe(false);
   expect(within(ligne).getByText(`${formaterDps(42 * 1.25)} DPS`)).toBeTruthy();
   expect(storeJeu.getState().sac.entrees[0]?.quantite).toBe(1);
   expect(document.activeElement).toBe(declencheur);
@@ -458,10 +459,20 @@ it('pose la Stase sans confirmation, affiche son icône et le DPS puis la retire
   fireEvent.click(screen.getByRole('menuitem', { name: "Retirer l'objet" }));
   expect(storeJeu.getState().retirerStase).toHaveBeenCalledWith('premier');
   expect(storeJeu.getState().sac.entrees[0]?.quantite).toBe(2);
-  expect(within(ligne.parentElement!).queryByRole('img', { name: 'Pierre Stase' })).toBeNull();
+  expect(within(ligne.parentElement!).queryByRole('button', { name: /^Retirer Pierre Stase de / })).toBeNull();
   expect(document.activeElement).toBe(ligne);
   fireEvent.contextMenu(ligne);
   expect(screen.queryByRole('menuitem', { name: "Retirer l'objet" })).toBeNull();
+});
+
+it('retire la Stase d’un clic sur son icône et la rend au stock', () => {
+  preparerActif('stase');
+  fireEvent.click(screen.getByRole('button', { name: 'Bourgeon, niveau 16' }));
+  expect(storeJeu.getState().sac.entrees[0]?.quantite).toBe(1);
+  fireEvent.click(screen.getByRole('button', { name: /^Retirer Pierre Stase de / }));
+  expect(storeJeu.getState().retirerStase).toHaveBeenCalledWith('premier');
+  expect(storeJeu.getState().sac.entrees[0]?.quantite).toBe(2);
+  expect(screen.queryByRole('button', { name: /^Retirer Pierre Stase de / })).toBeNull();
 });
 
 it.each([

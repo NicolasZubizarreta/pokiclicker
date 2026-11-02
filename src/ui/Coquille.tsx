@@ -13,6 +13,7 @@ import { MiseAJour } from './MiseAJour';
 import { ObtentionBadge } from './ObtentionBadge';
 import { PageIntro } from './PageIntro';
 import { DialogueScene } from './DialogueScene';
+import { SceneFin } from './SceneFin';
 import { Credits } from './Credits';
 import { AnnonceDeblocage } from './AnnonceDeblocage';
 import { Pantheon } from './Pantheon';
@@ -58,8 +59,8 @@ export function Coquille({ region = 'kanto', theme = 'dark' }: {
   const pantheonOuvert = !!pantheon?.ouvert;
   useEffect(() => {
     musique.definirScene(sceneMusicale({ pantheon: pantheonOuvert, intro: introActive || introVue,
-      horsCombat: page !== 'Combat', boss, adversaire }));
-  }, [pantheonOuvert, introActive, introVue, page, boss, adversaire]);
+      horsCombat: page !== 'Combat', boss, adversaire, credits }));
+  }, [pantheonOuvert, introActive, introVue, page, boss, adversaire, credits]);
   useEffect(() => () => musique.arreter(), []);
   useLayoutEffect(() => {
     storeJeu.getState().demarrer();
@@ -81,7 +82,8 @@ export function Coquille({ region = 'kanto', theme = 'dark' }: {
       </main>
       {/* La Carte reste montée jusqu’à la fin du vol ; l’évolution garde aussi la priorité. */}
       {!introActive && !introVue && page !== 'Carte' && !evolution && evenement?.type === 'dialogue'
-        && <DialogueScene commande={evenement} terminerEtape={terminerEtape} />}
+        && (evenement.scene ? <SceneFin key={evenement.evenement} commande={evenement} terminerEtape={terminerEtape} />
+          : <DialogueScene commande={evenement} terminerEtape={terminerEtape} />)}
       <ObtentionBadge ouvert={obtentionBadge !== null && obtentionBadge.phase !== 'message'} badges={badges}
         cache={obtentionBadge?.phase === 'message' || obtentionBadge?.phase === 'boite' ? obtentionBadge.id : null}
         claque={obtentionBadge?.phase === 'claque' ? obtentionBadge.id : null}

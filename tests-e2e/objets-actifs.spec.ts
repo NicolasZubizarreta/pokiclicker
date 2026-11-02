@@ -130,11 +130,12 @@ test('Pierre Stase : pose et retrait ; Jeton : confirmation et chromatique sauve
   await utiliser(page, 'Pierre Stase');
   const bulbizarre = page.getByRole('button', { name: 'Bulbizarre, niveau 16', exact: true });
   await bulbizarre.click();
-  await expect(page.getByRole('img', { name: 'Pierre Stase', exact: true })).toBeVisible();
+  const retirerStase = page.getByRole('button', { name: 'Retirer Pierre Stase de Bulbizarre', exact: true });
+  await expect(retirerStase).toBeVisible();
   await expect(page.getByRole('button', { name: 'Faire évoluer Bulbizarre' })).toHaveCount(0);
   await bulbizarre.click({ button: 'right' });
   await page.getByRole('menuitem', { name: "Retirer l'objet", exact: true }).click();
-  await expect(page.getByRole('img', { name: 'Pierre Stase', exact: true })).toHaveCount(0);
+  await expect(retirerStase).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Pierre Stase ×1', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Faire évoluer Bulbizarre' })).toBeVisible();
   await utiliser(page, 'Jeton Shiny');

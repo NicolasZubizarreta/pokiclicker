@@ -4,23 +4,29 @@
     {
       "id": "kanto.fin-pokedex",
       "declencheur": { "type": "palier-pokedex", "palier": 151 },
+      "scene": { "zone": "kanto.labo", "pose": "chen-1", "entree": "montee", "entreeMs": 2000, "boiteMs": 2000, "glitchMs": 2000 },
       "etapes": [
         { "type": "deplacer", "zone": "kanto.labo" },
         { "type": "dialogue", "locuteur": "Chen", "texte": "Incroyable... Je n'en crois pas mes yeux !" },
         { "type": "dialogue", "locuteur": "Chen", "texte": "Ton Pokédex... Il est complet ! Tu as attrapé les 151 Pokémon de Kanto !" },
         { "type": "dialogue", "locuteur": "Chen", "texte": "C'était mon rêve depuis toujours. Tu l'as réalisé pour moi." },
         { "type": "dialogue", "locuteur": "Chen", "texte": "Tu es officiellement le plus grand Collectionneur Pokémon de la région !" },
-        { "type": "dialogue", "locuteur": "Chen", "texte": "En guise de reconnaissance, voici ton Diplôme officiel." },
+        { "type": "dialogue", "locuteur": "Chen", "texte": "En guise de reconnaissance, voici ton Diplôme officiel.",
+          "vitrine": { "image": "img/fin/diplome.webp", "animation": "entree" } },
         { "type": "donner", "amelioration": "diploma" },
-        { "type": "dialogue", "locuteur": "Chen", "texte": "Félicitations !" },
-        { "type": "dialogue", "locuteur": "Chen", "texte": "Prends aussi ceci : le Charme Chroma. Les Pokémon Shinies apparaîtront beaucoup plus souvent !" },
-        { "type": "dialogue", "locuteur": "Chen", "texte": "Qui sait peut être qu'un jour tu attraperas tous les pokémons du monde... L'aventure continue !" },
+        { "type": "dialogue", "locuteur": "Chen", "texte": "Félicitations !",
+          "vitrine": { "image": "img/fin/diplome.webp", "animation": "envol" } },
+        { "type": "dialogue", "locuteur": "Chen", "texte": "Prends aussi ceci : le Charme Chroma. Les Pokémon Shinies apparaîtront beaucoup plus souvent !",
+          "vitrine": { "image": "img/fin/charme-chroma.webp", "animation": "zoom", "annonce": "CHARME CHROMA OBTENU !" } },
+        { "type": "dialogue", "locuteur": "Chen", "texte": "Qui sait peut être qu'un jour tu attraperas tous les pokémons du monde... L'aventure continue !",
+          "vitrine": { "image": "img/fin/charme-chroma.webp", "animation": "envol" } },
         { "type": "poser-drapeau", "id": "fin-pokedex-vue" }
       ]
     },
     {
       "id": "kanto.defi-chen-intro",
       "declencheur": { "type": "entree-zone", "zone": "kanto.labo" },
+      "scene": { "zone": "kanto.labo", "pose": "chen-2", "entree": "descente", "entreeMs": 1800, "boiteMs": 1800, "glitchMs": 2000 },
       "si": { "tous": [{ "type": "drapeau", "id": "defi-chen-actif" }, { "non": { "type": "drapeau", "id": "defi-chen-intro-vue" } }] },
       "etapes": [
         { "type": "dialogue", "locuteur": "Chen", "texte": "Te voilà. Champion de la Ligue ET Pokédex complet... Tu as surpassé toutes mes attentes." },
@@ -32,6 +38,7 @@
     {
       "id": "kanto.defi-chen-victoire",
       "declencheur": { "type": "boss-vaincu", "zone": "kanto.labo" },
+      "scene": { "zone": "kanto.labo", "pose": "chen-2", "entree": "fondu", "entreeMs": 1200, "boiteMs": 900 },
       "si": { "type": "drapeau", "id": "defi-chen-gagne" },
       "etapes": [
         { "type": "dialogue", "locuteur": "Chen", "texte": "Magnifique ! Je n'avais pas ressenti un tel frisson depuis des années !" },

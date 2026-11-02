@@ -37,6 +37,7 @@ import { reglages, type Ton } from '../core/reglages';
 import { etatMondeDe, versMembreEquipe } from '../core/sauvegarde';
 import type { DonneesRegion, PokemonPossede, Stockage } from '../core/sauvegarde';
 import type { PreferencesCombat, ReglagesArret } from '../core/sauvegarde-types';
+import { calculerStatistiques, type Statistique } from '../core/statistiques';
 import { afficherCapture, annonceCapture, banniereArret, conditionCapture, type AffichageCapture } from './store-capture';
 import { afficherEvolution, annonceEvolution, type EvolutionAffichee } from './store-evolution';
 import { afficherProgression, phaseObtention, type AffichageProgression, type PhaseObtention } from './store-progression';
@@ -94,6 +95,7 @@ export type AffichageJeu = ActionsCasino & {
   lieu: ZoneMonde | null; zone: Zone | null; etape: number; ennemi: Omit<Ennemi, 'capture'> | null; pv: number;
   nomAdversaire: string | null; ligueGagnee: number;
   equipe: CaseEquipe[]; dps: number; erreur: string | null;
+  statistiques: Statistique[];
   pc: PokemonPossede[]; pokedex: readonly number[];
   accesPc: { ouvert: boolean; raison: string | null };
   pension: {
@@ -129,6 +131,8 @@ export type AffichageJeu = ActionsCasino & {
 function actifsCourants(region: DonneesRegion, maintenant: number): string[] {
   return [...actifsDe(region), ...clesActives(region.chronos, maintenant)];
 }
+
+const DRAPEAU_DEFI_RESERVE = 'defi-chen-reserve';
 
 export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements = evenementsKanto,
   nouvellePartie = 'equipe-de-depart' }: {
@@ -362,8 +366,14 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       coeur = viderEvenements(coeur);
     }
     if (ouvrirPantheon) {
+      // V1 (combat.js l.317-319) : le défi suit une victoire à la Ligue qui n'est pas la première (hadLeagueWin),
+      // quand le Pokédex est complet et la fin vue.
+      const defiChenEnAttente = region.ligueGagnee >= 2
+        && peutLancer(region, pokedexDeKanto(pokedex, catalogue).nombre, region.evenementsJoues.includes('kanto.fin-pokedex'));
       pantheon = { ouvert: true, premiereVictoire: region.ligueGagnee === 1,
-        equipe: structuredClone(region.equipe), defiChenEnAttente: false };
+        equipe: structuredClone(region.equipe), defiChenEnAttente };
+      // V1 (state.chenChallengePending, sauvegardé) : le défi réservé survit à un rechargement pendant le Panthéon.
+      if (defiChenEnAttente) { region = { ...region, drapeaux: [...new Set([...region.drapeaux, DRAPEAU_DEFI_RESERVE])] }; sauvegarder = true; }
       region = { ...region, zoneId: 'kanto.bourg-palette', etape: 1 };
       coeur = null;
       resteAutoClicMs = 0;
@@ -395,7 +405,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     const maintenant = horloge.maintenant();
     const actifs = actifsCourants(region, maintenant);
     const lieu = lieuDe(region.zoneId);
-    const lien = lieu.liens[0];
+    const lien = kanto.lienSuivant(lieu.liens, etatMondeDe(region));
     const destination = (zone: ZoneMonde | undefined): Destination | null => {
       if (!zone) return null;
       const resultat = acces(zone.id);
@@ -487,6 +497,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       carte: JSON.stringify(carte) === JSON.stringify(precedent.carte) ? precedent.carte : carte,
       equipe: JSON.stringify(equipe) === JSON.stringify(precedent.equipe) ? precedent.equipe : equipe,
       dps: coeur ? calculerDpsEquipe(coeur.equipe, coeur.ennemi, actifs) : 0, erreur,
+      statistiques: calculerStatistiques(region, maintenant),
       evolution: afficherEvolution(evolutionEnCours, finEvolutionMs, tempsJeuMs),
       argent: region.argent, enRecherche: (coeur?.attenteMs ?? 0) > 0 && !coeur?.attenteCapture, cache: (coeur?.attenteMs ?? 0) > 0, annonce, banniere,
       deblocage: deblocageEnCours?.texte ?? null, sonActive, echange,
@@ -668,7 +679,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       if (!initialise || region.evenementEnCours || defiEnCombat()
         || !peutLancer(region, pokedexDeKanto(pokedex, catalogue).nombre,
           region.evenementsJoues.includes('kanto.fin-pokedex'))) return;
-      region = { ...region, drapeaux: [...new Set([...region.drapeaux, 'defi-chen-actif'])] };
+      region = { ...region, drapeaux: [...new Set([...region.drapeaux.filter(d => d !== DRAPEAU_DEFI_RESERVE), 'defi-chen-actif'])] };
       changerDeZone('kanto.labo');
       executer({ type: 'entree-zone', zone: 'kanto.labo' });
       enregistrer(); afficher();
@@ -859,6 +870,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       enregistrer(); afficher();
     },
     lieu: null, zone: null, etape: 1, ennemi: null, pv: 0, equipe: [], dps: 0, minuteur: null,
+    statistiques: calculerStatistiques(),
     nomAdversaire: null, ligueGagnee: 0,
     erreur: null, erreurChargement: false, zonePrecedente: null, zoneSuivante: null, evenementsDegats: [],
     evolution: null, argent: 0, enRecherche: false, cache: false, annonce: null, banniere: null, deblocage: null, echange: null,
@@ -921,6 +933,8 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
           coeur = lieu.sansCombat ? null : reprendreCombat(zoneDeLigue(lieu, region.starterId), region.equipe.map(versMembreEquipe), alea, region.etape, actifsCourants(region, horloge.maintenant()), optionsCombat());
           synchroniserCombatEvenement();
           initialise = true;
+          // Rechargement (ou fermeture) pendant le Panthéon : le défi réservé repart comme à la sortie du Panthéon.
+          if (region.drapeaux.includes(DRAPEAU_DEFI_RESERVE)) debutDefiChenMs = horloge.maintenant() + donneesPantheon.delais.defiChenMs;
           noterDansPokedex();
           traiter();
           prechargerLieu();
@@ -970,7 +984,8 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     },
     fermer: enregistrer,
     tick: () => {
-      if (boucle && debutDefiChenMs !== null && horloge.maintenant() >= debutDefiChenMs) {
+      // Un événement en cours (dialogue, combat scénarisé) fait attendre le défi au lieu de le perdre.
+      if (boucle && debutDefiChenMs !== null && horloge.maintenant() >= debutDefiChenMs && !region.evenementEnCours) {
         debutDefiChenMs = null;
         store.getState().lancerDefiChen?.();
       }

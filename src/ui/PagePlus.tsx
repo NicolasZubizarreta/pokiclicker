@@ -3,6 +3,7 @@ import { useStore } from 'zustand';
 import { BoiteBadges } from './BoiteBadges';
 import { Diplome } from './Diplome';
 import { Guide } from './Guide';
+import { Statistiques } from './Statistiques';
 import { creditPiste, musiques } from '../core/musiques';
 import { musique } from './musique';
 import { formaterDps } from './nombres';
@@ -28,6 +29,7 @@ export function PagePlus() {
   const diplome = useStore(storeJeu, etat => etat.fin.diplome);
   const [diplomeOuvert, ouvrirDiplome] = useState(false);
   const [guideOuvert, ouvrirGuide] = useState(false);
+  const [statsOuvertes, ouvrirStats] = useState(false);
   const [sousPage, choisir] = useState<null | 'pokedex' | 'badges'>(null);
   const progression = useStore(storeJeu, etat => etat.progression);
   const lieu = useStore(storeJeu, etat => etat.lieu);
@@ -62,7 +64,11 @@ export function PagePlus() {
         : <section className="mx-auto max-w-screen-xl text-base">
           <h1 tabIndex={-1} className="font-titre text-2xl font-semibold">Plus</h1>
           <section aria-labelledby={aventureId} className="cadre mt-4 space-y-4 bg-surface p-4">
-            <h2 id={aventureId} className="font-titre text-xl font-semibold">Ton aventure</h2>
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <h2 id={aventureId} className="font-titre text-xl font-semibold">Ton aventure</h2>
+              <button type="button" onClick={() => ouvrirStats(true)}
+                className="min-h-11 bg-surface-2 px-4 py-2 hover:bg-selection">Statistiques</button>
+            </div>
             <dl className="grid grid-cols-2 gap-4">
               <div><dt className="text-texte-doux">Région</dt><dd>{lieu ? `Kanto · ${lieu.nom}` : 'Kanto'}</dd></div>
               <div><dt className="text-texte-doux">Pokédex</dt><dd>{`${nombre} / ${total}`}</dd></div>
@@ -111,5 +117,6 @@ export function PagePlus() {
         </section>}
     {diplomeOuvert && diplome && <Diplome diplome={diplome} fermer={() => ouvrirDiplome(false)} />}
     {guideOuvert && <Guide fermer={() => ouvrirGuide(false)} />}
+    {statsOuvertes && <Statistiques fermer={() => ouvrirStats(false)} />}
   </div>;
 }

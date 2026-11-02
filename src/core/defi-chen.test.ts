@@ -3,6 +3,7 @@ import donnees from '../../data/defi-chen.json';
 import reference from '../../tests/fixtures/v1-fin.json';
 import { avancerCombat, cliquer, creerEnnemi, reprendreCombat } from './combat';
 import { chargerDefiChen, echec, peutLancer, victoire, zoneDuDefi } from './defi-chen';
+import { kanto } from './regions';
 import { regionInitiale } from './sauvegarde';
 
 const alea = () => { throw new Error('Aléa inattendu'); };
@@ -38,6 +39,13 @@ describe('Défi de Chen', () => {
     });
     zone.boss.pokemon = 1;
     expect(zoneDuDefi(cas.starter).boss.pokemon).toBe(149);
+  });
+
+  it('donne au défi des PV au-dessus de ceux de la Ligue (décision de Nicolas, 02/11)', () => {
+    const ligue = kanto.zoneDeCombat('kanto.ligue-pokemon');
+    expect(zoneDuDefi(1).multiplicateurPv).toBeGreaterThan(ligue.multiplicateurPv);
+    expect(creerEnnemi(zoneDuDefi(1), 1, alea).pvMax)
+      .toBeGreaterThan(creerEnnemi(ligue, 1, alea).pvMax);
   });
 
   it.each(reference.conditions)('reproduit la condition V1 %#', cas => {

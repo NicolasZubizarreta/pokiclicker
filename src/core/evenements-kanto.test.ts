@@ -3,10 +3,24 @@ import { combatEnPause, commandeCourante, declencher, etapeTerminee, type Comman
 import { evenementsKanto as catalogue, normaliserRonflex, routeRonflex } from './evenements-kanto';
 import { spriteDe } from './personnages';
 import { reglages } from './reglages';
-import { regionInitiale } from './sauvegarde';
+import { kanto } from './regions';
+import { etatMondeDe, regionInitiale } from './sauvegarde';
 
 const depart = () => regionInitiale('kanto', 'kanto.route-1');
 const texte = (c: Commande | null) => (c?.type === 'dialogue' ? c.texte : null);
+
+describe('sortie de la Centrale', () => {
+  const sortie = (drapeaux: string[], boss: string[]) => {
+    const region = { ...depart(), zoneId: 'kanto.centrale', bossVaincus: boss, drapeaux };
+    return kanto.lienSuivant(kanto.zone('kanto.centrale').liens, etatMondeDe(region))?.vers;
+  };
+
+  it('propose la Route de Ronflex tant que Ronflex n’est pas vaincu, puis Parmanie', () => {
+    expect(sortie([], [])).toBe(routeRonflex);
+    expect(sortie([], ['kanto.centrale'])).toBe(routeRonflex);
+    expect(sortie(['ronflex-vaincu'], ['kanto.centrale'])).toBe('kanto.arene-de-parmanie');
+  });
+});
 
 describe('compatibilité Ronflex', () => {
   it.each([0, 1, 3])('conserve la position ancienne %i du réveil et ses gains', etape => {

@@ -1,0 +1,101 @@
+/* Scène plein écran de la fin de partie (V1 : intro-overlay + glitch-overlay + intro-item-display). */
+.scene-fin {
+  position: fixed;
+  inset: 0;
+  margin: 0;
+  width: 100%;
+  max-width: none;
+  height: 100dvh;
+  max-height: none;
+  border: 0;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.scene-fin-cadre {
+  position: relative;
+  overflow: hidden;
+  width: min(100vw, calc(100dvh * var(--scene-ratio)));
+  aspect-ratio: var(--scene-ratio);
+}
+.scene-fin-decor { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+/* Le personnage est posé au milieu du tapis, comme dans l'introduction. */
+.scene-fin-chen {
+  position: absolute;
+  bottom: 40%;
+  left: 50%;
+  height: 32%;
+  width: auto;
+  max-width: 70%;
+  object-fit: contain;
+  object-position: bottom;
+  transform: translate(-50%, 0);
+}
+.scene-fin-chen-montee { animation: scene-fin-montee var(--scene-entree) ease-out both; }
+.scene-fin-chen-descente { animation: scene-fin-descente var(--scene-entree) ease-out both; }
+.scene-fin-chen-fondu { animation: scene-fin-fondu var(--scene-entree) ease-out both; }
+@keyframes scene-fin-montee { from { transform: translate(-50%, 100%); } to { transform: translate(-50%, 0); } }
+@keyframes scene-fin-descente { from { transform: translate(-50%, -300%); } to { transform: translate(-50%, 0); } }
+@keyframes scene-fin-fondu {
+  from { opacity: 0; transform: translate(-50%, 20%) scale(0.8); }
+  to { opacity: 1; transform: translate(-50%, 0) scale(1); }
+}
+
+.scene-fin-boite { position: absolute; inset-inline: 0; bottom: 0; z-index: 10; padding: calc(var(--spacing) * 2); }
+.scene-fin-annonce { position: absolute; inset-inline: calc(var(--spacing) * 2); top: calc(var(--spacing) * 2); z-index: 20; }
+
+/* Diplôme et Charme Chroma : au centre de la scène (V1 : diploma-entrance 1,2 s, zoom-in-entrance et fly-to-bag 0,8 s). */
+.scene-fin-vitrine {
+  position: absolute;
+  left: 50%;
+  top: 38%;
+  z-index: 15;
+  width: min(100%, 32rem);
+  max-height: 60%;
+  height: auto;
+  object-fit: contain;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+.scene-fin-vitrine-entree { animation: scene-fin-diplome 1200ms cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+.scene-fin-vitrine-zoom { animation: scene-fin-zoom 800ms forwards; }
+.scene-fin-vitrine-envol { animation: scene-fin-envol 800ms forwards; }
+@keyframes scene-fin-diplome {
+  0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+  60% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+  80% { transform: translate(-50%, -50%) scale(0.95); }
+  100% { transform: translate(-50%, -50%) scale(1); }
+}
+@keyframes scene-fin-zoom {
+  0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+  60% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+@keyframes scene-fin-envol {
+  0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  100% { transform: translate(-150%, 200%) scale(0.1); opacity: 0; }
+}
+
+/* Glitch d'ouverture (V1 : flicker-black 1,5 s dans une fenêtre de 2 s, écran noir à la fin). */
+.scene-fin-glitch {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  background: var(--color-neutre-950);
+  animation: scene-fin-glitch calc(var(--scene-glitch) * 0.75) steps(4) forwards;
+}
+@keyframes scene-fin-glitch {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  30% { opacity: 0; }
+  50% { opacity: 1; }
+  70% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene-fin-chen, .scene-fin-vitrine { animation: none; }
+  .scene-fin-vitrine-envol { display: none; }
+}

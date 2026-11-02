@@ -1,6 +1,6 @@
 import { mkdir } from 'node:fs/promises';
 import { test, expect } from '@playwright/test';
-import type { Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 import type { DonneesRegion } from '../src/core/sauvegarde';
 import fin from '../data/evenements/fin.json' with { type: 'json' };
 
@@ -65,10 +65,11 @@ async function regionSauvee(page: Page): Promise<DonneesRegion> {
 }
 
 // Lit chaque ligne de Chen dans l'ordre, puis attend que la fenêtre de dialogue se ferme.
-async function lire(page: Page, textes: string[]) {
+async function lire(page: Page, textes: string[], verifier?: (indice: number, fenetre: Locator) => Promise<void>) {
   const fenetre = page.getByRole('dialog', { name: 'Dialogue de scène' });
-  for (const texte of textes) {
+  for (const [indice, texte] of textes.entries()) {
     await expect(fenetre).toContainText(texte);
+    await verifier?.(indice, fenetre);
     await fenetre.getByRole('button').click();
   }
   await expect(fenetre).toHaveCount(0);
@@ -77,10 +78,25 @@ async function lire(page: Page, textes: string[]) {
 const sansDefilement = (page: Page) => page.evaluate(() =>
   document.documentElement.scrollWidth <= document.documentElement.clientWidth);
 
-test('Fin : le Pokédex complet fait dire cinq lignes à Chen, donne le diplôme, rejouable depuis Plus', async ({ page }, informations) => {
+test('Fin : le Pokédex complet fait dire huit répliques à Chen devant le labo, montre le diplôme et le Charme Chroma, rejouable depuis Plus', async ({ page }, informations) => {
   await demarrer(page, { zone: 'kanto.bourg-palette', etape: 1, ligueGagnee: 0, drapeaux: [], joues: ['kanto.intro'] }, false);
   const dialogue = lignes('kanto.fin-pokedex');
-  await lire(page, dialogue);
+  expect(dialogue).toHaveLength(8);
+  await lire(page, dialogue, async (indice, fenetre) => {
+    // V1 : décor du labo et Chen dès la première réplique, diplôme à la 5e, Charme Chroma à la 7e.
+    if (indice === 0) {
+      await expect(fenetre.locator('.scene-fin-decor')).toHaveAttribute('src', 'img/scenes/labo.webp');
+      await expect(fenetre.locator('img.scene-fin-chen')).toHaveAttribute('src', 'img/sprites/chen/chen-1.png');
+      await expect(fenetre.locator('[data-vitrine]')).toHaveCount(0);
+    }
+    if (indice === 4) await expect(fenetre.locator('[data-vitrine="entree"]')).toHaveAttribute('src', 'img/fin/diplome.webp');
+    if (indice === 5) await expect(fenetre.locator('[data-vitrine="envol"]')).toHaveAttribute('src', 'img/fin/diplome.webp');
+    if (indice === 6) {
+      await expect(fenetre.locator('[data-vitrine="zoom"]')).toHaveAttribute('src', 'img/fin/charme-chroma.webp');
+      await expect(fenetre.getByRole('status')).toHaveText('CHARME CHROMA OBTENU !');
+    }
+    if (indice === 7) await expect(fenetre.locator('[data-vitrine="envol"]')).toHaveAttribute('src', 'img/fin/charme-chroma.webp');
+  });
   const region = await regionSauvee(page);
   expect(region.zoneId).toBe('kanto.labo');
   expect(region.ameliorations.filter(id => id === 'diploma')).toHaveLength(1);
@@ -109,6 +125,18 @@ test('Fin : le Pokédex complet fait dire cinq lignes à Chen, donne le diplôme
   await page.getByRole('button', { name: 'Plus', exact: true }).click();
   await page.getByRole('button', { name: 'Diplôme du Pokédex', exact: true }).click();
   await expect(page.locator('dialog[open] time')).toHaveText('25 octobre 2026');
+  await page.keyboard.press('Escape');
+  await page.getByRole('button', { name: 'Combat', exact: true }).click();
+
+  // Le labo est montré en entier, avec sa « Sortie » sur le tapis qui ramène à Bourg Palette (V1 : update.js l.320-344).
+  const labo = page.getByRole('img', { name: 'Labo Pokémon du Prof. Chen' });
+  await expect(labo).toHaveCSS('object-fit', 'contain');
+  const sortie = page.getByRole('button', { name: 'Sortie', exact: true });
+  await expect(sortie).toBeVisible();
+  const [boite, cadre] = [await sortie.boundingBox(), await labo.boundingBox()];
+  expect(boite!.y + boite!.height).toBeLessThanOrEqual(cadre!.y + cadre!.height + 1);
+  await sortie.click();
+  await expect(page.getByRole('heading', { name: 'Bourg Palette', level: 1 })).toBeVisible();
 });
 
 test('Fin : le défi de Chen se gagne, Chen conclut, les crédits défilent par pages une seule fois', async ({ page }, informations) => {
@@ -133,8 +161,8 @@ test('Fin : le défi de Chen se gagne, Chen conclut, les crédits défilent par 
   await page.screenshot({ path: `design/captures/x-credits-${largeur}.png`, animations: 'disabled' });
   for (let i = 1; i < total; i++) await credits.getByRole('button', { name: 'Suivant', exact: true }).click();
   await credits.getByRole('button', { name: 'Terminer', exact: true }).click();
-  await expect(credits.getByRole('heading', { name: 'Retour à Kanto' })).toBeVisible();
-  await credits.getByRole('button', { name: 'Retour à Kanto', exact: true }).click();
+  // Mouvement réduit : pas de fondu, mais la fermeture passe par un minuteur que l'horloge simulée doit faire avancer.
+  await page.clock.runFor(100);
   await expect(credits).toHaveCount(0);
 
   const region = await regionSauvee(page);
@@ -159,5 +187,7 @@ test('Fin : les crédits peuvent être passés d’un geste (Échap) sans les li
   const passer = page.getByRole('button', { name: 'Passer', exact: true });
   await expect(passer).toBeVisible();
   await page.keyboard.press('Escape');
+  await page.clock.runFor(100);
   await expect(passer).toHaveCount(0);
+  expect((await regionSauvee(page)).drapeaux).toContain('credits-vus');
 });

@@ -20,6 +20,7 @@ function guideDeLaV1() {
 }
 
 const ECARTS_GUIDE = [
+  { section: 'Fonctionnalités clés', v1: 'accessible via Profil', v2: 'accessible via la page Plus' },
   { section: 'Parcours principal (A à Z)', v1: 'Pokéshop', v2: 'Shop' },
   { section: 'CT Fauchage', v1: 'Pokéshop', v2: 'Shop' },
   { section: 'Fonctionnalités clés', v1: '(bouton épées).', v2: '(bouton « Auto-attaque »).' },

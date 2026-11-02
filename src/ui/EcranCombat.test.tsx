@@ -131,6 +131,17 @@ it('cache les outils sans objet et explique chaque verrou quand un outil est pos
   expect(screen.queryByRole('button', { name: 'Poké-Radar' })).toBeNull();
 });
 
+it('grise le Poké-Radar à la Ligue, où il n’y a que des boss', () => {
+  preparer();
+  const zone = store.getState().zone!;
+  act(() => store.setState({ radar: true }));
+  expect((screen.getByRole('button', { name: 'Poké-Radar' }) as HTMLButtonElement).disabled).toBe(false);
+  act(() => store.setState({ zone: { ...zone, type: 'ligue', adversaires: [] } as typeof zone }));
+  const radar = screen.getByRole('button', { name: 'Poké-Radar' }) as HTMLButtonElement;
+  expect(radar.disabled).toBe(true);
+  expect(radar.title).toContain('Ligue');
+});
+
 it('branche Fauchage et affiche son état actif, sa recharge et le refus sur un boss', () => {
   preparer();
   const faucher = vi.fn();

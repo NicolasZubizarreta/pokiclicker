@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import donnees from '../../data/credits.json';
-import { planCredits, tirerImageFlottante } from './credits';
+import { imageDesCredits, planCredits, tirerImageFlottante } from './credits';
 
 describe('crédits', () => {
   it('reprend les textes et les temps extraits de la V1', () => {
@@ -46,6 +46,15 @@ describe('crédits', () => {
     w: taille, h: taille, vieMs: donnees.imagesFlottantes.vieMs[haut ? 1 : 0],
     opacite: donnees.imagesFlottantes.opacite });
     expect(alea).toHaveBeenCalledTimes(5);
+  });
+
+  it('ne tire que des images de la V1 qui ont un équivalent dans le jeu V2', () => {
+    const sansEquivalent = donnees.imagesFlottantes.images.filter(image => !imageDesCredits(image));
+    expect(sansEquivalent).toEqual(['img/kanto/background/Pension.png']);
+    const tirees = Array.from({ length: 50 }, (_, i) => tirerImageFlottante([], () => i / 50)!.image);
+    expect(tirees.every(image => imageDesCredits(image))).toBe(true);
+    expect(imageDesCredits('img/inconnue.png')).toBeUndefined();
+    expect(imageDesCredits(donnees.imagesFlottantes.images[0]!)).toMatch(/^img\/.+\.(png|webp)$/);
   });
 
   it('ne tire rien quand trois images sont actives', () => {

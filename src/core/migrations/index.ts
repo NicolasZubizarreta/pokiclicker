@@ -54,5 +54,12 @@ export function migrer(enveloppe: Enveloppe<unknown>, table = migrationsParDefau
     }
     resultat = { ...resultat, version: resultat.version + 1, donnees: migration(resultat.donnees, resultat.niveau) };
   }
+  if (resultat.niveau === 'region' && resultat.donnees !== null && typeof resultat.donnees === 'object') {
+    const source = resultat.donnees as Record<string, unknown>;
+    const stats = source.statistiques;
+    if (stats === undefined || (stats !== null && typeof stats === 'object' && !Array.isArray(stats))) {
+      resultat.donnees = { ...source, statistiques: { eliminations: 0, argentTotalGagne: 0, ...stats } };
+    }
+  }
   return resultat;
 }

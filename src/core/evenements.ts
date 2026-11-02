@@ -24,9 +24,21 @@ export type Declencheur =
   | { type: 'boss-atteint'; zone: string }
   | { type: 'objet-utilise'; objet: string; zone?: string };
 
+/** Objet montré en grand au centre de la scène pendant une réplique (diplôme, Charme Chroma) : arrivée, zoom ou envol vers le sac. */
+export type Vitrine = { image: string; animation: 'entree' | 'zoom' | 'envol'; annonce?: string };
+
+/**
+ * Scène plein écran d'un événement (fin du Pokédex, défi de Chen) : décor du lieu, personnage qui entre,
+ * glitch d'ouverture. Les durées sont celles de la V1 (millisecondes).
+ */
+export type SceneEvenement = {
+  zone: string; pose: string; entree: 'montee' | 'descente' | 'fondu'; entreeMs: number; boiteMs: number;
+  glitchMs?: number;
+};
+
 export type Etape =
   | { type: 'souffle' }
-  | { type: 'dialogue'; locuteur: string; texte: string; pose?: string }
+  | { type: 'dialogue'; locuteur: string; texte: string; pose?: string; vitrine?: Vitrine }
   | { type: 'donner'; objet: string; quantite: number }
   | { type: 'donner'; objetCle: string }
   | { type: 'donner'; amelioration: string }
@@ -45,12 +57,14 @@ export type Evenement = {
   repetable: boolean;
   /** Le combat est figé (ni dégâts, ni minuteur de boss) tant qu'une réplique de cet événement est affichée. */
   pauseCombat?: boolean;
+  scene?: SceneEvenement;
   etapes: Etape[];
 };
 
 export type Commande = (Extract<Etape, { type: 'dialogue' | 'combat' | 'souffle' }>) & {
   evenement: string;
   etape: number;
+  scene?: SceneEvenement;
 };
 
 export type CatalogueEvenements = {
@@ -141,9 +155,11 @@ export function declencher(cat: CatalogueEvenements, region: DonneesRegion, fait
 export function commandeCourante(cat: CatalogueEvenements, region: DonneesRegion): Commande | null {
   const courant = region.evenementEnCours;
   if (!courant) return null;
-  const etape = cat.liste.find(e => e.id === courant.id)?.etapes[courant.etape];
+  const evenement = cat.liste.find(e => e.id === courant.id);
+  const etape = evenement?.etapes[courant.etape];
   return etape && (etape.type === 'dialogue' || etape.type === 'combat' || etape.type === 'souffle')
-    ? { ...etape, evenement: courant.id, etape: courant.etape } : null;
+    ? { ...etape, evenement: courant.id, etape: courant.etape,
+      ...(evenement.scene && etape.type === 'dialogue' ? { scene: evenement.scene } : {}) } : null;
 }
 
 /** Vrai tant qu'une réplique d'un événement à `pauseCombat` attend le joueur (jamais pendant l'étape de combat elle-même). */
@@ -241,11 +257,20 @@ export function chargerEvenements(
       default: throw new Error(`Déclencheur inconnu : ${String(v.type)}`);
     }
   }
+  function vitrine(v: unknown) {
+    forme(v, { image: chaine, animation: a => exiger(a === 'entree' || a === 'zoom' || a === 'envol', 'Animation inconnue') },
+      { annonce: chaine });
+  }
+  function scene(v: unknown) {
+    forme(v, { zone, pose: identifiant,
+      entree: e => exiger(e === 'montee' || e === 'descente' || e === 'fondu', 'Entrée inconnue'),
+      entreeMs: positif, boiteMs: positif }, { glitchMs: positif });
+  }
   function etape(v: unknown) {
     objet(v);
     switch (v.type) {
       case 'souffle': forme(v, { type: chaine }); break;
-      case 'dialogue': forme(v, { type: chaine, locuteur: chaine, texte: chaine }, { pose: identifiant }); break;
+      case 'dialogue': forme(v, { type: chaine, locuteur: chaine, texte: chaine }, { pose: identifiant, vitrine }); break;
       case 'donner':
         if (Object.hasOwn(v, 'objetCle')) forme(v, { type: chaine, objetCle: objetConnu });
         else if (Object.hasOwn(v, 'amelioration')) forme(v, { type: chaine, amelioration: a => {
@@ -293,7 +318,7 @@ export function chargerEvenements(
           id: identifiant,
           declencheur,
           etapes: v => { exiger(Array.isArray(v) && v.length > 0, 'Étapes attendues'); v.forEach(etape); },
-        }, { si: condition, priorite: entier, repetable: booleen, pauseCombat: booleen });
+        }, { si: condition, priorite: entier, repetable: booleen, pauseCombat: booleen, scene });
         const evenement = structuredClone(valeur) as Evenement;
         evenement.priorite ??= 0;
         evenement.repetable ??= false;

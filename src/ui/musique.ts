@@ -36,7 +36,8 @@ export function creerMusique({
   let courant: Lecteur | undefined;
 
   function appliquer() {
-    const id = scene && actif && deverrouille && !cache ? pisteDeScene(scene) : null;
+    // Les pistes restent hors du précache pour garder le jeu léger : pas de requête hors connexion.
+    const id = scene && actif && deverrouille && !cache && navigator.onLine !== false ? pisteDeScene(scene) : null;
     const lecteur = id ? lecteurs.get(id) ?? (() => {
       const piste = musiques.pistes[id]!;
       const nouveau = creerLecteur(piste.fichier);

@@ -66,7 +66,9 @@ const dialogues = {
 const defaut = rosters.find(cas => cas.starter === null);
 if (!defaut) throw new Error('Roster V1 par défaut manquant.');
 const defi = {
-  version: 1, combats: defaut.combats,
+  // Écart voulu avec la V1 (décision de Nicolas, 02/11) : la V1 n'avait pas de multiplicateur pour le labo (1), donc
+  // l'équipe de Chen tombait en une seconde. Ici : une « zone 22 », un cran au-dessus de la Ligue (38,8 + 2).
+  version: 1, multiplicateurPv: 40.8, combats: defaut.combats,
   counter: rosters.map(cas => {
     const starter = cas.combats[4];
     if (!starter) throw new Error('Starter V1 manquant.');

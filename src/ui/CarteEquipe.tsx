@@ -1,3 +1,4 @@
+import { chargerObjets } from '../core/boutique';
 import { BarreXp } from './BarreXp';
 import { BoutonRenommer } from './BoutonRenommer';
 import { Image } from './Image';
@@ -10,8 +11,12 @@ import { classeSprite, nomAffiche, progressionOeuf, spriteAffiche } from './affi
 import type { CaseEquipe } from './store';
 
 /** `renommer` : affiche le crayon (grand écran, là où le nom est visible) ; il ouvre la fiche avec le champ de surnom. */
-export function CarteEquipe({ membre, renommer, evolution, evoluer, animation, cible }: {
+const stase = chargerObjets().find(objet => objet.id === 'everstone');
+
+export function CarteEquipe({ membre, renommer, retirerObjet, evolution, evoluer, animation, cible }: {
   membre: CaseEquipe;
+  /** Retire l'objet porté (Pierre Stase) : l'icône de l'objet devient un bouton. */
+  retirerObjet?(uid: string): void;
   /** Un objet attend un Pokémon : la carte éligible clignote et se choisit d'un clic, les autres sont grisées. */
   cible?: { valide: boolean; choisir(): void } | null;
   renommer?(uid: string, declencheur: HTMLButtonElement): void;
@@ -35,7 +40,14 @@ export function CarteEquipe({ membre, renommer, evolution, evoluer, animation, c
       <div className="carte-equipe-identite hidden min-w-0 justify-self-stretch self-end lg:block">
         <div className="flex min-w-0 items-center justify-between gap-1">
           <strong className="block min-w-0 break-words">{nom}{membre.pokemon.shiny && !oeuf && <IconeShiny />}</strong>
-          {renommer && !oeuf && <BoutonRenommer nom={nom} ouvrir={bouton => renommer(membre.pokemon.uid, bouton)} />}
+          <span className="flex shrink-0 items-center">
+            {membre.pokemon.pierreEternelle && retirerObjet && stase && <button type="button" aria-label={`Retirer ${stase.nom} de ${nom}`}
+              title={`Retirer ${stase.nom}`} className="relative grid place-items-center p-1 hover:bg-selection after:absolute after:top-1/2 after:left-1/2 after:size-11 after:-translate-x-1/2 after:-translate-y-1/2 after:content-['']"
+              onClick={() => retirerObjet(membre.pokemon.uid)}>
+              {stase.image !== null ? <img src={stase.image} alt="" width={24} height={24} className="size-6 image-rendering-pixelated" /> : <IconeObjet image={null} nom={stase.nom} taille="petite" />}
+            </button>}
+            {renommer && !oeuf && <BoutonRenommer nom={nom} ouvrir={bouton => renommer(membre.pokemon.uid, bouton)} />}
+          </span>
         </div><span>{oeuf ? progressionOeuf(oeuf) : `Niv. ${membre.pokemon.niveau}`}</span>
       </div>
       <span className="hidden justify-self-start self-start text-region-accent lg:block">{formaterDps(membre.dps)} DPS</span>

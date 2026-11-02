@@ -184,9 +184,13 @@ export function PageEquipe() {
               </span>
             </button>
             <div className="pointer-events-none absolute top-2 right-2 flex items-center gap-1 [&>*]:pointer-events-auto">
-              {pokemon.pierreEternelle && (stase.image !== null
-                ? <img src={stase.image} alt={stase.nom} width={32} height={32} className="size-8 image-rendering-pixelated" />
-                : <IconeObjet image={null} nom={stase.nom} />)}
+              {pokemon.pierreEternelle && <button type="button" aria-label={`Retirer ${stase.nom} de ${nom}`} title={`Retirer ${stase.nom}`}
+                className="relative grid place-items-center p-1 hover:bg-selection after:absolute after:top-1/2 after:left-1/2 after:size-11 after:-translate-x-1/2 after:-translate-y-1/2 after:content-['']"
+                onClick={() => signalerObjet(storeJeu.getState().retirerStase(pokemon.uid))}>
+                {stase.image !== null
+                  ? <img src={stase.image} alt="" width={32} height={32} className="size-8 image-rendering-pixelated" />
+                  : <IconeObjet image={null} nom={stase.nom} />}
+              </button>}
               {!mode && !echange && !pokemon.oeuf && <BoutonRenommer nom={nom}
                 ouvrir={bouton => {
                   choisir(pokemon.uid);

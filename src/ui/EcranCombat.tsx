@@ -99,10 +99,15 @@ function Scene({ store, ouvrirPension }: { store: StoreJeu; ouvrirPension(): voi
   }, [numeroEnnemi, shinyEnnemi]);
   const notification = annonce !== null && <div role="status" aria-live="polite"
     className="pointer-events-none cadre absolute inset-x-4 top-4 z-20 bg-surface/82 p-2 text-center">{annonce}</div>;
-  if (lieu?.id === kanto.depart) return <div
-    className="scene-limitee scene-depart relative grid h-76 grid-rows-[minmax(0,1fr)_auto] bg-surface-2 lg:col-span-3 lg:aspect-6/5 lg:h-auto">
+  // Bourg Palette et le labo (retour de Chen) : scène carrée entière, jamais rognée, avec ses zones cliquables.
+  // Le labo clignote sur sa « Sortie » (V1 : visitedLab && !hasExitedLab) et y ramène le joueur à Bourg Palette.
+  const auLabo = lieu?.id === 'kanto.labo' && !zone && !ennemi;
+  if (lieu && (lieu.id === kanto.depart || auLabo)) return <div
+    className="scene-limitee scene-depart relative grid h-76 grid-rows-[minmax(0,1fr)_auto] bg-surface-2 lg:col-span-3 lg:aspect-video lg:h-auto">
     <div className="min-h-0 [&>div]:h-full [&_section]:grid [&_section]:h-full [&_section]:grid-rows-[minmax(0,1fr)_auto_auto] [&_section>div]:h-full [&_section>div]:w-auto [&_section>div]:max-w-full [&_section>div]:justify-self-center [&_section>p:not([role])]:sr-only">
-      <ScenesBourgPalette annonce={annonce} accesPension={accesPension} quandPension={ouvrirPension} />
+      <ScenesBourgPalette key={lieu.id} annonce={annonce} accesPension={accesPension} quandPension={ouvrirPension}
+        sceneInitiale={auLabo ? lieu.id : undefined} sortieLaboClignote={auLabo}
+        quandScene={auLabo ? id => { if (id === kanto.depart) store.getState().allerVers(id); } : undefined} />
     </div>
     {'message' in lieu && lieu.message && <p className="bg-surface p-2">{lieu.message}</p>}
   </div>;
@@ -155,8 +160,9 @@ function Scene({ store, ouvrirPension }: { store: StoreJeu; ouvrirPension(): voi
     <div className="dock-capture cadre absolute bottom-3 left-1 z-20 bg-surface p-1 shadow-lg">
       <BarreCapture {...capture} capturer={capturer} />
     </div>
-    {radar && <button type="button" aria-label="Poké-Radar"
-      className="radar-rond cadre absolute right-4 bottom-4 z-20 flex size-12 items-center justify-center rounded-full bg-surface shadow-md lg:size-16"
+    {radar && <button type="button" aria-label="Poké-Radar" disabled={zone.type === 'ligue'}
+      title={zone.type === 'ligue' ? 'Inutile à la Ligue : il n’y a que des boss, aucun Pokémon à capturer.' : undefined}
+      className="radar-rond cadre absolute right-4 bottom-4 z-20 flex size-12 items-center justify-center rounded-full bg-surface shadow-md disabled:cursor-not-allowed disabled:opacity-50 disabled:grayscale lg:size-16"
       onClick={event => ouvrirRadar(event.currentTarget)}>
       <img src="img/objets/PokeRadar.png" alt="" className="size-7 image-rendering-pixelated lg:size-9" />
     </button>}
@@ -244,7 +250,8 @@ function Equipe({ store }: { store: StoreJeu }) {
         ?? (pierre ? evolutionParPierre(membre.pokemon.numero, pierre.id) : null) : null;
       const evolution = vers !== null && !objet ? { vers, pierre } : null;
       return <CarteEquipe key={membre?.pokemon.uid ?? i} membre={membre} evolution={evolution}
-        cible={objet && membre ? { valide: eligible(membre.pokemon), choisir: () => appliquer(membre.pokemon.uid) } : null}
+        retirerObjet={uid => { const erreur = store.getState().retirerStase(uid); if (erreur) signaler(erreur); }}
+        cible={objet && membre ?{ valide: eligible(membre.pokemon), choisir: () => appliquer(membre.pokemon.uid) } : null}
         animation={animation?.uid === membre?.pokemon.uid ? animation : null}
         evoluer={() => {
           if (!membre || !evolution) return;

@@ -1,11 +1,11 @@
 import donnees from '../../data/musiques.json';
 
-export type Scene = 'combat' | 'adversaire' | 'boss' | 'hors-combat' | 'pantheon' | 'intro';
+export type Scene = 'combat' | 'adversaire' | 'boss' | 'hors-combat' | 'pantheon' | 'intro' | 'credits';
 export type Piste = {
   fichier: string; boucle: boolean; titre: string; auteur: string; licence: string;
 };
 
-const scenes: Scene[] = ['combat', 'adversaire', 'boss', 'hors-combat', 'pantheon', 'intro'];
+const scenes: Scene[] = ['combat', 'adversaire', 'boss', 'hors-combat', 'pantheon', 'intro', 'credits'];
 const catalogue = donnees as {
   actifParDefaut: boolean; volumeDb: number;
   /** Curseur « Musique » d'une partie neuve, de 0 à 100. */
@@ -35,9 +35,10 @@ export function pisteDeScene(scene: Scene): string | null {
 
 /** Scène musicale d'après ce que le joueur a à l'écran. Le Panthéon passe avant tout, l'intro coupe la musique. */
 export function sceneMusicale(etat: {
-  pantheon: boolean; intro: boolean; horsCombat: boolean; boss: boolean; adversaire: boolean;
+  pantheon: boolean; intro: boolean; horsCombat: boolean; boss: boolean; adversaire: boolean; credits?: boolean;
 }): Scene {
   if (etat.pantheon) return 'pantheon';
+  if (etat.credits) return 'credits';
   if (etat.intro) return 'intro';
   if (etat.horsCombat) return 'hors-combat';
   return etat.adversaire ? 'adversaire' : etat.boss ? 'boss' : 'combat';

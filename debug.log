@@ -1,0 +1,1 @@
+[1102/160040.234:WARNING:services\audio\sync_reader.cc:154] ASR: No room in socket buffer.: Le canal de communication est sur le point d’être fermé. (0xE8)

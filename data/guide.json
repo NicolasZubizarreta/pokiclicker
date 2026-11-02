@@ -31,7 +31,7 @@
         "- Carte: permet de téléporter vers les zones débloquées.",
         "- Bonheur: augmente en combattant. Il donne un bonus de dégâts. Un Pokémon qui sort d’un œuf démarre à {nombre:reglages.pension.bonheurNaissance} de bonheur.",
         "- Œufs: récupère un œuf à la pension, mets-le dans ton équipe, puis fais des combats pour l’éclore.",
-        "- Menu Stats: accessible via Profil. Il récapitule tes statistiques principales."
+        "- Menu Stats: accessible via la page Plus. Il récapitule tes statistiques principales."
       ]
     },
     {

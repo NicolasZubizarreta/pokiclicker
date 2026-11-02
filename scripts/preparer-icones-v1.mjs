@@ -24,7 +24,21 @@ async function preparer() {
     .webp({ quality: decor.qualiteWebp })
     .toFile(fileURLToPath(new URL(`public/${chemin}`, racine)));
   await enregistrerTailleImage(chemin, 1280, 698);
-  console.log('Icônes : Jeton Shiny et diplôme préparés et enregistrés.');
+  // Charme Chroma (montré en grand à la fin du Pokédex) et sprites de vol (images flottantes des crédits).
+  await sharp(fileURLToPath(new URL('legacy/img/kanto/icones/CharmeChroma.png', racine)))
+    .resize(512, 512).webp({ quality: decor.qualiteWebp })
+    .toFile(fileURLToPath(new URL('public/img/fin/charme-chroma.webp', racine)));
+  await enregistrerTailleImage('img/fin/charme-chroma.webp', 512, 512);
+  for (let numero = 1; numero <= 5; numero++) {
+    const vol = sharp(fileURLToPath(new URL(`legacy/img/kanto/sprites/SpriteFly${numero}.png`, racine)));
+    const { width, height } = await vol.metadata();
+    const largeur = Math.round(width / 2);
+    const hauteur = Math.round(height / 2);
+    await vol.resize(largeur, hauteur).webp({ quality: decor.qualiteWebp })
+      .toFile(fileURLToPath(new URL(`public/img/fin/vol-${numero}.webp`, racine)));
+    await enregistrerTailleImage(`img/fin/vol-${numero}.webp`, largeur, hauteur);
+  }
+  console.log('Icônes : Jeton Shiny, diplôme, Charme Chroma et sprites de vol préparés et enregistrés.');
 }
 
 preparer().catch((erreur) => {

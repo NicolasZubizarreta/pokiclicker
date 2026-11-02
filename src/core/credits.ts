@@ -1,4 +1,5 @@
 import donnees from '../../data/credits.json';
+import images from '../../data/credits-images.json';
 
 export function planCredits(reduit: boolean) {
   const { titre, message, sections, temps, imagesFlottantes } = structuredClone(donnees);
@@ -12,6 +13,11 @@ export function planCredits(reduit: boolean) {
   };
 }
 
+const correspondances: Record<string, string> = images.correspondances;
+
+/** Image du jeu V2 qui remplace une image de la V1 de la liste des images flottantes (`undefined` : pas d'équivalent). */
+export const imageDesCredits = (imageV1: string): string | undefined => correspondances[imageV1];
+
 export type RectangleCredits = { x: number; y: number; w: number; h: number };
 export type ImageFlottante = RectangleCredits & { image: string; vieMs: number; opacite: number };
 
@@ -21,7 +27,8 @@ export function tirerImageFlottante(actifs: readonly Readonly<RectangleCredits>[
   const config = donnees.imagesFlottantes;
   if (actifs.length >= config.maximum) return null;
   const entier = (min: number, max: number) => min + Math.floor(alea() * (max - min + 1));
-  const image = config.images[entier(0, config.images.length - 1)]!;
+  const images = config.images.filter(image => image in correspondances);
+  const image = images[entier(0, images.length - 1)]!;
   const taille = entier(config.taillePourcent[0]!, config.taillePourcent[1]!);
   for (let essai = 0; essai < 10; essai++) {
     const x = entier(0, 100 - taille);

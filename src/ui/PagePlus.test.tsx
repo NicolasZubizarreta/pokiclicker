@@ -120,7 +120,7 @@ it('affiche le tableau de bord C et ouvre les badges avec le focus aller-retour'
   storeJeu.setState({ progression });
   const { container } = render(<PagePlus />);
   const aventure = screen.getByRole('region', { name: 'Ton aventure' });
-  expect(aventure.textContent).toBe(`Ton aventureRégionKanto · ${storeJeu.getState().lieu!.nom}Pokédex24 / 151Badges2 / 8DPS${formaterDps(storeJeu.getState().dps)}`);
+  expect(aventure.textContent).toBe(`Ton aventureStatistiquesRégionKanto · ${storeJeu.getState().lieu!.nom}Pokédex24 / 151Badges2 / 8DPS${formaterDps(storeJeu.getState().dps)}`);
   expect(screen.getByRole('list').textContent).toBe('Pokédex 24 / 151Prochain palier : 30 (Collectionneur) · Encore 6 espèces.Badges');
   expect(within(screen.getByRole('list')).getAllByRole('listitem')).toHaveLength(2);
   expect(aventure.querySelector('dl')).toBeTruthy();

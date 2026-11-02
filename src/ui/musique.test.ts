@@ -84,3 +84,22 @@ it('reste silencieuse quand la lecture est refusée', async () => {
   await Promise.resolve();
   expect(lecteur.play).toHaveBeenCalled();
 });
+
+it('ne charge pas de piste hors connexion et permet de reprendre en ligne', () => {
+  const reseau = { onLine: false };
+  vi.stubGlobal('navigator', reseau);
+  try {
+    const { lecteurs, creerLecteur } = fabrique();
+    const musique = creerMusique({ creerLecteur, actifInitial: true, enregistrer: () => {} });
+    musique.definirScene('combat');
+    musique.deverrouiller();
+    expect(Object.keys(lecteurs)).toEqual([]);
+    reseau.onLine = true;
+    musique.deverrouiller();
+    expect(lecteurs['audio/route.ogg']!.play).toHaveBeenCalledTimes(1);
+    reseau.onLine = false;
+    musique.definirScene('hors-combat');
+    expect(lecteurs['audio/route.ogg']!.paused).toBe(true);
+    expect(lecteurs['audio/carte.ogg']).toBeUndefined();
+  } finally { vi.unstubAllGlobals(); }
+});

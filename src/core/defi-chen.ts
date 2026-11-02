@@ -13,6 +13,7 @@ export function chargerDefiChen(fichier: unknown): FichierDefiChen {
   verifier(fichier && typeof fichier === 'object', 'fichier attendu.');
   const defi = fichier as FichierDefiChen;
   verifier(defi.version === 1, 'version inconnue.');
+  verifier(Number.isFinite(defi.multiplicateurPv) && defi.multiplicateurPv > 0, 'multiplicateur de PV attendu.');
   verifier(Array.isArray(defi.combats) && defi.combats.length === 6, '6 combats attendus.');
   defi.combats.forEach((combat, i) => {
     verifier(combat && combat.etape === i + 1 && Number.isInteger(combat.pokemon)
@@ -51,7 +52,7 @@ export function zoneDuDefi(starterId: number | null): Zone {
   const combats = defi.combats.map(combat => ({ ...combat,
     ...(combat.etape === 5 ? { pokemon: counter.pokemon, nom: counter.nom } : {}) }));
   return { id: 'kanto.labo', nom: labo.nom, decor: labo.decor, ancienId: labo.ancienId,
-    type: 'ligue', niveaux: [100, 100], etapes: combats.length, multiplicateurPv: 1,
+    type: 'ligue', niveaux: [100, 100], etapes: combats.length, multiplicateurPv: defi.multiplicateurPv,
     sauvages: [], adversaires: combats.slice(0, -1), boss: combats[combats.length - 1]!,
     liens: [{ vers: labo.depuis }] };
 }

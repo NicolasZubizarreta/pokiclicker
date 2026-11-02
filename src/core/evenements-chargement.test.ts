@@ -26,6 +26,39 @@ describe('chargement des événements', () => {
       expect(catalogueKanto.parId(id).id).toBe(id);
     }
   });
+  it('charge la scène plein écran et la vitrine d’une réplique, refuse leurs champs invalides', () => {
+    const scene = { zone: 'kanto.labo', pose: 'chen-1', entree: 'montee', entreeMs: 2000, boiteMs: 2000, glitchMs: 2000 };
+    const vitrine = { image: 'img/fin/diplome.webp', animation: 'entree', annonce: 'Bravo' };
+    const replique = { type: 'dialogue', locuteur: 'Chen', texte: 'Voici.', vitrine };
+    // Le labo est un lieu, pas une zone de combat : le catalogue du jeu le déclare comme zone sans combat.
+    const monde: Parameters<typeof chargerEvenements>[1] = { zone: id => id === 'kanto.labo'
+      ? { ...kanto.lieu('labo'), id, sansCombat: true, liens: [] } : kanto.zone(id) };
+    const chargerLabo = (modifications: Record<string, unknown>) =>
+      chargerEvenements({ [fichier]: { version: 1, evenements: [{ ...evenement, ...modifications }] } }, monde);
+    const charge = chargerLabo({ scene, etapes: [replique] }).liste[0]!;
+    expect(charge.scene).toEqual(scene);
+    expect(charge.etapes[0]).toEqual(replique);
+    expect(() => chargerLabo({ scene: { ...scene, entree: 'saut' } })).toThrow('Entrée inconnue');
+    expect(() => chargerLabo({ scene: { ...scene, duree: 3 } })).toThrow('Champ inconnu');
+    expect(() => chargerLabo({ scene: { ...scene, entreeMs: -1 } })).toThrow();
+    expect(() => chargerLabo({ etapes: [{ ...replique, vitrine: { ...vitrine, animation: 'vol' } }] }))
+      .toThrow('Animation inconnue');
+  });
+  it('reprend la séquence de la V1 : glitch, Chen qui monte, diplôme puis Charme Chroma sur leurs répliques', () => {
+    const fin = catalogueKanto.parId('kanto.fin-pokedex');
+    expect(fin.scene).toEqual({ zone: 'kanto.labo', pose: 'chen-1', entree: 'montee', entreeMs: 2000,
+      boiteMs: 2000, glitchMs: 2000 });
+    const repliques = fin.etapes.filter(etape => etape.type === 'dialogue');
+    expect(repliques).toHaveLength(8);
+    expect(repliques.map(replique => replique.vitrine && [replique.vitrine.image, replique.vitrine.animation]))
+      .toEqual([undefined, undefined, undefined, undefined,
+        ['img/fin/diplome.webp', 'entree'], ['img/fin/diplome.webp', 'envol'],
+        ['img/fin/charme-chroma.webp', 'zoom'], ['img/fin/charme-chroma.webp', 'envol']]);
+    expect(repliques[6]?.vitrine?.annonce).toBe('CHARME CHROMA OBTENU !');
+    expect(catalogueKanto.parId('kanto.defi-chen-intro').scene).toMatchObject({ pose: 'chen-2', entree: 'descente', glitchMs: 2000 });
+    expect(catalogueKanto.parId('kanto.defi-chen-victoire').scene).toMatchObject({ pose: 'chen-2', entree: 'fondu' });
+    expect(catalogueKanto.parId('kanto.defi-chen-victoire').scene?.glitchMs).toBeUndefined();
+  });
   it('charge la Pokéflûte sans partager les données du catalogue', () => {
     const objets = chargerObjetsCles();
     expect(objets).toEqual([{ id: 'pokeflute', nom: 'Pokéflûte',

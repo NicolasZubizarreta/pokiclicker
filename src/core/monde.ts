@@ -177,6 +177,10 @@ export function chargerMonde(fichier: FichierZones, catalogue = chargerPokemon()
         : { ok: false, raison: 'Cette zone est inaccessible.' };
     },
     liensDepuis: (id: string) => zone(id).liens,
+    /** Sortie à proposer : le premier lien dont la condition est remplie, à défaut le premier (il s'affiche fermé). */
+    lienSuivant(liens: Lien[], etat: EtatMonde): Lien | undefined {
+      return liens.find(lien => !lien.si || evaluer(lien.si, etat, contexte).ok) ?? liens[0];
+    },
     peutPasser(depuis: string, vers: string, etat: EtatMonde): ResultatCondition {
       const liens = zone(depuis).liens.filter((lien) => lien.vers === vers);
       if (!liens.length) return { ok: false, raison: `Pas de chemin de ${depuis} vers ${vers}.` };

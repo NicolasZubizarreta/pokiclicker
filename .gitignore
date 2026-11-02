@@ -12,3 +12,6 @@ design/references/hgss/
 .claude/route/
 dev-dist/
 .vitest/
+
+# Générique des crédits : droits réservés, usage privé (docs/projet/musiques.md)
+public/audio/PokemonCreditKanto.mp3
