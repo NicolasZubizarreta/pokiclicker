@@ -68,6 +68,7 @@ export type ReglagesDelais = {
 };
 
 export const reglages: {
+  journal: { actif: boolean };
   ronflex: { souffle: {
     dureeCumuleeS: number; largeurCible: number; centreCible: number; amplitudeCible: number;
     facteurNiveau: number; facteurCible: number; plafondPas: number;
@@ -128,6 +129,10 @@ export const reglages: {
     calciumParBoost: number;
   };
 } = donnees as typeof reglages;
+
+if (!reglages.journal || typeof reglages.journal.actif !== 'boolean') {
+  throw new Error('Réglages du journal invalides');
+}
 
 const sons = reglages.sons;
 if (!sons || typeof sons.actifParDefaut !== 'boolean' || !Number.isFinite(sons.volumeDb)

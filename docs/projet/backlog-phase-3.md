@@ -40,7 +40,7 @@ Fourchette : 1 à 2 jours. Dépend de : AB livré. Risque : un état de départ 
 
 ## B. `feat(equilibrage): relever le temps réel passé par zone`
 
-Labels : `type:feat`, `etat:idee`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : oui (journal local de développement)
+Labels : `type:feat`, `etat:en_cours`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : oui (journal local de développement)
 
 ### Histoire
 En tant que Nicolas, je veux exporter le déroulé de ma partie pour comparer mon parcours aux attentes du simulateur.
@@ -51,11 +51,11 @@ Un journal local optionnel doit relever les entrées dans chaque zone, les essai
 Fichiers concernés : `src/core/reglages.ts`, `data/reglages.json`, `src/ui/PagePlus.tsx`, points de transition de zone et de lancement des boss à identifier ; tests ciblés du journal. L'export JSON est accessible depuis la page Plus en développement ou depuis la console. Il contient la version du format, la révision des données et les paramètres utiles à la comparaison.
 
 ### Critères d'acceptation
-- [ ] Étant donné le réglage désactivé par défaut, quand une partie se déroule, alors aucun relevé n'est collecté et aucune requête réseau n'est ajoutée.
-- [ ] Étant donné le journal activé, quand le joueur entre ou revient dans une zone et tente un boss, alors le journal conserve l'heure d'entrée, les visites, le nombre d'essais et leur issue, ainsi que le temps par visite et par zone.
-- [ ] Étant donné un onglet masqué, une pause ou un rechargement, quand le relevé reprend, alors les temps actifs et les interruptions sont distingués selon une convention documentée, sans compter deux fois une visite ou un essai.
+- [x] Étant donné le réglage désactivé par défaut, quand une partie se déroule, alors aucun relevé n'est collecté et aucune requête réseau n'est ajoutée.
+- [x] Étant donné le journal activé, quand le joueur entre ou revient dans une zone et tente un boss, alors le journal conserve l'heure d'entrée, les visites, le nombre d'essais et leur issue, ainsi que le temps par visite et par zone.
+- [x] Étant donné un onglet masqué, une pause ou un rechargement, quand le relevé reprend, alors les temps actifs et les interruptions sont distingués selon une convention documentée, sans compter deux fois une visite ou un essai.
 - [ ] Étant donné un relevé, quand Nicolas exporte le JSON, alors il peut retrouver Carmin, Tour Pokémon, Céladopole et Îles Écume, avec les paramètres et les limites de comparaison au simulateur ; l'export reste local et un effacement est possible.
-- [ ] Étant donné le même parcours avec et sans journal, quand les combats et récompenses sont comparés, alors les règles et leurs résultats restent identiques.
+- [x] Étant donné le même parcours avec et sans journal, quand les combats et récompenses sont comparés, alors les règles et leurs résultats restent identiques.
 
 ### Hors périmètre
 Télémétrie distante, compte utilisateur, collecte automatique en production, modification des combats ou récompenses.

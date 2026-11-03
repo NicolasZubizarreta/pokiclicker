@@ -46,6 +46,7 @@ import { afficherBoutique, afficherCentre, afficherSac, type AffichageBoutique, 
 import { afficherCasino, type ActionsCasino, type AffichageCasino } from './store-casino';
 import { detailErreur, ouvrirPartie } from './persistance';
 import { creerStockageLocal } from './stockage-local';
+import { creerJournalLocal } from './journal-zones';
 import { genererIdentifiant } from './identifiants';
 import { equipeDeDepart } from './equipe-de-depart';
 import { imageConnue } from './Image';
@@ -142,6 +143,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
 }) {
   let coeur: EtatCombat | null = null;
   let initialise = false;
+  let journal: ReturnType<typeof creerJournalLocal> = null;
   let zonesVues = new Set<string>();
   const totalBadges = kanto.zones.filter(zone => !zone.sansCombat && zone.type === 'arene').length;
   let region: DonneesRegion;
@@ -307,6 +309,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         messagesCapture.push(...messages);
       }
       if (evenement.type === 'boss-vaincu') {
+        journal?.issue('victoire', evenement.zoneId);
         if (coeur.zone.id === 'kanto.labo') {
           region = victoireDefi({ ...region, etape: coeur.zone.etapes });
           coeur = null;
@@ -344,6 +347,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         bossBattus.push(evenement.zoneId);
       }
       if (evenement.type === 'boss-echoue') {
+        journal?.issue('echec', evenement.zoneId);
         if (coeur.zone.id === 'kanto.labo') {
           const resultat = echecDefi(region);
           region = resultat.region;
@@ -392,6 +396,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
   };
   const afficher = () => {
     if (!initialise) return;
+    journal?.synchroniser(lieuDe(region.zoneId), coeur);
     detecterDeblocages();
     avancerDeblocages();
     if (!deblocageEnCours && ecranLibre()) {
@@ -544,6 +549,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
   };
   const changerDeZone = (zoneId: string): void => {
     const lieu = lieuDe(zoneId);
+    journal?.synchroniser(lieu, null);
     const autoClic = coeur?.autoClic ?? false;
     coeur = lieu.sansCombat ? null : creerCombat(zoneDeLigue(lieu, region.starterId), region.equipe.map(versMembreEquipe), alea, actifsCourants(region, horloge.maintenant()), { ...optionsCombat(), autoClic });
     resteAutoClicMs = 0;
@@ -587,7 +593,11 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         ennemi: { ...coeur.ennemi, pv: coeur.ennemi.pvMax } };
     }
   };
-  const cacher = () => { if (document.visibilityState === 'hidden') enregistrer(); };
+  const cacher = () => {
+    if (document.visibilityState === 'hidden') { journal?.pauser('onglet-masque'); enregistrer(); }
+    else journal?.reprendre();
+  };
+  const quitter = () => { journal?.pauser('rechargement'); enregistrer(); };
   const demarrerEvolution = (evolution: { uid: string; de: number; vers: number }) => {
     emettreSon('up');
     evolutionEnCours = { uid: evolution.uid, ancien: evolution.de, nouveau: evolution.vers };
@@ -656,6 +666,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
   };
   const frapper = (): boolean => {
     if (!coeur || minuteur === undefined || combatEnPause(evenements, region)) return false;
+    journal?.synchroniser(lieuDe(region.zoneId), coeur);
     actualiserActifs();
     const avant = coeur;
     coeur = cliquer(coeur, limiteur);
@@ -933,6 +944,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
           coeur = lieu.sansCombat ? null : reprendreCombat(zoneDeLigue(lieu, region.starterId), region.equipe.map(versMembreEquipe), alea, region.etape, actifsCourants(region, horloge.maintenant()), optionsCombat());
           synchroniserCombatEvenement();
           initialise = true;
+          journal = creerJournalLocal(horloge, stockage);
           // Rechargement (ou fermeture) pendant le Panthéon : le défi réservé repart comme à la sortie du Panthéon.
           if (region.drapeaux.includes(DRAPEAU_DEFI_RESERVE)) debutDefiChenMs = horloge.maintenant() + donneesPantheon.delais.defiChenMs;
           noterDansPokedex();
@@ -941,7 +953,13 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         }
         executer({ type: 'debut-partie' });
         afficher();
+        if (typeof document !== 'undefined' && document.visibilityState === 'hidden') journal?.pauser('onglet-masque');
+        else journal?.reprendre();
         boucle = creerBoucle({ horloge, etat: null, avancer: () => {
+          if (journal) {
+            journal.synchroniser(lieuDe(region.zoneId), coeur);
+            if (typeof document === 'undefined' || document.visibilityState !== 'hidden') journal.avancer(reglages.boucle.pasMs);
+          }
           tempsJeuMs += reglages.boucle.pasMs;
           if (annonce !== null && tempsJeuMs >= finAnnonceMs) annonce = null;
           if (banniere !== null && tempsJeuMs >= finBanniereMs) banniere = null;
@@ -964,7 +982,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         minuteur = setInterval(() => store.getState().tick(), reglages.boucle.pasMs);
         sauvegarde = setInterval(enregistrer, reglages.interface.sauvegardeAutoMs);
         if (typeof window !== 'undefined') {
-          window.addEventListener('pagehide', enregistrer);
+          window.addEventListener('pagehide', quitter);
           document.addEventListener('visibilitychange', cacher);
         }
       } catch (cause) {
@@ -972,17 +990,18 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       }
     },
     arreter() {
+      journal?.pauser('pause');
       clearInterval(minuteur);
       clearInterval(sauvegarde);
       minuteur = undefined;
       boucle = undefined;
       debutDefiChenMs = null;
       if (typeof window !== 'undefined') {
-        window.removeEventListener('pagehide', enregistrer);
+        window.removeEventListener('pagehide', quitter);
         document.removeEventListener('visibilitychange', cacher);
       }
     },
-    fermer: enregistrer,
+    fermer: quitter,
     tick: () => {
       // Un événement en cours (dialogue, combat scénarisé) fait attendre le défi au lieu de le perdre.
       if (boucle && debutDefiChenMs !== null && horloge.maintenant() >= debutDefiChenMs && !region.evenementEnCours) {

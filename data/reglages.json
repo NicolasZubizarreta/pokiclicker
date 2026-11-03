@@ -1,4 +1,5 @@
 {
+  "journal": { "actif": false },
   "ronflex": {
     "souffle": {
       "dureeCumuleeS": 3,
