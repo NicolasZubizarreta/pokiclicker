@@ -174,6 +174,35 @@ Vérifier par zone l'identité solde final = solde initial + gains − dépenses
 ### Effort et risques
 Fourchette : 1 à 2 jours, hors attente du relevé. Dépend de : B et sa partie enregistrée ; C apporte l'analyse des attentes liées à l'argent. Risque : un puits d'argent peut ralentir un joueur qui achète déjà tout. Mesure avant proposition ; décision de Nicolas avant toute règle ou valeur modifiée.
 
+## G. `feat(centre): vendre la baie Grena (+2 de bonheur)`
+
+Labels : `type:feat`, `etat:fait`, `est:1`, `prio:3` · branche : `v2` · `agent-ok` : oui · décision de Nicolas du 03/11 (nouvel objet, absent de la V1)
+
+### Histoire
+En tant que joueur, je veux acheter au Centre commercial une baie qui augmente le bonheur d'un Pokémon pour monter son bonus de dégâts sans attendre les victoires.
+
+### Contexte
+Le bonheur ne monte aujourd'hui que de +1 par victoire (équipe, écart de niveau ≤ 25, max 255) et donne jusqu'à +25,5 % de dégâts (`bonheurParPoint` 0,001). Dans les jeux, la Baie Grena (Pomeg) est l'une des six baies qui donnent du bonheur ; Nicolas a choisi celle-là le 03/11. Elle suit le même parcours que le Calcium et les bonbons : objet du Centre commercial utilisé sur un Pokémon de l'équipe (`src/core/objets-equipe.ts`, type à ajouter à côté de `bonbon` et `calcium`).
+
+Fichiers concernés : `data/objets.json` (nouvel objet, `boutique: "mall"`), `data/reglages.json` (`centre.objets`, valeur du gain, plafond de bonheur déjà présent), `src/core/objets-equipe.ts`, `src/ui/EcranCombat.tsx` (ligne 222, objets répétables), `src/ui/PageCentre.tsx`, `data/ressources-externes.json` et `data/credits-images.json` (icône `sprites/items/pomeg-berry.png`, même banque que la Baie Cheri), `data/guide.json` (phrase sur le bonheur).
+
+### Critères d'acceptation
+- [x] Étant donné le Centre commercial ouvert, quand j'ouvre la liste, alors la Baie Grena est vendue avec son icône (pomeg-berry), sa description et un prix de base de 500 pièces l'unité.
+- [x] Étant donné les badges obtenus, quand je regarde le prix, alors il suit l'inflation du Centre comme les autres objets (`sansInflation: false`, +5 % par badge) et prend la remise de −15 % au palier de Pokédex déjà prévu (`palierRemise` 70, `remise` 0,85) ; le prix est le même dans la liste, au clic et à l'achat.
+- [x] Étant donné une baie dans le sac et un Pokémon de l'équipe, quand je l'utilise, alors son bonheur gagne +2 (valeur dans `data/reglages.json`), sans dépasser 255, et son bonus de dégâts suit (`equipe.ts`).
+- [x] Étant donné un Pokémon à 254, quand j'utilise la baie, alors il passe à 255 ; à 255, la baie n'est pas consommée et le message « Limite atteinte ! » s'affiche, comme pour le Calcium.
+- [x] Étant donné plusieurs baies, quand j'utilise l'objet en série, alors le geste est répétable comme le Calcium et le bonbon, jusqu'à la limite ; la fiche Pokémon montre le nouveau bonheur.
+- [x] Étant donné l'objet ajouté, quand je recharge une partie existante, alors aucune migration n'est nécessaire (inventaire vide pour cette clé) et les tests de sauvegarde passent.
+
+### Hors périmètre
+Les cinq autres baies, une baie par Pokémon du PC, un autre effet (EV, évolution), tout changement du gain de +1 par victoire.
+
+### Vérification
+Tests Vitest du cœur (gain, plafond, prix avec inflation et remise), test de l'interface du Centre, `npm.cmd run ci`, captures 390 et 1440 px de la liste du Centre et de la fiche Pokémon regardées.
+
+### Effort et risques
+Fourchette : 0,5 à 1 jour. Risque : la baie sert de puits d'argent (500 × 1,4 × 0,85 ≈ 595 en fin de partie, bonheur max en ~128 baies par Pokémon, soit environ 76 000 pièces) ; l'effet sur l'équilibrage est à relire avec le ticket F, sans changer d'autres prix.
+
 ## Dépendances et décisions attendues
 
 - Ordre de lecture et de priorité : A, B, C, D, E, F. B peut être préparé indépendamment d'A ; F n'attend pas E.

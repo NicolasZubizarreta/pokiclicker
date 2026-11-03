@@ -152,15 +152,16 @@ it('le clic droit ouvre Résumé, puis la fiche du Pokémon et rend le focus à 
   expect(document.activeElement).toBe(carte);
 });
 
-function preparerObjet(type: 'bonbon' | 'calcium' = 'bonbon', stock = 5, avantUtilisation?: () => void) {
+function preparerObjet(type: 'bonbon' | 'calcium' | 'baie' = 'bonbon', stock = 5, avantUtilisation?: () => void) {
   storeJeu.setState({ sac: { acces: { ouvert: true, raison: null }, entrees: [{
-    id: type === 'bonbon' ? 'candy' : 'calcium', nom: type === 'bonbon' ? 'Bonbon' : 'Calcium',
+    id: type === 'bonbon' ? 'candy' : type === 'baie' ? 'pomegBerry' : 'calcium',
+    nom: type === 'bonbon' ? 'Bonbon' : type === 'baie' ? 'Baie Grena' : 'Calcium',
     description: 'Objet pour ton équipe.', image: null, categorie: 'soins', quantite: stock,
     actif: false, utilisable: type,
   }] } });
   render(<PageEquipe />);
   avantUtilisation?.();
-  fireEvent.click(screen.getByRole('button', { name: `${type === 'bonbon' ? 'Bonbon' : 'Calcium'} ×${stock}` }));
+  fireEvent.click(screen.getByRole('button', { name: `${type === 'bonbon' ? 'Bonbon' : type === 'baie' ? 'Baie Grena' : 'Calcium'} ×${stock}` }));
 }
 
 it('conserve la même région de sélection vide puis annoncée puis vide', () => {
@@ -242,6 +243,21 @@ it('laisse les œufs et les niveaux maximum inertes et borne les Bonbons au nive
   fireEvent.click(screen.getByRole('button', { name: 'Plus' }));
   expect((screen.getByRole('button', { name: 'Plus' }) as HTMLButtonElement).disabled).toBe(true);
   expect(screen.getByLabelText('Quantité', { selector: 'output' }).textContent).toBe('2');
+});
+
+it('borne la Baie Grena au plafond et permet une utilisation en série', () => {
+  storeJeu.setState({ equipe: [{ ...storeJeu.getState().equipe[0]!, pokemon: { ...pokemon, bonheur: 250 } },
+    { ...storeJeu.getState().equipe[1]!, pokemon: { ...pokemon, uid: 'limite', surnom: 'Limite', bonheur: 255 } }],
+  utiliserObjet: vi.fn(() => '+6 de bonheur') });
+  preparerObjet('baie', 5);
+  expect((screen.getByRole('button', { name: 'Limite, niveau 16' }) as HTMLButtonElement).disabled).toBe(true);
+  fireEvent.click(screen.getByRole('button', { name: 'Bourgeon, niveau 16' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Plus' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Plus' }));
+  expect((screen.getByRole('button', { name: 'Plus' }) as HTMLButtonElement).disabled).toBe(true);
+  fireEvent.click(screen.getByRole('button', { name: 'Valider' }));
+  expect(storeJeu.getState().utiliserObjet).toHaveBeenCalledWith('baie', 'premier', 3);
+  expect(screen.getByRole('alert').textContent).toBe('+6 de bonheur');
 });
 
 it('borne le Calcium au stock et à la limite et affiche une erreur du store', () => {

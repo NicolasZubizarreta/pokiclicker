@@ -20,6 +20,8 @@ function guideDeLaV1() {
 }
 
 const ECARTS_GUIDE = [
+  { section: 'Fonctionnalités clés', v1: 'de bonheur.',
+    v2: 'de bonheur. La Baie Grena du Centre commercial donne +2 de bonheur.' },
   { section: 'Fonctionnalités clés', v1: 'accessible via Profil', v2: 'accessible via la page Plus' },
   { section: 'Parcours principal (A à Z)', v1: 'Pokéshop', v2: 'Shop' },
   { section: 'CT Fauchage', v1: 'Pokéshop', v2: 'Shop' },
@@ -60,7 +62,7 @@ it('lit les chiffres et les zones d\'ouverture dans les données du jeu, pas dan
   for (const marqueur of ['reglages.combat.etapeBoss', 'reglages.combat.minuteurBossMs', 'zoneObjet:leftovers',
     'zoneObjet:pokeradar', 'zoneObjet:falseSwipe', 'zoneLieu:pension', 'zoneReglage:reglages.pc.zone',
     'reglages.pension.chances.typePartage', 'reglages.pension.chances.memeEspece',
-    'reglages.pension.bonheurNaissance', 'reglages.degats.pierreEternelle', 'compte:ligue.combats',
+    'reglages.pension.bonheurNaissance', 'reglages.recompenses.bonheur.gainBaie', 'reglages.degats.pierreEternelle', 'compte:ligue.combats',
     'compte:defi.combats', 'compte:pokemon.pokemon']) {
     expect(brut, marqueur).toContain(marqueur);
   }

@@ -1,3 +1,4 @@
+import type { TypeObjetEquipe } from '../core/objets-equipe';
 import { accesCentre, accesSac, accesShop, chargerObjets, contenuSac, objetsDuCentre, objetsDuShop, prixObjet } from '../core/boutique';
 import { kanto } from '../core/regions';
 import { reglages } from '../core/reglages';
@@ -15,7 +16,7 @@ export type AffichageBoutique = { acces: Acces; objets: (Description & {
   prix: number; stock: number; possede: boolean; unique: boolean; abordable: boolean;
 })[] };
 export type AffichageSac = { acces: Acces; entrees: (Description & {
-  quantite: number; actif: boolean; utilisable: 'bonbon' | 'calcium' | 'pierre' | 'stase' | 'jeton' | 'direct' | null;
+  quantite: number; actif: boolean; utilisable: TypeObjetEquipe | 'pierre' | 'stase' | 'jeton' | 'direct' | null;
 })[] };
 
 const objets = chargerObjets();
@@ -56,7 +57,7 @@ export function afficherSac(region: DonneesRegion, precedent: AffichageSac | nul
       quantite: objet.inventaire ? region.inventaire[objet.inventaire] ?? 0 : 1,
       actif: region.ameliorations.includes(objet.id),
       utilisable: objet.inventaire === 'bonbon' || objet.inventaire === 'calcium' ? objet.inventaire
-        : objet.inventaire === 'everstone' ? 'stase' : objet.inventaire === 'shinyToken' ? 'jeton'
+        : objet.inventaire === 'pomegBerry' ? 'baie' : objet.inventaire === 'everstone' ? 'stase' : objet.inventaire === 'shinyToken' ? 'jeton'
         : direct.includes(objet.inventaire ?? '') ? 'direct'
         : pierresEvolution.has(objet.inventaire ?? '') ? 'pierre' : null,
     })) };

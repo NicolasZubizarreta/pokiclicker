@@ -126,6 +126,20 @@
     "sac": null
   },
   {
+    "id": "pomegBerry",
+    "nom": "Baie Grena",
+    "description": "+2 de bonheur à un Pokémon de l'équipe (max 255).",
+    "prix": 500,
+    "type": "consommable",
+    "zone": "kanto.bourg-palette",
+    "boutique": "mall",
+    "sansInflation": false,
+    "inventaire": "pomegBerry",
+    "image": "img/objets/pomeg-berry.png",
+    "categorie": "soins",
+    "sac": null
+  },
+  {
     "id": "fireStone",
     "nom": "Pierre Feu",
     "description": "Fait évoluer certains Pokémon.",

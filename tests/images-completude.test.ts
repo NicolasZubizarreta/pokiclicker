@@ -68,7 +68,7 @@ it('contient les décors de combat et documente chaque autre décor absent', asy
   }
 });
 
-it('contient 25 objets (dont la Baie du casino), six artworks carrés et l’animation de Roucarnage', async () => {
+it('contient 26 objets (dont la Baie Grena), six artworks carrés et l’animation de Roucarnage', async () => {
   // Prépare le lot historique ; les ajouts Jeton Shiny et diplôme ont leurs tests dédiés.
   const { 'img/objets/JetonShiny.png': jeton, 'img/objets/Diplome.png': diplome, 'img/objets/PokeRadar.png': radar, ...tailles } = JSON.parse(await lire('public/img/tailles.json'));
   expect(radar).toEqual({ largeur: images.objet.taille, hauteur: images.objet.taille });
@@ -77,7 +77,8 @@ it('contient 25 objets (dont la Baie du casino), six artworks carrés et l’ani
   const objets = Object.keys(tailles).filter((cle) => cle.startsWith('img/objets/'));
   const artworks = Object.keys(tailles).filter((cle) => cle.startsWith('img/artworks/'));
   const animations = Object.keys(tailles).filter((cle) => cle.startsWith('img/animes/'));
-  expect(objets).toHaveLength(25);
+  expect(objets).toHaveLength(26);
+  expect(objets).toContain('img/objets/pomeg-berry.png');
   expect(artworks.sort()).toEqual([1, 4, 7].flatMap((numero) => [
     `img/artworks/${numero}.png`, `img/artworks/${numero}-shiny.png`,
   ]).sort());

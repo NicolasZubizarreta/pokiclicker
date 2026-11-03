@@ -3,7 +3,7 @@ import { peutEvoluer, stade } from './evolution';
 import { reglages } from './reglages';
 import type { DonneesRegion, PokemonPossede } from './sauvegarde-types';
 
-type TypeObjet = 'bonbon' | 'calcium';
+export type TypeObjetEquipe = 'bonbon' | 'calcium' | 'baie';
 
 function refusStase(pokemon: PokemonPossede | undefined): string | undefined {
   if (!pokemon || pokemon.oeuf) return 'Pokémon invalide !';
@@ -61,24 +61,26 @@ export function utiliserJetonShiny(region: DonneesRegion, uid: string): Resultat
   };
 }
 
-function refusCible(type: TypeObjet, pokemon: PokemonPossede | undefined): string | undefined {
+function refusCible(type: TypeObjetEquipe, pokemon: PokemonPossede | undefined): string | undefined {
   if (!pokemon || pokemon.oeuf) return 'Pokémon invalide !';
   if (type === 'bonbon' && pokemon.niveau >= 100) return 'Niveau maximum !';
   if (type === 'calcium' && pokemon.calcium >= reglages.degats.calciumMax) return 'Limite atteinte !';
+  if (type === 'baie' && pokemon.bonheur >= reglages.recompenses.bonheur.max) return 'Limite atteinte !';
 }
 
-export function cibleValide(type: TypeObjet, pokemon: PokemonPossede): boolean {
+export function cibleValide(type: TypeObjetEquipe, pokemon: PokemonPossede): boolean {
   return refusCible(type, pokemon) === undefined;
 }
 
-export function quantiteMax(type: TypeObjet, pokemon: PokemonPossede, stock: number): number {
+export function quantiteMax(type: TypeObjetEquipe, pokemon: PokemonPossede, stock: number): number {
   if (!cibleValide(type, pokemon) || !Number.isFinite(stock)) return 0;
-  const restant = type === 'bonbon' ? 100 - pokemon.niveau : reglages.degats.calciumMax - pokemon.calcium;
+  const restant = type === 'bonbon' ? 100 - pokemon.niveau : type === 'calcium' ? reglages.degats.calciumMax - pokemon.calcium
+    : Math.ceil((reglages.recompenses.bonheur.max - pokemon.bonheur) / reglages.recompenses.bonheur.gainBaie);
   return Math.max(0, Math.floor(Math.min(stock, restant)));
 }
 
 export function utiliserSurPokemon(
-  region: DonneesRegion, type: TypeObjet, cle: string, uid: string, n: number,
+  region: DonneesRegion, type: TypeObjetEquipe, cle: string, uid: string, n: number,
 ): ResultatEquipe & { message: string } {
   const pokemon = region.equipe.find((p) => p.uid === uid);
   const raison = refusCible(type, pokemon);
@@ -89,13 +91,15 @@ export function utiliserSurPokemon(
   }
   return {
     ok: true,
-    message: type === 'bonbon' ? `+${n} niveaux !` : `+${2 * n} % DPS permanent`,
+    message: type === 'bonbon' ? `+${n} niveaux !` : type === 'calcium' ? `+${2 * n} % DPS permanent`
+      : `+${reglages.recompenses.bonheur.gainBaie * n} de bonheur`,
     region: {
       ...region,
       inventaire: { ...region.inventaire, [cle]: stock - n },
       equipe: region.equipe.map((p) => p.uid !== uid ? p : {
         ...p,
-        ...(type === 'bonbon' ? { niveau: p.niveau + n } : { calcium: p.calcium + n }),
+        ...(type === 'bonbon' ? { niveau: p.niveau + n } : type === 'calcium' ? { calcium: p.calcium + n }
+          : { bonheur: Math.min(reglages.recompenses.bonheur.max, p.bonheur + n * reglages.recompenses.bonheur.gainBaie) }),
       }),
     },
   };

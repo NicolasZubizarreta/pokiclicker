@@ -66,7 +66,7 @@ test('Centre : vol, achat, Sac, retour et rechargement', async ({ page }, inform
   const titre = page.getByRole('heading', { name: 'Centre commercial', exact: true });
   await expect(titre).toBeVisible({ timeout: 10000 });
   await expect(titre).toBeFocused();
-  await expect(page.locator('[data-objet]')).toHaveCount(11);
+  await expect(page.locator('[data-objet]')).toHaveCount(12);
   await expect(page.getByRole('status')).toHaveCount(1);
   await page.getByRole('spinbutton', { name: 'Quantité' }).fill('2');
   await page.getByRole('button', { name: /^Acheter ×2/ }).click();

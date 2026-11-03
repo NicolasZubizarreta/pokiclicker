@@ -16,7 +16,7 @@ function prixDuCentre(id: string, prixV1: number, badges: number, palier: boolea
 }
 
 it('conserve l’ordre et chaque prix affiché du Centre V1, aux écarts voulus près', () => {
-  const catalogue = objetsDuCentre(objets, kanto, etat);
+  const catalogue = objetsDuCentre(objets, kanto, etat).filter(objet => objet.id !== 'pomegBerry');
   expect(catalogue.map(objet => objet.id)).toEqual(fixture.ordre);
   for (const cas of fixture.affichage) {
     expect(catalogue.map(objet => ({ id: objet.id, prix: prixObjet(objet, cas) })))

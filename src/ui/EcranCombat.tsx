@@ -157,7 +157,7 @@ function Scene({ store, ouvrirPension }: { store: StoreJeu; ouvrirPension(): voi
       onPointerDown={event => { if (event.button === 0) attaquer(); }}
       onClick={event => { if (event.detail === 0) attaquer(); }} />
     <DegatsFlottants store={store} />
-    <div className="dock-capture cadre absolute bottom-3 left-1 z-20 bg-surface p-1 shadow-lg">
+    <div className="dock-capture cadre absolute bottom-3 left-3 z-20 bg-surface p-1 shadow-lg">
       <BarreCapture {...capture} capturer={capturer} />
     </div>
     {radar && <button type="button" aria-label="Poké-Radar" disabled={zone.type === 'ligue'}
@@ -219,7 +219,7 @@ function Equipe({ store }: { store: StoreJeu }) {
       : objet.type === 'pierre' ? etat.utiliserPierre(uid, objet.cle)
         : objet.type === 'jeton' ? etat.utiliserJeton(uid) : etat.utiliserObjet(objet.type, uid, 1);
     signaler(message ?? `${objet.nom} utilisé.`);
-    const repetable = objet.type === 'bonbon' || objet.type === 'calcium';
+    const repetable = objet.type === 'bonbon' || objet.type === 'calcium' || objet.type === 'baie';
     const reste = etat.sac.entrees.find(entree => entree.id === objet.cle)?.quantite ?? 0;
     if (message || !repetable || reste <= 0) choisirObjet(null);
   };

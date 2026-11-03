@@ -2,6 +2,7 @@
   "version": 1,
   "commentaire": "Image du jeu V2 qui remplace chaque image de la V1 de data/credits.json (images flottantes du générique). Sans entrée : image absente de la V2, non tirée.",
   "correspondances": {
+    "sprites/items/pomeg-berry.png": "img/objets/pomeg-berry.png",
     "img/kanto/background/Zone 0.png": "img/scenes/bourg-palette.webp",
     "img/kanto/sprites/SpriteChen1.png": "img/sprites/chen/chen-1.png",
     "img/kanto/sprites/SpriteChen2.png": "img/sprites/chen/chen-2.png",

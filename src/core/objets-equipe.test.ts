@@ -18,6 +18,35 @@ function region(cible = pokemon()): DonneesRegion {
   } as unknown as DonneesRegion;
 }
 
+describe('Baie Grena', () => {
+  it.each([[0, 1, 2], [254, 1, 255], [249, 3, 255]] as const)('ajoute le bonheur de %i avec %i baies', (bonheur, n, attendu) => {
+    const entree = region(pokemon({ bonheur }));
+    entree.inventaire.pomegBerry = 5;
+    const avant = structuredClone(entree);
+    const resultat = utiliserSurPokemon(entree, 'baie', 'pomegBerry', 'cible', n);
+    expect(resultat.ok).toBe(true);
+    if (!resultat.ok) return;
+    expect(resultat.message).toBe(`+${2 * n} de bonheur`);
+    expect(resultat.region.equipe[0]).toEqual({ ...avant.equipe[0], bonheur: attendu });
+    expect(resultat.region.equipe[1]).toEqual(avant.equipe[1]);
+    expect(resultat.region.inventaire.pomegBerry).toBe(5 - n);
+    expect(entree).toEqual(avant);
+  });
+
+  it('borne la série au stock et au plafond et refuse la cible saturée', () => {
+    expect(quantiteMax('baie', pokemon(), 200)).toBe(128);
+    expect(quantiteMax('baie', pokemon(), 3)).toBe(3);
+    expect(quantiteMax('baie', pokemon({ bonheur: 254 }), 5)).toBe(1);
+    expect(quantiteMax('baie', pokemon({ bonheur: 255 }), 5)).toBe(0);
+    const entree = region(pokemon({ bonheur: 255 }));
+    entree.inventaire.pomegBerry = 5;
+    expect(utiliserSurPokemon(entree, 'baie', 'pomegBerry', 'cible', 1))
+      .toEqual({ ok: false, raison: 'Limite atteinte !', message: 'Limite atteinte !' });
+    expect(entree.inventaire.pomegBerry).toBe(5);
+    expect(cibleValide('baie', pokemon({ bonheur: 255 }))).toBe(false);
+  });
+});
+
 describe('Stase et Jeton Shiny', () => {
   it.each([[1, true], [2, false], [128, false]] as const)('vérifie la compatibilité de Stase pour %i', (numero, valide) => {
     const cible = pokemon({ numero });

@@ -10,7 +10,7 @@ vi.mock('./Sac', () => ({
     <>{sac.entrees.map(entree => <button key={entree.id} onClick={event => utiliser(entree, event.currentTarget)}>{entree.nom}</button>)}</>,
 }));
 
-const types = ['direct', 'pierre', 'bonbon', 'calcium', 'stase', 'jeton'] as const;
+const types = ['direct', 'pierre', 'bonbon', 'calcium', 'baie', 'stase', 'jeton'] as const;
 const sac: AffichageSac = { acces: { ouvert: true, raison: null }, entrees: types.map(type => ({
   id: type, nom: type, description: '', image: null, categorie: 'equipement',
   quantite: 1, actif: false, utilisable: type,

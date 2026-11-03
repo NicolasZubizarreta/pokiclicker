@@ -24,6 +24,14 @@ it('ferme le catalogue puis propose tous les objets du Centre sans filtre de zon
   expect(objetsDuShop(objets, kanto, complet).some(objet => reglages.centre.objets.includes(objet.id))).toBe(false);
 });
 
+it.each([undefined, 0, -1, 1.5, '2'])('rejette un gain de bonheur des baies invalide : %s', async gainBaie => {
+  vi.doMock('../../data/reglages.json', () => ({ default: { ...donnees,
+    recompenses: { ...donnees.recompenses, bonheur: { ...donnees.recompenses.bonheur, gainBaie } },
+  } }));
+  vi.resetModules();
+  await expect(import('./reglages')).rejects.toThrow('Gain de bonheur des baies invalide');
+});
+
 it('évalue la condition du lieu configuré et résout les noms de zones', () => {
   const lieu = vi.fn(() => ({ ...kanto.lieu('centre-commercial'), si: { type: 'boss' as const, zone: 'kanto.route-1' } }));
   expect(accesCentre({ lieu, zone: kanto.zone }, etat)).toEqual({ ok: false, raison: 'Bats le boss de Route 1.' });

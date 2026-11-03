@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { useRef, useState } from 'react';
 import * as actions from '../core/equipe';
@@ -49,6 +49,14 @@ function afficher() {
   fireEvent.click(screen.getByText('Ouvre la fiche'));
   return vue;
 }
+
+it('actualise le bonheur dans la fiche ouverte après modification de l’équipe', () => {
+  afficher();
+  expect(screen.getByRole('img', { name: 'Bonheur : 128/255' })).toBeTruthy();
+  act(() => storeJeu.setState({ equipe: storeJeu.getState().equipe.map(membre => membre
+    ? { ...membre, pokemon: { ...membre.pokemon, bonheur: 130 } } : membre) }));
+  expect(screen.getByRole('img', { name: 'Bonheur : 130/255' })).toBeTruthy();
+});
 
 it('affiche le sprite chromatique, le halo et l’icône dans le titre', () => {
   const { container } = afficher();

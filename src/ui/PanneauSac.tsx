@@ -2,7 +2,9 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { Sac } from './Sac';
 import type { AffichageSac } from './store-boutique';
 
-export type ObjetAChoisir = { type: 'bonbon' | 'calcium' | 'pierre' | 'stase' | 'jeton'; cle: string; nom: string };
+import type { TypeObjetEquipe } from '../core/objets-equipe';
+
+export type ObjetAChoisir = { type: TypeObjetEquipe | 'pierre' | 'stase' | 'jeton'; cle: string; nom: string };
 
 /** Un objet « direct » s'utilise ici ; un objet qui vise un Pokémon ferme le sac et laisse l'équipe le recevoir (`choisirObjet`). */
 export function PanneauSac({ sac, utiliserObjetActif, choisirObjet, fermer, declencheur }: {

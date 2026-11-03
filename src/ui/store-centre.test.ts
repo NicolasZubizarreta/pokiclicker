@@ -7,7 +7,7 @@ import { compteInitial, creerGestionnaire, creerStockageMemoire, type DonneesReg
 import { creerStoreJeu, type StoreJeu } from './store';
 import { afficherCentre } from './store-boutique';
 
-const ordreV1 = ['xAttack', 'xSpecial', 'pokeDoll', 'everstone', 'calcium', 'fireStone',
+const ordreV1 = ['xAttack', 'xSpecial', 'pokeDoll', 'everstone', 'calcium', 'pomegBerry', 'fireStone',
   'waterStone', 'leafStone', 'thunderStone', 'moonStone', 'shinyToken'];
 const stores: StoreJeu[] = [];
 beforeEach(() => vi.useFakeTimers());
@@ -45,13 +45,30 @@ it('ferme le Centre en zone 10 avec la raison et refuse tout achat sans mutation
   expect(store.getState()).toBe(avant);
 });
 
-it('ouvre les 11 objets dans l’ordre V1 et calcule Attaque + à 8 625 avec trois badges', () => {
+it('ouvre les 12 objets dans l’ordre prévu et calcule Attaque + à 8 625 avec trois badges', () => {
   const { store } = preparer();
   expect(store.getState().centre.acces).toEqual({ ouvert: true, raison: null });
   expect(store.getState().centre.objets.map(objet => objet.id)).toEqual(ordreV1);
   expect(store.getState().centre.objets[0]).toMatchObject({ nom: 'Attaque +', prix: 8625,
     stock: 2, possede: false, unique: false, abordable: true });
 });
+
+it.each([[0, false, 500], [8, false, 700], [8, true, 595]] as const)(
+  'vend la baie avec %i badges et remise %s au prix de %i', (badges, remise, prix) => {
+    const { store, ouvrir } = preparer(region => ({ ...region,
+      badges: Array.from({ length: badges }, (_, i) => `badge-${i}`),
+      jalonsRecus: remise ? [reglages.boutique.palierRemise] : [],
+    }));
+    expect(store.getState().centre.objets.find(objet => objet.id === 'pomegBerry'))
+      .toMatchObject({ nom: 'Baie Grena', prix, image: 'img/objets/pomeg-berry.png', stock: 0 });
+    expect(store.getState().acheter('pomegBerry', 3)).toBeNull();
+    expect(store.getState().argent).toBe(100000 - 3 * prix);
+    expect(store.getState().sac.entrees.find(objet => objet.id === 'pomegBerry'))
+      .toMatchObject({ quantite: 3, utilisable: 'baie' });
+    store.getState().arreter();
+    expect(ouvrir().getState().centre.objets.find(objet => objet.id === 'pomegBerry')?.stock).toBe(3);
+  },
+);
 
 it('achète, annonce et conserve argent et stock dans un nouveau store avec le même stockage', () => {
   const { store, ouvrir } = preparer();

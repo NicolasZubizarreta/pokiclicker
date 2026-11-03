@@ -29,7 +29,7 @@
         "- Fiche résumé: clique sur un Pokémon puis “Résumé” pour voir sexe, types, niveau et bonheur. Depuis cette fiche, tu peux aussi renommer, mettre en favori, relâcher, ou échanger un Pokémon avec le PC.",
         "- Pension: débloquée en zone {zoneLieu:pension} (Bourg Palette). Dépose 2 Pokémon pour tenter d’obtenir des œufs. Métamorph = bonus. Même type: {pourcent:reglages.pension.chances.typePartage}% de chance d’œuf par combat. Même espèce: {pourcent:reglages.pension.chances.memeEspece}% par combat. Tu peux acheter plus de slots d’œufs.",
         "- Carte: permet de téléporter vers les zones débloquées.",
-        "- Bonheur: augmente en combattant. Il donne un bonus de dégâts. Un Pokémon qui sort d’un œuf démarre à {nombre:reglages.pension.bonheurNaissance} de bonheur.",
+        "- Bonheur: augmente en combattant. Il donne un bonus de dégâts. Un Pokémon qui sort d’un œuf démarre à {nombre:reglages.pension.bonheurNaissance} de bonheur. La Baie Grena du Centre commercial donne +{nombre:reglages.recompenses.bonheur.gainBaie} de bonheur.",
         "- Œufs: récupère un œuf à la pension, mets-le dans ton équipe, puis fais des combats pour l’éclore.",
         "- Menu Stats: accessible via la page Plus. Il récapitule tes statistiques principales."
       ]

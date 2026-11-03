@@ -16,7 +16,7 @@ import { nomAffiche } from './affichage-pokemon';
 import { issueDuPantheon } from '../core/pantheon';
 import donneesPantheon from '../../data/pantheon.json';
 import { clicsAutomatiques } from '../core/clics';
-import { utiliserSurPokemon, poserStase, retirerStase, utiliserJetonShiny } from '../core/objets-equipe';
+import { type TypeObjetEquipe, utiliserSurPokemon, poserStase, retirerStase, utiliserJetonShiny } from '../core/objets-equipe';
 import { clesActives, utiliserTemporise, refusPoupee, utiliserPoupee, declencherRecharge } from '../core/objets-actifs';
 import { evoluer as evoluerEquipe, evoluerParPierre, evolutionDisponible } from '../core/evolution';
 import { appliquerCapture, chanceCapture, retirerBalle } from '../core/capture';
@@ -86,7 +86,7 @@ export type AffichageJeu = ActionsCasino & {
   utiliserJeton(uid: string): string | null;
   boutique: AffichageBoutique; centre: AffichageBoutique; sac: AffichageSac; autoClic: { possede: boolean; actif: boolean };
   acheter(id: string, quantite: number): string | null;
-  utiliserObjet(type: 'bonbon' | 'calcium', uid: string, n: number): string | null;
+  utiliserObjet(type: TypeObjetEquipe, uid: string, n: number): string | null;
   evoluer(uid: string): string | null;
   utiliserPierre(uid: string, pierre: string): string | null;
   evolution: EvolutionAffichee | null;
@@ -857,7 +857,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     },
     utiliserObjet(type, uid, n) {
       return modifierEquipe(region => {
-        const resultat = utiliserSurPokemon(region, type, type, uid, n);
+        const resultat = utiliserSurPokemon(region, type, type === 'baie' ? 'pomegBerry' : type, uid, n);
         if (resultat.ok) { annonce = resultat.message; finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs; }
         return resultat;
       }, undefined, false, type === 'bonbon' ? 'up' : undefined);

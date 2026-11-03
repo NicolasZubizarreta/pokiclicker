@@ -4,7 +4,7 @@ import { classeSprite, nomAffiche, progressionOeuf, spriteAffiche } from './affi
 import { IconeShiny } from './IconeShiny';
 import { chargerObjets } from '../core/boutique';
 import { reglages } from '../core/reglages';
-import { cibleValide, cibleValideStase, quantiteMax } from '../core/objets-equipe';
+import { type TypeObjetEquipe, cibleValide, cibleValideStase, quantiteMax } from '../core/objets-equipe';
 import { cibleValidePierre } from '../core/evolution';
 import { ConfirmationObjet } from './ConfirmationObjet';
 import { SpriteEvolution } from './SpriteEvolution';
@@ -28,7 +28,7 @@ export function PageEquipe() {
   const echange = useStore(storeJeu, etat => etat.echange);
   const sac = useStore(storeJeu, etat => etat.sac);
   const evolution = useStore(storeJeu, etat => etat.evolution);
-  const [selection, selectionner] = useState<{ type: 'bonbon' | 'calcium' | 'pierre' | 'stase' | 'jeton'; cle: string; nom: string } | null>(null);
+  const [selection, selectionner] = useState<{ type: TypeObjetEquipe | 'pierre' | 'stase' | 'jeton'; cle: string; nom: string } | null>(null);
   const mode = echange ? null : selection;
   const [cible, cibler] = useState<string | null>(null);
   const [quantite, changerQuantite] = useState(1);
@@ -119,13 +119,13 @@ export function PageEquipe() {
           const { pokemon, dps, xpMax } = caseEquipe;
           const nom = nomAffiche(pokemon);
           const stock = mode ? sac.entrees.find(entree => entree.id === mode.cle)?.quantite ?? 0 : 0;
-          const maximum = mode && (mode.type === 'bonbon' || mode.type === 'calcium') ? quantiteMax(mode.type, pokemon, stock) : 0;
+          const maximum = mode && (mode.type === 'bonbon' || mode.type === 'calcium' || mode.type === 'baie') ? quantiteMax(mode.type, pokemon, stock) : 0;
           const valide = mode && (mode.type === 'pierre' ? cibleValidePierre(pokemon, mode.cle)
             : mode.type === 'stase' ? cibleValideStase(pokemon) : mode.type === 'jeton' ? true
             : cibleValide(mode.type, pokemon) && maximum > 0);
           return <li key={pokemon.uid} className="relative min-w-0">
             <button type="button" aria-label={pokemon.oeuf ? `${nom}, ${progressionOeuf(pokemon.oeuf)}` : `${nom}, niveau ${pokemon.niveau}`} aria-pressed={membre?.pokemon.uid === pokemon.uid} data-uid={pokemon.uid}
-              disabled={!!mode && (mode.type === 'bonbon' || mode.type === 'calcium') && !valide}
+              disabled={!!mode && (mode.type === 'bonbon' || mode.type === 'calcium' || mode.type === 'baie') && !valide}
               className={`cadre grid h-full min-h-11 w-full grid-cols-[auto_minmax(0,1fr)] items-center gap-2 p-4 pe-24 text-left ${mode && !valide ? '' : 'hover:bg-selection'} ${membre?.pokemon.uid === pokemon.uid ? 'bg-selection' : 'bg-surface'} ${mode ? valide ? 'relative motion-safe:cible-valide' : 'grayscale opacity-50' : ''}`}
               onContextMenu={event => {
                 event.preventDefault();
@@ -220,9 +220,9 @@ export function PageEquipe() {
                 if (message) signalerObjet(message);
                 else annulerObjet();
               }} />}
-            {mode && (mode.type === 'bonbon' || mode.type === 'calcium') && cible === pokemon.uid && valide && <SelecteurQuantite valeur={Math.min(quantite, maximum)} max={maximum}
+            {mode && (mode.type === 'bonbon' || mode.type === 'calcium' || mode.type === 'baie') && cible === pokemon.uid && valide && <SelecteurQuantite valeur={Math.min(quantite, maximum)} max={maximum}
               changer={changerQuantite} annuler={annulerObjet} valider={() => {
-                if (mode.type !== 'bonbon' && mode.type !== 'calcium') return;
+                if (mode.type !== 'bonbon' && mode.type !== 'calcium' && mode.type !== 'baie') return;
                 const message = storeJeu.getState().utiliserObjet(mode.type, pokemon.uid, Math.min(quantite, maximum));
                 if (message) signalerObjet(message);
                 else annulerObjet();

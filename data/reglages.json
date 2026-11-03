@@ -53,7 +53,7 @@
   "sac": { "zone": "kanto.route-1", "raison": "Le Sac s'ouvre à la Route 1." },
   "centre": {
     "lieu": "centre-commercial",
-    "objets": ["xAttack", "xSpecial", "pokeDoll", "everstone", "calcium", "fireStone", "waterStone", "leafStone", "thunderStone", "moonStone", "shinyToken"]
+    "objets": ["xAttack", "xSpecial", "pokeDoll", "everstone", "calcium", "pomegBerry", "fireStone", "waterStone", "leafStone", "thunderStone", "moonStone", "shinyToken"]
   },
   "boutique": {
     "inflationParBadge": 0.05, "palierRemise": 70, "remise": 0.85, "quantiteMax": 99,
@@ -180,7 +180,7 @@
     },
     "shiny": { "objet": "bonbon", "quantite": 5 },
     "maxXp": { "coef": 50, "exposant": 2.2, "faible": { "sous": 100, "x": 0.8 }, "fort": { "dessus": 180, "x": 1.2 } },
-    "bonheur": { "gain": 1, "max": 255, "ecartMax": 25 }
+    "bonheur": { "gain": 1, "gainBaie": 2, "max": 255, "ecartMax": 25 }
   },
   "delais": {
     "ennemiSuivantMs": 2000,

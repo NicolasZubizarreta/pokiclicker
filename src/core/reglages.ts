@@ -58,7 +58,7 @@ export type ReglagesRecompenses = {
     coef: number; exposant: number;
     faible: { sous: number; x: number }; fort: { dessus: number; x: number };
   };
-  bonheur: { gain: number; max: number; ecartMax: number };
+  bonheur: { gain: number; gainBaie: number; max: number; ecartMax: number };
 };
 
 export type ReglagesDelais = {
@@ -132,6 +132,10 @@ export const reglages: {
 
 if (!reglages.journal || typeof reglages.journal.actif !== 'boolean') {
   throw new Error('Réglages du journal invalides');
+}
+
+if (!Number.isSafeInteger(reglages.recompenses.bonheur.gainBaie) || reglages.recompenses.bonheur.gainBaie <= 0) {
+  throw new Error('Gain de bonheur des baies invalide');
 }
 
 const sons = reglages.sons;

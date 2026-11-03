@@ -127,6 +127,7 @@ describe('boutique et sac du store', () => {
 
   it('consomme les Bonbons et le Calcium par modifierEquipe et sauvegarde les niveaux sans changer XP', () => {
     persiste.region.inventaire.calcium = 1;
+    persiste.region.inventaire.pomegBerry = 3;
     const store = ouvrir();
     expect(store.getState().utiliserObjet('bonbon', 'a', 2)).toBeNull();
     expect(store.getState().annonce).toBe('+2 niveaux !');
@@ -135,6 +136,11 @@ describe('boutique et sac du store', () => {
     expect(store.getState().utiliserObjet('calcium', 'a', 1)).toBeNull();
     expect(store.getState().annonce).toBe('+2 % DPS permanent');
     expect(persiste.region.equipe[0]!.calcium).toBe(1);
+    const bonheur = persiste.region.equipe[0]!.bonheur;
+    expect(store.getState().utiliserObjet('baie', 'a', 3)).toBeNull();
+    expect(store.getState().annonce).toBe('+6 de bonheur');
+    expect(persiste.region.inventaire.pomegBerry).toBe(0);
+    expect(ouvrir().getState().equipe[0]!.pokemon.bonheur).toBe(bonheur + 6);
     expect(store.getState().utiliserObjet('bonbon', 'absent', 1)).toBe('Pokémon invalide !');
   });
 

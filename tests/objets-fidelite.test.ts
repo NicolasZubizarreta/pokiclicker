@@ -6,7 +6,8 @@ import { chargerObjets, prixObjet } from '../src/core/boutique';
 import { ECARTS_V1, prixAttendu } from './ecarts-v1';
 
 it('conserve les 31 objets V1 et convertit leurs zones', () => {
-  expect(objets.length).toBe(31);
+  expect(objets.length).toBe(32);
+  expect(objets.filter(objet => objet.id !== 'pomegBerry').map(objet => objet.id)).toEqual(fixture.objets.map(objet => objet.id));
   expect(fixture.objets.length).toBe(31);
   for (const source of fixture.objets) {
     const objet = objets.find(entree => entree.id === source.id)!;
