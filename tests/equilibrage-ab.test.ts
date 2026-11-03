@@ -1,4 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
+import { execFileSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { frequencesLegendaires, jouerParcours, tableauComparaison, tableauParcours } from '../scripts/simuler-parcours.mjs';
 import * as clics from '../src/core/clics';
 import * as clock from '../src/core/clock';
@@ -36,6 +39,33 @@ type Lancer = (coeur: unknown, options?: Record<string, unknown>) => ResultatSim
 const jouer = jouerParcours as unknown as Lancer;
 
 describe('simulateur de parcours (ticket AB)', () => {
+  it('mesure les 60 premiers essais de façon reproductible sans modifier les données (ticket A)', () => {
+    const fichiers = ['../data/regions/kanto/zones.json', '../data/reglages.json']
+      .map(chemin => new URL(chemin, import.meta.url));
+    const avant = fichiers.map(fichier => readFileSync(fichier));
+    const lancer = () => JSON.parse(execFileSync(process.execPath, [
+      fileURLToPath(new URL('../scripts/simuler-parcours.mjs', import.meta.url)), '--debut', '--graine', '1', '--json',
+    ], { encoding: 'utf8', timeout: 4000, maxBuffer: 2 * 1024 * 1024 })) as {
+      multiplicateur: number; resultat: string; dureeMs: number; limiteMs: number;
+      atteindreBossMs: number; etatDepart: { argent: number }; etatBoss: unknown;
+    }[];
+    const mesures = lancer();
+    expect(lancer()).toEqual(mesures);
+    expect(fichiers.map(fichier => readFileSync(fichier))).toEqual(avant);
+    expect(mesures).toHaveLength(60);
+    expect(mesures.filter(m => m.multiplicateur === 1)).toHaveLength(12);
+    expect(mesures.some(m => m.resultat === 'échec')).toBe(true);
+    for (const mesure of mesures) {
+      expect(mesure.etatDepart.argent).toBe(0);
+      expect(mesure.etatBoss).toBeTruthy();
+      expect(mesure.atteindreBossMs).toBeGreaterThan(0);
+      expect(mesure.limiteMs).toBe(30000);
+      expect(mesure.dureeMs).toBeGreaterThan(0);
+      if (mesure.resultat === 'échec') expect(mesure.dureeMs).toBe(30000);
+      else expect(mesure.dureeMs).toBeLessThanOrEqual(30000);
+    }
+  }, 9000);
+
   it('joue la Route 1 et la Forêt de Jade avec la vraie boucle et produit un tableau par zone', () => {
     const resultat = jouer(coeur, { jusquA: 'kanto.foret-de-jade', clics: 7 });
     expect(resultat.zones.map(zone => zone.id)).toEqual(['kanto.route-1', 'kanto.foret-de-jade']);

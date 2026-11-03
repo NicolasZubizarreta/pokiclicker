@@ -13,7 +13,7 @@ Jalon : Kanto en 60 à 90 minutes à 7 clics par seconde. Brouillon du 02/11/202
 
 ## A. `test(equilibrage): mesurer les boss des deux premières zones`
 
-Labels : `type:test`, `etat:idee`, `est:1-2`, `prio:1` · branche : `v2` · `agent-ok` : oui (mesure ; application après accord de Nicolas)
+Labels : `type:test`, `etat:fait`, `est:1-2`, `prio:1` · branche : `v2` · `agent-ok` : oui (mesure ; application après accord de Nicolas) (03/11 : 12 références, 60 mesures reproductibles, données inchangées)
 
 ### Histoire
 En tant que Nicolas, je veux comparer les durées des premiers boss pour choisir un réglage sur des résultats reproductibles.
@@ -24,10 +24,10 @@ Le début de partie ne satisfait pas le critère 2 d'AB. Mesurer Route 1 et For�
 Fichiers concernés : `scripts/simuler-parcours.mjs`, `tests/equilibrage-ab.test.ts`, rapport à créer `docs/projet/equilibrage-debut-de-partie.md` ; lecture de `data/reglages.json` et `data/regions/kanto/zones.json`. Les multiplicateurs candidats sont des variantes de mesure, sans écriture des données de jeu.
 
 ### Critères d'acceptation
-- [ ] Étant donné une sauvegarde neuve et le protocole publié, quand les trois starters suivent chaque cadence, alors le rapport fournit les 12 durées de boss, les victoires et les échecs, avec les mêmes résultats à graine identique.
-- [ ] Étant donné les valeurs actuelles, quand la référence est mesurée sans clic, alors le rapport confronte les résultats aux 7 s de Route 1 et aux 11 à 13 s de Forêt de Jade et explique tout écart.
-- [ ] Étant donné plusieurs multiplicateurs de PV candidats dont ×1 comme témoin, quand chaque variante est simulée, alors un tableau donne pour chaque zone, starter et cadence le multiplicateur et la durée obtenue, ou l'échec avec sa limite de temps.
-- [ ] Étant donné ce tableau, quand Nicolas le consulte, alors aucune valeur de jeu n'a changé ; il peut choisir une ligne ou conserver les valeurs actuelles. L'application éventuelle vient dans un second temps, dans un ticket validé avec la valeur exacte et son retour arrière dans `data/`.
+- [x] Étant donné une sauvegarde neuve et le protocole publié, quand les trois starters suivent chaque cadence, alors le rapport fournit les 12 durées de boss, les victoires et les échecs, avec les mêmes résultats à graine identique.
+- [x] Étant donné les valeurs actuelles, quand la référence est mesurée sans clic, alors le rapport confronte les résultats aux 7 s de Route 1 et aux 11 à 13 s de Forêt de Jade et explique tout écart.
+- [x] Étant donné plusieurs multiplicateurs de PV candidats dont ×1 comme témoin, quand chaque variante est simulée, alors un tableau donne pour chaque zone, starter et cadence le multiplicateur et la durée obtenue, ou l'échec avec sa limite de temps.
+- [x] Étant donné ce tableau, quand Nicolas le consulte, alors aucune valeur de jeu n'a changé ; il peut choisir une ligne ou conserver les valeurs actuelles. L'application éventuelle vient dans un second temps, dans un ticket validé avec la valeur exacte et son retour arrière dans `data/`.
 
 ### Hors périmètre
 Application des candidats, modification des dégâts ou des règles de clic, rééquilibrage des zones suivantes.

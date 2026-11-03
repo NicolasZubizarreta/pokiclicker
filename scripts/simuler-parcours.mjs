@@ -119,6 +119,7 @@ export function jouerParcours(M, options = {}) {
       gagne: 0, depense: 0, lancers: 0, captures: 0, nouvellesEspeces: 0,
       niveauMoyenEntree: 0, niveauMoyenBoss: null, niveauMoyenSortie: null, pokedexEntree: 0, pokedexSortie: null,
       pvBoss: null, dpsBoss: null, degats30sSansClic: null, degats30sAvecClics: null,
+      achats: [], etatBoss: null,
       margeSansClic: null, margeAvecClics: null, margeMax: null, boosters: 0,
     });
 
@@ -126,6 +127,7 @@ export function jouerParcours(M, options = {}) {
     const depart = M.starter.creerStarter(o.starter, false, alea, genererId);
     let region = M.sauvegarde.regionInitiale('kanto', kanto.premierCombat);
     region = { ...region, equipe: [depart], starterId: o.starter, inventaire: { pokeball: 5 } };
+    const etatDepart = structuredClone(region);
     const S = {
       region, pokedex: [o.starter], combat: null, stat: null, zones: [], fini: false, raison: 'Ligue gagnée',
       captures: new Set([o.starter]), bonusCoupes: o.sansBonus && !o.sansBonusDepuis, enBoss: false, dernierAchatMs: -1000, compteurEnnemis: 0, lancersEnnemi: 0, resteClic: 0, resteAutoClic: 0, dernierBossTentative: 0,
@@ -206,6 +208,7 @@ export function jouerParcours(M, options = {}) {
       if (!resultat.ok) return false;
       S.region = resultat.region;
       S.stat.depense += prix * quantite;
+      S.stat.achats.push({ objet: objet.id, quantite, cout: prix * quantite, tempsMs: horloge.maintenant() });
       return true;
     };
     const acheterSelonPolitique = () => {
@@ -253,12 +256,14 @@ export function jouerParcours(M, options = {}) {
       stat.margeMax = Math.max(stat.margeMax ?? 0, marge);
       if (stat.tentatives === 1) {
         Object.assign(stat, {
-          premierBossMs: horloge.maintenant(), niveauMoyenBoss: niveauMoyen(S.region), pvBoss: c.ennemi.pvMax, dpsBoss: dps,
+          premierBossMs: horloge.maintenant() - pasMs, niveauMoyenBoss: niveauMoyen(S.region), pvBoss: c.ennemi.pvMax, dpsBoss: dps,
           degats30sSansClic: sansClic, degats30sAvecClics: avecClics,
           margeSansClic: c.ennemi.pvMax / sansClic, margeAvecClics: marge,
+          etatBoss: structuredClone({ region: S.region, pokedex: S.pokedex, actifs: c.actifs, achats: S.zones.flatMap((z) => z.achats) }),
         });
       }
-      S.debutBossMs = horloge.maintenant();
+      // L'apparition a eu lieu à la fin du pas précédent ; ce pas commence à maintenant - pasMs.
+      S.debutBossMs = horloge.maintenant() - pasMs;
     };
     const lancerCapturesSiUtile = () => {
       const c = S.combat;
@@ -306,7 +311,7 @@ export function jouerParcours(M, options = {}) {
         } else if (ev.type === 'boss-echoue') {
           S.stat.echecs += 1;
           if (S.stat.premierEchecMs === null) S.stat.premierEchecMs = horloge.maintenant();
-          if (S.stat.premierEssai === null) { S.stat.premierEssai = 'échec'; S.stat.premierEssaiDureeMs = null; }
+          if (S.stat.premierEssai === null) { S.stat.premierEssai = 'échec'; S.stat.premierEssaiDureeMs = horloge.maintenant() - S.debutBossMs; }
           nouvelEnnemi();
         }
       }
@@ -364,7 +369,7 @@ export function jouerParcours(M, options = {}) {
     const dernier = S.zones.at(-1);
     if (!dernier.victoire) Object.assign(dernier, { sortieMs: horloge.maintenant(), niveauMoyenSortie: niveauMoyen(S.region), pokedexSortie: S.pokedex.length });
     return {
-      options: o, fin: S.raison, tempsMs: horloge.maintenant(), zones: S.zones, pokedex: S.pokedex.length,
+      options: o, etatDepart, fin: S.raison, tempsMs: horloge.maintenant(), zones: S.zones, pokedex: S.pokedex.length,
       argentFinal: S.region.argent, badges: S.region.badges.length, ameliorations: S.region.ameliorations,
       equipe: S.region.equipe.map((p) => ({ numero: p.numero, nom: catalogue.parNumero(p.numero).nom, niveau: p.niveau })),
       totalGagne: S.zones.reduce((s, z) => s + z.gagne, 0), totalDepense: S.zones.reduce((s, z) => s + z.depense, 0),
@@ -478,25 +483,42 @@ function lireArguments(argv) {
   return o;
 }
 
-async function tableauDebut(M, o) {
+export function mesurerDebut(M, o = {}) {
   const zones = ['kanto.route-1', 'kanto.foret-de-jade'];
-  const grille = [1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 3, 4, 4.5, 5, 6];
-  const sortie = [];
+  const mesures = [];
   for (const zone of zones) {
-    sortie.push(`### ${zone}`, '', '| Starter | Multiplicateur de PV | PV du boss | Niveau au boss | Sans clic | 7 clics/s | Dégâts 30 s sans clic | Dégâts 30 s à 7 clics/s |', '|---|---:|---:|---:|---|---|---:|---:|');
     for (const starter of [1, 4, 7]) {
       const actuel = M.regions.kanto.zoneDeCombat(zone).multiplicateurPv;
-      for (const valeur of [...new Set([actuel, ...grille])].sort((a, b) => a - b)) {
-        const essais = [0, 7].map((clics) => {
-          const r = jouerParcours(M, { ...o, starter, clics, jusquA: zone, candidats: { [zone]: valeur }, tempsMaxZoneMs: 20 * 60000 });
-          return r.zones.find((z) => z.id === zone);
-        });
-        const texte = (z) => z.premierEssai === 'victoire' ? `tombe en ${(z.premierEssaiDureeMs / 1000).toFixed(0)} s` : 'pas battu en 30 s';
-        sortie.push(`| ${M.pokemon.chargerPokemon().parNumero(starter).nom} | ${valeur}${valeur === actuel ? ' (actuel)' : ''} | ${entier(essais[0].pvBoss)} | ${essais[0].niveauMoyenBoss.toFixed(1).replace('.', ',')} `
-          + `| ${texte(essais[0])} | ${texte(essais[1])} | ${entier(essais[0].degats30sSansClic)} | ${entier(essais[1].degats30sAvecClics)} |`);
+      for (const multiplicateur of [1, 1.5, 2, 3, 4]) {
+        for (const clics of [0, 7]) {
+          const r = jouerParcours(M, { graine: o.graine ?? 1, starter, clics, jusquA: zone,
+            candidats: { [zone]: actuel * multiplicateur }, tempsMaxZoneMs: 20 * 60000 });
+          const z = r.zones.find((z) => z.id === zone);
+          mesures.push({ zone: z.nom, starter, clics, graine: r.options.graine, multiplicateur,
+            coefficientPv: z.multiplicateurPv, pvBoss: z.pvBoss, limiteMs: M.reglages.reglages.combat.minuteurBossMs,
+            resultat: z.premierEssai, dureeMs: z.premierEssaiDureeMs,
+            atteindreBossMs: z.premierBossMs, depuisEntreeMs: z.premierBossMs - z.entreeMs,
+            etatDepart: r.etatDepart, etatBoss: z.etatBoss });
+        }
       }
     }
-    sortie.push('');
+  }
+  return mesures;
+}
+
+export function tableauDebut(mesures) {
+  const sortie = [
+    `Sauvegarde neuve par ligne ; graine ${mesures[0].graine} ; starter niveau 5, 5 Poké Balls ; argent initial ${mesures[0].etatDepart.argent}.`,
+    'Premier essai seulement ; limite 30 s ; ×1 = PV actuels ; variante sur toute la zone ciblée, zones précédentes inchangées.',
+    'Cadence répartie par accumulateur au pas de 100 ms ; arrivée depuis la sauvegarde neuve (et depuis l’entrée de zone).',
+    '', '| Zone | Starter | Clics/s | ×PV | Boss (s), résultat | Arrivée (s ; zone) | Équipe au boss (numéro:niveau) | Achats cumulés avant boss | État au boss (argent ; inventaire ; améliorations ; Pokédex ; actifs) |',
+    '|---|---:|---:|---:|---|---|---|---|---|',
+  ];
+  for (const m of mesures) {
+    const e = m.etatBoss;
+    const equipe = e.region.equipe.map((p) => `${p.numero}:${p.niveau}`).join(', ');
+    const achats = e.achats.map((a) => `${a.objet}×${a.quantite} (${a.cout})`).join(', ') || 'aucun';
+    sortie.push(`| ${m.zone} | ${m.starter} | ${m.clics} | ${m.multiplicateur} | ${(m.dureeMs / 1000).toFixed(1)} — ${m.resultat} | ${(m.atteindreBossMs / 1000).toFixed(1)} ; ${(m.depuisEntreeMs / 1000).toFixed(1)} | ${equipe} | ${achats} | ${e.region.argent} ; ${JSON.stringify(e.region.inventaire)} ; ${e.region.ameliorations.join(', ') || 'aucune'} ; ${e.pokedex.join(', ')} ; ${e.actifs.join(', ') || 'aucun'} |`);
   }
   return sortie.join('\n');
 }
@@ -508,7 +530,8 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
     if (o.frequences) {
       console.log(tableauFrequences(frequencesLegendaires(M, { rencontres: o.rencontres ?? 10000, graine: o.graine ?? 1 }), M));
     } else if (o.debut) {
-      console.log(await tableauDebut(M, o));
+      const mesures = mesurerDebut(M, o);
+      console.log(o.json ? JSON.stringify(mesures, null, 2) : tableauDebut(mesures));
     } else if (o.comparer) {
       const avant = jouerParcours(M, { ...o, avant: true });
       const apres = jouerParcours(M, { ...o, avant: false });
