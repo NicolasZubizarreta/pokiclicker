@@ -40,7 +40,7 @@ Fourchette : 1 à 2 jours. Dépend de : AB livré. Risque : un état de départ 
 
 ## B. `feat(equilibrage): relever le temps réel passé par zone`
 
-Labels : `type:feat`, `etat:en_cours`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : oui (journal local de développement)
+Labels : `type:feat`, `etat:fait`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : oui (En développement, ouvre Plus → Relevé de partie (développement), active le relevé, joue puis clique sur Exporter le relevé.)
 
 ### Histoire
 En tant que Nicolas, je veux exporter le déroulé de ma partie pour comparer mon parcours aux attentes du simulateur.
@@ -54,7 +54,7 @@ Fichiers concernés : `src/core/reglages.ts`, `data/reglages.json`, `src/ui/Page
 - [x] Étant donné le réglage désactivé par défaut, quand une partie se déroule, alors aucun relevé n'est collecté et aucune requête réseau n'est ajoutée.
 - [x] Étant donné le journal activé, quand le joueur entre ou revient dans une zone et tente un boss, alors le journal conserve l'heure d'entrée, les visites, le nombre d'essais et leur issue, ainsi que le temps par visite et par zone.
 - [x] Étant donné un onglet masqué, une pause ou un rechargement, quand le relevé reprend, alors les temps actifs et les interruptions sont distingués selon une convention documentée, sans compter deux fois une visite ou un essai.
-- [ ] Étant donné un relevé, quand Nicolas exporte le JSON, alors il peut retrouver Carmin, Tour Pokémon, Céladopole et Îles Écume, avec les paramètres et les limites de comparaison au simulateur ; l'export reste local et un effacement est possible.
+- [x] Étant donné un relevé, quand Nicolas exporte le JSON, alors il peut retrouver Carmin, Tour Pokémon, Céladopole et Îles Écume, avec les paramètres et les limites de comparaison au simulateur ; l'export reste local et un effacement est possible.
 - [x] Étant donné le même parcours avec et sans journal, quand les combats et récompenses sont comparés, alors les règles et leurs résultats restent identiques.
 
 ### Hors périmètre

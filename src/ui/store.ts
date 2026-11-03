@@ -46,7 +46,7 @@ import { afficherBoutique, afficherCentre, afficherSac, type AffichageBoutique, 
 import { afficherCasino, type ActionsCasino, type AffichageCasino } from './store-casino';
 import { detailErreur, ouvrirPartie } from './persistance';
 import { creerStockageLocal } from './stockage-local';
-import { creerJournalLocal } from './journal-zones';
+import { CLE_ACTIVATION_JOURNAL, creerJournalLocal } from './journal-zones';
 import { genererIdentifiant } from './identifiants';
 import { equipeDeDepart } from './equipe-de-depart';
 import { imageConnue } from './Image';
@@ -116,6 +116,9 @@ export type AffichageJeu = ActionsCasino & {
   /** Texte de l'annonce de déblocage affichée (PC, Pension, Casino…) ; les suivantes attendent leur tour. */
   deblocage: string | null;
   sonActive: boolean; basculerSon(): void;
+  journalActif: boolean; basculerJournal(): void;
+  exporterJournal(): ReturnType<NonNullable<ReturnType<typeof creerJournalLocal>>['exporter']>;
+  effacerJournal(): void;
   echange: { uid: string; nom: string } | null;
   renommer(uid: string, texte: string): string | null;
   basculerFavori(uid: string): string | null;
@@ -717,6 +720,23 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     resterBlackjack: () => modifierCasino(region => casino.rester(region, alea)),
     acheterAuCasino: id => modifierCasino(region => casino.acheterAuCasino(region, id, alea, genererId)),
     sonActive,
+    journalActif: false,
+    basculerJournal() {
+      if (import.meta.env.PROD) return;
+      const actif = !journal;
+      try { stockage.ecrire(CLE_ACTIVATION_JOURNAL, actif ? '1' : '0'); } catch { /* Choix limité à cette session. */ }
+      if (actif) {
+        journal = creerJournalLocal(horloge, stockage, true);
+        journal?.synchroniser(lieuDe(region.zoneId), coeur);
+      } else { journal?.pauser('pause'); journal = null; }
+      if (typeof window !== 'undefined') {
+        if (journal) window.pokiJournal = { exporter: journal.exporter, effacer: journal.effacer };
+        else delete window.pokiJournal;
+      }
+      store.setState({ journalActif: !!journal });
+    },
+    exporterJournal() { return journal?.exporter() ?? null; },
+    effacerJournal() { journal?.effacer(); },
     basculerSon() {
       if (!initialise) return;
       const suivant = !sonActive;
@@ -945,6 +965,11 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
           synchroniserCombatEvenement();
           initialise = true;
           journal = creerJournalLocal(horloge, stockage);
+          store.setState({ journalActif: !!journal });
+          if (typeof window !== 'undefined') {
+            if (journal) window.pokiJournal = { exporter: journal.exporter, effacer: journal.effacer };
+            else delete window.pokiJournal;
+          }
           // Rechargement (ou fermeture) pendant le Panthéon : le défi réservé repart comme à la sortie du Panthéon.
           if (region.drapeaux.includes(DRAPEAU_DEFI_RESERVE)) debutDefiChenMs = horloge.maintenant() + donneesPantheon.delais.defiChenMs;
           noterDansPokedex();

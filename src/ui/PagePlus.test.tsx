@@ -54,16 +54,71 @@ function nouvellePartie() {
 
 beforeEach(() => { localStorage.clear(); nouvellePartie(); });
 afterEach(() => {
+  vi.restoreAllMocks();
+  vi.unstubAllGlobals();
   cleanup();
   storeJeu.getState().fermer();
   storeJeu.getState().arreter();
   localStorage.clear();
 });
 
+it('garde le relevé replié et active le journal local avec accès console', () => {
+  render(<PagePlus />);
+  const panneau = screen.getByText('Relevé de partie (développement)').closest('details')!;
+  expect(panneau.open).toBe(false);
+  expect(window.pokiJournal).toBeUndefined();
+  panneau.open = true;
+  const interrupteur = within(panneau).getByRole('switch');
+  expect(interrupteur.getAttribute('aria-checked')).toBe('false');
+  fireEvent.click(interrupteur);
+  expect(interrupteur.getAttribute('aria-checked')).toBe('true');
+  expect(localStorage.getItem('pokiclicker-dev:journal-actif')).toBe('1');
+  expect(window.pokiJournal?.exporter()).toEqual(storeJeu.getState().exporterJournal());
+  fireEvent.click(interrupteur);
+  expect(window.pokiJournal).toBeUndefined();
+});
+
+it('exporte le journal courant par Blob et confirme avant de l’effacer', async () => {
+  render(<PagePlus />);
+  screen.getByText('Relevé de partie (développement)').closest('details')!.open = true;
+  fireEvent.click(screen.getByRole('switch', { name: /Relevé de partie/ }));
+  const exporter = vi.spyOn(storeJeu.getState(), 'exporterJournal');
+  const effacer = vi.spyOn(storeJeu.getState(), 'effacerJournal');
+  const creer = vi.fn(() => 'blob:releve');
+  const revoquer = vi.fn();
+  vi.stubGlobal('URL', { createObjectURL: creer, revokeObjectURL: revoquer });
+  const clic = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
+    expect(this.download).toMatch(/^poki-releve-\d{4}-\d{2}-\d{2}\.json$/);
+    expect(this.isConnected).toBe(true);
+  });
+  fireEvent.click(screen.getByRole('button', { name: 'Exporter le relevé' }));
+  expect(exporter).toHaveBeenCalledOnce();
+  expect(clic).toHaveBeenCalledOnce();
+  const blob = creer.mock.calls[0] as unknown as [Blob];
+  expect(blob[0].type).toBe('application/json');
+  const texte = await new Promise<string>(resolve => {
+    const lecteur = new FileReader();
+    lecteur.onload = () => resolve(String(lecteur.result));
+    lecteur.readAsText(blob[0]);
+  });
+  expect(JSON.parse(texte)).toEqual(exporter.mock.results[0]!.value);
+  expect(document.querySelector('a[download]')).toBeNull();
+  expect(revoquer).toHaveBeenCalledWith('blob:releve');
+  const confirmer = vi.spyOn(window, 'confirm').mockReturnValue(false);
+  fireEvent.click(screen.getByRole('button', { name: 'Effacer le relevé' }));
+  expect(confirmer).toHaveBeenCalledOnce();
+  expect(effacer).not.toHaveBeenCalled();
+  confirmer.mockReturnValue(true);
+  fireEvent.click(screen.getByRole('button', { name: 'Effacer le relevé' }));
+  expect(effacer).toHaveBeenCalledOnce();
+  expect(window.pokiJournal?.exporter()?.zones).toEqual({});
+});
+
 it('garde le Pokédex et ne propose plus le PC, déplacé dans la navigation (AD)', () => {
   const { container } = render(<PagePlus />);
   // Prépare la vue historique ; les ajouts du tableau de bord sont vérifiés séparément.
   container.querySelectorAll('section[aria-labelledby]').forEach(section => section.remove());
+  screen.getByText('Relevé de partie (développement)').closest('details')!.remove();
   container.querySelector('[data-entree="badges"]')?.closest('li')?.remove();
   container.querySelector('[data-prochain-palier]')?.remove();
   screen.getByRole('button', { name: 'Guide du jeu' }).remove();

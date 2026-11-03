@@ -15,8 +15,19 @@ afterEach(() => {
   stores.splice(0).forEach(store => store.getState().arreter());
   reglages.journal.actif = false;
   vi.restoreAllMocks(); vi.useRealTimers();
+  vi.unstubAllEnvs();
 });
 const zone = kanto.zoneDeCombat('kanto.route-1');
+it('reprend le choix local et interdit le journal en production', () => {
+  const horloge = creerHorlogeSimulee();
+  const stockage = creerStockageMemoire();
+  stockage.ecrire('pokiclicker-dev:journal-actif', '1');
+  expect(creerJournalLocal(horloge, stockage)).not.toBeNull();
+  stockage.ecrire('pokiclicker-dev:journal-actif', '0');
+  expect(creerJournalLocal(horloge, stockage)).toBeNull();
+  vi.stubEnv('PROD', true);
+  expect(creerJournalLocal(horloge, stockage, true)).toBeNull();
+});
 function preparer(actif: boolean) {
   reglages.journal.actif = actif;
   const horloge = creerHorlogeSimulee();
@@ -28,7 +39,23 @@ it('est désactivé par défaut sans objet, lecture ou écriture du journal', ()
   expect(reglages.journal.actif).toBe(false);
   const stockage = { lire: vi.fn(), ecrire: vi.fn(), supprimer: vi.fn(), cles: vi.fn() };
   expect(creerJournalLocal(creerHorlogeSimulee(), stockage)).toBeNull();
-  for (const methode of Object.values(stockage)) expect(methode).not.toHaveBeenCalled();
+  expect(stockage.lire).toHaveBeenCalledWith('pokiclicker-dev:journal-actif');
+  expect(stockage.lire).not.toHaveBeenCalledWith(CLE_JOURNAL);
+  expect(stockage.ecrire).not.toHaveBeenCalled();
+});
+
+it('exporte les identifiants et paramètres des quatre zones de comparaison sans changer le format', () => {
+  const { journal } = preparer(true);
+  for (const id of ['kanto.arene-de-carmin', 'kanto.tour-pokemon', 'kanto.arene-de-celadopole', 'kanto.iles-ecume']) {
+    const lieu = kanto.zoneDeCombat(id);
+    journal!.synchroniser(lieu, creerCombat(lieu, [], () => .2));
+    const exporte = journal!.exporter()!;
+    expect(exporte.version).toBe(1);
+    expect(exporte.revisionDonnees).toBeTruthy();
+    expect(exporte.zones[id]!.visites[0]!.parametres).toMatchObject({ nom: lieu.nom, combat: reglages.combat });
+  }
+  journal!.effacer();
+  expect(journal!.exporter()!.zones).toEqual({});
 });
 
 it('reste sans effet sur le jeu quand le stockage est bloqué ou le relevé corrompu', () => {

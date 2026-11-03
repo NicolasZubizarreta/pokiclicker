@@ -36,6 +36,20 @@ export function PagePlus() {
   const dps = useStore(storeJeu, etat => etat.dps);
   const sonActive = useStore(storeJeu, etat => etat.sonActive);
   const musiqueActive = useSyncExternalStore(musique.abonner, musique.estActive);
+  const journalActif = useStore(storeJeu, etat => etat.journalActif);
+  const exporterReleve = () => {
+    const releve = storeJeu.getState().exporterJournal();
+    if (!releve) return;
+    const url = URL.createObjectURL(new Blob([JSON.stringify(releve, null, 2)], { type: 'application/json' }));
+    const lien = document.createElement('a');
+    lien.href = url;
+    lien.download = `poki-releve-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.append(lien);
+    try { lien.click(); } finally {
+      lien.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 0);
+    }
+  };
   const reglagesId = useId();
   const { nombre, total } = progression.pokedex;
   const conteneur = useRef<HTMLDivElement>(null);
@@ -114,6 +128,19 @@ export function PagePlus() {
               </div>
             </details>
           </section>
+          {!import.meta.env.PROD && <details className="cadre mt-4 space-y-4 bg-surface p-4">
+            <summary className="min-h-11 cursor-pointer py-2">Relevé de partie (développement)</summary>
+            <p className="text-texte-doux">Le relevé reste sur cet appareil. Active-le pour jouer, exporter ou effacer. Les temps actifs excluent les pauses et les onglets masqués, mais incluent les attentes visibles, captures et dialogues. Les clics et le hasard diffèrent du simulateur.</p>
+            <button type="button" role="switch" aria-checked={journalActif} onClick={() => storeJeu.getState().basculerJournal()}
+              className="flex min-h-11 w-full items-center justify-between gap-2 bg-surface-2 px-4 py-2 text-left hover:bg-selection">
+              <span>Relevé de partie</span><span className="text-region-accent">{journalActif ? 'Activé' : 'Désactivé'}</span>
+            </button>
+            <button type="button" disabled={!journalActif} onClick={exporterReleve}
+              className="min-h-11 bg-surface-2 px-4 py-2 hover:bg-selection">Exporter le relevé</button>
+            <button type="button" disabled={!journalActif} onClick={() => {
+              if (window.confirm('Effacer le relevé de partie sur cet appareil ?')) storeJeu.getState().effacerJournal();
+            }} className="min-h-11 bg-surface-2 px-4 py-2 hover:bg-selection">Effacer le relevé</button>
+          </details>}
         </section>}
     {diplomeOuvert && diplome && <Diplome diplome={diplome} fermer={() => ouvrirDiplome(false)} />}
     {guideOuvert && <Guide fermer={() => ouvrirGuide(false)} />}

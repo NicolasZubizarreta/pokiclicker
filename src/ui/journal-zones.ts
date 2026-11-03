@@ -6,12 +6,19 @@ import type { EtatCombat } from '../core/combat';
 import type { ZoneMonde } from '../core/monde';
 import { reglages } from '../core/reglages';
 import { avancerJournal, creerJournal, debuterEssai, entrerZone, finirEssai, pauserJournal,
-  rechargerJournal, reprendreJournal, type Issue, type JournalZones } from '../core/journal-zones';
+  rechargerJournal, reprendreJournal, exporterJournal, effacerJournal, type Issue, type JournalZones } from '../core/journal-zones';
 
 // Préfixe distinct des comptes et parties : exclu des sauvegardes et de leurs exports.
 export const CLE_JOURNAL = 'pokiclicker-dev:journal-zones';
-export function creerJournalLocal(horloge: Horloge, stockage: Stockage) {
-  if (!reglages.journal.actif || import.meta.env.PROD) return null;
+export const CLE_ACTIVATION_JOURNAL = 'pokiclicker-dev:journal-actif';
+declare global {
+  interface Window { pokiJournal?: { exporter(): JournalZones | null; effacer(): void } }
+}
+export function creerJournalLocal(horloge: Horloge, stockage: Stockage, activation?: boolean) {
+  let actif = reglages.journal.actif;
+  try { const choix = stockage.lire(CLE_ACTIVATION_JOURNAL); if (choix === '0' || choix === '1') actif = choix === '1'; } catch { /* Stockage indisponible. */ }
+  actif = activation ?? actif;
+  if (!actif || import.meta.env.PROD) return null;
   // Empreinte du contenu, indépendante de la version du schéma des données.
   let empreinte = 2166136261;
   for (const caractere of JSON.stringify([donneesZones, donneesPokemon, reglages])) {
@@ -43,6 +50,8 @@ export function creerJournalLocal(horloge: Horloge, stockage: Stockage) {
     }
   } catch { /* Un ancien relevé illisible ne bloque pas la partie. */ }
   return {
+    exporter() { return exporterJournal(journal); },
+    effacer() { conserver(effacerJournal(journal, horloge)); },
     synchroniser(lieu: ZoneMonde, coeur: EtatCombat | null) {
       const maintenant = horloge.maintenant();
       let suivant = entrerZone(journal, lieu.id, { nom: lieu.nom,
