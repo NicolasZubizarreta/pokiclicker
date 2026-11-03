@@ -11,7 +11,7 @@ Jalon : Kanto en 60 à 90 minutes à 7 clics par seconde. Brouillon du 02/11/202
 - Le simulateur n'est pas un joueur : il reste bloqué plus longtemps lorsqu'il faut revenir acheter ou attendre un Pokémon précis. Ses temps absolus ne prédisent pas une partie ; ils servent à comparer deux jeux de données à protocole identique.
 - Les fichiers cités dans les tickets sont les fichiers concernés par leur future réalisation. Ce backlog ne livre ni instrumentation, ni nouvelle règle, ni réglage.
 
-## AO. `test(equilibrage): mesurer les boss des deux premières zones`
+## A. `test(equilibrage): mesurer les boss des deux premières zones`
 
 Labels : `type:test`, `etat:idee`, `est:1-2`, `prio:1` · branche : `v2` · `agent-ok` : oui (mesure ; application après accord de Nicolas)
 
@@ -38,7 +38,7 @@ Rejouer la matrice avec les mêmes paramètres ; comparer les résultats et vér
 ### Effort et risques
 Fourchette : 1 à 2 jours. Dépend de : AB livré. Risque : un état de départ trop favorable masque la difficulté ; documenter les achats et l'équipe évite cette ambiguïté. Mesure uniquement ; choix et changement de règle soumis à Nicolas.
 
-## AP. `feat(equilibrage): relever le temps réel passé par zone`
+## B. `feat(equilibrage): relever le temps réel passé par zone`
 
 Labels : `type:feat`, `etat:idee`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : oui (journal local de développement)
 
@@ -64,9 +64,9 @@ Télémétrie distante, compte utilisateur, collecte automatique en production, 
 Tests ciblés des entrées, retours, essais, interruptions, export et effacement ; essai manuel d'un export depuis l'accès retenu. Vérifier l'absence de collecte par défaut et d'envoi réseau.
 
 ### Effort et risques
-Fourchette : 2 à 3 jours. Dépend de : aucune dépendance bloquante ; peut suivre AO. Risque : confondre temps de jeu et temps d'attente hors onglet. Instrumentation seulement ; aucune règle de jeu à changer. Nicolas devra fournir une partie enregistrée pour AQ et AT.
+Fourchette : 2 à 3 jours. Dépend de : aucune dépendance bloquante ; peut suivre A. Risque : confondre temps de jeu et temps d'attente hors onglet. Instrumentation seulement ; aucune règle de jeu à changer. Nicolas devra fournir une partie enregistrée pour C et F.
 
-## AQ. `docs(equilibrage): expliquer les blocages longs par zone`
+## C. `docs(equilibrage): expliquer les blocages longs par zone`
 
 Labels : `type:docs`, `etat:idee`, `est:1-2`, `prio:1` · branche : `v2` · `agent-ok` : oui (diagnostic et options)
 
@@ -74,9 +74,9 @@ Labels : `type:docs`, `etat:idee`, `est:1-2`, `prio:1` · branche : `v2` · `age
 En tant que Nicolas, je veux comprendre les écarts entre ma partie et le simulateur avant d'envisager un réglage.
 
 ### Contexte
-Comparer le relevé AP au simulateur sur Pont Pépite, Carmin, Tour Pokémon, Céladopole et Îles Écume. Les quatre premiers blocages mesurés après échec valent respectivement 4,8, 19,0, 13,2 et 14,4 min ; Îles Écume reste à mesurer sans lui attribuer un blocage acquis.
+Comparer le relevé B au simulateur sur Pont Pépite, Carmin, Tour Pokémon, Céladopole et Îles Écume. Les quatre premiers blocages mesurés après échec valent respectivement 4,8, 19,0, 13,2 et 14,4 min ; Îles Écume reste à mesurer sans lui attribuer un blocage acquis.
 
-Fichiers concernés : export local AP, `scripts/simuler-parcours.mjs`, `docs/projet/equilibrage-28-10.md`, rapport à créer `docs/projet/equilibrage-blocages.md` ; lecture de `data/reglages.json` et `data/regions/kanto/zones.json`. Définir séparément temps total de zone et temps après échec.
+Fichiers concernés : export local B, `scripts/simuler-parcours.mjs`, `docs/projet/equilibrage-28-10.md`, rapport à créer `docs/projet/equilibrage-blocages.md` ; lecture de `data/reglages.json` et `data/regions/kanto/zones.json`. Définir séparément temps total de zone et temps après échec.
 
 ### Critères d'acceptation
 - [ ] Étant donné une partie enregistrée et une simulation documentée, quand les cinq zones sont comparées, alors le rapport donne leurs temps, essais et écarts avec les différences d'équipe, d'achats et de protocole ; une donnée absente est signalée.
@@ -91,9 +91,9 @@ Application des options, changement implicite des règles, ajustement du jeu pou
 Rejouer les comparaisons à paramètres identiques ; rattacher chaque chiffre à un export ou à une commande. Vérifier que les données de jeu restent inchangées.
 
 ### Effort et risques
-Fourchette : 1 à 2 jours, hors attente de la partie de Nicolas. Dépend de : AP et son relevé réel ; AO apporte le protocole reproductible. Risque : attribuer au jeu une attente créée par le simulateur. Mesure et propositions uniquement ; toute règle attend Nicolas.
+Fourchette : 1 à 2 jours, hors attente de la partie de Nicolas. Dépend de : B et son relevé réel ; A apporte le protocole reproductible. Risque : attribuer au jeu une attente créée par le simulateur. Mesure et propositions uniquement ; toute règle attend Nicolas.
 
-## AR. `feat(equilibrage): comparer les mesures à une courbe cible par zone`
+## D. `feat(equilibrage): comparer les mesures à une courbe cible par zone`
 
 Labels : `type:feat`, `etat:idee`, `est:1.5-2.5`, `prio:2` · branche : `v2` · `agent-ok` : oui (outil ; cibles à valider)
 
@@ -103,11 +103,11 @@ En tant que Nicolas, je veux lire un seul tableau des durées et marges pour dé
 ### Contexte
 Créer `data/equilibrage.json` comme source unique des cibles par identifiant de zone : temps visé, unité, marge visée du boss et convention de calcul. Définir la marge comme le rapport entre les dégâts infligeables pendant le combat et les PV du boss, moins 1 ; préciser les hypothèses de clics et d'équipe. Ce fichier décrit des cibles d'analyse et ne pilote pas les combats.
 
-Fichiers concernés : `data/equilibrage.json`, `scripts/simuler-parcours.mjs`, commande à créer `node scripts/comparer-equilibrage.mjs`, rapports AO et AQ. Les valeurs effectives du jeu restent dans leurs fichiers `data/` existants ; le tableau désigne leur chemin et leur clé lorsqu'un réglage est proposé, sans les recopier dans une seconde source.
+Fichiers concernés : `data/equilibrage.json`, `scripts/simuler-parcours.mjs`, commande à créer `node scripts/comparer-equilibrage.mjs`, rapports A et C. Les valeurs effectives du jeu restent dans leurs fichiers `data/` existants ; le tableau désigne leur chemin et leur clé lorsqu'un réglage est proposé, sans les recopier dans une seconde source.
 
 ### Critères d'acceptation
 - [ ] Étant donné toutes les zones de Kanto, quand le JSON est validé, alors chaque zone possède un temps et une marge visés avec des unités explicites ; identifiants absents, doublons et valeurs invalides sont signalés.
-- [ ] Étant donné les conclusions AO et AQ, quand les cibles sont proposées à Nicolas, alors leur somme et la convention de temps sont compatibles avec le jalon de 60 à 90 min à 7 clics/s ; son choix est consigné avant leur usage comme seuils CI.
+- [ ] Étant donné les conclusions A et C, quand les cibles sont proposées à Nicolas, alors leur somme et la convention de temps sont compatibles avec le jalon de 60 à 90 min à 7 clics/s ; son choix est consigné avant leur usage comme seuils CI.
 - [ ] Étant donné un protocole fixe, quand `node scripts/comparer-equilibrage.mjs` est exécuté, alors un tableau Markdown affiche par zone les temps et marges « mesuré / visé / écart », le total, la révision, le starter, le mode Pokédex et la graine.
 - [ ] Étant donné des cibles modifiées, quand la commande est relancée, alors seules les comparaisons changent ; aucune règle du jeu n'est appliquée par cette commande ou par le JSON.
 
@@ -118,9 +118,9 @@ Correction automatique des données, nouvelle formule de combat, interface de r�
 Valider le JSON et la couverture des zones ; vérifier les écarts sur un petit exemple connu, puis produire le tableau complet avec le simulateur existant.
 
 ### Effort et risques
-Fourchette : 1,5 à 2,5 jours. Dépend de : AO et AQ pour étayer les cibles. Risque : transformer une durée simulée en promesse de durée réelle ; afficher le protocole et les limites dans le tableau. Outil de mesure ; validation des cibles par Nicolas, changements de règles dans des tickets distincts.
+Fourchette : 1,5 à 2,5 jours. Dépend de : A et C pour étayer les cibles. Risque : transformer une durée simulée en promesse de durée réelle ; afficher le protocole et les limites dans le tableau. Outil de mesure ; validation des cibles par Nicolas, changements de règles dans des tickets distincts.
 
-## AS. `test(equilibrage): surveiller les durées du parcours dans la CI`
+## E. `test(equilibrage): surveiller les durées du parcours dans la CI`
 
 Labels : `type:test`, `etat:idee`, `est:1-2`, `prio:2` · branche : `v2` · `agent-ok` : oui (seuils après validation de Nicolas)
 
@@ -128,7 +128,7 @@ Labels : `type:test`, `etat:idee`, `est:1-2`, `prio:2` · branche : `v2` · `age
 En tant que mainteneur, je veux détecter une dérive du parcours simulé avant de livrer des données modifiées.
 
 ### Contexte
-Ajouter un test Vitest du simulateur avec un réglage rapide déterministe : simulation accélérée sans attente réelle, à 7 clics/s simulés, sans modifier les formules. Proposer X = 25 % au-dessus du temps cible d'une zone : cette tolérance absorbe un faible décalage de parcours tout en détectant un allongement d'un quart. C'est une proposition à confronter aux mesures AR et à faire valider par Nicolas, pas un seuil déjà acquis.
+Ajouter un test Vitest du simulateur avec un réglage rapide déterministe : simulation accélérée sans attente réelle, à 7 clics/s simulés, sans modifier les formules. Proposer X = 25 % au-dessus du temps cible d'une zone : cette tolérance absorbe un faible décalage de parcours tout en détectant un allongement d'un quart. C'est une proposition à confronter aux mesures D et à faire valider par Nicolas, pas un seuil déjà acquis.
 
 Fichiers concernés : `scripts/simuler-parcours.mjs`, `tests/equilibrage-ab.test.ts` (extension ou test Vitest voisin), `data/equilibrage.json` pour la tolérance validée, configuration CI existante si nécessaire. Le scénario de référence fixe starter, graine, achats et Pokédex « theorique » ; il ne représente pas une partie humaine.
 
@@ -145,9 +145,9 @@ Garantie de durée d'une partie réelle, correction automatique de l'équilibrag
 Chronométrer le test en CI ; vérifier les bornes et provoquer un dépassement dans des données temporaires de test pour constater l'échec, sans modifier les données livrées.
 
 ### Effort et risques
-Fourchette : 1 à 2 jours. Dépend de : AR et validation par Nicolas des cibles et de X. Risques : coût CI et seuils trop sensibles au parcours. Régression de mesure seulement ; une alerte ne vaut pas autorisation de changer le jeu.
+Fourchette : 1 à 2 jours. Dépend de : D et validation par Nicolas des cibles et de X. Risques : coût CI et seuils trop sensibles au parcours. Régression de mesure seulement ; une alerte ne vaut pas autorisation de changer le jeu.
 
-## AT. `docs(equilibrage): mesurer l'argent disponible et proposer des puits`
+## F. `docs(equilibrage): mesurer l'argent disponible et proposer des puits`
 
 Labels : `type:docs`, `etat:idee`, `est:1-2`, `prio:2` · branche : `v2` · `agent-ok` : oui (mesure et propositions)
 
@@ -157,7 +157,7 @@ En tant que Nicolas, je veux savoir où l'argent reste inutilisé pour décider 
 ### Contexte
 La simulation rapporte 831 k gagnés pour 600 k dépensés ; Route Victoire et Ligue apportent 286 k de gains. Vérifier ces totaux et localiser l'accumulation selon le parcours d'un joueur qui achète tout. Définir précisément « tout » : achats finis disponibles dès qu'ils sont abordables ; pour les consommables répétables, quantités et fréquence fixées dans le protocole, car un achat illimité n'a pas de fin.
 
-Fichiers concernés : `scripts/simuler-parcours.mjs`, export AP, rapport à créer `docs/projet/equilibrage-argent.md`, `data/reglages.json` et fichiers de prix et d'objets dans `data/` à identifier. Ajouter au besoin des mesures locales de solde et d'achats au protocole AP, sans changer les prix.
+Fichiers concernés : `scripts/simuler-parcours.mjs`, export B, rapport à créer `docs/projet/equilibrage-argent.md`, `data/reglages.json` et fichiers de prix et d'objets dans `data/` à identifier. Ajouter au besoin des mesures locales de solde et d'achats au protocole B, sans changer les prix.
 
 ### Critères d'acceptation
 - [ ] Étant donné le parcours actuel et le parcours « achète tout » documenté, quand les deux sont simulés, alors le rapport donne par zone solde d'entrée et de sortie, gains, dépenses, achats possibles et différés ; il vérifie les 831 k, 600 k et 286 k ou explique les écarts.
@@ -172,12 +172,12 @@ Ajout immédiat d'objets, hausse de prix, baisse des récompenses, nouvelle règ
 Vérifier par zone l'identité solde final = solde initial + gains − dépenses, puis rejouer les variantes à protocole identique. Comparer au relevé réel et vérifier que les données de jeu sont inchangées.
 
 ### Effort et risques
-Fourchette : 1 à 2 jours, hors attente du relevé. Dépend de : AP et sa partie enregistrée ; AQ apporte l'analyse des attentes liées à l'argent. Risque : un puits d'argent peut ralentir un joueur qui achète déjà tout. Mesure avant proposition ; décision de Nicolas avant toute règle ou valeur modifiée.
+Fourchette : 1 à 2 jours, hors attente du relevé. Dépend de : B et sa partie enregistrée ; C apporte l'analyse des attentes liées à l'argent. Risque : un puits d'argent peut ralentir un joueur qui achète déjà tout. Mesure avant proposition ; décision de Nicolas avant toute règle ou valeur modifiée.
 
 ## Dépendances et décisions attendues
 
-- Ordre de lecture et de priorité : AO, AP, AQ, AR, AS, AT. AP peut être préparé indépendamment d'AO ; AT n'attend pas AS.
-- Chaîne de mesures : AB → AO ; AP et sa partie réelle → AQ ; AO + AQ → AR ; AR et validation des seuils → AS ; AP et sa partie réelle + AQ → AT.
-- Nicolas choisit une ligne du tableau AO ou conserve l'existant ; l'application attend un ticket validé distinct.
-- Nicolas réalise une partie avec le journal AP activé et partage volontairement son export local pour AQ et AT.
-- Nicolas tranche les options AQ, valide les cibles AR et la tolérance AS proposée à 25 %, puis décide des éventuels puits AT. Aucun de ces accords n'est présumé par l'ouverture de la phase 3.
+- Ordre de lecture et de priorité : A, B, C, D, E, F. B peut être préparé indépendamment d'A ; F n'attend pas E.
+- Chaîne de mesures : AB → A ; B et sa partie réelle → C ; A + C → D ; D et validation des seuils → E ; B et sa partie réelle + C → F.
+- Nicolas choisit une ligne du tableau A ou conserve l'existant ; l'application attend un ticket validé distinct.
+- Nicolas réalise une partie avec le journal B activé et partage volontairement son export local pour C et F.
+- Nicolas tranche les options C, valide les cibles D et la tolérance E proposée à 25 %, puis décide des éventuels puits F. Aucun de ces accords n'est présumé par l'ouverture de la phase 3.
