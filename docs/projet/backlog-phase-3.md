@@ -1,4 +1,4 @@
-# Backlog — phase 3 « Équilibrage outillé »
+﻿# Backlog — phase 3 « Équilibrage outillé »
 
 Jalon : Kanto en 60 à 90 minutes à 7 clics par seconde. Brouillon du 02/11/2026, branche `v2` ; tous les tickets restent à l'état d'idée.
 
@@ -68,7 +68,7 @@ Fourchette : 2 à 3 jours. Dépend de : aucune dépendance bloquante ; peut suiv
 
 ## C. `docs(equilibrage): expliquer les blocages longs par zone`
 
-Labels : `type:docs`, `etat:idee`, `est:1-2`, `prio:1` · branche : `v2` · `agent-ok` : oui (diagnostic et options)
+Labels : `type:docs`, `etat:fait`, `est:1-2`, `prio:1` · branche : `v2` · `agent-ok` : oui (diagnostic et options) · rapport : `equilibrage-blocages.md` (03/11) · décision de Nicolas du 03/11 : option 1 (le jeu reste tel quel), options 2 et 3 lancées dans les tickets I et H
 
 ### Histoire
 En tant que Nicolas, je veux comprendre les écarts entre ma partie et le simulateur avant d'envisager un réglage.
@@ -203,6 +203,82 @@ Tests Vitest du cœur (gain, plafond, prix avec inflation et remise), test de l'
 ### Effort et risques
 Fourchette : 0,5 à 1 jour. Risque : la baie sert de puits d'argent (500 × 1,4 × 0,85 ≈ 595 en fin de partie, bonheur max en ~128 baies par Pokémon, soit environ 76 000 pièces) ; l'effet sur l'équilibrage est à relire avec le ticket F, sans changer d'autres prix.
 
+## H. `feat(equilibrage): enrichir le relevé de partie (équipe, argent, achats, Pokédex, marge de boss)`
+
+Labels : `type:feat`, `etat:fait`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : oui · décision de Nicolas du 03/11 (« mets tous les chiffres possibles dans le relevé »), option 3 du ticket C (03/11 : livré, CI verte ; reste à jouer une partie avec le relevé actif pour vérifier l'export)
+
+### Histoire
+En tant que Nicolas, je veux que le relevé garde tout ce qui explique un blocage (équipe, niveaux, argent, achats, Pokédex, marge du boss) pour savoir pourquoi je reste coincé et pas seulement combien de temps.
+
+### Contexte
+Le relevé B (`src/core/journal-zones.ts`, branché par `src/ui/journal-zones.ts` et `src/ui/store.ts`) ne garde que les temps, les essais et leur issue. Le rapport C n'a pas pu chiffrer l'argent, le niveau ni la marge de boss. Le relevé reste réservé au développement, désactivé par défaut, local, sans réseau ; il ne change aucune règle.
+
+Fichiers concernés : `src/core/journal-zones.ts` (types, `version` passe à 2), `src/ui/journal-zones.ts` (instantané pris à l'entrée de zone, au début et à la fin de chaque essai), `src/ui/store.ts` (branchement, achats), tests `src/core/journal-zones.test.ts` et `src/ui/journal-zones.test.ts`, `docs/projet/equilibrage-blocages.md` (champs du nouvel export).
+
+### Critères d'acceptation
+- [x] Étant donné une visite de zone, quand le joueur entre, alors un instantané est conservé : argent, argent total gagné, badges, nombre de Pokémon capturés et vus, palier de Pokédex atteint, bonus de Pokédex actifs, objets et améliorations possédés (dont Attaque + et Attaque spé +, objets de boutique à bonus de dégâts), équipe complète (numéro, niveau, bonheur, calcium, shiny, objet porté).
+- [x] Étant donné un essai de boss, quand il commence puis finit, alors l'instantané est repris (argent, équipe, niveaux) avec les PV du boss, les dégâts par seconde de l'équipe, la marge (temps nécessaire pour abattre le boss contre le temps accordé), les clics par seconde et l'issue.
+- [x] Étant donné un achat, une amélioration, une utilisation d'objet (bonbon, Calcium, Baie Grena, Attaque +) ou un retour en arrière vers une zone déjà vaincue, quand l'action se produit, alors une ligne datée est ajoutée à la visite (type, objet, quantité, prix, solde après).
+- [x] Étant donné du temps de jeu simulé en arrière-plan (onglet masqué), quand le relevé le mesure, alors ce temps est rangé à part du temps joué visible (champ distinct), et la somme reste cohérente avec la durée de montre.
+- [x] Étant donné un ancien relevé de version 1 en stockage, quand le jeu démarre, alors il est écarté sans erreur et un nouveau relevé commence ; l'export version 2 est documenté et reste local, avec effacement possible.
+- [x] Étant donné le même parcours avec et sans relevé, quand combats, récompenses et sauvegardes sont comparés, alors les résultats sont identiques ; les instantanés ne dépassent pas une taille raisonnable (un parcours complet de Kanto exporté tient en quelques Mo au plus).
+
+### Hors périmètre
+Tout changement de règle ou de valeur du jeu, envoi du relevé sur le réseau, affichage du relevé pour le joueur en production.
+
+### Vérification
+Tests Vitest du cœur et de l'adaptateur, `npm.cmd run ci`, une courte partie jouée avec le relevé actif puis export : lire le JSON et retrouver équipe, argent, achats et marge sur Carmin ou la Tour Pokémon.
+
+### Effort et risques
+Fourchette : 2 à 3 jours. Risque : un instantané trop gros ralentit la boucle ; on ne le prend qu'aux transitions, jamais à chaque pas.
+
+## I. `feat(equilibrage): un simulateur qui joue comme Nicolas quand un boss bloque`
+
+Labels : `type:feat`, `etat:idee`, `est:2-3`, `prio:2` · branche : `v2` · `agent-ok` : oui (outil de mesure, aucune règle de jeu modifiée) · décision de Nicolas du 03/11 (option 2 du ticket C, pour les tests des prochaines régions)
+
+### Histoire
+En tant que Nicolas, je veux que le simulateur réagisse à un blocage comme je le fais, pour que ses durées de parcours se comparent à une vraie partie, y compris sur les prochaines régions.
+
+### Contexte
+Quand je bloque sur un boss, je ne retente pas en boucle. Dans l'ordre : 1) viser le palier de Pokédex suivant (ses bonus sont souvent des bonus de dégâts) en retournant capturer ; 2) acheter les objets de boutique à bonus de dégâts que je n'ai pas encore, en mettant l'argent de côté ; 3) monter les niveaux de l'équipe ; 4) en dernier recours, acheter Attaque + et Attaque spé + au Centre commercial (c'est ce qui a passé Ronflex). À Carmin et à Céladopole le simulateur annonce 19,0 et 14,4 min de blocage alors que la partie réelle n'a eu aucun échec, parce qu'il ne revient jamais en arrière (rapport C, `docs/projet/equilibrage-blocages.md`).
+
+Fichiers concernés : `scripts/simuler-parcours.mjs`, `docs/projet/equilibrage-28-10.md` (protocole), un rapport comparatif nouveau ; lecture de `data/`. **Panne constatée le 03/11** : le simulateur s'arrête à l'entrée de `kanto.route-de-ronflex` (« Zone sans combat », `src/core/monde.ts:22`, la route est devenue un mini-jeu) ; il ne va donc plus jusqu'à la Ligue. À réparer en premier dans ce ticket.
+
+### Critères d'acceptation
+- [ ] Étant donné un boss que l'équipe ne bat pas dans le temps imparti, quand le simulateur est bloqué, alors il applique les quatre réactions dans l'ordre ci-dessus, chacune réglable par option de ligne de commande et consignée dans le rapport (action, durée, solde).
+- [ ] Étant donné le palier de Pokédex suivant, quand le simulateur retourne capturer, alors le déplacement, le temps de capture et les bonus obtenus sont comptés ; le retour en arrière est borné par un plafond documenté.
+- [ ] Étant donné le parcours de Kanto, quand le simulateur est relancé, alors le tableau donne par zone le temps, les échecs et les réactions, à confronter aux deux exports du 03/11 (Ligue en environ 107 min jouées) ; l'écart restant est expliqué.
+- [ ] Étant donné les données du jeu, quand le script tourne, alors aucune valeur de `data/` n'est modifiée et le mode précédent (sans réaction) reste disponible comme témoin.
+
+### Hors périmètre
+Changement de règle ou de valeur du jeu, équilibrage des prochaines régions (le simulateur sert ensuite à les tester).
+
+### Vérification
+Même graine, mêmes résultats ; comparer aux chiffres du rapport C ; `npm.cmd run ci`.
+
+### Effort et risques
+Fourchette : 2 à 3 jours. Dépend de : H pour calibrer sur les nouveaux relevés (non bloquant). Risque : un simulateur trop malin devient irréaliste ; réglages visibles et témoin conservé.
+
+## J. `feat(economie): baisser de 20 % les gains d'argent`
+
+Labels : `type:feat`, `etat:fait`, `est:0.5`, `prio:2` · branche : `v2` · `agent-ok` : oui · demande de Nicolas du 03/11, portée confirmée : −20 % partout (×1,6), appliqué le 03/11
+
+### Histoire
+En tant que Nicolas, je veux un peu moins d'argent surtout en fin de partie, pour que les achats comptent davantage.
+
+### Contexte
+« Je baisserais le gain d'argent de 20 %, surtout à la fin ; on n'en a pas beaucoup trop non plus, mais un peu moins ne ferait pas de mal. » Le multiplicateur global est `recompenses.or.multiplicateur` = 2 dans `data/reglages.json` (ligne 170) ; −20 % donne 1,6. Il s'applique à tous les gains (ennemi, boss, capture, chromatique). Portée tranchée par Nicolas le 03/11 : −20 % partout. Retour arrière : remettre `multiplicateur` à 2. Les tests qui restataient ×2 en dur lisent maintenant le réglage. Mesure avant/après au simulateur impossible à ce jour (il plante à Route de Ronflex, voir ticket I) : le gain baisse exactement de 20 %, à relire avec le ticket F et la Baie Grena (puits d'environ 76 000 pièces).
+
+### Critères d'acceptation
+- [x] Étant donné la portée confirmée par Nicolas, quand la valeur est appliquée, alors seule la valeur de `data/reglages.json` change, avec retour arrière d'une ligne.
+- [ ] (reporté au ticket I : simulateur à réparer) Étant donné la simulation avant et après, quand les deux sont comparées, alors le rapport donne l'argent gagné, dépensé et restant à la Ligue, et l'effet sur la durée du parcours.
+
+### Hors périmètre
+Prix des objets, autres récompenses (niveau, XP).
+
+### Effort et risques
+Fourchette : 0,5 jour. Risque : un joueur qui achète déjà tout est ralenti ; décision de Nicolas avant application.
+
 ## Dépendances et décisions attendues
 
 - Ordre de lecture et de priorité : A, B, C, D, E, F. B peut être préparé indépendamment d'A ; F n'attend pas E.
@@ -210,3 +286,4 @@ Fourchette : 0,5 à 1 jour. Risque : la baie sert de puits d'argent (500 × 1,4 
 - Nicolas choisit une ligne du tableau A ou conserve l'existant ; l'application attend un ticket validé distinct.
 - Nicolas réalise une partie avec le journal B activé et partage volontairement son export local pour C et F.
 - Nicolas tranche les options C, valide les cibles D et la tolérance E proposée à 25 %, puis décide des éventuels puits F. Aucun de ces accords n'est présumé par l'ouverture de la phase 3.
+
