@@ -325,7 +325,14 @@ export function jouerParcours(M, options = {}) {
       Object.assign(stat, {
         victoire: true, sortieMs: horloge.maintenant(), niveauMoyenSortie: niveauMoyen(S.region), pokedexSortie: S.pokedex.length,
       });
-      const suivant = kanto.liensDepuis(zoneVaincue)[0]?.vers;
+      let suivant = kanto.liensDepuis(zoneVaincue)[0]?.vers;
+      // Route de Ronflex est un mini-jeu sans combat (ticket AJ) : on compte le souffle cumulé exigé d'une partie sans erreur
+      // (borne basse : les essais manqués d'un humain s'y ajoutent) et on passe à la zone suivante.
+      while (suivant && kanto.zone(suivant).sansCombat) {
+        horloge.avancer(reglages.ronflex.souffle.dureeCumuleeS * 1000);
+        S.region = { ...S.region, drapeaux: [...S.region.drapeaux, 'ronflex-vaincu'] };
+        suivant = kanto.liensDepuis(suivant)[0]?.vers;
+      }
       if (!suivant || zoneVaincue === o.jusquA) { S.fini = true; S.raison = zoneVaincue === o.jusquA ? `Arrêt voulu après ${zoneVaincue}` : 'Ligue gagnée'; return; }
       entrerDansZone(suivant);
     };

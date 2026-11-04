@@ -242,7 +242,7 @@ En tant que Nicolas, je veux que le simulateur réagisse à un blocage comme je 
 ### Contexte
 Quand je bloque sur un boss, je ne retente pas en boucle. Dans l'ordre : 1) viser le palier de Pokédex suivant (ses bonus sont souvent des bonus de dégâts) en retournant capturer ; 2) acheter les objets de boutique à bonus de dégâts que je n'ai pas encore, en mettant l'argent de côté ; 3) monter les niveaux de l'équipe ; 4) en dernier recours, acheter Attaque + et Attaque spé + au Centre commercial (c'est ce qui a passé Ronflex). À Carmin et à Céladopole le simulateur annonce 19,0 et 14,4 min de blocage alors que la partie réelle n'a eu aucun échec, parce qu'il ne revient jamais en arrière (rapport C, `docs/projet/equilibrage-blocages.md`).
 
-Fichiers concernés : `scripts/simuler-parcours.mjs`, `docs/projet/equilibrage-28-10.md` (protocole), un rapport comparatif nouveau ; lecture de `data/`. **Panne constatée le 03/11** : le simulateur s'arrête à l'entrée de `kanto.route-de-ronflex` (« Zone sans combat », `src/core/monde.ts:22`, la route est devenue un mini-jeu) ; il ne va donc plus jusqu'à la Ligue. À réparer en premier dans ce ticket.
+Fichiers concernés : `scripts/simuler-parcours.mjs`, `docs/projet/equilibrage-28-10.md` (protocole), un rapport comparatif nouveau ; lecture de `data/`. **Panne constatée le 03/11, réparée le 04/11** (la route est sautée en comptant `ronflex.souffle.dureeCumuleeS`, 3 s, borne basse ; baseline ×2 retrouvée : Ligue en 70,8 min, 831 316 gagnés) : le simulateur s'arrêtait à l'entrée de `kanto.route-de-ronflex` (« Zone sans combat », `src/core/monde.ts:22`, la route est devenue un mini-jeu) ; il ne va donc plus jusqu'à la Ligue. À réparer en premier dans ce ticket.
 
 ### Critères d'acceptation
 - [ ] Étant donné un boss que l'équipe ne bat pas dans le temps imparti, quand le simulateur est bloqué, alors il applique les quatre réactions dans l'ordre ci-dessus, chacune réglable par option de ligne de commande et consignée dans le rapport (action, durée, solde).
@@ -267,11 +267,11 @@ Labels : `type:feat`, `etat:fait`, `est:0.5`, `prio:2` · branche : `v2` · `age
 En tant que Nicolas, je veux un peu moins d'argent surtout en fin de partie, pour que les achats comptent davantage.
 
 ### Contexte
-« Je baisserais le gain d'argent de 20 %, surtout à la fin ; on n'en a pas beaucoup trop non plus, mais un peu moins ne ferait pas de mal. » Le multiplicateur global est `recompenses.or.multiplicateur` = 2 dans `data/reglages.json` (ligne 170) ; −20 % donne 1,6. Il s'applique à tous les gains (ennemi, boss, capture, chromatique). Portée tranchée par Nicolas le 03/11 : −20 % partout. Retour arrière : remettre `multiplicateur` à 2. Les tests qui restataient ×2 en dur lisent maintenant le réglage. Mesure avant/après au simulateur impossible à ce jour (il plante à Route de Ronflex, voir ticket I) : le gain baisse exactement de 20 %, à relire avec le ticket F et la Baie Grena (puits d'environ 76 000 pièces).
+« Je baisserais le gain d'argent de 20 %, surtout à la fin ; on n'en a pas beaucoup trop non plus, mais un peu moins ne ferait pas de mal. » Le multiplicateur global est `recompenses.or.multiplicateur` = 2 dans `data/reglages.json` (ligne 170) ; −20 % donne 1,6. Il s'applique à tous les gains (ennemi, boss, capture, chromatique). Portée tranchée par Nicolas le 03/11 : −20 % partout. Retour arrière : remettre `multiplicateur` à 2. Les tests qui restataient ×2 en dur lisent maintenant le réglage. Mesure avant/après faite le 04/11 (voir le critère) : la Ligue passe de 70,8 à 87,0 min, soit près du haut de la fourchette de 60 à 90 min ; à relire avec le ticket F et la Baie Grena (puits d'environ 76 000 pièces).
 
 ### Critères d'acceptation
 - [x] Étant donné la portée confirmée par Nicolas, quand la valeur est appliquée, alors seule la valeur de `data/reglages.json` change, avec retour arrière d'une ligne.
-- [ ] (reporté au ticket I : simulateur à réparer) Étant donné la simulation avant et après, quand les deux sont comparées, alors le rapport donne l'argent gagné, dépensé et restant à la Ligue, et l'effet sur la durée du parcours.
+- [x] (04/11, simulateur réparé : `node scripts/simuler-parcours.mjs --clics 7 --pokedex theorique`, ×2 → ×1,6 : Ligue gagnée en 70,8 → 87,0 min ; argent gagné 831 316 → 767 762, dépensé 601 939 → 683 900, en caisse à la Ligue 229 377 → 83 862 ; Carmin 19,0 → 18,7 min, Céladopole 14,4 → 1,3 min, Pont Pépite 4,8 → 3,4 min) Étant donné la simulation avant et après, quand les deux sont comparées, alors le rapport donne l'argent gagné, dépensé et restant à la Ligue, et l'effet sur la durée du parcours.
 
 ### Hors périmètre
 Prix des objets, autres récompenses (niveau, XP).
@@ -286,4 +286,5 @@ Fourchette : 0,5 jour. Risque : un joueur qui achète déjà tout est ralenti ; 
 - Nicolas choisit une ligne du tableau A ou conserve l'existant ; l'application attend un ticket validé distinct.
 - Nicolas réalise une partie avec le journal B activé et partage volontairement son export local pour C et F.
 - Nicolas tranche les options C, valide les cibles D et la tolérance E proposée à 25 %, puis décide des éventuels puits F. Aucun de ces accords n'est présumé par l'ouverture de la phase 3.
+
 
