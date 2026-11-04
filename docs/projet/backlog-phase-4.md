@@ -119,7 +119,7 @@ Conflits (E), appareil actif (F), liste de parties (G).
 
 ## E. `feat(sauvegarde): arbitrer un conflit et garder les versions précédentes`
 
-`type:feat`, `etat:a_faire`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : à poser par Nicolas
+`type:feat`, `etat:fait`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : à poser par Nicolas
 
 ### Histoire
 En tant que joueur sur deux appareils, je veux être prévenu quand deux versions de ma partie diffèrent afin de ne jamais écraser ma progression sans le savoir.
@@ -128,10 +128,10 @@ En tant que joueur sur deux appareils, je veux être prévenu quand deux version
 ADR 0004 point 4, adapté (pas d'export JSON, décision du 04/11) : avant d'écraser une version, le serveur la garde dans un historique des 5 dernières versions par partie. Fichiers : `src/ui/synchro.ts`, écran de choix, serveur (ticket A).
 
 ### Critères d'acceptation
-- [ ] Étant donné une écriture dont la `revision` de départ est périmée, quand le serveur la reçoit, alors il la refuse sans rien modifier.
-- [ ] Étant donné ce refus, quand l'appareil l'apprend, alors un choix en français s'affiche : « garder cet appareil » ou « récupérer l'autre version », avec pour chacune la région, la zone, la date et le temps de jeu ; rien n'est fusionné.
-- [ ] Étant donné un choix, quand je le valide, alors l'autre version est copiée dans l'historique avant d'être remplacée.
-- [ ] Étant donné l'historique, quand une 6e version est enregistrée, alors la plus ancienne est supprimée et les 5 dernières restent récupérables par un administrateur.
+- [x] Étant donné une écriture dont la `revision` de départ est périmée, quand le serveur la reçoit, alors il la refuse sans rien modifier.
+- [x] Étant donné ce refus, quand l'appareil l'apprend, alors un choix en français s'affiche : « garder cet appareil » ou « récupérer l'autre version », avec pour chacune la région, la zone, la date et le temps de jeu ; rien n'est fusionné.
+- [x] Étant donné un choix, quand je le valide, alors l'autre version est copiée dans l'historique avant d'être remplacée.
+- [x] Étant donné l'historique, quand une 6e version est enregistrée, alors la plus ancienne est supprimée et les 5 dernières restent récupérables par un administrateur.
 
 ### Hors périmètre
 Écran joueur de restauration depuis l'historique (à demander plus tard si utile), fusion automatique (écartée dans l'ADR 0004).

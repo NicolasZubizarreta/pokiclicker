@@ -202,7 +202,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
   };
   const enregistrer = () => {
     if (!initialise) return;
-    try { persistance.enregistrer(region, pokedex); persistance.enregistrerPreferences(preferences); }
+    try { persistance.enregistrer(region, pokedex, tempsJeuMs); persistance.enregistrerPreferences(preferences); }
     catch (cause) { erreur = detailErreur(cause); }
   };
   // Envoi immédiat vers le serveur (ticket D) : toujours après l'écriture locale. Une erreur d'abonné ne touche pas au jeu.

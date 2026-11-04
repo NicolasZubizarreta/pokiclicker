@@ -35,6 +35,30 @@ function instantane(stockage: ReturnType<typeof creerStockageMemoire>) {
   return stockage.cles().map(cle => [cle, stockage.lire(cle)]);
 }
 const cle = 'pokiclicker:partie:partie-1';
+it('installe les révisions serveur et retire les régions locales absentes', () => {
+  const source = contexte();
+  const partie = source.jeu.creerPartie('Serveur');
+  const compte = source.jeu.ecrireCompte(compteInitial());
+  const regions = [source.jeu.chargerRegion(partie.id, 'kanto')!];
+  const cible = contexte();
+  cible.jeu.installerVersion({ compte, partie, regions });
+  expect(cible.jeu.chargerPartie(partie.id)).toEqual(partie);
+  expect(cible.jeu.chargerCompte()).toEqual(compte);
+  cible.jeu.ecrireRegion(partie.id, 'johto', regionInitiale('johto', 'johto.route-1'));
+  cible.jeu.installerVersion({ partie, regions });
+  expect(cible.jeu.chargerRegion(partie.id, 'johto')).toBeNull();
+  expect(cible.jeu.chargerRegion(partie.id, 'kanto')).toEqual(regions[0]);
+});
+it('refuse une installation invalide avant toute écriture', () => {
+  const { jeu, stockage } = contexte();
+  const partie = jeu.creerPartie('Locale');
+  const region = jeu.chargerRegion(partie.id, 'kanto')!;
+  const avant = instantane(stockage);
+  for (const regions of [[], [region, region], [{ ...region, revision: -1 }], [{ ...region, id: 'johto' }]]) {
+    expect(() => jeu.installerVersion({ partie, regions })).toThrow();
+    expect(instantane(stockage)).toEqual(avant);
+  }
+});
 afterEach(() => { delete migrationsParDefaut[0]; });
 
 describe('sauvegarde du blackjack', () => {

@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { bodyLimit } from 'hono/body-limit';
-import type { Pool } from 'pg';
+import type { Pool, PoolClient } from 'pg';
 
 type Auth = { api: { getSession: (options: { headers: Headers }) => Promise<{ user: { id: string } } | null> } };
 type Objet = Record<string, unknown>;
@@ -15,7 +15,14 @@ const uuid = (v: unknown): v is string => typeof v === 'string' && /^[0-9a-f]{8}
 const MAX_PARTIES = 20;
 const MAX_REGIONS = 20;
 const DEBIT_MAX = 60;
+const MAX_VERSIONS = 200; // plafond d'historique par compte : l'archivage d'une version écartée ne doit pas remplir la base
 const champs = (v: Objet, permis: string[]) => Object.keys(v).every(k => permis.includes(k));
+
+async function purgerVersions(db: PoolClient, compteId: string, niveau: string, objetId: string) {
+  await db.query(`DELETE FROM versions WHERE compte_id = $1 AND niveau = $2 AND objet_id = $3
+    AND id NOT IN (SELECT id FROM versions WHERE compte_id = $1 AND niveau = $2 AND objet_id = $3 ORDER BY id DESC LIMIT 5)`,
+  [compteId, niveau, objetId]);
+}
 
 function valider(v: unknown): { message: string; statut: 400 | 413 } | undefined {
   const erreur = { message: 'Sauvegarde invalide.', statut: 400 as const };
@@ -82,6 +89,11 @@ export function routesSauvegarde(pool: Pool, auth: Auth): Hono<{ Variables: { co
     return rows[0] ? c.json({ enveloppe: enveloppe(rows[0], 'compte', 'local') })
       : c.json({ message: 'Aucune sauvegarde.' }, 404);
   });
+  app.get('/parties', async c => {
+    const { rows } = await pool.query('SELECT id, nom, revision, ecrit_le FROM parties WHERE compte_id = $1 ORDER BY ecrit_le DESC LIMIT $2',
+      [c.get('compteId'), MAX_PARTIES]);
+    return c.json({ parties: rows.map(p => ({ id: p.id, nom: p.nom, revision: p.revision, ecritLe: p.ecrit_le.toISOString() })) });
+  });
   app.get('/parties/:id', async c => {
     const id = c.req.param('id');
     if (!uuid(id)) return c.json({ message: 'Partie introuvable.' }, 404);
@@ -93,6 +105,53 @@ export function routesSauvegarde(pool: Pool, auth: Auth): Hono<{ Variables: { co
     return c.json({ partie: enveloppe(rows[0], 'partie', rows[0].id),
       regions: rows[0].regions.map((r: Ligne & { region_id: string }) =>
         enveloppe({ ...r, ecrit_le: new Date(r.ecrit_le) }, 'region', r.region_id)) });
+  });
+  app.post('/versions', bodyLimit({ maxSize: 3 * 1024 * 1024,
+    onError: c => c.json({ message: 'Requête trop volumineuse.' }, 413) }), async c => {
+    let brut: unknown;
+    try { brut = await c.req.json(); } catch { return c.json({ message: 'JSON invalide.' }, 400); }
+    if (!objet(brut) || !champs(brut, ['niveau', 'objetId', 'enveloppe']) ||
+      typeof brut.niveau !== 'string' || !['compte', 'partie', 'region'].includes(brut.niveau) || typeof brut.objetId !== 'string') {
+      return c.json({ message: 'Sauvegarde invalide.' }, 400);
+    }
+    const { niveau, objetId } = brut as { niveau: string; objetId: string };
+    const partieId = niveau === 'region' ? objetId.split(':')[0] : objetId;
+    const envoi = { revisionBase: 0, enveloppe: brut.enveloppe };
+    let erreur;
+    try {
+      erreur = valider(niveau === 'compte' ? { compte: envoi }
+        : niveau === 'partie' ? { partieId, partie: envoi } : { partieId, regions: [envoi] });
+      if (!erreur && niveau === 'region' && objetId !== `${partieId}:${(brut.enveloppe as Enveloppe).id}`) {
+        erreur = { message: 'Sauvegarde invalide.', statut: 400 as const };
+      }
+    } catch { erreur = { message: 'Sauvegarde invalide.', statut: 400 as const }; }
+    if (erreur) return c.json({ message: erreur.message }, erreur.statut);
+    const e = brut.enveloppe as Enveloppe;
+    const compteId = c.get('compteId');
+    const id = niveau === 'compte' ? compteId : objetId;
+    const db = await pool.connect();
+    let echec: Error | undefined;
+    try {
+      await db.query('BEGIN');
+      if (niveau !== 'compte') {
+        const partie = (await db.query('SELECT compte_id FROM parties WHERE id = $1 FOR UPDATE', [partieId])).rows[0];
+        if (partie && partie.compte_id !== compteId) {
+          await db.query('ROLLBACK');
+          return c.json({ message: 'Partie introuvable.' }, 404);
+        }
+      }
+      await db.query(`INSERT INTO versions(compte_id, niveau, objet_id, revision, version, ecrit_le, donnees)
+        VALUES ($1,$2,$3,$4,$5,$6,$7)`, [compteId, niveau, id, e.revision, e.version, new Date(e.ecritLe).toISOString(), e.donnees]);
+      await purgerVersions(db, compteId, niveau, id);
+      await db.query(`DELETE FROM versions WHERE compte_id = $1 AND id NOT IN (SELECT id FROM versions WHERE compte_id = $1 ORDER BY id DESC LIMIT $2)`,
+        [compteId, MAX_VERSIONS]);
+      await db.query('COMMIT');
+      return c.json({ ok: true });
+    } catch (error) {
+      await db.query('ROLLBACK').catch(() => undefined);
+      echec = error as Error;
+      throw error;
+    } finally { db.release(echec); }
   });
   app.put('/', bodyLimit({ maxSize: 3 * 1024 * 1024,
     onError: c => c.json({ message: 'Requête trop volumineuse.' }, 413) }), async c => {
@@ -154,8 +213,7 @@ export function routesSauvegarde(pool: Pool, auth: Auth): Hono<{ Variables: { co
             ${o.niveau === 'partie' ? `, nom = $${n + 5}` : ''}
             WHERE ${o.cle} AND revision = $${n + 1} RETURNING revision`,
           [...o.valeurs, base, e.version, new Date(e.ecritLe).toISOString(), e.donnees, ...(o.niveau === 'partie' ? [e.donnees.nom] : [])]);
-          await db.query(`DELETE FROM versions WHERE compte_id = $1 AND niveau = $2 AND objet_id = $3
-            AND id NOT IN (SELECT id FROM versions WHERE compte_id = $1 AND niveau = $2 AND objet_id = $3 ORDER BY revision DESC LIMIT 5)`, [compteId, o.niveau, o.id]);
+          await purgerVersions(db, compteId, o.niveau, o.id);
         } else {
           const colonnes = o.niveau === 'compte' ? 'compte_id' : o.niveau === 'partie' ? 'id, compte_id, nom' : 'partie_id, region_id';
           const valeurs = o.niveau === 'compte' ? [compteId] : o.niveau === 'partie' ? [corps.partieId, compteId, e.donnees.nom] : o.valeurs;

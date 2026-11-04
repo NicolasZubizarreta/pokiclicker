@@ -23,7 +23,7 @@ export type DonneesCompte = {
 export type DonneesPartie = {
   nom: string; regionCourante: string; regionsDebloquees: string[]; pokedexNational: number[];
   pcGlobal: PokemonPossede[]; drapeaux: string[];
-  statistiques: { victoires: number; argentTotalGagne: number };
+  statistiques: { victoires: number; argentTotalGagne: number; tempsJeuMs?: number };
 };
 export type MainBlackjack = { mise: number; paquet: string[]; joueur: string[]; croupier: string[] };
 export type DonneesRegion = {

@@ -99,6 +99,28 @@ export function creerGestionnaire({ stockage, horloge, genererId }: {
     ecrireCompte: (donnees: DonneesCompte) => ecrire(cleCompte, 'compte', 'local', donnees),
     chargerPartie,
     chargerRegion,
+    installerVersion({ compte, partie, regions }: {
+      compte?: Enveloppe<DonneesCompte> | null; partie: Enveloppe<DonneesPartie>; regions: Enveloppe<DonneesRegion>[];
+    }) {
+      validerEnveloppe(partie, 'partie');
+      if (compte) {
+        validerEnveloppe(compte, 'compte');
+        exiger(compte.id === 'local', 'Identifiant de compte incohérent');
+      }
+      const ids = regions.map(region => {
+        validerEnveloppe(region, 'region');
+        exiger(region.id === region.donnees.regionId && partie.donnees.regionsDebloquees.includes(region.id), 'Région incohérente');
+        return region.id;
+      });
+      exiger(new Set(ids).size === ids.length, 'Région en double');
+      exiger(ids.includes(partie.donnees.regionCourante), 'Région courante absente');
+      for (const region of regions) stockage.ecrire(cleRegion(partie.id, region.id), JSON.stringify(region));
+      stockage.ecrire(clePartie(partie.id), JSON.stringify(partie));
+      if (compte) stockage.ecrire(cleCompte, JSON.stringify(compte));
+      for (const cle of stockage.cles().filter(cle => cle.startsWith(prefixeRegions(partie.id)))) {
+        if (!ids.includes(cle.slice(prefixeRegions(partie.id).length))) stockage.supprimer(cle);
+      }
+    },
     creerPartie(nom: string, zoneDepart = kanto.premierCombat) {
       const id = nouvelId();
       const partie = preparer('partie', id, partieInitiale(nom));

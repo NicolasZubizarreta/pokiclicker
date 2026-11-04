@@ -3,6 +3,8 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-libra
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import App from '../App';
 import { CLE_SESSION } from './session-compte';
+import { creerGestionnaire, creerStockageMemoire } from '../../core/sauvegarde';
+import { creerHorlogeSimulee } from '../../core/clock';
 
 vi.mock('../Coquille', () => ({ Coquille: ({ quandDeconnecter }: { quandDeconnecter?: () => void }) => <div>Jeu ouvert{quandDeconnecter && <button onClick={quandDeconnecter}>Se déconnecter</button>}</div> }));
 const reseau = vi.fn<typeof fetch>();
@@ -16,7 +18,8 @@ beforeEach(() => {
   vi.stubEnv('VITE_API_URL', adresseServeur);
   vi.stubGlobal('fetch', reseau);
   reseau.mockReset();
-  reseau.mockResolvedValue(reponse({ session: { id: 'session' } }));
+  reseau.mockImplementation(async url => reponse(String(url).endsWith('/api/sauvegarde/parties')
+    ? { parties: [] } : { session: { id: 'session' } }));
 });
 afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.unstubAllGlobals(); vi.unstubAllEnvs(); vi.useRealTimers(); });
 function remplir(motDePasse = 'abcdefghij', email = 'joueur@exemple.fr') {
@@ -24,6 +27,27 @@ function remplir(motDePasse = 'abcdefghij', email = 'joueur@exemple.fr') {
   fireEvent.change(screen.getByLabelText('Mot de passe'), { target: { value: motDePasse } });
 }
 function cliquer(nom: string) { fireEvent.click(screen.getByRole('button', { name: nom })); }
+
+it('présente le choix avant de monter le jeu à l’ouverture', async () => {
+  const stockage = creerStockageMemoire();
+  const g = creerGestionnaire({ stockage, horloge: creerHorlogeSimulee(), genererId: () => 'test' });
+  const partie = g.creerPartie('Test');
+  const regions = [g.chargerRegion(partie.id, 'kanto')!];
+  stockage.cles().forEach(cle => localStorage.setItem(cle, stockage.lire(cle)!));
+  localStorage.setItem(CLE_SESSION, 'session-stockee');
+  reseau.mockImplementation(async (url, options) => {
+    if (String(url).endsWith('/parties')) return reponse({ parties: [{ id: partie.id, nom: 'Test', revision: 1, ecritLe: partie.ecritLe }] });
+    if (String(url).endsWith('/parties/test')) return reponse({ partie, regions });
+    if (String(url).endsWith('/compte')) return reponse({}, 404);
+    if (options?.method === 'PUT') return reponse({ partie: { id: partie.id, revision: 2 }, regions: [{ id: 'kanto', revision: 2 }] });
+    return reponse({ session: { id: 'session' } });
+  });
+  render(<App />);
+  await screen.findByRole('heading', { name: 'Deux versions de ta partie' });
+  expect(screen.queryByText('Jeu ouvert')).toBeNull();
+  cliquer('Garder cet appareil');
+  await screen.findByText('Jeu ouvert');
+});
 
 it('inscrit, mémorise le jeton de l’en-tête et ouvre le jeu', async () => {
   reseau.mockResolvedValueOnce(reponse({}, 200, 'session-inscription'));
@@ -88,7 +112,7 @@ it('retente aussi périodiquement', async () => {
   await act(async () => { await vi.advanceTimersByTimeAsync(0); });
   expect(screen.getByText('Jeu ouvert')).toBeTruthy();
   await act(async () => { await vi.advanceTimersByTimeAsync(60_000); });
-  expect(reseau).toHaveBeenCalledTimes(2);
+  expect(reseau.mock.calls.filter(([url]) => String(url).includes('/api/auth/'))).toHaveLength(2);
 });
 
 it('confirme de manière identique deux demandes et fournit redirectTo', async () => {
@@ -157,7 +181,7 @@ it('garde la session en mémoire si le stockage est indisponible', async () => {
   for (const methode of ['getItem', 'setItem', 'removeItem'] as const) vi.spyOn(Storage.prototype, methode).mockImplementation(() => { throw new Error('Stockage indisponible'); });
   reseau.mockResolvedValueOnce(reponse({}, 200, 'session-memoire'));
   render(<App />); remplir(); cliquer('Se connecter'); await screen.findByText('Jeu ouvert');
-  await waitFor(() => expect(reseau).toHaveBeenCalledTimes(2));
+  await waitFor(() => expect(reseau.mock.calls.filter(([url]) => String(url).includes('/api/auth/'))).toHaveLength(2));
   fireEvent(window, new StorageEvent('storage', { key: CLE_SESSION }));
   expect(screen.getByText('Jeu ouvert')).toBeTruthy();
   cliquer('Se déconnecter'); await screen.findByRole('heading', { name: 'Connexion' });

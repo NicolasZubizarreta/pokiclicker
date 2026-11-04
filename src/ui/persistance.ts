@@ -37,6 +37,7 @@ export function ouvrirPartie(options: Parameters<typeof creerGestionnaire>[0],
     { ...enveloppe.donnees, ...depart }, { revisionAttendue: enveloppe.revision });
   let derniere = JSON.stringify([enveloppe.donnees, partie.donnees.pokedexNational]);
   let bloquee = false;
+  const tempsBase = partie.donnees.statistiques.tempsJeuMs ?? 0;
   return {
     region: enveloppe.donnees,
     nom: partie.donnees.nom,
@@ -55,7 +56,8 @@ export function ouvrirPartie(options: Parameters<typeof creerGestionnaire>[0],
       gestionnaire.ecrireCompte({ ...actuel, preferences: { ...actuel.preferences, ...structuredClone(p) } });
       dernieresPreferences = suivantes;
     },
-    enregistrer(region: DonneesRegion, pokedex: readonly number[]) {
+    /** `tempsSessionMs` : temps de jeu écoulé depuis l'ouverture ; il s'ajoute au temps déjà gardé dans la partie et n'est écrit qu'avec une vraie modification. */
+    enregistrer(region: DonneesRegion, pokedex: readonly number[], tempsSessionMs = 0) {
       const suivante = JSON.stringify([region, pokedex]);
       if (bloquee || suivante === derniere) return;
       try {
@@ -63,8 +65,8 @@ export function ouvrirPartie(options: Parameters<typeof creerGestionnaire>[0],
         if (actuelle?.revision !== partie.revision) throw new Error('Conflit de partie');
         enveloppe = gestionnaire.ecrireRegion(partie.id, region.regionId, region,
           { revisionAttendue: enveloppe!.revision });
-        const donnees = JSON.stringify(pokedex) === JSON.stringify(partie.donnees.pokedexNational)
-          ? partie.donnees : { ...partie.donnees, pokedexNational: [...pokedex] };
+        const donnees = { ...partie.donnees, pokedexNational: [...pokedex],
+          statistiques: { ...partie.donnees.statistiques, tempsJeuMs: tempsBase + Math.floor(tempsSessionMs) } };
         partie = gestionnaire.ecrirePartie(partie.id, donnees, { revisionAttendue: partie.revision });
         derniere = suivante;
       } catch (erreur) {

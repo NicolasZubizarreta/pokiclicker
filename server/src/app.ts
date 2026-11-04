@@ -60,7 +60,8 @@ export function createApp(config: Config, pool: Pool, mailer?: Mailer) {
     allowHeaders: ['Authorization', 'Content-Type'], exposeHeaders: ['set-auth-token'],
     allowMethods: ['GET', 'POST', 'PUT', 'OPTIONS'] }));
   const limite = bodyLimit({ maxSize: 100 * 1024, onError: c => c.json({ message: 'Requête trop volumineuse.' }, 413) });
-  app.use('*', (c, next) => c.req.method === 'PUT' && c.req.path === '/api/sauvegarde' ? next() : limite(c, next));
+  app.use('*', (c, next) => (c.req.method === 'PUT' && c.req.path === '/api/sauvegarde') ||
+    (c.req.method === 'POST' && c.req.path === '/api/sauvegarde/versions') ? next() : limite(c, next));
   app.onError((error, c) => {
     console.error(error instanceof Error ? error.message : 'erreur');
     return c.json({ message: 'Erreur interne du serveur.' }, 500);
