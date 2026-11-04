@@ -27,6 +27,8 @@ Ce qu'il invente est la politique du joueur, et c'est sa limite :
 
 Deux réglages du Pokédex : `reel` compte ce que le simulateur capture vraiment (3 à 68 espèces, il en rate beaucoup) ; `theorique` compte toutes les espèces rencontrables dans les zones visitées, avec leurs évolutions par niveau (136 sur 151). Le second est une borne haute, celle d'un joueur qui complète son Pokédex. Les tableaux ci-dessous sont en `theorique`, à 7 clics/s.
 
+Option expérimentale `--reactions` (désactivée par défaut) : après `--echecs-avant-reaction N` échecs (3), le joueur tente successivement un retour Pokédex, une économie pour les améliorations de dégâts, du farm puis les boosters habituels, avec un nouvel essai entre étapes applicables. Le retour vise le prochain jalon si moins de `--pokedex-detour-max E` espèces (15) manquent, pendant au plus `--detour-max-minutes M` minutes (20) ; il est sans objet en Pokédex théorique. Le farm dure `--farm-minutes F` minutes (5). Les retours ont des lignes distinctes ; leur temps compte aussi dans la limite de la zone bloquante. Le rapport et le JSON détaillent durée, argent avant/après et espèces ajoutées par réaction. À la Ligue, composée uniquement de dresseurs, le farm reste une répétition de leurs combats sans progression validée ; aucun déplacement ni choix humain de capture ciblée n'est modélisé.
+
 Commandes :
 ```
 node scripts/simuler-parcours.mjs --clics 7 --pokedex theorique

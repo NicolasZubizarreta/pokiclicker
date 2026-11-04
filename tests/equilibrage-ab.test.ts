@@ -39,6 +39,33 @@ type Lancer = (coeur: unknown, options?: Record<string, unknown>) => ResultatSim
 const jouer = jouerParcours as unknown as Lancer;
 
 describe('simulateur de parcours (ticket AB)', () => {
+  it('réagit dans l’ordre, conserve les comptes des retours et reste déterministe', () => {
+    const lancer = () => jouerParcours(coeur, { reactions: true, clics: 7 }) as {
+      zones: { nom: string; entreeMs: number; sortieMs: number; gagne: number; depense: number;
+        reactions: { etape: number; dureeMs: number; argentAvant: number; argentApres: number; especesAjoutees: number }[] }[];
+      totalGagne: number; totalDepense: number; argentFinal: number; etatDepart: { argent: number };
+    };
+    const resultat = lancer();
+    expect(lancer()).toEqual(resultat);
+    expect(resultat.zones.some(z => z.nom.includes('(retour)'))).toBe(true);
+    expect(resultat.totalGagne).toBeCloseTo(resultat.zones.reduce((s, z) => s + z.gagne, 0));
+    expect(resultat.totalDepense).toBe(resultat.zones.reduce((s, z) => s + z.depense, 0));
+    expect(resultat.argentFinal).toBeCloseTo(resultat.etatDepart.argent + resultat.totalGagne - resultat.totalDepense);
+    const reactions = resultat.zones.flatMap(z => z.reactions);
+    expect(new Set(reactions.map(r => r.etape))).toEqual(new Set([1, 2, 3, 4]));
+    for (const zone of resultat.zones) {
+      if (zone.nom.includes('(retour)')) expect(zone.sortieMs - zone.entreeMs).toBeLessThanOrEqual(20 * 60000);
+      const etapes = zone.reactions.map(r => r.etape);
+      expect(etapes).toEqual([...new Set(etapes)].sort());
+      for (const r of zone.reactions) {
+        expect(r.dureeMs).toBeGreaterThanOrEqual(0);
+        expect(r.especesAjoutees).toBeGreaterThanOrEqual(0);
+        if (r.etape === 1) expect(r.dureeMs).toBeLessThanOrEqual(20 * 60000);
+        if (r.etape === 3) expect(r.dureeMs).toBe(5 * 60000);
+      }
+    }
+  });
+
   it('mesure les 60 premiers essais de façon reproductible sans modifier les données (ticket A)', () => {
     const fichiers = ['../data/regions/kanto/zones.json', '../data/reglages.json']
       .map(chemin => new URL(chemin, import.meta.url));

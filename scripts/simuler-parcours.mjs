@@ -9,6 +9,8 @@
 // Usage : node scripts/simuler-parcours.mjs [--clics N] [--sans-bonus [zone]] [--avant] [--starter 1|4|7] [--graine N]
 //   [--pokedex reel|theorique] [--candidat zone=valeur]… [--jusqua zone] [--temps-max-zone minutes] [--json]
 //   [--debut] [--frequences [N]] [--comparer]
+//   [--reactions] [--echecs-avant-reaction N] [--pokedex-detour-max E] [--detour-max-minutes M] [--farm-minutes F]
+//   [--argent] [--achete-tout] [--achete-tout-max-doses N] : relevé JSON, doses par type et zone (défaut 10).
 // Le fichier ne vérifie pas ses types : les modules du jeu arrivent par chargement dynamique et n'ont pas de types ici.
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
@@ -20,7 +22,7 @@ const MODULES = {
   combat: 'combat', clics: 'clics', loop: 'loop', clock: 'clock', recompenses: 'recompenses', capture: 'capture',
   progression: 'progression', boutique: 'boutique', objetsActifs: 'objets-actifs', evolution: 'evolution',
   pokedex: 'pokedex', regions: 'regions', sauvegarde: 'sauvegarde', starter: 'starter', ligue: 'ligue',
-  reglages: 'reglages', pokemon: 'pokemon', ennemis: 'ennemis', stats: 'stats',
+  reglages: 'reglages', pokemon: 'pokemon', ennemis: 'ennemis', stats: 'stats', objetsEquipe: 'objets-equipe',
 };
 // Améliorations que la politique achète (par prix croissant). Le Poké-Radar et le Fauchage sont exclus : le simulateur
 // ne sait pas s'en servir (pas de recherche ciblée, pas de capture à 1 PV).
@@ -82,7 +84,8 @@ function multiplicateursV1() {
 export function jouerParcours(M, options = {}) {
   const o = {
     clics: 7, sansBonus: false, graine: 1, starter: 1, pokedex: 'reel', avant: false, candidats: {},
-    jusquA: null, tempsMaxZoneMs: 2 * 3600e3, ...options,
+    jusquA: null, tempsMaxZoneMs: 2 * 3600e3,
+    reactions: false, echecsAvantReaction: 3, pokedexDetourMax: 15, detourMaxMinutes: 20, farmMinutes: 5, ...options,
   };
   const { reglages } = M.reglages;
   const { kanto } = M.regions;
@@ -119,7 +122,7 @@ export function jouerParcours(M, options = {}) {
       gagne: 0, depense: 0, lancers: 0, captures: 0, nouvellesEspeces: 0,
       niveauMoyenEntree: 0, niveauMoyenBoss: null, niveauMoyenSortie: null, pokedexEntree: 0, pokedexSortie: null,
       pvBoss: null, dpsBoss: null, degats30sSansClic: null, degats30sAvecClics: null,
-      achats: [], etatBoss: null,
+      achats: [], etatBoss: null, ...(o.reactions ? { reactions: [], etapeReaction: 0 } : {}),
       margeSansClic: null, margeAvecClics: null, margeMax: null, boosters: 0,
     });
 
@@ -144,6 +147,7 @@ export function jouerParcours(M, options = {}) {
         S.region = { ...S.region, ameliorations: [], jalonsRecus: [], inventaire };
       }
       S.stat = nouveauStat(zone);
+      if (o.argent || o.acheteTout) Object.assign(S.stat, { argentEntree: S.region.argent, usages: [], possibles: [], differes: [], doses: {} });
       S.stat.niveauMoyenEntree = niveauMoyen(S.region);
       S.zones.push(S.stat);
       S.region = { ...S.region, zoneId: id, etape: 1 };
@@ -153,6 +157,7 @@ export function jouerParcours(M, options = {}) {
         { autoAttaque: true, arret: null, pokedex: S.pokedex, autoClic: S.combat?.autoClic ?? false });
       S.stat.pokedexEntree = S.pokedex.length;
       S.enBoss = false;
+      if (o.acheteTout) { acheterSelonPolitique(); acheterDoses(); }
     };
     const noterEspece = (numero) => {
       const avant = S.pokedex.length;
@@ -214,22 +219,61 @@ export function jouerParcours(M, options = {}) {
     const acheterSelonPolitique = () => {
       const ouvert = catalogueOuvert();
       if (ouvert.length === 0) return;
+      if (o.argent || o.acheteTout) {
+        for (const objet of ouvert.filter((x) => (x.type === 'amelioration' && !S.region.ameliorations.includes(x.id))
+          || ['calcium', 'candy', 'pomegBerry'].includes(x.id))) {
+          if (prixDe(objet) <= S.region.argent && !S.stat.possibles.some((x) => x.objet === objet.id)) {
+            S.stat.possibles.push({ objet: objet.id, prix: prixDe(objet), tempsMs: horloge.maintenant() });
+          }
+          if (prixDe(objet) > S.region.argent && !S.stat.differes.some((x) => x.objet === objet.id)) {
+            S.stat.differes.push({ objet: objet.id, prix: prixDe(objet), tempsMs: horloge.maintenant() });
+          }
+        }
+      }
+      if (o.acheteTout && !S.bonusCoupes) {
+        for (const objet of ouvert.filter((x) => x.type === 'amelioration' && !S.region.ameliorations.includes(x.id)).sort((a, b) => prixDe(a) - prixDe(b))) {
+          if (S.region.argent >= prixDe(objet)) acheterObjet(objet, 1);
+        }
+        synchroniser();
+      }
+      const economie = S.reaction?.etape === 2;
       const balle = BALLES_PAR_PRIORITE.map((id) => ouvert.find((objet) => objet.id === id)).find(Boolean);
       if (balle && (S.region.inventaire[balle.inventaire] ?? 0) < 5) {
-        const manque = 10 - (S.region.inventaire[balle.inventaire] ?? 0);
+        const manque = (economie ? 5 : 10) - (S.region.inventaire[balle.inventaire] ?? 0);
         const possible = Math.min(manque, Math.floor(S.region.argent / prixDe(balle)));
         if (possible > 0) acheterObjet(balle, possible);
       }
       if (S.bonusCoupes) return;
       const aAcheter = ouvert.filter((objet) => objet.type === 'amelioration' && !S.region.ameliorations.includes(objet.id)
-        && AMELIORATIONS_ACHETEES.includes(objet.id)).sort((a, b) => a.prix - b.prix)[0];
+        && !o.acheteTout && AMELIORATIONS_ACHETEES.includes(objet.id) && (!economie || donneDesDegats(objet))).sort((a, b) => a.prix - b.prix)[0];
       if (aAcheter && S.region.argent >= prixDe(aAcheter)) {
         acheterObjet(aAcheter, 1);
         synchroniser();
       }
     };
+    const acheterDoses = () => {
+      if (S.bonusCoupes) return;
+      for (const [id, type] of [['calcium', 'calcium'], ['candy', 'bonbon'], ['pomegBerry', 'baie']]) {
+        const objet = catalogueOuvert().find((x) => x.id === id);
+        if (!objet) continue;
+        while ((S.stat.doses[type] ?? 0) < (o.acheteToutMaxDoses ?? 10)) {
+          const cible = [...S.region.equipe].filter((p) => M.objetsEquipe.cibleValide(type, p)).sort((a, b) =>
+            M.stats.calculerDps({ ...M.sauvegarde.versMembreEquipe(b), multiplicateurType: 1 })
+            - M.stats.calculerDps({ ...M.sauvegarde.versMembreEquipe(a), multiplicateurType: 1 }) || a.uid.localeCompare(b.uid))[0];
+          if (!cible || S.region.argent < prixDe(objet) || !acheterObjet(objet, 1)) break;
+          const usage = M.objetsEquipe.utiliserSurPokemon(S.region, type, objet.inventaire, cible.uid, 1);
+          if (!usage.ok) throw new Error(usage.raison);
+          S.region = usage.region;
+          S.stat.doses[type] = (S.stat.doses[type] ?? 0) + 1;
+          S.stat.usages.push({ objet: id, quantite: 1, cible: cible.uid, tempsMs: horloge.maintenant() });
+        }
+      }
+      evoluerSiPossible();
+      synchroniser();
+    };
     const utiliserBoosters = () => {
       if (S.bonusCoupes) return;
+      if (o.reactions && S.stat.etapeReaction < 4) return;
       const ouvert = catalogueOuvert();
       for (const id of BOOSTERS) {
         const objet = ouvert.find((entree) => entree.id === id);
@@ -283,8 +327,52 @@ export function jouerParcours(M, options = {}) {
 
     // --- traitement des événements du cœur (équivalent de `traiter` dans le store de l'interface) -------------
     const nouvelEnnemi = () => { S.compteurEnnemis += 1; S.lancersEnnemi = 0; S.enBoss = false; };
+    // objets.json : Protéine et Pierre Dure renforcent le clic ; Restes ajoute des clics automatiques.
+    const donneDesDegats = (objet) => /dégâts|auto-click/i.test(objet.description);
+    const degatsManquants = () => !S.bonusCoupes && catalogueOuvert().some((objet) =>
+      AMELIORATIONS_ACHETEES.includes(objet.id) && donneDesDegats(objet) && !S.region.ameliorations.includes(objet.id));
+    const reprendre = (id) => {
+      S.region = { ...S.region, zoneId: id, etape: 1 };
+      S.combat = M.combat.creerCombat(zoneDeJeu(id), equipeDe(S.region), alea, actifsDe(S.region),
+        { autoAttaque: true, pokedex: S.pokedex, autoClic: S.combat.autoClic });
+      nouvelEnnemi();
+    };
+    const cloreReaction = () => {
+      const r = S.reaction;
+      Object.assign(r.rapport, { dureeMs: horloge.maintenant() - r.debutMs,
+        argentApres: S.region.argent, especesAjoutees: S.pokedex.length - r.especesAvant });
+      if (r.etape === 1) {
+        Object.assign(S.stat, { sortieMs: horloge.maintenant(), niveauMoyenSortie: niveauMoyen(S.region), pokedexSortie: S.pokedex.length });
+        S.stat = r.statBoss;
+        reprendre(S.stat.id);
+      }
+      if (r.etape === 2 || r.etape === 3) reprendre(S.stat.id);
+      S.reaction = null;
+    };
+    const declencherReaction = () => {
+      const stat = S.stat;
+      while (stat.etapeReaction < 4) {
+        const etape = ++stat.etapeReaction;
+        const palier = M.progression.chargerJalons().map((j) => j.palier).filter((p) => p > S.pokedex.length).sort((a, b) => a - b)[0];
+        const retours = S.zones.filter((z) => z.victoire && zoneDeJeu(z.id).sauvages.some((s) => !S.pokedex.includes(s.pokemon)));
+        if (etape === 1 && (o.pokedex === 'theorique' || !palier || palier - S.pokedex.length >= o.pokedexDetourMax || !retours.length)) continue;
+        if (etape === 2 && !degatsManquants()) continue;
+        const rapport = { zone: stat.id, etape, dureeMs: 0, argentAvant: S.region.argent, argentApres: S.region.argent, especesAjoutees: 0 };
+        stat.reactions.push(rapport);
+        S.reaction = { etape, rapport, statBoss: stat, debutMs: horloge.maintenant(), especesAvant: S.pokedex.length, palier,
+          finMs: horloge.maintenant() + (etape === 1 ? o.detourMaxMinutes : o.farmMinutes) * 60000 };
+        if (etape === 1) {
+          S.reaction.retours = retours.map((z) => z.id);
+          entrerDansZone(retours[0].id);
+          S.stat.nom += ' (retour)';
+        }
+        if (etape === 4) cloreReaction();
+        return;
+      }
+    };
     const traiter = () => {
       let zoneVaincue = null;
+      let bossIntermediaireVaincu = false;
       for (const ev of S.combat.evenements) {
         if (ev.type === 'capture-reussie') {
           const avant = S.region.argent;
@@ -297,6 +385,7 @@ export function jouerParcours(M, options = {}) {
           optimiserEquipe();
           nouvelEnnemi();
         } else if (ev.type === 'ennemi-vaincu') {
+          if (ev.boss) bossIntermediaireVaincu = true;
           const avant = S.region.argent;
           S.region = M.recompenses.appliquerVictoire(S.region, ev, S.combat.actifs).region;
           S.stat.gagne += S.region.argent - avant;
@@ -309,6 +398,7 @@ export function jouerParcours(M, options = {}) {
         } else if (ev.type === 'boss-vaincu') {
           zoneVaincue = ev.zoneId;
         } else if (ev.type === 'boss-echoue') {
+          if (S.reaction) { nouvelEnnemi(); continue; }
           S.stat.echecs += 1;
           if (S.stat.premierEchecMs === null) S.stat.premierEchecMs = horloge.maintenant();
           if (S.stat.premierEssai === null) { S.stat.premierEssai = 'échec'; S.stat.premierEssaiDureeMs = horloge.maintenant() - S.debutBossMs; }
@@ -317,11 +407,17 @@ export function jouerParcours(M, options = {}) {
       }
       S.combat = M.combat.viderEvenements(S.combat);
       synchroniser();
-      if (zoneVaincue === null) return;
+      if (zoneVaincue === null) {
+        if (o.acheteTout && bossIntermediaireVaincu) { acheterSelonPolitique(); acheterDoses(); }
+        return;
+      }
+      if (S.reaction) { reprendre(S.stat.id); return; }
       const resultat = M.progression.accorderBadge(S.region, zoneVaincue);
       S.region = resultat.region;
       if (!S.region.bossVaincus.includes(zoneVaincue)) S.region = { ...S.region, bossVaincus: [...S.region.bossVaincus, zoneVaincue] };
+      if (o.acheteTout) { acheterSelonPolitique(); acheterDoses(); }
       const stat = S.stat;
+      if (o.argent || o.acheteTout) stat.argentSortie = S.region.argent;
       Object.assign(stat, {
         victoire: true, sortieMs: horloge.maintenant(), niveauMoyenSortie: niveauMoyen(S.region), pokedexSortie: S.pokedex.length,
       });
@@ -344,14 +440,37 @@ export function jouerParcours(M, options = {}) {
     };
     const avancer = (etat, pas) => {
       if (S.fini) return etat;
-      if (horloge.maintenant() - S.stat.entreeMs > o.tempsMaxZoneMs) {
+      const statLimite = S.reaction?.statBoss ?? S.stat;
+      if (horloge.maintenant() - statLimite.entreeMs > o.tempsMaxZoneMs) {
+        if (S.reaction) cloreReaction();
         S.fini = true; S.raison = `Bloqué dans ${S.stat.id} après ${Math.round(o.tempsMaxZoneMs / 60000)} min`;
         return etat;
+      }
+      if (o.reactions) {
+        if (S.reaction) {
+          const r = S.reaction;
+          if ((r.etape === 1 && (S.pokedex.length >= r.palier || horloge.maintenant() >= r.finMs))
+            || (r.etape === 2 && !degatsManquants()) || (r.etape === 3 && horloge.maintenant() >= r.finMs)) cloreReaction();
+          else if (r.etape === 1 && !zoneDeJeu(S.stat.id).sauvages.some((s) => !S.pokedex.includes(s.pokemon))) {
+            const suivant = r.retours.find((id) => zoneDeJeu(id).sauvages.some((s) => !S.pokedex.includes(s.pokemon)));
+            if (!suivant) cloreReaction();
+            else {
+              Object.assign(S.stat, { sortieMs: horloge.maintenant(), niveauMoyenSortie: niveauMoyen(S.region), pokedexSortie: S.pokedex.length });
+              entrerDansZone(suivant); S.stat.nom += ' (retour)';
+            }
+          }
+        } else if (S.stat.echecs >= o.echecsAvantReaction && S.stat.echecs > (S.stat.dernierEchecReaction ?? 0) && S.stat.etapeReaction < 4) {
+          S.stat.dernierEchecReaction = S.stat.echecs;
+          declencherReaction();
+        }
+        // En farm, on recommence les combats ordinaires avant l'apparition du boss.
+        // La Ligue n'a que des dresseurs : on y combat sans compter ces essais comme des tentatives de progression.
+        if (S.reaction && S.combat.ennemi.boss && S.combat.zone.type !== 'ligue') reprendre(S.stat.id);
       }
       synchroniser();
       if (horloge.maintenant() - S.dernierAchatMs >= 1000) { S.dernierAchatMs = horloge.maintenant(); acheterSelonPolitique(); }
       if (S.region.ameliorations.includes('leftovers') && !S.combat.autoClic) S.combat = M.combat.basculerAutoClic(S.combat, true);
-      if (S.combat.ennemi.boss && S.combat.attenteMs === 0 && S.combat.minuteurMs !== null && !S.enBoss) debutBoss();
+      if (!S.reaction && S.combat.ennemi.boss && S.combat.attenteMs === 0 && S.combat.minuteurMs !== null && !S.enBoss) debutBoss();
       lancerCapturesSiUtile();
       S.resteClic += o.clics * pas / 1000;
       const n = Math.floor(S.resteClic);
@@ -373,8 +492,15 @@ export function jouerParcours(M, options = {}) {
     const boucle = M.loop.creerBoucle({ horloge, etat: S, avancer });
     while (!S.fini) { horloge.avancer(pasMs); boucle.tick(); }
 
-    const dernier = S.zones.at(-1);
+    const dernier = S.stat;
     if (!dernier.victoire) Object.assign(dernier, { sortieMs: horloge.maintenant(), niveauMoyenSortie: niveauMoyen(S.region), pokedexSortie: S.pokedex.length });
+    if (o.argent || o.acheteTout) {
+      dernier.argentSortie = S.region.argent;
+      for (const z of S.zones) {
+        if (Math.abs(z.argentSortie - z.argentEntree - z.gagne + z.depense) > 1e-7) throw new Error(`Bilan argent incorrect : ${z.id} ${z.argentEntree} + ${z.gagne} - ${z.depense} != ${z.argentSortie}`);
+        for (const d of z.differes) d.achatUlterieur = S.zones.flatMap((x) => x.achats).find((a) => a.objet === d.objet && a.tempsMs >= d.tempsMs)?.tempsMs ?? null;
+      }
+    }
     return {
       options: o, etatDepart, fin: S.raison, tempsMs: horloge.maintenant(), zones: S.zones, pokedex: S.pokedex.length,
       argentFinal: S.region.argent, badges: S.region.badges.length, ameliorations: S.region.ameliorations,
@@ -425,6 +551,10 @@ export function tableauParcours(resultat, M) {
   const catalogue = M.pokemon.chargerPokemon();
   const lignes = ['| Zone | Temps (min) | dont après un échec | Niveau moyen au boss | Argent gagné | Argent dépensé | Espèces (Pokédex) | Marge 1er essai | Boss |',
     '|---|---:|---:|---:|---:|---:|---:|---:|---|'];
+  if (resultat.options.reactions) {
+    lignes[0] += ' Réactions |';
+    lignes[1] += '---|';
+  }
   for (const z of resultat.zones) {
     const duree = (z.sortieMs ?? resultat.tempsMs) - z.entreeMs;
     const apresEchec = z.premierEchecMs === null ? 0 : (z.sortieMs ?? resultat.tempsMs) - z.premierEchecMs;
@@ -434,6 +564,8 @@ export function tableauParcours(resultat, M) {
           : z.victoire ? `victoire à l’essai ${z.echecs + 1}` : `échec (${z.echecs} essais)`;
     lignes.push(`| ${z.nom} | ${minutes(duree)} | ${minutes(apresEchec)} | ${z.niveauMoyenBoss === null ? '–' : z.niveauMoyenBoss.toFixed(1).replace('.', ',')} `
       + `| ${entier(z.gagne)} | ${entier(z.depense)} | ${z.pokedexSortie ?? '–'} | ${virgule(z.margeAvecClics)} | ${issue} |`);
+    if (resultat.options.reactions) lignes[lignes.length - 1] += ' ' + z.reactions.map((r) =>
+      `étape ${r.etape} : ${minutes(r.dureeMs)} min, ${entier(r.argentAvant)} → ${entier(r.argentApres)}, +${r.especesAjoutees} espèces`).join(' ; ') + ' |';
   }
   const equipe = resultat.equipe.map((p) => `${p.nom} ${p.niveau}`).join(', ');
   return [...lignes, '',
@@ -477,6 +609,14 @@ function lireArguments(argv) {
     else if (a === '--starter') o.starter = Number(suivant());
     else if (a === '--graine') o.graine = Number(suivant());
     else if (a === '--pokedex') o.pokedex = suivant();
+    else if (a === '--reactions') o.reactions = true;
+    else if (a === '--argent') o.argent = true;
+    else if (a === '--achete-tout') o.acheteTout = true;
+    else if (a === '--achete-tout-max-doses') o.acheteToutMaxDoses = Number(suivant());
+    else if (a === '--echecs-avant-reaction') o.echecsAvantReaction = Number(suivant());
+    else if (a === '--pokedex-detour-max') o.pokedexDetourMax = Number(suivant());
+    else if (a === '--detour-max-minutes') o.detourMaxMinutes = Number(suivant());
+    else if (a === '--farm-minutes') o.farmMinutes = Number(suivant());
     else if (a === '--jusqua') o.jusquA = suivant();
     else if (a === '--temps-max-zone') o.tempsMaxZoneMs = Number(suivant()) * 60000;
     else if (a === '--candidat') { const [zone, valeur] = suivant().split('='); o.candidats[zone.includes('.') ? zone : `kanto.${zone}`] = Number(valeur); }
@@ -487,6 +627,12 @@ function lireArguments(argv) {
     else { console.error(`Option inconnue : ${a}`); process.exit(2); }
   }
   if (o.clics !== undefined && !(o.clics >= 0)) { console.error('--clics attend un nombre positif ou nul.'); process.exit(2); }
+  if (o.acheteToutMaxDoses !== undefined && (!Number.isInteger(o.acheteToutMaxDoses) || o.acheteToutMaxDoses < 0)) throw new Error('--achete-tout-max-doses attend un entier positif ou nul.');
+  for (const [cle, option] of Object.entries({ echecsAvantReaction: '--echecs-avant-reaction', pokedexDetourMax: '--pokedex-detour-max', detourMaxMinutes: '--detour-max-minutes', farmMinutes: '--farm-minutes' })) {
+    if (o[cle] !== undefined && (!Number.isFinite(o[cle]) || o[cle] <= 0 || (cle === 'echecsAvantReaction' && !Number.isInteger(o[cle])))) {
+      console.error(`${option} attend un nombre strictement positif${cle === 'echecsAvantReaction' ? ' entier' : ''}.`); process.exit(2);
+    }
+  }
   return o;
 }
 
@@ -546,7 +692,9 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
         + '\n\n### Marges\n\n' + tableauComparaison(avant, apres));
     } else {
       const resultat = jouerParcours(M, o);
-      console.log(o.json ? JSON.stringify(resultat, null, 2) : tableauParcours(resultat, M));
+      console.log(o.json ? JSON.stringify(resultat, null, 2) : tableauParcours(resultat, M)
+        + (o.argent || o.acheteTout ? '\n\n| Zone | Entrée | Gains | Dépenses | Sortie | Achats (objet, quantité, coût, tempsMs) | Usages | Abordables | Différés (achatUlterieur : tempsMs ou null) |\n|---|---:|---:|---:|---:|---:|---|---|---|\n'
+          + resultat.zones.map((z) => `| ${z.nom} | ${z.argentEntree} | ${z.gagne} | ${z.depense} | ${z.argentSortie} | ${JSON.stringify(z.achats)} | ${JSON.stringify(z.usages)} | ${JSON.stringify(z.possibles)} | ${JSON.stringify(z.differes)} |`).join('\n') : ''));
     }
   } finally {
     await fermer();
