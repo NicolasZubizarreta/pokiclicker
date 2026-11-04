@@ -47,7 +47,7 @@ Code du jeu, déploiement (ticket B), choix du fournisseur d'e-mail (ticket C).
 
 ## B. `feat(serveur): déployer le service sur Coolify avec sauvegardes de la base`
 
-`type:feat`, `etat:en_cours`, `est:1-2`, `prio:1` · branche : `v2` · pas d'`agent-ok` (configuration système, données personnelles)
+`type:feat`, `etat:fait`, `est:1-2`, `prio:1` · branche : `v2` · pas d'`agent-ok` (configuration système, données personnelles)
 
 ### Histoire
 En tant que joueur, je veux un serveur toujours disponible et sauvegardé afin que mes parties ne se perdent pas si le serveur plante.
@@ -56,8 +56,8 @@ En tant que joueur, je veux un serveur toujours disponible et sauvegardé afin q
 Coolify tourne déjà chez Nicolas. Nicolas fait le déploiement et fournit les accès ; l'assistant prépare le dépôt (fichier de déploiement, script de sauvegarde, documentation). Dépôt : `server/` (nouveau, à confirmer dans l'ADR 0005).
 
 ### Critères d'acceptation
-- [ ] Étant donné le service déployé, quand j'ouvre son adresse en HTTPS, alors il répond (état de santé) et le certificat est valide.
-- [ ] Étant donné la base, quand la sauvegarde planifiée s'exécute, alors un fichier daté est créé hors du conteneur, et une restauration d'essai sur une copie retrouve les comptes et les parties.
+- [x] Étant donné le service déployé, quand j'ouvre son adresse en HTTPS, alors il répond (état de santé) et le certificat est valide.
+- [x] Étant donné la base, quand la sauvegarde planifiée s'exécute, alors un fichier daté est créé hors du conteneur (sauvegarde Coolify quotidienne, sur le disque du serveur). La copie hors serveur et la restauration d'essai sont reportées : décision de Nicolas du 04/11, pas de second hébergeur payant pour l'instant (ticket K, idée).
 - [x] Étant donné les secrets (clés, mot de passe SMTP), quand le dépôt est parcouru, alors aucun n'y figure ; ils sont dans les variables de Coolify.
 - [x] Étant donné une origine autre que le jeu, quand elle appelle l'API, alors la requête est refusée (CORS limité à l'adresse du jeu et à `localhost`).
 
@@ -69,7 +69,7 @@ Haute disponibilité, supervision avancée.
 
 ## C. `feat(compte): s'inscrire, se connecter et récupérer son mot de passe`
 
-`type:feat`, `etat:en_cours`, `est:2-3`, `prio:1` · branche : `v2` · pas d'`agent-ok` (authentification, données personnelles)
+`type:feat`, `etat:fait`, `est:2-3`, `prio:1` · branche : `v2` · pas d'`agent-ok` (authentification, données personnelles)
 
 ### Histoire
 En tant que joueur, je veux créer un compte avec mon e-mail et un mot de passe afin de retrouver mes parties sur n'importe quel appareil.
@@ -80,7 +80,7 @@ Compte obligatoire (décision du 04/11) : le jeu s'ouvre sur l'écran de connexi
 ### Critères d'acceptation
 - [x] Étant donné un e-mail neuf et un mot de passe d'au moins 10 caractères, quand je m'inscris, alors je suis connecté et la session survit au rechargement de la page.
 - [x] Étant donné un e-mail déjà inscrit ou un mot de passe trop court, quand je m'inscris, alors un message en français l'explique, sans révéler si l'e-mail existe lors d'une connexion échouée.
-- [ ] Étant donné un mot de passe oublié, quand je demande la réinitialisation, alors je reçois un lien à usage unique qui expire, et l'ancien mot de passe ne marche plus après le changement.
+- [x] Étant donné un mot de passe oublié, quand je demande la réinitialisation, alors je reçois un lien à usage unique qui expire, et l'ancien mot de passe ne marche plus après le changement.
 - [x] Étant donné trop d'essais ratés, quand je réessaie, alors le serveur ralentit ou bloque temporairement la tentative.
 - [x] Étant donné « se déconnecter », quand je clique, alors la session est supprimée de l'appareil et l'écran de connexion revient.
 
@@ -242,3 +242,10 @@ Jouer sans jamais créer de compte.
 
 ### Effort et risques
 2 à 3 jours, à resserrer au cadrage. Risque : sécurité d'une session longue hors ligne. Dépend de : D, E.
+
+## K. `chore(serveur): copier les sauvegardes hors du serveur et tester une restauration`
+
+`type:chore`, `etat:idee`, `est:0.5-1`, `prio:5` · branche : `v2` · pas d'`agent-ok` (configuration système) · reporté par Nicolas le 04/11 : pas de second hébergeur payant maintenant, à reprendre quand des amis jouent vraiment
+
+### Contexte
+Les sauvegardes Coolify restent sur le disque du serveur : elles ne protègent pas d'une perte du serveur. À reprendre avec un stockage S3 (ou une copie manuelle périodique du dump sur le PC de Nicolas, gratuite), puis restauration d'essai selon `server/README.md`.
