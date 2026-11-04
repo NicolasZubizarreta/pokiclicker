@@ -29,3 +29,7 @@
 - La `revision` et les dates de l'ADR 0001 sont obligatoires dès la phase 1, même sans serveur.
 - Le choix du service (piste : Supabase) se fait en phase 4, avec ces règles comme cahier des charges.
 - Tickets concernés : F (champs de révision), phase 4 (compte et synchronisation).
+
+## Amendement (04/11/2026, ADR 0005)
+- Point 4 : sans export JSON, le serveur garde les 5 dernières versions remplacées de chaque partie ; le choix « garder cet appareil » ou « récupérer l'autre version » reste identique.
+- Le service est une API maison sur Postgres (Coolify), pas Supabase : voir l'ADR 0005.

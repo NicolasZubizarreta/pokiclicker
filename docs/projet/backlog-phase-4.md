@@ -25,19 +25,19 @@ Hors phase 4 : reprise des parties locales de test (supprimées, décision du 04
 
 ## A. `docs(sync): choisir la pile serveur et le modèle de données (ADR 0005)`
 
-`type:docs`, `etat:en_cours`, `est:1-2`, `prio:1` · branche : `v2` · pas d'`agent-ok` (choix d'architecture, authentification)
+`type:docs`, `etat:fait`, `est:1-2`, `prio:1` · branche : `v2` · pas d'`agent-ok` (choix d'architecture, authentification)
 
 ### Histoire
 En tant que développeur, je veux une pile serveur choisie et justifiée afin de ne pas réécrire l'authentification ni la synchronisation en cours de route.
 
 ### Contexte
-Service sur Coolify (décidé). Recommandation à confirmer par un essai de 2 h : PocketBase (un conteneur, comptes e-mail et mot de passe avec réinitialisation intégrés, SQLite facile à sauvegarder, règles d'accès par compte, crochets JS pour refuser une écriture), contre Supabase auto-hébergé (plus lourd, plusieurs conteneurs) et une petite API maison (il faudrait écrire le hachage et la réinitialisation des mots de passe). Fichiers : `docs/adr/0005-serveur.md` (nouveau), `docs/adr/0001-sauvegarde.md` et `0004-synchronisation.md` (amendements).
+Service sur Coolify (décidé). Choix du 04/11 : petite API TypeScript + Postgres géré par Coolify. PocketBase écarté (dépôt officiel archivé le 26/10/2026), Supabase auto-hébergé écarté (15 conteneurs, 4 Go de RAM minimum). Fichiers : `docs/adr/0005-serveur.md` (nouveau), `docs/adr/0001-sauvegarde.md` et `0004-synchronisation.md` (amendements).
 
 ### Critères d'acceptation
-- [ ] Étant donné les trois options, quand l'ADR est lu, alors il compare charge de maintenance, sauvegarde de la base, refus d'écriture sur révision et réinitialisation du mot de passe, et nomme le choix avec sa raison.
-- [ ] Étant donné le modèle de données, quand l'ADR est lu, alors il décrit les collections (compte, partie, région, appareil actif, versions précédentes) avec les champs de l'enveloppe (`version`, `niveau`, `id`, `revision`, `ecritLe`) et les règles d'accès : un compte ne lit que ses données.
-- [ ] Étant donné la décision du 04/11, quand les ADR 0001 (point 6) et 0004 (point 4) sont relus, alors l'export/import JSON y est remplacé par l'historique des versions côté serveur.
-- [ ] Étant donné un serveur d'essai local, quand une écriture dont la `revision` de départ n'est pas la dernière est envoyée, alors elle est refusée ; la méthode est notée dans l'ADR.
+- [x] Étant donné les trois options, quand l'ADR est lu, alors il compare charge de maintenance, sauvegarde de la base, refus d'écriture sur révision et réinitialisation du mot de passe, et nomme le choix avec sa raison.
+- [x] Étant donné le modèle de données, quand l'ADR est lu, alors il décrit les collections (compte, partie, région, appareil actif, versions précédentes) avec les champs de l'enveloppe (`version`, `niveau`, `id`, `revision`, `ecritLe`) et les règles d'accès : un compte ne lit que ses données.
+- [x] Étant donné la décision du 04/11, quand les ADR 0001 (point 6) et 0004 (point 4) sont relus, alors l'export/import JSON y est remplacé par l'historique des versions côté serveur.
+- [x] Étant donné une écriture dont la `revision` de départ n'est pas la dernière, quand l'ADR est lu, alors la méthode de refus est décrite (condition SQL sur la révision, réponse 409) ; son test est au ticket E.
 
 ### Hors périmètre
 Code du jeu, déploiement (ticket B), choix du fournisseur d'e-mail (ticket C).

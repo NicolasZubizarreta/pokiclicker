@@ -37,3 +37,6 @@
 - `VERSION_ACTUELLE` = 2. La marche 1 → 2 reçoit le niveau de l'enveloppe (`migration(donnees, niveau)`) : le compte est inchangé, la partie et la région gagnent `sexe` et `favori` sur chaque Pokémon, la région gagne `pc`, `ameliorations`, `jalonsRecus`, `starterId`, `statistiques`, `chronos`, `pension`, `jetons` et `arretAuto` (valeurs de départ dans `data/reglages.json`, section `depart.region`).
 - Le sexe d'un Pokémon déjà sauvegardé est déduit de son `uid` (parité de la somme des codes des caractères) : reproductible, sans hasard.
 - Lire une sauvegarde ancienne ne l'écrit jamais ; elle est réécrite en version 2 à la première écriture.
+
+## Amendement (04/11/2026, ADR 0005)
+- Le point 6 (export/import JSON) est abandonné : la partie vit sur le serveur, comme dans n'importe quel jeu. Aucun fichier de sauvegarde à importer ou exporter.
