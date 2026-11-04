@@ -414,23 +414,46 @@ it('supprime localement une partie jamais envoyée même hors connexion', async 
   expect(t.g.chargerPartie(t.p.id)).toBeNull();
 });
 
-it('recrée une partie supprimée ailleurs avec des bases nulles sans bloquer', async () => {
+it.each([409, 404])('attend le choix après suppression ailleurs (%s), puis recrée toutes les régions', async status => {
   const t = preparer();
   await t.synchro.envoyerMaintenant();
   t.modifier();
+  for (const regionId of ['johto', 'hoenn']) t.g.ecrireRegion(t.p.id, regionId, { ...t.g.chargerRegion(t.p.id, 'kanto')!.donnees, regionId });
   t.fetch.mockResolvedValueOnce(new Response(JSON.stringify({ conflits: [
     { niveau: 'partie', id: t.p.id, revisionServeur: 0 },
-  ] }), { status: 409 }));
+  ] }), { status }));
   const avant = t.contenu();
   await t.synchro.envoyerMaintenant({ fermeture: true });
+  expect(t.synchro.choix()?.supprimee).toBe(t.p.id);
+  t.synchro.demarrer();
+  await t.avancer(90_000);
+  await t.synchro.envoyerMaintenant({ fermeture: true });
+  expect(t.fetch.mock.calls.filter(([, o]) => o?.method === 'PUT')).toHaveLength(2);
+  t.fetch.mockResolvedValueOnce(new Response(JSON.stringify({ partie: { id: t.p.id, revision: 1 },
+    regions: ['kanto', 'johto', 'hoenn'].map(id => ({ id, revision: 1 })) })));
+  expect(await t.synchro.trancher('local')).toBe('ok');
   expect(t.fetch.mock.calls.filter(([, o]) => o?.method === 'PUT')).toHaveLength(3);
-  expect(t.corps()).toMatchObject({ partie: { revisionBase: 0 }, regions: [{ revisionBase: 0 }] });
+  expect(t.corps().partie.revisionBase).toBe(0);
+  expect(t.corps().regions.map((r: { revisionBase: number; enveloppe: { id: string } }) => [r.enveloppe.id, r.revisionBase]).sort()).toEqual([['hoenn', 0], ['johto', 0], ['kanto', 0]]);
+  const memoire = JSON.parse(t.stockage.lire('pokiclicker:synchro')!);
+  for (const id of ['kanto', 'johto', 'hoenn']) expect(memoire.regions[`${t.p.id}:${id}`]).toEqual({ serveur: 1, local: t.g.chargerRegion(t.p.id, id)!.revision });
   expect(t.synchro.etat()).toBe('ok');
   expect(t.synchro.choix()).toBeNull();
   expect(t.contenu()).toEqual(avant);
 });
 
-it('ne retente la recréation qu’une fois si le serveur renvoie encore 409', async () => {
+it('envoie toutes les régions d’une partie neuve après le choix local', async () => {
+  const t = preparer(); versions(t);
+  await t.synchro.ouvrir();
+  const nouvelle = creerGestionnaire({ ...t.options, genererId: () => 'nouvelle' }).creerPartie('Nouvelle');
+  t.g.choisirPartie(nouvelle.id);
+  for (const regionId of ['johto', 'hoenn']) t.g.ecrireRegion(nouvelle.id, regionId, { ...t.g.chargerRegion(nouvelle.id, 'kanto')!.donnees, regionId });
+  expect(await t.synchro.trancher('local')).toBe('ok');
+  expect(t.corps().partie.revisionBase).toBe(0);
+  expect(t.corps().regions).toHaveLength(3);
+});
+
+it('abandonne la partie supprimée sans nouvel envoi', async () => {
   const t = preparer();
   await t.synchro.envoyerMaintenant();
   t.modifier();
@@ -438,8 +461,14 @@ it('ne retente la recréation qu’une fois si le serveur renvoie encore 409', a
     ? { conflits: [{ niveau: 'partie', id: t.p.id, revisionServeur: 0 }] } : { parties: [] }),
   { status: options?.method === 'PUT' ? 409 : 200 }));
   await t.synchro.envoyerMaintenant({ fermeture: true });
-  expect(t.fetch.mock.calls.filter(([, o]) => o?.method === 'PUT')).toHaveLength(3);
+  expect(t.fetch.mock.calls.filter(([, o]) => o?.method === 'PUT')).toHaveLength(2);
   expect(t.synchro.etat()).toBe('conflit');
+  expect(await t.synchro.trancher('serveur')).toBe('ok');
+  expect(t.g.chargerPartie(t.p.id)).toBeNull();
+  expect(t.g.chargerRegion(t.p.id, 'kanto')).toBeNull();
+  expect(JSON.parse(t.stockage.lire('pokiclicker:synchro')!).parties[t.p.id]).toBeUndefined();
+  await t.synchro.envoyerMaintenant({ fermeture: true });
+  expect(t.fetch.mock.calls).toHaveLength(2);
 });
 
 beforeEach(() => vi.useFakeTimers());

@@ -5,6 +5,15 @@ import { EcranChoixVersion } from './EcranChoixVersion';
 import { kanto } from '../../core/regions';
 
 afterEach(cleanup);
+it('propose de garder ou abandonner une partie supprimée ailleurs', () => {
+  const resume = { regionId: 'kanto', zoneId: '', ecritLe: '', tempsJeuMs: null };
+  const quandChoisir = vi.fn();
+  render(<EcranChoixVersion choix={{ local: resume, supprimee: 'test' }} occupe={false} erreur="" quandChoisir={quandChoisir} />);
+  expect(document.activeElement).toBe(screen.getByRole('heading', { name: 'Partie supprimée ailleurs' }));
+  fireEvent.click(screen.getByRole('button', { name: 'La garder' }));
+  fireEvent.click(screen.getByRole('button', { name: "L'abandonner" }));
+  expect(quandChoisir.mock.calls).toEqual([['local'], ['serveur']]);
+});
 it('affiche les résumés, le focus, les choix et leur état occupé', () => {
   const local = { regionId: 'kanto', zoneId: 'zone-inconnue', ecritLe: '2026-11-04T12:00:00Z', tempsJeuMs: 43_500_000 };
   const choix = { local, serveur: { ...local, tempsJeuMs: null } };

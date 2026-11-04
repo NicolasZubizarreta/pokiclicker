@@ -1,5 +1,5 @@
 import { Coquille } from './Coquille';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { EcranCompte } from './compte/EcranCompte';
 import { EcranChoixVersion } from './compte/EcranChoixVersion';
 import { useSessionCompte } from './compte/session-compte';
@@ -24,6 +24,8 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
   const [jeuMonte, fixerJeuMonte] = useState(false);
   const [occupe, fixerOccupe] = useState(false);
   const [erreur, fixerErreur] = useState('');
+  const jeuArrete = useRef(false);
+  const [repriseEnAttente, fixerRepriseEnAttente] = useState(false);
   const appareil = useMemo(() => creerAppareilActif({ stockage: creerStockageLocal(), horloge: creerHorlogeSysteme(),
     urlApi: import.meta.env.VITE_API_URL ?? '', jeton: () => jeton,
     quandChange: () => rafraichir(n => n + 1) }), [jeton]);
@@ -61,17 +63,28 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
     const desabonner = storeJeu.abonnerSauvegarde(fermeture => { void synchro.envoyerMaintenant({ fermeture }); });
     return () => { desabonner(); synchro.arreter(); appareil.arreter(); };
   }, [synchro, appareil, jeuMonte]);
+  const ailleurs = appareil.ailleurs();
+  useEffect(() => {
+    if (ailleurs && jeuMonte && !jeuArrete.current) {
+      jeuArrete.current = true;
+      storeJeu.getState().arreter();
+    }
+  }, [ailleurs, jeuMonte]);
   async function choisir(cote: 'local' | 'serveur') {
     if (occupe) return;
     fixerOccupe(true);
     fixerErreur('');
-    const recharger = cote === 'serveur' && (jeuMonte || jeuDejaMonte);
+    const recharger = cote === 'serveur' && (jeuMonte || jeuDejaMonte || !!synchro.choix()?.supprimee);
     if (recharger && jeuMonte) storeJeu.getState().arreter();
     const resultat = await synchro.trancher(cote);
     if (resultat === 'echec') {
       fixerErreur("Connexion impossible. Rien n'a changé, réessaie.");
       if (recharger && jeuMonte) storeJeu.getState().demarrer();
     } else if (recharger) { window.location.reload(); return; }
+    if (resultat === 'ok' && !synchro.choix() && !appareil.ailleurs() && jeuArrete.current) {
+      storeJeu.getState().demarrer(); jeuArrete.current = false;
+      synchro.demarrer();
+    }
     if (!synchro.choix() && await appareil.ouvrir() === 'libre') fixerJeuMonte(true);
     fixerOccupe(false);
   }
@@ -79,8 +92,21 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
     if (occupe) return;
     fixerOccupe(true);
     fixerErreur('');
-    if (await appareil.reprendre() === 'ok') fixerJeuMonte(true);
-    else fixerErreur('Connexion impossible. Réessaie.');
+    fixerRepriseEnAttente(true);
+    synchro.arreter();
+    if (await appareil.reprendre() === 'ok') {
+      const resultat = await synchro.ouvrir();
+      if (resultat === 'charge') { window.location.reload(); return; }
+      if (resultat === 'hors-ligne') fixerErreur('Connexion impossible. Réessaie.');
+      else {
+        fixerRepriseEnAttente(false);
+        if (resultat !== 'choix') {
+          if (jeuArrete.current) { storeJeu.getState().demarrer(); jeuArrete.current = false; }
+          synchro.demarrer();
+          fixerJeuMonte(true);
+        }
+      }
+    } else fixerErreur('Connexion impossible. Réessaie.');
     fixerOccupe(false);
   }
   async function listerParties() {
@@ -128,7 +154,7 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
     {jeuMonte && <Coquille quandDeconnecter={quandDeconnecter} quandOuvrirParties={() => {
       fixerErreur(''); fixerEcranParties(true); void listerParties();
     }} />}
-    {!choix && appareil.ailleurs() && <div className={jeuMonte ? 'fixed inset-0 z-50' : undefined}>
+    {!choix && (ailleurs || repriseEnAttente) && <div className={jeuMonte ? 'fixed inset-0 z-50' : undefined}>
       <EcranAutreAppareil occupe={occupe} erreur={erreur} quandReprendre={() => { void reprendre(); }} />
     </div>}
     {choix && <div className={jeuMonte ? 'fixed inset-0 z-50' : undefined}>

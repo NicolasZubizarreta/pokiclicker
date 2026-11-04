@@ -129,6 +129,7 @@ it('attend la reprise de cet appareil avant de monter le jeu', async () => {
   localStorage.setItem(CLE_SESSION, 'session-stockee');
   reseau.mockImplementation(async (url, options) => {
     if (String(url).endsWith('/appareil')) return reponse({ actif: JSON.parse(options!.body as string).reprendre === true });
+    if (String(url).endsWith('/api/sauvegarde/parties')) return reponse({ parties: [] });
     if (String(url).includes('/api/sauvegarde')) return reponse({}, 404);
     return reponse({ session: { id: 'session' } });
   });

@@ -202,7 +202,7 @@ export function routesSauvegarde(pool: Pool, auth: Auth): Hono<{ Variables: { co
       await db.query('BEGIN');
       if (niveau !== 'compte') {
         const partie = (await db.query('SELECT compte_id FROM parties WHERE id = $1 FOR UPDATE', [partieId])).rows[0];
-        if (partie && partie.compte_id !== compteId) {
+        if (!partie || partie.compte_id !== compteId) {
           await db.query('ROLLBACK');
           return c.json({ message: 'Partie introuvable.' }, 404);
         }
@@ -235,6 +235,7 @@ export function routesSauvegarde(pool: Pool, auth: Auth): Hono<{ Variables: { co
     try {
       await db.query('BEGIN');
       const partie = corps.partieId ? (await db.query('SELECT * FROM parties WHERE id = $1 FOR UPDATE', [corps.partieId])).rows[0] : undefined;
+      if (corps.partie && !partie) await db.query('SELECT pg_advisory_xact_lock(hashtext($1))', [compteId]);
       if ((partie && partie.compte_id !== compteId) || (!partie && corps.regions && !corps.partie)) {
         await db.query('ROLLBACK');
         return c.json({ message: 'Partie introuvable.' }, 404);

@@ -132,6 +132,7 @@ test('versions : session, isolation et validation', async () => {
     expect(await response.json()).toEqual({ message: 'Sauvegarde invalide.' });
   }
   const local = corps();
+  expect((await put(local, token)).status).toBe(200);
   for (const [niveau, id, enveloppe] of [
     ['compte', premier.email, local.compte.enveloppe],
     ['partie', local.partieId, local.partie.enveloppe],
@@ -146,6 +147,21 @@ test('versions : session, isolation et validation', async () => {
     expect(rows[0]).toMatchObject({ objet_id: niveau === 'compte' ? rows[0].compte_id : id,
       revision: enveloppe.revision, version: enveloppe.version, donnees: enveloppe.donnees });
     expect(rows[0].ecrit_le.toISOString()).toBe(enveloppe.ecritLe);
+  }
+});
+
+test('versions : refuse une partie inexistante sans créer d’archive', async () => {
+  const { token, email } = await signup();
+  const body = corps();
+  for (const [niveau, id, enveloppe] of [
+    ['partie', body.partieId, body.partie.enveloppe],
+    ['region', `${body.partieId}:kanto`, body.regions[0]!.enveloppe],
+  ] as const) {
+    const response = await archiver(niveau, id, enveloppe, token);
+    expect(response.status).toBe(404);
+    expect(await response.json()).toEqual({ message: 'Partie introuvable.' });
+    expect((await contexte.pool.query(`SELECT v.* FROM versions v JOIN "user" u ON u.id = v.compte_id
+      WHERE u.email = $1`, [email])).rows).toEqual([]);
   }
 });
 
@@ -168,6 +184,7 @@ test("versions : plafond d'historique par compte", async () => {
   await contexte.pool.query(`INSERT INTO versions(compte_id, niveau, objet_id, revision, version, ecrit_le, donnees)
     SELECT $1, 'partie', gen_random_uuid()::text, 1, 1, now(), '{}' FROM generate_series(1, 205)`, [id]);
   const body = corps();
+  expect((await put(body, token)).status).toBe(200);
   expect((await archiver('partie', body.partieId, body.partie.enveloppe, token)).status).toBe(200);
   expect(Number((await contexte.pool.query('SELECT count(*) FROM versions WHERE compte_id = $1', [id])).rows[0].count)).toBe(200);
 });
@@ -404,6 +421,21 @@ test('plafonne les parties par compte et les régions par partie', async () => {
   const regions = Array.from({ length: 21 }, (_, i) => objet('region', `r${i}`, 0, { regionId: `r${i}` }));
   const tropDeRegions = await put({ partieId: id, partie: objet('partie', id, 0, { nom: 'Régions' }), regions }, token);
   expect(tropDeRegions.status).toBe(413);
+});
+
+test('plafonne les créations concurrentes à vingt parties par compte', async () => {
+  const { token, email } = await signup();
+  for (let i = 0; i < 19; i++) {
+    const body = corps();
+    expect((await put({ partieId: body.partieId, partie: body.partie }, token)).status).toBe(200);
+  }
+  const reponses = await Promise.all([corps(), corps()].map(body =>
+    put({ partieId: body.partieId, partie: body.partie }, token)));
+  expect(reponses.map(response => response.status).sort()).toEqual([200, 413]);
+  expect(await reponses.find(response => response.status === 413)!.json()).toEqual({ message: 'Trop de parties.' });
+  const { rows } = await contexte.pool.query(`SELECT count(*) FROM parties p JOIN "user" u ON u.id = p.compte_id
+    WHERE u.email = $1`, [email]);
+  expect(Number(rows[0].count)).toBe(20);
 });
 
 test('limite le débit par compte', async () => {
