@@ -1,3 +1,13 @@
+# Décisions de Nicolas (04/11, au retour)
+
+- Cibles D : gardées en `propose` (`valide: false`), à recaler plus tard.
+- Tolérance : 25 %.
+- Puits F : rien ne change, prix actuels conservés.
+- Mode Pokédex intermédiaire : pas maintenant. Il faudra un relevé v2 complet (chaque clic, gain d'argent, achat) ; prévu pour la bêta, sur les parties d'amis.
+- Push des commits locaux : accordé.
+
+---
+
 # Questions pour Nicolas — phase 3 (rédigé le 04/11 pendant ton absence)
 
 Ce qui est fait : tickets I (simulateur réparé + réactions de blocage), D (cibles proposées + outil de comparaison), E (test de durée écrit, désactivé), F (rapport argent et puits). Rien dans `data/` n'a changé depuis le ×1,6. Trois commits locaux (8079e7f, e252a9f, 3dc38dc), non poussés.
