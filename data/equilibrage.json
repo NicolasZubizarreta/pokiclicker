@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "statut": "propose",
+  "valide": false,
+  "protocole": { "starter": 1, "graine": 1, "clicsParSeconde": 7, "pokedex": "theorique", "reactions": false },
+  "tolerance": 0.25,
+  "ligue": { "minMinutes": 60, "maxMinutes": 90 },
+  "unites": { "tempsVisMinutes": "minutes", "margeVisee": "rapport sans unité" },
+  "convention": "Temps passé dans chaque zone, de l'entrée à la sortie victorieuse, échecs et achats inclus. Marge = dégâts infligeables pendant 30 secondes / PV du boss − 1 = 1 / margeAvecClics − 1. Mesure au premier essai avec l'équipe, les bonus et les achats du simulateur ; dégâts constants extrapolés sur 30 secondes, pas durée de la victoire. Une marge négative (au minimum −1) est légitime. Référence starter 1, graine 1, 7 clics/s, Pokédex théorique, sans réactions. Cibles arrondies à 0,1 minute et 0,01 de marge ; proposition sans seuil CI actif.",
+  "zones": {
+    "kanto.route-1": { "tempsVisMinutes": 0.6, "margeVisee": 3.57, "note": "Référence simulée ; marge élevée." },
+    "kanto.foret-de-jade": { "tempsVisMinutes": 0.7, "margeVisee": 1.28, "note": "Référence simulée ; marge élevée." },
+    "kanto.arene-d-argenta": { "tempsVisMinutes": 0.5, "margeVisee": 2.99, "note": "Référence simulée ; marge élevée." },
+    "kanto.mont-selenite": { "tempsVisMinutes": 0.7, "margeVisee": 1.13, "note": "Référence simulée ; marge élevée." },
+    "kanto.arene-d-azuria": { "tempsVisMinutes": 0.8, "margeVisee": 0.76, "note": "Référence simulée." },
+    "kanto.pont-pepite": { "tempsVisMinutes": 3.4, "margeVisee": -0.01, "note": "Référence simulée ; premier essai déficitaire." },
+    "kanto.arene-de-carmin": { "tempsVisMinutes": 18.7, "margeVisee": -0.16, "note": "Référence simulée ; premier essai déficitaire." },
+    "kanto.cave-taupiqueur": { "tempsVisMinutes": 1.0, "margeVisee": 0.44, "note": "Référence simulée." },
+    "kanto.tunnel-rocheux": { "tempsVisMinutes": 7.0, "margeVisee": -0.09, "note": "Référence simulée ; premier essai déficitaire." },
+    "kanto.tour-pokemon": { "tempsVisMinutes": 12.6, "margeVisee": -0.11, "note": "Référence simulée ; premier essai déficitaire." },
+    "kanto.arene-de-celadopole": { "tempsVisMinutes": 1.3, "margeVisee": 0.02, "note": "Référence simulée." },
+    "kanto.centrale": { "tempsVisMinutes": 1.6, "margeVisee": -0.11, "note": "Référence simulée ; premier essai déficitaire." },
+    "kanto.arene-de-parmanie": { "tempsVisMinutes": 1.0, "margeVisee": 0.04, "note": "Référence simulée." },
+    "kanto.sylphe-sarl": { "tempsVisMinutes": 1.2, "margeVisee": 0.20, "note": "Référence simulée." },
+    "kanto.arene-de-safrania": { "tempsVisMinutes": 1.1, "margeVisee": 0.48, "note": "Référence simulée." },
+    "kanto.iles-ecume": { "tempsVisMinutes": 28.2, "margeVisee": -0.14, "note": "Référence simulée ; premier essai déficitaire." },
+    "kanto.arene-de-cramois-ile": { "tempsVisMinutes": 1.0, "margeVisee": 0.21, "note": "Référence simulée." },
+    "kanto.arene-de-jadielle": { "tempsVisMinutes": 0.7, "margeVisee": 1.94, "note": "Référence simulée ; marge élevée." },
+    "kanto.caverne-azuree": { "tempsVisMinutes": 1.0, "margeVisee": 0.20, "note": "Référence simulée." },
+    "kanto.route-victoire": { "tempsVisMinutes": 1.0, "margeVisee": 0.17, "note": "Référence simulée." },
+    "kanto.ligue-pokemon": { "tempsVisMinutes": 3.1, "margeVisee": -0.03, "note": "Référence simulée ; marge du premier adversaire de la Ligue." }
+  }
+}
