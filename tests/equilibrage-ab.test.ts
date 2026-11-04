@@ -120,7 +120,7 @@ describe('simulateur de parcours (ticket AB)', () => {
   });
 });
 
-describe('argent ×2 et sauvegarde existante (ticket AB)', () => {
+describe('multiplicateur d’argent et sauvegarde existante (tickets AB et J)', () => {
   it('charge une sauvegarde existante sans toucher à son argent ni à ses niveaux, et sans l’écrire', () => {
     const stockage = sauvegarde.creerStockageMemoire();
     const horloge = clock.creerHorlogeSimulee(Date.UTC(2026, 9, 28));
@@ -142,9 +142,9 @@ describe('argent ×2 et sauvegarde existante (ticket AB)', () => {
     expect(autre.chargerRegion(copie.id, 'kanto')!.donnees.argent).toBe(123456);
   });
 
-  it('applique le ×2 une seule fois sur l’or d’un ennemi, d’un boss et d’un chromatique', () => {
+  it('applique le multiplicateur global une seule fois sur l’or d’un ennemi, d’un boss et d’un chromatique', () => {
     const { or } = reglages.reglages.recompenses;
-    expect(or.multiplicateur).toBe(2);
+    expect(or.multiplicateur).toBe(1.6);
     expect(or.capture).toBe(2);
     const sansMultiplicateur = { ...reglages.reglages.recompenses, or: { ...or, multiplicateur: 1 } };
     for (const victoire of [
@@ -152,7 +152,7 @@ describe('argent ×2 et sauvegarde existante (ticket AB)', () => {
       { numero: 19, niveau: 10, rarete: null, shiny: false, boss: true },
       { numero: 19, niveau: 10, rarete: 'commun' as const, shiny: true, boss: false },
     ]) {
-      expect(recompenses.calculerOr(victoire, [])).toBe(recompenses.calculerOr(victoire, [], sansMultiplicateur) * 2);
+      expect(recompenses.calculerOr(victoire, [])).toBe(recompenses.calculerOr(victoire, [], sansMultiplicateur) * reglages.reglages.recompenses.or.multiplicateur);
     }
   });
 });

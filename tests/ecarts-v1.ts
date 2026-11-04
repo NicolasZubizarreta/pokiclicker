@@ -11,9 +11,10 @@ export const ECARTS_V1: Record<string, { prix?: number; sansInflation?: boolean 
   everstone: { prix: 8000 },
 };
 
-// Ticket AB (28/10/2026) : tous les gains d'argent (ennemi, boss, capture, chromatique) sont doublés. La capture garde
-// en plus sa règle V1 (elle rapporte le double d'une victoire) : elle vaut donc 4 fois l'or de base de la V1.
-export const MULTIPLICATEUR_OR_V2 = 2;
+// Tickets AB et J : les gains V1 suivent le multiplicateur global ; la capture garde son facteur V1 de 2.
+import { reglages } from '../src/core/reglages';
+
+export const MULTIPLICATEUR_OR_V2 = reglages.recompenses.or.multiplicateur;
 export const MULTIPLICATEUR_OR_CAPTURE_V1 = 2;
 
 // Ticket AB : à partir de la Centrale, les PV des ennemis sont multipliés par 0,8 (le multiplicateur de PV de la zone,

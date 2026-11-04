@@ -3,6 +3,7 @@ import fixture from '../../tests/fixtures/v1-casino.json';
 import { acheterAuCasino, chargerCasino, objetsDuCasino } from './casino';
 import { objetsActifs } from './boutique';
 import { calculerOr } from './recompenses';
+import { reglages } from './reglages';
 import { regionInitiale } from './sauvegarde';
 import { validerPokemonPossede } from './sauvegarde-validation';
 import type { PokemonPossede } from './sauvegarde-types';
@@ -75,7 +76,8 @@ describe('boutique du casino', () => {
     if (!achat.ok) return;
     expect(acheterAuCasino(achat.region, 'ctJackpot', effet, effet)).toEqual({ ok: false, raison: 'Déjà acquis !' });
     const victoire = { numero: 1, niveau: 25, shiny: false, boss: false, rarete: null };
-    expect(calculerOr(victoire, objetsActifs(achat.region))).toBe(Math.floor(calculerOr(victoire) * 1.2));
+    expect(calculerOr(victoire, objetsActifs(achat.region)))
+      .toBe(Math.floor((25 * 4 + Math.pow(25, 1.4)) * 1.2) * reglages.recompenses.or.multiplicateur);
     expect(effet).not.toHaveBeenCalled();
   });
 

@@ -125,11 +125,11 @@ describe('Délai avant l’ennemi suivant', () => {
   });
 });
 
-describe('Argent multiplié par deux (ticket AB)', () => {
+describe('Multiplicateur global d’argent (tickets AB et J)', () => {
   const sansMultiplicateur = { ...reglages.recompenses, or: { ...reglages.recompenses.or, multiplicateur: 1 } };
 
   it('lit le multiplicateur dans data/reglages.json', () => {
-    expect(reglages.recompenses.or.multiplicateur).toBe(2);
+    expect(reglages.recompenses.or.multiplicateur).toBe(1.6);
   });
 
   it.each([
@@ -139,15 +139,15 @@ describe('Argent multiplié par deux (ticket AB)', () => {
     { nom: 'un boss', v: { ...victoire, niveau: 20, boss: true, rarete: null } },
     { nom: 'un chromatique', v: { ...victoire, shiny: true } },
     { nom: 'un boss chromatique avec bonus', v: { ...victoire, niveau: 40, boss: true, shiny: true, rarete: null } },
-  ])('double l’or pour , bonus compris', ({ v }) => {
+  ])('multiplie l’or pour $nom, bonus compris', ({ v }) => {
     const actifs = ['objet:amuletCoin', 'objet:ctJackpot', 'badge:prisme'];
-    expect(calculerOr(v, [])).toBe(calculerOr(v, [], sansMultiplicateur) * 2);
-    expect(calculerOr(v, actifs)).toBe(calculerOr(v, actifs, sansMultiplicateur) * 2);
+    expect(calculerOr(v, [])).toBe(calculerOr(v, [], sansMultiplicateur) * reglages.recompenses.or.multiplicateur);
+    expect(calculerOr(v, actifs)).toBe(calculerOr(v, actifs, sansMultiplicateur) * reglages.recompenses.or.multiplicateur);
   });
 
-  it('crédite l’or doublé dans la région et dans les statistiques', () => {
+  it('crédite l’or multiplié dans la région et dans les statistiques', () => {
     const resultat = appliquerVictoire(region([pokemon()]), victoire);
-    expect(resultat.or).toBe(calculerOr(victoire, [], sansMultiplicateur) * 2);
+    expect(resultat.or).toBe(calculerOr(victoire, [], sansMultiplicateur) * reglages.recompenses.or.multiplicateur);
     expect(resultat.region.argent).toBe(10 + resultat.or);
     expect(resultat.region.statistiques.argentTotalGagne).toBe(resultat.or);
   });
