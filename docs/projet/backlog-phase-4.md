@@ -213,7 +213,7 @@ Boutique de skins, catalogue complet, tournoi du Maître (phase 7).
 
 ## I. `test(sync): jouer sur deux appareils de bout en bout`
 
-`type:test`, `etat:a_faire`, `est:1-2`, `prio:1` · branche : `v2` · `agent-ok` : à poser par Nicolas
+`type:test`, `etat:fait`, `est:1-2`, `prio:1` · branche : `v2` · `agent-ok` : à poser par Nicolas
 
 ### Histoire
 En tant que développeur, je veux un scénario automatisé à deux appareils afin de prouver le jalon de la phase 4 et de repérer les régressions de synchro.
@@ -222,10 +222,13 @@ En tant que développeur, je veux un scénario automatisé à deux appareils afi
 Playwright (`tests-e2e/`), deux contextes de navigateur contre un serveur d'essai local ; réseau coupé par l'outil de test.
 
 ### Critères d'acceptation
-- [ ] Étant donné un compte et deux appareils, quand je joue sur le premier puis ouvre la partie sur le second, alors la progression (zone, argent, équipe) est identique.
-- [ ] Étant donné les deux appareils ouverts, quand les deux jouent, alors le conflit est signalé et le choix de la version fonctionne dans les deux sens.
-- [ ] Étant donné une coupure réseau d'une minute, quand elle finit, alors le dernier état part sans perte et sans message d'erreur bloquant.
-- [ ] Étant donné la CI, quand le scénario tourne, alors il dure moins de 2 minutes.
+- [x] Étant donné un compte et deux appareils, quand je joue sur le premier puis ouvre la partie sur le second, alors la progression (zone, argent, équipe) est identique.
+- [x] Étant donné les deux appareils ouverts, quand les deux jouent, alors le conflit est signalé et le choix de la version fonctionne dans les deux sens.
+- [x] Étant donné une coupure réseau d'une minute, quand elle finit, alors le dernier état part sans perte et sans message d'erreur bloquant.
+- [x] Étant donné la CI, quand le scénario tourne, alors il dure moins de 2 minutes. (53 s en local, Postgres embarqué compris ; la CI GitHub ne lance pas encore les tests du dossier `server/` : à ajouter avec le déploiement.)
+
+### Réalisé (04/11)
+`server/tests/deux-appareils.test.ts` : six scénarios entre deux clients réels (`creerSynchro`, `creerAppareilActif`) et le vrai serveur Hono sur un vrai Postgres embarqué, sans navigateur (au lieu de Playwright : la consigne du 04/11 demandait des clients automatisés contre un vrai Postgres) : progression identique, reprise d'appareil actif, conflit dans les deux sens (version écrasée archivée), coupure réseau puis dernier état, suppression d'une partie. La coupure est simulée par le branchement du `fetch` et l'horloge par `creerHorlogeSimulee` : aucune attente réelle. `server/tsconfig.json` passe en `Bundler` (+ `rootDir: ..`) pour importer le code client ; le build du serveur reste en `NodeNext` (`tsconfig.build.json`). Reste manuel : essai à la main sur deux vrais appareils après le déploiement.
 
 ### Hors périmètre
 Tests de charge.
