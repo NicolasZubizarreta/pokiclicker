@@ -35,7 +35,8 @@ Migration SQL versionnée dans `src/schema.ts` (table `migrations_sauvegarde`), 
 
 - `PUT /api/sauvegarde` : `{ partieId?, compte?, partie?, regions? }`, chacun `{ revisionBase, enveloppe }` (enveloppe de l'ADR 0001). Une transaction ; si une `revisionBase` n'est pas la révision du serveur : 409 avec `conflits` (niveau, id, revisionServeur, ecritLe, résumé), rien n'est modifié. 200 : les nouvelles révisions. Limites : 1 Mo par enveloppe, 3 Mo par requête.
 - `GET /api/sauvegarde/compte` et `GET /api/sauvegarde/parties/:id` (partie + régions). 404 pour une partie d'un autre compte.
-- `GET /api/sauvegarde/parties` : liste des parties du compte, de la plus récemment écrite à la plus ancienne (20 au plus).
+- `GET /api/sauvegarde/parties` : liste des parties du compte, de la plus récemment écrite à la plus ancienne (20 au plus), avec `id`, `nom`, `revision`, `ecritLe`, `regionCourante`, `zoneId` et `tempsJeuMs` (ces trois derniers valent `null` si absents ou invalides).
+- `DELETE /api/sauvegarde/parties/:id` : supprime la partie, ses régions, son appareil actif et ses versions archivées ; le compte reste.
 - `POST /api/sauvegarde/versions` : `{ niveau, objetId, enveloppe }`, archive une version écartée ; conserve les 5 dernières insertions par objet et 200 versions au plus par compte, limites de 1 Mo par enveloppe et 3 Mo par requête.
 - `POST /api/sauvegarde/parties/:id/appareil` : `{ appareilId: uuid, reprendre?: boolean }` → `{ actif: boolean }` ; battement toutes les 60 s côté client, appareil considéré parti après 120 s sans battement.
 

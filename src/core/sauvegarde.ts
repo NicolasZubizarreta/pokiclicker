@@ -39,6 +39,7 @@ export function creerStockageMemoire(): Stockage {
 
 type OptionsEcriture = { revisionAttendue?: number };
 const cleCompte = 'pokiclicker:compte:local';
+const cleCourante = 'pokiclicker:courante';
 function clePartie(id: string) { identifiant(id); return `pokiclicker:partie:${id}`; }
 function prefixeRegions(id: string) { identifiant(id); return `pokiclicker:region:${id}:`; }
 function cleRegion(id: string, region: string) { identifiant(region); return `${prefixeRegions(id)}${region}`; }
@@ -140,9 +141,21 @@ export function creerGestionnaire({ stockage, horloge, genererId }: {
         return { id: partie.id, nom: partie.donnees.nom, regionCourante: partie.donnees.regionCourante, ecritLe: partie.ecritLe };
       }).sort((a, b) => Date.parse(b.ecritLe) - Date.parse(a.ecritLe));
     },
+    partieCourante(): string | null {
+      try {
+        const id = stockage.lire(cleCourante);
+        if (id && chargerPartie(id)) return id;
+      } catch { /* Un pointeur illisible vaut une absence. */ }
+      return this.listerParties()[0]?.id ?? null;
+    },
+    choisirPartie(id: string) {
+      exiger(chargerPartie(id), 'Partie introuvable');
+      stockage.ecrire(cleCourante, id);
+    },
     supprimerPartie(id: string) {
       for (const cle of stockage.cles().filter(cle => cle.startsWith(prefixeRegions(id)))) stockage.supprimer(cle);
       stockage.supprimer(clePartie(id));
+      if (stockage.lire(cleCourante) === id) stockage.supprimer(cleCourante);
     },
     exporterPartie(id: string): string {
       const partie = chargerPartie(id);

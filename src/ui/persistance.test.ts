@@ -1,13 +1,28 @@
 import { expect, it } from 'vitest';
 import { creerHorlogeSimulee } from '../core/clock';
 import { creerGestionnaire, creerStockageMemoire } from '../core/sauvegarde';
-import { ouvrirPartie } from './persistance';
+import { creerPartieNommee, ouvrirPartie } from './persistance';
+import { departNouvellePartie } from './store';
 
 function ouvrir(stockage = creerStockageMemoire()) {
   const options = { stockage, horloge: creerHorlogeSimulee(), genererId: () => 'test' };
   return { stockage, p: ouvrirPartie(options, { equipe: [], drapeaux: [] }), g: creerGestionnaire(options) };
 }
 const temps = (g: ReturnType<typeof ouvrir>['g']) => g.chargerPartie('test')!.donnees.statistiques.tempsJeuMs;
+
+it('crée une partie nommée avec son équipe puis ouvre la courante même plus ancienne', () => {
+  let sequence = 0;
+  const options = { stockage: creerStockageMemoire(), horloge: creerHorlogeSimulee(), genererId: () => `p-${++sequence}` };
+  const g = creerGestionnaire(options);
+  const depart = departNouvellePartie();
+  const id = creerPartieNommee(options, 'Aventure', depart);
+  expect(g.partieCourante()).toBe(id);
+  expect(g.chargerRegion(id, 'kanto')!.donnees.equipe).toEqual(depart.equipe);
+  expect(depart.equipe.length).toBeGreaterThan(0);
+  options.horloge.avancer(1000);
+  g.creerPartie('Plus récente');
+  expect(ouvrirPartie(options).nom).toBe('Aventure');
+});
 
 it('garde le temps de jeu avec chaque vraie écriture et le reprend à la réouverture', () => {
   const premiere = ouvrir();

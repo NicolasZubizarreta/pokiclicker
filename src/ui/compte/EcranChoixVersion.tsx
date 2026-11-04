@@ -1,15 +1,7 @@
 import { useEffect, useRef } from 'react';
-import { kanto } from '../../core/regions';
+import { nomZone, nomRegion, duree } from './format-partie';
 import type { Resume } from '../synchro';
 
-function nomZone(id: string) {
-  try { return kanto.zone(id).nom; } catch { return id; }
-}
-function duree(ms: number | null) {
-  if (ms === null) return 'Non disponible';
-  const minutes = Math.floor(ms / 60_000);
-  return minutes < 60 ? `${minutes} min` : `${Math.floor(minutes / 60)} h ${String(minutes % 60).padStart(2, '0')}`;
-}
 export function EcranChoixVersion({ choix, occupe, erreur, quandChoisir }: {
   choix: { local: Resume; serveur: Resume }; occupe: boolean; erreur: string; quandChoisir: (c: 'local' | 'serveur') => void;
 }) {
@@ -25,7 +17,7 @@ export function EcranChoixVersion({ choix, occupe, erreur, quandChoisir }: {
           return <section key={cote} className="cadre bg-surface-2 p-4">
             <h2 className="font-titre text-xl mb-4">{cote === 'local' ? 'Cet appareil' : "L'autre version"}</h2>
             <dl className="mb-4">
-              <dt className="text-sm text-texte-doux">Région</dt><dd className="mb-2">{resume.regionId.charAt(0).toUpperCase() + resume.regionId.slice(1)}</dd>
+              <dt className="text-sm text-texte-doux">Région</dt><dd className="mb-2">{nomRegion(resume.regionId)}</dd>
               <dt className="text-sm text-texte-doux">Zone</dt><dd className="mb-2">{nomZone(resume.zoneId)}</dd>
               <dt className="text-sm text-texte-doux">Dernière sauvegarde</dt><dd className="mb-2">{new Date(resume.ecritLe).toLocaleString('fr-FR', { dateStyle: 'long', timeStyle: 'short' })}</dd>
               <dt className="text-sm text-texte-doux">Temps de jeu</dt><dd className="mb-2 text-region-accent">{duree(resume.tempsJeuMs)}</dd>

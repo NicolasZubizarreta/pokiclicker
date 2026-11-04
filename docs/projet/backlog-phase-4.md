@@ -162,7 +162,7 @@ Blocage dur de l'appareil précédent.
 
 ## G. `feat(parties): plusieurs parties par compte`
 
-`type:feat`, `etat:a_faire`, `est:2-3`, `prio:2` · branche : `v2` · `agent-ok` : à poser par Nicolas
+`type:feat`, `etat:fait`, `est:2-3`, `prio:2` · branche : `v2` · `agent-ok` : à poser par Nicolas
 
 ### Histoire
 En tant que joueur, je veux créer, choisir et supprimer plusieurs parties dans mon compte afin de recommencer sans perdre l'autre.
@@ -171,10 +171,17 @@ En tant que joueur, je veux créer, choisir et supprimer plusieurs parties dans 
 `docs/vision.md` (« Comptes et sauvegardes ») ; `partieInitiale(nom)` existe déjà dans `src/core/sauvegarde.ts`. Décision du 28/10 : le Reset de la V1 est remplacé par la création et la suppression de parties depuis le compte.
 
 ### Critères d'acceptation
-- [ ] Étant donné un compte sans partie, quand je me connecte, alors je peux créer une partie nommée et elle devient la partie courante.
-- [ ] Étant donné plusieurs parties, quand j'ouvre la liste, alors chacune montre son nom, sa région, sa zone, son temps de jeu et la date de dernière écriture, et je charge celle que je veux.
-- [ ] Étant donné « supprimer », quand je confirme (deux étapes), alors la partie et ses régions disparaissent du serveur, et les autres parties du compte restent intactes.
-- [ ] Étant donné le compte, quand je change de partie, alors les diamants, succès et skins du compte restent les mêmes.
+- [x] Étant donné un compte sans partie, quand je me connecte, alors je peux créer une partie nommée et elle devient la partie courante.
+- [x] Étant donné plusieurs parties, quand j'ouvre la liste, alors chacune montre son nom, sa région, sa zone, son temps de jeu et la date de dernière écriture, et je charge celle que je veux.
+- [x] Étant donné « supprimer », quand je confirme (deux étapes), alors la partie et ses régions disparaissent du serveur, et les autres parties du compte restent intactes.
+- [x] Étant donné le compte, quand je change de partie, alors les diamants, succès et skins du compte restent les mêmes. (Vérifié au niveau des données : la suppression et le changement de partie ne touchent jamais `donnees_compte`, test serveur « compte inchangé » ; les diamants eux-mêmes arrivent avec H.)
+
+### Réalisé (04/11)
+`GET /parties` renvoie aussi région, zone et temps de jeu ; `DELETE /parties/:id` (transaction, versions de la partie et de ses régions supprimées, 404 pour une partie d'un autre compte). Côté client : partie courante explicite (`pokiclicker:courante`), écran « Tes parties » (créer, jouer, supprimer en deux étapes) ouvert par « Mes parties » dans la coquille, plafond de 20 parties, nom de 1 à 100 caractères. Changer de partie recharge la page ; une copie locale n'est jamais écrasée.
+
+Limite connue : si la partie courante est supprimée depuis un autre appareil, le premier envoi de celui-ci reçoit un 409 « partie inconnue » ; la mémoire de synchro est remise à zéro et la copie locale recrée la partie au tour suivant. Une suppression faite ailleurs est donc annulée tant que l'appareil garde la partie ouverte. À traiter avec une confirmation avant recréation (ticket à ouvrir si Nicolas le veut). Deux cas rares s'y ajoutent : à 20 parties, la recréation reçoit un 413 et la synchro reste bloquée tant qu'une partie n'est pas supprimée ; un envoi de régions seules sur une partie supprimée reçoit un 404 traité comme un refus.
+
+Revue sécurité (fable, high, 04/11) : isolement entre comptes, jokers du `LIKE`, transaction et course envoi/suppression vérifiés sans défaut. Trois défauts corrigés : changer de partie n'installe plus le compte du serveur (une copie locale non envoyée est gardée), la suppression d'une partie connue du serveur mais absente en local échoue si le serveur refuse, la partie quittée est envoyée avant d'en créer une nouvelle. Noté : `suppressionCourante` reste vrai après une suppression réussie parce que l'écran recharge la page.
 
 ### Hors périmètre
 Renommer une partie existante (à décider), partage entre comptes.

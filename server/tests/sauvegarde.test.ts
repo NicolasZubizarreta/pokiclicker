@@ -32,7 +32,84 @@ test('liste des parties du compte par date decroissante', async () => {
   expect(response.status).toBe(200);
   expect(await response.json()).toEqual({ parties: [second, premier].map(body => ({
     id: body.partieId, nom: 'Ma partie', revision: 1, ecritLe: body.partie.enveloppe.ecritLe,
+    regionCourante: 'kanto', zoneId: null, tempsJeuMs: null,
   })) });
+});
+
+test('liste : région, zone et temps de jeu résistent aux données mal typées', async () => {
+  const { token } = await signup();
+  for (const [regionCourante, zoneId, statistiques, attendu] of [
+    ['kanto', 'route-1', { tempsJeuMs: 1234 }, 1234],
+    ['kanto', 'route-1', { tempsJeuMs: 0 }, 0],
+    ['kanto', 'route-1', {}, null],
+    ['kanto', 'route-1', { tempsJeuMs: '1234' }, null],
+    ['kanto', 'route-1', { tempsJeuMs: -1 }, null],
+    ['kanto', 'route-1', { tempsJeuMs: {} }, null],
+    ['kanto', 'route-1', { tempsJeuMs: true }, null],
+    ['kanto', 42, null, null],
+    [42, 'route-1', [], null],
+    [null, null, 'invalide', null],
+    [undefined, undefined, undefined, null],
+  ] as const) {
+    const body = corps();
+    body.partie.enveloppe.donnees = { ...body.partie.enveloppe.donnees, regionCourante, statistiques };
+    body.regions[0]!.enveloppe.donnees = { ...body.regions[0]!.enveloppe.donnees, zoneId };
+    expect((await put({ partieId: body.partieId, partie: body.partie, regions: body.regions }, token)).status).toBe(200);
+    const response = await request(`${chemin}/parties`, undefined, token);
+    expect(response.status).toBe(200);
+    const { parties } = await response.json();
+    expect(parties.find((p: { id: string }) => p.id === body.partieId)).toMatchObject({
+      regionCourante: typeof regionCourante === 'string' ? regionCourante : null,
+      zoneId: typeof regionCourante === 'string' && typeof zoneId === 'string' ? zoneId : null,
+      tempsJeuMs: attendu,
+    });
+  }
+});
+
+test('suppression : session, identifiant et isolation entre comptes', async () => {
+  const body = corps();
+  const { token } = await signup();
+  expect((await put(body, token)).status).toBe(200);
+  expect((await request(`${chemin}/parties/${body.partieId}`, undefined, undefined, undefined, 'DELETE')).status).toBe(401);
+  const autre = await signup();
+  const avant = await contexte.pool.query('SELECT * FROM parties WHERE id = $1', [body.partieId]);
+  for (const id of ['invalide', randomUUID(), body.partieId]) {
+    const response = await request(`${chemin}/parties/${id}`, undefined, autre.token, undefined, 'DELETE');
+    expect(response.status).toBe(404);
+    expect(await response.json()).toEqual({ message: 'Partie introuvable.' });
+  }
+  expect((await contexte.pool.query('SELECT * FROM parties WHERE id = $1', [body.partieId])).rows).toEqual(avant.rows);
+});
+
+test('suppression : cascades, archives, autre partie, compte et recréation', async () => {
+  const { token } = await signup();
+  const premiere = corps();
+  const seconde = corps();
+  expect((await put(premiere, token)).status).toBe(200);
+  expect((await put({ partieId: seconde.partieId, partie: seconde.partie, regions: seconde.regions }, token)).status).toBe(200);
+  for (const body of [premiere, seconde]) {
+    expect((await request(`${chemin}/parties/${body.partieId}/appareil`, { appareilId: randomUUID() }, token, undefined, 'POST')).status).toBe(200);
+    body.partie.revisionBase = 1;
+    body.regions[0]!.revisionBase = 1;
+    expect((await put({ partieId: body.partieId, partie: body.partie, regions: body.regions }, token)).status).toBe(200);
+    expect((await contexte.pool.query('SELECT * FROM versions WHERE objet_id = $1 OR objet_id LIKE $1 || \':%\'', [body.partieId])).rows).toHaveLength(2);
+  }
+  const compteAvant = await (await request(`${chemin}/compte`, undefined, token)).json();
+  const autreAvant = await lire(seconde.partieId, token);
+  const archivesAvant = (await contexte.pool.query('SELECT * FROM versions WHERE objet_id = $1 OR objet_id LIKE $1 || \':%\' ORDER BY id', [seconde.partieId])).rows;
+  const response = await request(`${chemin}/parties/${premiere.partieId}`, undefined, token, undefined, 'DELETE');
+  expect(response.status).toBe(200);
+  expect(await response.json()).toEqual({ ok: true });
+  expect((await request(`${chemin}/parties/${premiere.partieId}`, undefined, token)).status).toBe(404);
+  expect((await contexte.pool.query('SELECT * FROM regions WHERE partie_id = $1', [premiere.partieId])).rows).toEqual([]);
+  expect((await contexte.pool.query('SELECT * FROM appareil_actif WHERE partie_id = $1', [premiere.partieId])).rows).toEqual([]);
+  expect((await contexte.pool.query('SELECT * FROM versions WHERE objet_id = $1 OR objet_id LIKE $1 || \':%\'', [premiere.partieId])).rows).toEqual([]);
+  expect(await lire(seconde.partieId, token)).toEqual(autreAvant);
+  expect((await contexte.pool.query('SELECT * FROM versions WHERE objet_id = $1 OR objet_id LIKE $1 || \':%\' ORDER BY id', [seconde.partieId])).rows).toEqual(archivesAvant);
+  expect(await (await request(`${chemin}/compte`, undefined, token)).json()).toEqual(compteAvant);
+  const recreation = corps(premiere.partieId);
+  expect((await put({ partieId: recreation.partieId, partie: recreation.partie, regions: recreation.regions }, token)).status).toBe(200);
+  expect((await lire(premiere.partieId, token)).partie.revision).toBe(1);
 });
 
 test('versions : session, isolation et validation', async () => {

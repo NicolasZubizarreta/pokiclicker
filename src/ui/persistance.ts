@@ -18,6 +18,16 @@ export function detailErreur(erreur: unknown): string {
   return `Une erreur inattendue est survenue.\n${erreur instanceof Error ? `${erreur.name}: ${erreur.message}` : String(erreur)}`;
 }
 
+export function creerPartieNommee(options: Parameters<typeof creerGestionnaire>[0], nom: string,
+  depart: Pick<DonneesRegion, 'equipe' | 'drapeaux'>): string {
+  const gestionnaire = creerGestionnaire(options);
+  const partie = gestionnaire.creerPartie(nom, depart.drapeaux.includes('nouvelle-partie') ? kanto.depart : undefined);
+  const region = gestionnaire.chargerRegion(partie.id, partie.donnees.regionCourante)!;
+  gestionnaire.ecrireRegion(partie.id, region.id, { ...region.donnees, ...depart }, { revisionAttendue: region.revision });
+  gestionnaire.choisirPartie(partie.id);
+  return partie.id;
+}
+
 export function ouvrirPartie(options: Parameters<typeof creerGestionnaire>[0],
   depart: Pick<DonneesRegion, 'equipe' | 'drapeaux'> = { equipe: equipeDeDepart(), drapeaux: [] }) {
   const gestionnaire = creerGestionnaire(options);
@@ -28,13 +38,10 @@ export function ouvrirPartie(options: Parameters<typeof creerGestionnaire>[0],
     arretAuto: structuredClone(compte.preferences.arretAuto ?? reglages.depart.preferences.arretAuto),
   };
   let dernieresPreferences = JSON.stringify(preferences);
-  const recente = gestionnaire.listerParties()[0];
-  let partie = recente ? gestionnaire.chargerPartie(recente.id)! : gestionnaire.creerPartie('Partie 1',
-    depart.drapeaux.includes('nouvelle-partie') ? kanto.depart : undefined);
+  const id = gestionnaire.partieCourante() ?? creerPartieNommee(options, 'Partie 1', depart);
+  let partie = gestionnaire.chargerPartie(id)!;
   let enveloppe = gestionnaire.chargerRegion(partie.id, partie.donnees.regionCourante);
   if (!enveloppe) throw new Error('Région de la partie introuvable');
-  if (!recente) enveloppe = gestionnaire.ecrireRegion(partie.id, enveloppe.id,
-    { ...enveloppe.donnees, ...depart }, { revisionAttendue: enveloppe.revision });
   let derniere = JSON.stringify([enveloppe.donnees, partie.donnees.pokedexNational]);
   let bloquee = false;
   const tempsBase = partie.donnees.statistiques.tempsJeuMs ?? 0;

@@ -4,9 +4,12 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import App from '../App';
 import { CLE_SESSION } from './session-compte';
 import { creerGestionnaire, creerStockageMemoire } from '../../core/sauvegarde';
+import * as sauvegardes from '../../core/sauvegarde';
 import { creerHorlogeSimulee } from '../../core/clock';
+import * as synchronisation from '../synchro';
+import { storeJeu } from '../store';
 
-vi.mock('../Coquille', () => ({ Coquille: ({ quandDeconnecter }: { quandDeconnecter?: () => void }) => <div>Jeu ouvert{quandDeconnecter && <button onClick={quandDeconnecter}>Se déconnecter</button>}</div> }));
+vi.mock('../Coquille', () => ({ Coquille: ({ quandDeconnecter, quandOuvrirParties }: { quandDeconnecter?: () => void; quandOuvrirParties?: () => void }) => <div>Jeu ouvert{quandOuvrirParties && <button onClick={quandOuvrirParties}>Mes parties</button>}{quandDeconnecter && <button onClick={quandDeconnecter}>Se déconnecter</button>}</div> }));
 const reseau = vi.fn<typeof fetch>();
 const adresseServeur = window.location.origin;
 function reponse(donnees: unknown = {}, statut = 200, jeton?: string) {
@@ -14,12 +17,15 @@ function reponse(donnees: unknown = {}, statut = 200, jeton?: string) {
 }
 beforeEach(() => {
   localStorage.clear();
+  const stockage = creerStockageMemoire();
+  creerGestionnaire({ stockage, horloge: creerHorlogeSimulee(), genererId: () => 'test' }).creerPartie('Test');
+  stockage.cles().forEach(cle => localStorage.setItem(cle, stockage.lire(cle)!));
   history.replaceState(null, '', '/');
   vi.stubEnv('VITE_API_URL', adresseServeur);
   vi.stubGlobal('fetch', reseau);
   reseau.mockReset();
   reseau.mockImplementation(async url => reponse(String(url).endsWith('/api/sauvegarde/parties')
-    ? { parties: [] } : { session: { id: 'session' } }));
+    ? { parties: [] } : String(url).endsWith('/appareil') ? { actif: true } : { session: { id: 'session' } }));
 });
 afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.unstubAllGlobals(); vi.unstubAllEnvs(); vi.useRealTimers(); });
 function remplir(motDePasse = 'abcdefghij', email = 'joueur@exemple.fr') {
@@ -27,6 +33,94 @@ function remplir(motDePasse = 'abcdefghij', email = 'joueur@exemple.fr') {
   fireEvent.change(screen.getByLabelText('Mot de passe'), { target: { value: motDePasse } });
 }
 function cliquer(nom: string) { fireEvent.click(screen.getByRole('button', { name: nom })); }
+
+function simulerParties() {
+  const partie = { id: 'test', nom: 'Test', regionCourante: 'kanto', zoneId: '', tempsJeuMs: null, ecritLe: '2026-11-04T12:00:00Z', surServeur: true, courante: true };
+  const synchro = { ouvrir: vi.fn().mockResolvedValue('ok'), choix: vi.fn().mockReturnValue(null), arreter: vi.fn(), demarrer: vi.fn(), envoyerMaintenant: vi.fn(),
+    lister: vi.fn().mockResolvedValue({ parties: [partie, { ...partie, id: 'autre', nom: 'Autre', courante: false }], horsConnexion: false }),
+    ouvrirPartie: vi.fn().mockResolvedValue('ok'), creerPartie: vi.fn().mockResolvedValue('ok'), supprimerPartie: vi.fn().mockResolvedValue('ok') };
+  vi.spyOn(synchronisation, 'creerSynchro').mockReturnValue(synchro as unknown as ReturnType<typeof synchronisation.creerSynchro>);
+  const recharger = vi.fn();
+  const reel = window;
+  vi.stubGlobal('window', new Proxy(reel, { get(cible, cle) {
+    if (cle === 'location') return { ...cible.location, reload: recharger };
+    const valeur = Reflect.get(cible, cle) as unknown;
+    return typeof valeur === 'function' ? valeur.bind(cible) : valeur;
+  } }));
+  localStorage.setItem(CLE_SESSION, 'session-stockee');
+  return { synchro, recharger };
+}
+it('présente la création sans monter le jeu ni ouvrir la synchro d’appareil', async () => {
+  localStorage.clear();
+  const { synchro } = simulerParties();
+  synchro.lister.mockResolvedValue({ parties: [], horsConnexion: false });
+  render(<App />);
+  await screen.findByText('Crée ta première partie');
+  expect(screen.queryByText('Jeu ouvert')).toBeNull();
+  expect(screen.queryByText('Retour au jeu')).toBeNull();
+  expect(reseau.mock.calls.some(([url]) => String(url).endsWith('/appareil'))).toBe(false);
+});
+it.each(['ok', 'echec'])('ouvre une autre partie : %s', async resultat => {
+  const { synchro, recharger } = simulerParties();
+  synchro.ouvrirPartie.mockResolvedValue(resultat);
+  const arreter = vi.spyOn(storeJeu.getState(), 'arreter').mockImplementation(() => {});
+  const demarrer = vi.spyOn(storeJeu.getState(), 'demarrer').mockImplementation(() => {});
+  render(<App />); await screen.findByText('Jeu ouvert'); cliquer('Mes parties');
+  await screen.findByText('Autre'); cliquer('Jouer cette partie');
+  expect(arreter).toHaveBeenCalled();
+  expect(synchro.ouvrirPartie).toHaveBeenCalledWith('autre');
+  if (resultat === 'ok') await waitFor(() => expect(recharger).toHaveBeenCalledOnce());
+  else {
+    expect((await screen.findByRole('alert')).textContent).toBe("Connexion impossible. Rien n'a changé, réessaie.");
+    expect(demarrer).toHaveBeenCalled(); expect(recharger).not.toHaveBeenCalled();
+  }
+});
+it('crée une partie puis recharge', async () => {
+  const { synchro, recharger } = simulerParties();
+  render(<App />); await screen.findByText('Jeu ouvert'); cliquer('Mes parties');
+  await screen.findByText('Autre');
+  fireEvent.change(screen.getByLabelText('Nom de la partie'), { target: { value: ' Voyage ' } });
+  cliquer('Créer la partie');
+  await waitFor(() => expect(recharger).toHaveBeenCalledOnce());
+  expect(synchro.creerPartie).toHaveBeenCalledWith('Voyage', expect.objectContaining({ equipe: expect.any(Array), drapeaux: expect.any(Object) }));
+});
+it.each([true, false])('supprime une partie, courante : %s', async courante => {
+  const { synchro, recharger } = simulerParties();
+  const arreter = vi.spyOn(storeJeu.getState(), 'arreter').mockImplementation(() => {});
+  render(<App />); await screen.findByText('Jeu ouvert'); cliquer('Mes parties');
+  await screen.findByText('Autre');
+  fireEvent.click(screen.getAllByText('Supprimer')[courante ? 0 : 1]!); cliquer('Oui, supprimer');
+  expect(synchro.supprimerPartie).toHaveBeenCalledWith(courante ? 'test' : 'autre');
+  if (courante) { expect(arreter).toHaveBeenCalled(); await waitFor(() => expect(recharger).toHaveBeenCalledOnce()); }
+  else { await waitFor(() => expect(synchro.lister).toHaveBeenCalledTimes(2)); expect(recharger).not.toHaveBeenCalled(); expect(arreter).not.toHaveBeenCalled(); }
+});
+it.each([
+  ['plein', 'Tu as déjà 20 parties. Supprime-en une pour en créer une autre.'],
+  ['nom-invalide', 'Donne un nom à ta partie (100 caractères au plus).'],
+  ['echec', "La partie n'a pas pu être créée. Réessaie."],
+])('explique un refus de création : %s', async (resultat, message) => {
+  const { synchro, recharger } = simulerParties();
+  synchro.creerPartie.mockResolvedValue(resultat);
+  render(<App />); await screen.findByText('Jeu ouvert'); cliquer('Mes parties');
+  await screen.findByText('Autre');
+  fireEvent.change(screen.getByLabelText('Nom de la partie'), { target: { value: 'Voyage' } });
+  cliquer('Créer la partie');
+  expect((await screen.findByRole('alert')).textContent).toBe(message);
+  expect(recharger).not.toHaveBeenCalled();
+  expect((screen.getByText('Créer la partie') as HTMLButtonElement).disabled).toBe(false);
+});
+it('relance le jeu et la synchro après un échec de suppression courante', async () => {
+  const { synchro, recharger } = simulerParties();
+  synchro.supprimerPartie.mockResolvedValue('echec');
+  vi.spyOn(storeJeu.getState(), 'arreter').mockImplementation(() => {});
+  const demarrer = vi.spyOn(storeJeu.getState(), 'demarrer').mockImplementation(() => {});
+  render(<App />); await screen.findByText('Jeu ouvert'); cliquer('Mes parties');
+  await screen.findByText('Autre'); synchro.demarrer.mockClear();
+  fireEvent.click(screen.getAllByText('Supprimer')[0]!); cliquer('Oui, supprimer');
+  expect((await screen.findByRole('alert')).textContent).toBe("Connexion impossible. La partie n'est pas supprimée, réessaie.");
+  expect(demarrer).toHaveBeenCalledOnce(); expect(synchro.demarrer).toHaveBeenCalledOnce();
+  expect(recharger).not.toHaveBeenCalled();
+});
 
 it('attend la reprise de cet appareil avant de monter le jeu', async () => {
   const stockage = creerStockageMemoire();
@@ -199,6 +293,10 @@ it('réagit à la déconnexion dans un autre onglet', async () => {
 });
 
 it('garde la session en mémoire si le stockage est indisponible', async () => {
+  // Une partie en mémoire permet de tester la déconnexion depuis le jeu même sans stockage.
+  const gestionnaire = creerGestionnaire({ stockage: creerStockageMemoire(), horloge: creerHorlogeSimulee(), genererId: () => 'memoire' });
+  gestionnaire.creerPartie('En mémoire');
+  vi.spyOn(sauvegardes, 'creerGestionnaire').mockReturnValue(gestionnaire);
   for (const methode of ['getItem', 'setItem', 'removeItem'] as const) vi.spyOn(Storage.prototype, methode).mockImplementation(() => { throw new Error('Stockage indisponible'); });
   reseau.mockResolvedValueOnce(reponse({}, 200, 'session-memoire'));
   render(<App />); remplir(); cliquer('Se connecter'); await screen.findByText('Jeu ouvert');

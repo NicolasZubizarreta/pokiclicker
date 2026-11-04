@@ -90,9 +90,19 @@ export function routesSauvegarde(pool: Pool, auth: Auth): Hono<{ Variables: { co
       : c.json({ message: 'Aucune sauvegarde.' }, 404);
   });
   app.get('/parties', async c => {
-    const { rows } = await pool.query('SELECT id, nom, revision, ecrit_le FROM parties WHERE compte_id = $1 ORDER BY ecrit_le DESC LIMIT $2',
+    const { rows } = await pool.query(`SELECT id, nom, revision, ecrit_le,
+      donnees->'regionCourante' AS region_courante,
+      (SELECT r.donnees->'zoneId' FROM regions r
+        WHERE r.partie_id = p.id AND r.region_id = p.donnees->>'regionCourante'
+          AND jsonb_typeof(p.donnees->'regionCourante') = 'string') AS zone_id,
+      donnees->'statistiques'->'tempsJeuMs' AS temps_jeu_ms
+      FROM parties p WHERE compte_id = $1 ORDER BY ecrit_le DESC LIMIT $2`,
       [c.get('compteId'), MAX_PARTIES]);
-    return c.json({ parties: rows.map(p => ({ id: p.id, nom: p.nom, revision: p.revision, ecritLe: p.ecrit_le.toISOString() })) });
+    return c.json({ parties: rows.map(p => ({ id: p.id, nom: p.nom, revision: p.revision, ecritLe: p.ecrit_le.toISOString(),
+      regionCourante: typeof p.region_courante === 'string' ? p.region_courante : null,
+      zoneId: typeof p.zone_id === 'string' ? p.zone_id : null,
+      tempsJeuMs: typeof p.temps_jeu_ms === 'number' && Number.isFinite(p.temps_jeu_ms) && p.temps_jeu_ms >= 0 ? p.temps_jeu_ms : null,
+    })) });
   });
   app.get('/parties/:id', async c => {
     const id = c.req.param('id');
@@ -105,6 +115,30 @@ export function routesSauvegarde(pool: Pool, auth: Auth): Hono<{ Variables: { co
     return c.json({ partie: enveloppe(rows[0], 'partie', rows[0].id),
       regions: rows[0].regions.map((r: Ligne & { region_id: string }) =>
         enveloppe({ ...r, ecrit_le: new Date(r.ecrit_le) }, 'region', r.region_id)) });
+  });
+  app.delete('/parties/:id', async c => {
+    const id = c.req.param('id');
+    if (!uuid(id)) return c.json({ message: 'Partie introuvable.' }, 404);
+    const compteId = c.get('compteId');
+    const db = await pool.connect();
+    let echec: Error | undefined;
+    try {
+      await db.query('BEGIN');
+      const partie = await db.query('SELECT id FROM parties WHERE id = $1 AND compte_id = $2 FOR UPDATE', [id, compteId]);
+      if (!partie.rows[0]) {
+        await db.query('ROLLBACK');
+        return c.json({ message: 'Partie introuvable.' }, 404);
+      }
+      await db.query(`DELETE FROM versions WHERE compte_id = $2
+        AND ((niveau = 'partie' AND objet_id = $1) OR (niveau = 'region' AND objet_id LIKE $1 || ':%'))`, [id, compteId]);
+      await db.query('DELETE FROM parties WHERE id = $1 AND compte_id = $2', [id, compteId]);
+      await db.query('COMMIT');
+      return c.json({ ok: true });
+    } catch (error) {
+      await db.query('ROLLBACK').catch(() => undefined);
+      echec = error as Error;
+      throw error;
+    } finally { db.release(echec); }
   });
   app.post('/parties/:id/appareil', async c => {
     const id = c.req.param('id');

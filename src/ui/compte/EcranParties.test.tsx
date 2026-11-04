@@ -1,0 +1,56 @@
+// @vitest-environment jsdom
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { afterEach, expect, it, vi } from 'vitest';
+import { EcranParties } from './EcranParties';
+
+afterEach(cleanup);
+const partie = { id: 'a', nom: 'Mon aventure', regionCourante: 'kanto', zoneId: 'inconnue', tempsJeuMs: 43_500_000, ecritLe: '2026-11-04T12:00:00Z', surServeur: false, courante: true };
+const props = () => ({ parties: [partie, { ...partie, id: 'b', nom: 'Autre', courante: false }], horsConnexion: false, chargement: false, occupe: false, erreur: '', quandJouer: vi.fn(), quandCreer: vi.fn(), quandSupprimer: vi.fn() });
+it('présente les parties et permet de jouer et de confirmer une seule suppression', () => {
+  const p = props();
+  render(<EcranParties {...p} />);
+  expect(document.activeElement).toBe(screen.getByRole('heading', { name: 'Tes parties' }));
+  const carte = screen.getByText('Mon aventure').closest('section')!;
+  expect(within(carte).getByText('Kanto')).toBeTruthy();
+  expect(within(carte).getByText('inconnue')).toBeTruthy();
+  expect(within(carte).getByText('12 h 05')).toBeTruthy();
+  expect(within(carte).getByText(new Date(partie.ecritLe).toLocaleString('fr-FR', { dateStyle: 'long', timeStyle: 'short' }))).toBeTruthy();
+  expect(within(carte).getByText('En cours')).toBeTruthy();
+  expect(within(carte).getByText('Sur cet appareil seulement')).toBeTruthy();
+  expect(within(carte).queryByText('Jouer cette partie')).toBeNull();
+  fireEvent.click(screen.getByText('Jouer cette partie'));
+  expect(p.quandJouer).toHaveBeenCalledWith('b');
+  const supprimer = within(carte).getByText('Supprimer');
+  fireEvent.click(supprimer);
+  expect(p.quandSupprimer).not.toHaveBeenCalled();
+  expect(document.activeElement?.textContent).toContain('Sa progression sera perdue');
+  fireEvent.click(screen.getByText('Annuler'));
+  expect(document.activeElement).toBe(supprimer);
+  expect(screen.queryByText('Oui, supprimer')).toBeNull();
+  fireEvent.click(supprimer);
+  fireEvent.click(screen.getAllByText('Supprimer')[1]!);
+  expect(screen.getAllByText('Oui, supprimer')).toHaveLength(1);
+  fireEvent.click(screen.getByText('Oui, supprimer'));
+  expect(p.quandSupprimer).toHaveBeenCalledWith('b');
+});
+it('valide le nom, présente les états et désactive les boutons', () => {
+  const p = { ...props(), parties: [] };
+  const { rerender } = render(<EcranParties {...p} />);
+  expect(screen.getByText('Crée ta première partie')).toBeTruthy();
+  const champ = screen.getByLabelText('Nom de la partie');
+  fireEvent.submit(champ.closest('form')!);
+  expect(screen.getByRole('alert').textContent).toBe('Donne un nom à ta partie.');
+  fireEvent.change(champ, { target: { value: '   ' } });
+  fireEvent.submit(champ.closest('form')!);
+  expect(p.quandCreer).not.toHaveBeenCalled();
+  fireEvent.change(champ, { target: { value: '  Voyage  ' } });
+  fireEvent.submit(champ.closest('form')!);
+  expect(p.quandCreer).toHaveBeenCalledWith('Voyage');
+  rerender(<EcranParties {...p} horsConnexion chargement />);
+  expect(screen.getByRole('status').textContent).toBe('Chargement de tes parties…');
+  rerender(<EcranParties {...p} parties={[{ ...partie, zoneId: '', tempsJeuMs: null, courante: false }]} horsConnexion occupe erreur="Échec. Réessaie." quandRetour={vi.fn()} />);
+  expect(screen.getAllByText('Non disponible')).toHaveLength(2);
+  expect(screen.getByRole('status').textContent).toBe('Hors connexion : tu vois seulement les parties de cet appareil.');
+  expect(screen.getByRole('alert').textContent).toBe('Échec. Réessaie.');
+  expect(screen.getAllByRole('button').every(b => (b as HTMLButtonElement).disabled)).toBe(true);
+});

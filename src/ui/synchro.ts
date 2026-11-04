@@ -1,7 +1,11 @@
 import type { Horloge } from '../core/clock';
 import { creerGestionnaire, creerStockageMemoire, type DonneesCompte, type DonneesPartie, type DonneesRegion, type Enveloppe, type Stockage } from '../core/sauvegarde';
+import { creerPartieNommee } from './persistance';
+import { genererIdentifiant } from './identifiants';
 
 export type EtatSynchro = 'inactif' | 'ok' | 'hors-ligne' | 'conflit' | 'refuse';
+export type PartieListee = { id: string; nom: string; regionCourante: string; zoneId: string; tempsJeuMs: number | null;
+  ecritLe: string; surServeur: boolean; courante: boolean };
 type Revision = { serveur: number; local: number };
 export type Memoire = { version: 1; compte?: Revision; parties: Record<string, Revision>; regions: Record<string, Revision> };
 type Version = { compte?: Enveloppe<DonneesCompte> | null; partie: Enveloppe<DonneesPartie> | null; regions: Enveloppe<DonneesRegion>[] };
@@ -36,7 +40,7 @@ export function creerSynchro(options: {
   enPause?: () => boolean;
 }) {
   const { stockage, horloge } = options;
-  const gestionnaire = creerGestionnaire({ stockage, horloge, genererId: () => 'x' });
+  const gestionnaire = creerGestionnaire({ stockage, horloge, genererId: genererIdentifiant });
   let memoire: Memoire = { version: 1, parties: {}, regions: {} };
   try {
     const valeur: unknown = JSON.parse(stockage.lire(cle) ?? 'null');
@@ -53,6 +57,7 @@ export function creerSynchro(options: {
   let statut: EtatSynchro = 'inactif';
   let arrete = false;
   let bloque = false;
+  let suppressionCourante = false;
   let intervalle: ReturnType<typeof setInterval> | undefined;
   let rattrapage: ReturnType<typeof setTimeout> | undefined;
   let enCours: Promise<void> | undefined;
@@ -69,8 +74,8 @@ export function creerSynchro(options: {
     options.quandChange?.();
   }
   function lireLocal(): Version {
-    const recente = gestionnaire.listerParties()[0];
-    const partie = recente ? gestionnaire.chargerPartie(recente.id) : null;
+    const id = gestionnaire.partieCourante();
+    const partie = id ? gestionnaire.chargerPartie(id) : null;
     const regions = partie ? stockage.cles().filter(c => c.startsWith(`pokiclicker:region:${partie.id}:`))
       .map(c => gestionnaire.chargerRegion(partie.id, c.slice(`pokiclicker:region:${partie.id}:`.length))!) : [];
     return { compte: gestionnaire.chargerCompte(), partie, regions };
@@ -82,20 +87,31 @@ export function creerSynchro(options: {
       ...(corps !== undefined && { body: JSON.stringify(corps) }),
     });
   }
-  async function lireServeur(): Promise<VersionServeur | null> {
+  async function listerServeur(): Promise<Omit<PartieListee, 'surServeur' | 'courante'>[]> {
     const liste = await requete('/parties');
     if (!liste.ok) throw new Error('Lecture impossible');
     const contenu = await liste.json();
     if (!contenu || !Array.isArray(contenu.parties)) throw new Error('Liste invalide');
-    if (!contenu.parties.length) return null;
-    const premiere = contenu.parties[0];
-    if (!premiere || typeof premiere.id !== 'string' || typeof premiere.nom !== 'string'
-      || !Number.isSafeInteger(premiere.revision) || typeof premiere.ecritLe !== 'string') throw new Error('Partie invalide');
-    const [detail, compte] = await Promise.all([requete(`/parties/${encodeURIComponent(premiere.id)}`), requete('/compte')]);
+    return contenu.parties.map((p: Record<string, unknown> | null) => {
+      if (!p || typeof p.id !== 'string' || typeof p.nom !== 'string'
+        || !Number.isSafeInteger(p.revision) || typeof p.ecritLe !== 'string') throw new Error('Partie invalide');
+      return { id: p.id, nom: p.nom, ecritLe: p.ecritLe,
+        regionCourante: typeof p.regionCourante === 'string' ? p.regionCourante : '',
+        zoneId: typeof p.zoneId === 'string' ? p.zoneId : '',
+        tempsJeuMs: typeof p.tempsJeuMs === 'number' && Number.isFinite(p.tempsJeuMs) ? p.tempsJeuMs : null };
+    });
+  }
+  async function lireServeur(voulue: string | null): Promise<VersionServeur | null> {
+    const parties = await listerServeur();
+    const partie = voulue === null ? parties[0] : parties.find(p => p.id === voulue);
+    return partie ? lireVersion(partie.id) : null;
+  }
+  async function lireVersion(id: string): Promise<VersionServeur> {
+    const [detail, compte] = await Promise.all([requete(`/parties/${encodeURIComponent(id)}`), requete('/compte')]);
     if (!detail.ok || (!compte.ok && compte.status !== 404)) throw new Error('Lecture impossible');
     const donnees = await detail.json();
     const enveloppe = compte.status === 404 ? null : (await compte.json())?.enveloppe;
-    if (!donnees || !Array.isArray(donnees.regions) || donnees.partie?.id !== premiere.id
+    if (!donnees || !Array.isArray(donnees.regions) || donnees.partie?.id !== id
       || (compte.status !== 404 && !enveloppe)) throw new Error('Version invalide');
     const version: VersionServeur = { compte: enveloppe, partie: donnees.partie, regions: donnees.regions };
     // La même validation que l'installation, dans un stockage isolé, avant tout choix ou archivage.
@@ -121,7 +137,7 @@ export function creerSynchro(options: {
     if (lecture || arrete) return lecture;
     lecture = (async () => {
       try {
-        const version = await lireServeur();
+        const version = await lireServeur(lireLocal().partie?.id ?? null);
         if (!arrete && version) retenir(version);
       } catch { /* Le conflit reste bloqué ; la prochaine connexion retentera la lecture. */ }
     })();
@@ -132,7 +148,7 @@ export function creerSynchro(options: {
     arrete = false;
     if (!options.jeton()) return 'rien';
     try {
-      const serveur = await lireServeur();
+      const serveur = await lireServeur(lireLocal().partie?.id ?? null);
       if (arrete) return 'hors-ligne';
       const decision = decider(lireLocal(), serveur, memoire);
       if (decision === 'charger' && serveur) {
@@ -149,7 +165,7 @@ export function creerSynchro(options: {
     arbitrage = true;
     try {
       if (choix === 'serveur' && (!versionServeur || horloge.maintenant() - luLe > 60_000)) {
-        const version = await lireServeur();
+        const version = await lireServeur(lireLocal().partie?.id ?? null);
         if (!version || arrete) return 'echec';
         versionServeur = version;
         luLe = horloge.maintenant();
@@ -200,7 +216,7 @@ export function creerSynchro(options: {
   }
 
   async function envoyer(fermeture = false): Promise<void> {
-    if (arrete || bloque) return;
+    if (arrete || bloque || suppressionCourante) return;
     if (options.enPause?.()) return;
     if (enCours) {
       suivant = true;
@@ -212,8 +228,8 @@ export function creerSynchro(options: {
         const jeton = options.jeton();
         if (!jeton) return;
         const compte = gestionnaire.chargerCompte();
-        const recente = gestionnaire.listerParties()[0];
-        const partie = recente ? gestionnaire.chargerPartie(recente.id) : null;
+        const id = gestionnaire.partieCourante();
+        const partie = id ? gestionnaire.chargerPartie(id) : null;
         const region = partie ? gestionnaire.chargerRegion(partie.id, partie.donnees.regionCourante) : null;
         const cleRegion = partie && region ? `${partie.id}:${region.id}` : '';
         const compteModifie = compte && compte.revision !== memoire.compte?.local;
@@ -242,7 +258,20 @@ export function creerSynchro(options: {
           try { stockage.ecrire(cle, JSON.stringify(memoire)); } catch { /* Mémoire facultative. */ }
           if (!arrete) statut = 'ok';
         } else if (arrete) return;
-        else if (reponse.status === 409) { statut = 'conflit'; bloque = true; await preparerChoix(); }
+        else if (reponse.status === 409) {
+          const corps = await reponse.json().catch(() => null);
+          const supprimee = partie && (memoire.parties[partie.id]?.serveur ?? 0) > 0 && Array.isArray(corps?.conflits)
+            && corps.conflits.some((c: { niveau?: unknown; id?: unknown; revisionServeur?: unknown } | null) =>
+              c?.niveau === 'partie' && c.id === partie.id && c.revisionServeur === 0);
+          if (supprimee) {
+            // Backlog : une suppression sur un autre appareil est annulée par la copie locale ; prévoir une confirmation avant recréation.
+            memoire.parties[partie.id] = { serveur: 0, local: -1 };
+            for (const id of Object.keys(memoire.regions)) if (id.startsWith(`${partie.id}:`)) memoire.regions[id] = { serveur: 0, local: -1 };
+            stockage.ecrire(cle, JSON.stringify(memoire));
+            statut = 'inactif';
+            suivant = true;
+          } else { statut = 'conflit'; bloque = true; await preparerChoix(); }
+        }
         else if (reponse.status >= 400 && reponse.status < 500 && ![408, 429].includes(reponse.status)) { statut = 'refuse'; bloque = true; }
         else statut = 'hors-ligne';
       } catch { if (!arrete) statut = 'hors-ligne'; }
@@ -268,8 +297,76 @@ export function creerSynchro(options: {
     fermetureSuivante = false;
     if (typeof window !== 'undefined') window.removeEventListener('online', enLigne);
   }
+  async function lister(): Promise<{ parties: PartieListee[]; horsConnexion: boolean }> {
+    const courante = gestionnaire.partieCourante();
+    let parties: PartieListee[] = [];
+    let horsConnexion = false;
+    try {
+      if (!options.jeton()) throw new Error('Sans connexion');
+      parties = (await listerServeur()).map(p => ({ ...p, surServeur: true, courante: p.id === courante }));
+    } catch { horsConnexion = true; }
+    for (const p of gestionnaire.listerParties()) {
+      if (parties.some(serveur => serveur.id === p.id)) continue;
+      const partie = gestionnaire.chargerPartie(p.id)!;
+      const region = gestionnaire.chargerRegion(p.id, p.regionCourante);
+      parties.push({ ...p, zoneId: region?.donnees.zoneId ?? '', tempsJeuMs: partie.donnees.statistiques.tempsJeuMs ?? null,
+        surServeur: false, courante: p.id === courante });
+    }
+    parties.sort((a, b) => Date.parse(b.ecritLe) - Date.parse(a.ecritLe));
+    return { parties, horsConnexion };
+  }
+  async function ouvrirPartie(id: string): Promise<'ok' | 'echec'> {
+    try {
+      await envoyer();
+      if (!gestionnaire.chargerPartie(id)) {
+        // Sans le compte : une copie locale non envoyée ne doit jamais être écrasée en changeant de partie.
+        const version = { ...await lireVersion(id), compte: null };
+        gestionnaire.installerVersion(version);
+        memoriserVersion(version);
+      }
+      gestionnaire.choisirPartie(id);
+      return 'ok';
+    } catch { return 'echec'; }
+  }
+  async function creerPartie(nom: string, depart: Pick<DonneesRegion, 'equipe' | 'drapeaux'>): Promise<'ok' | 'echec' | 'plein' | 'nom-invalide'> {
+    nom = nom.trim();
+    if (!nom.length || nom.length > 100) return 'nom-invalide';
+    try {
+      if ((await lister()).parties.length >= 20) return 'plein';
+      await envoyer(); // les dernières modifications de la partie quittée partent avant le changement
+      creerPartieNommee({ stockage, horloge, genererId: genererIdentifiant }, nom, depart);
+      await envoyer();
+      return 'ok';
+    } catch { return 'echec'; }
+  }
+  async function supprimerPartie(id: string): Promise<'ok' | 'echec'> {
+    const courante = gestionnaire.partieCourante() === id;
+    if (courante) suppressionCourante = true;
+    let succes = false;
+    try {
+      if (courante) await enCours;
+      try {
+        const reponse = await requete(`/parties/${encodeURIComponent(id)}`, 'DELETE');
+        if (reponse.status !== 200 && reponse.status !== 404) throw new Error('Suppression impossible');
+      } catch (erreur) {
+        // L'échec n'est toléré que pour une partie purement locale, jamais envoyée.
+        if (!gestionnaire.chargerPartie(id) || (memoire.parties[id]?.serveur ?? 0) > 0) throw erreur;
+      }
+      gestionnaire.supprimerPartie(id);
+      delete memoire.parties[id];
+      for (const region of Object.keys(memoire.regions)) if (region === id || region.startsWith(`${id}:`)) delete memoire.regions[region];
+      stockage.ecrire(cle, JSON.stringify(memoire));
+      succes = true;
+      return 'ok';
+    } catch { return 'echec'; }
+    finally { if (courante && !succes) suppressionCourante = false; }
+  }
   return {
     ouvrir,
+    lister,
+    ouvrirPartie,
+    creerPartie,
+    supprimerPartie,
     choix: () => choixEnAttente,
     trancher,
     demarrer() {

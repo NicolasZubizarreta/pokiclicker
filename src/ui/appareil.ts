@@ -27,7 +27,7 @@ export function creerAppareilActif(options: {
   async function requete(reprendre = false): Promise<boolean | undefined> {
     try {
       const jeton = options.jeton();
-      const partieId = gestionnaire.listerParties()[0]?.id;
+      const partieId = gestionnaire.partieCourante();
       if (!jeton || !partieId) return;
       const reponse = await (options.fetch ?? globalThis.fetch)(`${options.urlApi.replace(/\/+$/, '')}/api/sauvegarde/parties/${encodeURIComponent(partieId)}/appareil`, {
         method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${jeton}` },

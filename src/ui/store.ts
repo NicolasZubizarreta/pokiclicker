@@ -1070,6 +1070,10 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
 }
 
 export type StoreJeu = ReturnType<typeof creerStoreJeu>;
+export function departNouvellePartie(): Pick<DonneesRegion, 'equipe' | 'drapeaux'> {
+  return import.meta.env.MODE === 'test' || equipeDeDeveloppement()
+    ? { equipe: equipeDeDepart(), drapeaux: [] } : { equipe: [], drapeaux: ['nouvelle-partie'] };
+}
 export const storeJeu = creerStoreJeu({ horloge: creerHorlogeSysteme(), stockage: creerStockageLocal(),
   alea: Math.random, genererId: genererIdentifiant,
   nouvellePartie: import.meta.env.MODE === 'test' || equipeDeDeveloppement() ? 'equipe-de-depart' : 'intro' });

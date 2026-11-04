@@ -4,9 +4,11 @@ import { EcranCompte } from './compte/EcranCompte';
 import { EcranChoixVersion } from './compte/EcranChoixVersion';
 import { useSessionCompte } from './compte/session-compte';
 import { creerHorlogeSysteme } from '../core/clock';
-import { storeJeu } from './store';
+import { departNouvellePartie, storeJeu } from './store';
+import { creerGestionnaire } from '../core/sauvegarde';
 import { creerStockageLocal } from './stockage-local';
-import { creerSynchro } from './synchro';
+import { creerSynchro, type PartieListee } from './synchro';
+import { EcranParties } from './compte/EcranParties';
 import { creerAppareilActif } from './appareil';
 import { EcranAutreAppareil } from './compte/EcranAutreAppareil';
 
@@ -15,7 +17,10 @@ let jeuDejaMonte = false;
 
 function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeconnecter: () => void }) {
   const [, rafraichir] = useState(0);
-  const [phase, fixerPhase] = useState<'verification' | 'jeu'>('verification');
+  const [phase, fixerPhase] = useState<'verification' | 'creation' | 'jeu'>('verification');
+  const [ecranParties, fixerEcranParties] = useState(false);
+  const [liste, fixerListe] = useState<{ parties: PartieListee[]; horsConnexion: boolean }>({ parties: [], horsConnexion: false });
+  const [chargement, fixerChargement] = useState(false);
   const [jeuMonte, fixerJeuMonte] = useState(false);
   const [occupe, fixerOccupe] = useState(false);
   const [erreur, fixerErreur] = useState('');
@@ -32,6 +37,14 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
       if (!actif) return;
       if (jeuDejaMonte && resultat === 'charge') { window.location.reload(); return; }
       if (!synchro.choix()) {
+        const gestionnaire = creerGestionnaire({ stockage: creerStockageLocal(), horloge: creerHorlogeSysteme(), genererId: () => 'x' });
+        if (gestionnaire.listerParties().length === 0) {
+          fixerPhase('creation');
+          fixerChargement(true);
+          const liste = await synchro.lister();
+          if (actif) { fixerListe(liste); fixerChargement(false); }
+          return;
+        }
         const resultatAppareil = await appareil.ouvrir();
         if (!actif) return;
         if (resultatAppareil === 'libre') fixerJeuMonte(true);
@@ -70,15 +83,61 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
     else fixerErreur('Connexion impossible. Réessaie.');
     fixerOccupe(false);
   }
+  async function listerParties() {
+    fixerChargement(true);
+    fixerListe(await synchro.lister());
+    fixerChargement(false);
+  }
+  async function jouer(id: string) {
+    if (occupe) return;
+    fixerOccupe(true); fixerErreur('');
+    if (jeuMonte) storeJeu.getState().arreter();
+    if (await synchro.ouvrirPartie(id) === 'ok') { window.location.reload(); return; }
+    fixerErreur("Connexion impossible. Rien n'a changé, réessaie.");
+    if (jeuMonte) storeJeu.getState().demarrer();
+    fixerOccupe(false);
+  }
+  async function creer(nom: string) {
+    if (occupe) return;
+    fixerOccupe(true); fixerErreur('');
+    const resultat = await synchro.creerPartie(nom, departNouvellePartie());
+    if (resultat === 'ok') { window.location.reload(); return; }
+    fixerErreur(resultat === 'plein' ? 'Tu as déjà 20 parties. Supprime-en une pour en créer une autre.'
+      : resultat === 'nom-invalide' ? 'Donne un nom à ta partie (100 caractères au plus).'
+        : "La partie n'a pas pu être créée. Réessaie.");
+    fixerOccupe(false);
+  }
+  async function supprimer(id: string) {
+    if (occupe) return;
+    fixerOccupe(true); fixerErreur('');
+    const courante = liste.parties.some(p => p.id === id && p.courante);
+    const arrete = courante && jeuMonte;
+    if (arrete) storeJeu.getState().arreter();
+    if (await synchro.supprimerPartie(id) === 'ok') {
+      if (courante) { window.location.reload(); return; }
+      await listerParties();
+    } else {
+      fixerErreur("Connexion impossible. La partie n'est pas supprimée, réessaie.");
+      if (arrete) { storeJeu.getState().demarrer(); synchro.demarrer(); }
+    }
+    fixerOccupe(false);
+  }
   if (phase === 'verification') return <p role="status">Vérification de la sauvegarde…</p>;
   const choix = synchro.choix();
   return <>
-    {jeuMonte && <Coquille quandDeconnecter={quandDeconnecter} />}
+    {jeuMonte && <Coquille quandDeconnecter={quandDeconnecter} quandOuvrirParties={() => {
+      fixerErreur(''); fixerEcranParties(true); void listerParties();
+    }} />}
     {!choix && appareil.ailleurs() && <div className={jeuMonte ? 'fixed inset-0 z-50' : undefined}>
       <EcranAutreAppareil occupe={occupe} erreur={erreur} quandReprendre={() => { void reprendre(); }} />
     </div>}
     {choix && <div className={jeuMonte ? 'fixed inset-0 z-50' : undefined}>
       <EcranChoixVersion choix={choix} occupe={occupe} erreur={erreur} quandChoisir={cote => { void choisir(cote); }} />
+    </div>}
+    {(phase === 'creation' || ecranParties) && <div className={jeuMonte ? 'fixed inset-0 z-50 overflow-y-auto' : undefined}>
+      <EcranParties {...liste} chargement={chargement} occupe={occupe} erreur={erreur}
+        quandJouer={id => { void jouer(id); }} quandCreer={nom => { void creer(nom); }} quandSupprimer={id => { void supprimer(id); }}
+        quandRetour={phase === 'creation' ? undefined : () => fixerEcranParties(false)} />
     </div>}
   </>;
 }

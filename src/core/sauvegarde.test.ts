@@ -35,6 +35,43 @@ function instantane(stockage: ReturnType<typeof creerStockageMemoire>) {
   return stockage.cles().map(cle => [cle, stockage.lire(cle)]);
 }
 const cle = 'pokiclicker:partie:partie-1';
+it('choisit explicitement la partie courante et garde le compte intact', () => {
+  const { jeu, stockage, horloge } = contexte();
+  jeu.ecrireCompte({ ...compteInitial(), diamants: 42, succes: ['test'], skins: ['test'] });
+  const compte = stockage.lire('pokiclicker:compte:local');
+  expect(jeu.partieCourante()).toBeNull();
+  const a = jeu.creerPartie('A');
+  horloge.avancer(1000);
+  const b = jeu.creerPartie('B');
+  expect(jeu.partieCourante()).toBe(b.id);
+  jeu.choisirPartie(a.id);
+  expect(stockage.lire('pokiclicker:courante')).toBe(a.id);
+  expect(jeu.partieCourante()).toBe(a.id);
+  expect(() => jeu.choisirPartie('inconnue')).toThrow();
+  for (const valeur of ['{illisible', 'inconnue', '"a"']) {
+    stockage.ecrire('pokiclicker:courante', valeur);
+    expect(jeu.partieCourante()).toBe(b.id);
+  }
+  jeu.choisirPartie(a.id);
+  jeu.supprimerPartie(b.id);
+  expect(jeu.partieCourante()).toBe(a.id);
+  jeu.supprimerPartie(a.id);
+  expect(stockage.lire('pokiclicker:courante')).toBeNull();
+  expect(jeu.partieCourante()).toBeNull();
+  expect(stockage.lire('pokiclicker:compte:local')).toBe(compte);
+});
+it('ignore une clé courante vers une partie supprimée ou inaccessible', () => {
+  const { jeu, stockage } = contexte();
+  const p = jeu.creerPartie('A');
+  stockage.ecrire('pokiclicker:courante', 'supprimee');
+  expect(jeu.partieCourante()).toBe(p.id);
+  const lire = stockage.lire.bind(stockage);
+  vi.spyOn(stockage, 'lire').mockImplementation(cle => {
+    if (cle === 'pokiclicker:courante') throw new Error('Lecture refusée');
+    return lire(cle);
+  });
+  expect(jeu.partieCourante()).toBe(p.id);
+});
 it('installe les révisions serveur et retire les régions locales absentes', () => {
   const source = contexte();
   const partie = source.jeu.creerPartie('Serveur');
