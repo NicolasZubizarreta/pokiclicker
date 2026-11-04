@@ -58,7 +58,7 @@ it('affiche la raison de fermeture et permet le retour', () => {
   expect(retour).toHaveBeenCalledTimes(1);
 });
 
-it('ouvre après le vol sans changer la zone, puis rend le focus au Centre', () => {
+it('ouvre après le vol sans changer la zone, puis rend le focus à la carte', () => {
   preparer();
   storeJeu.setState({ annonce: 'Combat en cours.' });
   vi.useFakeTimers();
@@ -77,5 +77,6 @@ it('ouvre après le vol sans changer la zone, puis rend le focus au Centre', () 
   expect(aller).not.toHaveBeenCalled();
   expect(arrive).not.toHaveBeenCalled();
   fireEvent.click(screen.getByRole('button', { name: 'Retour à la carte' }));
-  expect(document.activeElement).toBe(bouton);
+  expect(bouton.isConnected).toBe(false);
+  expect((document.activeElement as HTMLElement).closest('[data-zone][role="button"]')).not.toBeNull();
 });

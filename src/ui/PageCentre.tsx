@@ -16,7 +16,11 @@ export function PageCarte({ quandArrive }: { quandArrive: () => void }) {
   useEffect(() => {
     if (!visite.current) { visite.current = true; return; }
     if (ouvert) dernier.current = ouvert;
-    conteneur.current?.querySelector<HTMLElement>(ouvert ? 'h1[tabindex]' : `[data-${dernier.current}]`)?.focus();
+    // La fiche de zone est fermée au clic : au retour, le focus va sur la carte, sur la zone de départ si elle y est.
+    const racine = conteneur.current;
+    if (ouvert) racine?.querySelector<HTMLElement>('h1[tabindex]')?.focus();
+    else (racine?.querySelector<HTMLElement>(`[data-${dernier.current}]`)
+      ?? racine?.querySelector<HTMLElement>('[data-zone][role="button"]'))?.focus();
   }, [ouvert]);
   return <div ref={conteneur}>
     <div hidden={ouvert !== null}>

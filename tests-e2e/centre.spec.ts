@@ -79,7 +79,7 @@ test('Centre : vol, achat, Sac, retour et rechargement', async ({ page }, inform
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({ path: `design/captures/u-page-centre-${informations.project.name === 'mobile' ? 390 : 1440}.png`, animations: 'disabled' });
   await page.getByRole('button', { name: 'Retour à la carte' }).click();
-  await expect(page.getByRole('button', { name: 'Centre commercial' })).toBeFocused();
+  await expect(page.getByRole('region', { name: 'Zone sélectionnée' })).toHaveCount(0);
   await expect(page.getByText(/Tour Pokémon en cours/)).toBeVisible();
   await page.getByRole('button', { name: 'Équipe', exact: true }).click();
   await expect(page.getByRole('region', { name: 'Sac', exact: true }).getByRole('button', { name: 'Attaque + ×2', exact: true })).toBeVisible();

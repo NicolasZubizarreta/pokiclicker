@@ -43,15 +43,16 @@ it('appelle une seule fois quandCentre par clic lorsque le Centre est ouvert', a
   const { bouton, quandCentre } = afficher(true);
   expect(bouton.disabled).toBe(false);
   expect(bouton.hasAttribute('aria-describedby')).toBe(false);
-  await userEvent.click(bouton);
-  await act(async () => { await new Promise(resolve => setTimeout(resolve, reglages.interface.vol.poseMs + reglages.interface.vol.volMs + reglages.interface.vol.fermetureMs)); });
-  expect(quandCentre).toHaveBeenCalledTimes(1);
   const casino = screen.getByRole<HTMLButtonElement>('button', { name: 'Casino', description: 'Bientôt disponible.' });
   expect(casino.disabled).toBe(true);
   for (const cible of [bouton, casino]) {
     expect(cible.classList.contains('min-h-11')).toBe(true);
     expect(cible.classList.contains('min-w-11')).toBe(true);
   }
+  await userEvent.click(bouton);
+  expect(screen.queryByRole('region', { name: 'Zone sélectionnée' })).toBeNull();
+  await act(async () => { await new Promise(resolve => setTimeout(resolve, reglages.interface.vol.poseMs + reglages.interface.vol.volMs + reglages.interface.vol.fermetureMs)); });
+  expect(quandCentre).toHaveBeenCalledTimes(1);
 });
 
 it.each(['{Enter}', ' '])('active le Centre au clavier avec %s', async touche => {

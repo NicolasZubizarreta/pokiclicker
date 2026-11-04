@@ -222,7 +222,7 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
           {choisie.nom === 'Céladopole' && <div className="mt-2 grid gap-2">
             <div>
               <button type="button" data-centre disabled={!centreOuvert || vol.actif}
-                onClick={() => lancer('centre-commercial', actuelle ? formeDepart(actuelle) : null, quandCentre)}
+                onClick={() => { lancer('centre-commercial', actuelle ? formeDepart(actuelle) : null, quandCentre); selectionner(null); }}
                 aria-describedby={!centreOuvert && raisonCentre ? 'carte-commerce' : undefined}
                 className={`min-h-11 min-w-11 w-full px-4 py-2 focus-visible:outline-2 focus-visible:outline-focus ${centreOuvert
                   ? 'bg-action text-action-texte shadow-sm hover:bg-action-survol' : 'bg-surface text-texte-doux'}`}>Centre commercial</button>
