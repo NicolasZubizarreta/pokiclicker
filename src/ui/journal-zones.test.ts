@@ -7,7 +7,7 @@ import { kanto } from '../core/regions';
 import { appliquerVictoire } from '../core/recompenses';
 import { creerStockageMemoire, regionInitiale, versMembreEquipe } from '../core/sauvegarde';
 import { equipeDeDepart } from './equipe-de-depart';
-import { CLE_JOURNAL, creerJournalLocal } from './journal-zones';
+import { CLE_JOURNAL, creerJournalLocal, instantaneDe } from './journal-zones';
 import { creerStoreJeu, type StoreJeu } from './store';
 
 const stores: StoreJeu[] = [];
@@ -50,7 +50,7 @@ it('exporte les identifiants et paramètres des quatre zones de comparaison sans
     const lieu = kanto.zoneDeCombat(id);
     journal!.synchroniser(lieu, creerCombat(lieu, [], () => .2));
     const exporte = journal!.exporter()!;
-    expect(exporte.version).toBe(1);
+    expect(exporte.version).toBe(2);
     expect(exporte.revisionDonnees).toBeTruthy();
     expect(exporte.zones[id]!.visites[0]!.parametres).toMatchObject({ nom: lieu.nom, combat: reglages.combat });
   }
@@ -73,9 +73,10 @@ it('reste sans effet sur le jeu quand le stockage est bloqué ou le relevé corr
 it('compare le cœur final et toutes les récompenses sur le même parcours avec ou sans journal', () => {
   const alea = () => .2;
   function parcours(actif: boolean) {
-    const { horloge, stockage, journal } = preparer(actif);
+    const { horloge, stockage } = preparer(actif);
     let region = { ...regionInitiale('kanto', zone.id), equipe: equipeDeDepart() };
     let coeur = reprendreCombat(zone, region.equipe.map(versMembreEquipe), alea, reglages.combat.etapeBoss);
+    const journal = creerJournalLocal(horloge, stockage, actif, () => instantaneDe(region, coeur.pokedex, horloge.maintenant()));
     const recompenses = [];
     for (let pas = 0; pas < 400; pas++) {
       journal?.synchroniser(zone, coeur);
@@ -134,6 +135,7 @@ it('reprend un boss après rechargement sans créer un second essai et conserve 
   const { horloge, stockage, journal } = preparer(true);
   const coeur = reprendreCombat(zone, [], () => .2, reglages.combat.etapeBoss);
   journal!.synchroniser(zone, coeur);
+  horloge.avancer(100);
   journal!.avancer(100);
   horloge.avancer(10000);
   const repris = creerJournalLocal(horloge, stockage)!;
@@ -145,4 +147,42 @@ it('reprend un boss après rechargement sans créer un second essai et conserve 
   expect(releve.zones[zone.id].visites).toHaveLength(1);
   expect(releve.zones[zone.id].visites[0].essais[0].issue).toBe('echec');
   expect(stockage.cles()).toEqual([CLE_JOURNAL]);
+});
+
+it('écarte la version 1, accepte la version 2 et rejette un instantané incomplet', () => {
+  const { horloge, stockage, journal } = preparer(true);
+  journal!.synchroniser(zone, null);
+  const v2 = journal!.exporter()!;
+  stockage.ecrire(CLE_JOURNAL, JSON.stringify({ ...v2, version: 1 }));
+  expect(creerJournalLocal(horloge, stockage)!.exporter()!.zones).toEqual({});
+  stockage.ecrire(CLE_JOURNAL, JSON.stringify(v2));
+  expect(creerJournalLocal(horloge, stockage)!.exporter()!.zoneCourante).toBe(zone.id);
+  const corrompu = structuredClone(v2);
+  Object.assign(corrompu.zones[zone.id]!.visites[0]!, { entree: {} });
+  stockage.ecrire(CLE_JOURNAL, JSON.stringify(corrompu));
+  expect(creerJournalLocal(horloge, stockage)!.exporter()!.zones).toEqual({});
+});
+
+it('prend les instantanés seulement aux transitions et mesure boss, retours et rattrapage masqué', () => {
+  const { horloge, stockage } = preparer(true);
+  const region = { ...regionInitiale('kanto', zone.id), equipe: equipeDeDepart() };
+  const capture = vi.fn(() => instantaneDe(region, [1, 4, 7], horloge.maintenant()));
+  const journal = creerJournalLocal(horloge, stockage, true, capture)!;
+  const coeur = reprendreCombat(zone, region.equipe.map(versMembreEquipe), () => .2, reglages.combat.etapeBoss);
+  journal.synchroniser(zone, coeur, true);
+  journal.synchroniser(zone, coeur);
+  horloge.avancer(100); journal.avancer(100);
+  journal.pauser('onglet-masque');
+  horloge.avancer(1000); journal.avancer(1000);
+  horloge.avancer(5000); journal.reprendre();
+  journal.avancer(1000);
+  expect(capture).toHaveBeenCalledTimes(1);
+  journal.issue('echec', zone.id);
+  expect(capture).toHaveBeenCalledTimes(2);
+  const visite = journal.exporter()!.zones[zone.id]!.visites[0]!;
+  expect(visite).toMatchObject({ tempsActifMs: 100, tempsSimuleMs: 2100, tempsMontreMs: 6100,
+    entree: { pokedexCaptures: 3, pokedexTotal: 151 }, actions: [{ type: 'retour', tMs: 0 }] });
+  const boss = visite.essais[0]!.boss!;
+  expect(boss.pvBoss).toBe(coeur.ennemi.pvMax);
+  expect(boss.margeTemps).toBeCloseTo(boss.pvBoss / boss.dpsEquipe * 1000 / boss.tempsAccordeMs!);
 });

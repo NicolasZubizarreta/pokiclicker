@@ -53,6 +53,19 @@ it('ouvre les 12 objets dans l’ordre prévu et calcule Attaque + à 8 625 avec
     stock: 2, possede: false, unique: false, abordable: true });
 });
 
+it('relève les achats du Centre et l’usage réussi d’Attaque +', () => {
+  const { store } = preparer();
+  store.getState().basculerJournal();
+  expect(store.getState().acheter('xAttack', 1)).toBeNull();
+  expect(store.getState().utiliserObjetActif('xAttack')).toBeNull();
+  const journal = store.getState().exporterJournal()!;
+  const actions = journal.zones[journal.zoneCourante!]!.visites.at(-1)!.actions;
+  expect(actions).toEqual([
+    expect.objectContaining({ type: 'achat', objet: 'xAttack', quantite: 1, prix: 8625, soldeApres: 91375 }),
+    expect.objectContaining({ type: 'objet', objet: 'xAttack', quantite: 1, soldeApres: 91375 }),
+  ]);
+});
+
 it.each([[0, false, 500], [8, false, 700], [8, true, 595]] as const)(
   'vend la baie avec %i badges et remise %s au prix de %i', (badges, remise, prix) => {
     const { store, ouvrir } = preparer(region => ({ ...region,

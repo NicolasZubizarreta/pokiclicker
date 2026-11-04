@@ -47,6 +47,24 @@ beforeEach(() => {
 afterEach(() => { stores.splice(0).forEach(s => s.getState().arreter()); vi.useRealTimers(); });
 
 describe('boutique et sac du store', () => {
+  it('relève seulement les achats, améliorations et usages réussis sans équipe dans les actions', () => {
+    const store = ouvrir();
+    store.getState().basculerJournal();
+    const prix = store.getState().boutique.objets.find(o => o.id === 'pokeball')!.prix;
+    expect(store.getState().acheter('pokeball', 2)).toBeNull();
+    expect(store.getState().acheter('protein', 1)).toBeNull();
+    expect(store.getState().acheter('protein', 1)).toBeTruthy();
+    expect(store.getState().utiliserObjet('bonbon', 'a', 1)).toBeNull();
+    expect(store.getState().utiliserObjet('bonbon', 'a', 100)).toBeTruthy();
+    const visite = store.getState().exporterJournal()!.zones['kanto.route-1']!.visites[0]!;
+    expect(visite.actions).toEqual([
+      { type: 'achat', objet: 'pokeball', quantite: 2, prix: prix * 2, soldeApres: 1000000 - prix * 2, tMs: 0 },
+      expect.objectContaining({ type: 'amelioration', objet: 'protein', quantite: 1 }),
+      expect.objectContaining({ type: 'objet', objet: 'bonbon', quantite: 1 }),
+    ]);
+    expect(visite.entree!.equipe[0]).toMatchObject({ numero: 1, niveau: 5 });
+    expect(visite.actions.every(action => !('equipe' in action))).toBe(true);
+  });
   it('mémorise les affichages sans modifier la région et expose prix, stock et utilisation', () => {
     const region = structuredClone(persiste.region);
     const boutique = afficherBoutique(region, null);
