@@ -205,7 +205,7 @@ Fourchette : 0,5 à 1 jour. Risque : la baie sert de puits d'argent (500 × 1,4 
 
 ## H. `feat(equilibrage): enrichir le relevé de partie (équipe, argent, achats, Pokédex, marge de boss)`
 
-Labels : `type:feat`, `etat:fait`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : oui · décision de Nicolas du 03/11 (« mets tous les chiffres possibles dans le relevé »), option 3 du ticket C (03/11 : livré, CI verte ; reste à jouer une partie avec le relevé actif pour vérifier l'export)
+Labels : `type:feat`, `etat:fait`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : oui · décision de Nicolas du 03/11 (« mets tous les chiffres possibles dans le relevé »), option 3 du ticket C (03/11 : livré, CI verte ; le relevé v2 complet sera exploité à la bêta, sur les parties d'amis : décision de Nicolas du 04/11)
 
 ### Histoire
 En tant que Nicolas, je veux que le relevé garde tout ce qui explique un blocage (équipe, niveaux, argent, achats, Pokédex, marge du boss) pour savoir pourquoi je reste coincé et pas seulement combien de temps.
