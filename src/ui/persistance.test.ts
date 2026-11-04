@@ -1,6 +1,6 @@
-import { expect, it } from 'vitest';
+import { expect, it, vi } from 'vitest';
 import { creerHorlogeSimulee } from '../core/clock';
-import { creerGestionnaire, creerStockageMemoire } from '../core/sauvegarde';
+import { compteInitial, creerGestionnaire, creerStockageMemoire } from '../core/sauvegarde';
 import { creerPartieNommee, ouvrirPartie } from './persistance';
 import { departNouvellePartie } from './store';
 
@@ -9,6 +9,60 @@ function ouvrir(stockage = creerStockageMemoire()) {
   return { stockage, p: ouvrirPartie(options, { equipe: [], drapeaux: [] }), g: creerGestionnaire(options) };
 }
 const temps = (g: ReturnType<typeof ouvrir>['g']) => g.chargerPartie('test')!.donnees.statistiques.tempsJeuMs;
+
+it('accorde les premiers pas, garde les skins et relit le compte courant', () => {
+  const { p, g } = ouvrir();
+  expect(p.compte()).toEqual(compteInitial());
+  const compte = { ...compteInitial(), diamants: 3, skins: ['bleu'], preferences: { sonActive: false } };
+  g.ecrireCompte(compte);
+  expect(p.compte()).toEqual(compte);
+  p.enregistrer(p.region, [1]);
+  const attendu = { ...compte, diamants: 8, succes: ['premiers-pas'] };
+  expect(g.chargerCompte()!.donnees).toEqual(attendu);
+  expect(p.compte()).toEqual(attendu);
+  const revisionCompte = g.chargerCompte()!.revision;
+  p.enregistrer({ ...p.region, argent: p.region.argent + 1 }, [1]);
+  expect(g.chargerCompte()!.revision).toBe(revisionCompte);
+});
+
+it('ne crédite pas à nouveau les premiers pas sur une seconde partie du compte', () => {
+  const { p, g, stockage } = ouvrir();
+  p.enregistrer(p.region, [1]);
+  const options = { stockage, horloge: creerHorlogeSimulee(), genererId: () => 'seconde' };
+  creerPartieNommee(options, 'Seconde partie', { equipe: [], drapeaux: [] });
+  const seconde = ouvrirPartie(options);
+  seconde.enregistrer(seconde.region, [4]);
+  expect(g.chargerCompte()!.donnees.diamants).toBe(5);
+  expect(seconde.compte().succes).toEqual(['premiers-pas']);
+});
+
+it('n’écrit rien au premier enregistrement sans changement', () => {
+  const { p, stockage } = ouvrir();
+  const ecrire = vi.spyOn(stockage, 'ecrire');
+  p.enregistrer(p.region, p.pokedex);
+  expect(ecrire).not.toHaveBeenCalled();
+  ecrire.mockRestore();
+});
+
+it('garde la partie sauvegardée et permet les écritures suivantes si le compte échoue', () => {
+  const { p, g, stockage } = ouvrir();
+  const ecriture = stockage.ecrire.bind(stockage);
+  const espion = vi.spyOn(stockage, 'ecrire').mockImplementation((cle, valeur) => {
+    if (cle === 'pokiclicker:compte:local') throw new Error('Quota du compte dépassé');
+    ecriture(cle, valeur);
+  });
+  try {
+    expect(() => p.enregistrer(p.region, [1])).not.toThrow();
+    expect(g.chargerPartie('test')!.donnees.pokedexNational).toEqual([1]);
+    expect(g.chargerCompte()).toBeNull();
+    espion.mockRestore();
+    p.enregistrer({ ...p.region, argent: p.region.argent + 1 }, [1]);
+    expect(p.compte().diamants).toBe(5);
+    expect(g.chargerRegion('test', 'kanto')!.donnees.argent).toBe(p.region.argent + 1);
+  } finally {
+    espion.mockRestore();
+  }
+});
 
 it('crée une partie nommée avec son équipe puis ouvre la courante même plus ancienne', () => {
   let sequence = 0;

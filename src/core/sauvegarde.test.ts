@@ -203,6 +203,10 @@ describe('préférences de combat du compte', () => {
     expect(() => validerDonneesCompte({ ...compteInitial(), preferences: { arretAuto: { ...arretAuto, inconnu: true } } }))
       .toThrow('Champ inconnu');
   });
+  it('exige des diamants entiers', () => {
+    for (const diamants of [0, 15]) expect(() => validerDonneesCompte({ ...compteInitial(), diamants })).not.toThrow();
+    for (const diamants of [1.5, 1e300, -1]) expect(() => validerDonneesCompte({ ...compteInitial(), diamants })).toThrow();
+  });
   it.each(['autoAttaque', 'arretAuto'] as const)('résout séparément le champ facultatif %s', cle => {
     const { stockage, horloge, jeu } = contexte();
     const preferences = { autoAttaque: false, arretAuto: { ...reglages.depart.preferences.arretAuto, actif: false } };

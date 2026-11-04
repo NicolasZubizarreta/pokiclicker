@@ -68,6 +68,31 @@ function catalogueEvenements(...evenements: Partial<Evenement>[]) {
   })) } }, kanto);
 }
 
+it('charge le compte à l’ouverture avec des listes indépendantes dans leur ordre stocké', () => {
+  const stockage = creerStockageMemoire();
+  const gestionnaire = creerGestionnaire({ stockage, horloge: creerHorlogeSimulee(), genererId: () => 'test' });
+  const compte = { ...compteInitial(), diamants: 12, succes: ['ancien', 'premiers-pas'], skins: ['vert', 'bleu'] };
+  gestionnaire.ecrireCompte(compte);
+  const store = creerStoreJeu({ stockage, horloge: creerHorlogeSimulee(), genererId: () => 'test', alea: () => .1 });
+  stores.push(store);
+  expect(store.getState().compte).toEqual({ diamants: 0, succes: [], skins: [] });
+  store.getState().demarrer();
+  expect(store.getState().compte).toEqual({ diamants: 12, succes: compte.succes, skins: compte.skins });
+  expect(store.getState().compte.succes).not.toBe(compte.succes);
+  expect(store.getState().compte.skins).not.toBe(compte.skins);
+});
+
+it('rafraîchit le compte après un seuil enregistré et conserve son résumé sans changement', () => {
+  const { store } = preparer();
+  const avant = store.getState().compte;
+  for (let numero = 1; numero <= 25; numero++) store.getState().noterEspece(numero);
+  const apres = store.getState().compte;
+  expect(apres.diamants).toBe(avant.diamants + 10);
+  expect(apres.succes).toContain('collectionneur');
+  store.getState().noterEspece(26);
+  expect(store.getState().compte).toBe(apres);
+});
+
 it('expose le dialogue initial, sauvegarde ses effets et reconstruit le combat après un déplacement', () => {
   const evenements = catalogueEvenements({ etapes: [
     { type: 'dialogue', locuteur: 'Chen', texte: 'Bonjour' },

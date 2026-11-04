@@ -53,6 +53,7 @@ import { imageConnue } from './Image';
 import { cheminDecor, precharger, prechargerZone } from './precharger';
 
 export type Degat = { id: number; valeur: number };
+export type ResumeCompte = { diamants: number; succes: string[]; skins: string[] };
 export type CaseEquipe = { pokemon: PokemonPossede; dps: number; xpMax: number; multiplicateur: number; evolution?: number | null } | null;
 export type Destination = { id: string; nom: string; ouverte: boolean; raison: string | null };
 export type EtatForme = {
@@ -61,6 +62,7 @@ export type EtatForme = {
   terminee?: boolean;
 };
 export type AffichageJeu = ActionsCasino & {
+  compte: ResumeCompte;
   pantheon: { ouvert: boolean; premiereVictoire: boolean; equipe: PokemonPossede[]; defiChenEnAttente: boolean } | null;
   quitterPantheon(): void;
   lancerDefiChen(): void;
@@ -200,9 +202,21 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     const actifs = actifsCourants(region, horloge.maintenant());
     if (JSON.stringify(actifs) !== JSON.stringify(coeur.actifs)) coeur = { ...coeur, actifs };
   };
+  const actualiserCompte = () => {
+    const actuel = persistance.compte();
+    const precedent = store.getState().compte;
+    if (precedent.diamants === actuel.diamants
+      && precedent.succes.length === actuel.succes.length && precedent.succes.every((id, i) => id === actuel.succes[i])
+      && precedent.skins.length === actuel.skins.length && precedent.skins.every((id, i) => id === actuel.skins[i])) return;
+    store.setState({ compte: { diamants: actuel.diamants, succes: [...actuel.succes], skins: [...actuel.skins] } });
+  };
   const enregistrer = () => {
     if (!initialise) return;
-    try { persistance.enregistrer(region, pokedex, tempsJeuMs); persistance.enregistrerPreferences(preferences); }
+    try {
+      persistance.enregistrer(region, pokedex, tempsJeuMs);
+      actualiserCompte();
+      persistance.enregistrerPreferences(preferences);
+    }
     catch (cause) { erreur = detailErreur(cause); }
   };
   // Envoi immédiat vers le serveur (ticket D) : toujours après l'écriture locale. Une erreur d'abonné ne touche pas au jeu.
@@ -693,6 +707,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     return true;
   };
   const store = createStore<AffichageJeu>(() => ({
+    compte: { diamants: 0, succes: [], skins: [] },
     pantheon: null,
     fin: { diplome: null, credits: false },
     fermerCredits() {
@@ -964,6 +979,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         if (!initialise) {
           persistance = ouvrirPartie({ stockage, horloge, genererId }, nouvellePartie === 'intro'
             ? { equipe: [], drapeaux: ['nouvelle-partie'] } : { equipe: equipeDeDepart(), drapeaux: [] });
+          actualiserCompte();
           region = normaliserRonflex(persistance.region);
           // Ancienne sauvegarde sans le champ : tout ce qui est déjà ouvert compte comme vu, rien ne se rejoue.
           if (region.annoncesVues === undefined) region = { ...region, annoncesVues: deblocagesAtteints(region, kanto) };

@@ -1,0 +1,7 @@
+{
+  "succes": [
+    { "id": "premiers-pas", "nom": "Premiers pas", "description": "Attrape ton premier Pokémon.", "diamants": 5, "mesure": "pokedex", "seuil": 1 },
+    { "id": "premier-badge", "nom": "Premier badge", "description": "Gagne un badge d'arène.", "diamants": 5, "mesure": "badges", "seuil": 1 },
+    { "id": "collectionneur", "nom": "Collectionneur", "description": "Enregistre 25 Pokémon dans ton Pokédex.", "diamants": 10, "mesure": "pokedex", "seuil": 25 }
+  ]
+}

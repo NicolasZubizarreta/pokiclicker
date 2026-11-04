@@ -19,6 +19,8 @@ import { AnnonceDeblocage } from './AnnonceDeblocage';
 import { Pantheon } from './Pantheon';
 import { musique } from './musique';
 import { sceneMusicale } from '../core/musiques';
+import { registreSucces } from '../core/succes';
+import { EcranMonCompte } from './compte/EcranMonCompte';
 
 export function Coquille({ region = 'kanto', theme = 'dark', quandDeconnecter, quandOuvrirParties }: {
   quandOuvrirParties?: () => void;
@@ -29,6 +31,9 @@ export function Coquille({ region = 'kanto', theme = 'dark', quandDeconnecter, q
   // Lien d'essai (dev seulement) : ?onglet=carte ouvre directement l'onglet Carte.
   const [page, choisir] = useState<Page>(() => import.meta.env.DEV && new URLSearchParams(window.location.search).get('onglet') === 'carte' ? 'Carte' : 'Combat');
   const annonce = useStore(storeJeu, etat => etat.annonce);
+  const compte = useStore(storeJeu, e => e.compte);
+  const [compteOuvert, fixerCompteOuvert] = useState(false);
+  const boutonCompte = useRef<HTMLButtonElement>(null);
   const credits = useStore(storeJeu, etat => etat.fin.credits);
   const pantheon = useStore(storeJeu, etat => etat.pantheon);
   const obtentionBadge = useStore(storeJeu, etat => etat.obtentionBadge);
@@ -75,9 +80,10 @@ export function Coquille({ region = 'kanto', theme = 'dark', quandDeconnecter, q
       <a href="#contenu" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-20 focus:bg-surface focus:p-4 focus:text-lien">
         Aller au contenu
       </a>
-      <Navigation page={page} choisir={choisir} pcOuvert={pcOuvert} signalCarte={tutorielRoute1 && page !== 'Carte' && !introActive && !introVue} inerte={introActive || introVue || credits || !!pantheon?.ouvert} />
-      <main id="contenu" tabIndex={-1} className="mb-14 min-w-0 p-4 lg:mb-0 lg:ml-24 lg:p-8">
+      <Navigation page={page} choisir={choisir} pcOuvert={pcOuvert} signalCarte={tutorielRoute1 && page !== 'Carte' && !introActive && !introVue} inerte={introActive || introVue || credits || !!pantheon?.ouvert || compteOuvert} />
+      <main id="contenu" tabIndex={-1} inert={compteOuvert} className="mb-14 min-w-0 p-4 lg:mb-0 lg:ml-24 lg:p-8">
         <MiseAJour />
+        <button ref={boutonCompte} className="min-h-11 p-2 text-lien underline" onClick={() => fixerCompteOuvert(true)}>Mon compte</button>
         {quandOuvrirParties && <button className="min-h-11 p-2 text-lien underline" onClick={quandOuvrirParties}>Mes parties</button>}
         {quandDeconnecter && <button className="min-h-11 p-2 text-lien underline" onClick={quandDeconnecter}>Se déconnecter</button>}
         {page !== 'Combat' && page !== 'Carte' && page !== 'Shop' && annonce !== null && <div role="status" aria-live="polite"
@@ -96,6 +102,11 @@ export function Coquille({ region = 'kanto', theme = 'dark', quandDeconnecter, q
       {credits && <Credits fermerCredits={() => storeJeu.getState().fermerCredits()} />}
       {pantheon?.ouvert && <Pantheon equipe={pantheon.equipe} premiereVictoire={pantheon.premiereVictoire}
         quitter={() => storeJeu.getState().quitterPantheon()} />}
+      {compteOuvert && <div className="fixed inset-0 z-50 overflow-y-auto">
+        <EcranMonCompte compte={compte} registre={registreSucces} theme={theme} quandFermer={() => {
+          fixerCompteOuvert(false); boutonCompte.current?.focus();
+        }} />
+      </div>}
     </div>
   );
 }

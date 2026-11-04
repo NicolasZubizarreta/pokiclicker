@@ -38,6 +38,16 @@ afterEach(() => {
 });
 const noms = ['Combat', 'Équipe', 'PC', 'Shop', 'Carte', 'Plus'];
 
+it('ouvre le compte local puis revient au jeu en rendant le focus au bouton', () => {
+  render(<Coquille />);
+  const bouton = screen.getByRole('button', { name: 'Mon compte' });
+  fireEvent.click(bouton);
+  expect(document.activeElement).toBe(screen.getByRole('heading', { name: 'Mon compte' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Retour au jeu' }));
+  expect(screen.queryByRole('heading', { name: 'Mon compte' })).toBeNull();
+  expect(document.activeElement).toBe(bouton);
+});
+
 it('affiche l’annonce de déblocage sur toutes les pages, en aria-live sans second role status', async () => {
   const { container } = render(<Coquille />);
   const region = () => container.querySelector('[data-annonce-deblocage]')!;
@@ -249,7 +259,7 @@ describe('Coquille', () => {
         storeJeu.getState().tick();
       }
     });
-    const autorises = new Set(['Aller au contenu', ...noms, "Le Shop s'ouvre à la Forêt de Jade.",
+    const autorises = new Set(['Aller au contenu', 'Mon compte', ...noms, "Le Shop s'ouvre à la Forêt de Jade.",
       'Ton aventure', 'Statistiques', 'Région', `Kanto · ${storeJeu.getState().lieu!.nom}`, 'Badges', '0 / 8', 'DPS',
       formaterDps(storeJeu.getState().dps), 'Prochain palier : 10 (Débutant) · Encore 7 espèces.',
       'PC de Léo', 'Pokédex', 'Guide du jeu', "Le PC de Léo s'ouvre à l'Arène d'Argenta.", 'Réglages', 'Son', 'Activé',
@@ -264,7 +274,7 @@ describe('Coquille', () => {
       if (nom === 'Équipe') {
         const cases = equipe.map(c => c ? `${nomPokemon(c)}Niv. ${c.pokemon.niveau}${formaterDps(c.dps)} DPS` : 'Emplacement libre').join('');
         const xp = premier.xpMax === 0 ? 'MAX' : `${premier.pokemon.xp} / ${premier.xpMax} XP`;
-        expect(screen.getByRole('main').textContent).toBe(`Ton équipe${formaterDps(storeJeu.getState().dps)} DPS · ${equipe.filter(Boolean).length} / 6${cases}${nomPokemon(premier)}Niv. ${premier.pokemon.niveau}${xp}${formaterDps(premier.dps)} DPSOuvre la ficheTon SacToutBallesSoinsÉquipementPokéball×0Bonbon×0`);
+        expect(screen.getByRole('main').textContent).toBe(`Mon compteTon équipe${formaterDps(storeJeu.getState().dps)} DPS · ${equipe.filter(Boolean).length} / 6${cases}${nomPokemon(premier)}Niv. ${premier.pokemon.niveau}${xp}${formaterDps(premier.dps)} DPSOuvre la ficheTon SacToutBallesSoinsÉquipementPokéball×0Bonbon×0`);
       }
       // Prépare le balayage de la page visible sans la boîte fermée, montée en permanence.
       container.replaceChildren(rendu.cloneNode(true));

@@ -191,7 +191,7 @@ Renommer une partie existante (à décider), partage entre comptes.
 
 ## H. `feat(compte): socle des diamants, des succès et des skins`
 
-`type:feat`, `etat:a_faire`, `est:2-3`, `prio:3` · branche : `v2` · `agent-ok` : à poser par Nicolas
+`type:feat`, `etat:fait`, `est:2-3`, `prio:3` · branche : `v2` · `agent-ok` : à poser par Nicolas
 
 ### Histoire
 En tant que joueur, je veux qu'un succès me rapporte des diamants gardés dans mon compte afin que ma progression de compte survive à mes parties.
@@ -200,10 +200,15 @@ En tant que joueur, je veux qu'un succès me rapporte des diamants gardés dans 
 ADR 0001 : niveau compte (`DonneesCompte`, `compteInitial()`). « Socle » = modèle et règles, pas le contenu : un registre de succès en `data/`, trois succès d'exemple, aucun catalogue de skins ni boutique. Un succès ne se gagne qu'une fois par compte.
 
 ### Critères d'acceptation
-- [ ] Étant donné un succès rempli sur n'importe quelle partie, quand il est débloqué, alors les diamants sont ajoutés au compte une seule fois, même si la condition est remplie sur une autre partie.
-- [ ] Étant donné le registre `data/` des succès, quand un identifiant est ajouté ou retiré, alors aucun code n'est modifié.
-- [ ] Étant donné le compte, quand je l'ouvre, alors je vois mes diamants, mes succès obtenus et mes skins débloqués.
-- [ ] Étant donné un skin débloqué par le compte, quand je me connecte depuis un autre appareil, alors il est présent.
+- [x] Étant donné un succès rempli sur n'importe quelle partie, quand il est débloqué, alors les diamants sont ajoutés au compte une seule fois, même si la condition est remplie sur une autre partie.
+- [x] Étant donné le registre `data/` des succès, quand un identifiant est ajouté ou retiré, alors aucun code n'est modifié.
+- [x] Étant donné le compte, quand je l'ouvre, alors je vois mes diamants, mes succès obtenus et mes skins débloqués.
+- [x] Étant donné un skin débloqué par le compte, quand je me connecte depuis un autre appareil, alors il est présent. (Test deux appareils sur le vrai serveur.)
+
+### Réalisé (04/11)
+`data/succes.json` : trois succès d'exemple (« Premiers pas » 5 diamants, « Premier badge » 5, « Collectionneur » 10 ; **montants et seuils à valider par Nicolas**). Chaque succès lit une mesure déjà existante (`pokedex`, `badges` ou `eliminations`) et un seuil : ajouter ou retirer un succès ne demande aucun code, ajouter un nouveau type de mesure en demande. `src/core/succes.ts` : registre validé au chargement, `succesAccordes` (pure, idempotente : un succès déjà obtenu ne crédite plus rien, même depuis une autre partie). `ouvrirPartie().enregistrer` évalue les succès après chaque écriture de la partie et écrit le compte ; l'état du store expose `compte`. Écran « Mon compte » (bouton dans la coquille, surcouche en boîte de dialogue, aux jetons existants, vu à 390 et 1440 px) : diamants, succès obtenus en premier, skins ou « Aucun skin débloqué ». Le compte voyage déjà avec la synchro du ticket D. `diamants` est maintenant un entier dans la validation du compte.
+
+Limites connues (revue sécurité fable high) : le choix « garder cet appareil » en conflit remplace le compte entier, donc un succès obtenu sur l'autre appareil se perd jusqu'à ce que sa condition soit rejouée (jamais de double crédit) ; à remplacer par une fusion (union des succès et des skins) avant de pouvoir dépenser des diamants. Un compte déjà avancé reçoit d'un coup tous les succès dont le seuil est atteint à sa première sauvegarde après la mise à jour. Pas de plafond de taille sur `succes` et `skins` côté serveur (comme les autres tableaux, ADR 0004).
 
 ### Hors périmètre
 Boutique de skins, catalogue complet, tournoi du Maître (phase 7).

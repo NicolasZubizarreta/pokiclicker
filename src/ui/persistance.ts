@@ -1,6 +1,7 @@
 import { compteInitial, creerGestionnaire } from '../core/sauvegarde';
 import type { DonneesRegion } from '../core/sauvegarde';
-import type { PreferencesCombat } from '../core/sauvegarde-types';
+import type { DonneesCompte, PreferencesCombat } from '../core/sauvegarde-types';
+import { mesuresDe, registreSucces, succesAccordes } from '../core/succes';
 import { reglages } from '../core/reglages';
 import { kanto } from '../core/regions';
 import { equipeDeDepart } from './equipe-de-depart';
@@ -51,6 +52,9 @@ export function ouvrirPartie(options: Parameters<typeof creerGestionnaire>[0],
     pokedex: partie.donnees.pokedexNational,
     preferences,
     sonActive: compte.preferences.sonActive ?? reglages.sons.actifParDefaut,
+    compte(): DonneesCompte {
+      return gestionnaire.chargerCompte()?.donnees ?? compteInitial();
+    },
     enregistrerSon(actif: boolean) {
       if (bloquee) return;
       const actuel = gestionnaire.chargerCompte()?.donnees ?? compteInitial();
@@ -79,6 +83,13 @@ export function ouvrirPartie(options: Parameters<typeof creerGestionnaire>[0],
       } catch (erreur) {
         bloquee = true;
         throw erreur;
+      }
+      try {
+        const compteActuel = gestionnaire.chargerCompte()?.donnees ?? compteInitial();
+        const resultat = succesAccordes(registreSucces, compteActuel, mesuresDe(region, pokedex));
+        if (resultat.nouveaux.length) gestionnaire.ecrireCompte(resultat.compte);
+      } catch {
+        // La partie est déjà sauvegardée ; un échec du compte ne doit pas la bloquer.
       }
     },
   };

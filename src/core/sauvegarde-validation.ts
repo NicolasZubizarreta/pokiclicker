@@ -59,7 +59,7 @@ export function validerPokemonPossede(v: unknown): asserts v is PokemonPossede {
     'Sexe incompatible avec l’espèce');
 }
 export function validerDonneesCompte(v: unknown): asserts v is DonneesCompte {
-  forme(v, { diamants: nombre, succes: textes, skins: textes,
+  forme(v, { diamants: entier, succes: textes, skins: textes,
     preferences: p => forme(p, {}, { sombre: booleen, sonActive: booleen, autoAttaque: booleen,
       arretAuto: a => forme(a, { actif: booleen, commun: booleen, peuCommun: booleen, rare: booleen,
         tresRare: booleen, legendaire: booleen, shiny: booleen, nouveau: booleen }) }) });

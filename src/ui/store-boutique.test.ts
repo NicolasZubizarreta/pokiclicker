@@ -14,6 +14,7 @@ vi.mock('./persistance', () => ({
     preferences: { ...structuredClone(reglages.depart.preferences), autoAttaque: false,
       arretAuto: { ...reglages.depart.preferences.arretAuto, actif: false } },
     enregistrer: (region: DonneesRegion) => { persiste.region = structuredClone(region); },
+    compte: () => ({ diamants: 0, succes: [], skins: [], preferences: {} }),
     enregistrerPreferences: vi.fn() }),
 }));
 vi.mock('./precharger', () => ({ cheminDecor: () => '', precharger: vi.fn(), prechargerZone: vi.fn() }));

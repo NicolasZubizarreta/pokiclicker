@@ -96,6 +96,15 @@ it('transmet une progression identique au deuxième appareil', async () => {
   expect(b.region()).toEqual(a.region());
 });
 
+it('retrouve sur le deuxième appareil les diamants, succès et skins du compte', async () => {
+  const { a, b } = await preparer();
+  a.gestionnaire.ecrireCompte({ ...compteInitial(), diamants: 15, succes: ['premiers-pas'], skins: ['rouge'] });
+  await a.synchro.envoyerMaintenant();
+  expect(a.synchro.etat()).toBe('ok');
+  expect(await b.synchro.ouvrir()).toBe('charge');
+  expect(b.gestionnaire.chargerCompte()?.donnees).toMatchObject({ diamants: 15, succes: ['premiers-pas'], skins: ['rouge'] });
+});
+
 it('permet de reprendre la partie sur un autre appareil actif', async () => {
   const { a, b } = await synchroniser();
   expect(await a.appareil.ouvrir()).toBe('libre');
