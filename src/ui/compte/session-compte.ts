@@ -18,12 +18,14 @@ export function useSessionCompte() {
   const [jeton, fixerJeton] = useState(() => lireJeton() ?? null);
   const [valide, fixerValide] = useState(false);
   const [attente, fixerAttente] = useState(!!jeton);
+  const [expiree, fixerExpiree] = useState(false);
 
   function memoriser(nouveau: string | null) {
     ecrireJeton(nouveau);
     fixerJeton(nouveau);
     fixerValide(!!nouveau);
     fixerAttente(false);
+    fixerExpiree(false);
   }
 
   useEffect(() => {
@@ -36,11 +38,12 @@ export function useSessionCompte() {
         const accepte = await lireSession(jeton);
         if (actif) {
           if (accepte) fixerValide(true);
-          else memoriser(null);
+          else { memoriser(null); fixerExpiree(true); }
         }
       } catch (erreur) {
         if (actif) {
-          if (erreur instanceof ErreurCompte && erreur.statut === 401) memoriser(null);
+          // Le serveur refuse le jeton : la partie locale n'est pas touchée.
+          if (erreur instanceof ErreurCompte && erreur.statut === 401) { memoriser(null); fixerExpiree(true); }
           else fixerValide(true);
         }
       } finally {
@@ -78,5 +81,5 @@ export function useSessionCompte() {
       try { await deconnecter(ancien); } catch { /* La déconnexion locale reste possible sans réseau. */ }
     }
   }
-  return { valide, attente, jeton, memoriser, quitter };
+  return { valide, attente, expiree, jeton, memoriser, quitter };
 }

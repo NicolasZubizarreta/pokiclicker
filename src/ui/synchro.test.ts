@@ -104,6 +104,30 @@ it('prépare le choix après 409 et retente la lecture sans nouvel envoi', async
   expect(t.fetch.mock.calls.filter(([, o]) => o?.method === 'PUT')).toHaveLength(1);
 });
 
+it('plusieurs jours hors ligne puis retour du réseau : le conflit passe par le choix, sans rien écraser', async () => {
+  const t = preparer();
+  const v = versions(t);
+  t.fetch.mockRejectedValue(new Error('Réseau'));
+  expect(await t.synchro.ouvrir()).toBe('hors-ligne');
+  t.synchro.demarrer();
+  for (let jour = 0; jour < 3; jour++) {
+    t.modifier();
+    await t.avancer(45_000);
+    t.horloge.avancer(24 * 3600_000);
+  }
+  expect(t.synchro.etat()).toBe('hors-ligne');
+  const local = t.contenu();
+  // Pendant ce temps, l'autre appareil a avancé : le serveur refuse l'envoi de la révision de départ périmée.
+  v.repondre();
+  t.fetch.mockResolvedValueOnce(new Response('{}', { status: 409 }));
+  await t.avancer(45_000);
+  expect(t.synchro.etat()).toBe('conflit');
+  expect(t.synchro.choix()).not.toBeNull();
+  expect(t.contenu()).toEqual(local);
+  expect(await t.synchro.trancher('local')).toBe('ok');
+  expect(t.corps()).toMatchObject({ partie: { revisionBase: 20 } });
+});
+
 it.each([true, false])('archive avant installation (échec : %s)', async echec => {
   const t = preparer();
   const { serveur } = versions(t);

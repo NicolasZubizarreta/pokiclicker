@@ -7,9 +7,21 @@ const titres = { connexion: 'Connexion', inscription: 'Inscription', oubli: 'Mot
 const boutons = { connexion: 'Se connecter', inscription: 'Créer mon compte', oubli: 'Envoyer le lien', nouveau: 'Enregistrer le mot de passe' };
 const secondaire = 'min-h-11 p-2 text-lien underline';
 
-export function EcranCompte({ token, quandConnecte, quandReinitialise }: {
-  token: string | null; quandConnecte: (jeton: string) => void; quandReinitialise: () => void;
+function useHorsReseau() {
+  const [hors, fixerHors] = useState(() => navigator.onLine === false);
+  useEffect(() => {
+    const maj = () => fixerHors(navigator.onLine === false);
+    window.addEventListener('online', maj);
+    window.addEventListener('offline', maj);
+    return () => { window.removeEventListener('online', maj); window.removeEventListener('offline', maj); };
+  }, []);
+  return hors;
+}
+
+export function EcranCompte({ token, sessionExpiree = false, quandConnecte, quandReinitialise }: {
+  token: string | null; sessionExpiree?: boolean; quandConnecte: (jeton: string) => void; quandReinitialise: () => void;
 }) {
+  const horsReseau = useHorsReseau();
   const [etat, fixerEtat] = useState<Etat>(token !== null ? 'nouveau' : 'connexion');
   const [email, fixerEmail] = useState('');
   const [motDePasse, fixerMotDePasse] = useState('');
@@ -58,6 +70,10 @@ export function EcranCompte({ token, quandConnecte, quandReinitialise }: {
   return <main data-theme="dark" className="min-h-dvh bg-fond text-texte font-texte p-4 lg:p-8 grid content-center">
     <section className="cadre bg-surface p-4 lg:p-8 w-full max-w-(--breakpoint-md) mx-auto" aria-labelledby="titre-compte">
       <h1 id="titre-compte" ref={titre} tabIndex={-1} className="font-titre text-2xl mb-4">{titres[etat]}</h1>
+      {horsReseau && <p role="status" className="mb-4">{etat === 'connexion' || etat === 'inscription'
+        ? "Pas de réseau. Connecte-toi une première fois avec une connexion internet : ensuite, ta partie s'ouvre aussi sans réseau."
+        : 'Pas de réseau. Cette étape demande une connexion internet.'}</p>}
+      {sessionExpiree && etat === 'connexion' && <p role="status" className="mb-4">Ta session a expiré. Reconnecte-toi : ta partie sur cet appareil est conservée.</p>}
       <form onSubmit={envoyer} className="grid gap-4">
         {etat !== 'nouveau' && <label className="grid gap-2">E-mail
           <input type="email" required autoComplete={etat === 'connexion' ? 'username' : 'email'} value={email}

@@ -9,7 +9,6 @@ import { PagePC } from './PagePC';
 import { PagePlus } from './PagePlus';
 import { PageShop } from './PageShop';
 import { storeJeu } from './store';
-import { MiseAJour } from './MiseAJour';
 import { ObtentionBadge } from './ObtentionBadge';
 import { PageIntro } from './PageIntro';
 import { DialogueScene } from './DialogueScene';
@@ -82,7 +81,6 @@ export function Coquille({ region = 'kanto', theme = 'dark', quandDeconnecter, q
       </a>
       <Navigation page={page} choisir={choisir} pcOuvert={pcOuvert} signalCarte={tutorielRoute1 && page !== 'Carte' && !introActive && !introVue} inerte={introActive || introVue || credits || !!pantheon?.ouvert || compteOuvert} />
       <main id="contenu" tabIndex={-1} inert={compteOuvert} className="mb-14 min-w-0 p-4 lg:mb-0 lg:ml-24 lg:p-8">
-        <MiseAJour />
         <button ref={boutonCompte} className="min-h-11 p-2 text-lien underline" onClick={() => fixerCompteOuvert(true)}>Mon compte</button>
         {quandOuvrirParties && <button className="min-h-11 p-2 text-lien underline" onClick={quandOuvrirParties}>Mes parties</button>}
         {quandDeconnecter && <button className="min-h-11 p-2 text-lien underline" onClick={quandDeconnecter}>Se déconnecter</button>}

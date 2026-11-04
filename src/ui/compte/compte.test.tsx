@@ -222,6 +222,53 @@ it('ouvre hors réseau et retente au retour du réseau', async () => {
   expect(localStorage.getItem(CLE_SESSION)).toBeNull();
 });
 
+it('ouvre la dernière partie locale à froid sans aucun réseau, sans message bloquant', async () => {
+  localStorage.setItem(CLE_SESSION, 'session-stockee'); reseau.mockRejectedValue(new TypeError());
+  const avant = localStorage.getItem('pokiclicker:partie:test');
+  expect(avant).not.toBeNull();
+  render(<App />);
+  await screen.findByText('Jeu ouvert');
+  expect(screen.queryByRole('alert')).toBeNull();
+  expect(screen.queryByRole('heading')).toBeNull();
+  expect(localStorage.getItem(CLE_SESSION)).toBe('session-stockee');
+  expect(localStorage.getItem('pokiclicker:partie:test')).toBe(avant);
+});
+
+it('demande de se connecter une première fois quand l’appareil n’a jamais été connecté et n’a pas de réseau', async () => {
+  vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
+  render(<App />);
+  expect((await screen.findByRole('status')).textContent).toContain('Connecte-toi une première fois');
+  expect(screen.queryByText('Jeu ouvert')).toBeNull();
+  vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(true);
+  fireEvent(window, new Event('online'));
+  await waitFor(() => expect(screen.queryByRole('status')).toBeNull());
+});
+
+it('explique une session expirée au retour du réseau sans toucher à la partie locale', async () => {
+  localStorage.setItem(CLE_SESSION, 'session-stockee'); reseau.mockRejectedValueOnce(new TypeError());
+  render(<App />); await screen.findByText('Jeu ouvert');
+  const avant = localStorage.getItem('pokiclicker:partie:test');
+  expect(avant).not.toBeNull();
+  reseau.mockResolvedValueOnce(reponse(null, 401));
+  fireEvent(window, new Event('online'));
+  await screen.findByRole('heading', { name: 'Connexion' });
+  expect(screen.getByRole('status').textContent).toContain('Ta session a expiré');
+  expect(localStorage.getItem('pokiclicker:partie:test')).toBe(avant);
+});
+
+it('au retour du réseau, une partie reprise ailleurs pendant la coupure passe par l’écran de reprise', async () => {
+  localStorage.setItem(CLE_SESSION, 'session-stockee'); reseau.mockRejectedValue(new TypeError());
+  render(<App />); await screen.findByText('Jeu ouvert');
+  const avant = localStorage.getItem('pokiclicker:partie:test');
+  expect(avant).not.toBeNull();
+  reseau.mockReset();
+  reseau.mockImplementation(async url => reponse(String(url).endsWith('/appareil') ? { actif: false }
+    : String(url).endsWith('/api/sauvegarde/parties') ? { parties: [] } : { session: { id: 'session' } }));
+  fireEvent(window, new Event('online'));
+  await screen.findByText(/Cette partie est ouverte sur un autre appareil/);
+  expect(localStorage.getItem('pokiclicker:partie:test')).toBe(avant);
+});
+
 it('retente aussi périodiquement', async () => {
   vi.useFakeTimers(); localStorage.setItem(CLE_SESSION, 'session-stockee'); reseau.mockRejectedValueOnce(new TypeError());
   render(<App />);

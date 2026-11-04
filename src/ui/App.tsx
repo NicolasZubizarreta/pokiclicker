@@ -1,4 +1,5 @@
 import { Coquille } from './Coquille';
+import { MiseAJour } from './MiseAJour';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { EcranCompte } from './compte/EcranCompte';
 import { EcranChoixVersion } from './compte/EcranChoixVersion';
@@ -183,12 +184,16 @@ function JeuAvecCompte() {
   }, []);
   if (token !== null || !session.valide) {
     if (token === null && session.attente) return <p role="status">Vérification du compte…</p>;
-    return <EcranCompte token={token} quandConnecte={jeton => { fixerToken(null); session.memoriser(jeton); }} quandReinitialise={() => { fixerToken(null); session.memoriser(null); }} />;
+    return <EcranCompte token={token} sessionExpiree={session.expiree} quandConnecte={jeton => { fixerToken(null); session.memoriser(jeton); }} quandReinitialise={() => { fixerToken(null); session.memoriser(null); }} />;
   }
   return session.jeton ? <PartieConnectee key={session.jeton} jeton={session.jeton} quandDeconnecter={() => { void session.quitter(); }} />
     : <Coquille quandDeconnecter={() => { void session.quitter(); }} />;
 }
 
 export default function App() {
-  return import.meta.env.VITE_API_URL ? <JeuAvecCompte /> : <Coquille />;
+  // Le service worker s'enregistre dès le premier écran, connexion comprise : le jeu doit être en cache même avant la première connexion.
+  return <>
+    <MiseAJour />
+    {import.meta.env.VITE_API_URL ? <JeuAvecCompte /> : <Coquille />}
+  </>;
 }
