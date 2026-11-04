@@ -24,6 +24,8 @@ const migrations = [`
     remplace_le timestamptz NOT NULL DEFAULT now()
   );
   CREATE INDEX ON versions(compte_id, niveau, objet_id, revision DESC);
+`, `
+  CREATE TABLE appareil_actif (partie_id uuid PRIMARY KEY REFERENCES parties(id) ON DELETE CASCADE, appareil_id text NOT NULL, battement_le timestamptz NOT NULL);
 `];
 
 export async function migrerSauvegarde(db: Pick<Pool, 'query'>) {

@@ -7,6 +7,8 @@ import { creerHorlogeSysteme } from '../core/clock';
 import { storeJeu } from './store';
 import { creerStockageLocal } from './stockage-local';
 import { creerSynchro } from './synchro';
+import { creerAppareilActif } from './appareil';
+import { EcranAutreAppareil } from './compte/EcranAutreAppareil';
 
 // Le store du jeu est un singleton : un jeu déjà monté dans cette page garde sa région en mémoire.
 let jeuDejaMonte = false;
@@ -17,26 +19,35 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
   const [jeuMonte, fixerJeuMonte] = useState(false);
   const [occupe, fixerOccupe] = useState(false);
   const [erreur, fixerErreur] = useState('');
-  const synchro = useMemo(() => creerSynchro({ stockage: creerStockageLocal(), horloge: creerHorlogeSysteme(),
+  const appareil = useMemo(() => creerAppareilActif({ stockage: creerStockageLocal(), horloge: creerHorlogeSysteme(),
     urlApi: import.meta.env.VITE_API_URL ?? '', jeton: () => jeton,
     quandChange: () => rafraichir(n => n + 1) }), [jeton]);
+  const synchro = useMemo(() => creerSynchro({ stockage: creerStockageLocal(), horloge: creerHorlogeSysteme(),
+    urlApi: import.meta.env.VITE_API_URL ?? '', jeton: () => jeton,
+    enPause: () => appareil.ailleurs(),
+    quandChange: () => rafraichir(n => n + 1) }), [jeton, appareil]);
   useEffect(() => {
     let actif = true;
-    void synchro.ouvrir().then(resultat => {
+    void synchro.ouvrir().then(async resultat => {
       if (!actif) return;
       if (jeuDejaMonte && resultat === 'charge') { window.location.reload(); return; }
+      if (!synchro.choix()) {
+        const resultatAppareil = await appareil.ouvrir();
+        if (!actif) return;
+        if (resultatAppareil === 'libre') fixerJeuMonte(true);
+      }
       fixerPhase('jeu');
-      if (!synchro.choix()) fixerJeuMonte(true);
     });
-    return () => { actif = false; synchro.arreter(); };
-  }, [synchro]);
+    return () => { actif = false; synchro.arreter(); appareil.arreter(); };
+  }, [synchro, appareil]);
   useEffect(() => {
     if (!jeuMonte) return;
     jeuDejaMonte = true;
     synchro.demarrer();
+    appareil.demarrer();
     const desabonner = storeJeu.abonnerSauvegarde(fermeture => { void synchro.envoyerMaintenant({ fermeture }); });
-    return () => { desabonner(); synchro.arreter(); };
-  }, [synchro, jeuMonte]);
+    return () => { desabonner(); synchro.arreter(); appareil.arreter(); };
+  }, [synchro, appareil, jeuMonte]);
   async function choisir(cote: 'local' | 'serveur') {
     if (occupe) return;
     fixerOccupe(true);
@@ -48,13 +59,24 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
       fixerErreur("Connexion impossible. Rien n'a changé, réessaie.");
       if (recharger && jeuMonte) storeJeu.getState().demarrer();
     } else if (recharger) { window.location.reload(); return; }
-    if (!synchro.choix()) fixerJeuMonte(true);
+    if (!synchro.choix() && await appareil.ouvrir() === 'libre') fixerJeuMonte(true);
+    fixerOccupe(false);
+  }
+  async function reprendre() {
+    if (occupe) return;
+    fixerOccupe(true);
+    fixerErreur('');
+    if (await appareil.reprendre() === 'ok') fixerJeuMonte(true);
+    else fixerErreur('Connexion impossible. Réessaie.');
     fixerOccupe(false);
   }
   if (phase === 'verification') return <p role="status">Vérification de la sauvegarde…</p>;
   const choix = synchro.choix();
   return <>
     {jeuMonte && <Coquille quandDeconnecter={quandDeconnecter} />}
+    {!choix && appareil.ailleurs() && <div className={jeuMonte ? 'fixed inset-0 z-50' : undefined}>
+      <EcranAutreAppareil occupe={occupe} erreur={erreur} quandReprendre={() => { void reprendre(); }} />
+    </div>}
     {choix && <div className={jeuMonte ? 'fixed inset-0 z-50' : undefined}>
       <EcranChoixVersion choix={choix} occupe={occupe} erreur={erreur} quandChoisir={cote => { void choisir(cote); }} />
     </div>}

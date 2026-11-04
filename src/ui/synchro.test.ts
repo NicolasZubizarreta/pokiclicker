@@ -7,6 +7,17 @@ import { creerStoreJeu } from './store';
 import { creerSynchro, decider, type Memoire } from './synchro';
 
 const arrets: (() => void)[] = [];
+it('suspend les PUT en pause puis reprend les envois', async () => {
+  const t = preparer();
+  let pause = true;
+  const synchro = creerSynchro({ ...t.options, enPause: () => pause });
+  arrets.push(synchro.arreter);
+  await synchro.envoyerMaintenant();
+  expect(t.fetch).not.toHaveBeenCalled();
+  pause = false;
+  await synchro.envoyerMaintenant();
+  expect(t.fetch.mock.calls.filter(([, options]) => options?.method === 'PUT')).toHaveLength(1);
+});
 function versions(t: ReturnType<typeof preparer>) {
   const local = { compte: t.g.chargerCompte()!, partie: t.g.chargerPartie(t.p.id)!, regions: [t.g.chargerRegion(t.p.id, 'kanto')!] };
   const serveur = { compte: { ...local.compte, revision: 10 }, partie: { ...local.partie, revision: 20 }, regions: [{ ...local.regions[0]!, revision: 30 }] };

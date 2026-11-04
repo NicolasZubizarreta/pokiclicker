@@ -37,6 +37,7 @@ Migration SQL versionnée dans `src/schema.ts` (table `migrations_sauvegarde`), 
 - `GET /api/sauvegarde/compte` et `GET /api/sauvegarde/parties/:id` (partie + régions). 404 pour une partie d'un autre compte.
 - `GET /api/sauvegarde/parties` : liste des parties du compte, de la plus récemment écrite à la plus ancienne (20 au plus).
 - `POST /api/sauvegarde/versions` : `{ niveau, objetId, enveloppe }`, archive une version écartée ; conserve les 5 dernières insertions par objet et 200 versions au plus par compte, limites de 1 Mo par enveloppe et 3 Mo par requête.
+- `POST /api/sauvegarde/parties/:id/appareil` : `{ appareilId: uuid, reprendre?: boolean }` → `{ actif: boolean }` ; battement toutes les 60 s côté client, appareil considéré parti après 120 s sans battement.
 
 ## Coolify
 

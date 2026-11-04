@@ -141,7 +141,7 @@ ADR 0004 point 4, adapté (pas d'export JSON, décision du 04/11) : avant d'écr
 
 ## F. `feat(sauvegarde): un seul appareil actif par partie`
 
-`type:feat`, `etat:a_faire`, `est:1.5-2.5`, `prio:2` · branche : `v2` · `agent-ok` : à poser par Nicolas
+`type:feat`, `etat:fait`, `est:1.5-2.5`, `prio:2` · branche : `v2` · `agent-ok` : à poser par Nicolas
 
 ### Histoire
 En tant que joueur, je veux savoir quand ma partie est ouverte ailleurs afin d'éviter deux appareils qui jouent en même temps.
@@ -150,9 +150,9 @@ En tant que joueur, je veux savoir quand ma partie est ouverte ailleurs afin d'�
 ADR 0004 point 3, décision de Nicolas du 23/10 : reprise en un clic, sans blocage. Battement toutes les 60 s. Fichiers : `src/ui/synchro.ts`, serveur (collection « appareil actif »).
 
 ### Critères d'acceptation
-- [ ] Étant donné une partie ouverte sur l'appareil 1, quand l'appareil 2 l'ouvre, alors il lit « Cette partie est ouverte sur un autre appareil » avec un bouton « Reprendre ici ».
-- [ ] Étant donné « Reprendre ici », quand je clique, alors l'appareil 2 devient l'appareil actif en un clic et l'appareil 1 le voit au battement suivant.
-- [ ] Étant donné un appareil sans battement depuis plus de 2 minutes, quand un autre ouvre la partie, alors elle s'ouvre sans avertissement.
+- [x] Étant donné une partie ouverte sur l'appareil 1, quand l'appareil 2 l'ouvre, alors il lit « Cette partie est ouverte sur un autre appareil » avec un bouton « Reprendre ici ».
+- [x] Étant donné « Reprendre ici », quand je clique, alors l'appareil 2 devient l'appareil actif en un clic et l'appareil 1 le voit au battement suivant.
+- [x] Étant donné un appareil sans battement depuis plus de 2 minutes, quand un autre ouvre la partie, alors elle s'ouvre sans avertissement.
 
 ### Hors périmètre
 Blocage dur de l'appareil précédent.

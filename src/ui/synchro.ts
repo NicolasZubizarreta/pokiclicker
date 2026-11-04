@@ -33,6 +33,7 @@ const cle = 'pokiclicker:synchro';
 export function creerSynchro(options: {
   stockage: Stockage; horloge: Horloge; urlApi: string; jeton: () => string | null;
   fetch?: typeof fetch; intervalleMs?: number; delaiMiniMs?: number; quandChange?: () => void;
+  enPause?: () => boolean;
 }) {
   const { stockage, horloge } = options;
   const gestionnaire = creerGestionnaire({ stockage, horloge, genererId: () => 'x' });
@@ -200,6 +201,7 @@ export function creerSynchro(options: {
 
   async function envoyer(fermeture = false): Promise<void> {
     if (arrete || bloque) return;
+    if (options.enPause?.()) return;
     if (enCours) {
       suivant = true;
       fermetureSuivante ||= fermeture;

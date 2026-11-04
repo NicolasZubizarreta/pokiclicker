@@ -110,7 +110,66 @@ async function lire(id: string, token: string) {
 test('migration idempotente', async () => {
   const db = await contexte.pool.connect();
   try { await migrerSauvegarde(db); await migrerSauvegarde(db); } finally { db.release(); }
-  expect((await contexte.pool.query('SELECT version FROM migrations_sauvegarde')).rows).toEqual([{ version: 1 }]);
+  expect((await contexte.pool.query('SELECT version FROM migrations_sauvegarde')).rows).toEqual([{ version: 1 }, { version: 2 }]);
+});
+
+test('appareil : session, isolation et validation', async () => {
+  const id = randomUUID();
+  const appareilId = randomUUID();
+  const poster = (partie: string, body: object, token?: string) =>
+    request(`${chemin}/parties/${partie}/appareil`, body, token, undefined, 'POST');
+  expect((await poster(id, { appareilId })).status).toBe(401);
+  const { token } = await signup();
+  for (const partie of [id, 'invalide']) {
+    const response = await poster(partie, { appareilId }, token);
+    expect(response.status).toBe(404);
+    expect(await response.json()).toEqual({ message: 'Partie introuvable.' });
+  }
+  await put(corps(id), token);
+  const autre = await signup();
+  const response = await poster(id, { appareilId }, autre.token);
+  expect(response.status).toBe(404);
+  expect(await response.json()).toEqual({ message: 'Partie introuvable.' });
+  for (const body of [{ appareilId: 'invalide' }, { appareilId: 42 }, {},
+    { appareilId, battementLe: date }, { appareilId, reprendre: 'true' }, { appareilId, reprendre: null }]) {
+    const invalide = await poster(id, body, token);
+    expect(invalide.status).toBe(400);
+    expect(await invalide.json()).toEqual({ message: 'Sauvegarde invalide.' });
+  }
+});
+
+test('appareil : prise, renouvellement, reprise et expiration', async () => {
+  const { token } = await signup();
+  const id = randomUUID();
+  const a = randomUUID();
+  const b = randomUUID();
+  await put(corps(id), token);
+  const poster = async (appareilId: string, actif: boolean, reprendre?: boolean) => {
+    const response = await request(`${chemin}/parties/${id}/appareil`,
+      { appareilId, ...(reprendre === undefined ? {} : { reprendre }) }, token, undefined, 'POST');
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ actif });
+  };
+  const ligne = async () => (await contexte.pool.query('SELECT * FROM appareil_actif WHERE partie_id = $1', [id])).rows[0];
+  await poster(a, true);
+  expect((await ligne()).appareil_id).toBe(a);
+  await contexte.pool.query("UPDATE appareil_actif SET battement_le = now() - interval '60 seconds' WHERE partie_id = $1", [id]);
+  const avant = await ligne();
+  await poster(a, true);
+  const apres = await ligne();
+  expect(apres.battement_le.getTime()).toBeGreaterThan(avant.battement_le.getTime());
+  await poster(b, false);
+  expect(await ligne()).toEqual(apres);
+  await poster(b, true, true);
+  expect((await ligne()).appareil_id).toBe(b);
+  await poster(a, false);
+  await contexte.pool.query("UPDATE appareil_actif SET appareil_id = $2, battement_le = now() - interval '121 seconds' WHERE partie_id = $1", [id, a]);
+  await poster(b, true);
+  expect((await ligne()).appareil_id).toBe(b);
+  await contexte.pool.query("UPDATE appareil_actif SET appareil_id = $2, battement_le = now() - interval '119 seconds' WHERE partie_id = $1", [id, a]);
+  const recent = await ligne();
+  await poster(b, false);
+  expect(await ligne()).toEqual(recent);
 });
 
 test('connexion requise sans jeton ou avec un jeton invalide', async () => {

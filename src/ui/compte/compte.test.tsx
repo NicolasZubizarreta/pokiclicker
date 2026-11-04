@@ -28,6 +28,27 @@ function remplir(motDePasse = 'abcdefghij', email = 'joueur@exemple.fr') {
 }
 function cliquer(nom: string) { fireEvent.click(screen.getByRole('button', { name: nom })); }
 
+it('attend la reprise de cet appareil avant de monter le jeu', async () => {
+  const stockage = creerStockageMemoire();
+  creerGestionnaire({ stockage, horloge: creerHorlogeSimulee(), genererId: () => 'test' }).creerPartie('Test');
+  stockage.cles().forEach(cle => localStorage.setItem(cle, stockage.lire(cle)!));
+  localStorage.setItem(CLE_SESSION, 'session-stockee');
+  reseau.mockImplementation(async (url, options) => {
+    if (String(url).endsWith('/appareil')) return reponse({ actif: JSON.parse(options!.body as string).reprendre === true });
+    if (String(url).includes('/api/sauvegarde')) return reponse({}, 404);
+    return reponse({ session: { id: 'session' } });
+  });
+  render(<App />);
+  await screen.findByText(/Cette partie est ouverte sur un autre appareil/);
+  expect(screen.queryByText('Jeu ouvert')).toBeNull();
+  cliquer('Reprendre ici');
+  await screen.findByText('Jeu ouvert');
+  const appels = reseau.mock.calls.filter(([url]) => String(url).endsWith('/appareil'));
+  expect(appels).toHaveLength(2);
+  expect(appels[1]![1]?.method).toBe('POST');
+  expect(JSON.parse(appels[1]![1]!.body as string)).toEqual({ appareilId: localStorage.getItem('pokiclicker:appareil'), reprendre: true });
+});
+
 it('présente le choix avant de monter le jeu à l’ouverture', async () => {
   const stockage = creerStockageMemoire();
   const g = creerGestionnaire({ stockage, horloge: creerHorlogeSimulee(), genererId: () => 'test' });

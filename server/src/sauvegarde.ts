@@ -106,6 +106,39 @@ export function routesSauvegarde(pool: Pool, auth: Auth): Hono<{ Variables: { co
       regions: rows[0].regions.map((r: Ligne & { region_id: string }) =>
         enveloppe({ ...r, ecrit_le: new Date(r.ecrit_le) }, 'region', r.region_id)) });
   });
+  app.post('/parties/:id/appareil', async c => {
+    const id = c.req.param('id');
+    if (!uuid(id)) return c.json({ message: 'Partie introuvable.' }, 404);
+    let brut: unknown;
+    try { brut = await c.req.json(); } catch { return c.json({ message: 'Sauvegarde invalide.' }, 400); }
+    if (!objet(brut) || !champs(brut, ['appareilId', 'reprendre']) || !uuid(brut.appareilId) ||
+      ('reprendre' in brut && typeof brut.reprendre !== 'boolean')) {
+      return c.json({ message: 'Sauvegarde invalide.' }, 400);
+    }
+    const db = await pool.connect();
+    let echec: Error | undefined;
+    try {
+      await db.query('BEGIN');
+      const partie = await db.query('SELECT id FROM parties WHERE id = $1 AND compte_id = $2 FOR UPDATE',
+        [id, c.get('compteId')]);
+      if (!partie.rows[0]) {
+        await db.query('ROLLBACK');
+        return c.json({ message: 'Partie introuvable.' }, 404);
+      }
+      const resultat = await db.query(`INSERT INTO appareil_actif(partie_id, appareil_id, battement_le)
+        VALUES ($1, $2, now()) ON CONFLICT (partie_id) DO UPDATE
+        SET appareil_id = EXCLUDED.appareil_id, battement_le = now()
+        WHERE appareil_actif.appareil_id = EXCLUDED.appareil_id
+          OR now() - appareil_actif.battement_le > interval '120 seconds' OR $3
+        RETURNING partie_id`, [id, brut.appareilId, brut.reprendre === true]);
+      await db.query('COMMIT');
+      return c.json({ actif: resultat.rows.length > 0 });
+    } catch (error) {
+      await db.query('ROLLBACK').catch(() => undefined);
+      echec = error as Error;
+      throw error;
+    } finally { db.release(echec); }
+  });
   app.post('/versions', bodyLimit({ maxSize: 3 * 1024 * 1024,
     onError: c => c.json({ message: 'Requête trop volumineuse.' }, 413) }), async c => {
     let brut: unknown;
