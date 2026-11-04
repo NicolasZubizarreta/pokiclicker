@@ -78,5 +78,5 @@ export function useSessionCompte() {
       try { await deconnecter(ancien); } catch { /* La déconnexion locale reste possible sans réseau. */ }
     }
   }
-  return { valide, attente, memoriser, quitter };
+  return { valide, attente, jeton, memoriser, quitter };
 }

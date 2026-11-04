@@ -1,6 +1,6 @@
 # API des comptes
 
-Node 22, TypeScript strict, Hono, Postgres et Better Auth. Aucun schéma ni route de sauvegarde des parties.
+Node 22, TypeScript strict, Hono, Postgres et Better Auth, plus la sauvegarde en ligne d'une partie par compte (section « Sauvegarde »).
 
 ## Développement
 
@@ -28,6 +28,13 @@ Le client lit `set-auth-token` après inscription/connexion puis transmet `Autho
 La limite est persistée en base et active dans tous les environnements. Le proxy HTTPS doit supprimer les en-têtes IP fournis par le client et écrire une adresse client unique fiable dans `X-Forwarded-For`. Ne pas exposer directement le port de l’application sur Internet : un client direct pourrait forger cet en-tête. Sans adresse reconnue, Better Auth utilise un compteur partagé par route. Configurer et vérifier ce point sur le proxy Coolify avant ouverture publique. Ne pas ajouter d’origines génériques ou de joker CORS.
 
 `GET /health` fait `select 1` et retourne `{ "ok": true }`, ou 503 si la base est indisponible. Corps limité à 100 ko, réponses d’authentification non mises en cache, en-têtes `nosniff` et `no-referrer`.
+
+## Sauvegarde (ticket D)
+
+Migration SQL versionnée dans `src/schema.ts` (table `migrations_sauvegarde`), lancée par `migrate.ts` sous le même verrou que Better Auth : `donnees_compte`, `parties`, `regions`, `versions` (5 dernières versions remplacées de chaque objet). Routes, toutes avec `Authorization: Bearer <jeton>`, le compte venant uniquement de la session :
+
+- `PUT /api/sauvegarde` : `{ partieId?, compte?, partie?, regions? }`, chacun `{ revisionBase, enveloppe }` (enveloppe de l'ADR 0001). Une transaction ; si une `revisionBase` n'est pas la révision du serveur : 409 avec `conflits` (niveau, id, revisionServeur, ecritLe, résumé), rien n'est modifié. 200 : les nouvelles révisions. Limites : 1 Mo par enveloppe, 3 Mo par requête.
+- `GET /api/sauvegarde/compte` et `GET /api/sauvegarde/parties/:id` (partie + régions). 404 pour une partie d'un autre compte.
 
 ## Coolify
 

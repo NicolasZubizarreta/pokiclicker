@@ -1,84 +1,10 @@
-import { afterAll, beforeAll, expect, test } from 'vitest';
-import EmbeddedPostgres from 'embedded-postgres';
-import { mkdtemp, rm } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
-import { createServer } from 'node:net';
-import { randomUUID } from 'node:crypto';
-import { execFile } from 'node:child_process';
-import { promisify } from 'node:util';
-import { Pool } from 'pg';
-import { getMigrations } from 'better-auth/db/migration';
-import { createApp, type ResetMail } from '../src/app.js';
+import { expect, test } from 'vitest';
+import { createApp } from '../src/app.js';
 import { readConfig } from '../src/config.js';
+import { support } from './support.js';
 
-let embedded: EmbeddedPostgres | undefined;
-let directory: string | undefined;
-let pool: Pool;
-let runtime: ReturnType<typeof createApp>;
-const mails: ResetMail[] = [];
-const origin = 'http://localhost:5173';
-const schema = `test_${randomUUID().replaceAll('-', '')}`;
-const password = 'MotDePasse123!';
-let ip = 0;
-
-beforeAll(async () => {
-  let connectionString = process.env.DATABASE_URL;
-  if (!connectionString) {
-    const socket = createServer();
-    await new Promise<void>(resolve => socket.listen(0, '127.0.0.1', resolve));
-    const address = socket.address();
-    if (!address || typeof address === 'string') throw new Error('Port local indisponible.');
-    const port = address.port;
-    await new Promise<void>((resolve, reject) => socket.close(error => error ? reject(error) : resolve()));
-    directory = await mkdtemp(join(tmpdir(), 'pokiclicker-postgres-'));
-    embedded = new EmbeddedPostgres({ databaseDir: directory, port, user: 'postgres',
-      password: 'test-local-factice', persistent: false, onLog: () => {}, onError: () => {} });
-    if (process.platform === 'win32') {
-      // taskkill peut rester bloqué dans le bac à sable ; arrêt natif et gracieux.
-      const { pg_ctl } = await import('@embedded-postgres/windows-x64');
-      const clusterDirectory = directory;
-      let stopped = false;
-      embedded.stop = async () => {
-        if (stopped) return;
-        await promisify(execFile)(pg_ctl, ['-D', clusterDirectory, '-m', 'fast', '-w', '-t', '15', 'stop'], { windowsHide: true });
-        stopped = true;
-      };
-    }
-    await embedded.initialise();
-    await embedded.start();
-    connectionString = `postgresql://postgres:test-local-factice@localhost:${port}/postgres`;
-  }
-  const admin = new Pool({ connectionString });
-  try { await admin.query(`CREATE SCHEMA "${schema}"`); } finally { await admin.end(); }
-  pool = new Pool({ connectionString, options: `-c search_path=${schema}` });
-  const config = readConfig({ NODE_ENV: 'test', DATABASE_URL: connectionString,
-    BETTER_AUTH_SECRET: 'test-seulement-secret-long-et-factice-123456',
-    BETTER_AUTH_URL: 'http://localhost:3000', CORS_ORIGINS: origin });
-  runtime = createApp(config, pool, async mail => { mails.push(mail); });
-  await (await getMigrations(runtime.auth.options)).runMigrations();
-});
-
-afterAll(async () => {
-  if (pool) {
-    try { await pool.query(`DROP SCHEMA "${schema}" CASCADE`); } finally { await pool.end(); }
-  }
-  if (embedded) await embedded.stop();
-  if (directory) await rm(directory, { recursive: true, force: true });
-});
-
-function request(path: string, body?: object, token?: string, client = `192.0.2.${++ip}`) {
-  return runtime.app.request(`http://localhost:3000${path}`, {
-    method: body ? 'POST' : 'GET', headers: { origin, 'content-type': 'application/json',
-      'x-forwarded-for': client, ...(token ? { authorization: `Bearer ${token}` } : {}) },
-    body: body ? JSON.stringify(body) : undefined,
-  });
-}
-async function signup(pass = password) {
-  const email = `${randomUUID()}@example.test`;
-  const response = await request('/api/auth/sign-up/email', { name: 'Joueur', email, password: pass });
-  return { email, response, token: response.headers.get('set-auth-token')! };
-}
+const contexte = support();
+const { mails, origin, password, request, signup } = contexte;
 async function reset(email: string) {
   const response = await request('/api/auth/request-password-reset', { email, redirectTo: `${origin}/reset` });
   expect(response.status).toBe(200);
@@ -131,7 +57,7 @@ test('6. réinitialisation, usage unique et expiration', async () => {
   expect((await request('/api/auth/sign-in/email', { email, password })).status).toBe(401);
   expect((await request('/api/auth/sign-in/email', { email, password: body.newPassword })).status).toBe(200);
   await reset(email);
-  await pool.query('UPDATE verification SET "expiresAt" = NOW() - INTERVAL \'1 hour\'');
+  await contexte.pool.query('UPDATE verification SET "expiresAt" = NOW() - INTERVAL \'1 hour\'');
   const expired = new URL(mails.at(-1)!.url).pathname.split('/').at(-1)!;
   expect((await request('/api/auth/reset-password', { token: expired, newPassword: password })).ok).toBe(false);
 });
@@ -162,13 +88,13 @@ test('8. sixième tentative bloquée, compteur en base', async () => {
     expect((await request('/api/auth/sign-in/email', { email: 'absent@example.test', password }, undefined, '198.51.100.1')).status).toBe(401);
   }
   expect((await request('/api/auth/sign-in/email', { email: 'absent@example.test', password }, undefined, '198.51.100.1')).status).toBe(429);
-  expect(Number((await pool.query('SELECT count(*) FROM "rateLimit"')).rows[0].count)).toBeGreaterThan(0);
+  expect(Number((await contexte.pool.query('SELECT count(*) FROM "rateLimit"')).rows[0].count)).toBeGreaterThan(0);
 });
 test('8b. derrière un proxy de confiance, la limite porte sur le vrai client', async () => {
   const config = readConfig({ NODE_ENV: 'test', DATABASE_URL: 'postgres://localhost/test',
     BETTER_AUTH_SECRET: 'test-seulement-secret-long-et-factice-123456',
     BETTER_AUTH_URL: 'http://localhost:3000', CORS_ORIGINS: origin, TRUSTED_PROXIES: '10.0.0.0/8' });
-  const proxied = createApp(config, pool, async () => {});
+  const proxied = createApp(config, contexte.pool, async () => {});
   const attempt = (client: string) => proxied.app.request('http://localhost:3000/api/auth/sign-in/email', {
     method: 'POST', headers: { origin, 'content-type': 'application/json', 'x-forwarded-for': client },
     body: JSON.stringify({ email: 'absent@example.test', password }) });
@@ -178,9 +104,9 @@ test('8b. derrière un proxy de confiance, la limite porte sur le vrai client', 
 });
 test('9. CORS limité aux origines autorisées', async () => {
   expect((await request('/health')).headers.get('access-control-allow-origin')).toBe(origin);
-  const response = await runtime.app.request('/health', { headers: { origin: 'https://interdit.example' } });
+  const response = await contexte.runtime.app.request('/health', { headers: { origin: 'https://interdit.example' } });
   expect(response.headers.get('access-control-allow-origin')).toBeNull();
-  const preflight = await runtime.app.request('/api/auth/sign-in/email', { method: 'OPTIONS', headers: {
+  const preflight = await contexte.runtime.app.request('/api/auth/sign-in/email', { method: 'OPTIONS', headers: {
     origin, 'access-control-request-method': 'POST', 'access-control-request-headers': 'Authorization,Content-Type',
   } });
   expect(preflight.headers.get('access-control-allow-headers')).toContain('Authorization');

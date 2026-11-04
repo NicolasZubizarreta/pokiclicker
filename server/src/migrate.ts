@@ -2,6 +2,7 @@ import { getMigrations } from 'better-auth/db/migration';
 import { Pool } from 'pg';
 import { readConfig } from './config.js';
 import { createApp } from './app.js';
+import { migrerSauvegarde } from './schema.js';
 
 const config = readConfig();
 const pool = new Pool({ connectionString: config.databaseURL });
@@ -12,11 +13,12 @@ try {
   try {
     await client.query('select pg_advisory_lock(7241)');
     await (await getMigrations(auth.options)).runMigrations();
+    await migrerSauvegarde(client);
   } finally {
     await client.query('select pg_advisory_unlock(7241)');
     client.release();
   }
-  console.info('Schéma d’authentification à jour.');
+  console.info('Schéma à jour.');
 } catch (error) {
   console.error('Échec de la migration du schéma d’authentification : ' + (error instanceof Error ? error.message : 'erreur inconnue'));
   process.exitCode = 1;

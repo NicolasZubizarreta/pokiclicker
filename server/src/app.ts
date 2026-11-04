@@ -6,6 +6,7 @@ import { bodyLimit } from 'hono/body-limit';
 import nodemailer from 'nodemailer';
 import type { Pool } from 'pg';
 import type { Config } from './config.js';
+import { routesSauvegarde } from './sauvegarde.js';
 
 export type ResetMail = { to: string; url: string };
 export type Mailer = (mail: ResetMail) => Promise<void>;
@@ -52,13 +53,14 @@ export function createApp(config: Config, pool: Pool, mailer?: Mailer) {
     c.header('Referrer-Policy', 'no-referrer');
     c.header('X-Frame-Options', 'DENY');
     if (config.production) c.header('Strict-Transport-Security', 'max-age=31536000');
-    if (c.req.path.startsWith('/api/auth/')) c.header('Cache-Control', 'no-store');
+    if (c.req.path.startsWith('/api/auth/') || c.req.path.startsWith('/api/sauvegarde')) c.header('Cache-Control', 'no-store');
     await next();
   });
   app.use('*', cors({ origin: origin => config.origins.includes(origin) ? origin : undefined,
     allowHeaders: ['Authorization', 'Content-Type'], exposeHeaders: ['set-auth-token'],
-    allowMethods: ['GET', 'POST', 'OPTIONS'] }));
-  app.use('*', bodyLimit({ maxSize: 100 * 1024, onError: c => c.json({ message: 'Requête trop volumineuse.' }, 413) }));
+    allowMethods: ['GET', 'POST', 'PUT', 'OPTIONS'] }));
+  const limite = bodyLimit({ maxSize: 100 * 1024, onError: c => c.json({ message: 'Requête trop volumineuse.' }, 413) });
+  app.use('*', (c, next) => c.req.method === 'PUT' && c.req.path === '/api/sauvegarde' ? next() : limite(c, next));
   app.onError((error, c) => {
     console.error(error instanceof Error ? error.message : 'erreur');
     return c.json({ message: 'Erreur interne du serveur.' }, 500);
@@ -80,5 +82,6 @@ export function createApp(config: Config, pool: Pool, mailer?: Mailer) {
     }
     return response;
   });
+  app.route('/api/sauvegarde', routesSauvegarde(pool, auth));
   return { app, auth };
 }

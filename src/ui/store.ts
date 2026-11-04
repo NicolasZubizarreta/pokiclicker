@@ -205,6 +205,12 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     try { persistance.enregistrer(region, pokedex); persistance.enregistrerPreferences(preferences); }
     catch (cause) { erreur = detailErreur(cause); }
   };
+  // Envoi immédiat vers le serveur (ticket D) : toujours après l'écriture locale. Une erreur d'abonné ne touche pas au jeu.
+  const abonnesSauvegarde = new Set<(fermeture: boolean) => void>();
+  const signaler = (fermeture = false) => {
+    enregistrer();
+    for (const abonne of abonnesSauvegarde) { try { abonne(fermeture); } catch { /* la synchro ne doit jamais gêner le jeu */ } }
+  };
   const noterDansPokedex = (numero?: number, messages?: string[]) => {
     const precedent = numero === undefined ? persistance.pokedex : pokedex;
     if (numero !== undefined) pokedex = ajouterAuPokedex(pokedex, numero);
@@ -264,6 +270,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     let sauvegarder = false;
     let terminerCombatEvenement = false;
     let ouvrirPantheon = false;
+    let important = false;
     const bossBattus: string[] = [];
     const messagesCapture: string[] = [];
     for (const evenement of coeur.evenements) {
@@ -277,6 +284,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         emettreSon('catch');
         const resultat = appliquerCapture(region, evenement, coeur.actifs, alea, genererId);
         region = resultat.region;
+        if (evenement.shiny) important = true;
         noterDansPokedex(evenement.numero, messagesCapture);
         if (resultat.destination === 'pc') messagesCapture.push(`${catalogue.parNumero(evenement.numero).nom} est envoyé au PC.`);
         if (resultat.bonbons > 0) messagesCapture.push(`Chromatique ! +${resultat.bonbons} Bonbons`);
@@ -317,7 +325,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
           region = victoireDefi({ ...region, etape: coeur.zone.etapes });
           coeur = null;
           executer({ type: 'boss-vaincu', zone: 'kanto.labo' });
-          enregistrer();
+          signaler();
           return;
         }
         if (combatEvenement) {
@@ -347,6 +355,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
           }
         }
         sauvegarder = true;
+        important = true;
         bossBattus.push(evenement.zoneId);
       }
       if (evenement.type === 'boss-echoue') {
@@ -389,6 +398,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     if (sauvegarder) enregistrer();
     if (terminerCombatEvenement && commande) appliquerEvenement(etapeTerminee(evenements, region, commande));
     for (const zone of bossBattus) executer({ type: 'boss-vaincu', zone });
+    if (important) signaler();
     } finally {
       traitementEnCours = false;
       if (finPokedexEnAttente) {
@@ -597,10 +607,10 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     }
   };
   const cacher = () => {
-    if (document.visibilityState === 'hidden') { journal?.pauser('onglet-masque'); enregistrer(); }
+    if (document.visibilityState === 'hidden') { journal?.pauser('onglet-masque'); signaler(true); }
     else journal?.reprendre();
   };
-  const quitter = () => { journal?.pauser('rechargement'); enregistrer(); };
+  const quitter = () => { journal?.pauser('rechargement'); signaler(true); };
   const demarrerEvolution = (evolution: { uid: string; de: number; vers: number }) => {
     emettreSon('up');
     evolutionEnCours = { uid: evolution.uid, ancien: evolution.de, nouveau: evolution.vers };
@@ -856,7 +866,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       actualiserActifs();
       annonce = `${objet.nom} ×${quantite} acheté. ${(disponible.prix * quantite).toLocaleString('fr-FR')} pièces dépensées.`;
       finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs;
-      enregistrer(); afficher();
+      signaler(); afficher();
       return null;
     },
     utiliserObjet(type, uid, n) {
@@ -1046,6 +1056,11 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     abonnerSons(abonne: (ton: Ton) => void) {
       abonnesSons.add(abonne);
       return () => { abonnesSons.delete(abonne); };
+    },
+    /** Appelé après l'écriture locale d'un moment important (boss, shiny, achat) ou de la fermeture (`fermeture` vrai) : sert à la synchro en ligne. */
+    abonnerSauvegarde(abonne: (fermeture: boolean) => void) {
+      abonnesSauvegarde.add(abonne);
+      return () => { abonnesSauvegarde.delete(abonne); };
     },
     abonnerDegats(abonne: (degat: Degat) => void) {
       abonnesDegats.add(abonne);

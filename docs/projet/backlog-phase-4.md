@@ -92,7 +92,7 @@ Connexion Google, suppression de compte et RGPD (préprod), design final.
 
 ## D. `feat(sauvegarde): envoyer la partie au serveur toutes les 45 secondes`
 
-`type:feat`, `etat:a_faire`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : à poser par Nicolas
+`type:feat`, `etat:fait`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` : à poser par Nicolas
 
 ### Histoire
 En tant que joueur, je veux que ma partie soit enregistrée en ligne en continu afin de ne rien perdre si mon téléphone s'éteint.
@@ -101,11 +101,15 @@ En tant que joueur, je veux que ma partie soit enregistrée en ligne en continu 
 ADR 0004 points 1, 2 et 5. Le stockage local reste écrit en premier (`src/ui/stockage-local.ts`) ; l'envoi ajoute le serveur sans toucher à `src/core/sauvegarde.ts`, qui ne connaît que des objets. Nouveau module `src/ui/synchro.ts` avec son test.
 
 ### Critères d'acceptation
-- [ ] Étant donné une partie qui a changé, quand 45 s passent, alors seuls les objets modifiés (compte, partie, région courante) partent avec leur `revision`, et rien ne part si rien n'a changé.
-- [ ] Étant donné la fermeture ou la mise en arrière-plan de la page, quand elle survient, alors un envoi immédiat est tenté après l'écriture locale.
-- [ ] Étant donné un boss vaincu, une capture shiny ou un achat important, quand il survient, alors un envoi part sans attendre les 45 s.
-- [ ] Étant donné une coupure réseau, quand le jeu continue, alors il écrit en local sans message bloquant, ne garde que le dernier état et l'envoie au retour du réseau (pas de file d'attente).
-- [ ] Étant donné le même parcours avec et sans synchro, quand combats et récompenses sont comparés, alors les résultats sont identiques.
+- [x] Étant donné une partie qui a changé, quand 45 s passent, alors seuls les objets modifiés (compte, partie, région courante) partent avec leur `revision`, et rien ne part si rien n'a changé.
+- [x] Étant donné la fermeture ou la mise en arrière-plan de la page, quand elle survient, alors un envoi immédiat est tenté après l'écriture locale.
+- [x] Étant donné un boss vaincu, une capture shiny ou un achat important, quand il survient, alors un envoi part sans attendre les 45 s.
+- [x] Étant donné une coupure réseau, quand le jeu continue, alors il écrit en local sans message bloquant, ne garde que le dernier état et l'envoie au retour du réseau (pas de file d'attente).
+- [x] Étant donné le même parcours avec et sans synchro, quand combats et récompenses sont comparés, alors les résultats sont identiques.
+
+### Réalisé (04/11)
+Serveur : `server/src/schema.ts` (migration), `server/src/sauvegarde.ts` (PUT atomique avec `revisionBase`, 409 avec résumé, GET compte et partie, plafonds 20 parties et 20 régions, 60 requêtes par minute et par compte, 5 versions gardées). Client : `src/ui/synchro.ts`, branché par `store.abonnerSauvegarde` et `App.tsx`. Tests : 25 serveur, 14 `synchro.test.ts`, 4 `store-synchro.test.ts`. Capture shiny : relue dans le code, non testée au niveau du store.
+Limite connue, pour E et G : la synchro ne sait pas à quel compte appartient le jeu local. Deux comptes qui se suivent sur le même navigateur : le second reçoit un 409 silencieux (révisions du premier). Sans conséquence avec un seul compte par navigateur.
 
 ### Hors périmètre
 Conflits (E), appareil actif (F), liste de parties (G).
