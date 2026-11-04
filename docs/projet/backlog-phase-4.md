@@ -243,7 +243,7 @@ Tests de charge.
 
 ## J. `feat(hors-connexion): jouer sans réseau, y compris à l'ouverture`
 
-`type:feat`, `etat:idee`, `est:2-3`, `prio:4` · branche : `v2` · pas d'`agent-ok` avant cadrage · demande de Nicolas du 04/11, pas urgent, après le jalon
+`type:feat`, `etat:fait`, `est:2-3`, `prio:4` · branche : `v2` · demande de Nicolas du 04/11, cadré le 05/11
 
 ### Histoire
 En tant que joueur sans réseau, je veux ouvrir et jouer ma partie quand même afin de jouer dans le train ou à l'étranger.
@@ -252,9 +252,12 @@ En tant que joueur sans réseau, je veux ouvrir et jouer ma partie quand même a
 Le jeu continue déjà sans réseau une fois ouvert (ticket D). Reste le démarrage à froid : ouvrir l'application sans réseau avec une session déjà connectée, via la PWA et la sauvegarde locale. À cadrer : durée de validité de la session hors ligne, et règle si l'appareil reste hors ligne plusieurs jours (conflit au retour, ticket E).
 
 ### Critères d'acceptation
-- [ ] Étant donné un appareil déjà connecté, quand j'ouvre le jeu sans réseau, alors la dernière partie locale s'ouvre sans message d'erreur bloquant.
-- [ ] Étant donné plusieurs jours hors ligne, quand le réseau revient, alors le conflit éventuel passe par le choix du ticket E.
-- [ ] Étant donné un appareil jamais connecté, quand j'ouvre le jeu sans réseau, alors un message clair demande de se connecter une première fois.
+- [x] Étant donné un appareil déjà connecté, quand j'ouvre le jeu sans réseau, alors la dernière partie locale s'ouvre sans message d'erreur bloquant.
+- [x] Étant donné plusieurs jours hors ligne, quand le réseau revient, alors le conflit éventuel passe par le choix du ticket E.
+- [x] Étant donné un appareil jamais connecté, quand j'ouvre le jeu sans réseau, alors un message clair demande de se connecter une première fois.
+
+### Réalisé (05/11)
+Cadrage et décisions dans l'ADR 0004 (amendement du 05/11). Le code de démarrage hors ligne existait déjà (session tolérante hors ligne, synchro 'hors-ligne', appareil 'libre' sans réponse) ; le test dans un vrai Chromium avec service worker a montré un manque : le service worker ne s'enregistrait qu'à l'ouverture du jeu, donc rien n'était en cache sur un appareil qui n'avait vu que l'écran de connexion. Corrigé (`MiseAJour` monté dans `App`). Ajouts : message « Connecte-toi une première fois » sans réseau, message « Ta session a expiré » (la partie locale est conservée), tests de composants (`compte.test.tsx`), test de synchro « plusieurs jours hors ligne » (`synchro.test.ts`), spec `tests-e2e/hors-connexion.spec.ts` (build à part, faux serveur interceptant `http://api.test`, `context.setOffline`) : `npx playwright test -c tests-e2e/hors-connexion.config.ts`. Serveur et `src/core` inchangés. Reste manuel : essai sur téléphone en mode avion.
 
 ### Hors périmètre
 Jouer sans jamais créer de compte.
