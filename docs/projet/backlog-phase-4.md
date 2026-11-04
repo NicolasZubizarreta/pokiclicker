@@ -1,14 +1,14 @@
 # Backlog, phase 4 « Compte et sauvegarde en ligne »
 
-Jalon : une partie jouable sur deux appareils. **Proposition du 04/11, en attente de validation de Nicolas.** Aucun code avant son feu vert (règle du dépôt).
+Jalon : une partie jouable sur deux appareils. **Validé par Nicolas le 04/11 (10 tickets ; rattachement de la partie locale retiré).** Aucun code avant son feu vert (règle du dépôt).
 
 ## Lecture du lot
 
-Décisions de Nicolas du 04/11 : serveur à lui sur Coolify ; connexion par e-mail et mot de passe ; compte obligatoire ; pas d'export ni d'import JSON (la sauvegarde vit en base, comme dans n'importe quel jeu) ; un mode hors connexion à prévoir plus tard (ticket K). Règles de synchronisation : ADR 0004 (envoi toutes les 45 s si changé, un seul appareil actif par partie, refus d'écriture sur révision périmée, jeu qui continue sans réseau). Format de sauvegarde : ADR 0001 (compte, partie, région ; enveloppe avec `revision`).
+Décisions de Nicolas du 04/11 : serveur à lui sur Coolify ; connexion par e-mail et mot de passe ; compte obligatoire ; pas d'export ni d'import JSON (la sauvegarde vit en base, comme dans n'importe quel jeu) ; un mode hors connexion à prévoir plus tard (ticket J). Règles de synchronisation : ADR 0004 (envoi toutes les 45 s si changé, un seul appareil actif par partie, refus d'écriture sur révision périmée, jeu qui continue sans réseau). Format de sauvegarde : ADR 0001 (compte, partie, région ; enveloppe avec `revision`).
 
-Chemin critique : A → B → C → D → E → J. Les tickets A, B et C touchent l'authentification, les données personnelles (e-mail) et la configuration serveur : **pas d'`agent-ok`**, faits ou relus par un humain avec revue de sécurité. Les autres sont déléguables à Codex une fois leurs dépendances finies.
+Chemin critique : A → B → C → D → E → I. Les tickets A, B et C touchent l'authentification, les données personnelles (e-mail) et la configuration serveur : **pas d'`agent-ok`**, faits ou relus par un humain avec revue de sécurité. Les autres sont déléguables à Codex une fois leurs dépendances finies.
 
-Hors phase 4 : PC global et Pokédex national (phase 6), design des écrans de compte (phase 5 ; ici écrans fonctionnels aux jetons existants), boutique de skins, suppression de compte et RGPD (préprod).
+Hors phase 4 : reprise des parties locales de test (supprimées, décision du 04/11 : chacun recommence), PC global et Pokédex national (phase 6), design des écrans de compte (phase 5 ; ici écrans fonctionnels aux jetons existants), boutique de skins, suppression de compte et RGPD (préprod).
 
 | n | Ticket | Effort |
 |---|---|---|
@@ -20,13 +20,12 @@ Hors phase 4 : PC global et Pokédex national (phase 6), design des écrans de c
 | 6 | F. Un seul appareil actif par partie | 1.5 à 2.5 j |
 | 7 | G. Plusieurs parties par compte | 2 à 3 j |
 | 8 | H. Socle diamants, succès, skins | 2 à 3 j |
-| 9 | I. Rattacher la partie locale existante au compte | 1 à 2 j |
-| 10 | J. Scénario deux appareils de bout en bout | 1 à 2 j |
-| 11 | K. Mode hors connexion complet (idée, après le jalon) | 2 à 3 j |
+| 9 | I. Scénario deux appareils de bout en bout | 1 à 2 j |
+| 10 | J. Mode hors connexion complet (idée, après le jalon) | 2 à 3 j |
 
 ## A. `docs(sync): choisir la pile serveur et le modèle de données (ADR 0005)`
 
-`type:docs`, `etat:a_faire`, `est:1-2`, `prio:1` · branche : `v2` · pas d'`agent-ok` (choix d'architecture, authentification)
+`type:docs`, `etat:en_cours`, `est:1-2`, `prio:1` · branche : `v2` · pas d'`agent-ok` (choix d'architecture, authentification)
 
 ### Histoire
 En tant que développeur, je veux une pile serveur choisie et justifiée afin de ne pas réécrire l'authentification ni la synchronisation en cours de route.
@@ -201,28 +200,7 @@ Boutique de skins, catalogue complet, tournoi du Maître (phase 7).
 ### Effort et risques
 2 à 3 jours. Risque : définir les conditions de succès ; trois exemples seulement. Dépend de : D.
 
-## I. `feat(sauvegarde): rattacher la partie locale existante au compte`
-
-`type:feat`, `etat:a_faire`, `est:1-2`, `prio:2` · branche : `v2` · `agent-ok` : à poser par Nicolas
-
-### Histoire
-En tant que joueur qui a déjà une partie sur cet appareil, je veux la retrouver dans mon compte après ma première connexion afin de ne pas recommencer.
-
-### Contexte
-Les parties actuelles vivent dans le stockage du navigateur (`src/ui/stockage-local.ts`). Le compte étant obligatoire, la première connexion doit proposer de les reprendre. La version de sauvegarde plus récente que le jeu reste refusée (ADR 0001, point 4).
-
-### Critères d'acceptation
-- [ ] Étant donné une partie locale et un compte sans partie, quand je me connecte pour la première fois, alors le jeu propose de reprendre la partie locale dans le compte, et elle y apparaît avec sa progression intacte.
-- [ ] Étant donné ma réponse « non », quand je continue, alors la partie locale n'est pas supprimée.
-- [ ] Étant donné une partie locale corrompue, quand elle est lue, alors un message en français l'explique et le compte reste intact.
-
-### Hors périmètre
-Import de la V1 (non prévu, ADR 0001), import par fichier JSON.
-
-### Effort et risques
-1 à 2 jours. Risque : deux appareils qui reprennent chacun leur partie locale ; chaque reprise crée une partie distincte. Dépend de : D, G.
-
-## J. `test(sync): jouer sur deux appareils de bout en bout`
+## I. `test(sync): jouer sur deux appareils de bout en bout`
 
 `type:test`, `etat:a_faire`, `est:1-2`, `prio:1` · branche : `v2` · `agent-ok` : à poser par Nicolas
 
@@ -244,7 +222,7 @@ Tests de charge.
 ### Effort et risques
 1 à 2 jours. Risque : tests instables sur les temporisations ; horloge simulée. Dépend de : D, E, F.
 
-## K. `feat(hors-connexion): jouer sans réseau, y compris à l'ouverture`
+## J. `feat(hors-connexion): jouer sans réseau, y compris à l'ouverture`
 
 `type:feat`, `etat:idee`, `est:2-3`, `prio:4` · branche : `v2` · pas d'`agent-ok` avant cadrage · demande de Nicolas du 04/11, pas urgent, après le jalon
 
