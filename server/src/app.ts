@@ -70,7 +70,7 @@ export function createApp(config: Config, pool: Pool, mailer?: Mailer) {
   app.all('/api/auth/*', async c => {
     const response = await auth.handler(c.req.raw);
     if (response.headers.get('content-type')?.includes('application/json') &&
-      (!response.ok || c.req.path.endsWith('/request-password-reset'))) {
+      (response.status >= 400 || c.req.path.endsWith('/request-password-reset'))) {
       const body = await response.json() as { code?: string; message?: string };
       body.message = response.ok ? 'Si ce compte existe, un lien de réinitialisation a été envoyé.'
         : response.status === 429 ? 'Trop de tentatives. Réessayez plus tard.'

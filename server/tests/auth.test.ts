@@ -135,6 +135,19 @@ test('6. réinitialisation, usage unique et expiration', async () => {
   const expired = new URL(mails.at(-1)!.url).pathname.split('/').at(-1)!;
   expect((await request('/api/auth/reset-password', { token: expired, newPassword: password })).ok).toBe(false);
 });
+test('6b. le lien reçu par e-mail redirige vers le jeu avec le jeton', async () => {
+  const { email } = await signup();
+  const resetToken = await reset(email);
+  const link = new URL(mails.at(-1)!.url);
+  const response = await request(link.pathname + link.search);
+  expect(response.status).toBe(302);
+  const location = new URL(response.headers.get('location')!);
+  expect(location.origin).toBe(origin);
+  expect(location.searchParams.get('token')).toBe(resetToken);
+  const invalid = await request(`/api/auth/reset-password/invalide?callbackURL=${encodeURIComponent(origin)}`);
+  expect(invalid.status).toBe(302);
+  expect(new URL(invalid.headers.get('location')!).searchParams.get('error')).toBe('INVALID_TOKEN');
+});
 test('7. réinitialisation invalide toutes les sessions existantes', async () => {
   const { email, token } = await signup();
   const second = (await request('/api/auth/sign-in/email', { email, password })).headers.get('set-auth-token')!;
