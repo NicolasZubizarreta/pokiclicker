@@ -1,4 +1,4 @@
-﻿# Backlog — phase 3 « Équilibrage outillé »
+# Backlog — phase 3 « Équilibrage outillé »
 
 Jalon : Kanto en 60 à 90 minutes à 7 clics par seconde. Brouillon du 02/11/2026, branche `v2` ; tous les tickets restent à l'état d'idée.
 
@@ -95,7 +95,7 @@ Fourchette : 1 à 2 jours, hors attente de la partie de Nicolas. Dépend de : B 
 
 ## D. `feat(equilibrage): comparer les mesures à une courbe cible par zone`
 
-Labels : `type:feat`, `etat:idee`, `est:1.5-2.5`, `prio:2` · branche : `v2` · `agent-ok` : oui (outil ; cibles à valider)
+Labels : `type:feat`, `etat:en_cours`, `est:1.5-2.5`, `prio:2` · branche : `v2` · `agent-ok` : oui (outil ; cibles à valider) · 04/11 : outil livré (commit local 3dc38dc), `data/equilibrage.json` en `statut: propose`, `valide: false` ; en attente du choix de Nicolas sur les cibles
 
 ### Histoire
 En tant que Nicolas, je veux lire un seul tableau des durées et marges pour décider où un réglage mérite d'être étudié.
@@ -106,10 +106,10 @@ Créer `data/equilibrage.json` comme source unique des cibles par identifiant de
 Fichiers concernés : `data/equilibrage.json`, `scripts/simuler-parcours.mjs`, commande à créer `node scripts/comparer-equilibrage.mjs`, rapports A et C. Les valeurs effectives du jeu restent dans leurs fichiers `data/` existants ; le tableau désigne leur chemin et leur clé lorsqu'un réglage est proposé, sans les recopier dans une seconde source.
 
 ### Critères d'acceptation
-- [ ] Étant donné toutes les zones de Kanto, quand le JSON est validé, alors chaque zone possède un temps et une marge visés avec des unités explicites ; identifiants absents, doublons et valeurs invalides sont signalés.
+- [x] Étant donné toutes les zones de Kanto, quand le JSON est validé, alors chaque zone possède un temps et une marge visés avec des unités explicites ; identifiants absents, doublons et valeurs invalides sont signalés.
 - [ ] Étant donné les conclusions A et C, quand les cibles sont proposées à Nicolas, alors leur somme et la convention de temps sont compatibles avec le jalon de 60 à 90 min à 7 clics/s ; son choix est consigné avant leur usage comme seuils CI.
-- [ ] Étant donné un protocole fixe, quand `node scripts/comparer-equilibrage.mjs` est exécuté, alors un tableau Markdown affiche par zone les temps et marges « mesuré / visé / écart », le total, la révision, le starter, le mode Pokédex et la graine.
-- [ ] Étant donné des cibles modifiées, quand la commande est relancée, alors seules les comparaisons changent ; aucune règle du jeu n'est appliquée par cette commande ou par le JSON.
+- [x] Étant donné un protocole fixe, quand `node scripts/comparer-equilibrage.mjs` est exécuté, alors un tableau Markdown affiche par zone les temps et marges « mesuré / visé / écart », le total, la révision, le starter, le mode Pokédex et la graine.
+- [x] Étant donné des cibles modifiées, quand la commande est relancée, alors seules les comparaisons changent ; aucune règle du jeu n'est appliquée par cette commande ou par le JSON.
 
 ### Hors périmètre
 Correction automatique des données, nouvelle formule de combat, interface de réglage dans le jeu.
@@ -122,7 +122,7 @@ Fourchette : 1,5 à 2,5 jours. Dépend de : A et C pour étayer les cibles. Risq
 
 ## E. `test(equilibrage): surveiller les durées du parcours dans la CI`
 
-Labels : `type:test`, `etat:idee`, `est:1-2`, `prio:2` · branche : `v2` · `agent-ok` : oui (seuils après validation de Nicolas)
+Labels : `type:test`, `etat:en_cours`, `est:1-2`, `prio:2` · branche : `v2` · `agent-ok` : oui (seuils après validation de Nicolas) · 04/11 : test écrit (`tests/equilibrage-parcours.test.ts`), simulation sautée tant que `valide` vaut `false` ; seuils non activés
 
 ### Histoire
 En tant que mainteneur, je veux détecter une dérive du parcours simulé avant de livrer des données modifiées.
@@ -135,7 +135,7 @@ Fichiers concernés : `scripts/simuler-parcours.mjs`, `tests/equilibrage-ab.test
 ### Critères d'acceptation
 - [ ] Étant donné les cibles et la tolérance validées, quand la CI lance le scénario rapide, alors le test échoue si la victoire de la Ligue est hors de 60 à 90 min simulées ou si une zone dépasse son temps cible de plus de 25 %, sous réserve du X finalement validé.
 - [ ] Étant donné le scénario courant, quand les cibles sont évaluées avant activation, alors tout dépassement initial est présenté à Nicolas ; aucun réglage de jeu ni assouplissement de seuil n'est appliqué pour faire passer le test sans son accord.
-- [ ] Étant donné un dépassement, quand le test échoue, alors le diagnostic nomme la zone, le temps mesuré, la cible, la tolérance et le protocole ; les bornes exactes de la fourchette restent acceptées.
+- [x] Étant donné un dépassement, quand le test échoue, alors le diagnostic nomme la zone, le temps mesuré, la cible, la tolérance et le protocole ; les bornes exactes de la fourchette restent acceptées.
 - [ ] Étant donné l'environnement CI de référence, quand le test complet du parcours est chronométré, alors il reste sous environ 30 s réelles et produit les mêmes résultats sur des exécutions répétées.
 
 ### Hors périmètre
@@ -149,7 +149,7 @@ Fourchette : 1 à 2 jours. Dépend de : D et validation par Nicolas des cibles e
 
 ## F. `docs(equilibrage): mesurer l'argent disponible et proposer des puits`
 
-Labels : `type:docs`, `etat:idee`, `est:1-2`, `prio:2` · branche : `v2` · `agent-ok` : oui (mesure et propositions)
+Labels : `type:docs`, `etat:en_cours`, `est:1-2`, `prio:2` · branche : `v2` · `agent-ok` : oui (mesure et propositions) · 04/11 : rapport `equilibrage-argent.md` livré (commit local e252a9f) ; en attente du choix de Nicolas sur les puits (rien appliqué)
 
 ### Histoire
 En tant que Nicolas, je veux savoir où l'argent reste inutilisé pour décider si des achats supplémentaires ont un intérêt.
@@ -160,9 +160,9 @@ La simulation rapporte 831 k gagnés pour 600 k dépensés ; Route Victoire et L
 Fichiers concernés : `scripts/simuler-parcours.mjs`, export B, rapport à créer `docs/projet/equilibrage-argent.md`, `data/reglages.json` et fichiers de prix et d'objets dans `data/` à identifier. Ajouter au besoin des mesures locales de solde et d'achats au protocole B, sans changer les prix.
 
 ### Critères d'acceptation
-- [ ] Étant donné le parcours actuel et le parcours « achète tout » documenté, quand les deux sont simulés, alors le rapport donne par zone solde d'entrée et de sortie, gains, dépenses, achats possibles et différés ; il vérifie les 831 k, 600 k et 286 k ou explique les écarts.
+- [x] Étant donné le parcours actuel et le parcours « achète tout » documenté, quand les deux sont simulés, alors le rapport donne par zone solde d'entrée et de sortie, gains, dépenses, achats possibles et différés ; il vérifie les 831 k, 600 k et 286 k ou explique les écarts.
 - [ ] Étant donné le relevé de Nicolas, quand les soldes et achats sont rapprochés du simulateur, alors les zones où l'argent dort et les différences de comportement sont chiffrées ; les informations absentes restent signalées.
-- [ ] Étant donné cette mesure, quand des puits sont proposés, alors un tableau indique objets ou prix candidats, coût cumulé, solde restant et effet sur le parcours et la durée, avec une option de conservation des réglages actuels.
+- [x] Étant donné cette mesure, quand des puits sont proposés, alors un tableau indique objets ou prix candidats, coût cumulé, solde restant et effet sur le parcours et la durée, avec une option de conservation des réglages actuels.
 - [ ] Étant donné ces options, quand Nicolas décide, alors son choix est consigné avant tout changement ; une application éventuelle a son ticket validé, ses valeurs exactes dans `data/` et un retour arrière d'une ligne par valeur.
 
 ### Hors périmètre
@@ -234,7 +234,7 @@ Fourchette : 2 à 3 jours. Risque : un instantané trop gros ralentit la boucle 
 
 ## I. `feat(equilibrage): un simulateur qui joue comme Nicolas quand un boss bloque`
 
-Labels : `type:feat`, `etat:idee`, `est:2-3`, `prio:2` · branche : `v2` · `agent-ok` : oui (outil de mesure, aucune règle de jeu modifiée) · décision de Nicolas du 03/11 (option 2 du ticket C, pour les tests des prochaines régions)
+Labels : `type:feat`, `etat:en_cours`, `est:2-3`, `prio:2` · branche : `v2` · `agent-ok` : oui (outil de mesure, aucune règle de jeu modifiée) · 04/11 : `--reactions` livré (commit local e252a9f) ; reste la confrontation aux exports de Nicolas et le mode Pokédex qui représente ses parties · décision de Nicolas du 03/11 (option 2 du ticket C, pour les tests des prochaines régions)
 
 ### Histoire
 En tant que Nicolas, je veux que le simulateur réagisse à un blocage comme je le fais, pour que ses durées de parcours se comparent à une vraie partie, y compris sur les prochaines régions.
@@ -245,10 +245,10 @@ Quand je bloque sur un boss, je ne retente pas en boucle. Dans l'ordre : 1) vise
 Fichiers concernés : `scripts/simuler-parcours.mjs`, `docs/projet/equilibrage-28-10.md` (protocole), un rapport comparatif nouveau ; lecture de `data/`. **Panne constatée le 03/11, réparée le 04/11** (la route est sautée en comptant `ronflex.souffle.dureeCumuleeS`, 3 s, borne basse ; baseline ×2 retrouvée : Ligue en 70,8 min, 831 316 gagnés) : le simulateur s'arrêtait à l'entrée de `kanto.route-de-ronflex` (« Zone sans combat », `src/core/monde.ts:22`, la route est devenue un mini-jeu) ; il ne va donc plus jusqu'à la Ligue. À réparer en premier dans ce ticket.
 
 ### Critères d'acceptation
-- [ ] Étant donné un boss que l'équipe ne bat pas dans le temps imparti, quand le simulateur est bloqué, alors il applique les quatre réactions dans l'ordre ci-dessus, chacune réglable par option de ligne de commande et consignée dans le rapport (action, durée, solde).
-- [ ] Étant donné le palier de Pokédex suivant, quand le simulateur retourne capturer, alors le déplacement, le temps de capture et les bonus obtenus sont comptés ; le retour en arrière est borné par un plafond documenté.
+- [x] Étant donné un boss que l'équipe ne bat pas dans le temps imparti, quand le simulateur est bloqué, alors il applique les quatre réactions dans l'ordre ci-dessus, chacune réglable par option de ligne de commande et consignée dans le rapport (action, durée, solde).
+- [x] Étant donné le palier de Pokédex suivant, quand le simulateur retourne capturer, alors le déplacement, le temps de capture et les bonus obtenus sont comptés ; le retour en arrière est borné par un plafond documenté.
 - [ ] Étant donné le parcours de Kanto, quand le simulateur est relancé, alors le tableau donne par zone le temps, les échecs et les réactions, à confronter aux deux exports du 03/11 (Ligue en environ 107 min jouées) ; l'écart restant est expliqué.
-- [ ] Étant donné les données du jeu, quand le script tourne, alors aucune valeur de `data/` n'est modifiée et le mode précédent (sans réaction) reste disponible comme témoin.
+- [x] Étant donné les données du jeu, quand le script tourne, alors aucune valeur de `data/` n'est modifiée et le mode précédent (sans réaction) reste disponible comme témoin.
 
 ### Hors périmètre
 Changement de règle ou de valeur du jeu, équilibrage des prochaines régions (le simulateur sert ensuite à les tester).
