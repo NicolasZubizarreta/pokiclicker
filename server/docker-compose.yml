@@ -1,0 +1,32 @@
+services:
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: pokiclicker
+      POSTGRES_USER: pokiclicker
+      POSTGRES_PASSWORD: mot-de-passe-local-factice
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pokiclicker -d pokiclicker"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  api:
+    build: .
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://pokiclicker:mot-de-passe-local-factice@postgres:5432/pokiclicker
+      BETTER_AUTH_SECRET: secret-local-factice-a-ne-jamais-utiliser-en-production
+      BETTER_AUTH_URL: http://localhost:3000
+      CORS_ORIGINS: http://localhost:5173
+    # La migration est lancée par le CMD de l image.
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:3000:3000"
+volumes:
+  postgres:

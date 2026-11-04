@@ -13,5 +13,10 @@ design/references/hgss/
 dev-dist/
 .vitest/
 
-# Générique des crédits : droits réservés, usage privé (docs/projet/musiques.md)
+# Gï¿½nï¿½rique des crï¿½dits : droits rï¿½servï¿½s, usage privï¿½ (docs/projet/musiques.md)
 public/audio/PokemonCreditKanto.mp3
+
+server/node_modules/
+server/dist/
+server/.env*
+!server/.env.example

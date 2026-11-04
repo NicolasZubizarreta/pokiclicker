@@ -20,7 +20,8 @@ import { Pantheon } from './Pantheon';
 import { musique } from './musique';
 import { sceneMusicale } from '../core/musiques';
 
-export function Coquille({ region = 'kanto', theme = 'dark' }: {
+export function Coquille({ region = 'kanto', theme = 'dark', quandDeconnecter }: {
+  quandDeconnecter?: () => void;
   region?: 'kanto' | 'johto' | 'hoenn' | 'atlas';
   theme?: 'dark' | 'light';
 }) {
@@ -76,6 +77,7 @@ export function Coquille({ region = 'kanto', theme = 'dark' }: {
       <Navigation page={page} choisir={choisir} pcOuvert={pcOuvert} signalCarte={tutorielRoute1 && page !== 'Carte' && !introActive && !introVue} inerte={introActive || introVue || credits || !!pantheon?.ouvert} />
       <main id="contenu" tabIndex={-1} className="mb-14 min-w-0 p-4 lg:mb-0 lg:ml-24 lg:p-8">
         <MiseAJour />
+        {quandDeconnecter && <button className="min-h-11 p-2 text-lien underline" onClick={quandDeconnecter}>Se déconnecter</button>}
         {page !== 'Combat' && page !== 'Carte' && page !== 'Shop' && annonce !== null && <div role="status" aria-live="polite"
           className="cadre bg-surface p-2 text-center">{annonce}</div>}
         {page === 'Combat' ? introVue || introActive ? <PageIntro quandTerminee={() => fixerIntroVue(false)} /> : <EcranCombat /> : page === 'Carte' ? <PageCarte quandArrive={() => choisir('Combat')} /> : page === 'Équipe' ? <PageEquipe /> : page === 'PC' ? <PagePC /> : page === 'Plus' ? <PagePlus /> : <PageShop />}

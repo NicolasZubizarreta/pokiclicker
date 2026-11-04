@@ -47,7 +47,7 @@ Code du jeu, déploiement (ticket B), choix du fournisseur d'e-mail (ticket C).
 
 ## B. `feat(serveur): déployer le service sur Coolify avec sauvegardes de la base`
 
-`type:feat`, `etat:a_faire`, `est:1-2`, `prio:1` · branche : `v2` · pas d'`agent-ok` (configuration système, données personnelles)
+`type:feat`, `etat:en_cours`, `est:1-2`, `prio:1` · branche : `v2` · pas d'`agent-ok` (configuration système, données personnelles)
 
 ### Histoire
 En tant que joueur, je veux un serveur toujours disponible et sauvegardé afin que mes parties ne se perdent pas si le serveur plante.
@@ -58,8 +58,8 @@ Coolify tourne déjà chez Nicolas. Nicolas fait le déploiement et fournit les 
 ### Critères d'acceptation
 - [ ] Étant donné le service déployé, quand j'ouvre son adresse en HTTPS, alors il répond (état de santé) et le certificat est valide.
 - [ ] Étant donné la base, quand la sauvegarde planifiée s'exécute, alors un fichier daté est créé hors du conteneur, et une restauration d'essai sur une copie retrouve les comptes et les parties.
-- [ ] Étant donné les secrets (clés, mot de passe SMTP), quand le dépôt est parcouru, alors aucun n'y figure ; ils sont dans les variables de Coolify.
-- [ ] Étant donné une origine autre que le jeu, quand elle appelle l'API, alors la requête est refusée (CORS limité à l'adresse du jeu et à `localhost`).
+- [x] Étant donné les secrets (clés, mot de passe SMTP), quand le dépôt est parcouru, alors aucun n'y figure ; ils sont dans les variables de Coolify.
+- [x] Étant donné une origine autre que le jeu, quand elle appelle l'API, alors la requête est refusée (CORS limité à l'adresse du jeu et à `localhost`).
 
 ### Hors périmètre
 Haute disponibilité, supervision avancée.
@@ -69,7 +69,7 @@ Haute disponibilité, supervision avancée.
 
 ## C. `feat(compte): s'inscrire, se connecter et récupérer son mot de passe`
 
-`type:feat`, `etat:a_faire`, `est:2-3`, `prio:1` · branche : `v2` · pas d'`agent-ok` (authentification, données personnelles)
+`type:feat`, `etat:en_cours`, `est:2-3`, `prio:1` · branche : `v2` · pas d'`agent-ok` (authentification, données personnelles)
 
 ### Histoire
 En tant que joueur, je veux créer un compte avec mon e-mail et un mot de passe afin de retrouver mes parties sur n'importe quel appareil.
@@ -78,11 +78,11 @@ En tant que joueur, je veux créer un compte avec mon e-mail et un mot de passe 
 Compte obligatoire (décision du 04/11) : le jeu s'ouvre sur l'écran de connexion tant qu'aucune session n'existe. Le compte ne garde que l'e-mail (ADR 0004, point 7 ; risque R6). Écrans fonctionnels, à `design/DESIGN.md` ; mise en forme finale en phase 5. Fichiers : `src/ui/` (écrans de compte, nouveau), client serveur dans `src/ui/` (hors `src/core`).
 
 ### Critères d'acceptation
-- [ ] Étant donné un e-mail neuf et un mot de passe d'au moins 10 caractères, quand je m'inscris, alors je suis connecté et la session survit au rechargement de la page.
-- [ ] Étant donné un e-mail déjà inscrit ou un mot de passe trop court, quand je m'inscris, alors un message en français l'explique, sans révéler si l'e-mail existe lors d'une connexion échouée.
+- [x] Étant donné un e-mail neuf et un mot de passe d'au moins 10 caractères, quand je m'inscris, alors je suis connecté et la session survit au rechargement de la page.
+- [x] Étant donné un e-mail déjà inscrit ou un mot de passe trop court, quand je m'inscris, alors un message en français l'explique, sans révéler si l'e-mail existe lors d'une connexion échouée.
 - [ ] Étant donné un mot de passe oublié, quand je demande la réinitialisation, alors je reçois un lien à usage unique qui expire, et l'ancien mot de passe ne marche plus après le changement.
-- [ ] Étant donné trop d'essais ratés, quand je réessaie, alors le serveur ralentit ou bloque temporairement la tentative.
-- [ ] Étant donné « se déconnecter », quand je clique, alors la session est supprimée de l'appareil et l'écran de connexion revient.
+- [x] Étant donné trop d'essais ratés, quand je réessaie, alors le serveur ralentit ou bloque temporairement la tentative.
+- [x] Étant donné « se déconnecter », quand je clique, alors la session est supprimée de l'appareil et l'écran de connexion revient.
 
 ### Hors périmètre
 Connexion Google, suppression de compte et RGPD (préprod), design final.
