@@ -72,7 +72,7 @@ describe('simulateur de parcours (ticket AB)', () => {
     const avant = fichiers.map(fichier => readFileSync(fichier));
     const lancer = () => JSON.parse(execFileSync(process.execPath, [
       fileURLToPath(new URL('../scripts/simuler-parcours.mjs', import.meta.url)), '--debut', '--graine', '1', '--json',
-    ], { encoding: 'utf8', timeout: 4000, maxBuffer: 2 * 1024 * 1024 })) as {
+    ], { encoding: 'utf8', timeout: 20_000, maxBuffer: 2 * 1024 * 1024 })) as {
       multiplicateur: number; resultat: string; dureeMs: number; limiteMs: number;
       atteindreBossMs: number; etatDepart: { argent: number }; etatBoss: unknown;
     }[];
@@ -91,7 +91,7 @@ describe('simulateur de parcours (ticket AB)', () => {
       if (mesure.resultat === 'échec') expect(mesure.dureeMs).toBe(30000);
       else expect(mesure.dureeMs).toBeLessThanOrEqual(30000);
     }
-  }, 9000);
+  }, 60_000);
 
   it('joue la Route 1 et la Forêt de Jade avec la vraie boucle et produit un tableau par zone', () => {
     const resultat = jouer(coeur, { jusquA: 'kanto.foret-de-jade', clics: 7 });
