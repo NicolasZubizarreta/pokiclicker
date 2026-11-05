@@ -1,5 +1,6 @@
 import { mkdir, readFile } from 'node:fs/promises';
 import { test, expect } from '@playwright/test';
+import { telephone, ligneZone } from './aide-carte';
 import type { Page } from '@playwright/test';
 
 async function preparer(page: Page, ouvert: boolean) {
@@ -28,12 +29,17 @@ async function preparer(page: Page, ouvert: boolean) {
 
 async function carte(page: Page) {
   await page.getByRole('button', { name: 'Carte', exact: true }).click();
-  await page.getByRole('button', { name: /Céladopole/ }).click();
+  if (telephone(page)) {
+    // Céladopole fermée : la ligne est grisée, la fenêtre des trois lieux ne s’ouvre pas.
+    const ligne = ligneZone(page, 'Céladopole');
+    if (await ligne.getAttribute('aria-disabled') !== 'true') await ligne.click();
+  } else await page.getByRole('button', { name: /Céladopole/ }).click();
 }
 
 async function ouvrirCasino(page: Page) {
-  await page.getByRole('button', { name: 'Casino', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Casino', exact: true })).toBeVisible();
+  const conteneur = telephone(page) ? page.getByRole('dialog', { name: 'Céladopole', exact: true }) : page;
+  await conteneur.getByRole('button', { name: 'Casino', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Casino', exact: true })).toBeVisible({ timeout: 10000 });
 }
 
 const jetons = (page: Page) => page.locator('[aria-label="Tes jetons"] strong');
@@ -43,10 +49,17 @@ const argent = (page: Page, montant: string) => expect(page.getByText(new RegExp
 
 test('Casino fermé tant que la Tour Pokémon n’est pas vaincue, raison accessible', async ({ page }) => {
   await preparer(page, false);
-  const bouton = page.getByRole('button', { name: 'Casino', exact: true });
+  if (telephone(page)) {
+    await expect(ligneZone(page, 'Céladopole')).toHaveAttribute('aria-disabled', 'true');
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+    return;
+  }
+  const conteneur = telephone(page) ? page.getByRole('dialog', { name: 'Céladopole', exact: true }) : page;
+  const bouton = conteneur.getByRole('button', { name: 'Casino', exact: true });
+  const raison = page.locator(telephone(page) ? '#carte-casino-telephone' : '#carte-casino');
   await expect(bouton).toBeDisabled();
-  await expect(page.locator('#carte-casino')).not.toBeEmpty();
-  await expect(bouton).toHaveAccessibleDescription(await page.locator('#carte-casino').innerText());
+  await expect(raison).not.toBeEmpty();
+  await expect(bouton).toHaveAccessibleDescription(await raison.innerText());
 });
 
 test('Casino : jetons, boutique, trois jeux, rechargement et captures', async ({ page }, informations) => {
@@ -117,5 +130,6 @@ test('Casino : jetons, boutique, trois jeux, rechargement et captures', async ({
   await ouvrirCasino(page);
   expect(await lireJetons(page)).toBe(avantRecharge);
   await page.getByRole('button', { name: 'Retour à la Carte' }).click();
-  await expect(page.getByRole('region', { name: 'Zone sélectionnée' })).toBeVisible();
+  if (telephone(page)) await expect(ligneZone(page, 'Céladopole')).toBeVisible();
+  else await expect(page.getByRole('region', { name: 'Zone sélectionnée' })).toBeVisible();
 });

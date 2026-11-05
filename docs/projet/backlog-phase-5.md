@@ -250,11 +250,14 @@ Nicolas a « quelques détails » en tête sur la version PC : il les liste (voi
 
 ### Critères d'acceptation
 - [ ] Étant donné les variantes pour `CarteKanto`, `PageCentre`, `PageCasino` et `PagePension`, quand Nicolas choisit, alors les choix sont notés dans `design/DESIGN.md`.
-- [ ] Étant donné la carte à 390 px, quand je touche une zone, alors la cible fait 48 px au moins (zone agrandie si l'image est plus petite) et la zone courante est signalée.
+- [x] Étant donné la carte à 390 px, quand je touche une zone, alors la cible fait 48 px au moins (zone agrandie si l'image est plus petite) et la zone courante est signalée. (Lot 6 : liste de zones à lignes de 56 px, zone actuelle en vert.)
 - [ ] Étant donné le casino et la pension, quand je joue à 390 px, alors tout reste utilisable au pouce sans changer les règles ni les gains.
 
 ### Effort et risques
 2 à 3 jours. Risque : la carte est une image provisoire (ticket O).
+
+### Avancement
+Lot 6 fait (05/11), partie carte seulement : sous 1024 px, liste des zones à défilement propre en haut (lignes de 56 px, zone actuelle en vert, zones fermées grisées sans cadenas), vraie carte avec ses cercles dessous, non cliquable ; toucher une zone lance l'animation de vol du PC (même `useVol`, mêmes durées, mouvement réduit respecté) puis ouvre le combat ; Céladopole ouvre une fenêtre à trois choix (Arène, Centre commercial, Casino) qui se ferme au choix puis lance le vol. Le PC ne change pas. Restent du ticket K : centre commercial, casino et pension sur téléphone (lots suivants).
 
 ## L. `feat(ui): retours visuels des gains, des dégâts et de la synchro`
 

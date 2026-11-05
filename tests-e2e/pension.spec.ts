@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { voyagerVers } from './aide-carte';
 import { readFile } from 'node:fs/promises';
 import { resolve, sep, extname } from 'node:path';
 
@@ -26,9 +27,7 @@ async function regionSauvee(page: Page) {
 }
 async function ouvrirPension(page: Page) {
   await page.getByRole('button', { name: 'Carte', exact: true }).click();
-  await page.locator('[data-forme="Bourg Palette"]').first().focus();
-  await page.keyboard.press('Enter');
-  await page.getByRole('button', { name: 'Y aller' }).click();
+  await voyagerVers(page, 'Bourg Palette');
   await page.clock.runFor(400);
   await page.getByRole('button', { name: 'Pension Pokémon', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'La pension', exact: true })).toBeVisible();

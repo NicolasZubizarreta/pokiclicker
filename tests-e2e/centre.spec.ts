@@ -2,6 +2,7 @@ import { mkdir, readFile } from 'node:fs/promises';
 import { resolve, extname, sep } from 'node:path';
 import { test as base, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
+import { telephone, ligneZone } from './aide-carte';
 
 const test = base.extend<{ surveillance: void }>({
   surveillance: [async ({ page }, utiliser) => {
@@ -50,18 +51,31 @@ async function preparer(page: Page, ouvert: boolean) {
 
 async function carte(page: Page) {
   await page.getByRole('button', { name: 'Carte', exact: true }).click();
-  await page.getByRole('button', { name: /Céladopole/ }).click();
+  if (telephone(page)) {
+    // Céladopole fermée : la ligne est grisée, la fenêtre des trois lieux ne s’ouvre pas.
+    const ligne = ligneZone(page, 'Céladopole');
+    if (await ligne.getAttribute('aria-disabled') !== 'true') await ligne.click();
+  } else await page.getByRole('button', { name: /Céladopole/ }).click();
 }
+
+const choixCentre = (page: Page) => (telephone(page)
+  ? page.getByRole('dialog', { name: 'Céladopole', exact: true }) : page)
+  .getByRole('button', { name: 'Centre commercial' });
 
 test('zone 10 : Centre verrouillé et raison accessible', async ({ page }) => {
   await preparer(page, false);
-  await expect(page.getByRole('button', { name: 'Centre commercial' })).toBeDisabled();
-  await expect(page.getByRole('button', { name: 'Centre commercial' })).toHaveAccessibleDescription('Bats le boss de Tour Pokémon.');
+  if (telephone(page)) {
+    await expect(ligneZone(page, 'Céladopole')).toHaveAttribute('aria-disabled', 'true');
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+    return;
+  }
+  await expect(choixCentre(page)).toBeDisabled();
+  await expect(choixCentre(page)).toHaveAccessibleDescription('Bats le boss de Tour Pokémon.');
 });
 
 test('Centre : vol, achat, Sac, retour et rechargement', async ({ page }, informations) => {
   await preparer(page, true);
-  await page.getByRole('button', { name: 'Centre commercial' }).click();
+  await choixCentre(page).click();
   await expect(page.getByRole('status')).toHaveText('Vol en cours vers Centre commercial…');
   const titre = page.getByRole('heading', { name: 'Centre commercial', exact: true });
   await expect(titre).toBeVisible({ timeout: 10000 });
@@ -79,13 +93,15 @@ test('Centre : vol, achat, Sac, retour et rechargement', async ({ page }, inform
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({ path: `design/captures/u-page-centre-${informations.project.name === 'mobile' ? 390 : 1440}.png`, animations: 'disabled' });
   await page.getByRole('button', { name: 'Retour à la carte' }).click();
-  await expect(page.getByRole('region', { name: 'Zone sélectionnée' })).toHaveCount(0);
-  await expect(page.getByText(/Tour Pokémon en cours/)).toBeVisible();
+  if (telephone(page)) await expect(ligneZone(page, 'Céladopole')).toBeVisible();
+  else await expect(page.getByRole('region', { name: 'Zone sélectionnée' })).toHaveCount(0);
+  if (telephone(page)) await expect(ligneZone(page, 'Tour Pokémon')).toHaveAccessibleName(/tu es ici/);
+  else await expect(page.getByText(/Tour Pokémon en cours/)).toBeVisible();
   await page.getByRole('button', { name: 'Équipe', exact: true }).click();
   await expect(page.getByRole('region', { name: 'Sac', exact: true }).getByRole('button', { name: 'Attaque + ×2', exact: true })).toBeVisible();
   await page.reload();
   await carte(page);
-  await page.getByRole('button', { name: 'Centre commercial' }).click();
+  await choixCentre(page).click();
   await expect(titre).toBeVisible({ timeout: 10000 });
   await expect(page.locator('#contenu').getByText('32 750 ₽', { exact: true })).toBeVisible();
   await expect(page.locator('[data-objet="xAttack"]')).toContainText('×2');

@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { telephone, voyagerVers } from './aide-carte';
 import type { Page } from '@playwright/test';
 import zones from '../data/regions/kanto/zones.json' with { type: 'json' };
 
@@ -46,8 +47,10 @@ async function demarrer(page: Page, badges: number) {
   const auto = page.getByRole('button', { name: 'Auto-attaque', exact: true });
   if (await auto.getAttribute('aria-pressed') !== 'true') await auto.click();
   await page.getByRole('button', { name: 'Carte', exact: true }).click();
-  await page.locator('[data-forme="Ligue Pokémon"]').first().focus();
-  await page.keyboard.press('Enter');
+  if (badges < 8 && !telephone(page)) {
+    await page.locator('[data-forme="Ligue Pokémon"]').first().focus();
+    await page.keyboard.press('Enter');
+  }
 }
 
 async function regionSauvee(page: Page) {
@@ -88,7 +91,7 @@ async function dernierPv(page: Page) {
 test('Victoire jouée contre Olga : Aldo entre en scène', async ({ page }) => {
   const verifierInjection = await dernierPv(page);
   await demarrer(page, 8);
-  await page.getByRole('button', { name: 'Y aller' }).click();
+  await voyagerVers(page, 'Ligue Pokémon');
   await page.clock.runFor(400);
   await expect(page.getByRole('heading', { name: 'Ligue Pokémon', exact: true })).toBeVisible();
   await reprendreA(page, 2);
@@ -104,7 +107,7 @@ test('Victoire jouée contre Olga : Aldo entre en scène', async ({ page }) => {
 test('Victoire jouée contre le counter de Carapuce : une Ligue gagnée et retour à Bourg Palette', async ({ page }) => {
   const verifierInjection = await dernierPv(page);
   await demarrer(page, 8);
-  await page.getByRole('button', { name: 'Y aller' }).click();
+  await voyagerVers(page, 'Ligue Pokémon');
   await page.clock.runFor(400);
   await expect(page.getByRole('heading', { name: 'Ligue Pokémon', exact: true })).toBeVisible();
   await reprendreA(page, 10);
@@ -121,6 +124,7 @@ test('Victoire jouée contre le counter de Carapuce : une Ligue gagnée et retou
 });
 
 test('Ligue fermée avec sept badges : raison du badge Terre sur la carte', async ({ page }) => {
+  test.skip(telephone(page), 'Fiche de zone : profil PC seulement');
   await demarrer(page, 7);
   const fiche = page.getByRole('region', { name: 'Zone sélectionnée' });
   await expect(fiche).toContainText('Bloquée');
@@ -132,7 +136,7 @@ test('Ligue fermée avec sept badges : raison du badge Terre sur la carte', asyn
 test('Huit badges : dix adversaires dans l’ordre de la V1, avec le counter de Carapuce, repris à leur étape', async ({ page }) => {
   test.setTimeout(120_000);
   await demarrer(page, 8);
-  await page.getByRole('button', { name: 'Y aller' }).click();
+  await voyagerVers(page, 'Ligue Pokémon');
   await page.clock.runFor(400);
   await expect(page.getByRole('heading', { name: 'Ligue Pokémon', exact: true })).toBeVisible();
   expect((await regionSauvee(page)).zoneId).toBe('kanto.ligue-pokemon');

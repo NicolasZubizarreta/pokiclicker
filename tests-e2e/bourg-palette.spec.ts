@@ -1,5 +1,6 @@
 import { mkdir } from 'node:fs/promises';
 import { test, expect } from '@playwright/test';
+import { voyagerVers } from './aide-carte';
 
 test('Chez Maman : la télé cachée joue la vidéo sur un clic, l’éteint au second', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -7,8 +8,7 @@ test('Chez Maman : la télé cachée joue la vidéo sur un clic, l’éteint au 
   await page.clock.pauseAt(new Date());
   await page.goto('/');
   await page.getByRole('button', { name: 'Carte', exact: true }).click();
-  await page.getByRole('button', { name: 'Bourg Palette', exact: true }).click();
-  await page.getByRole('button', { name: 'Y aller' }).click();
+  await voyagerVers(page, 'Bourg Palette');
   await page.clock.runFor(400);
   await page.getByRole('button', { name: 'Chez Maman', exact: true }).focus();
   await page.keyboard.press('Enter');
@@ -33,8 +33,7 @@ for (const largeur of [390, 1440]) {
     await page.clock.pauseAt(new Date());
     await page.goto('/');
     await page.getByRole('button', { name: 'Carte', exact: true }).click();
-    await page.getByRole('button', { name: 'Bourg Palette', exact: true }).click();
-    await page.getByRole('button', { name: 'Y aller' }).click();
+    await voyagerVers(page, 'Bourg Palette');
     await page.clock.runFor(400);
     await expect(page.getByRole('img', { name: 'Bourg Palette' })).toBeVisible();
     await mkdir('design/captures', { recursive: true });

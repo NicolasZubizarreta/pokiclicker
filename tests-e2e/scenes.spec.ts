@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { telephone, voyagerVers } from './aide-carte';
 import type { DonneesRegion } from '../src/core/sauvegarde';
 import zones from '../data/regions/kanto/zones.json' with { type: 'json' };
 import reglages from '../data/reglages.json' with { type: 'json' };
@@ -72,8 +73,8 @@ async function selectionner(page: Page, nom: string) {
 }
 
 async function voyager(page: Page, nom: string) {
-  await selectionner(page, nom);
-  await page.getByRole('button', { name: 'Y aller', exact: true }).click();
+  await page.getByRole('button', { name: 'Carte', exact: true }).click();
+  await voyagerVers(page, nom);
   const vol = reglages.interface.vol;
   const reduit = await page.evaluate(() => matchMedia('(prefers-reduced-motion: reduce)').matches);
   await page.clock.runFor(reduit ? vol.fonduReduitMs : vol.poseMs + vol.volMs + vol.fermetureMs);
@@ -215,6 +216,7 @@ for (const largeur of [390, 1440]) {
 
     for (const mouvement of ['reduce', 'no-preference'] as const) {
     test(`Centrale : Souffle, Ronflex et arrivée automatique à Parmanie (${mouvement})`, async ({ page }) => {
+      test.skip(telephone(page), 'Fiche de zone : profil PC seulement');
       await preparer(page, true, {
         zoneId: 'kanto.centrale', etape: reglages.combat.etapeBoss, objetsCles: ['pokeflute'],
       }, mouvement);
