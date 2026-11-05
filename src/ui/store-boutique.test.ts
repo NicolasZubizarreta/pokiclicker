@@ -85,7 +85,7 @@ describe('boutique et sac du store', () => {
     const prix = store.getState().boutique.objets.find(o => o.id === 'pokeball')!.prix;
     expect(store.getState().acheter('pokeball', 2)).toBeNull();
     expect(store.getState().argent).toBe(1000000 - prix * 2);
-    expect(store.getState().annonce).toBe(`Pokéball ×2 acheté. ${prix * 2} pièces dépensées.`);
+    expect(store.getState().annonce).toBe(`Pokéball ×2 acheté. ${prix * 2}\u00a0₽ dépensés.`);
     expect(ouvrir().getState().sac.entrees.find(o => o.id === 'pokeball')!.quantite).toBe(2);
     expect(ouvrir().getState().argent).toBe(store.getState().argent);
     const avant = structuredClone(persiste.region);

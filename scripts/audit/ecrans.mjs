@@ -205,7 +205,7 @@ async function ouvrirPantheon(page, ctx) {
 
 /** @param {string} groupe @param {string} slug @param {string} titre @param {string} composant @param {string} etat @param {NonNullable<Ecran['atteindre']>} atteindre @param {'jeu'|'compte'} build @returns {Ecran} */
 const entree = (groupe, slug, titre, composant, etat, atteindre, build = 'jeu') => ({ groupe, slug, titre, source: `src/ui/${composant}.tsx`, etat, build, atteindre });
-const avance = 'Équipe de six au niveau 100, huit badges, 250 000 pièces, sac rempli et radar débloqué.';
+const avance = 'Équipe de six au niveau 100, huit badges, 250 000\u00a0₽, sac rempli et radar débloqué.';
 export const ecrans = [
   .../** @type {[string,string,string][]} */ ([['connexion', 'Connexion', 'connexion'], ['inscription', 'Inscription', 'inscription'], ['mot-de-passe-oublie', 'Mot de passe oublié', 'oubli'], ['nouveau-mot-de-passe', 'Nouveau mot de passe', 'nouveau']]).map(([slug, nom, mode]) => entree('compte', slug, nom, 'compte/EcranCompte', 'Formulaire sans erreur ; API fictive locale.', (p, c) => ouvrirCompte(p, c, mode), 'compte')),
   entree('compte', 'ecran-parties', 'Mes parties', 'compte/EcranParties', 'Partie locale existante, aucune partie sur le faux serveur.', (p, c) => ouvrirCompteConnecte(p, c, 'parties'), 'compte'),

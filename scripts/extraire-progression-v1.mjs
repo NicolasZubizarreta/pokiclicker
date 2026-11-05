@@ -43,7 +43,7 @@ const zones = Array.isArray(donneesZones) ? donneesZones : donneesZones.zones;
 /** @type {Record<string, string>} */
 const corrections = {
   'Vitesse de spawn +20%': "Vitesse d'apparition +20%",
-  'Spawn +20%': 'Apparition +20%', '+2,500 $P': '+2 500 pièces',
+  'Spawn +20%': 'Apparition +20%', '+2,500 $P': '+2 500\u00a0₽',
   'Jeton Brillant': 'Jeton Shiny', 'Kanto Master': 'Maître de Kanto',
   'Shop -15%': 'Boutique -15%',
 };

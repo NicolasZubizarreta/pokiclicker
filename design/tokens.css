@@ -67,7 +67,7 @@
   --color-info-fond-sombre: #1b2f44;
   --color-info-base-sombre: #7eb1dd;
   --color-info-texte-sombre: #c6def5;
-  --font-titre: "Pixelify Sans", "Press Start 2P", ui-monospace, monospace;
+  --font-titre: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, sans-serif;
   --font-texte: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, sans-serif;
   --font-mono: ui-monospace, "Cascadia Mono", monospace;
   --text-xs: 0.75rem;

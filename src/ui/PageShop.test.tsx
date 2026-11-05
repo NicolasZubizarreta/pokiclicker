@@ -58,7 +58,7 @@ it('ouvre en zone 2, affiche seulement le catalogue disponible et filtre les cat
   const objets = storeJeu.getState().boutique.objets;
   expect(storeJeu.getState().boutique.acces.ouvert).toBe(true);
   expect(objets.length).toBeGreaterThan(0);
-  expect(screen.getByText(/^1\s000\s000 pièces$/)).toBeTruthy();
+  expect(screen.getByText(/^1\s000\s000\s₽$/)).toBeTruthy();
   expect(Array.from(container.querySelectorAll('article')).map(c => c.getAttribute('data-objet')).sort())
     .toEqual(objets.map(o => o.id).sort());
   expect(container.querySelector('[data-objet="hyperball"]')).toBeNull();

@@ -317,12 +317,12 @@ function preparer(corrompu = false) {
   return { ...vue, horloge, stockage };
 }
 
-it('affiche les pièces du store au format français sans constante provisoire', () => {
+it('affiche les Pokédollars du store au format français sans constante provisoire', () => {
   preparer();
   for (const argent of [1250, 9876543, 0]) {
     act(() => store.setState({ argent }));
     expect(screen.getByRole('banner').textContent?.replace(/\s/g, ' ')).toContain(
-      `${new Intl.NumberFormat('fr-FR').format(argent).replace(/\s/g, ' ')} pièces`);
+      `${new Intl.NumberFormat('fr-FR').format(argent).replace(/\s/g, ' ')} ₽`);
   }
   expect(readFileSync('src/ui/EcranCombat.tsx', 'utf8'))
     .not.toContain(['ARGENT', 'PROVISOIRE'].join('_'));

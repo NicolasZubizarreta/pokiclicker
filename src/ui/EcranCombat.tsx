@@ -50,7 +50,7 @@ function Entete({ store }: { store: StoreJeu }) {
       <div><h1 className="font-titre text-2xl font-semibold">{lieu?.nom}</h1><p>{lieu && (sousTitres[lieu.id] ?? lieu.nom)}</p></div>
       {zone && <Etapes etape={etape} />}
     </div>
-    <span className="text-region-accent tabular-nums">{formateurArgent.format(argent)} pièces</span>
+    <span className="text-region-accent tabular-nums">{formateurArgent.format(argent)}{'\u00a0₽'}</span>
   </header>;
 }
 

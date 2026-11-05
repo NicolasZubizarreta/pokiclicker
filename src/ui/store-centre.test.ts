@@ -90,7 +90,7 @@ it('achète, annonce et conserve argent et stock dans un nouveau store avec le m
   expect(store.getState().centre).not.toBe(avant);
   expect(store.getState().centre.objets[0]!.stock).toBe(3);
   expect(store.getState().argent).toBe(100000 - 8625);
-  expect(store.getState().annonce).toBe(`Attaque + ×1 acheté. ${(8625).toLocaleString('fr-FR')} pièces dépensées.`);
+  expect(store.getState().annonce).toBe(`Attaque + ×1 acheté. ${(8625).toLocaleString('fr-FR')}\u00a0₽ dépensés.`);
   store.getState().arreter();
   const recharge = ouvrir().getState();
   expect(recharge.centre.objets[0]!.stock).toBe(3);

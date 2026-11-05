@@ -53,7 +53,7 @@ export function PagePension({ retour, store = storeJeu }: { retour(): void; stor
     {imageConnue('img/decors/pension.webp') && <Image src="img/decors/pension.webp" genre="decor" alt="" couvrir className="pointer-events-none absolute inset-0 -z-10 size-full" />}
     <header className="mb-4 flex flex-wrap items-center justify-between gap-2">
       <div><p>Bourg Palette · Kanto</p><h1 ref={titre} tabIndex={-1} className="font-titre text-2xl font-semibold">La pension</h1></div>
-      <strong className="text-region-accent">{nombre(argent)} pièces</strong>
+      <strong className="text-region-accent">{nombre(argent)}{'\u00a0₽'}</strong>
       <button className={bouton} onClick={retour}>Sortir de la pension</button>
     </header>
     {pension.acces.ouvert && <div className="grid min-w-0 gap-4">
@@ -86,7 +86,7 @@ export function PagePension({ retour, store = storeJeu }: { retour(): void; stor
           <p>{premier ? `Destination : ${destination}.` : 'Aucun œuf : continue les combats avec deux parents compatibles.'}</p>
           <div className="grid gap-2">{Array.from({ length: pension.emplacementsMax - pension.emplacements }, (_, i) => <div key={pension.emplacements + i} className="grid gap-2">
             <button className={bouton} disabled={i > 0 || !!pension.prochainEmplacement?.raison} onClick={() => agir(() => store.getState().acheterEmplacementOeuf(), 'Emplacement ouvert. Tu peux accueillir un œuf de plus.')}>
-              Ouvrir · {nombre(i === 0 ? pension.prochainEmplacement!.prix : (pension.emplacements + i) * reglages.pension.prixParEmplacement)} pièces
+              Ouvrir · {nombre(i === 0 ? pension.prochainEmplacement!.prix : (pension.emplacements + i) * reglages.pension.prixParEmplacement)}{'\u00a0₽'}
             </button>
             {i > 0 ? <p>Ouvre d’abord l’emplacement précédent.</p> : pension.prochainEmplacement?.raison && <p>{pension.prochainEmplacement.raison}</p>}
           </div>)}</div>

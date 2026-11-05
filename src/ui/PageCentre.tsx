@@ -58,7 +58,7 @@ export function PageCentre({ retour }: { retour: () => void }) {
         <p>Objets exclusifs · {centre.objets.length} objets</p>
       </div>
       <div className="grid gap-2">
-        <strong className="text-region-accent">{argent.toLocaleString('fr-FR')} pièces</strong>
+        <strong className="text-region-accent">{argent.toLocaleString('fr-FR')}{'\u00a0₽'}</strong>
         <button type="button" onClick={retour}
           className={`${bouton} cadre fixed inset-x-4 bottom-20 z-10 bg-surface text-lien shadow-md md:static`}>Retour à la carte</button>
       </div>
@@ -71,7 +71,7 @@ export function PageCentre({ retour }: { retour: () => void }) {
             className={`${bouton} cadre grid content-start gap-2 text-left ${o.id === objet.id ? 'border-focus bg-selection' : 'bg-surface hover:bg-selection'}`}>
             <IconeObjet image={o.image} nom={o.nom} taille="petite" />
             <strong>{o.id === objet.id && '✓ '}{o.nom}</strong>
-            <span className="text-region-accent">{o.prix.toLocaleString('fr-FR')} pièces</span>
+            <span className="text-region-accent">{o.prix.toLocaleString('fr-FR')}{'\u00a0₽'}</span>
             <span aria-label={`En sac : ${o.stock}`}>×{o.stock}</span>
           </button>)}
         </div>
@@ -87,7 +87,7 @@ export function PageCentre({ retour }: { retour: () => void }) {
           <button type="button" disabled={raison !== null} aria-describedby={raisonId}
             onClick={() => acheter(objet.id, nombre)}
             className={`${bouton} cadre bg-action text-action-texte shadow-sm hover:bg-action-survol disabled:cursor-not-allowed disabled:bg-surface-2 disabled:text-texte-doux disabled:shadow-none`}>
-            {valide ? `Acheter ×${nombre} · ${(objet.prix * nombre).toLocaleString('fr-FR')} pièces` : 'Acheter'}
+            {valide ? `Acheter ×${nombre} · ${(objet.prix * nombre).toLocaleString('fr-FR')}\u00a0₽` : 'Acheter'}
           </button>
           <p id={raisonId}>{raison ?? 'Les objets achetés rejoignent ton Sac.'}</p>
           <p role="status" className="min-h-12">{annonce}</p>

@@ -13,7 +13,7 @@ it('présente la carte B et achète une quantité bornée sans explication de fo
   const vue = render(<CarteObjet {...props} />);
   expect(screen.getByRole('heading', { name: props.nom })).toBeTruthy();
   expect(screen.getByText(props.description)).toBeTruthy();
-  expect(vue.container.querySelector('strong')?.textContent).toBe(`${props.prix.toLocaleString('fr-FR')} pièces`);
+  expect(vue.container.querySelector('strong')?.textContent).toBe(`${props.prix.toLocaleString('fr-FR')}\u00a0₽`);
   expect(screen.getByText('×3')).toBeTruthy();
   expect((screen.getByRole('button', { name: 'Moins' }) as HTMLButtonElement).disabled).toBe(true);
   for (let i = 0; i < 100; i++) fireEvent.click(screen.getByRole('button', { name: 'Plus' }));

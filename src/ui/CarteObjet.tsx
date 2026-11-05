@@ -25,7 +25,7 @@ export function CarteObjet({ id, nom, description, image, prix, stock, possede, 
       <h3 className="min-w-0 break-words font-titre text-xl">{nom}</h3>
     </div>
     <p>{description}</p>
-    <strong>{acquis ? 'Possédé' : `${prix.toLocaleString('fr-FR')} pièces`}</strong>
+    <strong>{acquis ? 'Possédé' : `${prix.toLocaleString('fr-FR')}\u00a0₽`}</strong>
     {stock > 0 && <p>×{stock}</p>}
     {!acquis && <div className="mt-auto grid gap-3">
       {!unique && <div role="group" aria-label={`Quantité de ${nom}`} className="flex flex-wrap items-center gap-3">
@@ -34,7 +34,7 @@ export function CarteObjet({ id, nom, description, image, prix, stock, possede, 
         <output aria-label="Quantité">{quantite}</output>
         <button type="button" aria-label="Plus" className={bouton} disabled={quantite >= reglages.boutique.quantiteMax}
           onClick={() => changer(q => Math.min(reglages.boutique.quantiteMax, q + 1))}>+</button>
-        <output aria-label="Total" className="text-region-accent">= {(prix * quantite).toLocaleString('fr-FR')} pièces</output>
+        <output aria-label="Total" className="text-region-accent">= {(prix * quantite).toLocaleString('fr-FR')}{'\u00a0₽'}</output>
       </div>}
       <button type="button" className={bouton} disabled={!abordable || prix * (unique ? 1 : quantite) > argent}
         onClick={() => acheter(unique ? 1 : quantite)}>Acheter ×{unique ? 1 : quantite}</button>

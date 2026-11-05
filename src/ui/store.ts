@@ -879,7 +879,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       journal?.action({ type: objet.type === 'amelioration' ? 'amelioration' : 'achat',
         objet: id, quantite, prix: disponible.prix * quantite, soldeApres: region.argent });
       actualiserActifs();
-      annonce = `${objet.nom} ×${quantite} acheté. ${(disponible.prix * quantite).toLocaleString('fr-FR')} pièces dépensées.`;
+      annonce = `${objet.nom} ×${quantite} acheté. ${(disponible.prix * quantite).toLocaleString('fr-FR')}\u00a0₽ dépensés.`;
       finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs;
       signaler(); afficher();
       return null;

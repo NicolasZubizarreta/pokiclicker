@@ -27,7 +27,7 @@ export function PageShop() {
       </div>
     </div>
     {!boutique.acces.ouvert ? <p className="text-texte-doux">{boutique.acces.raison}</p> : <>
-      <p className="text-region-accent">{argent.toLocaleString('fr-FR')} pièces</p>
+      <p className="text-region-accent">{argent.toLocaleString('fr-FR')}{'\u00a0₽'}</p>
       <FiltreCategories categories={categories} choix={choix} choisir={choisir} />
       {categories.slice(1).filter(c => (choix === 'tout' || choix === c.cle) && boutique.objets.some(objet => objet.categorie === c.cle)).map(categorie =>
         <section key={categorie.cle} className="grid gap-4">

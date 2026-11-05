@@ -45,7 +45,7 @@
   --color-neutre-800: #444851;
   --color-neutre-900: #2c3039;
   --color-neutre-950: #141821;
-  --font-titre: "Pixelify Sans", "Press Start 2P", ui-monospace, monospace;
+  --font-titre: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, sans-serif;
   --font-texte: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, sans-serif;
   --font-mono: ui-monospace, "Cascadia Mono", monospace;
   --text-xs: 0.75rem;

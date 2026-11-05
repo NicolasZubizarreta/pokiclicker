@@ -1,10 +1,13 @@
 @import "tailwindcss";
 @import "../../design/tokens.tailwind.css";
 @import "../../design/regions.css";
-@import "@fontsource/pixelify-sans/latin-600.css";
 @import "@fontsource/atkinson-hyperlegible-next/latin-400.css";
 @import "@fontsource/atkinson-hyperlegible-next/latin-600.css";
 @import "@fontsource/atkinson-hyperlegible-next/latin-700.css";
+
+.font-titre {
+  font-weight: 700;
+}
 
 .image-rendering-pixelated {
   image-rendering: pixelated;
@@ -131,11 +134,6 @@ html:has(dialog[open]) { overflow: hidden; }
 }
 
 @layer base {
-  html {
-    /* Pixelify Sans rend la ligature « fl » comme « A ». */
-    font-variant-ligatures: none;
-  }
-
   body {
     @apply bg-fond text-texte font-texte tabular-nums;
     -webkit-tap-highlight-color: transparent;

@@ -65,6 +65,7 @@ Hérités : pas de `backdrop-filter`, pas de dégradé violet, pas de texte en d
 Tutoiement, phrases courtes, chaleureux. Boutons à l'impératif court. Erreur = ce qui s'est passé + quoi faire. Textes de la V1 à reprendre.
 
 ## Journal de décisions (ajouter, ne jamais réécrire)
+2026-11-05 : `--font-titre` = Atkinson Hyperlegible Next gras (SIL OFL 1.1, fourni par @fontsource, embarqué) ; Pixelify Sans abandonnée.
 - 2026-10-23 — Rouge Feu pour Kanto seulement ; un thème par région fidèle au jeu officiel ; carte du monde en atlas — décision de Nicolas.
 - 2026-10-23 — Johto = HeartGold / SoulSilver, thème d'interprétation faute de captures d'interface — à recaler avec des captures du jeu.
 - 2026-10-23 — Direction C « appareil de région » (boîtier Pokédex / Pokégear) abandonnée — incomprise, rendu jouet, coût de 9 boîtiers.

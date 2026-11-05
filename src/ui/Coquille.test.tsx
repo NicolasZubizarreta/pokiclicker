@@ -103,7 +103,7 @@ it('annonce un achat formaté au Shop et retire la notification expirée', () =>
   fireEvent.click(carte.getByRole('button', { name: 'Acheter ×10' }));
   // Les output de quantité ont aussi le rôle implicite status, nommé « Quantité ».
   expect(screen.getAllByRole('status', { name: '' })).toHaveLength(1);
-  expect(screen.getByRole('status', { name: '' }).textContent).toBe(`${objet.nom} ×10 acheté. ${(objet.prix * 10).toLocaleString('fr-FR')} pièces dépensées.`);
+  expect(screen.getByRole('status', { name: '' }).textContent).toBe(`${objet.nom} ×10 acheté. ${(objet.prix * 10).toLocaleString('fr-FR')}\u00a0₽ dépensés.`);
   expect(screen.getByRole('status', { name: '' }).getAttribute('aria-live')).toBe('polite');
   expect(screen.getByRole('status', { name: '' }).classList.contains('absolute')).toBe(false);
   const message = screen.getByRole('status', { name: '' }).textContent;

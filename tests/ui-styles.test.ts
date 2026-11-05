@@ -23,7 +23,7 @@ describe('Jetons et styles de l’interface', () => {
   });
 
   it('charge uniquement les polices locales attendues et aucune URL externe', () => {
-    expect(styles).toContain('@fontsource/pixelify-sans/latin-600.css');
+    expect(styles).toMatch(/\.font-titre\s*\{\s*font-weight:\s*700;/);
     for (const poids of [400, 600, 700]) {
       expect(styles).toContain(`@fontsource/atkinson-hyperlegible-next/latin-${poids}.css`);
     }
