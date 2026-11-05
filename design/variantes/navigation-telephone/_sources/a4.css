@@ -1,0 +1,138 @@
+/* A4 : A3 corrigée (retours de Nicolas, 05/11) + PC, Pokédex, Badges, Guide, Statistiques. Mêmes jetons. */
+
+/* Police : Atkinson Hyperlegible Next, gras, pour les chiffres et les titres (retour de Nicolas). Fichiers dans fonts/, aucune ressource externe. */
+:root { --font-titre: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, sans-serif; }
+.pixel, .cle b, .titre-page h1, .scene .nom, .scene .degat, .sous-titre, .resume b, .fenetre > .tete h2, .feuille .tete h2, .toast, .modal h2 { font-weight: 700; }
+
+/* Mise en page fluide : l'appli remplit la largeur, jamais de bord ni de cadre ; au-delà de 480 px, le fond reste le même. */
+body { background: var(--fond); }
+.tel { width: 100%; max-width: calc(var(--u) * 120); max-height: none; }
+@media (min-width: 48rem) { .tel { margin-block: 0; height: 100dvh; border: 0; } }
+
+/* Chiffres clés : trois colonnes, même police, même taille, même ligne de base, même alignement */
+.cles { position: relative; }
+.cles .rang { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1.3fr); gap: calc(var(--u) * 3); align-items: start; }
+.cles .cle, .cles .cle.large, .cles .cle.zone { flex: none; min-width: 0; text-align: left; }
+.cles .cle small { white-space: nowrap; }
+.cles .cle b { font-size: var(--text-lg); line-height: var(--text-lg--line-height); overflow: hidden; text-overflow: ellipsis; }
+.synchro { position: absolute; top: var(--ecart); right: calc(var(--u) * 4); width: calc(var(--u) * 3); height: calc(var(--u) * 3); border-radius: var(--radius-plein); background: var(--succes-base); border: var(--trait) solid var(--fond); }
+.synchro.cours { background: var(--info-base); }
+.synchro.hors { background: var(--alerte-base); }
+.synchro.conflit { background: var(--erreur-base); }
+
+.bande img { width: min(calc(var(--u) * 12), 100%); height: auto; }
+
+/* Combat : quatre boutons sur une ligne, puis Fauchage et Poké-Radar quand ils sont débloqués */
+.outils4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--ecart); flex: none; }
+.outils4 .plaque { position: relative; min-height: calc(var(--u) * 16); padding-inline: var(--u); text-align: center; }
+.outils4 .plaque .t { display: block; }
+.debloques { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--ecart); flex: none; }
+.debloques .plaque { min-height: calc(var(--u) * 14); }
+.debloques img { width: calc(var(--u) * 6); height: calc(var(--u) * 6); }
+.lot-maquette { display: grid; gap: var(--ecart); flex: none; }
+
+/* Interrupteur et curseur */
+.reglage .corps-r { flex: 1; min-width: 0; }
+.reglage small { display: block; font-size: var(--text-sm); line-height: var(--text-sm--line-height); color: var(--texte-doux); }
+.inter { display: inline-flex; align-items: center; justify-content: center; flex: none; min-width: calc(var(--u) * 16); min-height: var(--cible); }
+.inter i { position: relative; display: block; width: calc(var(--u) * 12); height: calc(var(--u) * 7); background: var(--fond); border: var(--trait) solid var(--bordure); }
+.inter i::after { content: ""; position: absolute; top: var(--trait); left: var(--trait); width: calc(var(--u) * 5); height: calc(var(--u) * 5); background: var(--texte-doux); transition: transform var(--duration-rapide) var(--ease-standard); }
+.inter[aria-checked="true"] i { background: var(--succes-fond); border-color: var(--succes-base); }
+.inter[aria-checked="true"] i::after { background: var(--succes-base); transform: translateX(calc(var(--u) * 5)); }
+.reglage.son { flex-direction: column; align-items: stretch; gap: 0; padding-block: var(--u); }
+.reglage.son .haut { display: flex; align-items: center; gap: calc(var(--u) * 3); min-height: calc(var(--u) * 14); }
+.reglage.son .haut > span { flex: 1; min-width: 0; }
+.curseur { display: flex; align-items: center; gap: calc(var(--u) * 3); }
+.curseur output { min-width: calc(var(--u) * 10); text-align: right; font-family: var(--font-titre); font-weight: 700; }
+.curseur input { flex: 1; min-width: 0; height: var(--cible); background: transparent; -webkit-appearance: none; appearance: none; cursor: pointer; --p: 50%; }
+.curseur input:disabled { opacity: .4; cursor: default; }
+.curseur input::-webkit-slider-runnable-track { height: calc(var(--u) * 3); background: linear-gradient(to right, var(--action) var(--p), var(--fond) var(--p)); border: var(--trait) solid var(--bordure); }
+.curseur input::-moz-range-track { height: calc(var(--u) * 3); background: var(--fond); border: var(--trait) solid var(--bordure); }
+.curseur input::-moz-range-progress { height: calc(var(--u) * 3); background: var(--action); }
+.curseur input::-webkit-slider-thumb { -webkit-appearance: none; width: calc(var(--u) * 7); height: calc(var(--u) * 7); margin-top: calc(var(--u) * -2.5); background: var(--surface-2); border: var(--trait) solid var(--texte); }
+.curseur input::-moz-range-thumb { width: calc(var(--u) * 6); height: calc(var(--u) * 6); border-radius: 0; background: var(--surface-2); border: var(--trait) solid var(--texte); }
+.fenetre .intro { flex: none; }
+.fenetre .sous-titre { flex: none; }
+
+/* Carte : animation de vol reprise du jeu PC (src/styles/index.css, src/ui/VolGen1.tsx), mêmes éléments et mêmes durées */
+.dresseur { position: absolute; z-index: 2; width: 13.02%; aspect-ratio: 1; object-fit: contain; transform: translate(-50%, -50%); pointer-events: none; }
+.mini-carte img.dresseur { inset: auto; width: 13.02%; height: auto; }
+.mini-carte img.vol-oiseau { position: static; inset: auto; width: auto; height: auto; }
+.vol-overlay { position: absolute; inset: 0; z-index: 3; display: flex; align-items: center; pointer-events: none; color: var(--texte); }
+.vol-attente { width: 100%; height: min(calc(var(--spacing) * 45), 100%); --vol-attente: calc(var(--vol-ms) * 1ms); }
+.vol-piste { position: relative; height: 100%; overflow: hidden; background: var(--fond); transform-origin: right center; animation: vol-ouverture calc(var(--vol-ms) * 1ms) ease-out var(--vol-attente) both; }
+.vol-overlay[data-phase="fermeture"] .vol-piste { animation: vol-fermeture calc(var(--vol-ms) * 1ms) ease-in-out forwards; }
+.vol-traits { position: absolute; inset: 0; display: flex; width: 200%; height: 100%; animation: vol-traits calc(var(--vol-ms) * 1ms) linear infinite; }
+.vol-traits > svg { flex: 0 0 50%; height: 100%; }
+.vol-trajet { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; animation: vol-trajet calc(var(--vol-ms) * 1ms) ease-in-out both; }
+.vol-oiseau { transform: scale(2); image-rendering: pixelated; }
+@keyframes vol-ouverture { 0% { transform: scale(0, 0.02); } 50% { transform: scale(1, 0.02); } 100% { transform: scale(1); } }
+@keyframes vol-fermeture { to { transform: scaleY(0); } }
+@keyframes vol-trajet { 0%, 10% { transform: translateX(150%); } 30%, 60% { transform: translateX(0); } 100% { transform: translateX(-150%); } }
+@keyframes vol-traits { to { transform: translateX(-50%); } }
+@keyframes fondu-carte { 50% { opacity: 0; } }
+.mini-carte.fondu { animation: fondu-carte var(--duration-lent) both; }
+@media (prefers-reduced-motion: reduce) { .mini-carte.fondu { animation: fondu-carte var(--duration-lent) both !important; } }
+.cercle { transition: none; }
+
+/* Menu */
+.ligne-p.sortie { border-color: var(--region-argent); }
+.sync-ligne { display: flex; align-items: center; gap: var(--ecart); }
+.sync-ligne .synchro { position: static; flex: none; }
+
+/* Zone compte : formulaires et écrans d'accès */
+.ecran.auth { gap: calc(var(--u) * 4); }
+.marque-jeu { text-align: center; padding-block: calc(var(--u) * 4) 0; }
+.marque-jeu b { display: block; font-family: var(--font-titre); font-weight: 700; font-size: var(--text-3xl); line-height: var(--text-3xl--line-height); color: var(--region-accent); }
+.marque-jeu span { color: var(--texte-doux); }
+.formulaire { display: flex; flex-direction: column; gap: calc(var(--u) * 4); padding: calc(var(--u) * 4); }
+.formulaire h1 { font-family: var(--font-titre); font-weight: 700; font-size: var(--text-xl); line-height: var(--text-xl--line-height); }
+.champ { display: flex; flex-direction: column; gap: var(--u); }
+.champ > span { font-weight: 700; }
+.champ .aide { font-size: var(--text-sm); line-height: var(--text-sm--line-height); color: var(--texte-doux); }
+.champ .zone-saisie { display: flex; gap: var(--ecart); }
+.champ input { flex: 1; min-width: 0; height: calc(var(--u) * 14); padding-inline: calc(var(--u) * 3); background: var(--fond); color: var(--texte); border: var(--trait) solid var(--bordure); font: inherit; }
+.champ input:focus-visible { border-color: var(--focus); }
+.champ.en-erreur input { border-color: var(--erreur-base); }
+.message { display: flex; gap: calc(var(--u) * 3); padding: calc(var(--u) * 3); border: var(--trait) solid var(--bordure); background: var(--surface-2); }
+.message p { flex: 1; min-width: 0; }
+.message.erreur { background: var(--erreur-fond); color: var(--erreur-texte); border-color: var(--erreur-base); }
+.message.alerte { background: var(--alerte-fond); color: var(--alerte-texte); border-color: var(--alerte-base); }
+.message.info { background: var(--info-fond); color: var(--info-texte); border-color: var(--info-base); }
+.message.succes { background: var(--succes-fond); color: var(--succes-texte); border-color: var(--succes-base); }
+.plaque.large { width: 100%; min-height: calc(var(--u) * 14); }
+.plaque.danger { background: var(--erreur-fond); color: var(--erreur-texte); border-color: var(--erreur-base); }
+.liens { display: flex; flex-direction: column; align-items: stretch; }
+.lien { min-height: var(--cible); display: flex; align-items: center; justify-content: center; text-align: center; color: var(--region-accent); text-decoration: underline; text-underline-offset: var(--u); }
+
+/* Parties */
+.carte-partie { display: flex; flex-direction: column; gap: var(--ecart); padding: calc(var(--u) * 4); flex: none; }
+.carte-partie .ouvrir { display: grid; gap: var(--u); width: 100%; text-align: left; min-height: var(--cible); }
+.carte-partie .nom { display: flex; flex-wrap: wrap; align-items: center; gap: var(--ecart); font-family: var(--font-titre); font-weight: 700; font-size: var(--text-xl); line-height: var(--text-xl--line-height); }
+.carte-partie dl { display: grid; grid-template-columns: auto 1fr; gap: 0 calc(var(--u) * 3); }
+.carte-partie dt { color: var(--texte-doux); font-size: var(--text-sm); line-height: var(--text-sm--line-height); }
+.carte-partie dd { margin: 0; text-align: right; }
+.carte-partie .actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--ecart); }
+.tag.info { background: var(--info-fond); color: var(--info-texte); border-color: var(--info-base); }
+.tag.alerte { background: var(--alerte-fond); color: var(--alerte-texte); border-color: var(--alerte-base); }
+.tag.erreur { background: var(--erreur-fond); color: var(--erreur-texte); border-color: var(--erreur-base); }
+.deux-versions { display: grid; gap: var(--ecart); flex: none; }
+.version { padding: calc(var(--u) * 4); display: grid; gap: var(--ecart); }
+.version h2 { font-family: var(--font-titre); font-weight: 700; font-size: var(--text-lg); line-height: var(--text-lg--line-height); color: var(--region-accent); }
+.version dl { display: grid; grid-template-columns: auto 1fr; gap: 0 calc(var(--u) * 3); }
+.version dt { color: var(--texte-doux); }
+.version dd { margin: 0; text-align: right; }
+.fiche { padding: calc(var(--u) * 4); display: grid; gap: var(--ecart); flex: none; }
+.fiche .gros { font-family: var(--font-titre); font-weight: 700; font-size: var(--text-2xl); line-height: var(--text-2xl--line-height); color: var(--region-accent); }
+.succes { display: flex; align-items: center; gap: calc(var(--u) * 3); min-height: calc(var(--u) * 16); padding: var(--u) calc(var(--u) * 3); background: var(--surface); border: var(--trait) solid var(--bordure); }
+.succes.obtenu { border-color: var(--succes-base); }
+.succes .corps { flex: 1; min-width: 0; }
+.succes .t { font-weight: 700; }
+.succes .s { font-size: var(--text-sm); line-height: var(--text-sm--line-height); color: var(--texte-doux); }
+.succes .etat { font-size: var(--text-sm); line-height: var(--text-sm--line-height); text-align: right; }
+.succes.obtenu .etat { color: var(--succes-texte); }
+.titre-page .plaque.sortir { flex: none; }
+.entete-compte { display: flex; align-items: center; gap: var(--ecart); min-height: var(--cible); }
+.entete-compte h1 { flex: 1; font-family: var(--font-titre); font-weight: 700; font-size: var(--text-xl); line-height: var(--text-xl--line-height); }
+.ecran > * { flex-shrink: 0; }
+.ecran > .carte-page { flex-shrink: 1; }
