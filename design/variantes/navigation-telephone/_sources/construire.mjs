@@ -76,6 +76,7 @@ body { background: var(--fond); }
 <div class="accueil">
   <div class="liste">
     <h1>Navigation sur téléphone</h1>
+    <section class="carte-v cadre"><h2>A5 : A4 corrigée</h2><p>Ligne de navigation entre zones seulement au combat, tri du PC par DPS, fiche Pokémon (Favori, sexe, couleurs de types du jeu).</p><a class="plaque action" href="a5-index.html" target="_top">Ouvrir A5</a></section>
     <section class="carte-v cadre"><h2>A4 : A3 corrigée, plus PC, Pokédex, Badges</h2><p>Police Atkinson gras, auto-clic dans les réglages du menu, reprise exacte d'une partie ouverte ailleurs, une seule sauvegarde par partie, déconnexion avec page de sauvegarde, Guide et Statistiques, PC, Pokédex et Badges.</p><a class="plaque action" href="a4-index.html" target="_top">Ouvrir A4</a></section>
     <section class="carte-v cadre"><h2>A3 : toute l'interface téléphone</h2><p>Dernière version : A2 corrigée (combat à quatre boutons, Pokédollars, police lisible, mise en page fluide, animation de vol du jeu) et zone compte complète (connexion, parties, compte).</p><a class="plaque action" href="a3-index.html" target="_top">Ouvrir A3</a></section>
     <section class="carte-v cadre"><h2>A2 : la variante A corrigée</h2><p>Choisie par Nicolas, avec tous les écrans maquettés (combat en deux dispositions, sac, équipe, shop, carte, menu, parties, monde).</p><a class="plaque action" href="a2-index.html" target="_top">Ouvrir A2</a></section>

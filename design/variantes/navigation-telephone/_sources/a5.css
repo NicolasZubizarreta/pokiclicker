@@ -1,0 +1,27 @@
+/* A5 : retours de Nicolas sur A4. S'ajoute à a4.css et a4-ecrans.css, rien n'est modifié dans A4. */
+
+/* Sélecteur de tri du PC : une liste native, une seule ligne, 56 px de haut */
+.tri-select .zone-saisie { position: relative; }
+.tri-select select { flex: 1; min-width: 0; height: calc(var(--u) * 14); padding-inline: calc(var(--u) * 3) calc(var(--u) * 12); background: var(--fond); color: var(--texte); border: var(--trait) solid var(--bordure); font: inherit; font-weight: 700; appearance: none; -webkit-appearance: none; border-radius: 0; }
+.tri-select select:focus-visible { border-color: var(--focus); }
+.tri-select .ic { position: absolute; right: calc(var(--u) * 4); top: 50%; width: calc(var(--u) * 5); height: calc(var(--u) * 5); transform: translateY(-50%) rotate(-90deg); pointer-events: none; color: var(--texte-doux); }
+.case .dps-ligne { color: var(--region-accent); font-weight: 700; }
+
+/* Fiche : pastilles de la ligne (sexe, Shiny, Favori, types) à la même hauteur */
+.rangee { --h-pastille: calc(var(--u) * 7); }
+.rangee .tag { display: inline-flex; align-items: center; gap: calc(var(--u) / 2); box-sizing: border-box; height: var(--h-pastille); font-family: inherit; font-weight: 700; }
+.rangee .sexe { display: inline-flex; align-items: center; height: var(--h-pastille); }
+.sexe svg { width: 1.3em; height: 1.3em; fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.rangee .sexe svg { width: var(--h-pastille); height: var(--h-pastille); }
+
+/* Types : couleurs du jeu (variables --t et --tt posées sur chaque pastille) */
+.tag.type { background: var(--t); color: var(--tt); border-color: var(--t); }
+
+/* Favori : même taille que les autres pastilles, zone de toucher agrandie à 48 px par un pseudo-élément */
+.tag-btn { position: relative; cursor: pointer; }
+.tag-btn::after { content: ""; position: absolute; inset: calc(var(--u) * -2.5) calc(var(--u) * -1); }
+.tag.fav-on { background: var(--alerte-fond); color: var(--alerte-texte); border-color: var(--alerte-base); }
+.tag-btn:focus-visible { outline: var(--trait) solid var(--focus); outline-offset: var(--trait); }
+
+/* Dans les cartes du PC, le pictogramme de sexe garde la taille du texte (le nom a besoin de la place) */
+.case .sexe svg { width: 1.1em; height: 1.1em; }

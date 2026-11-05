@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PokiClicker : A5</title>
+<style>
+:root {
+  --color-primaire-50: #fff2ed;
+  --color-primaire-100: #ffe3db;
+  --color-primaire-200: #ffc9bb;
+  --color-primaire-300: #ffa794;
+  --color-primaire-400: #fd816b;
+  --color-primaire-500: #ec5e47;
+  --color-primaire-600: #c8321e;
+  --color-primaire-700: #ac1c0a;
+  --color-primaire-800: #880e02;
+  --color-primaire-900: #600400;
+  --color-primaire-950: #360000;
+  --color-secondaire-50: #fdf6e6;
+  --color-secondaire-100: #f9ecce;
+  --color-secondaire-200: #f1d8a1;
+  --color-secondaire-300: #e5bf64;
+  --color-secondaire-400: #f5c033;
+  --color-secondaire-500: #c38600;
+  --color-secondaire-600: #a96900;
+  --color-secondaire-700: #8a4f00;
+  --color-secondaire-800: #6d3b00;
+  --color-secondaire-900: #4c2600;
+  --color-secondaire-950: #290e00;
+  --color-accent-50: #f0f8ff;
+  --color-accent-100: #e1effc;
+  --color-accent-200: #c6def5;
+  --color-accent-300: #a3c9ec;
+  --color-accent-400: #7eb1dd;
+  --color-accent-500: #5d98ca;
+  --color-accent-600: #2b6c9e;
+  --color-accent-700: #246291;
+  --color-accent-800: #174b72;
+  --color-accent-900: #0b3350;
+  --color-accent-950: #00182b;
+  --color-neutre-50: #f4efe4;
+  --color-neutre-100: #e8e6e0;
+  --color-neutre-200: #d6dbe6;
+  --color-neutre-300: #bfc4cf;
+  --color-neutre-400: #a6abb5;
+  --color-neutre-500: #8e929c;
+  --color-neutre-600: #737781;
+  --color-neutre-700: #595e67;
+  --color-neutre-800: #444851;
+  --color-neutre-900: #2c3039;
+  --color-neutre-950: #141821;
+  --color-succes-fond: #e3f3e5;
+  --color-succes-base: #3d9a4a;
+  --color-succes-texte: #1f5a29;
+  --color-succes-fond-sombre: #1d3a28;
+  --color-succes-base-sombre: #5fbf6c;
+  --color-succes-texte-sombre: #a6e3ae;
+  --color-alerte-fond: #fdf1cf;
+  --color-alerte-base: #c38600;
+  --color-alerte-texte: #6d4a00;
+  --color-alerte-fond-sombre: #3a3016;
+  --color-alerte-base-sombre: #f5c033;
+  --color-alerte-texte-sombre: #f9e0a1;
+  --color-erreur-fond: #fbe2e6;
+  --color-erreur-base: #b81d3a;
+  --color-erreur-texte: #7a0f25;
+  --color-erreur-fond-sombre: #401c27;
+  --color-erreur-base-sombre: #f07088;
+  --color-erreur-texte-sombre: #f8b8c4;
+  --color-info-fond: #e1effc;
+  --color-info-base: #2b6c9e;
+  --color-info-texte: #174b72;
+  --color-info-fond-sombre: #1b2f44;
+  --color-info-base-sombre: #7eb1dd;
+  --color-info-texte-sombre: #c6def5;
+  --font-titre: "Pixelify Sans", "Press Start 2P", ui-monospace, monospace;
+  --font-texte: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Mono", monospace;
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1rem;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.25rem;
+  --text-base: 1rem;
+  --text-base--line-height: 1.5rem;
+  --text-lg: 1.125rem;
+  --text-lg--line-height: 1.75rem;
+  --text-xl: 1.25rem;
+  --text-xl--line-height: 1.75rem;
+  --text-2xl: 1.5rem;
+  --text-2xl--line-height: 2rem;
+  --text-2xl--font-weight: 600;
+  --text-3xl: 2rem;
+  --text-3xl--line-height: 2.25rem;
+  --text-3xl--font-weight: 600;
+  --text-4xl: 2.5rem;
+  --text-4xl--line-height: 2.75rem;
+  --text-4xl--font-weight: 600;
+  --text-5xl: 3rem;
+  --text-5xl--line-height: 1.1;
+  --text-5xl--font-weight: 600;
+  --spacing: 0.25rem;
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
+  --radius-xl: 0;
+  --radius-plein: 9999px;
+  --shadow-sm: 0 2px 0 0 rgb(0 0 0 / 0.45);
+  --shadow-md: 0 4px 0 0 rgb(0 0 0 / 0.45);
+  --shadow-lg: 0 8px 0 0 rgb(0 0 0 / 0.45);
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-sortie: cubic-bezier(0, 0, 0, 1);
+  --duration-rapide: 90ms;
+  --duration-normal: 150ms;
+  --duration-lent: 300ms;
+  --duree-signal: 1s;
+  --duree-carte-pulsation: 2s;
+  --duree-carte-clignotement: 0.8s;
+  --breakpoint-sm: 24.375rem;
+  --breakpoint-md: 48rem;
+  --breakpoint-lg: 64rem;
+  --breakpoint-xl: 90rem;
+  --fond: #f4efe4;
+  --surface: #fffdf7;
+  --surface-2: #e8e6e0;
+  --bordure: #bfc4cf;
+  --texte: #141821;
+  --texte-doux: #595e67;
+  --texte-inverse: #fffdf7;
+  --action: #c8321e;
+  --action-survol: #ac1c0a;
+  --action-texte: #ffffff;
+  --lien: #ac1c0a;
+  --focus: #2b6c9e;
+  --selection: #f9ecce;
+  --blanc: #ffffff;
+  --succes-fond: #e3f3e5;
+  --succes-base: #3d9a4a;
+  --succes-texte: #1f5a29;
+  --alerte-fond: #fdf1cf;
+  --alerte-base: #c38600;
+  --alerte-texte: #6d4a00;
+  --erreur-fond: #fbe2e6;
+  --erreur-base: #b81d3a;
+  --erreur-texte: #7a0f25;
+  --info-fond: #e1effc;
+  --info-base: #2b6c9e;
+  --info-texte: #174b72;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --fond: #141821;
+    --surface: #2c3039;
+    --surface-2: #2f3648;
+    --bordure: #737781;
+    --texte: #f4efe4;
+    --texte-doux: #bfc4cf;
+    --texte-inverse: #ffffff;
+    --action: #c8321e;
+    --action-survol: #ac1c0a;
+    --action-texte: #ffffff;
+    --lien: #f5c033;
+    --focus: #f5c033;
+    --selection: #3a3320;
+    --blanc: #ffffff;
+    --succes-fond: #1d3a28;
+    --succes-base: #5fbf6c;
+    --succes-texte: #a6e3ae;
+    --alerte-fond: #3a3016;
+    --alerte-base: #f5c033;
+    --alerte-texte: #f9e0a1;
+    --erreur-fond: #401c27;
+    --erreur-base: #f07088;
+    --erreur-texte: #f8b8c4;
+    --info-fond: #1b2f44;
+    --info-base: #7eb1dd;
+    --info-texte: #c6def5;
+  }
+}
+
+:root[data-theme="dark"] {
+  --fond: #141821;
+  --surface: #2c3039;
+  --surface-2: #2f3648;
+  --bordure: #737781;
+  --texte: #f4efe4;
+  --texte-doux: #bfc4cf;
+  --texte-inverse: #ffffff;
+  --action: #c8321e;
+  --action-survol: #ac1c0a;
+  --action-texte: #ffffff;
+  --lien: #f5c033;
+  --focus: #f5c033;
+  --selection: #3a3320;
+  --blanc: #ffffff;
+  --succes-fond: #1d3a28;
+  --succes-base: #5fbf6c;
+  --succes-texte: #a6e3ae;
+  --alerte-fond: #3a3016;
+  --alerte-base: #f5c033;
+  --alerte-texte: #f9e0a1;
+  --erreur-fond: #401c27;
+  --erreur-base: #f07088;
+  --erreur-texte: #f8b8c4;
+  --info-fond: #1b2f44;
+  --info-base: #7eb1dd;
+  --info-texte: #c6def5;
+}
+
+/* Maquettes de navigation téléphone (phase 5, ticket C). Aucune valeur propre : tout vient de design/tokens.css
+   (--spacing = 4 px, --text-*, --shadow-*, --breakpoint-sm = 390 px, rôles de couleur). Thème sombre, Kanto. */
+@font-face { font-family: "Pixelify Sans"; font-weight: 600; font-display: swap; src: url("../combat-v3/fonts/pixelify-sans-latin-600-normal-Dd_Dy7u5.woff2") format("woff2"); }
+@font-face { font-family: "Atkinson Hyperlegible Next"; font-weight: 400; font-display: swap; src: url("../combat-v3/fonts/atkinson-hyperlegible-next-latin-400-normal-FfmJh7DR.woff2") format("woff2"); }
+@font-face { font-family: "Atkinson Hyperlegible Next"; font-weight: 600; font-display: swap; src: url("../combat-v3/fonts/atkinson-hyperlegible-next-latin-600-normal-BBuhw47K.woff2") format("woff2"); }
+@font-face { font-family: "Atkinson Hyperlegible Next"; font-weight: 700; font-display: swap; src: url("../combat-v3/fonts/atkinson-hyperlegible-next-latin-700-normal-Dpiyiu63.woff2") format("woff2"); }
+
+:root {
+  color-scheme: dark;
+  --u: var(--spacing);
+  --cible: calc(var(--u) * 12);          /* 48 px : cible tactile minimale */
+  --ecart: calc(var(--u) * 2);           /* 8 px : écart minimal entre cibles */
+  --trait: calc(var(--u) / 2);           /* 2 px : liseré */
+  --voile: color-mix(in srgb, var(--fond) 78%, transparent);
+}
+* { box-sizing: border-box; margin: 0; }
+html, body { height: 100%; }
+body { background: var(--surface-2); color: var(--texte); font-family: var(--font-texte); font-size: var(--text-base); line-height: var(--text-base--line-height); font-variant-numeric: tabular-nums; overflow-x: hidden; }
+button { font: inherit; color: inherit; cursor: pointer; touch-action: manipulation; background: none; border: 0; text-align: inherit; }
+img { display: block; image-rendering: pixelated; }
+:focus-visible { outline: var(--u) solid var(--focus); outline-offset: var(--trait); }
+[hidden] { display: none !important; }
+.sr { position: absolute; width: var(--u); height: var(--u); overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.pixel { font-family: var(--font-titre); font-weight: 600; }
+.doux { color: var(--texte-doux); }
+.gras { font-weight: 700; }
+svg.ic { width: calc(var(--u) * 6); height: calc(var(--u) * 6); flex: none; fill: none; stroke: currentColor; stroke-width: 2; }
+
+/* Le téléphone */
+.tel { position: relative; width: min(100%, var(--breakpoint-sm)); height: 100dvh; max-height: calc(var(--u) * 224); margin-inline: auto; display: flex; flex-direction: column; overflow: hidden; background: var(--fond); }
+@media (min-width: 48rem) { .tel { margin-block: var(--u); height: calc(100dvh - var(--u) * 2); border: var(--trait) solid var(--bordure); } }
+
+/* Cadre et plaques */
+.cadre { background: var(--surface); border: var(--trait) solid var(--region-argent); box-shadow: inset 0 0 0 var(--trait) var(--fond), inset 0 0 0 var(--u) var(--region-argent); }
+.plaque { display: inline-flex; align-items: center; justify-content: center; gap: var(--ecart); min-height: var(--cible); min-width: var(--cible); padding: var(--u) calc(var(--u) * 3); background: var(--surface-2); color: var(--texte); border: var(--trait) solid var(--bordure); box-shadow: var(--shadow-md); transition: transform var(--duration-rapide) var(--ease-standard), box-shadow var(--duration-rapide) var(--ease-standard); }
+.plaque:active { transform: translateY(var(--trait)); box-shadow: var(--shadow-sm); }
+.plaque.action { background: var(--action); color: var(--action-texte); border-color: var(--action-survol); font-weight: 700; }
+.plaque.action:active { background: var(--action-survol); }
+.plaque[aria-pressed="true"] { background: var(--selection); border-color: var(--region-accent); color: var(--region-accent); }
+.plaque.vertical { flex-direction: column; gap: 0; min-height: calc(var(--u) * 14); padding: var(--u); font-size: var(--text-sm); line-height: var(--text-sm--line-height); }
+.pastille { position: absolute; top: calc(var(--u) * -2); right: calc(var(--u) * -1); min-width: calc(var(--u) * 6); padding-inline: var(--u); background: var(--info-fond); color: var(--info-texte); border: var(--trait) solid var(--info-base); font-size: var(--text-xs); line-height: var(--text-sm--line-height); text-align: center; }
+.point { position: absolute; top: calc(var(--u) * 2); right: calc(var(--u) * 2); width: calc(var(--u) * 3); height: calc(var(--u) * 3); background: var(--succes-base); border: var(--trait) solid var(--fond); }
+
+/* Chiffres clés */
+.cles { flex: none; padding: var(--ecart) calc(var(--u) * 4) var(--ecart); background: var(--surface); border-bottom: var(--trait) solid var(--region-argent); }
+.cles .rang { display: flex; align-items: flex-end; gap: calc(var(--u) * 3); }
+.cle { flex: 1; min-width: 0; }
+.cle.large { flex: 1.25; }
+.cle small { display: block; font-size: var(--text-sm); line-height: var(--text-sm--line-height); color: var(--texte-doux); }
+.cle b { display: block; font-family: var(--font-titre); font-weight: 600; font-size: var(--text-xl); line-height: var(--text-xl--line-height); color: var(--region-accent); white-space: nowrap; }
+.etapes { display: flex; align-items: center; gap: var(--ecart); margin-top: var(--u); }
+.etapes i { width: calc(var(--u) * 2); height: calc(var(--u) * 2); background: var(--surface-2); border: var(--trait) solid var(--bordure); }
+.etapes i.fait { background: var(--region-accent); border-color: var(--region-accent); }
+.etapes i.ici { width: calc(var(--u) * 3); height: calc(var(--u) * 3); background: var(--surface); border-color: var(--region-accent); }
+.etapes i.boss { width: calc(var(--u) * 4); height: calc(var(--u) * 4); border-radius: var(--radius-plein); border-color: var(--region-accent); }
+.etapes span { margin-left: auto; font-size: var(--text-sm); color: var(--texte-doux); }
+
+/* Écran */
+.ecran { flex: 1; min-height: 0; overflow: hidden auto; overscroll-behavior: contain; padding: calc(var(--u) * 3) calc(var(--u) * 4); display: flex; flex-direction: column; gap: var(--ecart); }
+.titre-page { display: flex; align-items: center; gap: var(--ecart); min-height: var(--cible); }
+.titre-page h1 { font-family: var(--font-titre); font-weight: 600; font-size: var(--text-xl); line-height: var(--text-xl--line-height); flex: 1; }
+.titre-page .retour { min-height: var(--cible); min-width: var(--cible); display: inline-flex; align-items: center; justify-content: center; margin-left: calc(var(--u) * -2); }
+
+/* Combat : scène */
+.scene { position: relative; display: block; width: 100%; aspect-ratio: 6 / 5; flex: none; padding: 0; overflow: hidden; background: var(--fond) url("../combat-v3/img/route-1.webp") center / cover; }
+.scene .info { position: absolute; top: var(--ecart); left: var(--ecart); right: var(--ecart); padding: calc(var(--u) * 2) calc(var(--u) * 3); text-align: left; }
+.scene .ligne { display: flex; justify-content: space-between; align-items: baseline; }
+.scene .nom { font-family: var(--font-titre); font-weight: 600; font-size: var(--text-xl); line-height: var(--text-xl--line-height); }
+.scene .pv { height: calc(var(--u) * 3); margin: var(--u) 0; background: var(--fond); border: var(--trait) solid var(--bordure); }
+.scene .pv i { display: block; height: 100%; width: var(--pv, 100%); background: var(--succes-base); transform-origin: left; transition: width 120ms var(--ease-standard); }
+.scene .pv-txt { font-size: var(--text-sm); color: var(--texte-doux); }
+.scene .socle { position: absolute; left: 50%; bottom: calc(var(--u) * 4); width: calc(var(--u) * 52); height: calc(var(--u) * 9); margin-left: calc(var(--u) * -26); background: var(--region-socle); border-radius: var(--radius-plein); opacity: .85; }
+.scene .rattata { position: absolute; left: 50%; bottom: calc(var(--u) * 7); width: calc(var(--u) * 48); height: calc(var(--u) * 48); margin-left: calc(var(--u) * -24); transition: transform var(--duration-rapide) var(--ease-standard); }
+.scene.coup .rattata { transform: translateY(calc(var(--u) * 2)) scale(.96); }
+.scene .degat { position: absolute; left: 50%; bottom: calc(var(--u) * 44); font-family: var(--font-titre); font-weight: 600; font-size: var(--text-2xl); color: var(--blanc); text-shadow: 0 var(--trait) 0 var(--fond); opacity: 0; }
+.scene.coup .degat { animation: monte var(--duration-lent) var(--ease-sortie) forwards; }
+@keyframes monte { from { transform: translateY(0); opacity: 1; } to { transform: translateY(calc(var(--u) * -8)); opacity: 0; } }
+.scene .conseil { position: absolute; left: 0; right: 0; bottom: var(--u); text-align: center; font-size: var(--text-sm); }
+.scene .conseil span { background: var(--voile); padding: 0 var(--ecart); }
+
+/* Combat : barres d'outils, équipe, dialogue */
+.outils { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--ecart); flex: none; }
+.outils .plaque { position: relative; }
+.bande { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--ecart); flex: none; }
+.bande button { position: relative; min-width: 0; min-height: var(--cible); aspect-ratio: 1; display: flex; align-items: center; justify-content: center; background: var(--surface); border: var(--trait) solid var(--bordure); }
+.bande img { width: calc(var(--u) * 12); height: calc(var(--u) * 12); }
+.bande em { position: absolute; right: var(--u); bottom: 0; font-style: normal; font-size: var(--text-sm); line-height: var(--text-sm--line-height); font-weight: 700; text-shadow: 0 var(--trait) 0 var(--fond); }
+.chen { display: grid; grid-template-columns: calc(var(--u) * 15) 1fr; gap: calc(var(--u) * 3); padding: calc(var(--u) * 3); flex: none; align-items: center; }
+.chen img { width: calc(var(--u) * 15); height: calc(var(--u) * 15); }
+.chen .pixel { color: var(--region-accent); font-size: var(--text-lg); line-height: var(--text-lg--line-height); }
+.chen .zones { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: var(--ecart); }
+
+/* Listes et pages */
+.liste { display: flex; flex-direction: column; gap: var(--ecart); }
+.ligne-p { display: flex; align-items: center; gap: calc(var(--u) * 3); min-height: calc(var(--u) * 16); padding: var(--u) calc(var(--u) * 3); background: var(--surface); border: var(--trait) solid var(--bordure); width: 100%; position: relative; }
+.ligne-p > .corps { flex: 1; min-width: 0; }
+.ligne-p .t { font-weight: 700; }
+.ligne-p .s { font-size: var(--text-sm); line-height: var(--text-sm--line-height); color: var(--texte-doux); }
+.ligne-p img.sp { width: calc(var(--u) * 12); height: calc(var(--u) * 12); flex: none; }
+.ligne-p img.obj { width: calc(var(--u) * 15); height: calc(var(--u) * 15); flex: none; padding: calc(var(--u) * 1.5); background: var(--surface-2); }
+.ligne-p .xp { height: var(--u); background: var(--fond); margin-top: var(--u); } .ligne-p .xp i { display: block; height: 100%; background: var(--info-base); }
+.ligne-p.ferme { color: var(--texte-doux); background: var(--surface-2); border-style: dashed; }
+.ligne-p.actuelle { background: var(--selection); border-color: var(--region-accent); }
+.chips { display: flex; gap: var(--ecart); flex-wrap: wrap; }
+.chips .plaque { flex: 1; padding-inline: var(--u); }
+.sous-titre { font-family: var(--font-titre); font-weight: 600; font-size: var(--text-lg); line-height: var(--text-lg--line-height); color: var(--region-accent); margin-top: var(--u); }
+.resume { display: grid; grid-template-columns: 1fr 1fr; gap: var(--ecart); padding: calc(var(--u) * 3); }
+.resume b { display: block; font-family: var(--font-titre); font-weight: 600; font-size: var(--text-xl); color: var(--region-accent); line-height: var(--text-xl--line-height); }
+.explique { display: flex; gap: calc(var(--u) * 3); padding: calc(var(--u) * 3); background: var(--alerte-fond); color: var(--alerte-texte); border: var(--trait) solid var(--alerte-base); }
+.explique p { flex: 1; }
+.grille-pc { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--ecart); }
+.grille-pc button { display: flex; flex-direction: column; align-items: center; min-height: calc(var(--u) * 24); padding: var(--u); background: var(--surface); border: var(--trait) solid var(--bordure); font-size: var(--text-sm); line-height: var(--text-sm--line-height); }
+.grille-pc img { width: calc(var(--u) * 12); height: calc(var(--u) * 12); }
+.maquette { border: var(--trait) dashed var(--bordure); min-height: var(--cible); padding: var(--u) calc(var(--u) * 3); color: var(--texte-doux); font-size: var(--text-sm); line-height: var(--text-sm--line-height); width: 100%; }
+
+/* Couches : feuille du bas, fenêtre, toast */
+.voile { position: absolute; inset: 0; background: var(--voile); z-index: 20; }
+.feuille { position: absolute; left: 0; right: 0; bottom: 0; max-height: 50%; z-index: 21; display: flex; flex-direction: column; gap: var(--ecart); padding: calc(var(--u) * 3) calc(var(--u) * 4) calc(var(--u) * 4); overflow-y: auto; animation: entre-bas var(--duration-lent) var(--ease-sortie); }
+.fenetre { position: absolute; inset: var(--ecart); z-index: 22; display: flex; flex-direction: column; animation: entre-bas var(--duration-lent) var(--ease-sortie); }
+.fenetre > .tete { display: flex; align-items: center; gap: var(--ecart); padding: var(--u) var(--u) var(--u) calc(var(--u) * 4); border-bottom: var(--trait) solid var(--region-argent); }
+.fenetre > .tete h2 { flex: 1; font-family: var(--font-titre); font-weight: 600; font-size: var(--text-xl); line-height: var(--text-xl--line-height); }
+.fenetre > .corps { flex: 1; min-height: 0; overflow-y: auto; padding: calc(var(--u) * 3) calc(var(--u) * 4); display: flex; flex-direction: column; gap: var(--ecart); }
+.feuille .tete { display: flex; align-items: center; gap: var(--ecart); }
+.feuille .tete h2 { flex: 1; font-family: var(--font-titre); font-weight: 600; font-size: var(--text-lg); line-height: var(--text-lg--line-height); }
+@keyframes entre-bas { from { transform: translateY(calc(var(--u) * 10)); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.toast { position: absolute; top: var(--ecart); left: var(--ecart); right: var(--ecart); z-index: 30; padding: calc(var(--u) * 3); text-align: center; font-family: var(--font-titre); font-weight: 600; font-size: var(--text-base); pointer-events: none; animation: entre-haut var(--duration-lent) var(--ease-sortie); }
+@keyframes entre-haut { from { transform: translateY(calc(var(--u) * -10)); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+/* Barre du bas (variantes A et B) */
+.barre { flex: none; display: flex; gap: var(--ecart); padding-inline: calc(var(--u) * 4); background: var(--surface); border-top: var(--trait) solid var(--region-argent); box-shadow: inset 0 var(--trait) 0 var(--fond), inset 0 var(--u) 0 var(--region-argent); padding-top: var(--u); padding-bottom: env(safe-area-inset-bottom); }
+.barre button { position: relative; flex: 1; min-width: 0; min-height: calc(var(--u) * 14); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; font-size: var(--text-sm); line-height: var(--text-sm--line-height); color: var(--texte-doux); }
+.barre button[aria-current="page"] { background: var(--selection); color: var(--region-accent); font-weight: 700; }
+.barre button[aria-current="page"]::before { content: ""; position: absolute; inset: 0 0 auto 0; height: var(--u); background: var(--region-accent); }
+.barre button.ferme { opacity: .6; }
+.barre button.ferme .cad { position: absolute; top: var(--u); right: calc(var(--u) * 3); width: calc(var(--u) * 4); height: calc(var(--u) * 4); }
+.rebond { animation: rebond var(--duree-signal) var(--ease-standard) 3; }
+@keyframes rebond { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(calc(var(--u) * -2)); } }
+
+.accueil { max-width: calc(var(--u) * 240); margin: 0 auto; padding: calc(var(--u) * 4); display: grid; gap: calc(var(--u) * 4); grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 48rem) { .accueil { grid-template-columns: minmax(0, 1fr) var(--breakpoint-sm); align-items: start; } }
+.accueil h1 { font-family: var(--font-titre); font-weight: 700; font-size: var(--text-2xl); line-height: var(--text-2xl--line-height); }
+.accueil h2.groupe { font-family: var(--font-titre); font-weight: 700; font-size: var(--text-xl); line-height: var(--text-xl--line-height); margin-top: calc(var(--u) * 3); }
+.accueil .liste { gap: calc(var(--u) * 3); }
+.carte-v { padding: calc(var(--u) * 3) calc(var(--u) * 4); display: grid; gap: var(--u); text-decoration: none; color: var(--texte); }
+.carte-v h3 { font-family: var(--font-titre); font-weight: 700; font-size: var(--text-lg); line-height: var(--text-lg--line-height); color: var(--region-accent); }
+.apercu { display: none; }
+@media (min-width: 48rem) { .apercu { display: block; position: sticky; top: calc(var(--u) * 4); width: var(--breakpoint-sm); height: calc(100dvh - var(--u) * 8); border: var(--trait) solid var(--bordure); background: var(--fond); } }
+:root { --font-titre: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, sans-serif; }
+
+/* Polices embarquées dans le dépôt (aucune ressource externe) : Rubik et Nunito (licence OFL), Atkinson Hyperlegible Next (OFL).
+   Le sous-ensemble latin-ext porte le signe ₽ (U+20BD). */
+@font-face { font-family: "Atkinson Hyperlegible Next"; font-weight: 400; font-display: swap; src: url("fonts/atkinson-hyperlegible-next-latin-ext-400-normal.woff2") format("woff2"); unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+@font-face { font-family: "Atkinson Hyperlegible Next"; font-weight: 600; font-display: swap; src: url("fonts/atkinson-hyperlegible-next-latin-ext-600-normal.woff2") format("woff2"); unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+@font-face { font-family: "Atkinson Hyperlegible Next"; font-weight: 700; font-display: swap; src: url("fonts/atkinson-hyperlegible-next-latin-ext-700-normal.woff2") format("woff2"); unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+
+body { background: var(--fond); }
+</style>
+</head>
+<body>
+<div class="accueil">
+  <div class="liste">
+    <h1>A5 : A4 corrigée (bandeau, tri DPS, fiche)</h1>
+    <p class="doux">Les corrections du retour de Nicolas sur A3, puis les nouveaux écrans. Chaque entrée ouvre l'écran de départ, ensuite on navigue librement. Contenu fictif ; les textes viennent du jeu actuel (src/ui, data/).</p>
+    <h2 class="groupe">Le jeu, corrigé</h2>
+    <a class="carte-v cadre" href="a5-app.html#combat" target="_top" data-apercu="a5-app.html#combat"><h3>Combat</h3><span>Seul écran qui garde la ligne précédent / suivant, points et 1/10 (navigation entre zones).</span></a>
+    <a class="carte-v cadre" href="a5-app.html#combat-debloque" target="_top" data-apercu="a5-app.html#combat-debloque"><h3>Combat, Fauchage et Poké-Radar débloqués</h3><span>Inchangé.</span></a>
+    <a class="carte-v cadre" href="a5-app.html#reglage-auto" target="_top" data-apercu="a5-app.html#reglage-auto"><h3>Fenêtre de réglage de l'arrêt auto</h3><span>Il ne reste que les sept raisons d'arrêt. L'interrupteur de l'auto-clic est parti dans Menu, Réglages.</span></a>
+    <a class="carte-v cadre" href="a5-app.html#dialogue" target="_top" data-apercu="a5-app.html#dialogue"><h3>Fenêtre de dialogue</h3><span>Inchangée.</span></a>
+    <a class="carte-v cadre" href="a5-app.html#sac" target="_top" data-apercu="a5-app.html#sac"><h3>Sac</h3><span>Inchangé.</span></a>
+    <a class="carte-v cadre" href="a5-app.html#equipe" target="_top" data-apercu="a5-app.html#equipe"><h3>Équipe</h3><span>Bandeau du haut réduit à Pokédollars, DPS, Zone. Les Pokémon s'ouvrent sur leur fiche.</span></a>
+    <a class="carte-v cadre" href="a5-app.html#equipe-choix" target="_top" data-apercu="a5-app.html#equipe-choix"><h3>Équipe, choix d'un Pokémon</h3><span>Inchangée.</span></a>
+    <a class="carte-v cadre" href="a5-app.html#shop" target="_top" data-apercu="a5-app.html#shop"><h3>Shop</h3><span>Inchangé.</span></a>
+    <a class="carte-v cadre" href="a5-app.html#carte" target="_top" data-apercu="a5-app.html#carte"><h3>Carte</h3><span>Inchangée.</span></a>
+    <a class="carte-v cadre" href="a5-app.html#vol" target="_top" data-apercu="a5-app.html#vol"><h3>Carte, vol vers une zone</h3><span>Inchangé.</span></a>
+    <a class="carte-v cadre" href="a5-app.html#menu" target="_top" data-apercu="a5-app.html#menu"><h3>Menu de jeu</h3><span>Pokédex, Badges, Statistiques, Guide du jeu, Réglages, Menu principal. Un bouton Maquette montre l'écran vu sur l'autre appareil quand on reprend la partie.</span></a>
+    <a class="carte-v cadre" href="a5-app.html#reglages" target="_top" data-apercu="a5-app.html#reglages"><h3>Réglages</h3><span>Musique, effets sonores, auto-clic lié à l'attaque auto (activé de base), thème.</span></a>
+    <h2 class="groupe">PC (stockage des Pokémon) et fiche d'un Pokémon</h2>
+    <a class="carte-v cadre" href="a5-app.html#equipe-pc" target="_top" data-apercu="a5-app.html#equipe-pc"><h3>Équipe, PC débloqué</h3><span>La ligne « PC de Léo » (compteur de Pokémon rangés) sous les six Pokémon : c'est l'accès.</span></a>
+    <a class="carte-v cadre" href="a5-app.html#pc-verrouille" target="_top" data-apercu="a5-app.html#pc-verrouille"><h3>PC verrouillé</h3><span>Cadenas et texte du jeu : « Le PC de Léo s'ouvre à l'Arène d'Argenta. » Un bouton Maquette le débloque.</span></a>
+    <a class="carte-v cadre" href="a5-app.html#pc" target="_top" data-apercu="a5-app.html#pc"><h3>PC</h3><span>12 Pokémon : recherche, liste de tri (DPS du plus grand au plus petit par défaut, le DPS s'affiche sur chaque carte), trois filtres, grille de deux colonnes.</span></a>
+    <a class="carte-v cadre" href="a5-app.html#pc-vide" target="_top" data-apercu="a5-app.html#pc-vide"><h3>PC vide</h3><span>« Ton PC est vide. Capture des Pokémon pour les ranger ici. »</span></a>
+    <a class="carte-v cadre" href="a5-app.html#pc-recherche" target="_top" data-apercu="a5-app.html#pc-recherche"><h3>PC, recherche</h3><span>Recherche « ra » : le surnom et le nom d'espèce comptent.</span></a>
+    <a class="carte-v cadre" href="a5-app.html#pc-sans-resultat" target="_top" data-apercu="a5-app.html#pc-sans-resultat"><h3>PC, aucun résultat</h3><span>Message du jeu et bouton pour effacer.</span></a>
+    <a class="carte-v cadre" href="a5-app.html#pc-fiche" target="_top" data-apercu="a5-app.html#pc-fiche"><h3>Fiche d'un Pokémon du PC</h3><span>Pastilles de même hauteur (sexe plus grand, Favori, types aux couleurs du jeu), XP, DPS et son détail, évolution, bonheur, calcium. Placer dans l'équipe, Relâcher.</span></a>
+    <a class="carte-v cadre" href="a5-app.html#pc-fiche-shiny" target="_top" data-apercu="a5-app.html#pc-fiche-shiny"><h3>Fiche d'un Pokémon shiny</h3><span>Halo et étiquette Shiny, multiplicateur ×2 dans le DPS.</span></a>
+    <a class="carte-v cadre" href="a5-app.html#pc-fiche-oeuf" target="_top" data-apercu="a5-app.html#pc-fiche-oeuf"><h3>Fiche d'un œuf</h3><span>Éclosion 4/10, pas de niveau, d'XP ni de surnom.</span></a>
+    <a class="carte-v cadre" href="a5-app.html#pc-renommer" target="_top" data-apercu="a5-app.html#pc-renommer"><h3>Renommer</h3><span>Surnom de 1 à 12 caractères, compteur, Valider et Annuler.</span></a>
+    <a class="carte-v cadre" href="a5-app.html#pc-relacher" target="_top" data-apercu="a5-app.html#pc-relacher"><h3>Relâcher, confirmation</h3><span>« Veux-tu vraiment relâcher … ? » Annuler (par défaut) et Relâche définitivement.</span></a>
+    <a class="carte-v cadre" href="a5-app.html#pc-echange" target="_top" data-apercu="a5-app.html#pc-echange"><h3>Échange avec l'équipe pleine</h3><span>Équipe de six : « Choisis le Pokémon à remplacer par … ». Toucher un Pokémon fait l'échange.</span></a>
+    <a class="carte-v cadre" href="a5-app.html#equipe-fiche" target="_top" data-apercu="a5-app.html#equipe-fiche"><h3>Fiche d'un Pokémon de l'équipe</h3><span>Même fiche, bouton « Envoyer au PC ».</span></a>
+    <a class="carte-v cadre" href="a5-app.html#pc-fiche-dernier" target="_top" data-apercu="a5-app.html#pc-fiche-dernier"><h3>Dernier Pokémon de l'équipe</h3><span>Envoi et relâchement désactivés avec la raison écrite.</span></a>
+    <h2 class="groupe">Pokédex</h2>
+    <a class="carte-v cadre" href="a5-app.html#pokedex" target="_top" data-apercu="a5-app.html#pokedex"><h3>Pokédex</h3><span>47 sur 151, barre de progression, prochain palier, paliers repliés, recherche, trois filtres, grille de 151 cases (silhouette pour les inconnus).</span></a>
+    <a class="carte-v cadre" href="a5-app.html#pokedex-paliers" target="_top" data-apercu="a5-app.html#pokedex-paliers"><h3>Pokédex, paliers ouverts</h3><span>Les dix paliers du jeu, reçus ou à venir.</span></a>
+    <a class="carte-v cadre" href="a5-app.html#pokedex-recherche" target="_top" data-apercu="a5-app.html#pokedex-recherche"><h3>Pokédex, recherche</h3><span>Recherche « pi » : seules les espèces capturées se trouvent par leur nom.</span></a>
+    <a class="carte-v cadre" href="a5-app.html#pokedex-a-trouver" target="_top" data-apercu="a5-app.html#pokedex-a-trouver"><h3>Pokédex, à trouver</h3><span>Filtre sur les espèces non capturées.</span></a>
+    <a class="carte-v cadre" href="a5-app.html#pokedex-detail" target="_top" data-apercu="a5-app.html#pokedex-detail"><h3>Détail d'une espèce capturée</h3><span>Sprite, types, « Déjà capturé », où elle se trouve.</span></a>
+    <a class="carte-v cadre" href="a5-app.html#pokedex-inconnu" target="_top" data-apercu="a5-app.html#pokedex-inconnu"><h3>Détail d'une espèce inconnue</h3><span>Silhouette et invitation à la capturer.</span></a>
+    <a class="carte-v cadre" href="a5-app.html#pokedex-complet" target="_top" data-apercu="a5-app.html#pokedex-complet"><h3>Pokédex complet</h3><span>« Pokédex complet ! » et ligne « Diplôme du Pokédex ».</span></a>
+    <a class="carte-v cadre" href="a5-app.html#pokedex-diplome" target="_top" data-apercu="a5-app.html#pokedex-diplome"><h3>Diplôme du Pokédex</h3><span>Image du diplôme du jeu, nom du joueur, date, Imprimer.</span></a>
+    <h2 class="groupe">Badges</h2>
+    <a class="carte-v cadre" href="a5-app.html#badges" target="_top" data-apercu="a5-app.html#badges"><h3>Badges</h3><span>Huit badges en deux colonnes : obtenu (couleur, effet) ou silhouette avec l'arène à battre.</span></a>
+    <a class="carte-v cadre" href="a5-app.html#badges-detail" target="_top" data-apercu="a5-app.html#badges-detail"><h3>Détail d'un badge obtenu</h3><span>Effet, arène, champion.</span></a>
+    <a class="carte-v cadre" href="a5-app.html#badges-detail-manque" target="_top" data-apercu="a5-app.html#badges-detail-manque"><h3>Détail d'un badge à gagner</h3><span>Silhouette, « Pas encore obtenu », où le gagner.</span></a>
+    <a class="carte-v cadre" href="a5-app.html#badges-aucun" target="_top" data-apercu="a5-app.html#badges-aucun"><h3>Aucun badge</h3><span>« Aucun badge obtenu. Bats les champions d'arène ! »</span></a>
+    <a class="carte-v cadre" href="a5-app.html#badges-tous" target="_top" data-apercu="a5-app.html#badges-tous"><h3>Huit badges</h3><span>Collection complète.</span></a>
+    <h2 class="groupe">Statistiques et Guide</h2>
+    <a class="carte-v cadre" href="a5-app.html#stats" target="_top" data-apercu="a5-app.html#stats"><h3>Statistiques</h3><span>Les sept statistiques du jeu : vaincus, argent total, dégâts clic, DPS équipe, gains d'argent, gains d'XP, taux de capture.</span></a>
+    <a class="carte-v cadre" href="a5-app.html#guide" target="_top" data-apercu="a5-app.html#guide"><h3>Guide du jeu</h3><span>Les onze sections du guide du jeu, une seule ouverte à la fois.</span></a>
+    <a class="carte-v cadre" href="a5-app.html#guide-pc" target="_top" data-apercu="a5-app.html#guide-pc"><h3>Guide, section PC</h3><span>Texte du guide sur le PC.</span></a>
+    <h2 class="groupe">La zone compte</h2>
+    <a class="carte-v cadre" href="a5-app.html#c-connexion" target="_top" data-apercu="a5-app.html#c-connexion"><h3>Connexion</h3><span>Inchangée.</span></a>
+    <a class="carte-v cadre" href="a5-app.html#c-inscription" target="_top" data-apercu="a5-app.html#c-inscription"><h3>Créer un compte</h3><span>Inchangé.</span></a>
+    <a class="carte-v cadre" href="a5-app.html#c-oubli" target="_top" data-apercu="a5-app.html#c-oubli"><h3>Mot de passe oublié</h3><span>Inchangé.</span></a>
+    <a class="carte-v cadre" href="a5-app.html#c-parties" target="_top" data-apercu="a5-app.html#c-parties"><h3>Mes parties</h3><span>Une carte par partie : à jour, ouverte ailleurs, supprimée ailleurs. Plus aucune mention de version.</span></a>
+    <a class="carte-v cadre" href="a5-app.html#c-parties-vide" target="_top" data-apercu="a5-app.html#c-parties-vide"><h3>Mes parties, première partie</h3><span>Inchangé.</span></a>
+    <a class="carte-v cadre" href="a5-app.html#c-parties-hors-ligne" target="_top" data-apercu="a5-app.html#c-parties-hors-ligne"><h3>Mes parties, hors connexion</h3><span>Inchangé.</span></a>
+    <a class="carte-v cadre" href="a5-app.html#c-ailleurs" target="_top" data-apercu="a5-app.html#c-ailleurs"><h3>Partie ouverte ailleurs</h3><span>Dit clairement : la partie se ferme sur l'autre appareil, et on repart exactement là où elle en était.</span></a>
+    <a class="carte-v cadre" href="a5-app.html#c-reprise-ailleurs" target="_top" data-apercu="a5-app.html#c-reprise-ailleurs"><h3>Notification sur l'autre appareil</h3><span>Ce que voit l'appareil qu'on a fermé : « Partie reprise ailleurs ».</span></a>
+    <a class="carte-v cadre" href="a5-app.html#c-supprimee" target="_top" data-apercu="a5-app.html#c-supprimee"><h3>Partie supprimée ailleurs</h3><span>La garder ou l'abandonner.</span></a>
+    <a class="carte-v cadre" href="a5-app.html#c-compte" target="_top" data-apercu="a5-app.html#c-compte"><h3>Mon compte</h3><span>Inchangé.</span></a>
+    <a class="carte-v cadre" href="a5-app.html#c-deconnexion" target="_top" data-apercu="a5-app.html#c-deconnexion"><h3>Déconnexion avec synchro en attente</h3><span>« Sauvegarder et se déconnecter » (principal) et « Rester connecté ».</span></a>
+    <a class="carte-v cadre" href="a5-app.html#c-deconnexion-chargement" target="_top" data-apercu="a5-app.html#c-deconnexion-chargement"><h3>Déconnexion, sauvegarde en cours</h3><span>Page de chargement plein écran, puis déconnexion à la fin (2,6 s en maquette).</span></a>
+    <a class="carte-v cadre" href="a5-app.html#c-deconnexion-echec" target="_top" data-apercu="a5-app.html#c-deconnexion-echec"><h3>Déconnexion, échec de la sauvegarde</h3><span>Réessayer ou rester connecté. Pas de « se déconnecter quand même ».</span></a>
+    <a class="carte-v cadre" href="a5-app.html#c-reglages" target="_top" data-apercu="a5-app.html#c-reglages"><h3>Réglages du compte</h3><span>Mêmes réglages que dans le jeu, auto-clic compris.</span></a>
+  </div>
+  <iframe class="apercu" name="apercu" title="Aperçu de A5" src="a5-app.html#combat"></iframe>
+</div>
+<script>
+if (matchMedia("(min-width: 48rem)").matches) document.querySelectorAll("[data-apercu]").forEach((a) => { a.target = "apercu"; });
+</script>
+</body>
+</html>
