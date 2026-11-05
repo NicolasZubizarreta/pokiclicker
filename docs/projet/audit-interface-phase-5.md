@@ -60,3 +60,29 @@ Source : relevé du code (`src/ui/`). Navigation permanente : barre fixe en bas 
 ## 5. Méthode de travail avec Nicolas
 
 Un écran à la fois, dans cet ordre : (1) captures de l'état actuel, (2) note sur la grille, (3) trois ou quatre variantes **navigables** (pas des captures), bâties sur de vraies bases de qualité, (4) Nicolas choisit ou mélange, (5) implémentation dans la vraie application, (6) captures 390 et 1440 px regardées avant de lui montrer. Une maquette validée est le critère d'un ticket d'implémentation ; aucun écran n'est refait sans cela.
+
+## 6. Premier jet de l'audit, 8 écrans à 390 px (05/11, à corriger avec Nicolas)
+
+Notes de Claude d'après les captures `design/audit/*-390.png`, donc **sur image fixe** : les lignes 7 (retour d'information) et 9 (charte) ne se jugent qu'en jouant ou avec `design/DESIGN.md` ouvert, elles sont laissées de côté. La ligne 10 (PC) n'est pas notée ici. Notes de 0 à 2 sur les lignes 1 à 6 et 8 de la grille, total sur 14.
+
+| Écran | But | Hiér. | Pouce | Lisib. | Dens. | Nav. | Cohér. | Total | Constat principal |
+|---|---|---|---|---|---|---|---|---|---|
+| Combat | 2 | 1 | 1 | 1 | 0 | 1 | 1 | 7 | Tout est empilé : bandeau, étape, pièces, scène, DPS, 5 icônes sans texte, 6 portraits, dialogue de Chen. La barre du bas coupe le dialogue et ses boutons de zone. |
+| Équipe | 2 | 1 | 1 | 2 | 0 | 2 | 1 | 9 | Six cartes identiques, le sac est collé dessous (1400 px de haut). Le crayon d'édition fait ~20 px. Le bandeau « PO débloqué » recouvre le titre. |
+| PC | 1 | 0 | 1 | 2 | 1 | 2 | 1 | 8 | « Ton PC est vide » s'affiche juste sous une rangée de six portraits : on ne sait pas ce que la rangée représente. Tri et recherche prennent la moitié de l'écran. |
+| Shop | 2 | 0 | 1 | 1 | 0 | 1 | 1 | 6 | 17 articles de même poids sur 5200 px. Les boutons − et + font ~28 px. Les onglets filtrent mais « Tout » montre tout par défaut. |
+| Carte | 1 | 1 | 0 | 1 | 2 | 2 | 1 | 8 | La carte tient dans 190 px : les points à toucher font ~20 px, loin des 48. La barre de progression est d'un vert pur qui semble hors charte (à vérifier dans les jetons). |
+| Plus | 1 | 1 | 2 | 2 | 1 | 1 | 1 | 9 | Fourre-tout (stats, Pokédex, badges, guide, diplôme, réglages). Le Pokédex apparaît deux fois (résumé et ligne). |
+| Mes parties | 2 | 1 | 1 | 2 | 2 | 1 | 0 | 9 | Style différent du jeu (liens soulignés, titre encadré en doré). « Retour au jeu » et « Supprimer » sont de petits liens ; aucune trace de la synchro. |
+| Connexion | 1 | 1 | 1 | 2 | 2 | 1 | 1 | 9 | Formulaire centré sans nom ni identité du jeu. « Créer un compte » et « Mot de passe oublié » sont de petits liens côte à côte. |
+
+Défauts qui reviennent sur plusieurs écrans :
+1. **Densité** : des pages longues où tout a le même poids (combat, équipe, shop). Gravité haute.
+2. **Cibles tactiles trop petites** : crayon d'édition, − et +, points de la carte, liens de compte. Gravité haute sur téléphone.
+3. **Bandeau « PO débloqué »** : il prend la place en haut de chaque écran et recouvre le titre de l'équipe (à confirmer en jeu : il peut venir de l'état de la capture).
+4. **Compte et parties** : style à part et pas d'identité. Déjà prévu en refonte.
+5. **Barre du bas** : elle coupe le contenu sur le combat et a 6 entrées.
+
+Ordre proposé pour les tickets : C (navigation et écran principal) en premier, puis D (combat), E (compte), F (parties), G, H, I, J, K. Il suit l'ordre actuel du backlog ; à discuter avec Nicolas.
+
+Reste à faire pour clore B : les notes de Nicolas (il corrige ce que j'ai vu de travers), les 3 ou 4 jeux de référence regardés sur téléphone, la validation de l'ordre des tickets.

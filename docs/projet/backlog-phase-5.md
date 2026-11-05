@@ -51,7 +51,7 @@ Tout changement d'interface.
 
 ## B. `docs(design): auditer les écrans avec Nicolas`
 
-`type:docs`, `etat:a_faire`, `est:1-2`, `prio:1` · branche : `v2` · pas d'`agent-ok` (jugement avec Nicolas) · dépend de : A
+`type:docs`, `etat:en_cours`, `est:1-2`, `prio:1` · branche : `v2` · pas d'`agent-ok` (jugement avec Nicolas) · dépend de : A
 
 ### Histoire
 En tant que Nicolas, je veux un diagnostic clair écran par écran afin de savoir quoi refaire en premier, sans avoir d'idée à l'avance.
