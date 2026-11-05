@@ -1,0 +1,1013 @@
+{
+  "genereLe": "2026-11-05T12:19:07.419Z",
+  "ecrans": [
+    {
+      "groupe": "compte",
+      "slug": "connexion",
+      "titre": "Connexion",
+      "source": "src/ui/compte/EcranCompte.tsx",
+      "etat": "Formulaire sans erreur ; API fictive locale.",
+      "build": "compte",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "compte-connexion-390.png",
+        "1440": "compte-connexion-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:14:45.324Z"
+    },
+    {
+      "groupe": "compte",
+      "slug": "inscription",
+      "titre": "Inscription",
+      "source": "src/ui/compte/EcranCompte.tsx",
+      "etat": "Formulaire sans erreur ; API fictive locale.",
+      "build": "compte",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "compte-inscription-390.png",
+        "1440": "compte-inscription-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:14:45.826Z"
+    },
+    {
+      "groupe": "compte",
+      "slug": "mot-de-passe-oublie",
+      "titre": "Mot de passe oublié",
+      "source": "src/ui/compte/EcranCompte.tsx",
+      "etat": "Formulaire sans erreur ; API fictive locale.",
+      "build": "compte",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "compte-mot-de-passe-oublie-390.png",
+        "1440": "compte-mot-de-passe-oublie-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:14:46.442Z"
+    },
+    {
+      "groupe": "compte",
+      "slug": "nouveau-mot-de-passe",
+      "titre": "Nouveau mot de passe",
+      "source": "src/ui/compte/EcranCompte.tsx",
+      "etat": "Formulaire sans erreur ; API fictive locale.",
+      "build": "compte",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "compte-nouveau-mot-de-passe-390.png",
+        "1440": "compte-nouveau-mot-de-passe-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:14:46.955Z"
+    },
+    {
+      "groupe": "compte",
+      "slug": "ecran-parties",
+      "titre": "Mes parties",
+      "source": "src/ui/compte/EcranParties.tsx",
+      "etat": "Partie locale existante, aucune partie sur le faux serveur.",
+      "build": "compte",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "compte-ecran-parties-390.png",
+        "1440": "compte-ecran-parties-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:18:29.914Z"
+    },
+    {
+      "groupe": "compte",
+      "slug": "ecran-choix-version",
+      "titre": "Choix de version",
+      "source": "src/ui/compte/EcranChoixVersion.tsx",
+      "etat": "Versions locale et distante divergentes de la même partie.",
+      "build": "compte",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "compte-ecran-choix-version-390.png",
+        "1440": "compte-ecran-choix-version-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:14:48.677Z"
+    },
+    {
+      "groupe": "compte",
+      "slug": "ecran-autre-appareil",
+      "titre": "Partie ouverte ailleurs",
+      "source": "src/ui/compte/EcranAutreAppareil.tsx",
+      "etat": "Le faux serveur signale un autre appareil actif.",
+      "build": "compte",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "compte-ecran-autre-appareil-390.png",
+        "1440": "compte-ecran-autre-appareil-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:14:49.811Z"
+    },
+    {
+      "groupe": "compte",
+      "slug": "ecran-mon-compte",
+      "titre": "Mon compte",
+      "source": "src/ui/compte/EcranMonCompte.tsx",
+      "etat": "Compte local : 120 diamants, deux succès, skin tenue-kanto ; section dans la page Mon compte.",
+      "build": "jeu",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "compte-ecran-mon-compte-390.png",
+        "1440": "compte-ecran-mon-compte-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:19:06.404Z"
+    },
+    {
+      "groupe": "compte",
+      "slug": "diamants",
+      "titre": "Diamants",
+      "source": "src/ui/compte/EcranMonCompte.tsx",
+      "etat": "Compte local : 120 diamants, deux succès, skin tenue-kanto ; section dans la page Mon compte.",
+      "build": "jeu",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "compte-diamants-390.png",
+        "1440": "compte-diamants-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:14:51.791Z"
+    },
+    {
+      "groupe": "compte",
+      "slug": "succes",
+      "titre": "Succès",
+      "source": "src/ui/compte/EcranMonCompte.tsx",
+      "etat": "Compte local : 120 diamants, deux succès, skin tenue-kanto ; section dans la page Mon compte.",
+      "build": "jeu",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "compte-succes-390.png",
+        "1440": "compte-succes-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:14:52.712Z"
+    },
+    {
+      "groupe": "compte",
+      "slug": "skins",
+      "titre": "Skins",
+      "source": "src/ui/compte/EcranMonCompte.tsx",
+      "etat": "Compte local : 120 diamants, deux succès, skin tenue-kanto ; section dans la page Mon compte.",
+      "build": "jeu",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "compte-skins-390.png",
+        "1440": "compte-skins-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:14:53.683Z"
+    },
+    {
+      "groupe": "combat",
+      "slug": "ecran-combat",
+      "titre": "Combat",
+      "source": "src/ui/EcranCombat.tsx",
+      "etat": "Équipe de six au niveau 100, huit badges, 250 000 pièces, sac rempli et radar débloqué.",
+      "build": "jeu",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "combat-ecran-combat-390.png",
+        "1440": "combat-ecran-combat-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:14:54.614Z"
+    },
+    {
+      "groupe": "combat",
+      "slug": "bourg-palette",
+      "titre": "Scène du bourg",
+      "source": "src/ui/EcranCombat.tsx",
+      "etat": "Bourg Palette après le choix du starter.",
+      "build": "jeu",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "combat-bourg-palette-390.png",
+        "1440": "combat-bourg-palette-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:14:55.620Z"
+    },
+    {
+      "groupe": "combat",
+      "slug": "ronflex",
+      "titre": "Scène de Ronflex",
+      "source": "src/ui/EcranCombat.tsx",
+      "etat": "Ronflex endormi bloque la route, avant usage de la Pokéflûte.",
+      "build": "jeu",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "combat-ronflex-390.png",
+        "1440": "combat-ronflex-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:18:22.438Z"
+    },
+    {
+      "groupe": "combat",
+      "slug": "dialogues-chen",
+      "titre": "Dialogues de Chen",
+      "source": "src/ui/SceneFin.tsx",
+      "etat": "Pokédex complet : félicitations de Chen au laboratoire.",
+      "build": "jeu",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "combat-dialogues-chen-390.png",
+        "1440": "combat-dialogues-chen-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:14:58.588Z"
+    },
+    {
+      "groupe": "combat",
+      "slug": "panneau-sac",
+      "titre": "Sac en combat",
+      "source": "src/ui/PanneauSac.tsx",
+      "etat": "Équipe de six au niveau 100, huit badges, 250 000 pièces, sac rempli et radar débloqué.",
+      "build": "jeu",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "combat-panneau-sac-390.png",
+        "1440": "combat-panneau-sac-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:14:59.532Z"
+    },
+    {
+      "groupe": "combat",
+      "slug": "fenetre-radar",
+      "titre": "Radar",
+      "source": "src/ui/FenetreRadar.tsx",
+      "etat": "Équipe de six au niveau 100, huit badges, 250 000 pièces, sac rempli et radar débloqué.",
+      "build": "jeu",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "combat-fenetre-radar-390.png",
+        "1440": "combat-fenetre-radar-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:15:00.556Z"
+    },
+    {
+      "groupe": "intro",
+      "slug": "page-intro-maman",
+      "titre": "Chez Maman",
+      "source": "src/ui/PageIntro.tsx",
+      "etat": "Nouvelle partie sans équipe de départ ; parcours réel de l’introduction.",
+      "build": "jeu",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "intro-page-intro-maman-390.png",
+        "1440": "intro-page-intro-maman-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:15:01.490Z"
+    },
+    {
+      "groupe": "intro",
+      "slug": "page-intro-bourg",
+      "titre": "Bourg Palette",
+      "source": "src/ui/PageIntro.tsx",
+      "etat": "Nouvelle partie sans équipe de départ ; parcours réel de l’introduction.",
+      "build": "jeu",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "intro-page-intro-bourg-390.png",
+        "1440": "intro-page-intro-bourg-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:15:02.344Z"
+    },
+    {
+      "groupe": "intro",
+      "slug": "ecran-titre",
+      "titre": "Écran titre",
+      "source": "src/ui/EcranTitre.tsx",
+      "etat": "Nouvelle partie sans équipe de départ ; parcours réel de l’introduction.",
+      "build": "jeu",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "intro-ecran-titre-390.png",
+        "1440": "intro-ecran-titre-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:15:03.286Z"
+    },
+    {
+      "groupe": "intro",
+      "slug": "choix-starter",
+      "titre": "Choix du starter",
+      "source": "src/ui/ChoixStarter.tsx",
+      "etat": "Nouvelle partie sans équipe de départ ; parcours réel de l’introduction.",
+      "build": "jeu",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "intro-choix-starter-390.png",
+        "1440": "intro-choix-starter-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:15:03.757Z"
+    },
+    {
+      "groupe": "intro",
+      "slug": "dialogue-intro",
+      "titre": "Dialogue de Chen",
+      "source": "src/ui/DialogueIntro.tsx",
+      "etat": "Nouvelle partie sans équipe de départ ; parcours réel de l’introduction.",
+      "build": "jeu",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "intro-dialogue-intro-390.png",
+        "1440": "intro-dialogue-intro-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:15:05.264Z"
+    },
+    {
+      "groupe": "equipe",
+      "slug": "page-equipe",
+      "titre": "Équipe",
+      "source": "src/ui/PageEquipe.tsx",
+      "etat": "Équipe de six au niveau 100, huit badges, 250 000 pièces, sac rempli et radar débloqué.",
+      "build": "jeu",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "equipe-page-equipe-390.png",
+        "1440": "equipe-page-equipe-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:15:06.224Z"
+    },
+    {
+      "groupe": "equipe",
+      "slug": "page-pc",
+      "titre": "PC",
+      "source": "src/ui/PagePC.tsx",
+      "etat": "Équipe complète, Pikachu niveau 30 au PC.",
+      "build": "jeu",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "equipe-page-pc-390.png",
+        "1440": "equipe-page-pc-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:15:07.173Z"
+    },
+    {
+      "groupe": "equipe",
+      "slug": "sac",
+      "titre": "Sac dans l’équipe",
+      "source": "src/ui/Sac.tsx",
+      "etat": "Équipe de six au niveau 100, huit badges, 250 000 pièces, sac rempli et radar débloqué.",
+      "build": "jeu",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "equipe-sac-390.png",
+        "1440": "equipe-sac-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:15:08.062Z"
+    },
+    {
+      "groupe": "equipe",
+      "slug": "fiche-pokemon",
+      "titre": "Fiche Pokémon",
+      "source": "src/ui/FichePokemon.tsx",
+      "etat": "Équipe de six au niveau 100, huit badges, 250 000 pièces, sac rempli et radar débloqué.",
+      "build": "jeu",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "equipe-fiche-pokemon-390.png",
+        "1440": "equipe-fiche-pokemon-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:15:09.010Z"
+    },
+    {
+      "groupe": "equipe",
+      "slug": "menu-pokemon",
+      "titre": "Menu Pokémon",
+      "source": "src/ui/MenuPokemon.tsx",
+      "etat": "Équipe de six au niveau 100, huit badges, 250 000 pièces, sac rempli et radar débloqué.",
+      "build": "jeu",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "equipe-menu-pokemon-390.png",
+        "1440": "equipe-menu-pokemon-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:15:10.099Z"
+    },
+    {
+      "groupe": "shop",
+      "slug": "page-shop",
+      "titre": "Shop",
+      "source": "src/ui/PageShop.tsx",
+      "etat": "Équipe de six au niveau 100, huit badges, 250 000 pièces, sac rempli et radar débloqué.",
+      "build": "jeu",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "shop-page-shop-390.png",
+        "1440": "shop-page-shop-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:15:11.052Z"
+    },
+    {
+      "groupe": "carte",
+      "slug": "carte-kanto",
+      "titre": "Carte de Kanto",
+      "source": "src/ui/CarteKanto.tsx",
+      "etat": "Équipe de six au niveau 100, huit badges, 250 000 pièces, sac rempli et radar débloqué.",
+      "build": "jeu",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "carte-carte-kanto-390.png",
+        "1440": "carte-carte-kanto-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:15:12.062Z"
+    },
+    {
+      "groupe": "carte",
+      "slug": "page-centre",
+      "titre": "Centre commercial",
+      "source": "src/ui/PageCentre.tsx",
+      "etat": "Équipe de six au niveau 100, huit badges, 250 000 pièces, sac rempli et radar débloqué.",
+      "build": "jeu",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "carte-page-centre-390.png",
+        "1440": "carte-page-centre-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:15:13.034Z"
+    },
+    {
+      "groupe": "carte",
+      "slug": "page-casino",
+      "titre": "Casino",
+      "source": "src/ui/PageCasino.tsx",
+      "etat": "Équipe de six au niveau 100, huit badges, 250 000 pièces, sac rempli et radar débloqué.",
+      "build": "jeu",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "carte-page-casino-390.png",
+        "1440": "carte-page-casino-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:15:14.822Z"
+    },
+    {
+      "groupe": "carte",
+      "slug": "page-pension",
+      "titre": "Pension",
+      "source": "src/ui/PagePension.tsx",
+      "etat": "Équipe de six au niveau 100, huit badges, 250 000 pièces, sac rempli et radar débloqué.",
+      "build": "jeu",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "carte-page-pension-390.png",
+        "1440": "carte-page-pension-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:15:16.484Z"
+    },
+    {
+      "groupe": "plus",
+      "slug": "page-plus",
+      "titre": "Plus — menu",
+      "source": "src/ui/PagePlus.tsx",
+      "etat": "Équipe de six au niveau 100, huit badges, 250 000 pièces, sac rempli et radar débloqué.",
+      "build": "jeu",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "plus-page-plus-390.png",
+        "1440": "plus-page-plus-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:15:17.404Z"
+    },
+    {
+      "groupe": "plus",
+      "slug": "page-plus-reglages",
+      "titre": "Plus — réglages",
+      "source": "src/ui/PagePlus.tsx",
+      "etat": "Équipe de six au niveau 100, huit badges, 250 000 pièces, sac rempli et radar débloqué.",
+      "build": "jeu",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "plus-page-plus-reglages-390.png",
+        "1440": "plus-page-plus-reglages-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:15:18.311Z"
+    },
+    {
+      "groupe": "plus",
+      "slug": "pokedex",
+      "titre": "Pokédex",
+      "source": "src/ui/Pokedex.tsx",
+      "etat": "Équipe de six au niveau 100, huit badges, 250 000 pièces, sac rempli et radar débloqué.",
+      "build": "jeu",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "plus-pokedex-390.png",
+        "1440": "plus-pokedex-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:15:19.336Z"
+    },
+    {
+      "groupe": "plus",
+      "slug": "boite-badges",
+      "titre": "Badges",
+      "source": "src/ui/BoiteBadges.tsx",
+      "etat": "Équipe de six au niveau 100, huit badges, 250 000 pièces, sac rempli et radar débloqué.",
+      "build": "jeu",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "plus-boite-badges-390.png",
+        "1440": "plus-boite-badges-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:15:21.018Z"
+    },
+    {
+      "groupe": "plus",
+      "slug": "guide",
+      "titre": "Guide",
+      "source": "src/ui/Guide.tsx",
+      "etat": "Équipe de six au niveau 100, huit badges, 250 000 pièces, sac rempli et radar débloqué.",
+      "build": "jeu",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "plus-guide-390.png",
+        "1440": "plus-guide-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:15:22.054Z"
+    },
+    {
+      "groupe": "plus",
+      "slug": "statistiques",
+      "titre": "Statistiques",
+      "source": "src/ui/Statistiques.tsx",
+      "etat": "Équipe de six au niveau 100, huit badges, 250 000 pièces, sac rempli et radar débloqué.",
+      "build": "jeu",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "plus-statistiques-390.png",
+        "1440": "plus-statistiques-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:15:23.082Z"
+    },
+    {
+      "groupe": "plus",
+      "slug": "diplome",
+      "titre": "Diplôme",
+      "source": "src/ui/Diplome.tsx",
+      "etat": "Diplôme obtenu le 5 novembre 2026, partie locale.",
+      "build": "jeu",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "plus-diplome-390.png",
+        "1440": "plus-diplome-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:15:24.073Z"
+    },
+    {
+      "groupe": "fin",
+      "slug": "scene-fin",
+      "titre": "Fin — Pokédex complet",
+      "source": "src/ui/SceneFin.tsx",
+      "etat": "151 espèces capturées, première réplique de Chen.",
+      "build": "jeu",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "fin-scene-fin-390.png",
+        "1440": "fin-scene-fin-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:15:25.192Z"
+    },
+    {
+      "groupe": "fin",
+      "slug": "pantheon",
+      "titre": "Panthéon",
+      "source": "src/ui/Pantheon.tsx",
+      "etat": "Première victoire à la Ligue, six Pokémon niveau 100.",
+      "build": "jeu",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "fin-pantheon-390.png",
+        "1440": "fin-pantheon-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:15:26.171Z"
+    },
+    {
+      "groupe": "fin",
+      "slug": "credits",
+      "titre": "Crédits",
+      "source": "src/ui/Credits.tsx",
+      "etat": "Fin du défi de Chen : crédits disponibles et pas encore vus.",
+      "build": "jeu",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "fin-credits-390.png",
+        "1440": "fin-credits-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:15:27.524Z"
+    }
+  ]
+}

@@ -31,15 +31,17 @@ Chemin critique : A → B → C → D → (E, F, G, H en parallèle de choix, ja
 
 ## A. `chore(design): capturer l'existant à 390 et 1440 px`
 
-`type:chore`, `etat:a_faire`, `est:1-2`, `prio:1` · branche : `v2` · `agent-ok` possible (script, pas de décision)
+`type:chore`, `etat:fait`, `est:1-2`, `prio:1` · branche : `v2` · `agent-ok` possible (script, pas de décision)
 
 ### Histoire
 En tant que Nicolas, je veux voir tous les écrans actuels côte à côte afin de juger sur pièces ce qui est à refaire.
 
 ### Critères d'acceptation
-- [ ] Étant donné les 35 écrans de l'inventaire, quand le script de capture tourne, alors `design/audit/` contient une image 390 px et une image 1440 px par écran, nommées d'après le fichier d'écran.
-- [ ] Étant donné les écrans qui demandent un état de jeu (combat, fin, panthéon, compte), quand le script les atteint, alors il passe par un état de partie de test déjà prévu (aucune règle de jeu modifiée).
-- [ ] Étant donné les captures, quand j'ouvre `design/audit/index.html`, alors je vois les écrans en planche navigable, groupés comme l'inventaire.
+- [x] Étant donné les 35 écrans de l'inventaire, quand le script de capture tourne, alors `design/audit/` contient une image 390 px et une image 1440 px par écran, nommées d'après le fichier d'écran.
+- [x] Étant donné les écrans qui demandent un état de jeu (combat, fin, panthéon, compte), quand le script les atteint, alors il passe par un état de partie de test déjà prévu (aucune règle de jeu modifiée).
+- [x] Étant donné les captures, quand j'ouvre `design/audit/index.html`, alors je vois les écrans en planche navigable, groupés comme l'inventaire.
+
+Fait le 05/11/2026 : `npm run audit:captures` (scripts/audit-captures.mjs), 42 captures (les 35 entrées de l’inventaire éclatées par sous-écran) dans `design/audit/`, planche `design/audit/index.html`. Aucun écran inatteignable, aucun accès de test ajouté dans `src/`. Constat pour l’audit (B) : à 1440 px, l’en-tête du combat recouvre les boutons « Mon compte » et « Mes parties » (clic de souris intercepté).
 
 ### Hors périmètre
 Tout changement d'interface.

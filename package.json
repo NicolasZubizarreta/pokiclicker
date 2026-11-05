@@ -6,6 +6,7 @@
     "node": ">=22"
   },
   "scripts": {
+    "audit:captures": "node scripts/audit-captures.mjs",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
