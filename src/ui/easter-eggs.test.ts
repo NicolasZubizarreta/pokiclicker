@@ -24,7 +24,7 @@ describe('apparence des easter eggs', () => {
     ['GRUMM', 'ee-retourne'],
     ['Jeb_', 'ee-arc-en-ciel motion-safe:ee-arc-en-ciel-anime'],
     ['CACA', 'ee-caca'],
-    ['Bjorn', ''], ['Gabriel', ''], ['Pikachu', ''], ['', ''],
+    ['Bjorn', ''],['Pikachu', ''], ['', ''],
   ])('applique l’apparence de %s', (surnom, classe) => {
     const entree = Object.freeze({ ...pokemon, surnom });
     expect(apparenceSprite(entree)).toEqual({
@@ -45,6 +45,16 @@ describe('apparence des easter eggs', () => {
     expect(apparenceSprite(entree)).toEqual({ src, classe: '', photo: true });
     expect(spriteAffiche(entree)).toBe(src);
   });
+
+  it.each([[1, 1], [2, 2], [3, 3], [4, 1], [5, 2], [6, 3]])(
+    'Gabriel prend l’image du stade de l’espèce %i (stade %i)',
+    (numero, stade) => {
+      const entree = Object.freeze({ ...pokemon, numero, surnom: ' GABRIEL ' });
+      expect(apparenceSprite(entree)).toEqual({
+        src: `img/easter-eggs/gabriel-stade-${stade}.webp`, classe: '', photo: true,
+      });
+    },
+  );
 
   it.each(['daran', 'DinnerBone', 'GRUMM', 'Jeb_', 'CACA'])('donne priorité à l’œuf nommé %s', surnom => {
     const entree = Object.freeze({ ...pokemon, surnom, oeuf: Object.freeze({ pasRestants: 10, pasMax: 10 }) });

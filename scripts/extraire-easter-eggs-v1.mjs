@@ -94,8 +94,10 @@ const donnees = {
     { nom: 'Jeb_', declencheurs: ['jeb_'], effet: 'arc-en-ciel', assets: [], inactif: false },
     { nom: 'Caca', declencheurs: ['caca'], effet: 'caca', assets: [], inactif: false },
     { nom: 'Daran', declencheurs: ['daran'], effet: 'photo', assets: [1, 2, 3].map(stade => `img/easter-eggs/daran-stade-${stade}.webp`), inactif: false },
-    ...['Bjorn', 'Gabriel'].map(nom => ({ nom, declencheurs: [nom.toLowerCase()], effet: null, assets: [], inactif: true,
-      raison: 'Apparence non définie par Nicolas (design/DESIGN.md)' })),
+    { nom: 'Bjorn', declencheurs: ['bjorn'], effet: null, assets: [], inactif: true,
+      raison: 'Apparence non définie par Nicolas (design/DESIGN.md)' },
+    // Ajout du 05/11 (absent de la V1) : Gabriel prend l'image de Charbambin, Carmadura ou Malvalame selon le stade.
+    { nom: 'Gabriel', declencheurs: ['gabriel'], effet: 'photo', assets: [1, 2, 3].map(stade => `img/easter-eggs/gabriel-stade-${stade}.webp`), inactif: false },
   ],
   css,
 };

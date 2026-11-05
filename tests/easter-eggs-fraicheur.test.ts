@@ -13,18 +13,19 @@ it('le registre et la fixture des easter eggs sont ceux extraits de la V1', asyn
   expect(sortie.stdout).toMatch(/Empreinte SHA-256 : [a-f0-9]{64}/);
 }, 30_000);
 
-it('relève les 151 stades, les six sites V1 et les quatre effets actifs', async () => {
+it('relève les 151 stades, les six sites V1 et les effets actifs (quatre de la V1, plus Gabriel ajouté le 05/11)', async () => {
   const lire = async (chemin: string) => JSON.parse(await readFile(new URL(chemin, import.meta.url), 'utf8'));
   const registre = await lire('../data/easter-eggs.json');
   const fixture = await lire('./fixtures/v1-easter-eggs.json');
   expect(registre.version).toBe(1);
   expect(registre.effets.filter((effet: { inactif: boolean }) => !effet.inactif)
     .map((effet: { declencheurs: string[] }) => effet.declencheurs))
-    .toEqual([['dinnerbone', 'grumm'], ['jeb_'], ['caca'], ['daran']]);
+    .toEqual([['dinnerbone', 'grumm'], ['jeb_'], ['caca'], ['daran'], ['gabriel']]);
   expect(registre.effets.filter((effet: { inactif: boolean }) => effet.inactif)).toEqual([
     { nom: 'Bjorn', declencheurs: ['bjorn'], effet: null, assets: [], inactif: true, raison: 'Apparence non définie par Nicolas (design/DESIGN.md)' },
-    { nom: 'Gabriel', declencheurs: ['gabriel'], effet: null, assets: [], inactif: true, raison: 'Apparence non définie par Nicolas (design/DESIGN.md)' },
   ]);
+  expect(registre.effets.find((effet: { nom: string }) => effet.nom === 'Gabriel')?.assets)
+    .toEqual([1, 2, 3].map((stade) => `img/easter-eggs/gabriel-stade-${stade}.webp`));
   expect(fixture.stades.map((cas: { numero: number }) => cas.numero)).toEqual(Array.from({ length: 151 }, (_, i) => i + 1));
   for (const numero of [1, 25, 133, 151]) expect(fixture.stades[numero - 1]).toEqual({ numero, stade: 1 });
   for (const numero of [2, 26, 134, 135, 136]) expect(fixture.stades[numero - 1]).toEqual({ numero, stade: 2 });

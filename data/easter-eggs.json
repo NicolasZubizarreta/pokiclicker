@@ -57,10 +57,13 @@
       "declencheurs": [
         "gabriel"
       ],
-      "effet": null,
-      "assets": [],
-      "inactif": true,
-      "raison": "Apparence non définie par Nicolas (design/DESIGN.md)"
+      "effet": "photo",
+      "assets": [
+        "img/easter-eggs/gabriel-stade-1.webp",
+        "img/easter-eggs/gabriel-stade-2.webp",
+        "img/easter-eggs/gabriel-stade-3.webp"
+      ],
+      "inactif": false
     }
   ],
   "css": {

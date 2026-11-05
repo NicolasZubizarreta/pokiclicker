@@ -31,6 +31,12 @@ export function effetDe(surnom?: string): Effet | null {
   const nom = surnom?.trim().toLowerCase();
   return catalogue.effets.find(e => !e.inactif && e.declencheurs.includes(nom ?? ''))?.effet ?? null;
 }
+/** Les trois images (stade 1, 2, 3) de l'effet « photo » du surnom, ou null. */
+export function photosDe(surnom?: string): readonly string[] | null {
+  const nom = surnom?.trim().toLowerCase();
+  const entree = catalogue.effets.find(e => !e.inactif && e.effet === 'photo' && e.declencheurs.includes(nom ?? ''));
+  return entree?.assets ?? null;
+}
 export function stadeEvolution(numero: number): 1 | 2 | 3 {
   if (!Number.isInteger(numero) || numero < 1 || numero > 151) throw new Error('Numéro de Pokémon invalide.');
   const liens = Object.values(evolutions).flat();
