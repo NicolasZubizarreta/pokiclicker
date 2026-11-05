@@ -1,0 +1,8 @@
+.bas { flex: none; padding: var(--ecart) calc(var(--u) * 4) calc(var(--u) * 2 + env(safe-area-inset-bottom)); background: var(--surface); border-top: var(--trait) solid var(--region-argent); }
+.menu-bouton { position: relative; width: 100%; min-height: calc(var(--u) * 14); font-size: var(--text-lg); font-weight: 700; }
+.menu-bouton .point { top: var(--u); right: calc(var(--u) * 3); }
+.tuiles { display: grid; grid-template-columns: 1fr 1fr; gap: var(--ecart); }
+.tuile { position: relative; flex-direction: row; justify-content: flex-start; gap: calc(var(--u) * 3); min-height: calc(var(--u) * 16); padding-inline: calc(var(--u) * 3); font-weight: 700; text-align: left; }
+.tuile > span:not(.point) { flex: 1; }
+.tuile small { position: absolute; right: calc(var(--u) * 2); bottom: var(--u); font-weight: 400; font-size: var(--text-sm); line-height: var(--text-sm--line-height); }
+.tuile.ferme { color: var(--texte-doux); border-style: dashed; }

@@ -1,0 +1,7 @@
+# Navigation et écran de combat sur téléphone (phase 5, ticket C)
+
+Ouvrir : servir le dossier `design/` (`python -m http.server 8765` dans `design/`), puis `http://127.0.0.1:8765/variantes/navigation-telephone/index.html` ; la page s'affiche en cadre de 390 px (les polices et sprites sont des chemins relatifs vers `design/variantes/combat-v3/`, un double-clic sur le fichier ne les charge pas toujours).
+Contenu fictif, jetons de `design/tokens.css` seulement ; le bouton en pointillés « Maquette » simule la victoire à Argenta (déblocage du PC) ; rien dans `src/` n'est touché.
+**A, Barre à cinq** : 5 entrées en bas, « Plus » ouvre une feuille (PC, Pokédex, Badges, Mes parties, Réglages) ; PC grisé avec cadenas, ouvert pour expliquer pourquoi (comme la V1).
+**B, Barre dévoilée** : 4 entrées au départ, le PC rejoint la barre au déblocage ; le reste dans une fenêtre « Menu » (bouton en haut à droite). **C, Fenêtres** : pas de barre, bouton « Menu » en bas, six tuiles, chaque tuile ouvre une fenêtre.
+**D, Bouton du pouce** : pas de barre, bande Capturer / Auto / Sac / Menu en bas, « Menu » déplie les destinations. Les quatre ont une barre de chiffres clés fixe en haut. Les sources (`_sources/`) se reconstruisent avec `node _sources/construire.mjs`.

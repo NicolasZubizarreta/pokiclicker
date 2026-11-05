@@ -1,0 +1,9 @@
+.bas { flex: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--ecart); padding: var(--ecart) calc(var(--u) * 4) calc(var(--u) * 2 + env(safe-area-inset-bottom)); background: var(--surface); border-top: var(--trait) solid var(--region-argent); }
+.bas .plaque { position: relative; min-height: calc(var(--u) * 14); }
+.bas .plaque.large { grid-column: span 3; flex-direction: row; gap: var(--ecart); font-size: var(--text-base); font-weight: 700; }
+.fab { border-color: var(--region-accent); color: var(--region-accent); z-index: 23; }
+.pile { position: absolute; right: calc(var(--u) * 4); bottom: calc(var(--u) * 22); z-index: 22; display: flex; flex-direction: column; align-items: flex-end; gap: var(--ecart); animation: entre-bas var(--duration-lent) var(--ease-sortie); }
+.pile .plaque { position: relative; min-width: calc(var(--u) * 40); justify-content: space-between; gap: calc(var(--u) * 4); font-weight: 700; background: var(--surface); }
+.pile .plaque span { flex: 1; text-align: left; }
+.pile .plaque small { display: block; font-size: var(--text-sm); line-height: var(--text-sm--line-height); font-weight: 400; }
+.pile .plaque.ferme { color: var(--texte-doux); border-style: dashed; }

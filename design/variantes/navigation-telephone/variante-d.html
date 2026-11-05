@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PokiClicker : Bouton du pouce</title>
+<style>
+:root {
+  --color-primaire-50: #fff2ed;
+  --color-primaire-100: #ffe3db;
+  --color-primaire-200: #ffc9bb;
+  --color-primaire-300: #ffa794;
+  --color-primaire-400: #fd816b;
+  --color-primaire-500: #ec5e47;
+  --color-primaire-600: #c8321e;
+  --color-primaire-700: #ac1c0a;
+  --color-primaire-800: #880e02;
+  --color-primaire-900: #600400;
+  --color-primaire-950: #360000;
+  --color-secondaire-50: #fdf6e6;
+  --color-secondaire-100: #f9ecce;
+  --color-secondaire-200: #f1d8a1;
+  --color-secondaire-300: #e5bf64;
+  --color-secondaire-400: #f5c033;
+  --color-secondaire-500: #c38600;
+  --color-secondaire-600: #a96900;
+  --color-secondaire-700: #8a4f00;
+  --color-secondaire-800: #6d3b00;
+  --color-secondaire-900: #4c2600;
+  --color-secondaire-950: #290e00;
+  --color-accent-50: #f0f8ff;
+  --color-accent-100: #e1effc;
+  --color-accent-200: #c6def5;
+  --color-accent-300: #a3c9ec;
+  --color-accent-400: #7eb1dd;
+  --color-accent-500: #5d98ca;
+  --color-accent-600: #2b6c9e;
+  --color-accent-700: #246291;
+  --color-accent-800: #174b72;
+  --color-accent-900: #0b3350;
+  --color-accent-950: #00182b;
+  --color-neutre-50: #f4efe4;
+  --color-neutre-100: #e8e6e0;
+  --color-neutre-200: #d6dbe6;
+  --color-neutre-300: #bfc4cf;
+  --color-neutre-400: #a6abb5;
+  --color-neutre-500: #8e929c;
+  --color-neutre-600: #737781;
+  --color-neutre-700: #595e67;
+  --color-neutre-800: #444851;
+  --color-neutre-900: #2c3039;
+  --color-neutre-950: #141821;
+  --color-succes-fond: #e3f3e5;
+  --color-succes-base: #3d9a4a;
+  --color-succes-texte: #1f5a29;
+  --color-succes-fond-sombre: #1d3a28;
+  --color-succes-base-sombre: #5fbf6c;
+  --color-succes-texte-sombre: #a6e3ae;
+  --color-alerte-fond: #fdf1cf;
+  --color-alerte-base: #c38600;
+  --color-alerte-texte: #6d4a00;
+  --color-alerte-fond-sombre: #3a3016;
+  --color-alerte-base-sombre: #f5c033;
+  --color-alerte-texte-sombre: #f9e0a1;
+  --color-erreur-fond: #fbe2e6;
+  --color-erreur-base: #b81d3a;
+  --color-erreur-texte: #7a0f25;
+  --color-erreur-fond-sombre: #401c27;
+  --color-erreur-base-sombre: #f07088;
+  --color-erreur-texte-sombre: #f8b8c4;
+  --color-info-fond: #e1effc;
+  --color-info-base: #2b6c9e;
+  --color-info-texte: #174b72;
+  --color-info-fond-sombre: #1b2f44;
+  --color-info-base-sombre: #7eb1dd;
+  --color-info-texte-sombre: #c6def5;
+  --font-titre: "Pixelify Sans", "Press Start 2P", ui-monospace, monospace;
+  --font-texte: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Mono", monospace;
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1rem;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.25rem;
+  --text-base: 1rem;
+  --text-base--line-height: 1.5rem;
+  --text-lg: 1.125rem;
+  --text-lg--line-height: 1.75rem;
+  --text-xl: 1.25rem;
+  --text-xl--line-height: 1.75rem;
+  --text-2xl: 1.5rem;
+  --text-2xl--line-height: 2rem;
+  --text-2xl--font-weight: 600;
+  --text-3xl: 2rem;
+  --text-3xl--line-height: 2.25rem;
+  --text-3xl--font-weight: 600;
+  --text-4xl: 2.5rem;
+  --text-4xl--line-height: 2.75rem;
+  --text-4xl--font-weight: 600;
+  --text-5xl: 3rem;
+  --text-5xl--line-height: 1.1;
+  --text-5xl--font-weight: 600;
+  --spacing: 0.25rem;
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
+  --radius-xl: 0;
+  --radius-plein: 9999px;
+  --shadow-sm: 0 2px 0 0 rgb(0 0 0 / 0.45);
+  --shadow-md: 0 4px 0 0 rgb(0 0 0 / 0.45);
+  --shadow-lg: 0 8px 0 0 rgb(0 0 0 / 0.45);
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-sortie: cubic-bezier(0, 0, 0, 1);
+  --duration-rapide: 90ms;
+  --duration-normal: 150ms;
+  --duration-lent: 300ms;
+  --duree-signal: 1s;
+  --duree-carte-pulsation: 2s;
+  --duree-carte-clignotement: 0.8s;
+  --breakpoint-sm: 24.375rem;
+  --breakpoint-md: 48rem;
+  --breakpoint-lg: 64rem;
+  --breakpoint-xl: 90rem;
+  --fond: #f4efe4;
+  --surface: #fffdf7;
+  --surface-2: #e8e6e0;
+  --bordure: #bfc4cf;
+  --texte: #141821;
+  --texte-doux: #595e67;
+  --texte-inverse: #fffdf7;
+  --action: #c8321e;
+  --action-survol: #ac1c0a;
+  --action-texte: #ffffff;
+  --lien: #ac1c0a;
+  --focus: #2b6c9e;
+  --selection: #f9ecce;
+  --blanc: #ffffff;
+  --succes-fond: #e3f3e5;
+  --succes-base: #3d9a4a;
+  --succes-texte: #1f5a29;
+  --alerte-fond: #fdf1cf;
+  --alerte-base: #c38600;
+  --alerte-texte: #6d4a00;
+  --erreur-fond: #fbe2e6;
+  --erreur-base: #b81d3a;
+  --erreur-texte: #7a0f25;
+  --info-fond: #e1effc;
+  --info-base: #2b6c9e;
+  --info-texte: #174b72;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --fond: #141821;
+    --surface: #2c3039;
+    --surface-2: #2f3648;
+    --bordure: #737781;
+    --texte: #f4efe4;
+    --texte-doux: #bfc4cf;
+    --texte-inverse: #ffffff;
+    --action: #c8321e;
+    --action-survol: #ac1c0a;
+    --action-texte: #ffffff;
+    --lien: #f5c033;
+    --focus: #f5c033;
+    --selection: #3a3320;
+    --blanc: #ffffff;
+    --succes-fond: #1d3a28;
+    --succes-base: #5fbf6c;
+    --succes-texte: #a6e3ae;
+    --alerte-fond: #3a3016;
+    --alerte-base: #f5c033;
+    --alerte-texte: #f9e0a1;
+    --erreur-fond: #401c27;
+    --erreur-base: #f07088;
+    --erreur-texte: #f8b8c4;
+    --info-fond: #1b2f44;
+    --info-base: #7eb1dd;
+    --info-texte: #c6def5;
+  }
+}
+
+:root[data-theme="dark"] {
+  --fond: #141821;
+  --surface: #2c3039;
+  --surface-2: #2f3648;
+  --bordure: #737781;
+  --texte: #f4efe4;
+  --texte-doux: #bfc4cf;
+  --texte-inverse: #ffffff;
+  --action: #c8321e;
+  --action-survol: #ac1c0a;
+  --action-texte: #ffffff;
+  --lien: #f5c033;
+  --focus: #f5c033;
+  --selection: #3a3320;
+  --blanc: #ffffff;
+  --succes-fond: #1d3a28;
+  --succes-base: #5fbf6c;
+  --succes-texte: #a6e3ae;
+  --alerte-fond: #3a3016;
+  --alerte-base: #f5c033;
+  --alerte-texte: #f9e0a1;
+  --erreur-fond: #401c27;
+  --erreur-base: #f07088;
+  --erreur-texte: #f8b8c4;
+  --info-fond: #1b2f44;
+  --info-base: #7eb1dd;
+  --info-texte: #c6def5;
+}
+
+/* Maquettes de navigation téléphone (phase 5, ticket C). Aucune valeur propre : tout vient de design/tokens.css
+   (--spacing = 4 px, --text-*, --shadow-*, --breakpoint-sm = 390 px, rôles de couleur). Thème sombre, Kanto. */
+@font-face { font-family: "Pixelify Sans"; font-weight: 600; font-display: swap; src: url("../combat-v3/fonts/pixelify-sans-latin-600-normal-Dd_Dy7u5.woff2") format("woff2"); }
+@font-face { font-family: "Atkinson Hyperlegible Next"; font-weight: 400; font-display: swap; src: url("../combat-v3/fonts/atkinson-hyperlegible-next-latin-400-normal-FfmJh7DR.woff2") format("woff2"); }
+@font-face { font-family: "Atkinson Hyperlegible Next"; font-weight: 600; font-display: swap; src: url("../combat-v3/fonts/atkinson-hyperlegible-next-latin-600-normal-BBuhw47K.woff2") format("woff2"); }
+@font-face { font-family: "Atkinson Hyperlegible Next"; font-weight: 700; font-display: swap; src: url("../combat-v3/fonts/atkinson-hyperlegible-next-latin-700-normal-Dpiyiu63.woff2") format("woff2"); }
+
+:root {
+  color-scheme: dark;
+  --u: var(--spacing);
+  --cible: calc(var(--u) * 12);          /* 48 px : cible tactile minimale */
+  --ecart: calc(var(--u) * 2);           /* 8 px : écart minimal entre cibles */
+  --trait: calc(var(--u) / 2);           /* 2 px : liseré */
+  --voile: color-mix(in srgb, var(--fond) 78%, transparent);
+}
+* { box-sizing: border-box; margin: 0; }
+html, body { height: 100%; }
+body { background: var(--surface-2); color: var(--texte); font-family: var(--font-texte); font-size: var(--text-base); line-height: var(--text-base--line-height); font-variant-numeric: tabular-nums; overflow-x: hidden; }
+button { font: inherit; color: inherit; cursor: pointer; touch-action: manipulation; background: none; border: 0; text-align: inherit; }
+img { display: block; image-rendering: pixelated; }
+:focus-visible { outline: var(--u) solid var(--focus); outline-offset: var(--trait); }
+[hidden] { display: none !important; }
+.sr { position: absolute; width: var(--u); height: var(--u); overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.pixel { font-family: var(--font-titre); font-weight: 600; }
+.doux { color: var(--texte-doux); }
+.gras { font-weight: 700; }
+svg.ic { width: calc(var(--u) * 6); height: calc(var(--u) * 6); flex: none; fill: none; stroke: currentColor; stroke-width: 2; }
+
+/* Le téléphone */
+.tel { position: relative; width: min(100%, var(--breakpoint-sm)); height: 100dvh; max-height: calc(var(--u) * 224); margin-inline: auto; display: flex; flex-direction: column; overflow: hidden; background: var(--fond); }
+@media (min-width: 48rem) { .tel { margin-block: var(--u); height: calc(100dvh - var(--u) * 2); border: var(--trait) solid var(--bordure); } }
+
+/* Cadre et plaques */
+.cadre { background: var(--surface); border: var(--trait) solid var(--region-argent); box-shadow: inset 0 0 0 var(--trait) var(--fond), inset 0 0 0 var(--u) var(--region-argent); }
+.plaque { display: inline-flex; align-items: center; justify-content: center; gap: var(--ecart); min-height: var(--cible); min-width: var(--cible); padding: var(--u) calc(var(--u) * 3); background: var(--surface-2); color: var(--texte); border: var(--trait) solid var(--bordure); box-shadow: var(--shadow-md); transition: transform var(--duration-rapide) var(--ease-standard), box-shadow var(--duration-rapide) var(--ease-standard); }
+.plaque:active { transform: translateY(var(--trait)); box-shadow: var(--shadow-sm); }
+.plaque.action { background: var(--action); color: var(--action-texte); border-color: var(--action-survol); font-weight: 700; }
+.plaque.action:active { background: var(--action-survol); }
+.plaque[aria-pressed="true"] { background: var(--selection); border-color: var(--region-accent); color: var(--region-accent); }
+.plaque.vertical { flex-direction: column; gap: 0; min-height: calc(var(--u) * 14); padding: var(--u); font-size: var(--text-sm); line-height: var(--text-sm--line-height); }
+.pastille { position: absolute; top: calc(var(--u) * -2); right: calc(var(--u) * -1); min-width: calc(var(--u) * 6); padding-inline: var(--u); background: var(--info-fond); color: var(--info-texte); border: var(--trait) solid var(--info-base); font-size: var(--text-xs); line-height: var(--text-sm--line-height); text-align: center; }
+.point { position: absolute; top: calc(var(--u) * 2); right: calc(var(--u) * 2); width: calc(var(--u) * 3); height: calc(var(--u) * 3); background: var(--succes-base); border: var(--trait) solid var(--fond); }
+
+/* Chiffres clés */
+.cles { flex: none; padding: var(--ecart) calc(var(--u) * 4) var(--ecart); background: var(--surface); border-bottom: var(--trait) solid var(--region-argent); }
+.cles .rang { display: flex; align-items: flex-end; gap: calc(var(--u) * 3); }
+.cle { flex: 1; min-width: 0; }
+.cle.large { flex: 1.25; }
+.cle small { display: block; font-size: var(--text-sm); line-height: var(--text-sm--line-height); color: var(--texte-doux); }
+.cle b { display: block; font-family: var(--font-titre); font-weight: 600; font-size: var(--text-xl); line-height: var(--text-xl--line-height); color: var(--region-accent); white-space: nowrap; }
+.etapes { display: flex; align-items: center; gap: var(--ecart); margin-top: var(--u); }
+.etapes i { width: calc(var(--u) * 2); height: calc(var(--u) * 2); background: var(--surface-2); border: var(--trait) solid var(--bordure); }
+.etapes i.fait { background: var(--region-accent); border-color: var(--region-accent); }
+.etapes i.ici { width: calc(var(--u) * 3); height: calc(var(--u) * 3); background: var(--surface); border-color: var(--region-accent); }
+.etapes i.boss { width: calc(var(--u) * 4); height: calc(var(--u) * 4); border-radius: var(--radius-plein); border-color: var(--region-accent); }
+.etapes span { margin-left: auto; font-size: var(--text-sm); color: var(--texte-doux); }
+
+/* Écran */
+.ecran { flex: 1; min-height: 0; overflow: hidden auto; overscroll-behavior: contain; padding: calc(var(--u) * 3) calc(var(--u) * 4); display: flex; flex-direction: column; gap: var(--ecart); }
+.titre-page { display: flex; align-items: center; gap: var(--ecart); min-height: var(--cible); }
+.titre-page h1 { font-family: var(--font-titre); font-weight: 600; font-size: var(--text-xl); line-height: var(--text-xl--line-height); flex: 1; }
+.titre-page .retour { min-height: var(--cible); min-width: var(--cible); display: inline-flex; align-items: center; justify-content: center; margin-left: calc(var(--u) * -2); }
+
+/* Combat : scène */
+.scene { position: relative; display: block; width: 100%; aspect-ratio: 6 / 5; flex: none; padding: 0; overflow: hidden; background: var(--fond) url("../combat-v3/img/route-1.webp") center / cover; }
+.scene .info { position: absolute; top: var(--ecart); left: var(--ecart); right: var(--ecart); padding: calc(var(--u) * 2) calc(var(--u) * 3); text-align: left; }
+.scene .ligne { display: flex; justify-content: space-between; align-items: baseline; }
+.scene .nom { font-family: var(--font-titre); font-weight: 600; font-size: var(--text-xl); line-height: var(--text-xl--line-height); }
+.scene .pv { height: calc(var(--u) * 3); margin: var(--u) 0; background: var(--fond); border: var(--trait) solid var(--bordure); }
+.scene .pv i { display: block; height: 100%; width: var(--pv, 100%); background: var(--succes-base); transform-origin: left; transition: width 120ms var(--ease-standard); }
+.scene .pv-txt { font-size: var(--text-sm); color: var(--texte-doux); }
+.scene .socle { position: absolute; left: 50%; bottom: calc(var(--u) * 4); width: calc(var(--u) * 52); height: calc(var(--u) * 9); margin-left: calc(var(--u) * -26); background: var(--region-socle); border-radius: var(--radius-plein); opacity: .85; }
+.scene .rattata { position: absolute; left: 50%; bottom: calc(var(--u) * 7); width: calc(var(--u) * 48); height: calc(var(--u) * 48); margin-left: calc(var(--u) * -24); transition: transform var(--duration-rapide) var(--ease-standard); }
+.scene.coup .rattata { transform: translateY(calc(var(--u) * 2)) scale(.96); }
+.scene .degat { position: absolute; left: 50%; bottom: calc(var(--u) * 44); font-family: var(--font-titre); font-weight: 600; font-size: var(--text-2xl); color: var(--blanc); text-shadow: 0 var(--trait) 0 var(--fond); opacity: 0; }
+.scene.coup .degat { animation: monte var(--duration-lent) var(--ease-sortie) forwards; }
+@keyframes monte { from { transform: translateY(0); opacity: 1; } to { transform: translateY(calc(var(--u) * -8)); opacity: 0; } }
+.scene .conseil { position: absolute; left: 0; right: 0; bottom: var(--u); text-align: center; font-size: var(--text-sm); }
+.scene .conseil span { background: var(--voile); padding: 0 var(--ecart); }
+
+/* Combat : barres d'outils, équipe, dialogue */
+.outils { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--ecart); flex: none; }
+.outils .plaque { position: relative; }
+.bande { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--ecart); flex: none; }
+.bande button { position: relative; min-width: 0; min-height: var(--cible); aspect-ratio: 1; display: flex; align-items: center; justify-content: center; background: var(--surface); border: var(--trait) solid var(--bordure); }
+.bande img { width: calc(var(--u) * 12); height: calc(var(--u) * 12); }
+.bande em { position: absolute; right: var(--u); bottom: 0; font-style: normal; font-size: var(--text-sm); line-height: var(--text-sm--line-height); font-weight: 700; text-shadow: 0 var(--trait) 0 var(--fond); }
+.chen { display: grid; grid-template-columns: calc(var(--u) * 15) 1fr; gap: calc(var(--u) * 3); padding: calc(var(--u) * 3); flex: none; align-items: center; }
+.chen img { width: calc(var(--u) * 15); height: calc(var(--u) * 15); }
+.chen .pixel { color: var(--region-accent); font-size: var(--text-lg); line-height: var(--text-lg--line-height); }
+.chen .zones { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: var(--ecart); }
+
+/* Listes et pages */
+.liste { display: flex; flex-direction: column; gap: var(--ecart); }
+.ligne-p { display: flex; align-items: center; gap: calc(var(--u) * 3); min-height: calc(var(--u) * 16); padding: var(--u) calc(var(--u) * 3); background: var(--surface); border: var(--trait) solid var(--bordure); width: 100%; position: relative; }
+.ligne-p > .corps { flex: 1; min-width: 0; }
+.ligne-p .t { font-weight: 700; }
+.ligne-p .s { font-size: var(--text-sm); line-height: var(--text-sm--line-height); color: var(--texte-doux); }
+.ligne-p img.sp { width: calc(var(--u) * 12); height: calc(var(--u) * 12); flex: none; }
+.ligne-p img.obj { width: calc(var(--u) * 15); height: calc(var(--u) * 15); flex: none; padding: calc(var(--u) * 1.5); background: var(--surface-2); }
+.ligne-p .xp { height: var(--u); background: var(--fond); margin-top: var(--u); } .ligne-p .xp i { display: block; height: 100%; background: var(--info-base); }
+.ligne-p.ferme { color: var(--texte-doux); background: var(--surface-2); border-style: dashed; }
+.ligne-p.actuelle { background: var(--selection); border-color: var(--region-accent); }
+.chips { display: flex; gap: var(--ecart); flex-wrap: wrap; }
+.chips .plaque { flex: 1; padding-inline: var(--u); }
+.sous-titre { font-family: var(--font-titre); font-weight: 600; font-size: var(--text-lg); line-height: var(--text-lg--line-height); color: var(--region-accent); margin-top: var(--u); }
+.resume { display: grid; grid-template-columns: 1fr 1fr; gap: var(--ecart); padding: calc(var(--u) * 3); }
+.resume b { display: block; font-family: var(--font-titre); font-weight: 600; font-size: var(--text-xl); color: var(--region-accent); line-height: var(--text-xl--line-height); }
+.explique { display: flex; gap: calc(var(--u) * 3); padding: calc(var(--u) * 3); background: var(--alerte-fond); color: var(--alerte-texte); border: var(--trait) solid var(--alerte-base); }
+.explique p { flex: 1; }
+.grille-pc { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--ecart); }
+.grille-pc button { display: flex; flex-direction: column; align-items: center; min-height: calc(var(--u) * 24); padding: var(--u); background: var(--surface); border: var(--trait) solid var(--bordure); font-size: var(--text-sm); line-height: var(--text-sm--line-height); }
+.grille-pc img { width: calc(var(--u) * 12); height: calc(var(--u) * 12); }
+.maquette { border: var(--trait) dashed var(--bordure); min-height: var(--cible); padding: var(--u) calc(var(--u) * 3); color: var(--texte-doux); font-size: var(--text-sm); line-height: var(--text-sm--line-height); width: 100%; }
+
+/* Couches : feuille du bas, fenêtre, toast */
+.voile { position: absolute; inset: 0; background: var(--voile); z-index: 20; }
+.feuille { position: absolute; left: 0; right: 0; bottom: 0; max-height: 50%; z-index: 21; display: flex; flex-direction: column; gap: var(--ecart); padding: calc(var(--u) * 3) calc(var(--u) * 4) calc(var(--u) * 4); overflow-y: auto; animation: entre-bas var(--duration-lent) var(--ease-sortie); }
+.fenetre { position: absolute; inset: var(--ecart); z-index: 22; display: flex; flex-direction: column; animation: entre-bas var(--duration-lent) var(--ease-sortie); }
+.fenetre > .tete { display: flex; align-items: center; gap: var(--ecart); padding: var(--u) var(--u) var(--u) calc(var(--u) * 4); border-bottom: var(--trait) solid var(--region-argent); }
+.fenetre > .tete h2 { flex: 1; font-family: var(--font-titre); font-weight: 600; font-size: var(--text-xl); line-height: var(--text-xl--line-height); }
+.fenetre > .corps { flex: 1; min-height: 0; overflow-y: auto; padding: calc(var(--u) * 3) calc(var(--u) * 4); display: flex; flex-direction: column; gap: var(--ecart); }
+.feuille .tete { display: flex; align-items: center; gap: var(--ecart); }
+.feuille .tete h2 { flex: 1; font-family: var(--font-titre); font-weight: 600; font-size: var(--text-lg); line-height: var(--text-lg--line-height); }
+@keyframes entre-bas { from { transform: translateY(calc(var(--u) * 10)); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.toast { position: absolute; top: var(--ecart); left: var(--ecart); right: var(--ecart); z-index: 30; padding: calc(var(--u) * 3); text-align: center; font-family: var(--font-titre); font-weight: 600; font-size: var(--text-base); pointer-events: none; animation: entre-haut var(--duration-lent) var(--ease-sortie); }
+@keyframes entre-haut { from { transform: translateY(calc(var(--u) * -10)); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+/* Barre du bas (variantes A et B) */
+.barre { flex: none; display: flex; gap: var(--ecart); padding-inline: calc(var(--u) * 4); background: var(--surface); border-top: var(--trait) solid var(--region-argent); box-shadow: inset 0 var(--trait) 0 var(--fond), inset 0 var(--u) 0 var(--region-argent); padding-top: var(--u); padding-bottom: env(safe-area-inset-bottom); }
+.barre button { position: relative; flex: 1; min-width: 0; min-height: calc(var(--u) * 14); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; font-size: var(--text-sm); line-height: var(--text-sm--line-height); color: var(--texte-doux); }
+.barre button[aria-current="page"] { background: var(--selection); color: var(--region-accent); font-weight: 700; }
+.barre button[aria-current="page"]::before { content: ""; position: absolute; inset: 0 0 auto 0; height: var(--u); background: var(--region-accent); }
+.barre button.ferme { opacity: .6; }
+.barre button.ferme .cad { position: absolute; top: var(--u); right: calc(var(--u) * 3); width: calc(var(--u) * 4); height: calc(var(--u) * 4); }
+.rebond { animation: rebond var(--duree-signal) var(--ease-standard) 3; }
+@keyframes rebond { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(calc(var(--u) * -2)); } }
+
+.bas { flex: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--ecart); padding: var(--ecart) calc(var(--u) * 4) calc(var(--u) * 2 + env(safe-area-inset-bottom)); background: var(--surface); border-top: var(--trait) solid var(--region-argent); }
+.bas .plaque { position: relative; min-height: calc(var(--u) * 14); }
+.bas .plaque.large { grid-column: span 3; flex-direction: row; gap: var(--ecart); font-size: var(--text-base); font-weight: 700; }
+.fab { border-color: var(--region-accent); color: var(--region-accent); z-index: 23; }
+.pile { position: absolute; right: calc(var(--u) * 4); bottom: calc(var(--u) * 22); z-index: 22; display: flex; flex-direction: column; align-items: flex-end; gap: var(--ecart); animation: entre-bas var(--duration-lent) var(--ease-sortie); }
+.pile .plaque { position: relative; min-width: calc(var(--u) * 40); justify-content: space-between; gap: calc(var(--u) * 4); font-weight: 700; background: var(--surface); }
+.pile .plaque span { flex: 1; text-align: left; }
+.pile .plaque small { display: block; font-size: var(--text-sm); line-height: var(--text-sm--line-height); font-weight: 400; }
+.pile .plaque.ferme { color: var(--texte-doux); border-style: dashed; }
+
+</style>
+</head>
+<body>
+<div class="tel" id="tel"><header id="cles"></header><main class="ecran" id="ecran"></main><div class="bas" id="bas"></div><div id="couches"></div></div>
+<script>
+/* Contenu fictif commun aux quatre variantes (même texte partout : on compare des navigations, pas des contenus).
+   Sprites et objets : images du dépôt, par chemin relatif (design/variantes/combat-v3/img). */
+const IMG = "../combat-v3/img/";
+const PK = {
+  etat: { pcOuvert: false, pieces: 250000, pv: 152, pvMax: 152 },
+  nf: (n) => n.toLocaleString("fr-FR"),
+  chemins: {
+    combat: "M3 3l5 1 12 14-3 3L4 8zM21 3l-5 1-5 6m-3 5-5 5m12-1 5-5M4 14l6 6",
+    equipe: "M4 3h6v6H4zM14 3h6v6h-6zM4 15h6v6H4zM14 15h6v6h-6z",
+    shop: "M4 8h16v13H4zM8 8V3h8v5M4 13h16M10 12v3h4v-3",
+    carte: "m2 5 6-3 8 3 6-3v17l-6 3-8-3-6 3zM8 2v17M16 5v17",
+    pc: "M3 4h18v12H3zM9 20h6M12 16v4",
+    plus: "M3 10h3v4H3zM10 10h3v4h-3zM17 10h3v4h-3z",
+    menu: "M4 6h16M4 12h16M4 18h16",
+    croix: "M5 5l14 14M19 5 5 19",
+    retour: "M15 4 7 12l8 8",
+    cadenas: "M7 10V7a5 5 0 0 1 10 0v3M5 10h14v12H5z",
+    sac: "M8 6V3h8v3M6 6h12l3 15H3zM7 13h10v5H7z",
+    auto: "m13 2-9 12h7l-1 8 10-13h-7z",
+    outils: "M4 6h16M4 12h16M4 18h16M8 3v6M16 9v6M10 15v6",
+    pokedex: "M5 3h14v18H5zM9 8h6M9 12h6M9 16h3",
+    badge: "m12 2 3 4 5 1-1 5 1 5-5 1-3 4-3-4-5-1 1-5-1-5 5-1z",
+    reglages: "M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2",
+    parties: "M4 4h16v6H4zM4 14h16v6H4zM8 7h.01M8 17h.01",
+    chevron: "m9 4 8 8-8 8",
+    balle: "M3 12a9 9 0 0 1 18 0zM3 12a9 9 0 0 0 18 0zM3 12h18M12 9.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z",
+  },
+  ic(nom, extra = "") { return `<svg class="ic ${extra}" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="${this.chemins[nom]}"/></svg>`; },
+
+  cles() {
+    const marques = Array.from({ length: 10 }, (_, i) => `<i class="${i === 0 ? "ici" : i === 9 ? "boss" : ""}"></i>`).join("");
+    return `<header class="cles" aria-label="Chiffres clés">
+      <div class="rang">
+        <div class="cle large"><small>Pièces</small><b id="pieces">${this.nf(this.etat.pieces)}</b></div>
+        <div class="cle"><small>DPS</small><b>${this.nf(40365)}</b></div>
+        <div class="cle"><small>Zone</small><b>Route 1</b></div>
+        ${this.suiteCles || ""}
+      </div>
+      <div class="etapes" role="img" aria-label="Étape 1 sur 10">${marques}<span>1/10</span></div>
+    </header>`;
+  },
+
+  combat({ outils = true } = {}) {
+    const team = [["1", 100], ["4", 100], ["16", 100], ["25", 100], ["26", 100], ["21", 100]]
+      .map(([n, l]) => `<button type="button" data-go="equipe" aria-label="Pokémon ${n}, niveau ${l}"><img src="${IMG}${n}.png" width="96" height="96" alt=""><em>${l}</em></button>`).join("");
+    return `
+    <button type="button" class="scene cadre" id="scene" aria-label="Attaquer Rattata">
+      <span class="info cadre"><span class="ligne"><span class="nom">Rattata</span><span>Niv. 2</span></span>
+        <span class="pv" style="display:block"><i id="pv" style="--pv:100%"></i></span>
+        <span class="pv-txt" id="pvtxt">PV ${this.etat.pv} / ${this.etat.pvMax}</span></span>
+      <span class="socle"></span>
+      <img class="rattata" src="${IMG}19.png" width="96" height="96" alt="">
+      <span class="degat" id="degat">−412</span>
+    </button>
+    ${outils ? `<div class="outils">
+      <button type="button" class="plaque vertical" data-act="capturer">${this.ic("balle")}Capturer<span class="pastille">×50</span></button>
+      <button type="button" class="plaque vertical" aria-pressed="false" data-act="auto">${this.ic("auto")}Auto</button>
+      <button type="button" class="plaque vertical" data-go="sac">${this.ic("sac")}Sac<span class="pastille">82</span></button>
+      <button type="button" class="plaque vertical" data-go="outils">${this.ic("outils")}Outils</button>
+    </div>` : ""}
+    <div class="bande" aria-label="Ton équipe">${team}</div>
+    <section class="chen cadre" aria-label="Prof. Chen">
+      <img src="${IMG}chen-1.png" width="120" height="120" alt="">
+      <div><p class="pixel">Prof. Chen</p><p>Les Rattata sont ici. Touche le Pokémon pour attaquer.</p></div>
+      <div class="zones">
+        <button type="button" class="plaque">Zone précédente</button>
+        <button type="button" class="plaque action">Zone suivante</button>
+      </div>
+    </section>`;
+  },
+
+  equipe() {
+    const lignes = [["1", "Florizarre", 100, 9420], ["4", "Dracaufeu", 100, 8910], ["16", "Roucool", 100, 5120], ["25", "Pikachu", 100, 8300], ["26", "Raichu", 100, 7615], ["21", "Piafabec", 100, 5000]]
+      .map(([n, nom, l, d]) => `<button type="button" class="ligne-p"><img class="sp" src="${IMG}${n}.png" width="96" height="96" alt=""><span class="corps"><span class="t">${nom}</span><br><span class="s">Niv. ${l} · ${this.nf(d)} DPS</span><span class="xp" style="display:block"><i style="display:block;width:100%"></i></span></span>${this.ic("chevron")}</button>`).join("");
+    return `<div class="liste">${lignes}</div>
+      <button type="button" class="ligne-p" data-go="sac"><span class="corps"><span class="t">Sac</span><br><span class="s">82 objets · Bonbon rare, Repousse, Attaque +…</span></span>${this.ic("chevron")}</button>`;
+  },
+
+  shop() {
+    const obj = [["poke-ball", "Poké Ball", "Une chance de capturer", "200"], ["great-ball", "Super Ball", "Capture plus sûre", "600"], ["ultra-ball", "Hyper Ball", "La meilleure des balles", "1 200"],
+      ["repel", "Repousse", "Moins de rencontres, 15 s", "350"], ["x-attack", "Attaque +", "Dégâts ×1,5 pendant 30 s", "800"], ["rare-candy", "Bonbon rare", "+1 niveau", "4 800"],
+      ["thunder-stone", "Pierre Foudre", "Fait évoluer Pikachu", "2 100"], ["leftovers", "Restes", "Auto-clic au repos", "12 000"]]
+      .map(([i, nom, eff, prix]) => `<div class="ligne-p"><img class="obj" src="${IMG}${i}.png" width="30" height="30" alt=""><div class="corps"><div class="t">${nom}</div><div class="s">${eff}</div></div><button type="button" class="plaque" style="min-width:calc(var(--u)*24)" aria-label="Acheter ${nom}, ${prix} pièces">${prix} PO</button></div>`).join("");
+    return `<div class="chips" role="group" aria-label="Catégories"><button type="button" class="plaque" aria-pressed="true">Tout</button><button type="button" class="plaque">Balles</button><button type="button" class="plaque">Soins</button><button type="button" class="plaque">Objets</button></div>
+      <div class="liste">${obj}</div>`;
+  },
+
+  carte() {
+    const z = [["Route 1 · Bourg Palette", "Zone 1", "actuelle"], ["Jadielle", "Zone 2", ""], ["Forêt de Jade", "Zone 3", "ferme"], ["Argenta", "Zone 4 · arène", "ferme"]];
+    return `<div class="liste">${z.map(([n, s, c]) => `<button type="button" class="ligne-p ${c}"><span class="corps"><span class="t">${n}</span><br><span class="s">${s}${c === "actuelle" ? " · tu es ici" : ""}</span></span>${this.ic("chevron")}</button>`).join("")}</div>`;
+  },
+
+  /* Lignes du menu « Plus » : le PC verrouillé s'ouvre quand même pour dire pourquoi (comportement V1). */
+  lignesPlus({ avecPc = true } = {}) {
+    const ouvert = this.etat.pcOuvert;
+    const pc = avecPc ? `<button type="button" class="ligne-p ${ouvert ? "" : "ferme"}" data-go="pc">${this.ic(ouvert ? "pc" : "cadenas")}<span class="corps"><span class="t">PC de Léo</span><br><span class="s">${ouvert ? "12 Pokémon rangés" : "Après l'arène d'Argenta"}</span></span>${this.ic("chevron")}</button>` : "";
+    const l = (go, ic, t, s) => `<button type="button" class="ligne-p" data-go="${go}">${this.ic(ic)}<span class="corps"><span class="t">${t}</span><br><span class="s">${s}</span></span>${this.ic("chevron")}</button>`;
+    return pc + l("pokedex", "pokedex", "Pokédex", "47 vus sur 151") + l("badges", "badge", "Badges", "0 sur 8") + l("parties", "parties", "Mes parties", "Sauvegardes et compte") + l("reglages", "reglages", "Réglages", "Son, thème, arrêt auto");
+  },
+  aventure() {
+    return `<div class="resume cadre"><div><small class="doux">Région</small><b>Kanto</b></div><div><small class="doux">Pokédex</small><b>47/151</b></div><div><small class="doux">Badges</small><b>0/8</b></div><div><small class="doux">DPS</small><b>${this.nf(40365)}</b></div></div>`;
+  },
+
+  /* PC : verrouillé = on explique et on dit comment le débloquer ; ouvert = bande d'équipe + grille. */
+  pc() {
+    if (!this.etat.pcOuvert) {
+      return `<div class="explique">${this.ic("cadenas")}<p><b>Le PC n'est pas encore à toi.</b> Il se débloque quand tu bats l'arène d'Argenta.</p></div>
+        <button type="button" class="maquette" data-act="debloquer-pc">Maquette : simuler la victoire à l'arène d'Argenta</button>`;
+    }
+    const b = [["7", "Carapuce"], ["95", "Onix"], ["19", "Rattata"], ["16", "Roucool"], ["25", "Pikachu"], ["4", "Salamèche"]];
+    return `<div class="grille-pc">${b.map(([n, nom]) => `<button type="button"><img src="${n === "7" || n === "95" ? "../../specimens/assets/pokemon/" + n + ".png" : IMG + n + ".png"}" width="96" height="96" alt=""><span>${nom}</span></button>`).join("")}</div>
+      <button type="button" class="maquette" data-act="verrouiller-pc">Maquette : verrouiller à nouveau le PC</button>`;
+  },
+  page(nom) {
+    const m = { equipe: () => this.equipe(), shop: () => this.shop(), carte: () => this.carte(), pc: () => this.pc(),
+      plus: () => this.aventure() + `<div class="liste">${this.lignesPlus()}</div>` };
+    return (m[nom] || (() => `<p class="doux">Contenu de la page « ${nom} » : hors périmètre de ce ticket.</p>`))();
+  },
+  titres: { combat: "Combat", equipe: "Équipe", shop: "Shop", carte: "Carte", pc: "PC de Léo", plus: "Plus", sac: "Sac", outils: "Outils", pokedex: "Pokédex", badges: "Badges", parties: "Mes parties", reglages: "Réglages", aventure: "Ton aventure" },
+
+  /* Interactions communes : toucher la scène, toast */
+  scene(racine) {
+    const s = racine.querySelector("#scene"); if (!s) return;
+    s.addEventListener("click", () => {
+      s.classList.remove("coup"); void s.offsetWidth; s.classList.add("coup");
+      this.etat.pv -= 12; if (this.etat.pv <= 0) { this.etat.pv = this.etat.pvMax; this.etat.pieces += 150; const p = document.getElementById("pieces"); if (p) p.textContent = this.nf(this.etat.pieces); }
+      racine.querySelector("#pv").style.setProperty("--pv", (this.etat.pv / this.etat.pvMax * 100) + "%");
+      racine.querySelector("#pvtxt").textContent = `PV ${this.etat.pv} / ${this.etat.pvMax}`;
+    });
+    racine.querySelectorAll("[data-act=auto]").forEach((b) => b.addEventListener("click", () => b.setAttribute("aria-pressed", b.getAttribute("aria-pressed") !== "true")));
+  },
+  toast(texte, ms = 3000) {
+    const t = document.createElement("div"); t.className = "toast cadre"; t.setAttribute("role", "status"); t.textContent = texte;
+    document.getElementById("tel").appendChild(t); setTimeout(() => t.remove(), ms);
+  },
+};
+
+/* Variante D : bouton du pouce. Pas de barre. Une bande d'actions en bas (Capturer, Auto, Sac, Menu) ; « Menu » déplie
+   la liste des destinations juste au-dessus du pouce. Les destinations s'ouvrent en pages, la bande reste. */
+const etat = { page: "combat", ouvert: false, nouveau: false };
+const dest = [["combat", "Combat"], ["equipe", "Équipe"], ["pc", "PC"], ["shop", "Shop"], ["carte", "Carte"], ["plus", "Plus"]];
+
+function bande() {
+  const fab = `<button type="button" class="plaque vertical fab" data-go="bascule" aria-expanded="${etat.ouvert}" aria-haspopup="true">${PK.ic(etat.ouvert ? "croix" : "menu")}Menu${etat.nouveau && !etat.ouvert ? '<span class="point"></span>' : ""}</button>`;
+  if (etat.page === "combat") {
+    return `<button type="button" class="plaque vertical" data-act="capturer">${PK.ic("balle")}Capturer<span class="pastille">×50</span></button>
+      <button type="button" class="plaque vertical" aria-pressed="false" data-act="auto">${PK.ic("auto")}Auto</button>
+      <button type="button" class="plaque vertical" data-go="sac">${PK.ic("sac")}Sac<span class="pastille">82</span></button>${fab}`;
+  }
+  return `<button type="button" class="plaque vertical large" data-go="combat">${PK.ic("combat")}Retour au combat</button>${fab}`;
+}
+
+function rendre() {
+  const c = document.getElementById("couches"); c.innerHTML = "";
+  document.getElementById("cles").innerHTML = PK.cles();
+  const e = document.getElementById("ecran");
+  if (etat.page === "combat") { e.innerHTML = PK.combat({ outils: false }); PK.scene(e); }
+  else e.innerHTML = `<div class="titre-page"><h1>${PK.titres[etat.page]}</h1></div>` + PK.page(etat.page);
+  e.scrollTop = 0;
+  document.getElementById("bas").innerHTML = bande();
+  if (etat.ouvert) {
+    c.innerHTML = `<div class="voile" data-go="bascule"></div>
+      <div class="pile" role="menu" aria-label="Destinations">${dest.map(([id, t]) => {
+        const ferme = id === "pc" && !PK.etat.pcOuvert;
+        return `<button type="button" role="menuitem" class="plaque ${ferme ? "ferme" : ""}" data-go="${id}" ${etat.page === id ? 'aria-current="page" aria-pressed="true"' : ""}><span>${t}${ferme ? '<small class="doux">Après Argenta</small>' : ""}</span>${PK.ic(ferme ? "cadenas" : id)}${id === "pc" && etat.nouveau ? '<span class="point"></span>' : ""}</button>`;
+      }).join("")}</div>`;
+  }
+}
+
+document.addEventListener("click", (ev) => {
+  const g = ev.target.closest("[data-go]"), a = ev.target.closest("[data-act]");
+  if (a) {
+    if (a.dataset.act === "debloquer-pc") { PK.etat.pcOuvert = true; etat.nouveau = true; PK.toast("PC débloqué ! Il est dans le menu."); }
+    if (a.dataset.act === "verrouiller-pc") { PK.etat.pcOuvert = false; etat.nouveau = false; }
+    return rendre();
+  }
+  if (!g) return;
+  const go = g.dataset.go;
+  if (go === "bascule") etat.ouvert = !etat.ouvert;
+  else { etat.ouvert = false; etat.page = go; if (go === "pc") etat.nouveau = false; }
+  rendre();
+});
+rendre();
+
+</script>
+</body>
+</html>

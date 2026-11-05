@@ -1,0 +1,2 @@
+.feuille .ligne-p { min-height: var(--cible); padding-block: 0; }
+.barre button .point { top: var(--u); right: calc(var(--u) * 6); }
