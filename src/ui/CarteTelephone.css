@@ -1,0 +1,20 @@
+.carte-telephone {
+  --carte-reserve: calc(var(--spacing) * 60 + env(safe-area-inset-top) + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  height: calc(100dvh - var(--carte-reserve));
+  min-height: calc(var(--spacing) * 80);
+  gap: calc(var(--spacing) * 2);
+}
+
+.carte-telephone > .liste-zones {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.carte-telephone .carte-support,
+.carte-telephone .carte-support > svg {
+  height: 100%;
+}

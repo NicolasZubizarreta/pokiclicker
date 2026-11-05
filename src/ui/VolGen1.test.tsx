@@ -25,7 +25,7 @@ afterEach(() => {
 const avancer = (ms: number) => act(() => { vi.advanceTimersByTime(ms); });
 
 it.each([false, true])('vole vers un lieu sans changer de zone (réduit : %s)', reduit => {
-  vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: reduit })));
+  vi.stubGlobal('matchMedia', vi.fn((requete: string) => ({ matches: reduit && requete.includes('reduce') })));
   const aller = vi.fn(), arrive = vi.fn(), ouvrir = vi.fn();
   const { result } = renderHook(() => useVol(aller, arrive));
   act(() => result.current.lancer('centre-commercial', null, ouvrir));
@@ -105,7 +105,7 @@ it('anime la piste en 400 ms et répète les traits en 200 ms sans trou', () => 
 });
 
 it('réduit le mouvement à un fondu sans overlay ni dresseur, avec seuils 150 et 300 ms', () => {
-  vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: true })));
+  vi.stubGlobal('matchMedia', vi.fn((requete: string) => ({ matches: requete.includes('reduce') })));
   const aller = vi.spyOn(storeJeu.getState(), 'allerVers'), arrive = vi.fn();
   const { container } = render(<CarteKanto quandArrive={arrive} />);
   fireEvent.click(screen.getByRole('button', { name: 'Route 1 (Zone 1)' }));
@@ -124,7 +124,7 @@ it('réduit le mouvement à un fondu sans overlay ni dresseur, avec seuils 150 e
 });
 
 it.each([false, true])('nettoie les minuteurs au démontage (mouvement réduit : %s)', reduit => {
-  vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: reduit })));
+  vi.stubGlobal('matchMedia', vi.fn((requete: string) => ({ matches: reduit && requete.includes('reduce') })));
   const aller = vi.fn(), arrive = vi.fn();
   const minuteursAvant = vi.getTimerCount();
   const { result, unmount } = renderHook(() => useVol(aller, arrive));
