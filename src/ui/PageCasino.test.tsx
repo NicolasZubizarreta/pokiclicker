@@ -14,7 +14,7 @@ const stores: StoreJeu[] = [];
 afterEach(() => { cleanup(); stores.forEach(s => s.getState().arreter()); stores.length = 0; vi.restoreAllMocks(); vi.useRealTimers(); vi.unstubAllGlobals(); });
 function preparer(reduit = false, ouvert = true) {
   vi.useFakeTimers();
-  vi.stubGlobal('matchMedia', () => ({ matches: reduit }));
+  vi.stubGlobal('matchMedia', (requete: string) => ({ matches: reduit && requete.includes('reduce') }));
   const stockage = creerStockageMemoire(), horloge = creerHorlogeSimulee();
   const gestionnaire = creerGestionnaire({ stockage, horloge, genererId: () => 'test' });
   gestionnaire.creerPartie('Test', 'kanto.bourg-palette');

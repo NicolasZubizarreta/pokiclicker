@@ -290,7 +290,7 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
       </section>}
       </div>
       {telephone && <dialog ref={dialogueCeladopole} aria-labelledby="carte-celadopole-titre"
-        className="guide-fenetre cadre w-[calc(100%-2rem)] max-w-sm bg-surface p-0 text-base text-texte"
+        className="guide-fenetre fenetre-celadopole cadre max-w-sm bg-surface p-0 text-base text-texte"
         onClose={() => { ouvrirCeladopole(false); ligneCeladopole.current?.focus(); }}>
         <div className="fiche-contenu grid min-w-0 gap-4 p-4 lg:p-8">
           <button type="button" aria-label="Fermer" className="cadre min-h-12 min-w-12 justify-self-end bg-surface p-3 text-2xl leading-none" onClick={fermerCeladopole}>×</button>
