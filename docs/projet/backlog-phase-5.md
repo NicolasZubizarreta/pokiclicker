@@ -51,15 +51,15 @@ Tout changement d'interface.
 
 ## B. `docs(design): auditer les écrans avec Nicolas`
 
-`type:docs`, `etat:en_cours`, `est:1-2`, `prio:1` · branche : `v2` · pas d'`agent-ok` (jugement avec Nicolas) · dépend de : A
+`type:docs`, `etat:fait`, `est:1-2`, `prio:1` · branche : `v2` · pas d'`agent-ok` (jugement avec Nicolas) · dépend de : A
 
 ### Histoire
 En tant que Nicolas, je veux un diagnostic clair écran par écran afin de savoir quoi refaire en premier, sans avoir d'idée à l'avance.
 
 ### Critères d'acceptation
-- [ ] Étant donné la grille de `docs/projet/audit-interface-phase-5.md`, quand l'audit est fini, alors chaque écran a une note par ligne de la grille et une phrase de commentaire.
-- [ ] Étant donné trois ou quatre jeux de référence que Nicolas choisit ou joue, quand ils sont regardés sur téléphone, alors le rapport note pour chacun ce qu'il fait mieux que PokiClicker (captures, pas de longs extraits).
-- [ ] Étant donné les notes, quand le rapport est lu, alors il classe les défauts par gravité et propose l'ordre des tickets C à K, que Nicolas valide.
+- [x] Étant donné la grille de `docs/projet/audit-interface-phase-5.md`, quand l'audit est fini, alors chaque écran a une note par ligne de la grille et une phrase de commentaire. (8 écrans prioritaires, section 6 ; Nicolas d'accord le 05/11)
+- [x] Étant donné trois ou quatre jeux de référence que Nicolas choisit ou joue, quand ils sont regardés sur téléphone, alors le rapport note pour chacun ce qu'il fait mieux que PokiClicker (captures, pas de longs extraits). (Egg Inc, AdVenture Capitalist, Idle Miner d'après les fiches App Store, section 7)
+- [x] Étant donné les notes, quand le rapport est lu, alors il classe les défauts par gravité et propose l'ordre des tickets C à K, que Nicolas valide. (validé le 05/11 : « je suis d'accord avec tout »)
 
 ### Hors périmètre
 Dessiner une solution (tickets suivants).
