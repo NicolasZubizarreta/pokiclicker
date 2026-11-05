@@ -29,6 +29,29 @@ Chemin critique : A → B → C → D → (E, F, G, H en parallèle de choix, ja
 | 15 | O. Décors et cartes régénérés au bon format | 2 à 3 j |
 | 16 | P. Passe finale : Kanto « propre » sur téléphone et PC | 1 à 2 j |
 
+## Décision de Nicolas (05/11) : UX complète d'abord, téléphone puis PC
+
+On valide toute l'interface téléphone en une fois : zone compte, choix de la partie, carte du monde (même avec Kanto seul pour l'instant) et toute l'interface de jeu. Ensuite, même travail pour le PC. Pas de bricolage écran par écran : l'UX est dessinée en entier et proprement maintenant, y compris pour les écrans dont le code n'existe pas encore (monde, menu principal, réglages). Les tickets C à K se lisent donc comme un seul lot de maquettes validées avant l'implémentation ; le PC (ticket I et reprise des écrans) vient après la validation du téléphone.
+
+## Maquette téléphone validée (05/11) et découpage de l'implémentation
+
+Nicolas a validé toute l'interface téléphone : `design/variantes/navigation-telephone/a5-index.html` (55 écrans, `a5-app.html#<écran>`). Les règles sont dans le journal de `design/DESIGN.md` (entrée du 05/11) ; ses retours mot pour mot dans `docs/projet/notes-nicolas-phase-5.md`. **La maquette A5 est la spécification : un écran codé doit lui ressembler à 360, 390 et 430 px.** Les critères « variantes à choisir » des tickets C à K sont donc remplis ; il reste à coder. Écarts entre l'application et la maquette qui sont des changements de règle ou de texte décidés par Nicolas : monnaie ₽, plus de versions de sauvegarde, auto-clic lié, sons 0-100.
+
+Découpage et ordre (une seule écriture à la fois sur la coquille) :
+
+| Lot | Contenu | Tickets | Dépend de |
+|---|---|---|---|
+| 1 | Fondations : police Atkinson gras, ₽ partout (code et textes), mise en page fluide pleine largeur, bandeau du haut, barre du bas à 5 entrées, ligne de zone seulement dans le combat | C | — |
+| 2 | Menu de jeu (Sauvegarder, Monde, Pokédex, Badges, Statistiques, Guide, Réglages, Menu principal), Réglages (sons 0-100, auto-clic lié), écran Monde (Kanto seul) | C (suite) | 1 |
+| 3 | Combat : ligne de capture, 4 boutons, réglage de l'arrêt auto, Fauchage et Poké-Radar dévoilés, fin du dialogue Chen permanent | D | 1 |
+| 4 | Équipe, Sac en fenêtre, mode choix, PC (tri DPS, accès depuis l'Équipe), fiche Pokémon (favori, sexe, types en couleur) | H | 1 |
+| 5 | Shop (3 catégories), Pokédex, Badges, Statistiques, Guide | J | 2 |
+| 6 | Carte : liste + carte non cliquable, vol du jeu PC, fenêtre Céladopole | K | 1 |
+| 7 | Zone compte : connexion, inscription, mot de passe, Mes parties, Mon compte, réglages, barre Parties / Compte / Réglages | E, F, G | 2 |
+| 8 | Une sauvegarde par partie, reprise exacte, « partie reprise ailleurs », déconnexion « Sauvegarder et se déconnecter » (change la synchro de la phase 4 et l'ADR 0004 ; revue sécurité obligatoire, pas d'`agent-ok`) | F (suite) | 7 |
+
+Les lots 3, 4, 6 et 7 touchent des fichiers différents : au plus trois en parallèle après le lot 2, chacun dans sa session. Le PC (ordinateur) se refait de la même façon après le téléphone (ticket I).
+
 ## A. `chore(design): capturer l'existant à 390 et 1440 px`
 
 `type:chore`, `etat:fait`, `est:1-2`, `prio:1` · branche : `v2` · `agent-ok` possible (script, pas de décision)
