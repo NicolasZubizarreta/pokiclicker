@@ -57,7 +57,7 @@ Coolify tourne déjà chez Nicolas. Nicolas fait le déploiement et fournit les 
 
 ### Critères d'acceptation
 - [x] Étant donné le service déployé, quand j'ouvre son adresse en HTTPS, alors il répond (état de santé) et le certificat est valide.
-- [x] Étant donné la base, quand la sauvegarde planifiée s'exécute, alors un fichier daté est créé hors du conteneur (sauvegarde Coolify quotidienne, sur le disque du serveur). La copie hors serveur et la restauration d'essai sont reportées : décision de Nicolas du 04/11, pas de second hébergeur payant pour l'instant (ticket K, idée).
+- [x] Étant donné la base, quand la sauvegarde planifiée s'exécute, alors un fichier daté est créé hors du conteneur (sauvegarde Coolify quotidienne, sur le disque du serveur). La copie hors serveur et la restauration d'essai ne seront pas faites : décision de Nicolas (05/11), ticket K supprimé.
 - [x] Étant donné les secrets (clés, mot de passe SMTP), quand le dépôt est parcouru, alors aucun n'y figure ; ils sont dans les variables de Coolify.
 - [x] Étant donné une origine autre que le jeu, quand elle appelle l'API, alors la requête est refusée (CORS limité à l'adresse du jeu et à `localhost`).
 
@@ -264,10 +264,3 @@ Jouer sans jamais créer de compte.
 
 ### Effort et risques
 2 à 3 jours, à resserrer au cadrage. Risque : sécurité d'une session longue hors ligne. Dépend de : D, E.
-
-## K. `chore(serveur): copier les sauvegardes hors du serveur et tester une restauration`
-
-`type:chore`, `etat:idee`, `est:0.5-1`, `prio:5` · branche : `v2` · pas d'`agent-ok` (configuration système) · reporté par Nicolas le 04/11 : pas de second hébergeur payant maintenant, à reprendre quand des amis jouent vraiment
-
-### Contexte
-Les sauvegardes Coolify restent sur le disque du serveur : elles ne protègent pas d'une perte du serveur. À reprendre avec un stockage S3 (ou une copie manuelle périodique du dump sur le PC de Nicolas, gratuite), puis restauration d'essai selon `server/README.md`.
