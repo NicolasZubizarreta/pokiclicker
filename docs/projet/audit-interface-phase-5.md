@@ -85,4 +85,20 @@ Défauts qui reviennent sur plusieurs écrans :
 
 Ordre proposé pour les tickets : C (navigation et écran principal) en premier, puis D (combat), E (compte), F (parties), G, H, I, J, K. Il suit l'ordre actuel du backlog ; à discuter avec Nicolas.
 
-Reste à faire pour clore B : les notes de Nicolas (il corrige ce que j'ai vu de travers), les 3 ou 4 jeux de référence regardés sur téléphone, la validation de l'ordre des tickets.
+## 7. Jeux de référence, regardés par Claude (05/11)
+
+Source : les captures des fiches App Store (Egg Inc, AdVenture Capitalist, Idle Miner Tycoon). Seul Egg Inc montre de vrais écrans de jeu ; les deux autres sont des visuels de pub, donc fiabilité faible pour les menus. Les images ne sont pas dans le dépôt (droits). Rien n'a été joué.
+
+| Jeu | Ce qu'il fait mieux que PokiClicker | Fiabilité |
+|---|---|---|
+| Egg Inc | Trois chiffres clés fixes en haut (œufs, œufs par seconde, argent), en gros avec l'unité. Une action principale en gros bouton rouge tout en bas, quatre petites icônes rondes au-dessus. Pas de barre de navigation : l'écran est la ferme. Les menus s'ouvrent en fenêtre par-dessus le jeu (fond flou, croix pour fermer). Une ligne d'achat = icône, nom, effet, bouton avec le prix, environ 60 px de haut. | bonne (vrais écrans) |
+| AdVenture Capitalist | Une ligne par commerce : barre de progression, bouton orange « acheter ×10 » avec le prix, durée du cycle. Colonne de boutons rapides à droite. Les gros chiffres en haut. | faible (pub) |
+| Idle Miner Tycoon | Le bouton « New Shaft » n'apparaît que quand on peut s'en servir : la progression se dévoile à l'écran. | faible (pub) |
+
+Ce que ça change pour PokiClicker :
+1. **Chiffres clés** : pièces et DPS sont dispersés (sous le titre, dans le bandeau rouge). À regrouper en une barre fixe.
+2. **Menus en fenêtre** plutôt qu'en pages longues : le shop fait 5200 px avec 17 cartes de ~170 px (stepper − +, bouton Acheter). Une ligne de 60 px avec le prix dans le bouton ferait le même travail.
+3. **Barre du bas** : Egg n'en a pas. Si on la garde, 5 entrées avec texte au plus (PokiClicker : 6).
+4. **Apparition progressive** des boutons (PC, casino, succès) : déjà prévu dans les principes.
+
+Reste à faire pour clore B : les corrections de Nicolas sur le tableau de la section 6, sa liste de détails PC (ticket I), la validation de l'ordre des tickets.
