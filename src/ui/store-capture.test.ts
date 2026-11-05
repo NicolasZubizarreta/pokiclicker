@@ -31,6 +31,45 @@ function preparer(alea = () => .1, pleine = false) {
   return { store, avancer, relire, lancer, gestionnaire };
 }
 
+it('conserve autoClicLie et utilise true pour une ancienne sauvegarde', () => {
+  const { store, lancer, gestionnaire } = preparer();
+  expect(store.getState().autoClicLie).toBe(true);
+  store.getState().reglerAutoClicLie(false);
+  expect(store.getState().autoClicLie).toBe(false);
+  expect(gestionnaire.chargerCompte()!.donnees.preferences.autoClicLie).toBe(false);
+  store.getState().arreter();
+  expect(lancer().getState().autoClicLie).toBe(false);
+});
+
+it('sauvegarde immédiatement seulement après le démarrage', () => {
+  const stockage = creerStockageMemoire();
+  const horloge = creerHorlogeSimulee();
+  const store = creerStoreJeu({ stockage, horloge, alea: () => .1, genererId: () => 'partie' });
+  stores.push(store);
+  const ecrire = vi.spyOn(stockage, 'ecrire');
+  store.getState().reglerAutoClicLie(false);
+  expect(store.getState().sauvegarder()).toBe(false);
+  expect(ecrire).not.toHaveBeenCalled();
+  store.getState().demarrer();
+  expect(store.getState().autoClicLie).toBe(true);
+  expect(store.getState().sauvegarder()).toBe(true);
+  expect(ecrire).toHaveBeenCalled();
+  expect(creerGestionnaire({ stockage, horloge, genererId: () => 'partie' }).chargerCompte()).not.toBeNull();
+});
+
+it('sauvegarder() juge sa propre écriture : une erreur passée du compte ne bloque pas un succès', () => {
+  const stockage = creerStockageMemoire();
+  const store = creerStoreJeu({ stockage, horloge: creerHorlogeSimulee(), alea: () => .1, genererId: () => 'partie' });
+  stores.push(store);
+  store.getState().demarrer();
+  vi.spyOn(stockage, 'ecrire').mockImplementationOnce(() => { throw new Error('stockage plein'); });
+  store.getState().reglerAutoClicLie(false);
+  expect(store.getState().erreur).not.toBeNull();
+  expect(store.getState().sauvegarder()).toBe(true);
+  expect(store.getState().erreur).toBeNull();
+  expect(creerGestionnaire({ stockage, horloge: creerHorlogeSimulee(), genererId: () => 'partie' }).chargerCompte()?.donnees.preferences.autoClicLie).toBe(false);
+});
+
 it('consomme et sauvegarde immédiatement la balle, même après un échec', () => {
   const { store, avancer, relire } = preparer(() => .99);
   const numero = store.getState().ennemi!.numero;

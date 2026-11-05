@@ -93,7 +93,8 @@ export type AffichageJeu = ActionsCasino & {
   utiliserPierre(uid: string, pierre: string): string | null;
   evolution: EvolutionAffichee | null;
   basculerAutoClic(): void;
-  capture: AffichageCapture; autoAttaque: boolean; arretAuto: ReglagesArret;
+  capture: AffichageCapture; autoAttaque: boolean; autoClicLie: boolean; arretAuto: ReglagesArret;
+  reglerAutoClicLie(actif: boolean): void; sauvegarder(): boolean;
   capturer(cle: string): void; basculerAutoAttaque(): void; reglerArretAuto(partiel: Partial<ReglagesArret>): void;
   lieu: ZoneMonde | null; zone: Zone | null; etape: number; ennemi: Omit<Ennemi, 'capture'> | null; pv: number;
   nomAdversaire: string | null; ligueGagnee: number;
@@ -521,7 +522,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       autoClic: precedent.autoClic.possede === region.ameliorations.includes('leftovers')
         && precedent.autoClic.actif === (coeur?.autoClic ?? false) ? precedent.autoClic
         : { possede: region.ameliorations.includes('leftovers'), actif: coeur?.autoClic ?? false },
-      autoAttaque: preferences.autoAttaque, arretAuto: preferences.arretAuto,
+      autoAttaque: preferences.autoAttaque, autoClicLie: preferences.autoClicLie, arretAuto: preferences.arretAuto,
       pc: region.pc, pokedex,
       pension: JSON.stringify(affichagePension) === JSON.stringify(precedent.pension) ? precedent.pension : affichagePension,
       accesPc: accesAuPc.ouvert === precedent.accesPc.ouvert && accesAuPc.raison === precedent.accesPc.raison
@@ -906,7 +907,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       afficher();
     },
     capture: { balles: [], possible: false, raison: 'Aucun Pokémon à capturer.', enCours: false },
-    autoAttaque: preferences.autoAttaque, arretAuto: preferences.arretAuto,
+    autoAttaque: preferences.autoAttaque, autoClicLie: preferences.autoClicLie, arretAuto: preferences.arretAuto,
     capturer(cle) {
       if (!initialise || minuteur === undefined) return;
       const condition = conditionCapture(coeur, region.inventaire, cle);
@@ -924,6 +925,20 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       preferences = { ...preferences, autoAttaque: !preferences.autoAttaque };
       if (coeur) coeur = basculerAutoAttaque(coeur, preferences.autoAttaque);
       enregistrer(); afficher();
+    },
+    reglerAutoClicLie(actif) {
+      if (!initialise) return;
+      preferences = { ...preferences, autoClicLie: actif };
+      enregistrer(); afficher();
+    },
+    sauvegarder() {
+      if (!initialise) return false;
+      // L'erreur est collante : on la remet à zéro pour juger cette écriture seule.
+      // Après un échec d'écriture de la partie, la persistance se bloque et n'écrit plus rien : ce n'est pas un succès.
+      erreur = null;
+      signaler(true);
+      afficher();
+      return erreur === null && !persistance.estBloquee();
     },
     reglerArretAuto(partiel) {
       if (!initialise) return;

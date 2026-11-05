@@ -36,6 +36,7 @@ export function ouvrirPartie(options: Parameters<typeof creerGestionnaire>[0],
   const compte = gestionnaire.chargerCompte()?.donnees ?? compteInitial();
   const preferences: PreferencesCombat = {
     autoAttaque: compte.preferences.autoAttaque ?? reglages.depart.preferences.autoAttaque,
+    autoClicLie: compte.preferences.autoClicLie ?? reglages.depart.preferences.autoClicLie,
     arretAuto: structuredClone(compte.preferences.arretAuto ?? reglages.depart.preferences.arretAuto),
   };
   let dernieresPreferences = JSON.stringify(preferences);
@@ -55,6 +56,8 @@ export function ouvrirPartie(options: Parameters<typeof creerGestionnaire>[0],
     compte(): DonneesCompte {
       return gestionnaire.chargerCompte()?.donnees ?? compteInitial();
     },
+    /** Vrai après un échec d'écriture de la partie : plus rien n'est écrit tant que la partie n'est pas rechargée. */
+    estBloquee: () => bloquee,
     enregistrerSon(actif: boolean) {
       if (bloquee) return;
       const actuel = gestionnaire.chargerCompte()?.donnees ?? compteInitial();

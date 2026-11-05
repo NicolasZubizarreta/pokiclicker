@@ -15,7 +15,7 @@ export type ReglagesArret = {
   actif: boolean; commun: boolean; peuCommun: boolean; rare: boolean; tresRare: boolean;
   legendaire: boolean; shiny: boolean; nouveau: boolean;
 };
-export type PreferencesCombat = { autoAttaque: boolean; arretAuto: ReglagesArret };
+export type PreferencesCombat = { autoAttaque: boolean; autoClicLie: boolean; arretAuto: ReglagesArret };
 export type DonneesCompte = {
   diamants: number; succes: string[]; skins: string[];
   preferences: { sombre?: boolean; sonActive?: boolean } & Partial<PreferencesCombat>;

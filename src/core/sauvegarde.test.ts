@@ -207,9 +207,9 @@ describe('préférences de combat du compte', () => {
     for (const diamants of [0, 15]) expect(() => validerDonneesCompte({ ...compteInitial(), diamants })).not.toThrow();
     for (const diamants of [1.5, 1e300, -1]) expect(() => validerDonneesCompte({ ...compteInitial(), diamants })).toThrow();
   });
-  it.each(['autoAttaque', 'arretAuto'] as const)('résout séparément le champ facultatif %s', cle => {
+  it.each(['autoAttaque', 'autoClicLie', 'arretAuto'] as const)('résout séparément le champ facultatif %s', cle => {
     const { stockage, horloge, jeu } = contexte();
-    const preferences = { autoAttaque: false, arretAuto: { ...reglages.depart.preferences.arretAuto, actif: false } };
+    const preferences = { autoAttaque: false, autoClicLie: false, arretAuto: { ...reglages.depart.preferences.arretAuto, actif: false } };
     jeu.ecrireCompte({ ...compteInitial(), preferences: { [cle]: preferences[cle] } });
     const session = ouvrirPartie({ stockage, horloge, genererId: () => 'nouvelle' });
     expect(session.preferences).toMatchObject({ ...reglages.depart.preferences, [cle]: preferences[cle] });
@@ -220,7 +220,7 @@ describe('préférences de combat du compte', () => {
       skins: ['rouge'], preferences: { sombre: true, sonActive: false } });
     const options = { stockage, horloge, genererId: () => 'nouvelle' };
     const session = ouvrirPartie(options);
-    const preferences = { autoAttaque: false, arretAuto: { ...reglages.depart.preferences.arretAuto, rare: false } };
+    const preferences = { autoAttaque: false, autoClicLie: false, arretAuto: { ...reglages.depart.preferences.arretAuto, rare: false } };
     const avant = structuredClone(preferences);
     const ecrire = vi.spyOn(stockage, 'ecrire');
     session.enregistrerPreferences(preferences);
