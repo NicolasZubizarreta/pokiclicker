@@ -152,6 +152,19 @@ it('ferme immédiatement et rejoint le Centre ou le Casino par leur callback apr
   expect(HTMLDialogElement.prototype.close).toHaveBeenCalledTimes(2);
 });
 
+it('garde Céladopole touchable quand son arène est terminée, et désactive l’Arène quand on y est', () => {
+  const carte = storeJeu.getState().carte;
+  storeJeu.setState({ carte: { ...carte, formes: carte.formes.map(f => f.nom === 'Céladopole'
+    ? { ...f, ouverte: true, terminee: true, actuelle: true } : { ...f, actuelle: false }) } });
+  render(<CarteKanto quandArrive={vi.fn()} />);
+  const ligne = screen.getByRole('button', { name: /Céladopole/ });
+  expect(ligne.getAttribute('aria-disabled')).toBeNull();
+  expect(ligne.textContent).toContain('Terminée · 3 lieux');
+  fireEvent.click(ligne);
+  const dialogue = screen.getByRole<HTMLDialogElement>('dialog', { name: 'Céladopole' });
+  expect(within(dialogue).getByRole<HTMLButtonElement>('button', { name: 'Arène', description: 'Tu es ici.' }).disabled).toBe(true);
+});
+
 it('conserve la liste de sélection et Ton voyage sur PC', () => {
   vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() })));
   afficher();

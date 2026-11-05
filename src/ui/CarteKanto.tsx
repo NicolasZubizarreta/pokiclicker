@@ -183,17 +183,19 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
     <div className={telephone ? 'carte-telephone' : 'carte-grille grid gap-x-4'}>
     {telephone && <ul aria-label="Zones de Kanto" className={`liste-zones flex flex-col gap-2 ${vol.actif ? 'opacity-60' : ''}`}>
       {zones.map(f => {
-        const inactive = vol.actif || !f.ouverte || f.terminee;
         const celadopole = f.nom === 'Céladopole';
+        // Céladopole terminée reste ouverte : le Centre commercial et le Casino s'y atteignent toujours.
+        const fermee = !f.ouverte || (f.terminee && !celadopole);
+        const inactive = vol.actif || fermee;
         const secondaire = [
           f.numero !== null && f.numero > 0 ? `Zone ${f.numero}` : '',
-          f.terminee ? 'Terminée' : [f.actuelle ? 'tu es ici' : '', celadopole ? '3 lieux' : '', !f.ouverte ? 'fermée' : ''].filter(Boolean).join(' · '),
+          f.terminee ? ['Terminée', celadopole ? '3 lieux' : ''].filter(Boolean).join(' · ') : [f.actuelle ? 'tu es ici' : '', celadopole ? '3 lieux' : '', !f.ouverte ? 'fermée' : ''].filter(Boolean).join(' · '),
         ].filter(Boolean).join(' · ');
         return <li key={f.zone}>
           <button type="button" aria-label={`${nomAccessible(f)}${f.actuelle ? ', tu es ici' : ''}`}
             ref={celadopole ? ligneCeladopole : undefined}
             aria-disabled={inactive ? true : undefined}
-            className={`flex min-h-14 w-full items-center gap-3 border-2 px-3 py-1 text-left focus-visible:outline-2 focus-visible:outline-focus ${f.actuelle ? 'bg-selection border-succes-base' : !f.ouverte || f.terminee ? 'bg-surface-2 text-texte-doux border-bordure' : 'bg-surface border-bordure'}`}
+            className={`flex min-h-14 w-full items-center gap-3 border-2 px-3 py-1 text-left focus-visible:outline-2 focus-visible:outline-focus ${f.actuelle ? 'bg-selection border-succes-base' : fermee ? 'bg-surface-2 text-texte-doux border-bordure' : 'bg-surface border-bordure'}`}
             onClick={inactive || (f.actuelle && !celadopole) ? undefined : () => {
               if (celadopole) {
                 if (!celadopoleOuverte) ouvrirCeladopole(true);
@@ -204,7 +206,7 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
               <span className="block font-semibold">{f.nom}</span>
               <span className="block text-sm text-texte-doux">{secondaire}</span>
             </span>
-            {f.ouverte && !f.terminee && <svg aria-hidden="true" viewBox="0 0 24 24" className="size-6 shrink-0 fill-none stroke-current stroke-2"><path d="m9 6 6 6-6 6" /></svg>}
+            {!fermee && <svg aria-hidden="true" viewBox="0 0 24 24" className="size-6 shrink-0 fill-none stroke-current stroke-2"><path d="m9 6 6 6-6 6" /></svg>}
           </button>
         </li>;
       })}
@@ -295,7 +297,7 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
           <h2 id="carte-celadopole-titre" className="break-words font-titre text-2xl">Céladopole</h2>
           <p>Où veux-tu aller ?</p>
           {[
-            { nom: 'Arène', zone: zoneCeladopole, ouvert: true, raison: null, arrivee: undefined, id: 'carte-arene-telephone' },
+            { nom: 'Arène', zone: zoneCeladopole, ouvert: actuelle?.zone !== zoneCeladopole, raison: 'Tu es ici.', arrivee: undefined, id: 'carte-arene-telephone' },
             { nom: 'Centre commercial', zone: 'centre-commercial', ouvert: centreOuvert, raison: raisonCentre, arrivee: quandCentre, id: 'carte-commerce-telephone' },
             { nom: 'Casino', zone: 'casino', ouvert: !!(casino.ouvert && quandCasino), raison: raisonCasino, arrivee: quandCasino, id: 'carte-casino-telephone' },
           ].map(choix => <div key={choix.id}>
