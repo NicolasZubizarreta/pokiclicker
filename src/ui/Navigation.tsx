@@ -8,12 +8,13 @@ const entrees = [
   { titre: 'Menu', Icone: Menu },
 ] as const;
 
-export type Page = 'Combat' | 'Équipe' | 'PC' | 'Shop' | 'Carte' | 'Menu';
+export type Page = 'Combat' | 'Équipe' | 'PC' | 'Shop' | 'Carte' | 'Menu' | 'Monde';
 
-export function Navigation({ page, choisir, signalCarte = false, inerte = false }: {
+export function Navigation({ page, choisir, signalCarte = false, inerte = false, origineMonde = 'Menu' }: {
   page: Page; choisir: (page: Page) => void; signalCarte?: boolean; inerte?: boolean;
+  origineMonde?: 'Menu' | 'Carte';
 }) {
-  const active = page === 'PC' ? 'Menu' : page;
+  const active = page === 'PC' ? 'Menu' : page === 'Monde' ? origineMonde : page;
   return (
     <nav aria-label="Navigation principale" inert={inerte}
       className="fixed inset-x-0 bottom-0 z-10 box-content border-t border-bordure bg-surface pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pt-1 pb-[env(safe-area-inset-bottom)] lg:rounded-cadre lg:border-t-0 lg:after:pointer-events-none lg:after:absolute lg:after:inset-0 lg:after:rounded-cadre lg:after:border lg:after:border-bordure lg:after:inset-ring lg:after:inset-ring-region-argent lg:inset-x-auto lg:inset-y-0 lg:left-0 lg:h-auto lg:w-24 lg:p-0">

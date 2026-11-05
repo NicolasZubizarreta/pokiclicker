@@ -1,5 +1,5 @@
 {
-  "genereLe": "2026-11-05T12:19:07.419Z",
+  "genereLe": "2026-11-05T22:27:43.050Z",
   "ecrans": [
     {
       "groupe": "compte",
@@ -774,7 +774,7 @@
       "slug": "page-plus",
       "titre": "Plus — menu",
       "source": "src/ui/PagePlus.tsx",
-      "etat": "Équipe de six au niveau 100, huit badges, 250 000 pièces, sac rempli et radar débloqué.",
+      "etat": "Équipe de six au niveau 100, huit badges, 250 000 ₽, sac rempli et radar débloqué.",
       "build": "jeu",
       "statut": "ok",
       "raison": "",
@@ -791,14 +791,14 @@
           "statut": "ok"
         }
       },
-      "captureLe": "2026-11-05T12:15:17.404Z"
+      "captureLe": "2026-11-05T22:27:33.050Z"
     },
     {
       "groupe": "plus",
       "slug": "page-plus-reglages",
       "titre": "Plus — réglages",
       "source": "src/ui/PagePlus.tsx",
-      "etat": "Équipe de six au niveau 100, huit badges, 250 000 pièces, sac rempli et radar débloqué.",
+      "etat": "Équipe de six au niveau 100, huit badges, 250 000 ₽, sac rempli et radar débloqué.",
       "build": "jeu",
       "statut": "ok",
       "raison": "",
@@ -815,14 +815,38 @@
           "statut": "ok"
         }
       },
-      "captureLe": "2026-11-05T12:15:18.311Z"
+      "captureLe": "2026-11-05T22:27:34.187Z"
+    },
+    {
+      "groupe": "plus",
+      "slug": "page-monde",
+      "titre": "Plus — monde",
+      "source": "src/ui/PageMonde.tsx",
+      "etat": "Équipe de six au niveau 100, huit badges, 250 000 ₽, sac rempli et radar débloqué.",
+      "build": "jeu",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "plus-page-monde-390.png",
+        "1440": "plus-page-monde-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T22:27:35.192Z"
     },
     {
       "groupe": "plus",
       "slug": "pokedex",
       "titre": "Pokédex",
       "source": "src/ui/Pokedex.tsx",
-      "etat": "Équipe de six au niveau 100, huit badges, 250 000 pièces, sac rempli et radar débloqué.",
+      "etat": "Équipe de six au niveau 100, huit badges, 250 000 ₽, sac rempli et radar débloqué.",
       "build": "jeu",
       "statut": "ok",
       "raison": "",
@@ -839,14 +863,14 @@
           "statut": "ok"
         }
       },
-      "captureLe": "2026-11-05T12:15:19.336Z"
+      "captureLe": "2026-11-05T22:27:36.583Z"
     },
     {
       "groupe": "plus",
       "slug": "boite-badges",
       "titre": "Badges",
       "source": "src/ui/BoiteBadges.tsx",
-      "etat": "Équipe de six au niveau 100, huit badges, 250 000 pièces, sac rempli et radar débloqué.",
+      "etat": "Équipe de six au niveau 100, huit badges, 250 000 ₽, sac rempli et radar débloqué.",
       "build": "jeu",
       "statut": "ok",
       "raison": "",
@@ -863,14 +887,14 @@
           "statut": "ok"
         }
       },
-      "captureLe": "2026-11-05T12:15:21.018Z"
+      "captureLe": "2026-11-05T22:27:38.255Z"
     },
     {
       "groupe": "plus",
       "slug": "guide",
       "titre": "Guide",
       "source": "src/ui/Guide.tsx",
-      "etat": "Équipe de six au niveau 100, huit badges, 250 000 pièces, sac rempli et radar débloqué.",
+      "etat": "Équipe de six au niveau 100, huit badges, 250 000 ₽, sac rempli et radar débloqué.",
       "build": "jeu",
       "statut": "ok",
       "raison": "",
@@ -887,14 +911,14 @@
           "statut": "ok"
         }
       },
-      "captureLe": "2026-11-05T12:15:22.054Z"
+      "captureLe": "2026-11-05T22:27:39.350Z"
     },
     {
       "groupe": "plus",
       "slug": "statistiques",
       "titre": "Statistiques",
       "source": "src/ui/Statistiques.tsx",
-      "etat": "Équipe de six au niveau 100, huit badges, 250 000 pièces, sac rempli et radar débloqué.",
+      "etat": "Équipe de six au niveau 100, huit badges, 250 000 ₽, sac rempli et radar débloqué.",
       "build": "jeu",
       "statut": "ok",
       "raison": "",
@@ -911,7 +935,7 @@
           "statut": "ok"
         }
       },
-      "captureLe": "2026-11-05T12:15:23.082Z"
+      "captureLe": "2026-11-05T22:27:40.469Z"
     },
     {
       "groupe": "plus",
@@ -935,7 +959,7 @@
           "statut": "ok"
         }
       },
-      "captureLe": "2026-11-05T12:15:24.073Z"
+      "captureLe": "2026-11-05T22:27:41.647Z"
     },
     {
       "groupe": "fin",

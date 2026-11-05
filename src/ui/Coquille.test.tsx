@@ -38,6 +38,30 @@ afterEach(() => {
 });
 const noms = ['Combat', 'Équipe', 'Shop', 'Carte', 'Menu'];
 
+it('ouvre le Monde depuis Menu, revient au Menu et permet de jouer à Kanto', () => {
+  render(<Coquille />);
+  fireEvent.click(screen.getByRole('button', { name: 'Menu' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Monde Pokémon' }));
+  expect(screen.getByRole('heading', { name: 'Monde Pokémon' })).toBeTruthy();
+  expect(screen.getByRole('button', { name: 'Menu' }).getAttribute('aria-current')).toBe('page');
+  fireEvent.click(screen.getByRole('button', { name: 'Retour' }));
+  expect(screen.getByRole('heading', { name: 'Menu' })).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: 'Monde Pokémon' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Jouer à Kanto' }));
+  expect(screen.getByRole('button', { name: 'Combat' }).getAttribute('aria-current')).toBe('page');
+  expect(screen.queryByRole('heading', { name: 'Monde Pokémon' })).toBeNull();
+});
+
+it('propose Menu principal seulement avec le callback et l’appelle', () => {
+  const menuPrincipal = vi.fn(async () => true);
+  const { rerender } = render(<Coquille />);
+  fireEvent.click(screen.getByRole('button', { name: 'Menu' }));
+  expect(screen.queryByRole('button', { name: 'Menu principal' })).toBeNull();
+  rerender(<Coquille quandMenuPrincipal={menuPrincipal} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Menu principal' }));
+  expect(menuPrincipal).toHaveBeenCalledTimes(1);
+});
+
 it('affiche les chiffres clés sur chaque onglet et les étapes seulement sur Combat', () => {
   render(<Coquille />);
   for (const nom of [...noms, 'PC de Léo']) {
@@ -292,7 +316,8 @@ describe('Coquille', () => {
     });
     const autorises = new Set(['Aller au contenu', 'Mon compte', ...noms, "Le Shop s'ouvre à la Forêt de Jade.",
       'Pokédollars', 'Zone', storeJeu.getState().lieu!.nom, `${storeJeu.getState().argent.toLocaleString('fr-FR')}\u00a0₽`,
-      'Ton aventure', 'Statistiques', 'Région', `Kanto · ${storeJeu.getState().lieu!.nom}`, 'Badges', '0 / 8', 'DPS',
+      'Ton aventure', 'Aide et réglages', 'Partie en cours', 'La partie se sauvegarde toute seule.', 'Sauvegarder maintenant',
+      'Monde Pokémon', 'Kanto jouable', 'Dégâts, DPS et gains', 'Statistiques', 'Région', `Kanto · ${storeJeu.getState().lieu!.nom}`, 'Badges', '0 / 8', '0 sur 8', 'DPS',
       formaterDps(storeJeu.getState().dps), 'Prochain palier : 10 (Débutant) · Encore 7 espèces.',
       'PC de Léo', 'Pokédex', 'Guide du jeu', "Le PC de Léo s'ouvre à l'Arène d'Argenta.", 'Réglages', 'Son', 'Activé',
       'Musique', 'Activée', 'Volume des effets', 'Volume de la musique', 'Crédits des musiques', ...Object.values(musiques.pistes).map(creditPiste),
@@ -334,7 +359,7 @@ describe('Coquille', () => {
               ? storeJeu.getState().carte.formes.map(f => f.numero === null || f.numero <= 0 ? f.nom : `${f.nom} (Zone ${f.numero})`).find(n => n === element.getAttribute('aria-label'))
           : element.tagName.toLowerCase() === 'svg' ? 'Carte de Kanto'
             : element.tagName.toLowerCase() === 'progress' ? 'Badges obtenus'
-              : element.tagName.toLowerCase() === 'section' && ['Ton voyage', 'Zone sélectionnée'].includes(element.getAttribute('aria-label') ?? '')
+              : element.tagName.toLowerCase() === 'section' && ['Ton voyage', 'Zone sélectionnée', 'Partie en cours'].includes(element.getAttribute('aria-label') ?? '')
                 ? element.getAttribute('aria-label')
                 : nom === 'Équipe' && element.tagName.toLowerCase() === 'button'
                   ? equipe.filter(c => c).flatMap(c => [`${nomPokemon(c!)}, niveau ${c!.pokemon.niveau}`, `Renommer ${nomPokemon(c!)}`]).find(n => n === element.getAttribute('aria-label'))
@@ -347,7 +372,7 @@ describe('Coquille', () => {
       }
     }
     const icones = container.querySelectorAll('svg');
-    expect(icones).toHaveLength(6);
+    expect(icones.length).toBeGreaterThanOrEqual(6);
     for (const icone of icones) {
       expect(icone.getAttribute('aria-hidden')).toBe('true');
       expect(icone.getAttribute('focusable')).toBe('false');

@@ -106,11 +106,10 @@ test('Argenta : annonce, boîte, claque, fermeture et badge conservé', async ({
   await expect(boite).not.toBeVisible();
   await expect(page.getByRole('status').filter({ hasText: 'Badge Roche obtenu !' })).toHaveCount(0);
   await page.getByRole('button', { name: 'Menu', exact: true }).click();
-  const aventure = page.getByRole('region', { name: 'Ton aventure', exact: true });
-  await expect(aventure).toBeVisible();
-  await expect(aventure).toContainText('1 / 8');
-  await expect(aventure).toContainText('Kanto');
-  await expect(aventure).toContainText('DPS');
+  const partie = page.getByRole('region', { name: 'Partie en cours', exact: true });
+  await expect(partie).toBeVisible();
+  await expect(partie).toContainText('Kanto');
+  await expect(page.getByRole('button', { name: 'Badges', exact: true })).toContainText('1 sur 8');
   await capturer(page, 'plus');
   await page.getByRole('button', { name: 'Badges', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Badges', exact: true })).toBeFocused();
@@ -124,7 +123,7 @@ test('20 espèces : 2 500 ₽ une seule fois malgré deux rechargements', async 
     await expect.poll(async () => (await regionSauvee(page)).argent).toBe(3500);
     expect((await regionSauvee(page)).jalonsRecus).toEqual([10, 20]);
     await page.getByRole('button', { name: 'Menu', exact: true }).click();
-    await expect(page.getByRole('region', { name: 'Ton aventure' })).toContainText('20 / 151');
+    await expect(page.getByRole('button', { name: /^Pokédex/ })).toContainText('20 / 151');
     if (chargement < 2) await page.reload();
   }
 });

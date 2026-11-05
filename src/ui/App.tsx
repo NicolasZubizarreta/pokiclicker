@@ -115,6 +115,18 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
     fixerListe(await synchro.lister());
     fixerChargement(false);
   }
+  async function menuPrincipal(): Promise<boolean> {
+    if (!storeJeu.getState().sauvegarder()) return false;
+    await synchro.envoyerMaintenant({ fermeture: true });
+    // TODO lot 7 : ouvrir la zone compte (Parties / Compte / Réglages) à la place de l'écran actuel de liste des parties.
+    fixerErreur(''); fixerEcranParties(true); void listerParties();
+    return true;
+  }
+  // envoyerMaintenant ne rejette jamais : l'état de la synchro dit si la partie est vraiment partie.
+  const attendreEnvoi = async () => {
+    await synchro.envoyerMaintenant({ fermeture: true });
+    return !['hors-ligne', 'refuse', 'conflit'].includes(synchro.etat());
+  };
   async function jouer(id: string) {
     if (occupe) return;
     fixerOccupe(true); fixerErreur('');
@@ -152,7 +164,7 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
   if (phase === 'verification') return <p role="status">Vérification de la sauvegarde…</p>;
   const choix = synchro.choix();
   return <>
-    {jeuMonte && <Coquille quandDeconnecter={quandDeconnecter} quandOuvrirParties={() => {
+    {jeuMonte && <Coquille quandMenuPrincipal={menuPrincipal} attendreEnvoi={attendreEnvoi} quandDeconnecter={quandDeconnecter} quandOuvrirParties={() => {
       fixerErreur(''); fixerEcranParties(true); void listerParties();
     }} />}
     {!choix && (ailleurs || repriseEnAttente) && <div className={jeuMonte ? 'fixed inset-0 z-50' : undefined}>

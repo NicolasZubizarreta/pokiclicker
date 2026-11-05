@@ -23,6 +23,8 @@ test('statistiques depuis Menu : sauvegarde, défilement interne et fermeture', 
   const boite = (await fenetre.boundingBox())!;
   expect(boite.width).toBeLessThanOrEqual(page.viewportSize()!.width);
   expect(boite.height).toBeLessThanOrEqual(page.viewportSize()!.height);
+  // Le Menu est plus long qu'un écran de téléphone : le clic a pu faire défiler la page avant l'ouverture.
+  const defilePage = await page.evaluate(() => window.scrollY);
   const contenu = fenetre.locator('[data-stats-contenu]');
   expect(await contenu.evaluate(el => el.scrollHeight > el.clientHeight && getComputedStyle(el).overflowY === 'auto')).toBe(true);
   const croix = fenetre.getByRole('button', { name: 'Fermer les statistiques' });
@@ -32,7 +34,7 @@ test('statistiques depuis Menu : sauvegarde, défilement interne et fermeture', 
   await contenu.evaluate(el => { el.scrollTop = el.scrollHeight; });
   expect((await croix.boundingBox())!.y).toBe(avant.y);
   expect(await page.evaluate(() => getComputedStyle(document.documentElement).overflow)).toBe('hidden');
-  expect(await page.evaluate(() => window.scrollY)).toBe(0);
+  expect(await page.evaluate(() => window.scrollY)).toBe(defilePage);
   expect(await fenetre.evaluate(el => el.getAnimations({ subtree: true }).length)).toBe(0);
   await page.keyboard.press('Escape');
   await expect(fenetre).toBeHidden();

@@ -8,6 +8,7 @@ import { PageCarte } from './PageCentre';
 import { PageEquipe } from './PageEquipe';
 import { PagePC } from './PagePC';
 import { PagePlus } from './PagePlus';
+import { PageMonde } from './PageMonde';
 import { PageShop } from './PageShop';
 import { storeJeu } from './store';
 import { ObtentionBadge } from './ObtentionBadge';
@@ -22,7 +23,9 @@ import { sceneMusicale } from '../core/musiques';
 import { registreSucces } from '../core/succes';
 import { EcranMonCompte } from './compte/EcranMonCompte';
 
-export function Coquille({ region = 'kanto', theme = 'dark', quandDeconnecter, quandOuvrirParties }: {
+export function Coquille({ region = 'kanto', theme = 'dark', quandDeconnecter, quandOuvrirParties, quandMenuPrincipal, attendreEnvoi }: {
+  quandMenuPrincipal?: () => Promise<boolean>;
+  attendreEnvoi?: () => Promise<boolean | void>;
   quandOuvrirParties?: () => void;
   quandDeconnecter?: () => void;
   region?: 'kanto' | 'johto' | 'hoenn' | 'atlas';
@@ -30,6 +33,12 @@ export function Coquille({ region = 'kanto', theme = 'dark', quandDeconnecter, q
 }) {
   // Lien d'essai (dev seulement) : ?onglet=carte ouvre directement l'onglet Carte.
   const [page, choisir] = useState<Page>(() => import.meta.env.DEV && new URLSearchParams(window.location.search).get('onglet') === 'carte' ? 'Carte' : 'Combat');
+  const [origineMonde, fixerOrigineMonde] = useState<'Menu' | 'Carte'>('Menu');
+  // Point d'entrée du Monde Pokémon : le bouton de la Carte (lot 6) appellera aller('Monde').
+  function aller(destination: Page) {
+    if (destination === 'Monde') fixerOrigineMonde(page === 'Carte' ? 'Carte' : 'Menu');
+    choisir(destination);
+  }
   const annonce = useStore(storeJeu, etat => etat.annonce);
   const compte = useStore(storeJeu, e => e.compte);
   const [compteOuvert, fixerCompteOuvert] = useState(false);
@@ -79,7 +88,7 @@ export function Coquille({ region = 'kanto', theme = 'dark', quandDeconnecter, q
       <a href="#contenu" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-20 focus:bg-surface focus:p-4 focus:text-lien">
         Aller au contenu
       </a>
-      <Navigation page={page} choisir={choisir} signalCarte={tutorielRoute1 && page !== 'Carte' && !introActive && !introVue} inerte={introActive || introVue || credits || !!pantheon?.ouvert || compteOuvert} />
+      <Navigation page={page} choisir={aller} origineMonde={origineMonde} signalCarte={tutorielRoute1 && page !== 'Carte' && !introActive && !introVue} inerte={introActive || introVue || credits || !!pantheon?.ouvert || compteOuvert} />
       {!introActive && !introVue && <BandeauHaut />}
       <main id="contenu" tabIndex={-1} inert={compteOuvert} className="mb-[calc(var(--spacing)*16+env(safe-area-inset-bottom))] min-w-0 px-4 pb-4 pt-2 lg:mb-0 lg:ml-24 lg:p-8">
         <button ref={boutonCompte} className="min-h-11 p-2 text-lien underline" onClick={() => fixerCompteOuvert(true)}>Mon compte</button>
@@ -87,7 +96,7 @@ export function Coquille({ region = 'kanto', theme = 'dark', quandDeconnecter, q
         {quandDeconnecter && <button className="min-h-11 p-2 text-lien underline" onClick={quandDeconnecter}>Se déconnecter</button>}
         {page !== 'Combat' && page !== 'Carte' && page !== 'Shop' && annonce !== null && <div role="status" aria-live="polite"
           className="cadre bg-surface p-2 text-center">{annonce}</div>}
-        {page === 'Combat' ? introVue || introActive ? <PageIntro quandTerminee={() => fixerIntroVue(false)} /> : <EcranCombat /> : page === 'Carte' ? <PageCarte quandArrive={() => choisir('Combat')} /> : page === 'Équipe' ? <PageEquipe /> : page === 'PC' ? <PagePC /> : page === 'Menu' ? <PagePlus ouvrirPC={() => choisir('PC')} /> : <PageShop />}
+        {page === 'Combat' ? introVue || introActive ? <PageIntro quandTerminee={() => fixerIntroVue(false)} /> : <EcranCombat /> : page === 'Carte' ? <PageCarte quandArrive={() => choisir('Combat')} /> : page === 'Équipe' ? <PageEquipe /> : page === 'PC' ? <PagePC /> : page === 'Monde' ? <PageMonde retour={() => choisir(origineMonde)} jouerKanto={() => choisir('Combat')} /> : page === 'Menu' ? <PagePlus ouvrirPC={() => choisir('PC')} ouvrirMonde={() => aller('Monde')} menuPrincipal={quandMenuPrincipal} attendreEnvoi={attendreEnvoi} /> : <PageShop />}
       </main>
       {/* La Carte reste montée jusqu’à la fin du vol ; l’évolution garde aussi la priorité. */}
       {!introActive && !introVue && page !== 'Carte' && !evolution && evenement?.type === 'dialogue'

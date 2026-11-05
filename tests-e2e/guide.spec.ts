@@ -18,6 +18,8 @@ test('le Guide du jeu défile seul, se ferme avec Échap ou la croix et rend le 
   expect(boite!.width).toBeLessThanOrEqual(fenetreVue.width);
 
   // Les 11 sections sont là ; en déplier plusieurs force le défilement interne, jamais celui de la page.
+  // Le Menu est plus long qu'un écran de téléphone : le clic a pu faire défiler la page avant l'ouverture.
+  const defilePage = await page.evaluate(() => window.scrollY);
   const sections = fenetre.locator('details');
   await expect(sections).toHaveCount(11);
   for (let i = 0; i < 11; i++) await sections.nth(i).locator('summary').evaluate(el => { (el.parentElement as HTMLDetailsElement).open = true; });
@@ -26,7 +28,7 @@ test('le Guide du jeu défile seul, se ferme avec Échap ou la croix et rend le 
   expect(defilable).toBe(true);
   await contenu.evaluate(el => { el.scrollTop = el.scrollHeight; });
   expect(await page.evaluate(() => getComputedStyle(document.documentElement).overflow)).toBe('hidden');
-  expect(await page.evaluate(() => window.scrollY)).toBe(0);
+  expect(await page.evaluate(() => window.scrollY)).toBe(defilePage);
   await expect(fenetre.getByText(/Easter eggs|Renomme en “Daran”/).first()).toBeVisible();
 
   const croix = fenetre.getByRole('button', { name: 'Fermer le guide' });
