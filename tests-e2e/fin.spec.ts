@@ -78,7 +78,7 @@ async function lire(page: Page, textes: string[], verifier?: (indice: number, fe
 const sansDefilement = (page: Page) => page.evaluate(() =>
   document.documentElement.scrollWidth <= document.documentElement.clientWidth);
 
-test('Fin : le Pokédex complet fait dire huit répliques à Chen devant le labo, montre le diplôme et le Charme Chroma, rejouable depuis Plus', async ({ page }, informations) => {
+test('Fin : le Pokédex complet fait dire huit répliques à Chen devant le labo, montre le diplôme et le Charme Chroma, rejouable depuis Menu', async ({ page }, informations) => {
   await demarrer(page, { zone: 'kanto.bourg-palette', etape: 1, ligueGagnee: 0, drapeaux: [], joues: ['kanto.intro'] }, false);
   const dialogue = lignes('kanto.fin-pokedex');
   expect(dialogue).toHaveLength(8);
@@ -103,7 +103,7 @@ test('Fin : le Pokédex complet fait dire huit répliques à Chen devant le labo
   expect(region.ameliorations.filter(id => id === 'shinyCharm')).toHaveLength(1);
   expect(region.evenementsJoues.filter(id => id === 'kanto.fin-pokedex')).toHaveLength(1);
 
-  await page.getByRole('button', { name: 'Plus', exact: true }).click();
+  await page.getByRole('button', { name: 'Menu', exact: true }).click();
   await page.getByRole('button', { name: 'Diplôme du Pokédex', exact: true }).click();
   const diplome = page.getByRole('dialog', { name: 'Diplôme du Pokédex' });
   await expect(diplome).toBeVisible();
@@ -122,7 +122,7 @@ test('Fin : le Pokédex complet fait dire huit répliques à Chen devant le labo
   await page.reload();
   await expect(page.getByRole('heading', { name: 'Labo Pokémon du Prof. Chen', level: 1 })).toBeVisible();
   await expect(page.getByRole('dialog', { name: 'Dialogue de scène' })).toHaveCount(0);
-  await page.getByRole('button', { name: 'Plus', exact: true }).click();
+  await page.getByRole('button', { name: 'Menu', exact: true }).click();
   await page.getByRole('button', { name: 'Diplôme du Pokédex', exact: true }).click();
   await expect(page.locator('dialog[open] time')).toHaveText('25 octobre 2026');
   await page.keyboard.press('Escape');

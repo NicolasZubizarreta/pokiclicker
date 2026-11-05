@@ -105,7 +105,7 @@ test('Argenta : annonce, boîte, claque, fermeture et badge conservé', async ({
   await page.clock.runFor(3400);
   await expect(boite).not.toBeVisible();
   await expect(page.getByRole('status').filter({ hasText: 'Badge Roche obtenu !' })).toHaveCount(0);
-  await page.getByRole('button', { name: 'Plus', exact: true }).click();
+  await page.getByRole('button', { name: 'Menu', exact: true }).click();
   const aventure = page.getByRole('region', { name: 'Ton aventure', exact: true });
   await expect(aventure).toBeVisible();
   await expect(aventure).toContainText('1 / 8');
@@ -118,12 +118,12 @@ test('Argenta : annonce, boîte, claque, fermeture et badge conservé', async ({
   await capturer(page, 'badges');
 });
 
-test('20 espèces : 2 500 pièces une seule fois malgré deux rechargements', async ({ page }) => {
+test('20 espèces : 2 500 ₽ une seule fois malgré deux rechargements', async ({ page }) => {
   await demarrer(page, true);
   for (let chargement = 0; chargement < 3; chargement++) {
     await expect.poll(async () => (await regionSauvee(page)).argent).toBe(3500);
     expect((await regionSauvee(page)).jalonsRecus).toEqual([10, 20]);
-    await page.getByRole('button', { name: 'Plus', exact: true }).click();
+    await page.getByRole('button', { name: 'Menu', exact: true }).click();
     await expect(page.getByRole('region', { name: 'Ton aventure' })).toContainText('20 / 151');
     if (chargement < 2) await page.reload();
   }

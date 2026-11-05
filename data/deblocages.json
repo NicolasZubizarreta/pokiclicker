@@ -9,7 +9,7 @@
     {
       "id": "pc",
       "declencheur": { "zone": "kanto.arene-d-argenta" },
-      "texte": "PC débloqué ! Il est dans la barre de navigation."
+      "texte": "PC débloqué ! Il est dans le Menu."
     },
     {
       "id": "pension",

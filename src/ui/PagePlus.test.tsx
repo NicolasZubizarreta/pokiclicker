@@ -9,8 +9,8 @@ import { formaterDps } from './nombres';
 
 const contexte = vi.hoisted(() => ({ store: null as unknown as typeof storeJeu }));
 
-it('réserve le diplôme aux détenteurs et ouvre sa fenêtre depuis Plus', () => {
-  const { unmount } = render(<PagePlus />);
+it('réserve le diplôme aux détenteurs et ouvre sa fenêtre depuis Menu', () => {
+  const { unmount } = render(<PagePlus ouvrirPC={vi.fn()} />);
   expect(screen.queryByRole('button', { name: 'Diplôme du Pokédex' })).toBeNull();
   unmount();
   storeJeu.setState({ fin: { diplome: { nom: 'Nicolas', date: '2026-10-25T00:00:00Z' }, credits: false } });
@@ -19,7 +19,7 @@ it('réserve le diplôme aux détenteurs et ouvre sa fenêtre depuis Plus', () =
     close: { configurable: true, value(this: HTMLDialogElement) { this.open = false; } },
   });
   try {
-    render(<PagePlus />);
+    render(<PagePlus ouvrirPC={vi.fn()} />);
     const entree = screen.getByRole('button', { name: 'Diplôme du Pokédex' });
     entree.focus();
     fireEvent.click(entree);
@@ -63,7 +63,7 @@ afterEach(() => {
 });
 
 it('garde le relevé replié et active le journal local avec accès console', () => {
-  render(<PagePlus />);
+  render(<PagePlus ouvrirPC={vi.fn()} />);
   const panneau = screen.getByText('Relevé de partie (développement)').closest('details')!;
   expect(panneau.open).toBe(false);
   expect(window.pokiJournal).toBeUndefined();
@@ -79,7 +79,7 @@ it('garde le relevé replié et active le journal local avec accès console', ()
 });
 
 it('exporte le journal courant par Blob et confirme avant de l’effacer', async () => {
-  render(<PagePlus />);
+  render(<PagePlus ouvrirPC={vi.fn()} />);
   screen.getByText('Relevé de partie (développement)').closest('details')!.open = true;
   fireEvent.click(screen.getByRole('switch', { name: /Relevé de partie/ }));
   const exporter = vi.spyOn(storeJeu.getState(), 'exporterJournal');
@@ -114,30 +114,32 @@ it('exporte le journal courant par Blob et confirme avant de l’effacer', async
   expect(window.pokiJournal?.exporter()?.zones).toEqual({});
 });
 
-it('garde le Pokédex et ne propose plus le PC, déplacé dans la navigation (AD)', () => {
-  const { container } = render(<PagePlus />);
+it('propose le PC avant le Pokédex et appelle ouvrirPC', () => {
+  const ouvrirPC = vi.fn();
+  const { container } = render(<PagePlus ouvrirPC={ouvrirPC} />);
   // Prépare la vue historique ; les ajouts du tableau de bord sont vérifiés séparément.
   container.querySelectorAll('section[aria-labelledby]').forEach(section => section.remove());
   screen.getByText('Relevé de partie (développement)').closest('details')!.remove();
   container.querySelector('[data-entree="badges"]')?.closest('li')?.remove();
   container.querySelector('[data-prochain-palier]')?.remove();
   screen.getByRole('button', { name: 'Guide du jeu' }).remove();
-  expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Plus');
+  expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Menu');
   const liste = screen.getByRole('list');
-  expect(within(liste).getAllByRole('listitem')).toHaveLength(1);
-  expect(within(liste).getAllByRole('button').map(b => b.textContent)).toEqual(['Pokédex 3 / 151']);
-  expect(screen.queryByRole('button', { name: 'PC de Léo' })).toBeNull();
-  expect(container.textContent).toBe('PlusPokédex 3 / 151');
+  expect(within(liste).getAllByRole('listitem')).toHaveLength(2);
+  expect(within(liste).getAllByRole('button').map(b => b.textContent)).toEqual(['PC de Léo', 'Pokédex 3 / 151']);
+  fireEvent.click(screen.getByRole('button', { name: 'PC de Léo' }));
+  expect(ouvrirPC).toHaveBeenCalledOnce();
+  expect(container.textContent).toBe('MenuPC de LéoPokédex 3 / 151');
   expect(container.querySelector('[class~="bg-action"]')).toBeNull();
 });
 
-it('ouvre le Guide du jeu depuis Plus et rend le focus au bouton à la fermeture (AL)', () => {
+it('ouvre le Guide du jeu depuis Menu et rend le focus au bouton à la fermeture (AL)', () => {
   Object.defineProperties(HTMLDialogElement.prototype, {
     showModal: { configurable: true, value(this: HTMLDialogElement) { this.open = true; } },
     close: { configurable: true, value(this: HTMLDialogElement) { this.open = false; } },
   });
   try {
-    render(<PagePlus />);
+    render(<PagePlus ouvrirPC={vi.fn()} />);
     const entree = screen.getByRole('button', { name: 'Guide du jeu' });
     entree.focus();
     fireEvent.click(entree);
@@ -154,7 +156,7 @@ it('ouvre le Guide du jeu depuis Plus et rend le focus au bouton à la fermeture
 });
 
 it('ouvre le Pokédex des trois starters avec ses textes français et rend le focus à l’entrée d’origine', () => {
-  const { container } = render(<PagePlus />);
+  const { container } = render(<PagePlus ouvrirPC={vi.fn()} />);
   fireEvent.click(screen.getByRole('button', { name: 'Pokédex 3 / 151' }));
   // Isole le compteur et la grille historiques pour leur comparaison exacte.
   container.querySelector('[aria-label="Paliers du Pokédex"]')?.remove();
@@ -173,11 +175,11 @@ it('affiche le tableau de bord C et ouvre les badges avec le focus aller-retour'
   const progression = afficherProgression({ badges: ['roche', 'cascade'], jalonsRecus: [10, 20] },
     Array.from({ length: 24 }, (_, i) => i + 1));
   storeJeu.setState({ progression });
-  const { container } = render(<PagePlus />);
+  const { container } = render(<PagePlus ouvrirPC={vi.fn()} />);
   const aventure = screen.getByRole('region', { name: 'Ton aventure' });
   expect(aventure.textContent).toBe(`Ton aventureStatistiquesRégionKanto · ${storeJeu.getState().lieu!.nom}Pokédex24 / 151Badges2 / 8DPS${formaterDps(storeJeu.getState().dps)}`);
-  expect(screen.getByRole('list').textContent).toBe('Pokédex 24 / 151Prochain palier : 30 (Collectionneur) · Encore 6 espèces.Badges');
-  expect(within(screen.getByRole('list')).getAllByRole('listitem')).toHaveLength(2);
+  expect(screen.getByRole('list').textContent).toBe('PC de LéoPokédex 24 / 151Prochain palier : 30 (Collectionneur) · Encore 6 espèces.Badges');
+  expect(within(screen.getByRole('list')).getAllByRole('listitem')).toHaveLength(3);
   expect(aventure.querySelector('dl')).toBeTruthy();
   expect(within(aventure).getByText('24 / 151')).toBeTruthy();
   expect(within(aventure).getByText('2 / 8')).toBeTruthy();

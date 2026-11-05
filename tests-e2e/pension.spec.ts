@@ -81,7 +81,7 @@ for (const largeur of [390, 1440]) {
     await page.screenshot({ path: `design/captures/t-page-pension-${largeur}.png`, fullPage: true });
     await page.getByRole('button', { name: 'Prendre l’œuf' }).click();
     await expect(page.getByRole('status').filter({ hasText: 'L’œuf rejoint ton équipe.' })).toBeVisible();
-    await page.getByRole('button', { name: 'Ouvrir · 10 000 pièces' }).click();
+    await page.getByRole('button', { name: 'Ouvrir · 10 000 ₽' }).click();
     const apres = await regionSauvee(page);
     expect(apres.equipe.find((p: { uid: string }) => p.uid === ponte.oeufs[0].uid).oeuf).toEqual({ pasRestants: 25, pasMax: 25 });
     expect(apres.pension.emplacementsOeuf).toBe(3);

@@ -185,10 +185,11 @@ async function lancer() {
   await preparer(page);
   if (verifier) {
     /** @type {Record<string, string>} */
-    const titres = { Équipe: 'Ton équipe', PC: 'PC de Léo', Shop: 'Shop', Carte: 'Carte', Plus: 'Plus' };
+    const titres = { Équipe: 'Ton équipe', PC: 'PC de Léo', Shop: 'Shop', Carte: 'Carte', Menu: 'Menu' };
     let nombrePc = 0;
-    for (const menu of ['Combat', 'Équipe', 'PC', 'Shop', 'Carte', 'Plus']) {
-      await page.getByRole('navigation').getByRole('button', { name: menu, exact: true }).click();
+    for (const menu of ['Combat', 'Équipe', 'Shop', 'Carte', 'Menu', 'PC']) {
+      if (menu === 'PC') await page.getByRole('button', { name: 'PC de Léo', exact: true }).click();
+      else await page.getByRole('navigation').getByRole('button', { name: menu, exact: true }).click();
       if (menu === 'Combat') await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
       else await expect(page.getByRole('heading', { name: titres[menu], exact: true })).toBeVisible();
       if (menu === 'Équipe') await expect(page.locator('button[data-uid]')).toHaveCount(6);
@@ -201,7 +202,7 @@ async function lancer() {
     // Laisser aussi remonter les erreurs des derniers rendus et ressources.
     await page.waitForTimeout(500);
     expect(erreurs, 'Erreurs JavaScript ou console').toEqual([]);
-    console.log('Menus vérifiés : Combat, Équipe, PC, Shop, Carte, Plus.');
+    console.log('Menus vérifiés : Combat, Équipe, Shop, Carte, Menu, PC (depuis Menu).');
     console.log(`Vérification réussie : 6 Pokémon en équipe, ${nombrePc} au PC, aucune erreur JavaScript ou console.`);
   } else {
     console.log('Progression conservée dans .partie-test/profil. Fermez la fenêtre ou faites Ctrl+C pour quitter.');

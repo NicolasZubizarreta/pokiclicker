@@ -82,7 +82,7 @@ test('Bulbizarre : animation, largeur, sauvegarde et Pokédex', async ({ page },
   await page.reload();
   await page.getByRole('button', { name: 'Équipe', exact: true }).click();
   await expect(ligne).toBeVisible();
-  await page.getByRole('button', { name: 'Plus', exact: true }).click();
+  await page.getByRole('button', { name: 'Menu', exact: true }).click();
   await page.getByRole('button', { name: /^Pokédex/ }).click();
   await expect(page.getByRole('listitem')).toHaveCount(151);
   await expect(page.getByRole('listitem').filter({ hasText: 'Herbizarre' })).toHaveCount(1);

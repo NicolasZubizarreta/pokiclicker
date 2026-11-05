@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-test('statistiques depuis Plus : sauvegarde, défilement interne et fermeture', async ({ page }) => {
+test('statistiques depuis Menu : sauvegarde, défilement interne et fermeture', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
   await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
@@ -12,7 +12,7 @@ test('statistiques depuis Plus : sauvegarde, défilement interne et fermeture', 
     localStorage.setItem(cle, JSON.stringify(enveloppe));
   });
   await page.reload();
-  await page.getByRole('button', { name: 'Plus', exact: true }).click();
+  await page.getByRole('button', { name: 'Menu', exact: true }).click();
   const ouverture = page.getByRole('button', { name: 'Statistiques', exact: true });
   await ouverture.click();
   const fenetre = page.getByRole('dialog', { name: 'Statistiques' });

@@ -137,9 +137,9 @@ test('Boss et zones : barre de temps, zone suivante, retour et reprise', async (
   await expect(page.getByRole('heading', { name: 'Route 1', exact: true })).toBeVisible();
 });
 
-test('Récompenses : pièces, XP, recherche et montée de niveau', async ({ page }) => {
+test('Récompenses : Pokédollars, XP, recherche et montée de niveau', async ({ page }) => {
   await ouvrir(page);
-  const argent = page.locator('header').getByText(/pièces/);
+  const argent = page.locator('header').getByText(/₽/);
   const lireArgent = async () => (await argent.innerText()).replace(/\s/g, ' ');
   const montant = (texte: string) => Number(texte.replace(/\D/g, ''));
   const depart = montant(await lireArgent());
@@ -162,7 +162,7 @@ test('Récompenses : pièces, XP, recherche et montée de niveau', async ({ page
   await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
   const apres = await lireArgent();
   expect(montant(apres)).toBeGreaterThan(depart);
-  expect(apres).not.toBe('1 250 pièces');
+  expect(apres).not.toBe('1 250 ₽');
   for (const [index, nom] of noms.entries()) {
     const barre = equipe.getByRole('progressbar', { name: `XP de ${nom}`, exact: true });
     expect(Number(await barre.getAttribute('aria-valuenow')), `XP de ${nom}`).toBeGreaterThan(xpAvant[index]!);

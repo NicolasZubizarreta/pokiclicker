@@ -1,9 +1,14 @@
 // @vitest-environment jsdom
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, expect, it } from 'vitest';
-import { IconeObjet } from './icones';
+import { IconeObjet, Menu } from './icones';
 
 afterEach(cleanup);
+
+it('garde l’icône Menu décorative pour laisser le bouton porter son nom', () => {
+  render(<button><Menu />Menu</button>);
+  expect(screen.getByRole('button', { name: 'Menu' }).querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');
+});
 
 it('affiche une image locale décorative ou un SVG nommé de taille identique', () => {
   const vue = render(<IconeObjet image="img/objets/restes.png" nom="Restes" />);

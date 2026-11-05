@@ -49,7 +49,8 @@ async function remplirPc(page: Page, total: number) {
 }
 
 async function ouvrirPc(page: Page) {
-  await page.getByRole('navigation').getByRole('button', { name: 'PC', exact: true }).click();
+  await page.getByRole('navigation').getByRole('button', { name: 'Menu', exact: true }).click();
+  await page.getByRole('button', { name: 'PC de Léo', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'PC de Léo', level: 1 })).toBeVisible();
 }
 
@@ -57,7 +58,8 @@ const grille = (page: Page) => page.getByRole('list').filter({ has: page.getByRo
 
 test('PC : verrouillé avec sa raison tant que l’Arène d’Argenta est fermée', async ({ page }) => {
   await demarrer(page);
-  const entree = page.getByRole('navigation').getByRole('button', { name: 'PC', exact: true });
+  await page.getByRole('navigation').getByRole('button', { name: 'Menu', exact: true }).click();
+  const entree = page.getByRole('button', { name: 'PC de Léo', exact: true });
   await expect(entree).toHaveClass(/opacity-60/);
   await entree.click();
   await expect(page.getByText('Le PC de Léo s\'ouvre à l\'Arène d\'Argenta.')).toBeVisible();
@@ -127,7 +129,7 @@ test('PC : placer jusqu’à six, échanger, et tout survit au rechargement', as
   await expect(page.getByRole('status').filter({ hasText: 'Choisis le Pokémon à remplacer par' })).toHaveCount(0);
   const apres = await page.getByText(/^\d+ Pokémon$/).textContent();
   await page.reload();
-  await page.getByRole('navigation').getByRole('button', { name: 'PC', exact: true }).click();
+  await ouvrirPc(page);
   await expect(page.getByText(apres!)).toBeVisible();
   await page.getByRole('button', { name: 'Équipe', exact: true }).click();
   await expect(page.getByText(/· 6 \/ 6$/)).toBeVisible();
@@ -135,7 +137,7 @@ test('PC : placer jusqu’à six, échanger, et tout survit au rechargement', as
 
 test('Pokédex : 151 cases et compteur des starters', async ({ page }, informations) => {
   await demarrer(page);
-  await page.getByRole('button', { name: 'Plus', exact: true }).click();
+  await page.getByRole('button', { name: 'Menu', exact: true }).click();
   await page.getByRole('button', { name: /^Pokédex/ }).click();
   await expect(page.getByRole('heading', { name: 'Pokédex', level: 1 })).toBeVisible();
   await expect(page.getByText('3 / 151')).toBeVisible();

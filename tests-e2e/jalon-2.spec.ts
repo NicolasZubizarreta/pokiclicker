@@ -70,7 +70,7 @@ test.describe('Sauvegardes aux étapes clés', () => {
       page.on('console', m => { if (m.type() === 'error') erreurs.push(m.text()); });
       await charger(page, zone, nombre);
       await expect(page.getByRole('navigation', { name: 'Navigation principale' })).toBeVisible();
-      await page.getByRole('button', { name: 'Plus', exact: true }).click();
+      await page.getByRole('button', { name: 'Menu', exact: true }).click();
       await expect(page.getByText(`Kanto · ${nomZone(zone)}`, { exact: true })).toBeVisible();
       await expect(page.getByText(`${nombre} / 8`, { exact: true }).first()).toBeVisible();
       expect(erreurs).toEqual([]);
@@ -86,8 +86,9 @@ for (const largeur of [390, 1440, 1915]) {
     page.on('pageerror', e => erreurs.push(e.message));
     page.on('console', m => { if (m.type() === 'error') erreurs.push(m.text()); });
     await charger(page, 'kanto.arene-de-jadielle', 7);
-    for (const onglet of ['Combat', 'Équipe', 'PC', 'Shop', 'Carte', 'Plus']) {
-      await page.getByRole('button', { name: onglet, exact: true }).click();
+    for (const onglet of ['Combat', 'Équipe', 'Shop', 'Carte', 'Menu', 'PC']) {
+      if (onglet === 'PC') await page.getByRole('button', { name: 'PC de Léo', exact: true }).click();
+      else await page.getByRole('button', { name: onglet, exact: true }).click();
       await expect(page.getByRole('main')).toBeVisible();
       await page.evaluate(() => Promise.all([...document.images].map(image => image.decode().catch(() => undefined))));
       expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth), `${onglet} défile en largeur`).toBeLessThanOrEqual(1);

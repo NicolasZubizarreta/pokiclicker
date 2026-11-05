@@ -6,7 +6,7 @@ test('le Guide du jeu défile seul, se ferme avec Échap ou la croix et rend le 
   page.on('pageerror', erreur => erreurs.push(erreur.message));
   await page.goto('/');
   await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
-  await page.getByRole('button', { name: 'Plus', exact: true }).click();
+  await page.getByRole('button', { name: 'Menu', exact: true }).click();
   const ouverture = page.getByRole('button', { name: 'Guide du jeu' });
   await ouverture.click();
 

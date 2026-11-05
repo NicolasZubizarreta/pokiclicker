@@ -10,7 +10,7 @@ afterEach(cleanup);
 it('affiche l’interrupteur Son et bascule la préférence', () => {
   const basculerSon = vi.fn(() => storeJeu.setState({ sonActive: !storeJeu.getState().sonActive }));
   storeJeu.setState({ sonActive: true, basculerSon });
-  render(<PagePlus />);
+  render(<PagePlus ouvrirPC={vi.fn()} />);
   const interrupteur = screen.getByRole('switch', { name: /Son/ });
   expect(interrupteur.getAttribute('aria-checked')).toBe('true');
   fireEvent.click(interrupteur);
@@ -19,7 +19,7 @@ it('affiche l’interrupteur Son et bascule la préférence', () => {
 });
 
 it('règle le volume des effets et de la musique avec deux curseurs', () => {
-  render(<PagePlus />);
+  render(<PagePlus ouvrirPC={vi.fn()} />);
   const effets = screen.getByRole('slider', { name: /effets/i }) as HTMLInputElement;
   const musique = screen.getByRole('slider', { name: /musique/i }) as HTMLInputElement;
   fireEvent.change(effets, { target: { value: '70' } });

@@ -49,7 +49,7 @@ test('capture certaine : équipe, Pokédex, stock et largeur', async ({ page }, 
   await page.getByRole('button', { name: 'Équipe', exact: true }).click();
   await expect(page.getByText(/· 4 \/ 6$/)).toBeVisible();
   await expect(page.getByRole('button', { name: new RegExp(`^${nom}, niveau`) }).last()).toBeVisible();
-  await page.getByRole('button', { name: 'Plus', exact: true }).click();
+  await page.getByRole('button', { name: 'Menu', exact: true }).click();
   await page.getByRole('button', { name: /^Pokédex/ }).click();
   // Un doublon d'un Pokémon de départ ne change pas le Pokédex (comme en V1).
   await expect(page.getByText(['Bulbizarre', 'Salamèche', 'Carapuce'].includes(nom) ? '3 / 151' : '4 / 151')).toBeVisible();

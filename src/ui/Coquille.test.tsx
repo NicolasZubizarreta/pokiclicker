@@ -36,7 +36,41 @@ afterEach(() => {
   cleanup();
   localStorage.clear();
 });
-const noms = ['Combat', 'Équipe', 'PC', 'Shop', 'Carte', 'Plus'];
+const noms = ['Combat', 'Équipe', 'Shop', 'Carte', 'Menu'];
+
+it('affiche les chiffres clés sur chaque onglet et les étapes seulement sur Combat', () => {
+  render(<Coquille />);
+  for (const nom of [...noms, 'PC de Léo']) {
+    fireEvent.click(screen.getByRole('button', { name: nom }));
+    const bandeau = within(screen.getByRole('banner', { name: 'Chiffres clés' }));
+    for (const libelle of ['Pokédollars', 'DPS', 'Zone']) expect(bandeau.getByText(libelle)).toBeTruthy();
+    expect(bandeau.getByText(formaterDps(storeJeu.getState().dps))).toBeTruthy();
+    expect(bandeau.getByText(storeJeu.getState().lieu!.nom)).toBeTruthy();
+    expect(screen.queryAllByText(/^Étape \d+ sur 10$/)).toHaveLength(nom === 'Combat' ? 1 : 0);
+  }
+  for (const argent of [1250, 9876543, 0]) {
+    act(() => storeJeu.setState({ argent }));
+    expect(screen.getByRole('banner', { name: 'Chiffres clés' }).textContent).toContain(`${argent.toLocaleString('fr-FR')}\u00a0₽`);
+  }
+});
+
+it('ouvre le PC fermé depuis Menu et conserve Menu comme destination active', () => {
+  render(<Coquille />);
+  fireEvent.click(screen.getByRole('button', { name: 'Menu' }));
+  fireEvent.click(screen.getByRole('button', { name: 'PC de Léo' }));
+  expect(screen.getByRole('heading', { name: 'PC de Léo' })).toBeTruthy();
+  expect(screen.getByText("Le PC de Léo s'ouvre à l'Arène d'Argenta.")).toBeTruthy();
+  expect(screen.queryByRole('button', { name: 'Retour' })).toBeNull();
+  expect(screen.getByRole('button', { name: 'Menu' }).getAttribute('aria-current')).toBe('page');
+});
+
+it('masque le bandeau pendant l’introduction et sa vue de sortie', () => {
+  render(<Coquille />);
+  act(() => storeJeu.setState({ intro: { ...storeJeu.getState().intro, enCours: true } }));
+  expect(screen.queryByRole('banner', { name: 'Chiffres clés' })).toBeNull();
+  act(() => storeJeu.setState({ intro: { ...storeJeu.getState().intro, enCours: false } }));
+  expect(screen.queryByRole('banner', { name: 'Chiffres clés' })).toBeNull();
+});
 
 it('ouvre le compte local puis revient au jeu en rendant le focus au bouton', () => {
   render(<Coquille />);
@@ -52,8 +86,8 @@ it('affiche l’annonce de déblocage sur toutes les pages, en aria-live sans se
   const { container } = render(<Coquille />);
   const region = () => container.querySelector('[data-annonce-deblocage]')!;
   expect(region().textContent).toBe('');
-  act(() => storeJeu.setState({ deblocage: 'PC débloqué ! Il est dans la barre de navigation.' }));
-  expect(region().textContent).toBe('PC débloqué ! Il est dans la barre de navigation.');
+  act(() => storeJeu.setState({ deblocage: 'PC débloqué ! Il est dans le Menu.' }));
+  expect(region().textContent).toBe('PC débloqué ! Il est dans le Menu.');
   expect(region().getAttribute('role')).toBeNull();
   expect(screen.queryAllByRole('status').filter(zone => zone.textContent?.includes('PC débloqué'))).toHaveLength(0);
   await userEvent.click(screen.getByRole('button', { name: 'Shop' }));
@@ -170,7 +204,7 @@ describe('Coquille', () => {
     expect(carte.classList.contains('rebond-signal')).toBe(false);
   });
 
-  it('présente les six destinations dans l’ordre et active seulement Combat', () => {
+  it('présente les cinq destinations dans l’ordre et active seulement Combat', () => {
     render(<Coquille />);
     const boutons = within(screen.getByRole('navigation')).getAllByRole('button');
     expect(boutons.map((bouton) => bouton.textContent)).toEqual(noms);
@@ -184,19 +218,15 @@ describe('Coquille', () => {
     render(<Coquille />);
     for (const nom of noms.slice(1)) {
       await utilisateur.click(screen.getByRole('button', { name: nom }));
-      expect(within(screen.getByRole('main')).getByRole('heading', { level: 1 }).textContent).toBe(nom === 'Équipe' ? 'Ton équipe' : nom === 'PC' ? 'PC de Léo' : nom);
-      if (nom === 'PC') {
-        // Fermé avant Argenta : l'entrée reste grisée mais s'ouvre et donne la raison (AD).
-        expect(screen.getByText("Le PC de Léo s'ouvre à l'Arène d'Argenta.")).toBeTruthy();
-        expect(screen.queryByRole('button', { name: 'Retour' })).toBeNull();
-      } else if (nom === 'Carte') expect(screen.getByRole('button', { name: 'Route 1 (Zone 1)' })).toBeTruthy();
+      expect(within(screen.getByRole('main')).getByRole('heading', { level: 1 }).textContent).toBe(nom === 'Équipe' ? 'Ton équipe' : nom);
+      if (nom === 'Carte') expect(screen.getByRole('button', { name: 'Route 1 (Zone 1)' })).toBeTruthy();
       else if (nom === 'Équipe') {
         expect(screen.queryByText('Cette page arrive bientôt.')).toBeNull();
         // Six cases d'équipe, plus la Pokéball et le Bonbon que le Sac affiche toujours.
         expect(screen.getAllByRole('listitem')).toHaveLength(8);
-      } else if (nom === 'Plus') {
+      } else if (nom === 'Menu') {
         expect(screen.queryByText('Cette page arrive bientôt.')).toBeNull();
-        expect(screen.queryByRole('button', { name: 'PC de Léo' })).toBeNull();
+        expect(screen.getByRole('button', { name: 'PC de Léo' })).toBeTruthy();
         expect(screen.getByRole('button', { name: /^Pokédex \d+ \/ 151$/ })).toBeTruthy();
       } else expect(screen.getByText("Le Shop s'ouvre à la Forêt de Jade.")).toBeTruthy();
       expect(screen.queryByText('Cette page arrive bientôt.')).toBeNull();
@@ -205,29 +235,30 @@ describe('Coquille', () => {
     }
   });
 
-  it('revient au menu Plus après avoir quitté son onglet depuis une sous-page', async () => {
+  it('revient au menu Menu après avoir quitté son onglet depuis une sous-page', async () => {
     const utilisateur = userEvent.setup();
     render(<Coquille />);
-    await utilisateur.click(screen.getByRole('button', { name: 'Plus' }));
+    await utilisateur.click(screen.getByRole('button', { name: 'Menu' }));
     await utilisateur.click(screen.getByRole('button', { name: /^Pokédex \d+ \/ 151$/ }));
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Pokédex');
     await utilisateur.click(screen.getByRole('button', { name: 'Shop' }));
     expect(screen.getByText("Le Shop s'ouvre à la Forêt de Jade.")).toBeTruthy();
     expect(screen.queryByText('Cette page arrive bientôt.')).toBeNull();
-    await utilisateur.click(screen.getByRole('button', { name: 'Plus' }));
-    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Plus');
+    await utilisateur.click(screen.getByRole('button', { name: 'Menu' }));
+    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Menu');
     expect(screen.queryByRole('button', { name: 'Retour' })).toBeNull();
   });
 
   it('grise l’entrée PC tant que le PC est fermé et la remet en couleur à son ouverture', () => {
     render(<Coquille />);
-    const pc = screen.getByRole('button', { name: 'PC' });
+    fireEvent.click(screen.getByRole('button', { name: 'Menu' }));
+    const pc = screen.getByRole('button', { name: 'PC de Léo' });
     expect(pc.className).toContain('opacity-60');
     act(() => storeJeu.setState({ accesPc: { ouvert: true, raison: null } }));
-    expect(screen.getByRole('button', { name: 'PC' }).className).not.toContain('opacity-60');
+    expect(screen.getByRole('button', { name: 'PC de Léo' }).className).not.toContain('opacity-60');
   });
 
-  it('place le lien d’évitement puis les six boutons dans le parcours clavier', async () => {
+  it('place le lien d’évitement puis les cinq boutons dans le parcours clavier', async () => {
     const utilisateur = userEvent.setup();
     render(<Coquille />);
     for (const element of [screen.getByRole('link', { name: 'Aller au contenu' }), ...screen.getAllByRole('button').filter(b => !b.hasAttribute('disabled'))]) {
@@ -260,6 +291,7 @@ describe('Coquille', () => {
       }
     });
     const autorises = new Set(['Aller au contenu', 'Mon compte', ...noms, "Le Shop s'ouvre à la Forêt de Jade.",
+      'Pokédollars', 'Zone', storeJeu.getState().lieu!.nom, `${storeJeu.getState().argent.toLocaleString('fr-FR')}\u00a0₽`,
       'Ton aventure', 'Statistiques', 'Région', `Kanto · ${storeJeu.getState().lieu!.nom}`, 'Badges', '0 / 8', 'DPS',
       formaterDps(storeJeu.getState().dps), 'Prochain palier : 10 (Débutant) · Encore 7 espèces.',
       'PC de Léo', 'Pokédex', 'Guide du jeu', "Le PC de Léo s'ouvre à l'Arène d'Argenta.", 'Réglages', 'Son', 'Activé',
@@ -292,7 +324,7 @@ describe('Coquille', () => {
         }
         const textesCarte = new Set(['Ton voyage', ...storeJeu.getState().carte.formes.map(f =>
           f.numero === null || f.numero <= 0 ? f.nom : `${f.nom} (Zone ${f.numero})`)]);
-        if (texte) expect(autorises.has(texte) || textesCarte.has(texte) || (nom === 'Plus' && /^(\d+ \/ 151|\d+ %)$/.test(texte)), texte).toBe(true);
+        if (texte) expect(autorises.has(texte) || textesCarte.has(texte) || (nom === 'Menu' && /^(\d+ \/ 151|\d+ %)$/.test(texte)), texte).toBe(true);
       }
       for (const element of container.querySelectorAll('[aria-label]')) {
         const forme = storeJeu.getState().carte.formes.find(f => f.nom === element.getAttribute('data-forme'));
@@ -308,7 +340,7 @@ describe('Coquille', () => {
                   ? equipe.filter(c => c).flatMap(c => [`${nomPokemon(c!)}, niveau ${c!.pokemon.niveau}`, `Renommer ${nomPokemon(c!)}`]).find(n => n === element.getAttribute('aria-label'))
                   : nom === 'Équipe' && element.getAttribute('role') === 'progressbar'
                     ? equipe.filter(c => c).map(c => `XP de ${nomPokemon(c!)}`).find(n => n === element.getAttribute('aria-label'))
-                    : 'Navigation principale';
+                    : element.tagName.toLowerCase() === 'header' ? 'Chiffres clés' : 'Navigation principale';
         // Le Sac de l'onglet Équipe : région, filtre, liste et pastilles « <objet> ×n ».
         if (nom === 'Équipe' && ['Sac', 'Catégories', 'Objets du Sac', 'Pokéball ×0', 'Bonbon ×0'].includes(element.getAttribute('aria-label') ?? '')) continue;
         expect(element.getAttribute('aria-label')).toBe(attendu);
@@ -336,7 +368,7 @@ it('pilote la boîte de badges selon les phases et rend le focus après fermetur
   } });
   const { container } = render(<Coquille />);
   const fermer = vi.spyOn(storeJeu.getState(), 'fermerBoiteBadges');
-  const declencheur = screen.getByRole('button', { name: 'Plus' });
+  const declencheur = screen.getByRole('button', { name: 'Menu' });
   declencheur.focus();
   expect(screen.queryByRole('dialog')).toBeNull();
   act(() => { storeJeu.setState({ obtentionBadge: { id: 'roche', phase: 'message' } }); });

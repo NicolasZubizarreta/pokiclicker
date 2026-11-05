@@ -92,6 +92,6 @@ export function PastilleCapture() {
   </svg>;
 }
 
-export function Plus() {
-  return <Icone><path d="M3 10h3v4H3zM10 10h3v4h-3zM17 10h3v4h-3z" /></Icone>;
+export function Menu() {
+  return <Icone><path d="M3 5h18v2H3zM3 11h18v2H3zM3 17h18v2H3z" /></Icone>;
 }

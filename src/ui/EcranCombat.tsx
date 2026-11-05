@@ -37,20 +37,17 @@ import { entreesRadar } from './store-objets';
 import type { StoreJeu } from './store';
 
 const catalogue = chargerPokemon();
-const formateurArgent = new Intl.NumberFormat('fr-FR');
 const sousTitres: Record<string, string> = { 'kanto.route-1': 'Jadielle' };
 
 function Entete({ store }: { store: StoreJeu }) {
   const lieu = useStore(store, etat => etat.lieu);
   const zone = useStore(store, etat => etat.zone);
   const etape = useStore(store, etat => etat.etape);
-  const argent = useStore(store, etat => etat.argent);
   return <header className="mb-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 lg:col-span-3 lg:mb-0">
     <div className="flex min-w-0 flex-wrap items-center gap-x-6 gap-y-2">
-      <div><h1 className="font-titre text-2xl font-semibold">{lieu?.nom}</h1><p>{lieu && (sousTitres[lieu.id] ?? lieu.nom)}</p></div>
+      <div className="sr-only lg:not-sr-only"><h1 className="font-titre text-2xl font-semibold">{lieu?.nom}</h1><p>{lieu && (sousTitres[lieu.id] ?? lieu.nom)}</p></div>
       {zone && <Etapes etape={etape} />}
     </div>
-    <span className="text-region-accent tabular-nums">{formateurArgent.format(argent)}{'\u00a0₽'}</span>
   </header>;
 }
 

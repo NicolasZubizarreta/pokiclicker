@@ -54,7 +54,7 @@ test('Pokéball ×2 : prix, sauvegarde, filtre et largeur', async ({ page }, inf
   await demarrer(page);
   const carte = page.getByRole('article').filter({ has: page.getByRole('heading', { name: 'Pokéball', exact: true }) });
   const prix = Number((await carte.locator('strong').innerText()).replace(/\D/g, ''));
-  const solde = `${(100000 - 2 * prix).toLocaleString('fr-FR')} pièces`;
+  const solde = `${(100000 - 2 * prix).toLocaleString('fr-FR')} ₽`;
   await carte.getByRole('button', { name: 'Plus', exact: true }).click();
   await carte.getByRole('button', { name: 'Acheter ×2', exact: true }).click();
   await expect(page.getByText(solde, { exact: true })).toBeVisible();

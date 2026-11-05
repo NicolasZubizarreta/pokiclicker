@@ -69,7 +69,7 @@ async function ouvrirDepuisNavigation(page, ctx, navigation, attendu) {
 
 /** @param {Page} page @param {Contexte} ctx @param {string|RegExp} nom @param {'dialog'|'heading'} role @param {string|RegExp} attendu */
 async function ouvrirPlus(page, ctx, nom, role = 'dialog', attendu = nom) {
-  await ouvrirDepuisNavigation(page, ctx, 'Plus', 'Plus');
+  await ouvrirDepuisNavigation(page, ctx, 'Menu', 'Menu');
   await bouton(page, nom).click();
   if (role === 'heading') await titre(page, attendu);
   else await expect(page.getByRole(role, { name: attendu, exact: true })).toBeVisible();
@@ -232,7 +232,7 @@ export const ecrans = [
   entree('combat', 'fenetre-radar', 'Radar', 'FenetreRadar', avance, async (p, c) => { await demarrerEtatAvance(p, c); await bouton(p, 'Poké-Radar').click(); await expect(p.getByRole('dialog', { name: 'Route 1', exact: true })).toBeVisible(); }),
   .../** @type {[string,string,string,string][]} */ ([['page-intro-maman', 'Chez Maman', 'PageIntro', 'maman'], ['page-intro-bourg', 'Bourg Palette', 'PageIntro', 'bourg'], ['ecran-titre', 'Écran titre', 'EcranTitre', 'titre'], ['choix-starter', 'Choix du starter', 'ChoixStarter', 'starter'], ['dialogue-intro', 'Dialogue de Chen', 'DialogueIntro', 'dialogue']]).map(([slug, nom, source, etape]) => entree('intro', slug, nom, source, 'Nouvelle partie sans équipe de départ ; parcours réel de l’introduction.', (p, c) => ouvrirIntro(p, c, etape))),
   entree('equipe', 'page-equipe', 'Équipe', 'PageEquipe', avance, ouvrirEquipe),
-  entree('equipe', 'page-pc', 'PC', 'PagePC', 'Équipe complète, Pikachu niveau 30 au PC.', (p, c) => ouvrirDepuisNavigation(p, c, 'PC', 'PC de Léo')),
+  entree('equipe', 'page-pc', 'PC', 'PagePC', 'Équipe complète, Pikachu niveau 30 au PC.', async (p, c) => { await ouvrirDepuisNavigation(p, c, 'Menu', 'Menu'); await bouton(p, 'PC de Léo').click(); await titre(p, 'PC de Léo'); }),
   entree('equipe', 'sac', 'Sac dans l’équipe', 'Sac', avance, async (p, c) => { await ouvrirEquipe(p, c); await expect(p.getByRole('region', { name: 'Sac', exact: true })).toBeVisible(); }),
   entree('equipe', 'fiche-pokemon', 'Fiche Pokémon', 'FichePokemon', avance, async (p, c) => { await ouvrirEquipe(p, c); await bouton(p, /^Florizarre, niveau/).first().click(); const fiche = p.locator('dialog[open]').first(); if (!await fiche.isVisible()) await bouton(p, 'Ouvre la fiche').click(); await expect(fiche).toBeVisible(); await expect(fiche).toContainText('Florizarre'); }),
   entree('equipe', 'menu-pokemon', 'Menu Pokémon', 'MenuPokemon', avance, async (p, c) => { await ouvrirEquipe(p, c); await bouton(p, /^Florizarre, niveau/).first().click({ button: 'right' }); await expect(p.getByRole('menuitem', { name: 'Résumé', exact: true })).toBeVisible(); }),
@@ -241,8 +241,8 @@ export const ecrans = [
   entree('carte', 'page-centre', 'Centre commercial', 'PageCentre', avance, (p, c) => ouvrirLieu(p, c, 'Centre commercial')),
   entree('carte', 'page-casino', 'Casino', 'PageCasino', avance, (p, c) => ouvrirLieu(p, c, 'Casino')),
   entree('carte', 'page-pension', 'Pension', 'PagePension', avance, async (p, c) => { await demarrerEtatAvance(p, c, { zoneId: 'kanto.bourg-palette' }); await bouton(p, 'Pension Pokémon').click(); await titre(p, 'La pension'); }),
-  entree('plus', 'page-plus', 'Plus — menu', 'PagePlus', avance, (p, c) => ouvrirDepuisNavigation(p, c, 'Plus', 'Plus')),
-  entree('plus', 'page-plus-reglages', 'Plus — réglages', 'PagePlus', avance, async (p, c) => { await ouvrirDepuisNavigation(p, c, 'Plus', 'Plus'); await titre(p, 'Réglages'); await p.getByRole('heading', { name: 'Réglages', exact: true }).scrollIntoViewIfNeeded(); }),
+  entree('plus', 'page-plus', 'Plus — menu', 'PagePlus', avance, (p, c) => ouvrirDepuisNavigation(p, c, 'Menu', 'Menu')),
+  entree('plus', 'page-plus-reglages', 'Plus — réglages', 'PagePlus', avance, async (p, c) => { await ouvrirDepuisNavigation(p, c, 'Menu', 'Menu'); await titre(p, 'Réglages'); await p.getByRole('heading', { name: 'Réglages', exact: true }).scrollIntoViewIfNeeded(); }),
   entree('plus', 'pokedex', 'Pokédex', 'Pokedex', avance, (p, c) => ouvrirPlus(p, c, /^Pokédex/, 'heading', 'Pokédex')),
   entree('plus', 'boite-badges', 'Badges', 'BoiteBadges', avance, (p, c) => ouvrirPlus(p, c, 'Badges', 'heading')),
   entree('plus', 'guide', 'Guide', 'Guide', avance, (p, c) => ouvrirPlus(p, c, 'Guide du jeu')),

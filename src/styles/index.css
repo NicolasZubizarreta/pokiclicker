@@ -134,6 +134,11 @@ html:has(dialog[open]) { overflow: hidden; }
 }
 
 @layer base {
+  html {
+    /* Pas de ligatures : les lettres et les chiffres restent lisibles un par un. */
+    font-variant-ligatures: none;
+  }
+
   body {
     @apply bg-fond text-texte font-texte tabular-nums;
     -webkit-tap-highlight-color: transparent;

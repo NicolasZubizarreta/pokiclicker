@@ -9,6 +9,7 @@ import { musique } from './musique';
 import { formaterDps } from './nombres';
 import { Pokedex } from './Pokedex';
 import { storeJeu } from './store';
+import { PC } from './icones';
 import { formaterProchainPalier } from './store-progression';
 import { volumes, type Canal } from './volumes';
 
@@ -25,7 +26,8 @@ function CurseurVolume({ canal, libelle }: { canal: Canal; libelle: string }) {
   </label>;
 }
 
-export function PagePlus() {
+export function PagePlus({ ouvrirPC }: { ouvrirPC(): void }) {
+  const pcOuvert = useStore(storeJeu, etat => etat.accesPc.ouvert);
   const diplome = useStore(storeJeu, etat => etat.fin.diplome);
   const [diplomeOuvert, ouvrirDiplome] = useState(false);
   const [guideOuvert, ouvrirGuide] = useState(false);
@@ -76,7 +78,7 @@ export function PagePlus() {
           <BoiteBadges badges={progression.badges} />
         </section>
         : <section className="mx-auto max-w-screen-xl text-base">
-          <h1 tabIndex={-1} className="font-titre text-2xl font-semibold">Plus</h1>
+          <h1 tabIndex={-1} className="font-titre text-2xl font-semibold">Menu</h1>
           <section aria-labelledby={aventureId} className="cadre mt-4 space-y-4 bg-surface p-4">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <h2 id={aventureId} className="font-titre text-xl font-semibold">Ton aventure</h2>
@@ -91,6 +93,12 @@ export function PagePlus() {
             </dl>
           </section>
           <ul className="mt-4 grid gap-4">
+            <li>
+              <button type="button" data-entree="pc" onClick={ouvrirPC}
+                className={`cadre flex min-h-11 w-full items-center gap-2 bg-surface p-4 text-left hover:bg-selection${pcOuvert ? '' : ' opacity-60'}`}>
+                <PC />PC de Léo
+              </button>
+            </li>
             <li>
               <button type="button" className="cadre flex min-h-11 w-full flex-wrap items-center justify-between gap-2 bg-surface p-4 text-left hover:bg-selection"
                 aria-labelledby={`${pokedexId} ${compteurId}`}
