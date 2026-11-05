@@ -5,3 +5,5 @@ Contenu fictif, jetons de `design/tokens.css` seulement ; le bouton en pointill�
 **A, Barre à cinq** : 5 entrées en bas, « Plus » ouvre une feuille (PC, Pokédex, Badges, Mes parties, Réglages) ; PC grisé avec cadenas, ouvert pour expliquer pourquoi (comme la V1).
 **B, Barre dévoilée** : 4 entrées au départ, le PC rejoint la barre au déblocage ; le reste dans une fenêtre « Menu » (bouton en haut à droite). **C, Fenêtres** : pas de barre, bouton « Menu » en bas, six tuiles, chaque tuile ouvre une fenêtre.
 **D, Bouton du pouce** : pas de barre, bande Capturer / Auto / Sac / Menu en bas, « Menu » déplie les destinations. Les quatre ont une barre de chiffres clés fixe en haut. Les sources (`_sources/`) se reconstruisent avec `node _sources/construire.mjs`.
+
+**A2, la variante A corrigée** (retours de Nicolas du 05/11) : `a2-index.html` liste tous les écrans, `a2-app.html` est l'application navigable (le fragment d'adresse choisit l'écran de départ). Se reconstruit avec `node _sources/construire-a2.mjs` ; `img/carte-kanto.webp` est une copie de `public/img/decors/`.
