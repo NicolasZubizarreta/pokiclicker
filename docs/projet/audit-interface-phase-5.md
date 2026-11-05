@@ -69,7 +69,7 @@ Notes de Claude d'après les captures `design/audit/*-390.png`, donc **sur image
 |---|---|---|---|---|---|---|---|---|---|
 | Combat | 2 | 1 | 1 | 1 | 0 | 1 | 1 | 7 | Tout est empilé : bandeau, étape, pièces, scène, DPS, 5 icônes sans texte, 6 portraits, dialogue de Chen. La barre du bas coupe le dialogue et ses boutons de zone. |
 | Équipe | 2 | 1 | 1 | 2 | 0 | 2 | 1 | 9 | Six cartes identiques, le sac est collé dessous (1400 px de haut). Le crayon d'édition fait ~20 px. Le bandeau « PO débloqué » recouvre le titre. |
-| PC | 1 | 0 | 1 | 2 | 1 | 2 | 1 | 8 | « Ton PC est vide » s'affiche juste sous une rangée de six portraits : on ne sait pas ce que la rangée représente. Tri et recherche prennent la moitié de l'écran. |
+| PC | 1 | 1 | 1 | 2 | 1 | 2 | 1 | 9 | Capture faussée : le PC de la partie d'audit était vide (« Ton PC est vide »), la liste réelle n'a pas été vue. À reprendre avec la partie test (`npm run partie-test`, 41 Pokémon au PC). Tri et recherche prennent déjà la moitié de l'écran sans liste. |
 | Shop | 2 | 0 | 1 | 1 | 0 | 1 | 1 | 6 | 17 articles de même poids sur 5200 px. Les boutons − et + font ~28 px. Les onglets filtrent mais « Tout » montre tout par défaut. |
 | Carte | 1 | 1 | 0 | 1 | 2 | 2 | 1 | 8 | La carte tient dans 190 px : les points à toucher font ~20 px, loin des 48. La barre de progression est d'un vert pur qui semble hors charte (à vérifier dans les jetons). |
 | Plus | 1 | 1 | 2 | 2 | 1 | 1 | 1 | 9 | Fourre-tout (stats, Pokédex, badges, guide, diplôme, réglages). Le Pokédex apparaît deux fois (résumé et ligne). |
