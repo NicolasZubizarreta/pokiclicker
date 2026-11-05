@@ -165,9 +165,17 @@ async function lancer() {
     } catch { /* Le serveur démarre. */ }
     await attendre(250);
   }
-  navigateur = await chromium.launchPersistentContext(profil, {
-    headless: verifier, viewport: null, args: ['--window-size=1440,900'],
-  });
+  const optionsNavigateur = { headless: verifier, viewport: null, args: ['--window-size=1440,900'] };
+  // Chromium de Playwright s'il est installé, sinon Chrome ou Edge déjà présents sur la machine.
+  for (const canal of [undefined, 'chrome', 'msedge']) {
+    try {
+      navigateur = await chromium.launchPersistentContext(profil, { ...optionsNavigateur, channel: canal });
+      break;
+    } catch (erreurLancement) {
+      if (canal === 'msedge') throw erreurLancement;
+    }
+  }
+  if (!navigateur) throw new Error('Aucun navigateur disponible.');
   const ferme = new Promise(resolve => navigateur?.once('close', resolve));
   const page = navigateur.pages()[0] ?? await navigateur.newPage();
   /** @type {string[]} */
