@@ -2,7 +2,7 @@ import { useEffect, useId, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { guide } from '../core/guide';
 
-/** Le « Guide du jeu » de la V1, ouvert depuis la page Plus : une fenêtre modale, une section repliable par thème. */
+/** Le « Guide du jeu » de la V1, ouvert depuis la page Menu : une fenêtre modale, une section repliable par thème. */
 export function Guide({ fermer }: { fermer(): void }) {
   const dialogue = useRef<HTMLDialogElement>(null);
   const titre = useId();

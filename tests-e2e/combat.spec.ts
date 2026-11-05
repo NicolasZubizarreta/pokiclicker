@@ -139,7 +139,7 @@ test('Boss et zones : barre de temps, zone suivante, retour et reprise', async (
 
 test('Récompenses : Pokédollars, XP, recherche et montée de niveau', async ({ page }) => {
   await ouvrir(page);
-  const argent = page.locator('header').getByText(/₽/);
+  const argent = page.locator('header').getByText(/₽/).locator('visible=true');
   const lireArgent = async () => (await argent.innerText()).replace(/\s/g, ' ');
   const montant = (texte: string) => Number(texte.replace(/\D/g, ''));
   const depart = montant(await lireArgent());

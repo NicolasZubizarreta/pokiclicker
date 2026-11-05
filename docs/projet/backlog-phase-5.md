@@ -92,7 +92,7 @@ Dessiner une solution (tickets suivants).
 
 ## C. `feat(ui): navigation et écran principal sur téléphone`
 
-`type:feat`, `etat:a_faire`, `est:2-3`, `prio:2` · branche : `v2` · `agent-ok` après maquette validée · dépend de : B
+`type:feat`, `etat:en_cours`, `est:2-3`, `prio:2` · branche : `v2` · `agent-ok` après maquette validée · dépend de : B
 
 ### Histoire
 En tant que joueur sur téléphone, je veux une navigation visible et à portée de pouce afin de passer d'un écran à l'autre sans chercher.
@@ -101,16 +101,20 @@ En tant que joueur sur téléphone, je veux une navigation visible et à portée
 La barre actuelle compte six entrées (Combat, Équipe, PC, Shop, Carte, Plus) alors que les guides de plateforme en recommandent cinq au plus. À trancher avec Nicolas sur maquettes : regrouper, déplacer PC ou Shop, feuille « Plus », écran principal avec tiroirs. Fichiers : `src/ui/Navigation.tsx`, `Coquille.tsx`.
 
 ### Critères d'acceptation
-- [ ] Étant donné trois ou quatre variantes navigables de la navigation, quand Nicolas en choisit une, alors le choix est noté dans le journal de décisions de `design/DESIGN.md`.
-- [ ] Étant donné la variante choisie, quand je navigue à 390 px, alors toutes les entrées ont une cible d'au moins 48 px avec 8 px d'écart et un libellé visible.
-- [ ] Étant donné un onglet pas encore débloqué (PC), quand je regarde la barre, alors son état est clair et son comportement est celui de la V1.
-- [ ] Étant donné la version PC (1440 px), quand je navigue, alors la barre reste une colonne à gauche, sans régression des tests existants.
+- [x] Étant donné trois ou quatre variantes navigables de la navigation, quand Nicolas en choisit une, alors le choix est noté dans le journal de décisions de `design/DESIGN.md`.
+- [x] Étant donné la variante choisie, quand je navigue à 390 px, alors toutes les entrées ont une cible d'au moins 48 px avec 8 px d'écart et un libellé visible.
+- [x] Étant donné un onglet pas encore débloqué (PC), quand je regarde la barre, alors son état est clair et son comportement est celui de la V1.
+- [x] Étant donné la version PC (1440 px), quand je navigue, alors la barre reste une colonne à gauche, sans régression des tests existants.
 
 ### Hors périmètre
 Contenu interne des pages.
 
 ### Effort et risques
 2 à 3 jours. Risque : toucher la coquille casse beaucoup de tests de page ; garder les noms accessibles des onglets.
+
+### Avancement
+Lot 1 fait (05/11) : police Atkinson gras, ₽ partout (data touchée : `jalons.json`), bandeau du haut global sur téléphone (₽, DPS, Zone ; la ligne d'étapes reste dans le combat), barre à cinq entrées (Combat, Équipe, Shop, Carte, Menu), PC atteint depuis le Menu (« PC de Léo », grisé tant qu'il est fermé), plein écran fluide à 360-430 px. Sur PC (≥ 1024 px) : colonne de gauche à cinq entrées, bandeau masqué, en-tête de combat inchangé (argent compris).
+Lot 2 à faire : Menu de jeu complet (Sauvegarder, Monde, Pokédex, Badges, Statistiques, Guide, Réglages, Menu principal), réglages sons 0-100 et auto-clic lié, écran Monde. Restent aussi du lot 1 vers les lots 3 et 6 : boutons Zone précédente/suivante encore dans le dialogue de Chen (lot 3), Sac encore dans l'Équipe (lot 4).
 
 ## D. `feat(ui): combat sur téléphone`
 

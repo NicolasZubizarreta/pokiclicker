@@ -135,6 +135,8 @@ html:has(dialog[open]) { overflow: hidden; }
 
 @layer base {
   html {
+    /* Le bandeau du haut reste collé : le focus et l'ancre #contenu ne passent pas dessous. */
+    scroll-padding-top: 4rem;
     /* Pas de ligatures : les lettres et les chiffres restent lisibles un par un. */
     font-variant-ligatures: none;
   }

@@ -16,7 +16,7 @@ export function Navigation({ page, choisir, signalCarte = false, inerte = false 
   const active = page === 'PC' ? 'Menu' : page;
   return (
     <nav aria-label="Navigation principale" inert={inerte}
-      className="fixed inset-x-0 bottom-0 z-10 box-content border-t border-bordure bg-surface px-4 pt-1 pb-[env(safe-area-inset-bottom)] lg:rounded-cadre lg:border-t-0 lg:after:pointer-events-none lg:after:absolute lg:after:inset-0 lg:after:rounded-cadre lg:after:border lg:after:border-bordure lg:after:inset-ring lg:after:inset-ring-region-argent lg:inset-x-auto lg:inset-y-0 lg:left-0 lg:h-auto lg:w-24 lg:p-0">
+      className="fixed inset-x-0 bottom-0 z-10 box-content border-t border-bordure bg-surface pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pt-1 pb-[env(safe-area-inset-bottom)] lg:rounded-cadre lg:border-t-0 lg:after:pointer-events-none lg:after:absolute lg:after:inset-0 lg:after:rounded-cadre lg:after:border lg:after:border-bordure lg:after:inset-ring lg:after:inset-ring-region-argent lg:inset-x-auto lg:inset-y-0 lg:left-0 lg:h-auto lg:w-24 lg:p-0">
       <div className="flex h-full gap-2 lg:flex-col lg:gap-0">
         {entrees.map(({ titre, Icone }) => (
           <button key={titre} type="button" aria-current={active === titre ? 'page' : undefined}

@@ -20,7 +20,7 @@ Proportions indicatives : 70 % neutres, 20 % couleur de la région (cadres, bout
 Sémantiques : succès vert, alerte or, erreur cramoisi, info bleu. L'erreur et le succès portent toujours un pictogramme en plus de la couleur.
 
 ## 4. Typographie
-- **Titres et étiquettes** : Pixelify Sans 600, uniquement aux tailles `xl` (20 px), `2xl` (24), `3xl` (32), quatre mots au plus, jamais une phrase.
+- **Titres et étiquettes** : Atkinson Hyperlegible Next gras (700), uniquement aux tailles `xl` (20 px), `2xl` (24), `3xl` (32), quatre mots au plus, jamais une phrase.
 - **Texte et chiffres** : Atkinson Hyperlegible Next (repli Atkinson Hyperlegible, puis `system-ui`), 400, 600, 700, chiffres tabulaires partout (`font-variant-numeric: tabular-nums`).
 - **Carte du monde (atlas)** : Lilita One (titres, boutons) et Nunito (texte).
 - Échelle : `xs` 12 px (légendes seulement), `sm` 14, `base` 16 (texte courant, minimum sur mobile), `lg` 18, `xl` 20, `2xl` 24, `3xl` 32, `4xl` 40, `5xl` 48. Ligne de texte ≤ 75 caractères. Les polices sont hébergées localement en production.
