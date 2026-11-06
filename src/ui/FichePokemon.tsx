@@ -15,6 +15,7 @@ import { classeSprite, nomAffiche, progressionOeuf, spriteAffiche } from './affi
 import { storeJeu } from './store';
 import { niveauRequis, peutEvoluer, pierresPour } from '../core/evolution';
 import { chargerObjets } from '../core/boutique';
+import './FichePokemon.css';
 
 type Props = {
   uid: string; ouvert: boolean; fermer: () => void; declencheur: RefObject<HTMLButtonElement | null>;
@@ -152,15 +153,16 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: 
             <Image src={spriteAffiche(pokemon)} genre="sprite" alt={pokemon.oeuf ? nom : espece.nom} className={`size-48 image-rendering-pixelated ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(pokemon)}`} />
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            {pokemon.sexe === 'male' && <span className="text-info-base" role="img" aria-label="Mâle">♂</span>}
-            {pokemon.sexe === 'femelle' && <span className="text-erreur-base" role="img" aria-label="Femelle">♀</span>}
-            {pokemon.shiny && <span className="inline-flex items-center gap-1"><IconeShiny />Shiny</span>}
+            {pokemon.sexe === 'male' && <span className="h-7 inline-flex items-center text-info-base" role="img" aria-label="Mâle"><svg className="size-7 fill-none stroke-current" viewBox="0 0 24 24" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><circle cx="9.5" cy="14.5" r="6" /><path d="M14 10L21 3M15 3h6v6" /></svg></span>}
+            {pokemon.sexe === 'femelle' && <span className="h-7 inline-flex items-center text-erreur-base" role="img" aria-label="Femelle"><svg className="size-7 fill-none stroke-current" viewBox="0 0 24 24" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8.5" r="6" /><path d="M12 14.5V22M8.5 18.5h7" /></svg></span>}
+            {pokemon.shiny && <span className="h-7 inline-flex items-center gap-1 px-2 font-bold"><IconeShiny />Shiny</span>}
             <button type="button" aria-pressed={pokemon.favori}
-              className={`${bouton} inline-flex items-center gap-2 ${pokemon.favori ? 'text-lien' : ''}`}
+              aria-label={pokemon.favori ? 'Retire des favoris' : 'Ajoute aux favoris'}
+              className={`h-7 min-h-0 inline-flex items-center gap-1 px-2 font-bold relative after:absolute after:-inset-y-2 after:inset-x-0 after:content-[''] ${pokemon.favori ? 'bg-alerte-fond text-alerte-texte' : 'bg-surface-2'}`}
               onClick={() => signaler(storeJeu.getState().basculerFavori(uid))}>
-              <Etoile />{pokemon.favori ? 'Retire des favoris' : 'Ajoute aux favoris'}
+              <Etoile />Favori
             </button>
-            {espece.types.map(type => <span key={type} className="bg-surface-2 px-2 py-1">{nomType(type)}</span>)}
+            {espece.types.map(type => <span key={type} className={`h-7 inline-flex items-center gap-1 px-2 font-bold pastille-type pastille-type-${type}`}>{nomType(type)}</span>)}
           </div>
           {!pokemon.oeuf && <div>
             <p>XP : {pokemon.niveau >= 100 ? <span>MAX</span> : <span>{Math.floor(pokemon.xp)} / {membre.xpMax}</span>}</p>

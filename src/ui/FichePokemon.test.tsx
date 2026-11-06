@@ -173,6 +173,24 @@ it('affiche les données en français et bascule le favori', () => {
   expect(container.textContent).not.toMatch(/\b(?:Level|Happiness|Release|Cancel|Grass|Male|Female)\b/);
 });
 
+it.each([['male', 'Mâle'], ['femelle', 'Femelle']] as const)('affiche les pastilles et l’icône de sexe %s', (sexe, nom) => {
+  storeJeu.setState({ equipe: [{ pokemon: { ...pokemon, sexe }, dps: 42, xpMax: 100, multiplicateur: 1 }] });
+  afficher();
+  const favori = screen.getByRole('button', { name: 'Ajoute aux favoris' });
+  const icone = screen.getByRole('img', { name: nom });
+  const shiny = Array.from(favori.parentElement!.children).find(element => element.textContent === 'Shiny')!;
+  for (const pastille of [favori, icone, shiny, screen.getByText('Plante'), screen.getByText('Poison')]) {
+    expect(pastille.classList.contains('h-7')).toBe(true);
+  }
+  expect(favori.textContent).toBe('Favori');
+  expect(favori.classList.contains('min-h-0')).toBe(true);
+  expect(favori.classList.contains('min-h-11')).toBe(false);
+  expect(icone.querySelector('svg[aria-hidden="true"][focusable="false"]')).toBeTruthy();
+  expect(icone.textContent).not.toMatch(/[♂♀]/);
+  expect(screen.getByText('Plante').classList.contains('pastille-type-grass')).toBe(true);
+  expect(screen.getByText('Poison').classList.contains('pastille-type-poison')).toBe(true);
+});
+
 it('affiche MAX au niveau 100 et aucun symbole sans sexe', () => {
   storeJeu.setState({ equipe: [{ pokemon: { ...pokemon, numero: 100, sexe: 'sansSexe', niveau: 100 }, dps: 42, xpMax: 0, multiplicateur: 1 }] });
   const { container } = afficher();
