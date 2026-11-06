@@ -1,4 +1,4 @@
-﻿import { useId, useLayoutEffect, useRef, useState } from 'react';
+import { useId, useLayoutEffect, useRef, useState } from 'react';
 import { useStore } from 'zustand';
 import { Sac } from './Sac';
 import { storeJeu } from './store';
@@ -15,10 +15,10 @@ function FenetreOuverte() {
   const titre = useId();
   const [message, annoncer] = useState<string | null>(null);
   useLayoutEffect(() => {
-    const declencheur = document.activeElement;
     dialogue.current?.showModal();
     return () => {
-      if (!storeSac.getState().objet && declencheur instanceof HTMLElement && declencheur.isConnected) declencheur.focus();
+      const { objet, declencheur } = storeSac.getState();
+      if (!objet && declencheur?.isConnected) declencheur.focus();
     };
   }, []);
   const clore = () => dialogue.current?.close();

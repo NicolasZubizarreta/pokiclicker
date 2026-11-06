@@ -17,9 +17,10 @@ export function filtrerParAttributs<P extends PokemonPossede>(pc: readonly P[], 
 const collateur = new Intl.Collator('fr');
 
 export function trierPc<P extends PokemonPossede>(pc: readonly P[], tri: TriPc, nomDe: (pokemon: P) => string): P[] {
+  const dps = tri === 'dps' ? new Map(pc.map(pokemon => [pokemon, dpsPc(pokemon)])) : null;
   return [...pc].sort((a, b) => {
     switch (tri) {
-      case 'dps': return Number(!!a.oeuf) - Number(!!b.oeuf) || dpsPc(b) - dpsPc(a) || a.numero - b.numero || b.niveau - a.niveau;
+      case 'dps': return Number(!!a.oeuf) - Number(!!b.oeuf) || dps!.get(b)! - dps!.get(a)! || a.numero - b.numero || b.niveau - a.niveau;
       case 'numero': return a.numero - b.numero || b.niveau - a.niveau;
       case 'nom': return collateur.compare(nomDe(a), nomDe(b)) || b.niveau - a.niveau;
       case 'niveau': return b.niveau - a.niveau || a.numero - b.numero;

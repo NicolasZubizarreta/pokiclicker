@@ -62,7 +62,7 @@ it('transmet un objet visant un Pokémon et ferme sans rendre le focus', () => {
   act(ouvrirSac);
   screen.getByRole('button', { name: 'Bonbon ×2' }).focus();
   fireEvent.click(screen.getByRole('button', { name: 'Bonbon ×2' }));
-  expect(storeSac.getState()).toEqual({ ouvert: false, objet: { type: 'bonbon', cle: 'candy', nom: 'Bonbon' } });
+  expect(storeSac.getState()).toMatchObject({ ouvert: false, objet: { type: 'bonbon', cle: 'candy', nom: 'Bonbon' } });
   expect(screen.queryByRole('dialog')).toBeNull();
   expect(document.activeElement).not.toBe(bouton);
 });

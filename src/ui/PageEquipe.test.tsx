@@ -166,7 +166,7 @@ it('annule le choix du Sac par Échap et ignore le clic extérieur', () => {
   fireEvent.click(document.body);
   expect(storeSac.getState().objet).not.toBeNull();
   fireEvent.keyDown(document, { key: 'Escape' });
-  expect(storeSac.getState()).toEqual({ objet: null, ouvert: true });
+  expect(storeSac.getState()).toMatchObject({ objet: null, ouvert: true });
 });
 
 it('le clic droit ouvre Résumé, puis la fiche du Pokémon et rend le focus à sa carte', () => {

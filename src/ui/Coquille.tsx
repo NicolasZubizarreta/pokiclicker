@@ -58,6 +58,10 @@ export function Coquille({ region = 'kanto', theme = 'dark', quandDeconnecter, q
   const obtentionBadge = useStore(storeJeu, etat => etat.obtentionBadge);
   const badges = useStore(storeJeu, etat => etat.progression.badges);
   const [declencheur, memoriserDeclencheur] = useState<HTMLElement | null>(null);
+  // Toute sortie de l'Équipe (même hors barre du bas) désarme l'objet venu du Sac : pas de bandeau fantôme au retour.
+  useEffect(() => {
+    if (page !== 'Équipe' && storeSac.getState().objet) { retourChoix.current = null; terminerChoix(); }
+  }, [page]);
   useEffect(() => storeSac.subscribe((etat, avant) => {
     if (etat.objet !== null && avant.objet === null) {
       retourChoix.current = pageCourante.current;
