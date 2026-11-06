@@ -18,6 +18,11 @@ const test = base.extend<{ surveillance: void }>({
   }, { auto: true }],
 });
 
+// Sur téléphone le Sac est une fenêtre ouverte depuis le Combat : son parcours est dans sac.spec.ts.
+test.beforeEach(({}, informations) => {
+  informations.skip(informations.project.name === 'mobile', 'Sac en fenêtre sur téléphone (sac.spec.ts)');
+});
+
 async function demarrer(page: Page) {
   await page.clock.install({ time: instant });
   await page.clock.pauseAt(instant);

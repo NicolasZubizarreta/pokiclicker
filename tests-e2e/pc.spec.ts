@@ -72,17 +72,26 @@ test('PC : tris, recherche, captures et pas de défilement horizontal', async ({
   await expect(page.getByText('200 Pokémon')).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
   const premier = () => grille(page).getByRole('button').first();
+  const telephone = informations.project.name === 'mobile';
+  // Téléphone : liste déroulante « Trie par » ; grand écran : boutons du groupe « Trie les Pokémon ».
+  const trier = async (nom: string, valeur: string) => {
+    if (telephone) await page.getByLabel('Trie par').selectOption(valeur);
+    else await page.getByRole('group', { name: 'Trie les Pokémon' }).getByRole('button', { name: nom, exact: true }).click();
+  };
+  // Tri par défaut : DPS décroissant, avec la ligne « DPS » sur chaque carte.
+  if (telephone) await expect(page.getByLabel('Trie par')).toHaveValue('dps');
+  else await expect(page.getByRole('group', { name: 'Trie les Pokémon' }).getByRole('button', { name: 'DPS', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(premier()).toContainText(' DPS');
+  await trier('Numéro', 'numero');
   await expect(premier()).toContainText('N° 1');
-  await page.getByRole('button', { name: 'Niveau', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'Niveau', exact: true })).toHaveAttribute('aria-pressed', 'true');
-  await expect(premier()).toContainText(/Niveau 6[0-9]/);
-  await page.getByRole('button', { name: 'Shiny', exact: true }).click();
+  await trier('Niveau', 'niveau');
+  await expect(premier()).toContainText(/Niv\. 6[0-9]/);
+  await trier('Shiny', 'shiny');
   await expect(premier().getByText('Shiny')).toBeAttached();
-  await page.getByRole('button', { name: 'Favori', exact: true }).click();
+  await trier('Favori', 'favori');
   await expect(premier().locator('svg').first()).toBeAttached();
-  await page.getByRole('button', { name: 'Nom', exact: true }).click();
-  await expect(premier()).toContainText(/Abra/);
-  await mkdir('design/captures', { recursive: true });
+  await trier('Nom', 'nom');
+  await expect(premier()).toContainText(/Abra/);  await mkdir('design/captures', { recursive: true });
   const largeur = informations.project.name === 'mobile' ? 390 : 1440;
   await page.evaluate(() => Promise.all([...document.images].map(image => image.decode().catch(() => undefined))));
   await page.screenshot({ path: `design/captures/i-pc-${largeur}.png`, animations: 'disabled' });
@@ -124,7 +133,8 @@ test('PC : placer jusqu’à six, échanger, et tout survit au rechargement', as
   await page.evaluate(() => Promise.all([...document.images].map(image => image.decode().catch(() => undefined))));
   const largeur = pc ? 390 : 1440;
   await page.screenshot({ path: `design/captures/i-pc-echange-${largeur}.png`, animations: 'disabled' });
-  await page.getByRole('button', { name: /^Bulbizarre, niveau/ }).first().click();
+  const equipeEchange = pc ? page.getByRole('group', { name: 'Équipe mobile' }) : page.locator('aside');
+  await equipeEchange.getByRole('button', { name: /^Bulbizarre, niveau/ }).first().click();
   await expect(page.getByText('9 Pokémon')).toBeVisible();
   await expect(page.getByRole('status').filter({ hasText: 'Choisis le Pokémon à remplacer par' })).toHaveCount(0);
   const apres = await page.getByText(/^\d+ Pokémon$/).textContent();
