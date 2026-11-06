@@ -1,0 +1,13 @@
+.zc-partie { display: flex; flex-direction: column; gap: calc(var(--spacing) * 2); padding: calc(var(--spacing) * 4); }
+.zc-partie dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 0 calc(var(--spacing) * 3); }
+.zc-partie dt { color: var(--texte-doux); font-size: var(--text-sm); line-height: var(--text-sm--line-height); }
+.zc-partie dd { margin: 0; text-align: right; overflow-wrap: anywhere; }
+.zc-tag { display: inline-block; padding: 0 calc(var(--spacing) * 2); background: var(--succes-fond); color: var(--succes-texte); border: calc(var(--spacing) / 2) solid var(--succes-base); font-size: var(--text-sm); line-height: var(--text-sm--line-height); }
+.zc-tag.info { background: var(--info-fond); color: var(--info-texte); border-color: var(--info-base); }
+.zc-tag.alerte { background: var(--alerte-fond); color: var(--alerte-texte); border-color: var(--alerte-base); }
+.zc-danger { background: var(--erreur-fond); color: var(--erreur-texte); border-color: var(--erreur-base); }
+.zc-dialogue { margin: auto; width: calc(100% - var(--spacing) * 8); max-width: var(--breakpoint-md); padding: calc(var(--spacing) * 4); background: var(--surface); color: var(--texte); }
+.zc-dialogue[open] { display: flex; flex-direction: column; gap: calc(var(--spacing) * 4); }
+.zc-dialogue::backdrop { background: var(--fond); opacity: .8; }
+/* Les titres reçoivent le focus par programme à chaque changement d'écran (lecteur d'écran) : pas de cadre autour d'un texte non interactif. */
+.zc-zone h1[tabindex="-1"]:focus-visible, .zc-dialogue h2[tabindex="-1"]:focus-visible { outline: none; }

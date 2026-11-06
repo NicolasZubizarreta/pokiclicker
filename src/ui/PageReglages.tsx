@@ -26,7 +26,7 @@ function CurseurVolume({ canal, libelle, actif }: { canal: Canal; libelle: strin
   </div>;
 }
 
-export function PageReglages({ retour }: { retour(): void }) {
+export function PageReglages({ retour }: { retour?(): void }) {
   const musiqueActive = useSyncExternalStore(musique.abonner, musique.estActive);
   const sonActive = useStore(storeJeu, e => e.sonActive);
   const autoClicLie = useStore(storeJeu, e => e.autoClicLie);
@@ -47,8 +47,8 @@ export function PageReglages({ retour }: { retour(): void }) {
 
   return <section className="mx-auto max-w-screen-xl space-y-4 text-base">
     <header className="flex items-center gap-2">
-      <button type="button" aria-label="Retour" onClick={retour}
-        className="flex min-h-11 min-w-11 items-center justify-center bg-surface-2 hover:bg-selection"><IconeRetour /></button>
+      {retour && <button type="button" aria-label="Retour" onClick={retour}
+        className="flex min-h-11 min-w-11 items-center justify-center bg-surface-2 hover:bg-selection"><IconeRetour /></button>}
       <h1 tabIndex={-1} className="font-titre text-2xl font-semibold">Réglages</h1>
     </header>
     <section className="cadre bg-surface p-4">

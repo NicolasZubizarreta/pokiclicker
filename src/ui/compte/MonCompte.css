@@ -1,0 +1,16 @@
+.mc-sync-ligne { display: flex; align-items: center; gap: calc(var(--spacing) * 3); }
+.mc-pastille {
+  flex: none;
+  width: calc(var(--spacing) * 3);
+  height: calc(var(--spacing) * 3);
+  border-radius: 50%;
+}
+.mc-succes {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing) * 3);
+  min-height: calc(var(--spacing) * 16);
+  padding: var(--spacing) calc(var(--spacing) * 3);
+  background: var(--surface);
+}
+.mc-obtenu { border-color: var(--succes-base); }

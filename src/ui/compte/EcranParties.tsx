@@ -1,58 +1,84 @@
 import { useEffect, useRef, useState } from 'react';
 import type { PartieListee } from '../synchro';
 import { duree, nomRegion, nomZone } from './format-partie';
+import { IconeAjout, IconeCorbeille } from './icones-compte';
+import { IconeRetour } from '../icones-menu';
 
-export function EcranParties({ parties, horsConnexion, chargement, occupe, erreur, quandJouer, quandCreer, quandSupprimer, quandRetour }: {
+export function Parties({ parties, horsConnexion, chargement, occupe, erreur, quandJouer, quandCreer, quandSupprimer, quandRetourJeu }: {
   parties: PartieListee[]; horsConnexion: boolean; chargement: boolean; occupe: boolean; erreur: string;
-  quandJouer: (id: string) => void; quandCreer: (nom: string) => void; quandSupprimer: (id: string) => void; quandRetour?: () => void;
+  quandJouer(id: string): void; quandCreer(nom: string): void; quandSupprimer(id: string): void; quandRetourJeu?: () => void;
 }) {
-  const titre = useRef<HTMLHeadingElement>(null);
-  const confirmation = useRef<HTMLParagraphElement>(null);
-  const declencheur = useRef<HTMLButtonElement | null>(null);
-  const [suppression, fixerSuppression] = useState<string | null>(null);
+  const [nouvelle, fixerNouvelle] = useState(false);
   const [nom, fixerNom] = useState('');
-  const [erreurNom, fixerErreurNom] = useState('');
-  useEffect(() => { titre.current?.focus(); }, []);
-  useEffect(() => { if (suppression) confirmation.current?.focus(); }, [suppression]);
-  return <main data-theme="dark" className="min-h-dvh bg-fond text-texte font-texte p-4 lg:p-8 grid content-center">
-    <section className="cadre bg-surface p-4 lg:p-8 w-full max-w-(--breakpoint-md) mx-auto">
-      {quandRetour && <button disabled={occupe} onClick={quandRetour} className="min-h-11 p-2 text-lien underline">Retour au jeu</button>}
-      <h1 ref={titre} tabIndex={-1} className="font-titre text-2xl mb-4">{!parties.length && !chargement ? 'Crée ta première partie' : 'Tes parties'}</h1>
-      {(chargement || horsConnexion) && <p role="status" className="mb-4">{chargement ? 'Chargement de tes parties…' : 'Hors connexion : tu vois seulement les parties de cet appareil.'}</p>}
-      <div className="grid gap-4 md:grid-cols-2 items-start">
-        {parties.map(partie => <section key={partie.id} className="cadre bg-surface-2 p-4">
-          <h2 className="font-titre text-xl mb-4">{partie.nom}</h2>
-          {partie.courante && <p className="mb-4">En cours</p>}
-          {!partie.surServeur && <p className="mb-4">Sur cet appareil seulement</p>}
-          <dl className="mb-4">
-            <dt className="text-sm text-texte-doux">Région</dt><dd className="mb-2">{nomRegion(partie.regionCourante)}</dd>
-            <dt className="text-sm text-texte-doux">Zone</dt><dd className="mb-2">{nomZone(partie.zoneId)}</dd>
-            <dt className="text-sm text-texte-doux">Temps de jeu</dt><dd className="mb-2 text-region-accent">{duree(partie.tempsJeuMs)}</dd>
-            <dt className="text-sm text-texte-doux">Dernière sauvegarde</dt><dd className="mb-2">{new Date(partie.ecritLe).toLocaleString('fr-FR', { dateStyle: 'long', timeStyle: 'short' })}</dd>
-          </dl>
-          {!partie.courante && <button disabled={occupe} onClick={() => quandJouer(partie.id)} className="min-h-11 p-2 w-full bg-surface-2 border border-bordure hover:bg-selection disabled:text-texte-doux">Jouer cette partie</button>}
-          <button disabled={occupe} className="min-h-11 py-2 text-lien underline" onClick={e => { declencheur.current = e.currentTarget; fixerSuppression(partie.id); }}>Supprimer</button>
-          {suppression === partie.id && <div className="grid gap-2 mt-2">
-            <p ref={confirmation} tabIndex={-1}>Supprimer « {partie.nom} » ? Sa progression sera perdue pour de bon. Tes diamants, tes succès et tes skins restent sur ton compte.</p>
-            <div className="flex flex-wrap items-center gap-4">
-              <button disabled={occupe} onClick={() => quandSupprimer(partie.id)} className="min-h-11 p-2 text-erreur-base bg-surface-2 border border-bordure hover:bg-selection disabled:text-texte-doux"><span aria-hidden="true">✗ </span>Oui, supprimer</button>
-              <button disabled={occupe} className="min-h-11 p-2 text-lien underline" onClick={() => { fixerSuppression(null); declencheur.current?.focus(); }}>Annuler</button>
-            </div>
-          </div>}
-        </section>)}
-      </div>
-      <form noValidate className="grid gap-4 mt-4" onSubmit={e => {
-        e.preventDefault();
-        if (occupe) return;
-        if (!nom.trim()) { fixerErreurNom('Donne un nom à ta partie.'); return; }
-        fixerErreurNom(''); quandCreer(nom.trim());
+  const [nomInvalide, fixerNomInvalide] = useState(false);
+  const [suppression, fixerSuppression] = useState<PartieListee | null>(null);
+  const titre = useRef<HTMLHeadingElement>(null);
+  const dialogue = useRef<HTMLDialogElement>(null);
+  const titreDialogue = useRef<HTMLHeadingElement>(null);
+  const declencheur = useRef<HTMLButtonElement | null>(null);
+  const contenu = useRef<HTMLDivElement>(null);
+  useEffect(() => { titre.current?.focus(); }, [nouvelle]);
+  useEffect(() => {
+    if (!suppression) return;
+    const fenetre = dialogue.current!;
+    // showModal() rend déjà tout le reste de la page inerte ; un `inert` posé sur le <main> parent rendrait aussi la boîte inerte.
+    fenetre.showModal();
+    titreDialogue.current?.focus();
+    return () => { fenetre.close(); declencheur.current?.focus(); };
+  }, [suppression]);
+  return <>
+    <div ref={contenu} className="flex flex-col gap-4" inert={!!suppression}>
+      {erreur && <p className="compte-message erreur" role="alert">{erreur}</p>}
+      <header className="flex items-center gap-3">
+        {nouvelle && <button type="button" className="plaque min-h-12" aria-label="Retour" disabled={occupe} onClick={() => { fixerNouvelle(false); fixerNomInvalide(false); }}><IconeRetour /></button>}
+        <h1 ref={titre} tabIndex={-1} className="font-titre text-2xl font-bold">{nouvelle ? 'Nouvelle partie' : 'Mes parties'}</h1>
+      </header>
+      {horsConnexion && <p className="compte-message alerte" role="status">Hors connexion : tu vois seulement les parties de cet appareil.</p>}
+      {chargement && <p role="status">Chargement de tes parties…</p>}
+      {(nouvelle || (!parties.length && !chargement)) ? <form className="compte-formulaire cadre" onSubmit={e => {
+        e.preventDefault(); if (occupe) return;
+        if (!nom.trim()) { fixerNomInvalide(true); return; }
+        quandCreer(nom.trim());
       }}>
-        <label htmlFor="nom-partie" className="grid gap-2">Nom de la partie
-          <input id="nom-partie" required maxLength={100} disabled={occupe} value={nom} onChange={e => { fixerNom(e.target.value); fixerErreurNom(''); }} className="min-h-11 p-2 w-full bg-surface-2 text-base" />
-        </label>
-        <button disabled={occupe} className="min-h-11 p-2 w-full bg-action text-action-texte hover:bg-action-survol disabled:bg-surface-2 disabled:text-texte-doux">Créer la partie</button>
-      </form>
-      {(erreur || erreurNom) && <p role="alert" className="mt-4">{erreur || erreurNom}</p>}
-    </section>
-  </main>;
+        {!nouvelle && <><h2 className="font-titre text-xl font-bold">Crée ta première partie</h2><p>Une partie garde ta progression. Tu pourras en créer d'autres plus tard.</p></>}
+        <div className={`compte-champ${nomInvalide ? ' en-erreur' : ''}`}>
+          <label htmlFor="nom-partie">Nom de la partie</label>
+          <div className="zone-saisie"><input id="nom-partie" maxLength={100} value={nom} disabled={occupe} aria-invalid={nomInvalide || undefined} aria-describedby={nomInvalide ? 'nom-partie-erreur' : undefined}
+            onChange={e => { fixerNom(e.target.value); fixerNomInvalide(false); }} /></div>
+          {nomInvalide && <p id="nom-partie-erreur" role="alert">Donne un nom à ta partie.</p>}
+        </div>
+        {nouvelle && <p className="text-texte-doux">Tu commences à Bourg Palette, dans la région de Kanto.</p>}
+        <button type="submit" className="plaque plaque-action min-h-14 w-full" disabled={occupe}>Créer la partie</button>
+      </form> : !nouvelle && parties.length > 0 && <>
+        <p className="text-texte-doux">Choisis une partie à jouer.</p>
+        {parties.map(p => <article key={p.id} aria-label={p.nom} className="cadre zc-partie">
+          <div className="flex flex-wrap items-center gap-2"><h2 className="font-titre text-xl font-bold">{p.nom}</h2>
+            {p.courante && <span className="zc-tag info">En cours</span>}
+            {!p.surServeur ? <span className="zc-tag alerte">Sur cet appareil seulement</span> : !p.courante && <span className="zc-tag succes">À jour</span>}
+          </div>
+          <dl><dt>Région</dt><dd>{nomRegion(p.regionCourante)}{p.zoneId ? ` · ${nomZone(p.zoneId)}` : ''}</dd>
+            <dt>Temps de jeu</dt><dd>{duree(p.tempsJeuMs)}</dd>
+            <dt>Dernière sauvegarde</dt><dd>{new Date(p.ecritLe).toLocaleString('fr-FR', { dateStyle: 'long', timeStyle: 'short' })}</dd></dl>
+          <div className="grid grid-cols-2 gap-2">
+            {(!p.courante || quandRetourJeu) && <button type="button" className="plaque plaque-action min-h-12" disabled={occupe} aria-label={`${p.courante ? 'Continuer' : 'Jouer'} ${p.nom}`}
+              onClick={() => { if (!occupe) { if (p.courante) quandRetourJeu?.(); else quandJouer(p.id); } }}>{p.courante ? 'Continuer' : 'Jouer'}</button>}
+            <button type="button" className="plaque zc-danger min-h-12" disabled={occupe} aria-label={`Supprimer ${p.nom}`} onClick={e => {
+              if (occupe || suppression) return; declencheur.current = e.currentTarget; fixerSuppression(p);
+            }}><IconeCorbeille />Supprimer</button>
+          </div>
+        </article>)}
+        <button type="button" className="plaque min-h-14 w-full" disabled={occupe} onClick={() => fixerNouvelle(true)}><IconeAjout />Nouvelle partie</button>
+      </>}
+    </div>
+    {suppression && <dialog ref={dialogue} className="cadre zc-dialogue" role="dialog" aria-modal="true" aria-labelledby="zc-suppression-titre"
+      onCancel={e => { e.preventDefault(); if (!occupe) fixerSuppression(null); }}
+      onKeyDown={e => { if (e.key === 'Escape') { e.preventDefault(); if (!occupe) fixerSuppression(null); } }}>
+      <h2 ref={titreDialogue} id="zc-suppression-titre" tabIndex={-1} className="font-titre text-xl font-bold">Supprimer « {suppression.nom} » ?</h2>
+      <p>Sa progression sera perdue pour de bon. Tes diamants, tes succès et tes skins restent sur ton compte.</p>
+      <button type="button" className="plaque zc-danger min-h-12" disabled={occupe} onClick={() => {
+        if (occupe) return; quandSupprimer(suppression.id); fixerSuppression(null);
+      }}>Oui, supprimer</button>
+      <button type="button" className="plaque min-h-12" disabled={occupe} onClick={() => fixerSuppression(null)}>Annuler</button>
+    </dialog>}
+  </>;
 }

@@ -1,6 +1,6 @@
 import { Coquille } from './Coquille';
 import { MiseAJour } from './MiseAJour';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ComponentProps } from 'react';
 import { EcranCompte } from './compte/EcranCompte';
 import { EcranChoixVersion } from './compte/EcranChoixVersion';
 import { useSessionCompte } from './compte/session-compte';
@@ -9,9 +9,17 @@ import { departNouvellePartie, storeJeu } from './store';
 import { creerGestionnaire } from '../core/sauvegarde';
 import { creerStockageLocal } from './stockage-local';
 import { creerSynchro, type PartieListee } from './synchro';
-import { EcranParties } from './compte/EcranParties';
+import { ZoneCompte } from './compte/ZoneCompte';
+import { useStore } from 'zustand';
+import { registreSucces } from '../core/succes';
 import { creerAppareilActif } from './appareil';
 import { EcranAutreAppareil } from './compte/EcranAutreAppareil';
+
+// La zone compte lit le résumé du compte dans le store du jeu, seulement quand elle est affichée.
+function ZoneCompteConnectee(props: Omit<ComponentProps<typeof ZoneCompte>, 'compte' | 'registre'>) {
+  const compte = useStore(storeJeu, e => e.compte);
+  return <ZoneCompte {...props} compte={compte} registre={registreSucces} />;
+}
 
 // Le store du jeu est un singleton : un jeu déjà monté dans cette page garde sa région en mémoire.
 let jeuDejaMonte = false;
@@ -118,7 +126,6 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
   async function menuPrincipal(): Promise<boolean> {
     if (!storeJeu.getState().sauvegarder()) return false;
     await synchro.envoyerMaintenant({ fermeture: true });
-    // TODO lot 7 : ouvrir la zone compte (Parties / Compte / Réglages) à la place de l'écran actuel de liste des parties.
     fixerErreur(''); fixerEcranParties(true); void listerParties();
     return true;
   }
@@ -164,9 +171,7 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
   if (phase === 'verification') return <p role="status">Vérification de la sauvegarde…</p>;
   const choix = synchro.choix();
   return <>
-    {jeuMonte && <Coquille quandMenuPrincipal={menuPrincipal} attendreEnvoi={attendreEnvoi} quandDeconnecter={quandDeconnecter} quandOuvrirParties={() => {
-      fixerErreur(''); fixerEcranParties(true); void listerParties();
-    }} />}
+    {jeuMonte && <Coquille quandMenuPrincipal={menuPrincipal} attendreEnvoi={attendreEnvoi} />}
     {!choix && (ailleurs || repriseEnAttente) && <div className={jeuMonte ? 'fixed inset-0 z-50' : undefined}>
       <EcranAutreAppareil occupe={occupe} erreur={erreur} quandReprendre={() => { void reprendre(); }} />
     </div>}
@@ -174,9 +179,10 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
       <EcranChoixVersion choix={choix} occupe={occupe} erreur={erreur} quandChoisir={cote => { void choisir(cote); }} />
     </div>}
     {(phase === 'creation' || ecranParties) && <div className={jeuMonte ? 'fixed inset-0 z-50 overflow-y-auto' : undefined}>
-      <EcranParties {...liste} chargement={chargement} occupe={occupe} erreur={erreur}
+      <ZoneCompteConnectee {...liste} chargement={chargement} occupe={occupe} erreur={erreur}
         quandJouer={id => { void jouer(id); }} quandCreer={nom => { void creer(nom); }} quandSupprimer={id => { void supprimer(id); }}
-        quandRetour={phase === 'creation' ? undefined : () => fixerEcranParties(false)} />
+        quandRetourJeu={phase === 'creation' ? undefined : () => fixerEcranParties(false)}
+        etatSynchro={synchro.etat()} quandDeconnecter={quandDeconnecter} />
     </div>}
   </>;
 }
@@ -199,7 +205,7 @@ function JeuAvecCompte() {
     return <EcranCompte token={token} sessionExpiree={session.expiree} quandConnecte={jeton => { fixerToken(null); session.memoriser(jeton); }} quandReinitialise={() => { fixerToken(null); session.memoriser(null); }} />;
   }
   return session.jeton ? <PartieConnectee key={session.jeton} jeton={session.jeton} quandDeconnecter={() => { void session.quitter(); }} />
-    : <Coquille quandDeconnecter={() => { void session.quitter(); }} />;
+    : <Coquille />;
 }
 
 export default function App() {

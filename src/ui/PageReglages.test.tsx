@@ -8,6 +8,11 @@ import { volumes } from './volumes';
 const audio = vi.hoisted(() => ({ actif: true, basculer: vi.fn() }));
 vi.mock('./musique', () => ({ musique: { abonner: () => () => {}, estActive: () => audio.actif, basculer: audio.basculer } }));
 const initial = storeJeu.getState();
+it('affiche les réglages sans bouton Retour dans la zone compte', () => {
+  render(<PageReglages />);
+  expect(screen.getByRole('heading', { level: 1, name: 'Réglages' })).toBeTruthy();
+  expect(screen.queryByRole('button', { name: 'Retour' })).toBeNull();
+});
 beforeEach(() => { audio.actif = true; audio.basculer.mockClear(); storeJeu.setState({ sonActive: true }); });
 afterEach(() => { cleanup(); storeJeu.setState(initial); });
 

@@ -9,18 +9,29 @@ import { creerHorlogeSimulee } from '../../core/clock';
 import * as synchronisation from '../synchro';
 import { storeJeu } from '../store';
 
-vi.mock('../Coquille', () => ({ Coquille: ({ quandDeconnecter, quandOuvrirParties }: { quandDeconnecter?: () => void; quandOuvrirParties?: () => void }) => <div>Jeu ouvert{quandOuvrirParties && <button onClick={quandOuvrirParties}>Mes parties</button>}{quandDeconnecter && <button onClick={quandDeconnecter}>Se déconnecter</button>}</div> }));
+vi.mock('../Coquille', () => ({ Coquille: ({ quandMenuPrincipal }: { quandMenuPrincipal?: () => Promise<boolean> }) => <div>Jeu ouvert{quandMenuPrincipal && <button onClick={() => { void quandMenuPrincipal(); }}>Mes parties</button>}</div> }));
 const reseau = vi.fn<typeof fetch>();
 const adresseServeur = window.location.origin;
 function reponse(donnees: unknown = {}, statut = 200, jeton?: string) {
   return new Response(JSON.stringify(donnees), { status: statut, headers: jeton ? { 'set-auth-token': jeton } : {} });
 }
 beforeEach(() => {
+  HTMLDialogElement.prototype.showModal = function () { this.setAttribute('open', ''); };
+  HTMLDialogElement.prototype.close = function () { this.removeAttribute('open'); };
   localStorage.clear();
   const stockage = creerStockageMemoire();
   creerGestionnaire({ stockage, horloge: creerHorlogeSimulee(), genererId: () => 'test' }).creerPartie('Test');
   stockage.cles().forEach(cle => localStorage.setItem(cle, stockage.lire(cle)!));
   history.replaceState(null, '', '/');
+  // Le jeu n'est pas démarré dans ces tests : « Menu principal » exige une sauvegarde réussie.
+  const lireEtat = storeJeu.getState.bind(storeJeu);
+  // Une copie par état réel, gardée : les spies posés ensuite sur `getState()` restent visibles de l'application.
+  const copies = new WeakMap<object, ReturnType<typeof lireEtat>>();
+  vi.spyOn(storeJeu, 'getState').mockImplementation(() => {
+    const reel = lireEtat();
+    if (!copies.has(reel)) copies.set(reel, { ...reel, sauvegarder: () => true });
+    return copies.get(reel)!;
+  });
   vi.stubEnv('VITE_API_URL', adresseServeur);
   vi.stubGlobal('fetch', reseau);
   reseau.mockReset();
@@ -33,10 +44,12 @@ function remplir(motDePasse = 'abcdefghij', email = 'joueur@exemple.fr') {
   fireEvent.change(screen.getByLabelText('Mot de passe'), { target: { value: motDePasse } });
 }
 function cliquer(nom: string) { fireEvent.click(screen.getByRole('button', { name: nom })); }
+// La déconnexion se fait dans la zone compte : Menu principal, onglet Compte, Se déconnecter.
+async function deconnecter() { cliquer('Mes parties'); await screen.findByRole('heading', { name: 'Mes parties' }); cliquer('Compte'); cliquer('Se déconnecter'); }
 
 function simulerParties() {
   const partie = { id: 'test', nom: 'Test', regionCourante: 'kanto', zoneId: '', tempsJeuMs: null, ecritLe: '2026-11-04T12:00:00Z', surServeur: true, courante: true };
-  const synchro = { ouvrir: vi.fn().mockResolvedValue('ok'), choix: vi.fn().mockReturnValue(null), arreter: vi.fn(), demarrer: vi.fn(), envoyerMaintenant: vi.fn(),
+  const synchro = { etat: vi.fn().mockReturnValue('ok'), ouvrir: vi.fn().mockResolvedValue('ok'), choix: vi.fn().mockReturnValue(null), arreter: vi.fn(), demarrer: vi.fn(), envoyerMaintenant: vi.fn(),
     lister: vi.fn().mockResolvedValue({ parties: [partie, { ...partie, id: 'autre', nom: 'Autre', courante: false }], horsConnexion: false }),
     ouvrirPartie: vi.fn().mockResolvedValue('ok'), creerPartie: vi.fn().mockResolvedValue('ok'), supprimerPartie: vi.fn().mockResolvedValue('ok') };
   vi.spyOn(synchronisation, 'creerSynchro').mockReturnValue(synchro as unknown as ReturnType<typeof synchronisation.creerSynchro>);
@@ -66,7 +79,7 @@ it.each(['ok', 'echec'])('ouvre une autre partie : %s', async resultat => {
   const arreter = vi.spyOn(storeJeu.getState(), 'arreter').mockImplementation(() => {});
   const demarrer = vi.spyOn(storeJeu.getState(), 'demarrer').mockImplementation(() => {});
   render(<App />); await screen.findByText('Jeu ouvert'); cliquer('Mes parties');
-  await screen.findByText('Autre'); cliquer('Jouer cette partie');
+  await screen.findByText('Autre'); cliquer('Jouer Autre');
   expect(arreter).toHaveBeenCalled();
   expect(synchro.ouvrirPartie).toHaveBeenCalledWith('autre');
   if (resultat === 'ok') await waitFor(() => expect(recharger).toHaveBeenCalledOnce());
@@ -79,6 +92,7 @@ it('crée une partie puis recharge', async () => {
   const { synchro, recharger } = simulerParties();
   render(<App />); await screen.findByText('Jeu ouvert'); cliquer('Mes parties');
   await screen.findByText('Autre');
+  cliquer('Nouvelle partie');
   fireEvent.change(screen.getByLabelText('Nom de la partie'), { target: { value: ' Voyage ' } });
   cliquer('Créer la partie');
   await waitFor(() => expect(recharger).toHaveBeenCalledOnce());
@@ -103,6 +117,7 @@ it.each([
   synchro.creerPartie.mockResolvedValue(resultat);
   render(<App />); await screen.findByText('Jeu ouvert'); cliquer('Mes parties');
   await screen.findByText('Autre');
+  cliquer('Nouvelle partie');
   fireEvent.change(screen.getByLabelText('Nom de la partie'), { target: { value: 'Voyage' } });
   cliquer('Créer la partie');
   expect((await screen.findByRole('alert')).textContent).toBe(message);
@@ -320,7 +335,7 @@ it('reconnaît aussi le retour d’un lien déjà expiré côté serveur', () =>
 it('déconnecte sans toucher à la sauvegarde locale, même sans réseau', async () => {
   localStorage.setItem(CLE_SESSION, 'session-stockee'); localStorage.setItem('pokiclicker.sauvegarde', 'partie intacte');
   render(<App />); await screen.findByText('Jeu ouvert');
-  reseau.mockRejectedValueOnce(new TypeError()); cliquer('Se déconnecter');
+  reseau.mockRejectedValueOnce(new TypeError()); await deconnecter();
   await screen.findByRole('heading', { name: 'Connexion' });
   expect(reseau).toHaveBeenLastCalledWith(`${adresseServeur}/api/auth/sign-out`, expect.objectContaining({ method: 'POST', headers: expect.objectContaining({ Authorization: 'Bearer session-stockee' }) }));
   expect(localStorage.getItem(CLE_SESSION)).toBeNull();
@@ -351,6 +366,6 @@ it('garde la session en mémoire si le stockage est indisponible', async () => {
   await waitFor(() => expect(reseau.mock.calls.filter(([url]) => String(url).includes('/api/auth/'))).toHaveLength(2));
   fireEvent(window, new StorageEvent('storage', { key: CLE_SESSION }));
   expect(screen.getByText('Jeu ouvert')).toBeTruthy();
-  cliquer('Se déconnecter'); await screen.findByRole('heading', { name: 'Connexion' });
+  await deconnecter(); await screen.findByRole('heading', { name: 'Connexion' });
   expect(() => fireEvent(window, new StorageEvent('storage', { key: CLE_SESSION }))).not.toThrow();
 });

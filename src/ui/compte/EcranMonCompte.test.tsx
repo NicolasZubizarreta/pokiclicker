@@ -3,7 +3,7 @@ import { cleanup, fireEvent, render, screen, within } from '@testing-library/rea
 import { afterEach, expect, it, vi } from 'vitest';
 import type { DefinitionSucces } from '../../core/succes';
 import type { ResumeCompte } from '../store';
-import { EcranMonCompte } from './EcranMonCompte';
+import { ContenuMonCompte, EcranMonCompte } from './EcranMonCompte';
 
 afterEach(cleanup);
 const registre: readonly DefinitionSucces[] = [
@@ -12,6 +12,51 @@ const registre: readonly DefinitionSucces[] = [
   { id: 'voyage', nom: 'Voyage', description: 'Explore les zones.', diamants: 20, mesure: 'badges', seuil: 3 },
 ];
 const compte: ResumeCompte = { diamants: 42, succes: ['collection'], skins: ['tenue-kanto'] };
+
+it('affiche le contenu seul sans navigation ni synchronisation implicite', () => {
+  const { container } = render(<ContenuMonCompte compte={compte} registre={registre} />);
+  expect(screen.queryByRole('dialog')).toBeNull();
+  expect(container.querySelector('main')).toBeNull();
+  expect(screen.queryByRole('button')).toBeNull();
+  expect(screen.queryByText('Connecté')).toBeNull();
+  expect(screen.queryByRole('status')).toBeNull();
+  expect(container.querySelector('.mc-pastille')).toBeNull();
+  expect(document.activeElement).toBe(screen.getByRole('heading', { name: 'Mon compte' }));
+  expect(screen.getAllByRole('heading', { level: 3 }).map(t => t.textContent)).toEqual(['Collection', 'Premier pas', 'Voyage']);
+  expect(screen.getByText(/Obtenu/).textContent).toBe('✓ Obtenu');
+  expect(screen.getAllByText('À obtenir')).toHaveLength(2);
+  expect(screen.getByText('+10 diamants')).toBeTruthy();
+});
+
+it.each([
+  ['ok', 'À jour', 'bg-succes-base'],
+  ['hors-ligne', 'Hors connexion', 'bg-alerte-base'],
+  ['inactif', 'Synchronisation en attente', 'bg-info-base'],
+  ['conflit', 'Conflit de synchronisation', 'bg-erreur-base'],
+  ['refuse', 'Synchronisation refusée', 'bg-erreur-base'],
+] as const)('affiche la synchronisation %s', (etatSynchro, texte, couleur) => {
+  render(<ContenuMonCompte compte={compte} registre={registre} etatSynchro={etatSynchro} />);
+  expect(screen.getByText('Connecté')).toBeTruthy();
+  const statut = screen.getByRole('status');
+  expect(statut.textContent).toBe(texte);
+  const pastille = statut.querySelector('[aria-hidden="true"]');
+  expect(pastille?.classList.contains(couleur)).toBe(true);
+});
+
+it('déconnecte en un seul geste', () => {
+  const quandDeconnecter = vi.fn();
+  render(<ContenuMonCompte compte={compte} registre={registre} quandDeconnecter={quandDeconnecter} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Se déconnecter' }));
+  expect(quandDeconnecter).toHaveBeenCalledOnce();
+});
+
+it('accorde une récompense unique et affiche les skins vides', () => {
+  render(<ContenuMonCompte compte={{ ...compte, diamants: 1, skins: [] }} registre={[{ ...registre[0]!, diamants: 1 }]} />);
+  expect(screen.getByText('diamant')).toBeTruthy();
+  expect(screen.getByText('1')).toBeTruthy();
+  expect(screen.getByText('+1 diamant')).toBeTruthy();
+  expect(screen.getByText("Aucun skin débloqué pour l'instant.")).toBeTruthy();
+});
 
 it('est une boîte de dialogue qui suit le thème du jeu', () => {
   render(<EcranMonCompte compte={compte} registre={registre} quandFermer={vi.fn()} theme="light" />);

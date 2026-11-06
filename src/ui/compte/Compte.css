@@ -1,0 +1,34 @@
+/* Commun : champs, messages et liens de la zone compte. */
+.compte-champ { display: flex; flex-direction: column; gap: var(--spacing); }
+.compte-champ > label { font-weight: 700; }
+.compte-champ .aide { font-size: var(--text-sm); line-height: var(--text-sm--line-height); color: var(--texte-doux); }
+.compte-champ .zone-saisie { display: flex; gap: calc(var(--spacing) * 2); }
+.compte-champ input {
+  flex: 1;
+  min-width: 0;
+  height: calc(var(--spacing) * 14);
+  padding-inline: calc(var(--spacing) * 3);
+  background: var(--fond);
+  color: var(--texte);
+  border: calc(var(--spacing) / 2) solid var(--bordure);
+  font: inherit;
+}
+.compte-champ input:focus-visible { border-color: var(--focus); }
+.compte-champ.en-erreur input { border-color: var(--erreur-base); }
+.compte-message { display: flex; gap: calc(var(--spacing) * 3); padding: calc(var(--spacing) * 3); border: calc(var(--spacing) / 2) solid var(--bordure); background: var(--surface-2); }
+.compte-message > span { flex: 1; min-width: 0; }
+.compte-message.erreur { background: var(--erreur-fond); color: var(--erreur-texte); border-color: var(--erreur-base); }
+.compte-message.alerte { background: var(--alerte-fond); color: var(--alerte-texte); border-color: var(--alerte-base); }
+.compte-message.succes { background: var(--succes-fond); color: var(--succes-texte); border-color: var(--succes-base); }
+.compte-message.info { background: var(--info-fond); color: var(--info-texte); border-color: var(--info-base); }
+.compte-liens { display: flex; flex-direction: column; align-items: stretch; }
+.compte-lien { width: 100%; display: flex; align-items: center; justify-content: center; text-align: center; color: var(--region-accent); text-decoration: underline; text-underline-offset: var(--spacing); }
+
+/* Écrans d’authentification, avec défilement quand le clavier est ouvert. */
+.compte-page { height: 100dvh; overflow-y: auto; scroll-padding-block: calc(var(--spacing) * 4); }
+.compte-page input, .compte-page button { scroll-margin-block: calc(var(--spacing) * 4); }
+.compte-marque { text-align: center; padding-bottom: calc(var(--spacing) * 4); }
+.compte-marque b { display: block; font-size: var(--text-3xl); line-height: var(--text-3xl--line-height); }
+.compte-marque span { font-size: var(--text-sm); }
+.compte-formulaire { display: flex; flex-direction: column; gap: calc(var(--spacing) * 4); padding: calc(var(--spacing) * 4); }
+.compte-page h1[tabindex="-1"]:focus-visible { outline: none; }
