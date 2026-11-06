@@ -140,7 +140,7 @@ Animations nouvelles (ticket L).
 
 ## E. `feat(compte): refaire connexion, inscription et mot de passe`
 
-`type:feat`, `etat:a_faire`, `est:2-3`, `prio:2` · branche : `v2` · pas d'`agent-ok` (authentification) · dépend de : B
+`type:feat`, `etat:fait`, `est:2-3`, `prio:2` · branche : `v2` · pas d'`agent-ok` (authentification) · dépend de : B
 
 ### Histoire
 En tant que joueur, je veux une connexion courte et claire afin de reprendre ma partie en quelques secondes.
@@ -149,10 +149,12 @@ En tant que joueur, je veux une connexion courte et claire afin de reprendre ma 
 Quatre états dans `compte/EcranCompte.tsx` : connexion, inscription, mot de passe oublié, nouveau mot de passe. Compte obligatoire (décision du 04/11) : l'écran doit être très simple. Aucune logique d'authentification ne change ; seule la présentation est refaite.
 
 ### Critères d'acceptation
-- [ ] Étant donné trois ou quatre variantes navigables, quand Nicolas en choisit une, alors le choix est noté dans `design/DESIGN.md`.
-- [ ] Étant donné la variante choisie, quand je me connecte à 390 px avec le clavier du téléphone ouvert, alors les champs et le bouton restent visibles sans défilement caché.
-- [ ] Étant donné une erreur (mot de passe faux, trop court, e-mail déjà pris), quand elle s'affiche, alors le message est clair, près du champ concerné, et lu par un lecteur d'écran.
-- [ ] Étant donné les tests du ticket C de la phase 4, quand `npm test` tourne, alors ils restent verts.
+- [x] Étant donné trois ou quatre variantes navigables, quand Nicolas en choisit une, alors le choix est noté dans `design/DESIGN.md`. (maquette a5, journal du 05/11)
+- [x] Étant donné la variante choisie, quand je me connecte à 390 px avec le clavier du téléphone ouvert, alors les champs et le bouton restent visibles sans défilement caché. (e2e `compte.spec.ts`, viewport 390×420 : champ visible, bouton atteint par défilement de la page)
+- [x] Étant donné une erreur (mot de passe faux, trop court, e-mail déjà pris), quand elle s'affiche, alors le message est clair, près du champ concerné, et lu par un lecteur d'écran. (`role="alert"`, `aria-invalid`, `aria-describedby` ; champs vides signalés par nos soins, plus de bulle native)
+- [x] Étant donné les tests du ticket C de la phase 4, quand `npm test` tourne, alors ils restent verts.
+
+**Lot 7 fait (06/11)** : connexion, inscription, oubli et nouveau mot de passe au style a5 (`EcranCompte.tsx`, `Compte.css`). Logique d'authentification inchangée.
 
 ### Hors périmètre
 Changement du serveur, suppression de compte, connexion par un tiers.
@@ -162,7 +164,7 @@ Changement du serveur, suppression de compte, connexion par un tiers.
 
 ## F. `feat(compte): refaire la liste des parties et les choix de synchro`
 
-`type:feat`, `etat:a_faire`, `est:2-3`, `prio:2` · branche : `v2` · `agent-ok` après maquette validée · dépend de : B
+`type:feat`, `etat:en_cours`, `est:2-3`, `prio:2` · branche : `v2` · `agent-ok` après maquette validée · dépend de : B
 
 ### Histoire
 En tant que joueur avec plusieurs parties ou appareils, je veux voir mes parties comme des cartes lisibles et comprendre les conflits afin de ne jamais perdre de progression.
@@ -171,11 +173,13 @@ En tant que joueur avec plusieurs parties ou appareils, je veux voir mes parties
 Écrans : mes parties (`EcranParties.tsx`), choix de version (`EcranChoixVersion.tsx`, y compris « partie supprimée ailleurs »), partie ouverte ailleurs (`EcranAutreAppareil.tsx`), indicateur de synchro. Repères du benchmark : une carte par partie avec nom, temps de jeu, dernière sauvegarde, avancée ; deux versions côte à côte ; statut de synchro visible.
 
 ### Critères d'acceptation
-- [ ] Étant donné trois ou quatre variantes navigables pour chacun de ces écrans, quand Nicolas choisit, alors les choix sont notés dans `design/DESIGN.md`.
-- [ ] Étant donné un compte avec 3 parties, quand j'ouvre la liste à 390 px, alors chaque carte montre nom, région, temps de jeu et dernière sauvegarde, et jouer ou supprimer demande une cible de 48 px.
-- [ ] Étant donné un conflit de versions, quand l'écran s'affiche, alors les deux versions sont comparables d'un coup d'œil et l'action destructive demande une confirmation explicite.
-- [ ] Étant donné la synchro, quand elle est hors ligne, en cours, en conflit ou à jour, alors l'état est visible en permanence dans le jeu sans gêner le combat.
-- [ ] Étant donné les tests du scénario deux appareils, quand `npm test` tourne, alors ils restent verts.
+- [x] Étant donné trois ou quatre variantes navigables pour chacun de ces écrans, quand Nicolas choisit, alors les choix sont notés dans `design/DESIGN.md`. (maquette a5, journal du 05/11)
+- [x] Étant donné un compte avec 3 parties, quand j'ouvre la liste à 390 px, alors chaque carte montre nom, région, temps de jeu et dernière sauvegarde, et jouer ou supprimer demande une cible de 48 px. (e2e ; suppression par `<dialog>` modal avec confirmation)
+- [ ] Étant donné un conflit de versions, quand l'écran s'affiche, alors les deux versions sont comparables d'un coup d'œil et l'action destructive demande une confirmation explicite. (**lot 8** : Nicolas a rejeté les versions multiples, `EcranChoixVersion` reste tel quel jusqu'au lot 8)
+- [ ] Étant donné la synchro, quand elle est hors ligne, en cours, en conflit ou à jour, alors l'état est visible en permanence dans le jeu sans gêner le combat. (l'état est visible dans « Mon compte » ; l'indicateur dans le jeu reste celui du ticket C)
+- [x] Étant donné les tests du scénario deux appareils, quand `npm test` tourne, alors ils restent verts.
+
+**Lot 7 fait pour la partie liste (06/11)** : « Mes parties » en cartes dans la zone compte hors partie (`ZoneCompte.tsx`, `EcranParties.tsx`), « Menu principal » ramène à l'onglet Parties. Non fait, prévu au lot 8 : renommer une partie, états « ouverte ailleurs » / « supprimée ailleurs » par carte, écrans de choix de version.
 
 ### Hors périmètre
 Logique de synchronisation (phase 4, faite).
@@ -185,15 +189,17 @@ Logique de synchronisation (phase 4, faite).
 
 ## G. `feat(compte): refaire mon compte, diamants, succès et skins`
 
-`type:feat`, `etat:a_faire`, `est:1-2`, `prio:3` · branche : `v2` · `agent-ok` après maquette validée · dépend de : E
+`type:feat`, `etat:en_cours`, `est:1-2`, `prio:3` · branche : `v2` · `agent-ok` après maquette validée · dépend de : E
 
 ### Histoire
 En tant que joueur, je veux retrouver mes diamants, mes succès et mes skins dans un écran qui donne envie d'y revenir.
 
 ### Critères d'acceptation
-- [ ] Étant donné les variantes de `EcranMonCompte.tsx`, quand Nicolas choisit, alors le choix est noté dans `design/DESIGN.md`.
-- [ ] Étant donné trois succès d'exemple, quand j'ouvre l'écran à 390 px, alors chaque succès montre son état (obtenu ou non), sa récompense en diamants et sa condition.
-- [ ] Étant donné la déconnexion, quand je l'utilise, alors elle est atteignable en un geste et demande confirmation si une synchro est en attente.
+- [x] Étant donné les variantes de `EcranMonCompte.tsx`, quand Nicolas choisit, alors le choix est noté dans `design/DESIGN.md`. (maquette a5, journal du 05/11)
+- [x] Étant donné trois succès d'exemple, quand j'ouvre l'écran à 390 px, alors chaque succès montre son état (obtenu ou non), sa récompense en diamants et sa condition.
+- [ ] Étant donné la déconnexion, quand je l'utilise, alors elle est atteignable en un geste et demande confirmation si une synchro est en attente. (un geste : fait, bouton « Se déconnecter » de l'onglet Compte ; la confirmation « Sauvegarder et se déconnecter » est au **lot 8**)
+
+**Lot 7 fait (06/11)** : « Mon compte » (diamants, succès, skins, état de synchro, déconnexion) et Réglages dans la zone compte. Écarts avec a5 : pas d'e-mail affiché ni de « Changer mon mot de passe » (la session ne connaît pas l'e-mail), pas de ligne « Thème » dans Réglages.
 
 ### Hors périmètre
 Boutique de skins, nouveaux succès.
