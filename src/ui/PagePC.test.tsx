@@ -28,18 +28,63 @@ const nomDe = (pokemon: PokemonPossede) => pokemon.surnom ?? catalogue.parNumero
 const cartes = () => within(screen.getByRole('list')).getAllByRole('button');
 
 beforeEach(() => storeJeu.setState({ pc: [...pc], accesPc: { ouvert: true, raison: '' } }));
-afterEach(cleanup);
+afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
+
+it('trie par DPS et montre les DPS seulement pour ce tri', () => {
+  render(<PagePC />);
+  expect(cartes().map(c => c.getAttribute('aria-label'))).toEqual(trierPc(pc, 'dps', nomDe).map(p => `${nomDe(p)}, niveau ${p.niveau}`));
+  expect(within(cartes()[0]!).getByText(/ DPS$/)).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: 'Numéro', exact: true }));
+  expect(within(cartes()[0]!).queryByText(/ DPS$/)).toBeNull();
+});
+
+it.each(['Favoris', 'Shiny', 'Œufs'])('filtre %s et efface les filtres et la recherche', filtre => {
+  storeJeu.setState({ pc: pc.slice(0, 3) });
+  render(<PagePC />);
+  fireEvent.click(screen.getAllByRole('button', { name: filtre, exact: true, pressed: false }).find(b => !b.closest('[aria-label="Trie les Pokémon"]'))!);
+  expect(screen.getByRole('button', { name: filtre, pressed: true })).toBeTruthy();
+  if (filtre === 'Œufs') expect(screen.getByText('Aucun Pokémon ne correspond à ces filtres.')).toBeTruthy();
+  else expect(screen.getByText('1 sur 3 Pokémon')).toBeTruthy();
+  fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'absent' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Effacer la recherche et les filtres' }));
+  expect(cartes()).toHaveLength(3);
+  expect((screen.getByRole('searchbox') as HTMLInputElement).value).toBe('');
+});
+
+it('donne un libellé accessible au retour', () => {
+  render(<PagePC retour={vi.fn()} libelleRetour="Retour au voyage" />);
+  expect(screen.getByRole('button', { name: 'Retour au voyage' }).textContent).toBe('Retour');
+});
+
+it('range les œufs en dernier et les retrouve par filtre sans DPS', () => {
+  storeJeu.setState({ pc: [{ ...base, uid: 'oeuf', oeuf: { pasRestants: 10, pasMax: 10 } }, ...pc] });
+  render(<PagePC />);
+  expect(cartes()[0]!.getAttribute('aria-label')).toBe('Boule, niveau 20');
+  expect(within(cartes().at(-1)!).queryByText(/ DPS$/)).toBeNull();
+  fireEvent.click(screen.getByRole('button', { name: 'Œufs' }));
+  expect(cartes()).toHaveLength(1);
+  expect(screen.getByText('1 sur 5 Pokémon')).toBeTruthy();
+});
+
+it('propose le select de tri sur téléphone', () => {
+  vi.stubGlobal('matchMedia', vi.fn((requete: string) => ({ matches: requete.includes('max-width'), addEventListener: vi.fn(), removeEventListener: vi.fn() })));
+  render(<PagePC />);
+  const select = screen.getByRole('combobox', { name: 'Trie par' });
+  expect((select as HTMLSelectElement).value).toBe('dps');
+  fireEvent.change(select, { target: { value: 'nom' } });
+  expect(cartes().map(c => c.getAttribute('aria-label'))).toEqual(trierPc(pc, 'nom', nomDe).map(p => `${nomDe(p)}, niveau ${p.niveau}`));
+});
 
 it('présente le titre focalisable, le compteur et des cartes en français', () => {
   render(<PagePC retour={vi.fn()} />);
   expect(screen.getByRole('heading', { level: 1, name: 'PC de Léo' }).tabIndex).toBe(-1);
   expect(screen.getByText('4 Pokémon')).toBeTruthy();
-  expect(screen.getByRole('group', { name: 'Trie les Pokémon' }).textContent).toBe('Trie par :NuméroNomNiveauFavoriShiny');
+  expect(screen.getByRole('group', { name: 'Trie les Pokémon' }).textContent).toBe('Trie par :DPSNuméroNomNiveauFavoriShiny');
   expect(screen.getByLabelText('Nom ou numéro').getAttribute('type')).toBe('search');
   expect(cartes().map(c => c.getAttribute('aria-label'))).toEqual([
-    'Zéphyr, niveau 30', 'Bulbizarre, niveau 12', 'Pikachu, niveau 8', 'Boule, niveau 20',
+    ...trierPc(pc, 'dps', nomDe).map(p => `${nomDe(p)}, niveau ${p.niveau}`),
   ]);
-  expect(screen.getByRole('button', { name: 'Boule, niveau 20' }).textContent).toContain('N° 101Niveau 20');
+  expect(screen.getByRole('button', { name: 'Boule, niveau 20' }).textContent).toContain('N° 101Niv. 20');
   expect(screen.getByRole('img', { name: 'Femelle' })).toBeTruthy();
   expect(screen.getAllByRole('img', { name: 'Mâle' })).toHaveLength(3);
   const boule = screen.getByRole('button', { name: 'Boule, niveau 20' });
@@ -48,7 +93,7 @@ it('présente le titre focalisable, le compteur et des cartes en français', () 
   expect(bulbizarre.querySelector('svg.text-lien')).toBeTruthy();
   expect(boule.querySelector('strong svg path')).toBeTruthy();
   expect(boule.querySelector('img.halo-shiny')?.getAttribute('src')).toBe('img/sprites/pokemon-shiny/101.png');
-  expect(boule.querySelector('img')?.classList.contains('size-24')).toBe(true);
+  expect(boule.querySelector('img')?.classList.contains('lg:size-24')).toBe(true);
   expect(screen.queryByText(/Search|Sort|Level|Back|Empty|Favorite/)).toBeNull();
 });
 
@@ -77,7 +122,7 @@ it.each<[TriPc, string]>([
   render(<PagePC retour={vi.fn()} />);
   const groupe = screen.getByRole('group', { name: 'Trie les Pokémon' });
   const bouton = within(groupe).getByRole('button', { name: texte });
-  if (tri === 'numero') expect(bouton.getAttribute('aria-pressed')).toBe('true');
+  expect(within(groupe).getByRole('button', { name: 'DPS', pressed: true })).toBeTruthy();
   fireEvent.click(bouton);
   expect(cartes().map(c => c.getAttribute('aria-label'))).toEqual(
     trierPc(pc, tri, nomDe).map(p => `${nomDe(p)}, niveau ${p.niveau}`),
@@ -114,7 +159,7 @@ it('explique comment remplir un PC vide', () => {
 
 it('sélectionne une carte par défaut puis au clic, et conserve le choix après un tri', () => {
   render(<PagePC retour={vi.fn()} />);
-  const premier = screen.getByRole('button', { name: 'Zéphyr, niveau 30' });
+  const premier = screen.getByRole('button', { name: 'Boule, niveau 20' });
   expect(premier.getAttribute('aria-pressed')).toBe('true');
   const cible = screen.getByRole('button', { name: 'Pikachu, niveau 8' });
   fireEvent.click(cible);
@@ -171,17 +216,20 @@ afterEach(() => vi.restoreAllMocks());
 
 it('présente le détail choisi, ses DPS sans type et six emplacements par affichage', () => {
   render(<PagePC retour={vi.fn()} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Zéphyr, niveau 30' }));
   const panneau = screen.getByRole('complementary');
   expect(within(panneau).getByRole('heading', { name: 'Zéphyr' })).toBeTruthy();
   expect(within(panneau).getByText(`${formaterDps(dpsSansType(pc[3]!))} DPS`)).toBeTruthy();
   expect(within(panneau).getByRole('progressbar', { name: 'XP de Zéphyr' })).toBeTruthy();
   expect(within(panneau).getAllByText('Emplacement libre')).toHaveLength(4);
   expect(within(panneau).queryByRole('button', { name: 'Pikachu, niveau 8' })).toBeNull();
-  expect(screen.getByRole('group', { name: 'Équipe mobile' }).children).toHaveLength(6);
+  expect(screen.queryByRole('group', { name: 'Équipe mobile' })).toBeNull();
 });
 
 it('place le Pokémon dans une équipe incomplète et sélectionne le suivant', () => {
   render(<PagePC retour={vi.fn()} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Numéro', exact: true }));
+  fireEvent.click(screen.getByRole('button', { name: 'Zéphyr, niveau 30' }));
   fireEvent.click(screen.getByRole('button', { name: "Placer dans l'équipe" }));
   expect(placerDansEquipe).toHaveBeenCalledWith('autre');
   expect(storeJeu.getState().equipe.some(c => c?.pokemon.uid === 'autre')).toBe(true);
@@ -192,6 +240,7 @@ it('place le Pokémon dans une équipe incomplète et sélectionne le suivant', 
 it.each(['colonne', 'mobile'])('échange avec une équipe pleine depuis la %s, puis annule', affichage => {
   storeJeu.setState({ equipe: Array.from({ length: 6 }, (_, i) => caseDe({ ...base, uid: `e${i}`, surnom: `Partenaire ${i}` })) });
   render(<PagePC retour={vi.fn()} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Zéphyr, niveau 30' }));
   fireEvent.click(screen.getByRole('button', { name: "Placer dans l'équipe" }));
   expect(screen.getByRole('status').textContent).toContain('Choisis le Pokémon à remplacer par Zéphyr');
   const zone = affichage === 'mobile' ? screen.getByRole('group', { name: 'Équipe mobile' }) : screen.getByRole('complementary');
@@ -226,6 +275,7 @@ it('affiche les erreurs de placement, de favori et d’échange', () => {
 
 it('bascule le favori depuis le détail', () => {
   render(<PagePC retour={vi.fn()} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Zéphyr, niveau 30' }));
   fireEvent.click(screen.getByRole('button', { name: 'Ajoute aux favoris' }));
   expect(basculerFavori).toHaveBeenCalledWith('autre');
   expect(storeJeu.getState().pc.find(p => p.uid === 'autre')?.favori).toBe(true);
@@ -236,6 +286,7 @@ it.each(['détail', 'carte mobile'])('ouvre une seule fiche depuis le %s et rest
   if (origine === 'carte mobile') vi.spyOn(HTMLElement.prototype, 'getClientRects').mockReturnValue({ length: 0 } as DOMRectList);
   render(<PagePC retour={vi.fn()} />);
   const bouton = screen.getByRole('button', { name: origine === 'détail' ? 'Ouvre la fiche' : 'Zéphyr, niveau 30' });
+  if (origine === 'détail') fireEvent.click(screen.getByRole('button', { name: 'Zéphyr, niveau 30' }));
   fireEvent.click(bouton);
   expect(screen.getByRole('dialog', { name: 'Zéphyr' })).toBeTruthy();
   expect(document.querySelectorAll('dialog[open]')).toHaveLength(1);

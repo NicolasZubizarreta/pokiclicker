@@ -10,6 +10,7 @@ import { BoutonRenommer } from './BoutonRenommer';
 import { dpsSansType } from './dps-pc';
 import { Image } from './Image';
 import { IconeShiny } from './IconeShiny';
+import { IconeSexe } from './IconeSexe';
 import { formaterDps } from './nombres';
 import { classeSprite, nomAffiche, progressionOeuf, spriteAffiche } from './affichage-pokemon';
 import { storeJeu } from './store';
@@ -153,8 +154,7 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: 
             <Image src={spriteAffiche(pokemon)} genre="sprite" alt={pokemon.oeuf ? nom : espece.nom} className={`size-48 image-rendering-pixelated ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(pokemon)}`} />
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            {pokemon.sexe === 'male' && <span className="h-7 inline-flex items-center text-info-base" role="img" aria-label="Mâle"><svg className="size-7 fill-none stroke-current" viewBox="0 0 24 24" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><circle cx="9.5" cy="14.5" r="6" /><path d="M14 10L21 3M15 3h6v6" /></svg></span>}
-            {pokemon.sexe === 'femelle' && <span className="h-7 inline-flex items-center text-erreur-base" role="img" aria-label="Femelle"><svg className="size-7 fill-none stroke-current" viewBox="0 0 24 24" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="8.5" r="6" /><path d="M12 14.5V22M8.5 18.5h7" /></svg></span>}
+            {(pokemon.sexe === 'male' || pokemon.sexe === 'femelle') && <IconeSexe sexe={pokemon.sexe} />}
             {pokemon.shiny && <span className="h-7 inline-flex items-center gap-1 px-2 font-bold"><IconeShiny />Shiny</span>}
             <button type="button" aria-pressed={pokemon.favori}
               aria-label={pokemon.favori ? 'Retire des favoris' : 'Ajoute aux favoris'}
