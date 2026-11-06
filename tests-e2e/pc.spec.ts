@@ -1,6 +1,7 @@
 import { mkdir } from 'node:fs/promises';
 import { test as base, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
+import { casesPokedex } from './aide-pokedex';
 
 const test = base.extend<{ surveillance: void }>({
   surveillance: [async ({ page }, utiliser) => {
@@ -151,7 +152,7 @@ test('Pokédex : 151 cases et compteur des starters', async ({ page }, informati
   await page.getByRole('button', { name: /^Pokédex/ }).click();
   await expect(page.getByRole('heading', { name: 'Pokédex', level: 1 })).toBeVisible();
   await expect(page.getByText('3 / 151')).toBeVisible();
-  await expect(page.getByRole('listitem')).toHaveCount(151);
+  await expect(casesPokedex(page)).toHaveCount(151);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
   await page.evaluate(() => Promise.all([...document.images].map(image => image.decode().catch(() => undefined))));
   const largeur = informations.project.name === 'mobile' ? 390 : 1440;

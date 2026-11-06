@@ -3,6 +3,7 @@ import { resolve, extname, sep } from 'node:path';
 import { test as base, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import { telephone, ligneZone } from './aide-carte';
+import { fermerSac, ouvrirSac } from './aide-sac';
 
 const test = base.extend<{ surveillance: void }>({
   surveillance: [async ({ page }, utiliser) => {
@@ -97,8 +98,9 @@ test('Centre : vol, achat, Sac, retour et rechargement', async ({ page }, inform
   else await expect(page.getByRole('region', { name: 'Zone sélectionnée' })).toHaveCount(0);
   if (telephone(page)) await expect(ligneZone(page, 'Tour Pokémon')).toHaveAccessibleName(/tu es ici/);
   else await expect(page.getByText(/Tour Pokémon en cours/)).toBeVisible();
-  await page.getByRole('button', { name: 'Équipe', exact: true }).click();
-  await expect(page.getByRole('region', { name: 'Sac', exact: true }).getByRole('button', { name: 'Attaque + ×2', exact: true })).toBeVisible();
+  const sac = await ouvrirSac(page);
+  await expect(sac.getByRole('button', { name: 'Attaque + ×2', exact: true })).toBeVisible();
+  await fermerSac(page);
   await page.reload();
   await carte(page);
   await choixCentre(page).click();

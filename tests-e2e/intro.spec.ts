@@ -1,5 +1,7 @@
 import { mkdir } from 'node:fs/promises';
 import { test, expect, type Page } from '@playwright/test';
+import { balle } from './aide-combat';
+import { ouvrirSac } from './aide-sac';
 
 test.use({ storageState: { cookies: [], origins: [] } });
 
@@ -49,11 +51,13 @@ for (const largeur of [390, 1440]) {
     await page.getByRole('button', { name: 'Équipe', exact: true }).click();
     await expect(page.getByRole('button', { name: /^Carapuce, niveau 5/ })).toBeVisible();
     await expect(page.getByRole('button', { name: /niveau/ })).toHaveCount(1);
-    await expect(page.getByRole('button', { name: 'Pokéball ×5', exact: true })).toBeVisible();
+    // Téléphone : pas de Sac avant la Route 1 ; les cinq balles de Chen se lisent sur la plaque de balle, une fois en Route 1.
+    if (largeur >= 1024) await expect((await ouvrirSac(page)).getByRole('button', { name: 'Pokéball ×5', exact: true })).toBeVisible();
 
     await page.getByRole('button', { name: 'Combat', exact: true }).click();
     await page.getByRole('button', { name: 'Zone suivante : Route 1' }).click();
     await expect(page.getByRole('heading', { name: 'Route 1', exact: true })).toBeVisible();
     await expect(page.getByRole('region', { name: /^Combat contre/ })).toBeVisible();
+    if (largeur < 1024) await expect(balle(page, 'Pokéball', 5)).toBeVisible();
   });
 }

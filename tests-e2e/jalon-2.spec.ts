@@ -72,7 +72,7 @@ test.describe('Sauvegardes aux étapes clés', () => {
       await expect(page.getByRole('navigation', { name: 'Navigation principale' })).toBeVisible();
       await page.getByRole('button', { name: 'Menu', exact: true }).click();
       await expect(page.getByText(`Kanto · ${nomZone(zone)}`, { exact: true })).toBeVisible();
-      await expect(page.getByText(`${nombre} / 8`, { exact: true }).first()).toBeVisible();
+      await expect(page.getByText(`${nombre} sur 8`, { exact: true }).first()).toBeVisible();
       expect(erreurs).toEqual([]);
     });
   }

@@ -1,6 +1,8 @@
 import { mkdir } from 'node:fs/promises';
 import { test as base, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
+import { telephone } from './aide-carte';
+import { invitationChoix, ouvrirSac } from './aide-sac';
 
 const test = base.extend<{ surveillance: void }>({
   surveillance: [async ({ page }, utiliser) => {
@@ -67,8 +69,8 @@ test('Pokéball ×2 : prix, sauvegarde, filtre et largeur', async ({ page }, inf
   await page.getByRole('button', { name: 'Poké Ball', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Poké Ball', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(page.getByRole('article').getByRole('heading')).toHaveText(balles);
-  await page.getByRole('button', { name: 'Équipe', exact: true }).click();
-  await expect(page.getByRole('region', { name: 'Sac', exact: true }).getByRole('button', { name: 'Pokéball ×2', exact: true })).toBeVisible();
+  const sac = await ouvrirSac(page);
+  await expect(sac.getByRole('button', { name: 'Pokéball ×2', exact: true })).toBeVisible();
 });
 
 test('Protéine unique conservée au rechargement', async ({ page }) => {
@@ -92,15 +94,20 @@ test('Objet trop cher : achat désactivé sans texte superflu', async ({ page })
   await expect(page.getByText(/manque|panier|Prépare/)).toHaveCount(0);
 });
 
-test('Bonbon : annulation extérieure puis deux niveaux', async ({ page }, informations) => {
+test('Bonbon : annulation puis deux niveaux', async ({ page }, informations) => {
   await demarrer(page);
-  await page.getByRole('button', { name: 'Équipe', exact: true }).click();
-  const sac = page.getByRole('region', { name: 'Sac', exact: true });
+  const sac = await ouvrirSac(page);
   await sac.getByRole('button', { name: 'Bonbon ×5', exact: true }).click();
-  const message = page.getByText('Sélectionne un Pokémon.', { exact: true });
+  const message = invitationChoix(page, 'Bonbon');
   await expect(message).toBeVisible();
-  await page.getByRole('heading', { name: 'Ton équipe', exact: true }).click();
-  await expect(message).toHaveCount(0);
+  if (telephone(page)) {
+    // Téléphone : le bouton Annuler du mode choix rouvre le Sac, là où l'on était.
+    await page.getByRole('button', { name: 'Annuler', exact: true }).click();
+    await expect(message).toHaveCount(0);
+  } else {
+    await page.getByRole('heading', { name: 'Ton équipe', exact: true }).click();
+    await expect(message).toHaveCount(0);
+  }
   await expect(sac.getByRole('button', { name: 'Bonbon ×5', exact: true })).toBeVisible();
   await sac.getByRole('button', { name: 'Bonbon ×5', exact: true }).click();
   await expect(message).toBeVisible();
@@ -110,7 +117,10 @@ test('Bonbon : annulation extérieure puis deux niveaux', async ({ page }, infor
   await ligne.locator('button').filter({ hasText: /^\+$/ }).click();
   await expect(ligne.locator('output')).toHaveText('2');
   await ligne.locator('button').filter({ hasText: /^✓$/ }).click();
+  // Téléphone : l'objet appliqué ramène au Combat ; l'Équipe et le Sac se relisent à part.
+  if (telephone(page)) await page.getByRole('button', { name: 'Équipe', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Bulbizarre, niveau 7', exact: true })).toBeVisible();
-  await expect(sac.getByRole('button', { name: 'Bonbon ×3', exact: true })).toBeVisible();
+  const sacApres = await ouvrirSac(page);
+  await expect(sacApres.getByRole('button', { name: 'Bonbon ×3', exact: true })).toBeVisible();
   await capturer(page, 'sac', informations.project.name);
 });

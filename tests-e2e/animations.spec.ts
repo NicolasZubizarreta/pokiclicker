@@ -43,11 +43,13 @@ test('le contexte audio ne naît qu’au premier geste et le Son coupé reste co
   await page.getByRole('button', { name: /^Attaquer / }).click();
   await expect.poll(() => page.evaluate(() => (window as unknown as { __contextes: number }).__contextes)).toBe(1);
   await page.getByRole('button', { name: 'Menu', exact: true }).click();
-  const interrupteur = page.getByRole('switch', { name: /Son/ });
+  await page.getByRole('button', { name: /^Réglages/ }).click();
+  const interrupteur = page.getByRole('switch', { name: /Effets sonores/ });
   await expect(interrupteur).toHaveAttribute('aria-checked', 'true');
   await interrupteur.click();
   await expect(interrupteur).toHaveAttribute('aria-checked', 'false');
   await page.reload();
   await page.getByRole('button', { name: 'Menu', exact: true }).click();
-  await expect(page.getByRole('switch', { name: /Son/ })).toHaveAttribute('aria-checked', 'false');
+  await page.getByRole('button', { name: /^Réglages/ }).click();
+  await expect(page.getByRole('switch', { name: /Effets sonores/ })).toHaveAttribute('aria-checked', 'false');
 });

@@ -19,14 +19,15 @@ test('le Guide du jeu défile seul, se ferme avec Échap ou la croix et rend le 
   expect(boite!.width).toBeLessThanOrEqual(fenetreVue.width);
 
   // Les 11 sections sont là ; en déplier plusieurs force le défilement interne, jamais celui de la page.
-  // Le Menu est plus long qu'un écran de téléphone : le clic a pu faire défiler la page avant l'ouverture.
-  const defilePage = await page.evaluate(() => window.scrollY);
+  // Le Menu est plus long qu'un écran : le clic fait défiler la page, et le message passager du bandeau (« Nouveau
+  // Pokémon ! ») qui s'efface raccourcit la page. On mesure donc juste avant de faire défiler le guide.
   const sections = fenetre.locator('details');
   await expect(sections).toHaveCount(11);
   for (let i = 0; i < 11; i++) await sections.nth(i).locator('summary').evaluate(el => { (el.parentElement as HTMLDetailsElement).open = true; });
   const contenu = fenetre.locator('[data-guide-contenu]');
   const defilable = await contenu.evaluate(el => el.scrollHeight > el.clientHeight && getComputedStyle(el).overflowY === 'auto');
   expect(defilable).toBe(true);
+  const defilePage = await page.evaluate(() => window.scrollY);
   await contenu.evaluate(el => { el.scrollTop = el.scrollHeight; });
   expect(await page.evaluate(() => getComputedStyle(document.documentElement).overflow)).toBe('hidden');
   expect(await page.evaluate(() => window.scrollY)).toBe(defilePage);

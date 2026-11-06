@@ -3,6 +3,7 @@ import { test, expect } from '@playwright/test';
 import type { Locator, Page } from '@playwright/test';
 import type { DonneesRegion } from '../src/core/sauvegarde';
 import fin from '../data/evenements/fin.json' with { type: 'json' };
+import { telephone } from './aide-carte';
 
 const instant = new Date('2026-10-25T12:00:00Z');
 const evenement = (id: string) => fin.evenements.find(e => e.id === id)!;
@@ -75,6 +76,15 @@ async function lire(page: Page, textes: string[], verifier?: (indice: number, fe
   await expect(fenetre).toHaveCount(0);
 }
 
+// PC : entrée du Menu. Téléphone : bouton de la page Pokédex, qui apparaît quand le Pokédex est complet.
+async function ouvrirDiplome(page: Page) {
+  await page.getByRole('button', { name: 'Menu', exact: true }).click();
+  if (telephone(page)) {
+    await page.getByRole('button', { name: /^Pokédex/ }).click();
+    await page.getByRole('button', { name: /Diplôme du Pokédex/ }).click();
+  } else await page.getByRole('button', { name: 'Diplôme du Pokédex', exact: true }).click();
+}
+
 const sansDefilement = (page: Page) => page.evaluate(() =>
   document.documentElement.scrollWidth <= document.documentElement.clientWidth);
 
@@ -103,8 +113,7 @@ test('Fin : le Pokédex complet fait dire huit répliques à Chen devant le labo
   expect(region.ameliorations.filter(id => id === 'shinyCharm')).toHaveLength(1);
   expect(region.evenementsJoues.filter(id => id === 'kanto.fin-pokedex')).toHaveLength(1);
 
-  await page.getByRole('button', { name: 'Menu', exact: true }).click();
-  await page.getByRole('button', { name: 'Diplôme du Pokédex', exact: true }).click();
+  await ouvrirDiplome(page);
   const diplome = page.getByRole('dialog', { name: 'Diplôme du Pokédex' });
   await expect(diplome).toBeVisible();
   // Nom de la partie créée par défaut.
@@ -122,8 +131,7 @@ test('Fin : le Pokédex complet fait dire huit répliques à Chen devant le labo
   await page.reload();
   await expect(page.getByRole('heading', { name: 'Labo Pokémon du Prof. Chen', level: 1 })).toBeVisible();
   await expect(page.getByRole('dialog', { name: 'Dialogue de scène' })).toHaveCount(0);
-  await page.getByRole('button', { name: 'Menu', exact: true }).click();
-  await page.getByRole('button', { name: 'Diplôme du Pokédex', exact: true }).click();
+  await ouvrirDiplome(page);
   await expect(page.locator('dialog[open] time')).toHaveText('25 octobre 2026');
   await page.keyboard.press('Escape');
   await page.getByRole('button', { name: 'Combat', exact: true }).click();
