@@ -2,6 +2,7 @@
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { PageShop } from './PageShop';
+import { categorieShop, categoriesShop } from './categories-shop';
 import { creerStoreJeu, storeJeu } from './store';
 
 const contexte = vi.hoisted(() => ({ store: null as unknown as typeof storeJeu }));
@@ -38,6 +39,7 @@ function preparer(bossVaincus: string[], argent = 1000000, ameliorations: string
 beforeEach(() => { localStorage.clear(); nouvellePartie(); });
 afterEach(() => {
   cleanup();
+  vi.unstubAllGlobals();
   storeJeu.getState().fermer();
   storeJeu.getState().arreter();
   localStorage.clear();
@@ -60,18 +62,23 @@ it('ouvre en zone 2, affiche seulement le catalogue disponible et filtre les cat
   expect(objets.length).toBeGreaterThan(0);
   expect(screen.getByText(/^1\s000\s000\s₽$/)).toBeTruthy();
   expect(Array.from(container.querySelectorAll('article')).map(c => c.getAttribute('data-objet')).sort())
-    .toEqual(objets.map(o => o.id).sort());
+    .toEqual(objets.filter(o => categorieShop(o) === 'balles').map(o => o.id).sort());
   expect(container.querySelector('[data-objet="hyperball"]')).toBeNull();
-  // Une catégorie sans objet à vendre (Soins avant la zone du Bonbon) n'affiche pas de titre vide.
-  expect(screen.getAllByRole('heading', { level: 2 }).map(h => h.textContent)).toEqual(['Balles', 'Équipement']);
-  for (const [cle, nom] of [['balles', 'Balles'], ['soins', 'Soins'], ['equipement', 'Équipement']]) {
+  expect(screen.getByRole('button', { name: 'Poké Ball' }).getAttribute('aria-pressed')).toBe('true');
+  expect(screen.queryByRole('button', { name: 'Tout' })).toBeNull();
+  expect(screen.queryByRole('button', { name: 'Soins' })).toBeNull();
+  for (const { cle, nom } of categoriesShop) {
     fireEvent.click(screen.getByRole('button', { name: nom }));
     expect(screen.getByRole('button', { name: nom }).getAttribute('aria-pressed')).toBe('true');
     expect(Array.from(container.querySelectorAll('article')).map(c => c.getAttribute('data-objet')).sort())
-      .toEqual(objets.filter(o => o.categorie === cle).map(o => o.id).sort());
+      .toEqual(objets.filter(o => categorieShop(o) === cle).map(o => o.id).sort());
+    if (!objets.some(o => categorieShop(o) === cle)) {
+      expect(screen.getByText("Rien à vendre ici pour l'instant.")).toBeTruthy();
+    }
+    if (cle === 'objets') expect(screen.getByText('Objets à acheter autant de fois que tu veux.')).toBeTruthy();
+    if (cle === 'accessoires') expect(screen.getByText('Objets uniques : un seul achat, un bonus pour toujours.')).toBeTruthy();
   }
-  fireEvent.click(screen.getByRole('button', { name: 'Tout' }));
-  expect(container.querySelectorAll('article')).toHaveLength(objets.length);
+  fireEvent.click(screen.getByRole('button', { name: 'Poké Ball' }));
   expect(container.querySelector('.bg-action')).toBeNull();
   expect(container.textContent).not.toMatch(/manque|panier|Prépare ta route/i);
   for (const cible of screen.getAllByRole('button')) {
@@ -122,7 +129,25 @@ it('affiche Possédé pour une amélioration déjà acquise', () => {
     image: null, categorie: 'equipement' as const, prix: 1000, stock: 0, possede: true, unique: true, abordable: false };
   storeJeu.setState({ boutique: { ...storeJeu.getState().boutique, objets: [objet] } });
   render(<PageShop />);
+  fireEvent.click(screen.getByRole('button', { name: 'Accessoires' }));
   const carte = screen.getByRole('heading', { name: objet.nom }).closest('article')!;
   expect(within(carte).getByText('Possédé')).toBeTruthy();
   expect(within(carte).queryByRole('button')).toBeNull();
+});
+
+it('affiche des lignes compactes sur téléphone et masque le solde', () => {
+  vi.stubGlobal('matchMedia', vi.fn((requete: string) => ({ matches: requete.includes('max-width'), addEventListener: vi.fn(), removeEventListener: vi.fn() })));
+  preparer(['kanto.route-1']);
+  const { container } = render(<PageShop />);
+  expect(screen.getByText(/^1\s000\s000\s₽$/).classList.contains('hidden')).toBe(true);
+  expect(screen.getByText(/^1\s000\s000\s₽$/).classList.contains('lg:block')).toBe(true);
+  expect(container.querySelectorAll('article').length).toBeGreaterThan(0);
+  for (const carte of container.querySelectorAll('article')) {
+    expect(carte.classList.contains('flex-col')).toBe(false);
+    expect(carte.classList.contains('grid')).toBe(true);
+  }
+  for (const bouton of screen.getAllByRole('button')) {
+    expect(bouton.classList.contains('min-h-11')).toBe(true);
+    expect(bouton.classList.contains('min-w-11')).toBe(true);
+  }
 });

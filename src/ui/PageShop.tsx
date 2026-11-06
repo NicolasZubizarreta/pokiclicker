@@ -3,23 +3,18 @@ import { useStore } from 'zustand';
 import { CarteObjet } from './CarteObjet';
 import { FiltreCategories } from './FiltreCategories';
 import { storeJeu } from './store';
-
-const categories = [
-  { cle: 'tout', nom: 'Tout' },
-  { cle: 'balles', nom: 'Balles' },
-  { cle: 'soins', nom: 'Soins' },
-  { cle: 'equipement', nom: 'Équipement' },
-];
+import { categorieShop, categoriesShop } from './categories-shop';
+import { useTelephone } from './useTelephone';
 
 export function PageShop() {
   const boutique = useStore(storeJeu, etat => etat.boutique);
   const argent = useStore(storeJeu, etat => etat.argent);
   const acheter = useStore(storeJeu, etat => etat.acheter);
   const annonce = useStore(storeJeu, etat => etat.annonce);
-  const [choix, choisir] = useState('tout');
-
+  const [choix, choisir] = useState('balles');
+  const telephone = useTelephone();
+  const objets = boutique.objets.filter(objet => categorieShop(objet) === choix);
   return <section className="mx-auto grid max-w-screen-xl gap-4 text-base">
-    {/* L'annonce occupe une ligne de hauteur fixe à droite du titre : elle apparaît sans rien décaler. */}
     <div className="flex min-h-12 items-center justify-between gap-4">
       <h1 tabIndex={-1} className="font-titre text-2xl font-semibold">Shop</h1>
       <div role="status" aria-live="polite" className="min-w-0">
@@ -27,16 +22,15 @@ export function PageShop() {
       </div>
     </div>
     {!boutique.acces.ouvert ? <p className="text-texte-doux">{boutique.acces.raison}</p> : <>
-      <p className="text-region-accent">{argent.toLocaleString('fr-FR')}{'\u00a0₽'}</p>
-      <FiltreCategories categories={categories} choix={choix} choisir={choisir} />
-      {categories.slice(1).filter(c => (choix === 'tout' || choix === c.cle) && boutique.objets.some(objet => objet.categorie === c.cle)).map(categorie =>
-        <section key={categorie.cle} className="grid gap-4">
-          <h2 className="font-titre text-xl font-semibold">{categorie.nom}</h2>
-          <div className="grid grid-cols-1 items-stretch gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {boutique.objets.filter(objet => objet.categorie === categorie.cle).map(objet =>
-              <CarteObjet key={objet.id} {...objet} argent={argent} acheter={quantite => acheter(objet.id, quantite)} />)}
-          </div>
-        </section>)}
+      <p className="hidden text-region-accent lg:block">{argent.toLocaleString('fr-FR')}{' ₽'}</p>
+      <FiltreCategories categories={categoriesShop} choix={choix} choisir={choisir} />
+      {choix === 'objets' && <p className="text-texte-doux">Objets à acheter autant de fois que tu veux.</p>}
+      {choix === 'accessoires' && <p className="text-texte-doux">Objets uniques : un seul achat, un bonus pour toujours.</p>}
+      {objets.length === 0 ? <p className="text-texte-doux">Rien à vendre ici pour l'instant.</p> :
+        <div className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-3">
+          {objets.map(objet =>
+            <CarteObjet key={objet.id} {...objet} compact={telephone} argent={argent} acheter={quantite => acheter(objet.id, quantite)} />)}
+        </div>}
     </>}
   </section>;
 }

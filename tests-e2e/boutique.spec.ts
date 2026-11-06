@@ -33,7 +33,7 @@ async function demarrer(page: Page, argent = 100000) {
   }, argent);
   await page.reload();
   await page.getByRole('button', { name: 'Shop', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Balles', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Poké Ball', exact: true })).toBeVisible();
 }
 
 async function capturer(page: Page, nom: string, projet: string) {
@@ -57,15 +57,15 @@ test('Pokéball ×2 : prix, sauvegarde, filtre et largeur', async ({ page }, inf
   const solde = `${(100000 - 2 * prix).toLocaleString('fr-FR')} ₽`;
   await carte.getByRole('button', { name: 'Plus', exact: true }).click();
   await carte.getByRole('button', { name: 'Acheter ×2', exact: true }).click();
-  await expect(page.locator('#contenu').getByText(solde, { exact: true })).toBeVisible();
+  await expect(page.getByText(solde, { exact: true }).locator('visible=true')).toBeVisible();
   await page.reload();
   await page.getByRole('button', { name: 'Shop', exact: true }).click();
-  await expect(page.locator('#contenu').getByText(solde, { exact: true })).toBeVisible();
+  await expect(page.getByText(solde, { exact: true }).locator('visible=true')).toBeVisible();
   await capturer(page, 'shop', informations.project.name);
   const balles = await page.getByRole('article').filter({ has: page.getByRole('group', { name: /^Quantité de .*ball/i }) }).getByRole('heading').allTextContents();
   expect(balles).toContain('Pokéball');
-  await page.getByRole('button', { name: 'Balles', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'Balles', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await page.getByRole('button', { name: 'Poké Ball', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Poké Ball', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(page.getByRole('article').getByRole('heading')).toHaveText(balles);
   await page.getByRole('button', { name: 'Équipe', exact: true }).click();
   await expect(page.getByRole('region', { name: 'Sac', exact: true }).getByRole('button', { name: 'Pokéball ×2', exact: true })).toBeVisible();
@@ -73,12 +73,14 @@ test('Pokéball ×2 : prix, sauvegarde, filtre et largeur', async ({ page }, inf
 
 test('Protéine unique conservée au rechargement', async ({ page }) => {
   await demarrer(page);
+  await page.getByRole('button', { name: 'Accessoires', exact: true }).click();
   const proteine = page.getByRole('article').filter({ has: page.getByRole('heading', { name: 'Protéine', exact: true }) });
   await proteine.getByRole('button', { name: 'Acheter ×1', exact: true }).click();
   await expect(proteine.getByText('Possédé', { exact: true })).toBeVisible();
   await expect(proteine.getByRole('button', { name: /^Acheter/ })).toHaveCount(0);
   await page.reload();
   await page.getByRole('button', { name: 'Shop', exact: true }).click();
+  await page.getByRole('button', { name: 'Accessoires', exact: true }).click();
   await expect(proteine.getByText('Possédé', { exact: true })).toBeVisible();
   await expect(proteine.getByRole('button', { name: /^Acheter/ })).toHaveCount(0);
 });

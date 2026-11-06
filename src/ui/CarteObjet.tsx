@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { reglages } from '../core/reglages';
 import { IconeObjet } from './icones';
 
-export function CarteObjet({ id, nom, description, image, prix, stock, possede, unique, abordable, argent, acheter }: {
+export function CarteObjet({ id, nom, description, image, prix, stock, possede, unique, abordable, argent, acheter, compact = false }: {
+  compact?: boolean;
   id: string;
   nom: string;
   description: string;
@@ -18,6 +19,33 @@ export function CarteObjet({ id, nom, description, image, prix, stock, possede, 
   const [quantite, changer] = useState(1);
   const acquis = unique && possede;
   const bouton = 'cadre min-h-11 min-w-11 bg-surface p-3';
+
+  const prixTexte = acquis ? 'Possédé' : `${prix.toLocaleString('fr-FR')} ₽`;
+  if (compact) {
+    // Téléphone : une ligne icône | nom et effet | prix. Objet unique : le prix est le bouton d'achat.
+    const achatUnique = unique && !acquis;
+    return <article data-objet={id} className="cadre grid min-w-0 grid-cols-[auto_1fr_auto] items-center gap-x-3 gap-y-2 bg-surface p-3 text-base text-texte tabular-nums">
+      <IconeObjet image={image} nom={nom} />
+      <div className="min-w-0">
+        <h3 className="break-words font-titre text-base">{nom}</h3>
+        <p className="break-words text-sm text-texte-doux">{description}{stock > 0 && <> · ×{stock}</>}</p>
+      </div>
+      {achatUnique
+        ? <button type="button" aria-label="Acheter ×1" className={bouton} disabled={!abordable || prix > argent}
+          onClick={() => acheter(1)}>{prixTexte}</button>
+        : <strong className={acquis ? 'cadre border-dashed px-3 py-2 text-texte-doux' : ''}>{prixTexte}</strong>}
+      {!unique && <div role="group" aria-label={`Quantité de ${nom}`} className="col-span-3 flex flex-wrap items-center gap-3">
+        <button type="button" aria-label="Moins" className={bouton} disabled={quantite <= 1}
+          onClick={() => changer(q => Math.max(1, q - 1))}>−</button>
+        <output aria-label="Quantité">{quantite}</output>
+        <button type="button" aria-label="Plus" className={bouton} disabled={quantite >= reglages.boutique.quantiteMax}
+          onClick={() => changer(q => Math.min(reglages.boutique.quantiteMax, q + 1))}>+</button>
+        <output aria-label="Total" className="text-region-accent">= {(prix * quantite).toLocaleString('fr-FR')}{' ₽'}</output>
+        <button type="button" className={`${bouton} ml-auto`} disabled={!abordable || prix * quantite > argent}
+          onClick={() => acheter(quantite)}>Acheter ×{quantite}</button>
+      </div>}
+    </article>;
+  }
 
   return <article data-objet={id} className="cadre flex min-w-0 flex-col gap-4 bg-surface p-4 text-base text-texte tabular-nums">
     <div className="flex min-w-0 items-center gap-3">
