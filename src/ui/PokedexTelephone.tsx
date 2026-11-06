@@ -78,7 +78,7 @@ export function PokedexTelephone({ retour, ouvrirDiplome }: { retour(): void; ou
         className="flex-1 cadre min-h-11 bg-surface aria-pressed:bg-selection">{valeur}</button>)}
     </div>
     <p role="status" className="text-texte-doux">{numeros.length} {numeros.length === 1 ? 'espèce affichée' : 'espèces affichées'}</p>
-    {numeros.length === 0 && <div role="status" className="cadre border-dashed p-4 text-center">
+    {numeros.length === 0 && <div className="cadre border-dashed p-4 text-center">
       {recherche ? <><p>Aucune espèce capturée ne correspond à « {saisie} ».</p>
         <p className="text-texte-doux">Les espèces non capturées restent cachées : cherche-les par leur numéro.</p></>
         : <p>Rien à montrer avec ce filtre.</p>}

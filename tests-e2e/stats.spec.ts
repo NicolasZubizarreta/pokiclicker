@@ -19,7 +19,7 @@ test('statistiques depuis Menu : sauvegarde, défilement interne et fermeture', 
   const fenetre = page.getByRole('dialog', { name: 'Statistiques' });
   await expect(fenetre).toBeVisible();
   await expect(fenetre.getByRole('region', { name: 'Pokémon vaincus' })).toContainText('123');
-  await expect(fenetre.getByRole('region', { name: 'Argent total' })).toContainText(/4\s567 \$/);
+  await expect(fenetre.getByRole('region', { name: 'Argent total' })).toContainText(/4\s567\s₽/);
   await expect(fenetre.getByRole('region')).toHaveCount(7);
   const boite = (await fenetre.boundingBox())!;
   expect(boite.width).toBeLessThanOrEqual(page.viewportSize()!.width);

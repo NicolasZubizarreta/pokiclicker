@@ -31,7 +31,7 @@ export function CarteObjet({ id, nom, description, image, prix, stock, possede, 
         <p className="break-words text-sm text-texte-doux">{description}{stock > 0 && <> · ×{stock}</>}</p>
       </div>
       {achatUnique
-        ? <button type="button" aria-label="Acheter ×1" className={bouton} disabled={!abordable || prix > argent}
+        ? <button type="button" aria-label={`Acheter ×1, ${prixTexte}`} className={bouton} disabled={!abordable || prix > argent}
           onClick={() => acheter(1)}>{prixTexte}</button>
         : <strong className={acquis ? 'cadre border-dashed px-3 py-2 text-texte-doux' : ''}>{prixTexte}</strong>}
       {!unique && <div role="group" aria-label={`Quantité de ${nom}`} className="col-span-3 flex flex-wrap items-center gap-3">

@@ -75,7 +75,7 @@ test('Protéine unique conservée au rechargement', async ({ page }) => {
   await demarrer(page);
   await page.getByRole('button', { name: 'Accessoires', exact: true }).click();
   const proteine = page.getByRole('article').filter({ has: page.getByRole('heading', { name: 'Protéine', exact: true }) });
-  await proteine.getByRole('button', { name: 'Acheter ×1', exact: true }).click();
+  await proteine.getByRole('button', { name: /^Acheter ×1/ }).click();
   await expect(proteine.getByText('Possédé', { exact: true })).toBeVisible();
   await expect(proteine.getByRole('button', { name: /^Acheter/ })).toHaveCount(0);
   await page.reload();
@@ -88,7 +88,7 @@ test('Protéine unique conservée au rechargement', async ({ page }) => {
 test('Objet trop cher : achat désactivé sans texte superflu', async ({ page }) => {
   await demarrer(page, 0);
   const carte = page.getByRole('article').filter({ has: page.getByRole('heading', { name: 'Pokéball', exact: true }) });
-  await expect(carte.getByRole('button', { name: 'Acheter ×1', exact: true })).toBeDisabled();
+  await expect(carte.getByRole('button', { name: /^Acheter ×1/ })).toBeDisabled();
   await expect(page.getByText(/manque|panier|Prépare/)).toHaveCount(0);
 });
 
