@@ -1570,5 +1570,17 @@
   "img/fin/vol-5.webp": {
     "largeur": 236,
     "hauteur": 276
+  },
+  "img/easter-eggs/gabriel-stade-1.webp": {
+    "largeur": 288,
+    "hauteur": 288
+  },
+  "img/easter-eggs/gabriel-stade-2.webp": {
+    "largeur": 288,
+    "hauteur": 288
+  },
+  "img/easter-eggs/gabriel-stade-3.webp": {
+    "largeur": 288,
+    "hauteur": 288
   }
 }

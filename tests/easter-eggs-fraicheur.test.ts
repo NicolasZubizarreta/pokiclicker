@@ -13,6 +13,15 @@ it('le registre et la fixture des easter eggs sont ceux extraits de la V1', asyn
   expect(sortie.stdout).toMatch(/Empreinte SHA-256 : [a-f0-9]{64}/);
 }, 30_000);
 
+it('toute image d’easter egg actif est dans tailles.json, au même format carré que celles de Daran', async () => {
+  const lire = async (chemin: string) => JSON.parse(await readFile(fileURLToPath(new URL(chemin, import.meta.url)), 'utf8'));
+  const { effets } = await lire('../data/easter-eggs.json') as { effets: { inactif: boolean; assets: string[] }[] };
+  const tailles = await lire('../public/img/tailles.json') as Record<string, { largeur: number; hauteur: number }>;
+  const images = effets.filter(e => !e.inactif).flatMap(e => e.assets).filter(a => a.endsWith('.webp'));
+  expect(images.length).toBeGreaterThanOrEqual(6);
+  for (const image of images) expect(tailles[image], image).toEqual({ largeur: 288, hauteur: 288 });
+});
+
 it('relève les 151 stades, les six sites V1 et les effets actifs (quatre de la V1, plus Gabriel ajouté le 05/11)', async () => {
   const lire = async (chemin: string) => JSON.parse(await readFile(new URL(chemin, import.meta.url), 'utf8'));
   const registre = await lire('../data/easter-eggs.json');
