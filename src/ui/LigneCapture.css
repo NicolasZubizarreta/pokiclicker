@@ -1,0 +1,13 @@
+.ligne-capture {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: calc(var(--spacing) * 2);
+}
+
+.ligne-capture-balle {
+  justify-content: flex-start;
+  text-align: left;
+  min-height: calc(var(--spacing) * 14);
+  padding-inline: calc(var(--spacing) * 3);
+  line-height: var(--text-sm--line-height);
+}

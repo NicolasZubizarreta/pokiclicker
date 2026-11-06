@@ -1,0 +1,55 @@
+/* Plaques du combat sur téléphone (maquette a5 : design/variantes/navigation-telephone/a5-app.html, .plaque). */
+.plaque {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--spacing) * 2);
+  min-height: calc(var(--spacing) * 12);
+  min-width: calc(var(--spacing) * 12);
+  padding: var(--spacing) calc(var(--spacing) * 3);
+  background: var(--surface-2);
+  color: var(--texte);
+  border: calc(var(--spacing) / 2) solid var(--bordure);
+  box-shadow: var(--shadow-md);
+  transition: transform var(--duration-rapide) var(--ease-standard), box-shadow var(--duration-rapide) var(--ease-standard);
+}
+.plaque:active:not([aria-disabled="true"], :disabled) {
+  transform: translateY(calc(var(--spacing) / 2));
+  box-shadow: var(--shadow-sm);
+}
+.plaque[aria-pressed="true"] {
+  background: var(--selection);
+  border-color: var(--region-accent);
+  color: var(--region-accent);
+}
+.plaque:disabled,
+.plaque[aria-disabled="true"] { opacity: 0.5; cursor: default; }
+.plaque-action {
+  background: var(--action);
+  color: var(--action-texte);
+  border-color: var(--action-survol);
+  font-weight: 700;
+}
+.plaque-action:active:not(:disabled) { background: var(--action-survol); }
+.plaque-vertical {
+  flex-direction: column;
+  gap: 0;
+  min-height: calc(var(--spacing) * 14);
+  padding: var(--spacing);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+.pastille-sac {
+  position: absolute;
+  top: calc(var(--spacing) * -2);
+  right: calc(var(--spacing) * -1);
+  min-width: calc(var(--spacing) * 6);
+  padding-inline: var(--spacing);
+  background: var(--info-fond);
+  color: var(--info-texte);
+  border: calc(var(--spacing) / 2) solid var(--info-base);
+  font-size: var(--text-xs);
+  line-height: var(--text-sm--line-height);
+  text-align: center;
+}
