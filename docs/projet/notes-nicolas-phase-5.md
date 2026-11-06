@@ -23,6 +23,12 @@ le bouton lié l'auto clic est activé de base et finalement il est dans les ré
 la partie 1/10 avec les flèches précédent suivant doit etre la que dans la zone de combat pas dans les autres menu ça prend de la place pour rien.
 Le PC c'est bien juste c'est pas vraiment de maquettage plutot une fonctionnalité mais il faut un trie par DPS(du plus grand au plus petit). La fiche pokémon c'est bien mais pourquoi le bouton favori et plus gros que les autres il devrait etre de la même taille la c'est diforme par rapport au reste de la ligne, au contraire l'icone sexe du pokémon est un peu trop petite on voit quasiment pas les traits. Autre détail les types devrait être de la couleur qu'ils ont dans le jeu plutot que tous des cadres gris. Le reste je valide tout
 
+## 06/11/2026, liaison de l'auto-clic
+
+oui la liaison autoclic et aussi valable sur PC
+
+(Réponse à la question du lot 3 : le réglage « Lier l'auto-clic à l'attaque auto » vaut sur téléphone et sur PC.)
+
 ## 05/11/2026, détails d'interface sur PC
 
 (à dicter : Nicolas teste avec `npm.cmd run partie-test`)
