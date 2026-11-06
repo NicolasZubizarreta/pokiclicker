@@ -57,7 +57,7 @@ test('Sac : fenêtre depuis le Combat, objet vers un Pokémon, annulation et ret
   await expect(page.getByRole('region', { name: 'Sac', exact: true })).toHaveCount(0);
   await capturer(page, 'choix');
   // Annuler rouvre le Sac, là où l'on était (Combat).
-  await bandeau.getByRole('button', { name: 'Annuler', exact: true }).click();
+  await page.getByRole('button', { name: 'Annuler', exact: true }).click();
   await expect(fenetreSac(page)).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Ton équipe', level: 1 })).toHaveCount(0);
   // Appliquer l'objet : retour sur le Combat, fenêtre fermée, Pierre Stase posée.
