@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { accesPc, filtrerPc, normaliserRecherche, trierPc } from './pc';
+import { accesPc, dpsPc, filtrerParAttributs, filtrerPc, normaliserRecherche, trierPc } from './pc';
+import { detailDps } from './equipe';
 import type { TriPc } from './pc';
 import type { EtatMonde } from './conditions';
 import { kanto } from './regions';
@@ -20,6 +21,51 @@ const pc = Object.freeze([
 ]);
 const nomDe = (p: typeof pc[number]) => p.nom;
 const uids = (liste: readonly PokemonPossede[]) => liste.map(p => p.uid);
+
+describe('DPS du PC', () => {
+  it('multiplie les facteurs sans bonus de type, avec le bonus shiny', () => {
+    const normal = pokemon('normal', 25, 10, 'Pikachu');
+    const shiny = { ...normal, shiny: true };
+    for (const p of [normal, shiny]) {
+      expect(dpsPc(p)).toBe(Object.values(detailDps(p, 1)).reduce((produit, facteur) => produit * facteur, 1));
+    }
+    expect(dpsPc(shiny)).toBe(dpsPc(normal) * detailDps(shiny, 1).shiny);
+    expect(dpsPc({ ...shiny, oeuf: true })).toBe(0);
+  });
+
+  it('trie par DPS decroissant, puis numero et niveau, avec les oeufs en dernier', () => {
+    const faible = pokemon('faible', 25, 1, 'Pikachu');
+    const fort = pokemon('fort', 25, 100, 'Pikachu');
+    const egal1 = pokemon('egal1', 1, 0, 'Bulbizarre');
+    const egal2 = pokemon('egal2', 2, 0, 'Herbizarre');
+    const oeuf = { ...fort, uid: 'oeuf', oeuf: true };
+    const liste = Object.freeze([oeuf, egal2, faible, fort, egal1]);
+    expect(dpsPc(egal1)).toBe(dpsPc(egal2));
+    expect(uids(trierPc(liste, 'dps', p => p.nom))).toEqual(['fort', 'faible', 'egal1', 'egal2', 'oeuf']);
+    expect(uids(liste)).toEqual(['oeuf', 'egal2', 'faible', 'fort', 'egal1']);
+  });
+});
+
+describe('filtrerParAttributs', () => {
+  it.each([
+    [{ favori: false, shiny: false, oeuf: false }, ['a', 'b', 'c', 'd', 'e', 'f', 'g']],
+    [{ favori: true, shiny: false, oeuf: false }, ['b', 'd', 'g']],
+    [{ favori: false, shiny: true, oeuf: false }, ['c', 'd', 'f']],
+    [{ favori: true, shiny: true, oeuf: false }, ['d']],
+  ])('combine les filtres actifs : %o', (filtres, attendu) => {
+    const resultat = filtrerParAttributs(pc, filtres);
+    expect(uids(resultat)).toEqual(attendu);
+    expect(resultat).not.toBe(pc);
+  });
+
+  it('filtre les oeufs et combine leurs attributs', () => {
+    const oeuf = { ...pc[0], uid: 'oeuf', oeuf: true };
+    const oeufFavori = { ...oeuf, uid: 'favori', favori: true };
+    const liste = [pc[0], oeuf, oeufFavori];
+    expect(uids(filtrerParAttributs(liste, { favori: false, shiny: false, oeuf: true }))).toEqual(['oeuf', 'favori']);
+    expect(uids(filtrerParAttributs(liste, { favori: true, shiny: false, oeuf: true }))).toEqual(['favori']);
+  });
+});
 
 describe('trierPc', () => {
   it.each<[TriPc, string[]]>([

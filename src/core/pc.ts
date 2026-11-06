@@ -2,14 +2,24 @@ import type { EtatMonde, ResultatCondition } from './conditions';
 import type { chargerMonde } from './monde';
 import { reglages } from './reglages';
 import type { PokemonPossede } from './sauvegarde-types';
+import { detailDps } from './equipe';
 
-export type TriPc = 'numero' | 'nom' | 'niveau' | 'favori' | 'shiny';
+export type TriPc = 'dps' | 'numero' | 'nom' | 'niveau' | 'favori' | 'shiny';
+
+export function dpsPc(pokemon: PokemonPossede): number {
+  return pokemon.oeuf ? 0 : Object.values(detailDps(pokemon, 1)).reduce((produit, facteur) => produit * facteur, 1);
+}
+
+export function filtrerParAttributs<P extends PokemonPossede>(pc: readonly P[], filtres: { favori: boolean; shiny: boolean; oeuf: boolean }): P[] {
+  return pc.filter(pokemon => (!filtres.favori || pokemon.favori) && (!filtres.shiny || pokemon.shiny) && (!filtres.oeuf || pokemon.oeuf));
+}
 
 const collateur = new Intl.Collator('fr');
 
 export function trierPc<P extends PokemonPossede>(pc: readonly P[], tri: TriPc, nomDe: (pokemon: P) => string): P[] {
   return [...pc].sort((a, b) => {
     switch (tri) {
+      case 'dps': return Number(!!a.oeuf) - Number(!!b.oeuf) || dpsPc(b) - dpsPc(a) || a.numero - b.numero || b.niveau - a.niveau;
       case 'numero': return a.numero - b.numero || b.niveau - a.niveau;
       case 'nom': return collateur.compare(nomDe(a), nomDe(b)) || b.niveau - a.niveau;
       case 'niveau': return b.niveau - a.niveau || a.numero - b.numero;
