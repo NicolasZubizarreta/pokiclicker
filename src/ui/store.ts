@@ -157,7 +157,8 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
   let pokedex: readonly number[] = [];
   let persistance: ReturnType<typeof ouvrirPartie>;
   let preferences: PreferencesCombat = structuredClone(reglages.depart.preferences);
-  const optionsCombat = () => ({ autoAttaque: preferences.autoAttaque, arret: preferences.arretAuto, pokedex });
+  const optionsCombat = () => ({ autoAttaque: preferences.autoAttaque, arret: preferences.arretAuto, pokedex,
+    autoClic: preferences.autoClicLie && region.ameliorations.includes('leftovers') && preferences.autoAttaque });
   const lieuDe = (id: string): ZoneMonde => {
     if (id !== 'kanto.labo') return kanto.zone(id);
     const labo = kanto.lieu('labo');
@@ -924,11 +925,21 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       if (!initialise) return;
       preferences = { ...preferences, autoAttaque: !preferences.autoAttaque };
       if (coeur) coeur = basculerAutoAttaque(coeur, preferences.autoAttaque);
+      if (preferences.autoClicLie && region.ameliorations.includes('leftovers') && coeur) {
+        coeur = basculerAutoClic(coeur, preferences.autoAttaque);
+        resteAutoClicMs = 0;
+      }
       enregistrer(); afficher();
     },
     reglerAutoClicLie(actif) {
       if (!initialise) return;
       preferences = { ...preferences, autoClicLie: actif };
+      if (!actif && coeur?.autoClic) {
+        coeur = basculerAutoClic(coeur, false);
+        resteAutoClicMs = 0;
+      } else if (actif && coeur && region.ameliorations.includes('leftovers') && coeur.autoAttaque) {
+        coeur = basculerAutoClic(coeur, true);
+      }
       enregistrer(); afficher();
     },
     sauvegarder() {
