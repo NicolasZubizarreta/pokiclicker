@@ -5,6 +5,11 @@ import { Diplome } from './Diplome';
 import { Guide } from './Guide';
 import { Statistiques } from './Statistiques';
 import { Pokedex } from './Pokedex';
+import { PokedexTelephone } from './PokedexTelephone';
+import { BadgesTelephone } from './BadgesTelephone';
+import { StatistiquesPage } from './StatistiquesPage';
+import { GuidePage } from './GuidePage';
+import { useTelephone } from './useTelephone';
 import { storeJeu } from './store';
 import { PC } from './icones';
 import { formaterProchainPalier } from './store-progression';
@@ -47,7 +52,8 @@ export function PagePlus({ ouvrirPC, ouvrirMonde, menuPrincipal, attendreEnvoi }
   const [diplomeOuvert, ouvrirDiplome] = useState(false);
   const [guideOuvert, ouvrirGuide] = useState(false);
   const [statsOuvertes, ouvrirStats] = useState(false);
-  const [sousPage, choisir] = useState<null | 'pokedex' | 'badges' | 'reglages'>(null);
+  const [sousPage, choisir] = useState<null | 'pokedex' | 'badges' | 'reglages' | 'stats' | 'guide'>(null);
+  const telephone = useTelephone();
   const progression = useStore(storeJeu, etat => etat.progression);
   const lieu = useStore(storeJeu, etat => etat.lieu);
   const [sauvegarde, definirSauvegarde] = useState<'repos' | 'enCours' | 'succes' | 'local' | 'echec'>('repos');
@@ -90,7 +96,7 @@ export function PagePlus({ ouvrirPC, ouvrirMonde, menuPrincipal, attendreEnvoi }
   const conteneur = useRef<HTMLDivElement>(null);
 
   const monte = useRef(false);
-  const entree = useRef<'pokedex' | 'badges' | 'reglages'>('pokedex');
+  const entree = useRef<'pokedex' | 'badges' | 'reglages' | 'stats' | 'guide'>('pokedex');
   useEffect(() => {
     // Pas de déplacement du focus au premier rendu : seul le changement de sous-page compte.
     if (!monte.current) { monte.current = true; return; }
@@ -100,7 +106,12 @@ export function PagePlus({ ouvrirPC, ouvrirMonde, menuPrincipal, attendreEnvoi }
   }, [sousPage]);
 
   return <div ref={conteneur}>
-    {sousPage === 'pokedex' ? <Pokedex retour={() => choisir(null)} />
+    {sousPage === 'pokedex' ? telephone
+        ? <PokedexTelephone retour={() => choisir(null)} ouvrirDiplome={diplome ? () => ouvrirDiplome(true) : undefined} />
+        : <Pokedex retour={() => choisir(null)} />
+        : sousPage === 'stats' ? <StatistiquesPage retour={() => choisir(null)} />
+        : sousPage === 'guide' ? <GuidePage retour={() => choisir(null)} />
+        : sousPage === 'badges' && telephone ? <BadgesTelephone badges={progression.badges} retour={() => choisir(null)} />
         : sousPage === 'badges' ? <section className="mx-auto max-w-screen-xl space-y-4 text-base">
           <button type="button" onClick={() => choisir(null)}
             className="min-h-11 bg-surface-2 px-4 py-2 hover:bg-selection">Retour</button>
@@ -135,10 +146,12 @@ export function PagePlus({ ouvrirPC, ouvrirMonde, menuPrincipal, attendreEnvoi }
           </LigneMenu>
           <LigneMenu icone={<IconeBadges />} titre="Badges" sousTexte={`${progression.obtenus} sur ${progression.total}`}
             entree="badges" onClick={() => { entree.current = 'badges'; choisir('badges'); }} />
-          <LigneMenu icone={<IconeStats />} titre="Statistiques" sousTexte="Dégâts, DPS et gains" onClick={() => ouvrirStats(true)} />
-          {diplome && <LigneMenu icone={<IconePokedex />} titre="Diplôme du Pokédex" onClick={() => ouvrirDiplome(true)} />}
+          <LigneMenu icone={<IconeStats />} titre="Statistiques" sousTexte="Dégâts, DPS et gains" entree="stats"
+            onClick={() => { if (telephone) { entree.current = 'stats'; choisir('stats'); } else ouvrirStats(true); }} />
+          {diplome && !telephone && <LigneMenu icone={<IconePokedex />} titre="Diplôme du Pokédex" onClick={() => ouvrirDiplome(true)} />}
           <h2 className="font-titre text-lg text-region-accent">Aide et réglages</h2>
-          <LigneMenu icone={<IconeGuide />} titre="Guide du jeu" onClick={() => ouvrirGuide(true)} />
+          <LigneMenu icone={<IconeGuide />} titre="Guide du jeu" entree="guide"
+            onClick={() => { if (telephone) { entree.current = 'guide'; choisir('guide'); } else ouvrirGuide(true); }} />
           <LigneMenu icone={<IconeReglages />} titre="Réglages" entree="reglages"
             onClick={() => { entree.current = 'reglages'; choisir('reglages'); }} />
           {menuPrincipal && <LigneMenu icone={<IconeSortie />} titre="Menu principal"

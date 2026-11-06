@@ -71,7 +71,7 @@ async function capturer(page: Page, nom: string) {
 
 async function vaincre(page: Page) {
   await expect(page.getByText('Étape 10 sur 10', { exact: true })).toBeVisible();
-  await page.getByRole('button', { name: 'Auto-attaque', exact: true }).click();
+  await page.getByRole('button', { name: /^(Auto-attaque|Attaque auto)$/ }).click();
   await page.getByRole('button', { name: /^Attaquer / }).focus();
   const annonce = page.getByRole('status').filter({ hasText: 'Badge Roche obtenu !' });
   for (let tick = 0; tick < 100 && !await annonce.isVisible(); tick++) {
@@ -113,7 +113,8 @@ test('Argenta : annonce, boîte, claque, fermeture et badge conservé', async ({
   await capturer(page, 'plus');
   await page.getByRole('button', { name: 'Badges', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Badges', exact: true })).toBeFocused();
-  await expect(page.getByRole('button', { name: 'Badge Roche', exact: true }).last()).toHaveClass(/badge-obtenu/);
+  const carteRoche = page.getByRole('button', { name: /^Badge Roche/ }).last();
+  await expect(carteRoche).toHaveClass(/badge-obtenu|border-succes-base/);
   await capturer(page, 'badges');
 });
 

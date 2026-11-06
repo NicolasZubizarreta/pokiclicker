@@ -238,11 +238,14 @@ Nicolas a « quelques détails » en tête sur la version PC : il les liste (voi
 ### Critères d'acceptation
 - [ ] Étant donné les variantes pour `PageShop`, `Pokedex`, `PagePlus` et ses sous-pages, quand Nicolas choisit, alors les choix sont notés dans `design/DESIGN.md`.
 - [ ] Étant donné le Pokédex, quand un Pokémon est vu mais pas capturé, alors l'écran distingue clairement « capturé », « vu » et « inconnu ».
-- [ ] Étant donné la boutique à 390 px, quand j'achète un objet, alors le prix, le solde et la quantité tiennent sur l'écran sans défilement horizontal.
+- [x] Étant donné la boutique à 390 px, quand j'achète un objet, alors le prix, le solde et la quantité tiennent sur l'écran sans défilement horizontal. (Lot 5 : trois catégories, solde dans le bandeau du haut, lignes compactes, aucun défilement horizontal à 360, 390 et 430 px.)
 - [ ] Étant donné les réglages, quand je les ouvre, alors ils sont regroupés par thème (son, combat, compte) avec des cibles de 48 px.
 
 ### Effort et risques
 2 à 3 jours.
+
+### Avancement
+Lot 5 fait (06/11), partie Shop, Pokédex, Badges, Statistiques, Guide : sous 1024 px, Shop en trois catégories (Poké Ball, Objets, Accessoires ; plus de « Soin », répartition d'après `categorie` et `unique`, prix et effets inchangés), lignes compactes, solde non répété ; Pokédex, Badges, Statistiques et Guide en pages avec bouton retour vers le Menu, d'après `a5-app.html` ; le Diplôme du Pokédex passe du Menu à la page Pokédex ; l'argent total des Statistiques s'écrit en ₽ (PC compris). Le PC (≥ 1024 px) garde ses composants et ses fenêtres. Écarts avec la maquette : pas de ligne « Champion » (absente de `data/badges.json`), pas d'état « vu » (le jeu ne l'enregistre pas : seuls capturé et inconnu existent, d'où la case « vu mais pas capturé » du premier critère laissée ouverte), quantité par pas (− / +) conservée sur les objets non uniques. Restent du ticket J : réglages (lot 2).
 
 ## K. `feat(ui): carte, centre commercial, casino et pension`
 
