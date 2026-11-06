@@ -21,6 +21,8 @@ const tris: [TriPc, string][] = [
   ['numero', 'Numéro'], ['nom', 'Nom'], ['niveau', 'Niveau'], ['favori', 'Favori'], ['shiny', 'Shiny'],
 ];
 
+const optionsTri: [TriPc, string][] = [['dps', 'DPS, du plus grand au plus petit'], ['numero', 'Numéro du Pokédex'], ['nom', 'Nom, de A à Z'], ['niveau', 'Niveau, du plus haut au plus bas'], ['favori', "Favoris d'abord"], ['shiny', "Shiny d'abord"]];
+
 export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleRetour?: string }) {
   const telephone = useTelephone();
   const pc = useStore(storeJeu, etat => etat.pc);
@@ -103,7 +105,7 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
       <div className="mt-4 grid min-w-0 items-start gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
       <div className="grid min-w-0 gap-4">
         {telephone ? <div><label htmlFor="tri-pc">Trie par</label><select id="tri-pc" value={tri} onChange={event => trier(event.target.value as TriPc)} className="min-h-12 w-full border border-bordure bg-fond px-3 font-bold text-texte">
-          {(['DPS, du plus grand au plus petit', 'Numéro du Pokédex', 'Nom, de A à Z', 'Niveau, du plus haut au plus bas', "Favoris d'abord", "Shiny d'abord"]).map((texte, index) => <option key={tris[index][0]} value={tris[index][0]}>{texte}</option>)}
+          {optionsTri.map(([valeur, texte]) => <option key={valeur} value={valeur}>{texte}</option>)}
         </select></div> : <div role="group" aria-label="Trie les Pokémon" className="flex flex-wrap items-center gap-2">
           <span>Trie par :</span>
           {tris.map(([valeur, texte]) => <button key={valeur} type="button" aria-pressed={tri === valeur}

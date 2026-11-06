@@ -30,7 +30,7 @@ describe('DPS du PC', () => {
       expect(dpsPc(p)).toBe(Object.values(detailDps(p, 1)).reduce((produit, facteur) => produit * facteur, 1));
     }
     expect(dpsPc(shiny)).toBe(dpsPc(normal) * detailDps(shiny, 1).shiny);
-    expect(dpsPc({ ...shiny, oeuf: true })).toBe(0);
+    expect(dpsPc({ ...shiny, oeuf: { pasRestants: 5, pasMax: 5 } })).toBe(0);
   });
 
   it('trie par DPS decroissant, puis numero et niveau, avec les oeufs en dernier', () => {
@@ -38,7 +38,7 @@ describe('DPS du PC', () => {
     const fort = pokemon('fort', 25, 100, 'Pikachu');
     const egal1 = pokemon('egal1', 1, 0, 'Bulbizarre');
     const egal2 = pokemon('egal2', 2, 0, 'Herbizarre');
-    const oeuf = { ...fort, uid: 'oeuf', oeuf: true };
+    const oeuf = { ...fort, uid: 'oeuf', oeuf: { pasRestants: 5, pasMax: 5 } };
     const liste = Object.freeze([oeuf, egal2, faible, fort, egal1]);
     expect(dpsPc(egal1)).toBe(dpsPc(egal2));
     expect(uids(trierPc(liste, 'dps', p => p.nom))).toEqual(['fort', 'faible', 'egal1', 'egal2', 'oeuf']);
@@ -59,9 +59,9 @@ describe('filtrerParAttributs', () => {
   });
 
   it('filtre les oeufs et combine leurs attributs', () => {
-    const oeuf = { ...pc[0], uid: 'oeuf', oeuf: true };
+    const oeuf = { ...pc[0]!, uid: 'oeuf', oeuf: { pasRestants: 5, pasMax: 5 } };
     const oeufFavori = { ...oeuf, uid: 'favori', favori: true };
-    const liste = [pc[0], oeuf, oeufFavori];
+    const liste = [pc[0]!, oeuf, oeufFavori];
     expect(uids(filtrerParAttributs(liste, { favori: false, shiny: false, oeuf: true }))).toEqual(['oeuf', 'favori']);
     expect(uids(filtrerParAttributs(liste, { favori: true, shiny: false, oeuf: true }))).toEqual(['favori']);
   });

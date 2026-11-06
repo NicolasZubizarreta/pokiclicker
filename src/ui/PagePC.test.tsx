@@ -1,4 +1,4 @@
-// @vitest-environment jsdom
+﻿// @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { chargerPokemon } from '../core/pokemon';
@@ -34,14 +34,14 @@ it('trie par DPS et montre les DPS seulement pour ce tri', () => {
   render(<PagePC />);
   expect(cartes().map(c => c.getAttribute('aria-label'))).toEqual(trierPc(pc, 'dps', nomDe).map(p => `${nomDe(p)}, niveau ${p.niveau}`));
   expect(within(cartes()[0]!).getByText(/ DPS$/)).toBeTruthy();
-  fireEvent.click(screen.getByRole('button', { name: 'Numéro', exact: true }));
+  fireEvent.click(screen.getByRole('button', { name: 'Numéro' }));
   expect(within(cartes()[0]!).queryByText(/ DPS$/)).toBeNull();
 });
 
 it.each(['Favoris', 'Shiny', 'Œufs'])('filtre %s et efface les filtres et la recherche', filtre => {
   storeJeu.setState({ pc: pc.slice(0, 3) });
   render(<PagePC />);
-  fireEvent.click(screen.getAllByRole('button', { name: filtre, exact: true, pressed: false }).find(b => !b.closest('[aria-label="Trie les Pokémon"]'))!);
+  fireEvent.click(screen.getAllByRole('button', { name: filtre, pressed: false }).find(b => !b.closest('[aria-label="Trie les Pokémon"]'))!);
   expect(screen.getByRole('button', { name: filtre, pressed: true })).toBeTruthy();
   if (filtre === 'Œufs') expect(screen.getByText('Aucun Pokémon ne correspond à ces filtres.')).toBeTruthy();
   else expect(screen.getByText('1 sur 3 Pokémon')).toBeTruthy();
@@ -228,7 +228,7 @@ it('présente le détail choisi, ses DPS sans type et six emplacements par affic
 
 it('place le Pokémon dans une équipe incomplète et sélectionne le suivant', () => {
   render(<PagePC retour={vi.fn()} />);
-  fireEvent.click(screen.getByRole('button', { name: 'Numéro', exact: true }));
+  fireEvent.click(screen.getByRole('button', { name: 'Numéro' }));
   fireEvent.click(screen.getByRole('button', { name: 'Zéphyr, niveau 30' }));
   fireEvent.click(screen.getByRole('button', { name: "Placer dans l'équipe" }));
   expect(placerDansEquipe).toHaveBeenCalledWith('autre');
