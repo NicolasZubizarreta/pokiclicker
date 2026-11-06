@@ -21,6 +21,7 @@ server/dist/
 server/.env*
 !server/.env.example
 dist-hc/
+dist-compte/
 dist-audit/
 dist-audit-compte/
 .partie-test/

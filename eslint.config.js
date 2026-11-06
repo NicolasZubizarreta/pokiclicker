@@ -4,7 +4,7 @@ import globals from 'globals';
 
 export default tseslint.config(
   {
-    ignores: ['dist/**', 'dist-hc/**', 'dist-audit/**', 'dist-audit-compte/**', 'dev-dist/**', 'legacy/**', 'node_modules/**', 'design/**', 'docs/**'],
+    ignores: ['dist/**', 'dist-hc/**', 'dist-compte/**', 'dist-audit/**', 'dist-audit-compte/**', 'dev-dist/**', 'legacy/**', 'node_modules/**', 'design/**', 'docs/**'],
   },
   tseslint.configs.recommended,
   {
