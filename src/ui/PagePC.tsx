@@ -132,8 +132,8 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
                       if (!panneau.current?.getClientRects().length) ouvrirFiche(pokemon.uid, event.currentTarget);
                     }}>
                     <span className="relative isolate grid place-items-center">
-                      <span aria-hidden="true" className="socle absolute bottom-2 -z-10 h-4 w-20 bg-region-socle" />
-                      <Image src={spriteAffiche(pokemon)} genre="sprite" alt="" className={`size-16 lg:size-24 max-w-none ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(pokemon)}`} />
+                      <span aria-hidden="true" className="socle absolute bottom-2 -z-10 hidden h-4 w-20 bg-region-socle lg:block" />
+                      <Image src={spriteAffiche(pokemon)} genre="sprite" alt="" className={`size-12 lg:size-24 max-w-none ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(pokemon)}`} />
                     </span>
                     <span className="grid min-w-0 gap-1 lg:contents"><strong className="flex min-w-0 max-w-full items-center gap-1 lg:justify-center">
                       <span className="min-w-0 truncate">{nom}</span>{pokemon.shiny && !pokemon.oeuf && <IconeShiny />}
@@ -143,7 +143,7 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
                       </svg><span className="sr-only">Favori</span></>}
                       {pokemon.shiny && !pokemon.oeuf && <span className="sr-only">Shiny</span>}
                     </strong>
-                    {tri === 'dps' && !pokemon.oeuf && <span className="text-region-accent font-bold">{formaterDps(dpsPc(pokemon))} DPS</span>}
+                    {tri === 'dps' && !pokemon.oeuf && <span className="whitespace-nowrap text-region-accent font-bold">{formaterDps(dpsPc(pokemon))} DPS</span>}
                     {pokemon.oeuf ? <span>{progressionOeuf(pokemon.oeuf)}</span>
                       : <span className="grid text-sm text-texte-doux"><span>N° {pokemon.numero}</span><span>Niv. {pokemon.niveau}</span></span>}</span>
                   </button>

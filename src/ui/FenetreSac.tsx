@@ -1,4 +1,4 @@
-import { useId, useLayoutEffect, useRef, useState } from 'react';
+﻿import { useId, useLayoutEffect, useRef, useState } from 'react';
 import { useStore } from 'zustand';
 import { Sac } from './Sac';
 import { storeJeu } from './store';
@@ -28,7 +28,7 @@ function FenetreOuverte() {
     onCancel={event => { event.preventDefault(); clore(); }}>
     <div className="fiche-contenu grid min-w-0 gap-4 p-4 lg:p-8">
       <button type="button" className="cadre min-h-11 min-w-11 justify-self-end bg-surface p-3" onClick={clore}>Fermer</button>
-      <h2 id={titre} className="font-titre text-2xl">Ton Sac</h2>
+      <h2 id={titre} className="sr-only">Ton Sac</h2>
       <Sac sac={sac} utiliser={entree => {
         if (!entree.utilisable || entree.quantite <= 0) return;
         if (entree.utilisable === 'direct') { annoncer(utiliserObjetActif(entree.id)); return; }
