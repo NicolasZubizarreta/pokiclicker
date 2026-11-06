@@ -200,16 +200,19 @@ Boutique de skins, nouveaux succès.
 
 ## H. `feat(ui): équipe, sac, PC et fiche Pokémon sur téléphone`
 
-`type:feat`, `etat:a_faire`, `est:2-3`, `prio:3` · branche : `v2` · `agent-ok` après maquette validée · dépend de : C
+`type:feat`, `etat:fait`, `est:2-3`, `prio:3` · branche : `v2` · `agent-ok` après maquette validée · dépend de : C
 
 ### Histoire
 En tant que joueur, je veux gérer mon équipe et mes boîtes avec le pouce, avec de grosses cases et une fiche claire.
 
 ### Critères d'acceptation
-- [ ] Étant donné les variantes pour `PageEquipe`, `PagePC`, `Sac` et `FichePokemon`, quand Nicolas choisit, alors les choix sont notés dans `design/DESIGN.md`.
-- [ ] Étant donné six Pokémon dans l'équipe à 390 px, quand j'ouvre l'équipe, alors chaque case fait 48 px au moins de haut et montre nom, niveau, PV.
-- [ ] Étant donné le PC, quand je déplace un Pokémon entre boîte et équipe, alors l'action se fait au toucher sans glisser-déposer obligatoire.
-- [ ] Étant donné les tests existants, quand `npm test` tourne, alors ils restent verts.
+- [x] Étant donné les variantes pour `PageEquipe`, `PagePC`, `Sac` et `FichePokemon`, quand Nicolas choisit, alors les choix sont notés dans `design/DESIGN.md` (entrée du 2026-11-05, maquette a5).
+- [x] Étant donné six Pokémon dans l'équipe à 390 px, quand j'ouvre l'équipe, alors chaque case fait 48 px au moins de haut et montre nom, niveau, PV. Écart voulu par la maquette a5 : la ligne montre nom, niveau, DPS et barre d'XP (pas de PV) ; chaque ligne dépasse 80 px.
+- [x] Étant donné le PC, quand je déplace un Pokémon entre boîte et équipe, alors l'action se fait au toucher sans glisser-déposer obligatoire (`tests-e2e/pc.spec.ts`, `tests-e2e/sac.spec.ts`).
+- [x] Étant donné les tests existants, quand `npm test` tourne, alors ils restent verts.
+- [x] Retours de Nicolas (notes phase 5, A2 à A4) : Sac en fenêtre avec mode choix et bouton Annuler ; PC trié par DPS décroissant par défaut ; fiche avec Favori à la taille des pastilles, sexe lisible, types aux couleurs du jeu.
+
+**Lot 4 fait** (commits locaux du 06/11 : `1d08609`, `027858f`, `7bf1810`, `e63bc46`, `8575d85`, `48d1fbe`, `2759a75`, `5a7fed3`). Reste : le bouton « Sac » du Combat (lot 3) ; le parcours phone des objets est dans `sac.spec.ts`, `objets-actifs.spec.ts` ne tourne plus que sur grand écran.
 
 ### Effort et risques
 2 à 3 jours. Risque : `PageEquipe.tsx` (281 lignes) et `FichePokemon.tsx` (227) sont denses.
