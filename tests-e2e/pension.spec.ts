@@ -65,7 +65,7 @@ for (const largeur of [390, 1440]) {
     });
     await page.reload();
     await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
-    const auto = page.getByRole('button', { name: 'Auto-attaque', exact: true });
+    const auto = page.getByRole('button', { name: /^(Auto-attaque|Attaque auto)$/ });
     if (await auto.getAttribute('aria-pressed') === 'true') await auto.click();
     for (let i = 0; i < 30 && (await regionSauvee(page)).pension.oeufs.length === 0; i++) {
       await page.getByRole('button', { name: /^Attaquer / }).click();

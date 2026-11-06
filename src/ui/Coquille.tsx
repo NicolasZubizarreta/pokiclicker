@@ -113,8 +113,8 @@ export function Coquille({ region = 'kanto', theme = 'dark', quandDeconnecter, q
         Aller au contenu
       </a>
       <Navigation page={page} choisir={aller} origineMonde={origineMonde} originePC={originePC} signalCarte={tutorielRoute1 && page !== 'Carte' && !introActive && !introVue} inerte={introActive || introVue || credits || !!pantheon?.ouvert || compteOuvert} />
-      {!introActive && !introVue && <BandeauHaut />}
-      <main id="contenu" tabIndex={-1} inert={compteOuvert} className="mb-[calc(var(--spacing)*16+env(safe-area-inset-bottom))] min-w-0 px-4 pb-4 pt-2 lg:mb-0 lg:ml-24 lg:p-8">
+      {!introActive && !introVue && <BandeauHaut combat={page === 'Combat'} />}
+      <main id="contenu" tabIndex={-1} inert={compteOuvert} className="min-w-0 px-4 pb-[calc(var(--spacing)*20+env(safe-area-inset-bottom))] pt-2 lg:ml-24 lg:p-8">
         <button ref={boutonCompte} className="min-h-11 p-2 text-lien underline" onClick={() => fixerCompteOuvert(true)}>Mon compte</button>
         {quandOuvrirParties && <button className="min-h-11 p-2 text-lien underline" onClick={quandOuvrirParties}>Mes parties</button>}
         {quandDeconnecter && <button className="min-h-11 p-2 text-lien underline" onClick={quandDeconnecter}>Se déconnecter</button>}

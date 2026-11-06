@@ -30,7 +30,7 @@ async function ouvrir(page: Page) {
   const arret = page.getByRole('button', { name: 'Arrêt auto', exact: true });
   if ((await arret.getAttribute('aria-pressed')) === 'true') await arret.click();
   // L'arrêt de l'ouverture a déjà coupé l'auto-attaque (comportement V1) : on la remet.
-  const auto = page.getByRole('button', { name: 'Auto-attaque', exact: true });
+  const auto = page.getByRole('button', { name: /^(Auto-attaque|Attaque auto)$/ });
   if ((await auto.getAttribute('aria-pressed')) === 'false') await auto.click();
 }
 
@@ -62,12 +62,17 @@ async function stockage(page: Page) {
 
 async function verifierFenetre(page: Page) {
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
-  await expect(page.getByRole('complementary', { name: 'Dialogue' })).toBeVisible();
-  expect(await page.evaluate(() => document.documentElement.scrollHeight - window.innerHeight)).toBeLessThanOrEqual(1);
-  const dialogue = (await page.getByRole('complementary', { name: 'Dialogue' }).boundingBox())!;
   const taille = page.viewportSize()!;
   const limite = taille.width < 1024 ? (await page.getByRole('navigation').boundingBox())!.y : taille.height;
-  expect(dialogue.y + dialogue.height).toBeLessThanOrEqual(limite);
+  // Sur téléphone, la page défile (actions, équipe) et il n'y a plus de dialogue permanent du Prof. Chen.
+  if (taille.width >= 1024) {
+    await expect(page.getByRole('complementary', { name: 'Dialogue' })).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollHeight - window.innerHeight)).toBeLessThanOrEqual(1);
+    const dialogue = (await page.getByRole('complementary', { name: 'Dialogue' }).boundingBox())!;
+    expect(dialogue.y + dialogue.height).toBeLessThanOrEqual(limite);
+  } else {
+    await expect(page.getByRole('complementary', { name: 'Dialogue' })).toHaveCount(0);
+  }
   const scene = (await page.getByRole('region', { name: /^Combat contre/ }).boundingBox())!;
   expect(scene.y).toBeGreaterThanOrEqual(0);
   expect(scene.y + scene.height).toBeLessThanOrEqual(limite);
@@ -107,6 +112,8 @@ test('Boss et zones : barre de temps, zone suivante, retour et reprise', async (
   await expect(page.getByRole('progressbar', { name: 'Temps restant' })).toHaveCount(0);
   const fermee = page.getByRole('button', { name: /^Zone suivante/ });
   await expect(fermee).toBeDisabled();
+  // Sur téléphone la raison n'apparaît qu'au toucher de la flèche verrouillée.
+  if (page.viewportSize()!.width < 1024) await fermee.click({ force: true });
   await expect(page.getByText('Bats le boss de Route 1.')).toBeVisible();
   await page.getByRole('button', { name: /^Zone précédente/ }).click();
   await expect(page.getByText('Pas de Pokémon sauvage ici. Va sur la Route 1 pour combattre.')).toBeVisible();
@@ -253,7 +260,8 @@ test('Mise en page : scène, navigation, équipe et langue', async ({ page }, in
   const bouton = (await page.getByRole('button', { name: /^Attaquer / }).boundingBox())!;
   expect(bouton).toEqual(boiteScene);
   await expect(page.getByRole('button', { name: 'Attaque', exact: true })).toHaveCount(0);
-  await expect(page.locator('button.bg-action')).toHaveText(/^Zone suivante/);
+  if (informations.project.name === 'pc') await expect(page.locator('button.bg-action')).toHaveText(/^Zone suivante/);
+  else await expect(page.getByRole('button', { name: /^Zone suivante/ })).toBeVisible();
   if (informations.project.name !== 'mobile') {
     expect(boiteScene.width / boiteScene.height).toBeCloseTo(16 / 9, 2);
     const navigation = page.getByRole('navigation');

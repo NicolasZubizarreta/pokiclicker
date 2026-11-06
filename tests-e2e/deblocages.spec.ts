@@ -83,7 +83,7 @@ test('Tour Pokémon : l’annonce attend le dialogue de M. Fuji, puis Pension, C
     evenementsJoues: ['kanto.intro', 'kanto.rival-tour'], bossVaincus: ['kanto.route-1', 'kanto.foret-de-jade'],
     annoncesVues: ['sac', 'pc'],
   }, ['evenementEnCours']);
-  const auto = page.getByRole('button', { name: 'Auto-attaque', exact: true });
+  const auto = page.getByRole('button', { name: /^(Auto-attaque|Attaque auto)$/ });
   if (await auto.getAttribute('aria-pressed') !== 'true') await auto.click();
   const dialogue = page.getByRole('button', { name: /^M\. Fuji : / });
   for (let tick = 0; tick < 300 && !await dialogue.isVisible(); tick++) await page.clock.runFor(100);

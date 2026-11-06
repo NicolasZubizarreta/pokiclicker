@@ -41,14 +41,16 @@ for (const largeur of [390, 1440]) {
     async function capturer(nom: string) {
       await page.evaluate(() => Promise.all([...document.images].map(image => image.decode())));
       expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(1);
-      expect(await page.evaluate(() => document.documentElement.scrollHeight - innerHeight)).toBeLessThanOrEqual(1);
-      const chen = page.getByRole('complementary', { name: 'Dialogue', exact: true })
-        .filter({ has: page.getByRole('heading', { name: 'Prof. Chen', exact: true }) });
-      await expect(chen).toBeVisible();
-      const boite = (await chen.boundingBox())!;
-      const limite = largeur === 390 ? (await page.getByRole('navigation').boundingBox())!.y : 900;
-      expect(boite.y + boite.height).toBeLessThanOrEqual(limite);
-      await expect(page.getByRole('status')).toHaveCount(1);
+      // Sur téléphone il n'y a plus de dialogue permanent du Prof. Chen : la page peut défiler.
+      if (largeur !== 390) {
+        expect(await page.evaluate(() => document.documentElement.scrollHeight - innerHeight)).toBeLessThanOrEqual(1);
+        const chen = page.getByRole('complementary', { name: 'Dialogue', exact: true })
+          .filter({ has: page.getByRole('heading', { name: 'Prof. Chen', exact: true }) });
+        await expect(chen).toBeVisible();
+        const boite = (await chen.boundingBox())!;
+        expect(boite.y + boite.height).toBeLessThanOrEqual(900);
+        await expect(page.getByRole('status')).toHaveCount(1);
+      }
       expect(await page.locator('button.bg-action:visible').count()).toBeLessThanOrEqual(1);
       for (const bouton of await page.getByRole('region', { name: nom, exact: true }).getByRole('button').all()) {
         const cible = (await bouton.boundingBox())!;

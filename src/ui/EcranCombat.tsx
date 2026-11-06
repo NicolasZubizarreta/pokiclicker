@@ -35,6 +35,11 @@ import { BoutonAction } from './BoutonAction';
 import { PanneauSac, type ObjetAChoisir } from './PanneauSac';
 import { entreesRadar } from './store-objets';
 import type { StoreJeu } from './store';
+import { useTelephone } from './useTelephone';
+import { LigneCapture } from './LigneCapture';
+import { ActionsCombat } from './ActionsCombat';
+import { ouvrirSac as ouvrirSacFenetre } from './sacContexte';
+import './CombatTelephone.css';
 
 const catalogue = chargerPokemon();
 const formateurArgent = new Intl.NumberFormat('fr-FR');
@@ -45,10 +50,12 @@ function Entete({ store }: { store: StoreJeu }) {
   const zone = useStore(store, etat => etat.zone);
   const etape = useStore(store, etat => etat.etape);
   const argent = useStore(store, etat => etat.argent);
-  return <header className="mb-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 lg:col-span-3 lg:mb-0">
+  const telephone = useTelephone();
+  // Sur téléphone, les marques d'étape sont dans la ligne de zone du bandeau du haut : cet en-tête ne garde que le titre pour les lecteurs d'écran.
+  return <header className={`${telephone ? 'sr-only' : 'mb-2'} flex flex-wrap items-center justify-between gap-x-4 gap-y-2 lg:col-span-3 lg:mb-0`}>
     <div className="flex min-w-0 flex-wrap items-center gap-x-6 gap-y-2">
       <div className="sr-only lg:not-sr-only"><h1 className="font-titre text-2xl font-semibold">{lieu?.nom}</h1><p>{lieu && (sousTitres[lieu.id] ?? lieu.nom)}</p></div>
-      {zone && <Etapes etape={etape} />}
+      {zone && !telephone && <Etapes etape={etape} />}
     </div>
     {/* Sur téléphone, l'argent est dans le bandeau du haut ; sur PC il reste ici. */}
     <span className="hidden text-region-accent tabular-nums lg:inline">{formateurArgent.format(argent)}{' ₽'}</span>
@@ -87,6 +94,7 @@ function Scene({ store, ouvrirPension }: { store: StoreJeu; ouvrirPension(): voi
   const capturer = useStore(store, etat => etat.capturer);
   const radar = useStore(store, etat => etat.radar);
   const [declencheurRadar, ouvrirRadar] = useState<HTMLButtonElement | null>(null);
+  const telephone = useTelephone();
   const effets = useStore(store, etat => etat.effets);
   const pokedex = useStore(store, etat => etat.pokedex);
   const numeroEnnemi = ennemi?.numero;
@@ -158,19 +166,48 @@ function Scene({ store, ouvrirPension }: { store: StoreJeu; ouvrirPension(): voi
       onPointerDown={event => { if (event.button === 0) attaquer(); }}
       onClick={event => { if (event.detail === 0) attaquer(); }} />
     <DegatsFlottants store={store} />
-    <div className="dock-capture cadre absolute bottom-3 left-3 z-20 bg-surface p-1 shadow-lg">
+    {/* Sur téléphone, la capture, le Poké-Radar et les actions sont sous la scène (ActionsTelephone). */}
+    {!telephone && <div className="dock-capture cadre absolute bottom-3 left-3 z-20 bg-surface p-1 shadow-lg">
       <BarreCapture {...capture} capturer={capturer} />
-    </div>
-    {radar && <button type="button" aria-label="Poké-Radar" disabled={zone.type === 'ligue'}
+    </div>}
+    {radar && !telephone && <button type="button" aria-label="Poké-Radar" disabled={zone.type === 'ligue'}
       title={zone.type === 'ligue' ? 'Inutile à la Ligue : il n’y a que des boss, aucun Pokémon à capturer.' : undefined}
       className="radar-rond cadre absolute right-4 bottom-4 z-20 flex size-12 items-center justify-center rounded-full bg-surface shadow-md disabled:cursor-not-allowed disabled:opacity-50 disabled:grayscale lg:size-16"
       onClick={event => ouvrirRadar(event.currentTarget)}>
       <img src="img/objets/PokeRadar.png" alt="" className="size-7 image-rendering-pixelated lg:size-9" />
     </button>}
+    {!telephone && <FenetreRadar ouvert={declencheurRadar !== null} nomZone={lieu?.nom ?? zone.nom}
+      especes={entreesRadar(zone, pokedex)}
+      fermer={() => ouvrirRadar(null)} declencheur={declencheurRadar} />}
+  </section>;
+}
+
+// Téléphone : ligne de capture, quatre boutons, puis Fauchage et Poké-Radar une fois débloqués (maquette a5).
+function ActionsTelephone({ store }: { store: StoreJeu }) {
+  const zone = useStore(store, etat => etat.zone);
+  const lieu = useStore(store, etat => etat.lieu);
+  const capture = useStore(store, etat => etat.capture);
+  const capturer = useStore(store, etat => etat.capturer);
+  const autoAttaque = useStore(store, etat => etat.autoAttaque);
+  const basculerAutoAttaque = useStore(store, etat => etat.basculerAutoAttaque);
+  const arret = useStore(store, etat => etat.arretAuto);
+  const reglerArret = useStore(store, etat => etat.reglerArretAuto);
+  const fauchage = useStore(store, etat => etat.fauchage);
+  const faucher = useStore(store, etat => etat.faucher);
+  const radar = useStore(store, etat => etat.radar);
+  const pokedex = useStore(store, etat => etat.pokedex);
+  const sac = useStore(store, etat => etat.sac);
+  const [declencheurRadar, ouvrirRadar] = useState<HTMLButtonElement | null>(null);
+  if (!zone) return null;
+  return <div className="actions-telephone">
+    <LigneCapture {...capture} capturer={capturer} />
+    <ActionsCombat autoAttaque={autoAttaque} basculerAutoAttaque={basculerAutoAttaque} arret={arret} reglerArret={reglerArret}
+      fauchage={fauchage} faucher={faucher} radar={radar} radarInutile={zone.type === 'ligue'} ouvrirRadar={ouvrirRadar}
+      sac={{ accessible: sac.acces.ouvert, total: sac.entrees.reduce((total, entree) => total + entree.quantite, 0), ouvrir: ouvrirSacFenetre }} />
     <FenetreRadar ouvert={declencheurRadar !== null} nomZone={lieu?.nom ?? zone.nom}
       especes={entreesRadar(zone, pokedex)}
       fermer={() => ouvrirRadar(null)} declencheur={declencheurRadar} />
-  </section>;
+  </div>;
 }
 
 function Equipe({ store }: { store: StoreJeu }) {
@@ -194,6 +231,7 @@ function Equipe({ store }: { store: StoreJeu }) {
   const regler = useStore(store, etat => etat.reglerArretAuto);
   const [objet, choisirObjet] = useState<ObjetAChoisir | null>(null);
   const [retour, signaler] = useState<string | null>(null);
+  const telephone = useTelephone();
   useEffect(() => {
     if (!objet) return;
     const clavier = (event: KeyboardEvent) => { if (event.key === 'Escape') choisirObjet(null); };
@@ -225,13 +263,14 @@ function Equipe({ store }: { store: StoreJeu }) {
     if (message || !repetable || reste <= 0) choisirObjet(null);
   };
   return <section aria-label="Ton équipe" className="min-w-0 lg:col-start-4 lg:row-start-1 lg:row-end-4">
-    <div className="bandeau-action">
+    {/* Téléphone : le titre « Ton équipe » et les DPS (déjà dans le bandeau du haut) ne s'affichent que pour choisir un Pokémon ou signaler un résultat. */}
+    <div className={telephone && !objet && retour === null ? 'sr-only' : 'bandeau-action'}>
       <h2 aria-live="polite" className="flex items-center justify-between gap-2 font-titre text-xl">
         <span className="min-w-0 truncate" title={objet ? objet.nom : undefined}>{objet ? 'Choisis un Pokémon' : retour ?? 'Ton équipe'}</span>
         {objet ? <button type="button" className="cadre min-h-11 bg-surface px-2 text-base text-texte lg:min-h-0" onClick={() => choisirObjet(null)}>Annuler</button>
-          : <span>{formaterDps(dps)} DPS</span>}
+          : !telephone && <span>{formaterDps(dps)} DPS</span>}
       </h2>
-      {zone && <div className="bandeau-action-rangee" role="group" aria-label="Actions du combat">
+      {zone && !telephone && <div className="bandeau-action-rangee" role="group" aria-label="Actions du combat">
         <ReglagesCombat autoAttaque={autoAttaque} arret={arret} basculer={basculer} regler={regler}
           autoClic={autoClic} basculerAutoClic={basculerAutoClic} />
         <OutilsCombat fauchage={fauchage} faucher={faucher} />
@@ -278,6 +317,7 @@ export function EcranCombat({ store = storeJeu }: { store?: StoreJeu }) {
   const erreur = useStore(store, etat => etat.erreur);
   const fatale = useStore(store, etat => etat.erreurChargement);
   const sceneRonflex = useStore(store, etat => etat.lieu?.id === 'kanto.route-de-ronflex' && !etat.ennemi);
+  const telephone = useTelephone();
   useEffect(() => {
     if (!pensionOuverte && rendreFocus.current) {
       cadre.current?.querySelector<HTMLButtonElement>('button[aria-label="Pension Pokémon"]')?.focus();
@@ -295,9 +335,10 @@ export function EcranCombat({ store = storeJeu }: { store?: StoreJeu }) {
     </div>}
     {/* Sur PC, la colonne équipe remonte presque jusqu'en haut : on reprend 24 px du remplissage de <main> (haut et bas) pour que les 6 cartes tiennent sans défilement dès 768 px de haut. */}
     {!fatale && <div className="lg:-my-6 lg:grid lg:grid-cols-4 lg:gap-x-4 lg:gap-y-2">
-      <Entete store={store} /><div className={`${sceneRonflex ? '' : 'combat-grille'} grid gap-2 lg:contents`}>
+      <Entete store={store} /><div className={`${sceneRonflex ? '' : `combat-grille${telephone ? ' combat-grille-tel' : ''}`} grid gap-2 lg:contents`}>
         <Scene store={store} ouvrirPension={() => ouvrirPension(true)} />
-        <Equipe store={store} /><DialogueChen store={store} />
+        {telephone && <ActionsTelephone store={store} />}
+        <Equipe store={store} />{!telephone && <DialogueChen store={store} />}
       </div></div>}
   </div>;
 }

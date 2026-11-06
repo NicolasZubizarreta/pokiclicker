@@ -144,7 +144,7 @@ test('Fin : le défi de Chen se gagne, Chen conclut, les crédits défilent par 
     drapeaux: ['defi-chen-actif', 'defi-chen-intro-vue'], joues: ['kanto.intro', 'kanto.fin-pokedex'] }, true);
   await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
   verifierInjection();
-  const auto = page.getByRole('button', { name: 'Auto-attaque', exact: true });
+  const auto = page.getByRole('button', { name: /^(Auto-attaque|Attaque auto)$/ });
   if (await auto.getAttribute('aria-pressed') === 'true') await auto.click();
   await page.getByRole('button', { name: /^Attaquer / }).click();
   await page.clock.runFor(100);

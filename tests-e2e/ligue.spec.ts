@@ -44,7 +44,7 @@ async function demarrer(page: Page, badges: number) {
   // Garder le contrôle des dix combats, y compris après le rechargement.
   const arret = page.getByRole('button', { name: 'Arrêt auto', exact: true });
   if (await arret.getAttribute('aria-pressed') === 'true') await arret.click();
-  const auto = page.getByRole('button', { name: 'Auto-attaque', exact: true });
+  const auto = page.getByRole('button', { name: /^(Auto-attaque|Attaque auto)$/ });
   if (await auto.getAttribute('aria-pressed') !== 'true') await auto.click();
   await page.getByRole('button', { name: 'Carte', exact: true }).click();
   if (badges < 8 && !telephone(page)) {
@@ -97,7 +97,7 @@ test('Victoire jouée contre Olga : Aldo entre en scène', async ({ page }) => {
   await reprendreA(page, 2);
   verifierInjection();
   await expect(page.getByRole('heading', { name: 'Olga (Lippoutou)', exact: true })).toBeVisible();
-  await page.getByRole('button', { name: 'Auto-attaque', exact: true }).click();
+  await page.getByRole('button', { name: /^(Auto-attaque|Attaque auto)$/ }).click();
   await page.getByRole('button', { name: /^Attaquer / }).click();
   await page.clock.runFor(100);
   await expect(page.getByText('Victoire contre Olga ! Aldo entre en scène.', { exact: true })).toBeVisible();
@@ -113,7 +113,7 @@ test('Victoire jouée contre le counter de Carapuce : une Ligue gagnée et retou
   await reprendreA(page, 10);
   verifierInjection();
   await expect(page.getByRole('heading', { name: 'Maître Blue (Florizarre)', exact: true })).toBeVisible();
-  await page.getByRole('button', { name: 'Auto-attaque', exact: true }).click();
+  await page.getByRole('button', { name: /^(Auto-attaque|Attaque auto)$/ }).click();
   await page.getByRole('button', { name: /^Attaquer / }).click();
   await page.clock.runFor(100);
   const region = await regionSauvee(page);

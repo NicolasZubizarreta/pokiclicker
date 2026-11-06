@@ -55,7 +55,7 @@ async function preparer(page: Page, ronflex: boolean, surcharge: Partial<Donnees
   await page.reload();
   await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
   expect(injections, 'Injection du dernier PV dans le combat compilé').toBeGreaterThan(0);
-  const auto = page.getByRole('button', { name: 'Auto-attaque', exact: true });
+  const auto = page.getByRole('button', { name: /^(Auto-attaque|Attaque auto)$/ });
   if (await auto.getAttribute('aria-pressed') === 'true') await auto.click();
 }
 

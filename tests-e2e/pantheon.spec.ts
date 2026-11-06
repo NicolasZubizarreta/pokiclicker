@@ -58,7 +58,7 @@ async function dernierPv(page: Page) {
 async function gagner(page: Page) {
   const arret = page.getByRole('button', { name: 'Arrêt auto', exact: true });
   if (await arret.getAttribute('aria-pressed') === 'true') await arret.click();
-  const auto = page.getByRole('button', { name: 'Auto-attaque', exact: true });
+  const auto = page.getByRole('button', { name: /^(Auto-attaque|Attaque auto)$/ });
   if (await auto.getAttribute('aria-pressed') === 'true') await auto.click();
   await page.getByRole('button', { name: /^Attaquer / }).click();
   await page.clock.runFor(100);

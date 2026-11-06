@@ -118,16 +118,19 @@ Lot 2 fait (05/11) : Menu de jeu (cadre « Partie en cours » avec Sauvegarder m
 
 ## D. `feat(ui): combat sur téléphone`
 
-`type:feat`, `etat:a_faire`, `est:2-3`, `prio:2` · branche : `v2` · `agent-ok` après maquette validée · dépend de : C
+`type:feat`, `etat:en_cours`, `est:2-3`, `prio:2` · branche : `v2` · `agent-ok` après maquette validée · dépend de : C
 
 ### Histoire
 En tant que joueur, je veux voir le combat, mes gains et ma prochaine amélioration sur un seul écran lisible afin de jouer d'une main.
 
 ### Critères d'acceptation
-- [ ] Étant donné les variantes de l'écran de combat, quand Nicolas en choisit une, alors le choix est noté dans `design/DESIGN.md`.
-- [ ] Étant donné un combat à 390 px, quand je clique, capture ou ouvre le sac, alors les actions principales sont dans la moitié basse avec des cibles de 48 px au moins.
+- [x] Étant donné les variantes de l'écran de combat, quand Nicolas en choisit une, alors le choix est noté dans `design/DESIGN.md`. (maquette a5, entrée du 2026-11-05)
+- [x] Étant donné un combat à 390 px, quand je clique, capture ou ouvre le sac, alors les actions principales sont dans la moitié basse avec des cibles de 48 px au moins. (ligne capture, quatre boutons, Fauchage et Poké-Radar une fois débloqués ; Sac en fenêtre)
 - [ ] Étant donné les barres de PV, d'XP et de temps, quand je regarde l'écran, alors les nombres restent lisibles (16 px au moins pour le texte courant).
-- [ ] Étant donné les tests du combat, quand `npm test` tourne, alors aucune règle de jeu n'a changé (résultats du simulateur inchangés).
+- [x] Étant donné les tests du combat, quand `npm test` tourne, alors aucune règle de jeu n'a changé (résultats du simulateur inchangés). (`--clics 7 --pokedex theorique` : Ligue 87,0 min, 767 762 / 683 900 / 83 862)
+- [x] Retours de Nicolas (notes phase 5, A2) : ligne de capture (balle + Capturer) ; quatre boutons Attaque auto, Arrêt auto, Réglage de l'arrêt auto, Sac ; plus de bouton Outils ni « Arrêter après » ; auto-clic lié à l'attaque auto (préférence `autoClicLie`, déliée : désactivé) ; Fauchage et Poké-Radar invisibles puis sous les quatre boutons ; plus de dialogue permanent du Prof. Chen sur téléphone ; ligne Zone précédente / suivante dans le bandeau, seulement en combat.
+
+**Lot 3 fait** (06/11, commits locaux). Écarts avec la maquette a5 : l'équipe garde les cartes actuelles (pas la bande de sprites) ; libellés des quatre boutons en 14 px comme dans a5 (le critère des 16 px des barres reste ouvert, il porte sur PV, XP et temps) ; icône de Fauchage différente. Reste : l'annonce de déblocage dit encore « dans les outils du combat » (`data/deblocages.json`, lignes 37 et 47 : donnée de contenu, à trancher) ; `intro.spec.ts` (390 px, Pokéball dans l'Équipe) et `jalon-2.spec.ts`, `fin.spec.ts`, `evolution.spec.ts` échouaient lors du dernier passage complet, pour des raisons de Sac, Badges et Menu qui ne viennent pas du combat.
 
 ### Hors périmètre
 Animations nouvelles (ticket L).

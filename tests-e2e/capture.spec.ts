@@ -1,6 +1,7 @@
 import { mkdir } from 'node:fs/promises';
 import { test as base, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
+import { autoAttaque, balle, choisirBalle, reglageArret } from './aide-combat';
 
 const test = base.extend<{ surveillance: void }>({
   surveillance: [async ({ page }, utiliser) => {
@@ -30,17 +31,16 @@ async function demarrer(page: Page) {
     localStorage.setItem(cle, JSON.stringify(enveloppe));
   });
   await page.reload();
-  await expect(page.getByRole('button', { name: 'Master Ball ×3' })).toBeVisible();
+  await choisirBalle(page, 'Master Ball', 3);
 }
 
 test('capture certaine : équipe, Pokédex, stock et largeur', async ({ page }, informations) => {
   await demarrer(page);
-  await page.getByRole('button', { name: 'Master Ball ×3' }).click();
   await page.getByRole('button', { name: 'Capturer', exact: true }).click();
   const annonce = page.getByText(/^.+ est capturé !$/);
   await expect(annonce).toBeVisible();
   const nom = (await annonce.textContent())!.replace(' est capturé !', '');
-  await expect(page.getByRole('button', { name: 'Master Ball ×2' })).toBeVisible();
+  await expect(balle(page, 'Master Ball', 2)).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
   await mkdir('design/captures', { recursive: true });
   await page.evaluate(() => Promise.all([...document.images].map(image => image.decode().catch(() => undefined))));
@@ -58,10 +58,10 @@ test('capture certaine : équipe, Pokédex, stock et largeur', async ({ page }, 
 test('échec : la Pokéball est consommée', async ({ page }) => {
   await page.addInitScript(() => { Math.random = () => 0.99999; });
   await demarrer(page);
-  await page.getByRole('button', { name: 'Pokéball ×5', exact: true }).click();
+  await choisirBalle(page, 'Pokéball', 5);
   await page.getByRole('button', { name: 'Capturer', exact: true }).click();
   await expect(page.getByText(/s'est échappé !$/)).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Pokéball ×4', exact: true })).toBeVisible();
+  await expect(balle(page, 'Pokéball', 4)).toBeVisible();
 });
 
 test('arrêt automatique sur chaque nouveau Pokémon, à chaque apparition', async ({ page }) => {
@@ -74,7 +74,7 @@ test('arrêt automatique sur chaque nouveau Pokémon, à chaque apparition', asy
   await page.clock.runFor(100);
   const message = page.getByText('Nouveau Pokémon ! Auto-attaque arrêtée.', { exact: true });
   await expect(message).toBeVisible();
-  const auto = page.getByRole('button', { name: 'Auto-attaque', exact: true });
+  const auto = autoAttaque(page);
   await expect(auto).toHaveAttribute('aria-pressed', 'false');
   for (let appui = 0; appui < 200 && !(await page.getByText('Étape 2 sur 10', { exact: true }).isVisible()); appui++) {
     await page.getByRole('button', { name: /^Attaquer / }).click({ force: true });
@@ -89,12 +89,12 @@ test('arrêt automatique sur chaque nouveau Pokémon, à chaque apparition', asy
 test('réglages conservés au rechargement', async ({ page }) => {
   await demarrer(page);
   await page.getByRole('button', { name: 'Arrêt auto', exact: true }).click();
-  await page.getByRole('button', { name: "Réglages de l'arrêt", exact: true }).click();
+  await reglageArret(page).click();
   await page.getByRole('checkbox', { name: 'Rare', exact: true }).uncheck();
   await page.getByRole('button', { name: 'Fermer', exact: true }).click();
   await page.reload();
   await expect(page.getByRole('button', { name: 'Arrêt auto', exact: true })).toHaveAttribute('aria-pressed', 'false');
-  await page.getByRole('button', { name: "Réglages de l'arrêt", exact: true }).click();
+  await reglageArret(page).click();
   await expect(page.getByRole('checkbox', { name: 'Rare', exact: true })).not.toBeChecked();
 });
 
@@ -103,7 +103,7 @@ test('boss : capture désactivée avec sa raison', async ({ page }) => {
   await page.clock.pauseAt(new Date());
   await demarrer(page);
   await page.getByRole('button', { name: 'Arrêt auto', exact: true }).click();
-  const auto = page.getByRole('button', { name: 'Auto-attaque', exact: true });
+  const auto = autoAttaque(page);
   if (await auto.getAttribute('aria-pressed') === 'false') await auto.click();
   for (let appui = 0; appui < 1500; appui++) {
     if (await page.getByRole('status').filter({ hasText: 'Recherche en cours…' }).isVisible()) await page.clock.runFor(2000);

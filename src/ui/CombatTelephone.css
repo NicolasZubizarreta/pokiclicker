@@ -1,0 +1,16 @@
+/* Combat sur téléphone (< 1024 px) : la scène a sa hauteur propre, les lignes d'actions et l'équipe défilent avec la page. */
+.combat-grille.combat-grille-tel {
+  height: auto;
+  grid-template-rows: none;
+  align-content: start;
+}
+
+.combat-grille.combat-grille-tel > .scene-limitee {
+  height: calc(var(--spacing) * 76);
+  max-height: none;
+}
+
+.actions-telephone {
+  display: grid;
+  gap: calc(var(--spacing) * 2);
+}

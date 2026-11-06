@@ -1,13 +1,21 @@
 import { useStore } from 'zustand';
 import { storeJeu } from './store';
 import { formaterDps } from './nombres';
+import { useTelephone } from './useTelephone';
+import { ZoneLigne } from './ZoneLigne';
 
 const formateurArgent = new Intl.NumberFormat('fr-FR');
 
-export function BandeauHaut() {
+// `combat` : la ligne Zone précédente / étapes / Zone suivante n'existe que sur l'écran de combat (téléphone).
+export function BandeauHaut({ combat = false }: { combat?: boolean }) {
   const argent = useStore(storeJeu, etat => etat.argent);
   const dps = useStore(storeJeu, etat => etat.dps);
   const lieu = useStore(storeJeu, etat => etat.lieu);
+  const zone = useStore(storeJeu, etat => etat.zone);
+  const etape = useStore(storeJeu, etat => etat.etape);
+  const precedente = useStore(storeJeu, etat => etat.zonePrecedente);
+  const suivante = useStore(storeJeu, etat => etat.zoneSuivante);
+  const telephone = useTelephone();
   return <header aria-label="Chiffres clés" className="sticky top-0 z-10 border-b border-bordure bg-surface pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pt-[calc(env(safe-area-inset-top)+0.375rem)] pb-1.5 lg:hidden">
     <dl className="grid grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1.3fr)] items-start gap-x-3">
       {[
@@ -19,5 +27,7 @@ export function BandeauHaut() {
         <dd className="truncate whitespace-nowrap font-titre text-lg text-region-accent">{valeur}</dd>
       </div>)}
     </dl>
+    {combat && telephone && <ZoneLigne etape={zone ? etape : null} precedente={precedente} suivante={suivante}
+      aller={zoneId => storeJeu.getState().allerVers(zoneId)} />}
   </header>;
 }
