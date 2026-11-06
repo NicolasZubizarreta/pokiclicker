@@ -12,24 +12,31 @@ import { BarreXp } from './BarreXp';
 import { BoutonRenommer } from './BoutonRenommer';
 import { FichePokemon } from './FichePokemon';
 import { Image } from './Image';
-import { IconeObjet } from './icones';
+import { IconeObjet, PC } from './icones';
+import { IconeChevron } from './icones-menu';
 import { MenuPokemon } from './MenuPokemon';
 import { Sac } from './Sac';
 import { SelecteurQuantite } from './SelecteurQuantite';
 import { formaterDps } from './nombres';
 import { cheminSprite, precharger } from './precharger';
 import { storeJeu } from './store';
+import { annulerChoix, terminerChoix, useSacContexte } from './sacContexte';
+import { useTelephone } from './useTelephone';
 
 const stase = chargerObjets().find(objet => objet.id === 'everstone')!;
 
-export function PageEquipe() {
+export function PageEquipe({ ouvrirPC }: { ouvrirPC?: () => void }) {
+  const telephone = useTelephone();
+  const objetContexte = useSacContexte(etat => etat.objet);
   const equipe = useStore(storeJeu, etat => etat.equipe);
+  const pc = useStore(storeJeu, etat => etat.pc);
+  const accesPc = useStore(storeJeu, etat => etat.accesPc);
   const dps = useStore(storeJeu, etat => etat.dps);
   const echange = useStore(storeJeu, etat => etat.echange);
   const sac = useStore(storeJeu, etat => etat.sac);
   const evolution = useStore(storeJeu, etat => etat.evolution);
   const [selection, selectionner] = useState<{ type: TypeObjetEquipe | 'pierre' | 'stase' | 'jeton'; cle: string; nom: string } | null>(null);
-  const mode = echange ? null : selection;
+  const mode = echange ? null : objetContexte ?? selection;
   const [cible, cibler] = useState<string | null>(null);
   const [quantite, changerQuantite] = useState(1);
   const [erreurObjet, signalerObjet] = useState<string | null>(null);
@@ -60,6 +67,7 @@ export function PageEquipe() {
   }, [equipe]);
 
   function annulerObjet() {
+    terminerChoix();
     annoncerObjet(null);
     rendreFocus.current = true;
     selectionner(null);
@@ -77,12 +85,16 @@ export function PageEquipe() {
   useEffect(() => {
     if (!mode) return;
     function dehors(event: MouseEvent) {
+      if (objetContexte) return;
       if (event.target instanceof Node && !liste.current?.contains(event.target) && !sacElement.current?.contains(event.target)) {
         annulerObjet();
       }
     }
     function clavier(event: KeyboardEvent) {
-      if (event.key === 'Escape') annulerObjet();
+      if (event.key === 'Escape') {
+        if (objetContexte) annulerChoix();
+        else annulerObjet();
+      }
     }
     document.addEventListener('click', dehors);
     document.addEventListener('keydown', clavier);
@@ -90,7 +102,7 @@ export function PageEquipe() {
       document.removeEventListener('click', dehors);
       document.removeEventListener('keydown', clavier);
     };
-  }, [mode]);
+  }, [mode, objetContexte]);
 
   function ouvrirFiche(uid: string, bouton: HTMLButtonElement, avecRenommage = false) {
     declencheur.current = bouton;
@@ -109,9 +121,13 @@ export function PageEquipe() {
         onClick={() => storeJeu.getState().annulerEchange()}>Annuler</button>
     </div>}
     {echange && erreur?.echange === echange && <p role="alert" className="mt-4 text-erreur-base">{erreur.message}</p>}
-    <p role="status" className={mode || messageObjet ? 'mt-4' : undefined}>{mode ? 'Sélectionne un Pokémon.' : messageObjet ?? ''}</p>
+    {objetContexte ? <div role="status" className="cadre sticky top-0 z-10 flex items-center justify-between gap-4 bg-surface p-4">
+      <p>{objetContexte.nom} : touche un Pokémon</p>
+      <button type="button" className="min-h-11 shrink-0 bg-surface-2 px-4 py-2" onClick={annulerChoix}>Annuler</button>
+    </div> : <p role="status" className={mode || messageObjet ? 'mt-4' : undefined}>{mode ? 'Sélectionne un Pokémon.' : messageObjet ?? ''}</p>}
     {erreurObjet && <p role="alert" className="mt-4 text-erreur-base">{erreurObjet}</p>}
     <div className="mt-4 grid items-start gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+      <div className="min-w-0 space-y-4">
       <ul ref={liste} className="grid min-w-0 auto-rows-fr gap-4">
         {Array.from({ length: reglages.equipe.taille }, (_, index) => {
           const caseEquipe = equipe[index];
@@ -126,7 +142,7 @@ export function PageEquipe() {
           return <li key={pokemon.uid} className="relative min-w-0">
             <button type="button" aria-label={pokemon.oeuf ? `${nom}, ${progressionOeuf(pokemon.oeuf)}` : `${nom}, niveau ${pokemon.niveau}`} aria-pressed={membre?.pokemon.uid === pokemon.uid} data-uid={pokemon.uid}
               disabled={!!mode && (mode.type === 'bonbon' || mode.type === 'calcium' || mode.type === 'baie') && !valide}
-              className={`cadre grid h-full min-h-11 w-full grid-cols-[auto_minmax(0,1fr)] items-center gap-2 p-4 pe-24 text-left ${mode && !valide ? '' : 'hover:bg-selection'} ${membre?.pokemon.uid === pokemon.uid ? 'bg-selection' : 'bg-surface'} ${mode ? valide ? 'relative motion-safe:cible-valide' : 'grayscale opacity-50' : ''}`}
+              className={`cadre grid h-full min-h-11 w-full grid-cols-[auto_minmax(0,1fr)_auto] lg:grid-cols-[auto_minmax(0,1fr)] items-center gap-2 p-4 pe-4 lg:pe-24 text-left ${mode && !valide ? '' : 'hover:bg-selection'} ${membre?.pokemon.uid === pokemon.uid ? 'bg-selection' : 'bg-surface'} ${mode ? valide ? 'relative border-info-base motion-safe:cible-valide' : 'grayscale opacity-50' : ''}`}
               onContextMenu={event => {
                 event.preventDefault();
                 if (echange || mode) return;
@@ -170,18 +186,23 @@ export function PageEquipe() {
                 if (!panneau.current?.getClientRects().length) ouvrirFiche(pokemon.uid, event.currentTarget);
               }}>
               {evolution?.uid === pokemon.uid
-                ? <span className="grid size-24 max-w-none place-items-center [&_img]:size-24"><SpriteEvolution ancien={spriteAffiche({ ...pokemon, numero: evolution.ancien })}
+                ? <span className="grid size-16 lg:size-24 max-w-none place-items-center [&_img]:size-16 lg:[&_img]:size-24"><SpriteEvolution ancien={spriteAffiche({ ...pokemon, numero: evolution.ancien })}
                   nouveau={spriteAffiche({ ...pokemon, numero: evolution.nouveau })} nom={nom} actif shiny={pokemon.shiny} /></span>
-                : <Image src={spriteAffiche(pokemon)} genre="sprite" alt="" className={`size-24 max-w-none ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(pokemon)}`} />}
+                : <Image src={spriteAffiche(pokemon)} genre="sprite" alt="" className={`size-16 lg:size-24 max-w-none ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(pokemon)}`} />}
               <span className="grid min-w-0 gap-2">
                 <strong className="flex items-center gap-2 break-words">{nom}{pokemon.shiny && !pokemon.oeuf && <IconeShiny />}{pokemon.favori &&
                   <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" className="size-5 shrink-0 fill-current text-lien">
                     <path d="m12 2 3 6 7 1-5 5 1 8-6-4-6 4 1-8-5-5 7-1z" />
                   </svg>}</strong>
-                <span>{pokemon.oeuf ? progressionOeuf(pokemon.oeuf) : `Niv. ${pokemon.niveau}`}</span>
-                {!pokemon.oeuf && <BarreXp xp={pokemon.xp} maximum={xpMax} nom={nom} />}
-                <span className="text-region-accent">{formaterDps(dps)} DPS</span>
+                <span className="lg:contents">
+                  <span>{pokemon.oeuf ? progressionOeuf(pokemon.oeuf) : `Niv. ${pokemon.niveau}`}</span>
+                  <span className="lg:hidden"> · </span>
+                  <span className="text-region-accent lg:order-3">{formaterDps(dps)} DPS</span>
+                </span>
+                {!pokemon.oeuf && <span className="lg:order-2"><BarreXp xp={pokemon.xp} maximum={xpMax} nom={nom} /></span>}
               </span>
+              {!mode ? <span className="lg:hidden"><IconeChevron /></span> : valide &&
+                <span className="bg-action px-2 py-1 text-action-texte font-bold lg:hidden">Choisir</span>}
             </button>
             <div className="pointer-events-none absolute top-2 right-2 flex items-center gap-1 [&>*]:pointer-events-auto">
               {pokemon.pierreEternelle && <button type="button" aria-label={`Retirer ${stase.nom} de ${nom}`} title={`Retirer ${stase.nom}`}
@@ -191,11 +212,11 @@ export function PageEquipe() {
                   ? <img src={stase.image} alt="" width={32} height={32} className="size-8 image-rendering-pixelated" />
                   : <IconeObjet image={null} nom={stase.nom} />}
               </button>}
-              {!mode && !echange && !pokemon.oeuf && <BoutonRenommer nom={nom}
+              {!mode && !echange && !pokemon.oeuf && <span className="hidden lg:flex"><BoutonRenommer nom={nom}
                 ouvrir={bouton => {
                   choisir(pokemon.uid);
                   ouvrirFiche(pokemon.uid, bouton, true);
-                }} />}
+                }} /></span>}
             </div>
             {!mode && !echange && typeof caseEquipe.evolution === 'number' && <button type="button"
               aria-label={`Faire évoluer ${nom}`} className="cadre-alerte min-h-11 w-full bg-surface motion-safe:animate-pulse"
@@ -230,6 +251,16 @@ export function PageEquipe() {
           </li>;
         })}
       </ul>
+      {ouvrirPC && !mode && !echange && <button type="button"
+        className={`cadre flex min-h-11 w-full items-center gap-4 bg-surface p-4 text-left hover:bg-selection ${accesPc.ouvert ? '' : 'opacity-60'}`}
+        onClick={ouvrirPC}>
+        <PC />
+        <span className="min-w-0 flex-1"><strong className="block">PC de Léo</strong>
+          <span>{accesPc.ouvert ? `${pc.length} Pokémon rangés` : "Après l'arène d'Argenta"}</span>
+        </span>
+        <IconeChevron />
+      </button>}
+      </div>
       <div className="min-w-0 space-y-4">
       {membre && <aside ref={panneau} className="cadre sticky top-8 z-10 hidden min-w-0 space-y-4 bg-surface p-4 lg:block">
         <div className="relative isolate grid place-items-center">
@@ -249,7 +280,7 @@ export function PageEquipe() {
         {!echange && !mode && <button type="button" className="min-h-11 bg-action px-4 py-2 text-action-texte hover:bg-action-survol"
           onClick={event => ouvrirFiche(membre.pokemon.uid, event.currentTarget)}>Ouvre la fiche</button>}
       </aside>}
-      <div ref={sacElement}>
+      {!telephone && <div ref={sacElement}>
         <Sac sac={sac} utiliser={(entree, bouton) => {
           if (echange || !entree.utilisable || entree.quantite <= 0) return;
           declencheurObjet.current = bouton;
@@ -266,7 +297,7 @@ export function PageEquipe() {
           annoncerObjet(null);
           selectionner({ type: entree.utilisable, cle: entree.id, nom: entree.nom });
         }} />
-      </div>
+      </div>}
       </div>
     </div>
     {!mode && !echange && menu && <MenuPokemon x={menu.x} y={menu.y} declencheur={menu.carte} fermer={() => placerMenu(null)}

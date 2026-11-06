@@ -3,6 +3,7 @@ import { act, cleanup, fireEvent, render, screen, within } from '@testing-librar
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Coquille } from './Coquille';
+import { ouvrirSac, reinitialiserSac, storeSac } from './sacContexte';
 import { creerStoreJeu, storeJeu } from './store';
 import { chargerPokemon } from '../core/pokemon';
 import { formaterDps } from './nombres';
@@ -34,9 +35,52 @@ beforeEach(() => { maintenant = 0; localStorage.clear(); nouvellePartie(); });
 
 afterEach(() => {
   cleanup();
+  reinitialiserSac();
   localStorage.clear();
 });
 const noms = ['Combat', 'Équipe', 'Shop', 'Carte', 'Menu'];
+
+it.each(['Équipe', 'Menu'] as const)('revient du PC vers %s et garde son onglet actif', origine => {
+  render(<Coquille />);
+  fireEvent.click(screen.getByRole('button', { name: origine }));
+  fireEvent.click(screen.getByRole('button', { name: /PC de Léo/ }));
+  expect(screen.getByRole('heading', { name: 'PC de Léo' })).toBeTruthy();
+  expect(within(screen.getByRole('navigation')).getByRole('button', { name: origine }).getAttribute('aria-current')).toBe('page');
+  fireEvent.click(screen.getByRole('button', { name: origine === 'Équipe' ? "Retour à l'équipe" : 'Retour au menu' }));
+  expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(origine === 'Équipe' ? 'Ton équipe' : 'Menu');
+});
+
+it('revient du choix au Combat, rouvre le Sac après annulation et respecte Shop', () => {
+  Object.defineProperties(HTMLDialogElement.prototype, {
+    showModal: { configurable: true, value(this: HTMLDialogElement) { this.open = true; } },
+    close: { configurable: true, value(this: HTMLDialogElement) { this.open = false; this.dispatchEvent(new Event('close')); } },
+  });
+  render(<Coquille />);
+  const utiliserObjet = vi.fn(() => null);
+  act(() => storeJeu.setState({ utiliserObjet, annulerEchange: vi.fn(), sac: { acces: { ouvert: true, raison: null }, entrees: [
+    { id: 'candy', nom: 'Bonbon rare', description: 'Ajoute un niveau.', image: null,
+      categorie: 'soins', quantite: 2, actif: false, utilisable: 'bonbon' },
+  ] } }));
+  const utiliser = () => fireEvent.click(screen.getByRole('button', { name: 'Bonbon rare ×2' }));
+  act(ouvrirSac);
+  utiliser();
+  expect(screen.getByText('Bonbon rare : touche un Pokémon')).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: 'Annuler' }));
+  expect(screen.getByRole('button', { name: 'Combat' }).getAttribute('aria-current')).toBe('page');
+  expect(screen.getByRole('dialog', { name: 'Ton Sac' })).toBeTruthy();
+  utiliser();
+  const premier = storeJeu.getState().equipe.find(c => c)!;
+  fireEvent.click(document.querySelector<HTMLButtonElement>(`button[data-uid="${premier.pokemon.uid}"]`)!);
+  fireEvent.click(screen.getByRole('button', { name: 'Valider' }));
+  expect(utiliserObjet).toHaveBeenCalledWith('bonbon', premier.pokemon.uid, 1);
+  expect(screen.getByRole('button', { name: 'Combat' }).getAttribute('aria-current')).toBe('page');
+  expect(storeSac.getState()).toEqual({ objet: null, ouvert: false });
+  act(ouvrirSac);
+  utiliser();
+  fireEvent.click(screen.getByRole('button', { name: 'Shop' }));
+  expect(screen.getByRole('button', { name: 'Shop' }).getAttribute('aria-current')).toBe('page');
+  expect(storeSac.getState().objet).toBeNull();
+});
 
 it('ouvre le Monde depuis Menu, revient au Menu et permet de jouer à Kanto', () => {
   render(<Coquille />);
@@ -329,9 +373,9 @@ describe('Coquille', () => {
       const nomPokemon = (c: NonNullable<typeof equipe[number]>) => c.pokemon.surnom ?? chargerPokemon().parNumero(c.pokemon.numero).nom;
       const premier = equipe.find(c => c)!;
       if (nom === 'Équipe') {
-        const cases = equipe.map(c => c ? `${nomPokemon(c)}Niv. ${c.pokemon.niveau}${formaterDps(c.dps)} DPS` : 'Emplacement libre').join('');
+        const cases = equipe.map(c => c ? `${nomPokemon(c)}Niv. ${c.pokemon.niveau} · ${formaterDps(c.dps)} DPS` : 'Emplacement libre').join('');
         const xp = premier.xpMax === 0 ? 'MAX' : `${premier.pokemon.xp} / ${premier.xpMax} XP`;
-        expect(screen.getByRole('main').textContent).toBe(`Mon compteTon équipe${formaterDps(storeJeu.getState().dps)} DPS · ${equipe.filter(Boolean).length} / 6${cases}${nomPokemon(premier)}Niv. ${premier.pokemon.niveau}${xp}${formaterDps(premier.dps)} DPSOuvre la ficheTon SacToutBallesSoinsÉquipementPokéball×0Bonbon×0`);
+        expect(screen.getByRole('main').textContent).toBe(`Mon compteTon équipe${formaterDps(storeJeu.getState().dps)} DPS · ${equipe.filter(Boolean).length} / 6${cases}PC de LéoAprès l'arène d'Argenta${nomPokemon(premier)}Niv. ${premier.pokemon.niveau}${xp}${formaterDps(premier.dps)} DPSOuvre la ficheTon SacToutBallesSoinsÉquipementPokéball×0Bonbon×0`);
       }
       // Prépare le balayage de la page visible sans la boîte fermée, montée en permanence.
       container.replaceChildren(rendu.cloneNode(true));

@@ -4,6 +4,7 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import type { PokemonPossede } from '../core/sauvegarde';
 import { formaterDps } from './nombres';
 import { PageEquipe } from './PageEquipe';
+import { choisirObjet, reinitialiserSac, storeSac } from './sacContexte';
 import { storeJeu } from './store';
 import { poserStase, retirerStase, utiliserJetonShiny, utiliserSurPokemon } from '../core/objets-equipe';
 import { evolutionDisponible, evoluerParPierre } from '../core/evolution';
@@ -34,7 +35,26 @@ beforeEach(() => {
     .map(p => p ? { pokemon: p, dps: 42.5, xpMax: 100, multiplicateur: 1 } : null),
   dps: 127.5, echange: null, echanger, annulerEchange });
 });
-afterEach(() => { cleanup(); vi.restoreAllMocks(); });
+afterEach(() => { cleanup(); reinitialiserSac(); vi.restoreAllMocks(); });
+
+it('relie le PC et masque son accès pendant le choix ou un échange', () => {
+  const ouvrirPC = vi.fn();
+  storeJeu.setState({ pc: [pokemon], accesPc: { ouvert: true, raison: null } });
+  render(<PageEquipe ouvrirPC={ouvrirPC} />);
+  expect(screen.getByText('1 Pokémon rangés')).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: /PC de Léo/ }));
+  expect(ouvrirPC).toHaveBeenCalledOnce();
+  act(() => storeJeu.setState({ accesPc: { ouvert: false, raison: null } }));
+  expect(screen.getByText("Après l'arène d'Argenta")).toBeTruthy();
+  expect(screen.getByRole('button', { name: /PC de Léo/ }).className).toContain('opacity-60');
+  act(() => choisirObjet({ type: 'jeton', cle: 'shiny-token', nom: 'Jeton Shiny' }));
+  expect(screen.queryByRole('button', { name: /PC de Léo/ })).toBeNull();
+  const ligne = screen.getByRole('button', { name: 'Bourgeon, niveau 16' });
+  expect(ligne.className).toContain('border-info-base');
+  expect(within(ligne).getByText('Choisir').className).toContain('lg:hidden');
+  act(() => { reinitialiserSac(); storeJeu.setState({ echange: { uid: 'pc', nom: 'Pikachu' } }); });
+  expect(screen.queryByRole('button', { name: /PC de Léo/ })).toBeNull();
+});
 
 it('garde sprite, halo et icône chromatiques dans les cartes, le détail et l’évolution', () => {
   const shiny = { ...pokemon, shiny: true };
@@ -54,6 +74,7 @@ it('garde sprite, halo et icône chromatiques dans les cartes, le détail et l�
 it('présente six cases, le total formaté et les noms français', () => {
   render(<PageEquipe />);
   expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Ton équipe');
+  expect(screen.queryByRole('button', { name: /PC de Léo/ })).toBeNull();
   expect(screen.getByText(`${formaterDps(127.5)} DPS · 3 / 6`)).toBeTruthy();
   const liste = screen.getByRole('list');
   expect(within(liste).getAllByRole('listitem')).toHaveLength(6);
@@ -62,7 +83,7 @@ it('présente six cases, le total formaté et les noms français', () => {
   expect(within(liste).getAllByText('Emplacement libre')).toHaveLength(3);
   expect(screen.getByRole('button', { name: 'Salamèche, niveau 16' })).toBeTruthy();
   expect(within(liste).getAllByRole('progressbar')).toHaveLength(3);
-  expect(liste.textContent).toBe('BourgeonNiv. 1642,5 DPSSalamècheNiv. 1642,5 DPSCarapuceNiv. 1642,5 DPSEmplacement libreEmplacement libreEmplacement libre');
+  expect(liste.textContent).toBe('BourgeonNiv. 16 · 42,5 DPSSalamècheNiv. 16 · 42,5 DPSCarapuceNiv. 16 · 42,5 DPSEmplacement libreEmplacement libreEmplacement libre');
 });
 
 it('le crayon de la carte ouvre la fiche avec le champ de surnom, le focus dedans, et rend le focus au crayon', () => {
@@ -135,6 +156,17 @@ it('annule l’échange au démontage', () => {
   const { unmount } = render(<PageEquipe />);
   unmount();
   expect(annulerEchange).toHaveBeenCalledOnce();
+});
+
+it('annule le choix du Sac par Échap et ignore le clic extérieur', () => {
+  render(<PageEquipe />);
+  act(() => choisirObjet({ type: 'bonbon', cle: 'candy', nom: 'Bonbon rare' }));
+  expect(screen.getByText('Bonbon rare : touche un Pokémon')).toBeTruthy();
+  expect(screen.getByRole('button', { name: 'Annuler' })).toBeTruthy();
+  fireEvent.click(document.body);
+  expect(storeSac.getState().objet).not.toBeNull();
+  fireEvent.keyDown(document, { key: 'Escape' });
+  expect(storeSac.getState()).toEqual({ objet: null, ouvert: true });
 });
 
 it('le clic droit ouvre Résumé, puis la fiche du Pokémon et rend le focus à sa carte', () => {
@@ -213,7 +245,7 @@ it('utilise deux Bonbons pour gagner exactement deux niveaux sans changer l’XP
   expect(screen.queryByRole('menu')).toBeNull();
   fireEvent.click(cible);
   expect(screen.queryByRole('dialog')).toBeNull();
-  expect(document.querySelectorAll('.bg-action')).toHaveLength(1);
+  expect(document.querySelectorAll('button.bg-action')).toHaveLength(1);
   fireEvent.click(screen.getByRole('button', { name: 'Plus' }));
   fireEvent.click(screen.getByRole('button', { name: 'Valider' }));
   expect(utiliserObjet).toHaveBeenCalledWith('bonbon', 'premier', 2);
@@ -399,7 +431,7 @@ it.each(['validation', 'bouton', 'Échap', 'extérieur', 'déclencheur disparu']
   fireEvent.click(screen.getByRole('button', { name: 'Bourgeon, niveau 16' }));
   expect(screen.getByRole('group', { name: 'Utiliser Pierre Foudre sur Bourgeon ?' })).toBeTruthy();
   expect(screen.queryByRole('button', { name: 'Plus' })).toBeNull();
-  expect(document.querySelectorAll('.bg-action')).toHaveLength(1);
+  expect(document.querySelectorAll('button.bg-action')).toHaveLength(1);
   expect(document.querySelector('button button')).toBeNull();
   expect(screen.queryByRole('button', { name: /Faire évoluer/ })).toBeNull();
   if (moyen === 'validation') fireEvent.click(screen.getByRole('button', { name: 'Valider' }));
@@ -469,7 +501,7 @@ it('pose la Stase sans confirmation, affiche son icône et le DPS puis la retire
   expect(storeJeu.getState().sac.entrees[0]?.quantite).toBe(1);
   expect(document.activeElement).toBe(declencheur);
   expect(screen.getByRole('status').textContent).toBe('');
-  expect(document.querySelectorAll('.bg-action')).toHaveLength(1);
+  expect(document.querySelectorAll('button.bg-action')).toHaveLength(1);
   expect(document.querySelector('button button')).toBeNull();
   fireEvent.contextMenu(ligne);
   fireEvent.click(screen.getByRole('menuitem', { name: "Retirer l'objet" }));
@@ -513,7 +545,7 @@ it.each(['validation', 'annulation', 'refus'] as const)('confirme le Jeton et re
   expect(ligne.className).toContain('motion-safe:cible-valide');
   fireEvent.click(ligne);
   expect(screen.getByRole('group', { name: 'Utiliser Jeton Shiny sur Bourgeon ?' })).toBeTruthy();
-  expect(document.querySelectorAll('.bg-action')).toHaveLength(1);
+  expect(document.querySelectorAll('button.bg-action')).toHaveLength(1);
   expect(document.querySelector('button button')).toBeNull();
   if (moyen === 'refus') storeJeu.setState({ utiliserJeton: vi.fn(() => 'Quantité invalide.') });
   fireEvent.click(screen.getByRole('button', { name: moyen === 'annulation' ? 'Annuler' : 'Valider' }));
