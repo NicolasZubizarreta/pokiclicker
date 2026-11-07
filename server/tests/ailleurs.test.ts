@@ -12,7 +12,7 @@ async function preparer() {
   const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json', origin: s.origin };
   const ecritLe = '2026-01-01T00:00:00.000Z';
   const reponse = await s.runtime.app.request('/api/sauvegarde', {
-    method: 'PUT', headers, body: JSON.stringify({ partieId: id,
+    method: 'PUT', headers, body: JSON.stringify({ partieId: id, appareilId: randomUUID(),
       partie: { revisionBase: 0, enveloppe: { version: 1, niveau: 'partie', id,
         revision: 0, ecritLe, donnees: { nom: 'Aventure', regionCourante: 'kanto', statistiques: { tempsJeuMs: 42 } } } },
       regions: [{ revisionBase: 0, enveloppe: { version: 1, niveau: 'region', id: 'kanto',
@@ -20,6 +20,7 @@ async function preparer() {
     }),
   });
   expect(reponse.status).toBe(200);
+  await s.pool.query('DELETE FROM appareil_actif WHERE partie_id = $1', [id]); // l'appareil de la création ne compte pas dans ces scénarios
   const lister = async (appareilId?: string, jeton = token) => {
     const reponse = await s.runtime.app.request(`/api/sauvegarde/parties${appareilId === undefined ? '' : `?appareilId=${appareilId}`}`,
       { headers: { ...headers, Authorization: `Bearer ${jeton}` } });

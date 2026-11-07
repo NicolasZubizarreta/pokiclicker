@@ -12,6 +12,7 @@ async function preparer() {
     ecritLe: '2026-01-01T00:00:00.000Z', donnees: { nom: 'Ancien nom' } };
   const reponse = await s.request(api, { partieId: id, partie: { revisionBase: 0, enveloppe } }, token, undefined, 'PUT');
   expect(reponse.status).toBe(200);
+  await s.pool.query('DELETE FROM appareil_actif WHERE partie_id = $1', [id]); // la création ne retient aucun appareil actif
   return { token, id, enveloppe };
 }
 

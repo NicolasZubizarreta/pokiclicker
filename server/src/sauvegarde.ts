@@ -398,6 +398,10 @@ export function routesSauvegarde(pool: Pool, auth: Auth): Hono<{ Variables: { co
     try { erreur = valider(brut); } catch { erreur = { message: 'Sauvegarde invalide.', statut: 400 as const }; }
     if (erreur) return c.json({ message: erreur.message }, erreur.statut);
     const corps = brut as Corps;
+    // Sans appareil, impossible de savoir qui écrit : le client doit être à jour (lot 8, ADR 0004).
+    if ((corps.partie !== undefined || corps.regions !== undefined) && corps.appareilId === undefined) {
+      return c.json({ message: 'Mets à jour le jeu.', code: 'appareil-requis' }, 400);
+    }
     const appareil = corps.appareilId !== undefined && (corps.partie !== undefined || corps.regions !== undefined);
     const compteId = c.get('compteId');
     const db = await pool.connect();

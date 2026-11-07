@@ -16,6 +16,8 @@ function corps(id = randomUUID()) {
     regions: [objet('region', 'kanto', 0, { regionId: 'kanto', zoneId: 'route-1', etape: 2 })] };
 }
 const put = (body: object, token?: string) => request(chemin, body, token, undefined, 'PUT');
+// Les tests d'appareil partent d'une partie sans appareil actif (le PUT de création en retient un par défaut).
+const liberer = (id: string) => contexte.pool.query('DELETE FROM appareil_actif WHERE partie_id = $1', [id]);
 
 test.each(['refus', 'expiration', 'neuve', 'invalide', 'ancien', 'même', 'priorité'])('PUT appareil : %s', async scenario => {
   const { token } = await signup();
@@ -25,6 +27,7 @@ test.each(['refus', 'expiration', 'neuve', 'invalide', 'ancien', 'même', 'prior
   const neuve = scenario === 'neuve';
   if (!neuve) {
     expect((await put(body, token)).status).toBe(200);
+    await liberer(body.partieId);
     const prise = await request(`${chemin}/parties/${body.partieId}/appareil`, { appareilId: a }, token);
     expect(await prise.json()).toEqual({ actif: true });
   }
@@ -38,20 +41,21 @@ test.each(['refus', 'expiration', 'neuve', 'invalide', 'ancien', 'même', 'prior
   const nombre = await versions();
   const response = await put({ partieId: body.partieId,
     partie: { ...body.partie, revisionBase: neuve || scenario === 'priorité' ? 0 : 1 },
-    ...(scenario === 'ancien' ? {} : { appareilId: scenario === 'invalide' ? 'invalide' : scenario === 'même' ? a : b }),
+    ...(scenario === 'ancien' ? { appareilId: undefined } : { appareilId: scenario === 'invalide' ? 'invalide' : scenario === 'même' ? a : b }),
   }, token);
   const refuse = scenario === 'refus' || scenario === 'priorité';
-  expect(response.status).toBe(refuse ? 409 : scenario === 'invalide' ? 400 : 200);
-  if (refuse || scenario === 'invalide') {
+  const sansAppareil = scenario === 'ancien';
+  expect(response.status).toBe(refuse ? 409 : scenario === 'invalide' || sansAppareil ? 400 : 200);
+  if (refuse || scenario === 'invalide' || sansAppareil) {
     expect(await response.json()).toEqual(refuse
       ? { message: 'Cette partie est ouverte sur un autre appareil.', code: 'ailleurs', conflits: [] }
-      : { message: 'Sauvegarde invalide.' });
+      : sansAppareil ? { message: 'Mets à jour le jeu.', code: 'appareil-requis' } : { message: 'Sauvegarde invalide.' });
     expect((await contexte.pool.query('SELECT revision FROM parties WHERE id = $1', [body.partieId])).rows[0].revision).toBe(1);
     expect(await versions()).toBe(nombre);
     expect(await ligne()).toEqual(avant);
   } else {
     const apres = await ligne();
-    expect(apres.appareil_id).toBe(scenario === 'ancien' || scenario === 'même' ? a : b);
+    expect(apres.appareil_id).toBe(scenario === 'même' ? a : b);
     if (scenario === 'même') expect(apres.battement_le.getTime()).toBeGreaterThan(avant.battement_le.getTime());
   }
 });
@@ -277,6 +281,7 @@ test('appareil : prise, renouvellement, reprise et expiration', async () => {
   const a = randomUUID();
   const b = randomUUID();
   await put(corps(id), token);
+  await liberer(id);
   const poster = async (appareilId: string, actif: boolean, reprendre?: boolean) => {
     const response = await request(`${chemin}/parties/${id}/appareil`,
       { appareilId, ...(reprendre === undefined ? {} : { reprendre }) }, token, undefined, 'POST');

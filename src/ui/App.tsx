@@ -47,6 +47,7 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
     urlApi: import.meta.env.VITE_API_URL ?? '', jeton: () => jeton,
     enPause: () => appareil.ailleurs(),
     appareilId: () => appareil.id(), quandAilleurs: () => appareil.signalerAilleurs(),
+    quandMiseAJourRequise: () => fixerAvis('Mets à jour le jeu : recharge la page pour continuer à sauvegarder.'),
     quandChange: () => rafraichir(n => n + 1) }), [jeton, appareil]);
   const lireAvis = useCallback(() => {
     const phrase = synchro.lireAvis();

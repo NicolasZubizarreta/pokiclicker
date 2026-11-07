@@ -51,7 +51,7 @@ export function creerSynchro(options: {
   stockage: Stockage; horloge: Horloge; urlApi: string; jeton: () => string | null;
   fetch?: typeof fetch; intervalleMs?: number; delaiMiniMs?: number; quandChange?: () => void;
   enPause?: () => boolean;
-  appareilId?: () => string | null; quandAilleurs?: () => void;
+  appareilId?: () => string | null; quandAilleurs?: () => void; quandMiseAJourRequise?: () => void;
 }) {
   const { stockage, horloge } = options;
   const gestionnaire = creerGestionnaire({ stockage, horloge, genererId: genererIdentifiant });
@@ -293,6 +293,10 @@ export function creerSynchro(options: {
         }
         else if (reponse.status === 404 && partie && !partieModifiee && regions.length > 0
           && (memoire.parties[partie.id]?.serveur ?? 0) > 0) retenirSuppression(partie.id);
+        else if (reponse.status === 400 && (await reponse.json().catch(() => null))?.code === 'appareil-requis') {
+          // Serveur à jour, client trop ancien : plus rien ne part tant que le jeu n'est pas rechargé.
+          statut = 'refuse'; bloque = true; options.quandMiseAJourRequise?.(); options.quandChange?.();
+        }
         else if (reponse.status >= 400 && reponse.status < 500 && ![408, 429].includes(reponse.status)) { statut = 'refuse'; bloque = true; }
         else statut = 'hors-ligne';
       } catch { if (!arrete) statut = 'hors-ligne'; }

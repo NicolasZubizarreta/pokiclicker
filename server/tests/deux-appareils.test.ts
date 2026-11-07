@@ -176,7 +176,7 @@ it('archive la divergence hors ligne puis installe la sauvegarde serveur', async
   await verifierServeur(b, id, a.region());
 });
 
-it('accepte un ancien client sans appareilId pour une nouvelle partie', async () => {
+it('refuse un ancien client sans appareilId (400 appareil-requis) et ne crée rien', async () => {
   const { a, b } = await synchroniser();
   expect(await a.appareil.ouvrir()).toBe('libre');
   const partie = b.gestionnaire.creerPartie('Ancien client');
@@ -187,7 +187,9 @@ it('accepte un ancien client sans appareilId pour une nouvelle partie', async ()
       partie: { revisionBase: 0, enveloppe: partie },
       regions: [{ revisionBase: 0, enveloppe: b.gestionnaire.chargerRegion(partie.id, 'kanto') }] }),
   });
-  expect(reponse.status).toBe(200);
+  expect(reponse.status).toBe(400);
+  expect(await reponse.json()).toMatchObject({ code: 'appareil-requis' });
+  expect((await s.pool.query('SELECT 1 FROM parties WHERE id = $1', [partie.id])).rows).toHaveLength(0);
 });
 
 it('migre côté client une partie et une région au format v1', async () => {

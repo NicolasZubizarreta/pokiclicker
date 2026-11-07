@@ -372,6 +372,28 @@ it('relit le serveur à chaque résolution', async () => {
   expect(t.g.chargerPartie(t.p.id)?.revision).toBe(21);
 });
 
+it('demande la mise à jour du jeu quand le serveur exige un appareil, sans rien renvoyer ensuite', async () => {
+  const t = preparer(); versions(t);
+  const quandMiseAJourRequise = vi.fn();
+  const synchro = creerSynchro({ ...t.options, quandMiseAJourRequise });
+  t.fetch.mockResolvedValueOnce(new Response('{"message":"Mets à jour le jeu.","code":"appareil-requis"}', { status: 400 }));
+  await synchro.envoyerMaintenant();
+  expect(quandMiseAJourRequise).toHaveBeenCalledTimes(1);
+  expect(synchro.etat()).toBe('refuse');
+  await synchro.envoyerMaintenant();
+  expect(t.fetch.mock.calls.filter(([, o]) => o?.method === 'PUT')).toHaveLength(1);
+});
+
+it('un 400 ordinaire ne demande pas de mise à jour', async () => {
+  const t = preparer(); versions(t);
+  const quandMiseAJourRequise = vi.fn();
+  const synchro = creerSynchro({ ...t.options, quandMiseAJourRequise });
+  t.fetch.mockResolvedValueOnce(new Response('{"message":"Sauvegarde invalide."}', { status: 400 }));
+  await synchro.envoyerMaintenant();
+  expect(quandMiseAJourRequise).not.toHaveBeenCalled();
+  expect(synchro.etat()).toBe('refuse');
+});
+
 it('bloque un appareil dépossédé jusqu’à sa reprise', async () => {
   const t = preparer(); versions(t);
   let pause = false;

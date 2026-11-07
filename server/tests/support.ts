@@ -72,7 +72,12 @@ afterAll(async () => {
   if (directory) await rm(directory, { recursive: true, force: true });
 });
 
+const appareilParDefaut = '00000000-0000-4000-8000-00000000a001';
 function request(path: string, body?: object, token?: string, client = `192.0.2.${++ip}`, method = body ? 'POST' : 'GET') {
+  // Depuis le lot 8 le PUT d'une partie exige un appareil : les tests en fournissent un sauf s'ils portent la clé `appareilId` (même undefined).
+  if (body && method === 'PUT' && path === '/api/sauvegarde' && ('partie' in body || 'regions' in body) && !('appareilId' in body)) {
+    body = { ...body, appareilId: appareilParDefaut };
+  }
   return runtime.app.request(`http://localhost:3000${path}`, {
     method, headers: { origin, 'content-type': 'application/json',
       'x-forwarded-for': client, ...(token ? { authorization: `Bearer ${token}` } : {}) },
