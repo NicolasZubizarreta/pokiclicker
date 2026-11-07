@@ -93,3 +93,12 @@ test('archives : une partie de plus de 100 Ko passe, et le préflight CORS autor
     expect(reponse.headers.get('access-control-allow-methods')).toContain(methode);
   }
 });
+
+test('archives : plus de 20 régions refusées (413), révision hors plage refusée (400), rien d\'écrit', async () => {
+  const t = await preparer();
+  const region = (i: number) => objet('region', `r${i}`, { regionId: `r${i}`, zoneId: 'z' });
+  expect((await poster(t.id, { ...t.body, regions: Array.from({ length: 21 }, (_, i) => region(i)) }, t.token)).status).toBe(413);
+  const enorme = { ...t.body, partie: { ...t.body.partie, revision: 3_000_000_000 } };
+  expect((await poster(t.id, enorme, t.token)).status).toBe(400);
+  expect((await s.pool.query('SELECT * FROM versions WHERE objet_id LIKE $1', [`${t.id}%`])).rows).toHaveLength(0);
+});

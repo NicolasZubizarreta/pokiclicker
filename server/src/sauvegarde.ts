@@ -55,7 +55,7 @@ function valider(v: unknown): { message: string; statut: 400 | 413 } | undefined
     if (json.includes('\\u0000')) return erreur;
     if (!champs(e, ['version', 'niveau', 'id', 'revision', 'ecritLe', 'donnees']) ||
       !entier(e.version) || e.version < 1 || e.version > 1000 || e.niveau !== niveau ||
-      !texte(e.id) || e.id.includes(':') || !entier(e.revision) ||
+      !texte(e.id) || e.id.includes(':') || !entier(e.revision) || e.revision > 2_147_483_647 ||
       typeof e.ecritLe !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/.test(e.ecritLe) ||
       !Number.isFinite(Date.parse(e.ecritLe)) || !objet(e.donnees)) return erreur;
     if (niveau === 'partie' && (e.id !== v.partieId || !texte(e.donnees.nom))) return erreur;
@@ -228,6 +228,7 @@ export function routesSauvegarde(pool: Pool, auth: Auth): Hono<{ Variables: { co
     if (!objet(brut) || !champs(brut, ['partie', 'regions']) || !objet(brut.partie) || !Array.isArray(brut.regions)) {
       return c.json({ message: 'Sauvegarde invalide.' }, 400);
     }
+    if (brut.regions.length > MAX_REGIONS) return c.json({ message: 'Trop de régions.' }, 413);
     const erreur = valider({ partieId: id, partie: { revisionBase: 0, enveloppe: brut.partie },
       regions: brut.regions.map(enveloppe => ({ revisionBase: 0, enveloppe })) });
     if (erreur) return c.json({ message: erreur.message }, erreur.statut);
@@ -287,7 +288,7 @@ export function routesSauvegarde(pool: Pool, auth: Auth): Hono<{ Variables: { co
       }
       await db.query(`INSERT INTO appareil_actif(partie_id, appareil_id, battement_le)
         VALUES ($1,$2,now()) ON CONFLICT (partie_id) DO UPDATE
-        SET appareil_id = EXCLUDED.appareil_id, battement_le = now()`, [id, brut.appareilId]);
+        SET appareil_id = EXCLUDED.appareil_id, battement_le = now()`, [id, brut.appareilId.toLowerCase()]);
       const lot = randomUUID();
       await db.query(`INSERT INTO versions(compte_id,niveau,objet_id,revision,version,ecrit_le,donnees,origine,lot)
         SELECT compte_id,'partie',id,revision,version,ecrit_le,donnees,'restauration',$2 FROM parties WHERE id=$1`, [id, lot]);
