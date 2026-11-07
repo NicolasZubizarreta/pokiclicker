@@ -5,7 +5,9 @@ import { genererIdentifiant } from './identifiants';
 
 export type EtatSynchro = 'inactif' | 'ok' | 'hors-ligne' | 'refuse' | 'ailleurs' | 'divergence';
 export type PartieListee = { id: string; nom: string; regionCourante: string; zoneId: string; tempsJeuMs: number | null;
-  ecritLe: string; surServeur: boolean; courante: boolean };
+  ecritLe: string; surServeur: boolean; courante: boolean; ailleurs?: boolean };
+export type VersionArchivee = { lot: string; origine: 'divergence' | 'restauration'; remplaceLe: string; ecritLe: string;
+  tempsJeuMs: number | null; regionCourante: string; zoneId: string; niveauEquipe: number | null };
 type Revision = { serveur: number; local: number };
 export type Memoire = { version: 1; compte?: Revision; parties: Record<string, Revision>; regions: Record<string, Revision> };
 type Version = { compte?: Enveloppe<DonneesCompte> | null; partie: Enveloppe<DonneesPartie> | null; regions: Enveloppe<DonneesRegion>[] };
@@ -93,14 +95,16 @@ export function creerSynchro(options: {
     });
   }
   async function listerServeur(): Promise<Omit<PartieListee, 'surServeur' | 'courante'>[]> {
-    const liste = await requete('/parties');
+    const appareilId = options.appareilId?.();
+    const liste = await requete('/parties' + (typeof appareilId === 'string' && appareilId.length > 0
+      ? `?appareilId=${encodeURIComponent(appareilId)}` : ''));
     if (!liste.ok) throw new Error('Lecture impossible');
     const contenu = await liste.json();
     if (!contenu || !Array.isArray(contenu.parties)) throw new Error('Liste invalide');
     return contenu.parties.map((p: Record<string, unknown> | null) => {
       if (!p || typeof p.id !== 'string' || typeof p.nom !== 'string'
         || !Number.isSafeInteger(p.revision) || typeof p.ecritLe !== 'string') throw new Error('Partie invalide');
-      return { id: p.id, nom: p.nom, ecritLe: p.ecritLe,
+      return { id: p.id, nom: p.nom, ecritLe: p.ecritLe, ailleurs: p.appareilActif === 'autre',
         regionCourante: typeof p.regionCourante === 'string' ? p.regionCourante : '',
         zoneId: typeof p.zoneId === 'string' ? p.zoneId : '',
         tempsJeuMs: typeof p.tempsJeuMs === 'number' && Number.isFinite(p.tempsJeuMs) ? p.tempsJeuMs : null };
@@ -153,9 +157,10 @@ export function creerSynchro(options: {
         if (!reponse.ok || arrete) throw new Error('Archivage impossible');
       };
       if (plan.compte === 'diverge' && local.compte) await archiver('compte', 'local', local.compte);
-      if (plan.partie === 'diverge' && local.partie) {
-        await archiver('partie', local.partie.id, local.partie);
-        for (const r of local.regions) await archiver('region', `${local.partie.id}:${r.id}`, r);
+      if (plan.partie === 'diverge' && local.partie && local.regions.length > 0) {
+        const reponse = await requete(`/parties/${encodeURIComponent(local.partie.id)}/archives`, 'POST',
+          { partie: local.partie, regions: local.regions });
+        if (!reponse.ok || arrete) throw new Error('Archivage impossible');
       }
       if (arrete || options.enPause?.()) return 'echec';
       let charge = false;
@@ -320,16 +325,54 @@ export function creerSynchro(options: {
     try {
       if (!options.jeton()) throw new Error('Sans connexion');
       parties = (await listerServeur()).map(p => ({ ...p, surServeur: true, courante: p.id === courante }));
+      for (const p of parties) {
+        try {
+          const locale = gestionnaire.chargerPartie(p.id);
+          if (locale && locale.donnees.nom !== p.nom) gestionnaire.renommerPartie(p.id, p.nom);
+        } catch { /* Un nom local inaccessible ne bloque pas la liste. */ }
+      }
     } catch { horsConnexion = true; }
     for (const p of gestionnaire.listerParties()) {
       if (parties.some(serveur => serveur.id === p.id)) continue;
       const partie = gestionnaire.chargerPartie(p.id)!;
       const region = gestionnaire.chargerRegion(p.id, p.regionCourante);
       parties.push({ ...p, zoneId: region?.donnees.zoneId ?? '', tempsJeuMs: partie.donnees.statistiques.tempsJeuMs ?? null,
-        surServeur: false, courante: p.id === courante });
+        surServeur: false, courante: p.id === courante, ailleurs: false });
     }
     parties.sort((a, b) => Date.parse(b.ecritLe) - Date.parse(a.ecritLe));
     return { parties, horsConnexion };
+  }
+  async function listerVersions(id: string): Promise<VersionArchivee[] | null> {
+    try {
+      const reponse = await requete(`/parties/${encodeURIComponent(id)}/versions`);
+      if (reponse.status !== 200) return null;
+      const contenu = await reponse.json();
+      if (!contenu || !Array.isArray(contenu.versions)) return null;
+      const versions: VersionArchivee[] = [];
+      for (const v of contenu.versions) {
+        if (!v || typeof v !== 'object' || typeof v.lot !== 'string'
+          || !['divergence', 'restauration'].includes(v.origine)
+          || typeof v.remplaceLe !== 'string' || typeof v.ecritLe !== 'string'
+          || !(v.tempsJeuMs === null || (typeof v.tempsJeuMs === 'number' && Number.isFinite(v.tempsJeuMs)))
+          || !(v.niveauEquipe === null || (typeof v.niveauEquipe === 'number' && Number.isFinite(v.niveauEquipe)))
+          || !(v.regionCourante == null || typeof v.regionCourante === 'string')
+          || !(v.zoneId == null || typeof v.zoneId === 'string')) continue;
+        versions.push({ lot: v.lot, origine: v.origine, remplaceLe: v.remplaceLe, ecritLe: v.ecritLe,
+          tempsJeuMs: v.tempsJeuMs, regionCourante: v.regionCourante ?? '', zoneId: v.zoneId ?? '', niveauEquipe: v.niveauEquipe });
+      }
+      return versions;
+    } catch { return null; }
+  }
+  async function restaurerVersion(id: string, lot: string): Promise<'ok' | 'introuvable' | 'echec'> {
+    try {
+      const appareilId = options.appareilId?.();
+      if (!options.jeton() || typeof appareilId !== 'string' || !appareilId.length) return 'echec';
+      if (gestionnaire.partieCourante() === id) {
+        try { await envoyer(); } catch { /* La reprise archivera la progression non envoyée. */ }
+      }
+      const reponse = await requete(`/parties/${encodeURIComponent(id)}/restaurer`, 'POST', { appareilId, lot });
+      return reponse.status === 200 ? 'ok' : reponse.status === 404 ? 'introuvable' : 'echec';
+    } catch { return 'echec'; }
   }
   async function ouvrirPartie(id: string): Promise<'ok' | 'echec'> {
     try {
@@ -352,6 +395,23 @@ export function creerSynchro(options: {
       await envoyer(); // les dernières modifications de la partie quittée partent avant le changement
       creerPartieNommee({ stockage, horloge, genererId: genererIdentifiant }, nom, depart);
       await envoyer();
+      return 'ok';
+    } catch { return 'echec'; }
+  }
+  async function renommerPartie(id: string, nom: string): Promise<'ok' | 'echec' | 'nom-invalide'> {
+    nom = nom.trim();
+    if (!nom.length || nom.length > 100) return 'nom-invalide';
+    try {
+      const local = gestionnaire.chargerPartie(id);
+      const connue = (memoire.parties[id]?.serveur ?? 0) > 0;
+      if (local && !connue) {
+        gestionnaire.renommerPartie(id, nom);
+        return 'ok';
+      }
+      if (!options.jeton()) return 'echec';
+      const reponse = await requete('/parties/' + encodeURIComponent(id), 'PATCH', { nom });
+      if (reponse.status !== 200) return 'echec';
+      if (local) gestionnaire.renommerPartie(id, nom);
       return 'ok';
     } catch { return 'echec'; }
   }
@@ -380,8 +440,11 @@ export function creerSynchro(options: {
   return {
     ouvrir,
     lister,
+    listerVersions,
+    restaurerVersion,
     ouvrirPartie,
     creerPartie,
+    renommerPartie,
     supprimerPartie,
     suppression: () => suppressionEnAttente,
     resoudreSuppression,

@@ -243,7 +243,7 @@ async function lire(id: string, token: string) {
 test('migration idempotente', async () => {
   const db = await contexte.pool.connect();
   try { await migrerSauvegarde(db); await migrerSauvegarde(db); } finally { db.release(); }
-  expect((await contexte.pool.query('SELECT version FROM migrations_sauvegarde')).rows).toEqual([{ version: 1 }, { version: 2 }]);
+  expect((await contexte.pool.query('SELECT version FROM migrations_sauvegarde')).rows).toEqual([{ version: 1 }, { version: 2 }, { version: 3 }]);
 });
 
 test('appareil : session, isolation et validation', async () => {
@@ -327,7 +327,9 @@ test('création, relecture et mise à jour historisée', async () => {
   expect(await (await request(`${chemin}/compte`, undefined, token)).json()).toEqual({ enveloppe: { ...body.compte.enveloppe, revision: 1 } });
   const partie = objet('partie', body.partieId, 1, { nom: 'Nouveau nom' });
   expect((await put({ partieId: body.partieId, partie }, token)).status).toBe(200);
-  expect((await lire(body.partieId, token)).partie).toEqual({ ...partie.enveloppe, revision: 2 });
+  // Le nom appartient au serveur (renommage par PATCH) : un PUT ne le change pas.
+  expect((await lire(body.partieId, token)).partie).toEqual({
+    ...partie.enveloppe, donnees: { ...partie.enveloppe.donnees, nom: body.partie.enveloppe.donnees.nom }, revision: 2 });
   const versions = (await contexte.pool.query('SELECT revision, donnees FROM versions WHERE objet_id = $1', [body.partieId])).rows;
   expect(versions).toEqual([{ revision: 1, donnees: body.partie.enveloppe.donnees }]);
 });

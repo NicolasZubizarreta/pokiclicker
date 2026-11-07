@@ -7,6 +7,143 @@ import { creerStoreJeu } from './store';
 import { creerSynchro, decider, type Memoire } from './synchro';
 
 const arrets: (() => void)[] = [];
+it.each(['autre', 'cet-appareil', null, undefined, 42, 'inconnu'])('liste appareil actif : %s', async appareilActif => {
+  const t = preparer();
+  const synchro = creerSynchro({ ...t.options, appareilId: () => 'a/b' });
+  t.fetch.mockImplementation(async () => new Response(JSON.stringify({ parties: [
+    { id: 'distante', nom: 'D', revision: 1, ecritLe: t.p.ecritLe, appareilActif },
+  ] })));
+  const resultat = await synchro.lister();
+  expect(t.fetch.mock.calls[0]![0]).toBe(`${window.location.origin}/api/sauvegarde/parties?appareilId=a%2Fb`);
+  expect(resultat.parties.find(p => p.id === 'distante')!.ailleurs).toBe(appareilActif === 'autre');
+  expect(resultat.parties.find(p => p.id === t.p.id)!.ailleurs).toBe(false);
+});
+it.each([null, ''])('liste sans identifiant appareil : %s', async appareilId => {
+  const t = preparer();
+  versions(t);
+  await creerSynchro({ ...t.options, appareilId: () => appareilId }).lister();
+  expect(t.fetch.mock.calls[0]![0]).toBe(`${window.location.origin}/api/sauvegarde/parties`);
+});
+it.each([200, 500])('archive la divergence en un lot avant installation : %s', async status => {
+  const t = preparer();
+  const { local } = versions(t);
+  const avant = t.contenu();
+  const repondre = t.fetch.getMockImplementation()!;
+  t.fetch.mockImplementation(async (url, options) => String(url).endsWith('/archives')
+    ? new Response('{}', { status }) : repondre(url, options));
+  expect(await t.synchro.ouvrir()).toBe(status === 200 ? 'charge' : 'hors-ligne');
+  const posts = t.fetch.mock.calls.filter(([, o]) => o?.method === 'POST');
+  expect(posts).toHaveLength(2);
+  expect(posts[0]![0]).toBe(`${window.location.origin}/api/sauvegarde/versions`);
+  expect(JSON.parse(posts[0]![1]!.body as string)).toEqual({ niveau: 'compte', objetId: 'local', enveloppe: local.compte });
+  expect(posts[1]![0]).toBe(`${window.location.origin}/api/sauvegarde/parties/test/archives`);
+  expect(JSON.parse(posts[1]![1]!.body as string)).toEqual({ partie: local.partie, regions: local.regions });
+  if (status === 500) expect(t.contenu()).toEqual(avant);
+});
+it('ne bloque pas une divergence sans region locale', async () => {
+  const t = preparer();
+  versions(t);
+  t.stockage.supprimer(`pokiclicker:region:${t.p.id}:kanto`);
+  expect(await t.synchro.ouvrir()).toBe('charge');
+  expect(t.fetch.mock.calls.some(([url]) => String(url).endsWith('/archives'))).toBe(false);
+});
+it('liste les versions dans leur ordre et filtre les elements invalides', async () => {
+  const t = preparer();
+  const v = { lot: 'recent', origine: 'divergence', remplaceLe: t.p.ecritLe, ecritLe: t.p.ecritLe,
+    tempsJeuMs: 12, regionCourante: 'kanto', zoneId: 'bourg', niveauEquipe: 5 };
+  const ancien = { ...v, lot: 'ancien', origine: 'restauration', regionCourante: null, zoneId: null, tempsJeuMs: null, niveauEquipe: null };
+  t.fetch.mockImplementation(async () => new Response(JSON.stringify({ versions: [v, null, {},
+    { ...v, lot: 5 }, { ...v, origine: 'autre' }, { ...v, remplaceLe: null }, { ...v, ecritLe: 5 },
+    { ...v, tempsJeuMs: '12' }, { ...v, niveauEquipe: '5' }, { ...v, regionCourante: 42 }, { ...v, zoneId: false }, ancien,
+    { ...v, lot: 'absent', regionCourante: undefined, zoneId: undefined },
+  ] })));
+  expect(await t.synchro.listerVersions('a/b')).toEqual([v, { ...ancien, regionCourante: '', zoneId: '' },
+    { ...v, lot: 'absent', regionCourante: '', zoneId: '' }]);
+  expect(t.fetch.mock.calls[0]![0]).toBe(`${window.location.origin}/api/sauvegarde/parties/a%2Fb/versions`);
+});
+it.each(['500', 'reseau', 'forme'])('versions indisponibles : %s', async cause => {
+  const t = preparer();
+  if (cause === 'reseau') t.fetch.mockRejectedValue(new Error('reseau'));
+  else t.fetch.mockResolvedValue(new Response('{}', { status: cause === '500' ? 500 : 200 }));
+  expect(await t.synchro.listerVersions(t.p.id)).toBeNull();
+});
+it.each([200, 404, 500, 0])('restaure une version distante : %s', async status => {
+  const t = preparer();
+  const synchro = creerSynchro({ ...t.options, appareilId: () => 'appareil' });
+  const avant = t.contenu();
+  const memoire = t.stockage.lire('pokiclicker:synchro');
+  t.fetch.mockImplementation(async () => {
+    if (!status) throw new Error('reseau');
+    return new Response('{}', { status });
+  });
+  expect(await synchro.restaurerVersion('a/b', 'lot')).toBe(status === 200 ? 'ok' : status === 404 ? 'introuvable' : 'echec');
+  expect(t.fetch).toHaveBeenCalledTimes(1);
+  expect(t.fetch.mock.calls[0]![0]).toBe(`${window.location.origin}/api/sauvegarde/parties/a%2Fb/restaurer`);
+  expect(t.fetch.mock.calls[0]![1]?.method).toBe('POST');
+  expect(t.corps()).toEqual({ appareilId: 'appareil', lot: 'lot' });
+  expect(t.contenu()).toEqual(avant);
+  expect(t.stockage.lire('pokiclicker:synchro')).toBe(memoire);
+});
+it.each(['jeton', 'appareil', 'vide'])('refuse de restaurer sans %s', async manque => {
+  const t = preparer(() => manque === 'jeton' ? null : 'secret');
+  const synchro = creerSynchro({ ...t.options, appareilId: () => manque === 'appareil' ? null : manque === 'vide' ? '' : 'appareil' });
+  expect(await synchro.restaurerVersion(t.p.id, 'lot')).toBe('echec');
+  expect(t.fetch).not.toHaveBeenCalled();
+});
+it.each([200, 500])('envoie les modifications avant restauration meme si le PUT echoue : %s', async status => {
+  const t = preparer();
+  const synchro = creerSynchro({ ...t.options, appareilId: () => 'appareil' });
+  let terminer!: (r: Response) => void;
+  t.fetch.mockImplementationOnce(() => new Promise(resolve => { terminer = resolve; }));
+  const restauration = synchro.restaurerVersion(t.p.id, 'lot');
+  expect(t.fetch).toHaveBeenCalledTimes(1);
+  expect(t.fetch.mock.calls[0]![1]?.method).toBe('PUT');
+  terminer(new Response('{}', { status }));
+  expect(await restauration).toBe('ok');
+  expect(t.fetch.mock.calls[1]![1]?.method).toBe('POST');
+  expect(t.fetch.mock.calls[1]![0]).toBe(`${window.location.origin}/api/sauvegarde/parties/test/restaurer`);
+});
+it('renomme une partie jamais envoyee sans reseau ni jeton', async () => {
+  const t = preparer(() => null);
+  expect(await t.synchro.renommerPartie(t.p.id, ' Nouveau ')).toBe('ok');
+  expect(t.fetch).not.toHaveBeenCalled();
+  expect(t.g.chargerPartie(t.p.id)!.donnees.nom).toBe('Nouveau');
+});
+it.each(['ok', 'reseau', '404', 'sans-jeton'] as const)('renomme une partie connue : %s', async resultat => {
+  const t = preparer(() => resultat === 'sans-jeton' ? null : 'secret');
+  const { memoire } = versions(t);
+  t.stockage.ecrire('pokiclicker:synchro', JSON.stringify(memoire));
+  const synchro = creerSynchro(t.options);
+  t.fetch.mockImplementation(async () => {
+    expect(t.g.chargerPartie(t.p.id)!.donnees.nom).toBe('Test');
+    if (resultat === 'reseau') throw new Error('Reseau');
+    return new Response(JSON.stringify({ nom: 'Nouveau' }), { status: resultat === '404' ? 404 : 200 });
+  });
+  expect(await synchro.renommerPartie(t.p.id, ' Nouveau ')).toBe(resultat === 'ok' ? 'ok' : 'echec');
+  if (resultat === 'sans-jeton') expect(t.fetch).not.toHaveBeenCalled();
+  else {
+    expect(t.fetch).toHaveBeenCalledTimes(1);
+    expect(t.fetch.mock.calls[0]![0]).toBe(`${window.location.origin}/api/sauvegarde/parties/test`);
+    expect(t.fetch.mock.calls[0]![1]?.method).toBe('PATCH');
+    expect(t.corps()).toEqual({ nom: 'Nouveau' });
+  }
+  expect(t.g.chargerPartie(t.p.id)!.donnees.nom).toBe(resultat === 'ok' ? 'Nouveau' : 'Test');
+});
+it.each([' ', 'a'.repeat(101)])('refuse un nom invalide : %s', async nom => {
+  const t = preparer();
+  expect(await t.synchro.renommerPartie(t.p.id, nom)).toBe('nom-invalide');
+  expect(t.fetch).not.toHaveBeenCalled();
+  expect(t.g.chargerPartie(t.p.id)).toEqual(t.p);
+});
+it('aligne le nom local sur la liste serveur sans toucher aux parties absentes', async () => {
+  const t = preparer();
+  versions(t);
+  const locale = t.g.renommerPartie(t.p.id, 'Ancien');
+  const autre = creerGestionnaire({ stockage: t.stockage, horloge: t.horloge, genererId: () => 'autre' }).creerPartie('Locale');
+  await t.synchro.lister();
+  expect(t.g.chargerPartie(t.p.id)).toEqual({ ...locale, donnees: { ...locale.donnees, nom: 'Test' } });
+  expect(t.g.chargerPartie(autre.id)).toEqual(autre);
+});
 it.each([
   [false, false, 'rien'], [false, true, 'envoyer'],
   [true, false, 'charger'], [true, true, 'diverge'],
@@ -170,7 +307,7 @@ it.each(['ok', 'réponse', 'exception'])('archive avant toute installation : %s'
     expect(t.g.chargerPartie(t.p.id)).toEqual(serveur.partie);
     expect(t.g.chargerCompte()).toEqual(serveur.compte);
     expect(t.g.chargerRegion(t.p.id, 'kanto')).toEqual(serveur.regions[0]);
-    expect(t.fetch.mock.calls.filter(([, o]) => o?.method === 'POST')).toHaveLength(3);
+    expect(t.fetch.mock.calls.filter(([, o]) => o?.method === 'POST')).toHaveLength(2);
   } else {
     expect(t.contenu()).toEqual(avant);
     expect(t.synchro.etat()).toBe('divergence');
@@ -204,8 +341,9 @@ it('archive aussi une région locale absente du serveur quand la partie est la m
   t.stockage.ecrire('pokiclicker:synchro', JSON.stringify(memoire));
   const synchro = creerSynchro(t.options);
   expect(await synchro.ouvrir()).toBe('charge');
-  const archives = t.fetch.mock.calls.filter(([, o]) => o?.method === 'POST').map(([, o]) => JSON.parse(o!.body as string).objetId);
-  expect(archives).toContain(`${t.p.id}:johto`);
+  const archives = t.fetch.mock.calls.filter(([url]) => String(url).endsWith('/archives'));
+  expect(archives).toHaveLength(1);
+  expect(JSON.parse(archives[0]![1]!.body as string).regions).toEqual(expect.arrayContaining([expect.objectContaining({ id: 'johto' })]));
   expect(t.g.chargerRegion(t.p.id, 'johto')).toBeNull();
 });
 
@@ -270,9 +408,9 @@ it('liste les résumés serveur et les parties locales non envoyées par date', 
   expect(resultat.horsConnexion).toBe(false);
   expect(resultat.parties).toEqual([
     { id: 'distante', nom: 'Test', regionCourante: 'kanto', zoneId: serveur.regions[0]!.donnees.zoneId,
-      tempsJeuMs: 123, ecritLe: serveur.partie.ecritLe, surServeur: true, courante: false },
+      tempsJeuMs: 123, ecritLe: serveur.partie.ecritLe, surServeur: true, courante: false, ailleurs: false },
     { id: t.p.id, nom: 'Test', regionCourante: 'kanto', zoneId: t.g.chargerRegion(t.p.id, 'kanto')!.donnees.zoneId,
-      tempsJeuMs: 456, ecritLe: t.p.ecritLe, surServeur: false, courante: true },
+      tempsJeuMs: 456, ecritLe: t.p.ecritLe, surServeur: false, courante: true, ailleurs: false },
   ]);
   serveur.partie.id = t.p.id;
   expect((await t.synchro.lister()).parties).toHaveLength(1);

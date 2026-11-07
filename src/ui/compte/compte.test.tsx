@@ -35,7 +35,7 @@ beforeEach(() => {
   vi.stubEnv('VITE_API_URL', adresseServeur);
   vi.stubGlobal('fetch', reseau);
   reseau.mockReset();
-  reseau.mockImplementation(async url => reponse(String(url).endsWith('/api/sauvegarde/parties')
+  reseau.mockImplementation(async url => reponse(/\/api\/sauvegarde\/parties(\?|$)/.test(String(url))
     ? { parties: [] } : String(url).endsWith('/appareil') ? { actif: true } : { session: { id: 'session' } }));
 });
 afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.unstubAllGlobals(); vi.unstubAllEnvs(); vi.useRealTimers(); });
@@ -51,7 +51,8 @@ function simulerParties() {
   const partie = { id: 'test', nom: 'Test', regionCourante: 'kanto', zoneId: '', tempsJeuMs: null, ecritLe: '2026-11-04T12:00:00Z', surServeur: true, courante: true };
   const synchro = { etat: vi.fn().mockReturnValue('ok'), ouvrir: vi.fn().mockResolvedValue('rien'), suppression: vi.fn().mockReturnValue(null), lireAvis: vi.fn().mockReturnValue(null), enAttente: vi.fn().mockReturnValue(false), resoudre: vi.fn().mockResolvedValue('rien'), arreter: vi.fn(), demarrer: vi.fn(), envoyerMaintenant: vi.fn(),
     lister: vi.fn().mockResolvedValue({ parties: [partie, { ...partie, id: 'autre', nom: 'Autre', courante: false }], horsConnexion: false }),
-    ouvrirPartie: vi.fn().mockResolvedValue('ok'), creerPartie: vi.fn().mockResolvedValue('ok'), supprimerPartie: vi.fn().mockResolvedValue('ok') };
+    ouvrirPartie: vi.fn().mockResolvedValue('ok'), creerPartie: vi.fn().mockResolvedValue('ok'), supprimerPartie: vi.fn().mockResolvedValue('ok'),
+    renommerPartie: vi.fn().mockResolvedValue('ok') };
   vi.spyOn(synchronisation, 'creerSynchro').mockReturnValue(synchro as unknown as ReturnType<typeof synchronisation.creerSynchro>);
   const recharger = vi.fn();
   const reel = window;
@@ -97,6 +98,25 @@ it('crée une partie puis recharge', async () => {
   cliquer('Créer la partie');
   await waitFor(() => expect(recharger).toHaveBeenCalledOnce());
   expect(synchro.creerPartie).toHaveBeenCalledWith('Voyage', expect.objectContaining({ equipe: expect.any(Array), drapeaux: expect.any(Object) }));
+});
+it('renomme la partie courante par PATCH sans arrêter le jeu', async () => {
+  const { synchro, recharger } = simulerParties();
+  const arreter = vi.spyOn(storeJeu.getState(), 'arreter').mockImplementation(() => {});
+  synchro.renommerPartie.mockImplementation(async (id: string, nom: string) => {
+    await fetch(`${adresseServeur}/api/sauvegarde/parties/${id}`, { method: 'PATCH', body: JSON.stringify({ nom }) });
+    return 'ok';
+  });
+  render(<App />); await screen.findByText('Jeu ouvert'); cliquer('Mes parties');
+  await screen.findByRole('button', { name: 'Renommer Test' });
+  cliquer('Renommer Test');
+  fireEvent.change(screen.getByLabelText('Nom de la partie'), { target: { value: ' Voyage ' } });
+  cliquer('Valider');
+  await waitFor(() => expect(reseau).toHaveBeenCalledWith(expect.stringContaining('/api/sauvegarde/parties/test'),
+    expect.objectContaining({ method: 'PATCH', body: JSON.stringify({ nom: 'Voyage' }) })));
+  await waitFor(() => expect(synchro.lister).toHaveBeenCalledTimes(2));
+  expect(synchro.renommerPartie).toHaveBeenCalledWith('test', 'Voyage');
+  expect(recharger).not.toHaveBeenCalled();
+  expect(arreter).not.toHaveBeenCalled();
 });
 it.each([true, false])('supprime une partie, courante : %s', async courante => {
   const { synchro, recharger } = simulerParties();
@@ -144,7 +164,7 @@ it('attend la reprise de cet appareil avant de monter le jeu', async () => {
   localStorage.setItem(CLE_SESSION, 'session-stockee');
   reseau.mockImplementation(async (url, options) => {
     if (String(url).endsWith('/appareil')) return reponse({ actif: JSON.parse(options!.body as string).reprendre === true });
-    if (String(url).endsWith('/api/sauvegarde/parties')) return reponse({ parties: [] });
+    if (/\/api\/sauvegarde\/parties(\?|$)/.test(String(url))) return reponse({ parties: [] });
     if (String(url).includes('/api/sauvegarde')) return reponse({}, 404);
     return reponse({ session: { id: 'session' } });
   });
@@ -168,7 +188,7 @@ it('reprend ici la version serveur avancée sans écran de choix', async () => {
   stockage.cles().forEach(cle => localStorage.setItem(cle, stockage.lire(cle)!));
   localStorage.setItem(CLE_SESSION, 'session-stockee');
   reseau.mockImplementation(async (url, options) => {
-    if (String(url).endsWith('/parties')) return reponse({ parties: [] });
+    if (/\/parties(\?|$)/.test(String(url))) return reponse({ parties: [] });
     if (String(url).endsWith('/parties/test')) return reponse({}, 404);
     if (String(url).endsWith('/compte')) return reponse({}, 404);
     if (options?.method === 'PUT') return reponse({ partie: { id: partie.id, revision: 2 }, regions: [{ id: 'kanto', revision: 2 }] });
@@ -182,7 +202,7 @@ it('reprend ici la version serveur avancée sans écran de choix', async () => {
   const serveur = { ...partie, revision: partie.revision + 1, donnees: { ...partie.donnees, nom: 'Serveur avancé' } };
   reseau.mockImplementation(async (url, options) => {
     if (String(url).endsWith('/appareil')) return reponse({ actif: true });
-    if (String(url).endsWith('/parties')) return reponse({ parties: [{ id: partie.id, nom: serveur.donnees.nom, revision: serveur.revision, ecritLe: serveur.ecritLe }] });
+    if (/\/parties(\?|$)/.test(String(url))) return reponse({ parties: [{ id: partie.id, nom: serveur.donnees.nom, revision: serveur.revision, ecritLe: serveur.ecritLe }] });
     if (String(url).endsWith('/parties/test')) return reponse({ partie: serveur, regions });
     if (String(url).endsWith('/compte')) return reponse({}, 404);
     if (options?.method === 'PUT') return reponse({});
@@ -293,7 +313,7 @@ it('au retour du réseau, une partie reprise ailleurs pendant la coupure passe p
   expect(avant).not.toBeNull();
   reseau.mockReset();
   reseau.mockImplementation(async url => reponse(String(url).endsWith('/appareil') ? { actif: false }
-    : String(url).endsWith('/api/sauvegarde/parties') ? { parties: [] } : { session: { id: 'session' } }));
+    : /\/api\/sauvegarde\/parties(\?|$)/.test(String(url)) ? { parties: [] } : { session: { id: 'session' } }));
   fireEvent(window, new Event('online'));
   await screen.findByRole('heading', { name: 'Partie reprise ailleurs' });
   const puts = reseau.mock.calls.filter(([, options]) => options?.method === 'PUT').length;

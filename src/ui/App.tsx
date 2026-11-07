@@ -196,6 +196,16 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
         : "La partie n'a pas pu être créée. Réessaie.");
     fixerOccupe(false);
   }
+  async function renommer(id: string, nom: string): Promise<boolean> {
+    if (occupe) return false;
+    fixerOccupe(true); fixerErreur('');
+    const r = await synchro.renommerPartie(id, nom);
+    if (r === 'ok') await listerParties();
+    else fixerErreur(r === 'nom-invalide' ? 'Donne un nom à ta partie (100 caractères au plus).'
+      : "Connexion impossible. Le nom n'a pas changé, réessaie.");
+    fixerOccupe(false);
+    return r === 'ok';
+  }
   async function supprimer(id: string) {
     if (occupe) return;
     fixerOccupe(true); fixerErreur('');
@@ -232,6 +242,7 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
     </div>}
     {(phase === 'creation' || (ecranParties && (!ailleurs || !jeuMonte || apresAilleurs))) && <div className={jeuMonte ? 'fixed inset-0 z-50 overflow-y-auto' : undefined}>
       <ZoneCompteConnectee {...liste} chargement={chargement} occupe={occupe} erreur={erreur}
+        quandRenommer={renommer}
         quandJouer={id => { void jouer(id); }} quandCreer={nom => { void creer(nom); }} quandSupprimer={id => { void supprimer(id); }}
         quandRetourJeu={phase === 'creation' || ailleurs || repriseEnAttente ? undefined : () => fixerEcranParties(false)}
         etatSynchro={synchro.etat()} quandDeconnecter={() => fixerDeco(synchro.enAttente() ? 'confirmer-attente' : 'confirmer')} />

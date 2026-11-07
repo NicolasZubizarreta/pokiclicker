@@ -9,6 +9,12 @@ function ouvrir(stockage = creerStockageMemoire()) {
   return { stockage, p: ouvrirPartie(options, { equipe: [], drapeaux: [] }), g: creerGestionnaire(options) };
 }
 const temps = (g: ReturnType<typeof ouvrir>['g']) => g.chargerPartie('test')!.donnees.statistiques.tempsJeuMs;
+it('conserve le nouveau nom lors de la sauvegarde de la partie ouverte', () => {
+  const { p, g } = ouvrir();
+  g.renommerPartie('test', 'Nouveau');
+  p.enregistrer({ ...p.region, argent: p.region.argent + 1 }, p.pokedex);
+  expect(g.chargerPartie('test')!.donnees.nom).toBe('Nouveau');
+});
 
 it('accorde les premiers pas, garde les skins et relit le compte courant', () => {
   const { p, g } = ouvrir();

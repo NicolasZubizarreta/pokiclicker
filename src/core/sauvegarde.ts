@@ -99,6 +99,16 @@ export function creerGestionnaire({ stockage, horloge, genererId }: {
     chargerCompte: () => charger<DonneesCompte>(cleCompte, 'compte', 'local'),
     ecrireCompte: (donnees: DonneesCompte) => ecrire(cleCompte, 'compte', 'local', donnees),
     chargerPartie,
+    renommerPartie(id: string, nom: string) {
+      const partie = chargerPartie(id);
+      exiger(partie, 'Partie introuvable');
+      nom = nom.trim();
+      exiger(nom.length >= 1 && nom.length <= 100, 'Nom invalide');
+      const enveloppe = { ...partie, donnees: { ...partie.donnees, nom } };
+      validerEnveloppe(enveloppe, 'partie');
+      stockage.ecrire(clePartie(id), JSON.stringify(enveloppe));
+      return enveloppe;
+    },
     chargerRegion,
     installerVersion({ compte, partie, regions }: {
       compte?: Enveloppe<DonneesCompte> | null; partie?: Enveloppe<DonneesPartie>; regions: Enveloppe<DonneesRegion>[];

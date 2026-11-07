@@ -1,12 +1,13 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { PartieListee } from '../synchro';
 import { duree, nomRegion, nomZone } from './format-partie';
-import { IconeAjout, IconeCorbeille } from './icones-compte';
+import { IconeAjout, IconeCorbeille, IconeCrayon } from './icones-compte';
 import { IconeRetour } from '../icones-menu';
 
-export function Parties({ parties, horsConnexion, chargement, occupe, erreur, quandJouer, quandCreer, quandSupprimer, quandRetourJeu }: {
+export function Parties({ parties, horsConnexion, chargement, occupe, erreur, quandJouer, quandCreer, quandSupprimer, quandRenommer, quandRetourJeu }: {
   parties: PartieListee[]; horsConnexion: boolean; chargement: boolean; occupe: boolean; erreur: string;
   quandJouer(id: string): void; quandCreer(nom: string): void; quandSupprimer(id: string): void; quandRetourJeu?: () => void;
+  quandRenommer?(id: string, nom: string): Promise<boolean>;
 }) {
   const [nouvelle, fixerNouvelle] = useState(false);
   const [nom, fixerNom] = useState('');
@@ -17,6 +18,24 @@ export function Parties({ parties, horsConnexion, chargement, occupe, erreur, qu
   const titreDialogue = useRef<HTMLHeadingElement>(null);
   const declencheur = useRef<HTMLButtonElement | null>(null);
   const contenu = useRef<HTMLDivElement>(null);
+  const [edition, fixerEdition] = useState<string | null>(null);
+  const [nomEdition, fixerNomEdition] = useState('');
+  const [editionInvalide, fixerEditionInvalide] = useState(false);
+  const champEdition = useRef<HTMLInputElement>(null);
+  const crayons = useRef(new Map<string, HTMLButtonElement>());
+  const focusCrayon = useRef<string | null>(null);
+  const idsParties = parties.map(p => p.id).join(',');
+  const [idsPrecedents, fixerIdsPrecedents] = useState(idsParties);
+  if (idsPrecedents !== idsParties) {
+    fixerIdsPrecedents(idsParties); fixerEdition(null);
+  }
+  useLayoutEffect(() => {
+    if (edition) { champEdition.current?.focus(); champEdition.current?.select(); }
+    else if (focusCrayon.current && !occupe) {
+      crayons.current.get(focusCrayon.current)?.focus(); focusCrayon.current = null;
+    }
+  }, [edition, occupe]);
+  function fermerEdition(id: string) { focusCrayon.current = id; fixerEdition(null); }
   useEffect(() => { titre.current?.focus(); }, [nouvelle]);
   useEffect(() => {
     if (!suppression) return;
@@ -52,7 +71,28 @@ export function Parties({ parties, horsConnexion, chargement, occupe, erreur, qu
       </form> : !nouvelle && parties.length > 0 && <>
         <p className="text-texte-doux">Choisis une partie à jouer.</p>
         {parties.map(p => <article key={p.id} aria-label={p.nom} className="cadre zc-partie">
-          <div className="flex flex-wrap items-center gap-2"><h2 className="font-titre text-xl font-bold">{p.nom}</h2>
+          <div className="flex flex-wrap items-center gap-2">
+            {edition === p.id ? <form className="compte-formulaire" onKeyDown={e => {
+              if (e.key === 'Escape' && !occupe) { e.preventDefault(); fermerEdition(p.id); }
+            }} onSubmit={async e => {
+              e.preventDefault(); if (occupe) return;
+              const nettoye = nomEdition.trim();
+              if (!nettoye) { fixerEditionInvalide(true); return; }
+              if (nettoye === p.nom) { fermerEdition(p.id); return; }
+              if (await quandRenommer?.(p.id, nettoye)) fermerEdition(p.id);
+            }}>
+              <div className={`compte-champ${editionInvalide ? ' en-erreur' : ''}`}>
+                <label htmlFor="nom-edition">Nom de la partie</label>
+                <div className="zone-saisie"><input ref={champEdition} id="nom-edition" maxLength={100} value={nomEdition} disabled={occupe}
+                  aria-invalid={editionInvalide || undefined} aria-describedby={editionInvalide ? 'nom-edition-erreur' : undefined}
+                  onChange={e => { fixerNomEdition(e.target.value); fixerEditionInvalide(false); }} /></div>
+                {editionInvalide && <p id="nom-edition-erreur" role="alert">Donne un nom à ta partie.</p>}
+              </div>
+              <button type="submit" className="plaque plaque-action min-h-12" disabled={occupe}>Valider</button>
+              <button type="button" className="plaque min-h-12" disabled={occupe} onClick={() => fermerEdition(p.id)}>Annuler</button>
+            </form> : <h2 className="font-titre text-xl font-bold">{p.nom}</h2>}
+            {quandRenommer && <button key="renommer" ref={bouton => { if (bouton) crayons.current.set(p.id, bouton); else crayons.current.delete(p.id); }} type="button" className="plaque min-h-12 min-w-12" aria-label={`Renommer ${p.nom}`} disabled={occupe}
+              onClick={() => { if (occupe) return; fixerNomEdition(p.nom); fixerEditionInvalide(false); fixerEdition(p.id); }}><IconeCrayon /></button>}
             {p.courante && <span className="zc-tag info">En cours</span>}
             {!p.surServeur ? <span className="zc-tag alerte">Sur cet appareil seulement</span> : !p.courante && <span className="zc-tag succes">À jour</span>}
           </div>

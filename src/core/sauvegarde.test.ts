@@ -35,6 +35,19 @@ function instantane(stockage: ReturnType<typeof creerStockageMemoire>) {
   return stockage.cles().map(cle => [cle, stockage.lire(cle)]);
 }
 const cle = 'pokiclicker:partie:partie-1';
+it('renomme sans changer la revision ni la date', () => {
+  const { jeu, horloge } = contexte();
+  const avant = jeu.creerPartie('Avant');
+  horloge.avancer(1000);
+  const apres = jeu.renommerPartie(avant.id, ' Nouveau ');
+  expect(apres).toEqual({ ...avant, donnees: { ...avant.donnees, nom: 'Nouveau' } });
+  expect(jeu.chargerPartie(avant.id)).toEqual(apres);
+  for (const nom of ['  ', 'a'.repeat(101)]) {
+    expect(() => jeu.renommerPartie(avant.id, nom)).toThrow();
+    expect(jeu.chargerPartie(avant.id)).toEqual(apres);
+  }
+  expect(() => jeu.renommerPartie('inconnue', 'Nom')).toThrow('Partie introuvable');
+});
 it('choisit explicitement la partie courante et garde le compte intact', () => {
   const { jeu, stockage, horloge } = contexte();
   jeu.ecrireCompte({ ...compteInitial(), diamants: 42, succes: ['test'], skins: ['test'] });

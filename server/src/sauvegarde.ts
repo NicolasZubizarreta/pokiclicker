@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import { randomUUID } from 'node:crypto';
 import { bodyLimit } from 'hono/body-limit';
 import type { Pool, PoolClient } from 'pg';
 
@@ -19,9 +20,17 @@ const MAX_VERSIONS = 200; // plafond d'historique par compte : l'archivage d'une
 const champs = (v: Objet, permis: string[]) => Object.keys(v).every(k => permis.includes(k));
 
 async function purgerVersions(db: PoolClient, compteId: string, niveau: string, objetId: string) {
-  await db.query(`DELETE FROM versions WHERE compte_id = $1 AND niveau = $2 AND objet_id = $3
-    AND id NOT IN (SELECT id FROM versions WHERE compte_id = $1 AND niveau = $2 AND objet_id = $3 ORDER BY id DESC LIMIT 5)`,
+  await db.query(`DELETE FROM versions WHERE origine = 'rotation' AND compte_id = $1 AND niveau = $2 AND objet_id = $3
+    AND id NOT IN (SELECT id FROM versions WHERE origine = 'rotation' AND compte_id = $1 AND niveau = $2 AND objet_id = $3 ORDER BY id DESC LIMIT 5)`,
   [compteId, niveau, objetId]);
+}
+
+export async function purgerLots(db: PoolClient, compteId: string, partieId: string) {
+  await db.query(`DELETE FROM versions WHERE compte_id = $1 AND origine IN ('divergence', 'restauration')
+    AND (objet_id = $2 OR objet_id LIKE $2 || ':%') AND lot IN (
+      SELECT lot FROM versions WHERE compte_id = $1 AND origine IN ('divergence', 'restauration')
+        AND lot IS NOT NULL AND (objet_id = $2 OR objet_id LIKE $2 || ':%')
+      GROUP BY lot ORDER BY max(remplace_le) DESC, lot DESC OFFSET 5)`, [compteId, partieId]);
 }
 
 function valider(v: unknown): { message: string; statut: 400 | 413 } | undefined {
@@ -91,18 +100,24 @@ export function routesSauvegarde(pool: Pool, auth: Auth): Hono<{ Variables: { co
       : c.json({ message: 'Aucune sauvegarde.' }, 404);
   });
   app.get('/parties', async c => {
+    const appareilId = c.req.query('appareilId');
+    if (appareilId !== undefined && !uuid(appareilId)) return c.json({ message: 'Sauvegarde invalide.' }, 400);
     const { rows } = await pool.query(`SELECT id, nom, revision, ecrit_le,
       donnees->'regionCourante' AS region_courante,
       (SELECT r.donnees->'zoneId' FROM regions r
         WHERE r.partie_id = p.id AND r.region_id = p.donnees->>'regionCourante'
           AND jsonb_typeof(p.donnees->'regionCourante') = 'string') AS zone_id,
-      donnees->'statistiques'->'tempsJeuMs' AS temps_jeu_ms
+      donnees->'statistiques'->'tempsJeuMs' AS temps_jeu_ms,
+      (SELECT CASE WHEN now() - a.battement_le <= interval '120 seconds'
+        THEN CASE WHEN lower(a.appareil_id::text) = $3 THEN 'cet-appareil' ELSE 'autre' END
+        ELSE NULL END FROM appareil_actif a WHERE a.partie_id = p.id) AS appareil_actif
       FROM parties p WHERE compte_id = $1 ORDER BY ecrit_le DESC LIMIT $2`,
-      [c.get('compteId'), MAX_PARTIES]);
+      [c.get('compteId'), MAX_PARTIES, appareilId?.toLowerCase() ?? null]);
     return c.json({ parties: rows.map(p => ({ id: p.id, nom: p.nom, revision: p.revision, ecritLe: p.ecrit_le.toISOString(),
       regionCourante: typeof p.region_courante === 'string' ? p.region_courante : null,
       zoneId: typeof p.zone_id === 'string' ? p.zone_id : null,
       tempsJeuMs: typeof p.temps_jeu_ms === 'number' && Number.isFinite(p.temps_jeu_ms) && p.temps_jeu_ms >= 0 ? p.temps_jeu_ms : null,
+      ...(appareilId === undefined ? {} : { appareilActif: p.appareil_actif }),
     })) });
   });
   app.get('/parties/:id', async c => {
@@ -116,6 +131,36 @@ export function routesSauvegarde(pool: Pool, auth: Auth): Hono<{ Variables: { co
     return c.json({ partie: enveloppe(rows[0], 'partie', rows[0].id),
       regions: rows[0].regions.map((r: Ligne & { region_id: string }) =>
         enveloppe({ ...r, ecrit_le: new Date(r.ecrit_le) }, 'region', r.region_id)) });
+  });
+  app.patch('/parties/:id', async c => {
+    const id = c.req.param('id');
+    if (!uuid(id)) return c.json({ message: 'Partie introuvable.' }, 404);
+    let brut: unknown;
+    try { brut = await c.req.json(); } catch { return c.json({ message: 'Sauvegarde invalide.' }, 400); }
+    if (!objet(brut) || !champs(brut, ['nom']) || typeof brut.nom !== 'string') {
+      return c.json({ message: 'Sauvegarde invalide.' }, 400);
+    }
+    const nom = brut.nom.trim();
+    if (!texte(nom) || nom.includes('\u0000')) return c.json({ message: 'Sauvegarde invalide.' }, 400);
+    const compteId = c.get('compteId');
+    const db = await pool.connect();
+    let echec: Error | undefined;
+    try {
+      await db.query('BEGIN');
+      const partie = await db.query('SELECT id FROM parties WHERE id = $1 AND compte_id = $2 FOR UPDATE', [id, compteId]);
+      if (!partie.rows[0]) {
+        await db.query('ROLLBACK');
+        return c.json({ message: 'Partie introuvable.' }, 404);
+      }
+      await db.query(`UPDATE parties SET nom = $1, donnees = jsonb_set(donnees, '{nom}', to_jsonb($1::text))
+        WHERE id = $2 AND compte_id = $3`, [nom, id, compteId]);
+      await db.query('COMMIT');
+      return c.json({ nom });
+    } catch (error) {
+      await db.query('ROLLBACK').catch(() => undefined);
+      echec = error as Error;
+      throw error;
+    } finally { db.release(echec); }
   });
   app.delete('/parties/:id', async c => {
     const id = c.req.param('id');
@@ -174,6 +219,71 @@ export function routesSauvegarde(pool: Pool, auth: Auth): Hono<{ Variables: { co
       throw error;
     } finally { db.release(echec); }
   });
+  app.post('/parties/:id/archives', bodyLimit({ maxSize: 3 * 1024 * 1024,
+    onError: c => c.json({ message: 'Requête trop volumineuse.' }, 413) }), async c => {
+    const id = c.req.param('id');
+    if (!uuid(id)) return c.json({ message: 'Partie introuvable.' }, 404);
+    let brut: unknown;
+    try { brut = await c.req.json(); } catch { return c.json({ message: 'Sauvegarde invalide.' }, 400); }
+    if (!objet(brut) || !champs(brut, ['partie', 'regions']) || !objet(brut.partie) || !Array.isArray(brut.regions)) {
+      return c.json({ message: 'Sauvegarde invalide.' }, 400);
+    }
+    const erreur = valider({ partieId: id, partie: { revisionBase: 0, enveloppe: brut.partie },
+      regions: brut.regions.map(enveloppe => ({ revisionBase: 0, enveloppe })) });
+    if (erreur) return c.json({ message: erreur.message }, erreur.statut);
+    const compteId = c.get('compteId');
+    const lot = randomUUID();
+    const db = await pool.connect();
+    let echec: Error | undefined;
+    try {
+      await db.query('BEGIN');
+      const partie = await db.query('SELECT id FROM parties WHERE id = $1 AND compte_id = $2 FOR UPDATE', [id, compteId]);
+      if (!partie.rows[0]) {
+        await db.query('ROLLBACK');
+        return c.json({ message: 'Partie introuvable.' }, 404);
+      }
+      for (const e of [brut.partie, ...brut.regions] as Enveloppe[]) {
+        await db.query(`INSERT INTO versions(compte_id, niveau, objet_id, revision, version, ecrit_le, donnees, origine, lot)
+          VALUES ($1,$2,$3,$4,$5,$6,$7,'divergence',$8)`,
+        [compteId, e.niveau, e.niveau === 'partie' ? id : `${id}:${e.id}`, e.revision, e.version, e.ecritLe, e.donnees, lot]);
+      }
+      await purgerLots(db, compteId, id);
+      await db.query('COMMIT');
+      return c.json({ ok: true, lot });
+    } catch (error) {
+      await db.query('ROLLBACK').catch(() => undefined);
+      echec = error as Error;
+      throw error;
+    } finally { db.release(echec); }
+  });
+  app.get('/parties/:id/versions', async c => {
+    const id = c.req.param('id');
+    if (!uuid(id)) return c.json({ message: 'Partie introuvable.' }, 404);
+    const compteId = c.get('compteId');
+    const partie = await pool.query('SELECT id FROM parties WHERE id = $1 AND compte_id = $2', [id, compteId]);
+    if (!partie.rows[0]) return c.json({ message: 'Partie introuvable.' }, 404);
+    const { rows } = await pool.query(`SELECT p.lot, p.origine, p.remplace_le, p.ecrit_le, p.donnees,
+      r.donnees AS region FROM versions p JOIN versions r ON r.lot = p.lot AND r.compte_id = p.compte_id
+        AND r.niveau = 'region' AND r.objet_id = $1 || ':' || (p.donnees->>'regionCourante')
+        AND r.origine IN ('divergence', 'restauration')
+      WHERE p.compte_id = $2 AND p.niveau = 'partie' AND p.objet_id = $1 AND p.lot IS NOT NULL
+        AND p.origine IN ('divergence', 'restauration') AND jsonb_typeof(p.donnees->'regionCourante') = 'string'
+      ORDER BY p.remplace_le DESC, p.lot DESC LIMIT 5`, [id, compteId]);
+    return c.json({ versions: rows.map(p => {
+      const statistiques = p.donnees.statistiques;
+      const temps = objet(statistiques) ? statistiques.tempsJeuMs : null;
+      const region = objet(p.region) ? p.region : {};
+      const equipe: unknown = region.equipe;
+      const niveaux = Array.isArray(equipe) ? equipe.map(e => objet(e) ? e.niveau : null) : [];
+      const moyenne = niveaux.length && niveaux.every(n => typeof n === 'number' && Number.isFinite(n))
+        ? niveaux.reduce((s: number, n) => s + (n as number) / niveaux.length, 0) : null;
+      return { lot: p.lot, origine: p.origine, remplaceLe: p.remplace_le.toISOString(), ecritLe: p.ecrit_le.toISOString(),
+        tempsJeuMs: typeof temps === 'number' && Number.isFinite(temps) && temps >= 0 ? temps : null,
+        regionCourante: typeof p.donnees.regionCourante === 'string' ? p.donnees.regionCourante : null,
+        zoneId: typeof region.zoneId === 'string' ? region.zoneId : null,
+        niveauEquipe: moyenne !== null && Number.isFinite(moyenne) ? Math.round(moyenne) : null };
+    }) });
+  });
   app.post('/versions', bodyLimit({ maxSize: 3 * 1024 * 1024,
     onError: c => c.json({ message: 'Requête trop volumineuse.' }, 413) }), async c => {
     let brut: unknown;
@@ -211,7 +321,7 @@ export function routesSauvegarde(pool: Pool, auth: Auth): Hono<{ Variables: { co
       await db.query(`INSERT INTO versions(compte_id, niveau, objet_id, revision, version, ecrit_le, donnees)
         VALUES ($1,$2,$3,$4,$5,$6,$7)`, [compteId, niveau, id, e.revision, e.version, new Date(e.ecritLe).toISOString(), e.donnees]);
       await purgerVersions(db, compteId, niveau, id);
-      await db.query(`DELETE FROM versions WHERE compte_id = $1 AND id NOT IN (SELECT id FROM versions WHERE compte_id = $1 ORDER BY id DESC LIMIT $2)`,
+      await db.query(`DELETE FROM versions WHERE origine = 'rotation' AND compte_id = $1 AND id NOT IN (SELECT id FROM versions WHERE origine = 'rotation' AND compte_id = $1 ORDER BY id DESC LIMIT $2)`,
         [compteId, MAX_VERSIONS]);
       await db.query('COMMIT');
       return c.json({ ok: true });
@@ -295,10 +405,10 @@ export function routesSauvegarde(pool: Pool, auth: Auth): Hono<{ Variables: { co
             VALUES ($1,$2,$3,$4,$5,$6,$7)`, [compteId, o.niveau, o.id, o.ligne.revision, o.ligne.version, o.ligne.ecrit_le, o.ligne.donnees]);
           const n = o.valeurs.length;
           modifie = await db.query(`UPDATE ${o.table} SET revision = $${n + 1} + 1,
-            version = $${n + 2}, ecrit_le = $${n + 3}, donnees = $${n + 4}
-            ${o.niveau === 'partie' ? `, nom = $${n + 5}` : ''}
+            version = $${n + 2}, ecrit_le = $${n + 3}, donnees = ${o.niveau === 'partie'
+              ? `jsonb_set($${n + 4}::jsonb, '{nom}', to_jsonb(nom))` : `$${n + 4}`}
             WHERE ${o.cle} AND revision = $${n + 1} RETURNING revision`,
-          [...o.valeurs, base, e.version, new Date(e.ecritLe).toISOString(), e.donnees, ...(o.niveau === 'partie' ? [e.donnees.nom] : [])]);
+          [...o.valeurs, base, e.version, new Date(e.ecritLe).toISOString(), e.donnees]);
           await purgerVersions(db, compteId, o.niveau, o.id);
         } else {
           const colonnes = o.niveau === 'compte' ? 'compte_id' : o.niveau === 'partie' ? 'id, compte_id, nom' : 'partie_id, region_id';

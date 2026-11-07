@@ -26,6 +26,11 @@ const migrations = [`
   CREATE INDEX ON versions(compte_id, niveau, objet_id, revision DESC);
 `, `
   CREATE TABLE appareil_actif (partie_id uuid PRIMARY KEY REFERENCES parties(id) ON DELETE CASCADE, appareil_id text NOT NULL, battement_le timestamptz NOT NULL);
+`, `
+  ALTER TABLE versions
+    ADD COLUMN origine text NOT NULL DEFAULT 'rotation' CHECK (origine IN ('rotation', 'divergence', 'restauration')),
+    ADD COLUMN lot uuid;
+  CREATE INDEX ON versions(compte_id, lot) WHERE lot IS NOT NULL;
 `];
 
 export async function migrerSauvegarde(db: Pick<Pool, 'query'>) {

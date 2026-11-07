@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { Parties } from './EcranParties';
 
@@ -9,7 +9,63 @@ beforeEach(() => {
   HTMLDialogElement.prototype.close = function () { this.removeAttribute('open'); };
 });
 const partie = { id: 'a', nom: 'Mon aventure', regionCourante: 'kanto', zoneId: 'inconnue', tempsJeuMs: 43_500_000, ecritLe: '2026-11-04T12:00:00Z', surServeur: false, courante: true };
-const props = () => ({ parties: [partie, { ...partie, id: 'b', nom: 'Autre', courante: false }], horsConnexion: false, chargement: false, occupe: false, erreur: '', quandJouer: vi.fn(), quandCreer: vi.fn(), quandSupprimer: vi.fn() });
+const props = () => ({ parties: [partie, { ...partie, id: 'b', nom: 'Autre', courante: false }], horsConnexion: false, chargement: false, occupe: false, erreur: '', quandJouer: vi.fn(), quandCreer: vi.fn(), quandSupprimer: vi.fn(), quandRenommer: vi.fn().mockResolvedValue(true) });
+
+it('renomme avec un nom nettoyé puis rend le focus au crayon', async () => {
+  const p = props();
+  render(<Parties {...p} />);
+  const crayon = screen.getByRole('button', { name: 'Renommer Mon aventure' });
+  expect(screen.getByRole('button', { name: 'Renommer Autre' })).toBeTruthy();
+  fireEvent.click(crayon);
+  const champ = screen.getByLabelText<HTMLInputElement>('Nom de la partie');
+  expect(champ.value).toBe('Mon aventure');
+  expect(document.activeElement).toBe(champ);
+  expect(champ.selectionEnd).toBe(champ.value.length);
+  expect(champ.maxLength).toBe(100);
+  fireEvent.change(champ, { target: { value: ' Voyage ' } });
+  fireEvent.submit(champ.closest('form')!);
+  await waitFor(() => expect(screen.queryByLabelText('Nom de la partie')).toBeNull());
+  expect(p.quandRenommer).toHaveBeenCalledExactlyOnceWith('a', 'Voyage');
+  expect(document.activeElement).toBe(crayon);
+});
+it('annule, valide le nom vide et ferme un nom inchangé sans appel', () => {
+  const p = props();
+  render(<Parties {...p} />);
+  const ouvrir = () => fireEvent.click(screen.getByRole('button', { name: 'Renommer Mon aventure' }));
+  ouvrir(); fireEvent.click(screen.getByText('Annuler'));
+  expect(screen.queryByLabelText('Nom de la partie')).toBeNull();
+  ouvrir(); fireEvent.keyDown(screen.getByLabelText('Nom de la partie'), { key: 'Escape' });
+  expect(screen.queryByLabelText('Nom de la partie')).toBeNull();
+  ouvrir();
+  const champ = screen.getByLabelText('Nom de la partie');
+  fireEvent.change(champ, { target: { value: '   ' } });
+  fireEvent.submit(champ.closest('form')!);
+  expect(screen.getByRole('alert').textContent).toBe('Donne un nom à ta partie.');
+  expect(champ.getAttribute('aria-invalid')).toBe('true');
+  expect(champ.getAttribute('aria-describedby')).toBe(screen.getByRole('alert').id);
+  fireEvent.change(champ, { target: { value: ' Mon aventure ' } });
+  fireEvent.submit(champ.closest('form')!);
+  expect(screen.queryByLabelText('Nom de la partie')).toBeNull();
+  expect(p.quandRenommer).not.toHaveBeenCalled();
+});
+it('garde un refus ouvert, désactive les contrôles et ferme si les parties changent', async () => {
+  const p = props(); p.quandRenommer.mockResolvedValue(false);
+  const { rerender } = render(<Parties {...p} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Renommer Mon aventure' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Renommer Autre' }));
+  expect(screen.getAllByLabelText('Nom de la partie')).toHaveLength(1);
+  const champ = screen.getByLabelText<HTMLInputElement>('Nom de la partie');
+  expect(champ.value).toBe('Autre');
+  fireEvent.change(champ, { target: { value: 'Voyage' } });
+  fireEvent.click(screen.getByText('Valider'));
+  await waitFor(() => expect(p.quandRenommer).toHaveBeenCalledWith('b', 'Voyage'));
+  expect(screen.getByLabelText('Nom de la partie')).toBe(champ);
+  rerender(<Parties {...p} occupe />);
+  expect(screen.getAllByRole('button').every(b => (b as HTMLButtonElement).disabled)).toBe(true);
+  expect(champ.disabled).toBe(true);
+  rerender(<Parties {...p} parties={[partie]} />);
+  expect(screen.queryByLabelText('Nom de la partie')).toBeNull();
+});
 it('présente les parties et permet de jouer et de confirmer une seule suppression', () => {
   const p = props();
   render(<Parties {...p} />);

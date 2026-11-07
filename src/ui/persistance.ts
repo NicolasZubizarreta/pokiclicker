@@ -79,7 +79,7 @@ export function ouvrirPartie(options: Parameters<typeof creerGestionnaire>[0],
         if (actuelle?.revision !== partie.revision) throw new Error('Conflit de partie');
         enveloppe = gestionnaire.ecrireRegion(partie.id, region.regionId, region,
           { revisionAttendue: enveloppe!.revision });
-        const donnees = { ...partie.donnees, pokedexNational: [...pokedex],
+        const donnees = { ...partie.donnees, nom: actuelle.donnees.nom, pokedexNational: [...pokedex],
           statistiques: { ...partie.donnees.statistiques, tempsJeuMs: tempsBase + Math.floor(tempsSessionMs) } };
         partie = gestionnaire.ecrirePartie(partie.id, donnees, { revisionAttendue: partie.revision });
         derniere = suivante;
