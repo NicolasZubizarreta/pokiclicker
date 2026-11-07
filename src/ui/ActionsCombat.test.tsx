@@ -18,8 +18,6 @@ function propsDepart() {
   return {
     autoAttaque: true, basculerAutoAttaque: vi.fn(),
     arret: { ...reglages.depart.preferences.arretAuto, actif: true, rare: true }, reglerArret: vi.fn(),
-    fauchage: { possede: false, disponible: true, raison: null as string | null, rechargeS: 0, actif: false },
-    faucher: vi.fn(), radar: false, radarInutile: false, ouvrirRadar: vi.fn(),
     sac: { accessible: true, total: 3, ouvrir: vi.fn() as (() => void) | null },
   };
 }
@@ -61,24 +59,8 @@ it('désactive le sac sans ouverture ou sans accès et masque le total nul', () 
   fireEvent.click(sac); expect(props.sac.ouvrir).not.toHaveBeenCalled();
 });
 
-it('transmet Fauchage et le déclencheur radar seulement quand utilisables', () => {
-  const props = propsDepart();
-  props.fauchage.possede = true; props.fauchage.actif = true; props.radar = true;
-  const { rerender } = render(<ActionsCombat {...props} />);
-  const fauchage = screen.getByRole('button', { name: 'Fauchage' });
-  const radar = screen.getByRole('button', { name: 'Poké-Radar' });
-  expect(fauchage.getAttribute('aria-pressed')).toBe('true');
-  fireEvent.click(fauchage); fireEvent.click(radar);
-  expect(props.faucher).toHaveBeenCalledOnce();
-  expect(props.ouvrirRadar).toHaveBeenCalledWith(radar);
-  props.fauchage.disponible = false; props.fauchage.rechargeS = 12;
-  props.fauchage.raison = 'En recharge'; props.radarInutile = true;
-  rerender(<ActionsCombat {...props} />);
-  expect(screen.getByText('Recharge : 12 s')).toBeTruthy();
-  expect(fauchage.getAttribute('aria-disabled')).toBe('true');
-  expect(fauchage.title).toBe('En recharge');
-  expect(radar.getAttribute('aria-disabled')).toBe('true');
-  fireEvent.click(fauchage); fireEvent.click(radar);
-  expect(props.faucher).toHaveBeenCalledOnce();
-  expect(props.ouvrirRadar).toHaveBeenCalledOnce();
+it('ne porte plus ni Fauchage ni Poké-Radar : ils ont quitté cette ligne', () => {
+  const { container } = render(<ActionsCombat {...propsDepart()} />);
+  expect(container.querySelector('.actions-debloques')).toBeNull();
+  expect(screen.queryByRole('button', { name: /Fauchage|Poké-Radar/ })).toBeNull();
 });

@@ -52,12 +52,18 @@ it('téléphone : capture, quatre boutons, ni Outils ni Arrêter après ni dialo
   expect(screen.queryByRole('button', { name: 'Poké-Radar' })).toBeNull();
 });
 
-it('téléphone : Fauchage et Poké-Radar apparaissent une fois débloqués', () => {
+it('téléphone : Fauchage à droite de Capturer, Poké-Radar dans la scène, plus de ligne en dessous', () => {
   preparer(true);
   act(() => store.setState({ radar: true, fauchage: { ...store.getState().fauchage, possede: true, disponible: true } }));
-  const actions = within(screen.getByRole('group', { name: 'Actions du combat' }));
-  expect(actions.getByRole('button', { name: 'Fauchage' })).toBeTruthy();
-  expect(actions.getByRole('button', { name: 'Poké-Radar' })).toBeTruthy();
+  const capture = within(screen.getByRole('region', { name: 'Capture' }));
+  const actions = screen.getByRole('group', { name: 'Actions du combat' });
+  const fauchage = capture.getByRole('button', { name: 'Fauchage' });
+  const capturer = capture.getByRole('button', { name: 'Capturer' });
+  expect(capturer.compareDocumentPosition(fauchage) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  expect(within(actions).queryByRole('button', { name: /Fauchage|Poké-Radar/ })).toBeNull();
+  const radar = screen.getByRole('button', { name: 'Poké-Radar' });
+  expect(screen.getByRole('region', { name: /^Combat contre/ }).contains(radar)).toBe(true);
+  expect(actions.contains(radar)).toBe(false);
 });
 
 it('téléphone : le réglage de l’arrêt auto ouvre le paramétrage, le bouton Sac ouvre la fenêtre du Sac', () => {

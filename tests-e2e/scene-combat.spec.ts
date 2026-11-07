@@ -36,6 +36,11 @@ for (const largeur of LARGEURS) {
     expect(centreY).toBeGreaterThan(0.5);
     expect(centreY).toBeLessThanOrEqual(0.7);
     expect(m.cadre.bottom - m.socle.bottom).toBeGreaterThanOrEqual(m.cadre.height * 0.25);
+    // Retour du 07/11 (3e test) : cercle et sprite décalés à droite, à quelques pixels du cadre sans le toucher.
+    expect(m.cadre.right - m.socle.right).toBeGreaterThanOrEqual(4);
+    expect(m.cadre.right - m.socle.right).toBeLessThanOrEqual(20);
+    expect(m.cadre.right - m.image.right).toBeGreaterThanOrEqual(0);
+    expect(m.cadre.right - m.image.right).toBeLessThanOrEqual(12);
     // Sprite agrandi d'environ un tiers (96 px d'origine) et centré sur le cercle.
     expect(m.image.width / 96).toBeGreaterThanOrEqual(1.3);
     expect(m.image.width / 96).toBeLessThanOrEqual(1.4);
@@ -47,7 +52,67 @@ for (const largeur of LARGEURS) {
     // Le panneau nom / PV reste entièrement visible dans la scène.
     expect(m.panneau.top).toBeGreaterThanOrEqual(m.cadre.top);
     expect(m.panneau.bottom).toBeLessThanOrEqual(m.cadre.bottom);
+    // Le chiffre du niveau d'un Pokémon d'équipe ne touche pas le cadre de sa carte (décalé de 4 px).
+    const niveau = await page.evaluate(() => {
+      const carte = document.querySelector('.cadre[aria-label$=" DPS"]')!;
+      const chiffre = [...carte.querySelectorAll('span')].find(s => /^\d+$/.test(s.textContent ?? ''))!;
+      return { carte: carte.getBoundingClientRect().left, chiffre: chiffre.getBoundingClientRect().left };
+    });
+    expect(niveau.chiffre - niveau.carte).toBeGreaterThanOrEqual(5);
     await mkdir('design/captures', { recursive: true });
     await scene.screenshot({ path: `design/captures/scene-combat-${largeur}.png` });
+  });
+
+  test(`outils à ${largeur} px : Poké-Radar dans la scène, Fauchage à droite de Capturer, rien ne bouge au déblocage`, async ({ page }) => {
+    test.skip(!telephone(page), 'Mise en page téléphone');
+    await page.setViewportSize({ width: largeur, height: 844 });
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.goto('/');
+    const attaque = page.getByRole('button', { name: 'Attaque auto' });
+    await expect(attaque).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Poké-Radar' })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Fauchage' })).toHaveCount(0);
+    const avant = (await attaque.boundingBox())!.y;
+    await page.addInitScript(() => {
+      const cle = Object.keys(localStorage).find(c => c.startsWith('pokiclicker:region:') && c.endsWith(':kanto'));
+      if (!cle) return;
+      const enveloppe = JSON.parse(localStorage.getItem(cle)!);
+      enveloppe.donnees.ameliorations = ['pokeradar', 'falseSwipe'];
+      enveloppe.revision += 1;
+      localStorage.setItem(cle, JSON.stringify(enveloppe));
+    });
+    await page.reload();
+    const radar = page.getByRole('button', { name: 'Poké-Radar' });
+    const fauchage = page.getByRole('button', { name: 'Fauchage' });
+    await expect(radar).toBeVisible();
+    await expect(fauchage).toBeVisible();
+    expect((await attaque.boundingBox())!.y).toBe(avant);
+    const m = await page.evaluate(() => {
+      const rect = (selecteur: string) => document.querySelector(selecteur)!.getBoundingClientRect();
+      return {
+        cadre: rect('section[aria-label^="Combat contre"]'), socle: rect('.socle'),
+        image: rect('section[aria-label^="Combat contre"] img[alt]:not([alt=""])'),
+        radar: rect('button[aria-label="Poké-Radar"]'), fauchage: rect('button[aria-label="Fauchage"]'),
+        capturer: [...document.querySelectorAll('section[aria-label="Capture"] button')].find(b => b.textContent === 'Capturer')!.getBoundingClientRect(),
+        ancienneLigne: document.querySelector('.actions-debloques') !== null,
+      };
+    });
+    const chevauche = (a: DOMRect, b: DOMRect) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+    expect(m.radar.width).toBeGreaterThanOrEqual(48);
+    expect(m.radar.height).toBeGreaterThanOrEqual(48);
+    expect(m.radar.left).toBeGreaterThanOrEqual(m.cadre.left);
+    expect(m.radar.right).toBeLessThanOrEqual(m.cadre.right);
+    expect(m.radar.bottom).toBeLessThanOrEqual(m.cadre.bottom);
+    expect(chevauche(m.radar, m.socle)).toBe(false);
+    expect(chevauche(m.radar, m.image)).toBe(false);
+    expect(m.fauchage.width).toBeGreaterThanOrEqual(48);
+    expect(m.fauchage.height).toBeGreaterThanOrEqual(48);
+    expect(m.fauchage.left).toBeGreaterThanOrEqual(m.capturer.right);
+    expect(Math.abs(m.fauchage.top - m.capturer.top)).toBeLessThanOrEqual(4);
+    expect(m.capturer.width).toBeGreaterThanOrEqual(96);
+    expect(m.ancienneLigne).toBe(false);
+    await mkdir('design/captures', { recursive: true });
+    await page.locator('section[aria-label^="Combat contre"]').screenshot({ path: `design/captures/scene-outils-${largeur}.png` });
+    await page.screenshot({ path: `design/captures/combat-outils-${largeur}.png` });
   });
 }

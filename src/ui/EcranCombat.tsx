@@ -38,6 +38,7 @@ import { entreesRadar } from './store-objets';
 import type { StoreJeu } from './store';
 import { useTelephone } from './useTelephone';
 import { LigneCapture } from './LigneCapture';
+import { BoutonFauchage } from './BoutonFauchage';
 import { ActionsCombat } from './ActionsCombat';
 import { ouvrirSac as ouvrirSacFenetre } from './sacContexte';
 import './CombatTelephone.css';
@@ -145,7 +146,7 @@ function Scene({ store, ouvrirPension }: { store: StoreJeu; ouvrirPension(): voi
       {effets.length > 0 && <PastillesEffets effets={effets} />}
       {minuteur && <BarreTemps restantMs={minuteur.restantMs} totalMs={minuteur.totalMs} />}
     </div>
-    <div aria-hidden={cache} className={`pointer-events-none absolute right-2 bottom-30 flex will-change-transform size-48 items-end justify-center lg:bottom-8 lg:size-72 ${cache ? 'opacity-0' : ''}`}>
+    <div aria-hidden={cache} className={`pointer-events-none absolute right-1 bottom-30 flex will-change-transform size-48 max-lg:w-32 items-end lg:right-2 justify-center lg:bottom-8 lg:size-72 ${cache ? 'opacity-0' : ''}`}>
       <div aria-hidden="true" className="socle absolute -bottom-5 h-10 w-28 bg-region-socle lg:bottom-16 lg:h-16 lg:w-3/4" />
       <div className={captureEnCours ? '' : 'motion-safe:flottement'}>
         <div ref={secousse}>
@@ -170,26 +171,25 @@ function Scene({ store, ouvrirPension }: { store: StoreJeu; ouvrirPension(): voi
       onPointerDown={event => { if (event.button === 0) attaquer(); }}
       onClick={event => { if (event.detail === 0) attaquer(); }} />
     <DegatsFlottants store={store} />
-    {/* Sur téléphone, la capture, le Poké-Radar et les actions sont sous la scène (ActionsTelephone). */}
+    {/* Sur téléphone, la capture (avec Fauchage) et les actions sont sous la scène (ActionsTelephone) ; le Poké-Radar reste dans la scène. */}
     {!telephone && <div className="dock-capture cadre absolute bottom-3 left-3 z-20 bg-surface p-1 shadow-lg">
       <BarreCapture {...capture} capturer={capturer} />
     </div>}
-    {radar && !telephone && <button type="button" aria-label="Poké-Radar" disabled={zone.type === 'ligue'}
+    {radar && <button type="button" aria-label="Poké-Radar" disabled={zone.type === 'ligue'}
       title={zone.type === 'ligue' ? 'Inutile à la Ligue : il n’y a que des boss, aucun Pokémon à capturer.' : undefined}
-      className="radar-rond cadre absolute right-4 bottom-4 z-20 flex size-12 items-center justify-center rounded-full bg-surface shadow-md disabled:cursor-not-allowed disabled:opacity-50 disabled:grayscale lg:size-16"
+      className="radar-rond cadre absolute right-2 bottom-2 z-20 flex size-12 items-center justify-center rounded-full bg-surface shadow-md disabled:cursor-not-allowed disabled:opacity-50 disabled:grayscale lg:right-4 lg:bottom-4 lg:size-16"
       onClick={event => ouvrirRadar(event.currentTarget)}>
       <img src="img/objets/PokeRadar.png" alt="" className="size-7 image-rendering-pixelated lg:size-9" />
     </button>}
-    {!telephone && <FenetreRadar ouvert={declencheurRadar !== null} nomZone={lieu?.nom ?? zone.nom}
+    <FenetreRadar ouvert={declencheurRadar !== null} nomZone={lieu?.nom ?? zone.nom}
       especes={entreesRadar(zone, pokedex)}
-      fermer={() => ouvrirRadar(null)} declencheur={declencheurRadar} />}
+      fermer={() => ouvrirRadar(null)} declencheur={declencheurRadar} />
   </section>;
 }
 
-// Téléphone : ligne de capture, quatre boutons, puis Fauchage et Poké-Radar une fois débloqués (maquette a5).
+// Téléphone : ligne de capture (Fauchage à droite de Capturer une fois débloqué), puis quatre boutons (maquette a5).
 function ActionsTelephone({ store }: { store: StoreJeu }) {
   const zone = useStore(store, etat => etat.zone);
-  const lieu = useStore(store, etat => etat.lieu);
   const capture = useStore(store, etat => etat.capture);
   const capturer = useStore(store, etat => etat.capturer);
   const autoAttaque = useStore(store, etat => etat.autoAttaque);
@@ -198,19 +198,13 @@ function ActionsTelephone({ store }: { store: StoreJeu }) {
   const reglerArret = useStore(store, etat => etat.reglerArretAuto);
   const fauchage = useStore(store, etat => etat.fauchage);
   const faucher = useStore(store, etat => etat.faucher);
-  const radar = useStore(store, etat => etat.radar);
-  const pokedex = useStore(store, etat => etat.pokedex);
   const sac = useStore(store, etat => etat.sac);
-  const [declencheurRadar, ouvrirRadar] = useState<HTMLButtonElement | null>(null);
   if (!zone) return null;
   return <div className="actions-telephone">
-    <LigneCapture {...capture} capturer={capturer} />
+    <LigneCapture {...capture} capturer={capturer}
+      outil={fauchage.possede ? <BoutonFauchage fauchage={fauchage} faucher={faucher} /> : undefined} />
     <ActionsCombat autoAttaque={autoAttaque} basculerAutoAttaque={basculerAutoAttaque} arret={arret} reglerArret={reglerArret}
-      fauchage={fauchage} faucher={faucher} radar={radar} radarInutile={zone.type === 'ligue'} ouvrirRadar={ouvrirRadar}
       sac={{ accessible: sac.acces.ouvert, total: sac.entrees.reduce((total, entree) => total + entree.quantite, 0), ouvrir: ouvrirSacFenetre }} />
-    <FenetreRadar ouvert={declencheurRadar !== null} nomZone={lieu?.nom ?? zone.nom}
-      especes={entreesRadar(zone, pokedex)}
-      fermer={() => ouvrirRadar(null)} declencheur={declencheurRadar} />
   </div>;
 }
 

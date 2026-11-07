@@ -1,4 +1,4 @@
-import { useId, useState } from 'react';
+import { useId, useState, type ReactNode } from 'react';
 import './Plaques.css';
 import './LigneCapture.css';
 
@@ -8,9 +8,11 @@ type Props = {
   raison: string | null;
   enCours: boolean;
   capturer(cle: string): void;
+  /** Bouton carré à droite de « Capturer » (Fauchage une fois débloqué). */
+  outil?: ReactNode;
 };
 
-export function LigneCapture({ balles, possible, raison, enCours, capturer }: Props) {
+export function LigneCapture({ balles, possible, raison, enCours, capturer, outil }: Props) {
   const [choix, choisir] = useState<string | null>(null);
   const description = useId();
   const possedees = balles.filter(balle => balle.quantite > 0);
@@ -18,7 +20,7 @@ export function LigneCapture({ balles, possible, raison, enCours, capturer }: Pr
   const explication = raison ?? (!selection ? "Tu n'as aucune balle." : null);
 
   return (
-    <section aria-label="Capture" className="ligne-capture">
+    <section aria-label="Capture" className={`ligne-capture ${outil ? 'ligne-capture-outil' : ''}`}>
       {selection ? (
         <button
           type="button"
@@ -44,10 +46,11 @@ export function LigneCapture({ balles, possible, raison, enCours, capturer }: Pr
         aria-describedby={explication ? description : undefined}
         onClick={() => { if (selection) capturer(selection.cle); }}
       >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true" focusable="false" className="size-6">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true" focusable="false" className="size-6 shrink-0">
           <circle cx="12" cy="12" r="9" /><path d="M3 12h6m6 0h6" /><circle cx="12" cy="12" r="3" />
         </svg>Capturer
       </button>
+      {outil}
     </section>
   );
 }

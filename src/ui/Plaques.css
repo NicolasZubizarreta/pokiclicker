@@ -40,6 +40,24 @@
   font-size: var(--text-sm);
   line-height: var(--text-sm--line-height);
 }
+.plaque-carre {
+  flex-direction: column;
+  gap: 0;
+  width: calc(var(--spacing) * 14);
+  min-height: calc(var(--spacing) * 14);
+  padding: var(--spacing);
+  font-size: var(--text-xs);
+  line-height: var(--text-sm--line-height);
+}
+.plaque-carre[aria-pressed="true"]::after {
+  content: "";
+  position: absolute;
+  top: var(--spacing);
+  right: var(--spacing);
+  width: calc(var(--spacing) * 2);
+  height: calc(var(--spacing) * 2);
+  background: currentColor;
+}
 .pastille-sac {
   position: absolute;
   top: calc(var(--spacing) * -2);

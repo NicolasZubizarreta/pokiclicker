@@ -2,6 +2,12 @@
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   gap: calc(var(--spacing) * 2);
+  /* Hauteur fixe : même sans balle, le déblocage de Fauchage ne décale rien. */
+  grid-auto-rows: calc(var(--spacing) * 14);
+}
+
+.ligne-capture-outil {
+  grid-template-columns: auto minmax(0, 1fr) auto;
 }
 
 .ligne-capture-balle {

@@ -4,30 +4,13 @@
   gap: calc(var(--spacing) * 2);
 }
 
-.actions-quatre,
-.actions-debloques {
+.actions-quatre {
   display: grid;
   gap: calc(var(--spacing) * 2);
-}
-
-.actions-quatre {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .actions-quatre .plaque {
   min-height: calc(var(--spacing) * 16);
   text-align: center;
-}
-
-.actions-debloques {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.actions-debloques .plaque {
-  min-height: calc(var(--spacing) * 14);
-}
-
-.actions-debloques img {
-  width: calc(var(--spacing) * 6);
-  height: calc(var(--spacing) * 6);
 }

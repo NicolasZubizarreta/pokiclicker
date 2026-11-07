@@ -42,4 +42,13 @@ describe('LigneCapture', () => {
     expect(action.disabled).toBe(true);
     expect(document.getElementById(action.getAttribute('aria-describedby')!)?.textContent).toBe("Tu n'as aucune balle.");
   });
+
+  it('place l’outil à droite de Capturer dans la même ligne', () => {
+    const { container } = render(<LigneCapture balles={[]} possible raison={null} enCours={false} capturer={vi.fn()}
+      outil={<button type="button">Outil</button>} />);
+    const ligne = container.querySelector('.ligne-capture')!;
+    expect(ligne.classList.contains('ligne-capture-outil')).toBe(true);
+    expect(ligne.lastElementChild?.textContent).toBe('Outil');
+    expect(ligne.children[ligne.children.length - 2]?.textContent).toBe('Capturer');
+  });
 });

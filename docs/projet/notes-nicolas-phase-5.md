@@ -37,6 +37,8 @@ Décision télémétrie (même jour) : on reste sur la requête SQL sur les sauv
 
 Deuxième test iPhone (07/11, après les correctifs) : « le cercle vert et le pokémon sauvage sont trop bas ils passent quasiment sous le cadre faut les remonter pas au milieu de la zone mais presque juste un peu en dessous du milieu du cadre. Le niveau du pokémon de l'équipe dans la zone de combat cache le sprite ce que je propose c'est retirer le carré bleu qui est derrière le niveau pour moins cacher le sprite et mettre un contour noir autour du chiffre du niveau pour quand même le voir au cas où on a un sprite de pokémon clair derrière. Pour le pokédex c'est mieux la fiche pokémon mais quand je parlais des base stat je parlais pas de celles du jeu officiel mais de notre clicker, donc les dégâts de base pas les 6 stats. »
 
+Troisième test iPhone (07/11) : « faudrait le décaler sur la droite maintenant le sprite pokémon et le cercle vert. Pas collé au cadre mais presque à quelques pixels près. Les niveaux je les décalerais de 3/4 pixels vers la droite car là ça touche le cadre à gauche. Le pokéradar finalement doit rester une icône en bas à droite de la zone pokémon sauvage et le fauchage sera un bouton carré à droite de capturer (donc réduire le bouton capturer) ça permettra de retirer cette ligne qui ne contient que poké radar et fauchage car quand elle apparaît on ne voit plus les pokémons on est obligé de scroll. »
+
 ## 05/11/2026, détails d'interface sur PC
 
 (à dicter : Nicolas teste avec `npm.cmd run partie-test`)
