@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { useStore } from 'zustand';
 import { chargerPokemon } from '../core/pokemon';
-import { cibleValidePierre, evolutionDisponible, evolutionParPierre } from '../core/evolution';
+import { cibleValidePierre } from '../core/evolution';
 import { cibleValideStase, quantiteMax } from '../core/objets-equipe';
 import { reglages } from '../core/reglages';
 import type { PokemonPossede } from '../core/sauvegarde-types';
-import { pierreProposee } from './evolution-proposee';
+import { evolutionProposee } from './evolution-proposee';
 import { ECLAT, SECOUSSE } from './animations';
 import { rejouer } from './rejouer';
 import { BarrePv } from './BarrePv';
@@ -215,7 +215,7 @@ function Equipe({ store }: { store: StoreJeu }) {
   const dps = useStore(store, etat => etat.dps);
   const sac = useStore(store, etat => etat.sac);
   const animation = useStore(store, etat => etat.evolution);
-  const [fiche, ouvrirFiche] = useState<{ uid: string; ouverture: number } | null>(null);
+  const [fiche, ouvrirFiche] = useState<{ uid: string; ouverture: number; renommer: boolean } | null>(null);
   const [ouvert, afficher] = useState(false);
   const declencheur = useRef<HTMLButtonElement>(null);
   const [declencheurSac, ouvrirSac] = useState<HTMLButtonElement | null>(null);
@@ -284,12 +284,13 @@ function Equipe({ store }: { store: StoreJeu }) {
       </div>}
     </div>
     <div className="grid grid-cols-6 gap-1 lg:grid-cols-1">{equipe.map((membre, i) => {
-      const niveau = membre ? evolutionDisponible(membre.pokemon) : null;
-      const pierre = membre && niveau === null ? pierreProposee(membre.pokemon, sac.entrees) : null;
-      const vers = membre ? niveau
-        ?? (pierre ? evolutionParPierre(membre.pokemon.numero, pierre.id) : null) : null;
-      const evolution = vers !== null && !objet ? { vers, pierre } : null;
+      const evolution = membre && !objet ? evolutionProposee(membre.pokemon, sac.entrees) : null;
       return <CarteEquipe key={membre?.pokemon.uid ?? i} membre={membre} evolution={evolution}
+        ouvrirFiche={telephone && membre ? bouton => {
+          declencheur.current = bouton;
+          ouvrirFiche(precedente => ({ uid: membre.pokemon.uid, ouverture: (precedente?.ouverture ?? 0) + 1, renommer: false }));
+          afficher(true);
+        } : undefined}
         retirerObjet={uid => { const erreur = store.getState().retirerStase(uid); if (erreur) signaler(erreur); }}
         cible={objet && membre ?{ valide: eligible(membre.pokemon), choisir: () => appliquer(membre.pokemon.uid) } : null}
         animation={animation?.uid === membre?.pokemon.uid ? animation : null}
@@ -299,11 +300,11 @@ function Equipe({ store }: { store: StoreJeu }) {
           else store.getState().evoluer(membre.pokemon.uid);
         }} renommer={(uid, bouton) => {
         declencheur.current = bouton;
-        ouvrirFiche(precedente => ({ uid, ouverture: (precedente?.ouverture ?? 0) + 1 }));
+        ouvrirFiche(precedente => ({ uid, ouverture: (precedente?.ouverture ?? 0) + 1, renommer: true }));
         afficher(true);
       }} />;
     })}</div>
-    {fiche !== null && <FichePokemon key={fiche.ouverture} uid={fiche.uid} renommer ouvert={ouvert}
+    {fiche !== null && <FichePokemon key={fiche.ouverture} uid={fiche.uid} renommer={fiche.renommer} ouvert={ouvert}
       fermer={() => afficher(false)} declencheur={declencheur} />}
     {zone && sac.acces.ouvert && declencheurSac && <PanneauSac sac={sac} utiliserObjetActif={utiliserObjetActif} choisirObjet={choisirObjet}
       fermer={() => ouvrirSac(null)} declencheur={declencheurSac} />}

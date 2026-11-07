@@ -80,6 +80,18 @@ it('propose un aperçu accessible, un contour d’alerte et transmet le bouton a
   expect(evoluer).toHaveBeenCalledWith(bouton);
 });
 
+it('sur téléphone signale l’évolution et ouvre la fiche', () => {
+  vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() })));
+  const ouvrir = vi.fn();
+  const { container } = render(<CarteEquipe membre={{ pokemon: base, dps: 3, xpMax: 100, multiplicateur: 1 }} evolution={{ vers: 2, pierre: null }} ouvrirFiche={ouvrir} />);
+  expect(screen.queryByRole('button', { name: /Faire évoluer/ })).toBeNull();
+  expect(container.firstElementChild?.classList.contains('pret-evoluer')).toBe(true);
+  expect(container.firstElementChild?.classList.contains('carte-evo')).toBe(false);
+  fireEvent.click(screen.getByRole('button', { name: 'Ouvrir la fiche de Bulbizarre' }));
+  expect(ouvrir).toHaveBeenCalled();
+  vi.unstubAllGlobals();
+});
+
 it('laisse la carte sans bouton ni contour d’alerte en l’absence d’évolution', () => {
   const { container } = render(<CarteEquipe membre={{ pokemon: base, dps: 3, xpMax: 100, multiplicateur: 1 }} evolution={null} />);
   expect(screen.queryByRole('button')).toBeNull();

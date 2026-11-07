@@ -37,6 +37,15 @@ beforeEach(() => {
 });
 afterEach(() => { cleanup(); reinitialiserSac(); vi.restoreAllMocks(); });
 
+it('sur téléphone la ligne prête à évoluer clignote sans bouton d’évolution', () => {
+  vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() })));
+  storeJeu.setState({ equipe: [{ pokemon, evolution: 2, dps: 42, xpMax: 100, multiplicateur: 1 }] });
+  render(<PageEquipe />);
+  expect(screen.getByRole('button', { name: 'Bourgeon, niveau 16' }).classList.contains('pret-evoluer')).toBe(true);
+  expect(screen.queryByRole('button', { name: /Faire évoluer/ })).toBeNull();
+  vi.unstubAllGlobals();
+});
+
 it('relie le PC et masque son accès pendant le choix ou un échange', () => {
   const ouvrirPC = vi.fn();
   storeJeu.setState({ pc: [pokemon], accesPc: { ouvert: true, raison: null } });

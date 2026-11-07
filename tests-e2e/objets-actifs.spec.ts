@@ -1,6 +1,7 @@
 import { mkdir } from 'node:fs/promises';
 import { test as base, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
+import { telephone } from './aide-carte';
 
 const instant = new Date('2026-10-25T12:00:00Z');
 const test = base.extend<{ surveillance: void }>({
@@ -138,11 +139,14 @@ test('Pierre Stase : pose et retrait ; Jeton : confirmation et chromatique sauve
   const retirerStase = page.getByRole('button', { name: 'Retirer Pierre Stase de Bulbizarre', exact: true });
   await expect(retirerStase).toBeVisible();
   await expect(page.getByRole('button', { name: 'Faire évoluer Bulbizarre' })).toHaveCount(0);
+  if (telephone(page)) await page.getByRole('button', { name: 'Ferme la fiche', exact: true }).click();
   await bulbizarre.click({ button: 'right' });
   await page.getByRole('menuitem', { name: "Retirer l'objet", exact: true }).click();
   await expect(retirerStase).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Pierre Stase ×1', exact: true })).toBeVisible();
+  if (telephone(page)) await bulbizarre.click();
   await expect(page.getByRole('button', { name: 'Faire évoluer Bulbizarre' })).toBeVisible();
+  if (telephone(page)) await page.getByRole('button', { name: 'Ferme la fiche', exact: true }).click();
   await utiliser(page, 'Jeton Shiny');
   await bulbizarre.click();
   const confirmation = page.getByRole('group', { name: 'Utiliser Jeton Shiny sur Bulbizarre ?', exact: true });

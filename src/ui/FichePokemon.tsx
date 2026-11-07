@@ -17,6 +17,8 @@ import { storeJeu } from './store';
 import { niveauRequis, peutEvoluer, pierresPour } from '../core/evolution';
 import { chargerObjets } from '../core/boutique';
 import './FichePokemon.css';
+import { useTelephone } from './useTelephone';
+import { evolutionProposee } from './evolution-proposee';
 
 type Props = {
   uid: string; ouvert: boolean; fermer: () => void; declencheur: RefObject<HTMLButtonElement | null>;
@@ -38,6 +40,8 @@ export function FichePokemon(props: Props) {
 }
 
 function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: Props) {
+  const telephone = useTelephone();
+  const sac = useStore(storeJeu, etat => etat.sac);
   const equipe = useStore(storeJeu, etat => etat.equipe);
   const pc = useStore(storeJeu, etat => etat.pc);
   const caseEquipe = equipe.find(c => c?.pokemon.uid === uid);
@@ -113,6 +117,7 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: 
   const pokemon = membre?.pokemon;
   const espece = pokemon ? catalogue.parNumero(pokemon.numero) : null;
   const nom = pokemon ? nomAffiche(pokemon) : 'Pokémon';
+  const evolution = telephone && pokemon ? evolutionProposee(pokemon, sac.entrees) : null;
   // La règle pure ne consulte que ces deux listes ; aucune mutation du store.
   const regionVerification = { equipe: equipe.flatMap(c => c ? [c.pokemon] : []), pc } as unknown as Parameters<typeof verifierRelachement>[0];
   const verification = verifierRelachement(regionVerification, uid);
@@ -147,6 +152,13 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: 
           </form>}
           {pokemon && espece && <p>{pokemon.oeuf ? progressionOeuf(pokemon.oeuf) : `${espece.nom} · N° ${pokemon.numero} · Niveau ${pokemon.niveau}`}</p>}
         </header>
+        {evolution && pokemon && <button type="button" className={`${bouton} cadre-alerte`}
+          aria-label={`Faire évoluer ${nom} en ${nomAffiche({ ...pokemon, numero: evolution.vers, surnom: undefined })}${evolution.pierre ? ` avec la ${evolution.pierre.nom}` : ''}`}
+          onClick={() => {
+            const message = evolution.pierre ? storeJeu.getState().utiliserPierre(uid, evolution.pierre.id) : storeJeu.getState().evoluer(uid);
+            if (message) signaler(message);
+            else fermerFiche();
+          }}>Évoluer</button>}
         {pokemonPc && <p>Dans le PC</p>}
         {pokemon && espece && membre && detail && <>
           <div className="relative isolate grid place-items-center">

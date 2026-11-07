@@ -148,7 +148,7 @@ export function PageEquipe({ ouvrirPC }: { ouvrirPC?: () => void }) {
           return <li key={pokemon.uid} className="relative min-w-0">
             <button type="button" aria-label={pokemon.oeuf ? `${nom}, ${progressionOeuf(pokemon.oeuf)}` : `${nom}, niveau ${pokemon.niveau}`} aria-pressed={membre?.pokemon.uid === pokemon.uid} data-uid={pokemon.uid}
               disabled={!!mode && (mode.type === 'bonbon' || mode.type === 'calcium' || mode.type === 'baie') && !valide}
-              className={`cadre grid h-full min-h-11 w-full grid-cols-[auto_minmax(0,1fr)_auto] lg:grid-cols-[auto_minmax(0,1fr)] items-center gap-2 p-3 pe-3 lg:p-4 lg:pe-24 text-left ${mode && !valide ? '' : 'hover:bg-selection'} ${membre?.pokemon.uid === pokemon.uid ? 'bg-surface lg:bg-selection' : 'bg-surface'} ${mode ? valide ? 'relative border-info-base motion-safe:cible-valide' : 'grayscale opacity-50' : ''}`}
+              className={`cadre relative grid h-full min-h-11 w-full grid-cols-[auto_minmax(0,1fr)_auto] lg:grid-cols-[auto_minmax(0,1fr)] items-center gap-2 p-3 pe-3 lg:p-4 lg:pe-24 text-left ${telephone && !mode && !echange && typeof caseEquipe.evolution === 'number' ? 'pret-evoluer' : ''} ${mode && !valide ? '' : 'hover:bg-selection'} ${membre?.pokemon.uid === pokemon.uid ? 'bg-surface lg:bg-selection' : 'bg-surface'} ${mode ? valide ? 'relative border-info-base motion-safe:cible-valide' : 'grayscale opacity-50' : ''}`}
               onContextMenu={event => {
                 event.preventDefault();
                 if (echange || mode) return;
@@ -224,7 +224,7 @@ export function PageEquipe({ ouvrirPC }: { ouvrirPC?: () => void }) {
                   ouvrirFiche(pokemon.uid, bouton, true);
                 }} /></span>}
             </div>
-            {!mode && !echange && typeof caseEquipe.evolution === 'number' && <button type="button"
+            {!telephone && !mode && !echange && typeof caseEquipe.evolution === 'number' && <button type="button"
               aria-label={`Faire évoluer ${nom}`} className="cadre-alerte min-h-11 w-full bg-surface motion-safe:animate-pulse"
               onClick={() => {
                 const message = storeJeu.getState().evoluer(pokemon.uid);

@@ -29,6 +29,15 @@ function preparer(telephone: boolean) {
   return render(<EcranCombat store={store} />);
 }
 
+it('téléphone : toucher une carte ouvre la fiche sans édition du surnom', () => {
+  Object.defineProperty(HTMLDialogElement.prototype, 'showModal', { configurable: true,
+    value(this: HTMLDialogElement) { this.setAttribute('open', ''); } });
+  preparer(true);
+  fireEvent.click(screen.getAllByRole('button', { name: /^Ouvrir la fiche de / })[0]!);
+  expect(screen.getByRole('dialog')).toBeTruthy();
+  expect(screen.queryByRole('textbox', { name: 'Surnom' })).toBeNull();
+});
+
 it('téléphone : capture, quatre boutons, ni Outils ni Arrêter après ni dialogue permanent', () => {
   preparer(true);
   const capture = screen.getByRole('region', { name: 'Capture' });

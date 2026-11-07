@@ -334,3 +334,22 @@ Reprendre les animations et effets de la V1 (`docs/projet/v1-visuel-a-porter.md`
 
 ### Effort et risques
 1 à 2 jours.
+
+## Q. `fix(ui): retours du test iPhone du 07/11`
+
+`type:fix`, `etat:en_cours`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` · dépend de : lots 1 à 8 · source : `docs/projet/notes-nicolas-phase-5.md` (07/11/2026) et captures `docs/projet/retours-iphone-07-11/`
+
+### Histoire
+En tant que joueur sur iPhone, je veux que les fenêtres s'ouvrent à une taille lisible, que l'évolution ne décale plus l'écran et que chaque Pokémon reste dans son cadre, pour jouer au pouce sans surprise.
+
+### Critères d'acceptation
+- [ ] Étant donné un iPhone 15 (WebKit, 393 px, tactile), quand j'ouvre la fiche Pokémon, le Sac, le réglage d'arrêt auto ou la fiche du Pokédex, alors la fenêtre fait au moins 60 % de la hauteur de l'écran, son contenu est visible et défile (test e2e WebKit).
+- [ ] Étant donné un Pokémon prêt à évoluer sur téléphone, quand je regarde le Combat ou l'Équipe, alors aucun bouton « Évoluer » n'apparaît en ligne : son cadre clignote en jaune (bordure jaune fixe si `prefers-reduced-motion`) et un toucher ouvre sa fiche, où se trouve « Évoluer ». Sur PC, rien ne change.
+- [ ] Étant donné la ligne d'équipe du Combat, quand je touche un Pokémon, alors sa fiche s'ouvre et se ferme par un bouton accessible.
+- [ ] Étant donné un sprite (ligne d'équipe, cartes d'Équipe, PC, fiche, Pokédex), quand il s'affiche, alors il tient entièrement dans son cadre sans déformation, Daran et Gabriel compris (test).
+- [ ] Étant donné la fiche du Pokédex, quand je touche une espèce, alors elle montre le sprite (silhouette si non capturé), le nom, le numéro, les types et les statistiques de base si elles existent dans `data/` ou `src/core`, sans changer ce que le jeu révèle.
+- [ ] Étant donné un ennemi sauvage, quand il apparaît à 360, 390 et 430 px, alors son sprite, agrandi de 30 à 40 %, est posé sur le cercle vert (réduit d'environ 20 %), entier dans la scène, la barre de PV et le nom restant visibles.
+- [ ] Étant donné les valeurs de design ajoutées, alors elles passent par des jetons ou variables existants (`tests/ui-valeurs-en-dur.test.ts`) ; aucune règle de jeu ni donnée de contenu ne change ; simulateur inchangé (Ligue 87,0 min).
+
+### Effort et risques
+2 à 3 jours. Risque : le bug des fenêtres ne se reproduit pas dans le WebKit de Playwright (Windows) ; la cause est déduite du CSS commun (`.fiche-contenu`) et à confirmer sur l'iPhone.

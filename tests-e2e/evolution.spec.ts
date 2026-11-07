@@ -57,7 +57,8 @@ test('Bulbizarre niveau 15 : évolution absente', async ({ page }) => {
 test('Bulbizarre : animation, largeur, sauvegarde et Pokédex', async ({ page }, informations) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await demarrer(page, 1);
-  const evoluer = page.getByRole('button', { name: 'Faire évoluer Bulbizarre', exact: true });
+  if (telephone(page)) await page.getByRole('button', { name: 'Bulbizarre, niveau 16', exact: true }).click();
+  const evoluer = page.getByRole('button', { name: telephone(page) ? 'Faire évoluer Bulbizarre en Herbizarre' : 'Faire évoluer Bulbizarre', exact: true });
   await expect(evoluer).toBeVisible();
   // Le liseré d'alerte doit réellement s'appliquer (une classe utilitaire perd contre .cadre, hors couche).
   const couleurs = await evoluer.evaluate(element => {
@@ -126,7 +127,8 @@ test('Rattata : refus de Pierre Eau et stock intact', async ({ page }) => {
 test('Animations réduites : remplacement immédiat sans animation', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await demarrer(page, 1);
-  await page.getByRole('button', { name: 'Faire évoluer Bulbizarre', exact: true }).click();
+  if (telephone(page)) await page.getByRole('button', { name: 'Bulbizarre, niveau 16', exact: true }).click();
+  await page.getByRole('button', { name: telephone(page) ? 'Faire évoluer Bulbizarre en Herbizarre' : 'Faire évoluer Bulbizarre', exact: true }).click();
   const ligne = page.getByRole('button', { name: 'Herbizarre, niveau 16', exact: true });
   await expect(ligne).toBeVisible();
   expect(await ligne.evaluate(element => [...element.querySelectorAll('*')]

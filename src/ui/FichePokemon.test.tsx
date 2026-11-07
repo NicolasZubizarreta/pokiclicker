@@ -27,6 +27,42 @@ vi.mock('./store', async (original) => {
 
 const pokemon: PokemonPossede = { uid: 'fiche', numero: 1, niveau: 16, xp: 30,
   surnom: 'Bourgeon', sexe: 'male', shiny: true, favori: false, bonheur: 128, calcium: 2, pierreEternelle: true };
+it.each([false, true])('propose l’évolution seulement sur téléphone (%s)', telephone => {
+  vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: telephone, addEventListener: vi.fn(), removeEventListener: vi.fn() })));
+  storeJeu.setState({ equipe: [{ pokemon: { ...pokemon, pierreEternelle: false }, dps: 42, xpMax: 100, multiplicateur: 1 }] });
+  const evoluer = vi.fn(() => null);
+  storeJeu.setState({ evoluer });
+  afficher();
+  const action = screen.queryByRole('button', { name: 'Faire évoluer Bourgeon en Herbizarre' });
+  expect(!!action).toBe(telephone);
+  if (action) {
+    fireEvent.click(action);
+    expect(evoluer).toHaveBeenCalledWith('fiche');
+    expect(screen.queryByRole('dialog')).toBeNull();
+  }
+  vi.unstubAllGlobals();
+});
+it('évolue par pierre sur téléphone et ferme la fiche', () => {
+  vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() })));
+  const utiliserPierre = vi.fn(() => null);
+  storeJeu.setState({ equipe: [{ pokemon: { ...pokemon, numero: 133, pierreEternelle: false }, dps: 42, xpMax: 100, multiplicateur: 1 }],
+    utiliserPierre, sac: { acces: { ouvert: true, raison: null }, entrees: [{ id: 'waterStone', nom: 'Pierre Eau', image: null,
+      description: '', categorie: 'equipement', quantite: 1, actif: false, utilisable: 'pierre' }] } });
+  afficher();
+  fireEvent.click(screen.getByRole('button', { name: 'Faire évoluer Bourgeon en Aquali avec la Pierre Eau' }));
+  expect(utiliserPierre).toHaveBeenCalledWith('fiche', 'waterStone');
+  expect(screen.queryByRole('dialog')).toBeNull();
+  vi.unstubAllGlobals();
+});
+
+it.each([pokemon, { ...pokemon, niveau: 1, pierreEternelle: false }, { ...pokemon, oeuf: { pasRestants: 1, pasMax: 1 } }])('masque le bouton téléphone si bloqué (%j)', p => {
+  vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() })));
+  storeJeu.setState({ equipe: [{ pokemon: p, dps: 42, xpMax: 100, multiplicateur: 1 }] });
+  afficher();
+  expect(screen.queryByRole('button', { name: /Faire évoluer/ })).toBeNull();
+  vi.unstubAllGlobals();
+});
+
 beforeEach(() => {
   Object.defineProperties(HTMLDialogElement.prototype, {
     showModal: { configurable: true, value(this: HTMLDialogElement) { this.setAttribute('open', ''); } },

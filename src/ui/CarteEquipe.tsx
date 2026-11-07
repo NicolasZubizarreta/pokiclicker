@@ -9,11 +9,13 @@ import type { EvolutionAffichee } from './store-evolution';
 import { formaterDps } from './nombres';
 import { classeSprite, nomAffiche, progressionOeuf, spriteAffiche } from './affichage-pokemon';
 import type { CaseEquipe } from './store';
+import { useTelephone } from './useTelephone';
 
 /** `renommer` : affiche le crayon (grand écran, là où le nom est visible) ; il ouvre la fiche avec le champ de surnom. */
 const stase = chargerObjets().find(objet => objet.id === 'everstone');
 
-export function CarteEquipe({ membre, renommer, retirerObjet, evolution, evoluer, animation, cible }: {
+export function CarteEquipe({ membre, renommer, retirerObjet, evolution, evoluer, animation, cible, ouvrirFiche }: {
+  ouvrirFiche?(declencheur: HTMLButtonElement): void;
   membre: CaseEquipe;
   /** Retire l'objet porté (Pierre Stase) : l'icône de l'objet devient un bouton. */
   retirerObjet?(uid: string): void;
@@ -24,12 +26,13 @@ export function CarteEquipe({ membre, renommer, retirerObjet, evolution, evoluer
   evoluer?(bouton: HTMLButtonElement): void;
   animation?: EvolutionAffichee | null;
 }) {
+  const telephone = useTelephone();
   const nom = membre ? nomAffiche(membre.pokemon) : '';
   const oeuf = membre?.pokemon.oeuf;
   const niveau = oeuf ? progressionOeuf(oeuf) : membre ? `niveau ${membre.pokemon.niveau}` : '';
   const forme = membre && evolution ? { ...membre.pokemon, numero: evolution.vers, surnom: undefined } : null;
   return <div aria-label={membre ? `${nom}, ${niveau}, ${formaterDps(membre.dps)} DPS` : 'Case libre'}
-    className={`cadre relative grid h-14 min-w-0 place-items-center overflow-hidden bg-surface lg:h-26 ${membre ? 'lg:grid-cols-[auto_minmax(0,1fr)] lg:pb-1 lg:pe-4' : ''} ${forme ? 'carte-evo cadre-alerte' : ''} ${cible ? cible.valide ? 'motion-safe:cible-valide' : 'grayscale opacity-50' : ''}`}>
+    className={`cadre relative grid h-14 min-w-0 place-items-center overflow-hidden bg-surface lg:h-26 ${membre ? 'lg:grid-cols-[auto_minmax(0,1fr)] lg:pb-1 lg:pe-4' : ''} ${forme ? telephone ? 'pret-evoluer' : 'carte-evo cadre-alerte' : ''} ${cible ? cible.valide ? 'motion-safe:cible-valide' : 'grayscale opacity-50' : ''}`}>
     {membre ? <>
       {animation ? <span className="carte-evo-sprite absolute grid size-24 max-w-none place-items-center lg:static lg:row-span-3 [&_img]:size-24">
         <SpriteEvolution ancien={spriteAffiche({ ...membre.pokemon, numero: animation.ancien })}
@@ -54,7 +57,7 @@ export function CarteEquipe({ membre, renommer, retirerObjet, evolution, evoluer
       {!oeuf && <div className="absolute inset-x-0 bottom-0 mx-1 mb-1 lg:static lg:mx-0 lg:mb-0 lg:col-start-2 lg:w-full lg:self-start">
         <BarreXp xp={membre.pokemon.xp} maximum={membre.xpMax} nom={nom} />
       </div>}
-      {forme && evolution && <button type="button" className="carte-evo-action min-h-11 min-w-11"
+      {!telephone && forme && evolution && <button type="button" className="carte-evo-action min-h-11 min-w-11"
         aria-label={`Faire évoluer ${nom} en ${nomAffiche(forme)}${evolution.pierre ? ` avec la ${evolution.pierre.nom}` : ''}`}
         onClick={event => evoluer?.(event.currentTarget)}>
         <span className="text-2xl" aria-hidden="true">→</span>
@@ -64,6 +67,7 @@ export function CarteEquipe({ membre, renommer, retirerObjet, evolution, evoluer
         </span>
         <span className="carte-evo-nom text-sm">{nomAffiche(forme)}</span>
       </button>}
+      {ouvrirFiche && !cible && <button type="button" aria-label={`Ouvrir la fiche de ${nom}`} className="absolute inset-0 z-10 min-h-11 min-w-11" onClick={event => ouvrirFiche(event.currentTarget)} />}
       {cible?.valide && <button type="button" aria-label={`Choisir ${nom}`} className="absolute inset-0 z-10 hover:bg-selection/30"
         onClick={cible.choisir} />}
     </> : <span>—</span>}

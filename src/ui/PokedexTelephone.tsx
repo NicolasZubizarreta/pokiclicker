@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState, type CSSProperties } from 'react';
+import { Fragment, useEffect, useId, useRef, useState, type CSSProperties } from 'react';
 import { createPortal } from 'react-dom';
 import { useStore } from 'zustand';
 import { chargerPokemon, nomType } from '../core/pokemon';
@@ -12,6 +12,11 @@ import { cheminSprite } from './precharger';
 import './FichePokemon.css';
 
 const catalogue = chargerPokemon();
+/** Statistiques de base de `data/pokemon.json`, dans l'ordre des jeux ; 255 est le maximum possible d'une statistique de base. */
+const STATS_BASE = [['pv', 'PV'], ['attaque', 'Attaque'], ['defense', 'Défense'], ['attaqueSpe', 'Attaque Spé.'],
+  ['defenseSpe', 'Défense Spé.'], ['vitesse', 'Vitesse']] as const;
+const STAT_MAX = 255;
+const progresStat = (valeur: number) => ({ '--progres': `${Math.min(valeur / STAT_MAX, 1) * 100}%` }) as CSSProperties;
 const normaliser = (texte: string) => texte.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').trim();
 
 export function PokedexTelephone({ retour, ouvrirDiplome }: { retour(): void; ouvrirDiplome?: () => void }) {
@@ -142,7 +147,19 @@ function DetailEspece({ numero, capture, fermer }: { numero: number; capture: bo
         </div>
         <p className="text-center text-texte-doux">{equipe.some(caseEquipe => caseEquipe?.pokemon.numero === numero)
           ? 'Dans ton équipe' : pc.some(pokemon => pokemon.numero === numero) ? 'Rangé dans ton PC' : 'Enregistré au Pokédex'}</p>
-      </> : <p role="status" className="cadre bg-surface-2 p-3">
+        <dl aria-label="Statistiques de base" className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-3 gap-y-2">
+          {STATS_BASE.map(([cle, libelle]) => <Fragment key={cle}>
+            <dt className="text-texte-doux">{libelle}</dt>
+            <dd className="flex min-w-0 items-center gap-2">
+              <span className="w-10 text-right font-bold tabular-nums">{espece.stats[cle]}</span>
+              <span aria-hidden="true" className="h-2 min-w-0 flex-1 bg-fond">
+                <span className="block h-full w-(--progres) bg-info-base"
+                  style={progresStat(espece.stats[cle])} />
+              </span>
+            </dd>
+          </Fragment>)}
+        </dl>
+      </> :<p role="status" className="cadre bg-surface-2 p-3">
         Capture ce Pokémon pour découvrir son nom et ses types.
       </p>}
     </div>

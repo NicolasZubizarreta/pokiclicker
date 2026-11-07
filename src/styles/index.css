@@ -83,17 +83,39 @@ select:not(:disabled) {
 }
 @keyframes cible-pulsation { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
 
+@utility pret-evoluer {
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border: calc(var(--spacing) / 2) solid var(--alerte-base);
+    opacity: 1;
+    @media (prefers-reduced-motion: no-preference) {
+      animation: cible-pulsation var(--duree-carte-pulsation) var(--ease-standard) infinite;
+    }
+    @media (prefers-reduced-motion: reduce) { animation: none; }
+  }
+}
+
 .pc-panneau { max-height: calc(100dvh - var(--spacing) * 16); }
 
 html:has(dialog[open]) { overflow: hidden; }
 .menu-pokemon { transform: translate(calc(var(--menu-x) * 1px), calc(var(--menu-y) * 1px)); }
+/* Téléphone : feuille basse d'au moins 60 % de la hauteur, jamais plus de l'écran moins une marge. */
 .fiche-pokemon {
-  max-height: 50dvh;
+  max-height: calc(100dvh - var(--spacing) * 8);
   margin: auto auto 0;
 }
+@media (width < theme(--breakpoint-lg)) {
+  .fiche-pokemon:has(> .fiche-contenu), .guide-fenetre:has(> .fiche-contenu) { min-height: 60dvh; }
+  .fenetre-celadopole:has(> .fiche-contenu) { min-height: 0; }
+}
 .fiche-pokemon[open] { display: flex; flex-direction: column; }
+/* Hauteur de départ = celle du contenu (« 1 1 auto », pas « 1 » = base 0 %) : Safari iOS écrasait la base 0 % d'une
+   colonne dont la hauteur est « fit-content », et la fenêtre s'ouvrait en bande de quelques pixels. */
 .fiche-contenu {
-  flex: 1;
+  flex: 1 1 auto;
   min-height: 0;
   align-content: start;
   overflow-y: auto;

@@ -62,6 +62,12 @@ it.each(['Dans ton équipe', 'Rangé dans ton PC', 'Enregistré au Pokédex'])(
     expect(within(fiche).getByText('Plante').classList.contains('pastille-type-grass')).toBe(true);
     expect(within(fiche).getByText('Poison').classList.contains('pastille-type-poison')).toBe(true);
     expect(within(fiche).getByAltText('Bulbizarre').classList.contains('size-32')).toBe(true);
+    // Statistiques de base de data/pokemon.json (Bulbizarre : 45 PV, 49 Attaque, 49 Défense, 65 / 65, 45 Vitesse).
+    const stats = within(fiche).getByLabelText('Statistiques de base');
+    expect(Array.from(stats.querySelectorAll('dt'), dt => dt.textContent))
+      .toEqual(['PV', 'Attaque', 'Défense', 'Attaque Spé.', 'Défense Spé.', 'Vitesse']);
+    expect(Array.from(stats.querySelectorAll('dd > span:first-child'), valeur => valeur.textContent))
+      .toEqual(['45', '49', '49', '65', '65', '45']);
   },
 );
 
@@ -73,6 +79,7 @@ it('ouvre une silhouette inconnue sans révéler son nom ni ses types', () => {
     .toBe('Capture ce Pokémon pour découvrir son nom et ses types.');
   expect(within(fiche).queryByText(/Papilusion/)).toBeNull();
   expect(fiche.querySelector('.pastille-type')).toBeNull();
+  expect(within(fiche).queryByLabelText('Statistiques de base')).toBeNull();
   expect(within(fiche).getByAltText('Pokémon inconnu').classList.contains('brightness-0')).toBe(true);
 });
 
