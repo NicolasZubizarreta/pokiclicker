@@ -1,6 +1,30 @@
 {
-  "genereLe": "2026-11-05T22:43:03.991Z",
+  "genereLe": "2026-11-07T10:39:17.682Z",
   "ecrans": [
+    {
+      "groupe": "compte",
+      "slug": "ecran-choix-version",
+      "titre": "Choix de version",
+      "source": "src/ui/compte/EcranChoixVersion.tsx",
+      "etat": "Versions locale et distante divergentes de la même partie.",
+      "build": "compte",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "compte-ecran-choix-version-390.png",
+        "1440": "compte-ecran-choix-version-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-05T12:14:48.677Z"
+    },
     {
       "groupe": "compte",
       "slug": "connexion",
@@ -119,20 +143,20 @@
           "statut": "ok"
         }
       },
-      "captureLe": "2026-11-05T12:18:29.914Z"
+      "captureLe": "2026-11-07T10:36:33.322Z"
     },
     {
       "groupe": "compte",
-      "slug": "ecran-choix-version",
-      "titre": "Choix de version",
-      "source": "src/ui/compte/EcranChoixVersion.tsx",
-      "etat": "Versions locale et distante divergentes de la même partie.",
+      "slug": "ecran-deconnexion",
+      "titre": "Se déconnecter ?",
+      "source": "src/ui/compte/DialogueDeconnexion.tsx",
+      "etat": "Confirmation ouverte depuis l’onglet Compte.",
       "build": "compte",
       "statut": "ok",
       "raison": "",
       "captures": {
-        "390": "compte-ecran-choix-version-390.png",
-        "1440": "compte-ecran-choix-version-1440.png"
+        "390": "compte-ecran-deconnexion-390.png",
+        "1440": "compte-ecran-deconnexion-1440.png"
       },
       "erreursJS": [],
       "largeurs": {
@@ -143,7 +167,31 @@
           "statut": "ok"
         }
       },
-      "captureLe": "2026-11-05T12:14:48.677Z"
+      "captureLe": "2026-11-07T10:39:11.585Z"
+    },
+    {
+      "groupe": "compte",
+      "slug": "ecran-reprise-ailleurs",
+      "titre": "Partie reprise ailleurs",
+      "source": "src/ui/compte/EcranRepriseAilleurs.tsx",
+      "etat": "Jeu monté puis battement signalant un autre appareil actif.",
+      "build": "compte",
+      "statut": "ok",
+      "raison": "",
+      "captures": {
+        "390": "compte-ecran-reprise-ailleurs-390.png",
+        "1440": "compte-ecran-reprise-ailleurs-1440.png"
+      },
+      "erreursJS": [],
+      "largeurs": {
+        "390": {
+          "statut": "ok"
+        },
+        "1440": {
+          "statut": "ok"
+        }
+      },
+      "captureLe": "2026-11-07T10:36:55.751Z"
     },
     {
       "groupe": "compte",
@@ -167,7 +215,7 @@
           "statut": "ok"
         }
       },
-      "captureLe": "2026-11-05T12:14:49.811Z"
+      "captureLe": "2026-11-07T10:37:17.550Z"
     },
     {
       "groupe": "compte",
@@ -191,7 +239,7 @@
           "statut": "ok"
         }
       },
-      "captureLe": "2026-11-05T12:19:06.404Z"
+      "captureLe": "2026-11-07T10:37:21.702Z"
     },
     {
       "groupe": "compte",

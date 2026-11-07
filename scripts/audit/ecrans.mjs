@@ -166,7 +166,7 @@ async function ouvrirCompteConnecte(page, ctx, mode) {
     await page.getByRole('navigation', { name: 'Zone compte' }).getByRole('button', { name: 'Compte', exact: true }).click();
     await bouton(page, 'Se déconnecter').click();
     await expect(page.getByRole('dialog', { name: 'Se déconnecter ?', exact: true })).toBeVisible();
-    await expect(page.getByRole('dialog').getByRole('button', { name: 'Se déconnecter', exact: true })).toBeVisible();
+    await expect(page.getByRole('dialog').getByRole('button', { name: /^(Sauvegarder et )?se déconnecter$/i })).toBeVisible();
   }
 }
 
