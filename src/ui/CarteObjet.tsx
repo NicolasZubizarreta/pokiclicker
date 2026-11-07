@@ -25,7 +25,7 @@ export function CarteObjet({ id, nom, description, image, prix, stock, possede, 
     // Téléphone : une ligne icône | nom et effet | prix. Objet unique : le prix est le bouton d'achat.
     const achatUnique = unique && !acquis;
     return <article data-objet={id} className="cadre grid min-w-0 grid-cols-[auto_1fr_auto] items-center gap-x-3 gap-y-2 bg-surface p-3 text-base text-texte tabular-nums">
-      <IconeObjet image={image} nom={nom} />
+      <IconeObjet id={id} image={image} nom={nom} />
       <div className="min-w-0">
         {/* Le stock est à côté du nom : l'acheter ne rajoute pas de ligne à la description, la carte garde sa hauteur. */}
         <div className="flex items-baseline gap-2">
@@ -53,7 +53,7 @@ export function CarteObjet({ id, nom, description, image, prix, stock, possede, 
 
   return <article data-objet={id} className="cadre flex min-w-0 flex-col gap-4 bg-surface p-4 text-base text-texte tabular-nums">
     <div className="flex min-w-0 items-center gap-3">
-      <IconeObjet image={image} nom={nom} />
+      <IconeObjet id={id} image={image} nom={nom} />
       <h3 className="min-w-0 break-words font-titre text-xl">{nom}</h3>
     </div>
     <p>{description}</p>

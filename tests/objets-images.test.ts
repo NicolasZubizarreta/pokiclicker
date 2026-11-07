@@ -7,6 +7,9 @@ const racine = new URL('../', import.meta.url);
 // Objets vendus (Shop ou Casino) pour lesquels aucune image n'existe encore, ni dans public/img ni dans legacy/ :
 // la V1 les montrait avec une icône de police (« sprint », « content_cut », etc.) et la V2 affiche l'icône de repli.
 // À fournir par Nicolas ; ne rien inventer. Dès qu'une image est branchée, l'objet doit sortir de cette liste.
+// Cette liste porte sur la donnée (champ image null), pas sur le rendu : « falseSwipe » (CT Fauchage) y reste parce
+// qu'il n'a aucun raster, mais il s'affiche avec l'icône SVG du bouton Fauchage (IconeObjet, TRACES_SANS_IMAGE).
+// Le rendu réel de chaque objet du Shop est vérifié par src/ui/PageShop-icones.test.tsx (icône de repli = échec).
 const SANS_IMAGE_A_FOURNIR = ['runningShoes', 'falseSwipe', 'ctJackpot'];
 
 const vendus = objets.filter(objet => objet.boutique !== null);

@@ -46,3 +46,9 @@ Constats du ticket R (07/11) : le saut du Shop venait de l'en-tête (titre + not
 ## 05/11/2026, détails d'interface sur PC
 
 (à dicter : Nicolas teste avec `npm.cmd run partie-test`)
+
+## 07/11/2026, CT Fauchage à image générique (capture iphone-64)
+- « tout est niquel juste la CT Fauchage a aussi une image générique, faudrait changer ça ».
+- Pourquoi le test ne l’a pas vu : `tests/objets-images.test.ts` lisait la donnée (`image: null`) et rangeait `falseSwipe` dans sa liste d’exceptions, donc un objet vendu pouvait s’afficher avec l’icône de repli sans faire échouer quoi que ce soit. Nouveau test `src/ui/PageShop-icones.test.tsx` : rendu réel du Shop, trois catégories, tout débloqué ; une icône de repli hors de la liste attendue fait échouer. Même contrôle en e2e (`tests-e2e/shop-icones.spec.ts`, 390 px, images chargées).
+- Image : aucun raster n’existe (ni public/img ni legacy/, la V1 utilisait une icône de police). La CT Fauchage reprend l’icône SVG du bouton Fauchage (faucille), rien dans tailles.json.
+- Encore en icône de repli : Chaussures Sport (`runningShoes`, Shop) ; CT Jackpot (`ctJackpot`, casino, hors Shop) ; Charme Chroma (`shinyCharm`) non vendu. Tout le reste du Shop (balles, objets, accessoires) a sa vraie image.

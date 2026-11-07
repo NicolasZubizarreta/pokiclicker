@@ -1,13 +1,19 @@
 import type { ReactNode } from 'react';
 
-export function IconeObjet({ image, nom, taille }: { image: string | null; nom: string; taille?: 'petite' }) {
+/** Tracé de l'icône Fauchage : celui du bouton du combat, repris pour la CT Fauchage du Shop (aucune image d'objet n'existe). */
+const TRACE_FAUCHAGE = 'M5 22 15 3M10 5c6-3 10 0 11 6-4-3-7-3-11-1';
+const TRACE_REPLI = 'm12 3 9 5v9l-9 5-9-5V8zM3 8l9 5 9-5M12 13v9M8 5l9 5';
+/** Objets sans image dont une icône du jeu existe déjà ; les autres retombent sur l'icône de repli. */
+const TRACES_SANS_IMAGE: Record<string, string> = { falseSwipe: TRACE_FAUCHAGE };
+
+export function IconeObjet({ image, nom, taille, id }: { image: string | null; nom: string; taille?: 'petite'; id?: string }) {
   const classe = `image-rendering-pixelated shrink-0 ${taille === 'petite' ? 'size-8' : 'h-12 w-12'}`;
-  return image !== null
-    ? <img src={image} alt="" width={taille === 'petite' ? 32 : 48} height={taille === 'petite' ? 32 : 48} className={classe} />
-    : <svg role="img" aria-label={nom} focusable="false" viewBox="0 0 24 24"
-      fill="none" stroke="currentColor" strokeWidth="2" className={classe}>
-      <path d="m12 3 9 5v9l-9 5-9-5V8zM3 8l9 5 9-5M12 13v9M8 5l9 5" />
-    </svg>;
+  if (image !== null) return <img src={image} alt="" width={taille === 'petite' ? 32 : 48} height={taille === 'petite' ? 32 : 48} className={classe} />;
+  const trace = id ? TRACES_SANS_IMAGE[id] : undefined;
+  return <svg role="img" aria-label={nom} focusable="false" viewBox="0 0 24 24" data-icone-repli={trace ? undefined : ''}
+    fill="none" stroke="currentColor" strokeWidth="2" className={classe}>
+    <path d={trace ?? TRACE_REPLI} />
+  </svg>;
 }
 
 function Icone({ children }: { children: ReactNode }) {
@@ -40,7 +46,7 @@ export function AutoClic() {
 }
 
 export function Fauchage() {
-  return <Icone><path d="M5 22 15 3M10 5c6-3 10 0 11 6-4-3-7-3-11-1" /></Icone>;
+  return <Icone><path d={TRACE_FAUCHAGE} /></Icone>;
 }
 
 export function Sac() {
