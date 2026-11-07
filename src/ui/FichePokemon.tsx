@@ -117,7 +117,7 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: 
   const pokemon = membre?.pokemon;
   const espece = pokemon ? catalogue.parNumero(pokemon.numero) : null;
   const nom = pokemon ? nomAffiche(pokemon) : 'Pokémon';
-  const evolution = telephone && pokemon ? evolutionProposee(pokemon, sac.entrees) : null;
+  const evolution = telephone && caseEquipe && pokemon ? evolutionProposee(pokemon, sac.entrees) : null;
   // La règle pure ne consulte que ces deux listes ; aucune mutation du store.
   const regionVerification = { equipe: equipe.flatMap(c => c ? [c.pokemon] : []), pc } as unknown as Parameters<typeof verifierRelachement>[0];
   const verification = verifierRelachement(regionVerification, uid);

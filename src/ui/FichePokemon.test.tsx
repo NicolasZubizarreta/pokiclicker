@@ -289,6 +289,16 @@ function mettreAuPc(taille = 1) {
   })) });
 }
 
+it('ne propose pas « Évoluer » pour un Pokémon du PC sur téléphone (l’évolution ne vaut que pour l’équipe)', () => {
+  vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() })));
+  mettreAuPc();
+  storeJeu.setState({ pc: [{ ...pokemon, pierreEternelle: false }] });
+  afficher();
+  expect(screen.getByText('Dans le PC')).toBeTruthy();
+  expect(screen.queryByRole('button', { name: /Faire évoluer/ })).toBeNull();
+  vi.unstubAllGlobals();
+});
+
 it('affiche la fiche du PC avec XP calculée, DPS sans bonus de type et une seule action', () => {
   mettreAuPc();
   afficher();
