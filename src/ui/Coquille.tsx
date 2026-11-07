@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useStore } from 'zustand';
 import { useTelephone } from './useTelephone';
+import { useRaccourcisPC } from './useRaccourcisPC';
 import type { InfosPartie } from './BarreLaterale';
 import { LegendeRaccourcis } from './LegendeRaccourcis';
 import { FenetreRaccourcis } from './FenetreRaccourcis';
@@ -108,6 +109,9 @@ export function Coquille({ region = 'kanto', theme = 'dark', quandMenuPrincipal,
     storeJeu.getState().demarrer();
     return () => { storeJeu.getState().fermer(); storeJeu.getState().arreter(); };
   }, []);
+
+  useRaccourcisPC({ page, aller, raccourcisOuverts, basculerRaccourcis: () => ouvrirRaccourcis(ouvert => !ouvert),
+    actif: !introActive && !introVue && !credits && !pantheonOuvert && !compteOuvert && !(evenement?.type === 'dialogue' && evenement.scene) });
 
   return (
     <div data-region={region} data-theme={theme}

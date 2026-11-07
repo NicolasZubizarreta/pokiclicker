@@ -18,10 +18,10 @@ export function ActionsCombat({ autoAttaque, basculerAutoAttaque, arret, reglerA
   const fermer = () => dialogue.current?.close();
   return <div className="actions-combat" role="group" aria-label="Actions du combat">
     <div className="actions-quatre">
-      <button type="button" className="plaque plaque-vertical" aria-pressed={autoAttaque} onClick={basculerAutoAttaque}><AutoAttaque />Attaque auto</button>
-      <button type="button" className="plaque plaque-vertical" aria-pressed={arret.actif} onClick={() => reglerArret({ actif: !arret.actif })}><ArretAuto />Arrêt auto</button>
-      <button type="button" className="plaque plaque-vertical" aria-label="Réglage de l'arrêt auto" onClick={event => { declencheur.current = event.currentTarget; dialogue.current?.showModal(); }}><IconeReglagesArret />Réglage</button>
-      <button type="button" className="plaque plaque-vertical" aria-disabled={!sac.accessible || sac.ouvrir === null} onClick={() => { if (sac.accessible) sac.ouvrir?.(); }}>
+      <button data-raccourci="auto" type="button" className="plaque plaque-vertical" aria-pressed={autoAttaque} onClick={basculerAutoAttaque}><AutoAttaque />Attaque auto</button>
+      <button data-raccourci="arret" type="button" className="plaque plaque-vertical" aria-pressed={arret.actif} onClick={() => reglerArret({ actif: !arret.actif })}><ArretAuto />Arrêt auto</button>
+      <button data-raccourci="reglage" type="button" className="plaque plaque-vertical" aria-label="Réglage de l'arrêt auto" onClick={event => { declencheur.current = event.currentTarget; dialogue.current?.showModal(); }}><IconeReglagesArret />Réglage</button>
+      <button data-raccourci="sac" type="button" className="plaque plaque-vertical" aria-disabled={!sac.accessible || sac.ouvrir === null} onClick={() => { if (sac.accessible) sac.ouvrir?.(); }}>
         <Sac />Sac{sac.total > 0 && <span className="pastille-sac" aria-hidden="true">{sac.total}</span>}
       </button>
     </div>

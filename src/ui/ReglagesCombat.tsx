@@ -24,13 +24,13 @@ export function ReglagesCombat({ autoAttaque, arret, basculer, regler, autoClic,
   const fermer = () => dialogue.current?.close();
 
   return <div className="bandeau-action-groupe">
-    <BoutonAction icone={<AutoAttaque />} nom="Auto-attaque" actif={autoAttaque} onClick={basculer} />
+    <BoutonAction data-raccourci="auto" icone={<AutoAttaque />} nom="Auto-attaque" actif={autoAttaque} onClick={basculer} />
     {autoClic && basculerAutoClic && <BoutonAction icone={<AutoClic />} nom="Auto-clic" actif={autoClic.actif}
       verrouille={!autoClic.possede} infobulle={!autoClic.possede ? "Nécessite l'objet Restes" : undefined}
       onClick={basculerAutoClic} />}
-    <BoutonAction icone={<ArretAuto />} nom="Arrêt auto" actif={arret.actif}
+    <BoutonAction data-raccourci="arret" icone={<ArretAuto />} nom="Arrêt auto" actif={arret.actif}
       onClick={() => regler({ actif: !arret.actif })} />
-    <BoutonAction icone={<IconeReglagesArret />} nom="Réglages de l'arrêt"
+    <BoutonAction data-raccourci="reglage" icone={<IconeReglagesArret />} nom="Réglages de l'arrêt"
       onClick={event => { declencheur.current = event.currentTarget; dialogue.current?.showModal(); }} />
     <dialog ref={dialogue} aria-labelledby={titre}
       className="fiche-pokemon cadre w-full max-w-3xl bg-surface p-0 text-base text-texte"

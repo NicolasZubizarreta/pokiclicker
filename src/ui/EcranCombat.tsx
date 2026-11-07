@@ -156,7 +156,7 @@ function Scene({ store, ouvrirPension }: { store: StoreJeu; ouvrirPension(): voi
     </div>}
     {banniere !== null && <div aria-hidden="true"
       className="pointer-events-none cadre absolute inset-x-4 top-20 z-20 bg-alerte-base p-2 text-center text-texte-inverse">{banniere}</div>}
-    <button type="button" aria-label={enRecherche ? 'Attaquer (recherche en cours)' : `Attaquer ${nom}`}
+    <button data-raccourci="attaquer" type="button" aria-label={enRecherche ? 'Attaquer (recherche en cours)' : `Attaquer ${nom}`}
       className="cible-combat cadre absolute inset-0 z-10 touch-manipulation select-none"
       onContextMenu={event => event.preventDefault()}
       onPointerDown={event => { if (event.button === 0) attaquer(); }}
@@ -166,7 +166,7 @@ function Scene({ store, ouvrirPension }: { store: StoreJeu; ouvrirPension(): voi
     {!telephone && <div className="dock-capture cadre absolute bottom-3 left-3 z-20 bg-surface p-1 shadow-lg">
       <BarreCapture {...capture} capturer={capturer} />
     </div>}
-    {radar && <button type="button" aria-label="Poké-Radar" disabled={zone.type === 'ligue'}
+    {radar && <button data-raccourci="radar" type="button" aria-label="Poké-Radar" disabled={zone.type === 'ligue'}
       title={zone.type === 'ligue' ? 'Inutile à la Ligue : il n’y a que des boss, aucun Pokémon à capturer.' : undefined}
       className="radar-rond cadre absolute right-2 bottom-2 z-20 flex size-12 items-center justify-center rounded-full bg-surface shadow-md disabled:cursor-not-allowed disabled:opacity-50 disabled:grayscale lg:right-4 lg:bottom-4 lg:size-16"
       onClick={event => ouvrirRadar(event.currentTarget)}>
@@ -263,7 +263,7 @@ function Equipe({ store }: { store: StoreJeu }) {
         <ReglagesCombat autoAttaque={autoAttaque} arret={arret} basculer={basculer} regler={regler}
           autoClic={autoClic} basculerAutoClic={basculerAutoClic} />
         <OutilsCombat fauchage={fauchage} faucher={faucher} />
-        {sac.acces.ouvert && <div className="relative"><BoutonAction nom="Sac" onClick={event => ouvrirSac(event.currentTarget)}
+        {sac.acces.ouvert && <div className="relative"><BoutonAction data-raccourci="sac" nom="Sac" onClick={event => ouvrirSac(event.currentTarget)}
           icone={<><IconeSac />
             {sac.entrees.some(entree => entree.quantite > 0) && <span aria-hidden="true"
               className="absolute -right-2 -top-2 rounded-full bg-selection px-1 text-xs tabular-nums text-texte">

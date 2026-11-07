@@ -24,6 +24,7 @@ export function LigneCapture({ balles, possible, raison, enCours, capturer, outi
       {selection ? (
         <button
           type="button"
+          data-raccourci="balle"
           className="plaque ligne-capture-balle"
           disabled={raison !== null}
           aria-label={`Balle choisie : ${selection.nom}, ×${selection.quantite}. Toucher pour changer`}
@@ -41,6 +42,7 @@ export function LigneCapture({ balles, possible, raison, enCours, capturer, outi
       {selection && explication && <p id={description} className="sr-only">{explication}</p>}
       <button
         type="button"
+        data-raccourci="capturer"
         className="plaque plaque-action text-lg"
         disabled={!possible || enCours || !selection}
         aria-describedby={explication ? description : undefined}

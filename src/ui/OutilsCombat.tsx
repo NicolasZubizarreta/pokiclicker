@@ -8,7 +8,7 @@ export function OutilsCombat({ fauchage, faucher }: {
   const raison = fauchage.raison || (fauchage.rechargeS > 0 ? `Recharge : ${fauchage.rechargeS} s` : null);
 
   return <div className="bandeau-action-groupe">
-    {fauchage.possede && <BoutonAction icone={<Fauchage />} nom="Fauchage" actif={fauchage.actif}
+    {fauchage.possede && <BoutonAction data-raccourci="fauchage" icone={<Fauchage />} nom="Fauchage" actif={fauchage.actif}
       verrouille={!fauchage.disponible} infobulle={raison ?? undefined} onClick={faucher} />}
   </div>;
 }

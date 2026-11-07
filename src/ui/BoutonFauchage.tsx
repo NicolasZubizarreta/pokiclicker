@@ -6,7 +6,7 @@ export function BoutonFauchage({ fauchage, faucher }: {
   fauchage: { disponible: boolean; raison: string | null; rechargeS: number; actif: boolean };
   faucher(): void;
 }) {
-  return <button type="button" className="plaque plaque-carre" aria-label="Fauchage" aria-pressed={fauchage.actif}
+  return <button data-raccourci="fauchage" type="button" className="plaque plaque-carre" aria-label="Fauchage" aria-pressed={fauchage.actif}
     aria-disabled={!fauchage.disponible || undefined} title={!fauchage.disponible ? fauchage.raison ?? undefined : undefined}
     onClick={() => { if (fauchage.disponible) faucher(); }}>
     <Fauchage />

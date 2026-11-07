@@ -19,7 +19,7 @@ export function BarreCapture({ balles, possible, raison, enCours, capturer }: {
     {!selection && explication && <p id={description} className="min-w-0 self-center px-2 text-texte-doux">{explication}</p>}
     {selection && <div className="capture-balles flex min-w-0 items-center overflow-x-auto">
       {possedees.map(balle => <Fragment key={balle.cle}>
-        <button type="button" aria-label={`${balle.nom} ×${balle.quantite}`} aria-pressed={selection?.cle === balle.cle}
+        <button data-raccourci="balle" type="button" aria-label={`${balle.nom} ×${balle.quantite}`} aria-pressed={selection?.cle === balle.cle}
           disabled={raison !== null}
           className="flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-1 px-2 py-1 aria-pressed:bg-selection disabled:opacity-60"
           onClick={() => choisir(balle.cle)}>
@@ -29,7 +29,7 @@ export function BarreCapture({ balles, possible, raison, enCours, capturer }: {
         <span aria-hidden="true" className="text-texte-doux">|</span>
       </Fragment>)}
     </div>}
-    <button type="button" className="min-h-11 min-w-11 shrink-0 px-2 py-1 disabled:text-texte-doux disabled:opacity-60"
+    <button data-raccourci="capturer" type="button" className="min-h-11 min-w-11 shrink-0 px-2 py-1 disabled:text-texte-doux disabled:opacity-60"
       disabled={!possible || enCours || !selection} aria-describedby={explication ? description : undefined}
       onClick={() => { if (selection) capturer(selection.cle); }}>Capturer</button>
     {selection && explication && <p id={description} className="sr-only">{explication}</p>}

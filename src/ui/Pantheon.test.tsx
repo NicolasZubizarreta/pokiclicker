@@ -118,7 +118,8 @@ it('branche le store, rend la navigation inerte et permet de sortir par Échap',
   const quitter = vi.fn(() => contexte.store.setState({ pantheon: null }));
   act(() => contexte.store.setState({ pantheon: { ouvert: true, premiereVictoire: false,
     equipe: [pokemon], defiChenEnAttente: false }, quitterPantheon: quitter }));
-  expect(screen.getByRole('navigation').hasAttribute('inert')).toBe(true);
+  // Téléphone : la barre porte `inert` ; PC : c'est la barre latérale qui la contient.
+  expect(screen.getByRole('navigation').closest('[inert]')).not.toBeNull();
   fireEvent(screen.getByRole('dialog', { name: 'Panthéon' }), new Event('cancel', { cancelable: true }));
   expect(quitter).toHaveBeenCalledOnce();
   expect(screen.queryByRole('dialog', { name: 'Panthéon' })).toBeNull();
