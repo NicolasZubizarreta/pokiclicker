@@ -28,6 +28,7 @@ it('affiche un sprite pixelisé à un facteur entier', () => {
     largeurDisponible={500} tailles={{ 'img/sprites/pokemon/19.png': { largeur: 96, hauteur: 96 } }} />);
   const image = screen.getByRole('img', { name: 'Rattata de face' });
   expect(image.className).toContain('image-rendering-pixelated');
+  expect(image.className).toContain('object-contain');
   expect(image.getAttribute('width')).toBe('480');
   expect(image.getAttribute('height')).toBe('480');
 });

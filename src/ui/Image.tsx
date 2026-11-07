@@ -32,5 +32,5 @@ export function Image({ src, genre, alt, largeurDisponible, tailles = taillesIma
     ? facteurEntier(largeurDisponible, dimensions.largeur) : 1;
   return <img src={src} alt={alt} width={dimensions.largeur * facteur} height={dimensions.hauteur * facteur}
     decoding="async" loading={genre === 'decor' ? 'eager' : undefined}
-    className={`${genre === 'decor' ? `aspect-video ${couvrir ? 'object-cover' : 'object-contain'}` : genre === 'sprite' ? 'image-rendering-pixelated' : 'object-contain'} ${className}`} />;
+    className={`${genre === 'decor' ? `aspect-video ${couvrir ? 'object-cover' : 'object-contain'}` : genre === 'sprite' ? 'image-rendering-pixelated object-contain' : 'object-contain'} ${className}`} />;
 }

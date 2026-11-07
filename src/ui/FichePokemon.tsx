@@ -161,9 +161,9 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: 
           }}>Évoluer</button>}
         {pokemonPc && <p>Dans le PC</p>}
         {pokemon && espece && membre && detail && <>
-          <div className="relative isolate grid place-items-center">
+          <div className="relative isolate mx-auto grid size-48 max-w-full overflow-hidden place-items-center">
             <div className="socle absolute bottom-4 -z-10 h-8 w-40 bg-region-socle" />
-            <Image src={spriteAffiche(pokemon)} genre="sprite" alt={pokemon.oeuf ? nom : espece.nom} className={`size-48 image-rendering-pixelated ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(pokemon)}`} />
+            <Image src={spriteAffiche(pokemon)} genre="sprite" alt={pokemon.oeuf ? nom : espece.nom} className={`size-full max-h-full max-w-full ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(pokemon)}`} />
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {(pokemon.sexe === 'male' || pokemon.sexe === 'femelle') && <IconeSexe sexe={pokemon.sexe} />}

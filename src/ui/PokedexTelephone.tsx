@@ -94,7 +94,7 @@ export function PokedexTelephone({ retour, ouvrirDiplome }: { retour(): void; ou
         const nom = capture ? catalogue.parNumero(numero).nom : '???';
         return <button key={numero} type="button" onClick={() => choisir(numero)}
           aria-label={capture ? `${nom}, numéro ${numero}, déjà capturé` : `Pokémon inconnu, numéro ${numero}`}
-          className={`cadre flex min-h-11 min-w-0 flex-col items-center p-2 text-center ${capture ? 'bg-surface' : 'bg-surface-2'}`}>
+          className={`cadre flex min-h-11 min-w-0 flex-col items-center overflow-hidden p-2 text-center ${capture ? 'bg-surface' : 'bg-surface-2'}`}>
           <Image src={cheminSprite(numero)} genre="sprite" alt={capture ? nom : 'Pokémon inconnu'}
             className={`size-16 max-w-full ${capture ? '' : 'brightness-0 opacity-50'}`} />
           <span className="text-sm text-texte-doux">N° {numero}</span>
@@ -135,8 +135,10 @@ function DetailEspece({ numero, capture, fermer }: { numero: number; capture: bo
         className="min-h-11 min-w-11 bg-surface-2 text-xl hover:bg-selection">×</button>
     </header>
     <div className="fiche-contenu grid min-w-0 gap-2 px-4 pb-4">
-      <Image src={cheminSprite(numero)} genre="sprite" alt={capture ? nom : 'Pokémon inconnu'}
-        className={`mx-auto size-32 ${capture ? '' : 'brightness-0 opacity-50'}`} />
+      <div className="mx-auto grid size-32 max-w-full place-items-center overflow-hidden">
+        <Image src={cheminSprite(numero)} genre="sprite" alt={capture ? nom : 'Pokémon inconnu'}
+          className={`size-32 max-h-full max-w-full ${capture ? '' : 'brightness-0 opacity-50'}`} />
+      </div>
       {capture ? <>
         <div className="flex flex-wrap items-center justify-center gap-2">
           {espece.types.map(type => <span key={type}

@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import piedsSprites from './pieds-sprites.json';
 import { useStore } from 'zustand';
 import { chargerPokemon } from '../core/pokemon';
 import { cibleValidePierre } from '../core/evolution';
@@ -42,6 +43,9 @@ import { ouvrirSac as ouvrirSacFenetre } from './sacContexte';
 import './CombatTelephone.css';
 
 const catalogue = chargerPokemon();
+/** Les sprites font 96 lignes ; `pieds-sprites.json` donne, par numéro, les lignes vides sous les pieds (mesurées sur les images).
+ *  Le cadre est descendu de cette part pour que les pieds touchent le bas du conteneur, au centre du cercle (téléphone). */
+const piedsSprite = (numero: number) => ({ '--pieds': `${(piedsSprites[numero - 1] ?? 0) / 96 * 100}%` }) as CSSProperties;
 const formateurArgent = new Intl.NumberFormat('fr-FR');
 const sousTitres: Record<string, string> = { 'kanto.route-1': 'Jadielle' };
 
@@ -142,10 +146,10 @@ function Scene({ store, ouvrirPension }: { store: StoreJeu; ouvrirPension(): voi
       {minuteur && <BarreTemps restantMs={minuteur.restantMs} totalMs={minuteur.totalMs} />}
     </div>
     <div aria-hidden={cache} className={`pointer-events-none absolute right-2 bottom-6 flex will-change-transform size-48 items-end justify-center lg:bottom-8 lg:size-72 ${cache ? 'opacity-0' : ''}`}>
-      <div aria-hidden="true" className="socle absolute bottom-10 h-12 w-3/4 bg-region-socle lg:bottom-16 lg:h-16" />
+      <div aria-hidden="true" className="socle absolute -bottom-5 h-10 w-28 bg-region-socle lg:bottom-16 lg:h-16 lg:w-3/4" />
       <div className={captureEnCours ? '' : 'motion-safe:flottement'}>
         <div ref={secousse}>
-          {[['size-48 lg:hidden', 192], ['hidden size-72 lg:block', 288]].map(([taille, largeur]) => <span key={largeur} className={`relative ${taille}`}>
+          {[['block size-32 max-lg:translate-y-(--pieds) lg:hidden', 128], ['hidden size-72 lg:block', 288]].map(([taille, largeur]) => <span key={largeur} style={piedsSprite(ennemi.numero)} className={`relative ${taille}`}>
             <Image src={cheminSprite(ennemi.numero, ennemi.shiny)} genre="sprite" alt={nom} largeurDisponible={largeur as number}
               className={`relative size-full max-w-none ${captureEnCours ? 'capture-en-cours' : ''} ${ennemi.shiny ? 'halo-shiny' : ''}`} />
             <Image src={cheminSprite(ennemi.numero, ennemi.shiny)} genre="sprite" alt="" largeurDisponible={largeur as number}

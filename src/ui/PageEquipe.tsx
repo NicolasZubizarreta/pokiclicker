@@ -148,7 +148,7 @@ export function PageEquipe({ ouvrirPC }: { ouvrirPC?: () => void }) {
           return <li key={pokemon.uid} className="relative min-w-0">
             <button type="button" aria-label={pokemon.oeuf ? `${nom}, ${progressionOeuf(pokemon.oeuf)}` : `${nom}, niveau ${pokemon.niveau}`} aria-pressed={membre?.pokemon.uid === pokemon.uid} data-uid={pokemon.uid}
               disabled={!!mode && (mode.type === 'bonbon' || mode.type === 'calcium' || mode.type === 'baie') && !valide}
-              className={`cadre relative grid h-full min-h-11 w-full grid-cols-[auto_minmax(0,1fr)_auto] lg:grid-cols-[auto_minmax(0,1fr)] items-center gap-2 p-3 pe-3 lg:p-4 lg:pe-24 text-left ${telephone && !mode && !echange && typeof caseEquipe.evolution === 'number' ? 'pret-evoluer' : ''} ${mode && !valide ? '' : 'hover:bg-selection'} ${membre?.pokemon.uid === pokemon.uid ? 'bg-surface lg:bg-selection' : 'bg-surface'} ${mode ? valide ? 'relative border-info-base motion-safe:cible-valide' : 'grayscale opacity-50' : ''}`}
+              className={`cadre relative grid overflow-hidden h-full min-h-11 w-full grid-cols-[auto_minmax(0,1fr)_auto] lg:grid-cols-[auto_minmax(0,1fr)] items-center gap-2 p-3 pe-3 lg:p-4 lg:pe-24 text-left ${telephone && !mode && !echange && typeof caseEquipe.evolution === 'number' ? 'pret-evoluer' : ''} ${mode && !valide ? '' : 'hover:bg-selection'} ${membre?.pokemon.uid === pokemon.uid ? 'bg-surface lg:bg-selection' : 'bg-surface'} ${mode ? valide ? 'relative border-info-base motion-safe:cible-valide' : 'grayscale opacity-50' : ''}`}
               onContextMenu={event => {
                 event.preventDefault();
                 if (echange || mode) return;
@@ -192,9 +192,9 @@ export function PageEquipe({ ouvrirPC }: { ouvrirPC?: () => void }) {
                 if (!panneau.current?.getClientRects().length) ouvrirFiche(pokemon.uid, event.currentTarget);
               }}>
               {evolution?.uid === pokemon.uid
-                ? <span className="grid size-14 lg:size-24 max-w-none place-items-center [&_img]:size-14 lg:[&_img]:size-24"><SpriteEvolution ancien={spriteAffiche({ ...pokemon, numero: evolution.ancien })}
+                ? <span className="grid size-14 lg:size-24 max-w-full overflow-hidden place-items-center [&_img]:size-14 lg:[&_img]:size-24 [&_img]:max-h-full [&_img]:max-w-full"><SpriteEvolution ancien={spriteAffiche({ ...pokemon, numero: evolution.ancien })}
                   nouveau={spriteAffiche({ ...pokemon, numero: evolution.nouveau })} nom={nom} actif shiny={pokemon.shiny} /></span>
-                : <Image src={spriteAffiche(pokemon)} genre="sprite" alt="" className={`size-14 lg:size-24 max-w-none ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(pokemon)}`} />}
+                : <Image src={spriteAffiche(pokemon)} genre="sprite" alt="" className={`size-14 lg:size-24 max-h-full max-w-full ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(pokemon)}`} />}
               <span className="grid min-w-0 gap-1 lg:gap-2">
                 <strong className="flex items-center gap-2 break-words">{nom}{pokemon.shiny && !pokemon.oeuf && <IconeShiny />}{pokemon.favori &&
                   <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" className="size-5 shrink-0 fill-current text-lien">
@@ -268,11 +268,11 @@ export function PageEquipe({ ouvrirPC }: { ouvrirPC?: () => void }) {
       </button>}
       </div>
       <div className="min-w-0 space-y-4">
-      {membre && <aside ref={panneau} className="cadre sticky top-8 z-10 hidden min-w-0 space-y-4 bg-surface p-4 lg:block">
-        <div className="relative isolate grid place-items-center">
+      {membre && <aside ref={panneau} className="cadre sticky top-8 z-10 overflow-hidden hidden min-w-0 space-y-4 bg-surface p-4 lg:block">
+        <div className="relative isolate grid place-items-center overflow-hidden">
           <span className="socle absolute bottom-6 -z-10 h-8 w-40 bg-region-socle" aria-hidden="true" />
           {evolution?.uid === membre.pokemon.uid
-            ? <span className="grid size-48 max-w-full place-items-center [&_img]:size-48"><SpriteEvolution ancien={spriteAffiche({ ...membre.pokemon, numero: evolution.ancien })}
+            ? <span className="grid size-48 max-w-full overflow-hidden place-items-center [&_img]:size-48 [&_img]:max-h-full [&_img]:max-w-full"><SpriteEvolution ancien={spriteAffiche({ ...membre.pokemon, numero: evolution.ancien })}
               nouveau={spriteAffiche({ ...membre.pokemon, numero: evolution.nouveau })} nom={nom} actif shiny={membre.pokemon.shiny} /></span>
             : <Image src={spriteAffiche(membre.pokemon)} genre="sprite" alt="" className={`size-48 max-w-full ${membre.pokemon.shiny && !membre.pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(membre.pokemon)}`} />}
         </div>

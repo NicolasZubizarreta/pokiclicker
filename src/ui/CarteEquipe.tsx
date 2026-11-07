@@ -32,13 +32,13 @@ export function CarteEquipe({ membre, renommer, retirerObjet, evolution, evoluer
   const niveau = oeuf ? progressionOeuf(oeuf) : membre ? `niveau ${membre.pokemon.niveau}` : '';
   const forme = membre && evolution ? { ...membre.pokemon, numero: evolution.vers, surnom: undefined } : null;
   return <div aria-label={membre ? `${nom}, ${niveau}, ${formaterDps(membre.dps)} DPS` : 'Case libre'}
-    className={`cadre relative grid h-14 min-w-0 place-items-center overflow-hidden bg-surface lg:h-26 ${membre ? 'lg:grid-cols-[auto_minmax(0,1fr)] lg:pb-1 lg:pe-4' : ''} ${forme ? telephone ? 'pret-evoluer' : 'carte-evo cadre-alerte' : ''} ${cible ? cible.valide ? 'motion-safe:cible-valide' : 'grayscale opacity-50' : ''}`}>
+    className={`cadre relative isolate grid h-14 min-w-0 place-items-center overflow-hidden bg-surface lg:h-26 ${membre ? 'lg:grid-cols-[auto_minmax(0,1fr)] lg:pb-1 lg:pe-4' : ''} ${forme ? telephone ? 'pret-evoluer' : 'carte-evo cadre-alerte' : ''} ${cible ? cible.valide ? 'motion-safe:cible-valide' : 'grayscale opacity-50' : ''}`}>
     {membre ? <>
-      {animation ? <span className="carte-evo-sprite absolute grid size-24 max-w-none place-items-center lg:static lg:row-span-3 [&_img]:size-24">
+      {animation ? <span className="carte-evo-sprite grid size-full max-h-full max-w-full overflow-hidden place-items-center lg:size-24 lg:row-span-3 [&_span]:max-h-full [&_span]:max-w-full [&_img]:max-h-full [&_img]:max-w-full">
         <SpriteEvolution ancien={spriteAffiche({ ...membre.pokemon, numero: animation.ancien })}
           nouveau={spriteAffiche({ ...membre.pokemon, numero: animation.nouveau })} nom={nom} actif shiny={membre.pokemon.shiny} />
       </span> : <Image src={spriteAffiche(membre.pokemon)} genre="sprite" alt=""
-        className={`carte-evo-sprite absolute size-24 max-w-none lg:static lg:row-span-3 ${membre.pokemon.shiny && !oeuf ? 'halo-shiny' : ''} ${classeSprite(membre.pokemon)}`} />}
+        className={`carte-evo-sprite size-auto min-h-0 min-w-0 max-h-full max-w-full lg:size-24 lg:row-span-3 ${membre.pokemon.shiny && !oeuf ? 'halo-shiny' : ''} ${classeSprite(membre.pokemon)}`} />}
       {!oeuf && <span className="absolute bottom-1 left-0 bg-surface px-1 text-base tabular-nums lg:hidden">{membre.pokemon.niveau}</span>}
       <div className="carte-equipe-identite hidden min-w-0 justify-self-stretch self-end lg:block">
         <div className="flex min-w-0 items-center justify-between gap-1">
@@ -62,7 +62,7 @@ export function CarteEquipe({ membre, renommer, retirerObjet, evolution, evoluer
         onClick={event => evoluer?.(event.currentTarget)}>
         <span className="text-2xl" aria-hidden="true">→</span>
         <span className="flex shrink-0 items-center gap-1">
-          <Image src={spriteAffiche(forme)} genre="sprite" alt="" className="size-12 max-w-none" />
+          <Image src={spriteAffiche(forme)} genre="sprite" alt="" className="size-12 max-h-full max-w-full" />
           {evolution.pierre && <span className="flex bg-surface [&_img]:size-5 [&_svg]:size-5"><IconeObjet image={evolution.pierre.image} nom={evolution.pierre.nom} taille="petite" /></span>}
         </span>
         <span className="carte-evo-nom text-sm">{nomAffiche(forme)}</span>

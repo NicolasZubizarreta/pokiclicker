@@ -126,14 +126,14 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
                 const nom = nomDe(pokemon);
                 return <li key={pokemon.uid} className="min-w-0">
                   <button type="button" aria-label={pokemon.oeuf ? `${nom}, ${progressionOeuf(pokemon.oeuf)}` : `${nom}, niveau ${pokemon.niveau}`} aria-pressed={selection === pokemon.uid}
-                    className={`cadre flex h-full min-h-11 w-full items-center gap-2 p-2 text-left lg:grid lg:grid-rows-[auto_1fr_auto] lg:justify-items-center lg:p-4 lg:text-center hover:bg-selection ${selection === pokemon.uid ? 'bg-selection' : 'bg-surface'}`}
+                    className={`cadre flex overflow-hidden h-full min-h-11 w-full items-center gap-2 p-2 text-left lg:grid lg:grid-rows-[auto_1fr_auto] lg:justify-items-center lg:p-4 lg:text-center hover:bg-selection ${selection === pokemon.uid ? 'bg-selection' : 'bg-surface'}`}
                     onClick={event => {
                       choisir(pokemon.uid);
                       if (!panneau.current?.getClientRects().length) ouvrirFiche(pokemon.uid, event.currentTarget);
                     }}>
-                    <span className="relative isolate grid place-items-center">
+                    <span className="relative isolate grid size-12 shrink-0 max-w-full overflow-hidden place-items-center lg:size-24">
                       <span aria-hidden="true" className="socle absolute bottom-2 -z-10 hidden h-4 w-20 bg-region-socle lg:block" />
-                      <Image src={spriteAffiche(pokemon)} genre="sprite" alt="" className={`size-12 lg:size-24 max-w-none ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(pokemon)}`} />
+                      <Image src={spriteAffiche(pokemon)} genre="sprite" alt="" className={`size-12 lg:size-24 max-h-full max-w-full ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(pokemon)}`} />
                     </span>
                     <span className="grid min-w-0 gap-1 lg:contents"><strong className="flex min-w-0 max-w-full items-center gap-1 lg:justify-center">
                       <span className="min-w-0 truncate">{nom}</span>{pokemon.shiny && !pokemon.oeuf && <IconeShiny />}
