@@ -17,7 +17,7 @@ Chemin critique : A → B → C → D → (E, F, G, H en parallèle de choix, ja
 | 3 | C. Navigation et écran principal sur téléphone (maquette puis code) | 2 à 3 j |
 | 4 | D. Combat sur téléphone (maquette puis code) | 2 à 3 j |
 | 5 | E. Compte : connexion, inscription, mot de passe | 2 à 3 j |
-| 6 | F. Parties : liste, création, choix de version, autre appareil | 2 à 3 j |
+| 6 | F. Parties : liste, création, une seule sauvegarde, autre appareil | 2 à 3 j |
 | 7 | G. Mon compte : diamants, succès, skins | 1 à 2 j |
 | 8 | H. Équipe, sac, PC et fiche Pokémon sur téléphone | 2 à 3 j |
 | 9 | I. Détails du jeu sur PC (liste de Nicolas) | 1 à 2 j |
@@ -170,16 +170,16 @@ Changement du serveur, suppression de compte, connexion par un tiers.
 En tant que joueur avec plusieurs parties ou appareils, je veux voir mes parties comme des cartes lisibles et comprendre les conflits afin de ne jamais perdre de progression.
 
 ### Contexte
-Écrans : mes parties (`EcranParties.tsx`), choix de version (`EcranChoixVersion.tsx`, y compris « partie supprimée ailleurs »), partie ouverte ailleurs (`EcranAutreAppareil.tsx`), indicateur de synchro. Repères du benchmark : une carte par partie avec nom, temps de jeu, dernière sauvegarde, avancée ; deux versions côte à côte ; statut de synchro visible.
+Écrans : mes parties (`EcranParties.tsx`), partie ouverte ailleurs (`EcranAutreAppareil.tsx`), partie reprise ailleurs (`EcranRepriseAilleurs.tsx`), partie supprimée ailleurs (`EcranSupprimeeAilleurs.tsx`), indicateur de synchro. Plus de choix de version : une seule sauvegarde par partie (ADR 0004, 06/11/2026). Repères du benchmark : une carte par partie avec nom, temps de jeu, dernière sauvegarde, avancée ; deux versions côte à côte ; statut de synchro visible.
 
 ### Critères d'acceptation
 - [x] Étant donné trois ou quatre variantes navigables pour chacun de ces écrans, quand Nicolas choisit, alors les choix sont notés dans `design/DESIGN.md`. (maquette a5, journal du 05/11)
 - [x] Étant donné un compte avec 3 parties, quand j'ouvre la liste à 390 px, alors chaque carte montre nom, région, temps de jeu et dernière sauvegarde, et jouer ou supprimer demande une cible de 48 px. (e2e ; suppression par `<dialog>` modal avec confirmation)
-- [ ] Étant donné un conflit de versions, quand l'écran s'affiche, alors les deux versions sont comparables d'un coup d'œil et l'action destructive demande une confirmation explicite. (**lot 8** : Nicolas a rejeté les versions multiples, `EcranChoixVersion` reste tel quel jusqu'au lot 8)
+- [x] Étant donné une partie jouée sur deux appareils, quand je reprends ici, alors la sauvegarde la plus récente est reprise exactement, l'autre appareil affiche « Partie reprise ailleurs » et n'écrit plus, et aucun écran de deux versions n'existe. (**lot 8, 07/11** : tests serveur deux appareils sur vraie base, tests client, e2e ; divergence hors ligne : le serveur gagne, le local est archivé sur le serveur)
 - [ ] Étant donné la synchro, quand elle est hors ligne, en cours, en conflit ou à jour, alors l'état est visible en permanence dans le jeu sans gêner le combat. (l'état est visible dans « Mon compte » ; l'indicateur dans le jeu reste celui du ticket C)
 - [x] Étant donné les tests du scénario deux appareils, quand `npm test` tourne, alors ils restent verts.
 
-**Lot 7 fait pour la partie liste (06/11)** : « Mes parties » en cartes dans la zone compte hors partie (`ZoneCompte.tsx`, `EcranParties.tsx`), « Menu principal » ramène à l'onglet Parties. Non fait, prévu au lot 8 : renommer une partie, états « ouverte ailleurs » / « supprimée ailleurs » par carte, écrans de choix de version.
+**Lot 7 fait pour la partie liste (06/11)** : « Mes parties » en cartes dans la zone compte hors partie (`ZoneCompte.tsx`, `EcranParties.tsx`), « Menu principal » ramène à l'onglet Parties. **Lot 8 (07/11)** : une seule sauvegarde par partie, « Partie reprise ailleurs », « Partie supprimée ailleurs », plus d'écran de choix de version. Non fait (à décider) : renommer une partie, état « ouverte ailleurs » sur chaque carte de « Mes parties » (le GET `/parties` devrait exposer l'appareil actif), écran de restauration d'une version archivée.
 
 ### Hors périmètre
 Logique de synchronisation (phase 4, faite).
@@ -197,7 +197,7 @@ En tant que joueur, je veux retrouver mes diamants, mes succès et mes skins dan
 ### Critères d'acceptation
 - [x] Étant donné les variantes de `EcranMonCompte.tsx`, quand Nicolas choisit, alors le choix est noté dans `design/DESIGN.md`. (maquette a5, journal du 05/11)
 - [x] Étant donné trois succès d'exemple, quand j'ouvre l'écran à 390 px, alors chaque succès montre son état (obtenu ou non), sa récompense en diamants et sa condition.
-- [ ] Étant donné la déconnexion, quand je l'utilise, alors elle est atteignable en un geste et demande confirmation si une synchro est en attente. (un geste : fait, bouton « Se déconnecter » de l'onglet Compte ; la confirmation « Sauvegarder et se déconnecter » est au **lot 8**)
+- [x] Étant donné la déconnexion, quand je l'utilise, alors elle est atteignable en un geste et demande confirmation si une synchro est en attente. (**lot 8, 07/11** : bouton « Se déconnecter » de l'onglet Compte ; synchro en attente → « Sauvegarder et se déconnecter », page « Sauvegarde en cours… », puis déconnexion ; échec → on reste connecté, la sauvegarde locale est intacte)
 
 **Lot 7 fait (06/11)** : « Mon compte » (diamants, succès, skins, état de synchro, déconnexion) et Réglages dans la zone compte. Écarts avec a5 : pas d'e-mail affiché ni de « Changer mon mot de passe » (la session ne connaît pas l'e-mail), pas de ligne « Thème » dans Réglages.
 

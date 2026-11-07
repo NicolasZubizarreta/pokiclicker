@@ -40,3 +40,8 @@
 
 ## Amendement (04/11/2026, ADR 0005)
 - Le point 6 (export/import JSON) est abandonné : la partie vit sur le serveur, comme dans n'importe quel jeu. Aucun fichier de sauvegarde à importer ou exporter.
+
+## Précisions (06/11/2026, lot 8 de la phase 5)
+- Point 3 : ce qui est perdu en changeant d'appareil est volontaire et accepté : l'ennemi en cours et ses PV, le combat de boss en cours avec son minuteur, le moment du défi de Chen. Tout le reste (équipe, zone, étape, argent, inventaire, événement en cours, blackjack, chronos en dates absolues, pension, jetons, statistiques, Pokédex, temps de jeu) est repris à l'identique.
+- Point 7 : le rattrapage de temps plafonné (boucle de jeu) couvre une page en arrière-plan ; à l'ouverture, le jeu **ne rattrape pas** le temps écoulé depuis `ecritLe`. La phrase du point 7 décrivait une intention, non réalisée.
+- Une seule sauvegarde par partie, même d'un appareil à l'autre : voir l'ADR 0004 (décision du 06/11/2026). Le format (version 3) est inchangé.
