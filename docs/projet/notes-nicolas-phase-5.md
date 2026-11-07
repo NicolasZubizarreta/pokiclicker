@@ -52,3 +52,15 @@ Constats du ticket R (07/11) : le saut du Shop venait de l'en-tête (titre + not
 - Pourquoi le test ne l’a pas vu : `tests/objets-images.test.ts` lisait la donnée (`image: null`) et rangeait `falseSwipe` dans sa liste d’exceptions, donc un objet vendu pouvait s’afficher avec l’icône de repli sans faire échouer quoi que ce soit. Nouveau test `src/ui/PageShop-icones.test.tsx` : rendu réel du Shop, trois catégories, tout débloqué ; une icône de repli hors de la liste attendue fait échouer. Même contrôle en e2e (`tests-e2e/shop-icones.spec.ts`, 390 px, images chargées).
 - Image : aucun raster n’existe (ni public/img ni legacy/, la V1 utilisait une icône de police). La CT Fauchage reprend l’icône SVG du bouton Fauchage (faucille), rien dans tailles.json.
 - Encore en icône de repli : Chaussures Sport (`runningShoes`, Shop) ; CT Jackpot (`ctJackpot`, casino, hors Shop) ; Charme Chroma (`shinyCharm`) non vendu. Tout le reste du Shop (balles, objets, accessoires) a sa vraie image.
+
+## 07/11/2026, retour sur les maquettes PC (commit 9da1eff ; captures docs/projet/retours-iphone-07-11/pc-maquette-65.png à 68.png)
+- « c'est vraiment pas mal étonnamment j'ai presque rien à dire ».
+- « la navbar à gauche c'est bien mais je rajouterais aussi le PC et en bas de la navbar un bouton menu principal. »
+- « Un centre pokémon ?? Y'a pas de système de point de vie qu'est-ce que tu racontes, non pas de centre. »
+- « Pension, Maman, Blue et Labo oui accessibles quand on est au bourg palette grâce à mon image mapping, ça pour le coup rien ne change. »
+- « Oui les raccourcis c'est bien. »
+- « Sur la carte quand on clique sur céladopole le bouton de croix pour fermer n'est pas bien centré, et je veux pas que le sprite du personnage soit sur la carte constamment, non : la zone dans laquelle on est clignote en vert et le sprite il n'apparaît que pour l'animation. »
+- « Attention le bourg palette, le labo du prof chen, ça tu gardes ce qu'il y a actuellement, l'image mapping, la disposition des éléments, les dialogues, le début au bourg palette, c'est le seul truc que je veux pas changer. »
+- « Pour les pokémons easter egg je veux pas ce fond carré dégueulasse derrière, je veux pas de fond d'ailleurs, comme les autres pokémon. »
+- « La section équipe j'aime bien sur écran moyen c'est en deux lignes de 3 mais sur un écran plus grand ça passe en une ligne de 4 et une de 2, je voudrais que ça reste tout le temps en 2 lignes de 3. »
+- « La fenêtre pour les fiches pokémon c'est très bien. Notif en bas à droite ça me va. »

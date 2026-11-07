@@ -64,9 +64,9 @@ const ARRETS = [["commun", "Pokémon commun", false], ["peuCommun", "Pokémon pe
 const SYNCS = { ajour: ["À jour", "Sauvegardée en ligne"], cours: ["Synchronisation en cours", "Sauvegarde en cours…"], hors: ["Hors connexion", "Hors connexion : sauvegardée sur cet appareil"] };
 const TAGS = { ajour: ["À jour", ""], cours: ["Synchronisation en cours", "info"], local: ["Sur cet appareil seulement", "alerte"], supprimee: ["Supprimée ailleurs", "erreur"], ailleurs: ["Ouverte ailleurs", "info"] };
 const SUCCES = [["Premiers pas", "Attrape ton premier Pokémon", 5, true], ["Premier badge", "Gagne un badge d'arène", 5, true], ["Collectionneur", "Enregistre 25 Pokémon dans ton Pokédex", 10, false]];
-const NAV = [["combat", "Combat", "combat"], ["equipe", "Équipe", "equipe"], ["shop", "Shop", "shop"], ["carte", "Carte", "carte"], ["menu", "Menu", "menu"]];
+const NAV = [["combat", "Combat", "combat"], ["equipe", "Équipe", "equipe"], ["pc", "PC", "pc"], ["shop", "Shop", "shop"], ["carte", "Carte", "carte"], ["menu", "Menu", "menu"]];
 /* Pages qui allument chaque entrée de navigation */
-const SOUS = { equipe: ["equipe", "pc"], menu: ["menu", "pokedex", "badges", "stats", "guide", "reglages", "monde"], carte: ["carte", "lieu-bourg", "centre", "commercial", "casino", "pension"], combat: ["combat"], shop: ["shop"] };
+const SOUS = { equipe: ["equipe"], pc: ["pc"], menu: ["menu", "pokedex", "badges", "stats", "guide", "reglages", "monde"], carte: ["carte", "lieu-bourg", "lieu-maman", "lieu-blue", "commercial", "casino", "pension"], combat: ["combat"], shop: ["shop"] };
 const entreeNav = (p) => (Object.entries(SOUS).find(([, l]) => l.includes(p)) || ["combat"])[0];
 const RESTAURER = [["il y a 2 min", "Route 1", "12 h 34"], ["hier, 21 h 10", "Route 1", "11 h 57"], ["samedi, 18 h 20", "Bourg Palette", "10 h 02"]];
 

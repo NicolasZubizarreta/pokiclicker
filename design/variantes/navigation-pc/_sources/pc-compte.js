@@ -62,13 +62,8 @@ function ecranTitre() {
 const decorIntro = (img, corps, cls = "") => `<div class="scene-intro ${cls}" style="background-image:url(${DEC}${img})">${corps}</div>`;
 const dlg = (nom, txt, bouton, go) => `<div class="cadre dialogue"><img src="img/chen/SpriteChen1.png" width="120" height="120" alt=""><div><p class="titre">${nom}</p><p>${txt}</p></div><button type="button" class="plaque action" data-go="${go}" data-autofocus>${bouton} <span class="fleche">${ic("chevron")}</span></button></div>`;
 function ecranIntro() {
-  const p = S.page;
-  if (p === "intro-maman") return decorIntro("chez-maman.webp", `<div class="cadre dialogue" style="grid-template-columns:1fr auto"><div><p class="titre">Maman</p><p>Il n'y a rien à faire ici, sortons.</p></div><button type="button" class="plaque action" data-go="intro-bourg" data-autofocus>Sortir ${kb("Entrée")}</button></div>`);
-  if (p === "intro-bourg") return decorIntro("bourg-palette.webp", `<div class="batiments"><button type="button" class="bat" style="left:6%;top:42%;width:18%;height:22%" data-go="intro-maman">Chez Maman</button><button type="button" class="bat" style="left:30%;top:46%;width:16%;height:20%" data-go="intro-blue">Chez Blue</button><button type="button" class="bat" style="left:74%;top:30%;width:20%;height:30%;animation:clignote-vert 1s steps(1) infinite" data-go="intro-labo" data-autofocus>Labo du Prof. Chen</button></div>`);
-  if (p === "intro-blue") return decorIntro("chez-blue.webp", `<div class="cadre dialogue" style="grid-template-columns:1fr auto"><div><p class="titre">Blue</p><p>Eh pourquoi il a le droit à une maison en 3D lui ?</p></div><button type="button" class="plaque action" data-go="intro-bourg" data-autofocus>Sortir</button></div>`);
-  if (p === "intro-labo") return decorIntro("labo.webp", dlg("Prof. Chen", "Léo, te voilà ! Choisis ton premier Pokémon. Il t'accompagnera sur la Route 1.", "Suivant", "intro-starter"));
-  const ch = S.starter;
-  return decorIntro("labo.webp", `<div class="starters">${STARTERS.map(([n, nom, t, d]) => `<div class="starter cadre ${ch === n ? "choisi" : ""}"><img class="ball" src="${OBJ}poke-ball.png" width="30" height="30" alt="">
-      <img class="art ${ch === n ? "" : "cache"}" src="${ARTWORK[n]}" width="176" height="176" alt=""><b style="font-size:var(--text-xl)">${nom}</b>${typeTag(t)}<span class="doux">${d}</span>
-      <button type="button" class="plaque ${ch === n ? "action" : ""}" data-act="starter" data-id="${n}" ${n === 1 ? "data-autofocus" : ""}>${ch === n ? "Confirmer " + nom : "Choisir " + nom}</button></div>`).join("")}</div>`, "centree");
+  const p = S.page, suite = (go, t) => `<button type="button" class="maquette" data-go="${go}">Maquette : ${t}</button>`;
+  const e = { "intro-maman": ["intro-maman", "Chez Maman", suite("intro-bourg", "sortir vers Bourg Palette")], "intro-bourg": ["intro-bourg", "Bourg Palette avec image mapping", suite("intro-labo", "cliquer le labo du Prof. Chen")], "intro-blue": ["intro-maman", "Chez Blue", suite("intro-bourg", "sortir")],
+    "intro-labo": ["intro-labo", "Labo du Prof. Chen, dialogue", suite("intro-starter", "dialogue suivant")], "intro-starter": ["intro-starter", "Choix du starter", suite("lieu-bourg", "choisir un starter (retour au bourg)")] }[p] || ["intro-maman", "", ""];
+  return `<div class="inchange plein">${NOTE_INCHANGE}<img src="img/jeu-actuel/${e[0]}.png" alt="${e[1]}"><div class="lot-maquette">${e[2]}</div></div>`;
 }

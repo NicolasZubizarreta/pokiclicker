@@ -8,7 +8,7 @@ const reduit = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 const AUTH = ["c-connexion", "c-inscription", "c-oubli", "c-oubli-envoye", "c-nouveau"];
 const PAGES = { combat: ecranCombat, equipe: ecranEquipe, pc: ecranPc, shop: ecranShop, carte: ecranCarte, menu: ecranMenu, monde: ecranMonde, reglages: ecranReglages,
   pokedex: ecranPokedex, badges: ecranBadges, stats: ecranStats, guide: ecranGuide, "lieu-bourg": ecranLieuBourg, "lieu-maman": ecranMaman, "lieu-blue": ecranBlue,
-  centre: ecranCentre, commercial: ecranCommercial, pension: ecranPension, casino: ecranCasino,
+  commercial: ecranCommercial, pension: ecranPension, casino: ecranCasino,
   "c-connexion": ecranConnexion, "c-inscription": ecranInscription, "c-oubli": ecranOubli, "c-oubli-envoye": ecranOubliEnvoye, "c-nouveau": ecranNouveau,
   "c-parties": ecranParties, "c-nouvelle": ecranNouvelle, "c-compte": ecranCompte, "c-reglages": ecranReglages };
 const enCompte = () => S.page.startsWith("c-");
@@ -45,7 +45,7 @@ function depart(h) {
     "pc-echange": () => { S.page = "pc"; S.echange = 6; },
     shop: () => { S.page = "shop"; }, "shop-objets": () => { S.page = "shop"; S.onglet = "objets"; }, "shop-accessoires": () => { S.page = "shop"; S.onglet = "accessoires"; },
     carte: () => { S.page = "carte"; }, celadopole: () => { S.page = "carte"; S.cel = true; }, vol: () => { S.page = "carte"; S.volAuto = "arene-d-argenta"; },
-    "lieu-bourg": () => { S.page = h; }, "lieu-maman": () => { S.page = h; }, "lieu-blue": () => { S.page = h; }, centre: () => { S.page = h; }, commercial: () => { S.page = h; }, pension: () => { S.page = h; }, casino: () => { S.page = h; },
+    "lieu-bourg": () => { S.page = h; }, "lieu-maman": () => { S.page = h; }, "lieu-blue": () => { S.page = h; }, commercial: () => { S.page = h; }, pension: () => { S.page = h; }, casino: () => { S.page = h; },
     menu: () => { S.page = "menu"; }, monde: () => { S.page = "monde"; }, reglages: () => { S.page = "reglages"; },
     pokedex: () => { S.page = "pokedex"; }, "pokedex-paliers": () => { S.page = "pokedex"; }, "pokedex-recherche": () => { S.page = "pokedex"; S.dexQ = "pi"; }, "pokedex-a-trouver": () => { S.page = "pokedex"; S.dexF = "manquants"; },
     "pokedex-detail": () => { S.page = "pokedex"; S.dexSel = 25; }, "pokedex-inconnu": () => { S.page = "pokedex"; S.dexSel = 12; }, "pokedex-complet": () => { S.page = "pokedex"; S.dexComplet = true; },
@@ -130,7 +130,7 @@ function celCouche() {
 function raccourcisCouche() {
   const g = (t, l) => `<div><h3 class="sous-titre">${t}</h3><dl>${l.map(([k, d]) => `<dt>${k.split(" ").map(kb).join("")}</dt><dd>${d}</dd>`).join("")}</dl></div>`;
   return fen(`${ic("clavier")} Raccourcis clavier`, `<div class="raccourcis">${g("Combat", [["Espace", "Attaquer"], ["Entrée", "Attaquer"], ["C", "Capturer"], ["B", "Changer de balle"], ["A", "Attaque auto"], ["T", "Arrêt auto"], ["R", "Réglage de l'arrêt auto"], ["S", "Sac"], ["F", "Fauchage"], ["P", "Poké-Radar"], ["Flèche gauche", "Zone précédente"], ["Flèche droite", "Zone suivante"]])}
-    ${g("Partout", [["1", "Combat"], ["2", "Équipe"], ["3", "Shop"], ["4", "Carte"], ["5", "Menu"], ["Échap", "Fermer la fenêtre"], ["Tab", "Élément suivant"], ["Maj Tab", "Élément précédent"], ["/", "Chercher (PC, Pokédex)"], ["?", "Cette liste"]])}</div>
+    ${g("Partout", [["1", "Combat"], ["2", "Équipe"], ["3", "PC"], ["4", "Shop"], ["5", "Carte"], ["6", "Menu"], ["Échap", "Fermer la fenêtre"], ["Tab", "Élément suivant"], ["Maj Tab", "Élément précédent"], ["/", "Chercher (PC, Pokédex)"], ["?", "Cette liste"]])}</div>
     <p class="doux">Les raccourcis n'existent que sur ordinateur. Ils sont ignorés quand tu écris dans un champ.</p>`);
 }
 function evoCouche() {
@@ -184,8 +184,8 @@ const aUneCouche = () => S.dialogue || S.sac || S.reglAuto || S.radar || S.fiche
 /* ---------- coquille ---------- */
 function legende() {
   const l = S.page === "combat"
-    ? [["Espace", "Attaquer"], ["C", "Capturer"], ["B", "Balle"], ["A", "Auto"], ["T", "Arrêt"], ["S", "Sac"], ...(S.deb ? [["F", "Fauchage"], ["P", "Radar"]] : []), ["Flèches", "Zone"], ["1–5", "Onglets"], ["?", "Tous"]]
-    : [["1–5", "Onglets"], ["Tab", "Naviguer"], ["Échap", "Fermer"], ["?", "Raccourcis"]];
+    ? [["Espace", "Attaquer"], ["C", "Capturer"], ["B", "Balle"], ["A", "Auto"], ["T", "Arrêt"], ["S", "Sac"], ...(S.deb ? [["F", "Fauchage"], ["P", "Radar"]] : []), ["Flèches", "Zone"], ["1–6", "Onglets"], ["?", "Tous"]]
+    : [["1–6", "Onglets"], ["Tab", "Naviguer"], ["Échap", "Fermer"], ["?", "Raccourcis"]];
   return `<footer class="legende" aria-label="Raccourcis clavier">${l.map(([k, t]) => `<span>${k.split(" ").map(kb).join("")} ${t}</span>`).join("")}</footer>`;
 }
 function coque() {
@@ -200,7 +200,7 @@ function coque() {
   const nav = NAV.map(([id, t, ico], i) => `<button type="button" class="cle-nav" data-go="${id}" aria-current="${act === id ? "page" : "false"}">${ic(ico)}<span class="t">${t}</span>${kb(String(i + 1))}${id === "equipe" && S.evo ? '<span class="point"></span>' : ""}</button>`).join("");
   const plein = ["combat", "equipe", "pc"].includes(p);
   return `<div class="app"><aside class="lateral ${S.page === "monde" && false ? "inerte" : ""}"><div class="marque"><b>PokiClicker</b><span>Kanto</span></div><nav aria-label="Navigation principale" style="display:grid;gap:var(--u)">${nav}</nav>
-    <div class="bas"><b>Partie de Léo</b><span class="ligne-s">${sync}</span></div></aside>
+    <div class="bas"><b>Partie de Léo</b><span class="ligne-s">${sync}</span></div><button type="button" class="cle-nav sortie-nav" data-act="menu-principal">${ic("sortie")}<span class="t">Menu principal</span></button></aside>
     <div class="zone-jeu"><header class="cles" aria-label="Chiffres clés"><div class="cle"><small>Pokédollars</small><b id="pieces">${pd(S.pieces)}</b></div><div class="cle"><small>DPS</small><b>${nf(40365)}</b></div><div class="cle"><small>Zone</small><b>${Z(S.zone).nom}</b></div>
       <div class="fin">${sync}<button type="button" class="plaque petite" data-act="raccourcis">${ic("clavier")}Raccourcis ${kb("?")}</button></div></header>
       <main class="ecran ${plein ? "plein" : ""}" id="ecran">${PAGES[p]()}</main>${legende()}</div>${contenu}${cote}</div>`;
@@ -367,7 +367,7 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "?") { e.preventDefault(); S.raccourcis = !S.raccourcis; rendre(); return; }
   if (dlg_) { if (S.cel && "123".includes(e.key)) ACT["cel-choix"]({ dataset: { v: ["combat", "commercial", "casino"][Number(e.key) - 1] } }); return; }
   if (enCompte() || enIntro()) return;
-  if ("12345".includes(e.key) && e.key.length === 1) {
+  if ("123456".includes(e.key) && e.key.length === 1) {
     if (S.page === "shop" && false) return; const id = NAV[Number(e.key) - 1][0]; aller(id); return;
   }
   if (e.key === "/" && ["pc", "pokedex"].includes(S.page)) { e.preventDefault(); const i = $("#pc-q") || $("#dex-q"); if (i) i.focus(); return; }

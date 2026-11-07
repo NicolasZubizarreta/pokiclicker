@@ -234,18 +234,21 @@ En tant que joueur, je veux gérer mon équipe et mes boîtes avec le pouce, ave
 En tant que joueur sur ordinateur, je veux une version PC pensée pour la souris et le clavier, qui profite de la largeur et reprend les règles du téléphone, pour jouer au bureau sans me battre avec l'interface.
 
 ### Contexte
-Nicolas (07/11) : trop de soucis d'UX sur PC pour les lister en vrac ; on part de la base téléphone, on la développe pour le PC et on lui présente les maquettes de toutes les situations, comme pour le téléphone. Maquettes : `design/variantes/navigation-pc/` (`index.html` liste les 97 écrans avec l'équivalent téléphone, `pc-app.html` est navigable, `README.md` résume la coquille, les raccourcis et les choix à trancher).
+Nicolas (07/11) : trop de soucis d'UX sur PC pour les lister en vrac ; on part de la base téléphone, on la développe pour le PC et on lui présente les maquettes de toutes les situations, comme pour le téléphone. Maquettes : `design/variantes/navigation-pc/` (`index.html` liste les 96 écrans avec l'équivalent téléphone, `pc-app.html` est navigable, `README.md` résume la coquille, les raccourcis et les choix à trancher).
+
+### Retours de Nicolas du 07/11 sur les maquettes (appliqués)
+Barre latérale à six entrées (Combat, Équipe, PC, Shop, Carte, Menu, touches 1 à 6) et bouton « Menu principal » en bas de barre ; Centre Pokémon supprimé (pas de PV dans le jeu) ; Pension, Maman, Blue et labo accessibles depuis Bourg Palette par l'image mapping actuel ; Bourg Palette, labo du Prof. Chen et début de partie : **inchangés**, les maquettes montrent des captures du jeu actuel (`img/jeu-actuel/`) ; carte : croix de fermeture centrée, zone actuelle qui clignote en vert, sprite du personnage seulement pendant le vol ; sprites sans fond ni cadre carré (easter eggs compris) ; équipe toujours en 3 colonnes × 2 lignes de 1024 à 2560 px.
 
 ### Critères de la phase maquettes
 - [x] Étant donné `index.html`, quand je l'ouvre, alors tous les écrans du téléphone (a5-index) et la zone compte y sont listés avec leur équivalent téléphone et leurs différences.
-- [x] Étant donné `pc-app.html`, quand je navigue, alors chaque situation est atteignable : combat et états, équipe, fiche, PC, sac, shop, carte et vol, Céladopole, Centre Pokémon, centre commercial, pension, Pokédex, badges, statistiques, guide, menu, réglages, notifications, états vides, chargement, erreurs réseau, hors connexion, easter eggs.
+- [x] Étant donné `pc-app.html`, quand je navigue, alors chaque situation est atteignable : combat et états, équipe, fiche, PC, sac, shop, carte et vol, Céladopole, centre commercial, pension, Pokédex, badges, statistiques, guide, menu, réglages, notifications, états vides, chargement, erreurs réseau, hors connexion, easter eggs.
 - [x] Étant donné chaque écran à 1280×800, 1440×900 et 1920×1080 (et la coquille à 1024 et 2560), quand je regarde la capture, alors rien ne déborde, aucun sprite ne sort de son cadre, aucun texte n'est coupé (`controle-pc.mjs`).
-- [ ] Étant donné les six choix du README, quand Nicolas tranche, alors la décision est notée dans `design/DESIGN.md`.
+- [x] Étant donné les six choix du README, quand Nicolas tranche, alors la décision est notée dans `design/DESIGN.md` (fait le 07/11 : barre latérale gauche avec PC et Menu principal, pas de Centre Pokémon, raccourcis validés, fiche en fenêtre, pop-ups en bas à droite).
 - [ ] Étant donné les maquettes validées, quand Nicolas dit « prêt », alors ce ticket reçoit `agent-ok` et se découpe en lots d'implémentation.
 
 ### Critères d'implémentation (après validation)
 - [ ] Étant donné 1024 px et plus, quand j'ouvre le jeu, alors la barre latérale gauche, le bandeau haut et la légende des raccourcis remplacent la barre du bas du téléphone ; en dessous de 1024 px, la mise en page téléphone reste inchangée.
-- [ ] Étant donné le combat sur PC, quand j'appuie sur Espace ou Entrée, alors j'attaque ; C, B, A, T, R, S, F, P, les flèches, 1 à 5 et `/` font ce que dit la liste du README, sauf dans un champ de saisie.
+- [ ] Étant donné le combat sur PC, quand j'appuie sur Espace ou Entrée, alors j'attaque ; C, B, A, T, R, S, F, P, les flèches, 1 à 6 et `/` font ce que dit la liste du README, sauf dans un champ de saisie.
 - [ ] Étant donné une fenêtre ouverte (Sac, fiche, réglage de l'arrêt auto), quand j'appuie sur Tab, alors le focus reste dans la fenêtre ; Échap la ferme et rend le focus à l'élément d'origine.
 - [ ] Étant donné chaque écran à 1280, 1440, 1920 et 2560 px, quand je capture, alors la page ne défile pas, les listes défilent dans leur cadre et rien ne déborde.
 - [ ] Étant donné une notification, quand elle apparaît sur PC, alors elle s'affiche en pop-up fixe sans déplacer la page.
@@ -253,7 +256,7 @@ Nicolas (07/11) : trop de soucis d'UX sur PC pour les lister en vrac ; on part d
 - [ ] Étant donné les tests existants, quand `npm test` tourne, alors ils restent verts et un test e2e à 1440 px couvre le combat au clavier.
 
 ### Effort et risques
-Maquettes : faites. Implémentation : 3 à 5 jours. Risque : la zone de jeu partage ses composants avec le téléphone (divergence de mise en page) ; le Centre Pokémon n'existe pas dans les données du jeu (ticket à part s'il est gardé).
+Maquettes : faites, validées par Nicolas le 07/11 avec les corrections ci-dessus. Implémentation : 3 à 5 jours. Risque : la zone de jeu partage ses composants avec le téléphone (divergence de mise en page).
 
 ## J. `feat(ui): boutique, Pokédex, Plus et réglages`
 

@@ -60,7 +60,7 @@ function ecranEquipe() {
   return `<div class="titre-page"><h1>Équipe</h1><span class="tag neutre">${EQUIPE.length} / 6</span><label class="champ"><span class="sr">Trier</span><span class="zone-saisie"><select data-cle="eqTri" aria-label="Trier l'équipe"><option value="ordre"${S.eqTri === "ordre" ? " selected" : ""}>Ordre de l'équipe</option><option value="dps"${S.eqTri === "dps" ? " selected" : ""}>DPS, du plus grand au plus petit</option></select></span></label>
       <button type="button" class="plaque" data-act="sac">${ic("sac")}Sac ${kb("S")}</button></div>
     ${S.choix ? `<div class="bandeau-choix"><span>Choisis le Pokémon qui recevra : <b>${S.choix}</b></span><button type="button" class="plaque" data-act="choix-annuler">${ic("croix")}Annuler</button></div>` : ""}
-    <div class="grille-eq">${liste.map(carte).join("")}</div>${pc}`;
+    <div class="grille-eq">${liste.map(carte).join("")}</div>`;
 }
 const PC_OUVERT_OK = () => S.pcOuvert;
 
@@ -97,7 +97,7 @@ function pcCorps() {
 }
 const pcCompte = () => { const n = S.pc.length, l = n ? pcListe().length : 0; return l !== n ? `${l} sur ${n} Pokémon` : `${n} Pokémon`; };
 function ecranPc() {
-  const tete = `<div class="titre-page">${retour("equipe", "Retour à l'équipe")}<h1>PC de Léo</h1><span class="tag neutre" id="cpt">${S.pcOuvert ? pcCompte() : "Verrouillé"}</span></div>`;
+  const tete = `<div class="titre-page"><h1>PC de Léo</h1><span class="tag neutre" id="cpt">${S.pcOuvert ? pcCompte() : "Verrouillé"}</span></div>`;
   if (!S.pcOuvert) return `${tete}<div class="verrou">${ic("cadenas")}<p><b>Le PC de Léo s'ouvre à l'Arène d'Argenta.</b></p><p class="doux">Tu y rangeras les Pokémon que ton équipe ne peut pas porter.</p></div><div class="lot-maquette">${maq("debloquer-pc", "arriver à l'Arène d'Argenta (débloque le PC)")}</div>`;
   const eq = EQUIPE.map((e, i) => `<button type="button" class="case" data-act="${S.echange ? "echanger" : "fiche-eq"}" data-i="${i}" aria-label="${e[1]}, niveau 100"><img class="sp" src="${SPR}${e[0]}.png" width="96" height="96" alt=""><span class="corps"><span class="nom"><span>${e[1]}</span></span><span class="s">Niv. 100</span></span></button>`).join("");
   const colEq = `<aside class="equipe-col" aria-label="Ton équipe"><h2 class="sous-titre">Ton équipe · ${EQUIPE.length} / 6</h2>${eq}</aside>`;
@@ -128,36 +128,27 @@ function ecranCarte() {
   const cercles = ZONES.map((z) => `<span class="cercle ${z.ouverte ? "" : "ferme"} ${z.id === S.zone ? "actuel" : ""}" data-zone="${z.id}" style="left:${z.x * 100}%;top:${z.y * 100}%"><span class="etiq">${z.nom}</span></span>`).join("");
   const liste = ZONES.map((z) => `<button type="button" class="zone-l ${z.ouverte ? "" : "ferme"} ${z.id === S.zone ? "actuelle" : ""}" data-act="aller" data-id="${z.id}" data-zone="${z.id}" ${z.ouverte ? "" : 'aria-disabled="true"'}>
     <span class="corps"><span class="t">${z.nom}</span><span class="s">Zone ${z.n}${z.id === S.zone ? " · tu es ici" : z.ouverte ? "" : " · verrouillée"}</span></span>${z.ouverte ? ic("chevron") : ic("cadenas")}</button>`).join("");
-  const dr = S.enVol ? "" : `<img class="dresseur" src="img/dresseur/vol-1.png" alt="" style="left:${Z(S.zone).x * 100}%;top:${Z(S.zone).y * 100}%">`;
-  return `<div class="titre-page"><h1>Carte de Kanto</h1><span class="doux">Choisis une zone dans la liste : Dracaufeu te y emmène.</span></div>
-    <div class="carte-page"><div class="cadre mini-carte" id="mini-carte"><img src="img/carte-kanto.webp" alt="Carte de Kanto, région de Kanto" style="object-fit:cover">${cercles}${dr}</div>
+  return `<div class="titre-page"><h1>Carte de Kanto</h1><span class="doux">Choisis une zone dans la liste : Dracaufeu t'y emmène. Tu es dans la zone qui clignote en vert.</span></div>
+    <div class="carte-page"><div class="cadre mini-carte" id="mini-carte"><img src="img/carte-kanto.webp" alt="Carte de Kanto, région de Kanto" style="object-fit:cover">${cercles}</div>
       <div class="liste-w"><div class="liste-zones ${S.enVol ? "vole" : ""}" role="list">${liste}</div></div></div>
-    <div class="lot-maquette">${maq("go-lieu", "aller à Bourg Palette (Chez Maman, Chez Blue, Pension, Labo)", 'data-go="lieu-bourg"')}${maq("go-casino", "ouvrir le Casino", 'data-go="casino"')}${maq("go-centre", "ouvrir le Centre Pokémon", 'data-go="centre"')}</div>`;
+    <div class="lot-maquette">${maq("go-lieu", "aller à Bourg Palette (Chez Maman, Chez Blue, Pension, Labo)", 'data-go="lieu-bourg"')}${maq("go-casino", "ouvrir le Casino", 'data-go="casino"')}</div>`;
 }
 
 /* ---------- Lieux ---------- */
+/* Bourg Palette, Maman, Blue, labo, début de partie : INCHANGÉS, captures du jeu actuel (design/audit, 1440 px) */
+const NOTE_INCHANGE = `<p class="bandeau-inchange">${ic("valide")}<span><b>Inchangé : rendu actuel du jeu.</b> Capture du jeu actuel à 1440 px. Le PC garde exactement cette disposition, cet image mapping et ces dialogues.</span></p>`;
+const inchange = (img, alt, suite = "") => `<div class="inchange">${NOTE_INCHANGE}<img src="img/jeu-actuel/${img}.png" alt="${alt}">${suite ? `<div class="lot-maquette">${suite}</div>` : ""}</div>`;
 function ecranLieuBourg() {
-  const b = (nom, st, act, extra = "") => `<button type="button" class="bat" data-act="${act}" style="${st}" ${extra}>${nom}</button>`;
   return `<div class="titre-page">${retour("carte", "Retour à la carte")}<h1>Bourg Palette</h1></div>
-    <div class="scene-intro batiments cadre" style="background-image:url(${DEC}bourg-palette.webp);min-height:26rem;position:relative">
-      ${b("Chez Maman", "left:6%;top:42%;width:18%;height:22%", "lieu-maman")}${b("Chez Blue", "left:30%;top:46%;width:16%;height:20%", "lieu-blue")}${b("Pension", "left:52%;top:38%;width:18%;height:24%", "lieu-pension")}${b("Labo du Prof. Chen", "left:74%;top:30%;width:20%;height:30%", "lieu-labo")}${b("Bateau vers Johto (bientôt)", "left:36%;bottom:6%;width:28%;height:12%", "lieu-bateau", 'aria-disabled="true"')}
-    </div><p class="doux">Pointe un bâtiment pour l'éclairer, clique pour entrer. La Pension s'ouvre après la zone 11.</p>`;
+    ${inchange("lieu-bourg", "Bourg Palette dans le jeu actuel : scène avec image mapping, bâtiments cliquables", `${maq("lieu-maman", "image mapping : clic sur Chez Maman")}${maq("lieu-blue", "clic sur Chez Blue")}${maq("lieu-pension", "clic sur la Pension")}${maq("lieu-labo", "clic sur le labo du Prof. Chen")}`)}`;
 }
 function ecranMaman() {
   return `<div class="titre-page">${retour("lieu-bourg", "Sortir")}<h1>Chez Maman</h1></div>
-    <div class="decor-page" style="background-image:url(${DEC}chez-maman.webp);min-height:24rem"><div class="bulle cadre">Il n'y a rien à faire ici, sortons.</div></div>
-    <div class="lot-maquette">${maq("egg-daran", "cliquer la télé (easter egg Daran)")}</div>`;
+    ${inchange("intro-maman", "Chez Maman dans le jeu actuel", maq("egg-daran", "cliquer la télé (easter egg Daran)"))}`;
 }
 function ecranBlue() {
   return `<div class="titre-page">${retour("lieu-bourg", "Sortir")}<h1>Chez Blue</h1></div>
-    <div class="decor-page" style="background-image:url(${DEC}chez-blue.webp);min-height:24rem"><div class="bulle cadre">Eh pourquoi il a le droit à une maison en 3D lui ?</div></div>`;
-}
-function ecranCentre() {
-  const lignes = EQUIPE.map((e) => `<div class="ligne-p"><img class="obj" src="${SPR}${e[0]}.png" width="96" height="96" alt="" style="width:48px;height:48px"><div class="corps"><span class="t">${e[1]}</span><span class="s">Niv. 100</span></div><span class="tag">${ic("valide")} En pleine forme</span></div>`).join("");
-  return `<div class="titre-page">${retour("carte", "Retour à la carte")}<h1>Centre Pokémon</h1></div>
-    <div class="decor-page bas" style="background-image:url(${DEC}centre-commercial.webp)"><div class="bulle cadre"><b>Bienvenue au Centre Pokémon !</b><p>Ici, on remet ton équipe sur pied. Ta fiche indique que tout va bien.</p></div></div>
-    <div class="liste deux">${lignes}</div><button type="button" class="plaque action" data-act="soigner">${ic("soin")}Soigner l'équipe</button>
-    <p class="message info">${ic("alerte")}<span>Écran proposé : le Centre Pokémon n'existe pas encore dans les données du jeu. À confirmer par Nicolas.</span></p>`;
+    <div class="inchange">${NOTE_INCHANGE}<p class="message info">${ic("alerte")}<span>Chez Blue garde le rendu du jeu actuel (même gabarit que chez Maman : décor, dialogue de Blue). Voir le jeu actuel.</span></p></div>`;
 }
 function ecranCommercial() {
   const items = [["leftovers", "Restes", "Auto-clic au repos", 12000, true], ["PokeRadar", "Poké-Radar", "Repère les Pokémon rares de la zone", 25000, false], ["JetonShiny", "Jeton Shiny", "Relance l'apparition d'un chromatique", 8000, false], ["amulet-coin", "Pièce Rune", "Gains d'argent +10 %", 18000, false]];

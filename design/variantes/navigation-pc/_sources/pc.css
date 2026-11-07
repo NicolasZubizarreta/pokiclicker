@@ -447,3 +447,30 @@ button.ligne-p:hover, a.ligne-p:hover { border-color: var(--region-accent); back
 .carte-page { flex: 1; min-height: 0; grid-template-rows: minmax(0, 1fr); }
 .carte-page > .mini-carte { align-self: start; }
 @media (max-width: 1400px) { .outils4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* Retours de Nicolas du 07/11 (maquettes PC) */
+/* Écrans inchangés : capture du jeu actuel */
+.inchange { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: var(--ecart); }
+.inchange.plein { padding: calc(var(--u) * 4) calc(var(--u) * 8); }
+.inchange > img { flex: 1; min-height: 0; width: 100%; object-fit: contain; background: var(--fond); border: var(--trait) dashed var(--bordure); }
+.bandeau-inchange { display: flex; gap: var(--ecart); align-items: flex-start; padding: calc(var(--u) * 3); background: var(--info-fond); color: var(--info-texte); border: var(--trait) solid var(--info-base); }
+.inchange .lot-maquette { margin-top: 0; padding-top: 0; }
+/* Croix de fermeture centrée dans son bouton */
+.plaque.carre, .modal .plaque.carre, .fenetre .plaque.carre { justify-content: center; }
+/* Photos des easter eggs : aucun fond ni cadre */
+.cadre-egg { background: none; border: 0; overflow: visible; }
+/* Équipe : toujours 3 colonnes sur 2 lignes, largeur maximale raisonnable */
+.grille-eq { grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; }
+@media (max-width: 1199px) { .grille-eq .carte-pk { grid-template-columns: 5rem minmax(0, 1fr); padding: calc(var(--u) * 3); } .grille-eq .carte-pk .portrait { width: 5rem; height: 5rem; } .grille-eq .carte-pk .portrait img { width: 4.5rem; height: 4.5rem; } }
+/* Autres grilles à nombre fixe d'éléments : même logique */
+.badges-grille { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.tuiles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+/* Carte : la zone actuelle clignote en vert, le sprite n'existe que pendant le vol */
+@keyframes clignote-cercle { 50% { background: transparent; } }
+.zone-l.actuelle { animation: clignote-vert 1.2s steps(1) infinite; }
+.cercle.actuel { animation: clignote-cercle 1.2s steps(1) infinite; }
+/* Barre latérale : bouton Menu principal en bas */
+.sortie-nav { flex: none; }
+.sortie-nav .ic { color: var(--erreur-base); }
+@media (max-width: 1199px) { .sortie-nav { margin-top: auto; min-height: calc(var(--u) * 18); } .sortie-nav .t { text-align: center; line-height: 1.1; } }
+@media (max-width: 1199px) { .marque b { font-size: var(--text-sm); } }

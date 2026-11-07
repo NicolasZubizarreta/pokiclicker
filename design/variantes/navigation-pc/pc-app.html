@@ -726,6 +726,33 @@ button.ligne-p:hover, a.ligne-p:hover { border-color: var(--region-accent); back
 .carte-page > .mini-carte { align-self: start; }
 @media (max-width: 1400px) { .outils4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
+/* Retours de Nicolas du 07/11 (maquettes PC) */
+/* Écrans inchangés : capture du jeu actuel */
+.inchange { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: var(--ecart); }
+.inchange.plein { padding: calc(var(--u) * 4) calc(var(--u) * 8); }
+.inchange > img { flex: 1; min-height: 0; width: 100%; object-fit: contain; background: var(--fond); border: var(--trait) dashed var(--bordure); }
+.bandeau-inchange { display: flex; gap: var(--ecart); align-items: flex-start; padding: calc(var(--u) * 3); background: var(--info-fond); color: var(--info-texte); border: var(--trait) solid var(--info-base); }
+.inchange .lot-maquette { margin-top: 0; padding-top: 0; }
+/* Croix de fermeture centrée dans son bouton */
+.plaque.carre, .modal .plaque.carre, .fenetre .plaque.carre { justify-content: center; }
+/* Photos des easter eggs : aucun fond ni cadre */
+.cadre-egg { background: none; border: 0; overflow: visible; }
+/* Équipe : toujours 3 colonnes sur 2 lignes, largeur maximale raisonnable */
+.grille-eq { grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; }
+@media (max-width: 1199px) { .grille-eq .carte-pk { grid-template-columns: 5rem minmax(0, 1fr); padding: calc(var(--u) * 3); } .grille-eq .carte-pk .portrait { width: 5rem; height: 5rem; } .grille-eq .carte-pk .portrait img { width: 4.5rem; height: 4.5rem; } }
+/* Autres grilles à nombre fixe d'éléments : même logique */
+.badges-grille { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.tuiles { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+/* Carte : la zone actuelle clignote en vert, le sprite n'existe que pendant le vol */
+@keyframes clignote-cercle { 50% { background: transparent; } }
+.zone-l.actuelle { animation: clignote-vert 1.2s steps(1) infinite; }
+.cercle.actuel { animation: clignote-cercle 1.2s steps(1) infinite; }
+/* Barre latérale : bouton Menu principal en bas */
+.sortie-nav { flex: none; }
+.sortie-nav .ic { color: var(--erreur-base); }
+@media (max-width: 1199px) { .sortie-nav { margin-top: auto; min-height: calc(var(--u) * 18); } .sortie-nav .t { text-align: center; line-height: 1.1; } }
+@media (max-width: 1199px) { .marque b { font-size: var(--text-sm); } }
+
 </style>
 </head>
 <body>
@@ -805,9 +832,9 @@ const ARRETS = [["commun", "Pokémon commun", false], ["peuCommun", "Pokémon pe
 const SYNCS = { ajour: ["À jour", "Sauvegardée en ligne"], cours: ["Synchronisation en cours", "Sauvegarde en cours…"], hors: ["Hors connexion", "Hors connexion : sauvegardée sur cet appareil"] };
 const TAGS = { ajour: ["À jour", ""], cours: ["Synchronisation en cours", "info"], local: ["Sur cet appareil seulement", "alerte"], supprimee: ["Supprimée ailleurs", "erreur"], ailleurs: ["Ouverte ailleurs", "info"] };
 const SUCCES = [["Premiers pas", "Attrape ton premier Pokémon", 5, true], ["Premier badge", "Gagne un badge d'arène", 5, true], ["Collectionneur", "Enregistre 25 Pokémon dans ton Pokédex", 10, false]];
-const NAV = [["combat", "Combat", "combat"], ["equipe", "Équipe", "equipe"], ["shop", "Shop", "shop"], ["carte", "Carte", "carte"], ["menu", "Menu", "menu"]];
+const NAV = [["combat", "Combat", "combat"], ["equipe", "Équipe", "equipe"], ["pc", "PC", "pc"], ["shop", "Shop", "shop"], ["carte", "Carte", "carte"], ["menu", "Menu", "menu"]];
 /* Pages qui allument chaque entrée de navigation */
-const SOUS = { equipe: ["equipe", "pc"], menu: ["menu", "pokedex", "badges", "stats", "guide", "reglages", "monde"], carte: ["carte", "lieu-bourg", "centre", "commercial", "casino", "pension"], combat: ["combat"], shop: ["shop"] };
+const SOUS = { equipe: ["equipe"], pc: ["pc"], menu: ["menu", "pokedex", "badges", "stats", "guide", "reglages", "monde"], carte: ["carte", "lieu-bourg", "lieu-maman", "lieu-blue", "commercial", "casino", "pension"], combat: ["combat"], shop: ["shop"] };
 const entreeNav = (p) => (Object.entries(SOUS).find(([, l]) => l.includes(p)) || ["combat"])[0];
 const RESTAURER = [["il y a 2 min", "Route 1", "12 h 34"], ["hier, 21 h 10", "Route 1", "11 h 57"], ["samedi, 18 h 20", "Bourg Palette", "10 h 02"]];
 
@@ -930,7 +957,7 @@ function ecranEquipe() {
   return `<div class="titre-page"><h1>Équipe</h1><span class="tag neutre">${EQUIPE.length} / 6</span><label class="champ"><span class="sr">Trier</span><span class="zone-saisie"><select data-cle="eqTri" aria-label="Trier l'équipe"><option value="ordre"${S.eqTri === "ordre" ? " selected" : ""}>Ordre de l'équipe</option><option value="dps"${S.eqTri === "dps" ? " selected" : ""}>DPS, du plus grand au plus petit</option></select></span></label>
       <button type="button" class="plaque" data-act="sac">${ic("sac")}Sac ${kb("S")}</button></div>
     ${S.choix ? `<div class="bandeau-choix"><span>Choisis le Pokémon qui recevra : <b>${S.choix}</b></span><button type="button" class="plaque" data-act="choix-annuler">${ic("croix")}Annuler</button></div>` : ""}
-    <div class="grille-eq">${liste.map(carte).join("")}</div>${pc}`;
+    <div class="grille-eq">${liste.map(carte).join("")}</div>`;
 }
 const PC_OUVERT_OK = () => S.pcOuvert;
 
@@ -967,7 +994,7 @@ function pcCorps() {
 }
 const pcCompte = () => { const n = S.pc.length, l = n ? pcListe().length : 0; return l !== n ? `${l} sur ${n} Pokémon` : `${n} Pokémon`; };
 function ecranPc() {
-  const tete = `<div class="titre-page">${retour("equipe", "Retour à l'équipe")}<h1>PC de Léo</h1><span class="tag neutre" id="cpt">${S.pcOuvert ? pcCompte() : "Verrouillé"}</span></div>`;
+  const tete = `<div class="titre-page"><h1>PC de Léo</h1><span class="tag neutre" id="cpt">${S.pcOuvert ? pcCompte() : "Verrouillé"}</span></div>`;
   if (!S.pcOuvert) return `${tete}<div class="verrou">${ic("cadenas")}<p><b>Le PC de Léo s'ouvre à l'Arène d'Argenta.</b></p><p class="doux">Tu y rangeras les Pokémon que ton équipe ne peut pas porter.</p></div><div class="lot-maquette">${maq("debloquer-pc", "arriver à l'Arène d'Argenta (débloque le PC)")}</div>`;
   const eq = EQUIPE.map((e, i) => `<button type="button" class="case" data-act="${S.echange ? "echanger" : "fiche-eq"}" data-i="${i}" aria-label="${e[1]}, niveau 100"><img class="sp" src="${SPR}${e[0]}.png" width="96" height="96" alt=""><span class="corps"><span class="nom"><span>${e[1]}</span></span><span class="s">Niv. 100</span></span></button>`).join("");
   const colEq = `<aside class="equipe-col" aria-label="Ton équipe"><h2 class="sous-titre">Ton équipe · ${EQUIPE.length} / 6</h2>${eq}</aside>`;
@@ -998,36 +1025,27 @@ function ecranCarte() {
   const cercles = ZONES.map((z) => `<span class="cercle ${z.ouverte ? "" : "ferme"} ${z.id === S.zone ? "actuel" : ""}" data-zone="${z.id}" style="left:${z.x * 100}%;top:${z.y * 100}%"><span class="etiq">${z.nom}</span></span>`).join("");
   const liste = ZONES.map((z) => `<button type="button" class="zone-l ${z.ouverte ? "" : "ferme"} ${z.id === S.zone ? "actuelle" : ""}" data-act="aller" data-id="${z.id}" data-zone="${z.id}" ${z.ouverte ? "" : 'aria-disabled="true"'}>
     <span class="corps"><span class="t">${z.nom}</span><span class="s">Zone ${z.n}${z.id === S.zone ? " · tu es ici" : z.ouverte ? "" : " · verrouillée"}</span></span>${z.ouverte ? ic("chevron") : ic("cadenas")}</button>`).join("");
-  const dr = S.enVol ? "" : `<img class="dresseur" src="img/dresseur/vol-1.png" alt="" style="left:${Z(S.zone).x * 100}%;top:${Z(S.zone).y * 100}%">`;
-  return `<div class="titre-page"><h1>Carte de Kanto</h1><span class="doux">Choisis une zone dans la liste : Dracaufeu te y emmène.</span></div>
-    <div class="carte-page"><div class="cadre mini-carte" id="mini-carte"><img src="img/carte-kanto.webp" alt="Carte de Kanto, région de Kanto" style="object-fit:cover">${cercles}${dr}</div>
+  return `<div class="titre-page"><h1>Carte de Kanto</h1><span class="doux">Choisis une zone dans la liste : Dracaufeu t'y emmène. Tu es dans la zone qui clignote en vert.</span></div>
+    <div class="carte-page"><div class="cadre mini-carte" id="mini-carte"><img src="img/carte-kanto.webp" alt="Carte de Kanto, région de Kanto" style="object-fit:cover">${cercles}</div>
       <div class="liste-w"><div class="liste-zones ${S.enVol ? "vole" : ""}" role="list">${liste}</div></div></div>
-    <div class="lot-maquette">${maq("go-lieu", "aller à Bourg Palette (Chez Maman, Chez Blue, Pension, Labo)", 'data-go="lieu-bourg"')}${maq("go-casino", "ouvrir le Casino", 'data-go="casino"')}${maq("go-centre", "ouvrir le Centre Pokémon", 'data-go="centre"')}</div>`;
+    <div class="lot-maquette">${maq("go-lieu", "aller à Bourg Palette (Chez Maman, Chez Blue, Pension, Labo)", 'data-go="lieu-bourg"')}${maq("go-casino", "ouvrir le Casino", 'data-go="casino"')}</div>`;
 }
 
 /* ---------- Lieux ---------- */
+/* Bourg Palette, Maman, Blue, labo, début de partie : INCHANGÉS, captures du jeu actuel (design/audit, 1440 px) */
+const NOTE_INCHANGE = `<p class="bandeau-inchange">${ic("valide")}<span><b>Inchangé : rendu actuel du jeu.</b> Capture du jeu actuel à 1440 px. Le PC garde exactement cette disposition, cet image mapping et ces dialogues.</span></p>`;
+const inchange = (img, alt, suite = "") => `<div class="inchange">${NOTE_INCHANGE}<img src="img/jeu-actuel/${img}.png" alt="${alt}">${suite ? `<div class="lot-maquette">${suite}</div>` : ""}</div>`;
 function ecranLieuBourg() {
-  const b = (nom, st, act, extra = "") => `<button type="button" class="bat" data-act="${act}" style="${st}" ${extra}>${nom}</button>`;
   return `<div class="titre-page">${retour("carte", "Retour à la carte")}<h1>Bourg Palette</h1></div>
-    <div class="scene-intro batiments cadre" style="background-image:url(${DEC}bourg-palette.webp);min-height:26rem;position:relative">
-      ${b("Chez Maman", "left:6%;top:42%;width:18%;height:22%", "lieu-maman")}${b("Chez Blue", "left:30%;top:46%;width:16%;height:20%", "lieu-blue")}${b("Pension", "left:52%;top:38%;width:18%;height:24%", "lieu-pension")}${b("Labo du Prof. Chen", "left:74%;top:30%;width:20%;height:30%", "lieu-labo")}${b("Bateau vers Johto (bientôt)", "left:36%;bottom:6%;width:28%;height:12%", "lieu-bateau", 'aria-disabled="true"')}
-    </div><p class="doux">Pointe un bâtiment pour l'éclairer, clique pour entrer. La Pension s'ouvre après la zone 11.</p>`;
+    ${inchange("lieu-bourg", "Bourg Palette dans le jeu actuel : scène avec image mapping, bâtiments cliquables", `${maq("lieu-maman", "image mapping : clic sur Chez Maman")}${maq("lieu-blue", "clic sur Chez Blue")}${maq("lieu-pension", "clic sur la Pension")}${maq("lieu-labo", "clic sur le labo du Prof. Chen")}`)}`;
 }
 function ecranMaman() {
   return `<div class="titre-page">${retour("lieu-bourg", "Sortir")}<h1>Chez Maman</h1></div>
-    <div class="decor-page" style="background-image:url(${DEC}chez-maman.webp);min-height:24rem"><div class="bulle cadre">Il n'y a rien à faire ici, sortons.</div></div>
-    <div class="lot-maquette">${maq("egg-daran", "cliquer la télé (easter egg Daran)")}</div>`;
+    ${inchange("intro-maman", "Chez Maman dans le jeu actuel", maq("egg-daran", "cliquer la télé (easter egg Daran)"))}`;
 }
 function ecranBlue() {
   return `<div class="titre-page">${retour("lieu-bourg", "Sortir")}<h1>Chez Blue</h1></div>
-    <div class="decor-page" style="background-image:url(${DEC}chez-blue.webp);min-height:24rem"><div class="bulle cadre">Eh pourquoi il a le droit à une maison en 3D lui ?</div></div>`;
-}
-function ecranCentre() {
-  const lignes = EQUIPE.map((e) => `<div class="ligne-p"><img class="obj" src="${SPR}${e[0]}.png" width="96" height="96" alt="" style="width:48px;height:48px"><div class="corps"><span class="t">${e[1]}</span><span class="s">Niv. 100</span></div><span class="tag">${ic("valide")} En pleine forme</span></div>`).join("");
-  return `<div class="titre-page">${retour("carte", "Retour à la carte")}<h1>Centre Pokémon</h1></div>
-    <div class="decor-page bas" style="background-image:url(${DEC}centre-commercial.webp)"><div class="bulle cadre"><b>Bienvenue au Centre Pokémon !</b><p>Ici, on remet ton équipe sur pied. Ta fiche indique que tout va bien.</p></div></div>
-    <div class="liste deux">${lignes}</div><button type="button" class="plaque action" data-act="soigner">${ic("soin")}Soigner l'équipe</button>
-    <p class="message info">${ic("alerte")}<span>Écran proposé : le Centre Pokémon n'existe pas encore dans les données du jeu. À confirmer par Nicolas.</span></p>`;
+    <div class="inchange">${NOTE_INCHANGE}<p class="message info">${ic("alerte")}<span>Chez Blue garde le rendu du jeu actuel (même gabarit que chez Maman : décor, dialogue de Blue). Voir le jeu actuel.</span></p></div>`;
 }
 function ecranCommercial() {
   const items = [["leftovers", "Restes", "Auto-clic au repos", 12000, true], ["PokeRadar", "Poké-Radar", "Repère les Pokémon rares de la zone", 25000, false], ["JetonShiny", "Jeton Shiny", "Relance l'apparition d'un chromatique", 8000, false], ["amulet-coin", "Pièce Rune", "Gains d'argent +10 %", 18000, false]];
@@ -1198,15 +1216,10 @@ function ecranTitre() {
 const decorIntro = (img, corps, cls = "") => `<div class="scene-intro ${cls}" style="background-image:url(${DEC}${img})">${corps}</div>`;
 const dlg = (nom, txt, bouton, go) => `<div class="cadre dialogue"><img src="img/chen/SpriteChen1.png" width="120" height="120" alt=""><div><p class="titre">${nom}</p><p>${txt}</p></div><button type="button" class="plaque action" data-go="${go}" data-autofocus>${bouton} <span class="fleche">${ic("chevron")}</span></button></div>`;
 function ecranIntro() {
-  const p = S.page;
-  if (p === "intro-maman") return decorIntro("chez-maman.webp", `<div class="cadre dialogue" style="grid-template-columns:1fr auto"><div><p class="titre">Maman</p><p>Il n'y a rien à faire ici, sortons.</p></div><button type="button" class="plaque action" data-go="intro-bourg" data-autofocus>Sortir ${kb("Entrée")}</button></div>`);
-  if (p === "intro-bourg") return decorIntro("bourg-palette.webp", `<div class="batiments"><button type="button" class="bat" style="left:6%;top:42%;width:18%;height:22%" data-go="intro-maman">Chez Maman</button><button type="button" class="bat" style="left:30%;top:46%;width:16%;height:20%" data-go="intro-blue">Chez Blue</button><button type="button" class="bat" style="left:74%;top:30%;width:20%;height:30%;animation:clignote-vert 1s steps(1) infinite" data-go="intro-labo" data-autofocus>Labo du Prof. Chen</button></div>`);
-  if (p === "intro-blue") return decorIntro("chez-blue.webp", `<div class="cadre dialogue" style="grid-template-columns:1fr auto"><div><p class="titre">Blue</p><p>Eh pourquoi il a le droit à une maison en 3D lui ?</p></div><button type="button" class="plaque action" data-go="intro-bourg" data-autofocus>Sortir</button></div>`);
-  if (p === "intro-labo") return decorIntro("labo.webp", dlg("Prof. Chen", "Léo, te voilà ! Choisis ton premier Pokémon. Il t'accompagnera sur la Route 1.", "Suivant", "intro-starter"));
-  const ch = S.starter;
-  return decorIntro("labo.webp", `<div class="starters">${STARTERS.map(([n, nom, t, d]) => `<div class="starter cadre ${ch === n ? "choisi" : ""}"><img class="ball" src="${OBJ}poke-ball.png" width="30" height="30" alt="">
-      <img class="art ${ch === n ? "" : "cache"}" src="${ARTWORK[n]}" width="176" height="176" alt=""><b style="font-size:var(--text-xl)">${nom}</b>${typeTag(t)}<span class="doux">${d}</span>
-      <button type="button" class="plaque ${ch === n ? "action" : ""}" data-act="starter" data-id="${n}" ${n === 1 ? "data-autofocus" : ""}>${ch === n ? "Confirmer " + nom : "Choisir " + nom}</button></div>`).join("")}</div>`, "centree");
+  const p = S.page, suite = (go, t) => `<button type="button" class="maquette" data-go="${go}">Maquette : ${t}</button>`;
+  const e = { "intro-maman": ["intro-maman", "Chez Maman", suite("intro-bourg", "sortir vers Bourg Palette")], "intro-bourg": ["intro-bourg", "Bourg Palette avec image mapping", suite("intro-labo", "cliquer le labo du Prof. Chen")], "intro-blue": ["intro-maman", "Chez Blue", suite("intro-bourg", "sortir")],
+    "intro-labo": ["intro-labo", "Labo du Prof. Chen, dialogue", suite("intro-starter", "dialogue suivant")], "intro-starter": ["intro-starter", "Choix du starter", suite("lieu-bourg", "choisir un starter (retour au bourg)")] }[p] || ["intro-maman", "", ""];
+  return `<div class="inchange plein">${NOTE_INCHANGE}<img src="img/jeu-actuel/${e[0]}.png" alt="${e[1]}"><div class="lot-maquette">${e[2]}</div></div>`;
 }
 
 ;
@@ -1220,7 +1233,7 @@ const reduit = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
 const AUTH = ["c-connexion", "c-inscription", "c-oubli", "c-oubli-envoye", "c-nouveau"];
 const PAGES = { combat: ecranCombat, equipe: ecranEquipe, pc: ecranPc, shop: ecranShop, carte: ecranCarte, menu: ecranMenu, monde: ecranMonde, reglages: ecranReglages,
   pokedex: ecranPokedex, badges: ecranBadges, stats: ecranStats, guide: ecranGuide, "lieu-bourg": ecranLieuBourg, "lieu-maman": ecranMaman, "lieu-blue": ecranBlue,
-  centre: ecranCentre, commercial: ecranCommercial, pension: ecranPension, casino: ecranCasino,
+  commercial: ecranCommercial, pension: ecranPension, casino: ecranCasino,
   "c-connexion": ecranConnexion, "c-inscription": ecranInscription, "c-oubli": ecranOubli, "c-oubli-envoye": ecranOubliEnvoye, "c-nouveau": ecranNouveau,
   "c-parties": ecranParties, "c-nouvelle": ecranNouvelle, "c-compte": ecranCompte, "c-reglages": ecranReglages };
 const enCompte = () => S.page.startsWith("c-");
@@ -1257,7 +1270,7 @@ function depart(h) {
     "pc-echange": () => { S.page = "pc"; S.echange = 6; },
     shop: () => { S.page = "shop"; }, "shop-objets": () => { S.page = "shop"; S.onglet = "objets"; }, "shop-accessoires": () => { S.page = "shop"; S.onglet = "accessoires"; },
     carte: () => { S.page = "carte"; }, celadopole: () => { S.page = "carte"; S.cel = true; }, vol: () => { S.page = "carte"; S.volAuto = "arene-d-argenta"; },
-    "lieu-bourg": () => { S.page = h; }, "lieu-maman": () => { S.page = h; }, "lieu-blue": () => { S.page = h; }, centre: () => { S.page = h; }, commercial: () => { S.page = h; }, pension: () => { S.page = h; }, casino: () => { S.page = h; },
+    "lieu-bourg": () => { S.page = h; }, "lieu-maman": () => { S.page = h; }, "lieu-blue": () => { S.page = h; }, commercial: () => { S.page = h; }, pension: () => { S.page = h; }, casino: () => { S.page = h; },
     menu: () => { S.page = "menu"; }, monde: () => { S.page = "monde"; }, reglages: () => { S.page = "reglages"; },
     pokedex: () => { S.page = "pokedex"; }, "pokedex-paliers": () => { S.page = "pokedex"; }, "pokedex-recherche": () => { S.page = "pokedex"; S.dexQ = "pi"; }, "pokedex-a-trouver": () => { S.page = "pokedex"; S.dexF = "manquants"; },
     "pokedex-detail": () => { S.page = "pokedex"; S.dexSel = 25; }, "pokedex-inconnu": () => { S.page = "pokedex"; S.dexSel = 12; }, "pokedex-complet": () => { S.page = "pokedex"; S.dexComplet = true; },
@@ -1342,7 +1355,7 @@ function celCouche() {
 function raccourcisCouche() {
   const g = (t, l) => `<div><h3 class="sous-titre">${t}</h3><dl>${l.map(([k, d]) => `<dt>${k.split(" ").map(kb).join("")}</dt><dd>${d}</dd>`).join("")}</dl></div>`;
   return fen(`${ic("clavier")} Raccourcis clavier`, `<div class="raccourcis">${g("Combat", [["Espace", "Attaquer"], ["Entrée", "Attaquer"], ["C", "Capturer"], ["B", "Changer de balle"], ["A", "Attaque auto"], ["T", "Arrêt auto"], ["R", "Réglage de l'arrêt auto"], ["S", "Sac"], ["F", "Fauchage"], ["P", "Poké-Radar"], ["Flèche gauche", "Zone précédente"], ["Flèche droite", "Zone suivante"]])}
-    ${g("Partout", [["1", "Combat"], ["2", "Équipe"], ["3", "Shop"], ["4", "Carte"], ["5", "Menu"], ["Échap", "Fermer la fenêtre"], ["Tab", "Élément suivant"], ["Maj Tab", "Élément précédent"], ["/", "Chercher (PC, Pokédex)"], ["?", "Cette liste"]])}</div>
+    ${g("Partout", [["1", "Combat"], ["2", "Équipe"], ["3", "PC"], ["4", "Shop"], ["5", "Carte"], ["6", "Menu"], ["Échap", "Fermer la fenêtre"], ["Tab", "Élément suivant"], ["Maj Tab", "Élément précédent"], ["/", "Chercher (PC, Pokédex)"], ["?", "Cette liste"]])}</div>
     <p class="doux">Les raccourcis n'existent que sur ordinateur. Ils sont ignorés quand tu écris dans un champ.</p>`);
 }
 function evoCouche() {
@@ -1396,8 +1409,8 @@ const aUneCouche = () => S.dialogue || S.sac || S.reglAuto || S.radar || S.fiche
 /* ---------- coquille ---------- */
 function legende() {
   const l = S.page === "combat"
-    ? [["Espace", "Attaquer"], ["C", "Capturer"], ["B", "Balle"], ["A", "Auto"], ["T", "Arrêt"], ["S", "Sac"], ...(S.deb ? [["F", "Fauchage"], ["P", "Radar"]] : []), ["Flèches", "Zone"], ["1–5", "Onglets"], ["?", "Tous"]]
-    : [["1–5", "Onglets"], ["Tab", "Naviguer"], ["Échap", "Fermer"], ["?", "Raccourcis"]];
+    ? [["Espace", "Attaquer"], ["C", "Capturer"], ["B", "Balle"], ["A", "Auto"], ["T", "Arrêt"], ["S", "Sac"], ...(S.deb ? [["F", "Fauchage"], ["P", "Radar"]] : []), ["Flèches", "Zone"], ["1–6", "Onglets"], ["?", "Tous"]]
+    : [["1–6", "Onglets"], ["Tab", "Naviguer"], ["Échap", "Fermer"], ["?", "Raccourcis"]];
   return `<footer class="legende" aria-label="Raccourcis clavier">${l.map(([k, t]) => `<span>${k.split(" ").map(kb).join("")} ${t}</span>`).join("")}</footer>`;
 }
 function coque() {
@@ -1412,7 +1425,7 @@ function coque() {
   const nav = NAV.map(([id, t, ico], i) => `<button type="button" class="cle-nav" data-go="${id}" aria-current="${act === id ? "page" : "false"}">${ic(ico)}<span class="t">${t}</span>${kb(String(i + 1))}${id === "equipe" && S.evo ? '<span class="point"></span>' : ""}</button>`).join("");
   const plein = ["combat", "equipe", "pc"].includes(p);
   return `<div class="app"><aside class="lateral ${S.page === "monde" && false ? "inerte" : ""}"><div class="marque"><b>PokiClicker</b><span>Kanto</span></div><nav aria-label="Navigation principale" style="display:grid;gap:var(--u)">${nav}</nav>
-    <div class="bas"><b>Partie de Léo</b><span class="ligne-s">${sync}</span></div></aside>
+    <div class="bas"><b>Partie de Léo</b><span class="ligne-s">${sync}</span></div><button type="button" class="cle-nav sortie-nav" data-act="menu-principal">${ic("sortie")}<span class="t">Menu principal</span></button></aside>
     <div class="zone-jeu"><header class="cles" aria-label="Chiffres clés"><div class="cle"><small>Pokédollars</small><b id="pieces">${pd(S.pieces)}</b></div><div class="cle"><small>DPS</small><b>${nf(40365)}</b></div><div class="cle"><small>Zone</small><b>${Z(S.zone).nom}</b></div>
       <div class="fin">${sync}<button type="button" class="plaque petite" data-act="raccourcis">${ic("clavier")}Raccourcis ${kb("?")}</button></div></header>
       <main class="ecran ${plein ? "plein" : ""}" id="ecran">${PAGES[p]()}</main>${legende()}</div>${contenu}${cote}</div>`;
@@ -1579,7 +1592,7 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "?") { e.preventDefault(); S.raccourcis = !S.raccourcis; rendre(); return; }
   if (dlg_) { if (S.cel && "123".includes(e.key)) ACT["cel-choix"]({ dataset: { v: ["combat", "commercial", "casino"][Number(e.key) - 1] } }); return; }
   if (enCompte() || enIntro()) return;
-  if ("12345".includes(e.key) && e.key.length === 1) {
+  if ("123456".includes(e.key) && e.key.length === 1) {
     if (S.page === "shop" && false) return; const id = NAV[Number(e.key) - 1][0]; aller(id); return;
   }
   if (e.key === "/" && ["pc", "pokedex"].includes(S.page)) { e.preventDefault(); const i = $("#pc-q") || $("#dex-q"); if (i) i.focus(); return; }
