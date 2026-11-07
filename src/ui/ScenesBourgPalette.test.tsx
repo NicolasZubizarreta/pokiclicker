@@ -3,7 +3,7 @@ import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { ScenesBourgPalette } from './ScenesBourgPalette';
-import { chargerScenes } from '../core/scenes';
+import { chargerScenes, ratioUtile } from '../core/scenes';
 import { centreForme } from './carte-geometrie';
 
 beforeEach(() => {
@@ -103,7 +103,9 @@ it('cale les formes et cibles sur les fractions, même après redimensionnement'
   const image = screen.getByRole('img', { name: 'Bourg Palette' });
   expect(image.getAttribute('src')).toBe(`img/${scene.image}`);
   expect(image.classList.contains('object-contain')).toBe(true);
-  expect(image.parentElement?.style.aspectRatio).toBe('1 / 1');
+  // Image entière (sans recadrage) : le cadre a le ratio de l'image ; la couche qui la porte la remplit.
+  expect(image.parentElement?.parentElement?.style.aspectRatio).toBe('1 / 1');
+  expect(image.parentElement?.style.width).toBe('100%');
   for (const forme of scene.formes) {
     const cible = screen.getByRole('button', { name: forme.nom });
     const centre = centreForme(forme);
@@ -136,7 +138,10 @@ it('permet la visite de Blue et le retour au clavier', async () => {
   expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Chez Blue' }));
   await user.keyboard('{Enter}');
   expect(screen.getByText('Eh pourquoi il a le droit à une maison en 3D lui ?')).toBeTruthy();
-  expect(screen.getByRole('img').parentElement?.style.aspectRatio).toBe('16 / 9');
+  // Chez Blue est recadrée sur la maison : le cadre prend le ratio de la partie utile, pas celui de l'image entière.
+  const blue = chargerScenes().find(s => s.id === 'kanto.chez-blue')!;
+  expect(screen.getByRole('img').parentElement?.parentElement?.style.aspectRatio).toBe(`${ratioUtile(blue)} / 1`);
+  expect(ratioUtile(blue)).toBeLessThan(16 / 9);
   expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Sortie' }));
   await user.keyboard(' ');
   expect(screen.getByRole('button', { name: 'Chez Blue' })).toBeTruthy();

@@ -27,10 +27,9 @@ type Props = {
   quandPension?: () => void;
   sceneInitiale?: string;
   bloquee?: boolean;
-  annonce?: string | null;
 };
 
-export function ScenesBourgPalette({ laboAVisiter = false, sortieLaboClignote = false, quandLabo, quandSortieLabo, quandScene, accesPension = accesPensionParDefaut, quandPension, sceneInitiale = bourg, bloquee = false, annonce }: Props) {
+export function ScenesBourgPalette({ laboAVisiter = false, sortieLaboClignote = false, quandLabo, quandSortieLabo, quandScene, accesPension = accesPensionParDefaut, quandPension, sceneInitiale = bourg, bloquee = false }: Props) {
   const [courante, changerScene] = useState(sceneInitiale);
   const [phase, changerPhase] = useState<'repos' | 'couvrir' | 'decouvrir'>('repos');
   const [sortieVue, noterSortie] = useState(false);
@@ -76,7 +75,7 @@ export function ScenesBourgPalette({ laboAVisiter = false, sortieLaboClignote = 
 
   return <div ref={cadre} className="relative">
     <SceneLieu key={courante} scene={scene} nom={noms[courante]!} quandChoisir={choisir}
-      raisons={raisons} clignotements={clignotements} occupe={phase !== 'repos' || bloquee} annonceExterne={annonce} />
+      raisons={raisons} clignotements={clignotements} occupe={phase !== 'repos' || bloquee} />
     <div data-voile aria-hidden="true" className={`pointer-events-none absolute inset-0 bg-texte motion-safe:intro-voile ${phase === 'couvrir' ? 'opacity-100' : 'opacity-0'}`} />
   </div>;
 }

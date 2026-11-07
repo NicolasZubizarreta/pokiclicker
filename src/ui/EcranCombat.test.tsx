@@ -349,19 +349,15 @@ it('affiche les niveaux mobile et PC ainsi que les XP accessibles de chaque Pok�
   expect(screen.queryByRole('progressbar', { name: 'XP de Bulbizarre' })).toBeNull();
   expect(screen.getAllByRole('progressbar', { name: /^XP de / })).toHaveLength(2);
 });
-it('affiche puis retire l’annonce du store sans déplacer la scène', () => {
+it('n’affiche plus l’annonce du store dans la scène : elle passe par le calque de notifications', () => {
   preparer();
   expect(screen.queryByRole('status')).toBeNull();
   const annonce = 'Salamèche passe au niveau 6 ! Chromatique ! +5 Bonbons';
+  const avant = document.body.innerHTML;
   act(() => store.setState({ annonce }));
-  const message = screen.getByRole('status');
-  expect(message.textContent).toBe(annonce);
-  expect(message.getAttribute('aria-live')).toBe('polite');
-  expect(message.className).toContain('absolute');
-  expect(message.className).toContain('pointer-events-none');
-  act(() => store.setState({ annonce: null }));
-  expect(screen.queryByRole('status')).toBeNull();
   expect(screen.queryByText(annonce)).toBeNull();
+  expect(screen.queryByRole('status')).toBeNull();
+  expect(document.body.innerHTML).toBe(avant);
 });
 it('pose la pokéball « Déjà capturé » près du nom de l’ennemi seulement si son espèce est au Pokédex', () => {
   preparer();
@@ -466,7 +462,7 @@ it('explique le verrouillage et désactive la destination fermée', () => {
   expect(allerVers).not.toHaveBeenCalled();
   expect(screen.queryByText('La suite arrive bientôt.')).toBeNull();
 });
-it('permet de choisir les destinations ouvertes et conserve l’annonce du store', () => {
+it('permet de choisir les destinations ouvertes', () => {
   preparer();
   act(() => store.setState({ zoneSuivante: { ...store.getState().zoneSuivante!, ouverte: true, raison: null },
     annonce: 'Zone débloquée !' }));
@@ -480,7 +476,6 @@ it('permet de choisir les destinations ouvertes et conserve l’annonce du store
     fireEvent.click(bouton);
     expect(allerVers).toHaveBeenLastCalledWith(destination!.id);
   }
-  expect(screen.getByRole('status').textContent).toBe('Zone débloquée !');
   expect(screen.queryByText(/terminée !/)).toBeNull();
   expect(screen.queryByText('La suite arrive bientôt.')).toBeNull();
   act(() => store.setState({ zonePrecedente: null, zoneSuivante: null }));

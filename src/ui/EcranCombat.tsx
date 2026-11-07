@@ -91,7 +91,6 @@ function Scene({ store, ouvrirPension }: { store: StoreJeu; ouvrirPension(): voi
   const minuteur = useStore(store, etat => etat.minuteur);
   const enRecherche = useStore(store, etat => etat.enRecherche);
   const cache = useStore(store, etat => etat.cache);
-  const annonce = useStore(store, etat => etat.annonce);
   const banniere = useStore(store, etat => etat.banniere);
   const accesPension = useStore(store, etat => etat.pension.acces);
   const captureEnCours = useStore(store, etat => etat.capture.enCours);
@@ -111,15 +110,13 @@ function Scene({ store, ouvrirPension }: { store: StoreJeu; ouvrirPension(): voi
   useEffect(() => {
     if (numeroEnnemi !== undefined) void precharger([cheminSprite(numeroEnnemi, shinyEnnemi)]);
   }, [numeroEnnemi, shinyEnnemi]);
-  const notification = annonce !== null && <div role="status" aria-live="polite"
-    className="pointer-events-none cadre absolute inset-x-4 top-4 z-20 bg-surface/82 p-2 text-center">{annonce}</div>;
   // Bourg Palette et le labo (retour de Chen) : scène carrée entière, jamais rognée, avec ses zones cliquables.
   // Le labo clignote sur sa « Sortie » (V1 : visitedLab && !hasExitedLab) et y ramène le joueur à Bourg Palette.
   const auLabo = lieu?.id === 'kanto.labo' && !zone && !ennemi;
   if (lieu && (lieu.id === kanto.depart || auLabo)) return <div
-    className="scene-limitee scene-depart relative grid h-76 grid-rows-[minmax(0,1fr)_auto] bg-surface-2 lg:col-span-3 lg:aspect-video lg:h-auto">
-    <div className="min-h-0 [&>div]:h-full [&_section]:grid [&_section]:h-full [&_section]:grid-rows-[minmax(0,1fr)_auto_auto] [&_section>div]:h-full [&_section>div]:w-auto [&_section>div]:max-w-full [&_section>div]:justify-self-center [&_section>p:not([role])]:sr-only">
-      <ScenesBourgPalette key={lieu.id} annonce={annonce} accesPension={accesPension} quandPension={ouvrirPension}
+    className="scene-limitee scene-depart relative grid bg-surface-2 lg:grid-rows-[minmax(0,1fr)_auto] lg:col-span-3 lg:aspect-video lg:h-auto">
+    <div className="min-h-0 lg:[&>div]:h-full lg:[&_section]:grid lg:[&_section]:h-full lg:[&_section]:grid-rows-[minmax(0,1fr)_auto_auto] lg:[&_section>div]:h-full lg:[&_section>div]:w-auto lg:[&_section>div]:max-w-full lg:[&_section>div]:justify-self-center [&_section>p:not([role])]:sr-only">
+      <ScenesBourgPalette key={lieu.id} accesPension={accesPension} quandPension={ouvrirPension}
         sceneInitiale={auLabo ? lieu.id : undefined} sortieLaboClignote={auLabo}
         quandScene={auLabo ? id => { if (id === kanto.depart) store.getState().allerVers(id); } : undefined} />
     </div>
@@ -131,7 +128,6 @@ function Scene({ store, ouvrirPension }: { store: StoreJeu; ouvrirPension(): voi
     className="scene-limitee relative isolate flex h-76 items-end bg-surface-2 p-4 lg:col-span-3 lg:aspect-video lg:h-auto">
     {imageConnue(cheminDecor(lieu)) && <Image src={cheminDecor(lieu)} genre="decor" alt="" couvrir className="absolute inset-0 -z-10 size-full" />}
     {'message' in lieu && lieu.message && <p className="cadre bg-surface/82 p-3">{lieu.message}</p>}
-    {notification}
   </section>;
   if (!zone || !ennemi) return null;
   const nom = nomAdversaire ?? catalogue.parNumero(ennemi.numero).nom;
@@ -162,7 +158,6 @@ function Scene({ store, ouvrirPension }: { store: StoreJeu; ouvrirPension(): voi
     {enRecherche && <div role="status" className="pointer-events-none absolute inset-0 flex items-center justify-center">
       <span className="contour-texte p-2 text-neutre-50 motion-safe:animate-pulse">Recherche en cours…</span>
     </div>}
-    {notification}
     {banniere !== null && <div aria-hidden="true"
       className="pointer-events-none cadre absolute inset-x-4 top-20 z-20 bg-alerte-base p-2 text-center text-texte-inverse">{banniere}</div>}
     <button type="button" aria-label={enRecherche ? 'Attaquer (recherche en cours)' : `Attaquer ${nom}`}

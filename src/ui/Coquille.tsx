@@ -16,7 +16,7 @@ import { PageIntro } from './PageIntro';
 import { DialogueScene } from './DialogueScene';
 import { SceneFin } from './SceneFin';
 import { Credits } from './Credits';
-import { AnnonceDeblocage } from './AnnonceDeblocage';
+import { Notifications } from './Notifications';
 import { FenetreSac } from './FenetreSac';
 import { storeSac, terminerChoix } from './sacContexte';
 import { Pantheon } from './Pantheon';
@@ -47,7 +47,6 @@ export function Coquille({ region = 'kanto', theme = 'dark', quandMenuPrincipal,
     if (destination === 'PC') fixerOriginePC(page === 'Équipe' ? 'Équipe' : 'Menu');
     choisir(destination);
   }
-  const annonce = useStore(storeJeu, etat => etat.annonce);
   const compte = useStore(storeJeu, e => e.compte);
   const [compteOuvert, fixerCompteOuvert] = useState(false);
   const boutonCompte = useRef<HTMLButtonElement>(null);
@@ -115,8 +114,6 @@ export function Coquille({ region = 'kanto', theme = 'dark', quandMenuPrincipal,
       <main id="contenu" tabIndex={-1} inert={compteOuvert} className="min-w-0 px-4 pb-[calc(var(--spacing)*20+env(safe-area-inset-bottom))] pt-2 lg:ml-24 lg:p-8">
         {/* Avec un compte, le résumé du compte (diamants, succès, skins) est dans la zone compte, par Menu principal. */}
         {!quandMenuPrincipal && <button ref={boutonCompte} className="min-h-11 p-2 text-lien underline" onClick={() => fixerCompteOuvert(true)}>Mon compte</button>}
-        {page !== 'Combat' && page !== 'Carte' && page !== 'Shop' && annonce !== null && <div role="status" aria-live="polite"
-          className="cadre bg-surface p-2 text-center">{annonce}</div>}
         {page === 'Combat' ? introVue || introActive ? <PageIntro quandTerminee={() => fixerIntroVue(false)} /> : <EcranCombat /> : page === 'Carte' ? <PageCarte quandArrive={() => choisir('Combat')} /> : page === 'Équipe' ? <PageEquipe ouvrirPC={() => aller('PC')} /> : page === 'PC' ? <PagePC retour={() => choisir(originePC)} libelleRetour={originePC === 'Équipe' ? "Retour à l'équipe" : 'Retour au menu'} /> : page === 'Monde' ? <PageMonde retour={() => choisir(origineMonde)} jouerKanto={() => choisir('Combat')} /> : page === 'Menu' ? <PagePlus ouvrirPC={() => aller('PC')} ouvrirMonde={() => aller('Monde')} menuPrincipal={quandMenuPrincipal} attendreEnvoi={attendreEnvoi} /> : <PageShop />}
       </main>
       {/* La Carte reste montée jusqu’à la fin du vol ; l’évolution garde aussi la priorité. */}
@@ -127,7 +124,7 @@ export function Coquille({ region = 'kanto', theme = 'dark', quandMenuPrincipal,
         cache={obtentionBadge?.phase === 'message' || obtentionBadge?.phase === 'boite' ? obtentionBadge.id : null}
         claque={obtentionBadge?.phase === 'claque' ? obtentionBadge.id : null}
         fermer={() => storeJeu.getState().fermerBoiteBadges()} declencheur={declencheur} />
-      <AnnonceDeblocage />
+      <Notifications />
       {!introActive && !introVue && <FenetreSac />}
       {credits && <Credits fermerCredits={() => storeJeu.getState().fermerCredits()} />}
       {pantheon?.ouvert && <Pantheon equipe={pantheon.equipe} premiereVictoire={pantheon.premiereVictoire}

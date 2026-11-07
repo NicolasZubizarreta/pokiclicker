@@ -1,5 +1,5 @@
 import { useId, useRef, useState } from 'react';
-import type { FormeScene, Scene } from '../core/scenes';
+import { partieUtile, ratioUtile, type FormeScene, type Scene } from '../core/scenes';
 import { attributsSvg, centreForme } from './carte-geometrie';
 
 /** Boîte englobante de la forme, en fractions de la scène. */
@@ -17,15 +17,20 @@ type Props = {
   raisons?: Record<string, string>;
   clignotements?: string[];
   occupe?: boolean;
-  annonceExterne?: string | null;
 };
 
-export function SceneLieu({ scene, nom, quandChoisir, raisons = {}, clignotements = [], occupe = false, annonceExterne }: Props) {
+export function SceneLieu({ scene, nom, quandChoisir, raisons = {}, clignotements = [], occupe = false }: Props) {
   const [annonce, annoncer] = useState('');
   const [teleAllumee, allumer] = useState(false);
   const video = useRef<HTMLVideoElement>(null);
   const id = useId();
-  const dimensions = { aspectRatio: scene.ratio.join(' / ') };
+  const dimensions = { aspectRatio: String(ratioUtile(scene)) };
+  // L'image entière est posée dans une couche plus grande que le cadre : seule la partie utile reste visible, sans étirement.
+  const utile = partieUtile(scene);
+  const couche = {
+    left: `${-utile.x / utile.l * 100}%`, top: `${-utile.y / utile.h * 100}%`,
+    width: `${100 / utile.l}%`, height: `${100 / utile.h}%`,
+  };
   const pourcent = (r: { x: number; y: number; l: number; h: number }) => ({
     left: `${r.x * 100}%`, top: `${r.y * 100}%`, width: `${r.l * 100}%`, height: `${r.h * 100}%`,
   });
@@ -42,7 +47,8 @@ export function SceneLieu({ scene, nom, quandChoisir, raisons = {}, clignotement
     allumer(!teleAllumee);
   }
   return <section aria-label={nom} className="text-base">
-    <div className="relative w-full" style={dimensions}>
+    <div className="relative w-full overflow-clip" style={dimensions}>
+      <div className="absolute" style={couche}>
       <img src={`img/${scene.image}`} alt={nom} className="absolute inset-0 h-full w-full object-contain" />
       {scene.tele && <video ref={video} src={scene.tele.video} muted playsInline preload="metadata" aria-hidden="true" hidden={!teleAllumee}
         style={pourcent(scene.tele.ecran)} className="pointer-events-none absolute object-cover" />}
@@ -72,8 +78,9 @@ export function SceneLieu({ scene, nom, quandChoisir, raisons = {}, clignotement
       {scene.tele && <button type="button" aria-label="Télé" aria-pressed={teleAllumee} onClick={basculerTele}
         style={milieu(scene.tele.bouton)}
         className="absolute min-h-11 min-w-11 -translate-x-1/2 -translate-y-1/2 bg-transparent focus-visible:outline-focus" />}
+      </div>
     </div>
-    <p role="status" aria-live="polite" className="min-h-11 bg-surface p-2">{annonceExterne ?? annonce}</p>
+    <p role="status" aria-live="polite" className="min-h-11 bg-surface p-2">{annonce}</p>
     {scene.bulle && <aside aria-label="Dialogue" className="cadre bg-surface p-4">{scene.bulle}</aside>}
     {scene.formes.map((f, index) => {
       const raison = f.zone ? raisons[f.zone] : 'Bientôt disponible.';

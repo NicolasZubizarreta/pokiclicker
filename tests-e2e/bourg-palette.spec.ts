@@ -49,7 +49,8 @@ for (const largeur of [390, 1440]) {
         await expect(chen).toBeVisible();
         const boite = (await chen.boundingBox())!;
         expect(boite.y + boite.height).toBeLessThanOrEqual(900);
-        await expect(page.getByRole('status')).toHaveCount(1);
+        // Une seule phrase d'état dans la scène (les notifications ont leur propre calque, hors de la page).
+        await expect(page.getByRole('region', { name: nom, exact: true }).getByRole('status')).toHaveCount(1);
       }
       expect(await page.locator('button.bg-action:visible').count()).toBeLessThanOrEqual(1);
       for (const bouton of await page.getByRole('region', { name: nom, exact: true }).getByRole('button').all()) {
@@ -62,7 +63,7 @@ for (const largeur of [390, 1440]) {
 
     await capturer('Bourg Palette');
     await page.getByRole('button', { name: 'Pension Pokémon' }).focus();
-    await expect(page.getByRole('status')).toContainText('Tour Pokémon');
+    await expect(page.getByRole('region', { name: 'Bourg Palette', exact: true }).getByRole('status')).toContainText('Tour Pokémon');
     await expect(page.getByRole('button', { name: 'Pension Pokémon' })).toHaveAttribute('aria-disabled', 'true');
     await expect(page.getByRole('button', { name: 'Bateau en direction de Johto' })).toHaveAttribute('aria-disabled', 'true');
     for (const nom of ['Chez Maman', 'Chez Blue', 'Labo Pokémon du Prof. Chen']) {

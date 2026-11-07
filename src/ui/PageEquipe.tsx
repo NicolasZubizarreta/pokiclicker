@@ -19,6 +19,7 @@ import { Sac } from './Sac';
 import { SelecteurQuantite } from './SelecteurQuantite';
 import { formaterDps } from './nombres';
 import { cheminSprite, precharger } from './precharger';
+import { notifier } from './pileNotifications';
 import { storeJeu } from './store';
 import { annulerChoix, terminerChoix, useSacContexte } from './sacContexte';
 import { useTelephone } from './useTelephone';
@@ -39,8 +40,9 @@ export function PageEquipe({ ouvrirPC }: { ouvrirPC?: () => void }) {
   const mode = echange ? null : objetContexte ?? selection;
   const [cible, cibler] = useState<string | null>(null);
   const [quantite, changerQuantite] = useState(1);
-  const [erreurObjet, signalerObjet] = useState<string | null>(null);
-  const [messageObjet, annoncerObjet] = useState<string | null>(null);
+  // Refus et résultats d'objets : pop-up en haut de l'écran, jamais dans la page (la mise en page ne bouge pas).
+  const signalerObjet = (message: string | null) => notifier(message);
+  const annoncerObjet = (message: string | null) => notifier(message);
   const [choisi, choisir] = useState(() => equipe.find(c => c)?.pokemon.uid);
   const [fiche, ouvrir] = useState<string | null>(null);
   const [ouverture, compterOuverture] = useState(0);
@@ -130,8 +132,7 @@ export function PageEquipe({ ouvrirPC }: { ouvrirPC?: () => void }) {
     {objetContexte ? <div className="cadre sticky top-0 z-10 flex items-center justify-between gap-4 bg-surface p-4">
       <p role="status">{objetContexte.nom} : touche un Pokémon</p>
       <button type="button" autoFocus className="min-h-11 shrink-0 bg-surface-2 px-4 py-2" onClick={annulerChoix}>Annuler</button>
-    </div> : <p role="status" className={mode || messageObjet ? 'mt-4' : undefined}>{mode ? 'Sélectionne un Pokémon.' : messageObjet ?? ''}</p>}
-    {erreurObjet && <p role="alert" className="mt-4 text-erreur-base">{erreurObjet}</p>}
+    </div> : <p role="status" className={mode ? 'mt-4' : undefined}>{mode ? 'Sélectionne un Pokémon.' : ''}</p>}
     <div className="mt-4 grid items-start gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
       <div className="min-w-0 space-y-4">
       <ul ref={liste} className="grid min-w-0 gap-2 lg:auto-rows-fr lg:gap-4">

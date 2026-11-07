@@ -27,8 +27,12 @@ export function CarteObjet({ id, nom, description, image, prix, stock, possede, 
     return <article data-objet={id} className="cadre grid min-w-0 grid-cols-[auto_1fr_auto] items-center gap-x-3 gap-y-2 bg-surface p-3 text-base text-texte tabular-nums">
       <IconeObjet image={image} nom={nom} />
       <div className="min-w-0">
-        <h3 className="break-words font-titre text-base">{nom}</h3>
-        <p className="break-words text-sm text-texte-doux">{description}{stock > 0 && <> · ×{stock}</>}</p>
+        {/* Le stock est à côté du nom : l'acheter ne rajoute pas de ligne à la description, la carte garde sa hauteur. */}
+        <div className="flex items-baseline gap-2">
+          <h3 className="min-w-0 break-words font-titre text-base">{nom}</h3>
+          {stock > 0 && <span className="shrink-0 text-sm text-texte-doux">×{stock}</span>}
+        </div>
+        <p className="break-words text-sm text-texte-doux">{description}</p>
       </div>
       {achatUnique
         ? <button type="button" aria-label={`Acheter ×1, ${prixTexte}`} className={bouton} disabled={!abordable || prix > argent}

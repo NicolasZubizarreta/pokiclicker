@@ -9,7 +9,7 @@ import { storeJeu } from './store';
  */
 export function AnnonceDeblocage() {
   const texte = useStore(storeJeu, etat => etat.deblocage);
-  return <div aria-live="polite" data-annonce-deblocage className="pointer-events-none fixed inset-x-4 top-4 z-30 lg:left-28">
-    {texte !== null && <p key={texte} className="cadre bg-surface p-2 text-center font-titre motion-safe:annonce-entree">{texte}</p>}
+  return <div aria-live="polite" data-annonce-deblocage className="w-full max-w-(--breakpoint-md)">
+    {texte !== null && <p key={texte} className="cadre bg-surface p-2 text-center font-titre wrap-anywhere motion-safe:annonce-entree">{texte}</p>}
   </div>;
 }

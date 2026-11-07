@@ -66,7 +66,7 @@ async function capturer(page: Page, nom: string) {
 test('Repousse : stock, durée sauvegardée et expiration ; Attaque + et radar', async ({ page }) => {
   await demarrer(page);
   await utiliser(page, 'Repousse', 2);
-  await expect(page.getByRole('status').filter({ hasText: 'Repousse active !' })).toHaveText('Repousse active !');
+  await expect(page.locator('[data-notifications]')).toContainText('Repousse active !');
   await expect(page.getByRole('button', { name: 'Repousse ×1', exact: true })).toBeVisible();
   await combat(page);
   const effets = page.getByRole('list', { name: 'Effets actifs' });
@@ -122,7 +122,7 @@ test('Fauchage : un PV, recharge ; Poupée : boss invoqué', async ({ page }) =>
   await page.clock.fastForward(20000);
   await expect(fauchage).toBeEnabled();
   await utiliser(page, 'Poké Poupée');
-  await expect(page.getByRole('status').filter({ hasText: 'Boss invoqué !' })).toHaveText('Boss invoqué !');
+  await expect(page.locator('[data-notifications]')).toContainText('Boss invoqué !');
   await combat(page);
   await expect(page.getByText('Étape 10 sur 10', { exact: true })).toBeVisible();
   await expect(page.getByRole('progressbar', { name: 'Temps restant' })).toBeVisible();

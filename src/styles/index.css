@@ -337,9 +337,12 @@ html:has(dialog[open]) { overflow: hidden; }
 .combat-grille { height: calc(100dvh - var(--spacing) * 52); grid-template-rows: minmax(0, 1fr) auto auto; }
 .combat-grille > .scene-limitee { @apply min-h-0 overflow-hidden; height: 100%; max-height: calc(var(--spacing) * 76); }
 /* Scène d’intro : carrée, jamais plus haute que l’écran (la nav mobile et l’en-tête restent visibles). */
+/* Téléphone : dialogue et choix du starter ancrés juste au-dessus de la barre de navigation (60 px + zone sûre), hors de la scène. */
+.intro-bas { position: fixed; inset-inline: 0; bottom: calc(var(--spacing) * 17 + env(safe-area-inset-bottom)); z-index: 10; }
+@media (min-width: 64rem) { .intro-bas { position: static; } }
 .scene-intro { width: min(100%, calc(100dvh - var(--spacing) * 28)); margin-inline: auto; }
-/* Scène en 16/9 : limitée par la hauteur de l'écran (image + ligne d'état + bulle), pas par un carré. */
-.scene-intro-paysage { width: min(100%, calc((100dvh - var(--spacing) * 44) * 16 / 9)); margin-inline: auto; }
+/* Scène plus large que haute : limitée par la hauteur de l'écran (image + ligne d'état + bulle), selon son ratio après recadrage. */
+.scene-intro-paysage { width: min(100%, calc((100dvh - var(--spacing) * 44) * var(--ratio-scene, 1.7778))); margin-inline: auto; }
 @media (min-width: 64rem) {
   .dock-capture { max-width: calc(100% - var(--spacing) * 26); }
   .scene-limitee { width: min(100%, calc((100dvh - 19rem) * 16 / 9)); margin-inline: auto; }

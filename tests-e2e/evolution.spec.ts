@@ -117,7 +117,7 @@ test('Rattata : refus de Pierre Eau et stock intact', async ({ page }) => {
   await demarrer(page, 19);
   await choisirPierre(page, 'Pierre Eau');
   await page.getByRole('button', { name: 'Rattata, niveau 16', exact: true }).click();
-  await expect(page.getByRole('alert')).toHaveText('Pokémon incompatible !');
+  await expect(page.locator('[data-notifications]')).toContainText('Pokémon incompatible !');
   // Téléphone : le Sac se rouvre par Annuler ; grand écran : il reste dans l'Équipe.
   if (telephone(page)) await page.getByRole('button', { name: 'Annuler', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Pierre Eau ×1', exact: true })).toBeVisible();

@@ -9,7 +9,7 @@ import { creerStoreJeu } from './store';
 
 afterEach(() => { cleanup(); vi.useRealTimers(); });
 
-it('intègre les visites à Bourg Palette, garde Chen dessous et une seule annonce accessible', () => {
+it('intègre les visites à Bourg Palette, garde Chen dessous et une seule phrase d’état accessible', () => {
   vi.useFakeTimers();
   const store = creerStoreJeu({ horloge: creerHorlogeSimulee(), stockage: creerStockageMemoire(),
     alea: () => .1, genererId: () => 'bourg' });
@@ -23,8 +23,9 @@ it('intègre les visites à Bourg Palette, garde Chen dessous et une seule annon
     expect(image.compareDocumentPosition(chen) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     fireEvent.focus(screen.getByRole('button', { name: 'Pension Pokémon' }));
     expect(screen.getByRole('status').textContent).toContain('Tour Pokémon');
+    // Une annonce du jeu n'écrase plus la phrase d'état du lieu : elle s'affiche dans le calque de notifications.
     act(() => store.setState({ annonce: 'Zone débloquée !' }));
-    expect(screen.getByRole('status').textContent).toBe('Zone débloquée !');
+    expect(screen.getByRole('status').textContent).toContain('Tour Pokémon');
     act(() => store.setState({ annonce: null }));
     expect(screen.getByRole('status').textContent).toContain('Tour Pokémon');
     fireEvent.click(screen.getByRole('button', { name: 'Chez Maman' }));

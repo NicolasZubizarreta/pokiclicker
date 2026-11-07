@@ -373,7 +373,7 @@
     "boutique": "shop",
     "sansInflation": false,
     "inventaire": null,
-    "image": null,
+    "image": "img/objets/PokeRadar.png",
     "categorie": "equipement",
     "sac": null
   },

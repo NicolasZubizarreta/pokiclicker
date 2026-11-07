@@ -13,7 +13,22 @@ export type Scene = {
   formes: FormeScene[];
   bulle?: string;
   tele?: TeleScene;
+  /** Partie utile de l'image (fractions de l'image entière) : le reste, vide ou noir, est rogné à l'affichage. */
+  recadrage?: Rectangle;
 };
+
+const IMAGE_ENTIERE: Rectangle = { x: 0, y: 0, l: 1, h: 1 };
+
+/** Partie de l'image affichée : le recadrage de la scène, ou l'image entière. */
+export function partieUtile(scene: Scene): Rectangle {
+  return scene.recadrage ?? IMAGE_ENTIERE;
+}
+
+/** Largeur sur hauteur de la scène telle qu'elle s'affiche (après recadrage). */
+export function ratioUtile(scene: Scene): number {
+  const r = partieUtile(scene);
+  return (scene.ratio[0] * r.l) / (scene.ratio[1] * r.h);
+}
 
 function texte(v: unknown): asserts v is string {
   exiger(typeof v === 'string' && v.trim().length > 0, 'Texte non vide attendu');
@@ -88,7 +103,7 @@ export function chargerScenes(fichier: unknown = donnees): Scene[] {
           exiger(Array.isArray(v), 'Tableau de formes attendu');
           v.forEach(validerForme);
         },
-      }, { bulle: texte, tele: validerTele });
+      }, { bulle: texte, tele: validerTele, recadrage: validerRectangle });
       exiger(!ids.has(id), 'Identifiant dupliqué');
       ids.add(id);
     }

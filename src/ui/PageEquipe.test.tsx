@@ -4,6 +4,7 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import type { PokemonPossede } from '../core/sauvegarde';
 import { formaterDps } from './nombres';
 import { PageEquipe } from './PageEquipe';
+import { storeNotifications, viderNotifications } from './pileNotifications';
 import { choisirObjet, reinitialiserSac, storeSac } from './sacContexte';
 import { storeJeu } from './store';
 import { poserStase, retirerStase, utiliserJetonShiny, utiliserSurPokemon } from '../core/objets-equipe';
@@ -35,7 +36,9 @@ beforeEach(() => {
     .map(p => p ? { pokemon: p, dps: 42.5, xpMax: 100, multiplicateur: 1 } : null),
   dps: 127.5, echange: null, echanger, annulerEchange });
 });
-afterEach(() => { cleanup(); reinitialiserSac(); vi.restoreAllMocks(); });
+afterEach(() => { cleanup(); reinitialiserSac(); viderNotifications(); vi.restoreAllMocks(); });
+// Refus et résultats d'objets : pop-up (pile de notifications), plus de ligne dans la page.
+const message = () => storeNotifications.getState().liste.at(-1)?.texte;
 
 it('sur téléphone la ligne prête à évoluer clignote sans bouton d’évolution', () => {
   vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() })));
@@ -298,7 +301,7 @@ it('borne la Baie Grena au plafond et permet une utilisation en série', () => {
   expect((screen.getByRole('button', { name: 'Plus' }) as HTMLButtonElement).disabled).toBe(true);
   fireEvent.click(screen.getByRole('button', { name: 'Valider' }));
   expect(storeJeu.getState().utiliserObjet).toHaveBeenCalledWith('baie', 'premier', 3);
-  expect(screen.getByRole('alert').textContent).toBe('+6 de bonheur');
+  expect(message()).toBe('+6 de bonheur');
 });
 
 it('borne le Calcium au stock et à la limite et affiche une erreur du store', () => {
@@ -311,7 +314,7 @@ it('borne le Calcium au stock et à la limite et affiche une erreur du store', (
   expect((screen.getByRole('button', { name: 'Plus' }) as HTMLButtonElement).disabled).toBe(true);
   fireEvent.click(screen.getByRole('button', { name: 'Valider' }));
   expect(storeJeu.getState().utiliserObjet).toHaveBeenCalledWith('calcium', 'premier', 1);
-  expect(screen.getByRole('alert').textContent).toBe('Quantité invalide.');
+  expect(message()).toBe('Quantité invalide.');
 });
 
 it.each(['bouton', 'Échap', 'extérieur'])('annule la sélection par %s et conserve les clics dans le Sac', moyen => {
@@ -358,7 +361,7 @@ it('propose l’évolution au niveau requis, précharge la cible et relaie les r
   expect(precharger).toHaveBeenCalledWith(['img/sprites/pokemon/2.png']);
   fireEvent.click(bouton);
   expect(evoluer).toHaveBeenCalledWith('premier');
-  expect(screen.getByRole('alert').textContent).toBe('Évolution bloquée !');
+  expect(message()).toBe('Évolution bloquée !');
 });
 
 it('rend le focus au bouton de la ligne après une évolution réussie', () => {
@@ -419,7 +422,7 @@ it.each([
   expect(ligne.hasAttribute('disabled')).toBe(false);
   expect(ligne.className).toContain('grayscale');
   fireEvent.click(ligne);
-  expect(screen.getByRole('alert').textContent).toBe(raison);
+  expect(message()).toBe(raison);
   expect(screen.queryByRole('group', { name: /Utiliser Pierre/ })).toBeNull();
   expect(utiliserPierre).not.toHaveBeenCalled();
   expect(storeJeu.getState().sac.entrees[0]?.quantite).toBe(1);
@@ -466,7 +469,7 @@ it('garde la confirmation de pierre ouverte si le store refuse', () => {
   preparerPierre();
   fireEvent.click(screen.getByRole('button', { name: 'Bourgeon, niveau 16' }));
   fireEvent.click(screen.getByRole('button', { name: 'Valider' }));
-  expect(screen.getByRole('alert').textContent).toBe('Plus de pierre !');
+  expect(message()).toBe('Plus de pierre !');
   expect(screen.getByRole('group', { name: 'Utiliser Pierre Foudre sur Bourgeon ?' })).toBeTruthy();
   expect(storeJeu.getState().sac.entrees[0]?.quantite).toBe(1);
 });
@@ -542,7 +545,7 @@ it.each([
   expect(ligne.hasAttribute('disabled')).toBe(false);
   expect(ligne.className).toContain('grayscale');
   fireEvent.click(ligne);
-  expect(screen.getByRole('alert').textContent).toBe(raison);
+  expect(message()).toBe(raison);
   expect(screen.getByRole('status').textContent).toBe(ferme ? '' : 'Sélectionne un Pokémon.');
   expect(storeJeu.getState().sac.entrees[0]?.quantite).toBe(2);
   if (ferme) expect(document.activeElement).toBe(declencheur);
@@ -561,7 +564,7 @@ it.each(['validation', 'annulation', 'refus'] as const)('confirme le Jeton et re
   expect(storeJeu.getState().equipe[0]?.pokemon.shiny).toBe(moyen === 'validation');
   expect(storeJeu.getState().sac.entrees[0]?.quantite).toBe(moyen === 'validation' ? 1 : 2);
   if (moyen === 'annulation') expect(document.activeElement).toBe(ligne);
-  if (moyen === 'refus') expect(screen.getByRole('alert').textContent).toBe('Quantité invalide.');
+  if (moyen === 'refus') expect(message()).toBe('Quantité invalide.');
   else expect(screen.queryByRole('group', { name: /^Utiliser/ })).toBeNull();
 });
 
@@ -570,22 +573,20 @@ it('fait pulser aussi les chromatiques et les œufs pour le Jeton', () => {
   const ligne = screen.getByRole('button', { name: 'Œuf, Éclosion : 0/10' });
   expect(ligne.className).toContain('motion-safe:cible-valide');
   fireEvent.click(ligne);
-  expect(screen.getByRole('alert').textContent).toBe('Déjà chromatique !');
+  expect(message()).toBe('Déjà chromatique !');
   expect(screen.queryByRole('group', { name: /^Utiliser/ })).toBeNull();
   expect(storeJeu.getState().utiliserJeton).not.toHaveBeenCalled();
 });
 
-it('efface le message direct au clic sur une ligne et conserve la région status', () => {
+it('annonce le message direct en pop-up sans rien ajouter à la page', () => {
   storeJeu.setState({ utiliserObjetActif: vi.fn(() => 'Boss non vaincu !') });
   preparerActif('direct');
-  const status = screen.getByRole('status');
-  expect(status.textContent).toBe('Boss non vaincu !');
-  fireEvent.click(screen.getByRole('button', { name: 'Bourgeon, niveau 16' }));
-  expect(screen.getByRole('status')).toBe(status);
-  expect(status.textContent).toBe('');
+  expect(message()).toBe('Boss non vaincu !');
+  expect(screen.queryByText('Boss non vaincu !')).toBeNull();
+  expect(screen.getByRole('status').textContent).toBe('');
 });
 
-it.each([null, 'Boss non vaincu !'])('utilise directement le Sac et annonce le refus %s dans le status existant', refus => {
+it.each([null, 'Boss non vaincu !'])('utilise directement le Sac et annonce le refus %s en pop-up', refus => {
   const utiliserObjetActif = vi.fn(() => {
     if (!refus) {
       const sac = storeJeu.getState().sac;
@@ -596,7 +597,8 @@ it.each([null, 'Boss non vaincu !'])('utilise directement le Sac et annonce le r
   storeJeu.setState({ utiliserObjetActif });
   preparerActif('direct');
   expect(utiliserObjetActif).toHaveBeenCalledWith('repel');
-  expect(screen.getByRole('status').textContent).toBe(refus ?? '');
+  expect(message()).toBe(refus ?? undefined);
+  expect(screen.getByRole('status').textContent).toBe('');
   expect(screen.queryByRole('group', { name: /^Utiliser/ })).toBeNull();
   expect(storeJeu.getState().sac.entrees[0]?.quantite).toBe(refus ? 2 : 1);
 });

@@ -43,7 +43,8 @@ it('conserve les noms et images des balles de capture', () => {
 it('garde les images absentes à null et les corrections décidées', () => {
   // Catalogue historique sans les icônes U-T2 et X-T2 ; les images réelles ont leurs tests dédiés.
   const objets = structuredClone([...chargerObjets()]).map(objet => ['shinyToken', 'diploma'].includes(objet.id) ? { ...objet, image: null } : objet);
-  for (const id of ['runningShoes', 'pokeradar', 'falseSwipe', 'ctJackpot', 'shinyToken', 'shinyCharm', 'diploma']) {
+  // Le Poké-Radar a reçu l'icône qu'il avait déjà en combat (tests/objets-images.test.ts) : il sort de cette liste.
+  for (const id of ['runningShoes', 'falseSwipe', 'ctJackpot', 'shinyToken', 'shinyCharm', 'diploma']) {
     expect(objets.find(objet => objet.id === id)!.image).toBe(null);
   }
   expect(objets.find(objet => objet.id === 'runningShoes')!.description).toBe("Réduit l'attente entre deux ennemis à 1 s.");

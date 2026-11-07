@@ -353,3 +353,21 @@ En tant que joueur sur iPhone, je veux que les fenêtres s'ouvrent à une taille
 
 ### Effort et risques
 2 à 3 jours. Risque : le bug des fenêtres ne se reproduit pas dans le WebKit de Playwright (Windows) ; la cause est déduite du CSS commun (`.fiche-contenu`) et à confirmer sur l'iPhone.
+
+## R. `fix(ui): notifications en pop-up, lieux d'intro pleine largeur, dialogues en bas`
+
+`type:fix`, `etat:fait`, `est:2-3`, `prio:1` · branche : `v2` · `agent-ok` · dépend de : Q · source : `docs/projet/notes-nicolas-phase-5.md` (07/11/2026, quatrième test) et captures `docs/projet/retours-iphone-07-11/iphone-56.jpg` à `iphone-63.jpg`
+
+### Histoire
+En tant que joueur sur iPhone, je veux que les notifications n'altèrent jamais la mise en page, que les lieux d'intro remplissent l'écran de jeu et que les dialogues du Prof. Chen ne cachent plus son sprite, pour jouer sans que l'écran sursaute.
+
+### Critères d'acceptation
+- [x] Étant donné chez maman, chez Blue et le labo, quand ils s'affichent à 360, 390 et 430 px, alors l'image remplit la largeur de l'écran de jeu, sans bande latérale ni déformation ; « Sortie », le cadre de dialogue et la phrase d'état restent lisibles.
+- [x] Étant donné le dialogue du Prof. Chen et le choix du starter, quand ils s'affichent, alors la boîte est ancrée juste au-dessus de la barre des 5 boutons et ne masque ni le prof ni les starters.
+- [x] Étant donné n'importe quelle notification (achat, montée de niveau, gain, erreur, synchro), quand elle apparaît, alors elle s'affiche dans un calque fixe en haut de l'écran, borné à la largeur de l'écran, et aucun élément de la page ne change de position ni de taille (test e2e).
+- [x] Étant donné le Shop, quand j'achète un objet, alors sa carte ne grandit pas et rien ne sort de l'écran ; aucun écran (Shop, Stats, Équipe, Menu) n'a de défilement horizontal à 360, 390 et 430 px (test e2e).
+- [x] Étant donné l'accessoire Poké-Radar, quand le Shop l'affiche, alors l'image est vérifiée (constat noté, sans image inventée si elle manque).
+- [x] Étant donné les valeurs de design ajoutées, alors elles passent par des jetons existants ; aucune règle de jeu ni donnée de contenu ne change ; simulateur inchangé.
+
+### Effort et risques
+2 à 3 jours. Risque : le recadrage des lieux d'intro touche les zones cliquables (fractions de l'image).

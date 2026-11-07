@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { useStore } from 'zustand';
 import { reglages } from '../core/reglages';
-import { chargerScenes } from '../core/scenes';
+import { chargerScenes, ratioUtile } from '../core/scenes';
 import { ChoixStarter } from './ChoixStarter';
 import { DialogueIntro } from './DialogueIntro';
 import { EcranTitre } from './EcranTitre';
@@ -49,8 +49,9 @@ export function PageIntro({ store = storeJeu, quandTerminee }: { store?: StoreJe
     }} />
   </div>;
 
-  const ratio = scenes.find(scene => scene.id === idScene)!.ratio;
-  return <div className={`${ratio[0] > ratio[1] ? 'scene-intro-paysage' : 'scene-intro'} relative ${visible ? 'opacity-100' : 'opacity-0'} motion-safe:intro-interface-fondu`}>
+  const ratio = ratioUtile(scenes.find(scene => scene.id === idScene)!);
+  const rapport = { '--ratio-scene': String(ratio) } as CSSProperties;
+  return <div style={rapport} className={`${ratio > 1 ? 'scene-intro-paysage' : 'scene-intro'} relative ${visible ? 'opacity-100' : 'opacity-0'} motion-safe:intro-interface-fondu`}>
     <ScenesBourgPalette
       accesPension={accesPension}
       sceneInitiale={sceneDepart}
@@ -63,9 +64,10 @@ export function PageIntro({ store = storeJeu, quandTerminee }: { store?: StoreJe
       quandSortieLabo={quandTerminee} />
     {parlant && <div className="absolute inset-0 z-10 grid content-end overflow-hidden">
       <DialogueIntro commande={evenement} sacOuvert={intro.sacOuvert} carteOuverte={intro.carteOuverte}
-        terminerEtape={terminerEtape} />
-      {intro.choixStarter && choixPret && <ChoixStarter starters={intro.starters}
-        choisir={numero => signaler(store.getState().choisirStarter(numero))} />}
+        terminerEtape={terminerEtape}>
+        {intro.choixStarter && choixPret && <ChoixStarter starters={intro.starters}
+          choisir={numero => signaler(store.getState().choisirStarter(numero))} />}
+      </DialogueIntro>
     </div>}
     {erreur && <p role="alert" className="cadre bg-surface p-2">{erreur}</p>}
   </div>;

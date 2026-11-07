@@ -95,7 +95,7 @@ export const reglages: {
     raretes: Record<Rarete | 'conseil-4' | 'maitre', string>;
   };
   interface: {
-    sauvegardeAutoMs: number; annonceMs: number; annonceDeblocageMs: number;
+    sauvegardeAutoMs: number; annonceMs: number; annonceDeblocageMs: number; notificationsMax: number;
     // Calendrier V1 : legacy/js/game/save.js L759-797.
     vol: { poseMs: number; delaiOuvertureMs: number; volMs: number; fermetureMs: number; imageMs: number; images: number; pisteMs: number; traitsMs: number; fonduReduitMs: number; changerReduitMs: number; tailleDresseurRatio: number };
   };

@@ -17,6 +17,7 @@
       "id": "kanto.chez-maman",
       "image": "decors/chez-maman.webp",
       "ratio": [16, 9],
+      "recadrage": { "x": 0, "y": 0, "l": 0.9766, "h": 0.9787 },
       "bulle": "Il n'y a rien à faire ici, sortons.",
       "tele": {
         "video": "img/easter-eggs/daran.mp4",
@@ -31,6 +32,7 @@
       "id": "kanto.chez-blue",
       "image": "decors/chez-blue.webp",
       "ratio": [16, 9],
+      "recadrage": { "x": 0.1302, "y": 0.0222, "l": 0.5995, "h": 0.9676 },
       "bulle": "Eh pourquoi il a le droit à une maison en 3D lui ?",
       "formes": [
         { "zone": "kanto.bourg-palette", "nom": "Sortie", "teinte": "green", "forme": "polygone", "points": [[0.23821138211382115, 0.8265895953757225], [0.1975609756097561, 0.8627167630057804], [0.26260162601626014, 0.9277456647398844], [0.3016260162601626, 0.8872832369942196]] }
@@ -40,6 +42,7 @@
       "id": "kanto.labo",
       "image": "scenes/labo.webp",
       "ratio": [1, 1],
+      "recadrage": { "x": 0, "y": 0, "l": 1, "h": 0.937 },
       "formes": [
         { "zone": "kanto.bourg-palette", "nom": "Sortie", "teinte": "green", "forme": "rect", "x": 0.4306640625, "y": 0.88623046875, "l": 0.1376953125, "h": 0.06005859375 }
       ]

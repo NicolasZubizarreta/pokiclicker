@@ -10,6 +10,11 @@
   max-height: none;
 }
 
+/* Lieux de départ (Bourg Palette, maison, labo) : l'image prend toute la largeur, sa hauteur suit son ratio. */
+.combat-grille.combat-grille-tel > .scene-limitee.scene-depart {
+  height: auto;
+}
+
 .actions-telephone {
   display: grid;
   gap: calc(var(--spacing) * 2);

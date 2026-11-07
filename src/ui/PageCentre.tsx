@@ -10,7 +10,6 @@ import { PageCasino } from './PageCasino';
 export function PageCarte({ quandArrive }: { quandArrive: () => void }) {
   const [ouvert, ouvrir] = useState<'centre' | 'casino' | null>(null);
   const dernier = useRef('centre');
-  const annonce = useStore(storeJeu, etat => etat.annonce);
   const conteneur = useRef<HTMLDivElement>(null);
   const visite = useRef(false);
   useEffect(() => {
@@ -24,7 +23,6 @@ export function PageCarte({ quandArrive }: { quandArrive: () => void }) {
   }, [ouvert]);
   return <div ref={conteneur}>
     <div hidden={ouvert !== null}>
-      {annonce !== null && <div aria-live="polite" className="cadre bg-surface p-2 text-center">{annonce}</div>}
       <CarteKanto quandArrive={quandArrive} quandCentre={() => ouvrir('centre')} quandCasino={() => ouvrir('casino')} />
     </div>
     {ouvert === 'centre' && <PageCentre retour={() => ouvrir(null)} />}
@@ -35,7 +33,6 @@ export function PageCarte({ quandArrive }: { quandArrive: () => void }) {
 export function PageCentre({ retour }: { retour: () => void }) {
   const centre = useStore(storeJeu, etat => etat.centre);
   const argent = useStore(storeJeu, etat => etat.argent);
-  const annonce = useStore(storeJeu, etat => etat.annonce);
   const acheter = useStore(storeJeu, etat => etat.acheter);
   const [selection, selectionner] = useState<string | null>(null);
   const [quantite, changerQuantite] = useState('1');
@@ -90,7 +87,6 @@ export function PageCentre({ retour }: { retour: () => void }) {
             {valide ? `Acheter ×${nombre} · ${(objet.prix * nombre).toLocaleString('fr-FR')}\u00a0₽` : 'Acheter'}
           </button>
           <p id={raisonId}>{raison ?? 'Les objets achetés rejoignent ton Sac.'}</p>
-          <p role="status" className="min-h-12">{annonce}</p>
         </section>
       </div>}
   </section>;

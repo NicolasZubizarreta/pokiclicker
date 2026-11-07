@@ -3,6 +3,7 @@ import { act, cleanup, fireEvent, render, screen, within } from '@testing-librar
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Coquille } from './Coquille';
+import { viderNotifications } from './pileNotifications';
 import { ouvrirSac, reinitialiserSac, storeSac } from './sacContexte';
 import { creerStoreJeu, storeJeu } from './store';
 import { chargerPokemon } from '../core/pokemon';
@@ -235,27 +236,31 @@ it('annonce un achat formaté au Shop et retire la notification expirée', () =>
   const objet = storeJeu.getState().boutique.objets.find(o => !o.unique)!;
   const carte = within(screen.getByRole('heading', { name: objet.nom }).closest('article')!);
   for (let i = 1; i < 10; i++) fireEvent.click(carte.getByRole('button', { name: 'Plus' }));
-  fireEvent.click(carte.getByRole('button', { name: 'Acheter ×10' }));
-  // Les output de quantité ont aussi le rôle implicite status, nommé « Quantité ».
-  expect(screen.getAllByRole('status', { name: '' })).toHaveLength(1);
-  expect(screen.getByRole('status', { name: '' }).textContent).toBe(`${objet.nom} ×10 acheté. ${(objet.prix * 10).toLocaleString('fr-FR')}\u00a0₽ dépensés.`);
-  expect(screen.getByRole('status', { name: '' }).getAttribute('aria-live')).toBe('polite');
-  expect(screen.getByRole('status', { name: '' }).classList.contains('absolute')).toBe(false);
-  const message = screen.getByRole('status', { name: '' }).textContent;
-  for (const page of ['Équipe', 'Combat', 'Shop']) {
-    fireEvent.click(screen.getByRole('button', { name: page }));
-    const notifications = document.querySelectorAll('[role="status"][aria-live="polite"]');
-    expect(notifications).toHaveLength(1);
-    expect(notifications[0]?.textContent).toBe(message);
-  }
-  act(() => {
-    for (let ms = 0; ms < reglages.interface.annonceMs; ms += reglages.boucle.pasMs) {
-      maintenant += reglages.boucle.pasMs;
-      storeJeu.getState().tick();
+  vi.useFakeTimers();
+  viderNotifications(); // L'arrivée du Pokémon de départ a pu en laisser une.
+  try {
+    fireEvent.click(carte.getByRole('button', { name: 'Acheter ×10' }));
+    // Calque unique en position fixe, hors de la page : l'annonce n'est plus dans le flux du Shop.
+    const calque = document.querySelector('[data-notifications]')!;
+    const message = `${objet.nom} ×10 acheté. ${(objet.prix * 10).toLocaleString('fr-FR')}\u00a0₽ dépensés.`;
+    expect(calque.querySelector('div[aria-live]:not([data-annonce-deblocage])')!.textContent).toBe(message);
+    expect(calque.classList.contains('fixed')).toBe(true);
+    expect(calque.classList.contains('pointer-events-none')).toBe(true);
+    expect(document.getElementById('contenu')!.textContent).not.toContain('dépensés');
+    for (const page of ['Équipe', 'Combat', 'Shop']) {
+      fireEvent.click(screen.getByRole('button', { name: page }));
+      expect(document.querySelector('[data-notifications] div[aria-live]:not([data-annonce-deblocage])')?.textContent).toBe(message);
+      expect(document.getElementById('contenu')!.textContent).not.toContain('dépensés');
     }
-  });
-  // Au Shop, la zone d'annonce reste en place (ligne de hauteur fixe à droite du titre) : elle se vide sans rien décaler.
-  expect(screen.getByRole('status', { name: '' }).textContent).toBe('');
+    act(() => {
+      for (let ms = 0; ms < reglages.interface.annonceMs; ms += reglages.boucle.pasMs) {
+        maintenant += reglages.boucle.pasMs;
+        storeJeu.getState().tick();
+      }
+      vi.advanceTimersByTime(reglages.interface.annonceMs);
+    });
+    expect(document.querySelector('[data-notifications] div[aria-live]:not([data-annonce-deblocage])')?.textContent).toBe('');
+  } finally { vi.useRealTimers(); }
 });
 
 describe('Coquille', () => {
@@ -413,6 +418,7 @@ describe('Coquille', () => {
       // Prépare le balayage de la page visible sans la boîte fermée, montée en permanence.
       container.replaceChildren(rendu.cloneNode(true));
       container.querySelector('dialog:not([open])')?.remove();
+      container.querySelector('[data-notifications]')?.remove(); // Les pop-up ont leurs propres tests.
       const parcours = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
       while (parcours.nextNode()) {
         const texte = parcours.currentNode.textContent?.trim();
