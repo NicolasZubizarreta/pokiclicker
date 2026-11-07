@@ -31,6 +31,11 @@ for (const largeur of LARGEURS) {
     expect(m.socle.right).toBeLessThanOrEqual(m.cadre.right);
     expect(m.socle.top).toBeGreaterThanOrEqual(m.cadre.top);
     expect(m.socle.bottom).toBeLessThanOrEqual(m.cadre.bottom);
+    // Retour du 07/11 (2e test) : centre du cercle un peu sous le milieu de la scène, loin du bas du cadre.
+    const centreY = (m.socle.top + m.socle.height / 2 - m.cadre.top) / m.cadre.height;
+    expect(centreY).toBeGreaterThan(0.5);
+    expect(centreY).toBeLessThanOrEqual(0.7);
+    expect(m.cadre.bottom - m.socle.bottom).toBeGreaterThanOrEqual(m.cadre.height * 0.25);
     // Sprite agrandi d'environ un tiers (96 px d'origine) et centré sur le cercle.
     expect(m.image.width / 96).toBeGreaterThanOrEqual(1.3);
     expect(m.image.width / 96).toBeLessThanOrEqual(1.4);

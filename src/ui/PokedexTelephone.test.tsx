@@ -1,10 +1,13 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
+import { chargerPokemon } from '../core/pokemon';
+import { statsDeCombat } from '../core/stats';
 import { PokedexTelephone } from './PokedexTelephone';
 import { creerStoreJeu, storeJeu } from './store';
 import { formaterProchainPalier } from './store-progression';
 
+const catalogue = chargerPokemon();
 const contexte = vi.hoisted(() => ({ store: null as unknown as typeof storeJeu }));
 Object.defineProperties(HTMLDialogElement.prototype, {
   showModal: { configurable: true, value: vi.fn(function (this: HTMLDialogElement) { this.open = true; }) },
@@ -62,12 +65,11 @@ it.each(['Dans ton équipe', 'Rangé dans ton PC', 'Enregistré au Pokédex'])(
     expect(within(fiche).getByText('Plante').classList.contains('pastille-type-grass')).toBe(true);
     expect(within(fiche).getByText('Poison').classList.contains('pastille-type-poison')).toBe(true);
     expect(within(fiche).getByAltText('Bulbizarre').classList.contains('size-32')).toBe(true);
-    // Statistiques de base de data/pokemon.json (Bulbizarre : 45 PV, 49 Attaque, 49 Défense, 65 / 65, 45 Vitesse).
-    const stats = within(fiche).getByLabelText('Statistiques de base');
-    expect(Array.from(stats.querySelectorAll('dt'), dt => dt.textContent))
-      .toEqual(['PV', 'Attaque', 'Défense', 'Attaque Spé.', 'Défense Spé.', 'Vitesse']);
-    expect(Array.from(stats.querySelectorAll('dd > span:first-child'), valeur => valeur.textContent))
-      .toEqual(['45', '49', '49', '65', '65', '45']);
+    // Dégâts de base du clicker (la « puissance » que le moteur multiplie par le niveau), pas les six stats officielles.
+    const degats = within(fiche).getByLabelText('Dégâts de base');
+    expect(degats.querySelector('dt')!.textContent).toBe('Dégâts de base');
+    expect(degats.querySelector('dd')!.textContent).toBe(String(statsDeCombat(catalogue.parNumero(1)).puissance));
+    expect(within(fiche).queryByText('Attaque Spé.')).toBeNull();
   },
 );
 
@@ -79,7 +81,7 @@ it('ouvre une silhouette inconnue sans révéler son nom ni ses types', () => {
     .toBe('Capture ce Pokémon pour découvrir son nom et ses types.');
   expect(within(fiche).queryByText(/Papilusion/)).toBeNull();
   expect(fiche.querySelector('.pastille-type')).toBeNull();
-  expect(within(fiche).queryByLabelText('Statistiques de base')).toBeNull();
+  expect(within(fiche).queryByLabelText('Dégâts de base')).toBeNull();
   expect(within(fiche).getByAltText('Pokémon inconnu').classList.contains('brightness-0')).toBe(true);
 });
 

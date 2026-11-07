@@ -39,7 +39,7 @@ export function CarteEquipe({ membre, renommer, retirerObjet, evolution, evoluer
           nouveau={spriteAffiche({ ...membre.pokemon, numero: animation.nouveau })} nom={nom} actif shiny={membre.pokemon.shiny} />
       </span> : <Image src={spriteAffiche(membre.pokemon)} genre="sprite" alt=""
         className={`carte-evo-sprite size-auto min-h-0 min-w-0 max-h-full max-w-full lg:size-24 lg:row-span-3 ${membre.pokemon.shiny && !oeuf ? 'halo-shiny' : ''} ${classeSprite(membre.pokemon)}`} />}
-      {!oeuf && <span className="absolute bottom-1 left-0 bg-surface px-1 text-base tabular-nums lg:hidden">{membre.pokemon.niveau}</span>}
+      {!oeuf && <span className="absolute bottom-1 left-0 contour-texte px-1 text-base tabular-nums lg:hidden">{membre.pokemon.niveau}</span>}
       <div className="carte-equipe-identite hidden min-w-0 justify-self-stretch self-end lg:block">
         <div className="flex min-w-0 items-center justify-between gap-1">
           <strong className="block min-w-0 break-words">{nom}{membre.pokemon.shiny && !oeuf && <IconeShiny />}</strong>

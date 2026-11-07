@@ -35,6 +35,8 @@ Déjà quand un pokémon est sur le point d'évoluer on ne met pas le bouton év
 
 Décision télémétrie (même jour) : on reste sur la requête SQL sur les sauvegardes du serveur ; l'envoi du relevé au serveur est mis dans le backlog, pas en phase 5 (docs/projet/backlog-plus-tard.md).
 
+Deuxième test iPhone (07/11, après les correctifs) : « le cercle vert et le pokémon sauvage sont trop bas ils passent quasiment sous le cadre faut les remonter pas au milieu de la zone mais presque juste un peu en dessous du milieu du cadre. Le niveau du pokémon de l'équipe dans la zone de combat cache le sprite ce que je propose c'est retirer le carré bleu qui est derrière le niveau pour moins cacher le sprite et mettre un contour noir autour du chiffre du niveau pour quand même le voir au cas où on a un sprite de pokémon clair derrière. Pour le pokédex c'est mieux la fiche pokémon mais quand je parlais des base stat je parlais pas de celles du jeu officiel mais de notre clicker, donc les dégâts de base pas les 6 stats. »
+
 ## 05/11/2026, détails d'interface sur PC
 
 (à dicter : Nicolas teste avec `npm.cmd run partie-test`)
