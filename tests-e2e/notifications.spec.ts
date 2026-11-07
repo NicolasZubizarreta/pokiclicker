@@ -5,7 +5,7 @@ import { telephone } from './aide-carte';
 
 // Retour du test iPhone du 07/11 (4e test) : toutes les notifications sont des pop-up en haut de l'écran, hors de la
 // mise en page. Rien ne bouge quand une notification apparaît, rien ne sort de l'écran (Shop compris).
-const LARGEURS = [360, 390, 430];
+const LARGEURS = [360, 390, 430, 1024, 1440];
 const NOTIFICATION = '[data-notifications] div[aria-live]:not([data-annonce-deblocage]) p';
 
 async function demarrer(page: Page, largeur: number) {
@@ -33,7 +33,6 @@ const sansDefilementHorizontal = (page: Page) =>
 
 for (const largeur of LARGEURS) {
   test(`Shop à ${largeur} px : un achat n'agrandit pas la carte et la notification reste dans l'écran`, async ({ page }) => {
-    test.skip(!telephone(page), 'Mise en page téléphone');
     await demarrer(page, largeur);
     const carte = page.getByRole('article').first();
     await expect(carte).toBeVisible();
@@ -53,7 +52,11 @@ for (const largeur of LARGEURS) {
     expect(boite.x).toBeGreaterThanOrEqual(0);
     expect(boite.x + boite.width).toBeLessThanOrEqual(largeur);
     expect(boite.y).toBeGreaterThanOrEqual(0);
-    expect(boite.y).toBeLessThan(100);
+    if (largeur < 1024) expect(boite.y).toBeLessThan(100);
+    else {
+      expect(boite.x + boite.width).toBeGreaterThan(largeur - 32);
+      expect(boite.y + boite.height).toBeGreaterThan((page.viewportSize()?.height ?? 0) - 32);
+    }
     const d = await sansDefilementHorizontal(page);
     expect(d.defile).toBeLessThanOrEqual(d.largeur);
     await mkdir('design/captures', { recursive: true });

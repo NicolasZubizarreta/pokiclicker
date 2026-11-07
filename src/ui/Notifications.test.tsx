@@ -18,6 +18,7 @@ it('pose le calque en haut de l’écran, hors de la mise en page, sans intercep
   expect(calque.classList.contains('pointer-events-none')).toBe(true);
   expect(calque.classList.contains('inset-x-4')).toBe(true);
   expect(calque.querySelector('div[aria-live]')!.getAttribute('aria-live')).toBe('polite');
+  for (const classe of ['lg:inset-x-auto', 'lg:top-auto', 'lg:right-4', 'lg:bottom-4', 'lg:w-96', 'lg:justify-items-end']) expect(calque.classList.contains(classe)).toBe(true);
 });
 
 it('affiche l’annonce du store, puis la retire seule', () => {

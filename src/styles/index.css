@@ -517,3 +517,25 @@ html:has(dialog[open]) { overflow: hidden; }
 @keyframes vol-fermeture { to { transform: scaleY(0); } }
 @keyframes vol-trajet { 0%, 10% { transform: translateX(150%); } 30%, 60% { transform: translateX(0); } 100% { transform: translateX(-150%); } }
 @keyframes vol-traits { to { transform: translateX(-50%); } }
+@media (min-width: 1024px) {
+  /* Seule la coquille de jeu tient dans l'écran ; les pages de compte et de connexion défilent comme avant. */
+  html:has(.coquille-pc), body:has(.coquille-pc) { height: 100%; overflow: hidden; }
+  .coquille-pc { display: grid; grid-template-columns: calc(var(--spacing) * 60) minmax(0, 1fr); height: 100dvh; overflow: hidden; max-width: calc(var(--spacing) * 480); margin-inline: auto; border-inline: 1px solid var(--bordure); }
+  .barre-laterale { border-right-color: var(--region-argent); box-shadow: inset calc(var(--spacing) * -1) 0 0 var(--fond), inset calc(var(--spacing) * -1.5) 0 0 var(--region-argent); }
+  .bandeau-pc { border-bottom-color: var(--region-argent); box-shadow: inset 0 calc(var(--spacing) * -1) 0 var(--fond), inset 0 calc(var(--spacing) * -1.5) 0 var(--region-argent); }
+  .entree-pc[aria-current="page"] { border-color: var(--region-accent); }
+  .coquille-pc.intro-pc { grid-template-columns: minmax(0, 1fr); }
+  .coquille-pc kbd { border: 1px solid var(--bordure); background: var(--surface-2); padding: 0 var(--spacing); font-family: var(--font-mono); }
+  :focus-visible { outline: calc(var(--spacing) * 3 / 4) solid var(--focus); outline-offset: calc(var(--spacing) / 2); }
+  @media (hover: hover) {
+    :where(button, a, input, select, textarea, [role="button"]):not(.cible-combat, :disabled, [aria-disabled="true"], [class*="hover:"]):hover { background-color: var(--selection); border-color: var(--region-accent); }
+  }
+}
+@media (min-width: 1024px) and (max-width: 1199px) {
+  .coquille-pc:not(.intro-pc) { grid-template-columns: calc(var(--spacing) * 24) minmax(0, 1fr); }
+  .barre-laterale { padding: var(--spacing); }
+  .entree-pc { flex-direction: column; justify-content: center; gap: var(--spacing); font-size: var(--text-sm); text-align: center; }
+  .touche-pc, .bas-pc, .sous-titre-pc { display: none; }
+  .marque-pc b { font-size: var(--text-sm); }
+  .barre-laterale > button { margin-top: auto; }
+}

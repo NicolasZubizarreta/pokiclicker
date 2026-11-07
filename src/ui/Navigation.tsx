@@ -1,3 +1,5 @@
+import { useTelephone } from './useTelephone';
+import { BarreLaterale, type InfosPartie } from './BarreLaterale';
 import { Carte, Combat, Equipe, Menu, Shop } from './icones';
 
 const entrees = [
@@ -10,11 +12,13 @@ const entrees = [
 
 export type Page = 'Combat' | 'Équipe' | 'PC' | 'Shop' | 'Carte' | 'Menu' | 'Monde';
 
-export function Navigation({ page, choisir, signalCarte = false, inerte = false, origineMonde = 'Menu', originePC = 'Menu' }: {
+export function Navigation({ page, choisir, signalCarte = false, inerte = false, origineMonde = 'Menu', originePC = 'Menu', ...infos }:  {
   page: Page; choisir: (page: Page) => void; signalCarte?: boolean; inerte?: boolean;
   origineMonde?: 'Menu' | 'Carte';
   originePC?: 'Menu' | 'Équipe';
-}) {
+} & InfosPartie) {
+  const telephone = useTelephone();
+  if (!telephone) return <BarreLaterale page={page} choisir={choisir} signalCarte={signalCarte} inerte={inerte} origineMonde={origineMonde} {...infos} />;
   const active = page === 'PC' ? originePC : page === 'Monde' ? origineMonde : page;
   return (
     <nav aria-label="Navigation principale" inert={inerte}

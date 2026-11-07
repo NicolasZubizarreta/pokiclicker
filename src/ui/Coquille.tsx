@@ -1,5 +1,9 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useStore } from 'zustand';
+import { useTelephone } from './useTelephone';
+import type { InfosPartie } from './BarreLaterale';
+import { LegendeRaccourcis } from './LegendeRaccourcis';
+import { FenetreRaccourcis } from './FenetreRaccourcis';
 import { Navigation } from './Navigation';
 import { BandeauHaut } from './BandeauHaut';
 import type { Page } from './Navigation';
@@ -25,12 +29,14 @@ import { sceneMusicale } from '../core/musiques';
 import { registreSucces } from '../core/succes';
 import { EcranMonCompte } from './compte/EcranMonCompte';
 
-export function Coquille({ region = 'kanto', theme = 'dark', quandMenuPrincipal, attendreEnvoi }: {
+export function Coquille({ region = 'kanto', theme = 'dark', quandMenuPrincipal, attendreEnvoi, nomPartie, etatSynchro }: {
   quandMenuPrincipal?: () => Promise<boolean>;
   attendreEnvoi?: () => Promise<boolean | void>;
   region?: 'kanto' | 'johto' | 'hoenn' | 'atlas';
   theme?: 'dark' | 'light';
-}) {
+} & InfosPartie) {
+  const telephone = useTelephone();
+  const [raccourcisOuverts, ouvrirRaccourcis] = useState(false);
   // Lien d'essai (dev seulement) : ?onglet=carte ouvre directement l'onglet Carte.
   const [page, choisir] = useState<Page>(() => import.meta.env.DEV && new URLSearchParams(window.location.search).get('onglet') === 'carte' ? 'Carte' : 'Combat');
   const [origineMonde, fixerOrigineMonde] = useState<'Menu' | 'Carte'>('Menu');
@@ -105,17 +111,21 @@ export function Coquille({ region = 'kanto', theme = 'dark', quandMenuPrincipal,
 
   return (
     <div data-region={region} data-theme={theme}
-      className="min-h-dvh bg-fond font-texte text-texte">
+      className={`coquille-pc min-h-dvh bg-fond font-texte text-texte ${introActive || introVue ? 'intro-pc' : ''}`}>
       <a href="#contenu" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-20 focus:bg-surface focus:p-4 focus:text-lien">
         Aller au contenu
       </a>
-      <Navigation page={page} choisir={aller} origineMonde={origineMonde} originePC={originePC} signalCarte={tutorielRoute1 && page !== 'Carte' && !introActive && !introVue} inerte={introActive || introVue || credits || !!pantheon?.ouvert || compteOuvert} />
-      {!introActive && !introVue && <BandeauHaut combat={page === 'Combat'} />}
-      <main id="contenu" tabIndex={-1} inert={compteOuvert} className="min-w-0 px-4 pb-[calc(var(--spacing)*20+env(safe-area-inset-bottom))] pt-2 lg:ml-24 lg:p-8">
+      {(telephone || (!introActive && !introVue)) && <Navigation nomPartie={nomPartie} etatSynchro={etatSynchro} quandMenuPrincipal={quandMenuPrincipal} page={page} choisir={aller} origineMonde={origineMonde} originePC={originePC} signalCarte={tutorielRoute1 && page !== 'Carte' && !introActive && !introVue} inerte={introActive || introVue || credits || !!pantheon?.ouvert || compteOuvert} />}
+      <div className="lg:flex lg:min-h-0 lg:min-w-0 lg:flex-col">
+      {!introActive && !introVue && <BandeauHaut combat={page === 'Combat'} etatSynchro={quandMenuPrincipal ? etatSynchro : undefined} ouvrirRaccourcis={() => ouvrirRaccourcis(true)} />}
+      <main id="contenu" tabIndex={-1} inert={compteOuvert} className="min-w-0 px-4 pb-[calc(var(--spacing)*20+env(safe-area-inset-bottom))] pt-2 lg:flex-1 lg:min-h-0 lg:overflow-y-auto lg:p-8">
         {/* Avec un compte, le résumé du compte (diamants, succès, skins) est dans la zone compte, par Menu principal. */}
         {!quandMenuPrincipal && <button ref={boutonCompte} className="min-h-11 p-2 text-lien underline" onClick={() => fixerCompteOuvert(true)}>Mon compte</button>}
         {page === 'Combat' ? introVue || introActive ? <PageIntro quandTerminee={() => fixerIntroVue(false)} /> : <EcranCombat /> : page === 'Carte' ? <PageCarte quandArrive={() => choisir('Combat')} /> : page === 'Équipe' ? <PageEquipe ouvrirPC={() => aller('PC')} /> : page === 'PC' ? <PagePC retour={() => choisir(originePC)} libelleRetour={originePC === 'Équipe' ? "Retour à l'équipe" : 'Retour au menu'} /> : page === 'Monde' ? <PageMonde retour={() => choisir(origineMonde)} jouerKanto={() => choisir('Combat')} /> : page === 'Menu' ? <PagePlus ouvrirPC={() => aller('PC')} ouvrirMonde={() => aller('Monde')} menuPrincipal={quandMenuPrincipal} attendreEnvoi={attendreEnvoi} /> : <PageShop />}
       </main>
+      {!introActive && !introVue && <LegendeRaccourcis page={page} />}
+      </div>
+      {raccourcisOuverts && <FenetreRaccourcis fermer={() => ouvrirRaccourcis(false)} />}
       {/* La Carte reste montée jusqu’à la fin du vol ; l’évolution garde aussi la priorité. */}
       {!introActive && !introVue && page !== 'Carte' && !evolution && evenement?.type === 'dialogue'
         && (evenement.scene ? <SceneFin key={evenement.evenement} commande={evenement} terminerEtape={terminerEtape} />

@@ -9,6 +9,7 @@ import { PokedexTelephone } from './PokedexTelephone';
 import { BadgesTelephone } from './BadgesTelephone';
 import { StatistiquesPage } from './StatistiquesPage';
 import { GuidePage } from './GuidePage';
+import { erreurRetourMenu, useRetourMenuPrincipal } from './useRetourMenuPrincipal';
 import { useTelephone } from './useTelephone';
 import { storeJeu } from './store';
 import { PC } from './icones';
@@ -59,9 +60,7 @@ export function PagePlus({ ouvrirPC, ouvrirMonde, menuPrincipal, attendreEnvoi }
   const [sauvegarde, definirSauvegarde] = useState<'repos' | 'enCours' | 'succes' | 'local' | 'echec'>('repos');
   const [heure, definirHeure] = useState('');
   const sauvegardeEnCours = useRef(false);
-  const [retourEnCours, definirRetourEnCours] = useState(false);
-  const retourVerrouille = useRef(false);
-  const [retourEchoue, definirRetourEchoue] = useState(false);
+  const { retourEnCours, retourEchoue, revenirAuMenuPrincipal } = useRetourMenuPrincipal(menuPrincipal);
   const sauvegarder = async () => {
     if (sauvegardeEnCours.current) return;
     sauvegardeEnCours.current = true;
@@ -76,20 +75,6 @@ export function PagePlus({ ouvrirPC, ouvrirMonde, menuPrincipal, attendreEnvoi }
       definirSauvegarde(!ok ? 'echec' : envoye ? 'succes' : 'local');
     } finally {
       sauvegardeEnCours.current = false;
-    }
-  };
-  const revenirAuMenuPrincipal = async () => {
-    if (!menuPrincipal || retourVerrouille.current) return;
-    retourVerrouille.current = true;
-    definirRetourEnCours(true);
-    definirRetourEchoue(false);
-    try {
-      definirRetourEchoue(!await menuPrincipal());
-    } catch {
-      definirRetourEchoue(true);
-    } finally {
-      retourVerrouille.current = false;
-      definirRetourEnCours(false);
     }
   };
   const { nombre, total } = progression.pokedex;
@@ -156,7 +141,7 @@ export function PagePlus({ ouvrirPC, ouvrirMonde, menuPrincipal, attendreEnvoi }
             onClick={() => { entree.current = 'reglages'; choisir('reglages'); }} />
           {menuPrincipal && <LigneMenu icone={<IconeSortie />} titre="Menu principal"
             sousTexte="Sauvegarde, puis retour à tes parties" disabled={retourEnCours || sauvegarde === 'enCours'} onClick={revenirAuMenuPrincipal} />}
-          {retourEchoue && <p role="alert">La sauvegarde a échoué : tu restes dans la partie.</p>}
+          {retourEchoue && <p role="alert">{erreurRetourMenu}</p>}
         </section>}
     {diplomeOuvert && diplome && <Diplome diplome={diplome} fermer={() => ouvrirDiplome(false)} />}
     {guideOuvert && <Guide fermer={() => ouvrirGuide(false)} />}

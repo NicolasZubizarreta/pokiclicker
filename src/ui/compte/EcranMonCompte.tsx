@@ -1,20 +1,14 @@
 import { useEffect, useRef, type JSX } from 'react';
 import type { DefinitionSucces } from '../../core/succes';
 import type { ResumeCompte } from '../store';
+import { synchronisations } from '../synchronisations';
 import type { EtatSynchro } from '../synchro';
 import { IconeBadges } from '../icones-menu';
 import { IconeDiamant, IconeSortie } from './icones-compte';
 import '../Plaques.css';
 import './MonCompte.css';
 
-const synchronisations = {
-  ok: ['À jour', 'bg-succes-base'],
-  'hors-ligne': ['Hors connexion', 'bg-alerte-base'],
-  inactif: ['Synchronisation en attente', 'bg-info-base'],
-  ailleurs: ['Partie ouverte sur un autre appareil', 'bg-info-base'],
-  divergence: ['Mise à jour depuis l’autre appareil', 'bg-info-base'],
-  refuse: ['Synchronisation refusée', 'bg-erreur-base'],
-} as const;
+
 
 export function EcranMonCompte({ compte, registre, quandFermer, theme = 'dark' }: {
   compte: ResumeCompte; registre: readonly DefinitionSucces[]; quandFermer: () => void; theme?: 'dark' | 'light';

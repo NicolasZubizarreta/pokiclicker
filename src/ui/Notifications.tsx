@@ -14,7 +14,7 @@ export function Notifications() {
   const liste = useStore(storeNotifications, etat => etat.liste);
   useEffect(() => { notifier(annonce); }, [annonce]);
   return <div data-notifications
-    className="pointer-events-none fixed inset-x-4 top-[calc(var(--spacing)*2+env(safe-area-inset-top))] z-30 grid justify-items-center gap-2 lg:left-28">
+    className="pointer-events-none fixed inset-x-4 top-[calc(var(--spacing)*2+env(safe-area-inset-top))] z-30 grid justify-items-center gap-2 lg:inset-x-auto lg:top-auto lg:right-4 lg:bottom-4 lg:w-96 lg:justify-items-end lg:content-end">
     <AnnonceDeblocage />
     {/* Lecture en aria-live sans role="status" : ce rôle reste celui des phrases d'état propres à chaque écran. */}
     <div aria-live="polite" className="grid w-full max-w-(--breakpoint-md) gap-2">

@@ -245,7 +245,7 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
   const regionId = partie?.donnees.regionCourante ?? '';
   const zoneId = id ? gestionnaire.chargerRegion(id, regionId)?.donnees.zoneId ?? '' : '';
   return <>
-    {jeuMonte && <Coquille quandMenuPrincipal={menuPrincipal} attendreEnvoi={attendreEnvoi} />}
+    {jeuMonte && <Coquille quandMenuPrincipal={menuPrincipal} attendreEnvoi={attendreEnvoi} nomPartie={partie?.donnees.nom} etatSynchro={etatSynchro} />}
     {!suppression && !jeuMonte && !ecranParties && (ailleurs || repriseEnAttente) && <div>
       <EcranAutreAppareil nom={partie?.donnees.nom ?? ''} regionId={regionId} zoneId={zoneId} ecritLe={partie?.ecritLe ?? ''}
         occupe={occupe} erreur={erreur} quandReprendre={() => { void reprendre(); }} quandPlusTard={voirParties} />

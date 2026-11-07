@@ -47,14 +47,12 @@ const catalogue = chargerPokemon();
 /** Les sprites font 96 lignes ; `pieds-sprites.json` donne, par numéro, les lignes vides sous les pieds (mesurées sur les images).
  *  Le cadre est descendu de cette part pour que les pieds touchent le bas du conteneur, au centre du cercle (téléphone). */
 const piedsSprite = (numero: number) => ({ '--pieds': `${(piedsSprites[numero - 1] ?? 0) / 96 * 100}%` }) as CSSProperties;
-const formateurArgent = new Intl.NumberFormat('fr-FR');
 const sousTitres: Record<string, string> = { 'kanto.route-1': 'Jadielle' };
 
 function Entete({ store }: { store: StoreJeu }) {
   const lieu = useStore(store, etat => etat.lieu);
   const zone = useStore(store, etat => etat.zone);
   const etape = useStore(store, etat => etat.etape);
-  const argent = useStore(store, etat => etat.argent);
   const telephone = useTelephone();
   // Sur téléphone, les marques d'étape sont dans la ligne de zone du bandeau du haut : cet en-tête ne garde que le titre pour les lecteurs d'écran.
   return <header className={`${telephone ? 'sr-only' : 'mb-2'} flex flex-wrap items-center justify-between gap-x-4 gap-y-2 lg:col-span-3 lg:mb-0`}>
@@ -62,8 +60,6 @@ function Entete({ store }: { store: StoreJeu }) {
       <div className="sr-only lg:not-sr-only"><h1 className="font-titre text-2xl font-semibold">{lieu?.nom}</h1><p>{lieu && (sousTitres[lieu.id] ?? lieu.nom)}</p></div>
       {zone && !telephone && <Etapes etape={etape} />}
     </div>
-    {/* Sur téléphone, l'argent est dans le bandeau du haut ; sur PC il reste ici. */}
-    <span className="hidden text-region-accent tabular-nums lg:inline">{formateurArgent.format(argent)}{' ₽'}</span>
   </header>;
 }
 

@@ -317,11 +317,11 @@ function preparer(corrompu = false) {
   return { ...vue, horloge, stockage };
 }
 
-it('affiche les Pokédollars dans l’en-tête (PC) et sans constante provisoire', () => {
+it('réserve les Pokédollars au bandeau de la coquille', () => {
   preparer();
   for (const argent of [1250, 9876543, 0]) {
     act(() => store.setState({ argent }));
-    expect(screen.getByRole('banner').textContent?.replace(/\s/g, ' ')).toContain(
+    expect(screen.getByRole('banner').textContent?.replace(/\s/g, ' ')).not.toContain(
       `${new Intl.NumberFormat('fr-FR').format(argent).replace(/\s/g, ' ')} ₽`);
   }
   expect(readFileSync('src/ui/EcranCombat.tsx', 'utf8'))

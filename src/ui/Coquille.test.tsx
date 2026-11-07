@@ -46,7 +46,7 @@ it.each(['Équipe', 'Menu'] as const)('revient du PC vers %s et garde son onglet
   fireEvent.click(screen.getByRole('button', { name: origine }));
   fireEvent.click(screen.getByRole('button', { name: /PC de Léo/ }));
   expect(screen.getByRole('heading', { name: 'PC de Léo' })).toBeTruthy();
-  expect(within(screen.getByRole('navigation')).getByRole('button', { name: origine }).getAttribute('aria-current')).toBe('page');
+  expect(within(screen.getByRole('navigation')).getByRole('button', { name: 'PC' }).getAttribute('aria-current')).toBe('page');
   fireEvent.click(screen.getByRole('button', { name: origine === 'Équipe' ? "Retour à l'équipe" : 'Retour au menu' }));
   expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(origine === 'Équipe' ? 'Ton équipe' : 'Menu');
 });
@@ -136,7 +136,7 @@ it('propose Menu principal seulement avec le callback et l’appelle', () => {
   fireEvent.click(screen.getByRole('button', { name: 'Menu' }));
   expect(screen.queryByRole('button', { name: 'Menu principal' })).toBeNull();
   rerender(<Coquille quandMenuPrincipal={menuPrincipal} />);
-  fireEvent.click(screen.getByRole('button', { name: 'Menu principal' }));
+  fireEvent.click(within(screen.getByRole('navigation').parentElement!).getByRole('button', { name: 'Menu principal' }));
   expect(menuPrincipal).toHaveBeenCalledTimes(1);
 });
 
@@ -156,14 +156,14 @@ it('affiche les chiffres clés sur chaque onglet et les étapes seulement sur Co
   }
 });
 
-it('ouvre le PC fermé depuis Menu et conserve Menu comme destination active', () => {
+it('ouvre le PC fermé depuis Menu et active PC', () => {
   render(<Coquille />);
   fireEvent.click(screen.getByRole('button', { name: 'Menu' }));
   fireEvent.click(screen.getByRole('button', { name: 'PC de Léo' }));
   expect(screen.getByRole('heading', { name: 'PC de Léo' })).toBeTruthy();
   expect(screen.getByText("Le PC de Léo s'ouvre à l'Arène d'Argenta.")).toBeTruthy();
   expect(screen.queryByRole('button', { name: 'Retour' })).toBeNull();
-  expect(screen.getByRole('button', { name: 'Menu' }).getAttribute('aria-current')).toBe('page');
+  expect(screen.getByRole('button', { name: 'PC' }).getAttribute('aria-current')).toBe('page');
 });
 
 it('masque le bandeau pendant l’introduction et sa vue de sortie', () => {
@@ -211,7 +211,7 @@ it('affiche les crédits seulement lorsque fin.credits est vrai et rend la navig
     expect(container.querySelector('dialog.credits')).toBeNull();
     act(() => storeJeu.setState({ fin: { ...storeJeu.getState().fin, credits: true } }));
     expect(screen.getByRole('dialog', { name: 'POKÉ-CLICKER : KANTO ORIGINS' })).toBeTruthy();
-    expect(container.querySelector('nav')?.hasAttribute('inert')).toBe(true);
+    expect(container.querySelector('aside')?.hasAttribute('inert')).toBe(true);
     act(() => storeJeu.setState({ fin: { ...storeJeu.getState().fin, credits: false } }));
     expect(container.querySelector('dialog.credits')).toBeNull();
     unmount();
@@ -310,10 +310,10 @@ describe('Coquille', () => {
     expect(carte.classList.contains('rebond-signal')).toBe(false);
   });
 
-  it('présente les cinq destinations dans l’ordre et active seulement Combat', () => {
+  it('présente les six destinations dans l’ordre et active seulement Combat', () => {
     render(<Coquille />);
     const boutons = within(screen.getByRole('navigation')).getAllByRole('button');
-    expect(boutons.map((bouton) => bouton.textContent)).toEqual(noms);
+    expect(boutons.map((bouton) => bouton.querySelector('span:not([aria-hidden])')?.textContent)).toEqual(['Combat', 'Équipe', 'PC', 'Shop', 'Carte', 'Menu']);
     expect(boutons.filter((bouton) => bouton.getAttribute('aria-current') === 'page')).toEqual([boutons[0]]);
     expect(within(screen.getByRole('main')).getByRole('heading', { level: 1 }).textContent).toBe('Route 1');
     expect(screen.getByRole('button', { name: /^Attaquer / })).toBeTruthy();
@@ -396,7 +396,7 @@ describe('Coquille', () => {
         storeJeu.getState().tick();
       }
     });
-    const autorises = new Set(['Aller au contenu', 'Mon compte', ...noms, "Le Shop s'ouvre à la Forêt de Jade.",
+    const autorises = new Set(['PokiClicker', 'Kanto', 'PC', '1', '2', '3', '4', '5', '6', 'Espace', 'Attaquer', 'C', 'Capturer', 'B', 'Balle', 'A', 'Auto', 'T', 'Arrêt', 'S', 'Sac', '← →', 'Zone', '1–6', 'Onglets', '?', 'Tous', 'Tab', 'Naviguer', 'Échap', 'Fermer', 'Raccourcis', 'Raccourcis ?', 'Aller au contenu', 'Mon compte', ...noms, "Le Shop s'ouvre à la Forêt de Jade.",
       'Pokédollars', 'Zone', storeJeu.getState().lieu!.nom, `${storeJeu.getState().argent.toLocaleString('fr-FR')}\u00a0₽`,
       'Ton aventure', 'Aide et réglages', 'Partie en cours', 'La partie se sauvegarde toute seule.', 'Sauvegarder maintenant',
       'Monde Pokémon', 'Kanto jouable', 'Dégâts, DPS et gains', 'Statistiques', 'Région', `Kanto · ${storeJeu.getState().lieu!.nom}`, 'Badges', '0 / 8', '0 sur 8', 'DPS',
@@ -451,7 +451,7 @@ describe('Coquille', () => {
                     : element.tagName.toLowerCase() === 'header' ? 'Chiffres clés' : 'Navigation principale';
         // Le Sac de l'onglet Équipe : région, filtre, liste et pastilles « <objet> ×n ».
         if (nom === 'Équipe' && ['Sac', 'Catégories', 'Objets du Sac', 'Pokéball ×0', 'Bonbon ×0'].includes(element.getAttribute('aria-label') ?? '')) continue;
-        expect(element.getAttribute('aria-label')).toBe(attendu);
+        expect(element.getAttribute('aria-label')).toBe(element.tagName === 'FOOTER' ? 'Raccourcis clavier' : attendu);
       }
     }
     const icones = container.querySelectorAll('svg');
