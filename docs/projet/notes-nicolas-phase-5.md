@@ -29,6 +29,12 @@ oui la liaison autoclic et aussi valable sur PC
 
 (Réponse à la question du lot 3 : le réglage « Lier l'auto-clic à l'attaque auto » vaut sur téléphone et sur PC.)
 
+## 07/11/2026, premier test sur iPhone 15 (jeu en ligne, 5 captures dans docs/projet/retours-iphone-07-11/)
+
+Déjà quand un pokémon est sur le point d'évoluer on ne met pas le bouton évoluer comme sur pc ça décale tout l'écran on fait juste clignoter le cadre en jaune et en cliquant ça ouvre la fiche du pokémon avec le bouton évoluer, d'ailleurs quand on clique sur un pokémon de l'équipe dans l'écran de combat rien ne se passe je veux que ça ouvre la fiche du pokémon c'est logique. Certain sprite dépasse du cadre comme on peut le voir sur les deux premiers pokémons c'est surtout sur mes sprites easter egg veille a ce qu'un sprite soit TOUJOURS entièrement dans son cadre qu'il ne dépasse pas. Dans la zone équipe pareil pas de bouton évoluer qui chevauche les autres pokémons juste le cadre qui clignote sur téléphone l'évolution se fait uniquement dans la fiche pokémon. En parlant de fiche pokémon aucune fenêtre ne marche que ça soit la fiche pokémon, le sac, les paramètres d'arrêt auto, elles s'ouvrent en minuscule en bas de l'écran donc en gros on l'a voit pas c'est bugué. Sur le pokédex quand on clique sur un pokémon ça affiche juste son nom et son numéro c'est normal ? Je trouve ça un peu léger je mettrais au moins son sprite et sa base stat. Dernier détails les pokémons sauvage dans la zone de combat ne sont pas correctement sur le cercle vert ils sont en dessous pour la plus part faut les remonter et aussi le cercle vert est trop gros je le réduirait un peu(de 20% je sais pas) et j'augmenterai la taille des sprites des pokémons sauvage qui sont un peu trop petit(de 30 ou 40% je sais pas)
+
+Décision télémétrie (même jour) : on reste sur la requête SQL sur les sauvegardes du serveur ; l'envoi du relevé au serveur est mis dans le backlog, pas en phase 5 (docs/projet/backlog-plus-tard.md).
+
 ## 05/11/2026, détails d'interface sur PC
 
 (à dicter : Nicolas teste avec `npm.cmd run partie-test`)
