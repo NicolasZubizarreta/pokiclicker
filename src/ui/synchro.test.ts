@@ -53,7 +53,8 @@ it('suspend les PUT en pause puis reprend les envois', async () => {
 });
 function versions(t: ReturnType<typeof preparer>) {
   const local = { compte: t.g.chargerCompte()!, partie: t.g.chargerPartie(t.p.id)!, regions: [t.g.chargerRegion(t.p.id, 'kanto')!] };
-  const serveur = { compte: { ...local.compte, revision: 10 }, partie: { ...local.partie, revision: 20 }, regions: [{ ...local.regions[0]!, revision: 30 }] };
+  const plusTard = '2030-01-01T00:00:00.000Z';
+  const serveur = { compte: { ...local.compte, revision: 10, ecritLe: plusTard }, partie: { ...local.partie, revision: 20, ecritLe: plusTard }, regions: [{ ...local.regions[0]!, revision: 30, ecritLe: plusTard }] };
   const memoire: Memoire = { version: 1, compte: { local: 1, serveur: 10 }, parties: { [t.p.id]: { local: 1, serveur: 20 } }, regions: { [`${t.p.id}:kanto`]: { local: 1, serveur: 30 } } };
   const repondre = () => t.fetch.mockImplementation(async (url, options) => {
     if (options?.method === 'DELETE') return new Response('{"ok":true}');
@@ -82,6 +83,17 @@ it.each([
   expect(decider(local, serveur, memoire)).toEqual({ compte: 'rien', partie: resultat });
   expect(decider(local, null, memoire).compte).toBe('rien');
   expect(decider({ compte: null, partie: null, regions: [] }, serveur, { version: 1, parties: {}, regions: {} } )).toEqual({ compte: 'charger', partie: 'charger' });
+});
+
+it('ne voit pas de divergence quand le serveur a déjà reçu exactement ce que le local n’a pas pu mémoriser', () => {
+  const t = preparer();
+  const { local, serveur, memoire } = versions(t);
+  // Envoi parti puis page rechargée avant d'avoir mémorisé la réponse : mêmes dates d'écriture des deux côtés.
+  local.compte.revision++; local.partie.revision++; local.regions[0]!.revision++;
+  serveur.compte.revision++; serveur.partie.revision++; serveur.regions[0]!.revision++;
+  serveur.compte.ecritLe = local.compte.ecritLe; serveur.partie.ecritLe = local.partie.ecritLe;
+  serveur.regions[0]!.ecritLe = local.regions[0]!.ecritLe;
+  expect(decider(local, serveur, memoire)).toEqual({ compte: 'charger', partie: 'charger' });
 });
 
 it.each([true, false])('charge sans envoi (appareil neuf : %s)', async neuf => {

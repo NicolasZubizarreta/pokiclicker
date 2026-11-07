@@ -18,12 +18,21 @@ export function decider(local: Version, serveur: Version | null, memoire: Memoir
   const changePartie = (v: Version | null, cote: keyof Revision) => !!v && !!(
     (v.partie && v.partie.revision !== memoire.parties[v.partie.id]?.[cote])
     || v.regions.some(r => r.revision !== memoire.regions[`${v.partie?.id}:${r.id}`]?.[cote]));
-  return {
-    compte: verdict(!!serveur?.compte && serveur.compte.revision !== memoire.compte?.serveur,
-      !!local.compte && local.compte.revision !== memoire.compte?.local),
-    partie: local.partie && serveur?.partie && local.partie.id !== serveur.partie.id ? 'diverge'
-      : verdict(changePartie(serveur, 'serveur'), changePartie(local, 'local')),
-  };
+  // Un envoi parti juste avant un rechargement : le serveur a commit, pas la mémoire locale. Mêmes dates d'écriture = même contenu, pas de divergence.
+  // Le serveur (jsonb) peut réordonner les clés : on compare le contenu avec des clés triées.
+  const canonique = (v: unknown): string => JSON.stringify(v, (_, x: unknown) => x && typeof x === 'object' && !Array.isArray(x)
+    ? Object.fromEntries(Object.entries(x).sort(([p], [q]) => p < q ? -1 : 1)) : x);
+  const identiques = (a: Enveloppe<unknown> | null | undefined, b: Enveloppe<unknown> | null | undefined) => !!a && !!b
+    && a.id === b.id && a.ecritLe === b.ecritLe && canonique(a.donnees) === canonique(b.donnees);
+  const memePartie = !!local.partie && !!serveur?.partie && identiques(local.partie, serveur.partie)
+    && local.regions.length === serveur.regions.length
+    && local.regions.every(r => identiques(r, serveur.regions.find(x => x.id === r.id)));
+  const partie: Verdict = local.partie && serveur?.partie && local.partie.id !== serveur.partie.id ? 'diverge'
+    : verdict(changePartie(serveur, 'serveur'), changePartie(local, 'local'));
+  const compte = verdict(!!serveur?.compte && serveur.compte.revision !== memoire.compte?.serveur,
+    !!local.compte && local.compte.revision !== memoire.compte?.local);
+  return { compte: compte === 'diverge' && identiques(local.compte, serveur?.compte) ? 'charger' : compte,
+    partie: partie === 'diverge' && memePartie ? 'charger' : partie };
 }
 
 function resumer(version: Version): Resume {

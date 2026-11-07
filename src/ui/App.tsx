@@ -156,7 +156,7 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
   function voirParties() { fixerApresAilleurs(true); fixerEcranParties(true); void listerParties(); }
   async function deconnecter() {
     if (deco === 'chargement') return;
-    if (deco !== 'confirmer') {
+    if (deco !== 'confirmer' || synchro.enAttente()) {
       fixerDeco('chargement');
       if (jeuMonte) storeJeu.getState().sauvegarder();
       await synchro.envoyerMaintenant({ fermeture: true });

@@ -1,6 +1,8 @@
 import { test as base, expect } from '@playwright/test';
 import type { BrowserContext, Page } from '@playwright/test';
+import type { Enveloppe, DonneesCompte, DonneesPartie, DonneesRegion } from '../src/core/sauvegarde-types';
 
+type Version = { compte: Enveloppe<DonneesCompte>; partie: Enveloppe<DonneesPartie>; regions: Enveloppe<DonneesRegion>[] };
 type Partie = { id: string; nom: string; revision: number; ecritLe: string; regionCourante: string };
 const test = base.extend<{ serveur: Awaited<ReturnType<typeof brancherFauxServeur>> }>({
   serveur: async ({ context, page }, use) => {
@@ -12,7 +14,8 @@ const test = base.extend<{ serveur: Awaited<ReturnType<typeof brancherFauxServeu
 });
 
 async function brancherFauxServeur(context: BrowserContext) {
-  const etat = { parties: [] as Partie[], suppressions: [] as string[], inscriptions: 0, oublis: [] as string[], tokens: [] as string[] };
+  const etat = { parties: [] as Partie[], suppressions: [] as string[], inscriptions: 0, oublis: [] as string[], tokens: [] as string[],
+    ailleurs: false, refusPut: false, puts: [] as unknown[], version: null as Version | null, reprises: 0, archives: [] as unknown[] };
   await context.route('http://api.test/**', async route => {
     const requete = route.request();
     const chemin = new URL(requete.url()).pathname;
@@ -33,8 +36,17 @@ async function brancherFauxServeur(context: BrowserContext) {
     if (chemin === '/api/auth/sign-out') return repondre({});
     if (chemin === '/api/auth/request-password-reset') { etat.oublis.push(requete.postDataJSON().email); return repondre({}); }
     if (chemin === '/api/auth/reset-password') { etat.tokens.push(requete.postDataJSON().token); return repondre({}); }
-    if (chemin === '/api/sauvegarde/parties') return repondre({ parties: etat.parties });
-    if (chemin.endsWith('/appareil')) return repondre({ actif: true });
+    if (chemin === '/api/sauvegarde/parties') return repondre({ parties: etat.version ? [{ ...etat.version.partie,
+      nom: etat.version.partie.donnees.nom, regionCourante: etat.version.partie.donnees.regionCourante }] : etat.parties });
+    if (chemin.endsWith('/appareil') && methode === 'POST') {
+      if (requete.postDataJSON().reprendre === true) { etat.reprises++; etat.ailleurs = false; }
+      return repondre({ actif: !etat.ailleurs });
+    }
+    if (chemin.endsWith('/versions') && methode === 'POST') { etat.archives.push(requete.postDataJSON()); return repondre({}); }
+    if (methode === 'GET' && etat.version) {
+      if (chemin === '/api/sauvegarde/compte') return etat.version.compte ? repondre({ enveloppe: etat.version.compte }) : repondre({}, 404);
+      if (chemin === `/api/sauvegarde/parties/${etat.version.partie.id}`) return repondre({ partie: etat.version.partie, regions: etat.version.regions });
+    }
     if (chemin.startsWith('/api/sauvegarde/parties/') && methode === 'DELETE') {
       const id = decodeURIComponent(chemin.split('/').at(-1)!);
       etat.suppressions.push(id); etat.parties = etat.parties.filter(p => p.id !== id);
@@ -42,6 +54,8 @@ async function brancherFauxServeur(context: BrowserContext) {
     }
     if (chemin === '/api/sauvegarde' && methode === 'PUT') {
       const corps = requete.postDataJSON();
+      etat.puts.push(corps);
+      if (etat.refusPut) return repondre({}, 503);
       if (corps.partie) {
         const p = corps.partie.enveloppe;
         etat.parties = etat.parties.filter(partie => partie.id !== p.id);
@@ -69,6 +83,107 @@ async function remplir(page: Page, password = 'abcdefghij') {
   await page.getByLabel('E-mail', { exact: true }).fill('joueur@exemple.fr');
   await page.getByLabel('Mot de passe', { exact: true }).fill(password);
 }
+
+async function creerPartie(page: Page, context: BrowserContext) {
+  await installerSession(context);
+  await page.goto('/');
+  await page.getByLabel('Nom de la partie').fill('Test');
+  await page.getByRole('button', { name: 'Créer la partie', exact: true }).click();
+  await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
+}
+
+async function menuPrincipal(page: Page) {
+  await page.getByRole('button', { name: 'Menu', exact: true }).click();
+  await page.getByRole('button', { name: /Menu principal/ }).click();
+}
+
+test('Reprise ici sans choix : la version serveur remplace la partie locale', async ({ page, context, serveur }) => {
+  await creerPartie(page, context);
+  serveur.version = await page.evaluate(() => {
+    const enveloppes = Object.entries(localStorage).filter(([cle]) => /^pokiclicker:(compte|partie|region):/.test(cle))
+      .map(([, valeur]) => JSON.parse(valeur));
+    return { compte: enveloppes.find(e => e.niveau === 'compte'), partie: enveloppes.find(e => e.niveau === 'partie'),
+      regions: enveloppes.filter(e => e.niveau === 'region') };
+  });
+  serveur.version.partie.revision += 100;
+  serveur.version.partie.donnees.nom = 'Voyage serveur';
+  serveur.ailleurs = true;
+  serveur.puts = [];
+  await page.addInitScript(() => {
+    if (!sessionStorage.getItem('deux-versions-vues')) sessionStorage.setItem('deux-versions-vues', 'non');
+    new MutationObserver(() => {
+      if (document.body?.textContent?.includes('Deux versions')) sessionStorage.setItem('deux-versions-vues', 'oui');
+    }).observe(document, { childList: true, subtree: true, characterData: true });
+  });
+  await page.reload();
+  await expect(page.getByRole('heading', { name: 'Partie ouverte ailleurs', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: /^Attaquer / })).toHaveCount(0);
+  expect(serveur.puts).toEqual([]);
+  await page.getByRole('button', { name: 'Reprendre ici', exact: true }).click();
+  await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
+  expect(serveur.reprises).toBe(1);
+  expect(await page.evaluate(() => sessionStorage.getItem('deux-versions-vues'))).toBe('non');
+  await expect(page.getByText(/Deux versions/)).toHaveCount(0);
+  expect(await page.evaluate(id => JSON.parse(localStorage.getItem(`pokiclicker:partie:${id}`)!).donnees.nom, serveur.version.partie.id)).toBe('Voyage serveur');
+  expect(await page.evaluate(() => localStorage.getItem('pokiclicker.session'))).toBe('session-test');
+  await menuPrincipal(page);
+  await expect(page.getByRole('article', { name: 'Voyage serveur', exact: true })).toBeVisible();
+});
+
+test('Partie reprise ailleurs : arrêt des envois et accès aux parties sans retour au jeu', async ({ page, context, serveur }) => {
+  await page.clock.install();
+  await creerPartie(page, context);
+  serveur.ailleurs = true;
+  await page.clock.runFor(60_000);
+  await expect(page.getByRole('alert')).toContainText('Partie reprise ailleurs');
+  serveur.puts = [];
+  const stockage = await page.evaluate(() => Object.fromEntries(Object.entries(localStorage).filter(([cle]) => cle.startsWith('pokiclicker:partie:'))));
+  expect(Object.keys(stockage)).toHaveLength(1);
+  await page.clock.runFor(120_000);
+  expect(serveur.puts).toEqual([]);
+  expect(await page.evaluate(() => Object.fromEntries(Object.entries(localStorage).filter(([cle]) => cle.startsWith('pokiclicker:partie:'))))).toEqual(stockage);
+  expect(await page.evaluate(() => localStorage.getItem('pokiclicker.session'))).toBe('session-test');
+  await page.getByRole('button', { name: 'Voir mes parties', exact: true }).click();
+  await expect(page.getByRole('navigation', { name: 'Zone compte' })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Retour au jeu/ })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: /^Continuer / })).toHaveCount(0);
+});
+
+test('Déconnexion : envoi en échec, rester connecté puis envoi réussi', async ({ page, context, serveur }) => {
+  await creerPartie(page, context);
+  serveur.refusPut = true;
+  serveur.puts = [];
+  await page.getByRole('button', { name: /^(Auto-attaque|Attaque auto)$/ }).click();
+  await menuPrincipal(page);
+  await page.getByRole('navigation', { name: 'Zone compte' }).getByRole('button', { name: 'Compte', exact: true }).click();
+  await page.getByRole('button', { name: 'Se déconnecter', exact: true }).click();
+  await page.getByRole('dialog', { name: 'Se déconnecter ?' }).getByRole('button', { name: 'Sauvegarder et se déconnecter', exact: true }).click();
+  const echec = page.getByRole('alertdialog');
+  await expect(echec).toContainText("La sauvegarde n'a pas abouti");
+  await expect(echec.getByRole('button')).toHaveText(['Réessayer', 'Rester connecté']);
+  await expect(page.getByRole('button', { name: 'Se déconnecter quand même', exact: true })).toHaveCount(0);
+  expect(serveur.puts.length).toBeGreaterThan(0);
+  expect(serveur.puts).toEqual(expect.arrayContaining([expect.objectContaining({ appareilId: expect.any(String) })]));
+  expect(await page.evaluate(() => localStorage.getItem('pokiclicker.session'))).toBe('session-test');
+  expect(await page.evaluate(() => Object.keys(localStorage).some(cle => cle.startsWith('pokiclicker:partie:')))).toBe(true);
+  await echec.getByRole('button', { name: 'Rester connecté', exact: true }).click();
+  await expect(echec).toHaveCount(0);
+  serveur.refusPut = false;
+  serveur.puts = [];
+  let terminerEnvoi!: () => void;
+  const envoi = new Promise<void>(resolve => { terminerEnvoi = resolve; });
+  await page.route('http://api.test/api/sauvegarde', async route => {
+    if (route.request().method() === 'PUT') await envoi;
+    await route.fallback();
+  });
+  await page.getByRole('button', { name: 'Se déconnecter', exact: true }).click();
+  await page.getByRole('button', { name: 'Sauvegarder et se déconnecter', exact: true }).click();
+  await expect(page.getByRole('alertdialog')).toContainText('Sauvegarde en cours…');
+  terminerEnvoi();
+  await expect(page.getByRole('heading', { name: 'Connexion', exact: true })).toBeVisible();
+  expect(serveur.puts.length).toBeGreaterThan(0);
+  expect(await page.evaluate(() => localStorage.getItem('pokiclicker.session'))).toBeNull();
+});
 
 async function ouvrirZone(page: Page, context: BrowserContext, serveur: Awaited<ReturnType<typeof brancherFauxServeur>>) {
   serveur.parties = ['Voyage', 'Autre'].map((nom, i) => ({ id: `p${i}`, nom, revision: 1, ecritLe: '2026-11-04T12:00:00Z', regionCourante: 'kanto' }));
@@ -188,6 +303,9 @@ test('Déconnexion : retour à Connexion et session retirée', async ({ page, co
   await ouvrirZone(page, context, serveur);
   await page.getByRole('navigation', { name: 'Zone compte' }).getByRole('button', { name: 'Compte', exact: true }).click();
   await page.getByRole('button', { name: 'Se déconnecter', exact: true }).click();
+  const dialogue = page.getByRole('dialog', { name: 'Se déconnecter ?', exact: true });
+  await expect(dialogue).toBeVisible();
+  await dialogue.getByRole('button', { name: 'Se déconnecter', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Connexion', exact: true })).toBeVisible();
   expect(await page.evaluate(() => localStorage.getItem('pokiclicker.session'))).toBeNull();
 });

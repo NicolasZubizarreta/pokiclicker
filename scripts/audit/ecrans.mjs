@@ -106,6 +106,7 @@ async function ouvrirIntro(page, ctx, etape) {
 /** @typedef {{compte: import('../../src/core/sauvegarde-types').Enveloppe<import('../../src/core/sauvegarde-types').DonneesCompte>, partie: import('../../src/core/sauvegarde-types').Enveloppe<import('../../src/core/sauvegarde-types').DonneesPartie>, regions: import('../../src/core/sauvegarde-types').Enveloppe<import('../../src/core/sauvegarde-types').DonneesRegion>[]}} Version */
 /** @param {import('@playwright/test').BrowserContext} contexte @param {string} url @param {{version?: Version, ailleurs?: boolean}} options */
 async function brancherFauxServeur(contexte, url, { version, ailleurs = false } = {}) {
+  const etat = { ailleurs };
   await contexte.route('http://api.test/**', async route => {
     const cors = { 'access-control-allow-origin': url, 'access-control-allow-headers': 'authorization,content-type',
       'access-control-allow-methods': 'GET,POST,PUT,DELETE,OPTIONS', 'access-control-expose-headers': 'set-auth-token' };
@@ -114,12 +115,13 @@ async function brancherFauxServeur(contexte, url, { version, ailleurs = false } 
     if (route.request().method() === 'OPTIONS') return route.fulfill({ status: 204, headers: cors });
     const chemin = new URL(route.request().url()).pathname;
     if (chemin === '/api/auth/get-session') return repondre({ session: { id: 'audit' } });
-    if (chemin.endsWith('/appareil')) return repondre({ actif: !ailleurs });
+    if (chemin.endsWith('/appareil')) return repondre({ actif: !etat.ailleurs });
     if (chemin === '/api/sauvegarde/parties') return repondre({ parties: version ? [{ id: version.partie.id, nom: version.partie.donnees.nom, revision: version.partie.revision, ecritLe: instant, regionCourante: 'kanto', zoneId: 'kanto.route-1' }] : [] });
     if (chemin === '/api/sauvegarde/compte' && version) return repondre({ enveloppe: version.compte });
     if (version && chemin === `/api/sauvegarde/parties/${version.partie.id}`) return repondre({ partie: version.partie, regions: version.regions });
     return repondre({}, 404);
   });
+  return etat;
 }
 
 /** @param {Page} page @param {Contexte} ctx @param {string} mode */
@@ -145,20 +147,27 @@ async function ouvrirCompteConnecte(page, ctx, mode) {
     for (const [cle, valeur] of Object.entries(stockage)) localStorage.setItem(cle, valeur);
     localStorage.setItem('pokiclicker.session', 'audit-jeton');
   }, stockage);
-  let version;
-  if (mode === 'conflit') {
-    const enveloppes = Object.entries(stockage).filter(([cle]) => /^pokiclicker:(compte|partie|region):/.test(cle)).map(([, valeur]) => JSON.parse(valeur));
-    version = { compte: enveloppes.find(e => e.niveau === 'compte'), partie: enveloppes.find(e => e.niveau === 'partie'), regions: enveloppes.filter(e => e.niveau === 'region') };
-    version.partie.revision += 10;
-    version.partie.donnees.nom = 'Autre appareil';
-  }
-  await brancherFauxServeur(ctx.contexte, ctx.url, { version, ailleurs: mode === 'ailleurs' });
+  const enveloppes = Object.entries(stockage).filter(([cle]) => /^pokiclicker:(compte|partie|region):/.test(cle)).map(([, valeur]) => JSON.parse(valeur));
+  const version = { compte: enveloppes.find(e => e.niveau === 'compte'), partie: enveloppes.find(e => e.niveau === 'partie'), regions: enveloppes.filter(e => e.niveau === 'region') };
+  const serveur = await brancherFauxServeur(ctx.contexte, ctx.url, { version: mode === 'deconnexion' ? version : undefined, ailleurs: mode === 'ailleurs' });
   await page.goto(ctx.url);
-  if (mode === 'conflit') return titre(page, 'Deux versions de ta partie');
   if (mode === 'ailleurs') return titre(page, 'Partie ouverte ailleurs');
   await expect(bouton(page, /^Attaquer /)).toBeVisible();
-  await cliquerSousEntete(bouton(page, 'Mes parties'));
-  await titre(page, 'Tes parties');
+  if (mode === 'reprise-ailleurs') {
+    serveur.ailleurs = true;
+    await page.clock.runFor(60_000);
+    await expect(page.getByRole('alert')).toContainText('Partie reprise ailleurs');
+    return;
+  }
+  await bouton(page, 'Menu').click();
+  await bouton(page, /Menu principal/).click();
+  await titre(page, 'Mes parties');
+  if (mode === 'deconnexion') {
+    await page.getByRole('navigation', { name: 'Zone compte' }).getByRole('button', { name: 'Compte', exact: true }).click();
+    await bouton(page, 'Se déconnecter').click();
+    await expect(page.getByRole('dialog', { name: 'Se déconnecter ?', exact: true })).toBeVisible();
+    await expect(page.getByRole('dialog').getByRole('button', { name: 'Se déconnecter', exact: true })).toBeVisible();
+  }
 }
 
 /** @param {Page} page @param {Contexte} ctx @param {string|null} section */
@@ -209,7 +218,8 @@ const avance = 'Équipe de six au niveau 100, huit badges, 250 000\u00a0₽, sac
 export const ecrans = [
   .../** @type {[string,string,string][]} */ ([['connexion', 'Connexion', 'connexion'], ['inscription', 'Inscription', 'inscription'], ['mot-de-passe-oublie', 'Mot de passe oublié', 'oubli'], ['nouveau-mot-de-passe', 'Nouveau mot de passe', 'nouveau']]).map(([slug, nom, mode]) => entree('compte', slug, nom, 'compte/EcranCompte', 'Formulaire sans erreur ; API fictive locale.', (p, c) => ouvrirCompte(p, c, mode), 'compte')),
   entree('compte', 'ecran-parties', 'Mes parties', 'compte/EcranParties', 'Partie locale existante, aucune partie sur le faux serveur.', (p, c) => ouvrirCompteConnecte(p, c, 'parties'), 'compte'),
-  entree('compte', 'ecran-choix-version', 'Choix de version', 'compte/EcranChoixVersion', 'Versions locale et distante divergentes de la même partie.', (p, c) => ouvrirCompteConnecte(p, c, 'conflit'), 'compte'),
+  entree('compte', 'ecran-deconnexion', 'Se déconnecter ?', 'compte/DialogueDeconnexion', 'Confirmation ouverte depuis l’onglet Compte.', (p, c) => ouvrirCompteConnecte(p, c, 'deconnexion'), 'compte'),
+  entree('compte', 'ecran-reprise-ailleurs', 'Partie reprise ailleurs', 'compte/EcranRepriseAilleurs', 'Jeu monté puis battement signalant un autre appareil actif.', (p, c) => ouvrirCompteConnecte(p, c, 'reprise-ailleurs'), 'compte'),
   entree('compte', 'ecran-autre-appareil', 'Partie ouverte ailleurs', 'compte/EcranAutreAppareil', 'Le faux serveur signale un autre appareil actif.', (p, c) => ouvrirCompteConnecte(p, c, 'ailleurs'), 'compte'),
   .../** @type {[string,string,string|null][]} */ ([['ecran-mon-compte', 'Mon compte', null], ['diamants', 'Diamants', 'Diamants'], ['succes', 'Succès', 'Succès'], ['skins', 'Skins', 'Skins']]).map(([slug, nom, section]) => entree('compte', slug, nom, 'compte/EcranMonCompte', 'Compte local : 120 diamants, deux succès, skin tenue-kanto ; section dans la page Mon compte.', (p, c) => ouvrirMonCompte(p, c, section))),
   entree('combat', 'ecran-combat', 'Combat', 'EcranCombat', avance, async (p, c) => { await demarrerEtatAvance(p, c); await expect(p.getByRole('region', { name: /^Combat contre/ })).toBeVisible(); }),

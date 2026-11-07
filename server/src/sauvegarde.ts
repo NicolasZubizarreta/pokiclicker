@@ -165,7 +165,7 @@ export function routesSauvegarde(pool: Pool, auth: Auth): Hono<{ Variables: { co
         SET appareil_id = EXCLUDED.appareil_id, battement_le = now()
         WHERE appareil_actif.appareil_id = EXCLUDED.appareil_id
           OR now() - appareil_actif.battement_le > interval '120 seconds' OR $3
-        RETURNING partie_id`, [id, brut.appareilId, brut.reprendre === true]);
+        RETURNING partie_id`, [id, brut.appareilId.toLowerCase(), brut.reprendre === true]);
       await db.query('COMMIT');
       return c.json({ actif: resultat.rows.length > 0 });
     } catch (error) {
@@ -237,7 +237,7 @@ export function routesSauvegarde(pool: Pool, auth: Auth): Hono<{ Variables: { co
       SET appareil_id = EXCLUDED.appareil_id, battement_le = now()
       WHERE appareil_actif.appareil_id = EXCLUDED.appareil_id
         OR now() - appareil_actif.battement_le > interval '120 seconds'
-      RETURNING partie_id`, [corps.partieId, corps.appareilId]);
+      RETURNING partie_id`, [corps.partieId, corps.appareilId?.toLowerCase()]);
     let echec: Error | undefined; // une connexion en erreur est détruite au lieu de retourner au pool
     const conflit = { message: 'Cette sauvegarde a changé depuis ta dernière lecture.', conflits: [] as Objet[] };
     try {
