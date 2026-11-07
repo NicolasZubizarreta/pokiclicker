@@ -2,6 +2,18 @@
 
 Tickets décidés par Nicolas mais rattachés à aucune phase pour l'instant. Aucun code avant son feu vert sur le ticket.
 
+## U. `feat(ui): refonte complète du casino (téléphone et PC)`
+
+`type:feat`, `etat:a_faire`, `est:à cadrer`, `prio:4` · branche : `v2` · pas d'`agent-ok` (refonte à concevoir avec Nicolas) · hors ticket K de la phase 5
+
+Décision du 07/11/2026 : « le casino faudra faire un ticket à part car on va faire un rework complet que ça soit PC ou téléphone donc inutile de tester l'interface maintenant ». Le centre commercial est validé tel quel. Nicolas dictera le cahier des charges du nouveau casino ; maquettes à valider avant tout code (méthode de la phase 5).
+
+### Critères d'acceptation
+- [ ] Étant donné le cahier des charges de Nicolas, quand les maquettes téléphone et PC sont validées, alors le casino est refait selon elles, sans changer les règles de jeu non décidées.
+
+### Effort et risques
+À estimer après le cahier des charges.
+
 ## T. `feat(telemetrie): envoyer le relevé de partie au serveur`
 
 `type:feat`, `etat:a_faire`, `est:3-5`, `prio:5` · branche : `v2` · pas d'`agent-ok` (RGPD, consentement)
