@@ -101,12 +101,17 @@ export function creerGestionnaire({ stockage, horloge, genererId }: {
     chargerPartie,
     chargerRegion,
     installerVersion({ compte, partie, regions }: {
-      compte?: Enveloppe<DonneesCompte> | null; partie: Enveloppe<DonneesPartie>; regions: Enveloppe<DonneesRegion>[];
+      compte?: Enveloppe<DonneesCompte> | null; partie?: Enveloppe<DonneesPartie>; regions: Enveloppe<DonneesRegion>[];
     }) {
-      validerEnveloppe(partie, 'partie');
+      if (partie) validerEnveloppe(partie, 'partie');
       if (compte) {
         validerEnveloppe(compte, 'compte');
         exiger(compte.id === 'local', 'Identifiant de compte incohérent');
+      }
+      if (!partie) {
+        exiger(regions.length === 0, 'Partie absente');
+        if (compte) stockage.ecrire(cleCompte, JSON.stringify(compte));
+        return;
       }
       const ids = regions.map(region => {
         validerEnveloppe(region, 'region');

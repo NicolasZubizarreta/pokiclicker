@@ -49,6 +49,8 @@ export function creerAppareilActif(options: {
     } finally { enCours = false; }
   }
   return {
+    id: (): string => appareilId!,
+    signalerAilleurs: () => changer(true),
     async ouvrir(): Promise<'libre' | 'ailleurs'> {
       const actif = await requete();
       ouvert = true;

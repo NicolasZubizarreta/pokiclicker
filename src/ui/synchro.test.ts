@@ -7,6 +7,39 @@ import { creerStoreJeu } from './store';
 import { creerSynchro, decider, type Memoire } from './synchro';
 
 const arrets: (() => void)[] = [];
+it.each([
+  [false, false, 'rien'], [false, true, 'envoyer'],
+  [true, false, 'charger'], [true, true, 'diverge'],
+] as const)('décide indépendamment pour le compte (%s, %s)', (sc, lc, verdict) => {
+  const t = preparer();
+  const { local, serveur, memoire } = versions(t);
+  if (sc) serveur.compte.revision++;
+  if (lc) local.compte.revision++;
+  expect(decider(local, serveur, memoire)).toEqual({ compte: verdict, partie: 'rien' });
+});
+
+it('résout le compte seul en conservant la partie locale et sa mémoire', async () => {
+  const t = preparer();
+  const { serveur, memoire } = versions(t);
+  serveur.compte.revision++;
+  t.g.ecrireCompte({ ...compteInitial(), diamants: 99 });
+  t.modifier();
+  t.stockage.ecrire('pokiclicker:synchro', JSON.stringify(memoire));
+  const synchro = creerSynchro(t.options);
+  const partie = t.g.chargerPartie(t.p.id);
+  const region = t.g.chargerRegion(t.p.id, 'kanto');
+  expect(await synchro.ouvrir()).toBe('charge');
+  expect(t.g.chargerCompte()).toEqual(serveur.compte);
+  expect(t.g.chargerPartie(t.p.id)).toEqual(partie);
+  expect(t.g.chargerRegion(t.p.id, 'kanto')).toEqual(region);
+  const apres = JSON.parse(t.stockage.lire('pokiclicker:synchro')!);
+  expect(apres.parties).toEqual(memoire.parties);
+  expect(apres.regions).toEqual(memoire.regions);
+  const archives = t.fetch.mock.calls.filter(([, o]) => o?.method === 'POST');
+  expect(archives).toHaveLength(1);
+  expect(JSON.parse(archives[0]![1]!.body as string)).toMatchObject({ niveau: 'compte', objetId: 'local' });
+});
+
 it('suspend les PUT en pause puis reprend les envois', async () => {
   const t = preparer();
   let pause = true;
@@ -36,19 +69,19 @@ function versions(t: ReturnType<typeof preparer>) {
 
 it.each([
   ['identiques', false, false, false, 'rien'],
-  ['local seul', true, false, false, 'rien'],
+  ['local seul', true, false, false, 'envoyer'],
   ['serveur seul', false, true, false, 'charger'],
-  ['deux changements', true, true, false, 'choisir'],
-  ['identifiants différents', false, false, true, 'choisir'],
+  ['deux changements', true, true, false, 'diverge'],
+  ['identifiants différents', false, false, true, 'diverge'],
 ] as const)('décide : %s', (_, changeLocal, changeServeur, autreId, resultat) => {
   const t = preparer();
   const { local, serveur, memoire } = versions(t);
   if (changeLocal) local.partie.revision++;
   if (changeServeur) serveur.regions[0]!.revision++;
   if (autreId) local.partie.id = 'autre';
-  expect(decider(local, serveur, memoire)).toBe(resultat);
-  expect(decider(local, null, memoire)).toBe('rien');
-  expect(decider({ compte: null, partie: null, regions: [] }, serveur, { version: 1, parties: {}, regions: {} })).toBe('charger');
+  expect(decider(local, serveur, memoire)).toEqual({ compte: 'rien', partie: resultat });
+  expect(decider(local, null, memoire).compte).toBe('rien');
+  expect(decider({ compte: null, partie: null, regions: [] }, serveur, { version: 1, parties: {}, regions: {} } )).toEqual({ compte: 'charger', partie: 'charger' });
 });
 
 it.each([true, false])('charge sans envoi (appareil neuf : %s)', async neuf => {
@@ -64,19 +97,14 @@ it.each([true, false])('charge sans envoi (appareil neuf : %s)', async neuf => {
   expect(t.fetch.mock.calls.every(([, options]) => options?.method === 'GET')).toBe(true);
 });
 
-it('présente le choix et garde cet appareil avec les bases serveur', async () => {
-  const t = preparer(); versions(t);
-  const quandChange = vi.fn();
-  const synchro = creerSynchro({ ...t.options, quandChange });
-  expect(await synchro.ouvrir()).toBe('choix');
-  expect(synchro.choix()?.local.regionId).toBe('kanto');
-  expect(quandChange).toHaveBeenCalledTimes(1);
-  await synchro.envoyerMaintenant();
-  expect(t.fetch).toHaveBeenCalledTimes(3);
-  expect(await synchro.trancher('local')).toBe('ok');
-  expect(t.corps()).toMatchObject({ compte: { revisionBase: 10 }, partie: { revisionBase: 20 }, regions: [{ revisionBase: 30 }] });
-  expect(synchro.choix()).toBeNull();
-  expect(quandChange).toHaveBeenCalledTimes(2);
+it('résout automatiquement et consomme un seul avis', async () => {
+  const t = preparer(); const { serveur } = versions(t);
+  expect(await t.synchro.ouvrir()).toBe('charge');
+  expect(t.g.chargerPartie(t.p.id)).toEqual(serveur.partie);
+  expect(t.synchro.lireAvis()).toContain('gardé en secours');
+  expect(t.synchro.lireAvis()).toBeNull();
+  await t.synchro.envoyerMaintenant();
+  expect(t.fetch.mock.calls.filter(([, o]) => o?.method === 'PUT')).toHaveLength(0);
 });
 
 it.each(['réseau', 'forme', 'serveur'])('ouvre sur le local en cas de problème : %s', async cause => {
@@ -88,68 +116,54 @@ it.each(['réseau', 'forme', 'serveur'])('ouvre sur le local en cas de problème
   expect(t.contenu()).toEqual(avant);
 });
 
-it('prépare le choix après 409 et retente la lecture sans nouvel envoi', async () => {
-  const t = preparer();
-  const v = versions(t);
-  t.fetch.mockResolvedValueOnce(new Response('{}', { status: 409 })).mockRejectedValueOnce(new Error('Réseau'));
+it('résout après 409 au retour du réseau', async () => {
+  const t = preparer(); versions(t);
+  t.fetch.mockResolvedValueOnce(new Response('{}', { status: 409 }));
   t.synchro.demarrer();
   await t.synchro.envoyerMaintenant();
-  expect(t.synchro.etat()).toBe('conflit');
-  expect(t.synchro.choix()).toBeNull();
-  v.repondre();
-  await t.avancer(45_000);
-  expect(t.synchro.choix()).not.toBeNull();
-  t.modifier();
-  await t.synchro.envoyerMaintenant({ fermeture: true });
+  expect(t.synchro.etat()).toBe('divergence');
+  window.dispatchEvent(new Event('online'));
+  await t.avancer(0);
+  expect(t.synchro.etat()).toBe('inactif');
   expect(t.fetch.mock.calls.filter(([, o]) => o?.method === 'PUT')).toHaveLength(1);
 });
 
-it('plusieurs jours hors ligne puis retour du réseau : le conflit passe par le choix, sans rien écraser', async () => {
-  const t = preparer();
-  const v = versions(t);
+it('conserve le local hors ligne puis reprend le serveur', async () => {
+  const t = preparer(); const v = versions(t);
   t.fetch.mockRejectedValue(new Error('Réseau'));
   expect(await t.synchro.ouvrir()).toBe('hors-ligne');
-  t.synchro.demarrer();
-  for (let jour = 0; jour < 3; jour++) {
-    t.modifier();
-    await t.avancer(45_000);
-    t.horloge.avancer(24 * 3600_000);
-  }
-  expect(t.synchro.etat()).toBe('hors-ligne');
-  const local = t.contenu();
-  // Pendant ce temps, l'autre appareil a avancé : le serveur refuse l'envoi de la révision de départ périmée.
+  t.modifier();
+  const avant = t.contenu();
+  expect(await t.synchro.resoudre()).toBe('echec');
+  expect(t.contenu()).toEqual(avant);
   v.repondre();
-  t.fetch.mockResolvedValueOnce(new Response('{}', { status: 409 }));
-  await t.avancer(45_000);
-  expect(t.synchro.etat()).toBe('conflit');
-  expect(t.synchro.choix()).not.toBeNull();
-  expect(t.contenu()).toEqual(local);
-  expect(await t.synchro.trancher('local')).toBe('ok');
-  expect(t.corps()).toMatchObject({ partie: { revisionBase: 20 } });
+  expect(await t.synchro.resoudre()).toBe('charge');
+  expect(t.g.chargerPartie(t.p.id)).toEqual(v.serveur.partie);
 });
 
-it.each([true, false])('archive avant installation (échec : %s)', async echec => {
-  const t = preparer();
-  const { serveur } = versions(t);
-  await t.synchro.ouvrir();
+it.each(['ok', 'réponse', 'exception'])('archive avant toute installation : %s', async cause => {
+  const t = preparer(); const { serveur } = versions(t);
   const avant = t.contenu();
-  const ecrire = vi.spyOn(t.stockage, 'ecrire');
-  t.fetch.mockImplementation(async (_, options) => {
-    expect(options?.method).toBe('POST');
-    expect(t.contenu()).toEqual(avant);
-    expect(ecrire).not.toHaveBeenCalled();
-    return new Response('{}', { status: echec ? 503 : 200 });
+  const repondre = t.fetch.getMockImplementation()!;
+  t.fetch.mockImplementation(async (url, options) => {
+    if (options?.method === 'POST') {
+      expect(t.contenu()).toEqual(avant);
+      if (cause === 'exception') throw new Error('réseau');
+      return new Response('{}', { status: cause === 'réponse' ? 503 : 200 });
+    }
+    return repondre(url, options);
   });
-  expect(await t.synchro.trancher('serveur')).toBe(echec ? 'echec' : 'ok');
-  if (echec) {
-    expect(t.contenu()).toEqual(avant);
-    expect(t.synchro.choix()).not.toBeNull();
-  } else {
+  expect(await t.synchro.ouvrir()).toBe(cause === 'ok' ? 'charge' : 'hors-ligne');
+  if (cause === 'ok') {
     expect(t.g.chargerPartie(t.p.id)).toEqual(serveur.partie);
     expect(t.g.chargerCompte()).toEqual(serveur.compte);
     expect(t.g.chargerRegion(t.p.id, 'kanto')).toEqual(serveur.regions[0]);
-    expect(JSON.parse(t.stockage.lire('pokiclicker:synchro')!).regions[`${t.p.id}:kanto`]).toEqual({ local: 30, serveur: 30 });
-    expect(t.synchro.choix()).toBeNull();
+    expect(t.fetch.mock.calls.filter(([, o]) => o?.method === 'POST')).toHaveLength(3);
+  } else {
+    expect(t.contenu()).toEqual(avant);
+    expect(t.synchro.etat()).toBe('divergence');
+    await t.synchro.envoyerMaintenant({ fermeture: true });
+    expect(t.fetch.mock.calls.filter(([, o]) => o?.method === 'PUT')).toHaveLength(0);
   }
 });
 
@@ -163,7 +177,7 @@ it('ignore une autre partie serveur et conserve toutes les régions et la mémoi
   const synchro = creerSynchro(t.options);
   const avant = t.contenu();
   expect(await synchro.ouvrir()).toBe('rien');
-  expect(synchro.choix()).toBeNull();
+  expect(synchro.suppression()).toBeNull();
   expect(t.contenu()).toEqual(avant);
   expect(JSON.parse(t.stockage.lire('pokiclicker:synchro')!)).toEqual(memoire);
   expect(t.fetch).toHaveBeenCalledTimes(1);
@@ -177,8 +191,7 @@ it('archive aussi une région locale absente du serveur quand la partie est la m
   t.g.ecrireRegion(t.p.id, 'johto', { ...region.donnees, regionId: 'johto' });
   t.stockage.ecrire('pokiclicker:synchro', JSON.stringify(memoire));
   const synchro = creerSynchro(t.options);
-  expect(await synchro.ouvrir()).toBe('choix');
-  expect(await synchro.trancher('serveur')).toBe('ok');
+  expect(await synchro.ouvrir()).toBe('charge');
   const archives = t.fetch.mock.calls.filter(([, o]) => o?.method === 'POST').map(([, o]) => JSON.parse(o!.body as string).objetId);
   expect(archives).toContain(`${t.p.id}:johto`);
   expect(t.g.chargerRegion(t.p.id, 'johto')).toBeNull();
@@ -197,28 +210,42 @@ it("envoie la partie courante avec la base connue quand le serveur liste une aut
   expect(t.corps()).toMatchObject({ partieId: t.p.id, regions: [{ revisionBase: 30 }] });
 });
 
-it('relit un choix périmé et conserve le local si cette lecture échoue', async () => {
-  const t = preparer();
-  const { serveur, repondre } = versions(t);
+it('relit le serveur à chaque résolution', async () => {
+  const t = preparer(); const { serveur } = versions(t);
   await t.synchro.ouvrir();
   const avant = t.contenu();
-  t.horloge.avancer(60_001);
   t.fetch.mockRejectedValueOnce(new Error('Réseau'));
-  expect(await t.synchro.trancher('serveur')).toBe('echec');
+  expect(await t.synchro.resoudre()).toBe('echec');
   expect(t.contenu()).toEqual(avant);
   serveur.partie.revision++;
-  repondre();
-  expect(await t.synchro.trancher('serveur')).toBe('ok');
+  expect(await t.synchro.resoudre()).toBe('charge');
   expect(t.g.chargerPartie(t.p.id)?.revision).toBe(21);
 });
 
-it('représente le choix si garder cet appareil reçoit encore un 409', async () => {
+it('bloque un appareil dépossédé jusqu’à sa reprise', async () => {
   const t = preparer(); versions(t);
-  await t.synchro.ouvrir();
-  t.fetch.mockResolvedValueOnce(new Response('{}', { status: 409 }));
-  expect(await t.synchro.trancher('local')).toBe('echec');
-  expect(t.synchro.choix()).not.toBeNull();
-  expect(t.synchro.etat()).toBe('conflit');
+  let pause = false;
+  const quandAilleurs = vi.fn(() => { pause = true; });
+  const synchro = creerSynchro({ ...t.options, appareilId: () => 'appareil', quandAilleurs, enPause: () => pause });
+  t.fetch.mockResolvedValueOnce(new Response('{"code":"ailleurs"}', { status: 409 }));
+  await synchro.envoyerMaintenant();
+  expect(t.corps().appareilId).toBe('appareil');
+  expect(synchro.etat()).toBe('ailleurs');
+  expect(synchro.enAttente()).toBe(false);
+  await synchro.ouvrir();
+  await synchro.envoyerMaintenant({ fermeture: true });
+  expect(quandAilleurs).toHaveBeenCalledTimes(1);
+  expect(t.fetch).toHaveBeenCalledTimes(1);
+  pause = false;
+  await synchro.ouvrir();
+  t.modifier();
+  expect(synchro.enAttente()).toBe(true);
+  await synchro.envoyerMaintenant({ fermeture: true });
+  expect(synchro.enAttente()).toBe(false);
+  expect(t.fetch.mock.calls.filter(([, o]) => o?.method === 'PUT')).toHaveLength(2);
+  t.g.ecrireCompte(compteInitial());
+  await synchro.envoyerMaintenant({ fermeture: true });
+  expect(t.corps()).not.toHaveProperty('appareilId');
 });
 it('liste les résumés serveur et les parties locales non envoyées par date', async () => {
   const t = preparer();
@@ -448,21 +475,21 @@ it.each([409, 404])('attend le choix après suppression ailleurs (%s), puis recr
   ] }), { status }));
   const avant = t.contenu();
   await t.synchro.envoyerMaintenant({ fermeture: true });
-  expect(t.synchro.choix()?.supprimee).toBe(t.p.id);
+  expect(t.synchro.suppression()?.id).toBe(t.p.id);
   t.synchro.demarrer();
   await t.avancer(90_000);
   await t.synchro.envoyerMaintenant({ fermeture: true });
   expect(t.fetch.mock.calls.filter(([, o]) => o?.method === 'PUT')).toHaveLength(2);
   t.fetch.mockResolvedValueOnce(new Response(JSON.stringify({ partie: { id: t.p.id, revision: 1 },
     regions: ['kanto', 'johto', 'hoenn'].map(id => ({ id, revision: 1 })) })));
-  expect(await t.synchro.trancher('local')).toBe('ok');
+  expect(await t.synchro.resoudreSuppression('garder')).toBe('ok');
   expect(t.fetch.mock.calls.filter(([, o]) => o?.method === 'PUT')).toHaveLength(3);
   expect(t.corps().partie.revisionBase).toBe(0);
   expect(t.corps().regions.map((r: { revisionBase: number; enveloppe: { id: string } }) => [r.enveloppe.id, r.revisionBase]).sort()).toEqual([['hoenn', 0], ['johto', 0], ['kanto', 0]]);
   const memoire = JSON.parse(t.stockage.lire('pokiclicker:synchro')!);
   for (const id of ['kanto', 'johto', 'hoenn']) expect(memoire.regions[`${t.p.id}:${id}`]).toEqual({ serveur: 1, local: t.g.chargerRegion(t.p.id, id)!.revision });
   expect(t.synchro.etat()).toBe('ok');
-  expect(t.synchro.choix()).toBeNull();
+  expect(t.synchro.suppression()).toBeNull();
   expect(t.contenu()).toEqual(avant);
 });
 
@@ -472,7 +499,7 @@ it('envoie toutes les régions d’une partie neuve après le choix local', asyn
   const nouvelle = creerGestionnaire({ ...t.options, genererId: () => 'nouvelle' }).creerPartie('Nouvelle');
   t.g.choisirPartie(nouvelle.id);
   for (const regionId of ['johto', 'hoenn']) t.g.ecrireRegion(nouvelle.id, regionId, { ...t.g.chargerRegion(nouvelle.id, 'kanto')!.donnees, regionId });
-  expect(await t.synchro.trancher('local')).toBe('ok');
+  await t.synchro.envoyerMaintenant({ fermeture: true });
   expect(t.corps().partie.revisionBase).toBe(0);
   expect(t.corps().regions).toHaveLength(3);
 });
@@ -486,8 +513,8 @@ it('abandonne la partie supprimée sans nouvel envoi', async () => {
   { status: options?.method === 'PUT' ? 409 : 200 }));
   await t.synchro.envoyerMaintenant({ fermeture: true });
   expect(t.fetch.mock.calls.filter(([, o]) => o?.method === 'PUT')).toHaveLength(2);
-  expect(t.synchro.etat()).toBe('conflit');
-  expect(await t.synchro.trancher('serveur')).toBe('ok');
+  expect(t.synchro.etat()).toBe('divergence');
+  expect(await t.synchro.resoudreSuppression('abandonner')).toBe('ok');
   expect(t.g.chargerPartie(t.p.id)).toBeNull();
   expect(t.g.chargerRegion(t.p.id, 'kanto')).toBeNull();
   expect(JSON.parse(t.stockage.lire('pokiclicker:synchro')!).parties[t.p.id]).toBeUndefined();
@@ -572,7 +599,7 @@ it.each([401, 400, 403, 404, 413, 422])('bloque après %s et reprend après arr�
   t.fetch.mockResolvedValueOnce(new Response(null, { status: statut }));
   const avant = t.contenu();
   await t.synchro.envoyerMaintenant();
-  expect(t.synchro.etat()).toBe(statut === 409 ? 'conflit' : 'refuse');
+  expect(t.synchro.etat()).toBe(statut === 409 ? 'divergence' : 'refuse');
   expect(t.contenu()).toEqual(avant);
   expect(t.stockage.lire('pokiclicker:synchro')).toBeNull();
   t.modifier();

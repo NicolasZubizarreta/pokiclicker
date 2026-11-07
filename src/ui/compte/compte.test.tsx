@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import App from '../App';
 import { CLE_SESSION } from './session-compte';
@@ -49,7 +49,7 @@ async function deconnecter() { cliquer('Mes parties'); await screen.findByRole('
 
 function simulerParties() {
   const partie = { id: 'test', nom: 'Test', regionCourante: 'kanto', zoneId: '', tempsJeuMs: null, ecritLe: '2026-11-04T12:00:00Z', surServeur: true, courante: true };
-  const synchro = { etat: vi.fn().mockReturnValue('ok'), ouvrir: vi.fn().mockResolvedValue('ok'), choix: vi.fn().mockReturnValue(null), arreter: vi.fn(), demarrer: vi.fn(), envoyerMaintenant: vi.fn(),
+  const synchro = { etat: vi.fn().mockReturnValue('ok'), ouvrir: vi.fn().mockResolvedValue('rien'), suppression: vi.fn().mockReturnValue(null), lireAvis: vi.fn().mockReturnValue(null), enAttente: vi.fn().mockReturnValue(false), resoudre: vi.fn().mockResolvedValue('rien'), arreter: vi.fn(), demarrer: vi.fn(), envoyerMaintenant: vi.fn(),
     lister: vi.fn().mockResolvedValue({ parties: [partie, { ...partie, id: 'autre', nom: 'Autre', courante: false }], horsConnexion: false }),
     ouvrirPartie: vi.fn().mockResolvedValue('ok'), creerPartie: vi.fn().mockResolvedValue('ok'), supprimerPartie: vi.fn().mockResolvedValue('ok') };
   vi.spyOn(synchronisation, 'creerSynchro').mockReturnValue(synchro as unknown as ReturnType<typeof synchronisation.creerSynchro>);
@@ -159,7 +159,8 @@ it('attend la reprise de cet appareil avant de monter le jeu', async () => {
   expect(JSON.parse(appels[1]![1]!.body as string)).toEqual({ appareilId: localStorage.getItem('pokiclicker:appareil'), reprendre: true });
 });
 
-it('présente le choix avant de monter le jeu à l’ouverture', async () => {
+it('reprend ici la version serveur avancée sans écran de choix', async () => {
+  const { synchro, recharger } = simulerParties();
   const stockage = creerStockageMemoire();
   const g = creerGestionnaire({ stockage, horloge: creerHorlogeSimulee(), genererId: () => 'test' });
   const partie = g.creerPartie('Test');
@@ -167,17 +168,31 @@ it('présente le choix avant de monter le jeu à l’ouverture', async () => {
   stockage.cles().forEach(cle => localStorage.setItem(cle, stockage.lire(cle)!));
   localStorage.setItem(CLE_SESSION, 'session-stockee');
   reseau.mockImplementation(async (url, options) => {
-    if (String(url).endsWith('/parties')) return reponse({ parties: [{ id: partie.id, nom: 'Test', revision: 1, ecritLe: partie.ecritLe }] });
-    if (String(url).endsWith('/parties/test')) return reponse({ partie, regions });
+    if (String(url).endsWith('/parties')) return reponse({ parties: [] });
+    if (String(url).endsWith('/parties/test')) return reponse({}, 404);
     if (String(url).endsWith('/compte')) return reponse({}, 404);
     if (options?.method === 'PUT') return reponse({ partie: { id: partie.id, revision: 2 }, regions: [{ id: 'kanto', revision: 2 }] });
+    if (String(url).endsWith('/appareil')) return reponse({ actif: JSON.parse(options!.body as string).reprendre === true });
     return reponse({ session: { id: 'session' } });
   });
+  vi.mocked(synchronisation.creerSynchro).mockRestore();
   render(<App />);
-  await screen.findByRole('heading', { name: 'Deux versions de ta partie' });
+  await screen.findByRole('heading', { name: 'Partie ouverte ailleurs' });
   expect(screen.queryByText('Jeu ouvert')).toBeNull();
-  cliquer('Garder cet appareil');
-  await screen.findByText('Jeu ouvert');
+  const serveur = { ...partie, revision: partie.revision + 1, donnees: { ...partie.donnees, nom: 'Serveur avancé' } };
+  reseau.mockImplementation(async (url, options) => {
+    if (String(url).endsWith('/appareil')) return reponse({ actif: true });
+    if (String(url).endsWith('/parties')) return reponse({ parties: [{ id: partie.id, nom: serveur.donnees.nom, revision: serveur.revision, ecritLe: serveur.ecritLe }] });
+    if (String(url).endsWith('/parties/test')) return reponse({ partie: serveur, regions });
+    if (String(url).endsWith('/compte')) return reponse({}, 404);
+    if (options?.method === 'PUT') return reponse({});
+    return reponse({ session: { id: 'session' } });
+  });
+  cliquer('Reprendre ici');
+  await waitFor(() => expect(recharger).toHaveBeenCalled());
+  expect(JSON.parse(localStorage.getItem('pokiclicker:partie:test')!).donnees.nom).toBe('Serveur avancé');
+  expect(screen.queryByText('Deux versions de ta partie')).toBeNull();
+  expect(synchro.ouvrir).not.toHaveBeenCalled();
 });
 
 it('inscrit, mémorise le jeton de l’en-tête et ouvre le jeu', async () => {
@@ -280,7 +295,14 @@ it('au retour du réseau, une partie reprise ailleurs pendant la coupure passe p
   reseau.mockImplementation(async url => reponse(String(url).endsWith('/appareil') ? { actif: false }
     : String(url).endsWith('/api/sauvegarde/parties') ? { parties: [] } : { session: { id: 'session' } }));
   fireEvent(window, new Event('online'));
-  await screen.findByText(/Cette partie est ouverte sur un autre appareil/);
+  await screen.findByRole('heading', { name: 'Partie reprise ailleurs' });
+  const puts = reseau.mock.calls.filter(([, options]) => options?.method === 'PUT').length;
+  fireEvent(window, new Event('online'));
+  await act(async () => { await Promise.resolve(); });
+  expect(reseau.mock.calls.filter(([, options]) => options?.method === 'PUT')).toHaveLength(puts);
+  cliquer('Voir mes parties');
+  await screen.findByRole('heading', { name: 'Mes parties' });
+  expect(screen.queryByRole('button', { name: 'Retour au jeu' })).toBeNull();
   expect(localStorage.getItem('pokiclicker:partie:test')).toBe(avant);
 });
 
@@ -332,14 +354,47 @@ it('reconnaît aussi le retour d’un lien déjà expiré côté serveur', () =>
   expect(screen.getByRole('heading', { name: 'Mot de passe oublié' })).toBeTruthy();
 });
 
-it('déconnecte sans toucher à la sauvegarde locale, même sans réseau', async () => {
+it('confirme une déconnexion sans attente et conserve la sauvegarde locale, même sans réseau', async () => {
+  simulerParties();
   localStorage.setItem(CLE_SESSION, 'session-stockee'); localStorage.setItem('pokiclicker.sauvegarde', 'partie intacte');
   render(<App />); await screen.findByText('Jeu ouvert');
   reseau.mockRejectedValueOnce(new TypeError()); await deconnecter();
+  const dialogue = await screen.findByRole('dialog', { name: 'Se déconnecter ?' });
+  expect(within(dialogue).getByText('Ta partie est à jour. Tu pourras te reconnecter quand tu veux.')).toBeTruthy();
+  fireEvent.click(within(dialogue).getByRole('button', { name: 'Se déconnecter' }));
   await screen.findByRole('heading', { name: 'Connexion' });
   expect(reseau).toHaveBeenLastCalledWith(`${adresseServeur}/api/auth/sign-out`, expect.objectContaining({ method: 'POST', headers: expect.objectContaining({ Authorization: 'Bearer session-stockee' }) }));
   expect(localStorage.getItem(CLE_SESSION)).toBeNull();
   expect(localStorage.getItem('pokiclicker.sauvegarde')).toBe('partie intacte');
+});
+
+it.each(['ok', 'echec'])('sauvegarde avant déconnexion : %s', async resultat => {
+  const { synchro } = simulerParties();
+  render(<App />); await screen.findByText('Jeu ouvert');
+  await deconnecter();
+  cliquer('Annuler');
+  synchro.enAttente.mockReturnValue(true);
+  cliquer('Se déconnecter');
+  let terminer!: () => void;
+  synchro.envoyerMaintenant.mockImplementation(() => new Promise<void>(resolve => { terminer = resolve; }));
+  cliquer('Sauvegarder et se déconnecter');
+  await screen.findByRole('heading', { name: 'Sauvegarde en cours…' });
+  expect(localStorage.getItem(CLE_SESSION)).toBe('session-stockee');
+  await act(async () => {
+    synchro.enAttente.mockReturnValue(resultat !== 'ok');
+    synchro.etat.mockReturnValue(resultat === 'ok' ? 'ok' : 'hors-ligne');
+    terminer();
+  });
+  if (resultat === 'ok') {
+    await screen.findByRole('heading', { name: 'Connexion' });
+    expect(localStorage.getItem(CLE_SESSION)).toBeNull();
+    expect(synchro.arreter).toHaveBeenCalled();
+  } else {
+    await screen.findByRole('heading', { name: "La sauvegarde n'a pas abouti" });
+    expect(localStorage.getItem(CLE_SESSION)).toBe('session-stockee');
+    expect(reseau.mock.calls.some(([url]) => String(url).endsWith('/sign-out'))).toBe(false);
+  }
+  expect(localStorage.getItem('pokiclicker:partie:test')).not.toBeNull();
 });
 
 it('ouvre directement sans serveur et ne lit pas la session', () => {
@@ -356,6 +411,9 @@ it('réagit à la déconnexion dans un autre onglet', async () => {
 });
 
 it('garde la session en mémoire si le stockage est indisponible', async () => {
+  const { synchro } = simulerParties();
+  synchro.enAttente.mockReturnValue(false);
+  localStorage.removeItem(CLE_SESSION);
   // Une partie en mémoire permet de tester la déconnexion depuis le jeu même sans stockage.
   const gestionnaire = creerGestionnaire({ stockage: creerStockageMemoire(), horloge: creerHorlogeSimulee(), genererId: () => 'memoire' });
   gestionnaire.creerPartie('En mémoire');
@@ -366,6 +424,8 @@ it('garde la session en mémoire si le stockage est indisponible', async () => {
   await waitFor(() => expect(reseau.mock.calls.filter(([url]) => String(url).includes('/api/auth/'))).toHaveLength(2));
   fireEvent(window, new StorageEvent('storage', { key: CLE_SESSION }));
   expect(screen.getByText('Jeu ouvert')).toBeTruthy();
-  await deconnecter(); await screen.findByRole('heading', { name: 'Connexion' });
+  await deconnecter();
+  fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Se déconnecter' }));
+  await screen.findByRole('heading', { name: 'Connexion' });
   expect(() => fireEvent(window, new StorageEvent('storage', { key: CLE_SESSION }))).not.toThrow();
 });

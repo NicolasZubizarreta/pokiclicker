@@ -9,5 +9,22 @@
 .zc-dialogue { margin: auto; width: calc(100% - var(--spacing) * 8); max-width: var(--breakpoint-md); padding: calc(var(--spacing) * 4); background: var(--surface); color: var(--texte); }
 .zc-dialogue[open] { display: flex; flex-direction: column; gap: calc(var(--spacing) * 4); }
 .zc-dialogue::backdrop { background: var(--fond); opacity: .8; }
+.zc-ecran { position: fixed; inset: 0; overflow-y: auto; }
+.zc-reprise-liste { display: grid; gap: calc(var(--spacing) * 4); margin: 0; padding: 0; list-style: none; }
+.zc-reprise-liste li { display: flex; gap: calc(var(--spacing) * 3); align-items: flex-start; }
+.zc-reprise-liste svg { color: var(--action); }
+.zc-attente-plein { position: fixed; inset: 0; margin: 0; width: 100%; height: 100%; max-width: none; max-height: none; border: 0; padding: calc(var(--spacing) * 6); background: var(--fond); color: var(--texte); text-align: center; }
+.zc-attente-plein[open] { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: calc(var(--spacing) * 4); }
+.zc-attente-plein > * { max-width: var(--breakpoint-md); }
+.zc-attente-plein > svg { width: calc(var(--spacing) * 14); height: calc(var(--spacing) * 14); color: var(--alerte-base); }
+.zc-rond-charge { flex-shrink: 0; width: calc(var(--spacing) * 14); height: calc(var(--spacing) * 14); border: calc(var(--spacing) * 2) solid var(--bordure); border-top-color: var(--action); border-radius: var(--radius-plein); animation: zc-tourne calc(var(--duration-lent) * 3) linear infinite; }
+@keyframes zc-tourne { to { transform: rotate(360deg); } }
+.zc-barre-ind { flex-shrink: 0; width: min(100%, calc(var(--spacing) * 70)); height: calc(var(--spacing) * 2); background: var(--surface-2); overflow: hidden; }
+.zc-barre-ind i { display: block; width: 40%; height: 100%; background: var(--action); animation: zc-glisse calc(var(--duration-lent) * 4) var(--ease-standard) infinite alternate; }
+@keyframes zc-glisse { from { transform: translateX(0); } to { transform: translateX(150%); } }
+@media (prefers-reduced-motion: reduce) {
+  .zc-rond-charge { animation: none; border-color: var(--action); }
+  .zc-barre-ind i { animation: none; width: 100%; }
+}
 /* Les titres reçoivent le focus par programme à chaque changement d'écran (lecteur d'écran) : pas de cadre autour d'un texte non interactif. */
 .zc-zone h1[tabindex="-1"]:focus-visible, .zc-dialogue h2[tabindex="-1"]:focus-visible { outline: none; }

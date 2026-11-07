@@ -1,8 +1,10 @@
 import { Coquille } from './Coquille';
 import { MiseAJour } from './MiseAJour';
-import { useEffect, useMemo, useRef, useState, type ComponentProps } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ComponentProps } from 'react';
 import { EcranCompte } from './compte/EcranCompte';
-import { EcranChoixVersion } from './compte/EcranChoixVersion';
+import { EcranRepriseAilleurs } from './compte/EcranRepriseAilleurs';
+import { EcranSupprimeeAilleurs } from './compte/EcranSupprimeeAilleurs';
+import { DialogueDeconnexion } from './compte/DialogueDeconnexion';
 import { useSessionCompte } from './compte/session-compte';
 import { creerHorlogeSysteme } from '../core/clock';
 import { departNouvellePartie, storeJeu } from './store';
@@ -34,6 +36,9 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
   const [occupe, fixerOccupe] = useState(false);
   const [erreur, fixerErreur] = useState('');
   const jeuArrete = useRef(false);
+  const resolution = useRef(false);
+  const [avis, fixerAvis] = useState<string | null>(null);
+  const [deco, fixerDeco] = useState<ComponentProps<typeof DialogueDeconnexion>['etat'] | null>(null);
   const [repriseEnAttente, fixerRepriseEnAttente] = useState(false);
   const appareil = useMemo(() => creerAppareilActif({ stockage: creerStockageLocal(), horloge: creerHorlogeSysteme(),
     urlApi: import.meta.env.VITE_API_URL ?? '', jeton: () => jeton,
@@ -41,13 +46,20 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
   const synchro = useMemo(() => creerSynchro({ stockage: creerStockageLocal(), horloge: creerHorlogeSysteme(),
     urlApi: import.meta.env.VITE_API_URL ?? '', jeton: () => jeton,
     enPause: () => appareil.ailleurs(),
+    appareilId: () => appareil.id(), quandAilleurs: () => appareil.signalerAilleurs(),
     quandChange: () => rafraichir(n => n + 1) }), [jeton, appareil]);
+  const lireAvis = useCallback(() => {
+    const phrase = synchro.lireAvis();
+    if (phrase) fixerAvis(phrase);
+  }, [synchro]);
+  const [apresAilleurs, fixerApresAilleurs] = useState(false);
   useEffect(() => {
     let actif = true;
     void synchro.ouvrir().then(async resultat => {
       if (!actif) return;
+      lireAvis();
       if (jeuDejaMonte && resultat === 'charge') { window.location.reload(); return; }
-      if (!synchro.choix()) {
+      if (!synchro.suppression()) {
         const gestionnaire = creerGestionnaire({ stockage: creerStockageLocal(), horloge: creerHorlogeSysteme(), genererId: () => 'x' });
         if (gestionnaire.listerParties().length === 0) {
           fixerPhase('creation');
@@ -63,7 +75,7 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
       fixerPhase('jeu');
     });
     return () => { actif = false; synchro.arreter(); appareil.arreter(); };
-  }, [synchro, appareil]);
+  }, [synchro, appareil, lireAvis]);
   useEffect(() => {
     if (!jeuMonte) return;
     jeuDejaMonte = true;
@@ -73,28 +85,45 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
     return () => { desabonner(); synchro.arreter(); appareil.arreter(); };
   }, [synchro, appareil, jeuMonte]);
   const ailleurs = appareil.ailleurs();
+  const suppression = synchro.suppression();
+  const etatSynchro = synchro.etat();
   useEffect(() => {
-    if (ailleurs && jeuMonte && !jeuArrete.current) {
-      jeuArrete.current = true;
-      storeJeu.getState().arreter();
+    if (suppression && jeuMonte && !jeuArrete.current) {
+      jeuArrete.current = true; storeJeu.getState().arreter();
     }
-  }, [ailleurs, jeuMonte]);
-  async function choisir(cote: 'local' | 'serveur') {
+  }, [suppression, jeuMonte]);
+  useEffect(() => {
+    if (ailleurs && jeuMonte) {
+      if (!jeuArrete.current) { jeuArrete.current = true; storeJeu.getState().arreter(); }
+      appareil.arreter(); synchro.arreter();
+    }
+  }, [ailleurs, jeuMonte, appareil, synchro]);
+  useEffect(() => {
+    if (!jeuMonte || ailleurs || suppression || etatSynchro !== 'divergence' || resolution.current) return;
+    resolution.current = true;
+    jeuArrete.current = true;
+    storeJeu.getState().arreter();
+    void synchro.resoudre().then(resultat => {
+      lireAvis();
+      if (resultat === 'charge') { window.location.reload(); return; }
+      if (!appareil.ailleurs() && jeuArrete.current) {
+        storeJeu.getState().demarrer(); jeuArrete.current = false;
+      }
+    }).finally(() => { resolution.current = false; });
+  }, [jeuMonte, ailleurs, suppression, etatSynchro, synchro, appareil, lireAvis]);
+  async function resoudreSuppression(cote: 'garder' | 'abandonner') {
     if (occupe) return;
     fixerOccupe(true);
     fixerErreur('');
-    const recharger = cote === 'serveur' && (jeuMonte || jeuDejaMonte || !!synchro.choix()?.supprimee);
-    if (recharger && jeuMonte) storeJeu.getState().arreter();
-    const resultat = await synchro.trancher(cote);
+    const resultat = await synchro.resoudreSuppression(cote);
     if (resultat === 'echec') {
       fixerErreur("Connexion impossible. Rien n'a changé, réessaie.");
-      if (recharger && jeuMonte) storeJeu.getState().demarrer();
-    } else if (recharger) { window.location.reload(); return; }
-    if (resultat === 'ok' && !synchro.choix() && !appareil.ailleurs() && jeuArrete.current) {
+    } else if (cote === 'abandonner') { window.location.reload(); return; }
+    if (resultat === 'ok' && !appareil.ailleurs() && jeuArrete.current) {
       storeJeu.getState().demarrer(); jeuArrete.current = false;
       synchro.demarrer();
     }
-    if (!synchro.choix() && await appareil.ouvrir() === 'libre') fixerJeuMonte(true);
+    if (resultat === 'ok' && !jeuMonte && await appareil.ouvrir() === 'libre') fixerJeuMonte(true);
     fixerOccupe(false);
   }
   async function reprendre() {
@@ -105,11 +134,12 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
     synchro.arreter();
     if (await appareil.reprendre() === 'ok') {
       const resultat = await synchro.ouvrir();
+      lireAvis();
       if (resultat === 'charge') { window.location.reload(); return; }
       if (resultat === 'hors-ligne') fixerErreur('Connexion impossible. Réessaie.');
       else {
         fixerRepriseEnAttente(false);
-        if (resultat !== 'choix') {
+        if (!synchro.suppression()) {
           if (jeuArrete.current) { storeJeu.getState().demarrer(); jeuArrete.current = false; }
           synchro.demarrer();
           fixerJeuMonte(true);
@@ -123,6 +153,19 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
     fixerListe(await synchro.lister());
     fixerChargement(false);
   }
+  function voirParties() { fixerApresAilleurs(true); fixerEcranParties(true); void listerParties(); }
+  async function deconnecter() {
+    if (deco === 'chargement') return;
+    if (deco !== 'confirmer') {
+      fixerDeco('chargement');
+      if (jeuMonte) storeJeu.getState().sauvegarder();
+      await synchro.envoyerMaintenant({ fermeture: true });
+      if (synchro.enAttente() || ['hors-ligne', 'refuse', 'divergence'].includes(synchro.etat())) {
+        fixerDeco('echec'); return;
+      }
+    }
+    synchro.arreter(); appareil.arreter(); quandDeconnecter();
+  }
   async function menuPrincipal(): Promise<boolean> {
     if (!storeJeu.getState().sauvegarder()) return false;
     await synchro.envoyerMaintenant({ fermeture: true });
@@ -132,7 +175,7 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
   // envoyerMaintenant ne rejette jamais : l'état de la synchro dit si la partie est vraiment partie.
   const attendreEnvoi = async () => {
     await synchro.envoyerMaintenant({ fermeture: true });
-    return !['hors-ligne', 'refuse', 'conflit'].includes(synchro.etat());
+    return !['hors-ligne', 'refuse', 'divergence'].includes(synchro.etat());
   };
   async function jouer(id: string) {
     if (occupe) return;
@@ -140,7 +183,7 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
     if (jeuMonte) storeJeu.getState().arreter();
     if (await synchro.ouvrirPartie(id) === 'ok') { window.location.reload(); return; }
     fixerErreur("Connexion impossible. Rien n'a changé, réessaie.");
-    if (jeuMonte) storeJeu.getState().demarrer();
+    if (jeuMonte && !appareil.ailleurs()) storeJeu.getState().demarrer();
     fixerOccupe(false);
   }
   async function creer(nom: string) {
@@ -164,26 +207,37 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
       await listerParties();
     } else {
       fixerErreur("Connexion impossible. La partie n'est pas supprimée, réessaie.");
-      if (arrete) { storeJeu.getState().demarrer(); synchro.demarrer(); }
+      if (arrete && !appareil.ailleurs()) { storeJeu.getState().demarrer(); synchro.demarrer(); }
     }
     fixerOccupe(false);
   }
   if (phase === 'verification') return <p role="status">Vérification de la sauvegarde…</p>;
-  const choix = synchro.choix();
+  const gestionnaire = creerGestionnaire({ stockage: creerStockageLocal(), horloge: creerHorlogeSysteme(), genererId: () => 'x' });
+  const id = suppression?.id ?? gestionnaire.partieCourante();
+  const partie = id ? gestionnaire.chargerPartie(id) : null;
+  const regionId = partie?.donnees.regionCourante ?? '';
+  const zoneId = id ? gestionnaire.chargerRegion(id, regionId)?.donnees.zoneId ?? '' : '';
   return <>
     {jeuMonte && <Coquille quandMenuPrincipal={menuPrincipal} attendreEnvoi={attendreEnvoi} />}
-    {!choix && (ailleurs || repriseEnAttente) && <div className={jeuMonte ? 'fixed inset-0 z-50' : undefined}>
-      <EcranAutreAppareil occupe={occupe} erreur={erreur} quandReprendre={() => { void reprendre(); }} />
+    {!suppression && !jeuMonte && !ecranParties && (ailleurs || repriseEnAttente) && <div>
+      <EcranAutreAppareil nom={partie?.donnees.nom ?? ''} regionId={regionId} zoneId={zoneId} ecritLe={partie?.ecritLe ?? ''}
+        occupe={occupe} erreur={erreur} quandReprendre={() => { void reprendre(); }} quandPlusTard={voirParties} />
     </div>}
-    {choix && <div className={jeuMonte ? 'fixed inset-0 z-50' : undefined}>
-      <EcranChoixVersion choix={choix} occupe={occupe} erreur={erreur} quandChoisir={cote => { void choisir(cote); }} />
+    {jeuMonte && ailleurs && !apresAilleurs && <div className="fixed inset-0 z-50">
+      <EcranRepriseAilleurs nom={partie?.donnees.nom ?? ''} quandVoirParties={voirParties} />
     </div>}
-    {(phase === 'creation' || ecranParties) && <div className={jeuMonte ? 'fixed inset-0 z-50 overflow-y-auto' : undefined}>
+    {suppression && <div className={jeuMonte ? 'fixed inset-0 z-50' : undefined}>
+      <EcranSupprimeeAilleurs nom={partie?.donnees.nom ?? ''} {...suppression.local} occupe={occupe} erreur={erreur}
+        quandGarder={() => { void resoudreSuppression('garder'); }} quandAbandonner={() => { void resoudreSuppression('abandonner'); }} />
+    </div>}
+    {(phase === 'creation' || (ecranParties && (!ailleurs || !jeuMonte || apresAilleurs))) && <div className={jeuMonte ? 'fixed inset-0 z-50 overflow-y-auto' : undefined}>
       <ZoneCompteConnectee {...liste} chargement={chargement} occupe={occupe} erreur={erreur}
         quandJouer={id => { void jouer(id); }} quandCreer={nom => { void creer(nom); }} quandSupprimer={id => { void supprimer(id); }}
-        quandRetourJeu={phase === 'creation' ? undefined : () => fixerEcranParties(false)}
-        etatSynchro={synchro.etat()} quandDeconnecter={quandDeconnecter} />
+        quandRetourJeu={phase === 'creation' || ailleurs || repriseEnAttente ? undefined : () => fixerEcranParties(false)}
+        etatSynchro={synchro.etat()} quandDeconnecter={() => fixerDeco(synchro.enAttente() ? 'confirmer-attente' : 'confirmer')} />
     </div>}
+    {avis && <div role="status" className="compte-message info fixed inset-x-0 top-0 z-50">{avis}<button className="plaque min-h-12 min-w-12" onClick={() => fixerAvis(null)}>OK</button></div>}
+    {deco && <DialogueDeconnexion etat={deco} quandConfirmer={() => { void deconnecter(); }} quandReessayer={() => { void deconnecter(); }} quandAnnuler={() => fixerDeco(null)} quandRester={() => fixerDeco(null)} />}
   </>;
 }
 

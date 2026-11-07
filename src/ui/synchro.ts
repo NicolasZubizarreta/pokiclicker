@@ -3,7 +3,7 @@ import { creerGestionnaire, creerStockageMemoire, type DonneesCompte, type Donne
 import { creerPartieNommee } from './persistance';
 import { genererIdentifiant } from './identifiants';
 
-export type EtatSynchro = 'inactif' | 'ok' | 'hors-ligne' | 'conflit' | 'refuse';
+export type EtatSynchro = 'inactif' | 'ok' | 'hors-ligne' | 'refuse' | 'ailleurs' | 'divergence';
 export type PartieListee = { id: string; nom: string; regionCourante: string; zoneId: string; tempsJeuMs: number | null;
   ecritLe: string; surServeur: boolean; courante: boolean };
 type Revision = { serveur: number; local: number };
@@ -11,19 +11,19 @@ export type Memoire = { version: 1; compte?: Revision; parties: Record<string, R
 type Version = { compte?: Enveloppe<DonneesCompte> | null; partie: Enveloppe<DonneesPartie> | null; regions: Enveloppe<DonneesRegion>[] };
 type VersionServeur = Version & { partie: Enveloppe<DonneesPartie> };
 export type Resume = { regionId: string; zoneId: string; ecritLe: string; tempsJeuMs: number | null };
-export type ChoixSynchro = { local: Resume; serveur: Resume; supprimee?: never }
-  | { local: Resume; serveur?: never; supprimee: string };
-export function decider(local: Version, serveur: Version | null, memoire: Memoire): 'rien' | 'charger' | 'choisir' {
-  if (!serveur?.partie) return 'rien';
-  if (local.partie && local.partie.id !== serveur.partie.id) return 'choisir';
-  const region = local.regions.find(r => r.id === local.partie?.donnees.regionCourante);
-  const localChange = !!((local.compte && local.compte.revision !== memoire.compte?.local)
-    || (local.partie && local.partie.revision !== memoire.parties[local.partie.id]?.local)
-    || (region && region.revision !== memoire.regions[`${local.partie?.id}:${region.id}`]?.local));
-  const serveurChange = !!((serveur.compte && serveur.compte.revision !== memoire.compte?.serveur)
-    || serveur.partie.revision !== memoire.parties[serveur.partie.id]?.serveur
-    || serveur.regions.some(r => r.revision !== memoire.regions[`${serveur.partie!.id}:${r.id}`]?.serveur));
-  return !serveurChange ? 'rien' : !local.partie || !localChange ? 'charger' : 'choisir';
+type Unite = 'compte' | 'partie';
+type Verdict = 'rien' | 'charger' | 'envoyer' | 'diverge';
+export function decider(local: Version, serveur: Version | null, memoire: Memoire): Record<Unite, Verdict> {
+  const verdict = (sc: boolean, lc: boolean): Verdict => sc ? lc ? 'diverge' : 'charger' : lc ? 'envoyer' : 'rien';
+  const changePartie = (v: Version | null, cote: keyof Revision) => !!v && !!(
+    (v.partie && v.partie.revision !== memoire.parties[v.partie.id]?.[cote])
+    || v.regions.some(r => r.revision !== memoire.regions[`${v.partie?.id}:${r.id}`]?.[cote]));
+  return {
+    compte: verdict(!!serveur?.compte && serveur.compte.revision !== memoire.compte?.serveur,
+      !!local.compte && local.compte.revision !== memoire.compte?.local),
+    partie: local.partie && serveur?.partie && local.partie.id !== serveur.partie.id ? 'diverge'
+      : verdict(changePartie(serveur, 'serveur'), changePartie(local, 'local')),
+  };
 }
 
 function resumer(version: Version): Resume {
@@ -40,6 +40,7 @@ export function creerSynchro(options: {
   stockage: Stockage; horloge: Horloge; urlApi: string; jeton: () => string | null;
   fetch?: typeof fetch; intervalleMs?: number; delaiMiniMs?: number; quandChange?: () => void;
   enPause?: () => boolean;
+  appareilId?: () => string | null; quandAilleurs?: () => void;
 }) {
   const { stockage, horloge } = options;
   const gestionnaire = creerGestionnaire({ stockage, horloge, genererId: genererIdentifiant });
@@ -66,15 +67,8 @@ export function creerSynchro(options: {
   let suivant = false;
   let fermetureSuivante = false;
   let dernier = -Infinity;
-  let versionServeur: VersionServeur | null = null;
-  let luLe = -Infinity;
-  let choixEnAttente: ChoixSynchro | null = null;
-  let lecture: Promise<void> | undefined;
-  let arbitrage = false;
-  function changerChoix(choix: typeof choixEnAttente) {
-    choixEnAttente = choix;
-    options.quandChange?.();
-  }
+  let suppressionEnAttente: { id: string; local: Resume } | null = null;
+  let resolution: Promise<'charge' | 'rien' | 'echec'> | undefined;
   function lireLocal(): Version {
     const id = gestionnaire.partieCourante();
     const partie = id ? gestionnaire.chargerPartie(id) : null;
@@ -120,127 +114,110 @@ export function creerSynchro(options: {
     creerGestionnaire({ stockage: creerStockageMemoire(), horloge, genererId: () => 'x' }).installerVersion(version);
     return version;
   }
-  function memoriserVersion(version: VersionServeur) {
-    const revision = (enveloppe: Enveloppe<unknown>) => ({ serveur: enveloppe.revision, local: enveloppe.revision });
-    if (version.compte) memoire.compte = revision(version.compte);
-    memoire.parties[version.partie.id] = revision(version.partie);
-    for (const id of Object.keys(memoire.regions)) if (id.startsWith(`${version.partie.id}:`)) delete memoire.regions[id];
-    for (const region of version.regions) memoire.regions[`${version.partie.id}:${region.id}`] = revision(region);
+  function memoriserVersion(version: VersionServeur, unite: Unite) {
+    const revision = (e: Enveloppe<unknown>) => ({ serveur: e.revision, local: e.revision });
+    if (unite === 'compte') {
+      if (version.compte) memoire.compte = revision(version.compte);
+    } else {
+      memoire.parties[version.partie.id] = revision(version.partie);
+      for (const id of Object.keys(memoire.regions)) if (id.startsWith(`${version.partie.id}:`)) delete memoire.regions[id];
+      for (const r of version.regions) memoire.regions[`${version.partie.id}:${r.id}`] = revision(r);
+    }
     stockage.ecrire(cle, JSON.stringify(memoire));
-  }
-  function retenir(version: VersionServeur) {
-    versionServeur = version;
-    luLe = horloge.maintenant();
-    bloque = true;
-    statut = 'conflit';
-    changerChoix({ local: resumer(lireLocal()), serveur: resumer(version) });
   }
   function retenirSuppression(id: string) {
     bloque = true;
-    statut = 'conflit';
-    const local = resumer(lireLocal());
-    changerChoix({ local, supprimee: id });
+    statut = 'divergence';
+    suppressionEnAttente = { id, local: resumer(lireLocal()) };
+    options.quandChange?.();
   }
-  async function preparerChoix() {
-    if (lecture || arrete) return lecture;
-    lecture = (async () => {
-      try {
-        const version = await lireServeur(lireLocal().partie?.id ?? null);
-        if (!arrete && version) retenir(version);
-      } catch { /* Le conflit reste bloqué ; la prochaine connexion retentera la lecture. */ }
-    })();
-    await lecture;
-    lecture = undefined;
-  }
-  async function ouvrir(): Promise<'rien' | 'charge' | 'choix' | 'hors-ligne'> {
-    arrete = false;
-    if (!options.jeton()) return 'rien';
+  async function appliquer(): Promise<'charge' | 'rien' | 'echec'> {
     try {
-      const serveur = await lireServeur(lireLocal().partie?.id ?? null);
-      if (arrete) return 'hors-ligne';
-      const decision = decider(lireLocal(), serveur, memoire);
-      if (decision === 'charger' && serveur) {
-        gestionnaire.installerVersion(serveur);
-        memoriserVersion(serveur);
-        return 'charge';
-      }
-      if (decision === 'choisir' && serveur) { retenir(serveur); return 'choix'; }
-      return 'rien';
-    } catch { return 'hors-ligne'; }
-  }
-  async function trancher(choix: 'local' | 'serveur'): Promise<'ok' | 'echec'> {
-    if (arbitrage || !choixEnAttente || arrete) return 'echec';
-    arbitrage = true;
-    try {
-      if (choixEnAttente.supprimee) {
-        const id = choixEnAttente.supprimee;
-        if (choix === 'serveur') {
-          gestionnaire.supprimerPartie(id);
-          delete memoire.parties[id];
-          for (const region of Object.keys(memoire.regions)) if (region.startsWith(`${id}:`)) delete memoire.regions[region];
-          suppressionCourante = true;
-        } else {
-          memoire.parties[id] = { serveur: 0, local: -1 };
-          for (const region of Object.keys(memoire.regions)) if (region.startsWith(`${id}:`)) memoire.regions[region] = { serveur: 0, local: -1 };
-        }
-        stockage.ecrire(cle, JSON.stringify(memoire));
-        bloque = false;
-        statut = 'inactif';
-        changerChoix(null);
-        if (choix === 'local') await envoyer();
-        return (['conflit', 'refuse'] as EtatSynchro[]).includes(statut) ? 'echec' : 'ok';
-      }
-      if (choix === 'serveur' && (!versionServeur || horloge.maintenant() - luLe > 60_000)) {
-        const version = await lireServeur(lireLocal().partie?.id ?? null);
-        if (!version || arrete) return 'echec';
-        versionServeur = version;
-        luLe = horloge.maintenant();
-      }
-      const serveur = versionServeur;
-      if (!serveur) return 'echec';
       const local = lireLocal();
-      if (choix === 'local') {
-        if (local.compte) memoire.compte = { serveur: serveur.compte?.revision ?? 0, local: -1 };
-        if (local.partie) {
-          const memePartie = local.partie.id === serveur.partie.id;
-          memoire.parties[local.partie.id] = { serveur: memePartie ? serveur.partie.revision : memoire.parties[local.partie.id]?.serveur ?? 0, local: -1 };
-          const region = local.regions.find(r => r.id === local.partie!.donnees.regionCourante);
-          if (region) memoire.regions[`${local.partie.id}:${region.id}`] = {
-            serveur: memePartie ? serveur.regions.find(r => r.id === region.id)?.revision ?? 0
-              : memoire.regions[`${local.partie.id}:${region.id}`]?.serveur ?? 0, local: -1,
-          };
-        }
-        stockage.ecrire(cle, JSON.stringify(memoire));
-        bloque = false;
-        statut = 'inactif';
-        changerChoix(null);
-        await envoyer();
-        return (['conflit', 'refuse'] as EtatSynchro[]).includes(statut) ? 'echec' : 'ok';
-      }
-      const archiver = async (niveau: 'compte' | 'partie' | 'region', objetId: string, enveloppe: Enveloppe<unknown>) => {
+      const serveur = await lireServeur(local.partie?.id ?? null);
+      if (arrete || options.enPause?.() || suppressionEnAttente) return 'echec';
+      const plan = decider(local, serveur, memoire);
+      const divergence = plan.compte === 'diverge' || plan.partie === 'diverge';
+      if (divergence) { bloque = true; statut = 'divergence'; }
+      const archiver = async (niveau: string, objetId: string, enveloppe: Enveloppe<unknown>) => {
         const reponse = await requete('/versions', 'POST', { niveau, objetId, enveloppe });
         if (!reponse.ok || arrete) throw new Error('Archivage impossible');
       };
-      if (local.compte) await archiver('compte', 'local', local.compte);
-      if (local.partie) {
+      if (plan.compte === 'diverge' && local.compte) await archiver('compte', 'local', local.compte);
+      if (plan.partie === 'diverge' && local.partie) {
         await archiver('partie', local.partie.id, local.partie);
-        for (const region of local.regions) await archiver('region', `${local.partie.id}:${region.id}`, region);
+        for (const r of local.regions) await archiver('region', `${local.partie.id}:${r.id}`, r);
       }
-      gestionnaire.installerVersion(serveur);
-      if (local.partie && local.partie.id !== serveur.partie.id) {
-        gestionnaire.supprimerPartie(local.partie.id);
-        delete memoire.parties[local.partie.id];
-        for (const id of Object.keys(memoire.regions)) if (id.startsWith(`${local.partie.id}:`)) delete memoire.regions[id];
+      if (arrete || options.enPause?.()) return 'echec';
+      let charge = false;
+      for (const unite of ['compte', 'partie'] as const) {
+        if (!serveur || !['charger', 'diverge'].includes(plan[unite])) continue;
+        gestionnaire.installerVersion(unite === 'compte' ? { compte: serveur.compte, regions: [] }
+          : { partie: serveur.partie, regions: serveur.regions });
+        memoriserVersion(serveur, unite);
+        charge = true;
       }
-      memoriserVersion(serveur);
+      if (divergence) {
+        try { stockage.ecrire('pokiclicker:synchro-avis', JSON.stringify({ divergence: true })); } catch { /* Avis facultatif. */ }
+      }
       bloque = false;
       statut = 'inactif';
-      changerChoix(null);
-      return 'ok';
-    } catch { return 'echec'; }
-    finally { arbitrage = false; }
+      options.quandChange?.();
+      return charge ? 'charge' : 'rien';
+    } catch {
+      if (statut !== 'divergence') statut = 'hors-ligne';
+      options.quandChange?.();
+      return 'echec';
+    }
   }
-
+  async function resoudre(): Promise<'charge' | 'rien' | 'echec'> {
+    if (statut === 'ailleurs' || options.enPause?.() || suppressionEnAttente || !options.jeton()) return 'echec';
+    if (!resolution) resolution = appliquer().finally(() => { resolution = undefined; });
+    return resolution;
+  }
+  async function ouvrir(): Promise<'rien' | 'charge' | 'hors-ligne'> {
+    arrete = false;
+    if (options.enPause?.()) return 'rien';
+    if (statut !== 'divergence') {
+      bloque = false;
+      statut = 'inactif';
+    }
+    if (!options.jeton()) return 'rien';
+    const resultat = await resoudre();
+    return resultat === 'echec' ? 'hors-ligne' : resultat;
+  }
+  async function resoudreSuppression(cote: 'garder' | 'abandonner'): Promise<'ok' | 'echec'> {
+    if (!suppressionEnAttente || arrete) return 'echec';
+    try {
+      const { id } = suppressionEnAttente;
+      if (cote === 'abandonner') {
+        gestionnaire.supprimerPartie(id);
+        delete memoire.parties[id];
+        for (const r of Object.keys(memoire.regions)) if (r.startsWith(`${id}:`)) delete memoire.regions[r];
+        suppressionCourante = true;
+      } else {
+        memoire.parties[id] = { serveur: 0, local: -1 };
+        for (const r of Object.keys(memoire.regions)) if (r.startsWith(`${id}:`)) memoire.regions[r] = { serveur: 0, local: -1 };
+      }
+      stockage.ecrire(cle, JSON.stringify(memoire));
+      suppressionEnAttente = null;
+      bloque = false;
+      statut = 'inactif';
+      options.quandChange?.();
+      if (cote === 'garder') await envoyer();
+      return bloque || (statut as EtatSynchro) === 'hors-ligne' ? 'echec' : 'ok';
+    } catch { return 'echec'; }
+  }
+  function modifications() {
+    const compte = gestionnaire.chargerCompte();
+    const id = gestionnaire.partieCourante();
+    const partie = id ? gestionnaire.chargerPartie(id) : null;
+    const region = partie ? gestionnaire.chargerRegion(partie.id, partie.donnees.regionCourante) : null;
+    return { compte, partie, region,
+      compteModifie: compte && compte.revision !== memoire.compte?.local,
+      partieModifiee: partie && partie.revision !== memoire.parties[partie.id]?.local,
+      regionModifiee: region && region.revision !== memoire.regions[`${partie?.id}:${region.id}`]?.local };
+  }
   async function envoyer(fermeture = false): Promise<void> {
     if (arrete || bloque || suppressionCourante) return;
     if (options.enPause?.()) return;
@@ -253,20 +230,19 @@ export function creerSynchro(options: {
       try {
         const jeton = options.jeton();
         if (!jeton) return;
-        const compte = gestionnaire.chargerCompte();
-        const id = gestionnaire.partieCourante();
-        const partie = id ? gestionnaire.chargerPartie(id) : null;
-        const region = partie ? gestionnaire.chargerRegion(partie.id, partie.donnees.regionCourante) : null;
-        const cleRegion = partie && region ? `${partie.id}:${region.id}` : '';
-        const compteModifie = compte && compte.revision !== memoire.compte?.local;
-        const partieModifiee = partie && partie.revision !== memoire.parties[partie.id]?.local;
-        const regionModifiee = region && region.revision !== memoire.regions[cleRegion]?.local;
+        const m = modifications();
+        const { compte, partie, region } = m;
+        const compteModifie = compte && m.compteModifie;
+        const partieModifiee = partie && m.partieModifiee;
+        const regionModifiee = region && m.regionModifiee;
         // Une partie neuve (ou recréée) part avec toutes ses régions locales encore inconnues du serveur, plus la région courante si elle a changé.
         const regions = partieModifiee && !(memoire.parties[partie.id]?.serveur ?? 0)
           ? lireLocal().regions.filter(r => (r.id === region?.id && regionModifiee) || !(memoire.regions[`${partie.id}:${r.id}`]?.serveur ?? 0))
           : regionModifiee ? [region] : [];
         if (!compteModifie && !partieModifiee && !regionModifiee) return;
+        const appareilId = options.appareilId?.();
         const corps = JSON.stringify({
+          ...((partieModifiee || regionModifiee) && appareilId != null && { appareilId }),
           ...(compteModifie && { compte: { revisionBase: memoire.compte?.serveur ?? 0, enveloppe: compte } }),
           ...((partieModifiee || regionModifiee) && { partieId: partie?.id }),
           ...(partieModifiee && { partie: { revisionBase: memoire.parties[partie.id]?.serveur ?? 0, enveloppe: partie } }),
@@ -292,11 +268,14 @@ export function creerSynchro(options: {
         } else if (arrete) return;
         else if (reponse.status === 409) {
           const corps = await reponse.json().catch(() => null);
+          if (corps?.code === 'ailleurs') {
+            statut = 'ailleurs'; bloque = true; options.quandAilleurs?.(); options.quandChange?.(); return;
+          }
           const supprimee = partie && (memoire.parties[partie.id]?.serveur ?? 0) > 0 && Array.isArray(corps?.conflits)
             && corps.conflits.some((c: { niveau?: unknown; id?: unknown; revisionServeur?: unknown } | null) =>
               c?.niveau === 'partie' && c.id === partie.id && c.revisionServeur === 0);
           if (supprimee) retenirSuppression(partie.id);
-          else { statut = 'conflit'; bloque = true; await preparerChoix(); }
+          else { statut = 'divergence'; bloque = true; options.quandChange?.(); }
         }
         else if (reponse.status === 404 && partie && !partieModifiee && regions.length > 0
           && (memoire.parties[partie.id]?.serveur ?? 0) > 0) retenirSuppression(partie.id);
@@ -314,7 +293,7 @@ export function creerSynchro(options: {
       await envoyer(fermeture);
     }
   }
-  const enLigne = () => { if (statut === 'conflit' && !choixEnAttente) void preparerChoix(); else void envoyer(); };
+  const enLigne = () => { if (statut === 'divergence' && !suppressionEnAttente) void resoudre(); else void envoyer(); };
   function arreter() {
     arrete = true;
     clearInterval(intervalle);
@@ -350,7 +329,7 @@ export function creerSynchro(options: {
         // Sans le compte : une copie locale non envoyée ne doit jamais être écrasée en changeant de partie.
         const version = { ...await lireVersion(id), compte: null };
         gestionnaire.installerVersion(version);
-        memoriserVersion(version);
+        memoriserVersion(version, 'partie');
       }
       gestionnaire.choisirPartie(id);
       return 'ok';
@@ -395,11 +374,26 @@ export function creerSynchro(options: {
     ouvrirPartie,
     creerPartie,
     supprimerPartie,
-    choix: () => choixEnAttente,
-    trancher,
+    suppression: () => suppressionEnAttente,
+    resoudreSuppression,
+    resoudre,
+    enAttente: () => {
+      if (statut === 'ailleurs') return false;
+      const m = modifications();
+      return !!(m.compteModifie || m.partieModifiee || m.regionModifiee);
+    },
+    lireAvis(): string | null {
+      try {
+        const avis = stockage.lire('pokiclicker:synchro-avis');
+        stockage.supprimer('pokiclicker:synchro-avis');
+        return avis && JSON.parse(avis)?.divergence
+          ? 'Cette partie a avancé sur un autre appareil. Nous avons repris la sauvegarde la plus récente ; ce que tu avais joué ici est gardé en secours sur le serveur.'
+          : null;
+      } catch { return null; }
+    },
     demarrer() {
       if (intervalle !== undefined) return;
-      if (arrete && statut !== 'conflit') bloque = false;
+      if (arrete && statut !== 'divergence' && statut !== 'ailleurs') bloque = false;
       arrete = false;
       intervalle = setInterval(enLigne, options.intervalleMs ?? 45_000);
       if (typeof window !== 'undefined') window.addEventListener('online', enLigne);
