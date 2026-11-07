@@ -82,3 +82,14 @@ test('lots conservés, résumés, rotations et suppression isolée', async () =>
   expect((await s.pool.query('SELECT * FROM versions WHERE objet_id=$1 OR objet_id LIKE $1 || \':%\'', [t.id])).rows).toHaveLength(0);
   expect((await (await lire(autreId, t.token)).json()).versions).toHaveLength(1);
 });
+
+test('archives : une partie de plus de 100 Ko passe, et le préflight CORS autorise PATCH et DELETE', async () => {
+  const t = await preparer();
+  const gros = { ...t.body, partie: { ...t.body.partie, donnees: { ...t.body.partie.donnees, remplissage: 'é'.repeat(150_000) } } };
+  expect((await poster(t.id, gros, t.token)).status).toBe(200);
+  for (const methode of ['PATCH', 'DELETE']) {
+    const reponse = await s.runtime.app.request(`http://localhost:3000${chemin}/parties/${t.id}`, { method: 'OPTIONS', headers: {
+      origin: s.origin, 'access-control-request-method': methode, 'access-control-request-headers': 'Authorization,Content-Type' } });
+    expect(reponse.headers.get('access-control-allow-methods')).toContain(methode);
+  }
+});

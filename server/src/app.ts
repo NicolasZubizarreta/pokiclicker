@@ -58,10 +58,11 @@ export function createApp(config: Config, pool: Pool, mailer?: Mailer) {
   });
   app.use('*', cors({ origin: origin => config.origins.includes(origin) ? origin : undefined,
     allowHeaders: ['Authorization', 'Content-Type'], exposeHeaders: ['set-auth-token'],
-    allowMethods: ['GET', 'POST', 'PUT', 'OPTIONS'] }));
+    allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'] }));
   const limite = bodyLimit({ maxSize: 100 * 1024, onError: c => c.json({ message: 'Requête trop volumineuse.' }, 413) });
+  // Ces routes portent une partie entière et ont leur propre limite (3 Mo) dans sauvegarde.ts.
   app.use('*', (c, next) => (c.req.method === 'PUT' && c.req.path === '/api/sauvegarde') ||
-    (c.req.method === 'POST' && c.req.path === '/api/sauvegarde/versions') ? next() : limite(c, next));
+    (c.req.method === 'POST' && (c.req.path === '/api/sauvegarde/versions' || /^\/api\/sauvegarde\/parties\/[^/]+\/archives$/.test(c.req.path))) ? next() : limite(c, next));
   app.onError((error, c) => {
     console.error(error instanceof Error ? error.message : 'erreur');
     return c.json({ message: 'Erreur interne du serveur.' }, 500);

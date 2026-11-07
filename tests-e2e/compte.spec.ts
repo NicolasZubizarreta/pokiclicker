@@ -15,13 +15,15 @@ const test = base.extend<{ serveur: Awaited<ReturnType<typeof brancherFauxServeu
 
 async function brancherFauxServeur(context: BrowserContext) {
   const etat = { parties: [] as Partie[], suppressions: [] as string[], inscriptions: 0, oublis: [] as string[], tokens: [] as string[],
-    ailleurs: false, refusPut: false, puts: [] as unknown[], version: null as Version | null, reprises: 0, archives: [] as unknown[] };
+    ailleurs: false, refusPut: false, puts: [] as unknown[], version: null as Version | null, reprises: 0, archives: [] as unknown[],
+    renommages: [] as { id: string; nom: string }[], ouvertesAilleurs: [] as string[], listesDemandees: [] as (string | null)[],
+    versionsArchivees: [] as unknown[], restaurations: [] as unknown[], restauration: 200 };
   await context.route('http://api.test/**', async route => {
     const requete = route.request();
     const chemin = new URL(requete.url()).pathname;
     const methode = requete.method();
     const headers = { 'access-control-allow-origin': 'http://localhost:4175',
-      'access-control-allow-headers': 'authorization,content-type', 'access-control-allow-methods': 'GET,POST,PUT,DELETE,OPTIONS',
+      'access-control-allow-headers': 'authorization,content-type', 'access-control-allow-methods': 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
       'access-control-expose-headers': 'set-auth-token' };
     const repondre = (json: unknown, status = 200, jeton = false) => route.fulfill({ status, json,
       headers: { ...headers, ...(jeton ? { 'set-auth-token': 'session-test' } : {}) } });
@@ -36,8 +38,25 @@ async function brancherFauxServeur(context: BrowserContext) {
     if (chemin === '/api/auth/sign-out') return repondre({});
     if (chemin === '/api/auth/request-password-reset') { etat.oublis.push(requete.postDataJSON().email); return repondre({}); }
     if (chemin === '/api/auth/reset-password') { etat.tokens.push(requete.postDataJSON().token); return repondre({}); }
-    if (chemin === '/api/sauvegarde/parties') return repondre({ parties: etat.version ? [{ ...etat.version.partie,
-      nom: etat.version.partie.donnees.nom, regionCourante: etat.version.partie.donnees.regionCourante }] : etat.parties });
+    if (chemin === '/api/sauvegarde/parties') {
+      const appareilId = new URL(requete.url()).searchParams.get('appareilId');
+      etat.listesDemandees.push(appareilId);
+      const liste = etat.version ? [{ ...etat.version.partie,
+        nom: etat.version.partie.donnees.nom, regionCourante: etat.version.partie.donnees.regionCourante }] : etat.parties;
+      return repondre({ parties: liste.map(p => appareilId ? { ...p, appareilActif: etat.ouvertesAilleurs.includes(p.id) ? 'autre' : null } : p) });
+    }
+    if (methode === 'PATCH' && /^\/api\/sauvegarde\/parties\/[^/]+$/.test(chemin)) {
+      const id = decodeURIComponent(chemin.split('/').at(-1)!);
+      const { nom } = requete.postDataJSON();
+      etat.renommages.push({ id, nom });
+      etat.parties = etat.parties.map(p => p.id === id ? { ...p, nom } : p);
+      return repondre({ ok: true });
+    }
+    if (methode === 'GET' && /\/parties\/[^/]+\/versions$/.test(chemin)) return repondre({ versions: etat.versionsArchivees });
+    if (methode === 'POST' && chemin.endsWith('/restaurer')) {
+      etat.restaurations.push(requete.postDataJSON());
+      return repondre(etat.restauration === 200 ? { ok: true, partie: { id: 'x', revision: 1 } } : { message: 'Sauvegarde introuvable.' }, etat.restauration);
+    }
     if (chemin.endsWith('/appareil') && methode === 'POST') {
       if (requete.postDataJSON().reprendre === true) { etat.reprises++; etat.ailleurs = false; }
       return repondre({ actif: !etat.ailleurs });
@@ -324,4 +343,73 @@ test('Menu principal : onglet Parties puis Continuer ramène au jeu', async ({ p
   await expect(page.getByRole('navigation', { name: 'Navigation principale' })).toBeVisible();
   await page.getByRole('button', { name: 'Combat', exact: true }).click();
   await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
+});
+
+test('Renommer : crayon, nom vide refusé, nom enregistré sur le serveur', async ({ page, context, serveur }) => {
+  await creerPartie(page, context);
+  await menuPrincipal(page);
+  const crayon = page.getByRole('button', { name: 'Renommer Test', exact: true });
+  expect((await crayon.boundingBox())!.height).toBeGreaterThanOrEqual(48);
+  await crayon.click();
+  await page.getByLabel('Nom de la partie').fill('   ');
+  await page.getByRole('button', { name: 'Valider', exact: true }).click();
+  await expect(page.getByRole('alert')).toContainText('Donne un nom');
+  expect(serveur.renommages).toEqual([]);
+  await page.getByLabel('Nom de la partie').fill('Voyage à Johto');
+  await page.getByRole('button', { name: 'Valider', exact: true }).click();
+  await expect(page.getByRole('article', { name: 'Voyage à Johto', exact: true })).toBeVisible();
+  expect(serveur.renommages).toHaveLength(1);
+  expect(serveur.renommages[0].nom).toBe('Voyage à Johto');
+  await expect(page.getByRole('button', { name: 'Renommer Voyage à Johto', exact: true })).toBeFocused();
+});
+
+test('Ouverte ailleurs : repère affiché sur la carte puis disparu après la reprise', async ({ page, context, serveur }) => {
+  await creerPartie(page, context);
+  serveur.parties.push({ id: 'autre-partie', nom: 'Sur le téléphone', revision: 1, ecritLe: '2026-11-04T12:00:00Z', regionCourante: 'kanto' });
+  serveur.ouvertesAilleurs = ['autre-partie'];
+  await menuPrincipal(page);
+  const carte = page.getByRole('article', { name: 'Sur le téléphone', exact: true });
+  await expect(carte.getByText('Ouverte ailleurs', { exact: true })).toBeVisible();
+  await expect(page.getByRole('article', { name: 'Test', exact: true }).getByText('Ouverte ailleurs')).toHaveCount(0);
+  expect(serveur.listesDemandees.at(-1)).toBeTruthy();
+  serveur.ouvertesAilleurs = [];
+  await page.reload();
+  await menuPrincipal(page);
+  await expect(page.getByRole('article', { name: 'Sur le téléphone', exact: true })).toBeVisible();
+  await expect(page.getByText('Ouverte ailleurs')).toHaveCount(0);
+});
+
+test('Restauration : liste des versions, confirmation explicite puis restauration', async ({ page, context, serveur }) => {
+  serveur.versionsArchivees = [{ lot: '6f2d9a40-0000-4000-8000-000000000001', origine: 'divergence', remplaceLe: '2026-11-05T09:30:00.000Z',
+    ecritLe: '2026-11-05T09:00:00.000Z', tempsJeuMs: 5_400_000, regionCourante: 'kanto', zoneId: 'route-1', niveauEquipe: 12 }];
+  await creerPartie(page, context);
+  await menuPrincipal(page);
+  await page.getByRole('button', { name: 'Restaurer une sauvegarde précédente de Test', exact: true }).click();
+  const dialogue = page.getByRole('dialog');
+  await expect(dialogue).toContainText("Niveau de l'équipe");
+  await expect(dialogue).toContainText('12');
+  await dialogue.getByRole('button', { name: /^Restaurer cette version/ }).click();
+  await expect(dialogue).toContainText('Cela remplace la sauvegarde actuelle');
+  await expect(dialogue).toContainText("rien n'est perdu");
+  expect(serveur.restaurations).toEqual([]);
+  await dialogue.getByRole('button', { name: 'Retour', exact: true }).click();
+  await dialogue.getByRole('button', { name: /^Restaurer cette version/ }).click();
+  await dialogue.getByRole('button', { name: 'Oui, restaurer', exact: true }).click();
+  await expect.poll(() => serveur.restaurations.length).toBe(1);
+  expect(serveur.restaurations[0]).toMatchObject({ lot: '6f2d9a40-0000-4000-8000-000000000001' });
+  expect((serveur.restaurations[0] as { appareilId: string }).appareilId).toBeTruthy();
+  await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
+});
+
+test('Restauration : sauvegarde disparue entre-temps', async ({ page, context, serveur }) => {
+  serveur.versionsArchivees = [{ lot: '6f2d9a40-0000-4000-8000-000000000002', origine: 'restauration', remplaceLe: '2026-11-05T09:30:00.000Z',
+    ecritLe: '2026-11-05T09:00:00.000Z', tempsJeuMs: null, regionCourante: 'kanto', zoneId: '', niveauEquipe: null }];
+  serveur.restauration = 404;
+  await creerPartie(page, context);
+  await menuPrincipal(page);
+  await page.getByRole('button', { name: 'Restaurer une sauvegarde précédente de Test', exact: true }).click();
+  const dialogue = page.getByRole('dialog');
+  await dialogue.getByRole('button', { name: /^Restaurer cette version/ }).click();
+  await dialogue.getByRole('button', { name: 'Oui, restaurer', exact: true }).click();
+  await expect(dialogue.getByRole('alert')).toContainText("n'existe plus");
 });

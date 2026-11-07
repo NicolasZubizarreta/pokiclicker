@@ -73,3 +73,16 @@ Le PUT de sauvegarde accepte `appareilId` optionnel (UUID). Si un autre appareil
 Ajouter ultérieurement un job `server` avec Node 22 et un service Postgres 18 : `npm ci` dans `server`, puis `npm run typecheck`, `npm test`, `npm run build`, avec `DATABASE_URL` de test. Le lint reste celui de la racine (`npx eslint server`). Aucun changement de `.github/` n’est nécessaire à cette livraison.
 
 L’API de migration de Better Auth 1.7.16 est exportée par `better-auth/db/migration`, et non `better-auth/db`. Sous Windows, le nettoyage des tests utilise le `pg_ctl` du paquet embarqué : son arrêt par `taskkill` reste bloqué dans ce bac à sable. Les mises à jour doivent conserver les tests d’usage unique, d’expiration, de révocation et de limite par route. Une revue humaine de sécurité reste prévue par l’ADR 0005.
+
+## Suites du lot 8 (07/11/2026)
+
+Routes ajoutées (même authentification, même isolation par compte) :
+- `PATCH /api/sauvegarde/parties/:id` : `{ nom }` (1 à 100 caractères), renomme sans changer la révision.
+- `GET /api/sauvegarde/parties?appareilId=<uuid>` : chaque partie gagne `appareilActif` (`'cet-appareil'`, `'autre'`, `null`) ; champ absent sans `appareilId`.
+- `POST /api/sauvegarde/parties/:id/archives` : `{ partie, regions }`, archive un lot complet (3 Mo au plus).
+- `GET /api/sauvegarde/parties/:id/versions` : au plus 5 lots restaurables.
+- `POST /api/sauvegarde/parties/:id/restaurer` : `{ appareilId, lot }`.
+
+**Migration SQL n°3** (`docs/migrations/0003-versions-origine.sql`, colonnes `versions.origine` et `versions.lot`) : additive, appliquée toute seule au démarrage du nouveau serveur. Sauvegarder la base avant le déploiement ; aucune commande n'a été lancée en ligne. Retour en arrière : redéployer l’ancien serveur ; il ignore les colonnes mais sa rotation (5 par objet) peut effacer les lots archivés.
+
+**Ordre de déploiement** : 1. serveur (migration 3 incluse) ; 2. client du lot 8 et de ces suites (un nouveau client contre un ancien serveur échoue à archiver : 404 sur `/archives`) ; 3. enfin le commit « appareil obligatoire » (le PUT sans `appareilId` répond alors 400 `appareil-requis`), seulement quand plus aucun client sans `appareilId` n'est en ligne.

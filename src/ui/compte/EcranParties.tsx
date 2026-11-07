@@ -119,11 +119,11 @@ export function Parties({ parties, horsConnexion, chargement, occupe, erreur, qu
               <button type="submit" className="plaque plaque-action min-h-12" disabled={occupe}>Valider</button>
               <button type="button" className="plaque min-h-12" disabled={occupe} onClick={() => fermerEdition(p.id)}>Annuler</button>
             </form> : <h2 className="font-titre text-xl font-bold">{p.nom}</h2>}
-            {quandRenommer && <button key="renommer" ref={bouton => { if (bouton) crayons.current.set(p.id, bouton); else crayons.current.delete(p.id); }} type="button" className="plaque min-h-12 min-w-12" aria-label={`Renommer ${p.nom}`} disabled={occupe}
+            {quandRenommer && <button key="renommer" ref={bouton => { if (bouton) crayons.current.set(p.id, bouton); else crayons.current.delete(p.id); }} type="button" className="plaque min-h-12 min-w-12" aria-label={`Renommer ${p.nom}`} disabled={occupe} hidden={edition === p.id}
               onClick={() => { if (occupe) return; fixerNomEdition(p.nom); fixerEditionInvalide(false); fixerEdition(p.id); }}><IconeCrayon /></button>}
             {p.courante && <span className="zc-tag info">En cours</span>}
             {p.ailleurs && <span className="zc-tag info"><span className="zc-point" aria-hidden="true" />Ouverte ailleurs</span>}
-            {!p.surServeur ? <span className="zc-tag alerte">Sur cet appareil seulement</span> : !p.courante && <span className="zc-tag succes">À jour</span>}
+            {!p.surServeur ? <span className="zc-tag alerte">Sur cet appareil seulement</span> : !p.courante && !p.ailleurs && <span className="zc-tag succes">À jour</span>}
           </div>
           <dl><dt>Région</dt><dd>{nomRegion(p.regionCourante)}{p.zoneId ? ` · ${nomZone(p.zoneId)}` : ''}</dd>
             <dt>Temps de jeu</dt><dd>{duree(p.tempsJeuMs)}</dd>
