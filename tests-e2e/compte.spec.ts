@@ -62,6 +62,7 @@ async function brancherFauxServeur(context: BrowserContext) {
       return repondre({ actif: !etat.ailleurs });
     }
     if (chemin.endsWith('/versions') && methode === 'POST') { etat.archives.push(requete.postDataJSON()); return repondre({}); }
+    if (methode === 'POST' && /\/parties\/[^/]+\/archives$/.test(chemin)) { etat.archives.push(requete.postDataJSON()); return repondre({ ok: true, lot: 'lot-test' }); }
     if (methode === 'GET' && etat.version) {
       if (chemin === '/api/sauvegarde/compte') return etat.version.compte ? repondre({ enveloppe: etat.version.compte }) : repondre({}, 404);
       if (chemin === `/api/sauvegarde/parties/${etat.version.partie.id}`) return repondre({ partie: etat.version.partie, regions: etat.version.regions });
@@ -359,7 +360,7 @@ test('Renommer : crayon, nom vide refusé, nom enregistré sur le serveur', asyn
   await page.getByRole('button', { name: 'Valider', exact: true }).click();
   await expect(page.getByRole('article', { name: 'Voyage à Johto', exact: true })).toBeVisible();
   expect(serveur.renommages).toHaveLength(1);
-  expect(serveur.renommages[0].nom).toBe('Voyage à Johto');
+  expect(serveur.renommages[0]?.nom).toBe('Voyage à Johto');
   await expect(page.getByRole('button', { name: 'Renommer Voyage à Johto', exact: true })).toBeFocused();
 });
 
