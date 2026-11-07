@@ -44,7 +44,11 @@ test('Équipe : six cases, fiche en fenêtre et captures', async ({ page }, info
   await expect(fiche.getByRole('heading', { level: 2 }).first()).toContainText('Bulbizarre');
   const hauteurFenetre = await page.evaluate(() => window.innerHeight);
   const boite = (await fiche.boundingBox())!;
-  if (informations.project.name === 'mobile') expect(boite.height).toBeLessThanOrEqual(hauteurFenetre / 2 + 1);
+  // Retour du test iPhone du 07/11 : la feuille fait au moins 60 % de l'écran (elle en faisait 50 % au plus, et s'écrasait sur iOS).
+  if (informations.project.name === 'mobile') {
+    expect(boite.height).toBeGreaterThanOrEqual(Math.floor(hauteurFenetre * 0.6));
+    expect(boite.height).toBeLessThanOrEqual(hauteurFenetre);
+  }
   await page.screenshot({ path: `design/captures/h-fiche-${largeur}.png`, animations: 'disabled' });
   // Le fond ne défile pas ; Échap ferme et rend le focus à la carte d'origine.
   const defilement = await page.evaluate(() => window.scrollY);
