@@ -62,6 +62,12 @@ psql --dbname=$env:RESTORE_DATABASE_URL --command='SELECT count(*) FROM "user"; 
 
 Lancer une instance isolée de l’API avec cette base et un domaine de test autorisé ; vérifier santé, connexion d’un compte de test et réinitialisation avec SMTP de test. Comparer les comptes et les dates avec l’archive, noter date, durée et résultat de la restauration. Supprimer ensuite l’instance et la base d’essai. Effectuer cet exercice avant mise en production, puis régulièrement. La procédure est documentée ici ; aucun déploiement ni exercice sur Coolify n’a été exécuté sur ce poste.
 
+## Déploiement du lot 8 (06/11/2026)
+
+Le PUT de sauvegarde accepte `appareilId` optionnel (UUID). Si un autre appareil a envoyé un battement dans les 120 dernières secondes, il refuse l’écriture avec 409 et `code: 'ailleurs'`, avant le contrôle des révisions. Aucune migration SQL.
+
+**DÉPLOYER LE SERVEUR AVANT LE CLIENT** : un ancien serveur répond 400 à un nouveau client qui envoie `appareilId`, car `valider` refuse les champs inconnus. Sans `appareilId`, rien ne change pour un ancien client.
+
 ## CI à ajouter
 
 Ajouter ultérieurement un job `server` avec Node 22 et un service Postgres 18 : `npm ci` dans `server`, puis `npm run typecheck`, `npm test`, `npm run build`, avec `DATABASE_URL` de test. Le lint reste celui de la racine (`npx eslint server`). Aucun changement de `.github/` n’est nécessaire à cette livraison.

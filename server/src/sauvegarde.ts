@@ -6,7 +6,7 @@ type Auth = { api: { getSession: (options: { headers: Headers }) => Promise<{ us
 type Objet = Record<string, unknown>;
 type Enveloppe = { version: number; niveau: string; id: string; revision: number; ecritLe: string; donnees: Objet };
 type Envoi = { revisionBase: number; enveloppe: Enveloppe };
-type Corps = { partieId?: string; compte?: Envoi; partie?: Envoi; regions?: Envoi[] };
+type Corps = { partieId?: string; appareilId?: string; compte?: Envoi; partie?: Envoi; regions?: Envoi[] };
 type Ligne = { revision: number; version: number; ecrit_le: Date; donnees: Objet };
 const objet = (v: unknown): v is Objet => typeof v === 'object' && v !== null && !Array.isArray(v);
 const entier = (v: unknown): v is number => Number.isSafeInteger(v) && Number(v) >= 0;
@@ -26,7 +26,8 @@ async function purgerVersions(db: PoolClient, compteId: string, niveau: string, 
 
 function valider(v: unknown): { message: string; statut: 400 | 413 } | undefined {
   const erreur = { message: 'Sauvegarde invalide.', statut: 400 as const };
-  if (!objet(v) || !champs(v, ['partieId', 'compte', 'partie', 'regions'])) return erreur;
+  if (!objet(v) || !champs(v, ['partieId', 'appareilId', 'compte', 'partie', 'regions'])) return erreur;
+  if ('appareilId' in v && !uuid(v.appareilId)) return erreur;
   if (v.partieId !== undefined && !uuid(v.partieId)) return erreur;
   if (v.regions !== undefined && (!Array.isArray(v.regions) || !v.regions.length)) return erreur;
   if (v.compte === undefined && v.partie === undefined && v.regions === undefined) return erreur;
@@ -228,8 +229,15 @@ export function routesSauvegarde(pool: Pool, auth: Auth): Hono<{ Variables: { co
     try { erreur = valider(brut); } catch { erreur = { message: 'Sauvegarde invalide.', statut: 400 as const }; }
     if (erreur) return c.json({ message: erreur.message }, erreur.statut);
     const corps = brut as Corps;
+    const appareil = corps.appareilId !== undefined && (corps.partie !== undefined || corps.regions !== undefined);
     const compteId = c.get('compteId');
     const db = await pool.connect();
+    const prendreAppareil = () => db.query(`INSERT INTO appareil_actif(partie_id, appareil_id, battement_le)
+      VALUES ($1, $2, now()) ON CONFLICT (partie_id) DO UPDATE
+      SET appareil_id = EXCLUDED.appareil_id, battement_le = now()
+      WHERE appareil_actif.appareil_id = EXCLUDED.appareil_id
+        OR now() - appareil_actif.battement_le > interval '120 seconds'
+      RETURNING partie_id`, [corps.partieId, corps.appareilId]);
     let echec: Error | undefined; // une connexion en erreur est détruite au lieu de retourner au pool
     const conflit = { message: 'Cette sauvegarde a changé depuis ta dernière lecture.', conflits: [] as Objet[] };
     try {
@@ -239,6 +247,16 @@ export function routesSauvegarde(pool: Pool, auth: Auth): Hono<{ Variables: { co
       if ((partie && partie.compte_id !== compteId) || (!partie && corps.regions && !corps.partie)) {
         await db.query('ROLLBACK');
         return c.json({ message: 'Partie introuvable.' }, 404);
+      }
+      if (appareil && partie) {
+        const actif = (await db.query(`SELECT appareil_id,
+          now() - battement_le <= interval '120 seconds' AS recent
+          FROM appareil_actif WHERE partie_id = $1 FOR UPDATE`, [corps.partieId])).rows[0];
+        if (actif && String(actif.appareil_id).toLowerCase() !== corps.appareilId!.toLowerCase() && actif.recent) {
+          await db.query('ROLLBACK');
+          return c.json({ message: 'Cette partie est ouverte sur un autre appareil.', code: 'ailleurs', conflits: [] }, 409);
+        }
+        await prendreAppareil();
       }
       const objets: { envoi: Envoi; niveau: string; id: string; table: string; cle: string; valeurs: unknown[]; ligne?: Ligne }[] = [];
       if (corps.compte) objets.push({ envoi: corps.compte, niveau: 'compte', id: compteId,
@@ -290,6 +308,7 @@ export function routesSauvegarde(pool: Pool, auth: Auth): Hono<{ Variables: { co
             VALUES (${parametres.map((_, i) => `$${i + 1}`).join(',')}) ON CONFLICT DO NOTHING RETURNING revision`, parametres);
         }
         if (!modifie.rowCount) { await db.query('ROLLBACK'); return c.json({ ...conflit, conflits: [] }, 409); }
+        if (appareil && o.niveau === 'partie' && !partie) await prendreAppareil();
         const revision = modifie.rows[0].revision as number;
         if (o.niveau === 'compte') resultat.compte = { revision };
         else if (o.niveau === 'partie') resultat.partie = { id: e.id, revision };

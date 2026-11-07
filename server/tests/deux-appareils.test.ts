@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import { expect, it } from 'vitest';
 import { creerHorlogeSimulee } from '../../src/core/clock';
 import { compteInitial, creerGestionnaire, creerStockageMemoire, type DonneesRegion } from '../../src/core/sauvegarde';
@@ -21,8 +22,9 @@ function creerAppareil(token: string, ip: string) {
     return s.runtime.app.request(String(entree), { ...init, headers });
   };
   const options = { stockage, horloge, fetch, jeton: () => token, urlApi: 'http://localhost:3000' };
-  const synchro = creerSynchro({ ...options, delaiMiniMs: 0 });
   const appareil = creerAppareilActif(options);
+  const synchro = creerSynchro({ ...options, delaiMiniMs: 0,
+    appareilId: () => appareil.id(), quandAilleurs: () => appareil.signalerAilleurs() });
   const region = () => {
     const id = gestionnaire.partieCourante();
     if (!id) throw new Error('Aucune partie courante');
@@ -45,7 +47,7 @@ function creerAppareil(token: string, ip: string) {
       headers: { Authorization: `Bearer ${token}` },
     });
   }
-  return { stockage, horloge, gestionnaire, synchro, appareil, region, jouer, lireServeur,
+  return { stockage, horloge, gestionnaire, synchro, appareil, region, jouer, lireServeur, fetch, token,
     couper: (valeur: boolean) => { coupure = valeur; } };
 }
 
@@ -64,18 +66,6 @@ async function synchroniser() {
   await t.a.synchro.envoyerMaintenant();
   expect(t.a.synchro.etat()).toBe('ok');
   expect(await t.b.synchro.ouvrir()).toBe('charge');
-  return t;
-}
-
-async function provoquerConflit() {
-  const t = await synchroniser();
-  t.a.jouer(120, 'kanto.route-1', 1);
-  t.b.jouer(240, 'kanto.route-2', 4);
-  await t.a.synchro.envoyerMaintenant();
-  expect(t.a.synchro.etat()).toBe('ok');
-  await t.b.synchro.envoyerMaintenant();
-  expect(t.b.synchro.etat()).toBe('conflit');
-  expect(t.b.synchro.choix()).not.toBeNull();
   return t;
 }
 
@@ -115,26 +105,122 @@ it('permet de reprendre la partie sur un autre appareil actif', async () => {
   expect(a.appareil.ailleurs()).toBe(true);
 });
 
-it('résout un conflit en gardant cet appareil et archive la version écrasée', async () => {
-  const { a, b, id } = await provoquerConflit();
-  const ecrasee = a.region();
-  expect(await b.synchro.trancher('local')).toBe('ok');
-  expect(b.synchro.etat()).toBe('ok');
-  expect(b.synchro.choix()).toBeNull();
-  await verifierServeur(b, id, b.region());
+it('reprend exactement la sauvegarde sur le deuxième appareil', async () => {
+  const { a, b, id } = await synchroniser();
+  a.jouer(350, 'kanto.route-1', 7);
+  const premier = a.region().equipe[0];
+  if (!premier) throw new Error('Équipe absente');
+  const cartes = ['C', 'D', 'S', 'H'].flatMap(couleur =>
+    ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'].map(rang => `${rang}-${couleur}`));
+  a.gestionnaire.ecrireRegion(id, 'kanto', {
+    ...a.region(),
+    equipe: [premier, { ...premier, uid: randomUUID(), numero: 4 }],
+    evenementEnCours: { id: 'x', etape: 2, file: ['a', 'b'] },
+    blackjackEnCours: { mise: 10, paquet: cartes.slice(4), joueur: cartes.slice(0, 2), croupier: cartes.slice(2, 4) },
+    chronos: { finRepousse: 1200, finSuperRepousse: 2400, finBoostAttaque: 3600,
+      finBoostAttaqueSpeciale: 4800, rechargeFauchage: 6000 },
+  });
+  a.gestionnaire.ecrireCompte({ ...compteInitial(), diamants: 15, succes: ['premiers-pas'], skins: ['rouge'] });
+  expect(await a.appareil.ouvrir()).toBe('libre');
+  await a.synchro.envoyerMaintenant();
+  expect(a.synchro.etat()).toBe('ok');
+  expect(await b.appareil.ouvrir()).toBe('ailleurs');
+  expect(await b.appareil.reprendre()).toBe('ok');
+  expect(await b.synchro.ouvrir()).toBe('charge');
+  expect(b.region()).toEqual(a.region());
+  expect(b.gestionnaire.chargerPartie(id)?.donnees).toEqual(a.gestionnaire.chargerPartie(id)?.donnees);
+  expect(b.gestionnaire.chargerCompte()?.donnees).toEqual(a.gestionnaire.chargerCompte()?.donnees);
+});
+
+it('bloque les envois de l’appareil dépossédé sans modifier le serveur', async () => {
+  const { a, b, id } = await synchroniser();
+  expect(await a.appareil.ouvrir()).toBe('libre');
+  expect(await b.appareil.ouvrir()).toBe('ailleurs');
+  expect(await b.appareil.reprendre()).toBe('ok');
+  const avant = await (await a.lireServeur(id)).json();
+  a.jouer(900, 'kanto.route-2', 1);
+  await a.synchro.envoyerMaintenant();
+  expect(a.synchro.etat()).toBe('ailleurs');
+  expect(a.appareil.ailleurs()).toBe(true);
+  expect(await (await a.lireServeur(id)).json()).toEqual(avant);
+  await a.synchro.envoyerMaintenant();
+  expect(a.synchro.etat()).toBe('ailleurs');
+  expect(await (await a.lireServeur(id)).json()).toEqual(avant);
+});
+
+it('archive la divergence hors ligne puis installe la sauvegarde serveur', async () => {
+  const { a, b, id } = await synchroniser();
+  expect(await a.appareil.ouvrir()).toBe('libre');
+  expect(await b.appareil.ouvrir()).toBe('ailleurs');
+  b.couper(true);
+  b.jouer(240, 'kanto.route-2', 4);
+  const locale = b.region();
+  a.jouer(120, 'kanto.route-1', 1);
+  await a.synchro.envoyerMaintenant();
+  expect(a.synchro.etat()).toBe('ok');
+  const avant = await (await a.lireServeur(id)).json();
+  b.couper(false);
+  expect(await b.appareil.reprendre()).toBe('ok');
+  expect(await b.synchro.ouvrir()).toBe('charge');
+  expect(b.region()).toEqual(a.region());
+  expect(b.gestionnaire.chargerPartie(id)?.donnees).toEqual(a.gestionnaire.chargerPartie(id)?.donnees);
+  expect(b.gestionnaire.chargerCompte()?.donnees).toEqual(a.gestionnaire.chargerCompte()?.donnees);
   const archives = await s.pool.query<{ donnees: DonneesRegion }>(
     "SELECT donnees FROM versions WHERE niveau = 'region' AND objet_id = $1",
     [`${id}:kanto`],
   );
-  expect(archives.rows.map(ligne => ligne.donnees)).toContainEqual(ecrasee);
+  expect(archives.rows.map(ligne => ligne.donnees)).toContainEqual(locale);
+  expect(b.synchro.lireAvis()).toEqual(expect.stringMatching(/\S/));
+  expect(b.synchro.lireAvis()).toBeNull();
+  expect(await (await a.lireServeur(id)).json()).toEqual(avant);
+  await verifierServeur(b, id, a.region());
 });
 
-it('résout un conflit en récupérant la progression de l’autre appareil', async () => {
-  const { a, b, id } = await provoquerConflit();
-  expect(await b.synchro.trancher('serveur')).toBe('ok');
-  expect(b.synchro.choix()).toBeNull();
-  expect(b.region()).toEqual(a.region());
-  await verifierServeur(b, id, a.region());
+it('accepte un ancien client sans appareilId pour une nouvelle partie', async () => {
+  const { a, b } = await synchroniser();
+  expect(await a.appareil.ouvrir()).toBe('libre');
+  const partie = b.gestionnaire.creerPartie('Ancien client');
+  // Ce cas prouve la compatibilité sur une autre partie, pas sur la partie active.
+  const reponse = await b.fetch('http://localhost:3000/api/sauvegarde', {
+    method: 'PUT', headers: { Authorization: `Bearer ${b.token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ partieId: partie.id,
+      partie: { revisionBase: 0, enveloppe: partie },
+      regions: [{ revisionBase: 0, enveloppe: b.gestionnaire.chargerRegion(partie.id, 'kanto') }] }),
+  });
+  expect(reponse.status).toBe(200);
+});
+
+it('migre côté client une partie et une région au format v1', async () => {
+  const { a, b, id } = await preparer();
+  const fixture = (nom: string) => JSON.parse(readFileSync(new URL(
+    `../../src/core/migrations/__fixtures__/${nom}-v1.json`, import.meta.url), 'utf8'));
+  const partie = { ...fixture('partie'), id };
+  partie.donnees.regionsDebloquees = ['kanto'];
+  const region = fixture('region');
+  // La fixture de migration contient volontairement un champ inconnu, refusé au chargement.
+  delete region.donnees.futur;
+  // Les enveloppes restent en v1 : les migrations sont attendues au chargement client.
+  const reponse = await a.fetch('http://localhost:3000/api/sauvegarde', {
+    method: 'PUT', headers: { Authorization: `Bearer ${a.token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ appareilId: a.appareil.id(), partieId: id,
+      compte: { revisionBase: 0, enveloppe: a.gestionnaire.chargerCompte() },
+      partie: { revisionBase: 0, enveloppe: partie }, regions: [{ revisionBase: 0, enveloppe: region }] }),
+  });
+  expect(reponse.status).toBe(200);
+  expect(await b.synchro.ouvrir()).toBe('charge');
+  const chargee = b.gestionnaire.chargerPartie(id);
+  const chargeeRegion = b.gestionnaire.chargerRegion(id, 'kanto');
+  expect(chargee?.version).toBe(a.gestionnaire.chargerPartie(id)?.version);
+  expect(chargeeRegion?.version).toBe(a.gestionnaire.chargerRegion(id, 'kanto')?.version);
+  expect(chargee?.version).toBeGreaterThan(1);
+  expect(chargeeRegion?.version).toBeGreaterThan(1);
+  expect(chargee?.donnees.pcGlobal[0]).toMatchObject({ sexe: expect.any(String), favori: false });
+  expect(chargeeRegion?.donnees.equipe[0]).toMatchObject({ sexe: expect.any(String), favori: false });
+  expect(chargeeRegion?.donnees).toMatchObject({
+    pc: [], ameliorations: [], jalonsRecus: [], starterId: null, jetons: 0,
+    chronos: a.region().chronos,
+    pension: { parents: [], oeufs: [], emplacementsOeuf: 1 },
+  });
 });
 
 it('envoie le dernier état local après une coupure réseau', async () => {
@@ -143,14 +229,12 @@ it('envoie le dernier état local après une coupure réseau', async () => {
   a.jouer(100, 'kanto.route-1', 1);
   await a.synchro.envoyerMaintenant();
   expect(a.synchro.etat()).toBe('hors-ligne');
-  expect(a.synchro.choix()).toBeNull();
   const avantDernier = a.region();
   a.jouer(500, 'kanto.route-2', 4);
   a.couper(false);
   a.horloge.avancer(60_000);
   await a.synchro.envoyerMaintenant();
   expect(a.synchro.etat()).toBe('ok');
-  expect(a.synchro.choix()).toBeNull();
   expect(a.region()).not.toEqual(avantDernier);
   await verifierServeur(a, id, a.region());
 });
