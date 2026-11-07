@@ -256,6 +256,64 @@ export function routesSauvegarde(pool: Pool, auth: Auth): Hono<{ Variables: { co
       throw error;
     } finally { db.release(echec); }
   });
+  app.post('/parties/:id/restaurer', async c => {
+    const id = c.req.param('id');
+    if (!uuid(id)) return c.json({ message: 'Partie introuvable.' }, 404);
+    let brut: unknown;
+    try { brut = await c.req.json(); } catch { return c.json({ message: 'Sauvegarde invalide.' }, 400); }
+    if (!objet(brut) || !champs(brut, ['appareilId', 'lot']) || !uuid(brut.appareilId) || !uuid(brut.lot)) {
+      return c.json({ message: 'Sauvegarde invalide.' }, 400);
+    }
+    const compteId = c.get('compteId');
+    const db = await pool.connect();
+    let echec: Error | undefined;
+    try {
+      await db.query('BEGIN');
+      const actuelle = await db.query('SELECT * FROM parties WHERE id = $1 AND compte_id = $2 FOR UPDATE', [id, compteId]);
+      if (!actuelle.rows[0]) {
+        await db.query('ROLLBACK');
+        return c.json({ message: 'Partie introuvable.' }, 404);
+      }
+      const { rows } = await db.query<Ligne & { niveau: string; objet_id: string }>(`SELECT * FROM versions
+        WHERE compte_id = $1 AND lot = $2 AND origine <> 'rotation'
+          AND ((niveau = 'partie' AND objet_id = $3) OR (niveau = 'region' AND objet_id LIKE $3 || ':%'))`,
+      [compteId, brut.lot, id]);
+      const partie = rows.find(r => r.niveau === 'partie');
+      const regions = rows.filter(r => r.niveau === 'region');
+      if (!partie || typeof partie.donnees.regionCourante !== 'string' ||
+          !regions.some(r => r.objet_id === `${id}:${partie.donnees.regionCourante}`)) {
+        await db.query('ROLLBACK');
+        return c.json({ message: 'Sauvegarde introuvable.' }, 404);
+      }
+      await db.query(`INSERT INTO appareil_actif(partie_id, appareil_id, battement_le)
+        VALUES ($1,$2,now()) ON CONFLICT (partie_id) DO UPDATE
+        SET appareil_id = EXCLUDED.appareil_id, battement_le = now()`, [id, brut.appareilId]);
+      const lot = randomUUID();
+      await db.query(`INSERT INTO versions(compte_id,niveau,objet_id,revision,version,ecrit_le,donnees,origine,lot)
+        SELECT compte_id,'partie',id,revision,version,ecrit_le,donnees,'restauration',$2 FROM parties WHERE id=$1`, [id, lot]);
+      await db.query(`INSERT INTO versions(compte_id,niveau,objet_id,revision,version,ecrit_le,donnees,origine,lot)
+        SELECT $3,'region',$1::text || ':' || region_id,revision,version,ecrit_le,donnees,'restauration',$2
+        FROM regions WHERE partie_id=$1::uuid`, [id, lot, compteId]);
+      const resultat = await db.query(`UPDATE parties SET donnees = jsonb_set($2::jsonb, '{nom}', to_jsonb(nom)),
+        revision = revision + 1, version = $3, ecrit_le = now() WHERE id = $1 RETURNING revision`,
+      [id, partie.donnees, partie.version]);
+      const ids = regions.map(r => r.objet_id.slice(id.length + 1));
+      for (const [i, region] of regions.entries()) {
+        await db.query(`INSERT INTO regions(partie_id,region_id,revision,version,ecrit_le,donnees)
+          VALUES ($1,$2,1,$3,now(),$4) ON CONFLICT (partie_id,region_id) DO UPDATE
+          SET revision = regions.revision + 1, version = EXCLUDED.version, donnees = EXCLUDED.donnees, ecrit_le = now()`,
+        [id, ids[i], region.version, region.donnees]);
+      }
+      await db.query('DELETE FROM regions WHERE partie_id=$1 AND NOT (region_id = ANY($2::text[]))', [id, ids]);
+      await purgerLots(db, compteId, id);
+      await db.query('COMMIT');
+      return c.json({ ok: true, partie: { id, revision: resultat.rows[0].revision } });
+    } catch (error) {
+      await db.query('ROLLBACK').catch(() => undefined);
+      echec = error as Error;
+      throw error;
+    } finally { db.release(echec); }
+  });
   app.get('/parties/:id/versions', async c => {
     const id = c.req.param('id');
     if (!uuid(id)) return c.json({ message: 'Partie introuvable.' }, 404);

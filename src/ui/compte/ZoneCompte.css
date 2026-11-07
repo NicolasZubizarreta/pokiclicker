@@ -3,6 +3,7 @@
 .zc-partie dt { color: var(--texte-doux); font-size: var(--text-sm); line-height: var(--text-sm--line-height); }
 .zc-partie dd { margin: 0; text-align: right; overflow-wrap: anywhere; }
 .zc-tag { display: inline-block; padding: 0 calc(var(--spacing) * 2); background: var(--succes-fond); color: var(--succes-texte); border: calc(var(--spacing) / 2) solid var(--succes-base); font-size: var(--text-sm); line-height: var(--text-sm--line-height); }
+.zc-point { display: inline-block; width: calc(var(--spacing) * 2); height: calc(var(--spacing) * 2); margin-right: var(--spacing); background: currentColor; }
 .zc-tag.info { background: var(--info-fond); color: var(--info-texte); border-color: var(--info-base); }
 .zc-tag.alerte { background: var(--alerte-fond); color: var(--alerte-texte); border-color: var(--alerte-base); }
 .zc-danger { background: var(--erreur-fond); color: var(--erreur-texte); border-color: var(--erreur-base); }

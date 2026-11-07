@@ -4,6 +4,93 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { Parties } from './EcranParties';
 
 afterEach(cleanup);
+const archive = { lot: 'lot-1', origine: 'divergence' as const, remplaceLe: '2026-11-03T12:00:00Z', ecritLe: '2026-11-02T12:00:00Z', tempsJeuMs: 43_500_000, regionCourante: 'kanto', zoneId: 'inconnue', niveauEquipe: 15 };
+const dateArchive = new Date(archive.remplaceLe).toLocaleString('fr-FR', { dateStyle: 'long', timeStyle: 'short' });
+const propsArchives = () => ({ ...props(), quandListerVersions: vi.fn().mockResolvedValue([archive]), quandRestaurer: vi.fn().mockResolvedValue('ok') });
+const ouvrirArchives = () => fireEvent.click(screen.getByRole('button', { name: 'Restaurer une sauvegarde précédente de Mon aventure' }));
+const choisirArchive = async () => fireEvent.click(await screen.findByRole('button', { name: `Restaurer cette version du ${dateArchive}` }));
+
+it('ne propose la restauration que si les deux callbacks sont fournis', () => {
+  const p = propsArchives();
+  const { rerender } = render(<Parties {...props()} />);
+  expect(screen.queryByText('Restaurer une sauvegarde précédente')).toBeNull();
+  rerender(<Parties {...p} quandRestaurer={undefined} />);
+  expect(screen.queryByText('Restaurer une sauvegarde précédente')).toBeNull();
+  rerender(<Parties {...p} quandListerVersions={undefined} />);
+  expect(screen.queryByText('Restaurer une sauvegarde précédente')).toBeNull();
+});
+it('charge les archives, confirme explicitement et rend le focus après restauration', async () => {
+  const p = propsArchives();
+  render(<Parties {...p} />);
+  const bouton = screen.getByRole('button', { name: 'Restaurer une sauvegarde précédente de Mon aventure' });
+  ouvrirArchives();
+  expect(screen.getByRole('status').textContent).toBe('Recherche des sauvegardes…');
+  const liste = await screen.findByRole('list');
+  expect(within(liste).getByText(dateArchive)).toBeTruthy();
+  expect(within(liste).getByText('12 h 05')).toBeTruthy();
+  expect(within(liste).getByText('Kanto · inconnue')).toBeTruthy();
+  expect(within(liste).getByText('15')).toBeTruthy();
+  expect(document.activeElement).toBe(screen.getByRole('heading', { name: 'Restaurer une sauvegarde précédente' }));
+  await choisirArchive();
+  expect(screen.getByText("Cela remplace la sauvegarde actuelle de « Mon aventure ». L'actuelle est mise de côté à son tour : rien n'est perdu.")).toBeTruthy();
+  expect(p.quandRestaurer).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByText('Retour'));
+  expect(screen.getByRole('list')).toBeTruthy();
+  await choisirArchive();
+  fireEvent.click(screen.getByText('Oui, restaurer'));
+  await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+  expect(p.quandRestaurer).toHaveBeenCalledExactlyOnceWith('a', archive.lot);
+  expect(document.activeElement).toBe(bouton);
+});
+it.each([null, []])('présente une recherche sans résultat : %j', async resultat => {
+  const p = propsArchives(); p.quandListerVersions.mockResolvedValue(resultat);
+  render(<Parties {...p} />); ouvrirArchives();
+  await screen.findByText(resultat === null ? 'Connexion impossible. Réessaie.' : 'Aucune sauvegarde précédente pour cette partie. Elles apparaissent quand une partie est reprise ailleurs ou restaurée.');
+  fireEvent.click(screen.getByText(resultat === null ? 'Annuler' : 'Fermer'));
+  expect(screen.queryByRole('dialog')).toBeNull();
+});
+it.each(['introuvable', 'echec'])('présente le résultat %s de restauration', async resultat => {
+  const p = propsArchives(); p.quandRestaurer.mockResolvedValue(resultat);
+  render(<Parties {...p} />); ouvrirArchives(); await choisirArchive();
+  fireEvent.click(screen.getByText('Oui, restaurer'));
+  expect((await screen.findByRole('alert')).textContent).toBe(resultat === 'introuvable' ? "Cette sauvegarde n'existe plus. Choisis-en une autre." : "Connexion impossible. Rien n'a changé, réessaie.");
+  if (resultat === 'introuvable') {
+    await screen.findByRole('list'); expect(p.quandListerVersions).toHaveBeenCalledTimes(2);
+  } else expect(screen.getByText('Oui, restaurer')).toBeTruthy();
+});
+it('ferme par Échap et rend le focus au déclencheur', () => {
+  render(<Parties {...propsArchives()} />);
+  const bouton = screen.getByRole('button', { name: 'Restaurer une sauvegarde précédente de Mon aventure' });
+  ouvrirArchives(); fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
+  expect(screen.queryByRole('dialog')).toBeNull(); expect(document.activeElement).toBe(bouton);
+});
+it('bloque la fermeture et les boutons pendant la restauration', async () => {
+  const p = propsArchives();
+  let terminer!: (resultat: string) => void;
+  p.quandRestaurer.mockImplementation(() => new Promise(resolve => { terminer = resolve; }));
+  const { rerender } = render(<Parties {...p} occupe />);
+  expect((screen.getByRole('button', { name: 'Restaurer une sauvegarde précédente de Mon aventure' }) as HTMLButtonElement).disabled).toBe(true);
+  rerender(<Parties {...p} />);
+  ouvrirArchives(); await choisirArchive();
+  fireEvent.click(screen.getByText('Oui, restaurer'));
+  const dialogue = screen.getByRole('dialog');
+  expect(within(dialogue).getAllByRole('button').every(b => (b as HTMLButtonElement).disabled)).toBe(true);
+  fireEvent.keyDown(dialogue, { key: 'Escape' }); fireEvent(dialogue, new Event('cancel', { cancelable: true }));
+  expect(screen.getByRole('dialog')).toBe(dialogue);
+  terminer('ok');
+  await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+});
+it('présente les valeurs absentes sans niveau et annule la liste', async () => {
+  const p = propsArchives();
+  p.quandListerVersions.mockResolvedValue([{ ...archive, tempsJeuMs: null, niveauEquipe: null, zoneId: '' }]);
+  render(<Parties {...p} />); ouvrirArchives();
+  const liste = await screen.findByRole('list');
+  expect(within(liste).getByText('—')).toBeTruthy();
+  expect(within(liste).getByText('Kanto')).toBeTruthy();
+  expect(within(liste).queryByText("Niveau de l'équipe")).toBeNull();
+  fireEvent.click(screen.getByText('Annuler'));
+  expect(screen.queryByRole('dialog')).toBeNull();
+});
 beforeEach(() => {
   HTMLDialogElement.prototype.showModal = function () { this.setAttribute('open', ''); };
   HTMLDialogElement.prototype.close = function () { this.removeAttribute('open'); };
@@ -113,4 +200,8 @@ it('valide le nom, présente les états et désactive les boutons', () => {
   expect(screen.getByRole('status').textContent).toBe('Hors connexion : tu vois seulement les parties de cet appareil.');
   expect(screen.getByRole('alert').textContent).toBe('Échec. Réessaie.');
   expect(screen.getAllByRole('button').every(b => (b as HTMLButtonElement).disabled)).toBe(true);
+});
+it('repère la partie ouverte sur un autre appareil, et seulement celle-là', () => {
+  render(<Parties {...props()} parties={[{ ...partie, courante: false, ailleurs: true }, { ...partie, id: 'b', nom: 'Autre', courante: false, ailleurs: false }]} />);
+  expect(screen.getAllByText('Ouverte ailleurs')).toHaveLength(1);
 });

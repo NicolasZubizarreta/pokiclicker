@@ -206,6 +206,22 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
     fixerOccupe(false);
     return r === 'ok';
   }
+  async function restaurer(id: string, lot: string): Promise<'ok' | 'introuvable' | 'echec'> {
+    if (occupe) return 'echec';
+    fixerOccupe(true); fixerErreur('');
+    const arrete = jeuMonte && liste.parties.some(p => p.id === id && p.courante);
+    // Le jeu s'arrête avant : la progression en attente part d'abord, la restauration prend ensuite la main.
+    if (arrete) storeJeu.getState().arreter();
+    const resultat = await synchro.restaurerVersion(id, lot);
+    if (resultat === 'ok') {
+      synchro.arreter();
+      if (await synchro.ouvrirPartie(id) === 'ok') { window.location.reload(); return 'ok'; }
+      fixerErreur('La sauvegarde est restaurée. Ouvre la partie pour la reprendre.');
+      await listerParties();
+    } else if (arrete && !appareil.ailleurs()) { storeJeu.getState().demarrer(); }
+    fixerOccupe(false);
+    return resultat;
+  }
   async function supprimer(id: string) {
     if (occupe) return;
     fixerOccupe(true); fixerErreur('');
@@ -242,7 +258,7 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
     </div>}
     {(phase === 'creation' || (ecranParties && (!ailleurs || !jeuMonte || apresAilleurs))) && <div className={jeuMonte ? 'fixed inset-0 z-50 overflow-y-auto' : undefined}>
       <ZoneCompteConnectee {...liste} chargement={chargement} occupe={occupe} erreur={erreur}
-        quandRenommer={renommer}
+        quandRenommer={renommer} quandListerVersions={id => synchro.listerVersions(id)} quandRestaurer={restaurer}
         quandJouer={id => { void jouer(id); }} quandCreer={nom => { void creer(nom); }} quandSupprimer={id => { void supprimer(id); }}
         quandRetourJeu={phase === 'creation' || ailleurs || repriseEnAttente ? undefined : () => fixerEcranParties(false)}
         etatSynchro={synchro.etat()} quandDeconnecter={() => fixerDeco(synchro.enAttente() ? 'confirmer-attente' : 'confirmer')} />
