@@ -39,7 +39,20 @@ export function migrerV2versV3(donnees: unknown, niveau: Niveau): unknown {
         oeufs: corrigerListe((pension as Record<string, unknown>).oeufs) }
       : pension };
 }
-export const migrationsParDefaut: TableMigrations = { 1: migrerV1versV2, 2: migrerV2versV3 };
+export function migrerV3versV4(donnees: unknown, niveau: Niveau): unknown {
+  if (niveau !== 'partie' || donnees === null || typeof donnees !== 'object' || Array.isArray(donnees)) return donnees;
+  const source = donnees as Record<string, unknown>;
+  if (!Array.isArray(source.pokedexNational) || !Array.isArray(source.pcGlobal)) return donnees;
+  const vus = [...source.pokedexNational];
+  for (const valeur of source.pcGlobal) {
+    if (valeur === null || typeof valeur !== 'object') continue;
+    const pokemon = valeur as Record<string, unknown>;
+    if (pokemon.oeuf === undefined && Number.isInteger(pokemon.numero) && (pokemon.numero as number) >= 1
+      && !vus.includes(pokemon.numero)) vus.push(pokemon.numero);
+  }
+  return { ...source, vus };
+}
+export const migrationsParDefaut: TableMigrations = { 1: migrerV1versV2, 2: migrerV2versV3, 3: migrerV3versV4 };
 
 export function migrer(enveloppe: Enveloppe<unknown>, table = migrationsParDefaut): Enveloppe<unknown> {
   if (!Number.isInteger(enveloppe.version) || enveloppe.version < 0) {

@@ -3,13 +3,14 @@ import { readFileSync } from 'node:fs';
 import v0 from './__fixtures__/partie-v0.json';
 import v1 from './__fixtures__/partie-v1.json';
 import v2 from './__fixtures__/partie-v2.json';
+import v3 from './__fixtures__/partie-v3.json';
 import regionV1 from './__fixtures__/region-v1.json';
 import regionV2 from './__fixtures__/region-v2.json';
 import compteV1 from './__fixtures__/compte-v1.json';
 import compteV2 from './__fixtures__/compte-v2.json';
-import { migrer, migrerV1versV2, migrerV2versV3, migrationsParDefaut } from './index';
+import { migrer, migrerV1versV2, migrerV2versV3, migrerV3versV4, migrationsParDefaut } from './index';
 import { VERSION_ACTUELLE } from '../sauvegarde-types';
-import { regionInitiale } from '../sauvegarde';
+import { partieInitiale, regionInitiale } from '../sauvegarde';
 import type { Enveloppe } from '../sauvegarde-types';
 import { validerEnveloppe, validerPokemonPossede } from '../sauvegarde-validation';
 import { reglages } from '../reglages';
@@ -36,7 +37,7 @@ describe('marche 2 → 3', () => {
       const obtenu = (liste.startsWith('pension.')
         ? (donnees.pension as Record<string, unknown>)[cle]
         : donnees[liste]) as typeof pokemons;
-      expect(resultat.version).toBe(3);
+      expect(resultat.version).toBe(4);
       expect(obtenu).toEqual(pokemons.map((p, i) => ({ ...p,
         sexe: ['sansSexe', 'femelle', 'male', 'femelle'][i] })));
       obtenu.forEach(p => expect(() => validerPokemonPossede(p)).not.toThrow());
@@ -48,7 +49,7 @@ describe('marche 2 → 3', () => {
     const source = { ...regionV1, donnees: { ...regionInitiale('kanto', 'kanto.route-1'),
       equipe: [{ uid: 'b', numero: 100, niveau: 1, xp: 0, shiny: false,
         bonheur: 0, pierreEternelle: false, calcium: 0 }] } };
-    expect(validerEnveloppe(source, 'region')).toMatchObject({ version: 3,
+    expect(validerEnveloppe(source, 'region')).toMatchObject({ version: 4,
       donnees: { equipe: [{ numero: 100, sexe: 'sansSexe' }] } });
   });
 });
@@ -85,22 +86,40 @@ export function migrerV0versV1(donnees: unknown) {
   return { ...reste, nom: nomPartie };
 }
 const ancienne = v0 as Enveloppe<unknown>;
+describe('marche 3 vers 4', () => {
+  it('complète les vus sans œuf, doublon, perte ni mutation', () => {
+    const avant = structuredClone(v3);
+    expect(migrer(v3 as Enveloppe<unknown>)).toEqual({ ...v3, version: 4,
+      donnees: { ...v3.donnees, vus: [1, 25, 16] } });
+    expect(v3).toEqual(avant);
+    expect(validerEnveloppe(v3, 'partie').version).toBe(4);
+    expect(partieInitiale('Neuve').vus).toEqual([]);
+  });
+  it('conserve les références des autres niveaux et des données mal formées', () => {
+    for (const niveau of ['compte', 'region'] as const) expect(migrerV3versV4(v3.donnees, niveau)).toBe(v3.donnees);
+    for (const source of [null, 1, [], { pokedexNational: 'non', pcGlobal: [] }, { pokedexNational: [], pcGlobal: null }]) {
+      expect(migrerV3versV4(source, 'partie')).toBe(source);
+    }
+    const source = { pokedexNational: [25], pcGlobal: [null, { numero: 0 }, { numero: 1.5 }, { numero: 200 }, { numero: 200 }] };
+    expect(migrerV3versV4(source, 'partie')).toEqual({ ...source, vus: [25, 200] });
+  });
+});
 describe('migrations de sauvegarde', () => {
   it('transforme la fixture fictive sans perdre les autres champs ni modifier la source', () => {
     const avant = structuredClone(v0);
-    expect(migrer(ancienne, { ...migrationsParDefaut, 0: migrerV0versV1 })).toEqual({ ...v2, version: 3 });
+    expect(migrer(ancienne, { ...migrationsParDefaut, 0: migrerV0versV1 })).toEqual({ ...v2, version: 4, donnees: { ...v2.donnees, vus: [1, 25] } });
     expect(v0).toEqual(avant);
     const donnees = { ...v0.donnees, futur: { valeur: 42 } };
     expect(migrer({ ...ancienne, donnees }, { ...migrationsParDefaut, 0: migrerV0versV1 }).donnees)
-      .toEqual({ ...v2.donnees, futur: { valeur: 42 } });
+      .toEqual({ ...v2.donnees, vus: [1, 25], futur: { valeur: 42 } });
   });
   it('signale exactement une marche manquante', () => {
     expect(() => migrer(ancienne)).toThrowError(new Error('Migration manquante : de la version 0 à la version 1.'));
   });
-  it('déclare la version 3 et laisse intacte une sauvegarde actuelle', () => {
-    expect(VERSION_ACTUELLE).toBe(3);
-    expect(migrationsParDefaut).toEqual({ 1: migrerV1versV2, 2: migrerV2versV3 });
-    const actuelle = { ...v2, version: 3 } as Enveloppe<unknown>;
+  it('déclare la version 4 et laisse intacte une sauvegarde actuelle', () => {
+    expect(VERSION_ACTUELLE).toBe(4);
+    expect(migrationsParDefaut).toEqual({ 1: migrerV1versV2, 2: migrerV2versV3, 3: migrerV3versV4 });
+    const actuelle = { ...v2, version: 4, donnees: { ...v2.donnees, vus: [1, 25] } } as Enveloppe<unknown>;
     expect(migrer(actuelle)).toEqual(actuelle);
   });
   it('ne mute pas les données même si une migration travaille sur son argument', () => {
@@ -115,7 +134,7 @@ describe('migrations de sauvegarde', () => {
     expect(() => migrer({ ...ancienne, version })).toThrow('Version invalide');
   });
   it('refuse exactement une version future', () => {
-    expect(() => migrer({ ...ancienne, version: 4 })).toThrowError(
+    expect(() => migrer({ ...ancienne, version: 5 })).toThrowError(
       new Error("Cette sauvegarde vient d'une version plus récente du jeu."));
   });
 });
@@ -137,7 +156,8 @@ describe('marche 1 → 2', () => {
   ] as const)('migre exactement la fixture %s sans perte ni mutation et de façon reproductible', (niveau, source, attendu) => {
     const avant = structuredClone(source);
     const resultat = migrer(source as Enveloppe<unknown>);
-    expect(resultat).toEqual({ ...attendu, version: 3 });
+    expect(resultat).toEqual({ ...attendu, version: 4,
+      donnees: niveau === 'partie' ? { ...attendu.donnees, vus: [1, 25] } : attendu.donnees });
     const fichier = readFileSync(new URL(`./__fixtures__/${niveau}-v2.json`, import.meta.url), 'utf8');
     const intermediaire = { ...source, version: 2, donnees: migrerV1versV2(source.donnees, niveau) };
     expect(`${JSON.stringify(intermediaire, null, 2)}\n`).toBe(fichier.replace(/\r\n/g, '\n'));
@@ -187,7 +207,7 @@ describe('marche 1 → 2', () => {
     resultat.arretAuto.rare = false;
     resultat.pc.length = 1;
     expect(source).toEqual(avant);
-    expect(migrer(regionV1 as Enveloppe<unknown>)).toEqual({ ...regionV2, version: 3 });
+    expect(migrer(regionV1 as Enveloppe<unknown>)).toEqual({ ...regionV2, version: 4 });
     expect(migrerV1versV2(compteV1.donnees, 'compte')).toBe(compteV1.donnees);
   });
 });

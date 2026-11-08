@@ -1,0 +1,20 @@
+{
+  "version": 3,
+  "niveau": "partie",
+  "id": "ancienne-partie",
+  "revision": 7,
+  "ecritLe": "2026-10-23T12:00:00.000Z",
+  "donnees": {
+    "nom": "Aventure conservée",
+    "regionCourante": "kanto",
+    "regionsDebloquees": ["kanto", "johto"],
+    "pokedexNational": [1, 25],
+    "pcGlobal": [
+      { "uid": "pikachu", "numero": 25, "niveau": 12, "xp": 45, "shiny": true, "bonheur": 8, "pierreEternelle": true, "calcium": 2, "surnom": "Éclair", "sexe": "femelle", "favori": false },
+      { "uid": "roucool", "numero": 16, "niveau": 1, "xp": 0, "shiny": false, "bonheur": 0, "pierreEternelle": false, "calcium": 0, "sexe": "male", "favori": false },
+      { "uid": "oeuf", "numero": 7, "niveau": 1, "xp": 0, "shiny": false, "bonheur": 0, "pierreEternelle": false, "calcium": 0, "sexe": "male", "favori": false, "oeuf": { "pasRestants": 1, "pasMax": 1 } }
+    ],
+    "drapeaux": ["chen-rencontre"],
+    "statistiques": { "victoires": 42, "argentTotalGagne": 1234 }
+  }
+}

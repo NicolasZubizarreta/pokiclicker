@@ -1,4 +1,4 @@
-export const VERSION_ACTUELLE = 3;
+export const VERSION_ACTUELLE = 4;
 export const ERREUR_VERSION = "Cette sauvegarde vient d'une version plus récente du jeu.";
 
 export type Niveau = 'compte' | 'partie' | 'region';
@@ -22,6 +22,7 @@ export type DonneesCompte = {
 };
 export type DonneesPartie = {
   nom: string; regionCourante: string; regionsDebloquees: string[]; pokedexNational: number[];
+  vus: number[];
   pcGlobal: PokemonPossede[]; drapeaux: string[];
   statistiques: { victoires: number; argentTotalGagne: number; tempsJeuMs?: number };
 };

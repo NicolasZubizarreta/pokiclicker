@@ -9,6 +9,40 @@ function ouvrir(stockage = creerStockageMemoire()) {
   return { stockage, p: ouvrirPartie(options, { equipe: [], drapeaux: [] }), g: creerGestionnaire(options) };
 }
 const temps = (g: ReturnType<typeof ouvrir>['g']) => g.chargerPartie('test')!.donnees.statistiques.tempsJeuMs;
+it('écrit un nouveau vu une fois, complète les capturés et conserve les vus à la réouverture', () => {
+  const { p, g, stockage } = ouvrir();
+  const ecrire = vi.spyOn(stockage, 'ecrire');
+  p.enregistrer(p.region, [], 0, [25]);
+  expect(g.chargerPartie('test')!.donnees.vus).toEqual([25]);
+  ecrire.mockClear();
+  p.enregistrer(p.region, [], 100, [25]);
+  expect(ecrire).not.toHaveBeenCalled();
+  p.enregistrer(p.region, [1]);
+  expect(ouvrir(stockage).p.vus).toEqual([25, 1]);
+});
+
+it('un nouveau vu seul ne fait pas avancer la révision de la région', () => {
+  const { p, g } = ouvrir();
+  const revision = () => g.chargerRegion('test', p.region.regionId)!.revision;
+  const avant = revision();
+  p.enregistrer(p.region, [], 0, [25]);
+  expect(revision()).toBe(avant);
+  p.enregistrer({ ...p.region, argent: p.region.argent + 1 }, [], 0, [25, 4]);
+  expect(revision()).toBe(avant + 1);
+});
+
+it('migre une partie v3 puis conserve ses vus après écriture et rechargement', () => {
+  const { p, g, stockage } = ouvrir();
+  const cle = 'pokiclicker:partie:test';
+  const enveloppe = g.chargerPartie('test')!;
+  const donnees: Record<string, unknown> = { ...enveloppe.donnees };
+  delete donnees.vus;
+  stockage.ecrire(cle, JSON.stringify({ ...enveloppe, version: 3, donnees: { ...donnees, pokedexNational: [1] } }));
+  const suivante = ouvrir(stockage).p;
+  expect(suivante.vus).toEqual([1]);
+  suivante.enregistrer(p.region, [1], 0, [1, 25]);
+  expect(ouvrir(stockage).p.vus).toEqual([1, 25]);
+});
 it('conserve le nouveau nom lors de la sauvegarde de la partie ouverte', () => {
   const { p, g } = ouvrir();
   g.renommerPartie('test', 'Nouveau');

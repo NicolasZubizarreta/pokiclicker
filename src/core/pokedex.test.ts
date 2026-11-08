@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ajouterAuPokedex, completerPokedex, pokedexDeKanto } from './pokedex';
+import { ajouterAuPokedex, ajouterAuxVus, completerVus, etatPokedex, vusDeKanto, completerPokedex, pokedexDeKanto } from './pokedex';
 import { chargerPokemon } from './pokemon';
 import type { DonneesRegion, PokemonPossede } from './sauvegarde-types';
 
@@ -44,6 +44,17 @@ function region(): DonneesRegion {
 }
 
 describe('Pokédex', () => {
+  it('complète les vus sans mutation et conserve les références sans ajout', () => {
+    const vus = Object.freeze([25, 200]);
+    expect(ajouterAuxVus(vus, 25)).toBe(vus);
+    expect(ajouterAuxVus(vus, 1)).toEqual([25, 200, 1]);
+    expect(completerVus(vus, [25])).toBe(vus);
+    expect(completerVus(vus, [1, 25, 1, 7])).toEqual([25, 200, 1, 7]);
+    expect(vusDeKanto(vus, chargerPokemon())).toEqual(new Set([25]));
+    expect(etatPokedex(25, new Set([25]), new Set([25]))).toBe('capture');
+    expect(etatPokedex(25, new Set(), new Set([25]))).toBe('vu');
+    expect(etatPokedex(25, new Set(), new Set())).toBe('inconnu');
+  });
   it('conserve la référence pour un doublon et ajoute dans l’ordre d’arrivée', () => {
     const entree = Object.freeze([25, 1]);
     expect(ajouterAuPokedex(entree, 25)).toBe(entree);

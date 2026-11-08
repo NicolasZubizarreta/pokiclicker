@@ -339,6 +339,24 @@ test('création, relecture et mise à jour historisée', async () => {
   expect(versions).toEqual([{ revision: 1, donnees: body.partie.enveloppe.donnees }]);
 });
 
+test('version 4 (liste des vus) : acceptée et renvoyée intacte, la version 3 reste lisible telle quelle', async () => {
+  const { token } = await signup();
+  const donnees = { nom: 'Ma partie', regionCourante: 'kanto', pokedexNational: [1, 25] };
+  // Le serveur ne migre rien : une partie en version 3 revient en version 3, le client la migre à la lecture.
+  const ancienne = corps();
+  ancienne.partie.enveloppe = { ...ancienne.partie.enveloppe, version: 3, donnees };
+  expect((await put(ancienne, token)).status).toBe(200);
+  expect((await lire(ancienne.partieId, token)).partie).toEqual({ ...ancienne.partie.enveloppe, revision: 1 });
+  const recente = corps();
+  recente.partie.enveloppe = { ...recente.partie.enveloppe, version: 4, donnees: { ...donnees, vus: [1, 4, 25] } };
+  expect((await put({ partieId: recente.partieId, partie: recente.partie, regions: recente.regions }, token)).status).toBe(200);
+  expect((await lire(recente.partieId, token)).partie).toEqual({ ...recente.partie.enveloppe, revision: 1 });
+  // Une mise à jour 3 → 4 de la même partie est acceptée.
+  const migree = { ...ancienne.partie, revisionBase: 1, enveloppe: { ...recente.partie.enveloppe, id: ancienne.partieId } };
+  expect((await put({ partieId: ancienne.partieId, partie: migree }, token)).status).toBe(200);
+  expect((await lire(ancienne.partieId, token)).partie).toMatchObject({ version: 4, revision: 2, donnees: { vus: [1, 4, 25] } });
+});
+
 test('tous les conflits et aucun changement des autres objets', async () => {
   const { token } = await signup();
   const body = corps();

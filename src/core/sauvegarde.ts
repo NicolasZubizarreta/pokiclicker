@@ -14,7 +14,7 @@ export function compteInitial(): DonneesCompte {
   return { diamants: 0, succes: [], skins: [], preferences: {} };
 }
 export function partieInitiale(nom: string): DonneesPartie {
-  return { nom, regionCourante: 'kanto', regionsDebloquees: ['kanto'], pokedexNational: [],
+  return { nom, regionCourante: 'kanto', regionsDebloquees: ['kanto'], pokedexNational: [], vus: [],
     pcGlobal: [], drapeaux: [], statistiques: { victoires: 0, argentTotalGagne: 0 } };
 }
 export function regionInitiale(regionId: string, zoneDepart: string): DonneesRegion {

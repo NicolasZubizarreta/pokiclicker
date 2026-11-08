@@ -1,6 +1,22 @@
 import type { Pokemon } from './pokemon';
 import type { DonneesRegion } from './sauvegarde-types';
 
+export function ajouterAuxVus(vus: readonly number[], numero: number): readonly number[] {
+  return ajouterAuPokedex(vus, numero);
+}
+
+export function completerVus(vus: readonly number[], pokedex: readonly number[]): readonly number[] {
+  return pokedex.reduce<readonly number[]>((resultat, numero) => ajouterAuxVus(resultat, numero), vus);
+}
+
+export function etatPokedex(numero: number, captures: ReadonlySet<number>, vus: ReadonlySet<number>): 'capture' | 'vu' | 'inconnu' {
+  return captures.has(numero) ? 'capture' : vus.has(numero) ? 'vu' : 'inconnu';
+}
+
+export function vusDeKanto(vus: readonly number[], catalogue: { readonly liste: readonly Pick<Pokemon, 'numero'>[] }): Set<number> {
+  return pokedexDeKanto(vus, catalogue).captures;
+}
+
 export function ajouterAuPokedex(pokedex: readonly number[], numero: number): readonly number[] {
   return pokedex.includes(numero) ? pokedex : [...pokedex, numero];
 }

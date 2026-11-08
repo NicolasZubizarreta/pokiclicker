@@ -29,7 +29,7 @@ import { accesPc } from '../core/pc';
 import { deblocagesAtteints, nouveauxDeblocages, type Deblocage } from '../core/deblocages';
 import * as pension from '../core/pension';
 import * as casino from '../core/casino';
-import { ajouterAuPokedex, completerPokedex, pokedexDeKanto } from '../core/pokedex';
+import { ajouterAuPokedex, ajouterAuxVus, completerVus, completerPokedex, pokedexDeKanto } from '../core/pokedex';
 import { appliquerVictoire, calculerMaxXp, delaiEnnemiSuivant } from '../core/recompenses';
 import type { FormeCarte, Zone, ZoneMonde } from '../core/monde';
 import { kanto } from '../core/regions';
@@ -100,7 +100,7 @@ export type AffichageJeu = ActionsCasino & {
   nomAdversaire: string | null; ligueGagnee: number;
   equipe: CaseEquipe[]; dps: number; erreur: string | null;
   statistiques: Statistique[];
-  pc: PokemonPossede[]; pokedex: readonly number[];
+  pc: PokemonPossede[]; pokedex: readonly number[]; vus: readonly number[];
   accesPc: { ouvert: boolean; raison: string | null };
   pension: {
     acces: { ouvert: boolean; raison: string | null }; parents: PokemonPossede[]; oeufs: PokemonPossede[];
@@ -155,6 +155,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
   let region: DonneesRegion;
   let starters: ReturnType<typeof tirerStarters> | undefined;
   let pokedex: readonly number[] = [];
+  let vus: readonly number[] = [];
   let persistance: ReturnType<typeof ouvrirPartie>;
   let preferences: PreferencesCombat = structuredClone(reglages.depart.preferences);
   const optionsCombat = () => ({ autoAttaque: preferences.autoAttaque, arret: preferences.arretAuto, pokedex,
@@ -215,7 +216,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
   const enregistrer = () => {
     if (!initialise) return;
     try {
-      persistance.enregistrer(region, pokedex, tempsJeuMs);
+      persistance.enregistrer(region, pokedex, tempsJeuMs, vus);
       actualiserCompte();
       persistance.enregistrerPreferences(preferences);
     }
@@ -229,7 +230,10 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
   };
   const noterDansPokedex = (numero?: number, messages?: string[]) => {
     const precedent = numero === undefined ? persistance.pokedex : pokedex;
-    if (numero !== undefined) pokedex = ajouterAuPokedex(pokedex, numero);
+    if (numero !== undefined) {
+      pokedex = ajouterAuPokedex(pokedex, numero);
+      vus = ajouterAuxVus(vus, numero);
+    }
     const resultat = accorderJalons(region, pokedexDeKanto(pokedex, catalogue).nombre);
     region = resultat.region;
     const paliers = resultat.recus.map(jalon => `Palier ${jalon.palier} : ${jalon.titre}`);
@@ -425,6 +429,14 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
   };
   const afficher = () => {
     if (!initialise) return;
+    // Un Pokémon sauvage qui apparaît est « vu » : une seule fois, capturé ou non (les boss sont des dresseurs).
+    if (coeur && !coeur.ennemi.boss) {
+      const suivants = ajouterAuxVus(vus, coeur.ennemi.numero);
+      if (suivants !== vus) {
+        vus = suivants;
+        enregistrer();
+      }
+    }
     journal?.synchroniser(lieuDe(region.zoneId), coeur);
     detecterDeblocages();
     avancerDeblocages();
@@ -524,7 +536,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         && precedent.autoClic.actif === (coeur?.autoClic ?? false) ? precedent.autoClic
         : { possede: region.ameliorations.includes('leftovers'), actif: coeur?.autoClic ?? false },
       autoAttaque: preferences.autoAttaque, autoClicLie: preferences.autoClicLie, arretAuto: preferences.arretAuto,
-      pc: region.pc, pokedex,
+      pc: region.pc, pokedex, vus,
       pension: JSON.stringify(affichagePension) === JSON.stringify(precedent.pension) ? precedent.pension : affichagePension,
       accesPc: accesAuPc.ouvert === precedent.accesPc.ouvert && accesAuPc.raison === precedent.accesPc.raison
         ? precedent.accesPc : accesAuPc,
@@ -962,7 +974,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     nomAdversaire: null, ligueGagnee: 0,
     erreur: null, erreurChargement: false, zonePrecedente: null, zoneSuivante: null, evenementsDegats: [],
     evolution: null, argent: 0, enRecherche: false, cache: false, annonce: null, banniere: null, deblocage: null, echange: null,
-    pc: [], pokedex, accesPc: { ouvert: false, raison: reglages.pc.raison },
+    pc: [], pokedex, vus: [], accesPc: { ouvert: false, raison: reglages.pc.raison },
     pension: { acces: { ouvert: false, raison: null }, parents: [], oeufs: [],
       emplacements: reglages.depart.region.pension.emplacementsOeuf, emplacementsMax: reglages.pension.emplacementsMax,
       chance: 0, prochainEmplacement: null },
@@ -1017,6 +1029,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
           preferences = persistance.preferences;
           sonActive = persistance.sonActive;
           pokedex = completerPokedex(persistance.pokedex, region);
+          vus = completerVus(completerVus(persistance.vus, persistance.pokedex), pokedex);
           zonesVues = new Set(kanto.zonesOuvertes(etatMondeDe(region)).map(zone => zone.id));
           const lieu = lieuDe(region.zoneId);
           coeur = lieu.sansCombat ? null : reprendreCombat(zoneDeLigue(lieu, region.starterId), region.equipe.map(versMembreEquipe), alea, region.etape, actifsCourants(region, horloge.maintenant()), optionsCombat());

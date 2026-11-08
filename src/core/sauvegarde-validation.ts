@@ -66,7 +66,7 @@ export function validerDonneesCompte(v: unknown): asserts v is DonneesCompte {
 }
 export function validerDonneesPartie(v: unknown): asserts v is DonneesPartie {
   forme(v, { nom: chaine, regionCourante: identifiant, regionsDebloquees: liste(identifiant),
-    pokedexNational: liste(positif), pcGlobal: liste(validerPokemonPossede), drapeaux: textes,
+    pokedexNational: liste(positif), vus: liste(positif), pcGlobal: liste(validerPokemonPossede), drapeaux: textes,
     statistiques: s => forme(s, { victoires: entier, argentTotalGagne: nombre }, { tempsJeuMs: entier }) });
   const partie = v as DonneesPartie;
   exiger(partie.regionsDebloquees.includes(partie.regionCourante), 'Région courante non débloquée');
