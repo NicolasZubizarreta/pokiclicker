@@ -83,12 +83,11 @@ test('Centre : vol, achat, Sac, retour et rechargement', async ({ page }, inform
   await expect(page.locator('[data-objet]')).toHaveCount(12);
   // Les messages d'achat sont des pop-up (calque de notifications) : la page elle-même n'a plus de ligne d'état.
   await expect(page.getByRole('status').and(page.locator(':not(output)'))).toHaveCount(0);
-  if (telephone(page)) await page.getByRole('spinbutton', { name: 'Quantité' }).fill('2');
-  else await page.locator('[data-objet="xAttack"]').getByRole('button', { name: 'Plus', exact: true }).click();
+  // PC et téléphone : même présentation (« Ton achat », quantité, Acheter), l'objet sélectionné par défaut est Attaque +.
+  await page.getByRole('spinbutton', { name: 'Quantité' }).fill('2');
   await page.getByRole('button', { name: /^Acheter ×2/ }).click();
   await expect(page.locator('[data-notifications]')).toContainText('Attaque + ×2 acheté.');
-  if (telephone(page)) await expect(page.locator('#contenu').getByText(/^32.750.\u20bd$/)).toBeVisible();
-  else await expect(page.locator('#contenu').getByText(/Tu as 32.750.\u20bd/)).toBeVisible();
+  await expect(page.locator('#contenu').getByText(/^32.750.₽$/)).toBeVisible();
   await expect(page.locator('[data-objet="xAttack"]')).toContainText('×2');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
   await page.evaluate(() => Promise.all([...document.images].map(i => i.decode().catch(() => undefined))));
@@ -107,7 +106,6 @@ test('Centre : vol, achat, Sac, retour et rechargement', async ({ page }, inform
   await carte(page);
   await choixCentre(page).click();
   await expect(titre).toBeVisible({ timeout: 10000 });
-  if (telephone(page)) await expect(page.locator('#contenu').getByText(/^32.750.\u20bd$/)).toBeVisible();
-  else await expect(page.locator('#contenu').getByText(/Tu as 32.750.\u20bd/)).toBeVisible();
+  await expect(page.locator('#contenu').getByText(/^32.750.₽$/)).toBeVisible();
   await expect(page.locator('[data-objet="xAttack"]')).toContainText('×2');
 });

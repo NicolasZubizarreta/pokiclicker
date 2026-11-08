@@ -12,19 +12,26 @@ afterEach(() => { cleanup(); affichage.telephone = true; storeJeu.getState().arr
   Reflect.deleteProperty(HTMLDialogElement.prototype, 'close');
 });
 
-it('affiche sur PC le titre, le solde, les lignes communes et leur cadre de défilement', () => {
+it('affiche sur PC la grille, le décor et le bloc d’achat commun', () => {
   affichage.telephone = false;
   preparer();
-  const acheter = vi.spyOn(storeJeu.getState(), 'acheter');
+  const acheter = vi.spyOn(storeJeu.getState(), 'acheter').mockReturnValue('Acheté.');
   const retour = vi.fn();
   const { container } = render(<PageCentre retour={retour} />);
   expect(container.querySelectorAll('.commercial-pc')).toHaveLength(1);
   expect(screen.getByRole('heading', { name: 'Centre commercial' })).toBeTruthy();
-  expect(screen.getByText(/^Tu as 15\s000\s₽$/)).toBeTruthy();
-  expect(container.querySelectorAll('.produits .produit')).toHaveLength(reglages.centre.objets.length);
-  fireEvent.click(screen.getAllByRole('button', { name: 'Plus' })[0]!);
-  fireEvent.click(screen.getAllByRole('button', { name: 'Acheter ×2' })[0]!);
-  expect(acheter).toHaveBeenCalledWith('xAttack', 2);
+  expect(screen.getByText(/^15\s000\s₽$/)).toBeTruthy();
+  expect(container.querySelectorAll('.commercial-grille button[data-objet]')).toHaveLength(reglages.centre.objets.length);
+  expect(container.querySelector('.produit')).toBeNull();
+  expect(container.querySelector('img[src="img/decors/centre-commercial.webp"]')).toBeTruthy();
+  expect(screen.getByText('Ton achat')).toBeTruthy();
+  const carte = container.querySelector('[data-objet="calcium"]')!;
+  fireEvent.click(carte);
+  expect(carte.getAttribute('aria-pressed')).toBe('true');
+  expect(screen.getByRole('heading', { name: 'calcium' })).toBeTruthy();
+  fireEvent.change(screen.getByRole('spinbutton', { name: 'Quantité' }), { target: { value: '2' } });
+  fireEvent.click(screen.getByRole('button', { name: /^Acheter ×2/ }));
+  expect(acheter).toHaveBeenCalledExactlyOnceWith('calcium', 2);
   fireEvent.click(screen.getByRole('button', { name: 'Retour à la carte' }));
   expect(retour).toHaveBeenCalledOnce();
 });

@@ -6,7 +6,6 @@ import { IconeObjet } from './icones';
 import { Image } from './Image';
 import { storeJeu } from './store';
 import { PageCasino } from './PageCasino';
-import { CarteObjet } from './CarteObjet';
 import { useTelephone } from './useTelephone';
 import './ShopPC.css';
 
@@ -50,23 +49,8 @@ export function PageCentre({ retour }: { retour: () => void }) {
     : objet && (!objet.abordable || objet.prix * nombre > argent) ? "Pas assez d'argent." : null;
   const bouton = 'min-h-11 min-w-11 p-2';
 
-  if (!telephone) return <section className="commercial-pc text-base tabular-nums">
-    <header className="titre-page">
-      <h1 tabIndex={-1} className="font-titre text-3xl font-semibold">Centre commercial</h1>
-      <strong className="text-region-accent">Tu as {argent.toLocaleString('fr-FR')}{'\u00a0₽'}</strong>
-      <button type="button" className={`${bouton} plaque`} onClick={retour}>Retour à la carte</button>
-    </header>
-    <div className="decor-page cadre">
-      <Image genre="decor" src="img/decors/centre-commercial.webp" alt="" couvrir className="absolute inset-0 size-full" />
-      <p className="bulle cadre">Objets exclusifs · {centre.objets.length} objets</p>
-    </div>
-    {!centre.acces.ouvert ? <p>{centre.acces.raison}</p> : <div className="produits cadre">
-      {centre.objets.map(o => <CarteObjet key={o.id} {...o} argent={argent} acheter={q => acheter(o.id, q)} />)}
-    </div>}
-  </section>;
-
-  return <section className="relative isolate mx-auto max-w-screen-xl pb-24 text-base tabular-nums">
-    <div className="pointer-events-none fixed inset-0 -z-10">
+  return <section className={telephone ? 'relative isolate mx-auto max-w-screen-xl pb-24 text-base tabular-nums' : 'commercial-pc text-base tabular-nums'}>
+    <div className={telephone ? 'pointer-events-none fixed inset-0 -z-10' : 'commercial-decor pointer-events-none'}>
       <Image genre="decor" src="img/decors/centre-commercial.webp" alt="" couvrir className="h-full w-full" />
     </div>
     <header className="cadre flex flex-wrap items-center justify-between gap-4 bg-surface p-4">
@@ -78,12 +62,12 @@ export function PageCentre({ retour }: { retour: () => void }) {
       <div className="grid gap-2">
         <strong className="text-region-accent">{argent.toLocaleString('fr-FR')}{'\u00a0₽'}</strong>
         <button type="button" onClick={retour}
-          className={`${bouton} cadre fixed inset-x-4 bottom-20 z-10 bg-surface text-lien shadow-md md:static`}>Retour à la carte</button>
+          className={telephone ? `${bouton} cadre fixed inset-x-4 bottom-20 z-10 bg-surface text-lien shadow-md md:static` : `${bouton} plaque`}>Retour à la carte</button>
       </div>
     </header>
     {!centre.acces.ouvert ? <p className="cadre mt-4 bg-surface p-4">{centre.acces.raison}</p> : objet &&
-      <div className="mt-4 grid items-start gap-4 lg:grid-cols-3">
-        <div role="group" aria-label="Choisis un objet" className="grid grid-cols-2 gap-2 md:grid-cols-3 lg:col-span-2 lg:col-start-2">
+      <div className={telephone ? 'mt-4 grid items-start gap-4 lg:grid-cols-3' : 'commercial-contenu'}>
+        <div role="group" aria-label="Choisis un objet" className={telephone ? 'grid grid-cols-2 gap-2 md:grid-cols-3 lg:col-span-2 lg:col-start-2' : 'commercial-grille'}>
           {centre.objets.map(o => <button type="button" key={o.id} data-objet={o.id} aria-pressed={o.id === objet.id}
             onClick={() => selectionner(o.id)}
             className={`${bouton} cadre grid content-start gap-2 text-left ${o.id === objet.id ? 'border-focus bg-selection' : 'bg-surface hover:bg-selection'}`}>
@@ -93,7 +77,7 @@ export function PageCentre({ retour }: { retour: () => void }) {
             <span aria-label={`En sac : ${o.stock}`}>×{o.stock}</span>
           </button>)}
         </div>
-        <section aria-labelledby={choixId} className="cadre grid gap-2 bg-surface p-4 lg:sticky lg:top-8 lg:col-start-1 lg:row-start-1">
+        <section aria-labelledby={choixId} className={telephone ? 'cadre grid gap-2 bg-surface p-4 lg:sticky lg:top-8 lg:col-start-1 lg:row-start-1' : 'commercial-achat cadre grid gap-2 bg-surface p-4'}>
           <p className="text-texte-doux">Ton achat</p>
           <h2 id={choixId} className="font-titre text-xl font-semibold">{objet.nom}</h2>
           <p>{objet.description}</p>
