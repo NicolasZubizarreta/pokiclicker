@@ -41,7 +41,7 @@ export function Pokedex({ retour }: { retour(): void }) {
     <div className="dex-outils"><label>Nom ou numéro <kbd>/</kbd><input type="search" value={saisie} onChange={e => saisir(e.target.value)} className="cadre min-h-11 bg-surface px-3" /></label>
       <div role="group" aria-label="Filtrer le Pokédex">{['Tous', 'Capturés', 'À trouver'].map(f => <button key={f} type="button" aria-pressed={filtre === f} onClick={() => filtrer(f)} className="plaque min-h-11 px-3">{f}</button>)}</div></div>
     <div className="dex-corps">
-    <aside className="dex-panneau cadre bg-surface p-4">
+    <aside aria-label="Détail du Pokémon" tabIndex={0} className="dex-panneau cadre bg-surface p-4">
     {selection === null ? <><h2 className="font-titre text-xl font-bold">Paliers</h2>
     <progress aria-label="Espèces capturées" value={nombre} max={total} className="w-full" />
     <p data-prochain-palier>{formaterProchainPalier(prochain)}</p>

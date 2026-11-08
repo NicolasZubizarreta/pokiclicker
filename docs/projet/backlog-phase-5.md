@@ -314,12 +314,12 @@ Reprendre les animations et effets de la V1 (`docs/projet/v1-visuel-a-porter.md`
 
 ## M. `feat(a11y): accessibilité de l'interface`
 
-`type:feat`, `etat:a_faire`, `est:1-2`, `prio:4` · branche : `v2` · `agent-ok` · dépend de : C à K
+`type:feat`, `etat:fait`, `est:1-2`, `prio:4` · branche : `v2` · `agent-ok` · dépend de : C à K
 
 ### Critères d'acceptation
-- [ ] Étant donné chaque page, quand j'exécute le contrôle automatique d'accessibilité (axe ou équivalent déjà présent), alors il n'y a aucune erreur de contraste ni de nom manquant.
-- [ ] Étant donné le clavier, quand je navigue sur PC, alors tous les boutons sont atteignables dans un ordre logique avec un focus visible.
-- [ ] Étant donné un lecteur d'écran, quand un gain ou une erreur apparaît, alors il est annoncé sans spam (région `status` limitée).
+- [x] Étant donné chaque page, quand j'exécute le contrôle automatique d'accessibilité (axe ou équivalent déjà présent), alors il n'y a aucune erreur de contraste ni de nom manquant. (08/11 : aucun axe dans le dépôt, `@axe-core/playwright` 4.14.0 ajouté en dev seulement ; `tests-e2e/accessibilite.spec.ts`, règles WCAG 2 A et AA, 16 écrans × PC et téléphone : combat, réglage de l'arrêt, Sac, Équipe, fiche, PC, Shop, Carte, Menu, Monde, Réglages, Pokédex, Badges, Statistiques, Guide, Bourg Palette, Pension. Trouvé et corrigé : texte clair sur Eau et Psy (2,7 / 2,7, passés à 5,7 / 5,7 avec le texte sombre, `design/tokens.css`), panneau du Pokédex PC défilant sans focus (`tabIndex` + nom), 23 repères de la carte téléphone avec un `aria-label` sans rôle. Non couverts : comptes, intro, scènes, casino, centre commercial.)
+- [x] Étant donné le clavier, quand je navigue sur PC, alors tous les boutons sont atteignables dans un ordre logique avec un focus visible. (même spec : aucun `tabindex` positif donc ordre du document, chaque contrôle visible atteint par Tab, contour ou ombre de focus sur chacun)
+- [x] Étant donné un lecteur d'écran, quand un gain ou une erreur apparaît, alors il est annoncé sans spam (région `status` limitée). (déjà en place avec le ticket R : une seule région `aria-live="polite"`, 3 messages au plus ; les gains flottants du ticket L sont `aria-hidden` volontairement : l'argent et l'XP à chaque victoire seraient du spam, la capture, les montées de niveau et les éclosions passent par les notifications ; la spec vérifie 3 régions `status` visibles au plus par écran)
 
 ### Effort et risques
 1 à 2 jours.

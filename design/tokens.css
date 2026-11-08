@@ -121,7 +121,7 @@
   --type-fire: #EE8130;
   --type-fire-texte: var(--type-texte-sombre);
   --type-water: #6390F0;
-  --type-water-texte: var(--type-texte-clair);
+  --type-water-texte: var(--type-texte-sombre);
   --type-electric: #F7D02C;
   --type-electric-texte: var(--type-texte-sombre);
   --type-grass: #7AC74C;
@@ -137,7 +137,7 @@
   --type-flying: #A98FF3;
   --type-flying-texte: var(--type-texte-sombre);
   --type-psychic: #F95587;
-  --type-psychic-texte: var(--type-texte-clair);
+  --type-psychic-texte: var(--type-texte-sombre);
   --type-bug: #A6B91A;
   --type-bug-texte: var(--type-texte-sombre);
   --type-rock: #B6A136;

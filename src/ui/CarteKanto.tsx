@@ -259,7 +259,7 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
             const c = centreDe(f);
             const choisieIci = !telephone && selection === f.zone;
             const nouvelle = nouvelles.includes(f.zone!);
-            return <g key={f.zone} data-zone={f.zone} data-forme={f.nom} role={telephone ? undefined : 'button'} tabIndex={telephone ? undefined : 0} aria-label={nomAccessible(f)}
+            return <g key={f.zone} data-zone={f.zone} data-forme={f.nom} role={telephone ? undefined : 'button'} tabIndex={telephone ? undefined : 0} aria-label={telephone ? undefined : nomAccessible(f)}
               transform={`translate(${c.x} ${c.y}) scale(${1 / pxParUnite})`}
               className={`${telephone ? 'group outline-none' : 'group cursor-pointer'} ${nouvelle ? fondu ? 'carte-deblocage' : 'opacity-0' : ''}`}
               onClick={telephone ? undefined : () => { if (!glissement.current) choisirRepere(f.zone); }}
