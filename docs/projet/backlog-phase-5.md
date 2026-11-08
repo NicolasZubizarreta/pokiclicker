@@ -268,13 +268,13 @@ Maquettes : faites, validées par Nicolas le 07/11 avec les corrections ci-dessu
 
 ## J. `feat(ui): boutique, Pokédex, Plus et réglages`
 
-`type:feat`, `etat:a_faire`, `est:2-3`, `prio:3` · branche : `v2` · `agent-ok` après maquette validée · dépend de : C
+`type:feat`, `etat:fait`, `est:2-3`, `prio:3` · branche : `v2` · `agent-ok` après maquette validée · dépend de : C
 
 ### Critères d'acceptation
 - [x] Étant donné les variantes pour `PageShop`, `Pokedex`, `PagePlus` et ses sous-pages, quand Nicolas choisit, alors les choix sont notés dans `design/DESIGN.md`. (pas de nouvelles variantes : maquettes téléphone a5 et PC validées le 08/11, Nicolas : « quasiment tout est validé »)
 - [x] Étant donné le Pokédex, quand un Pokémon est vu mais pas capturé, alors l'écran distingue clairement « capturé », « vu » et « inconnu ». (ticket V, 08/11 : sprite grisé et nom pour un « vu », silhouette pour un inconnu)
 - [x] Étant donné la boutique à 390 px, quand j'achète un objet, alors le prix, le solde et la quantité tiennent sur l'écran sans défilement horizontal. (Lot 5 : trois catégories, solde dans le bandeau du haut, lignes compactes, aucun défilement horizontal à 360, 390 et 430 px.)
-- [ ] Étant donné les réglages, quand je les ouvre, alors ils sont regroupés par thème (son, combat, compte) avec des cibles de 48 px.
+- [x] Étant donné les réglages, quand je les ouvre, alors ils sont regroupés par thème (Son, Combat) avec des cibles de 48 px. (08/11 : titres de thème visibles aussi sur téléphone, crédits des musiques dans Son, tout à 48 px mesuré à 390 et 1440 px ; pas de thème « Compte » : le compte a sa propre zone, « Mon compte »)
 
 ### Effort et risques
 2 à 3 jours.

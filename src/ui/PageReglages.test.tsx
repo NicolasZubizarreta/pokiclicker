@@ -12,7 +12,7 @@ it('affiche les réglages sans bouton Retour dans la zone compte', () => {
   const { container } = render(<PageReglages />);
   expect(container.querySelectorAll('.reglages-pc')).toHaveLength(1);
   expect(screen.getByRole('heading', { name: 'Son' })).toBeTruthy();
-  expect(screen.getByRole('heading', { name: 'Jeu' })).toBeTruthy();
+  expect(screen.getByRole('heading', { name: 'Combat' })).toBeTruthy();
   expect(screen.getByRole('heading', { level: 1, name: 'Réglages' })).toBeTruthy();
   expect(screen.queryByRole('button', { name: 'Retour' })).toBeNull();
 });
