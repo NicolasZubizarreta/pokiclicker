@@ -41,8 +41,9 @@ it("propose le lien de l'auto-clic dans les réglages de l'arrêt quand il est f
   const regler = vi.fn();
   render(<ReglagesCombat autoAttaque arret={arret} basculer={vi.fn()} regler={vi.fn()} lienAutoClic={{ lie: false, regler }} />);
   fireEvent.click(screen.getByRole('button', { name: "Réglages de l'arrêt" }));
-  const lie = screen.getByRole('checkbox', { name: "Auto-clic lié à l'attaque auto" }) as HTMLInputElement;
-  expect(lie.checked).toBe(false);
+  const lie = screen.getByRole('switch', { name: "Auto-clic lié à l'attaque auto" });
+  expect(lie.getAttribute('aria-checked')).toBe('false');
+  expect(screen.getAllByRole('checkbox')).toHaveLength(7);
   fireEvent.click(lie);
   expect(regler).toHaveBeenCalledWith(true);
 });

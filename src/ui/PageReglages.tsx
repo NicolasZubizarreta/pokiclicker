@@ -2,6 +2,7 @@ import { useSyncExternalStore, type ReactNode } from 'react';
 import { useStore } from 'zustand';
 import { creditPiste, musiques } from '../core/musiques';
 import { IconeRetour } from './icones-menu';
+import { Interrupteur } from './Interrupteur';
 import { musique } from './musique';
 import { storeJeu } from './store';
 import { volumes, type Canal } from './volumes';
@@ -10,15 +11,6 @@ import './MenuPC.css';
 
 function PanneauPC({ telephone, titre, children }: { telephone: boolean; titre: string; children: ReactNode }) {
   return telephone ? <section className="space-y-4" aria-label={titre}><h2 className="font-titre text-xl font-semibold">{titre}</h2>{children}</section> : <section className="cadre reglages-pc-panneau"><h2 className="font-titre text-lg">{titre}</h2>{children}</section>;
-}
-
-function Interrupteur({ nom, actif, basculer }: { nom: string; actif: boolean; basculer(): void }) {
-  return <button type="button" role="switch" aria-label={nom} aria-checked={actif} onClick={basculer}
-    className="flex min-h-12 min-w-12 shrink-0 items-center justify-center px-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-region-accent">
-    <span aria-hidden="true" className={`cadre flex h-6 w-12 items-center p-1 ${actif ? 'bg-succes-base' : 'bg-selection'}`}>
-      <span className={`h-4 w-4 bg-surface transition-transform ${actif ? 'translate-x-6' : 'translate-x-0'}`} />
-    </span>
-  </button>;
 }
 
 function CurseurVolume({ canal, libelle, actif }: { canal: Canal; libelle: string; actif: boolean }) {

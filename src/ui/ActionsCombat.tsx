@@ -1,7 +1,7 @@
 import { useId, useRef } from 'react';
 import type { ReglagesArret } from '../core/sauvegarde-types';
 import { AutoAttaque, ArretAuto, ReglagesArret as IconeReglagesArret, Sac } from './icones';
-import { CaseAutoClicLie, optionsArret, type LienAutoClic } from './ReglagesCombat';
+import { CurseurAutoClicLie, optionsArret, type LienAutoClic } from './ReglagesCombat';
 import './Plaques.css';
 import './ActionsCombat.css';
 
@@ -34,7 +34,7 @@ export function ActionsCombat({ autoAttaque, basculerAutoAttaque, arret, reglerA
         {optionsArret.map(([cle, nom]) => <label key={cle} className="flex min-h-11 min-w-11 cursor-pointer items-center gap-3">
           <input type="checkbox" checked={arret[cle]} onChange={event => reglerArret({ [cle]: event.currentTarget.checked })} />{nom}
         </label>)}
-        <CaseAutoClicLie lien={lienAutoClic} />
+        <CurseurAutoClicLie lien={lienAutoClic} />
         <button type="button" className="cadre min-h-11 min-w-11 bg-surface p-3 aria-pressed:bg-selection" onClick={fermer}>Fermer</button>
       </div>
     </dialog>

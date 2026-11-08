@@ -42,8 +42,9 @@ it('affiche les quatre plaques, leurs états et transmet les actions et réglage
   expect(screen.getByRole('dialog').hasAttribute('open')).toBe(true);
   fireEvent.click(screen.getByRole('checkbox', { name: 'Rare' }));
   expect(props.reglerArret).toHaveBeenCalledWith({ rare: false });
-  const lie = screen.getByRole('checkbox', { name: "Auto-clic lié à l'attaque auto" }) as HTMLInputElement;
-  expect(lie.checked).toBe(true);
+  const lie = screen.getByRole('switch', { name: "Auto-clic lié à l'attaque auto" });
+  expect(lie.getAttribute('aria-checked')).toBe('true');
+  expect(screen.getByRole('region', { name: 'Auto-clic' }).contains(screen.getByRole('checkbox', { name: 'Rare' }))).toBe(false);
   fireEvent.click(lie);
   expect(props.lienAutoClic.regler).toHaveBeenCalledWith(false);
   fireEvent.click(screen.getByRole('button', { name: 'Fermer' }));

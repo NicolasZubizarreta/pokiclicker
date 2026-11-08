@@ -1,6 +1,7 @@
 import { useId, useRef } from 'react';
 import type { ReglagesArret } from '../core/sauvegarde-types';
 import { BoutonAction } from './BoutonAction';
+import { Interrupteur } from './Interrupteur';
 import { ArretAuto, AutoAttaque, AutoClic, ReglagesArret as IconeReglagesArret } from './icones';
 
 export const optionsArret = [
@@ -11,11 +12,16 @@ export const optionsArret = [
 const bouton = 'cadre min-h-11 min-w-11 bg-surface p-3 aria-pressed:bg-selection';
 
 export type LienAutoClic = { lie: boolean; regler(actif: boolean): void };
-/** Même réglage que Menu, Réglages : il est ici pour ne pas avoir à quitter le combat. */
-export function CaseAutoClicLie({ lien }: { lien: LienAutoClic }) {
-  return <label className="flex min-h-11 min-w-11 cursor-pointer items-center gap-3">
-    <input type="checkbox" checked={lien.lie} onChange={event => lien.regler(event.currentTarget.checked)} />Auto-clic lié à l'attaque auto
-  </label>;
+/** Même réglage que Menu, Réglages : il est ici pour ne pas avoir à quitter le combat. Bloc à part des cases de l'arrêt. */
+export function CurseurAutoClicLie({ lien }: { lien: LienAutoClic }) {
+  return <section aria-label="Auto-clic" className="grid gap-2 border-t border-bordure pt-4">
+    <h3>Auto-clic</h3>
+    <div className="flex items-center justify-between gap-4">
+      <p>Lié à l'attaque auto</p>
+      <Interrupteur nom="Auto-clic lié à l'attaque auto" actif={lien.lie} basculer={() => lien.regler(!lien.lie)} />
+    </div>
+    <p className="text-sm text-texte-doux">Sans effet tant que tu n'as pas acheté les Restes.</p>
+  </section>;
 }
 
 export function ReglagesCombat({ autoAttaque, arret, basculer, regler, autoClic, basculerAutoClic, lienAutoClic }: {
@@ -52,7 +58,7 @@ export function ReglagesCombat({ autoAttaque, arret, basculer, regler, autoClic,
             onChange={event => regler({ [cle]: event.currentTarget.checked })} />
           {nom}
         </label>)}
-        {lienAutoClic && <CaseAutoClicLie lien={lienAutoClic} />}
+        {lienAutoClic && <CurseurAutoClicLie lien={lienAutoClic} />}
         <button type="button" className={bouton} onClick={fermer}>Fermer</button>
       </div>
     </dialog>
