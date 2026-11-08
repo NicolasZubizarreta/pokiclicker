@@ -228,7 +228,7 @@ En tant que joueur, je veux gérer mon équipe et mes boîtes avec le pouce, ave
 
 ## I. `feat(ui): version PC, de la maquette à l'implémentation`
 
-`type:feat`, `etat:en_cours`, `est:3-5`, `prio:3` · branche : `v2` · pas d'`agent-ok` avant la validation des maquettes par Nicolas
+`type:feat`, `etat:fait`, `est:3-5`, `prio:3` · branche : `v2` · implémenté (lots I1 à I4, poussé le 08/11, fb8c6a8) ; reste le test à la main de Nicolas sur PC
 
 ### Histoire
 En tant que joueur sur ordinateur, je veux une version PC pensée pour la souris et le clavier, qui profite de la largeur et reprend les règles du téléphone, pour jouer au bureau sans me battre avec l'interface.
