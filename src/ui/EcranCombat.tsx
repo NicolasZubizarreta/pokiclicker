@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type RefObject } from 'react';
 import piedsSprites from './pieds-sprites.json';
 import { useStore } from 'zustand';
 import { chargerPokemon } from '../core/pokemon';
@@ -11,11 +11,12 @@ import { ECLAT, SECOUSSE } from './animations';
 import { rejouer } from './rejouer';
 import { BarrePv } from './BarrePv';
 import { BarreTemps } from './BarreTemps';
-import { BarreCapture } from './BarreCapture';
+import { ZoneLigne } from './ZoneLigne';
+import { RangEquipe } from './RangEquipe';
 import { CarteEquipe } from './CarteEquipe';
 import { FichePokemon } from './FichePokemon';
 import { IconeShiny } from './IconeShiny';
-import { PastilleCapture, Sac as IconeSac } from './icones';
+import { AutoClic, PastilleCapture, Sac as IconeSac } from './icones';
 import { DegatsFlottants } from './DegatsFlottants';
 import { DialogueChen } from './DialogueChen';
 import { ScenesBourgPalette } from './ScenesBourgPalette';
@@ -42,6 +43,7 @@ import { BoutonFauchage } from './BoutonFauchage';
 import { ActionsCombat } from './ActionsCombat';
 import { ouvrirSac as ouvrirSacFenetre } from './sacContexte';
 import './CombatTelephone.css';
+import './CombatPC.css';
 
 const catalogue = chargerPokemon();
 /** Les sprites font 96 lignes ; `pieds-sprites.json` donne, par numéro, les lignes vides sous les pieds (mesurées sur les images).
@@ -90,8 +92,6 @@ function Scene({ store, ouvrirPension }: { store: StoreJeu; ouvrirPension(): voi
   const banniere = useStore(store, etat => etat.banniere);
   const accesPension = useStore(store, etat => etat.pension.acces);
   const captureEnCours = useStore(store, etat => etat.capture.enCours);
-  const capture = useStore(store, etat => etat.capture);
-  const capturer = useStore(store, etat => etat.capturer);
   const radar = useStore(store, etat => etat.radar);
   const [declencheurRadar, ouvrirRadar] = useState<HTMLButtonElement | null>(null);
   const telephone = useTelephone();
@@ -135,7 +135,7 @@ function Scene({ store, ouvrirPension }: { store: StoreJeu; ouvrirPension(): voi
       </div>
       {ennemi.shiny && <p>Chromatique</p>}
       <BarrePv key={`${ennemi.numero}-${ennemi.niveau}-${ennemi.boss}`} pv={ennemi.pv} maximum={ennemi.pvMax} nom={nom} />
-      {effets.length > 0 && <PastillesEffets effets={effets} />}
+      {telephone && effets.length > 0 && <PastillesEffets effets={effets} />}
       {minuteur && <BarreTemps restantMs={minuteur.restantMs} totalMs={minuteur.totalMs} />}
     </div>
     <div aria-hidden={cache} className={`pointer-events-none absolute right-1 bottom-30 flex will-change-transform size-48 max-lg:w-32 items-end lg:right-2 justify-center lg:bottom-8 lg:size-72 ${cache ? 'opacity-0' : ''}`}>
@@ -163,9 +163,6 @@ function Scene({ store, ouvrirPension }: { store: StoreJeu; ouvrirPension(): voi
       onClick={event => { if (event.detail === 0) attaquer(); }} />
     <DegatsFlottants store={store} />
     {/* Sur téléphone, la capture (avec Fauchage) et les actions sont sous la scène (ActionsTelephone) ; le Poké-Radar reste dans la scène. */}
-    {!telephone && <div className="dock-capture cadre absolute bottom-3 left-3 z-20 bg-surface p-1 shadow-lg">
-      <BarreCapture {...capture} capturer={capturer} />
-    </div>}
     {radar && <button data-raccourci="radar" type="button" aria-label="Poké-Radar" disabled={zone.type === 'ligue'}
       title={zone.type === 'ligue' ? 'Inutile à la Ligue : il n’y a que des boss, aucun Pokémon à capturer.' : undefined}
       className="radar-rond cadre absolute right-2 bottom-2 z-20 flex size-12 items-center justify-center rounded-full bg-surface shadow-md disabled:cursor-not-allowed disabled:opacity-50 disabled:grayscale lg:right-4 lg:bottom-4 lg:size-16"
@@ -300,6 +297,46 @@ function Equipe({ store }: { store: StoreJeu }) {
   </section>;
 }
 
+function CombatPC({ store, cadre, ouvrirPension }: { store: StoreJeu; cadre: RefObject<HTMLDivElement | null>; ouvrirPension(): void }) {
+  const lieu = useStore(store, etat => etat.lieu);
+  const etape = useStore(store, etat => etat.etape);
+  const zonePrecedente = useStore(store, etat => etat.zonePrecedente);
+  const zoneSuivante = useStore(store, etat => etat.zoneSuivante);
+  const allerVers = useStore(store, etat => etat.allerVers);
+  const equipe = useStore(store, etat => etat.equipe);
+  const evolution = useStore(store, etat => etat.evolution);
+  const entrees = useStore(store, etat => etat.sac.entrees);
+  const effets = useStore(store, etat => etat.effets);
+  const autoClic = useStore(store, etat => etat.autoClic);
+  const basculerAutoClic = useStore(store, etat => etat.basculerAutoClic);
+  const [fiche, ouvrirFiche] = useState<{ uid: string; ouverture: number } | null>(null);
+  const [ouvert, afficher] = useState(false);
+  const declencheur = useRef<HTMLButtonElement>(null);
+  return <div ref={cadre} className="combat-pc">
+    <h1 className="sr-only">{lieu?.nom}</h1>
+    <div className="combat-pc-gauche">
+      <ZoneLigne nom={lieu?.nom} etape={etape} precedente={zonePrecedente} suivante={zoneSuivante} aller={allerVers} />
+      <Scene store={store} ouvrirPension={ouvrirPension} />
+      <ActionsTelephone store={store} />
+    </div>
+    <div className="combat-pc-droite">
+      <section aria-label="Ton équipe" className="combat-pc-equipe cadre bg-surface p-2">
+        <h2 className="font-titre text-xl flex justify-between">Ton équipe <span>{equipe.filter(Boolean).length} / 6</span></h2>
+        <ul className="min-h-0 overflow-y-auto grid gap-2">{equipe.map((membre, i) => <li key={membre?.pokemon.uid ?? i}><RangEquipe membre={membre}
+          evolution={membre ? evolutionProposee(membre.pokemon, entrees) : null}
+          animation={evolution?.uid === membre?.pokemon.uid ? evolution : null}
+          ouvrirFiche={bouton => { if (!membre) return; declencheur.current = bouton; ouvrirFiche(ancienne => ({ uid: membre.pokemon.uid, ouverture: (ancienne?.ouverture ?? 0) + 1 })); afficher(true); }} /></li>)}</ul>
+      </section>
+      <div className="combat-pc-autoclic relative cadre bg-surface p-2"><BoutonAction icone={<><AutoClic /><span aria-hidden="true">Auto-clic</span></>} nom="Auto-clic" actif={autoClic.actif}
+        verrouille={!autoClic.possede} infobulle={!autoClic.possede ? "Nécessite l'objet Restes" : undefined} onClick={basculerAutoClic} /></div>
+      <section aria-label="Effets actifs" className="cadre bg-surface p-2"><h2 className="font-titre text-xl">Effets actifs</h2>
+        {effets.length ? <PastillesEffets effets={effets} /> : <p className="text-texte-doux">Aucun effet actif.</p>}
+      </section>
+    </div>
+    {fiche && <FichePokemon key={fiche.ouverture} uid={fiche.uid} ouvert={ouvert} fermer={() => afficher(false)} declencheur={declencheur} />}
+  </div>;
+}
+
 export function EcranCombat({ store = storeJeu }: { store?: StoreJeu }) {
   const [pensionOuverte, ouvrirPension] = useState(false);
   const cadre = useRef<HTMLDivElement>(null);
@@ -308,6 +345,7 @@ export function EcranCombat({ store = storeJeu }: { store?: StoreJeu }) {
   const fatale = useStore(store, etat => etat.erreurChargement);
   const sceneRonflex = useStore(store, etat => etat.lieu?.id === 'kanto.route-de-ronflex' && !etat.ennemi);
   const telephone = useTelephone();
+  const combatActif = useStore(store, etat => !!etat.zone && !!etat.ennemi);
   useEffect(() => {
     if (!pensionOuverte && rendreFocus.current) {
       cadre.current?.querySelector<HTMLButtonElement>('button[aria-label="Pension Pokémon"]')?.focus();
@@ -318,6 +356,7 @@ export function EcranCombat({ store = storeJeu }: { store?: StoreJeu }) {
     rendreFocus.current = true;
     ouvrirPension(false);
   }} />;
+  if (!telephone && combatActif && !erreur && !fatale) return <CombatPC store={store} cadre={cadre} ouvrirPension={() => ouvrirPension(true)} />;
   return <div ref={cadre}>
     {erreur && <div role="alert" className="cadre mb-4 bg-surface p-4">
       {fatale && <p>{ERREUR_CHARGEMENT}</p>}<p>{erreur.split('\n')[0]}</p>

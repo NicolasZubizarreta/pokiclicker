@@ -143,7 +143,7 @@ test('PC : placer jusqu’à six, échanger, et tout survit au rechargement', as
   await ouvrirPc(page);
   await expect(page.getByText(apres!)).toBeVisible();
   await page.getByRole('button', { name: 'Équipe', exact: true }).click();
-  await expect(page.getByText(/· 6 \/ 6$/)).toBeVisible();
+  await expect(page.getByText(/(?:· |^)6 \/ 6$/)).toBeVisible();
 });
 
 test('Pokédex : 151 cases et compteur des starters', async ({ page }, informations) => {

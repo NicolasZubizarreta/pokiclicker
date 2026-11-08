@@ -1,5 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 import { telephone, voyagerVers } from './aide-carte';
+import { fermerSac, ouvrirSac } from './aide-sac';
 import type { DonneesRegion } from '../src/core/sauvegarde';
 import zones from '../data/regions/kanto/zones.json' with { type: 'json' };
 import reglages from '../data/reglages.json' with { type: 'json' };
@@ -245,12 +246,13 @@ for (const largeur of [390, 1440]) {
       await expect(fiche).toContainText('Bloquée');
       await expect(fiche).toContainText(raisonRonflex);
       await expect(page.getByRole('button', { name: 'Y aller', exact: true })).toHaveCount(0);
-      await page.getByRole('button', { name: 'Équipe', exact: true }).click();
+      await ouvrirSac(page);
       const objets = page.getByRole('region', { name: 'Objets clés', exact: true });
       await expect(objets).toContainText('Pokéflûte');
       await objets.getByRole('button', { name: 'Utiliser Pokéflûte', exact: true }).click();
       await expect(objets.getByRole('status')).toHaveText('À utiliser devant Ronflex');
       await expect(page.getByRole('dialog', { name: 'Dialogue de scène' })).toHaveCount(0);
+      await fermerSac(page);
       await page.getByRole('button', { name: 'Combat', exact: true }).click();
       await jouerSouffle(page);
       await page.reload();

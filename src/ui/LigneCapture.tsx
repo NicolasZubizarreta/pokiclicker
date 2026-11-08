@@ -30,6 +30,7 @@ export function LigneCapture({ balles, possible, raison, enCours, capturer, outi
           aria-label={`Balle choisie : ${selection.nom}, ×${selection.quantite}. Toucher pour changer`}
           onClick={() => choisir((possedees[(possedees.indexOf(selection) + 1) % possedees.length] ?? selection).cle)}
         >
+          <kbd aria-hidden="true" className="touche-pc">B</kbd>
           <img src={selection.image} alt="" width={30} height={30} className="image-rendering-pixelated size-8" />
           <span>
             <span className="block">{selection.nom}</span>
@@ -50,7 +51,7 @@ export function LigneCapture({ balles, possible, raison, enCours, capturer, outi
       >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true" focusable="false" className="size-6 shrink-0">
           <circle cx="12" cy="12" r="9" /><path d="M3 12h6m6 0h6" /><circle cx="12" cy="12" r="3" />
-        </svg>Capturer
+        </svg>Capturer<kbd aria-hidden="true" className="touche-pc">C</kbd>
       </button>
       {outil}
     </section>

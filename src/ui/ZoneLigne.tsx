@@ -4,9 +4,9 @@ import type { Destination } from './store';
 import './ZoneLigne.css';
 
 // `etape` est null hors d'une zone de combat (labo, Bourg Palette) : la ligne ne garde alors que les deux flèches.
-type Props = { etape: number | null; precedente: Destination | null; suivante: Destination | null; aller(zoneId: string): void };
+type Props = { nom?: string; etape: number | null; precedente: Destination | null; suivante: Destination | null; aller(zoneId: string): void };
 
-export function ZoneLigne({ etape, precedente, suivante, aller }: Props) {
+export function ZoneLigne({ nom, etape, precedente, suivante, aller }: Props) {
   const [raison, annoncer] = useState<string | null>(null);
   const minuterie = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   useEffect(() => () => clearTimeout(minuterie.current), []);
@@ -29,6 +29,7 @@ export function ZoneLigne({ etape, precedente, suivante, aller }: Props) {
       <button type="button" className="zone-nav zone-nav-precedente" aria-label={`Zone précédente${precedente ? ` : ${precedente.nom}` : ''}`} aria-disabled={!precedente?.ouverte} onClick={() => naviguer(precedente)}>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
       </button>
+      {nom && <strong className="font-titre text-lg">{nom}</strong>}
       <div className="zone-etapes">
         {etape !== null && <>
           <div className="zone-marques">

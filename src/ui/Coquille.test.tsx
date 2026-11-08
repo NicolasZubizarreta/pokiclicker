@@ -41,14 +41,15 @@ afterEach(() => {
 });
 const noms = ['Combat', 'Équipe', 'Shop', 'Carte', 'Menu'];
 
-it.each(['Équipe', 'Menu'] as const)('revient du PC vers %s et garde son onglet actif', origine => {
+// Sur PC la page Équipe n'a plus de ligne « PC de Léo » (l'onglet PC suffit) : seul le retour vers Menu reste.
+it.each(['Menu'] as const)('revient du PC vers %s et garde son onglet actif', origine => {
   render(<Coquille />);
   fireEvent.click(screen.getByRole('button', { name: origine }));
   fireEvent.click(screen.getByRole('button', { name: /PC de Léo/ }));
   expect(screen.getByRole('heading', { name: 'PC de Léo' })).toBeTruthy();
   expect(within(screen.getByRole('navigation')).getByRole('button', { name: 'PC' }).getAttribute('aria-current')).toBe('page');
-  fireEvent.click(screen.getByRole('button', { name: origine === 'Équipe' ? "Retour à l'équipe" : 'Retour au menu' }));
-  expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(origine === 'Équipe' ? 'Ton équipe' : 'Menu');
+  fireEvent.click(screen.getByRole('button', { name: 'Retour au menu' }));
+  expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Menu');
 });
 
 it('revient du choix au Combat, rouvre le Sac après annulation et respecte Shop', () => {
@@ -328,8 +329,8 @@ describe('Coquille', () => {
       if (nom === 'Carte') expect(screen.getByRole('button', { name: 'Route 1 (Zone 1)' })).toBeTruthy();
       else if (nom === 'Équipe') {
         expect(screen.queryByText('Cette page arrive bientôt.')).toBeNull();
-        // Six cases d'équipe, plus la Pokéball et le Bonbon que le Sac affiche toujours.
-        expect(screen.getAllByRole('listitem')).toHaveLength(8);
+        // Six cases d'équipe : le Sac est une fenêtre sur PC.
+        expect(screen.getAllByRole('listitem')).toHaveLength(6);
       } else if (nom === 'Menu') {
         expect(screen.queryByText('Cette page arrive bientôt.')).toBeNull();
         expect(screen.getByRole('button', { name: 'PC de Léo' })).toBeTruthy();
@@ -409,11 +410,14 @@ describe('Coquille', () => {
       await utilisateur.click(screen.getByRole('button', { name: nom }));
       const equipe = storeJeu.getState().equipe;
       const nomPokemon = (c: NonNullable<typeof equipe[number]>) => c.pokemon.surnom ?? chargerPokemon().parNumero(c.pokemon.numero).nom;
-      const premier = equipe.find(c => c)!;
       if (nom === 'Équipe') {
-        const cases = equipe.map(c => c ? `${nomPokemon(c)}Niv. ${c.pokemon.niveau} · ${formaterDps(c.dps)} DPS` : 'Emplacement libre').join('');
-        const xp = premier.xpMax === 0 ? 'MAX' : `${premier.pokemon.xp} / ${premier.xpMax} XP`;
-        expect(screen.getByRole('main').textContent).toBe(`Mon compteTon équipe${formaterDps(storeJeu.getState().dps)} DPS · ${equipe.filter(Boolean).length} / 6${cases}PC de LéoAprès l'arène d'Argenta${nomPokemon(premier)}Niv. ${premier.pokemon.niveau}${xp}${formaterDps(premier.dps)} DPSOuvre la ficheTon SacToutBallesSoinsÉquipementPokéball×0Bonbon×0`);
+        // Sur PC : titre, pastille n / 6, DPS, tri d'affichage et Sac, puis six cartes (nom, DPS, niveau, types) ; plus de panneau latéral ni de ligne PC.
+        const texte = screen.getByRole('main').textContent ?? '';
+        expect(texte.startsWith(`Mon compteTon équipe${equipe.filter(Boolean).length} / 6${formaterDps(storeJeu.getState().dps)} DPSOrdre de l'équipeDPS, du plus grand au plus petitSac`)).toBe(true);
+        for (const c of equipe) if (c) expect(texte).toContain(`${nomPokemon(c)}${formaterDps(c.dps)} DPSNiv. ${c.pokemon.niveau}`);
+        expect(texte.match(/Emplacement libre/g)).toHaveLength(equipe.filter(c => !c).length);
+        expect(texte).not.toContain('PC de Léo');
+        expect(texte).not.toContain('Ouvre la fiche');
       }
       // Prépare le balayage de la page visible sans la boîte fermée, montée en permanence.
       container.replaceChildren(rendu.cloneNode(true));
@@ -448,7 +452,9 @@ describe('Coquille', () => {
                   ? equipe.filter(c => c).flatMap(c => [`${nomPokemon(c!)}, niveau ${c!.pokemon.niveau}`, `Renommer ${nomPokemon(c!)}`]).find(n => n === element.getAttribute('aria-label'))
                   : nom === 'Équipe' && element.getAttribute('role') === 'progressbar'
                     ? equipe.filter(c => c).map(c => `XP de ${nomPokemon(c!)}`).find(n => n === element.getAttribute('aria-label'))
+                    : nom === 'Équipe' && element.tagName.toLowerCase() === 'select' ? "Trier l'équipe"
                     : element.tagName.toLowerCase() === 'header' ? 'Chiffres clés' : 'Navigation principale';
+        if (nom === 'Équipe' && ['Mâle', 'Femelle', 'Favori'].includes(element.getAttribute('aria-label') ?? '')) continue; // icônes de sexe et de favori des cartes PC
         // Le Sac de l'onglet Équipe : région, filtre, liste et pastilles « <objet> ×n ».
         if (nom === 'Équipe' && ['Sac', 'Catégories', 'Objets du Sac', 'Pokéball ×0', 'Bonbon ×0'].includes(element.getAttribute('aria-label') ?? '')) continue;
         expect(element.getAttribute('aria-label')).toBe(element.tagName === 'FOOTER' ? 'Raccourcis clavier' : attendu);

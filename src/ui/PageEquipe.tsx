@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useStore } from 'zustand';
 import { classeSprite, nomAffiche, progressionOeuf, spriteAffiche } from './affichage-pokemon';
 import { IconeShiny } from './IconeShiny';
@@ -23,11 +23,15 @@ import { notifier } from './pileNotifications';
 import { storeJeu } from './store';
 import { annulerChoix, terminerChoix, useSacContexte } from './sacContexte';
 import { useTelephone } from './useTelephone';
+import { EquipePC } from './EquipePC';
+import { ouvrirSac } from './sacContexte';
 
 const stase = chargerObjets().find(objet => objet.id === 'everstone')!;
 
 export function PageEquipe({ ouvrirPC }: { ouvrirPC?: () => void }) {
   const telephone = useTelephone();
+  const [tri, trier] = useState('ordre');
+  const Conteneur = telephone ? Fragment : 'div';
   const objetContexte = useSacContexte(etat => etat.objet);
   const equipe = useStore(storeJeu, etat => etat.equipe);
   const pc = useStore(storeJeu, etat => etat.pc);
@@ -70,6 +74,7 @@ export function PageEquipe({ ouvrirPC }: { ouvrirPC?: () => void }) {
 
   // Abandon du choix : avec un objet venu du Sac, on rouvre le Sac ; sinon on referme simplement le mode.
   function abandonnerObjet() {
+    cibler(null); // sans cela, la confirmation de la carte réapparaît au prochain choix d'un objet
     if (objetContexte) annulerChoix();
     else annulerObjet();
   }
@@ -121,24 +126,36 @@ export function PageEquipe({ ouvrirPC }: { ouvrirPC?: () => void }) {
   }
 
   return <section className="mx-auto max-w-screen-xl text-base">
+    <Conteneur {...(telephone ? {} : { className: 'equipe-pc' })}>
+    {!telephone && <header className="titre-equipe">
+      <h1 ref={titre} tabIndex={-1} className="font-titre text-2xl font-semibold">Ton équipe</h1>
+      <span className="bg-surface-2 px-2">{equipe.filter(Boolean).length} / {reglages.equipe.taille}</span>
+      <span className="text-region-accent">{formaterDps(dps)} DPS</span>
+      <select aria-label="Trier l'équipe" value={tri} onChange={event => trier(event.target.value)}>
+        <option value="ordre">Ordre de l'équipe</option><option value="dps">DPS, du plus grand au plus petit</option>
+      </select>
+      {sac.acces.ouvert && <button type="button" className="plaque" onClick={ouvrirSac}>Sac</button>}
+    </header>}
+    {telephone && <>
     <h1 ref={titre} tabIndex={-1} className="font-titre text-2xl font-semibold">Ton équipe</h1>
     <p className="mt-2 text-region-accent">{`${formaterDps(dps)} DPS · ${equipe.filter(Boolean).length} / ${reglages.equipe.taille}`}</p>
-    {echange && <div role="status" className="cadre mt-4 flex flex-wrap items-center gap-4 bg-surface p-4">
+    </>}
+    {echange && <div role="status" className={`cadre mt-4 flex flex-wrap items-center gap-4 bg-surface p-4${telephone ? '' : ' bandeau-choix'}`}>
       <p>Choisis le Pokémon à remplacer par {echange.nom}</p>
       <button type="button" className="min-h-11 bg-surface-2 px-4 py-2"
         onClick={() => storeJeu.getState().annulerEchange()}>Annuler</button>
     </div>}
     {echange && erreur?.echange === echange && <p role="alert" className="mt-4 text-erreur-base">{erreur.message}</p>}
-    {objetContexte ? <div className="cadre sticky top-0 z-10 flex items-center justify-between gap-4 bg-surface p-4">
+    {objetContexte ? <div className={`cadre sticky top-0 z-10 flex items-center justify-between gap-4 bg-surface p-4${telephone ? '' : ' bandeau-choix'}`}>
       <p role="status">{objetContexte.nom} : touche un Pokémon</p>
       <button type="button" autoFocus className="min-h-11 shrink-0 bg-surface-2 px-4 py-2" onClick={annulerChoix}>Annuler</button>
     </div> : <p role="status" className={mode ? 'mt-4' : undefined}>{mode ? 'Sélectionne un Pokémon.' : ''}</p>}
-    <div className="mt-4 grid items-start gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-      <div className="min-w-0 space-y-4">
-      <ul ref={liste} className="grid min-w-0 gap-2 lg:auto-rows-fr lg:gap-4">
+    <div className={telephone ? 'mt-4 grid items-start gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]' : 'disposition'}>
+      <div className={telephone ? 'min-w-0 space-y-4' : 'colonne-equipe'}>
+      <ul ref={liste} className={telephone ? 'grid min-w-0 gap-2 lg:auto-rows-fr lg:gap-4' : 'grille-equipe grid grid-cols-3 grid-rows-2 gap-4'}>
         {Array.from({ length: reglages.equipe.taille }, (_, index) => {
-          const caseEquipe = equipe[index];
-          if (!caseEquipe) return <li key={index} className="cadre min-h-11 bg-surface p-4 text-texte-doux">Emplacement libre</li>;
+          const caseEquipe = !telephone && tri === 'dps' ? [...equipe].sort((a, b) => (b?.dps ?? -1) - (a?.dps ?? -1))[index] : equipe[index];
+          if (!caseEquipe) return <li key={index} className={`cadre min-h-11 bg-surface p-4 text-texte-doux${telephone ? '' : ' vide'}`}>Emplacement libre</li>;
           const { pokemon, dps, xpMax } = caseEquipe;
           const nom = nomAffiche(pokemon);
           const stock = mode ? sac.entrees.find(entree => entree.id === mode.cle)?.quantite ?? 0 : 0;
@@ -149,7 +166,7 @@ export function PageEquipe({ ouvrirPC }: { ouvrirPC?: () => void }) {
           return <li key={pokemon.uid} className="relative min-w-0">
             <button type="button" aria-label={pokemon.oeuf ? `${nom}, ${progressionOeuf(pokemon.oeuf)}` : `${nom}, niveau ${pokemon.niveau}`} aria-pressed={membre?.pokemon.uid === pokemon.uid} data-uid={pokemon.uid}
               disabled={!!mode && (mode.type === 'bonbon' || mode.type === 'calcium' || mode.type === 'baie') && !valide}
-              className={`cadre relative grid overflow-hidden h-full min-h-11 w-full grid-cols-[auto_minmax(0,1fr)_auto] lg:grid-cols-[auto_minmax(0,1fr)] items-center gap-2 p-3 pe-3 lg:p-4 lg:pe-24 text-left ${telephone && !mode && !echange && typeof caseEquipe.evolution === 'number' ? 'pret-evoluer' : ''} ${mode && !valide ? '' : 'hover:bg-selection'} ${membre?.pokemon.uid === pokemon.uid ? 'bg-surface lg:bg-selection' : 'bg-surface'} ${mode ? valide ? 'relative border-info-base motion-safe:cible-valide' : 'grayscale opacity-50' : ''}`}
+              className={`${telephone ? '' : 'carte-equipe '}cadre relative grid overflow-hidden h-full min-h-11 w-full grid-cols-[auto_minmax(0,1fr)_auto] lg:grid-cols-[auto_minmax(0,1fr)] items-center gap-2 p-3 pe-3 lg:p-4 lg:pe-24 text-left ${!mode && !echange && typeof caseEquipe.evolution === 'number' ? 'pret-evoluer' : ''} ${mode && !valide ? '' : 'hover:bg-selection'} ${membre?.pokemon.uid === pokemon.uid ? 'bg-surface lg:bg-selection' : 'bg-surface'} ${mode ? valide ? 'relative border-info-base motion-safe:cible-valide' : 'grayscale opacity-50' : ''}`}
               onContextMenu={event => {
                 event.preventDefault();
                 if (echange || mode) return;
@@ -192,6 +209,7 @@ export function PageEquipe({ ouvrirPC }: { ouvrirPC?: () => void }) {
                 choisir(pokemon.uid);
                 if (!panneau.current?.getClientRects().length) ouvrirFiche(pokemon.uid, event.currentTarget);
               }}>
+              {!telephone ? <EquipePC pokemon={pokemon} dps={dps} xpMax={xpMax} pret={typeof caseEquipe.evolution === 'number'} animation={evolution?.uid === pokemon.uid ? { ancien: spriteAffiche({ ...pokemon, numero: evolution.ancien }), nouveau: spriteAffiche({ ...pokemon, numero: evolution.nouveau }), nom, actif: true, shiny: pokemon.shiny } : undefined} /> : <>
               {evolution?.uid === pokemon.uid
                 ? <span className="grid size-14 lg:size-24 max-w-full overflow-hidden place-items-center [&_img]:size-14 lg:[&_img]:size-24 [&_img]:max-h-full [&_img]:max-w-full"><SpriteEvolution ancien={spriteAffiche({ ...pokemon, numero: evolution.ancien })}
                   nouveau={spriteAffiche({ ...pokemon, numero: evolution.nouveau })} nom={nom} actif shiny={pokemon.shiny} /></span>
@@ -210,6 +228,7 @@ export function PageEquipe({ ouvrirPC }: { ouvrirPC?: () => void }) {
               </span>
               {!mode ? <span className="lg:hidden"><IconeChevron /></span> : valide &&
                 <span className="bg-action px-2 py-1 text-action-texte font-bold lg:hidden">Choisir</span>}
+              </>}
             </button>
             <div className="pointer-events-none absolute top-2 right-2 flex items-center gap-1 [&>*]:pointer-events-auto">
               {pokemon.pierreEternelle && <button type="button" aria-label={`Retirer ${stase.nom} de ${nom}`} title={`Retirer ${stase.nom}`}
@@ -219,19 +238,13 @@ export function PageEquipe({ ouvrirPC }: { ouvrirPC?: () => void }) {
                   ? <img src={stase.image} alt="" width={32} height={32} className="size-8 image-rendering-pixelated" />
                   : <IconeObjet image={null} nom={stase.nom} />}
               </button>}
-              {!mode && !echange && !pokemon.oeuf && <span className="hidden lg:flex"><BoutonRenommer nom={nom}
+              {telephone && !mode && !echange && !pokemon.oeuf && <span className="hidden lg:flex"><BoutonRenommer nom={nom}
                 ouvrir={bouton => {
                   choisir(pokemon.uid);
                   ouvrirFiche(pokemon.uid, bouton, true);
                 }} /></span>}
             </div>
-            {!telephone && !mode && !echange && typeof caseEquipe.evolution === 'number' && <button type="button"
-              aria-label={`Faire évoluer ${nom}`} className="cadre-alerte min-h-11 w-full bg-surface motion-safe:animate-pulse"
-              onClick={() => {
-                const message = storeJeu.getState().evoluer(pokemon.uid);
-                signalerObjet(message);
-                if (!message) liste.current?.querySelector<HTMLElement>(`button[data-uid="${pokemon.uid}"]`)?.focus();
-              }}>Évoluer</button>}
+            <Conteneur {...(!telephone && mode && cible === pokemon.uid ? { className: 'superposition' } : {})}>
             {mode?.type === 'pierre' && cible === pokemon.uid && valide && <ConfirmationObjet objet={mode.nom} nom={nom}
               annuler={abandonnerObjet} valider={() => {
                 const message = storeJeu.getState().utiliserPierre(pokemon.uid, mode.cle);
@@ -255,10 +268,11 @@ export function PageEquipe({ ouvrirPC }: { ouvrirPC?: () => void }) {
                 if (message) signalerObjet(message);
                 else annulerObjet();
               }} />}
+            </Conteneur>
           </li>;
         })}
       </ul>
-      {ouvrirPC && !mode && !echange && <button type="button"
+      {telephone && ouvrirPC && !mode && !echange && <button type="button"
         className={`cadre flex min-h-11 w-full items-center gap-4 bg-surface p-4 text-left hover:bg-selection ${accesPc.ouvert ? '' : 'opacity-60'}`}
         onClick={ouvrirPC}>
         <PC />
@@ -268,7 +282,7 @@ export function PageEquipe({ ouvrirPC }: { ouvrirPC?: () => void }) {
         <IconeChevron />
       </button>}
       </div>
-      <div className="min-w-0 space-y-4">
+      {telephone && <div className="min-w-0 space-y-4">
       {membre && <aside ref={panneau} className="cadre sticky top-8 z-10 overflow-hidden hidden min-w-0 space-y-4 bg-surface p-4 lg:block">
         <div className="relative isolate grid place-items-center overflow-hidden">
           <span className="socle absolute bottom-6 -z-10 h-8 w-40 bg-region-socle" aria-hidden="true" />
@@ -305,8 +319,9 @@ export function PageEquipe({ ouvrirPC }: { ouvrirPC?: () => void }) {
           selectionner({ type: entree.utilisable, cle: entree.id, nom: entree.nom });
         }} />
       </div>}
-      </div>
+      </div>}
     </div>
+    </Conteneur>
     {!mode && !echange && menu && <MenuPokemon x={menu.x} y={menu.y} declencheur={menu.carte} fermer={() => placerMenu(null)}
       retirerObjet={equipe.find(c => c?.pokemon.uid === menu.uid)?.pokemon.pierreEternelle
         ? () => signalerObjet(storeJeu.getState().retirerStase(menu.uid)) : undefined}

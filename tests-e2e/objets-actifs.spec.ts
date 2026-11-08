@@ -1,7 +1,7 @@
 import { mkdir } from 'node:fs/promises';
 import { test as base, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
-import { telephone } from './aide-carte';
+import { ouvrirSac } from './aide-sac';
 
 const instant = new Date('2026-10-25T12:00:00Z');
 const test = base.extend<{ surveillance: void }>({
@@ -47,12 +47,13 @@ async function demarrer(page: Page) {
 }
 
 async function utiliser(page: Page, nom: string, stock = 1) {
-  await page.getByRole('button', { name: 'Équipe', exact: true }).click();
-  const sac = page.getByRole('region', { name: 'Sac', exact: true });
+  const sac = await ouvrirSac(page);
   await sac.getByRole('button', { name: `${nom} ×${stock}`, exact: true }).click();
 }
 
 async function combat(page: Page) {
+  // Les objets à effet immédiat laissent la fenêtre du Sac ouverte : on la ferme avant de changer d'onglet.
+  if (await page.locator('dialog[open]').count()) await page.keyboard.press('Escape');
   await page.getByRole('button', { name: 'Combat', exact: true }).click();
 }
 
@@ -138,21 +139,26 @@ test('Pierre Stase : pose et retrait ; Jeton : confirmation et chromatique sauve
   await bulbizarre.click();
   const retirerStase = page.getByRole('button', { name: 'Retirer Pierre Stase de Bulbizarre', exact: true });
   await expect(retirerStase).toBeVisible();
+  // Téléphone et PC : l'évolution se fait dans la fiche (fenêtre) ; la Pierre Stase la bloque.
+  await bulbizarre.click();
   await expect(page.getByRole('button', { name: 'Faire évoluer Bulbizarre' })).toHaveCount(0);
-  if (telephone(page)) await page.getByRole('button', { name: 'Ferme la fiche', exact: true }).click();
+  await page.keyboard.press('Escape');
   await bulbizarre.click({ button: 'right' });
   await page.getByRole('menuitem', { name: "Retirer l'objet", exact: true }).click();
   await expect(retirerStase).toHaveCount(0);
-  await expect(page.getByRole('button', { name: 'Pierre Stase ×1', exact: true })).toBeVisible();
-  if (telephone(page)) await bulbizarre.click();
+  await expect((await ouvrirSac(page)).getByRole('button', { name: 'Pierre Stase ×1', exact: true })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await bulbizarre.click();
   await expect(page.getByRole('button', { name: 'Faire évoluer Bulbizarre' })).toBeVisible();
-  if (telephone(page)) await page.getByRole('button', { name: 'Ferme la fiche', exact: true }).click();
+  await page.keyboard.press('Escape');
   await utiliser(page, 'Jeton Shiny');
   await bulbizarre.click();
   const confirmation = page.getByRole('group', { name: 'Utiliser Jeton Shiny sur Bulbizarre ?', exact: true });
   await confirmation.getByRole('button', { name: 'Annuler', exact: true }).click();
-  await expect(bulbizarre).toBeFocused();
-  await utiliser(page, 'Jeton Shiny');
+  // Annuler rouvre le Sac, là où l'on était (téléphone et PC).
+  const sacRouvert = page.locator('dialog[open]').getByRole('region', { name: 'Sac', exact: true });
+  await expect(sacRouvert).toBeVisible();
+  await sacRouvert.getByRole('button', { name: 'Jeton Shiny ×1', exact: true }).click();
   await bulbizarre.click();
   await confirmation.getByRole('button', { name: 'Valider', exact: true }).click();
   await page.reload();

@@ -49,6 +49,6 @@ describe('LigneCapture', () => {
     const ligne = container.querySelector('.ligne-capture')!;
     expect(ligne.classList.contains('ligne-capture-outil')).toBe(true);
     expect(ligne.lastElementChild?.textContent).toBe('Outil');
-    expect(ligne.children[ligne.children.length - 2]?.textContent).toBe('Capturer');
+    expect(ligne.children[ligne.children.length - 2]).toBe(screen.getByRole('button', { name: 'Capturer' }));
   });
 });

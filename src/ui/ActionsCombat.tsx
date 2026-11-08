@@ -18,11 +18,11 @@ export function ActionsCombat({ autoAttaque, basculerAutoAttaque, arret, reglerA
   const fermer = () => dialogue.current?.close();
   return <div className="actions-combat" role="group" aria-label="Actions du combat">
     <div className="actions-quatre">
-      <button data-raccourci="auto" type="button" className="plaque plaque-vertical" aria-pressed={autoAttaque} onClick={basculerAutoAttaque}><AutoAttaque />Attaque auto</button>
-      <button data-raccourci="arret" type="button" className="plaque plaque-vertical" aria-pressed={arret.actif} onClick={() => reglerArret({ actif: !arret.actif })}><ArretAuto />Arrêt auto</button>
-      <button data-raccourci="reglage" type="button" className="plaque plaque-vertical" aria-label="Réglage de l'arrêt auto" onClick={event => { declencheur.current = event.currentTarget; dialogue.current?.showModal(); }}><IconeReglagesArret />Réglage</button>
+      <button data-raccourci="auto" type="button" className="plaque plaque-vertical" aria-pressed={autoAttaque} onClick={basculerAutoAttaque}><AutoAttaque />Attaque auto<kbd aria-hidden="true" className="touche-pc">A</kbd></button>
+      <button data-raccourci="arret" type="button" className="plaque plaque-vertical" aria-pressed={arret.actif} onClick={() => reglerArret({ actif: !arret.actif })}><ArretAuto />Arrêt auto<kbd aria-hidden="true" className="touche-pc">T</kbd></button>
+      <button data-raccourci="reglage" type="button" className="plaque plaque-vertical" aria-label="Réglage de l'arrêt auto" onClick={event => { declencheur.current = event.currentTarget; dialogue.current?.showModal(); }}><IconeReglagesArret />Réglage<kbd aria-hidden="true" className="touche-pc">R</kbd></button>
       <button data-raccourci="sac" type="button" className="plaque plaque-vertical" aria-disabled={!sac.accessible || sac.ouvrir === null} onClick={() => { if (sac.accessible) sac.ouvrir?.(); }}>
-        <Sac />Sac{sac.total > 0 && <span className="pastille-sac" aria-hidden="true">{sac.total}</span>}
+        <Sac />Sac{sac.total > 0 && <span className="pastille-sac" aria-hidden="true">{sac.total}</span>}<kbd aria-hidden="true" className="touche-pc">S</kbd>
       </button>
     </div>
     <dialog ref={dialogue} aria-labelledby={titre} className="fiche-pokemon cadre w-full max-w-3xl bg-surface p-0 text-base text-texte"

@@ -93,7 +93,7 @@ for (const largeur of LARGEURS) {
         cadre: rect('section[aria-label^="Combat contre"]'), socle: rect('.socle'),
         image: rect('section[aria-label^="Combat contre"] img[alt]:not([alt=""])'),
         radar: rect('button[aria-label="Poké-Radar"]'), fauchage: rect('button[aria-label="Fauchage"]'),
-        capturer: [...document.querySelectorAll('section[aria-label="Capture"] button')].find(b => b.textContent === 'Capturer')!.getBoundingClientRect(),
+        capturer: [...document.querySelectorAll('section[aria-label="Capture"] button')].find(b => b.textContent?.startsWith('Capturer'))!.getBoundingClientRect(),
         ancienneLigne: document.querySelector('.actions-debloques') !== null,
       };
     });

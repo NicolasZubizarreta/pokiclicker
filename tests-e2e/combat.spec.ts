@@ -1,6 +1,11 @@
 import { mkdir } from 'node:fs/promises';
 import { test as base, expect } from '@playwright/test';
-import type { Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
+
+// Une case d'équipe : sur téléphone « <nom>, niveau N, D DPS » ; sur PC (rang du panneau de droite) « Ouvrir la fiche de <nom> ».
+const rangEquipe = (equipe: Locator, nom: string, projet: string) => projet === 'pc'
+  ? equipe.getByRole('button', { name: `Ouvrir la fiche de ${nom}`, exact: true }) : equipe.locator(`[aria-label^="${nom},"]`);
+const cartesEquipe = (equipe: Locator, projet: string) => equipe.locator(projet === 'pc' ? '[aria-label^="Ouvrir la fiche de"]' : '[aria-label*=", niveau "]');
 
 // Installer les observateurs avant toute navigation, y compris les rechargements.
 const test = base.extend<{ surveillance: void }>({
@@ -64,15 +69,9 @@ async function verifierFenetre(page: Page) {
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
   const taille = page.viewportSize()!;
   const limite = taille.width < 1024 ? (await page.getByRole('navigation').boundingBox())!.y : taille.height;
-  // Sur téléphone, la page défile (actions, équipe) et il n'y a plus de dialogue permanent du Prof. Chen.
-  if (taille.width >= 1024) {
-    await expect(page.getByRole('complementary', { name: 'Dialogue' })).toBeVisible();
-    expect(await page.evaluate(() => document.documentElement.scrollHeight - window.innerHeight)).toBeLessThanOrEqual(1);
-    const dialogue = (await page.getByRole('complementary', { name: 'Dialogue' }).boundingBox())!;
-    expect(dialogue.y + dialogue.height).toBeLessThanOrEqual(limite);
-  } else {
-    await expect(page.getByRole('complementary', { name: 'Dialogue' })).toHaveCount(0);
-  }
+  // Sur téléphone, la page défile (actions, équipe) ; sur PC (ticket I2) elle ne défile pas. Plus de dialogue permanent du Prof. Chen nulle part.
+  if (taille.width >= 1024) expect(await page.evaluate(() => document.documentElement.scrollHeight - window.innerHeight)).toBeLessThanOrEqual(1);
+  await expect(page.getByRole('complementary', { name: 'Dialogue' })).toHaveCount(0);
   const scene = (await page.getByRole('region', { name: /^Combat contre/ }).boundingBox())!;
   expect(scene.y).toBeGreaterThanOrEqual(0);
   expect(scene.y + scene.height).toBeLessThanOrEqual(limite);
@@ -112,8 +111,8 @@ test('Boss et zones : barre de temps, zone suivante, retour et reprise', async (
   await expect(page.getByRole('progressbar', { name: 'Temps restant' })).toHaveCount(0);
   const fermee = page.getByRole('button', { name: /^Zone suivante/ });
   await expect(fermee).toBeDisabled();
-  // Sur téléphone la raison n'apparaît qu'au toucher de la flèche verrouillée.
-  if (page.viewportSize()!.width < 1024) await fermee.click({ force: true });
+  // Téléphone et PC : la raison n'apparaît qu'au clic sur la flèche verrouillée.
+  await fermee.click({ force: true });
   await expect(page.getByText('Bats le boss de Route 1.')).toBeVisible();
   await page.getByRole('button', { name: /^Zone précédente/ }).click();
   await expect(page.getByText('Pas de Pokémon sauvage ici. Va sur la Route 1 pour combattre.')).toBeVisible();
@@ -144,7 +143,7 @@ test('Boss et zones : barre de temps, zone suivante, retour et reprise', async (
   await expect(page.getByRole('heading', { name: 'Route 1', exact: true })).toBeVisible();
 });
 
-test('Récompenses : Pokédollars, XP, recherche et montée de niveau', async ({ page }) => {
+test('Récompenses : Pokédollars, XP, recherche et montée de niveau', async ({ page }, informations) => {
   await ouvrir(page);
   const argent = page.locator('header').getByText(/₽/).locator('visible=true');
   const lireArgent = async () => (await argent.innerText()).replace(/\s/g, ' ');
@@ -154,8 +153,8 @@ test('Récompenses : Pokédollars, XP, recherche et montée de niveau', async ({
   const noms = ['Bulbizarre', 'Salamèche', 'Carapuce'];
   const xpAvant: number[] = [];
   for (const nom of noms) {
-    const carte = equipe.locator(`[aria-label^="${nom},"]`);
-    await expect(carte).toHaveAttribute('aria-label', new RegExp(`${nom}, niveau \\d+,`));
+    const carte = rangEquipe(equipe, nom, informations.project.name);
+    await expect(carte).toHaveAttribute('aria-label', new RegExp(informations.project.name === 'pc' ? `Ouvrir la fiche de ${nom}` : `${nom}, niveau \\d+,`));
     const barre = carte.getByRole('progressbar', { name: `XP de ${nom}`, exact: true });
     await expect(barre).toBeVisible();
     xpAvant.push(Number(await barre.getAttribute('aria-valuenow')));
@@ -209,18 +208,20 @@ test('Reprise : même étape, même équipe et sauvegarde stable', async ({ page
   await atteindre(page, 5);
   const equipe = page.getByRole('region', { name: 'Ton équipe' });
   // Les DPS dépendent du type du nouvel ennemi ; comparer l’identité et le niveau.
-  const avant = await equipe.locator('[aria-label*=", niveau "]').evaluateAll(cartes => cartes.map(carte => carte.getAttribute('aria-label')?.replace(/, [\d\s,]+ DPS$/, '')));
+  const lire = () => cartesEquipe(equipe, informations.project.name)
+    .evaluateAll(cartes => cartes.map(carte => `${carte.getAttribute('aria-label')?.replace(/, [\d\s,]+ DPS$/, '')} ${[...carte.querySelectorAll('span')].map(e => e.textContent ?? '').find(t => /^Niv\. \d+$/.test(t)) ?? ''}`));
+  const avant = await lire();
   await page.reload();
   await expect(page.getByText('Étape 5 sur 10', { exact: true })).toBeVisible();
-  expect(await equipe.locator('[aria-label*=", niveau "]').evaluateAll(cartes => cartes.map(carte => carte.getAttribute('aria-label')?.replace(/, [\d\s,]+ DPS$/, '')))).toEqual(avant);
+  expect(await lire()).toEqual(avant);
   for (const nom of ['Bulbizarre', 'Salamèche', 'Carapuce']) {
-    const carte = equipe.locator(`[aria-label^="${nom},"]`);
+    const carte = rangEquipe(equipe, nom, informations.project.name);
     await expect(carte).toHaveCount(1);
-    await expect(carte).toHaveAttribute('aria-label', new RegExp(`${nom}, niveau \\d+, \\d+(?:,\\d+)? DPS`));
+    if (informations.project.name !== 'pc') await expect(carte).toHaveAttribute('aria-label', new RegExp(`${nom}, niveau \\d+, \\d+(?:,\\d+)? DPS`));
     // Sur mobile, les cases font 56 px (DESIGN.md) : le DPS n'y est donné qu'au total et dans le nom accessible.
     if (informations.project.name === 'pc') await expect(carte.getByText(/DPS/), `DPS visible de ${nom}`).toBeVisible();
   }
-  await expect(equipe.locator('[aria-label*=", niveau "]')).toHaveCount(3);
+  await expect(cartesEquipe(equipe, informations.project.name)).toHaveCount(3);
   const premiere = await stockage(page);
   await page.clock.runFor(100);
   expect(await stockage(page)).toEqual(premiere);
@@ -260,10 +261,10 @@ test('Mise en page : scène, navigation, équipe et langue', async ({ page }, in
   const bouton = (await page.getByRole('button', { name: /^Attaquer / }).boundingBox())!;
   expect(bouton).toEqual(boiteScene);
   await expect(page.getByRole('button', { name: 'Attaque', exact: true })).toHaveCount(0);
-  if (informations.project.name === 'pc') await expect(page.locator('button.bg-action')).toHaveText(/^Zone suivante/);
-  else await expect(page.getByRole('button', { name: /^Zone suivante/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /^Zone suivante/ })).toBeVisible();
   if (informations.project.name !== 'mobile') {
-    expect(boiteScene.width / boiteScene.height).toBeCloseTo(16 / 9, 2);
+    // PC (I2) : la scène s'étire entre les colonnes et le décor la couvre (object-fit cover) ; plus de ratio 16/9 imposé.
+    expect(boiteScene.width / boiteScene.height).toBeGreaterThan(1.2);
     const navigation = page.getByRole('navigation');
     const boiteNavigation = (await navigation.boundingBox())!;
     expect(boiteNavigation.x + boiteNavigation.width).toBeLessThanOrEqual(boiteScene.x);

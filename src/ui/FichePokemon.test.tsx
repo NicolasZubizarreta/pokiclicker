@@ -27,14 +27,14 @@ vi.mock('./store', async (original) => {
 
 const pokemon: PokemonPossede = { uid: 'fiche', numero: 1, niveau: 16, xp: 30,
   surnom: 'Bourgeon', sexe: 'male', shiny: true, favori: false, bonheur: 128, calcium: 2, pierreEternelle: true };
-it.each([false, true])('propose l’évolution seulement sur téléphone (%s)', telephone => {
+it.each([false, true])('propose l’évolution dans la fiche, sur PC comme sur téléphone (téléphone : %s)', telephone => {
   vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: telephone, addEventListener: vi.fn(), removeEventListener: vi.fn() })));
   storeJeu.setState({ equipe: [{ pokemon: { ...pokemon, pierreEternelle: false }, dps: 42, xpMax: 100, multiplicateur: 1 }] });
   const evoluer = vi.fn(() => null);
   storeJeu.setState({ evoluer });
   afficher();
   const action = screen.queryByRole('button', { name: 'Faire évoluer Bourgeon en Herbizarre' });
-  expect(!!action).toBe(telephone);
+  expect(!!action).toBe(true);
   if (action) {
     fireEvent.click(action);
     expect(evoluer).toHaveBeenCalledWith('fiche');

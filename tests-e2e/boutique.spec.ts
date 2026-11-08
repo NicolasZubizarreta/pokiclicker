@@ -1,7 +1,6 @@
 import { mkdir } from 'node:fs/promises';
 import { test as base, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
-import { telephone } from './aide-carte';
 import { invitationChoix, ouvrirSac } from './aide-sac';
 
 const test = base.extend<{ surveillance: void }>({
@@ -100,14 +99,9 @@ test('Bonbon : annulation puis deux niveaux', async ({ page }, informations) => 
   await sac.getByRole('button', { name: 'Bonbon ×5', exact: true }).click();
   const message = invitationChoix(page, 'Bonbon');
   await expect(message).toBeVisible();
-  if (telephone(page)) {
-    // Téléphone : le bouton Annuler du mode choix rouvre le Sac, là où l'on était.
-    await page.getByRole('button', { name: 'Annuler', exact: true }).click();
-    await expect(message).toHaveCount(0);
-  } else {
-    await page.getByRole('heading', { name: 'Ton équipe', exact: true }).click();
-    await expect(message).toHaveCount(0);
-  }
+  // Téléphone et PC : le bouton Annuler du mode choix rouvre le Sac, là où l'on était.
+  await page.getByRole('button', { name: 'Annuler', exact: true }).click();
+  await expect(message).toHaveCount(0);
   await expect(sac.getByRole('button', { name: 'Bonbon ×5', exact: true })).toBeVisible();
   await sac.getByRole('button', { name: 'Bonbon ×5', exact: true }).click();
   await expect(message).toBeVisible();
@@ -117,8 +111,8 @@ test('Bonbon : annulation puis deux niveaux', async ({ page }, informations) => 
   await ligne.locator('button').filter({ hasText: /^\+$/ }).click();
   await expect(ligne.locator('output')).toHaveText('2');
   await ligne.locator('button').filter({ hasText: /^✓$/ }).click();
-  // Téléphone : l'objet appliqué ramène au Combat ; l'Équipe et le Sac se relisent à part.
-  if (telephone(page)) await page.getByRole('button', { name: 'Équipe', exact: true }).click();
+  // Téléphone et PC : l'objet appliqué ramène au Combat ; l'Équipe et le Sac se relisent à part.
+  await page.getByRole('button', { name: 'Équipe', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Bulbizarre, niveau 7', exact: true })).toBeVisible();
   const sacApres = await ouvrirSac(page);
   await expect(sacApres.getByRole('button', { name: 'Bonbon ×3', exact: true })).toBeVisible();

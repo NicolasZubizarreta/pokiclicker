@@ -5,6 +5,10 @@ import { reglages } from '../core/reglages';
 import { ZoneLigne } from './ZoneLigne';
 
 afterEach(() => { cleanup(); vi.useRealTimers(); });
+it('affiche le nom de la zone', () => {
+  render(<ZoneLigne nom="Route 1" etape={1} precedente={null} suivante={null} aller={vi.fn()} />);
+  expect(screen.getByText('Route 1').tagName).toBe('STRONG');
+});
 
 const precedente = { id: 'bois', nom: 'Bois', ouverte: true, raison: null };
 const suivante = { id: 'mont', nom: 'Mont', ouverte: true, raison: null };

@@ -248,7 +248,7 @@ Barre latérale à six entrées (Combat, Équipe, PC, Shop, Carte, Menu, touches
 
 ### Lots d'implémentation (un seul writer à la fois, dans cet ordre)
 - **I1** (fait le 08/11/2026, commits locaux) coquille : barre latérale gauche (6 entrées, Menu principal en bas, sauvegarde et synchro avant de quitter), bandeau haut, légende, raccourcis clavier, focus visible et survol, focus piégé dans les fenêtres, notifications en bas à droite.
-- **I2** combat PC (scène à gauche, équipe et effets à droite, boutons 2×2 sous 1400 px) et équipe 3×2, sprites sans fond.
+- **I2** (fait le 08/11/2026, commits locaux) combat PC (scène à gauche, équipe et effets à droite, boutons 2×2 sous 1400 px) et équipe 3×2, sprites sans fond : `.combat-pc` (EcranCombat, RangEquipe, CombatPC.css), `.equipe-pc` (PageEquipe, EquipePC, EquipePC.css), évolution aussi dans la fiche sur PC, bouton Auto-clic gardé dans la colonne de droite, renommage par la fiche (pas de crayon sur la carte PC, comme la maquette), e2e `combat-equipe-pc.spec.ts` (1280, 1440, 1920, 2560).
 - **I3** carte et vol, PC, Shop, Pokédex, badges, statistiques, guide, menu, réglages, pension, centre commercial.
 - **I4** états (vide, chargement, erreur réseau, hors connexion), e2e à 1440 px, captures 1280/1440/1920/2560, revue.
 
@@ -256,7 +256,7 @@ Barre latérale à six entrées (Combat, Équipe, PC, Shop, Carte, Menu, touches
 - [x] Étant donné 1024 px et plus, quand j'ouvre le jeu, alors la barre latérale gauche, le bandeau haut et la légende des raccourcis remplacent la barre du bas du téléphone ; en dessous de 1024 px, la mise en page téléphone reste inchangée.
 - [x] Étant donné le combat sur PC, quand j'appuie sur Espace ou Entrée, alors j'attaque ; C, B, A, T, R, S, F, P, les flèches, 1 à 6 et `/` font ce que dit la liste du README, sauf dans un champ de saisie.
 - [x] Étant donné une fenêtre ouverte (Sac, fiche, réglage de l'arrêt auto), quand j'appuie sur Tab, alors le focus reste dans la fenêtre ; Échap la ferme et rend le focus à l'élément d'origine.
-- [ ] (coquille faite dans I1 : la page ne défile pas à 1280, 1440, 1920 et 2560 sur les six onglets ; contenu des écrans dans I2 à I4) Étant donné chaque écran à 1280, 1440, 1920 et 2560 px, quand je capture, alors la page ne défile pas, les listes défilent dans leur cadre et rien ne déborde.
+- [ ] (coquille faite dans I1 ; combat et équipe faits dans I2 : ne défile pas à 1280, 1440, 1920 et 2560 ; contenu des autres écrans dans I3 et I4) Étant donné chaque écran à 1280, 1440, 1920 et 2560 px, quand je capture, alors la page ne défile pas, les listes défilent dans leur cadre et rien ne déborde.
 - [x] Étant donné une notification, quand elle apparaît sur PC, alors elle s'affiche en pop-up fixe sans déplacer la page.
 - [x] Étant donné la souris, quand je survole ou que je tabule, alors chaque contrôle montre un état de survol et un focus visible (cadre jaune).
 - [x] Étant donné les tests existants, quand `npm test` tourne, alors ils restent verts et un test e2e à 1440 px couvre le combat au clavier.

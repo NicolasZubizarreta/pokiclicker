@@ -78,11 +78,11 @@ it('téléphone : le réglage de l’arrêt auto ouvre le paramétrage, le bouto
   expect(storeSac.getState().ouvert).toBe(true);
 });
 
-it('PC : rien ne change, boutons d’origine et dialogue de Chen', () => {
+it('PC : reprend les actions du téléphone sans dialogue de Chen', () => {
   preparer(false);
-  expect(screen.getByRole('button', { name: 'Auto-attaque' })).toBeTruthy();
-  expect(screen.queryByRole('button', { name: 'Attaque auto' })).toBeNull();
-  expect(screen.getByRole('complementary', { name: 'Dialogue' })).toBeTruthy();
+  expect(screen.queryByRole('button', { name: 'Auto-attaque' })).toBeNull();
+  expect(screen.getByRole('button', { name: 'Attaque auto' })).toBeTruthy();
+  expect(screen.queryByRole('complementary', { name: 'Dialogue' })).toBeNull();
 });
 
 it('bandeau : la ligne de zone n’existe que dans le combat sur téléphone', () => {

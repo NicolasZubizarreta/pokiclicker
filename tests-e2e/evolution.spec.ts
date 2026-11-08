@@ -1,7 +1,6 @@
 import { mkdir } from 'node:fs/promises';
 import { test as base, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
-import { telephone } from './aide-carte';
 import { caseEspece, casesPokedex } from './aide-pokedex';
 import { invitationChoix, ouvrirSac } from './aide-sac';
 
@@ -57,8 +56,8 @@ test('Bulbizarre niveau 15 : évolution absente', async ({ page }) => {
 test('Bulbizarre : animation, largeur, sauvegarde et Pokédex', async ({ page }, informations) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await demarrer(page, 1);
-  if (telephone(page)) await page.getByRole('button', { name: 'Bulbizarre, niveau 16', exact: true }).click();
-  const evoluer = page.getByRole('button', { name: telephone(page) ? 'Faire évoluer Bulbizarre en Herbizarre' : 'Faire évoluer Bulbizarre', exact: true });
+  await page.getByRole('button', { name: 'Bulbizarre, niveau 16', exact: true }).click();
+  const evoluer = page.getByRole('button', { name: 'Faire évoluer Bulbizarre en Herbizarre', exact: true });
   await expect(evoluer).toBeVisible();
   // Le liseré d'alerte doit réellement s'appliquer (une classe utilitaire perd contre .cadre, hors couche).
   const couleurs = await evoluer.evaluate(element => {
@@ -104,8 +103,8 @@ for (const [numero, nom, pierre, cible] of [
     await expect(confirmation).toBeVisible();
     await confirmation.getByRole('button', { name: 'Valider', exact: true }).click();
     await page.clock.runFor(3000);
-    // Téléphone : l'objet appliqué ramène au Combat, l'Équipe se rouvre à part.
-    if (telephone(page)) await page.getByRole('button', { name: 'Équipe', exact: true }).click();
+    // Téléphone et PC : l'objet appliqué ramène au Combat, l'Équipe se rouvre à part.
+    await page.getByRole('button', { name: 'Équipe', exact: true }).click();
     await expect(page.getByRole('button', { name: `${cible}, niveau 16`, exact: true })).toBeVisible();
     const stock = (await ouvrirSac(page)).getByRole('button', { name: new RegExp(`^${pierre} ×`) });
     if (await stock.count()) await expect(stock).toHaveAccessibleName(`${pierre} ×0`);
@@ -118,8 +117,8 @@ test('Rattata : refus de Pierre Eau et stock intact', async ({ page }) => {
   await choisirPierre(page, 'Pierre Eau');
   await page.getByRole('button', { name: 'Rattata, niveau 16', exact: true }).click();
   await expect(page.locator('[data-notifications]')).toContainText('Pokémon incompatible !');
-  // Téléphone : le Sac se rouvre par Annuler ; grand écran : il reste dans l'Équipe.
-  if (telephone(page)) await page.getByRole('button', { name: 'Annuler', exact: true }).click();
+  // Téléphone et PC : le Sac se rouvre par Annuler.
+  await page.getByRole('button', { name: 'Annuler', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Pierre Eau ×1', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Valider', exact: true })).toHaveCount(0);
 });
@@ -127,8 +126,8 @@ test('Rattata : refus de Pierre Eau et stock intact', async ({ page }) => {
 test('Animations réduites : remplacement immédiat sans animation', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await demarrer(page, 1);
-  if (telephone(page)) await page.getByRole('button', { name: 'Bulbizarre, niveau 16', exact: true }).click();
-  await page.getByRole('button', { name: telephone(page) ? 'Faire évoluer Bulbizarre en Herbizarre' : 'Faire évoluer Bulbizarre', exact: true }).click();
+  await page.getByRole('button', { name: 'Bulbizarre, niveau 16', exact: true }).click();
+  await page.getByRole('button', { name: 'Faire évoluer Bulbizarre en Herbizarre', exact: true }).click();
   const ligne = page.getByRole('button', { name: 'Herbizarre, niveau 16', exact: true });
   await expect(ligne).toBeVisible();
   expect(await ligne.evaluate(element => [...element.querySelectorAll('*')]

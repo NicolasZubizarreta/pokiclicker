@@ -1,0 +1,35 @@
+.touche-pc { display: none; }
+
+@media (min-width: 1024px) {
+  main#contenu:has(> .combat-pc) { display: flex; flex-direction: column; overflow: hidden; }
+  main#contenu:has(> .combat-pc) > button { display: none; }
+  .combat-pc { display: grid; grid-template-columns: minmax(0, 1fr) clamp(17rem, 22vw, 24rem); grid-template-rows: minmax(0, 1fr); gap: calc(var(--spacing) * 4); flex: 1; min-height: 0; }
+  .combat-pc .combat-pc-gauche { display: flex; flex-direction: column; gap: calc(var(--spacing) * 2); min-height: 0; min-width: 0; }
+  .combat-pc .combat-pc-droite { display: flex; flex-direction: column; gap: calc(var(--spacing) * 2); min-height: 0; }
+  .combat-pc .combat-pc-autoclic .bandeau-action-bouton { width: 100%; display: flex; align-items: center; justify-content: center; gap: calc(var(--spacing) * 2); }
+  .combat-pc .combat-pc-equipe { display: flex; flex-direction: column; gap: calc(var(--spacing) * 2); flex: 0 1 auto; min-height: 0; }
+  .combat-pc .combat-pc-equipe ul { align-content: start; flex: 0 1 auto; min-height: 0; overflow-y: auto; }
+  .combat-pc .zone-ligne { flex-shrink: 0; }
+  .combat-pc .scene-limitee { container-type: size; flex: 1; min-height: 0; height: auto; max-height: none; width: 100%; aspect-ratio: auto; overflow: hidden; }
+  .combat-pc .scene-limitee > .pointer-events-none.absolute.right-1 { right: 5%; bottom: 4%; width: calc(var(--spacing) * 48); height: calc(var(--spacing) * 48); }
+  .combat-pc .scene-limitee .socle { bottom: 0; height: calc(var(--spacing) * 8); }
+  .combat-pc .scene-limitee span.hidden.size-72 { display: block; width: calc(var(--spacing) * 48); height: calc(var(--spacing) * 48); transform: translateY(var(--pieds)); }
+  .combat-pc .scene-limitee span.block.size-32 { display: none; }
+  .combat-pc .scene-limitee > .pointer-events-none.cadre { width: min(48%, calc(var(--spacing) * 96)); }
+  .combat-pc .rang-equipe { width: 100%; position: relative; }
+  .combat-pc .actions-quatre { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .combat-pc .plaque-vertical { flex-direction: row; min-height: calc(var(--spacing) * 13); }
+  .combat-pc .touche-pc { display: inline-block; font-family: var(--font-mono); font-size: var(--text-xs); margin-left: var(--spacing); }
+  .combat-pc .ligne-capture, .combat-pc .actions-combat { flex-shrink: 0; }
+  @container (min-height: 26rem) {
+    .combat-pc .scene-limitee > .pointer-events-none.absolute.right-1,
+    .combat-pc .scene-limitee span.hidden.size-72 { width: calc(var(--spacing) * 72); height: calc(var(--spacing) * 72); }
+  }
+  @container (min-height: 38rem) and (min-width: 56rem) {
+    .combat-pc .scene-limitee > .pointer-events-none.absolute.right-1,
+    .combat-pc .scene-limitee span.hidden.size-72 { width: calc(var(--spacing) * 96); height: calc(var(--spacing) * 96); }
+  }
+}
+@media (min-width: 1400px) {
+  .combat-pc .actions-quatre { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}

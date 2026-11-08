@@ -11,8 +11,19 @@ import { creerStoreJeu, storeJeu } from './store';
 import type { StoreJeu } from './store';
 import { ERREUR_CHARGEMENT } from './persistance';
 import * as chargement from './precharger';
+import { FenetreSac } from './FenetreSac';
+import { PageEquipe } from './PageEquipe';
+import { reinitialiserSac, storeSac } from './sacContexte';
 
 let store: StoreJeu;
+it('réserve les deux panneaux PC au combat actif', () => {
+  const { container } = preparer();
+  expect(container.querySelectorAll('.combat-pc')).toHaveLength(1);
+  expect(screen.getByRole('region', { name: 'Ton équipe' })).toBeTruthy();
+  expect(screen.getByRole('region', { name: 'Effets actifs' })).toBeTruthy();
+  act(() => store.getState().allerVers('kanto.bourg-palette'));
+  expect(container.querySelector('.combat-pc')).toBeNull();
+});
 it('précharge le chromatique courant et garde ses deux couches sur chaque taille', () => {
   const precharger = vi.spyOn(chargement, 'precharger').mockResolvedValue({ charges: 1, echecs: 0 });
   try {
@@ -54,7 +65,10 @@ it('réserve le bouton Sac à son accès et affiche la somme des quantités', ()
   preparer();
   const sac = store.getState().sac;
   act(() => store.setState({ sac: { ...sac, acces: { ouvert: false, raison: 'Route 1' } } }));
-  expect(screen.queryByRole('button', { name: 'Sac' })).toBeNull();
+  const verrou = screen.getByRole('button', { name: 'Sac' });
+  expect(verrou.getAttribute('aria-disabled')).toBe('true');
+  fireEvent.click(verrou);
+  expect(storeSac.getState().ouvert).toBe(false);
   act(() => store.setState({ sac: { ...sac, acces: { ouvert: true, raison: null },
     entrees: sac.entrees.slice(0, 2).map((entree, index) => ({ ...entree, quantite: index + 2 })) } }));
   const bouton = within(screen.getByRole('group', { name: 'Actions du combat' })).getByRole('button', { name: 'Sac' });
@@ -63,7 +77,7 @@ it('réserve le bouton Sac à son accès et affiche la somme des quantités', ()
   expect(bouton.querySelector('span[aria-hidden="true"]')).toBeNull();
 });
 
-it('ferme le sac, fait clignoter les Pokémon éligibles et applique l’objet au clic sur la carte', () => {
+it('ferme le Sac global, marque les Pokémon éligibles et applique la Pierre Stase au clic', () => {
   const showModal = vi.fn(function (this: HTMLDialogElement) { this.setAttribute('open', ''); });
   const close = vi.fn(function (this: HTMLDialogElement) { this.removeAttribute('open'); this.dispatchEvent(new Event('close')); });
   Object.defineProperties(HTMLDialogElement.prototype, { showModal: { configurable: true, value: showModal },
@@ -74,16 +88,19 @@ it('ferme le sac, fait clignoter les Pokémon éligibles et applique l’objet a
   act(() => store.setState({ poserStase, sac: { ...sac, acces: { ouvert: true, raison: null },
     entrees: [{ id: 'everstone', nom: 'Pierre Stase', description: '', image: null, categorie: 'equipement',
       quantite: 1, actif: false, utilisable: 'stase' }] } }));
+  storeJeu.setState({ ...store.getState() });
+  render(<FenetreSac />);
   fireEvent.click(within(screen.getByRole('group', { name: 'Actions du combat' })).getByRole('button', { name: 'Sac' }));
   fireEvent.click(screen.getByRole('button', { name: 'Pierre Stase ×1' }));
   expect(screen.queryByRole('dialog')).toBeNull();
-  expect(screen.getByRole('heading', { name: /^Choisis un Pokémon/ })).toBeTruthy();
-  const choix = screen.getAllByRole('button', { name: /^Choisir / });
-  expect(choix.length).toBeGreaterThan(0);
-  fireEvent.click(choix[0]!);
-  expect(poserStase).toHaveBeenCalledOnce();
-  expect(screen.queryAllByRole('button', { name: /^Choisir / })).toHaveLength(0);
-  expect(screen.getByRole('heading', { name: /Pierre Stase utilisé\./ })).toBeTruthy();
+  expect(storeSac.getState().objet?.type).toBe('stase');
+  const page = render(<PageEquipe />);
+  const choix = within(page.container).getByRole('button', { name: 'Bulbizarre, niveau 5' });
+  expect(choix.className).toContain('cible-valide');
+  fireEvent.click(choix);
+  expect(poserStase).toHaveBeenCalledExactlyOnceWith(store.getState().equipe[0]!.pokemon.uid);
+  expect(choix.className).not.toContain('cible-valide');
+  expect(storeSac.getState().objet).toBeNull();
 });
 
 it('abandonne le choix du Pokémon avec Annuler', () => {
@@ -92,25 +109,30 @@ it('abandonne le choix du Pokémon avec Annuler', () => {
   act(() => store.setState({ sac: { ...sac, acces: { ouvert: true, raison: null },
     entrees: [{ id: 'everstone', nom: 'Pierre Stase', description: '', image: null, categorie: 'equipement',
       quantite: 1, actif: false, utilisable: 'stase' }] } }));
+  storeJeu.setState({ ...store.getState() });
+  render(<FenetreSac />);
   fireEvent.click(within(screen.getByRole('group', { name: 'Actions du combat' })).getByRole('button', { name: 'Sac' }));
   fireEvent.click(screen.getByRole('button', { name: 'Pierre Stase ×1' }));
+  const page = render(<PageEquipe />);
+  const choix = within(page.container).getByRole('button', { name: 'Bulbizarre, niveau 5' });
+  expect(choix.className).toContain('cible-valide');
   fireEvent.click(screen.getByRole('button', { name: 'Annuler' }));
-  expect(screen.queryAllByRole('button', { name: /^Choisir / })).toHaveLength(0);
-  expect(screen.getByRole('heading', { name: /^Ton équipe/ })).toBeTruthy();
+  expect(choix.className).not.toContain('cible-valide');
+  expect(storeSac.getState().objet).toBeNull();
+  expect(screen.getByRole('dialog', { name: 'Ton Sac' })).toBeTruthy();
 });
 
-it('affiche les effets sous les PV sans annonce en direct et suit le store', () => {
+it('affiche les effets dans leur panneau sans annonce en direct et suit le store', () => {
   preparer();
   expect(screen.queryByRole('list', { name: 'Effets actifs' })).toBeNull();
   act(() => store.setState({ effets: [{ id: 'xAttack', pastille: 'Attaque + ×1,5', restantS: 12 }] }));
   const effets = screen.getByRole('list', { name: 'Effets actifs' });
-  const pv = screen.getByRole('progressbar', { name: 'PV de Rattata' });
-  expect(pv.parentElement?.parentElement?.contains(effets)).toBe(true);
-  expect(pv.compareDocumentPosition(effets) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  expect(screen.getByRole('region', { name: 'Effets actifs' }).contains(effets)).toBe(true);
   expect(effets.textContent).toBe('Attaque + ×1,5 : 12 s');
   expect(effets.closest('[aria-live], [role="status"]')).toBeNull();
   act(() => store.setState({ effets: [] }));
   expect(screen.queryByRole('list', { name: 'Effets actifs' })).toBeNull();
+  expect(screen.getByText('Aucun effet actif.')).toBeTruthy();
 });
 
 it('cache les outils sans objet et explique chaque verrou quand un outil est possédé', () => {
@@ -205,16 +227,16 @@ it('ouvre le Radar sur les sauvages du lieu, applique le Pokédex et rend le foc
   }
 });
 
-it('regroupe les icônes dans le bandeau de l’équipe sans action principale supplémentaire', () => {
+it('regroupe les quatre actions sous la capture et conserve le Radar dans la scène', () => {
   const { container } = preparer();
   act(() => store.setState({ radar: true, fauchage: { ...store.getState().fauchage, possede: true } }));
-  const rangees = container.querySelectorAll('.bandeau-action .bandeau-action-rangee');
-  expect(rangees).toHaveLength(1);
-  const rangee = rangees[0]!;
-  expect(screen.getByRole('region', { name: 'Ton équipe' }).contains(rangee)).toBe(true);
-  for (const nom of ['Auto-attaque', 'Auto-clic', 'Arrêt auto', "Réglages de l'arrêt", 'Fauchage']) {
+  const rangee = screen.getByRole('group', { name: 'Actions du combat' });
+  expect(within(rangee).getAllByRole('button')).toHaveLength(4);
+  expect(screen.getByRole('region', { name: 'Ton équipe' }).contains(rangee)).toBe(false);
+  for (const nom of ['Attaque auto', 'Arrêt auto', "Réglage de l'arrêt auto", 'Sac']) {
     expect(rangee.contains(screen.getByRole('button', { name: nom }))).toBe(true);
   }
+  expect(screen.getByRole('region', { name: 'Capture' }).contains(screen.getByRole('button', { name: 'Fauchage' }))).toBe(true);
   const radar = screen.getByRole('button', { name: 'Poké-Radar' });
   expect(rangee.contains(radar)).toBe(false);
   expect(screen.getByRole('region', { name: 'Combat contre Rattata' }).contains(radar)).toBe(true);
@@ -224,21 +246,26 @@ it('regroupe les icônes dans le bandeau de l’équipe sans action principale s
     expect(bouton.querySelector('svg[aria-hidden="true"]')).toBeTruthy();
     expect(bouton.childNodes[0]!.nodeName.toLowerCase()).toBe('svg');
   }
-  expect(container.querySelectorAll('.bg-action')).toHaveLength(1);
+  expect(container.querySelectorAll('[data-raccourci="capturer"]')).toHaveLength(1);
 });
 
-it('affiche Auto-clic et le rend utilisable avec les Restes', () => {
+it('ouvre les réglages d’arrêt auto et transmet les critères au store', () => {
   preparer();
-  expect(screen.getByRole('button', { name: 'Auto-clic' }).getAttribute('aria-disabled')).toBe('true');
-  const basculerAutoClic = vi.fn();
-  act(() => store.setState({ autoClic: { possede: true, actif: true }, basculerAutoClic }));
-  const bouton = screen.getByRole('button', { name: 'Auto-clic' });
-  expect(bouton.hasAttribute('aria-disabled')).toBe(false);
-  expect(bouton.getAttribute('aria-pressed')).toBe('true');
+  const reglerArretAuto = vi.fn();
+  act(() => store.setState({ reglerArretAuto }));
+  const bouton = screen.getByRole('button', { name: "Réglage de l'arrêt auto" });
+  bouton.focus();
   fireEvent.click(bouton);
-  expect(basculerAutoClic).toHaveBeenCalledOnce();
+  const dialogue = screen.getByRole('dialog', { name: "Réglage de l'arrêt auto" });
+  const rare = within(dialogue).getByRole('checkbox', { name: 'Rare' }) as HTMLInputElement;
+  const avant = rare.checked;
+  fireEvent.click(rare);
+  expect(reglerArretAuto).toHaveBeenCalledWith({ rare: !avant });
+  fireEvent.click(within(dialogue).getByRole('button', { name: 'Fermer' }));
+  expect(screen.queryByRole('dialog')).toBeNull();
+  expect(document.activeElement).toBe(bouton);
 });
-it('branche la capture dans le dock de la scène et garde une seule action principale', () => {
+it('branche la ligne de capture sous la scène et permet de changer de balle', () => {
   const { container } = preparer();
   const capturer = vi.fn();
   act(() => store.setState({ capturer, capture: { ...store.getState().capture,
@@ -248,17 +275,15 @@ it('branche la capture dans le dock de la scène et garde une seule action princ
     ] } }));
   const capture = screen.getByRole('region', { name: 'Capture' });
   const scene = screen.getByRole('region', { name: 'Combat contre Rattata' });
-  expect(scene.contains(capture)).toBe(true);
+  expect(scene.contains(capture)).toBe(false);
+  expect(scene.compareDocumentPosition(capture) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   expect(screen.getByRole('region', { name: 'Ton équipe' }).contains(capture)).toBe(false);
-  expect(capture.closest('.dock-capture')).toBeTruthy();
-  expect(container.querySelectorAll('.bg-action')).toHaveLength(1);
-  fireEvent.click(screen.getByRole('button', { name: 'Superball ×2' }));
+  expect(container.querySelector('.dock-capture')).toBeNull();
+  expect(container.querySelectorAll('[data-raccourci="capturer"]')).toHaveLength(1);
+  fireEvent.click(screen.getByRole('button', { name: 'Balle choisie : Pokéball, ×3. Toucher pour changer' }));
+  expect(screen.getByRole('button', { name: 'Balle choisie : Superball, ×2. Toucher pour changer' })).toBeTruthy();
   fireEvent.click(screen.getByRole('button', { name: 'Capturer' }));
   expect(capturer).toHaveBeenCalledWith('superball');
-  for (const bouton of within(capture).getAllByRole('button')) {
-    expect(bouton.classList.contains('min-h-11')).toBe(true);
-    expect(bouton.classList.contains('min-w-11')).toBe(true);
-  }
 });
 it('désactive les balles et la capture sur un boss sans afficher la raison (lecteur d’écran seulement)', () => {
   preparer();
@@ -284,26 +309,27 @@ it('anime les sprites uniquement pendant la capture et désactive la bande', () 
     expect(sprite.classList.contains('capture-en-cours')).toBe(false);
   }
 });
-it('branche les réglages du store avec des cibles tactiles de 44 px', () => {
+it('branche les états et les bascules des actions au store', () => {
   preparer();
   const basculerAutoAttaque = vi.fn();
   const reglerArretAuto = vi.fn();
   act(() => store.setState({ autoAttaque: false, basculerAutoAttaque, reglerArretAuto,
     arretAuto: { ...store.getState().arretAuto, actif: true } }));
-  for (const nom of ['Auto-attaque', 'Arrêt auto', "Réglages de l'arrêt"]) {
-    const bouton = screen.getByRole('button', { name: nom });
-    expect(bouton.classList.contains('min-h-11')).toBe(true);
-    expect(bouton.classList.contains('min-w-11')).toBe(true);
-  }
-  expect(screen.getByRole('button', { name: 'Auto-attaque' }).getAttribute('aria-pressed')).toBe('false');
+  expect(screen.getByRole('button', { name: 'Attaque auto' }).getAttribute('aria-pressed')).toBe('false');
   expect(screen.getByRole('button', { name: 'Arrêt auto' }).getAttribute('aria-pressed')).toBe('true');
-  fireEvent.click(screen.getByRole('button', { name: 'Auto-attaque' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Attaque auto' }));
   fireEvent.click(screen.getByRole('button', { name: 'Arrêt auto' }));
   expect(basculerAutoAttaque).toHaveBeenCalledOnce();
   expect(reglerArretAuto).toHaveBeenCalledWith({ actif: false });
 });
-beforeEach(() => vi.useFakeTimers());
-afterEach(() => { cleanup(); store?.getState().arreter(); vi.useRealTimers(); });
+beforeEach(() => {
+  vi.useFakeTimers();
+  Object.defineProperties(HTMLDialogElement.prototype, {
+    showModal: { configurable: true, value(this: HTMLDialogElement) { this.setAttribute('open', ''); } },
+    close: { configurable: true, value(this: HTMLDialogElement) { this.removeAttribute('open'); this.dispatchEvent(new Event('close')); } },
+  });
+});
+afterEach(() => { cleanup(); store?.getState().arreter(); reinitialiserSac(); vi.restoreAllMocks(); vi.useRealTimers(); });
 function preparer(corrompu = false) {
   const horloge = creerHorlogeSimulee();
   const stockage = creerStockageMemoire();
@@ -318,24 +344,24 @@ function preparer(corrompu = false) {
 }
 
 it('réserve les Pokédollars au bandeau de la coquille', () => {
-  preparer();
+  const { container } = preparer();
   for (const argent of [1250, 9876543, 0]) {
     act(() => store.setState({ argent }));
-    expect(screen.getByRole('banner').textContent?.replace(/\s/g, ' ')).not.toContain(
+    expect(container.textContent?.replace(/\s/g, ' ')).not.toContain(
       `${new Intl.NumberFormat('fr-FR').format(argent).replace(/\s/g, ' ')} ₽`);
   }
   expect(readFileSync('src/ui/EcranCombat.tsx', 'utf8'))
     .not.toContain(['ARGENT', 'PROVISOIRE'].join('_'));
 });
-it('affiche les niveaux mobile et PC ainsi que les XP accessibles de chaque Pokémon', () => {
+it('affiche les niveaux, DPS et XP accessibles de chaque rang d’équipe', () => {
   preparer();
   const noms = ['Bulbizarre', 'Salamèche', 'Carapuce'];
   const membres = store.getState().equipe.filter(membre => membre !== null);
   expect(membres).toHaveLength(3);
   for (const [index, membre] of membres.entries()) {
     const nom = noms[index];
-    const carte = screen.getByLabelText(`${nom}, niveau ${membre.pokemon.niveau}, ${formaterDps(membre.dps)} DPS`);
-    expect(within(carte).getByText(String(membre.pokemon.niveau)).className).toContain('lg:hidden');
+    const carte = screen.getByRole('button', { name: `Ouvrir la fiche de ${nom}` });
+    expect(within(carte).getByText(`${formaterDps(membre.dps)} DPS`)).toBeTruthy();
     expect(within(carte).getByText(`Niv. ${membre.pokemon.niveau}`)).toBeTruthy();
     const barre = within(carte).getByRole('progressbar', { name: `XP de ${nom}` });
     expect(barre.getAttribute('aria-valuemin')).toBe('0');
@@ -347,6 +373,7 @@ it('affiche les niveaux mobile et PC ainsi que les XP accessibles de chaque Pok�
   act(() => store.setState({ equipe: store.getState().equipe.map((membre, index) =>
     membre && index === 0 ? { ...membre, pokemon: { ...membre.pokemon, niveau: 100 }, xpMax: 0 } : membre) }));
   expect(screen.queryByRole('progressbar', { name: 'XP de Bulbizarre' })).toBeNull();
+  expect(within(screen.getByRole('button', { name: 'Ouvrir la fiche de Bulbizarre' })).getByText('Prêt à évoluer')).toBeTruthy();
   expect(screen.getAllByRole('progressbar', { name: /^XP de / })).toHaveLength(2);
 });
 it('n’affiche plus l’annonce du store dans la scène : elle passe par le calque de notifications', () => {
@@ -369,7 +396,7 @@ it('pose la pokéball « Déjà capturé » près du nom de l’ennemi seulement
   act(() => store.setState({ nomAdversaire: 'Pierre' }));
   expect(screen.queryByRole('img', { name: 'Déjà capturé' })).toBeNull();
 });
-it('propose le crayon de renommage sur chaque carte d’équipe et ouvre la fiche avec le champ de surnom', () => {
+it('ouvre la fiche au clic sur un rang d’équipe et rend le focus à la fermeture', () => {
   preparer();
   const prototype = HTMLDialogElement.prototype;
   const modalInitial = Object.getOwnPropertyDescriptor(prototype, 'showModal');
@@ -380,14 +407,18 @@ it('propose le crayon de renommage sur chaque carte d’équipe et ouvre la fich
   } });
   try {
     for (const nom of ['Bulbizarre', 'Salamèche', 'Carapuce']) {
-      expect(screen.getByRole('button', { name: `Renommer ${nom}` })).toBeTruthy();
+      expect(screen.getByRole('button', { name: `Ouvrir la fiche de ${nom}` })).toBeTruthy();
     }
     // La fiche lit le store global du jeu : on lui donne la même équipe que le store de test.
     storeJeu.setState({ equipe: store.getState().equipe, pc: [] });
-    fireEvent.click(screen.getByRole('button', { name: 'Renommer Salamèche' }));
-    const champ = screen.getByRole('textbox', { name: 'Surnom' }) as HTMLInputElement;
-    expect(champ.value).toBe('Salamèche');
-    expect(document.activeElement).toBe(champ);
+    const rang = screen.getByRole('button', { name: 'Ouvrir la fiche de Salamèche' });
+    rang.focus();
+    fireEvent.click(rang);
+    const fiche = screen.getByRole('dialog');
+    expect(within(fiche).getByRole('heading', { name: /Salamèche/ })).toBeTruthy();
+    fireEvent.click(within(fiche).getByRole('button', { name: 'Ferme la fiche' }));
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(document.activeElement).toBe(rang);
   } finally {
     if (modalInitial) Object.defineProperty(prototype, 'showModal', modalInitial);
     else Reflect.deleteProperty(prototype, 'showModal');
@@ -426,7 +457,7 @@ it('rend la scène attaquable, avec des PV accessibles et dix étapes dont le bo
   const { container, horloge } = preparer();
   const attaque = screen.getByRole('button', { name: /^Attaquer / });
   expect(attaque.classList.contains('inset-0')).toBe(true);
-  expect(container.querySelectorAll('.bg-action')).toHaveLength(1);
+  expect(attaque.getAttribute('data-raccourci')).toBe('attaquer');
   const barre = screen.getByRole('progressbar', { name: 'PV de Rattata' });
   const avant = Number(barre.getAttribute('aria-valuenow'));
   fireEvent.click(attaque);
@@ -434,31 +465,42 @@ it('rend la scène attaquable, avec des PV accessibles et dix étapes dont le bo
   expect(Number(barre.getAttribute('aria-valuenow'))).toBe(avant);
   act(() => { horloge.avancer(100); store.getState().tick(); });
   expect(Number(barre.getAttribute('aria-valuenow'))).toBeLessThan(avant);
-  expect(screen.getAllByRole('listitem')).toHaveLength(10);
-  expect(screen.getByLabelText('Étape 10 : boss').querySelector('svg')).toBeTruthy();
-  expect(screen.getByLabelText('Étape 1').getAttribute('aria-current')).toBe('step');
+  expect(container.querySelectorAll('.zone-marque')).toHaveLength(10);
+  expect(container.querySelectorAll('.zone-marque-boss')).toHaveLength(1);
+  expect(container.querySelector('.zone-marque:last-child')?.classList.contains('zone-marque-boss')).toBe(true);
+  expect(container.querySelector('.zone-marque')?.classList.contains('zone-marque-courante')).toBe(true);
+  expect(screen.getByText('Étape 1 sur 10')).toBeTruthy();
   act(() => vi.advanceTimersByTime(500));
   expect(container.querySelector('.degat-flottant')).toBeNull();
 });
-it('réserve une marge à droite des cartes et une ligne distincte au DPS', () => {
+it('affiche Auto-clic sur PC et le rend utilisable avec les Restes', () => {
   preparer();
-  const carte = screen.getByLabelText(/Bulbizarre, niveau 5/);
-  expect(carte.className).toContain('lg:pe-4');
-  const nom = carte.querySelector('strong')!;
-  const dps = Array.from(carte.children).find(element => element.textContent?.includes('DPS'))!;
-  expect(dps.parentElement).toBe(carte);
-  expect(nom.parentElement).not.toBe(dps);
-  expect(carte.className).toContain('lg:grid-cols-');
-  expect(screen.getAllByLabelText('Case libre')).toHaveLength(3);
+  expect(screen.getByRole('button', { name: 'Auto-clic' }).getAttribute('aria-disabled')).toBe('true');
+  const basculerAutoClic = vi.fn();
+  act(() => store.setState({ autoClic: { possede: true, actif: true }, basculerAutoClic }));
+  const bouton = screen.getByRole('button', { name: 'Auto-clic' });
+  expect(bouton.hasAttribute('aria-disabled')).toBe(false);
+  expect(bouton.getAttribute('aria-pressed')).toBe('true');
+  fireEvent.click(bouton);
+  expect(basculerAutoClic).toHaveBeenCalledOnce();
+});
+it('affiche six rangs dont les cases libres dans le panneau d’équipe', () => {
+  preparer();
+  const equipe = within(screen.getByRole('region', { name: 'Ton équipe' }));
+  expect(equipe.getAllByRole('listitem')).toHaveLength(6);
+  expect(equipe.getAllByRole('button', { name: /^Ouvrir la fiche de / })).toHaveLength(3);
+  expect(equipe.getAllByLabelText('Case libre')).toHaveLength(3);
+  expect(equipe.getByText('3 / 6')).toBeTruthy();
 });
 it('explique le verrouillage et désactive la destination fermée', () => {
   preparer();
+  const allerVers = vi.fn();
+  act(() => store.setState({ allerVers }));
   const destination = store.getState().zoneSuivante!;
   const bouton = screen.getByRole('button', { name: `Zone suivante : ${destination.nom}` });
-  const allerVers = vi.spyOn(store.getState(), 'allerVers');
-  expect(bouton.hasAttribute('disabled')).toBe(true);
-  expect(screen.getByText(destination.raison!)).toBeTruthy();
+  expect(bouton.getAttribute('aria-disabled')).toBe('true');
   fireEvent.click(bouton);
+  expect(screen.getByRole('status').textContent).toBe(destination.raison);
   expect(allerVers).not.toHaveBeenCalled();
   expect(screen.queryByText('La suite arrive bientôt.')).toBeNull();
 });
@@ -466,20 +508,25 @@ it('permet de choisir les destinations ouvertes', () => {
   preparer();
   act(() => store.setState({ zoneSuivante: { ...store.getState().zoneSuivante!, ouverte: true, raison: null },
     annonce: 'Zone débloquée !' }));
-  const allerVers = vi.spyOn(store.getState(), 'allerVers').mockImplementation(() => {});
+  const allerVers = vi.fn();
+  act(() => store.setState({ allerVers }));
   for (const [libelle, destination] of [
     ['Zone suivante', store.getState().zoneSuivante], ['Zone précédente', store.getState().zonePrecedente],
   ] as const) {
     expect(destination).not.toBeNull();
     const bouton = screen.getByRole('button', { name: `${libelle} : ${destination!.nom}` });
-    expect(bouton.hasAttribute('disabled')).toBe(false);
+    expect(bouton.getAttribute('aria-disabled')).toBe('false');
     fireEvent.click(bouton);
     expect(allerVers).toHaveBeenLastCalledWith(destination!.id);
   }
   expect(screen.queryByText(/terminée !/)).toBeNull();
   expect(screen.queryByText('La suite arrive bientôt.')).toBeNull();
   act(() => store.setState({ zonePrecedente: null, zoneSuivante: null }));
-  expect(screen.queryByRole('button', { name: /^Zone / })).toBeNull();
+  for (const bouton of screen.getAllByRole('button', { name: /^Zone / })) {
+    expect(bouton.getAttribute('aria-disabled')).toBe('true');
+    fireEvent.click(bouton);
+  }
+  expect(allerVers).toHaveBeenCalledTimes(2);
   expect(screen.queryByText('La suite arrive bientôt.')).toBeNull();
 });
 it('affiche la barre de temps seulement avec un minuteur de combat', () => {
@@ -527,8 +574,8 @@ it('emploie des textes et libellés français dans tout l’écran', () => {
     textes.push(element.getAttribute('aria-label') ?? '', element.getAttribute('alt') ?? '', element.getAttribute('title') ?? '');
   }
   expect(textes.join(' ')).not.toMatch(/\b(attack|health|level|next|locked|loading|shop|team|damage|stage|empty)\b/i);
-  expect(screen.getByText('Prof. Chen')).toBeTruthy();
-  expect(screen.getByText('Les Rattata sont ici. Touche le Pokémon pour attaquer.')).toBeTruthy();
+  expect(screen.getByRole('heading', { name: 'Ton équipe 3 / 6' })).toBeTruthy();
+  expect(screen.getByRole('heading', { name: 'Effets actifs' })).toBeTruthy();
   for (const image of container.querySelectorAll('img')) expect(image.getAttribute('src')).toMatch(/^img\//);
 });
 it('affiche et journalise la cause technique d’une erreur inconnue', () => {
