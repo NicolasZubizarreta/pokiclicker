@@ -176,7 +176,12 @@ it('annonce un envoi en attente quand la synchro répond false, et un succès qu
   expect(screen.getByRole('status').textContent).toMatch(/^Partie sauvegardée à \d{2}:\d{2}\.$/);
 });
 
+function simulerTelephone() {
+  vi.stubGlobal('matchMedia', (requete: string) => ({ matches: true, media: requete, addEventListener: vi.fn(), removeEventListener: vi.fn() }));
+}
+
 it('désactive Menu principal pendant une sauvegarde et Sauvegarder pendant le retour', async () => {
+  simulerTelephone();
   storeJeu.setState({ sauvegarder: vi.fn(() => true) });
   let finir!: () => void;
   const attendreEnvoi = vi.fn(() => new Promise<void>(resolve => { finir = resolve; }));
@@ -209,7 +214,14 @@ it('ouvre Réglages et rend le focus au retour', () => {
   expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Réglages' }));
 });
 
+it('sur PC, la page Menu n’a pas de bouton Menu principal (celui de la barre latérale suffit)', () => {
+  const { container } = render(<PagePlus ouvrirPC={vi.fn()} ouvrirMonde={vi.fn()} menuPrincipal={vi.fn(async () => true)} />);
+  expect(container.querySelector('.menu-pc')).toBeTruthy();
+  expect(screen.queryByRole('button', { name: /Menu principal/ })).toBeNull();
+});
+
 it('masque Menu principal sans prop et protège le retour des doubles clics et échecs', async () => {
+  simulerTelephone();
   const { rerender } = render(<PagePlus ouvrirPC={vi.fn()} ouvrirMonde={vi.fn()} />);
   expect(screen.queryByRole('button', { name: /Menu principal/ })).toBeNull();
   let terminer!: (ok: boolean) => void;

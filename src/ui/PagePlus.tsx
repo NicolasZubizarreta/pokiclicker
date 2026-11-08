@@ -128,9 +128,6 @@ export function PagePlus({ ouvrirPC, ouvrirMonde, menuPrincipal, attendreEnvoi }
               className="flex min-h-11 w-full items-center justify-center gap-4 bg-action p-4 text-action-texte">
               <IconeDisque />Sauvegarder maintenant
             </button>
-            {!telephone && menuPrincipal && <LigneMenu icone={<IconeSortie />} titre="Menu principal"
-              sousTexte="Sauvegarde, puis retour à tes parties" disabled={retourEnCours || sauvegarde === 'enCours'} onClick={revenirAuMenuPrincipal} />}
-            {!telephone && retourEchoue && <p role="alert">{erreurRetourMenu}</p>}
           </section>
           <GroupeMenu telephone={telephone}>
           <LigneMenu icone={<IconeMonde />} titre="Monde Pokémon" titreVisible={telephone ? undefined : 'Monde'} sousTexte="Kanto jouable" onClick={ouvrirMonde} />

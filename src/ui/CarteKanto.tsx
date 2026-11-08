@@ -59,6 +59,9 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
   const choisie = carte.formes.find(f => f.zone === selection && selection !== null);
   const actuelle = carte.formes.find(f => f.actuelle);
   const zoneCeladopole = carte.formes.find(f => f.nom === 'Céladopole')?.zone;
+  const formeArene = carte.formes.find(f => f.zone === zoneCeladopole);
+  // Sur PC l'Arène est grisée pour trois raisons distinctes : on dit la vraie.
+  const raisonArene = formeArene?.terminee ? 'Terminée, plus accessible' : formeArene && !formeArene.ouverte ? formeArene.raison ?? 'Pas encore accessible.' : 'Tu es ici.';
   const zones = carte.formes.filter(f => f.zone !== null)
     .sort((a, b) => kanto.zones.findIndex(z => z.id === a.zone) - kanto.zones.findIndex(z => z.id === b.zone));
   const dimensions = tailles['img/decors/carte-kanto.webp'];
@@ -331,7 +334,7 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
           <h2 id="carte-celadopole-titre" className="break-words font-titre text-2xl">Céladopole</h2>
           <p>Où veux-tu aller ?</p>
           {[
-            { nom: telephone ? 'Arène' : 'Arène de Céladopole', zone: zoneCeladopole, ouvert: telephone ? actuelle?.zone !== zoneCeladopole : carte.formes.some(f => f.zone === zoneCeladopole && f.ouverte && !f.terminee && !f.actuelle), raison: telephone ? 'Tu es ici.' : carte.formes.find(f => f.zone === zoneCeladopole)?.raison ?? 'Tu es ici.', arrivee: undefined, id: 'carte-arene-telephone' },
+            { nom: telephone ? 'Arène' : 'Arène de Céladopole', zone: zoneCeladopole, ouvert: telephone ? actuelle?.zone !== zoneCeladopole : carte.formes.some(f => f.zone === zoneCeladopole && f.ouverte && !f.terminee && !f.actuelle), raison: telephone ? 'Tu es ici.' : raisonArene, arrivee: undefined, id: 'carte-arene-telephone' },
             { nom: 'Centre commercial', zone: 'centre-commercial', ouvert: centreOuvert, raison: raisonCentre, arrivee: quandCentre, id: 'carte-commerce-telephone' },
             { nom: 'Casino', zone: 'casino', ouvert: !!(casino.ouvert && quandCasino), raison: raisonCasino, arrivee: quandCasino, id: 'carte-casino-telephone' },
           ].map(choix => <div key={choix.id}>

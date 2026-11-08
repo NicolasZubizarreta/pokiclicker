@@ -72,6 +72,34 @@ it('garde l’arène verrouillée quand Céladopole est consultée par son repè
   expect(screen.queryByText(/Vol en cours/)).toBeNull();
 });
 
+function ouvrirDialogueCeladopole(etat: { ouverte: boolean; terminee: boolean; actuelle: boolean }) {
+  storeJeu.getState().arreter();
+  const carte = storeJeu.getState().carte;
+  storeJeu.setState({ carte: { ...carte, formes: carte.formes.map(f => f.nom === 'Céladopole' ? { ...f, ...etat } : { ...f, actuelle: etat.actuelle ? false : f.numero === 0 }) } });
+  afficher();
+  fireEvent.click(repere(/Céladopole/));
+  return screen.getByRole('dialog');
+}
+
+it('dit « Tu es ici. » sur l’arène seulement quand le joueur est à Céladopole', () => {
+  const dialogue = ouvrirDialogueCeladopole({ ouverte: true, terminee: false, actuelle: true });
+  expect((within(dialogue).getByRole('button', { name: 'Arène de Céladopole' }) as HTMLButtonElement).disabled).toBe(true);
+  expect(within(dialogue).getByText('Tu es ici.')).toBeTruthy();
+});
+
+it('ne dit pas « Tu es ici. » sur l’arène d’une Céladopole terminée dont le joueur est parti', () => {
+  const dialogue = ouvrirDialogueCeladopole({ ouverte: true, terminee: true, actuelle: false });
+  expect((within(dialogue).getByRole('button', { name: 'Arène de Céladopole' }) as HTMLButtonElement).disabled).toBe(true);
+  expect(within(dialogue).queryByText('Tu es ici.')).toBeNull();
+  expect(within(dialogue).getByText('Terminée, plus accessible')).toBeTruthy();
+});
+
+it('ne grise pas l’arène d’une Céladopole ouverte quand le joueur est ailleurs', () => {
+  const dialogue = ouvrirDialogueCeladopole({ ouverte: true, terminee: false, actuelle: false });
+  expect((within(dialogue).getByRole('button', { name: 'Arène de Céladopole' }) as HTMLButtonElement).disabled).toBe(false);
+  expect(within(dialogue).queryByText('Tu es ici.')).toBeNull();
+});
+
 it('laisse consulter la route terminée sans proposer de déplacement', () => {
   const carte = storeJeu.getState().carte;
   storeJeu.setState({ carte: { ...carte, formes: carte.formes.map(f => f.zone === 'kanto.route-de-ronflex'
