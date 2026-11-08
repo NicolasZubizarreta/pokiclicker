@@ -66,8 +66,8 @@ const etats: { id: string; nom: string; options?: Parameters<typeof demarrer>[1]
   { id: 'equipe-choix', nom: 'choix dans l’Équipe depuis le Sac', options: { objet: true }, aller: async page => {
     await page.keyboard.press('s');
     await page.getByRole('region', { name: 'Sac', exact: true }).getByRole('button', { name: 'Pierre Stase ×1', exact: true }).click();
-    await expect(page.getByRole('status').filter({ hasText: 'Pierre Stase : touche un Pokémon' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Annuler', exact: true })).toBeVisible();
+    await expect(page.getByRole('status').filter({ hasText: 'Pierre Stase ×1 : touche un Pokémon' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Fermer', exact: true })).toBeVisible();
   } },
   { id: 'badges-aucun', nom: 'aucun badge', aller: async page => {
     await menu(page, /^Badges/); await expect(page.getByRole('heading', { name: 'Badges', exact: true })).toBeVisible();

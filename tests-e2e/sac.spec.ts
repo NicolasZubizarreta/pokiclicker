@@ -52,12 +52,12 @@ test('Sac : fenêtre depuis le Combat, objet vers un Pokémon, annulation et ret
   await fenetreSac(page).getByRole('button', { name: 'Pierre Stase ×1', exact: true }).click();
   await expect(page.locator('dialog[open]')).toHaveCount(0);
   await expect(page.getByRole('heading', { name: 'Ton équipe', level: 1 })).toBeVisible();
-  const bandeau = page.getByRole('status').filter({ hasText: 'Pierre Stase : touche un Pokémon' });
+  const bandeau = page.getByRole('status').filter({ hasText: /Pierre Stase ×\d+ : touche un Pokémon/ });
   await expect(bandeau).toBeVisible();
   await expect(page.getByRole('region', { name: 'Sac', exact: true })).toHaveCount(0);
   await capturer(page, 'choix');
-  // Annuler rouvre le Sac, là où l'on était (Combat).
-  await page.getByRole('button', { name: 'Annuler', exact: true }).click();
+  // Fermer rouvre le Sac, là où l'on était (Combat).
+  await page.getByRole('button', { name: 'Fermer', exact: true }).click();
   await expect(fenetreSac(page)).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Ton équipe', level: 1 })).toHaveCount(0);
   // Appliquer l'objet : retour sur le Combat, fenêtre fermée, Pierre Stase posée.

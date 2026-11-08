@@ -78,3 +78,5 @@ Aussi du coup pour le PC. C'est bien mais y'a quelque détail a corriger déjà 
 (08/11/2026) survol : « c'est presque parfait pour tes retours sauf le cadre jaune je veux pas de cadre jaune je t'ai clairement dit je veux juste un effet de hover SUR LA ZONE DE MON IMAGE MAPPING pas autour sinon c'est trop grand c'est moche et pour certain élément qui son pas droit du le vois sur le screen 1 ça rend pas bien »
 
 (08/11/2026) guide : « dans le guide aussi je rajouterai une table des types dans la version PC et Téléphone. »
+
+(08/11/2026, utilisation d'un objet sur l'équipe, capture retours-pc-08-11/74.png) « autre détail quand je veux utiliser un objet ça ouvre l'équipe c'est très bien mais déjà les boutons sont trop rectangles étirés fin pas beau essaye au moins de les mettre carré et le truc le plus chiant c'est genre si je veux mettre des bonbons j'applique sur un pokémon et ensuite ça ferme la page et si je veux en mettre sur tous j'suis obligé de réouvrir a chaque fois donc la page ne se ferme pas dans que j'ai pas cliquer sur fermer(qui est actuellement le bouton annuler mais non on va plutot l'appeler fermer) ou que j'ai changé d'onglet »

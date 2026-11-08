@@ -24,7 +24,8 @@ it('pose la question et transmet séparément la validation et l’annulation', 
     expect(annulation.getAttribute('aria-label')).toBe('Annuler');
     for (const bouton of boutons) {
       expect(bouton.type).toBe('button');
-      expect(bouton.className).toContain('min-h-11 min-w-11');
+      expect(bouton.className).toContain('size-12');
+      expect(bouton.className).toContain('flex-none');
     }
     await act(async () => confirmer.click());
     expect(valider).toHaveBeenCalledTimes(1);

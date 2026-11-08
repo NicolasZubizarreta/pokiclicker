@@ -1,7 +1,7 @@
 import { mkdir } from 'node:fs/promises';
 import { test as base, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
-import { invitationChoix, ouvrirSac } from './aide-sac';
+import { ouvrirSac } from './aide-sac';
 import { rayon } from './aide-shop';
 
 const test = base.extend<{ surveillance: void }>({
@@ -98,10 +98,10 @@ test('Bonbon : annulation puis deux niveaux', async ({ page }, informations) => 
   await demarrer(page);
   const sac = await ouvrirSac(page);
   await sac.getByRole('button', { name: 'Bonbon ×5', exact: true }).click();
-  const message = invitationChoix(page, 'Bonbon');
+  const message = page.getByText(/^Bonbon ×\d+ : touche un Pokémon$/);
   await expect(message).toBeVisible();
-  // Téléphone et PC : le bouton Annuler du mode choix rouvre le Sac, là où l'on était.
-  await page.getByRole('button', { name: 'Annuler', exact: true }).click();
+  // Téléphone et PC : Fermer rouvre le Sac, là où l'on était.
+  await page.getByRole('button', { name: 'Fermer', exact: true }).click();
   await expect(message).toHaveCount(0);
   await expect(sac.getByRole('button', { name: 'Bonbon ×5', exact: true })).toBeVisible();
   await sac.getByRole('button', { name: 'Bonbon ×5', exact: true }).click();
@@ -112,7 +112,7 @@ test('Bonbon : annulation puis deux niveaux', async ({ page }, informations) => 
   await ligne.locator('button').filter({ hasText: /^\+$/ }).click();
   await expect(ligne.locator('output')).toHaveText('2');
   await ligne.locator('button').filter({ hasText: /^✓$/ }).click();
-  // Téléphone et PC : l'objet appliqué ramène au Combat ; l'Équipe et le Sac se relisent à part.
+  // Le mode reste actif après l'application ; le Sac permet de vérifier le stock.
   await page.getByRole('button', { name: 'Équipe', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Bulbizarre, niveau 7', exact: true })).toBeVisible();
   const sacApres = await ouvrirSac(page);

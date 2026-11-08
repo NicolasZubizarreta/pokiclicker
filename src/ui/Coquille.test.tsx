@@ -66,8 +66,8 @@ it('revient du choix au Combat, rouvre le Sac après annulation et respecte Shop
   const utiliser = () => fireEvent.click(screen.getByRole('button', { name: 'Bonbon rare ×2' }));
   act(ouvrirSac);
   utiliser();
-  expect(screen.getByText('Bonbon rare : touche un Pokémon')).toBeTruthy();
-  fireEvent.click(screen.getByRole('button', { name: 'Annuler' }));
+  expect(screen.getByText('Bonbon rare ×2 : touche un Pokémon')).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: 'Fermer' }));
   expect(screen.getByRole('button', { name: 'Combat' }).getAttribute('aria-current')).toBe('page');
   expect(screen.getByRole('dialog', { name: 'Ton Sac' })).toBeTruthy();
   utiliser();
@@ -75,6 +75,8 @@ it('revient du choix au Combat, rouvre le Sac après annulation et respecte Shop
   fireEvent.click(document.querySelector<HTMLButtonElement>(`button[data-uid="${premier.pokemon.uid}"]`)!);
   fireEvent.click(screen.getByRole('button', { name: 'Valider' }));
   expect(utiliserObjet).toHaveBeenCalledWith('bonbon', premier.pokemon.uid, 1);
+  expect(screen.getByText('Bonbon rare ×2 : touche un Pokémon')).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: 'Combat' }));
   expect(screen.getByRole('button', { name: 'Combat' }).getAttribute('aria-current')).toBe('page');
   expect(storeSac.getState()).toMatchObject({ objet: null, ouvert: false });
   act(ouvrirSac);
@@ -84,7 +86,7 @@ it('revient du choix au Combat, rouvre le Sac après annulation et respecte Shop
   expect(storeSac.getState().objet).toBeNull();
 });
 
-it('Annuler du sélecteur de quantité rouvre le Sac et le focus revient au bouton qui l’avait ouvert', () => {
+it('Annuler garde le mode puis Fermer rouvre le Sac et restitue le focus', () => {
   Object.defineProperties(HTMLDialogElement.prototype, {
     showModal: { configurable: true, value(this: HTMLDialogElement) { this.open = true; } },
     close: { configurable: true, value(this: HTMLDialogElement) { this.open = false; this.dispatchEvent(new Event('close')); } },
@@ -102,6 +104,9 @@ it('Annuler du sélecteur de quantité rouvre le Sac et le focus revient au bout
   fireEvent.click(document.querySelector<HTMLButtonElement>(`button[data-uid="${premier.pokemon.uid}"]`)!);
   const annuler = screen.getAllByRole('button', { name: 'Annuler' });
   fireEvent.click(annuler[annuler.length - 1]!);
+  expect(screen.queryByRole('dialog', { name: 'Ton Sac' })).toBeNull();
+  expect(screen.getByText('Bonbon rare ×2 : touche un Pokémon')).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: 'Fermer' }));
   expect(screen.getByRole('dialog', { name: 'Ton Sac' })).toBeTruthy();
   fireEvent.click(screen.getByRole('button', { name: 'Fermer' }));
   expect(document.activeElement).toBe(declencheur);
@@ -110,7 +115,7 @@ it('Annuler du sélecteur de quantité rouvre le Sac et le focus revient au bout
 it('une sortie de l’Équipe sans la barre du bas désarme l’objet du Sac', () => {
   render(<Coquille />);
   act(() => storeSac.setState({ objet: { type: 'bonbon', cle: 'candy', nom: 'Bonbon rare' } }));
-  expect(screen.getByText('Bonbon rare : touche un Pokémon')).toBeTruthy();
+  expect(screen.getByText('Bonbon rare ×0 : touche un Pokémon')).toBeTruthy();
   act(() => storeSac.setState({ objet: null }));
   fireEvent.click(screen.getByRole('button', { name: 'Menu' }));
   act(() => storeSac.setState({ objet: { type: 'bonbon', cle: 'candy', nom: 'Bonbon rare' } }));

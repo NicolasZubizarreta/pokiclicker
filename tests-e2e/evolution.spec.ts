@@ -2,7 +2,7 @@ import { mkdir } from 'node:fs/promises';
 import { test as base, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import { caseEspece, casesPokedex } from './aide-pokedex';
-import { invitationChoix, ouvrirSac } from './aide-sac';
+import { ouvrirSac } from './aide-sac';
 
 const test = base.extend<{ surveillance: void }>({
   surveillance: [async ({ page }, utiliser) => {
@@ -44,7 +44,7 @@ async function demarrer(page: Page, numero: number, niveau = 16) {
 async function choisirPierre(page: Page, pierre: string) {
   const sac = await ouvrirSac(page);
   await sac.getByRole('button', { name: `${pierre} ×1`, exact: true }).click();
-  await expect(invitationChoix(page, pierre)).toBeVisible();
+  await expect(page.getByText(`${pierre} ×1 : touche un Pokémon`, { exact: true })).toBeVisible();
 }
 
 test('Bulbizarre niveau 15 : évolution absente', async ({ page }) => {
@@ -117,8 +117,8 @@ test('Rattata : refus de Pierre Eau et stock intact', async ({ page }) => {
   await choisirPierre(page, 'Pierre Eau');
   await page.getByRole('button', { name: 'Rattata, niveau 16', exact: true }).click();
   await expect(page.locator('[data-notifications]')).toContainText('Pokémon incompatible !');
-  // Téléphone et PC : le Sac se rouvre par Annuler.
-  await page.getByRole('button', { name: 'Annuler', exact: true }).click();
+  // Téléphone et PC : le Sac se rouvre par Fermer.
+  await page.getByRole('button', { name: 'Fermer', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Pierre Eau ×1', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Valider', exact: true })).toHaveCount(0);
 });

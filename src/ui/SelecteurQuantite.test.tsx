@@ -27,8 +27,8 @@ it('respecte les bornes et transmet les commandes par props', () => {
   expect(vue.container.querySelectorAll('.bg-action')).toHaveLength(1);
   expect(screen.getByRole('button', { name: 'Valider' }).classList.contains('bg-action')).toBe(true);
   for (const bouton of screen.getAllByRole('button')) {
-    expect(bouton.classList.contains('min-h-11')).toBe(true);
-    expect(bouton.classList.contains('min-w-11')).toBe(true);
+    expect(bouton.classList.contains('size-12')).toBe(true);
+    expect(bouton.classList.contains('flex-none')).toBe(true);
   }
   vue.rerender(<SelecteurQuantite {...props} max={1} />);
   expect(moins.disabled && plus.disabled).toBe(true);

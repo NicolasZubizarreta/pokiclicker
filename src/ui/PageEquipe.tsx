@@ -72,11 +72,18 @@ export function PageEquipe({ ouvrirPC }: { ouvrirPC?: () => void }) {
     }
   }, [equipe]);
 
-  // Abandon du choix : avec un objet venu du Sac, on rouvre le Sac ; sinon on referme simplement le mode.
   function abandonnerObjet() {
-    cibler(null); // sans cela, la confirmation de la carte réapparaît au prochain choix d'un objet
-    if (objetContexte) annulerChoix();
-    else annulerObjet();
+    cibler(null);
+    liste.current?.querySelector<HTMLButtonElement>(`button[data-uid="${cible}"]`)?.focus();
+  }
+
+  function terminerApplication(uid: string) {
+    cibler(null);
+    liste.current?.querySelector<HTMLButtonElement>(`button[data-uid="${uid}"]`)?.focus();
+    if (mode && (storeJeu.getState().sac.entrees.find(e => e.id === mode.cle)?.quantite ?? 0) <= 0) {
+      annulerObjet();
+      signalerObjet(`Plus de ${mode.nom}.`);
+    }
   }
 
   function annulerObjet() {
@@ -97,22 +104,14 @@ export function PageEquipe({ ouvrirPC }: { ouvrirPC?: () => void }) {
 
   useEffect(() => {
     if (!mode) return;
-    function dehors(event: MouseEvent) {
-      if (objetContexte) return;
-      if (event.target instanceof Node && !liste.current?.contains(event.target) && !sacElement.current?.contains(event.target)) {
-        annulerObjet();
-      }
-    }
     function clavier(event: KeyboardEvent) {
       if (event.key === 'Escape') {
         if (objetContexte) annulerChoix();
         else annulerObjet();
       }
     }
-    document.addEventListener('click', dehors);
     document.addEventListener('keydown', clavier);
     return () => {
-      document.removeEventListener('click', dehors);
       document.removeEventListener('keydown', clavier);
     };
   }, [mode, objetContexte]);
@@ -146,9 +145,9 @@ export function PageEquipe({ ouvrirPC }: { ouvrirPC?: () => void }) {
         onClick={() => storeJeu.getState().annulerEchange()}>Annuler</button>
     </div>}
     {echange && erreur?.echange === echange && <p role="alert" className="mt-4 text-erreur-base">{erreur.message}</p>}
-    {objetContexte ? <div className={`cadre sticky top-0 z-10 flex items-center justify-between gap-4 bg-surface p-4${telephone ? '' : ' bandeau-choix'}`}>
-      <p role="status">{objetContexte.nom} : touche un Pokémon</p>
-      <button type="button" autoFocus className="min-h-11 shrink-0 bg-surface-2 px-4 py-2" onClick={annulerChoix}>Annuler</button>
+    {mode ? <div className={`cadre sticky top-0 z-10 flex items-center justify-between gap-4 bg-surface p-4${telephone ? '' : ' bandeau-choix'}`}>
+      <p role="status">{mode.nom} ×{sac.entrees.find(e => e.id === mode.cle)?.quantite ?? 0} : touche un Pokémon</p>
+      <button type="button" autoFocus className="min-h-11 shrink-0 bg-surface-2 px-4 py-2" onClick={objetContexte ? annulerChoix : annulerObjet}>Fermer</button>
     </div> : <p role="status" className={mode ? 'mt-4' : undefined}>{mode ? 'Sélectionne un Pokémon.' : ''}</p>}
     <div className={telephone ? 'mt-4 grid items-start gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]' : 'disposition'}>
       <div className={telephone ? 'min-w-0 space-y-4' : 'colonne-equipe'}>
@@ -182,9 +181,8 @@ export function PageEquipe({ ouvrirPC }: { ouvrirPC?: () => void }) {
                 if (mode) {
                   if (mode.type === 'stase') {
                     const message = storeJeu.getState().poserStase(pokemon.uid);
-                    if (!message || (pokemon.pierreEternelle && !pokemon.oeuf)) annulerObjet();
-                    else cibler(null);
-                    signalerObjet(message);
+                    if (!message) terminerApplication(pokemon.uid);
+                    else { cibler(null); signalerObjet(message); }
                     return;
                   }
                   if (mode.type === 'jeton' && pokemon.shiny) {
@@ -249,7 +247,7 @@ export function PageEquipe({ ouvrirPC }: { ouvrirPC?: () => void }) {
               annuler={abandonnerObjet} valider={() => {
                 const message = storeJeu.getState().utiliserPierre(pokemon.uid, mode.cle);
                 if (message) signalerObjet(message);
-                else annulerObjet();
+                else terminerApplication(pokemon.uid);
               }} />}
             {mode?.type === 'jeton' && cible === pokemon.uid && <ConfirmationObjet objet={mode.nom} nom={nom}
               annuler={() => {
@@ -259,14 +257,14 @@ export function PageEquipe({ ouvrirPC }: { ouvrirPC?: () => void }) {
               }} valider={() => {
                 const message = storeJeu.getState().utiliserJeton(pokemon.uid);
                 if (message) signalerObjet(message);
-                else annulerObjet();
+                else terminerApplication(pokemon.uid);
               }} />}
             {mode && (mode.type === 'bonbon' || mode.type === 'calcium' || mode.type === 'baie') && cible === pokemon.uid && valide && <SelecteurQuantite valeur={Math.min(quantite, maximum)} max={maximum}
               changer={changerQuantite} annuler={abandonnerObjet} valider={() => {
                 if (mode.type !== 'bonbon' && mode.type !== 'calcium' && mode.type !== 'baie') return;
                 const message = storeJeu.getState().utiliserObjet(mode.type, pokemon.uid, Math.min(quantite, maximum));
                 if (message) signalerObjet(message);
-                else annulerObjet();
+                else terminerApplication(pokemon.uid);
               }} />}
             </Conteneur>
           </li>;

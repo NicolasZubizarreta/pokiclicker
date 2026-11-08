@@ -155,7 +155,9 @@ test('Pierre Stase : pose et retrait ; Jeton : confirmation et chromatique sauve
   await bulbizarre.click();
   const confirmation = page.getByRole('group', { name: 'Utiliser Jeton Shiny sur Bulbizarre ?', exact: true });
   await confirmation.getByRole('button', { name: 'Annuler', exact: true }).click();
-  // Annuler rouvre le Sac, là où l'on était (téléphone et PC).
+  await expect(page.getByRole('button', { name: 'Fermer', exact: true })).toBeVisible();
+  await expect(page.locator('dialog[open]')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Fermer', exact: true }).click();
   const sacRouvert = page.locator('dialog[open]').getByRole('region', { name: 'Sac', exact: true });
   await expect(sacRouvert).toBeVisible();
   await sacRouvert.getByRole('button', { name: 'Jeton Shiny ×1', exact: true }).click();

@@ -17,4 +17,4 @@ export async function fermerSac(page: Page) {
 }
 
 // Message qui invite à toucher un Pokémon une fois l'objet choisi dans le Sac.
-export const invitationChoix = (page: Page, objet: string) => page.getByText(`${objet} : touche un Pokémon`, { exact: true });
+export const invitationChoix = (page: Page, objet: string) => page.getByText(new RegExp(`^${objet} ×\\d+ : touche un Pokémon$`));
