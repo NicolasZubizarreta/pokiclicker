@@ -674,6 +674,9 @@ details.repli > .contenu { display: grid; gap: var(--ecart); padding: 0 calc(var
 .dex-grille { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--ecart); }
 .dex-case { display: grid; justify-items: center; align-content: start; min-height: calc(var(--u) * 30); padding: var(--u); background: var(--surface); border: var(--trait) solid var(--bordure); text-align: center; min-width: 0; }
 .dex-case img { width: calc(var(--u) * 16); height: calc(var(--u) * 16); image-rendering: pixelated; }
+.dex-case.vu { background: var(--surface-2); }
+.dex-case.vu img, .gros-sprite.vu { filter: grayscale(1); opacity: .6; }
+.dex-case.vu .capt { color: var(--texte-doux); }
 .dex-case .n { font-size: var(--text-sm); line-height: var(--text-sm--line-height); color: var(--texte-doux); }
 .dex-case .nom { font-weight: 700; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .dex-case.inconnu { background: var(--surface-2); }
@@ -939,6 +942,8 @@ const norm = (t) => String(t).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCa
 const virg = (x) => String(x).replace(".", ",");
 const nbCapt = () => (S.dexComplet ? 151 : CAPT.size);
 const estCapt = (n) => S.dexComplet || CAPT.has(n);
+const VUS = new Set([2, 5, 8, 9, 11]);
+const estVu = (n) => estCapt(n) || VUS.has(n);
 const nomP = (p) => (p.oeuf ? "Œuf" : p.surnom || nomEsp(p.n));
 const pasOeuf = (p) => `Éclosion : ${p.oeuf.pas}/${p.oeuf.max}`;
 const SEXE_SVG = {
@@ -1065,16 +1070,16 @@ function dexListe() {
     if (S.dexF === "manquants" && estCapt(n)) return false;
     if (!q) return true;
     if (num) return n === Number(num[1]);
-    return estCapt(n) && norm(nom).includes(q);
+    return estVu(n) && norm(nom).includes(q);
   });
 }
 function dexCase([n, nom]) {
   const c = estCapt(n);
-  return `<button type="button" class="dex-case ${c ? "" : "inconnu"}" data-act="dex-detail" data-n="${n}" aria-label="${c ? nom + ", numéro " + n + ", déjà capturé" : "Pokémon inconnu, numéro " + n}"><img src="${sprite(n)}" width="96" height="96" alt=""><span class="n">N° ${n}</span><span class="nom">${c ? nom : "???"}</span>${c ? `<span class="capt">${ic("ball")}Capturé</span>` : ""}</button>`;
+  return `<button type="button" class="dex-case ${c ? "" : estVu(n) ? "vu" : "inconnu"}" data-act="dex-detail" data-n="${n}" aria-label="${c ? nom + ", numéro " + n + ", déjà capturé" : estVu(n) ? nom + ", numéro " + n + ", vu, pas encore capturé" : "Pokémon inconnu, numéro " + n}"><img src="${sprite(n)}" width="96" height="96" alt=""><span class="n">N° ${n}</span><span class="nom">${estVu(n) ? nom : "???"}</span>${c ? `<span class="capt">${ic("ball")}Capturé</span>` : estVu(n) ? `<span class="capt">Vu</span>` : ""}</button>`;
 }
 function dexCorps() {
   const l = dexListe();
-  if (!l.length) return `<div class="vide-etat" role="status">${ic("loupe")}<p>${S.dexQ.trim() ? `Aucune espèce capturée ne correspond à « ${esc(S.dexQ.trim())} ».` : "Rien à montrer avec ce filtre."}</p><p class="doux">Les espèces non capturées restent cachées : cherche-les par leur numéro.</p></div>`;
+  if (!l.length) return `<div class="vide-etat" role="status">${ic("loupe")}<p>${S.dexQ.trim() ? `Aucune espèce capturée ou vue ne correspond à « ${esc(S.dexQ.trim())} ».` : "Rien à montrer avec ce filtre."}</p><p class="doux">Les espèces jamais croisées restent cachées : cherche-les par leur numéro.</p></div>`;
   return `<div class="dex-grille">${l.map(dexCase).join("")}</div>`;
 }
 const dexCompte = () => `${dexListe().length} espèce${dexListe().length > 1 ? "s" : ""} affichée${dexListe().length > 1 ? "s" : ""}`;
@@ -1101,8 +1106,8 @@ function dexCouche() {
   const ou = EQUIPE.some(([x]) => Number(x) === n) ? "Dans ton équipe" : S.pc.some((p) => p.n === n) ? "Rangé dans ton PC" : "Enregistré au Pokédex";
   const corps = c
     ? `<img class="gros-sprite" src="${sprite(n)}" width="96" height="96" alt="${nom}"><div class="rangee" style="justify-content:center">${tagsTypes(n)}<span class="tag">${ic("ball")} Déjà capturé</span></div><p class="doux" style="text-align:center">${ou}</p>`
-    : `<img class="gros-sprite silhouette" src="${sprite(n)}" width="96" height="96" alt="Pokémon inconnu"><p class="message info">${ic("alerte")}<span>Capture ce Pokémon pour découvrir son nom et ses types.</span></p>`;
-  return `<div class="voile" data-act="fermer"></div><section class="fenetre court cadre" role="dialog" aria-modal="true" aria-label="Pokédex, numéro ${n}"><div class="tete"><h2>${c ? nom : "???"} · N° ${n}</h2>${fermer}</div><div class="corps">${corps}</div></section>`;
+    : estVu(n) ? `<img class="gros-sprite vu" src="${sprite(n)}" width="96" height="96" alt="${nom}"><p class="doux">Vu, pas encore capturé</p><p>Capture ce Pokémon pour découvrir ses types.</p>` : `<img class="gros-sprite silhouette" src="${sprite(n)}" width="96" height="96" alt="Pokémon inconnu"><p class="message info">${ic("alerte")}<span>Capture ce Pokémon pour découvrir son nom et ses types.</span></p>`;
+  return `<div class="voile" data-act="fermer"></div><section class="fenetre court cadre" role="dialog" aria-modal="true" aria-label="Pokédex, numéro ${n}"><div class="tete"><h2>${estVu(n) ? nom : "???"} · N° ${n}</h2>${fermer}</div><div class="corps">${corps}</div></section>`;
 }
 function diplomeCouche() {
   if (!S.diplomeOuv) return "";

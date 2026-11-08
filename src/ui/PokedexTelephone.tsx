@@ -4,7 +4,7 @@ import { useStore } from 'zustand';
 import { chargerPokemon, nomType } from '../core/pokemon';
 import { reglages } from '../core/reglages';
 import { statsDeCombat } from '../core/stats';
-import { pokedexDeKanto } from '../core/pokedex';
+import { etatPokedex, pokedexDeKanto, vusDeKanto } from '../core/pokedex';
 import { storeJeu } from './store';
 import { formaterProchainPalier } from './store-progression';
 import { IconeRetour, IconeChevron } from './icones-menu';
@@ -18,6 +18,7 @@ const normaliser = (texte: string) => texte.toLowerCase().normalize('NFD').repla
 
 export function PokedexTelephone({ retour, ouvrirDiplome }: { retour(): void; ouvrirDiplome?: () => void }) {
   const pokedex = useStore(storeJeu, e => e.pokedex);
+  const vus = vusDeKanto(useStore(storeJeu, e => e.vus), catalogue);
   const { prochain, paliers } = useStore(storeJeu, e => e.progression);
   const { captures, nombre, total } = pokedexDeKanto(pokedex, catalogue);
   const [selection, choisir] = useState<number | null>(null);
@@ -31,7 +32,7 @@ export function PokedexTelephone({ retour, ouvrirDiplome }: { retour(): void; ou
     if (filtre === 'Capturées' && !capture || filtre === 'À trouver' && capture) return false;
     if (!recherche) return true;
     return numeroRecherche ? numero === Number(numeroRecherche[1])
-      : capture && normaliser(catalogue.parNumero(numero).nom).includes(recherche);
+      : etatPokedex(numero, captures, vus) !== 'inconnu' && normaliser(catalogue.parNumero(numero).nom).includes(recherche);
   });
   const progres = { '--progres': `${nombre / total * 100}%` } as CSSProperties;
 
@@ -81,36 +82,39 @@ export function PokedexTelephone({ retour, ouvrirDiplome }: { retour(): void; ou
     </div>
     <p role="status" className="text-texte-doux">{numeros.length} {numeros.length === 1 ? 'espèce affichée' : 'espèces affichées'}</p>
     {numeros.length === 0 && <div className="cadre border-dashed p-4 text-center">
-      {recherche ? <><p>Aucune espèce capturée ne correspond à « {saisie} ».</p>
-        <p className="text-texte-doux">Les espèces non capturées restent cachées : cherche-les par leur numéro.</p></>
+      {recherche ? <><p>Aucune espèce capturée ou vue ne correspond à « {saisie} ».</p>
+        <p className="text-texte-doux">Les espèces jamais croisées restent cachées : cherche-les par leur numéro.</p></>
         : <p>Rien à montrer avec ce filtre.</p>}
     </div>}
     <div className="grid grid-cols-3 gap-2">
       {numeros.map(numero => {
-        const capture = captures.has(numero);
-        const nom = capture ? catalogue.parNumero(numero).nom : '???';
+        const etat = etatPokedex(numero, captures, vus);
+        const capture = etat === 'capture';
+        const nom = etat !== 'inconnu' ? catalogue.parNumero(numero).nom : '???';
         return <button key={numero} type="button" onClick={() => choisir(numero)}
-          aria-label={capture ? `${nom}, numéro ${numero}, déjà capturé` : `Pokémon inconnu, numéro ${numero}`}
+          aria-label={capture ? `${nom}, numéro ${numero}, déjà capturé` : etat === 'vu' ? `${nom}, numéro ${numero}, vu, pas encore capturé` : `Pokémon inconnu, numéro ${numero}`}
           className={`cadre flex min-h-11 min-w-0 flex-col items-center overflow-hidden p-2 text-center ${capture ? 'bg-surface' : 'bg-surface-2'}`}>
-          <Image src={cheminSprite(numero)} genre="sprite" alt={capture ? nom : 'Pokémon inconnu'}
-            className={`size-16 max-w-full ${capture ? '' : 'brightness-0 opacity-50'}`} />
+          <Image src={cheminSprite(numero)} genre="sprite" alt={etat !== 'inconnu' ? nom : 'Pokémon inconnu'}
+            className={`size-16 max-w-full ${capture ? '' : etat === 'vu' ? 'grayscale opacity-60' : 'brightness-0 opacity-50'}`} />
           <span className="text-sm text-texte-doux">N° {numero}</span>
           <span className="w-full truncate font-bold">{nom}</span>
           {capture && <span className="flex items-center gap-1 text-sm text-succes-texte"><PastilleCapture />Capturé</span>}
+          {etat === 'vu' && <span className="text-sm text-texte-doux">Vu</span>}
         </button>;
       })}
     </div>
-    {selection !== null && <DetailEspece numero={selection} capture={captures.has(selection)} fermer={() => choisir(null)} />}
+    {selection !== null && <DetailEspece numero={selection} etat={etatPokedex(selection, captures, vus)} fermer={() => choisir(null)} />}
   </section>;
 }
 
-function DetailEspece({ numero, capture, fermer }: { numero: number; capture: boolean; fermer(): void }) {
+function DetailEspece({ numero, etat, fermer }: { numero: number; etat: ReturnType<typeof etatPokedex>; fermer(): void }) {
+  const capture = etat === 'capture';
   const equipe = useStore(storeJeu, e => e.equipe);
   const pc = useStore(storeJeu, e => e.pc);
   const dialogue = useRef<HTMLDialogElement>(null);
   const titre = useId();
   const espece = catalogue.parNumero(numero);
-  const nom = capture ? espece.nom : '???';
+  const nom = etat !== 'inconnu' ? espece.nom : '???';
   useEffect(() => {
     const origine = document.activeElement;
     const fenetre = dialogue.current!;
@@ -133,8 +137,8 @@ function DetailEspece({ numero, capture, fermer }: { numero: number; capture: bo
     </header>
     <div className="fiche-contenu grid min-w-0 gap-2 px-4 pb-4">
       <div className="mx-auto grid size-32 max-w-full place-items-center overflow-hidden">
-        <Image src={cheminSprite(numero)} genre="sprite" alt={capture ? nom : 'Pokémon inconnu'}
-          className={`size-32 max-h-full max-w-full ${capture ? '' : 'brightness-0 opacity-50'}`} />
+        <Image src={cheminSprite(numero)} genre="sprite" alt={etat !== 'inconnu' ? nom : 'Pokémon inconnu'}
+          className={`size-32 max-h-full max-w-full ${capture ? '' : etat === 'vu' ? 'grayscale opacity-60' : 'brightness-0 opacity-50'}`} />
       </div>
       {capture ? <>
         <div className="flex flex-wrap items-center justify-center gap-2">
@@ -153,7 +157,7 @@ function DetailEspece({ numero, capture, fermer }: { numero: number; capture: bo
         <p className="text-center text-sm text-texte-doux">
           DPS = dégâts de base × niveau ÷ {reglages.degats.diviseurNiveau}, avant les bonus.
         </p>
-      </> :<p role="status" className="cadre bg-surface-2 p-3">
+      </> : etat === 'vu' ? <><p className="text-texte-doux">Vu, pas encore capturé</p><p role="status" className="cadre bg-surface-2 p-3">Capture ce Pokémon pour découvrir ses types.</p></> :<p role="status" className="cadre bg-surface-2 p-3">
         Capture ce Pokémon pour découvrir son nom et ses types.
       </p>}
     </div>

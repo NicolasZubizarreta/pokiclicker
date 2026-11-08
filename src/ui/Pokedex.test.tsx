@@ -13,8 +13,29 @@ vi.mock('./store', async original => {
   return { ...module, storeJeu: createStore(() => module.storeJeu.getState()) };
 });
 
-beforeEach(() => { storeJeu.setState({ pokedex: [1, 25, 25, 200] }); });
+beforeEach(() => { storeJeu.setState({ pokedex: [1, 25, 25, 200], vus: [1, 25] }); });
 afterEach(cleanup);
+
+it('montre les espèces vues et conserve les silhouettes inconnues et le compteur', () => {
+  const { container } = render(<Pokedex retour={() => {}} />);
+  const progression = container.querySelector('[data-prochain-palier]')!.textContent;
+  expect(screen.getByText('2 / 151')).toBeTruthy();
+  act(() => { storeJeu.setState({ vus: [1, 25, 4, 200] }); });
+  const caseVue = screen.getByRole('button', { name: 'Salamèche, numéro 4, vu, pas encore capturé' });
+  expect(within(caseVue).getByText('Salamèche')).toBeTruthy();
+  expect(within(caseVue).getByText('Vu').classList.contains('text-texte-doux')).toBe(true);
+  const image = within(caseVue).getByAltText('Salamèche');
+  expect(image.classList.contains('grayscale')).toBe(true);
+  expect(image.classList.contains('opacity-60')).toBe(true);
+  expect(image.classList.contains('brightness-0')).toBe(false);
+  expect(caseVue.classList.contains('bg-surface-2')).toBe(true);
+  const inconnu = screen.getByRole('button', { name: 'Pokémon inconnu, numéro 2' });
+  expect(within(inconnu).getByText('???')).toBeTruthy();
+  expect(within(inconnu).getByAltText('Pokémon inconnu').classList.contains('brightness-0')).toBe(true);
+  expect(screen.getByText('2 / 151')).toBeTruthy();
+  expect(screen.getByRole('progressbar').getAttribute('value')).toBe('2');
+  expect(container.querySelector('[data-prochain-palier]')!.textContent).toBe(progression);
+});
 
 it('présente les 151 espèces dans l’ordre national et compte les captures de Kanto sans doublons', () => {
   render(<Pokedex retour={() => {}} />);

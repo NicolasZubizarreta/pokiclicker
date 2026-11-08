@@ -521,6 +521,9 @@ button.ligne-p:hover, a.ligne-p:hover { border-color: var(--region-accent); back
 .dex-case { position: relative; display: grid; justify-items: center; gap: 0; padding: var(--u); background: var(--surface); border: var(--trait) solid var(--bordure); text-align: center; font-size: var(--text-sm); line-height: var(--text-sm--line-height); }
 .dex-case:hover, .dex-case[aria-pressed="true"] { border-color: var(--region-accent); background: var(--selection); }
 .dex-case img { width: calc(var(--u) * 18); height: calc(var(--u) * 18); object-fit: contain; }
+.dex-case.vu { background: var(--surface-2); }
+.dex-case.vu img, .gros-sprite-c img.vu { filter: grayscale(1); opacity: .6; }
+.dex-case.vu .capt { color: var(--texte-doux); }
 .dex-case .n { color: var(--texte-doux); } .dex-case .nom { font-weight: 700; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .dex-case .capt { position: absolute; top: var(--u); right: var(--u); color: var(--succes-base); } .dex-case .capt .ic { width: calc(var(--u) * 4); height: calc(var(--u) * 4); }
 .progres { height: calc(var(--u) * 4); background: var(--fond); border: var(--trait) solid var(--bordure); } .progres i { display: block; height: 100%; background: var(--region-accent); }
@@ -1099,23 +1102,25 @@ function ecranReglages() {
 /* ---------- Pokédex, badges, stats, guide ---------- */
 const nbCapt = () => (S.dexComplet ? 151 : CAPT.size);
 const estCapt = (n) => S.dexComplet || CAPT.has(n);
+const VUS = new Set([2, 5, 8, 9, 11]);
+const estVu = (n) => estCapt(n) || VUS.has(n);
 function dexListe() {
   const q = norm(S.dexQ);
   return DEX.filter(([n, nom]) => {
     if (S.dexF === "captures" && !estCapt(n)) return false; if (S.dexF === "manquants" && estCapt(n)) return false;
-    if (!q) return true; return String(n) === q || (estCapt(n) && norm(nom).includes(q));
+    if (!q) return true; return String(n) === q || (estVu(n) && norm(nom).includes(q));
   });
 }
-const dexCase = ([n, nom]) => { const c = estCapt(n); return `<button type="button" class="dex-case ${c ? "" : "inconnu"}" data-act="dex-detail" data-id="${n}" aria-pressed="${S.dexSel === n}" aria-label="${c ? nom : "Inconnu"}, numéro ${n}"><img src="${sprite(n)}" width="96" height="96" alt="">${c ? `<span class="capt">${ic("valide")}</span>` : ""}<span class="n">N° ${n}</span><span class="nom">${c ? nom : "???"}</span></button>`; };
+const dexCase = ([n, nom]) => { const c = estCapt(n); return `<button type="button" class="dex-case ${c ? "" : estVu(n) ? "vu" : "inconnu"}" data-act="dex-detail" data-id="${n}" aria-pressed="${S.dexSel === n}" aria-label="${c ? nom + ", numéro " + n + ", déjà capturé" : estVu(n) ? nom + ", numéro " + n + ", vu, pas encore capturé" : "Pokémon inconnu, numéro " + n}"><img src="${sprite(n)}" width="96" height="96" alt="">${c ? `<span class="capt">${ic("valide")}</span>` : estVu(n) ? `<span class="capt">Vu</span>` : ""}<span class="n">N° ${n}</span><span class="nom">${estVu(n) ? nom : "???"}</span></button>`; };
 function dexPanneau() {
   const n = S.dexSel;
   if (n) {
     const c = estCapt(n), nom = nomEsp(n);
     const ou = EQUIPE.some(([x]) => Number(x) === n) ? "Dans ton équipe" : S.pc.some((p) => p.n === n) ? "Rangé dans ton PC" : "Enregistré au Pokédex";
-    return `<section class="cadre panneau" aria-label="Fiche du Pokédex"><div class="tete"><h2>${c ? nom : "???"} · N° ${n}</h2><button type="button" class="plaque carre" data-act="dex-fermer" aria-label="Revenir aux paliers">${ic("croix")}</button></div>
-      <div class="gros-sprite-c" style="margin-inline:auto"><img class="${c ? "" : "silhouette"}" src="${sprite(n)}" width="96" height="96" alt="${c ? nom : "Pokémon inconnu"}" style="width:192px;height:192px"></div>
+    return `<section class="cadre panneau" aria-label="Fiche du Pokédex"><div class="tete"><h2>${estVu(n) ? nom : "???"} · N° ${n}</h2><button type="button" class="plaque carre" data-act="dex-fermer" aria-label="Revenir aux paliers">${ic("croix")}</button></div>
+      <div class="gros-sprite-c" style="margin-inline:auto"><img class="${c ? "" : estVu(n) ? "vu" : "silhouette"}" src="${sprite(n)}" width="96" height="96" alt="${estVu(n) ? nom : "Pokémon inconnu"}" style="width:192px;height:192px"></div>
       ${c ? `<div class="pills" style="justify-content:center">${tagsTypes(n)}<span class="tag">${ic("balle")} Déjà capturé</span></div><dl class="infos"><dt>Dégâts de base du clicker</dt><dd>${nf(degatsBase(n))}</dd><dt>Où est-il ?</dt><dd>${ou}</dd>${EVO[n] ? `<dt>Évolution</dt><dd>${EVO[n]}</dd>` : ""}</dl>`
-        : `<p class="message info">${ic("alerte")}<span>Capture ce Pokémon pour découvrir son nom, ses types et ses dégâts de base.</span></p>`}</section>`;
+        : estVu(n) ? `<p class="doux">Vu, pas encore capturé</p><p>Capture ce Pokémon pour découvrir ses types et ses dégâts de base.</p>` : `<p class="message info">${ic("alerte")}<span>Capture ce Pokémon pour découvrir son nom, ses types et ses dégâts de base.</span></p>`}</section>`;
   }
   const k = nbCapt();
   return `<section class="cadre panneau" aria-label="Paliers"><div class="tete"><h2>Paliers</h2><span class="tag neutre">${k} / 151</span></div><div class="progres" role="img" aria-label="${k} sur 151"><i style="width:${(k / 151) * 100}%"></i></div>
@@ -1127,7 +1132,7 @@ function ecranPokedex() {
   return `<div class="titre-page">${retour("menu", "Retour au menu")}<h1>Pokédex</h1><span class="tag neutre">${nbCapt()} / 151</span></div>
     <div class="outil-barre"><label class="champ grand" for="dex-q"><span>Nom ou numéro ${kb("/")}</span><span class="zone-saisie"><input id="dex-q" type="search" data-cle="dexQ" value="${esc(S.dexQ)}" autocomplete="off"></span></label>
       <div class="champ"><span>Montre</span><div class="pills">${[["tous", "Tous"], ["captures", "Capturés"], ["manquants", "À trouver"]].map(([k, t]) => chip("dex-filtre", k, t, S.dexF === k)).join("")}</div></div></div>
-    <div class="dex-corps"><div id="dex-liste">${l.length ? `<div class="dex-grille">${l.map(dexCase).join("")}</div>` : `<div class="vide-etat">${ic("loupe")}<p>Aucune espèce ne correspond.</p></div>`}</div><aside id="dex-panneau">${dexPanneau()}</aside></div>
+    <div class="dex-corps"><div id="dex-liste">${l.length ? `<div class="dex-grille">${l.map(dexCase).join("")}</div>` : `<div class="vide-etat">${ic("loupe")}<p>Aucune espèce capturée ou vue ne correspond à « ${esc(S.dexQ)} ».</p><p class="doux">Les espèces jamais croisées restent cachées : cherche-les par leur numéro.</p></div>`}</div><aside id="dex-panneau">${dexPanneau()}</aside></div>
     <div class="lot-maquette">${maq("dex-complet", S.dexComplet ? "revenir à 47 capturés" : "compléter le Pokédex (151/151)")}</div>`;
 }
 function ecranBadges() {
@@ -1566,7 +1571,7 @@ document.addEventListener("input", (e) => {
   if (t.type === "range") { S[k].v = Number(t.value); t.style.setProperty("--p", t.value + "%"); const o = t.parentNode.querySelector("output"); if (o) o.textContent = t.value; return; }
   S[k] = t.value;
   if (k === "pcQ") { const l = $("#liste-pc"); if (l) l.innerHTML = pcCorps(); const c = $("#cpt"); if (c) c.textContent = pcCompte(); }
-  if (k === "dexQ") { const l = dexListe(), el = $("#dex-liste"); if (el) el.innerHTML = l.length ? `<div class="dex-grille">${l.map(dexCase).join("")}</div>` : `<div class="vide-etat">${ic("loupe")}<p>Aucune espèce ne correspond.</p></div>`; }
+  if (k === "dexQ") { const l = dexListe(), el = $("#dex-liste"); if (el) el.innerHTML = l.length ? `<div class="dex-grille">${l.map(dexCase).join("")}</div>` : `<div class="vide-etat">${ic("loupe")}<p>Aucune espèce capturée ou vue ne correspond à « ${esc(S.dexQ)} ».</p><p class="doux">Les espèces jamais croisées restent cachées : cherche-les par leur numéro.</p></div>`; }
 });
 document.addEventListener("change", (e) => { const t = e.target; if (t.tagName === "SELECT" && t.dataset.cle) { S[t.dataset.cle] = t.value; rendre(); } });
 document.addEventListener("submit", (e) => {

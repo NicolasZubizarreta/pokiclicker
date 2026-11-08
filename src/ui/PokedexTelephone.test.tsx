@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { chargerPokemon } from '../core/pokemon';
 import { statsDeCombat } from '../core/stats';
@@ -36,7 +36,7 @@ beforeEach(() => {
   });
   storeJeu.getState().demarrer();
   const progression = storeJeu.getState().progression;
-  storeJeu.setState({ pokedex: [1, 4, 25], progression: {
+  storeJeu.setState({ pokedex: [1, 4, 25], vus: [1, 4, 25], progression: {
     ...progression,
     prochain: { palier: 10, titre: 'Collection', restantes: 7 },
     paliers: progression.paliers.map((palier, index) => ({ ...palier, recu: index === 0 })),
@@ -51,6 +51,36 @@ afterEach(() => {
 function rechercher(value: string) {
   fireEvent.change(screen.getByRole('searchbox', { name: 'Nom ou numéro' }), { target: { value } });
 }
+
+it('montre un vu, le recherche et le garde à trouver sans changer la progression', () => {
+  const { container } = render(<PokedexTelephone retour={vi.fn()} />);
+  const paliers = container.querySelector('details')!.textContent;
+  expect(screen.getByText('3 / 151')).toBeTruthy();
+  act(() => { storeJeu.setState({ vus: [1, 4, 25, 7] }); });
+  expect(screen.getByText('3 / 151')).toBeTruthy();
+  expect(screen.getByRole('progressbar').getAttribute('aria-valuenow')).toBe('3');
+  expect(container.querySelector('details')!.textContent).toBe(paliers);
+  const caseVue = screen.getByRole('button', { name: 'Carapuce, numéro 7, vu, pas encore capturé' });
+  expect(within(caseVue).getByText('Carapuce')).toBeTruthy();
+  expect(within(caseVue).getByText('Vu').classList.contains('text-texte-doux')).toBe(true);
+  const image = within(caseVue).getByAltText('Carapuce');
+  expect(image.classList.contains('grayscale')).toBe(true);
+  expect(image.classList.contains('opacity-60')).toBe(true);
+  expect(image.classList.contains('brightness-0')).toBe(false);
+  expect(caseVue.classList.contains('bg-surface-2')).toBe(true);
+  rechercher('Carapuce');
+  fireEvent.click(screen.getByRole('button', { name: 'À trouver' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Carapuce, numéro 7, vu, pas encore capturé' }));
+  const fiche = screen.getByRole('dialog', { name: 'Carapuce · N° 7' });
+  expect(within(fiche).getByText('Vu, pas encore capturé')).toBeTruthy();
+  expect(within(fiche).getByText('Capture ce Pokémon pour découvrir ses types.')).toBeTruthy();
+  expect(fiche.querySelector('.pastille-type')).toBeNull();
+  expect(within(fiche).queryByLabelText('Dégâts de base')).toBeNull();
+  expect(within(fiche).getByAltText('Carapuce').classList.contains('grayscale')).toBe(true);
+  fireEvent.click(within(fiche).getByRole('button', { name: 'Fermer la fiche du Pokédex' }));
+  rechercher('Papilusion');
+  expect(screen.getByText('Aucune espèce capturée ou vue ne correspond à « Papilusion ».')).toBeTruthy();
+});
 
 it.each(['Dans ton équipe', 'Rangé dans ton PC', 'Enregistré au Pokédex'])(
   'ouvre une capture : %s', localisation => {
@@ -128,8 +158,8 @@ it('cherche uniquement les noms capturés et normalise la saisie', () => {
   expect(screen.getByText('1 espèce affichée')).toBeTruthy();
   rechercher('Papilusion');
   expect(screen.queryByRole('button', { name: /numéro/ })).toBeNull();
-  expect(screen.getByText('Aucune espèce capturée ne correspond à « Papilusion ».')).toBeTruthy();
-  expect(screen.getByText('Les espèces non capturées restent cachées : cherche-les par leur numéro.')).toBeTruthy();
+  expect(screen.getByText('Aucune espèce capturée ou vue ne correspond à « Papilusion ».')).toBeTruthy();
+  expect(screen.getByText('Les espèces jamais croisées restent cachées : cherche-les par leur numéro.')).toBeTruthy();
 });
 
 it.each(['12', 'n°12', '#12', 'n12'])('cherche un inconnu avec %s', saisie => {

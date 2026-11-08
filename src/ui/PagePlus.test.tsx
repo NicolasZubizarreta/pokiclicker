@@ -109,7 +109,9 @@ it('ouvre le Pokédex des trois starters avec ses textes français et rend le fo
   expect(document.activeElement).toBe(screen.getByRole('heading', { level: 1, name: 'Pokédex' }));
   expect(screen.getByText('3 / 151')).toBeTruthy();
   const catalogue = chargerPokemon();
-  const cases = catalogue.liste.map(p => `N° ${p.numero}${[1, 4, 7].includes(p.numero) ? p.nom : '???'}`).join('');
+  // Le sauvage affiché au démarrage est « vu » : nom et pastille « Vu », sans changer le compteur.
+  const vus = new Set(storeJeu.getState().vus);
+  const cases = catalogue.liste.map(p => `N° ${p.numero}${[1, 4, 7].includes(p.numero) ? p.nom : vus.has(p.numero) ? `${p.nom}Vu` : '???'}`).join('');
   expect(container.querySelector('.dex-grille')?.textContent).toBe(cases);
   expect(screen.getByRole('button', { name: 'Retour au menu' })).toBeTruthy();
   fireEvent.click(screen.getByRole('button', { name: 'Retour au menu' }));

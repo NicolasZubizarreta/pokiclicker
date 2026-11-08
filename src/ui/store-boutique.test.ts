@@ -10,7 +10,7 @@ import { afficherBoutique, afficherSac } from './store-boutique';
 const persiste = vi.hoisted(() => ({ region: null as unknown as DonneesRegion }));
 vi.mock('./persistance', () => ({
   detailErreur: String,
-  ouvrirPartie: () => ({ region: structuredClone(persiste.region), pokedex: [1],
+  ouvrirPartie: () => ({ region: structuredClone(persiste.region), pokedex: [1], vus: [1],
     preferences: { ...structuredClone(reglages.depart.preferences), autoAttaque: false,
       arretAuto: { ...reglages.depart.preferences.arretAuto, actif: false } },
     enregistrer: (region: DonneesRegion) => { persiste.region = structuredClone(region); },

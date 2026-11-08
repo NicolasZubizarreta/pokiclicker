@@ -271,8 +271,8 @@ Maquettes : faites, validées par Nicolas le 07/11 avec les corrections ci-dessu
 `type:feat`, `etat:a_faire`, `est:2-3`, `prio:3` · branche : `v2` · `agent-ok` après maquette validée · dépend de : C
 
 ### Critères d'acceptation
-- [ ] Étant donné les variantes pour `PageShop`, `Pokedex`, `PagePlus` et ses sous-pages, quand Nicolas choisit, alors les choix sont notés dans `design/DESIGN.md`.
-- [ ] Étant donné le Pokédex, quand un Pokémon est vu mais pas capturé, alors l'écran distingue clairement « capturé », « vu » et « inconnu ».
+- [x] Étant donné les variantes pour `PageShop`, `Pokedex`, `PagePlus` et ses sous-pages, quand Nicolas choisit, alors les choix sont notés dans `design/DESIGN.md`. (pas de nouvelles variantes : maquettes téléphone a5 et PC validées le 08/11, Nicolas : « quasiment tout est validé »)
+- [x] Étant donné le Pokédex, quand un Pokémon est vu mais pas capturé, alors l'écran distingue clairement « capturé », « vu » et « inconnu ». (ticket V, 08/11 : sprite grisé et nom pour un « vu », silhouette pour un inconnu)
 - [x] Étant donné la boutique à 390 px, quand j'achète un objet, alors le prix, le solde et la quantité tiennent sur l'écran sans défilement horizontal. (Lot 5 : trois catégories, solde dans le bandeau du haut, lignes compactes, aucun défilement horizontal à 360, 390 et 430 px.)
 - [ ] Étant donné les réglages, quand je les ouvre, alors ils sont regroupés par thème (son, combat, compte) avec des cibles de 48 px.
 
@@ -415,3 +415,32 @@ Demande de Nicolas (08/11/2026) : « dans le guide aussi je rajouterai une table
 
 ### Réalisation (08/11/2026)
 Section « Types » du Guide : téléphone = 18 boutons de 48 px (une liste par type : fort contre, peu efficace, sans effet ; faible contre, résiste à, immunisé), PC = vraie table attaque en ligne × défense en colonne (×2, ×0,5, ×0, vide = normal) dans un cadre défilant à en-têtes collants. Les multiplicateurs viennent de `multiplicateurType` (src/core/combat.ts) via `src/core/table-types.ts`, les 18 types de `data/types-noms.json` (la liste ne dépend plus des Pokémon présents). Tests : src/core/table-types.test.ts, src/ui/TableTypes.test.tsx, tests-e2e/guide.spec.ts (390 px ; 1280, 1440, 1920, 2560 px ; clavier).
+
+## V. `feat(pokedex): enregistrer les Pokémon vus et les distinguer des capturés`
+
+`type:feat`, `etat:fait`, `est:1-2`, `prio:3` · branche : `v2` · pas d'`agent-ok` (touche le format de sauvegarde et le serveur) · débloque : le critère « vu / capturé / inconnu » du ticket J
+
+### Histoire
+En tant que joueur, je veux que le Pokédex distingue « capturé », « vu » et « inconnu » afin de savoir ce que j'ai déjà croisé sans l'avoir capturé.
+
+### Contexte
+Demande de Nicolas (08/11/2026) : « oui on ajoute les pokémon vu ». Aujourd'hui `pokedexNational` ne garde que les numéros capturés (`src/core/pokedex.ts`, `ajouterAuPokedex`). La sauvegarde est à la version 3 (`VERSION_ACTUELLE`, `src/core/sauvegarde-types.ts` ; migrations dans `src/core/migrations/index.ts`). Rien d'autre dans les règles de jeu ne change : l'état « vu » n'influence ni gains, ni déblocages, ni succès.
+
+### Critères d'acceptation
+- [x] Étant donné un Pokémon sauvage qui apparaît en combat, quand il s'affiche, alors son numéro est ajouté à la liste des vus (une seule fois, sans doublon), qu'il soit capturé ou non.
+- [x] Étant donné un Pokémon capturé, quand je regarde le Pokédex, alors il est « capturé » ; vu sans capture : « vu » (sprite grisé et nom, d'après la maquette a5) ; jamais croisé : « inconnu ».
+- [x] Étant donné une partie existante (version 3), quand elle se charge, alors une migration la passe à la version 4 : `vus` = les capturés + ceux de l'équipe et du PC, sans rien perdre ; une partie neuve commence avec une liste vide.
+- [x] Étant donné le serveur de sauvegarde, quand il reçoit une partie en version 4, alors il l'accepte et la renvoie intacte ; une partie en version 3 reste lisible (migrée à la lecture) ; le client refuse toujours une version plus récente que la sienne.
+- [x] Étant donné les compteurs du Pokédex (x/151, récompenses, succès), quand un Pokémon est seulement vu, alors aucun compteur ni récompense ne change.
+- [x] Étant donné les tests, quand `npm test` et les e2e tournent, alors ils restent verts et le simulateur donne les mêmes résultats (`node scripts/simuler-parcours.mjs --clics 7`). (3 échecs vitest déjà présents avant le ticket : EcranCombat « cible-valide » et « Annuler », PagePlus Guide 12 au lieu de 11 ; Ligue à 87,0 min inchangée)
+
+### Hors périmètre
+Toute autre règle de jeu ; une fiche détaillée pour un Pokémon « vu » (nom et sprite grisé seulement) ; les autres régions (le modèle accepte déjà des numéros nationaux).
+
+### Effort et risques
+1 à 2 jours. Risques : migration de sauvegarde et schéma du serveur (redéployer serveur puis jeu, sauvegarde de base avant) ; synchro deux appareils (fusion de la liste `vus` : l'union).
+
+### Réalisation (08/11/2026)
+Sauvegarde en version 4 (`vus` dans la partie, migration 3 → 4 : capturés + PC sans œufs ; addendum dans l'ADR 0001). Un sauvage qui s'affiche entre dans `vus` une fois (les boss et dresseurs ne comptent pas) ; `capturés ⊆ vus` est garanti au chargement et à l'écriture. Pokédex à trois états sur téléphone et PC (maquettes a5 et PC mises à jour) ; fiche d'un « vu » réduite au nom, au sprite grisé et à un message de capture, sans types. Serveur : aucun changement de code (il stocke `donnees` sans la lire), test ajouté pour la version 4.
+Fusion à la synchro : aucune fusion champ par champ n'existe (ADR 0004 : le serveur fait foi, la divergence archive le local), donc pas d'union à coder ; `vus` suit la règle de `pokedexNational`.
+À la mise en ligne : sauvegarde de la base, puis redéployer le serveur, puis le jeu.
