@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { duree, nomRegion, nomZone } from './format-partie';
 import { IconeAlerte } from './icones-compte';
 import './Compte.css';
@@ -11,6 +11,8 @@ export function EcranSupprimeeAilleurs({ nom, regionId, zoneId, ecritLe, tempsJe
   quandGarder(): void; quandAbandonner(): void;
 }) {
   const [confirmation, fixerConfirmation] = useState(false);
+  const telephone = useTelephone();
+  const BarreTitre = telephone ? Fragment : 'header';
   const titre = useRef<HTMLHeadingElement>(null);
   const dialogue = useRef<HTMLDialogElement>(null);
   const titreDialogue = useRef<HTMLHeadingElement>(null);
@@ -24,7 +26,7 @@ export function EcranSupprimeeAilleurs({ nom, regionId, zoneId, ecritLe, tempsJe
     titreDialogue.current?.focus();
     return () => { fenetre.close(); bouton?.focus(); };
   }, [confirmation]);
-return <main data-theme="dark" className={`${useTelephone() ? '' : 'compte-pc '}zc-zone zc-ecran min-h-dvh bg-fond text-texte font-texte p-4 lg:p-8 grid content-center`}>
+return <main data-theme="dark" className={`${telephone ? '' : 'compte-pc '}zc-zone zc-ecran min-h-dvh bg-fond text-texte font-texte p-4 lg:p-8 grid content-center`}>
     <div inert={confirmation} className="w-full max-w-(--breakpoint-md) mx-auto flex flex-col gap-4">
       <h1 ref={titre} tabIndex={-1} className="font-titre text-2xl font-bold">Partie supprimée ailleurs</h1>
       <section className="cadre bg-surface p-4 flex flex-col gap-4">
@@ -44,7 +46,10 @@ return <main data-theme="dark" className={`${useTelephone() ? '' : 'compte-pc '}
     {confirmation && <dialog ref={dialogue} className="cadre zc-dialogue" aria-modal="true" aria-labelledby="zc-abandon-titre"
       onCancel={e => { e.preventDefault(); if (!occupe) fixerConfirmation(false); }}
       onKeyDown={e => { if (e.key === 'Escape') { e.preventDefault(); if (!occupe) fixerConfirmation(false); } }}>
+      <BarreTitre {...(telephone ? {} : { className: 'fenetre-titre' })}>
       <h2 ref={titreDialogue} id="zc-abandon-titre" tabIndex={-1} className="font-titre text-xl font-bold">Abandonner « {nom} » ?</h2>
+      {!telephone && <button type="button" className="plaque" aria-label="Fermer" disabled={occupe} onClick={() => fixerConfirmation(false)}>×</button>}
+      </BarreTitre>
       <p>Sa progression sera perdue pour de bon. Tes diamants, tes succès et tes skins restent sur ton compte.</p>
       <button type="button" className="plaque zc-danger min-h-12" disabled={occupe} onClick={() => { quandAbandonner(); fixerConfirmation(false); }}>L'abandonner</button>
       <button type="button" className="plaque min-h-12" disabled={occupe} onClick={() => fixerConfirmation(false)}>Annuler</button>

@@ -140,11 +140,11 @@
   "typo": {
     "familles": {
       "titre": {
-        "nom": "Pixelify Sans",
-        "pile": "\"Pixelify Sans\", \"Press Start 2P\", ui-monospace, monospace",
+        "nom": "Atkinson Hyperlegible Next",
+        "pile": "\"Atkinson Hyperlegible Next\", \"Atkinson Hyperlegible\", system-ui, sans-serif",
         "source": "google",
         "graisses": [
-          600
+          700
         ]
       },
       "texte": {

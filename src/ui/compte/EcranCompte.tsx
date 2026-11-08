@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import type { FormEvent, InputHTMLAttributes, ReactNode } from 'react';
 import { connecter, demanderReinitialisation, ErreurCompte, inscrire, reinitialiser } from './api-compte';
 import { IconeAlerte, IconeOeil, IconeValide } from './icones-compte';
@@ -50,6 +50,8 @@ export function EcranCompte({ token, sessionExpiree = false, quandConnecte, quan
   const [visible, fixerVisible] = useState(false);
   const [message, fixerMessage] = useState('');
   const [envoi, fixerEnvoi] = useState(false);
+  const telephone = useTelephone();
+  const Formulaire = telephone ? Fragment : 'div';
   const titre = useRef<HTMLHeadingElement>(null);
   useEffect(() => { titre.current?.focus(); }, [etat]);
 
@@ -98,9 +100,10 @@ export function EcranCompte({ token, sessionExpiree = false, quandConnecte, quan
     } finally { fixerEnvoi(false); }
   }
 
-return <main data-theme="dark" className={`${useTelephone() ? '' : 'compte-pc auth-pc '}compte-page bg-fond text-texte font-texte p-4 lg:p-8 grid content-start lg:min-h-dvh lg:content-center`}>
+return <main data-theme="dark" className={`${telephone ? '' : 'compte-pc auth-pc '}compte-page bg-fond text-texte font-texte p-4 lg:p-8 grid content-start lg:min-h-dvh lg:content-center`}>
     <section className="w-full max-w-(--breakpoint-md) mx-auto" aria-labelledby="titre-compte">
-      <div className="compte-marque"><b className="font-titre text-region-accent">PokiClicker</b><span className="text-texte-doux">Ton aventure Pokémon, sur tous tes appareils</span></div>
+      <div className="compte-marque"><Formulaire {...(telephone ? {} : { className: 'cadre auth-titre' })}><b className="font-titre text-region-accent">PokiClicker</b><span className="text-texte-doux">Ton aventure Pokémon, sur tous tes appareils</span>{!telephone && <span className="text-texte-doux">Kanto, 151 espèces, une partie qui te suit du PC au téléphone.</span>}</Formulaire></div>
+      <Formulaire {...(telephone ? {} : { className: 'auth-formulaire' })}>
       <form noValidate onSubmit={envoyer} className="compte-formulaire cadre bg-surface">
       <h1 id="titre-compte" ref={titre} tabIndex={-1} className="font-titre text-xl font-bold">{titres[etat]}</h1>
       {horsReseau && <p role="status" className="compte-message alerte"><IconeAlerte /><span>{etat === 'connexion' || etat === 'inscription'
@@ -125,6 +128,7 @@ return <main data-theme="dark" className={`${useTelephone() ? '' : 'compte-pc au
         {etat === 'connexion' && <button disabled={envoi} className={secondaire} onClick={() => changer('inscription')}>Créer un compte</button>}
         {(etat === 'connexion' || etat === 'nouveau') && <button disabled={envoi} className={secondaire} onClick={() => changer('oubli')}>{etat === 'nouveau' ? 'Demander un nouveau lien' : 'Mot de passe oublié'}</button>}
       </nav>
+      </Formulaire>
     </section>
   </main>;
 }

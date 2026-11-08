@@ -1,0 +1,41 @@
+@media (min-width: 1024px) {
+  .fiche-pc {
+    width: min(56rem, calc(100vw - 4rem));
+    max-width: none;
+    max-height: calc(100dvh - 4rem);
+    overflow: hidden;
+  }
+  .fiche-pc[open] { display: flex; flex-direction: column; }
+  .fiche-pc .fiche-pc-titre {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: calc(var(--spacing) * 2);
+    padding: var(--spacing) var(--spacing) var(--spacing) calc(var(--spacing) * 5);
+    border-bottom: 1px solid var(--region-argent);
+    flex-shrink: 0;
+  }
+  .fiche-pc .fiche-pc-corps {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+    gap: calc(var(--spacing) * 6);
+    padding: calc(var(--spacing) * 5);
+    min-height: 0;
+    overflow-y: auto;
+  }
+  .fiche-pc .fiche-pc-portrait { min-width: 0; }
+  .fiche-pc .fiche-pc-portrait > .flex { justify-content: center; }
+  .fiche-pc .fiche-pc-detail { display: grid; align-content: start; gap: var(--spacing); min-width: 0; }
+  .fiche-pc .fiche-pc-detail > .flex > svg { width: calc(var(--spacing) * 12); height: calc(var(--spacing) * 12); }
+  .fiche-pc .fiche-pc-detail header { display: flex; flex-direction: column; gap: calc(var(--spacing) * 2); }
+  .fiche-pc .fiche-pc-detail header > p { order: -1; color: var(--texte-doux); }
+  .fiche-pc .fiche-pc-detail > .text-xl { font-size: var(--text-3xl); line-height: var(--text-3xl--line-height); font-weight: 700; }
+  .fiche-pc .fiche-pc-facteurs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: calc(var(--spacing) * 2); }
+  .fiche-pc .fiche-pc-facteurs > div { padding: var(--spacing) calc(var(--spacing) * 3); background: var(--surface-2); border: 1px solid var(--bordure); }
+  .fiche-pc .fiche-pc-facteurs dt { color: var(--texte-doux); font-size: var(--text-sm); }
+  .fiche-pc .fiche-pc-facteurs dd { font-weight: 700; }
+  .fiche-pc .fiche-pc-facteurs { font-size: var(--text-sm); line-height: var(--text-sm--line-height); }
+  .fiche-pc .fiche-pc-actions { display: flex; flex-wrap: wrap; gap: calc(var(--spacing) * 2); }
+  .fiche-pc .fiche-pc-actions p { flex-basis: 100%; order: 1; }
+  .fiche-pc .fiche-pc-actions .plaque-action { background: var(--action); color: var(--action-texte); }
+}

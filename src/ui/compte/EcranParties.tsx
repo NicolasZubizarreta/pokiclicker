@@ -14,6 +14,7 @@ export function Parties({ parties, horsConnexion, chargement, occupe, erreur, qu
 }) {
   const telephone = useTelephone();
   const Grille = telephone ? Fragment : 'div';
+  const BarreTitre = telephone ? Fragment : 'header';
   const [nouvelle, fixerNouvelle] = useState(false);
   const [nom, fixerNom] = useState('');
   const [nomInvalide, fixerNomInvalide] = useState(false);
@@ -151,7 +152,10 @@ export function Parties({ parties, horsConnexion, chargement, occupe, erreur, qu
     {suppression && <dialog ref={dialogue} className="cadre zc-dialogue" role="dialog" aria-modal="true" aria-labelledby="zc-suppression-titre"
       onCancel={e => { e.preventDefault(); if (!occupe) fixerSuppression(null); }}
       onKeyDown={e => { if (e.key === 'Escape') { e.preventDefault(); if (!occupe) fixerSuppression(null); } }}>
+      <BarreTitre {...(telephone ? {} : { className: 'fenetre-titre' })}>
       <h2 ref={titreDialogue} id="zc-suppression-titre" tabIndex={-1} className="font-titre text-xl font-bold">Supprimer « {suppression.nom} » ?</h2>
+      {!telephone && <button type="button" className="plaque" aria-label="Fermer" disabled={occupe} onClick={() => fixerSuppression(null)}>×</button>}
+      </BarreTitre>
       <p>Sa progression sera perdue pour de bon. Tes diamants, tes succès et tes skins restent sur ton compte.</p>
       <button type="button" className="plaque zc-danger min-h-12" disabled={occupe} onClick={() => {
         if (occupe) return; quandSupprimer(suppression.id); fixerSuppression(null);
@@ -161,7 +165,10 @@ export function Parties({ parties, horsConnexion, chargement, occupe, erreur, qu
     {restauration && <dialog ref={dialogueRestauration} className="cadre zc-dialogue" role="dialog" aria-modal="true" aria-labelledby="zc-restauration-titre"
       onCancel={e => { e.preventDefault(); if (!bloqueRestauration) fixerRestauration(null); }}
       onKeyDown={e => { if (e.key === 'Escape') { e.preventDefault(); if (!bloqueRestauration) fixerRestauration(null); } }}>
+      <BarreTitre {...(telephone ? {} : { className: 'fenetre-titre' })}>
       <h2 ref={titreRestauration} id="zc-restauration-titre" tabIndex={-1} className="font-titre text-xl font-bold">Restaurer une sauvegarde précédente</h2>
+      {!telephone && <button type="button" className="plaque" aria-label="Fermer" disabled={bloqueRestauration} onClick={() => fixerRestauration(null)}>×</button>}
+      </BarreTitre>
       {erreurRestauration && <p role="alert">{erreurRestauration}</p>}
       {choisie ? <>
         <p>Cela remplace la sauvegarde actuelle de « {restauration.nom} ». L'actuelle est mise de côté à son tour : rien n'est perdu.</p>

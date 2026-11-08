@@ -13,6 +13,9 @@ it('cadre PC unique et grille des parties, y compris hors connexion', () => {
   const p = props();
   const { container, rerender } = render(<ZoneCompte {...p} />);
   expect(container.querySelectorAll('.compte-pc')).toHaveLength(1);
+  expect(container.querySelector('.compte-haut .onglets-compte')).toBeTruthy();
+  expect(container.querySelector('.compte-page')?.contains(screen.getByRole('heading', { name: 'Mes parties' }))).toBe(true);
+  expect(container.querySelector('.parties-grille')?.contains(screen.getByRole('button', { name: 'Nouvelle partie' }))).toBe(true);
   expect(container.querySelector('.parties-grille')?.contains(screen.getByRole('article'))).toBe(true);
   rerender(<ZoneCompte {...p} horsConnexion />);
   expect(screen.getByRole('status').textContent).toContain('Hors connexion');
@@ -30,7 +33,11 @@ it('ne monte ni racine PC ni conteneur de grille sur téléphone', () => {
   affichage.telephone = true;
   const { container } = render(<ZoneCompte {...props()} />);
   expect(container.querySelector('.compte-pc, .parties-pc, .parties-grille')).toBeNull();
+  expect(container.querySelector('.compte-haut, .onglets-compte, .compte-page')).toBeNull();
   expect(screen.getByRole('article').parentElement).toBe(screen.getByRole('heading', { name: 'Mes parties' }).parentElement?.parentElement);
+  fireEvent.click(screen.getByRole('button', { name: 'Supprimer Voyage' }));
+  expect(container.querySelector('.fenetre-titre')).toBeNull();
+  expect(screen.queryByRole('button', { name: 'Fermer' })).toBeNull();
 });
 const props = () => ({ parties: [{ id: 'a', nom: 'Voyage', regionCourante: 'kanto', zoneId: '', tempsJeuMs: 0, ecritLe: '2026-11-04T12:00:00Z', surServeur: true, courante: false }], horsConnexion: false, chargement: false, occupe: false, erreur: '', quandJouer: vi.fn(), quandCreer: vi.fn(), quandSupprimer: vi.fn(), compte: storeJeu.getState().compte, registre: [], etatSynchro: 'ok' as const, quandDeconnecter: vi.fn() });
 it('ouvre les trois onglets et place le focus sur leur titre', () => {
@@ -55,6 +62,8 @@ it('présente la carte et une confirmation modale annulable au clavier', () => {
   fireEvent.click(bouton);
   expect(p.quandSupprimer).not.toHaveBeenCalled();
   const dialogue = screen.getByRole('dialog');
+  expect(dialogue.querySelector('.fenetre-titre')?.contains(within(dialogue).getByRole('heading'))).toBe(true);
+  expect(within(dialogue).getByRole('button', { name: 'Fermer' })).toBeTruthy();
   expect(dialogue.hasAttribute('open')).toBe(true); // modale native : le reste de la page est inerte, sans `inert` sur le parent.
   expect(document.activeElement).toBe(within(dialogue).getByRole('heading'));
   fireEvent.keyDown(document.activeElement!, { key: 'Escape' });

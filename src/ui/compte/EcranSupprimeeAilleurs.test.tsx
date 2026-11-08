@@ -2,6 +2,21 @@
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { EcranSupprimeeAilleurs } from './EcranSupprimeeAilleurs';
+const affichage = vi.hoisted(() => ({ telephone: false }));
+vi.mock('../useTelephone', () => ({ useTelephone: () => affichage.telephone }));
+afterEach(() => { affichage.telephone = false; });
+
+it.each([false, true])('barre de confirmation réservée au PC (téléphone : %s)', telephone => {
+  affichage.telephone = telephone;
+  const { container } = render(<EcranSupprimeeAilleurs {...props()} />);
+  const bouton = screen.getByRole('button', { name: "L'abandonner" });
+  fireEvent.click(bouton);
+  expect(container.querySelectorAll('.fenetre-titre')).toHaveLength(telephone ? 0 : 1);
+  expect(screen.queryByRole('button', { name: 'Fermer' }) !== null).toBe(!telephone);
+  fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
+  expect(screen.queryByRole('dialog')).toBeNull();
+  expect(document.activeElement).toBe(bouton);
+});
 
 afterEach(cleanup);
 beforeEach(() => {

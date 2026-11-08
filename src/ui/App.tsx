@@ -16,6 +16,8 @@ import { useStore } from 'zustand';
 import { registreSucces } from '../core/succes';
 import { creerAppareilActif } from './appareil';
 import { EcranAutreAppareil } from './compte/EcranAutreAppareil';
+import { useTelephone } from './useTelephone';
+import './compte/ZoneCompte.css';
 
 // La zone compte lit le résumé du compte dans le store du jeu, seulement quand elle est affichée.
 function ZoneCompteConnectee(props: Omit<ComponentProps<typeof ZoneCompte>, 'compte' | 'registre'>) {
@@ -27,6 +29,7 @@ function ZoneCompteConnectee(props: Omit<ComponentProps<typeof ZoneCompte>, 'com
 let jeuDejaMonte = false;
 
 function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeconnecter: () => void }) {
+  const telephone = useTelephone();
   const [, rafraichir] = useState(0);
   const [phase, fixerPhase] = useState<'verification' | 'creation' | 'jeu'>('verification');
   const [ecranParties, fixerEcranParties] = useState(false);
@@ -238,7 +241,10 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
     }
     fixerOccupe(false);
   }
-  if (phase === 'verification') return <p role="status">Vérification de la sauvegarde…</p>;
+  if (phase === 'verification') return telephone ? <p role="status">Vérification de la sauvegarde…</p>
+    : <main data-theme="dark" className="grid min-h-dvh place-content-center justify-items-center gap-4 bg-fond font-texte text-texte">
+      <span className="zc-rond-charge" aria-hidden="true" /><p role="status" className="font-titre text-2xl font-bold">Vérification de la sauvegarde…</p><div className="zc-barre-ind" aria-hidden="true"><i /></div>
+    </main>;
   const gestionnaire = creerGestionnaire({ stockage: creerStockageLocal(), horloge: creerHorlogeSysteme(), genererId: () => 'x' });
   const id = suppression?.id ?? gestionnaire.partieCourante();
   const partie = id ? gestionnaire.chargerPartie(id) : null;
@@ -264,7 +270,7 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
         quandRetourJeu={phase === 'creation' || ailleurs || repriseEnAttente ? undefined : () => fixerEcranParties(false)}
         etatSynchro={synchro.etat()} quandDeconnecter={() => fixerDeco(synchro.enAttente() ? 'confirmer-attente' : 'confirmer')} />
     </div>}
-    {avis && <div role="status" className="compte-message info fixed inset-x-0 top-0 z-50">{avis}<button className="plaque min-h-12 min-w-12" onClick={() => fixerAvis(null)}>OK</button></div>}
+    {avis && <div role="status" className="avis-divergence compte-message info fixed inset-x-0 top-0 z-50">{avis}<button className="plaque min-h-12 min-w-12" onClick={() => fixerAvis(null)}>OK</button></div>}
     {deco && <DialogueDeconnexion etat={deco} quandConfirmer={() => { void deconnecter(); }} quandReessayer={() => { void deconnecter(); }} quandAnnuler={() => fixerDeco(null)} quandRester={() => fixerDeco(null)} />}
   </>;
 }

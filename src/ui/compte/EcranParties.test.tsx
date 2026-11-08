@@ -2,6 +2,22 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { Parties } from './EcranParties';
+const affichage = vi.hoisted(() => ({ telephone: false }));
+vi.mock('../useTelephone', () => ({ useTelephone: () => affichage.telephone }));
+afterEach(() => { affichage.telephone = false; });
+
+it.each([false, true])('barre de restauration et confirmation selon le support (téléphone : %s)', async telephone => {
+  affichage.telephone = telephone;
+  const { container } = render(<Parties {...propsArchives()} />);
+  ouvrirArchives();
+  expect(container.querySelectorAll('.fenetre-titre')).toHaveLength(telephone ? 0 : 1);
+  expect(screen.queryByRole('button', { name: 'Fermer' }) !== null).toBe(!telephone);
+  await choisirArchive();
+  expect(container.querySelectorAll('.fenetre-titre')).toHaveLength(telephone ? 0 : 1);
+  fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
+  expect(screen.queryByRole('dialog')).toBeNull();
+  expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Restaurer une sauvegarde précédente de Mon aventure' }));
+});
 
 afterEach(cleanup);
 const archive = { lot: 'lot-1', origine: 'divergence' as const, remplaceLe: '2026-11-03T12:00:00Z', ecritLe: '2026-11-02T12:00:00Z', tempsJeuMs: 43_500_000, regionCourante: 'kanto', zoneId: 'inconnue', niveauEquipe: 15 };

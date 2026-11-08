@@ -1,4 +1,4 @@
-import { useEffect, useRef, type JSX } from 'react';
+import { Fragment, useEffect, useRef, type JSX } from 'react';
 import type { DefinitionSucces } from '../../core/succes';
 import type { ResumeCompte } from '../store';
 import { synchronisations } from '../synchronisations';
@@ -27,6 +27,8 @@ export function ContenuMonCompte({ compte, registre, etatSynchro, quandDeconnect
   compte: ResumeCompte; registre: readonly DefinitionSucces[];
   etatSynchro?: EtatSynchro; quandDeconnecter?: () => void;
 }): JSX.Element {
+  const telephone = useTelephone();
+  const Colonne = telephone ? Fragment : 'div';
   const titre = useRef<HTMLHeadingElement>(null);
   useEffect(() => { titre.current?.focus(); }, []);
   const obtenus = new Set(compte.succes);
@@ -36,7 +38,7 @@ export function ContenuMonCompte({ compte, registre, etatSynchro, quandDeconnect
   return <div className={`${useTelephone() ? '' : 'mc-layout-pc '}w-full max-w-(--breakpoint-md) mx-auto space-y-4`}>
       <header className="flex items-center justify-between gap-3">
         <h1 id="titre-mon-compte" ref={titre} tabIndex={-1} className="font-titre text-xl font-bold">Mon compte</h1>
-        {quandDeconnecter && <button type="button" className="plaque min-h-12" onClick={quandDeconnecter}><IconeSortie />Se déconnecter</button>}
+        {telephone && quandDeconnecter && <button type="button" className="plaque min-h-12" onClick={quandDeconnecter}><IconeSortie />Se déconnecter</button>}
       </header>
       {etatSynchro !== undefined && <section className="cadre bg-surface p-4 space-y-3">
         <p className="text-texte-doux">Connecté</p>
@@ -53,6 +55,8 @@ export function ContenuMonCompte({ compte, registre, etatSynchro, quandDeconnect
         </dl>
         <p className="text-texte-doux">Gagnés avec les succès. Ils restent sur ton compte, quelle que soit la partie.</p>
       </section>
+      {!telephone && quandDeconnecter && <button type="button" className="plaque mc-deconnexion min-h-12" onClick={quandDeconnecter}><IconeSortie />Se déconnecter</button>}
+      <Colonne {...(telephone ? {} : { className: 'mc-droite' })}>
       <section className="mb-4">
         <h2 className="font-titre text-xl mb-4">Succès</h2>
         <p className="mb-4">{nombreObtenus} sur {registre.length} obtenus</p>
@@ -76,5 +80,6 @@ export function ContenuMonCompte({ compte, registre, etatSynchro, quandDeconnect
           ? <ul className="grid gap-4">{compte.skins.map(skin => <li key={skin} className="cadre mc-succes mc-obtenu">{skin}</li>)}</ul>
           : <p>Aucun skin débloqué pour l'instant.</p>}
       </section>
+      </Colonne>
   </div>;
 }

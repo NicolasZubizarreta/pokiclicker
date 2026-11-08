@@ -17,6 +17,8 @@ import { storeJeu } from './store';
 import { niveauRequis, peutEvoluer, pierresPour } from '../core/evolution';
 import { chargerObjets } from '../core/boutique';
 import './FichePokemon.css';
+import './FichePokemonPC.css';
+import './Plaques.css';
 import { evolutionProposee } from './evolution-proposee';
 import { useTelephone } from './useTelephone';
 
@@ -126,15 +128,15 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: 
   const refusPc = caseEquipe && !verificationPc.ok ? verificationPc.raison : null;
   const detail = membre ? detailDps(membre.pokemon, membre.multiplicateur) : null;
 
-  return <>
-    <dialog ref={dialogue} aria-labelledby={titre} className="fiche-pokemon cadre w-full max-w-3xl bg-surface p-0 text-base text-texte"
-      onClose={aLaFermeture} onCancel={event => { event.preventDefault(); if (edition) fermerEdition(); else fermerFiche(); }}
-      onPointerDown={event => { if (event.target === event.currentTarget) fermerFiche(); }}>
-      <div className="fiche-contenu grid min-w-0 gap-4 p-4 lg:p-8">
-        <button type="button" className={`${bouton} justify-self-end${telephone ? '' : ' fiche-fermer'}`} onClick={fermerFiche}>{telephone ? 'Ferme la fiche' : <><span className="sr-only">Ferme la fiche</span><span aria-hidden="true">×</span></>}</button>
-        <header>
+  const fermeture = <button type="button" className={`${bouton} justify-self-end${telephone ? '' : ' fiche-fermer'}`} onClick={fermerFiche}>{telephone ? 'Ferme la fiche' : <><span className="sr-only">Ferme la fiche</span><svg viewBox="0 0 24 24" aria-hidden="true" className="size-5"><path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" strokeWidth="2" /></svg></>}</button>;
+  const favori = pokemon && <button type="button" aria-pressed={pokemon.favori}
+    aria-label={pokemon.favori ? 'Retire des favoris' : 'Ajoute aux favoris'}
+    className={`h-7 min-h-0 inline-flex items-center gap-1 px-2 font-bold relative after:absolute after:-inset-y-2 after:inset-x-0 after:content-[''] ${pokemon.favori ? 'bg-alerte-fond text-alerte-texte' : 'bg-surface-2'}`}
+    onClick={() => signaler(storeJeu.getState().basculerFavori(uid))}><Etoile />Favori</button>;
+  const entete = <header>
           <div className="flex min-w-0 flex-wrap items-center gap-2">
-            <h2 id={titre} className="min-w-0 break-words font-titre text-2xl">{nom}{pokemon?.shiny && !pokemon.oeuf && <IconeShiny />}</h2>
+            {telephone && <h2 id={titre} className="min-w-0 break-words font-titre text-2xl">{nom}{pokemon?.shiny && !pokemon.oeuf && <IconeShiny />}</h2>}
+            {!telephone && favori}
             {pokemon && !pokemon.oeuf && <BoutonRenommer ref={crayon} nom={nom} ouvrir={ouvrirEdition} />}
           </div>
           {edition && pokemon && !pokemon.oeuf && <form className="mt-2 grid gap-2" onSubmit={event => { event.preventDefault(); validerSurnom(); }}>
@@ -150,45 +152,43 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: 
               <button type="button" className={bouton} onClick={fermerEdition}>Annuler</button>
             </div>
           </form>}
-          {pokemon && espece && <p>{pokemon.oeuf ? progressionOeuf(pokemon.oeuf) : `${espece.nom} · N° ${pokemon.numero} · Niveau ${pokemon.niveau}`}</p>}
-        </header>
-        {evolution && pokemon && <button type="button" className={`${bouton} cadre-alerte`}
+          {pokemon && espece && <p>{pokemon.oeuf ? progressionOeuf(pokemon.oeuf) : `${espece.nom} · N° ${pokemon.numero} · Niveau ${pokemon.niveau}${telephone ? '' : caseEquipe ? " · dans l'équipe" : ''}`}{!telephone && pokemonPc && <> · <span>Dans le PC</span></>}</p>}
+        </header>;
+  const boutonEvolution = evolution && pokemon && <button type="button" className={`${bouton} cadre-alerte${telephone ? '' : ' plaque plaque-action'}`}
           aria-label={`Faire évoluer ${nom} en ${nomAffiche({ ...pokemon, numero: evolution.vers, surnom: undefined })}${evolution.pierre ? ` avec la ${evolution.pierre.nom}` : ''}`}
           onClick={() => {
             const message = evolution.pierre ? storeJeu.getState().utiliserPierre(uid, evolution.pierre.id) : storeJeu.getState().evoluer(uid);
             if (message) signaler(message);
             else fermerFiche();
-          }}>Évoluer</button>}
-        {pokemonPc && <p>Dans le PC</p>}
-        {pokemon && espece && membre && detail && <>
-          <div className="relative isolate mx-auto grid size-48 max-w-full overflow-hidden place-items-center">
-            {telephone && <div className="socle absolute bottom-4 -z-10 h-8 w-40 bg-region-socle" />}
+          }}>Évoluer</button>;
+  const portrait = pokemon && espece && <div className="relative isolate mx-auto grid size-48 max-w-full overflow-hidden place-items-center">
+            <div className="socle absolute bottom-4 -z-10 h-8 w-40 bg-region-socle" />
             <Image src={spriteAffiche(pokemon)} genre="sprite" alt={pokemon.oeuf ? nom : espece.nom} className={`size-full max-h-full max-w-full ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(pokemon)}`} />
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
+          </div>;
+  const identite = pokemon && espece && <div className="flex flex-wrap items-center gap-2">
             {(pokemon.sexe === 'male' || pokemon.sexe === 'femelle') && <IconeSexe sexe={pokemon.sexe} />}
             {pokemon.shiny && <span className="h-7 inline-flex items-center gap-1 px-2 font-bold"><IconeShiny />Shiny</span>}
-            <button type="button" aria-pressed={pokemon.favori}
-              aria-label={pokemon.favori ? 'Retire des favoris' : 'Ajoute aux favoris'}
-              className={`h-7 min-h-0 inline-flex items-center gap-1 px-2 font-bold relative after:absolute after:-inset-y-2 after:inset-x-0 after:content-[''] ${pokemon.favori ? 'bg-alerte-fond text-alerte-texte' : 'bg-surface-2'}`}
-              onClick={() => signaler(storeJeu.getState().basculerFavori(uid))}>
-              <Etoile />Favori
-            </button>
-            {espece.types.map(type => <span key={type} className={`h-7 inline-flex items-center gap-1 px-2 font-bold pastille-type pastille-type-${type}`}>{nomType(type)}</span>)}
-          </div>
+            {telephone && favori}
+            {(telephone || !pokemon.oeuf) && espece.types.map(type => <span key={type} className={`h-7 inline-flex items-center gap-1 px-2 font-bold pastille-type pastille-type-${type}`}>{nomType(type)}</span>)}
+          </div>;
+  const statistiques = pokemon && membre && detail && <>
           {!pokemon.oeuf && <div>
             <p>XP : {pokemon.niveau >= 100 ? <span>MAX</span> : <span>{Math.floor(pokemon.xp)} / {membre.xpMax}</span>}</p>
             <BarreXp xp={pokemon.xp} maximum={membre.xpMax} nom={nom} />
           </div>}
           {(telephone || !pokemon.oeuf) && <><p className="text-xl text-region-accent">{formaterDps(membre.dps)} DPS</p>
-          <dl className="grid grid-cols-2 gap-2">
+          {telephone ? <dl className="grid grid-cols-2 gap-2">
             <dt>Base</dt><dd>{nombre(detail.base)}</dd>
             <dt>Type</dt><dd>× {nombre(detail.multiplicateurType)}</dd>
             <dt>Shiny</dt><dd>× {nombre(detail.shiny)}</dd>
             <dt>Bonheur</dt><dd>× {nombre(detail.bonheur)}</dd>
             <dt>Pierre Stase</dt><dd>× {nombre(detail.pierreEternelle)}</dd>
             <dt>Calcium</dt><dd>× {nombre(detail.calcium)}</dd>
-          </dl>
+          </dl> : <dl className="fiche-pc-facteurs">{[
+            ['Base', nombre(detail.base)], ['Type', `× ${nombre(detail.multiplicateurType)}`],
+            ['Shiny', `× ${nombre(detail.shiny)}`], ['Bonheur', `× ${nombre(detail.bonheur)}`],
+            ['Pierre Stase', `× ${nombre(detail.pierreEternelle)}`], ['Calcium', `× ${nombre(detail.calcium)}`],
+          ].map(([libelle, valeur]) => <div key={libelle}><dt>{libelle}</dt><dd>{valeur}</dd></div>)}</dl>}
           {!pokemon.oeuf && peutEvoluer(pokemon.numero) && <p>{pokemon.pierreEternelle
             ? 'Évolution bloquée (Pierre Stase).'
             : `Évolution : ${niveauRequis(pokemon.numero) !== null ? `niveau ${niveauRequis(pokemon.numero)}`
@@ -203,11 +203,13 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: 
             <div><p>Bonheur : <span>{pokemon.bonheur}/255</span></p>
               <p>+{nombre(pokemon.bonheur * reglages.degats.bonheurParPoint * 100)} % de dégâts</p></div>
           </div>
-          <p>Calcium : {pokemon.calcium} · +{nombre(pokemon.calcium * reglages.degats.calciumParBoost * 100)} % de dégâts</p>
-          <p>Objet tenu : {pokemon.pierreEternelle ? 'Pierre Stase' : 'aucun'}</p></>}
+          <p>Calcium : {pokemon.calcium} · +{nombre(pokemon.calcium * reglages.degats.calciumParBoost * 100)} % de dégâts{!telephone && <> · Objet tenu : {pokemon.pierreEternelle ? 'Pierre Stase' : 'aucun'}</>}</p>
+          {telephone && <p>Objet tenu : {pokemon.pierreEternelle ? 'Pierre Stase' : 'aucun'}</p>}</>}
+          </>;
+  const actions = pokemon && espece && membre && detail && <>
           {erreur && <p role="alert">{erreur}</p>}
           <button type="button" disabled={refusPc !== null} aria-describedby={refusPc ? raisonPc : undefined}
-            className="min-h-11 bg-action px-4 py-2 text-action-texte" onClick={() => {
+            className={`min-h-11 bg-action px-4 py-2 text-action-texte${telephone ? '' : ' plaque plaque-action'}`} onClick={() => {
               const etat = storeJeu.getState();
               const raison = pokemonPc ? etat.placerDansEquipe(uid) : etat.envoyerAuPc(uid);
               signaler(raison);
@@ -215,14 +217,27 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: 
             }}>{pokemonPc ? "Placer dans l'équipe" : 'Envoyer au PC'}</button>
           {refusPc && <p id={raisonPc}>{refusPc}</p>}
           <button type="button" disabled={refus !== null} aria-describedby={refus ? (refus === refusPc ? raisonPc : raisonRelachement) : undefined}
-            className={`${bouton} text-erreur-base`} onClick={() => {
+            className={`${bouton} text-erreur-base${telephone ? '' : ' plaque'}`} onClick={() => {
               signalerConfirmation(null);
               confirmation.current?.showModal();
               annuler.current?.focus();
             }}>Relâcher</button>
           {refus && refus !== refusPc && <p id={raisonRelachement}>{refus}</p>}
-        </>}
-      </div>
+        </>;
+  return <>
+    <dialog ref={dialogue} aria-labelledby={titre} className={`fiche-pokemon cadre w-full max-w-3xl bg-surface p-0 text-base text-texte${telephone ? '' : ' fiche-pc'}`}
+      onClose={aLaFermeture} onCancel={event => { event.preventDefault(); if (edition) fermerEdition(); else fermerFiche(); }}
+      onPointerDown={event => { if (event.target === event.currentTarget) fermerFiche(); }}>
+      {telephone ? <div className="fiche-contenu grid min-w-0 gap-4 p-4 lg:p-8">
+        {fermeture}{entete}{boutonEvolution}{pokemonPc && <p>Dans le PC</p>}
+        {pokemon && espece && membre && detail && <>{portrait}{identite}{statistiques}{actions}</>}
+      </div> : <>
+        <div className="fiche-pc-titre"><h2 id={titre} className="min-w-0 break-words font-titre text-2xl">{nom}{pokemon?.shiny && !pokemon.oeuf && <IconeShiny />}</h2>{fermeture}</div>
+        <div className="fiche-pc-corps">
+          <div className="fiche-pc-portrait">{portrait}{identite}</div>
+          <div className="fiche-pc-detail">{entete}{statistiques}{boutonEvolution}<div className="fiche-pc-actions">{actions}</div></div>
+        </div>
+      </>}
     </dialog>
     <dialog ref={confirmation} aria-labelledby={titreConfirmation}
       className="fiche-pokemon cadre w-full max-w-xl bg-surface p-4 text-base text-texte lg:p-8">

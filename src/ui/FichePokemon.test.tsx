@@ -86,6 +86,39 @@ function afficher() {
   return vue;
 }
 
+it('organise la fenêtre PC en portrait et détail avec les actions et leur raison', () => {
+  storeJeu.setState({ equipe: [storeJeu.getState().equipe[0]!] });
+  const { container } = afficher();
+  const fiche = container.querySelector('.fiche-pc')!;
+  expect(container.querySelectorAll('.fiche-pc')).toHaveLength(1);
+  expect(fiche.querySelector('.fiche-pc-portrait img.halo-shiny')).toBeTruthy();
+  expect(fiche.querySelector('.fiche-pc-titre button svg')).toBeTruthy();
+  const detail = fiche.querySelector('.fiche-pc-detail')!;
+  for (const nom of ['Envoyer au PC', 'Relâcher']) {
+    const action = screen.getByRole('button', { name: nom });
+    expect(detail.contains(action)).toBe(true);
+    expect(action.hasAttribute('disabled')).toBe(true);
+    expect(detail.contains(document.getElementById(action.getAttribute('aria-describedby')!))).toBe(true);
+  }
+  expect(fiche.querySelectorAll('.fiche-pc-facteurs > div')).toHaveLength(6);
+});
+
+it('omet les types et l’évolution de l’œuf sur PC', () => {
+  storeJeu.setState({ equipe: [{ pokemon: { ...pokemon, oeuf: { pasRestants: 10, pasMax: 10 } }, dps: 0, xpMax: 100, multiplicateur: 1 }] });
+  const { container } = afficher();
+  expect(container.querySelector('.fiche-pc')).toBeTruthy();
+  expect(container.querySelector('.pastille-type')).toBeNull();
+  expect(screen.queryByRole('button', { name: /Faire évoluer/ })).toBeNull();
+});
+
+it('ne crée aucune racine PC sur téléphone', () => {
+  vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() })));
+  const { container } = afficher();
+  expect(container.querySelector('.fiche-pc')).toBeNull();
+  expect(container.querySelector('.fiche-contenu')).toBeTruthy();
+  vi.unstubAllGlobals();
+});
+
 it('actualise le bonheur dans la fiche ouverte après modification de l’équipe', () => {
   afficher();
   expect(screen.getByRole('img', { name: 'Bonheur : 128/255' })).toBeTruthy();
@@ -156,7 +189,7 @@ it('renomme par le crayon avec validation du cœur, compteur et en-tête réacti
   fireEvent.submit(champ.form!);
   expect(storeJeu.getState().equipe[0]?.pokemon.surnom).toBe('abcdefghijkl');
   expect(screen.getByRole('heading', { name: 'abcdefghijkl' })).toBeTruthy();
-  expect(screen.getByText('Bulbizarre · N° 1 · Niveau 16')).toBeTruthy();
+  expect(screen.getByText("Bulbizarre · N° 1 · Niveau 16 · dans l'équipe")).toBeTruthy();
   expect(screen.queryByRole('textbox')).toBeNull();
   expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Renommer abcdefghijkl' }));
 });
@@ -214,7 +247,7 @@ it.each([['male', 'Mâle'], ['femelle', 'Femelle']] as const)('affiche les pasti
   afficher();
   const favori = screen.getByRole('button', { name: 'Ajoute aux favoris' });
   const icone = screen.getByRole('img', { name: nom });
-  const shiny = Array.from(favori.parentElement!.children).find(element => element.textContent === 'Shiny')!;
+  const shiny = screen.getByText('Shiny', { selector: '.fiche-pc-portrait span' });
   for (const pastille of [favori, icone, shiny, screen.getByText('Plante'), screen.getByText('Poison')]) {
     expect(pastille.classList.contains('h-7')).toBe(true);
   }
