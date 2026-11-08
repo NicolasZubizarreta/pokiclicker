@@ -396,7 +396,7 @@ En tant que joueur sur iPhone, je veux que les notifications n'altèrent jamais 
 
 ## S. `feat(ui): table des types dans le guide (téléphone et PC)`
 
-`type:feat`, `etat:a_faire`, `est:0,5-1`, `prio:3` · branche : `v2` · pas d'`agent-ok` avant le cadrage (présentation de la table à valider)
+`type:feat`, `etat:fait`, `est:0,5-1`, `prio:3` · branche : `v2` · pas d'`agent-ok` avant le cadrage (présentation de la table à valider)
 
 ### Histoire
 En tant que joueur, je veux consulter la table des types (forces et faiblesses) dans le guide, sur téléphone et sur PC, pour choisir mon équipe sans chercher ailleurs.
@@ -405,9 +405,12 @@ En tant que joueur, je veux consulter la table des types (forces et faiblesses) 
 Demande de Nicolas (08/11/2026) : « dans le guide aussi je rajouterai une table des types dans la version PC et Téléphone ». Les multiplicateurs de types existent déjà dans le cœur de jeu (`src/core/combat.ts`, `equipe.ts`) : la table affichée doit les lire, pas les recopier.
 
 ### Critères d'acceptation
-- [ ] Étant donné le guide (téléphone et PC), quand j'ouvre la section Types, alors je vois la table des 15 types de Kanto (attaque en ligne, défense en colonne, ×2, ×0,5, ×0) lue depuis les données du jeu.
-- [ ] Étant donné 390 px, quand j'ouvre la table, alors elle reste lisible sans défilement horizontal de la page (cadre défilant ou présentation par type).
-- [ ] Étant donné la table, quand les règles de types changent dans le cœur, alors la table suit sans autre modification.
+- [x] Étant donné le guide (téléphone et PC), quand j'ouvre la section Types, alors je vois la table des 17 types présents dans le jeu à Kanto (Ténèbres n'est porté par aucun Pokémon ; attaque en ligne, défense en colonne, ×2, ×0,5, ×0) lue depuis les données du jeu.
+- [x] Étant donné 390 px, quand j'ouvre la table, alors elle reste lisible sans défilement horizontal de la page (cadre défilant ou présentation par type).
+- [x] Étant donné la table, quand les règles de types changent dans le cœur, alors la table suit sans autre modification.
 
 ### Effort et risques
 0,5 à 1 jour. Risque : lisibilité d'une grille 15×15 sur téléphone ; à cadrer avec Nicolas (grille ou liste par type).
+
+### Réalisation (08/11/2026)
+Section « Types » du Guide : téléphone = 17 boutons de 48 px (une liste par type : fort contre, peu efficace, sans effet ; faible contre, résiste à, immunisé), PC = vraie table attaque en ligne × défense en colonne (×2, ×0,5, ×0, vide = normal) dans un cadre défilant à en-têtes collants. Les multiplicateurs viennent de `multiplicateurType` (src/core/combat.ts) via `src/core/table-types.ts`, les 17 types de `data/pokemon.json`. Tests : src/core/table-types.test.ts, src/ui/TableTypes.test.tsx, tests-e2e/guide.spec.ts (390 px ; 1280, 1440, 1920, 2560 px ; clavier).

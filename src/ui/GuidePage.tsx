@@ -1,17 +1,19 @@
 import { useState } from 'react';
 import { guide } from '../core/guide';
 import { IconeChevron, IconeRetour } from './icones-menu';
+import { TableTypes } from './TableTypes';
 import { useTelephone } from './useTelephone';
 import './DexPC.css';
 
 export function GuidePage({ retour }: { retour(): void }) {
   const [ouvert, setOuvert] = useState<string | undefined>(guide.sections[0]?.id);
   const telephone = useTelephone();
-  const section = guide.sections.find(s => s.id === ouvert);
+  const sections = [...guide.sections, { id: 'types', titre: 'Types', paragraphes: [] }];
+  const section = sections.find(s => s.id === ouvert);
   if (!telephone) return <section className="guide-pc text-base">
     <header className="flex items-center gap-4"><button type="button" onClick={retour} className="plaque min-h-11 px-4">Retour au menu</button><h1 tabIndex={-1} className="font-titre text-2xl font-semibold">{guide.titre}</h1></header>
-    <div className="guide-corps"><nav aria-label="Sections du guide">{guide.sections.map(s => <button key={s.id} type="button" aria-current={s.id === ouvert} onClick={() => setOuvert(ouvert === s.id ? undefined : s.id)} className="min-h-11 px-3 py-2 text-left">{s.titre}</button>)}</nav>
-      {section && <article className="cadre bg-surface p-6"><h2 className="font-titre text-xl font-bold">{section.titre}</h2>{section.paragraphes.map((p, i) => <p key={i} className="max-w-prose">{p}</p>)}</article>}</div>
+    <div className="guide-corps"><nav aria-label="Sections du guide">{sections.map(s => <button key={s.id} type="button" aria-current={s.id === ouvert} onClick={() => setOuvert(ouvert === s.id ? undefined : s.id)} className="min-h-11 px-3 py-2 text-left">{s.titre}</button>)}</nav>
+      {section && <article className="cadre min-w-0 bg-surface p-6"><h2 className="font-titre text-xl font-bold">{section.titre}</h2>{section.id === 'types' ? <TableTypes telephone={false} /> : section.paragraphes.map((p, i) => <p key={i} className="max-w-prose">{p}</p>)}</article>}</div>
   </section>;
 
   return <section className="mx-auto max-w-screen-xl space-y-4 text-base">
@@ -20,8 +22,8 @@ export function GuidePage({ retour }: { retour(): void }) {
         className="flex min-h-11 min-w-11 items-center justify-center bg-surface-2 hover:bg-selection"><IconeRetour /></button>
       <h1 tabIndex={-1} className="font-titre text-2xl font-semibold">{guide.titre}</h1>
     </header>
-    <p className="text-texte-doux">{guide.sections.length} sections. Touche un titre pour l'ouvrir.</p>
-    {guide.sections.map(section => <details key={section.id} open={ouvert === section.id} className="cadre bg-surface">
+    <p className="text-texte-doux">{sections.length} sections. Touche un titre pour l'ouvrir.</p>
+    {sections.map(section => <details key={section.id} open={ouvert === section.id} className="cadre bg-surface">
       <summary className="flex min-h-11 cursor-pointer items-center gap-2 px-3 py-2 font-bold"
         onClick={event => {
           event.preventDefault();
@@ -30,7 +32,7 @@ export function GuidePage({ retour }: { retour(): void }) {
         {section.titre}<span className={`ml-auto ${ouvert === section.id ? 'rotate-90' : ''}`}><IconeChevron /></span>
       </summary>
       <div className="grid gap-2 px-3 pb-3">
-        {section.paragraphes.map((paragraphe, index) => <p key={index} className="max-w-prose break-words">{paragraphe}</p>)}
+        {section.id === 'types' ? <TableTypes telephone /> : section.paragraphes.map((paragraphe, index) => <p key={index} className="max-w-prose break-words">{paragraphe}</p>)}
       </div>
     </details>)}
   </section>;

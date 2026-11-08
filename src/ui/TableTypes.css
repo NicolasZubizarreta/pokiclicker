@@ -1,0 +1,18 @@
+@media (min-width: 1024px) {
+  .table-types-corps { display: flex; flex: 1; flex-direction: column; min-height: 0; }
+  .table-types-region { position: relative; flex: 1 1 auto; min-height: 0; overflow: auto; max-width: 100%; padding: 2px; }
+  .table-types thead th, .table-types thead td { position: sticky; top: 0; z-index: 2; background: var(--surface); }
+  .table-types tbody th { position: sticky; left: 0; z-index: 1; background: var(--surface); }
+  .table-types thead td { left: 0; z-index: 3; }
+  .table-types { table-layout: fixed; border-collapse: collapse; width: 49rem; font-size: 14px; color: var(--texte); }
+  .table-types th, .table-types td { width: 2.5rem; height: 1.4rem; text-align: center; }
+  .table-types th:first-child, .table-types td:first-child { width: 6.5rem; }
+  .table-types th[scope="col"] { height: 5.25rem; vertical-align: bottom; padding-bottom: 0.25rem; }
+  .table-types th[scope="col"] .pastille-type { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 14px; }
+  .table-types th[scope="row"] .pastille-type { font-size: 14px; }
+  .table-types .type-fort { background-color: var(--succes-fond); }
+  .table-types .type-peu { background-color: var(--erreur-fond); }
+  .table-types .type-eclaire { background-image: linear-gradient(color-mix(in srgb, var(--selection) 20%, transparent), color-mix(in srgb, var(--selection) 20%, transparent)); }
+  .table-types td:hover { box-shadow: inset 0 0 0 2px var(--focus); }
+  .table-types tr:has(th[scope="row"]:focus-visible), .table-types-region:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+}
