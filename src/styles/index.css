@@ -332,6 +332,8 @@ html:has(dialog[open]) { overflow: hidden; }
 }
 .cible-combat { -webkit-touch-callout: none; }
 .cible-combat:focus-visible { outline-offset: -3px; }
+/* Zones d'une scène de lieu : le repère de focus est le contour de la forme (SVG), pas un rectangle autour du bouton. */
+.zone-scene:focus-visible { outline: none; }
 .dock-capture { max-width: calc(100% - var(--spacing) * 22); }
 .radar-rond { border-radius: var(--radius-plein); }
 .combat-grille { height: calc(100dvh - var(--spacing) * 52); grid-template-rows: minmax(0, 1fr) auto auto; }

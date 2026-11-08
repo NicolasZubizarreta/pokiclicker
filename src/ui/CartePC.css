@@ -14,6 +14,8 @@
   /* Pas de cadre carré autour d'un rond : au clavier, le contour du rond devient jaune ; à la souris, rien. */
   .carte-pc g[role="button"] { outline: none; }
   .carte-pc g[role="button"]:focus-visible > circle:first-of-type { stroke: var(--focus); stroke-width: 3px; }
+  /* Survol souris : le rond lui-même s'éclaircit, aucun cadre autour. */
+  @media (hover: hover) { .carte-pc g[role="button"]:hover > circle:first-of-type { filter: brightness(1.6); } }
   .carte-pc .fenetre-celadopole { margin: auto; }
   @keyframes carte-pc-clignote { 50% { opacity: 0; } }
   @media (prefers-reduced-motion: reduce) {

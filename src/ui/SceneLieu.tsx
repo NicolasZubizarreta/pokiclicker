@@ -1,4 +1,4 @@
-import { useId, useRef, useState } from 'react';
+import { useId, useRef, useState, type PointerEvent } from 'react';
 import { partieUtile, ratioUtile, type FormeScene, type Scene } from '../core/scenes';
 import { attributsSvg, centreForme } from './carte-geometrie';
 
@@ -22,6 +22,19 @@ type Props = {
 export function SceneLieu({ scene, nom, quandChoisir, raisons = {}, clignotements = [], occupe = false }: Props) {
   const [annonce, annoncer] = useState('');
   const [teleAllumee, allumer] = useState(false);
+  // Repère de la zone (survol souris ou focus clavier) : il épouse la forme exacte du polygone, jamais sa boîte englobante.
+  const [survol, survoler] = useState<string | null>(null);
+  const [focus, focaliser] = useState<string | null>(null);
+  const formesSvg = useRef(new Map<string, SVGGeometryElement>());
+  const calque = useRef<SVGSVGElement>(null);
+  function pointeurDansForme(event: PointerEvent<HTMLButtonElement>, nomForme: string) {
+    if (event.pointerType !== 'mouse') return;
+    const boite = calque.current?.getBoundingClientRect();
+    const forme = formesSvg.current.get(nomForme);
+    if (!boite || !boite.width || !forme?.isPointInFill) { survoler(nomForme); return; }
+    const dedans = forme.isPointInFill(new DOMPoint((event.clientX - boite.left) / boite.width * 16, (event.clientY - boite.top) / boite.height * 9));
+    survoler(dedans ? nomForme : null);
+  }
   const video = useRef<HTMLVideoElement>(null);
   const id = useId();
   const dimensions = { aspectRatio: String(ratioUtile(scene)) };
@@ -52,7 +65,7 @@ export function SceneLieu({ scene, nom, quandChoisir, raisons = {}, clignotement
       <img src={`img/${scene.image}`} alt={nom} className="absolute inset-0 h-full w-full object-contain" />
       {scene.tele && <video ref={video} src={scene.tele.video} muted playsInline preload="metadata" aria-hidden="true" hidden={!teleAllumee}
         style={pourcent(scene.tele.ecran)} className="pointer-events-none absolute object-cover" />}
-      <svg viewBox="0 0 16 9" preserveAspectRatio="none" aria-hidden="true" focusable="false"
+      <svg ref={calque} viewBox="0 0 16 9" preserveAspectRatio="none" aria-hidden="true" focusable="false"
         className="pointer-events-none absolute inset-0 h-full w-full">
         {scene.formes.map(f => {
           const Forme = f.forme === 'polygone' ? 'polygon' : 'rect';
@@ -60,7 +73,14 @@ export function SceneLieu({ scene, nom, quandChoisir, raisons = {}, clignotement
             : f.teinte === 'red' ? 'fill-erreur-base/45'
               : f.teinte === 'blue' ? 'fill-info-base/45' : 'fill-succes-base/25';
           return <Forme key={f.nom} {...attributsSvg(f)} data-forme={f.nom}
+            ref={(element: SVGGeometryElement | null) => { if (element) formesSvg.current.set(f.nom, element); else formesSvg.current.delete(f.nom); }}
             className={`forme-scene ${couleur} ${f.zone && clignotements.includes(f.zone) ? 'motion-safe:flash-vert' : ''}`} />;
+        })}
+        {scene.formes.filter(f => f.nom === survol || f.nom === focus).map(f => {
+          const Forme = f.forme === 'polygone' ? 'polygon' : 'rect';
+          // Survol : léger voile dans la forme, sans contour. Focus clavier : contour fin dans la forme.
+          return <Forme key={f.nom} {...attributsSvg(f)} data-repere={f.nom}
+            className={f.nom === focus ? 'forme-scene fill-transparent stroke-texte' : 'fill-texte/20 stroke-none'} />;
         })}
       </svg>
       {scene.formes.map((f, index) => {
@@ -71,8 +91,10 @@ export function SceneLieu({ scene, nom, quandChoisir, raisons = {}, clignotement
         const texte = raison ?? f.nom;
         return <button key={f.nom} type="button" aria-label={f.nom}
           aria-disabled={raison ? true : undefined} aria-describedby={raison ? `${id}-${index}` : undefined} disabled={occupe}
-          style={position} className={`absolute min-h-11 min-w-11 -translate-x-1/2 -translate-y-1/2 bg-transparent hover:outline-2 hover:outline-focus focus-visible:outline-focus ${raison ? '' : 'enabled:cursor-pointer'}`}
-          onFocus={() => annoncer(texte)} onPointerEnter={() => annoncer(texte)} onPointerDown={() => annoncer(texte)}
+          style={position} className={`zone-scene absolute min-h-11 min-w-11 -translate-x-1/2 -translate-y-1/2 bg-transparent ${raison ? '' : 'enabled:cursor-pointer'}`}
+          onFocus={event => { annoncer(texte); if (event.currentTarget.matches(':focus-visible')) focaliser(f.nom); }} onBlur={() => focaliser(null)}
+          onPointerEnter={event => { annoncer(texte); pointeurDansForme(event, f.nom); }} onPointerMove={event => pointeurDansForme(event, f.nom)}
+          onPointerLeave={() => survoler(null)} onPointerDown={() => annoncer(texte)}
           onClick={() => { annoncer(texte); if (!raison && f.zone) quandChoisir(f.zone); }} />;
       })}
       {scene.tele && <button type="button" aria-label="Télé" aria-pressed={teleAllumee} onClick={basculerTele}

@@ -18,18 +18,57 @@ async function allerABourgPalette(page: Page) {
   await expect(page.getByRole('button', { name: 'Chez Maman' })).toBeVisible({ timeout: 20_000 });
 }
 
-test('Bourg Palette : le survol d’une zone cliquable n’ajoute aucun aplat, seulement un cadre', async ({ page }) => {
+test('Bourg Palette : le survol est un voile dans la forme de la zone, sans cadre ni aplat', async ({ page }) => {
   test.skip(telephone(page), 'Survol : profil PC seulement');
   await ouvrir(page);
   await allerABourgPalette(page);
   for (const nom of ['Chez Maman', 'Chez Blue', 'Labo Pokémon du Prof. Chen']) {
     const zone = page.getByRole('button', { name: nom });
-    await zone.hover({ force: true });
-    const style = await zone.evaluate(e => { const s = getComputedStyle(e); return { fond: s.backgroundColor, contour: s.outlineStyle, largeur: parseFloat(s.outlineWidth) }; });
+    await zone.hover();
+    const style = await zone.evaluate(e => { const s = getComputedStyle(e); return { fond: s.backgroundColor, contour: s.outlineStyle }; });
     expect(style.fond, `${nom} : fond au survol`).toBe('rgba(0, 0, 0, 0)');
-    expect(style.contour, `${nom} : cadre au survol`).toBe('solid');
-    expect(style.largeur).toBeGreaterThanOrEqual(2);
+    expect(style.contour, `${nom} : aucun cadre autour`).toBe('none');
+    // Le repère est la forme de l'image mapping, en voile léger : fond translucide, pas de contour.
+    const repere = page.locator(`[data-repere="${nom}"]`);
+    await expect(repere, `${nom} : voile dans la forme`).toHaveCount(1);
+    const voile = await repere.evaluate(e => { const s = getComputedStyle(e); return { fill: s.fill, stroke: s.stroke, opacite: parseFloat(s.fillOpacity) }; });
+    expect(voile.stroke).toBe('none');
+    expect(voile.fill).not.toBe('none');
+    const alpha = Number(/\/\s*([\d.]+)/.exec(voile.fill)?.[1] ?? /rgba\([^)]*,\s*([\d.]+)\)/.exec(voile.fill)?.[1] ?? 1);
+    expect(alpha * voile.opacite).toBeLessThanOrEqual(0.3);
+    await page.mouse.move(5, 5);
+    await expect(repere).toHaveCount(0);
   }
+});
+
+test('Chez Blue : la sortie en losange ne réagit qu’à l’intérieur du losange, focus clavier en contour fin dans la forme', async ({ page }) => {
+  test.skip(telephone(page), 'Survol : profil PC seulement');
+  await ouvrir(page);
+  await allerABourgPalette(page);
+  await page.getByRole('button', { name: 'Chez Blue' }).click();
+  const sortie = page.getByRole('button', { name: 'Sortie' });
+  await expect(sortie).toBeVisible({ timeout: 20_000 });
+  const boite = (await sortie.boundingBox())!;
+  const repere = page.locator('[data-repere="Sortie"]');
+  // Coin de la boîte englobante : hors du losange, donc aucun repère et aucun cadre.
+  await page.mouse.move(boite.x + 3, boite.y + 3);
+  await expect(repere).toHaveCount(0);
+  expect(await sortie.evaluate(e => getComputedStyle(e).outlineStyle)).toBe('none');
+  // Centre du losange : le voile apparaît, de la forme exacte du polygone (quatre points, pas un rectangle).
+  await page.mouse.move(boite.x + boite.width / 2, boite.y + boite.height / 2);
+  await expect(repere).toHaveCount(1);
+  expect(await repere.evaluate(e => e.tagName.toLowerCase())).toBe('polygon');
+  expect(await repere.evaluate(e => e.getAttribute('points')!.trim().split(/\s+/).length)).toBe(4);
+  await page.screenshot({ path: 'test-results/survol-losange.png' });
+  // Clavier : contour fin dans la forme, aucun rectangle autour du bouton.
+  await page.mouse.move(5, 5);
+  await sortie.focus();
+  await page.keyboard.press('Shift+Tab');
+  await page.keyboard.press('Tab');
+  await expect(repere).toHaveCount(1);
+  const focus = await repere.evaluate(e => { const s = getComputedStyle(e); return { stroke: s.stroke, fill: s.fill }; });
+  expect(focus.stroke).not.toBe('none');
+  expect(await sortie.evaluate(e => getComputedStyle(e).outlineStyle)).toBe('none');
 });
 
 test('Carte : survol et clic sans carré, rond vert de même taille que les autres, focus clavier sur le rond', async ({ page }) => {
@@ -40,6 +79,9 @@ test('Carte : survol et clic sans carré, rond vert de même taille que les autr
   const repere = page.locator('g[data-forme="Route 1"]');
   await repere.hover({ force: true });
   expect(await repere.evaluate(e => getComputedStyle(e).backgroundColor)).toBe('rgba(0, 0, 0, 0)');
+  // Survol d'un rond : le rond s'éclaircit lui-même, aucun contour ni rectangle autour.
+  expect(await repere.evaluate(e => getComputedStyle(e).outlineStyle)).toBe('none');
+  expect(await repere.evaluate(e => getComputedStyle(e.querySelector('circle')!).filter)).toContain('brightness');
   // Le rond vert clignotant est celui du marqueur : même diamètre que les ronds de base, sans contour en unités de carte.
   const mesures = await page.evaluate(() => {
     const vert = document.querySelector('circle[data-actuelle]')!;
