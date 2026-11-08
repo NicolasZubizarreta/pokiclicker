@@ -4,8 +4,8 @@
   .table-types thead th, .table-types thead td { position: sticky; top: 0; z-index: 2; background: var(--surface); }
   .table-types tbody th { position: sticky; left: 0; z-index: 1; background: var(--surface); }
   .table-types thead td { left: 0; z-index: 3; }
-  .table-types { table-layout: fixed; border-collapse: collapse; width: 49rem; font-size: 14px; color: var(--texte); }
-  .table-types th, .table-types td { width: 2.5rem; height: 1.4rem; text-align: center; }
+  .table-types { table-layout: fixed; border-collapse: collapse; width: 48.8rem; font-size: 14px; color: var(--texte); }
+  .table-types th, .table-types td { width: 2.35rem; height: 1.4rem; text-align: center; }
   .table-types th:first-child, .table-types td:first-child { width: 6.5rem; }
   .table-types th[scope="col"] { height: 5.25rem; vertical-align: bottom; padding-bottom: 0.25rem; }
   .table-types th[scope="col"] .pastille-type { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 14px; }

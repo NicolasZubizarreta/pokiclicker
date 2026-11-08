@@ -12,8 +12,8 @@ afterEach(cleanup);
 it('affiche toutes les paires du cœur dans une table accessible', () => {
   render(<TableTypes telephone={false} />);
   const table = screen.getByRole('table');
-  expect(within(table).getAllByRole('columnheader')).toHaveLength(17);
-  expect(within(table).getAllByRole('rowheader')).toHaveLength(17);
+  expect(within(table).getAllByRole('columnheader')).toHaveLength(18);
+  expect(within(table).getAllByRole('rowheader')).toHaveLength(18);
   const liste = typesDuJeu();
   for (const attaque of liste) {
     const ligne = screen.getByRole('rowheader', { name: nomType(attaque) }).closest('tr')!;
@@ -40,7 +40,7 @@ it('utilise la matrice fournie en prop', () => {
 it('propose dix-sept boutons tactiles et un seul panneau ouvert', () => {
   render(<TableTypes telephone />);
   const boutons = screen.getAllByRole('button');
-  expect(boutons).toHaveLength(17);
+  expect(boutons).toHaveLength(18);
   for (const bouton of boutons) {
     expect(bouton.getAttribute('aria-expanded')).toBe('false');
     expect(bouton.classList.contains('min-h-12')).toBe(true);

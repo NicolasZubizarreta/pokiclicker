@@ -72,7 +72,7 @@ test('Types : grille PC et listes tactiles', async ({ page }, info) => {
     const section = page.getByRole('main').locator('details').filter({ has: page.locator('summary', { hasText: /^Types$/ }) });
     await section.locator('summary').click();
     const boutons = section.getByRole('button');
-    await expect(boutons).toHaveCount(17);
+    await expect(boutons).toHaveCount(18);
     for (const bouton of await boutons.all()) expect((await bouton.boundingBox())!.height).toBeGreaterThanOrEqual(48);
     await section.getByRole('button', { name: 'Feu', exact: true }).click();
     await expect(section.getByText('Fort contre (×2)', { exact: true }).filter({ visible: true })).toHaveCount(1);
@@ -80,7 +80,7 @@ test('Types : grille PC et listes tactiles', async ({ page }, info) => {
   } else {
     await page.getByRole('navigation', { name: 'Sections du guide' }).getByRole('button', { name: 'Types', exact: true }).click();
     await expect(page.getByRole('table')).toBeVisible();
-    await expect(page.locator('th[scope="col"]')).toHaveCount(17);
+    await expect(page.locator('th[scope="col"]')).toHaveCount(18);
     for (const [width, height] of [[1280, 720], [1440, 900], [1920, 1080], [2560, 1440]]) {
       await page.setViewportSize({ width: width!, height: height! });
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);

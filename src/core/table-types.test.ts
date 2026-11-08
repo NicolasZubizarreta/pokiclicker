@@ -3,10 +3,10 @@ import types from '../../data/types.json';
 import { multiplicateurType } from './combat';
 import { ficheType, multiplicateurPaire, typesDuJeu } from './table-types';
 
-it('liste les types réellement portés par un Pokémon de Kanto, sans Ténèbres', () => {
+it('liste les 18 types, Ténèbres, Acier et Fée compris, pour toutes les régions', () => {
   const liste = typesDuJeu();
-  expect(liste).toHaveLength(17);
-  expect(liste).not.toContain('dark');
+  expect(liste).toHaveLength(18);
+  expect(liste).toEqual(expect.arrayContaining(['dark', 'steel', 'fairy']));
   expect(liste[0]).toBe('normal');
 });
 

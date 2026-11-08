@@ -92,7 +92,7 @@ Dessiner une solution (tickets suivants).
 
 ## C. `feat(ui): navigation et écran principal sur téléphone`
 
-`type:feat`, `etat:en_cours`, `est:2-3`, `prio:2` · branche : `v2` · `agent-ok` après maquette validée · dépend de : B
+`type:feat`, `etat:fait`, `est:2-3`, `prio:2` · branche : `v2` · `agent-ok` après maquette validée · dépend de : B
 
 ### Histoire
 En tant que joueur sur téléphone, je veux une navigation visible et à portée de pouce afin de passer d'un écran à l'autre sans chercher.
@@ -118,7 +118,7 @@ Lot 2 fait (05/11) : Menu de jeu (cadre « Partie en cours » avec Sauvegarder m
 
 ## D. `feat(ui): combat sur téléphone`
 
-`type:feat`, `etat:en_cours`, `est:2-3`, `prio:2` · branche : `v2` · `agent-ok` après maquette validée · dépend de : C
+`type:feat`, `etat:fait`, `est:2-3`, `prio:2` · branche : `v2` · `agent-ok` après maquette validée · dépend de : C
 
 ### Histoire
 En tant que joueur, je veux voir le combat, mes gains et ma prochaine amélioration sur un seul écran lisible afin de jouer d'une main.
@@ -126,7 +126,7 @@ En tant que joueur, je veux voir le combat, mes gains et ma prochaine améliorat
 ### Critères d'acceptation
 - [x] Étant donné les variantes de l'écran de combat, quand Nicolas en choisit une, alors le choix est noté dans `design/DESIGN.md`. (maquette a5, entrée du 2026-11-05)
 - [x] Étant donné un combat à 390 px, quand je clique, capture ou ouvre le sac, alors les actions principales sont dans la moitié basse avec des cibles de 48 px au moins. (ligne capture, quatre boutons, Fauchage et Poké-Radar une fois débloqués ; Sac en fenêtre)
-- [ ] Étant donné les barres de PV, d'XP et de temps, quand je regarde l'écran, alors les nombres restent lisibles (16 px au moins pour le texte courant).
+- [x] Étant donné les barres de PV, d'XP et de temps, quand je regarde l'écran, alors les nombres restent lisibles. (validé par Nicolas le 08/11 : taille des PV bonne, XP en barre seule sans texte dans le combat)
 - [x] Étant donné les tests du combat, quand `npm test` tourne, alors aucune règle de jeu n'a changé (résultats du simulateur inchangés). (`--clics 7 --pokedex theorique` : Ligue 87,0 min, 767 762 / 683 900 / 83 862)
 - [x] Retours de Nicolas (notes phase 5, A2) : ligne de capture (balle + Capturer) ; quatre boutons Attaque auto, Arrêt auto, Réglage de l'arrêt auto, Sac ; plus de bouton Outils ni « Arrêter après » ; auto-clic lié à l'attaque auto (préférence `autoClicLie`, déliée : désactivé) ; Fauchage et Poké-Radar invisibles puis sous les quatre boutons ; plus de dialogue permanent du Prof. Chen sur téléphone ; ligne Zone précédente / suivante dans le bandeau, seulement en combat.
 
@@ -164,7 +164,7 @@ Changement du serveur, suppression de compte, connexion par un tiers.
 
 ## F. `feat(compte): refaire la liste des parties et les choix de synchro`
 
-`type:feat`, `etat:en_cours`, `est:2-3`, `prio:2` · branche : `v2` · `agent-ok` après maquette validée · dépend de : B
+`type:feat`, `etat:fait`, `est:2-3`, `prio:2` · branche : `v2` · `agent-ok` après maquette validée · dépend de : B
 
 ### Histoire
 En tant que joueur avec plusieurs parties ou appareils, je veux voir mes parties comme des cartes lisibles et comprendre les conflits afin de ne jamais perdre de progression.
@@ -176,10 +176,10 @@ En tant que joueur avec plusieurs parties ou appareils, je veux voir mes parties
 - [x] Étant donné trois ou quatre variantes navigables pour chacun de ces écrans, quand Nicolas choisit, alors les choix sont notés dans `design/DESIGN.md`. (maquette a5, journal du 05/11)
 - [x] Étant donné un compte avec 3 parties, quand j'ouvre la liste à 390 px, alors chaque carte montre nom, région, temps de jeu et dernière sauvegarde, et jouer ou supprimer demande une cible de 48 px. (e2e ; suppression par `<dialog>` modal avec confirmation)
 - [x] Étant donné une partie jouée sur deux appareils, quand je reprends ici, alors la sauvegarde la plus récente est reprise exactement, l'autre appareil affiche « Partie reprise ailleurs » et n'écrit plus, et aucun écran de deux versions n'existe. (**lot 8, 07/11** : tests serveur deux appareils sur vraie base, tests client, e2e ; divergence hors ligne : le serveur gagne, le local est archivé sur le serveur)
-- [ ] Étant donné la synchro, quand elle est hors ligne, en cours, en conflit ou à jour, alors l'état est visible en permanence dans le jeu sans gêner le combat. (l'état est visible dans « Mon compte » ; l'indicateur dans le jeu reste celui du ticket C)
+- [x] Étant donné la synchro, quand elle a un problème (hors ligne, ouverte ailleurs, mise à jour depuis l'autre appareil, refusée), alors l'état s'affiche, et seulement alors : barre latérale sur PC, section « Partie en cours » du Menu sur téléphone, jamais dans le bandeau ni quand tout va bien. (décision de Nicolas, 08/11 ; f9ce985)
 - [x] Étant donné les tests du scénario deux appareils, quand `npm test` tourne, alors ils restent verts.
 
-**Lot 7 fait pour la partie liste (06/11)** : « Mes parties » en cartes dans la zone compte hors partie (`ZoneCompte.tsx`, `EcranParties.tsx`), « Menu principal » ramène à l'onglet Parties. **Lot 8 (07/11)** : une seule sauvegarde par partie, « Partie reprise ailleurs », « Partie supprimée ailleurs », plus d'écran de choix de version. Non fait (à décider) : renommer une partie, état « ouverte ailleurs » sur chaque carte de « Mes parties » (le GET `/parties` devrait exposer l'appareil actif), écran de restauration d'une version archivée.
+**Lot 7 fait pour la partie liste (06/11)** : « Mes parties » en cartes dans la zone compte hors partie (`ZoneCompte.tsx`, `EcranParties.tsx`), « Menu principal » ramène à l'onglet Parties. **Lot 8 (07/11)** : une seule sauvegarde par partie, « Partie reprise ailleurs », « Partie supprimée ailleurs », plus d'écran de choix de version. Renommer une partie et la restauration d'une version archivée existent (écrans testés en e2e PC). Seul l'état « ouverte ailleurs » sur chaque carte de « Mes parties » n'existe pas (le GET `/parties` devrait exposer l'appareil actif) : pas demandé par Nicolas, laissé de côté.
 
 ### Hors périmètre
 Logique de synchronisation (phase 4, faite).
@@ -406,7 +406,7 @@ En tant que joueur, je veux consulter la table des types (forces et faiblesses) 
 Demande de Nicolas (08/11/2026) : « dans le guide aussi je rajouterai une table des types dans la version PC et Téléphone ». Les multiplicateurs de types existent déjà dans le cœur de jeu (`src/core/combat.ts`, `equipe.ts`) : la table affichée doit les lire, pas les recopier.
 
 ### Critères d'acceptation
-- [x] Étant donné le guide (téléphone et PC), quand j'ouvre la section Types, alors je vois la table des 17 types présents dans le jeu à Kanto (Ténèbres n'est porté par aucun Pokémon ; attaque en ligne, défense en colonne, ×2, ×0,5, ×0) lue depuis les données du jeu.
+- [x] Étant donné le guide (téléphone et PC), quand j'ouvre la section Types, alors je vois la table des 18 types, la même pour toutes les régions (Ténèbres, Acier et Fée compris, décision de Nicolas du 08/11 ; attaque en ligne, défense en colonne, ×2, ×0,5, ×0) lue depuis les données du jeu.
 - [x] Étant donné 390 px, quand j'ouvre la table, alors elle reste lisible sans défilement horizontal de la page (cadre défilant ou présentation par type).
 - [x] Étant donné la table, quand les règles de types changent dans le cœur, alors la table suit sans autre modification.
 
@@ -414,4 +414,4 @@ Demande de Nicolas (08/11/2026) : « dans le guide aussi je rajouterai une table
 0,5 à 1 jour. Risque : lisibilité d'une grille 15×15 sur téléphone ; à cadrer avec Nicolas (grille ou liste par type).
 
 ### Réalisation (08/11/2026)
-Section « Types » du Guide : téléphone = 17 boutons de 48 px (une liste par type : fort contre, peu efficace, sans effet ; faible contre, résiste à, immunisé), PC = vraie table attaque en ligne × défense en colonne (×2, ×0,5, ×0, vide = normal) dans un cadre défilant à en-têtes collants. Les multiplicateurs viennent de `multiplicateurType` (src/core/combat.ts) via `src/core/table-types.ts`, les 17 types de `data/pokemon.json`. Tests : src/core/table-types.test.ts, src/ui/TableTypes.test.tsx, tests-e2e/guide.spec.ts (390 px ; 1280, 1440, 1920, 2560 px ; clavier).
+Section « Types » du Guide : téléphone = 18 boutons de 48 px (une liste par type : fort contre, peu efficace, sans effet ; faible contre, résiste à, immunisé), PC = vraie table attaque en ligne × défense en colonne (×2, ×0,5, ×0, vide = normal) dans un cadre défilant à en-têtes collants. Les multiplicateurs viennent de `multiplicateurType` (src/core/combat.ts) via `src/core/table-types.ts`, les 18 types de `data/types-noms.json` (la liste ne dépend plus des Pokémon présents). Tests : src/core/table-types.test.ts, src/ui/TableTypes.test.tsx, tests-e2e/guide.spec.ts (390 px ; 1280, 1440, 1920, 2560 px ; clavier).

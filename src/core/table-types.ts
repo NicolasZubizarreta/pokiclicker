@@ -1,7 +1,6 @@
 import types from '../../data/types.json';
 import nomsTypes from '../../data/types-noms.json';
 import { multiplicateurType } from './combat';
-import { chargerPokemon } from './pokemon';
 
 type Efficacite = Record<string, Record<string, number>>;
 
@@ -13,10 +12,9 @@ export type FicheType = {
   defense: { faible: string[]; resiste: string[]; immunise: string[] };
 };
 
-/** Les types portés par au moins un Pokémon du jeu, dans l'ordre de `types-noms.json`. */
-export function typesDuJeu(presents: Iterable<string> = chargerPokemon().liste.flatMap(p => p.types)): string[] {
-  const ensemble = new Set(presents);
-  return Object.keys(nomsTypes).filter(type => ensemble.has(type));
+/** Les 18 types, dans l'ordre de `types-noms.json` : la même table pour toutes les régions. */
+export function typesDuJeu(): string[] {
+  return Object.keys(nomsTypes);
 }
 
 /** Multiplicateur d'une attaque d'un type sur un type : la règle du combat, pas une copie. */

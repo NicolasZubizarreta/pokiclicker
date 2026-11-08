@@ -43,7 +43,7 @@ it('ouvre Types sur téléphone sans accordéons imbriqués', () => {
   const derniere = sections[sections.length - 1]!;
   fireEvent.click(derniere.querySelector('summary')!);
   expect(derniere.open).toBe(true);
-  expect(derniere.querySelectorAll('button')).toHaveLength(17);
+  expect(derniere.querySelectorAll('button')).toHaveLength(18);
   expect(derniere.querySelectorAll('details')).toHaveLength(0);
   for (const cible of container.querySelectorAll('summary, button')) {
     expect(cible.classList.contains('min-h-11') || cible.classList.contains('min-h-12')).toBe(true);
