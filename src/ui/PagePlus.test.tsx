@@ -89,7 +89,7 @@ it('ouvre le Guide du jeu depuis Menu et rend le focus au bouton à la fermeture
     fireEvent.click(entree);
     expect(screen.queryByRole('dialog')).toBeNull();
     const fenetre = screen.getByRole('heading', { level: 1, name: 'Guide du jeu' }).closest('section')!;
-    expect(within(fenetre).getByRole('navigation', { name: 'Sections du guide' }).querySelectorAll('button')).toHaveLength(11);
+    expect(within(fenetre).getByRole('navigation', { name: 'Sections du guide' }).querySelectorAll('button')).toHaveLength(12);
     fireEvent.click(screen.getByRole('button', { name: /Retour/ }));
     expect(screen.queryByRole('dialog')).toBeNull();
     expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Guide du jeu' }));

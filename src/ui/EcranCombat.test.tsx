@@ -99,11 +99,15 @@ it('ferme le Sac global, marque les Pokémon éligibles et applique la Pierre St
   expect(choix.className).toContain('cible-valide');
   fireEvent.click(choix);
   expect(poserStase).toHaveBeenCalledExactlyOnceWith(store.getState().equipe[0]!.pokemon.uid);
+  // Le mode « utiliser un objet » reste ouvert tant que le joueur ne ferme pas : on peut l'appliquer à plusieurs Pokémon.
+  expect(choix.className).toContain('cible-valide');
+  expect(storeSac.getState().objet?.type).toBe('stase');
+  fireEvent.click(screen.getByRole('button', { name: /^Fermer/ }));
   expect(choix.className).not.toContain('cible-valide');
   expect(storeSac.getState().objet).toBeNull();
 });
 
-it('abandonne le choix du Pokémon avec Annuler', () => {
+it('abandonne le choix du Pokémon avec Fermer', () => {
   preparer();
   const sac = store.getState().sac;
   act(() => store.setState({ sac: { ...sac, acces: { ouvert: true, raison: null },
@@ -116,7 +120,7 @@ it('abandonne le choix du Pokémon avec Annuler', () => {
   const page = render(<PageEquipe />);
   const choix = within(page.container).getByRole('button', { name: 'Bulbizarre, niveau 5' });
   expect(choix.className).toContain('cible-valide');
-  fireEvent.click(screen.getByRole('button', { name: 'Annuler' }));
+  fireEvent.click(screen.getByRole('button', { name: /^Fermer/ }));
   expect(choix.className).not.toContain('cible-valide');
   expect(storeSac.getState().objet).toBeNull();
   expect(screen.getByRole('dialog', { name: 'Ton Sac' })).toBeTruthy();
