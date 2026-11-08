@@ -43,7 +43,7 @@ it('affiche le catalogue dans l’ordre, le décor, la sélection et un seul sta
   expect([...container.querySelectorAll('[data-objet]')].map(e => e.getAttribute('data-objet'))).toEqual(reglages.centre.objets);
   expect(container.querySelector('img[src="img/decors/centre-commercial.webp"]')).toBeTruthy();
   // L'annonce d'achat passe par le calque de notifications : aucune zone de statut dans la page.
-  expect(screen.queryAllByRole('status')).toHaveLength(0);
+  expect(screen.queryAllByRole('status').filter(e => e.tagName !== 'OUTPUT')).toHaveLength(0);
   fireEvent.click(container.querySelector('[data-objet="calcium"]')!);
   expect(screen.getByRole('heading', { name: 'calcium' })).toBeTruthy();
   expect(screen.getByText('Description calcium')).toBeTruthy();
@@ -94,12 +94,12 @@ it('ouvre après le vol sans changer la zone, puis rend le focus à la carte', (
   fireEvent.click(screen.getAllByRole('button', { name: /Céladopole/ }).find(b => b.hasAttribute('data-zone'))!);
   const bouton = screen.getByRole('button', { name: 'Centre commercial' });
   fireEvent.click(bouton);
-  expect(screen.getAllByRole('status')).toHaveLength(1);
+  expect(screen.getAllByRole('status').filter(e => e.tagName !== 'OUTPUT')).toHaveLength(1);
   expect(screen.queryByRole('heading', { name: 'Centre commercial' })).toBeNull();
   const vol = reglages.interface.vol;
   act(() => vi.advanceTimersByTime(vol.poseMs + vol.volMs + vol.fermetureMs));
   expect(screen.getByRole('heading', { name: 'Centre commercial' })).toBe(document.activeElement);
-  expect(screen.queryAllByRole('status')).toHaveLength(0);
+  expect(screen.queryAllByRole('status').filter(e => e.tagName !== 'OUTPUT')).toHaveLength(0);
   expect(aller).not.toHaveBeenCalled();
   expect(arrive).not.toHaveBeenCalled();
   fireEvent.click(screen.getByRole('button', { name: 'Retour à la carte' }));

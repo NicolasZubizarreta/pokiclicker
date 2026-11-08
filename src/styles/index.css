@@ -531,6 +531,9 @@ html:has(dialog[open]) { overflow: hidden; }
     :where(button, a, input, select, textarea, [role="button"]):not(.cible-combat, :disabled, [aria-disabled="true"], [class*="hover:"]):hover { background-color: var(--selection); border-color: var(--region-accent); }
   }
 }
+@media (min-width: 1200px) {
+  .barre-laterale .touche-pc { display: inline-block; font-family: var(--font-mono); font-size: var(--text-xs); }
+}
 @media (min-width: 1024px) and (max-width: 1199px) {
   .coquille-pc:not(.intro-pc) { grid-template-columns: calc(var(--spacing) * 24) minmax(0, 1fr); }
   .barre-laterale { padding: var(--spacing); }

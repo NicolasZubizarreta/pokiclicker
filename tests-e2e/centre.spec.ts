@@ -82,7 +82,7 @@ test('Centre : vol, achat, Sac, retour et rechargement', async ({ page }, inform
   await expect(titre).toBeFocused();
   await expect(page.locator('[data-objet]')).toHaveCount(12);
   // Les messages d'achat sont des pop-up (calque de notifications) : la page elle-même n'a plus de ligne d'état.
-  await expect(page.getByRole('status')).toHaveCount(0);
+  await expect(page.getByRole('status').and(page.locator(':not(output)'))).toHaveCount(0);
   if (telephone(page)) await page.getByRole('spinbutton', { name: 'Quantité' }).fill('2');
   else await page.locator('[data-objet="xAttack"]').getByRole('button', { name: 'Plus', exact: true }).click();
   await page.getByRole('button', { name: /^Acheter ×2/ }).click();

@@ -565,6 +565,13 @@ it('affiche une erreur française sans toucher au stockage corrompu', () => {
   expect(screen.queryByRole('button', { name: /^Attaquer / })).toBeNull();
   expect(stockage.lire('pokiclicker:partie:test')).toBe('{abîmée');
 });
+it('sur PC, une erreur de sauvegarde non fatale garde le combat complet (Capturer, équipe)', () => {
+  preparer();
+  act(() => store.setState({ erreur: 'Sauvegarde impossible.' }));
+  expect(screen.getByRole('alert').textContent).toContain('Sauvegarde impossible.');
+  expect(screen.getByRole('button', { name: 'Capturer' })).toBeTruthy();
+  expect(screen.getByRole('region', { name: 'Ton équipe' })).toBeTruthy();
+});
 it('emploie des textes et libellés français dans tout l’écran', () => {
   const { container } = preparer();
   const parcours = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);

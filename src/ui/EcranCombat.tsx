@@ -356,7 +356,10 @@ export function EcranCombat({ store = storeJeu }: { store?: StoreJeu }) {
     rendreFocus.current = true;
     ouvrirPension(false);
   }} />;
-  if (!telephone && combatActif && !erreur && !fatale) return <CombatPC store={store} cadre={cadre} ouvrirPension={() => ouvrirPension(true)} />;
+  if (!telephone && combatActif && !fatale) return <>
+    {erreur && <div role="alert" className="cadre bg-surface p-4"><p>{erreur.split('\n')[0]}</p></div>}
+    <CombatPC store={store} cadre={cadre} ouvrirPension={() => ouvrirPension(true)} />
+  </>;
   return <div ref={cadre}>
     {erreur && <div role="alert" className="cadre mb-4 bg-surface p-4">
       {fatale && <p>{ERREUR_CHARGEMENT}</p>}<p>{erreur.split('\n')[0]}</p>

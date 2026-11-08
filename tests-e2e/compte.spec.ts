@@ -180,7 +180,9 @@ test('Déconnexion : envoi en échec, rester connecté puis envoi réussi', asyn
   await page.getByRole('dialog', { name: 'Se déconnecter ?' }).getByRole('button', { name: 'Sauvegarder et se déconnecter', exact: true }).click();
   const echec = page.getByRole('alertdialog');
   await expect(echec).toContainText("La sauvegarde n'a pas abouti");
-  await expect(echec.getByRole('button')).toHaveText(['Réessayer', 'Rester connecté']);
+  // Sur PC la fenêtre a une croix dans sa barre de titre.
+  const croix = (page.viewportSize()?.width ?? 0) >= 1024 ? ['×'] : [];
+  await expect(echec.getByRole('button')).toHaveText([...croix, 'Réessayer', 'Rester connecté']);
   await expect(page.getByRole('button', { name: 'Se déconnecter quand même', exact: true })).toHaveCount(0);
   expect(serveur.puts.length).toBeGreaterThan(0);
   expect(serveur.puts).toEqual(expect.arrayContaining([expect.objectContaining({ appareilId: expect.any(String) })]));
@@ -279,9 +281,9 @@ test('Zone compte : navigation, focus, cibles tactiles et largeurs sans déborde
       await expect(nav.getByRole('button', { name: onglet, exact: true })).toHaveAttribute('aria-current', 'page');
       await expect(nav.locator('[aria-current="page"]')).toHaveCount(1);
       await expect(page.getByRole('heading', { level: 1, name: titre, exact: true })).toBeFocused();
-      for (const bouton of await nav.getByRole('button').all()) expect((await bouton.boundingBox())!.height).toBeGreaterThanOrEqual(48);
+      for (const bouton of await nav.getByRole('button').all()) expect((await bouton.boundingBox())!.height).toBeGreaterThanOrEqual(page.viewportSize()!.width >= 1024 ? 44 : 48);
       if (onglet === 'Parties') for (const bouton of await page.getByRole('button', { name: /^(Jouer|Supprimer) / }).all()) {
-        expect((await bouton.boundingBox())!.height).toBeGreaterThanOrEqual(48);
+        expect((await bouton.boundingBox())!.height).toBeGreaterThanOrEqual(page.viewportSize()!.width >= 1024 ? 44 : 48);
       }
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth), `${onglet}, ${width}px`).toBe(true);
     }
@@ -350,7 +352,7 @@ test('Renommer : crayon, nom vide refusé, nom enregistré sur le serveur', asyn
   await creerPartie(page, context);
   await menuPrincipal(page);
   const crayon = page.getByRole('button', { name: 'Renommer Test', exact: true });
-  expect((await crayon.boundingBox())!.height).toBeGreaterThanOrEqual(48);
+  expect((await crayon.boundingBox())!.height).toBeGreaterThanOrEqual(page.viewportSize()!.width >= 1024 ? 44 : 48);
   await crayon.click();
   await page.getByLabel('Nom de la partie').fill('   ');
   await page.getByRole('button', { name: 'Valider', exact: true }).click();

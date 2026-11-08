@@ -135,5 +135,14 @@ test('États PC : notification fixe en bas à droite (notifications)', async ({ 
   });
 });
 
+test('États PC : les touches 1 à 6 sont visibles dans la barre latérale à 1440 px et masquées à 1100 px (touches)', async ({ page }) => {
+  await demarrer(page);
+  const touches = page.locator('.barre-laterale kbd.touche-pc');
+  await expect(touches).toHaveCount(6);
+  for (let i = 0; i < 6; i++) await expect(touches.nth(i)).toBeVisible();
+  await page.setViewportSize({ width: 1100, height: 800 });
+  await expect(touches.first()).toBeHidden();
+});
+
 test.fixme('États PC : arrêt auto — aucun bouton Reprendre dans le combat actuel (combat-arret-auto)', async () => {});
 test.fixme('États PC : fin de zone — aucune annonce zone terminée dans le combat actuel (combat-fin-zone)', async () => {});

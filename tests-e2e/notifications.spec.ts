@@ -40,7 +40,7 @@ for (const largeur of LARGEURS) {
     const mesures = () => page.evaluate(() => {
       const rect = (e: Element | null) => { const r = e!.getBoundingClientRect(); return { x: r.x, y: r.y, l: r.width, h: r.height }; };
       return { titre: rect(document.querySelector('h1')), carte: rect(document.querySelector('article')),
-        filtre: rect(document.querySelector('[aria-pressed]')), cartes: document.querySelectorAll('article').length };
+        filtre: rect(document.querySelector('[aria-pressed], [role="tab"]')), cartes: document.querySelectorAll('article').length };
     });
     const avant = await mesures();
     await carte.getByRole('button', { name: /^Acheter/ }).click();

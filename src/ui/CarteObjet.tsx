@@ -63,10 +63,10 @@ export function CarteObjet({ id, nom, description, image, prix, stock, possede, 
       {!unique && <div role="group" aria-label={`Quantité de ${nom}`} className="flex flex-wrap items-center gap-3">
         <button type="button" aria-label="Moins" className={bouton} disabled={quantite <= 1}
           onClick={() => changer(q => Math.max(1, q - 1))}>−</button>
-        <output role="group" aria-label="Quantité">{quantite}</output>
+        <output aria-label="Quantité">{quantite}</output>
         <button type="button" aria-label="Plus" className={bouton} disabled={quantite >= reglages.boutique.quantiteMax}
           onClick={() => changer(q => Math.min(reglages.boutique.quantiteMax, q + 1))}>+</button>
-        <output role="group" aria-label="Total" className="text-region-accent">= {(prix * quantite).toLocaleString('fr-FR')}{'\u00a0₽'}</output>
+        <output aria-label="Total" className="text-region-accent">= {(prix * quantite).toLocaleString('fr-FR')}{'\u00a0₽'}</output>
       </div>}
       <button type="button" className={bouton} disabled={!abordable || prix * (unique ? 1 : quantite) > argent}
         onClick={() => acheter(unique ? 1 : quantite)}>Acheter ×{unique ? 1 : quantite}</button>
