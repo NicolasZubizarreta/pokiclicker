@@ -6,3 +6,6 @@ export const synchronisations = {
   divergence: ['Mise à jour depuis l’autre appareil', 'bg-info-base'],
   refuse: ['Synchronisation refusée', 'bg-erreur-base'],
 } as const;
+
+/** Seuls les problèmes s'affichent : « à jour » et « en attente » ne disent rien d'utile au joueur. */
+export const estProbleme = (etat: keyof typeof synchronisations) => etat !== 'ok' && etat !== 'inactif';

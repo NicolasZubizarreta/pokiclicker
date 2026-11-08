@@ -22,6 +22,18 @@ it('garde le nom mais masque le retour et la synchro sans compte', () => {
   expect(screen.queryByText('À jour')).toBeNull();
   expect(screen.queryByRole('button', { name: 'Menu principal' })).toBeNull();
 });
+it('n’affiche l’état de synchro que pour un problème', () => {
+  for (const etat of ['ok', 'inactif'] as const) {
+    render(<BarreLaterale page="Combat" choisir={vi.fn()} nomPartie="Partie" quandMenuPrincipal={vi.fn()} etatSynchro={etat} />);
+    expect(screen.queryByText(/À jour|en attente/)).toBeNull();
+    cleanup();
+  }
+  for (const [etat, texte] of [['hors-ligne', 'Hors connexion'], ['ailleurs', 'Partie ouverte sur un autre appareil'], ['divergence', 'Mise à jour depuis l’autre appareil'], ['refuse', 'Synchronisation refusée']] as const) {
+    render(<BarreLaterale page="Combat" choisir={vi.fn()} nomPartie="Partie" quandMenuPrincipal={vi.fn()} etatSynchro={etat} />);
+    expect(screen.getByText(texte)).toBeTruthy();
+    cleanup();
+  }
+});
 it('verrouille le retour pendant l’envoi et annonce un échec', async () => {
   let terminer!: (ok: boolean) => void;
   const retour = vi.fn(() => new Promise<boolean>(r => { terminer = r; }));

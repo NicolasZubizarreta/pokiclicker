@@ -14,6 +14,9 @@ import { storeJeu } from './store';
 import { PC } from './icones';
 import { formaterProchainPalier } from './store-progression';
 import { PageReglages } from './PageReglages';
+import type { EtatSynchro } from './synchro';
+import { EtatSynchronisation } from './EtatSynchronisation';
+import { estProbleme } from './synchronisations';
 import { IconeMonde, IconePokedex, IconeBadges, IconeStats, IconeGuide, IconeReglages, IconeDisque, IconeSortie, IconeChevron } from './icones-menu';
 
 function GroupeMenu({ telephone, children }: { telephone: boolean; children: ReactNode }) {
@@ -43,7 +46,9 @@ function LigneMenu({ icone, titre, titreVisible, sousTexte, children, entree, on
   </button>;
 }
 
-export function PagePlus({ ouvrirPC, ouvrirMonde, menuPrincipal, attendreEnvoi }: {
+export function PagePlus({ ouvrirPC, ouvrirMonde, menuPrincipal, attendreEnvoi, etatSynchro }: {
+  /** Affiché dans le Menu du téléphone seulement quand il y a un problème (sur PC : barre latérale). */
+  etatSynchro?: EtatSynchro;
   ouvrirPC(): void;
   ouvrirMonde(): void;
   /** Sauvegarde puis ouvre les parties ; absent hors ligne. */
@@ -120,6 +125,7 @@ export function PagePlus({ ouvrirPC, ouvrirMonde, menuPrincipal, attendreEnvoi }
                     : sauvegarde === 'local' ? `Partie sauvegardée sur cet appareil à ${heure}. L'envoi en ligne est en attente.`
                     : 'La sauvegarde a échoué. Réessaie : ta partie reste en mémoire.'}
             </p>
+            {telephone && etatSynchro && estProbleme(etatSynchro) && <p role="status"><EtatSynchronisation etat={etatSynchro} /></p>}
             {!telephone && <dl className="menu-pc-infos">
               <dt>Région</dt><dd>Kanto</dd><dt>Zone</dt><dd>{lieu?.nom ?? 'Kanto'}</dd>
               <dt>Pokédex</dt><dd>{`${nombre} / 151`}</dd><dt>Badges</dt><dd>{`${progression.obtenus} / 8`}</dd>

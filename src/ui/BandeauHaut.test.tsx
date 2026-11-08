@@ -4,11 +4,12 @@ import { afterEach, expect, it, vi } from 'vitest';
 import { BandeauHaut } from './BandeauHaut';
 
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
-it('affiche les chiffres, la synchro et ouvre les raccourcis sur PC', () => {
+it('affiche les chiffres (sans état de synchro) et ouvre les raccourcis sur PC', () => {
   const ouvrir = vi.fn();
-  render(<BandeauHaut etatSynchro="ok" ouvrirRaccourcis={ouvrir} />);
+  render(<BandeauHaut ouvrirRaccourcis={ouvrir} />);
   const bandeau = within(screen.getByRole('banner', { name: 'Chiffres clés' }));
-  for (const nom of ['Pokédollars', 'DPS', 'Zone', 'À jour']) expect(bandeau.getByText(nom)).toBeTruthy();
+  for (const nom of ['Pokédollars', 'DPS', 'Zone']) expect(bandeau.getByText(nom)).toBeTruthy();
+  expect(bandeau.queryByText(/synchronisation|À jour|connexion/i)).toBeNull();
   fireEvent.click(bandeau.getByRole('button', { name: 'Raccourcis ?' }));
   expect(ouvrir).toHaveBeenCalledTimes(1);
 });

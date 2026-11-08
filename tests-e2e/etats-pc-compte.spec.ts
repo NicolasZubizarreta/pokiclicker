@@ -178,7 +178,7 @@ test('États PC : partie hors connexion (hors-ligne)', async ({ page, context, s
   await page.clock.runFor(45_000);
   await expect(page.getByText('Hors connexion', { exact: true }).first()).toBeVisible();
   await verifierEtat(page, 'hors-ligne', async () => {
-    await expect.soft(page.getByText('Hors connexion', { exact: true })).toHaveCount(2);
+    await expect.soft(page.getByText('Hors connexion', { exact: true })).toHaveCount(1);
     for (const message of await page.getByText('Hors connexion', { exact: true }).all()) await expect.soft(message).toBeVisible();
   });
 });
