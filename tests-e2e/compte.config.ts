@@ -1,7 +1,7 @@
 import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
-  testDir: '.', testMatch: 'compte.spec.ts', workers: 1, timeout: 30_000, retries: 0, reporter: 'list',
+  testDir: '.', testMatch: ['compte.spec.ts', 'etats-pc-compte.spec.ts'], workers: 1, timeout: 30_000, retries: 0, reporter: 'list',
   use: { baseURL: 'http://localhost:4175', browserName: 'chromium', serviceWorkers: 'block', trace: 'retain-on-failure' },
   projects: [
     { name: 'telephone', use: { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true } },
