@@ -16,7 +16,7 @@ import { RangEquipe } from './RangEquipe';
 import { CarteEquipe } from './CarteEquipe';
 import { FichePokemon } from './FichePokemon';
 import { IconeShiny } from './IconeShiny';
-import { AutoClic, PastilleCapture, Sac as IconeSac } from './icones';
+import { PastilleCapture, Sac as IconeSac } from './icones';
 import { DegatsFlottants } from './DegatsFlottants';
 import { DialogueChen } from './DialogueChen';
 import { ScenesBourgPalette } from './ScenesBourgPalette';
@@ -307,8 +307,6 @@ function CombatPC({ store, cadre, ouvrirPension }: { store: StoreJeu; cadre: Ref
   const evolution = useStore(store, etat => etat.evolution);
   const entrees = useStore(store, etat => etat.sac.entrees);
   const effets = useStore(store, etat => etat.effets);
-  const autoClic = useStore(store, etat => etat.autoClic);
-  const basculerAutoClic = useStore(store, etat => etat.basculerAutoClic);
   const [fiche, ouvrirFiche] = useState<{ uid: string; ouverture: number } | null>(null);
   const [ouvert, afficher] = useState(false);
   const declencheur = useRef<HTMLButtonElement>(null);
@@ -327,8 +325,6 @@ function CombatPC({ store, cadre, ouvrirPension }: { store: StoreJeu; cadre: Ref
           animation={evolution?.uid === membre?.pokemon.uid ? evolution : null}
           ouvrirFiche={bouton => { if (!membre) return; declencheur.current = bouton; ouvrirFiche(ancienne => ({ uid: membre.pokemon.uid, ouverture: (ancienne?.ouverture ?? 0) + 1 })); afficher(true); }} /></li>)}</ul>
       </section>
-      <div className="combat-pc-autoclic relative cadre bg-surface p-2"><BoutonAction icone={<><AutoClic /><span aria-hidden="true">Auto-clic</span></>} nom="Auto-clic" actif={autoClic.actif}
-        verrouille={!autoClic.possede} infobulle={!autoClic.possede ? "Nécessite l'objet Restes" : undefined} onClick={basculerAutoClic} /></div>
       <section aria-label="Effets actifs" className="cadre bg-surface p-2"><h2 className="font-titre text-xl">Effets actifs</h2>
         {effets.length ? <PastillesEffets effets={effets} /> : <p className="text-texte-doux">Aucun effet actif.</p>}
       </section>

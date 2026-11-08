@@ -473,16 +473,13 @@ it('rend la scène attaquable, avec des PV accessibles et dix étapes dont le bo
   act(() => vi.advanceTimersByTime(500));
   expect(container.querySelector('.degat-flottant')).toBeNull();
 });
-it('affiche Auto-clic sur PC et le rend utilisable avec les Restes', () => {
-  preparer();
-  expect(screen.getByRole('button', { name: 'Auto-clic' }).getAttribute('aria-disabled')).toBe('true');
-  const basculerAutoClic = vi.fn();
-  act(() => store.setState({ autoClic: { possede: true, actif: true }, basculerAutoClic }));
-  const bouton = screen.getByRole('button', { name: 'Auto-clic' });
-  expect(bouton.hasAttribute('aria-disabled')).toBe(false);
-  expect(bouton.getAttribute('aria-pressed')).toBe('true');
-  fireEvent.click(bouton);
-  expect(basculerAutoClic).toHaveBeenCalledOnce();
+it('n’affiche aucun bouton ni texte Auto-clic dans la colonne de droite sur PC, même avec les Restes', () => {
+  const { container } = preparer();
+  act(() => store.setState({ autoClic: { possede: true, actif: true } }));
+  expect(screen.queryByRole('button', { name: 'Auto-clic' })).toBeNull();
+  expect(container.querySelector('.combat-pc-droite')?.textContent).not.toContain('Auto-clic');
+  expect(container.querySelector('.combat-pc-autoclic')).toBeNull();
+  expect(screen.getByRole('region', { name: 'Effets actifs' })).toBeTruthy();
 });
 it('affiche six rangs dont les cases libres dans le panneau d’équipe', () => {
   preparer();

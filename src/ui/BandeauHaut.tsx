@@ -18,7 +18,7 @@ export function BandeauHaut({ combat = false, etatSynchro, ouvrirRaccourcis }: {
   const precedente = useStore(storeJeu, etat => etat.zonePrecedente);
   const suivante = useStore(storeJeu, etat => etat.zoneSuivante);
   const telephone = useTelephone();
-  if (!telephone) return <header aria-label="Chiffres clés" className="bandeau-pc hidden h-16 shrink-0 items-center gap-8 border-b border-bordure bg-surface px-8 lg:flex">
+  if (!telephone) return <header aria-label="Chiffres clés" className="bandeau-pc hidden h-20 shrink-0 items-center gap-8 border-b border-bordure bg-surface px-8 pb-1.5 lg:flex">
     <dl className="flex min-w-0 gap-8">{[['Pokédollars', `${formateurArgent.format(argent)}\u00a0₽`], ['DPS', formaterDps(dps)], ['Zone', lieu?.nom ?? '—']].map(([libelle, valeur]) => <div key={libelle} className="min-w-0"><dt className="text-sm text-texte-doux">{libelle}</dt><dd className="truncate font-titre text-2xl text-region-accent">{valeur}</dd></div>)}</dl>
     <div className="ml-auto flex items-center gap-4">{etatSynchro && <EtatSynchronisation etat={etatSynchro} />}<button type="button" className="plaque" onClick={ouvrirRaccourcis}>Raccourcis ?</button></div>
   </header>;

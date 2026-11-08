@@ -16,6 +16,8 @@
   .equipe-pc .portrait img { width: var(--taille); height: var(--taille); object-fit: contain; max-height: 100%; max-width: 100%; }
   /* Les pieds (lignes vides sous le sprite : pieds-sprites.json) tombent au centre du socle, dont la taille suit celle du sprite. */
   .equipe-pc .portrait > img { transform: translateY(calc(var(--pieds, 0%) - 9%)); }
+  /* Sprite retourné (easter egg) : la rotation s'applique avant le transform, le décalage vertical est donc inversé. */
+  .equipe-pc .portrait > img.ee-retourne { transform: translateY(calc(var(--pieds, 0%) * -1 + 9%)); }
   .equipe-pc .socle { position: absolute; bottom: 0; left: 50%; translate: -50% 0; width: calc(var(--taille) * .8); height: calc(var(--taille) * .18); border-radius: 50%; z-index: -1; }
   .equipe-pc .corps { display: grid; gap: .25rem; width: 100%; }
   .equipe-pc .bandeau-choix { background: var(--selection); border-left: 4px solid var(--region-accent); }

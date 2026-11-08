@@ -71,7 +71,7 @@ export function SceneLieu({ scene, nom, quandChoisir, raisons = {}, clignotement
         const texte = raison ?? f.nom;
         return <button key={f.nom} type="button" aria-label={f.nom}
           aria-disabled={raison ? true : undefined} aria-describedby={raison ? `${id}-${index}` : undefined} disabled={occupe}
-          style={position} className={`absolute min-h-11 min-w-11 -translate-x-1/2 -translate-y-1/2 bg-transparent focus-visible:outline-focus ${raison ? '' : 'enabled:cursor-pointer'}`}
+          style={position} className={`absolute min-h-11 min-w-11 -translate-x-1/2 -translate-y-1/2 bg-transparent hover:outline-2 hover:outline-focus focus-visible:outline-focus ${raison ? '' : 'enabled:cursor-pointer'}`}
           onFocus={() => annoncer(texte)} onPointerEnter={() => annoncer(texte)} onPointerDown={() => annoncer(texte)}
           onClick={() => { annoncer(texte); if (!raison && f.zone) quandChoisir(f.zone); }} />;
       })}

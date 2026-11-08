@@ -6,7 +6,6 @@
   .combat-pc { display: grid; grid-template-columns: minmax(0, 1fr) clamp(17rem, 22vw, 24rem); grid-template-rows: minmax(0, 1fr); gap: calc(var(--spacing) * 4); flex: 1; min-height: 0; }
   .combat-pc .combat-pc-gauche { display: flex; flex-direction: column; gap: calc(var(--spacing) * 2); min-height: 0; min-width: 0; }
   .combat-pc .combat-pc-droite { display: flex; flex-direction: column; gap: calc(var(--spacing) * 2); min-height: 0; }
-  .combat-pc .combat-pc-autoclic .bandeau-action-bouton { width: 100%; display: flex; align-items: center; justify-content: center; gap: calc(var(--spacing) * 2); }
   .combat-pc .combat-pc-equipe { display: flex; flex-direction: column; gap: calc(var(--spacing) * 2); flex: 0 1 auto; min-height: 0; }
   .combat-pc .combat-pc-equipe ul { align-content: start; flex: 0 1 auto; min-height: 0; overflow-y: auto; }
   .combat-pc .zone-ligne { flex-shrink: 0; }

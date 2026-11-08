@@ -160,7 +160,8 @@ test.describe('détails PC', () => {
     const repere = page.locator('circle[data-actuelle]');
     await expect(repere).toHaveCount(1);
     expect(await repere.evaluate(e => getComputedStyle(e).animationName)).toContain('carte-pc-clignote');
-    expect(await repere.evaluate(e => getComputedStyle(e).stroke)).not.toBe('none');
+    // Le clignotement remplit le rond (disque vert à la taille du rond de base) : pas de trait épais autour.
+    expect(await repere.evaluate(e => getComputedStyle(e).fill)).not.toBe('none');
     await expect(page.locator('image[data-dresseur]')).toHaveCount(0);
     await page.emulateMedia({ reducedMotion: 'reduce' });
     expect(await repere.evaluate(e => getComputedStyle(e).animationName)).toBe('none');
