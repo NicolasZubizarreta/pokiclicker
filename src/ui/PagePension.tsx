@@ -31,7 +31,6 @@ export function PagePension({ retour, store = storeJeu }: { retour(): void; stor
   const pension = useStore(store, e => e.pension);
   const equipe = useStore(store, e => e.equipe);
   const pc = useStore(store, e => e.pc);
-  const argent = useStore(store, e => e.argent);
   const [message, signaler] = useState('Confie deux parents à la pension. Les œufs avancent seulement dans ton équipe.');
   const [choix, choisir] = useState(false);
   const [recherche, rechercher] = useState('');
@@ -55,7 +54,6 @@ export function PagePension({ retour, store = storeJeu }: { retour(): void; stor
     {imageConnue('img/decors/pension.webp') && <Image src="img/decors/pension.webp" genre="decor" alt="" couvrir className="pointer-events-none absolute inset-0 -z-10 size-full" />}
     <header className="mb-4 flex flex-wrap items-center justify-between gap-2">
       <div><p>Bourg Palette · Kanto</p><h1 ref={titre} tabIndex={-1} className="font-titre text-2xl font-semibold">{telephone ? 'La pension' : 'Pension'}</h1></div>
-      <strong className="text-region-accent">{nombre(argent)}{'\u00a0₽'}</strong>
       <button className={bouton} onClick={retour}>{telephone ? 'Sortir de la pension' : 'Retour à Bourg Palette'}</button>
     </header>
     {pension.acces.ouvert && <div className="grid min-w-0 gap-4">
@@ -64,7 +62,7 @@ export function PagePension({ retour, store = storeJeu }: { retour(): void; stor
         <div><strong className="text-region-accent">{nombre(pension.chance * 100)} % par élimination</strong>
           <p>{pension.oeufs.length >= pension.emplacements ? 'Pension pleine : prends un œuf.' : pension.chance ? 'Deux parents compatibles.' : 'Dépose deux parents compatibles.'}</p></div>
       </div>
-      <div className="grid min-w-0 items-start gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+      <div className="grid min-w-0 items-start gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <section ref={parents} aria-label="Parents" className="cadre grid min-w-0 gap-4 bg-surface p-4">
           <h2 className="font-titre text-xl">{telephone ? 'Les parents' : 'Pokémon déposés'}</h2>
           <div className="grid min-w-0 gap-4 lg:grid-cols-2">{Array.from({ length: 2 }, (_, i) => {

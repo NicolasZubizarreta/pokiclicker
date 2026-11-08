@@ -284,12 +284,12 @@ Lot 5 fait (06/11), partie Shop, Pokédex, Badges, Statistiques, Guide : sous 10
 
 ## K. `feat(ui): carte, centre commercial, casino et pension`
 
-`type:feat`, `etat:a_faire`, `est:2-3`, `prio:4` · branche : `v2` · `agent-ok` après maquette validée · dépend de : C
+`type:feat`, `etat:fait`, `est:2-3`, `prio:4` · branche : `v2` · `agent-ok` après maquette validée · dépend de : C
 
 ### Critères d'acceptation
-- [ ] Étant donné les variantes pour `CarteKanto`, `PageCentre`, `PageCasino` et `PagePension`, quand Nicolas choisit, alors les choix sont notés dans `design/DESIGN.md`.
+- [x] Étant donné les variantes pour `CarteKanto`, `PageCentre`, `PageCasino` et `PagePension`, quand Nicolas choisit, alors les choix sont notés dans `design/DESIGN.md`. (pas de nouvelles variantes : maquettes validées ; carte et centre commercial « niquel » selon Nicolas, 08/11 ; le casino est refait au ticket U)
 - [x] Étant donné la carte à 390 px, quand je touche une zone, alors la cible fait 48 px au moins (zone agrandie si l'image est plus petite) et la zone courante est signalée. (Lot 6 : liste de zones à lignes de 56 px, zone actuelle en vert.)
-- [ ] Étant donné le casino et la pension, quand je joue à 390 px, alors tout reste utilisable au pouce sans changer les règles ni les gains.
+- [x] Étant donné le casino et la pension, quand je joue à 390 px, alors tout reste utilisable au pouce sans changer les règles ni les gains. (pension : testée à 390 et 1440 px, argent en double retiré, panneau des œufs sans débordement à 1440×900 ; le casino est refait au ticket U)
 
 ### Effort et risques
 2 à 3 jours. Risque : la carte est une image provisoire (ticket O).

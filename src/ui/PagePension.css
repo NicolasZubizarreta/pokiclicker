@@ -9,7 +9,15 @@
   .pension-pc > div.grid > div.grid { min-height: 0; height: 100%; }
   .pension-pc section[aria-label="Parents"], .pension-pc section[aria-label="Œufs"] { max-height: 100%; min-height: 0; overflow-y: auto; }
   .pension-pc section[aria-label="Parents"] article { background: none; gap: .5rem; }
-  .pension-pc section[aria-label="Œufs"] li { background: none; overflow: hidden; }
+  .pension-pc section[aria-label="Œufs"] li { background: none; overflow: hidden; padding-block: .5rem; }
+  .pension-pc section[aria-label="Œufs"] > div.grid { grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; }
+  .pension-pc section[aria-label="Œufs"] > div.grid > div.grid { align-content: start; }
+  .pension-pc section[aria-label="Œufs"] > div.grid p { font-size: .875rem; }
+  /* Pas de note sous les emplacements verrouillés suivants : le bouton grisé suffit à l'œil, la note reste lue par les lecteurs d'écran. */
+  .pension-pc section[aria-label="Œufs"] > div.grid > div.grid:nth-child(n+2) p { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .pension-pc > header { margin-bottom: .5rem; }
+  .pension-pc > div.grid { gap: .75rem; }
+  .pension-pc > div.grid > div.flex { padding-block: .5rem; }
   .pension-pc img { object-fit: contain; max-height: 100%; max-width: 100%; }
   .pension-pc span.relative.isolate { display: grid; place-items: center; overflow: hidden; height: 12rem; max-width: 100%; }
   .pension-pc span.relative.isolate > span { display: none; }
