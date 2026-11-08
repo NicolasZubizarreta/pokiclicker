@@ -9,6 +9,8 @@ import { IconeParties, IconeCompte, IconeReglage } from './icones-compte';
 import '../Plaques.css';
 import './Compte.css';
 import './ZoneCompte.css';
+import './ComptePC.css';
+import { useTelephone } from '../useTelephone';
 
 export type OngletCompte = 'parties' | 'compte' | 'reglages';
 const entrees = [
@@ -20,10 +22,11 @@ const entrees = [
 export function ZoneCompte(props: ComponentProps<typeof Parties> & {
   compte: ResumeCompte; registre: readonly DefinitionSucces[]; etatSynchro: EtatSynchro; quandDeconnecter(): void;
 }) {
+  const telephone = useTelephone();
   const [onglet, fixerOnglet] = useState<OngletCompte>('parties');
   const contenu = useRef<HTMLDivElement>(null);
   useEffect(() => { contenu.current?.querySelector('h1')?.focus(); }, [onglet]);
-  return <main data-theme="dark" className="zc-zone min-h-dvh bg-fond text-texte font-texte">
+  return <main data-theme="dark" className={`${telephone ? '' : 'compte-pc '}zc-zone min-h-dvh bg-fond text-texte font-texte`}>
     <div className="mx-auto max-w-(--breakpoint-md) p-4 pb-[calc(var(--spacing)*20+env(safe-area-inset-bottom))] lg:pb-4">
       <nav aria-label="Zone compte" className="zc-barre fixed inset-x-0 bottom-0 z-10 box-content border-t border-bordure bg-surface pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pt-1 pb-[env(safe-area-inset-bottom)] lg:static lg:mb-4 lg:rounded-cadre lg:border lg:p-1">
         <div className="flex h-full gap-2">{entrees.map(({ id, titre, Icone }) => <button key={id} type="button" disabled={props.occupe} aria-current={onglet === id ? 'page' : undefined} onClick={() => fixerOnglet(id)}

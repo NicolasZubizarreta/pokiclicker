@@ -6,6 +6,7 @@ async function verifierSprites(zone: Locator) {
   for (const image of await images.all()) {
     if (!await image.isVisible()) continue;
     nombre++;
+    await image.scrollIntoViewIfNeeded();
     await image.evaluate((img: HTMLImageElement) => img.decode());
     const mesure = await image.evaluate((img: HTMLImageElement) => {
       const cadre = img.closest('.cadre') ?? img.closest('[role="dialog"], dialog') ?? img.parentElement!;

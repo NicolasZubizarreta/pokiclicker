@@ -36,9 +36,8 @@ test('Carte : image sans bande, cibles tactiles, zone fermée et captures', asyn
   const boite = (await carte.boundingBox())!;
   expect(boite.width / boite.height).toBeCloseTo(16 / 9, 1);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
-  await expect(page.getByRole('progressbar', { name: 'Badges obtenus' })).toBeVisible();
   // Zones ouvertes : Bourg Palette et Route 1 (actuelle) ; la fiche réserve sa place sans bouger la carte.
-  const zoneOuverte = page.getByRole('button', { name: 'Bourg Palette', exact: true });
+  const zoneOuverte = page.locator('g[data-forme="Bourg Palette"]');
   await expect(zoneOuverte).toBeVisible();
   const avant = (await carte.boundingBox())!;
   await zoneOuverte.focus();

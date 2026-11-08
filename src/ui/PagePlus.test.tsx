@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { chargerPokemon } from '../core/pokemon';
 import { PagePlus } from './PagePlus';
@@ -7,6 +7,22 @@ import { creerStoreJeu, storeJeu } from './store';
 import { afficherProgression } from './store-progression';
 
 const contexte = vi.hoisted(() => ({ store: null as unknown as typeof storeJeu }));
+
+it('présente les tuiles PC et ouvre les statistiques comme une page avec retour du focus', () => {
+  const { container } = render(<PagePlus ouvrirPC={vi.fn()} ouvrirMonde={vi.fn()} />);
+  expect(container.querySelectorAll('.menu-pc')).toHaveLength(1);
+  const tuiles = container.querySelector('.menu-pc-tuiles.grid-cols-3') as HTMLElement;
+  expect(tuiles).toBeTruthy();
+  for (const nom of [/Monde Pokémon/, /^Pokédex/, /^Badges/, /^Statistiques$/, /^Guide du jeu$/, /^Réglages$/, /^PC de Léo$/]) {
+    expect(within(tuiles).getByRole('button', { name: nom }).classList.contains('cadre')).toBe(true);
+  }
+  expect(screen.getByRole('region', { name: 'Partie en cours' })).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: 'Statistiques' }));
+  expect(screen.queryByRole('dialog')).toBeNull();
+  expect(screen.getByRole('heading', { level: 1, name: 'Statistiques' })).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: /Retour/ }));
+  expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Statistiques' }));
+});
 
 it('réserve le diplôme aux détenteurs et ouvre sa fenêtre depuis Menu', () => {
   const { unmount } = render(<PagePlus ouvrirMonde={vi.fn()} ouvrirPC={vi.fn()} />);
@@ -71,11 +87,12 @@ it('ouvre le Guide du jeu depuis Menu et rend le focus au bouton à la fermeture
     const entree = screen.getByRole('button', { name: 'Guide du jeu' });
     entree.focus();
     fireEvent.click(entree);
-    const fenetre = screen.getByRole('dialog', { name: 'Guide du jeu' });
-    expect(fenetre.querySelectorAll('details')).toHaveLength(11);
-    fireEvent.click(screen.getByRole('button', { name: 'Fermer le guide' }));
     expect(screen.queryByRole('dialog')).toBeNull();
-    expect(document.activeElement).toBe(entree);
+    const fenetre = screen.getByRole('heading', { level: 1, name: 'Guide du jeu' }).closest('section')!;
+    expect(within(fenetre).getByRole('navigation', { name: 'Sections du guide' }).querySelectorAll('button')).toHaveLength(11);
+    fireEvent.click(screen.getByRole('button', { name: /Retour/ }));
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Guide du jeu' }));
   } finally {
     cleanup();
     Reflect.deleteProperty(HTMLDialogElement.prototype, 'showModal');
@@ -93,8 +110,9 @@ it('ouvre le Pokédex des trois starters avec ses textes français et rend le fo
   expect(screen.getByText('3 / 151')).toBeTruthy();
   const catalogue = chargerPokemon();
   const cases = catalogue.liste.map(p => `N° ${p.numero}${[1, 4, 7].includes(p.numero) ? p.nom : '???'}`).join('');
-  expect(container.textContent).toBe(`RetourPokédex3 / 151${cases}`);
-  fireEvent.click(screen.getByRole('button', { name: 'Retour' }));
+  expect(container.querySelector('.dex-grille')?.textContent).toBe(cases);
+  expect(screen.getByRole('button', { name: 'Retour au menu' })).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: 'Retour au menu' }));
   expect(document.activeElement).toBe(screen.getByRole('button', { name: /^Pokédex/ }));
   expect(screen.getByRole('button', { name: 'Pokédex 3 / 151' })).toBeTruthy();
 });
@@ -112,7 +130,7 @@ it('affiche la partie et les compteurs et ouvre les badges avec le focus aller-r
   expect(document.activeElement).toBe(screen.getByRole('heading', { level: 1, name: 'Badges' }));
   expect(screen.getAllByRole('button', { name: /^Badge / })).toHaveLength(8);
   expect(container.querySelector('.opacity-0, .badge-slam, [class~="bg-action"]')).toBeNull();
-  fireEvent.click(screen.getByRole('button', { name: 'Retour' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Retour au menu' }));
   expect(document.activeElement).toBe(container.querySelector('[data-entree="badges"]'));
 });
 
@@ -186,7 +204,7 @@ it('ouvre Réglages et rend le focus au retour', () => {
   render(<PagePlus ouvrirPC={vi.fn()} ouvrirMonde={vi.fn()} />);
   fireEvent.click(screen.getByRole('button', { name: 'Réglages' }));
   expect(document.activeElement).toBe(screen.getByRole('heading', { level: 1, name: 'Réglages' }));
-  fireEvent.click(screen.getByRole('button', { name: 'Retour' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Retour au menu' }));
   expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Menu');
   expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Réglages' }));
 });

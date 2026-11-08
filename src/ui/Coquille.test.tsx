@@ -121,14 +121,14 @@ it('ouvre le Monde depuis Menu, revient au Menu et permet de jouer à Kanto', ()
   render(<Coquille />);
   fireEvent.click(screen.getByRole('button', { name: 'Menu' }));
   fireEvent.click(screen.getByRole('button', { name: 'Monde Pokémon' }));
-  expect(screen.getByRole('heading', { name: 'Monde Pokémon' })).toBeTruthy();
+  expect(screen.getByRole('heading', { name: 'Monde' })).toBeTruthy();
   expect(screen.getByRole('button', { name: 'Menu' }).getAttribute('aria-current')).toBe('page');
-  fireEvent.click(screen.getByRole('button', { name: 'Retour' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Retour au menu' }));
   expect(screen.getByRole('heading', { name: 'Menu' })).toBeTruthy();
   fireEvent.click(screen.getByRole('button', { name: 'Monde Pokémon' }));
   fireEvent.click(screen.getByRole('button', { name: 'Jouer à Kanto' }));
   expect(screen.getByRole('button', { name: 'Combat' }).getAttribute('aria-current')).toBe('page');
-  expect(screen.queryByRole('heading', { name: 'Monde Pokémon' })).toBeNull();
+  expect(screen.queryByRole('heading', { name: 'Monde' })).toBeNull();
 });
 
 it('propose Menu principal seulement avec le callback et l’appelle', () => {
@@ -325,7 +325,7 @@ describe('Coquille', () => {
     render(<Coquille />);
     for (const nom of noms.slice(1)) {
       await utilisateur.click(screen.getByRole('button', { name: nom }));
-      expect(within(screen.getByRole('main')).getByRole('heading', { level: 1 }).textContent).toBe(nom === 'Équipe' ? 'Ton équipe' : nom);
+      expect(within(screen.getByRole('main')).getByRole('heading', { level: 1 }).textContent).toBe(nom === 'Équipe' ? 'Ton équipe' : nom === 'Carte' ? 'Carte de Kanto' : nom);
       if (nom === 'Carte') expect(screen.getByRole('button', { name: 'Route 1 (Zone 1)' })).toBeTruthy();
       else if (nom === 'Équipe') {
         expect(screen.queryByText('Cette page arrive bientôt.')).toBeNull();
@@ -397,7 +397,7 @@ describe('Coquille', () => {
         storeJeu.getState().tick();
       }
     });
-    const autorises = new Set(['PokiClicker', 'Kanto', 'PC', '1', '2', '3', '4', '5', '6', 'Espace', 'Attaquer', 'C', 'Capturer', 'B', 'Balle', 'A', 'Auto', 'T', 'Arrêt', 'S', 'Sac', '← →', 'Zone', '1–6', 'Onglets', '?', 'Tous', 'Tab', 'Naviguer', 'Échap', 'Fermer', 'Raccourcis', 'Raccourcis ?', 'Aller au contenu', 'Mon compte', ...noms, "Le Shop s'ouvre à la Forêt de Jade.",
+    const autorises = new Set(['PokiClicker', 'Kanto', 'PC', '1', '2', '3', '4', '5', '6', 'Espace', 'Attaquer', 'C', 'Capturer', 'B', 'Balle', 'A', 'Auto', 'T', 'Arrêt', 'S', 'Sac', '← →', 'Zone', '1–6', 'Onglets', '?', 'Tous', 'Tab', 'Naviguer', 'Échap', 'Fermer', 'Raccourcis', 'Raccourcis ?', 'Aller au contenu', 'Mon compte', 'Carte de Kanto', "Choisis une zone dans la liste pour t'y rendre. Tu es dans la zone qui clignote en vert.", ...noms, "Le Shop s'ouvre à la Forêt de Jade.",
       'Pokédollars', 'Zone', storeJeu.getState().lieu!.nom, `${storeJeu.getState().argent.toLocaleString('fr-FR')}\u00a0₽`,
       'Ton aventure', 'Aide et réglages', 'Partie en cours', 'La partie se sauvegarde toute seule.', 'Sauvegarder maintenant',
       'Monde Pokémon', 'Kanto jouable', 'Dégâts, DPS et gains', 'Statistiques', 'Région', `Kanto · ${storeJeu.getState().lieu!.nom}`, 'Badges', '0 / 8', '0 sur 8', 'DPS',
@@ -421,11 +421,12 @@ describe('Coquille', () => {
       }
       // Prépare le balayage de la page visible sans la boîte fermée, montée en permanence.
       container.replaceChildren(rendu.cloneNode(true));
-      container.querySelector('dialog:not([open])')?.remove();
+      container.querySelectorAll('dialog:not([open])').forEach(fenetre => fenetre.remove());
       container.querySelector('[data-notifications]')?.remove(); // Les pop-up ont leurs propres tests.
       const parcours = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
       while (parcours.nextNode()) {
         const texte = parcours.currentNode.textContent?.trim();
+        if (parcours.currentNode.parentElement?.closest('[aria-hidden="true"]')) continue; // décor masqué aux lecteurs d'écran
         // Le texte entier de la page Équipe est vérifié exactement ci-dessus.
         if (nom === 'Équipe' && parcours.currentNode.parentElement?.closest('main')) continue;
         const voyage = parcours.currentNode.parentElement?.closest('section')?.querySelector('h2')?.textContent === 'Ton voyage';
@@ -434,16 +435,18 @@ describe('Coquille', () => {
           expect(parcours.currentNode.parentElement?.closest('section')?.textContent).toMatch(/Ton voyage\d+ badges? sur \d+ · .+ en cours/);
           continue;
         }
-        const textesCarte = new Set(['Ton voyage', ...storeJeu.getState().carte.formes.map(f =>
+        const textesCarte = new Set(['Ton voyage', ...storeJeu.getState().carte.formes.map(f => f.nom), ...storeJeu.getState().carte.formes.map(f =>
           f.numero === null || f.numero <= 0 ? f.nom : `${f.nom} (Zone ${f.numero})`)]);
-        if (texte) expect(autorises.has(texte) || textesCarte.has(texte) || (nom === 'Menu' && /^(\d+ \/ 151|\d+ %)$/.test(texte)), texte).toBe(true);
+        if (texte) expect(autorises.has(texte) || textesCarte.has(texte) || (nom === 'Menu' && /^(\d+ \/ (151|8)|\d+ %)$/.test(texte)) || (nom === 'Carte' && /^(Zone \d+)?( · )?((tu es ici|3 lieux|verrouillée|Terminée)( · )?)*$/.test(texte)), texte).toBe(true);
       }
       for (const element of container.querySelectorAll('[aria-label]')) {
         const forme = storeJeu.getState().carte.formes.find(f => f.nom === element.getAttribute('data-forme'));
         const attendu = forme ? (forme.numero === null || forme.numero <= 0 ? forme.nom : `${forme.nom} (Zone ${forme.numero})`)
-          : element.getAttribute('role') === 'listbox' ? 'Zones de Kanto'
+          : element.getAttribute('role') === 'listbox' || (nom === 'Carte' && element.tagName === 'UL') ? 'Zones de Kanto'
             : element.getAttribute('role') === 'option'
               ? storeJeu.getState().carte.formes.map(f => f.numero === null || f.numero <= 0 ? f.nom : `${f.nom} (Zone ${f.numero})`).find(n => n === element.getAttribute('aria-label'))
+          : nom === 'Carte' && element.tagName === 'BUTTON'
+            ? storeJeu.getState().carte.formes.flatMap(f => { const n = f.numero === null || f.numero <= 0 ? f.nom : `${f.nom} (Zone ${f.numero})`; return [n, `${n}, tu es ici`]; }).find(n => n === element.getAttribute('aria-label'))
           : element.tagName.toLowerCase() === 'svg' ? 'Carte de Kanto'
             : element.tagName.toLowerCase() === 'progress' ? 'Badges obtenus'
               : element.tagName.toLowerCase() === 'section' && ['Ton voyage', 'Zone sélectionnée', 'Partie en cours'].includes(element.getAttribute('aria-label') ?? '')

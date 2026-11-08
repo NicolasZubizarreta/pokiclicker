@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { voyagerVers } from './aide-carte';
+import { telephone, voyagerVers } from './aide-carte';
 import { readFile } from 'node:fs/promises';
 import { resolve, sep, extname } from 'node:path';
 
@@ -26,11 +26,12 @@ async function regionSauvee(page: Page) {
   });
 }
 async function ouvrirPension(page: Page) {
+  const titre = telephone(page) ? 'La pension' : 'Pension';
   await page.getByRole('button', { name: 'Carte', exact: true }).click();
   await voyagerVers(page, 'Bourg Palette');
   await page.clock.runFor(400);
   await page.getByRole('button', { name: 'Pension Pokémon', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'La pension', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: titre, exact: true })).toBeVisible();
 }
 
 for (const largeur of [390, 1440]) {
@@ -84,7 +85,7 @@ for (const largeur of [390, 1440]) {
     const apres = await regionSauvee(page);
     expect(apres.equipe.find((p: { uid: string }) => p.uid === ponte.oeufs[0].uid).oeuf).toEqual({ pasRestants: 25, pasMax: 25 });
     expect(apres.pension.emplacementsOeuf).toBe(3);
-    await page.getByRole('button', { name: 'Sortir de la pension' }).click();
+    await page.getByRole('button', { name: telephone(page) ? 'Sortir de la pension' : 'Retour à Bourg Palette' }).click();
     await expect(page.getByRole('button', { name: 'Pension Pokémon', exact: true })).toBeFocused();
     await page.reload();
     expect((await regionSauvee(page)).pension).toEqual(apres.pension);

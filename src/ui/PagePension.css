@@ -1,6 +1,22 @@
 @keyframes pension-battre {
   to { transform: scale(calc(1 + 1 / 8)); }
 }
+@media (min-width: 1024px) {
+  main#contenu:has(.pension-pc) { display: flex; flex-direction: column; overflow: hidden; }
+  main#contenu > section:has(.pension-pc) { display: flex; flex: 1; min-height: 0; max-width: none; width: 100%; }
+  .pension-pc { display: flex; flex-direction: column; flex: 1; min-width: 0; min-height: 0; max-width: none; }
+  .pension-pc > div.grid { flex: 1; min-height: 0; grid-template-rows: auto minmax(0, 1fr); }
+  .pension-pc > div.grid > div.grid { min-height: 0; height: 100%; }
+  .pension-pc section[aria-label="Parents"], .pension-pc section[aria-label="Œufs"] { max-height: 100%; min-height: 0; overflow-y: auto; }
+  .pension-pc section[aria-label="Parents"] article { background: none; gap: .5rem; }
+  .pension-pc section[aria-label="Œufs"] li { background: none; overflow: hidden; }
+  .pension-pc img { object-fit: contain; max-height: 100%; max-width: 100%; }
+  .pension-pc span.relative.isolate { display: grid; place-items: center; overflow: hidden; height: 12rem; max-width: 100%; }
+  .pension-pc span.relative.isolate > span { display: none; }
+  .pension-pc span.relative.isolate img { width: 12rem; height: 12rem; object-fit: contain; max-height: 100%; max-width: 100%; }
+  .pension-pc section[aria-label="Choisir un parent"] { position: absolute; inset: 0; z-index: 1; overflow-y: auto; }
+  .pension-pc [role="status"] { flex: none; margin-bottom: 0; }
+}
 @keyframes pension-rebond {
   to { transform: translateY(calc(var(--spacing) * -2)); }
 }

@@ -1,10 +1,16 @@
-import { useSyncExternalStore } from 'react';
+import { useSyncExternalStore, type ReactNode } from 'react';
 import { useStore } from 'zustand';
 import { creditPiste, musiques } from '../core/musiques';
 import { IconeRetour } from './icones-menu';
 import { musique } from './musique';
 import { storeJeu } from './store';
 import { volumes, type Canal } from './volumes';
+import { useTelephone } from './useTelephone';
+import './MenuPC.css';
+
+function PanneauPC({ telephone, titre, children }: { telephone: boolean; titre: string; children: ReactNode }) {
+  return telephone ? <>{children}</> : <section className="cadre reglages-pc-panneau"><h2 className="font-titre text-lg">{titre}</h2>{children}</section>;
+}
 
 function Interrupteur({ nom, actif, basculer }: { nom: string; actif: boolean; basculer(): void }) {
   return <button type="button" role="switch" aria-label={nom} aria-checked={actif} onClick={basculer}
@@ -27,6 +33,7 @@ function CurseurVolume({ canal, libelle, actif }: { canal: Canal; libelle: strin
 }
 
 export function PageReglages({ retour }: { retour?(): void }) {
+  const telephone = useTelephone();
   const musiqueActive = useSyncExternalStore(musique.abonner, musique.estActive);
   const sonActive = useStore(storeJeu, e => e.sonActive);
   const autoClicLie = useStore(storeJeu, e => e.autoClicLie);
@@ -45,12 +52,13 @@ export function PageReglages({ retour }: { retour?(): void }) {
     }
   };
 
-  return <section className="mx-auto max-w-screen-xl space-y-4 text-base">
+  return <section className={telephone ? 'mx-auto max-w-screen-xl space-y-4 text-base' : 'reglages-pc'}>
     <header className="flex items-center gap-2">
-      {retour && <button type="button" aria-label="Retour" onClick={retour}
-        className="flex min-h-11 min-w-11 items-center justify-center bg-surface-2 hover:bg-selection"><IconeRetour /></button>}
+      {retour && <button type="button" aria-label={telephone ? 'Retour' : 'Retour au menu'} onClick={retour}
+        className="flex min-h-11 min-w-11 items-center justify-center bg-surface-2 hover:bg-selection"><IconeRetour />{!telephone && 'Retour au menu'}</button>}
       <h1 tabIndex={-1} className="font-titre text-2xl font-semibold">Réglages</h1>
     </header>
+    <PanneauPC telephone={telephone} titre="Son">
     <section className="cadre bg-surface p-4">
       <div className="flex items-center justify-between gap-4">
         <div><h2 className="font-titre font-semibold">Musique</h2><p className="text-sm text-texte-doux">{musiqueActive ? 'Activée' : 'Désactivée'}</p></div>
@@ -65,6 +73,8 @@ export function PageReglages({ retour }: { retour?(): void }) {
       </div>
       <CurseurVolume canal="effets" libelle="Volume des effets sonores" actif={sonActive} />
     </section>
+    </PanneauPC>
+    <PanneauPC telephone={telephone} titre="Jeu">
     <section className="cadre bg-surface p-4">
       <div className="flex items-center justify-between gap-4">
         <div><h2 className="font-titre font-semibold">Auto-clic lié à l'attaque auto</h2>
@@ -92,5 +102,6 @@ export function PageReglages({ retour }: { retour?(): void }) {
         if (window.confirm('Effacer le relevé de partie sur cet appareil ?')) storeJeu.getState().effacerJournal();
       }} className="min-h-11 bg-surface-2 px-4 py-2 hover:bg-selection">Effacer le relevé</button>
     </details>}
+    </PanneauPC>
   </section>;
 }

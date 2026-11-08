@@ -7,13 +7,15 @@ import { IconeBadges } from '../icones-menu';
 import { IconeDiamant, IconeSortie } from './icones-compte';
 import '../Plaques.css';
 import './MonCompte.css';
+import './ComptePC.css';
+import { useTelephone } from '../useTelephone';
 
 
 
 export function EcranMonCompte({ compte, registre, quandFermer, theme = 'dark' }: {
   compte: ResumeCompte; registre: readonly DefinitionSucces[]; quandFermer: () => void; theme?: 'dark' | 'light';
 }) {
-  return <div role="dialog" aria-modal="true" aria-labelledby="titre-mon-compte" data-theme={theme} className="min-h-dvh bg-fond text-texte font-texte p-4 lg:p-8 grid content-center">
+return <div role="dialog" aria-modal="true" aria-labelledby="titre-mon-compte" data-theme={theme} className={`${useTelephone() ? '' : 'compte-pc mon-compte-pc '}min-h-dvh bg-fond text-texte font-texte p-4 lg:p-8 grid content-center`}>
     <section className="cadre bg-surface p-4 lg:p-8 w-full max-w-(--breakpoint-md) mx-auto">
       <button onClick={quandFermer} className="min-h-12 p-2 text-lien underline">Retour au jeu</button>
       <ContenuMonCompte compte={compte} registre={registre} />
@@ -31,7 +33,7 @@ export function ContenuMonCompte({ compte, registre, etatSynchro, quandDeconnect
   const tries = [...registre].sort((a, b) => Number(obtenus.has(b.id)) - Number(obtenus.has(a.id)));
   const nombreObtenus = registre.filter(succes => obtenus.has(succes.id)).length;
 
-  return <div className="w-full max-w-(--breakpoint-md) mx-auto space-y-4">
+  return <div className={`${useTelephone() ? '' : 'mc-layout-pc '}w-full max-w-(--breakpoint-md) mx-auto space-y-4`}>
       <header className="flex items-center justify-between gap-3">
         <h1 id="titre-mon-compte" ref={titre} tabIndex={-1} className="font-titre text-xl font-bold">Mon compte</h1>
         {quandDeconnecter && <button type="button" className="plaque min-h-12" onClick={quandDeconnecter}><IconeSortie />Se déconnecter</button>}

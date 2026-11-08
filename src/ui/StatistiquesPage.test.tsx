@@ -36,6 +36,7 @@ it('présente les sept statistiques du store et le retour', () => {
   render(<StatistiquesPage retour={retour} />);
   expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Statistiques');
   expect(screen.getAllByRole('region')).toHaveLength(7);
+  expect(screen.getAllByRole('region')[0]!.parentElement?.classList.contains('stats-grille')).toBe(true);
   for (const stat of storeJeu.getState().statistiques) {
     expect(screen.getByRole('region', { name: stat.libelle })).toBeTruthy();
   }

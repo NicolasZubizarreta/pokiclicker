@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-test('le Guide du jeu défile seul, se ferme avec Échap ou la croix et rend le focus', async ({ page }, info) => {
+test('le Guide du jeu sur PC : page à deux colonnes, sections au clavier, retour au Menu', async ({ page }, info) => {
   test.skip(info.project.name === 'mobile', 'Sur téléphone, le Guide est une page : voir le test suivant.');
   const erreurs: string[] = [];
   page.on('console', message => { if (message.type() === 'error') erreurs.push(message.text()); });
@@ -11,45 +11,25 @@ test('le Guide du jeu défile seul, se ferme avec Échap ou la croix et rend le 
   const ouverture = page.getByRole('button', { name: 'Guide du jeu' });
   await ouverture.click();
 
-  const fenetre = page.getByRole('dialog', { name: 'Guide du jeu' });
-  await expect(fenetre).toBeVisible();
-  const boite = await fenetre.boundingBox();
-  const fenetreVue = page.viewportSize()!;
-  expect(boite!.height).toBeLessThanOrEqual(fenetreVue.height);
-  expect(boite!.width).toBeLessThanOrEqual(fenetreVue.width);
-
-  // Les 11 sections sont là ; en déplier plusieurs force le défilement interne, jamais celui de la page.
-  // Le Menu est plus long qu'un écran : le clic fait défiler la page, et le message passager du bandeau (« Nouveau
-  // Pokémon ! ») qui s'efface raccourcit la page. On mesure donc juste avant de faire défiler le guide.
-  const sections = fenetre.locator('details');
-  await expect(sections).toHaveCount(11);
-  for (let i = 0; i < 11; i++) await sections.nth(i).locator('summary').evaluate(el => { (el.parentElement as HTMLDetailsElement).open = true; });
-  const contenu = fenetre.locator('[data-guide-contenu]');
-  const defilable = await contenu.evaluate(el => el.scrollHeight > el.clientHeight && getComputedStyle(el).overflowY === 'auto');
-  expect(defilable).toBe(true);
-  const defilePage = await page.evaluate(() => window.scrollY);
-  await contenu.evaluate(el => { el.scrollTop = el.scrollHeight; });
-  expect(await page.evaluate(() => getComputedStyle(document.documentElement).overflow)).toBe('hidden');
-  expect(await page.evaluate(() => window.scrollY)).toBe(defilePage);
-  await expect(fenetre.getByText(/Easter eggs|Renomme en “Daran”/).first()).toBeVisible();
-
-  const croix = fenetre.getByRole('button', { name: 'Fermer le guide' });
-  const taille = await croix.boundingBox();
-  expect(taille!.width).toBeGreaterThanOrEqual(44);
-  expect(taille!.height).toBeGreaterThanOrEqual(44);
-
-  await page.keyboard.press('Escape');
-  await expect(fenetre).toBeHidden();
-  await expect(ouverture).toBeFocused();
-
-  await ouverture.click();
-  await fenetre.getByRole('button', { name: 'Fermer le guide' }).click();
-  await expect(fenetre).toBeHidden();
-  await expect(ouverture).toBeFocused();
-
-  await ouverture.click();
-  await sections.first().scrollIntoViewIfNeeded();
+  // Sur PC, le Guide est une page dans la zone de contenu, plus une fenêtre.
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page.getByRole('heading', { level: 1, name: 'Guide du jeu' })).toBeVisible();
+  const navigation = page.getByRole('navigation', { name: 'Sections du guide' });
+  await expect(navigation.getByRole('button')).toHaveCount(11);
+  await expect(page.getByRole('article')).toBeVisible();
+  // Rien ne fait défiler la page : le Guide défile dans son cadre.
+  const defilements = await page.evaluate(() => ({ page: document.documentElement.scrollHeight - innerHeight, contenu: document.getElementById('contenu')!.scrollHeight - document.getElementById('contenu')!.clientHeight }));
+  expect(defilements.page).toBeLessThanOrEqual(0);
+  expect(defilements.contenu).toBeLessThanOrEqual(1);
+  // Clavier : une autre section remplace l'article, le bouton de la section porte aria-current.
+  const quatrieme = navigation.getByRole('button').nth(3);
+  await quatrieme.focus();
+  await page.keyboard.press('Enter');
+  await expect(quatrieme).toHaveAttribute('aria-current', 'true');
+  await expect(page.getByRole('article').getByRole('heading', { level: 2 })).toHaveText((await quatrieme.innerText()).trim());
   await page.screenshot({ path: `design/captures/al-guide-${info.project.name}.png` });
+  await page.getByRole('button', { name: 'Retour au menu' }).click();
+  await expect(ouverture).toBeFocused();
   expect(erreurs).toEqual([]);
 });
 

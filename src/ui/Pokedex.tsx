@@ -1,5 +1,10 @@
 import { useStore } from 'zustand';
-import { chargerPokemon } from '../core/pokemon';
+import { useState } from 'react';
+import { chargerPokemon, nomType } from '../core/pokemon';
+import { statsDeCombat } from '../core/stats';
+import { reglages } from '../core/reglages';
+import { Diplome } from './Diplome';
+import './DexPC.css';
 import { pokedexDeKanto } from '../core/pokedex';
 import { Image } from './Image';
 import { cheminSprite } from './precharger';
@@ -13,14 +18,31 @@ export function Pokedex({ retour }: { retour(): void }) {
   const pokedex = useStore(storeJeu, e => e.pokedex);
   const { prochain, paliers } = useStore(storeJeu, e => e.progression);
   const { captures, nombre, total } = pokedexDeKanto(pokedex, catalogue);
+  const diplome = useStore(storeJeu, e => e.fin.diplome);
+  const [diplomeOuvert, ouvrirDiplome] = useState(false);
+  const [selection, choisir] = useState<number | null>(null);
+  const [saisie, saisir] = useState('');
+  const [filtre, filtrer] = useState('Tous');
+  const normaliser = (s: string) => s.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').trim();
+  const recherche = normaliser(saisie);
+  const numeroRecherche = /^(?:#|n°|n)?\s*(\d+)$/.exec(recherche);
+  const numeros = Array.from({ length: total }, (_, i) => i + 1).filter(n =>
+    !(filtre === 'Capturés' && !captures.has(n) || filtre === 'À trouver' && captures.has(n)) &&
+    (!recherche || (numeroRecherche ? n === Number(numeroRecherche[1]) : captures.has(n) && normaliser(catalogue.parNumero(n).nom).includes(recherche))));
 
-  return <section className="mx-auto max-w-screen-xl space-y-4 text-base">
+  return <section className="dex-pc text-base">
     <header className="space-y-2">
       <button type="button" onClick={retour}
-        className="min-h-11 bg-surface-2 px-4 py-2 hover:bg-selection">Retour</button>
+        className="min-h-11 bg-surface-2 px-4 py-2 hover:bg-selection">Retour au menu</button>
       <h1 tabIndex={-1} className="font-titre text-2xl font-semibold">Pokédex</h1>
       <p className="text-region-accent">{`${nombre} / ${total}`}</p>
     </header>
+    <div className="dex-outils"><label>Nom ou numéro <kbd>/</kbd><input type="search" value={saisie} onChange={e => saisir(e.target.value)} className="cadre min-h-11 bg-surface px-3" /></label>
+      <div role="group" aria-label="Filtrer le Pokédex">{['Tous', 'Capturés', 'À trouver'].map(f => <button key={f} type="button" aria-pressed={filtre === f} onClick={() => filtrer(f)} className="plaque min-h-11 px-3">{f}</button>)}</div></div>
+    <div className="dex-corps">
+    <aside className="dex-panneau cadre bg-surface p-4">
+    {selection === null ? <><h2 className="font-titre text-xl font-bold">Paliers</h2>
+    <progress aria-label="Espèces capturées" value={nombre} max={total} className="w-full" />
     <p data-prochain-palier>{formaterProchainPalier(prochain)}</p>
     <section aria-label="Paliers du Pokédex"><dl className="space-y-2">
       {paliers.map(palier => <div key={palier.palier}>
@@ -28,18 +50,35 @@ export function Pokedex({ retour }: { retour(): void }) {
         {`${palier.palier} — ${palier.titre} — ${palier.description}`}</dt><dd className="inline"> · <span>{palier.recu ? 'reçu' : 'à venir'}</span></dd>
       </div>)}
     </dl></section>
-    <ol className="grid grid-cols-3 gap-2 sm:grid-cols-5 lg:grid-cols-10">
-      {Array.from({ length: total }, (_, index) => {
-        const numero = index + 1;
+    {diplome && <button type="button" className="plaque min-h-11" onClick={() => ouvrirDiplome(true)}>Voir le diplôme</button>}
+    </> : <Fiche numero={selection} capture={captures.has(selection)} fermer={() => choisir(null)} />}
+    </aside>
+    <div className="dex-liste cadre">{numeros.length === 0 && <p role="status">Aucune espèce ne correspond.</p>}
+    <ol className="dex-grille grid grid-cols-3 gap-2 sm:grid-cols-5 lg:grid-cols-10">
+      {numeros.map(numero => {
         const capture = captures.has(numero);
         const nom = capture ? catalogue.parNumero(numero).nom : '???';
-        return <li key={numero} className="cadre flex min-w-0 flex-col items-center gap-2 bg-surface p-1 text-center">
+        return <li key={numero}><button type="button" onClick={() => choisir(numero)} aria-pressed={selection === numero} aria-label={capture ? `${nom}, numéro ${numero}, déjà capturé` : `Pokémon inconnu, numéro ${numero}`} className="dex-case flex min-h-11 w-full min-w-0 flex-col items-center gap-2 bg-surface p-1 text-center">
           <span>N° {numero}</span>
           <Image src={cheminSprite(numero)} genre="sprite" alt={capture ? nom : 'Pokémon inconnu'}
-            className={`size-16 max-w-full ${capture ? '' : 'brightness-0'}`} />
+            className={`size-24 object-contain max-h-full max-w-full ${capture ? '' : 'brightness-0'}`} />
           <span className="w-full break-words">{nom}{capture && <PastilleCapture />}</span>
-        </li>;
+        </button></li>;
       })}
-    </ol>
+    </ol></div></div>
+    {diplomeOuvert && diplome && <Diplome diplome={diplome} fermer={() => ouvrirDiplome(false)} />}
   </section>;
+}
+
+function Fiche({ numero, capture, fermer }: { numero: number; capture: boolean; fermer(): void }) {
+  const equipe = useStore(storeJeu, e => e.equipe);
+  const pc = useStore(storeJeu, e => e.pc);
+  const espece = catalogue.parNumero(numero);
+  return <><header className="flex items-center justify-between gap-2"><h2 className="font-titre text-xl font-bold">{capture ? espece.nom : '???'} · N° {numero}</h2><button type="button" aria-label="Revenir aux paliers" onClick={fermer} className="flex min-h-11 min-w-11 items-center justify-center">×</button></header>
+    <div className="dex-sprite"><Image genre="sprite" src={cheminSprite(numero)} alt={capture ? espece.nom : 'Pokémon inconnu'} className={`object-contain max-h-full max-w-full ${capture ? '' : 'brightness-0 opacity-50'}`} /></div>
+    {capture ? <><div className="flex flex-wrap gap-2">{espece.types.map(t => <span key={t} className={`pastille-type pastille-type-${t} px-2`}>{nomType(t)}</span>)}<span>Déjà capturé</span></div>
+      <p>{equipe.some(c => c?.pokemon.numero === numero) ? 'Dans ton équipe' : pc.some(p => p.numero === numero) ? 'Rangé dans ton PC' : 'Enregistré au Pokédex'}</p>
+      <dl aria-label="Dégâts de base"><dt>Dégâts de base</dt><dd>{statsDeCombat(espece).puissance}</dd></dl>
+      <p>DPS = dégâts de base × niveau ÷ {reglages.degats.diviseurNiveau}, avant les bonus.</p></> : <p role="status">Capture ce Pokémon pour découvrir son nom, ses types et ses dégâts de base.</p>}
+  </>;
 }

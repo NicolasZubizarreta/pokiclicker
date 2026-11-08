@@ -1,0 +1,21 @@
+@media (min-width: 1024px) {
+  main#contenu:has(.shop-pc, .commercial-pc) { display: flex; flex-direction: column; overflow: hidden; }
+  main#contenu > section:has(.shop-pc, .commercial-pc),
+  main#contenu > div:has(> .commercial-pc),
+  main#contenu > section > div:has(> .commercial-pc) { display: flex; flex-direction: column; flex: 1; min-height: 0; width: 100%; max-width: none; }
+  .shop-pc, .commercial-pc { position: relative; display: flex; flex-direction: column; flex: 1; min-height: 0; min-width: 0; max-width: none; gap: 1rem; }
+  .shop-pc > h1 { padding-right: 50%; }
+  .shop-pc > .text-region-accent { position: absolute; right: 0; top: 0; }
+  .commercial-pc .titre-page { display: flex; align-items: center; flex-wrap: wrap; gap: 1rem; }
+  .commercial-pc .titre-page strong { margin-left: auto; }
+  .shop-pc .produits, .commercial-pc .produits { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow-y: auto; gap: 1rem; padding: 1rem; }
+  :is(.shop-pc, .commercial-pc) .produit { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; flex: none; gap: .5rem 1rem; }
+  :is(.shop-pc, .commercial-pc) .produit > div:first-child { grid-column: 1; overflow: hidden; }
+  :is(.shop-pc, .commercial-pc) .produit > p { grid-column: 1; min-width: 0; overflow-wrap: anywhere; }
+  :is(.shop-pc, .commercial-pc) .produit > strong { grid-column: 2; grid-row: 1; white-space: nowrap; }
+  :is(.shop-pc, .commercial-pc) .produit > div:last-child:not(:first-child) { grid-column: 2; grid-row: 2; }
+  :is(.shop-pc, .commercial-pc) .produit img { width: 30px; height: 30px; object-fit: contain; max-width: 100%; max-height: 100%; flex: none; background: none; }
+  :is(.shop-pc, .commercial-pc) .produit button { flex-shrink: 0; }
+  .commercial-pc .decor-page { position: relative; overflow: hidden; height: 9rem; flex: none; display: flex; align-items: end; padding: 1rem; }
+  .commercial-pc .bulle { position: relative; background: var(--surface); padding: 1rem; }
+}

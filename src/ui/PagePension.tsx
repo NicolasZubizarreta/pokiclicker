@@ -8,6 +8,7 @@ import { Image, imageConnue } from './Image';
 import { IconeShiny } from './IconeShiny';
 import { storeJeu, type StoreJeu } from './store';
 import './PagePension.css';
+import { useTelephone } from './useTelephone';
 
 const bouton = 'min-h-11 rounded-sm border-2 border-bordure bg-surface-2 p-2 hover:enabled:bg-selection disabled:text-texte-doux';
 const principal = 'min-h-11 rounded-sm border-2 border-bordure bg-action p-2 text-action-texte hover:enabled:bg-action-survol disabled:text-texte-doux';
@@ -26,6 +27,7 @@ function Portrait({ pokemon, grand = false }: { pokemon: PokemonPossede; grand?:
 }
 
 export function PagePension({ retour, store = storeJeu }: { retour(): void; store?: StoreJeu }) {
+  const telephone = useTelephone();
   const pension = useStore(store, e => e.pension);
   const equipe = useStore(store, e => e.equipe);
   const pc = useStore(store, e => e.pc);
@@ -49,12 +51,12 @@ export function PagePension({ retour, store = storeJeu }: { retour(): void; stor
   }
   const destination = equipe.filter(Boolean).length < 6 ? 'ton équipe' : 'PC (équipe pleine)';
   const premier = pension.oeufs[0];
-  return <section className="relative isolate mx-auto max-w-screen-xl text-base">
+  return <section className={`${telephone ? '' : 'pension-pc '}relative isolate mx-auto max-w-screen-xl text-base`}>
     {imageConnue('img/decors/pension.webp') && <Image src="img/decors/pension.webp" genre="decor" alt="" couvrir className="pointer-events-none absolute inset-0 -z-10 size-full" />}
     <header className="mb-4 flex flex-wrap items-center justify-between gap-2">
-      <div><p>Bourg Palette · Kanto</p><h1 ref={titre} tabIndex={-1} className="font-titre text-2xl font-semibold">La pension</h1></div>
+      <div><p>Bourg Palette · Kanto</p><h1 ref={titre} tabIndex={-1} className="font-titre text-2xl font-semibold">{telephone ? 'La pension' : 'Pension'}</h1></div>
       <strong className="text-region-accent">{nombre(argent)}{'\u00a0₽'}</strong>
-      <button className={bouton} onClick={retour}>Sortir de la pension</button>
+      <button className={bouton} onClick={retour}>{telephone ? 'Sortir de la pension' : 'Retour à Bourg Palette'}</button>
     </header>
     {pension.acces.ouvert && <div className="grid min-w-0 gap-4">
       <div className="flex items-center justify-center gap-4 bg-selection p-4">
@@ -64,7 +66,7 @@ export function PagePension({ retour, store = storeJeu }: { retour(): void; stor
       </div>
       <div className="grid min-w-0 items-start gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <section ref={parents} aria-label="Parents" className="cadre grid min-w-0 gap-4 bg-surface p-4">
-          <h2 className="font-titre text-xl">Les parents</h2>
+          <h2 className="font-titre text-xl">{telephone ? 'Les parents' : 'Pokémon déposés'}</h2>
           <div className="grid min-w-0 gap-4 lg:grid-cols-2">{Array.from({ length: 2 }, (_, i) => {
             const parent = pension.parents[i];
             return <article key={i} className="grid min-w-0 justify-items-center gap-4 bg-surface-2 p-4 text-center">

@@ -6,8 +6,12 @@ import { IconeObjet } from './icones';
 import { Image } from './Image';
 import { storeJeu } from './store';
 import { PageCasino } from './PageCasino';
+import { CarteObjet } from './CarteObjet';
+import { useTelephone } from './useTelephone';
+import './ShopPC.css';
 
 export function PageCarte({ quandArrive }: { quandArrive: () => void }) {
+  const telephone = useTelephone();
   const [ouvert, ouvrir] = useState<'centre' | 'casino' | null>(null);
   const dernier = useRef('centre');
   const conteneur = useRef<HTMLDivElement>(null);
@@ -19,10 +23,11 @@ export function PageCarte({ quandArrive }: { quandArrive: () => void }) {
     const racine = conteneur.current;
     if (ouvert) racine?.querySelector<HTMLElement>('h1[tabindex]')?.focus();
     else (racine?.querySelector<HTMLElement>(`[data-${dernier.current}]`)
+      ?? racine?.querySelector<HTMLElement>('[data-forme="Céladopole"][role="button"]')
       ?? racine?.querySelector<HTMLElement>('[data-zone][role="button"]'))?.focus();
   }, [ouvert]);
-  return <div ref={conteneur}>
-    <div hidden={ouvert !== null}>
+  return <div ref={conteneur} className={!telephone && ouvert === null ? 'carte-page-pc' : undefined}>
+    <div hidden={ouvert !== null} className={!telephone && ouvert === null ? 'carte-page-contenu-pc' : undefined}>
       <CarteKanto quandArrive={quandArrive} quandCentre={() => ouvrir('centre')} quandCasino={() => ouvrir('casino')} />
     </div>
     {ouvert === 'centre' && <PageCentre retour={() => ouvrir(null)} />}
@@ -31,6 +36,7 @@ export function PageCarte({ quandArrive }: { quandArrive: () => void }) {
 }
 
 export function PageCentre({ retour }: { retour: () => void }) {
+  const telephone = useTelephone();
   const centre = useStore(storeJeu, etat => etat.centre);
   const argent = useStore(storeJeu, etat => etat.argent);
   const acheter = useStore(storeJeu, etat => etat.acheter);
@@ -43,6 +49,21 @@ export function PageCentre({ retour }: { retour: () => void }) {
   const raison = !valide ? `Choisis une quantité de 1 à ${reglages.boutique.quantiteMax}.`
     : objet && (!objet.abordable || objet.prix * nombre > argent) ? "Pas assez d'argent." : null;
   const bouton = 'min-h-11 min-w-11 p-2';
+
+  if (!telephone) return <section className="commercial-pc text-base tabular-nums">
+    <header className="titre-page">
+      <h1 tabIndex={-1} className="font-titre text-3xl font-semibold">Centre commercial</h1>
+      <strong className="text-region-accent">Tu as {argent.toLocaleString('fr-FR')}{'\u00a0₽'}</strong>
+      <button type="button" className={`${bouton} plaque`} onClick={retour}>Retour à la carte</button>
+    </header>
+    <div className="decor-page cadre">
+      <Image genre="decor" src="img/decors/centre-commercial.webp" alt="" couvrir className="absolute inset-0 size-full" />
+      <p className="bulle cadre">Objets exclusifs · {centre.objets.length} objets</p>
+    </div>
+    {!centre.acces.ouvert ? <p>{centre.acces.raison}</p> : <div className="produits cadre">
+      {centre.objets.map(o => <CarteObjet key={o.id} {...o} argent={argent} acheter={q => acheter(o.id, q)} />)}
+    </div>}
+  </section>;
 
   return <section className="relative isolate mx-auto max-w-screen-xl pb-24 text-base tabular-nums">
     <div className="pointer-events-none fixed inset-0 -z-10">

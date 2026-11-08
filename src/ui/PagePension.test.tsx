@@ -30,7 +30,11 @@ function preparer(ouvert = true) {
 
 it('dépose depuis le PC, affiche le refus du cœur et retire les parents', () => {
   const store = preparer();
-  render(<PagePension store={store} retour={vi.fn()} />);
+  const { container } = render(<PagePension store={store} retour={vi.fn()} />);
+  expect(container.querySelectorAll('.pension-pc')).toHaveLength(1);
+  expect(screen.getByRole('heading', { name: 'Pokémon déposés' })).toBeTruthy();
+  expect(screen.getByRole('region', { name: 'Parents' })).toBeTruthy();
+  expect(screen.getByRole('region', { name: 'Œufs' })).toBeTruthy();
   fireEvent.click(screen.getAllByRole('button', { name: 'Déposer un parent' })[0]!);
   fireEvent.click(within(screen.getByRole('region', { name: 'Équipe' })).getByRole('button', { name: /Déposer Bulbizarre/ }));
   expect(screen.getByRole('status').textContent).toBeTruthy();
@@ -65,7 +69,7 @@ it('présente la raison d’accès fermé et la sortie', () => {
   render(<PagePension store={preparer(false)} retour={retour} />);
   expect(screen.getByRole('status').textContent).toBe('Bats le boss de Tour Pokémon.');
   expect(screen.queryByRole('button', { name: 'Déposer un parent' })).toBeNull();
-  fireEvent.click(screen.getByRole('button', { name: 'Sortir de la pension' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Retour à Bourg Palette' }));
   expect(retour).toHaveBeenCalledOnce();
 });
 
@@ -73,8 +77,8 @@ it('ouvre depuis Bourg Palette et rend le focus au bouton Pension à la sortie',
   const store = preparer();
   render(<EcranCombat store={store} />);
   fireEvent.click(screen.getByRole('button', { name: 'Pension Pokémon' }));
-  expect(screen.getByRole('heading', { name: 'La pension' })).toBeTruthy();
-  fireEvent.click(screen.getByRole('button', { name: 'Sortir de la pension' }));
+  expect(screen.getByRole('heading', { name: 'Pension' })).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: 'Retour à Bourg Palette' }));
   expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Pension Pokémon' }));
   expect(store.getState().lieu?.id).toBe('kanto.bourg-palette');
 });

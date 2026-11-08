@@ -2,6 +2,7 @@ import { mkdir } from 'node:fs/promises';
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import { telephone } from './aide-carte';
+import { rayon } from './aide-shop';
 
 // Retour du test iPhone du 07/11 (4e test) : toutes les notifications sont des pop-up en haut de l'écran, hors de la
 // mise en page. Rien ne bouge quand une notification apparaît, rien ne sort de l'écran (Shop compris).
@@ -25,7 +26,7 @@ async function demarrer(page: Page, largeur: number) {
   });
   await page.reload();
   await page.getByRole('button', { name: 'Shop', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'Poké Ball', exact: true })).toBeVisible();
+  await expect(rayon(page, 'Poké Ball')).toBeVisible();
 }
 
 const sansDefilementHorizontal = (page: Page) =>
@@ -73,7 +74,7 @@ for (const largeur of LARGEURS) {
       expect(d.defile, `${nom} : scrollWidth ≤ clientWidth`).toBeLessThanOrEqual(d.largeur);
     };
     for (const categorie of ['Poké Ball', 'Objets', 'Accessoires']) {
-      await page.getByRole('button', { name: categorie, exact: true }).click();
+      await rayon(page, categorie).click();
       await verifier(`Shop ${categorie}`);
     }
     await page.getByRole('button', { name: 'Équipe', exact: true }).click();

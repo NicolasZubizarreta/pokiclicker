@@ -11,6 +11,10 @@ import { PageCarte } from './PageCentre';
 import { storeJeu } from './store';
 
 const stores: StoreJeu[] = [];
+Object.defineProperties(HTMLDialogElement.prototype, {
+  showModal: { configurable: true, value(this: HTMLDialogElement) { this.open = true; } },
+  close: { configurable: true, value(this: HTMLDialogElement) { this.open = false; this.dispatchEvent(new Event('close')); } },
+});
 afterEach(() => { cleanup(); stores.forEach(s => s.getState().arreter()); stores.length = 0; vi.restoreAllMocks(); vi.useRealTimers(); vi.unstubAllGlobals(); });
 function preparer(reduit = false, ouvert = true) {
   vi.useFakeTimers();
@@ -97,8 +101,8 @@ it('ouvre le casino depuis la Carte puis rend le focus à son entrée', () => {
   const ancien = storeJeu.getState(); storeJeu.setState(store.getState());
   try {
     render(<PageCarte quandArrive={vi.fn()} />);
-    fireEvent.click(screen.getByRole('button', { name: /Céladopole/ })); clic('Casino');
+    fireEvent.click(screen.getAllByRole('button', { name: /Céladopole/ }).at(-1)!); clic('Casino'); act(() => { vi.advanceTimersByTime(10_000); });
     expect(screen.getByRole('heading', { name: 'Casino' })).toBeTruthy();
-    clic('Retour à la Carte'); expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Casino' }));
+    clic('Retour à la Carte'); expect(document.activeElement).toBe(screen.getAllByRole('button', { name: /Céladopole/ }).at(-1));
   } finally { storeJeu.setState(ancien); }
 });

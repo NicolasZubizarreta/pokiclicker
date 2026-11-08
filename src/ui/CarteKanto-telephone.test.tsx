@@ -165,10 +165,10 @@ it('garde Céladopole touchable quand son arène est terminée, et désactive l�
   expect(within(dialogue).getByRole<HTMLButtonElement>('button', { name: 'Arène', description: 'Tu es ici.' }).disabled).toBe(true);
 });
 
-it('conserve la liste de sélection et Ton voyage sur PC', () => {
+it('présente la liste directe et le titre de Kanto sur PC', () => {
   vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() })));
   afficher();
-  expect(screen.getByRole('listbox')).toBeTruthy();
-  expect(screen.getByRole('region', { name: 'Ton voyage' })).toBeTruthy();
-  expect(screen.queryByRole('list', { name: 'Zones de Kanto' })).toBeNull();
+  expect(screen.getByRole('list', { name: 'Zones de Kanto' })).toBeTruthy();
+  expect(screen.getByRole('heading', { name: 'Carte de Kanto' })).toBeTruthy();
+  expect(screen.queryByRole('region', { name: 'Ton voyage' })).toBeNull();
 });

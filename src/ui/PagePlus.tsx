@@ -2,8 +2,7 @@ import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { useStore } from 'zustand';
 import { BoiteBadges } from './BoiteBadges';
 import { Diplome } from './Diplome';
-import { Guide } from './Guide';
-import { Statistiques } from './Statistiques';
+import './MenuPC.css';
 import { Pokedex } from './Pokedex';
 import { PokedexTelephone } from './PokedexTelephone';
 import { BadgesTelephone } from './BadgesTelephone';
@@ -17,8 +16,12 @@ import { formaterProchainPalier } from './store-progression';
 import { PageReglages } from './PageReglages';
 import { IconeMonde, IconePokedex, IconeBadges, IconeStats, IconeGuide, IconeReglages, IconeDisque, IconeSortie, IconeChevron } from './icones-menu';
 
-function LigneMenu({ icone, titre, sousTexte, children, entree, onClick, disabled, grise, compteurDansNom }: {
-  icone: ReactNode; titre: string; sousTexte?: string; children?: ReactNode;
+function GroupeMenu({ telephone, children }: { telephone: boolean; children: ReactNode }) {
+  return telephone ? <>{children}</> : <div className="menu-pc-tuiles grid-cols-3">{children}</div>;
+}
+
+function LigneMenu({ icone, titre, titreVisible, sousTexte, children, entree, onClick, disabled, grise, compteurDansNom }: {
+  icone: ReactNode; titre: string; titreVisible?: string; sousTexte?: string; children?: ReactNode;
   entree?: string; onClick(): void; disabled?: boolean; grise?: boolean; compteurDansNom?: boolean;
 }) {
   // Nom accessible : le titre (avec le compteur si demandé) ; le reste est la description.
@@ -32,7 +35,7 @@ function LigneMenu({ icone, titre, sousTexte, children, entree, onClick, disable
     className={`cadre flex min-h-11 w-full items-center gap-4 bg-surface p-4 text-left hover:bg-selection${grise ? ' opacity-60' : ''}`}>
     {icone}
     <span className="min-w-0 flex-1">
-      <span id={titreId} className="block font-semibold">{titre}</span>
+      <span id={titreId} className="block font-semibold">{titreVisible ? <><span className="sr-only">{titre}</span><span aria-hidden="true">{titreVisible}</span></> : titre}</span>
       {sousTexte && <span id={sousId} className="block text-sm text-texte-doux">{sousTexte}</span>}
       {children && <span id={enfantId}>{children}</span>}
     </span>
@@ -51,8 +54,6 @@ export function PagePlus({ ouvrirPC, ouvrirMonde, menuPrincipal, attendreEnvoi }
   const pcOuvert = useStore(storeJeu, etat => etat.accesPc.ouvert);
   const diplome = useStore(storeJeu, etat => etat.fin.diplome);
   const [diplomeOuvert, ouvrirDiplome] = useState(false);
-  const [guideOuvert, ouvrirGuide] = useState(false);
-  const [statsOuvertes, ouvrirStats] = useState(false);
   const [sousPage, choisir] = useState<null | 'pokedex' | 'badges' | 'reglages' | 'stats' | 'guide'>(null);
   const telephone = useTelephone();
   const progression = useStore(storeJeu, etat => etat.progression);
@@ -90,7 +91,7 @@ export function PagePlus({ ouvrirPC, ouvrirMonde, menuPrincipal, attendreEnvoi }
     else conteneurPage?.querySelector('h1')?.focus();
   }, [sousPage]);
 
-  return <div ref={conteneur}>
+  return <div ref={conteneur} className={!telephone && sousPage === null ? 'menu-pc' : undefined}>
     {sousPage === 'pokedex' ? telephone
         ? <PokedexTelephone retour={() => choisir(null)} ouvrirDiplome={diplome ? () => ouvrirDiplome(true) : undefined} />
         : <Pokedex retour={() => choisir(null)} />
@@ -98,9 +99,12 @@ export function PagePlus({ ouvrirPC, ouvrirMonde, menuPrincipal, attendreEnvoi }
         : sousPage === 'guide' ? <GuidePage retour={() => choisir(null)} />
         : sousPage === 'badges' && telephone ? <BadgesTelephone badges={progression.badges} retour={() => choisir(null)} />
         : sousPage === 'badges' ? <section className="mx-auto max-w-screen-xl space-y-4 text-base">
+          <header className="flex items-center gap-4">
           <button type="button" onClick={() => choisir(null)}
-            className="min-h-11 bg-surface-2 px-4 py-2 hover:bg-selection">Retour</button>
+            className="min-h-11 bg-surface-2 px-4 py-2 hover:bg-selection">Retour au menu</button>
           <h1 tabIndex={-1} className="font-titre text-2xl font-semibold">Badges</h1>
+          <span className="plaque">{progression.obtenus} / 8</span>
+          </header>
           <BoiteBadges badges={progression.badges} />
         </section>
         : sousPage === 'reglages' ? <PageReglages retour={() => choisir(null)} />
@@ -116,12 +120,20 @@ export function PagePlus({ ouvrirPC, ouvrirMonde, menuPrincipal, attendreEnvoi }
                     : sauvegarde === 'local' ? `Partie sauvegardée sur cet appareil à ${heure}. L'envoi en ligne est en attente.`
                     : 'La sauvegarde a échoué. Réessaie : ta partie reste en mémoire.'}
             </p>
+            {!telephone && <dl className="menu-pc-infos">
+              <dt>Région</dt><dd>Kanto</dd><dt>Zone</dt><dd>{lieu?.nom ?? 'Kanto'}</dd>
+              <dt>Pokédex</dt><dd>{`${nombre} / 151`}</dd><dt>Badges</dt><dd>{`${progression.obtenus} / 8`}</dd>
+            </dl>}
             <button type="button" onClick={sauvegarder} disabled={sauvegarde === 'enCours' || retourEnCours}
               className="flex min-h-11 w-full items-center justify-center gap-4 bg-action p-4 text-action-texte">
               <IconeDisque />Sauvegarder maintenant
             </button>
+            {!telephone && menuPrincipal && <LigneMenu icone={<IconeSortie />} titre="Menu principal"
+              sousTexte="Sauvegarde, puis retour à tes parties" disabled={retourEnCours || sauvegarde === 'enCours'} onClick={revenirAuMenuPrincipal} />}
+            {!telephone && retourEchoue && <p role="alert">{erreurRetourMenu}</p>}
           </section>
-          <LigneMenu icone={<IconeMonde />} titre="Monde Pokémon" sousTexte="Kanto jouable" onClick={ouvrirMonde} />
+          <GroupeMenu telephone={telephone}>
+          <LigneMenu icone={<IconeMonde />} titre="Monde Pokémon" titreVisible={telephone ? undefined : 'Monde'} sousTexte="Kanto jouable" onClick={ouvrirMonde} />
           <h2 className="font-titre text-lg text-region-accent">Ton aventure</h2>
           <LigneMenu icone={<PC />} titre="PC de Léo" entree="pc" grise={!pcOuvert} onClick={ouvrirPC} />
           <LigneMenu icone={<IconePokedex />} titre="Pokédex" sousTexte={`${nombre} / ${total}`}
@@ -132,19 +144,18 @@ export function PagePlus({ ouvrirPC, ouvrirMonde, menuPrincipal, attendreEnvoi }
           <LigneMenu icone={<IconeBadges />} titre="Badges" sousTexte={`${progression.obtenus} sur ${progression.total}`}
             entree="badges" onClick={() => { entree.current = 'badges'; choisir('badges'); }} />
           <LigneMenu icone={<IconeStats />} titre="Statistiques" sousTexte="Dégâts, DPS et gains" entree="stats"
-            onClick={() => { if (telephone) { entree.current = 'stats'; choisir('stats'); } else ouvrirStats(true); }} />
+            onClick={() => { entree.current = 'stats'; choisir('stats'); }} />
           {diplome && !telephone && <LigneMenu icone={<IconePokedex />} titre="Diplôme du Pokédex" onClick={() => ouvrirDiplome(true)} />}
           <h2 className="font-titre text-lg text-region-accent">Aide et réglages</h2>
           <LigneMenu icone={<IconeGuide />} titre="Guide du jeu" entree="guide"
-            onClick={() => { if (telephone) { entree.current = 'guide'; choisir('guide'); } else ouvrirGuide(true); }} />
+            onClick={() => { entree.current = 'guide'; choisir('guide'); }} />
           <LigneMenu icone={<IconeReglages />} titre="Réglages" entree="reglages"
             onClick={() => { entree.current = 'reglages'; choisir('reglages'); }} />
-          {menuPrincipal && <LigneMenu icone={<IconeSortie />} titre="Menu principal"
+          </GroupeMenu>
+          {telephone && menuPrincipal && <LigneMenu icone={<IconeSortie />} titre="Menu principal"
             sousTexte="Sauvegarde, puis retour à tes parties" disabled={retourEnCours || sauvegarde === 'enCours'} onClick={revenirAuMenuPrincipal} />}
-          {retourEchoue && <p role="alert">{erreurRetourMenu}</p>}
+          {telephone && retourEchoue && <p role="alert">{erreurRetourMenu}</p>}
         </section>}
     {diplomeOuvert && diplome && <Diplome diplome={diplome} fermer={() => ouvrirDiplome(false)} />}
-    {guideOuvert && <Guide fermer={() => ouvrirGuide(false)} />}
-    {statsOuvertes && <Statistiques fermer={() => ouvrirStats(false)} />}
   </div>;
 }

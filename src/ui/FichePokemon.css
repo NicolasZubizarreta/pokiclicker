@@ -16,3 +16,9 @@
 .pastille-type-dark { background: var(--type-dark); color: var(--type-dark-texte); }
 .pastille-type-steel { background: var(--type-steel); color: var(--type-steel-texte); }
 .pastille-type-fairy { background: var(--type-fairy); color: var(--type-fairy-texte); }
+
+@media (min-width: 1024px) {
+  .fiche-pokemon .fiche-fermer { display: grid; place-items: center; width: calc(var(--spacing) * 11); height: calc(var(--spacing) * 11); padding: 0; }
+  .fiche-pokemon button { min-height: calc(var(--spacing) * 11); }
+  .fiche-pokemon img { object-fit: contain; }
+}

@@ -5,7 +5,29 @@ import { PageCentre, PageCarte } from './PageCentre';
 import { storeJeu } from './store';
 import { reglages } from '../core/reglages';
 
-afterEach(() => { cleanup(); storeJeu.getState().arreter(); vi.restoreAllMocks(); vi.useRealTimers(); });
+const affichage = vi.hoisted(() => ({ telephone: true }));
+vi.mock('./useTelephone', () => ({ useTelephone: () => affichage.telephone }));
+afterEach(() => { cleanup(); affichage.telephone = true; storeJeu.getState().arreter(); vi.restoreAllMocks(); vi.useRealTimers();
+  Reflect.deleteProperty(HTMLDialogElement.prototype, 'showModal');
+  Reflect.deleteProperty(HTMLDialogElement.prototype, 'close');
+});
+
+it('affiche sur PC le titre, le solde, les lignes communes et leur cadre de défilement', () => {
+  affichage.telephone = false;
+  preparer();
+  const acheter = vi.spyOn(storeJeu.getState(), 'acheter');
+  const retour = vi.fn();
+  const { container } = render(<PageCentre retour={retour} />);
+  expect(container.querySelectorAll('.commercial-pc')).toHaveLength(1);
+  expect(screen.getByRole('heading', { name: 'Centre commercial' })).toBeTruthy();
+  expect(screen.getByText(/^Tu as 15\s000\s₽$/)).toBeTruthy();
+  expect(container.querySelectorAll('.produits .produit')).toHaveLength(reglages.centre.objets.length);
+  fireEvent.click(screen.getAllByRole('button', { name: 'Plus' })[0]!);
+  fireEvent.click(screen.getAllByRole('button', { name: 'Acheter ×2' })[0]!);
+  expect(acheter).toHaveBeenCalledWith('xAttack', 2);
+  fireEvent.click(screen.getByRole('button', { name: 'Retour à la carte' }));
+  expect(retour).toHaveBeenCalledOnce();
+});
 
 function preparer() {
   storeJeu.getState().demarrer();
@@ -60,13 +82,16 @@ it('affiche la raison de fermeture et permet le retour', () => {
 });
 
 it('ouvre après le vol sans changer la zone, puis rend le focus à la carte', () => {
+  HTMLDialogElement.prototype.showModal = function () { this.open = true; };
+  HTMLDialogElement.prototype.close = function () { this.open = false; };
+  affichage.telephone = false;
   preparer();
   storeJeu.setState({ annonce: 'Combat en cours.' });
   vi.useFakeTimers();
   const aller = vi.spyOn(storeJeu.getState(), 'allerVers');
   const arrive = vi.fn();
   render(<PageCarte quandArrive={arrive} />);
-  fireEvent.click(screen.getByRole('button', { name: /Céladopole/ }));
+  fireEvent.click(screen.getAllByRole('button', { name: /Céladopole/ }).find(b => b.hasAttribute('data-zone'))!);
   const bouton = screen.getByRole('button', { name: 'Centre commercial' });
   fireEvent.click(bouton);
   expect(screen.getAllByRole('status')).toHaveLength(1);
@@ -78,6 +103,7 @@ it('ouvre après le vol sans changer la zone, puis rend le focus à la carte', (
   expect(aller).not.toHaveBeenCalled();
   expect(arrive).not.toHaveBeenCalled();
   fireEvent.click(screen.getByRole('button', { name: 'Retour à la carte' }));
-  expect(bouton.isConnected).toBe(false);
+  expect(screen.queryByRole('button', { name: 'Centre commercial' })).toBeNull();
+  expect(bouton.closest('dialog')?.open).toBe(false);
   expect((document.activeElement as HTMLElement).closest('[data-zone][role="button"]')).not.toBeNull();
 });

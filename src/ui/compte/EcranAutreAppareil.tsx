@@ -3,13 +3,15 @@ import { nomRegion, nomZone } from './format-partie';
 import { IconeTelephone, IconeValide, IconeParties } from './icones-compte';
 import './Compte.css';
 import './ZoneCompte.css';
+import './ComptePC.css';
+import { useTelephone } from '../useTelephone';
 
 export function EcranAutreAppareil({ nom, regionId, zoneId, ecritLe, occupe, erreur, quandReprendre, quandPlusTard }: {
   nom: string; regionId: string; zoneId: string; ecritLe: string; occupe: boolean; erreur: string; quandReprendre(): void; quandPlusTard(): void;
 }) {
   const titre = useRef<HTMLHeadingElement>(null);
   useEffect(() => { titre.current?.focus(); }, []);
-  return <main data-theme="dark" className="zc-zone zc-ecran min-h-dvh bg-fond text-texte font-texte p-4 lg:p-8 grid content-center">
+return <main data-theme="dark" className={`${useTelephone() ? '' : 'compte-pc '}zc-zone zc-ecran min-h-dvh bg-fond text-texte font-texte p-4 lg:p-8 grid content-center`}>
     <section className="cadre bg-surface p-4 lg:p-8 w-full max-w-(--breakpoint-md) mx-auto flex flex-col gap-4">
       <h1 ref={titre} tabIndex={-1} className="font-titre text-2xl mb-4">Partie ouverte ailleurs</h1>
       <p className="font-titre text-xl font-bold">{nom}</p>

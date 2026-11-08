@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { IconeAlerte } from './icones-compte';
 import './ZoneCompte.css';
+import './ComptePC.css';
+import { useTelephone } from '../useTelephone';
 
 export function DialogueDeconnexion({ etat, quandConfirmer, quandAnnuler, quandReessayer, quandRester }: {
   etat: 'confirmer' | 'confirmer-attente' | 'chargement' | 'echec';
@@ -16,7 +18,7 @@ export function DialogueDeconnexion({ etat, quandConfirmer, quandAnnuler, quandR
     titre.current?.focus();
     return () => { fenetre.close(); if (precedent instanceof HTMLElement) precedent.focus(); };
   }, [etat]);
-  return <dialog ref={dialogue} data-theme="dark" className={confirmation ? 'cadre zc-dialogue font-texte' : 'zc-attente-plein font-texte'}
+  return <dialog ref={dialogue} data-theme="dark" className={`${useTelephone() ? '' : 'compte-pc '}${confirmation ? 'cadre zc-dialogue font-texte' : 'zc-attente-plein font-texte'}`}
     role={confirmation ? 'dialog' : 'alertdialog'} aria-modal="true"
     aria-label={confirmation ? 'Se déconnecter ?' : etat === 'chargement' ? 'Sauvegarde en cours' : 'Échec de la sauvegarde'}
     onCancel={e => { e.preventDefault(); if (confirmation) quandAnnuler(); }}

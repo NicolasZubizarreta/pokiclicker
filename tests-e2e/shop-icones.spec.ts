@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { mkdir } from 'node:fs/promises';
 import { expect, test } from '@playwright/test';
 import { telephone } from './aide-carte';
+import { rayon } from './aide-shop';
 
 // Retour du test iPhone du 07/11 : la CT Fauchage s'affichait avec l'icône générique. Chaque objet du Shop doit avoir
 // sa vraie icône ; seuls les objets sans image fournie (Chaussures de sport) gardent l'icône de repli.
@@ -29,7 +30,7 @@ test('Shop : toutes les catégories sans icône de repli, sauf les objets en att
   await mkdir('design/captures', { recursive: true });
   const repli: string[] = [];
   for (const categorie of ['Poké Ball', 'Objets', 'Accessoires']) {
-    await page.getByRole('button', { name: categorie, exact: true }).click();
+    await rayon(page, categorie).click();
     await expect(page.getByRole('article').first()).toBeVisible();
     await page.evaluate(() => Promise.all([...document.images].map(image => image.decode().catch(() => undefined))));
     repli.push(...await page.locator('article[data-objet]:has([data-icone-repli])').evaluateAll(cartes => cartes.map(c => c.getAttribute('data-objet')!)));

@@ -1,8 +1,9 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { PartieListee, VersionArchivee } from '../synchro';
 import { duree, nomRegion, nomZone } from './format-partie';
 import { IconeAjout, IconeCorbeille, IconeCrayon } from './icones-compte';
 import { IconeRetour } from '../icones-menu';
+import { useTelephone } from '../useTelephone';
 
 export function Parties({ parties, horsConnexion, chargement, occupe, erreur, quandJouer, quandCreer, quandSupprimer, quandRenommer, quandRetourJeu, quandListerVersions, quandRestaurer }: {
   parties: PartieListee[]; horsConnexion: boolean; chargement: boolean; occupe: boolean; erreur: string;
@@ -11,6 +12,8 @@ export function Parties({ parties, horsConnexion, chargement, occupe, erreur, qu
   quandListerVersions?(id: string): Promise<VersionArchivee[] | null>;
   quandRestaurer?(id: string, lot: string): Promise<'ok' | 'introuvable' | 'echec'>;
 }) {
+  const telephone = useTelephone();
+  const Grille = telephone ? Fragment : 'div';
   const [nouvelle, fixerNouvelle] = useState(false);
   const [nom, fixerNom] = useState('');
   const [nomInvalide, fixerNomInvalide] = useState(false);
@@ -74,7 +77,7 @@ export function Parties({ parties, horsConnexion, chargement, occupe, erreur, qu
     return () => { fenetre.close(); declencheur.current?.focus(); };
   }, [suppression]);
   return <>
-    <div ref={contenu} className="flex flex-col gap-4" inert={!!suppression || !!restauration}>
+    <div ref={contenu} className={`${telephone ? '' : 'parties-pc '}flex flex-col gap-4`} inert={!!suppression || !!restauration}>
       {erreur && <p className="compte-message erreur" role="alert">{erreur}</p>}
       <header className="flex items-center gap-3">
         {nouvelle && <button type="button" className="plaque min-h-12" aria-label="Retour" disabled={occupe} onClick={() => { fixerNouvelle(false); fixerNomInvalide(false); }}><IconeRetour /></button>}
@@ -96,7 +99,7 @@ export function Parties({ parties, horsConnexion, chargement, occupe, erreur, qu
         </div>
         {nouvelle && <p className="text-texte-doux">Tu commences à Bourg Palette, dans la région de Kanto.</p>}
         <button type="submit" className="plaque plaque-action min-h-14 w-full" disabled={occupe}>Créer la partie</button>
-      </form> : !nouvelle && parties.length > 0 && <>
+      </form> : !nouvelle && parties.length > 0 && <Grille {...(telephone ? {} : { className: 'parties-grille' })}>
         <p className="text-texte-doux">Choisis une partie à jouer.</p>
         {parties.map(p => <article key={p.id} aria-label={p.nom} className="cadre zc-partie">
           <div className="flex flex-wrap items-center gap-2">
@@ -143,7 +146,7 @@ export function Parties({ parties, horsConnexion, chargement, occupe, erreur, qu
             }}>Restaurer une sauvegarde précédente</button>}
         </article>)}
         <button type="button" className="plaque min-h-14 w-full" disabled={occupe} onClick={() => fixerNouvelle(true)}><IconeAjout />Nouvelle partie</button>
-      </>}
+      </Grille>}
     </div>
     {suppression && <dialog ref={dialogue} className="cadre zc-dialogue" role="dialog" aria-modal="true" aria-labelledby="zc-suppression-titre"
       onCancel={e => { e.preventDefault(); if (!occupe) fixerSuppression(null); }}

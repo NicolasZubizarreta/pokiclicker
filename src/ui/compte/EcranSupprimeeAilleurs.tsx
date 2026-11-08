@@ -3,6 +3,8 @@ import { duree, nomRegion, nomZone } from './format-partie';
 import { IconeAlerte } from './icones-compte';
 import './Compte.css';
 import './ZoneCompte.css';
+import './ComptePC.css';
+import { useTelephone } from '../useTelephone';
 
 export function EcranSupprimeeAilleurs({ nom, regionId, zoneId, ecritLe, tempsJeuMs, occupe, erreur, quandGarder, quandAbandonner }: {
   nom: string; regionId: string; zoneId: string; ecritLe: string; tempsJeuMs: number | null; occupe: boolean; erreur: string;
@@ -22,7 +24,7 @@ export function EcranSupprimeeAilleurs({ nom, regionId, zoneId, ecritLe, tempsJe
     titreDialogue.current?.focus();
     return () => { fenetre.close(); bouton?.focus(); };
   }, [confirmation]);
-  return <main data-theme="dark" className="zc-zone zc-ecran min-h-dvh bg-fond text-texte font-texte p-4 lg:p-8 grid content-center">
+return <main data-theme="dark" className={`${useTelephone() ? '' : 'compte-pc '}zc-zone zc-ecran min-h-dvh bg-fond text-texte font-texte p-4 lg:p-8 grid content-center`}>
     <div inert={confirmation} className="w-full max-w-(--breakpoint-md) mx-auto flex flex-col gap-4">
       <h1 ref={titre} tabIndex={-1} className="font-titre text-2xl font-bold">Partie supprimée ailleurs</h1>
       <section className="cadre bg-surface p-4 flex flex-col gap-4">

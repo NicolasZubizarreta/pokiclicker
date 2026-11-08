@@ -4,6 +4,8 @@ import { connecter, demanderReinitialisation, ErreurCompte, inscrire, reinitiali
 import { IconeAlerte, IconeOeil, IconeValide } from './icones-compte';
 import '../Plaques.css';
 import './Compte.css';
+import './ComptePC.css';
+import { useTelephone } from '../useTelephone';
 
 type Etat = 'connexion' | 'inscription' | 'oubli' | 'nouveau';
 const titres = { connexion: 'Connexion', inscription: 'Inscription', oubli: 'Mot de passe oublié', nouveau: 'Nouveau mot de passe' };
@@ -96,7 +98,7 @@ export function EcranCompte({ token, sessionExpiree = false, quandConnecte, quan
     } finally { fixerEnvoi(false); }
   }
 
-  return <main data-theme="dark" className="compte-page bg-fond text-texte font-texte p-4 lg:p-8 grid content-start lg:min-h-dvh lg:content-center">
+return <main data-theme="dark" className={`${useTelephone() ? '' : 'compte-pc auth-pc '}compte-page bg-fond text-texte font-texte p-4 lg:p-8 grid content-start lg:min-h-dvh lg:content-center`}>
     <section className="w-full max-w-(--breakpoint-md) mx-auto" aria-labelledby="titre-compte">
       <div className="compte-marque"><b className="font-titre text-region-accent">PokiClicker</b><span className="text-texte-doux">Ton aventure Pokémon, sur tous tes appareils</span></div>
       <form noValidate onSubmit={envoyer} className="compte-formulaire cadre bg-surface">

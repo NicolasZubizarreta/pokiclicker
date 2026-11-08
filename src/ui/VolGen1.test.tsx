@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act, cleanup, fireEvent, render, renderHook, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, renderHook, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { CarteKanto } from './CarteKanto';
 import { useVol } from './VolGen1';
@@ -59,7 +59,7 @@ it('ignore deux lancements rapprochés et respecte les seuils puis revient inact
 it('affiche les cinq images dans le SVG à 150 ms d’intervalle et ferme la fiche au clic sur Y aller', () => {
   const aller = vi.spyOn(storeJeu.getState(), 'allerVers');
   const { container } = render(<CarteKanto quandArrive={vi.fn()} />);
-  fireEvent.click(screen.getByRole('button', { name: 'Route 1 (Zone 1)' }));
+  fireEvent.click(within(document.querySelector('.carte-support > svg') as unknown as HTMLElement).getByRole('button', { name: 'Route 1 (Zone 1)' }));
   const bouton = screen.getByRole('button', { name: 'Y aller' });
   fireEvent.click(bouton);
   fireEvent.click(bouton);
@@ -85,7 +85,7 @@ it('affiche les cinq images dans le SVG à 150 ms d’intervalle et ferme la fic
 
 it('dessine le cercle vert de la zone actuelle sous le dresseur pendant le vol', () => {
   const { container } = render(<CarteKanto quandArrive={vi.fn()} />);
-  fireEvent.click(screen.getByRole('button', { name: 'Route 1 (Zone 1)' }));
+  fireEvent.click(within(document.querySelector('.carte-support > svg') as unknown as HTMLElement).getByRole('button', { name: 'Route 1 (Zone 1)' }));
   fireEvent.click(screen.getByRole('button', { name: 'Y aller' }));
   const cercle = container.querySelector('circle[data-actuelle]')!;
   const dresseur = container.querySelector('[data-dresseur]')!.parentElement!;
@@ -95,7 +95,7 @@ it('dessine le cercle vert de la zone actuelle sous le dresseur pendant le vol',
 
 it('anime la piste en 400 ms et répète les traits en 200 ms sans trou', () => {
   const { container } = render(<CarteKanto quandArrive={vi.fn()} />);
-  fireEvent.click(screen.getByRole('button', { name: 'Route 1 (Zone 1)' }));
+  fireEvent.click(within(document.querySelector('.carte-support > svg') as unknown as HTMLElement).getByRole('button', { name: 'Route 1 (Zone 1)' }));
   fireEvent.click(screen.getByRole('button', { name: 'Y aller' }));
   avancer(850);
   expect((container.querySelector('.vol-piste') as HTMLElement).style.getPropertyValue('--vol-ms')).toBe('400');
@@ -108,7 +108,7 @@ it('réduit le mouvement à un fondu sans overlay ni dresseur, avec seuils 150 e
   vi.stubGlobal('matchMedia', vi.fn((requete: string) => ({ matches: requete.includes('reduce') })));
   const aller = vi.spyOn(storeJeu.getState(), 'allerVers'), arrive = vi.fn();
   const { container } = render(<CarteKanto quandArrive={arrive} />);
-  fireEvent.click(screen.getByRole('button', { name: 'Route 1 (Zone 1)' }));
+  fireEvent.click(within(document.querySelector('.carte-support > svg') as unknown as HTMLElement).getByRole('button', { name: 'Route 1 (Zone 1)' }));
   fireEvent.click(screen.getByRole('button', { name: 'Y aller' }));
   expect(container.querySelector('.fondu-carte')).toBeTruthy();
   expect(container.querySelector('[data-vol-overlay], [data-dresseur]')).toBeNull();

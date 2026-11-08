@@ -3,13 +3,34 @@ import { cleanup, fireEvent, render, screen, within } from '@testing-library/rea
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { ZoneCompte } from './ZoneCompte';
 import { storeJeu } from '../store';
+const affichage = vi.hoisted(() => ({ telephone: false }));
+vi.mock('../useTelephone', () => ({ useTelephone: () => affichage.telephone }));
 
 vi.mock('./EcranMonCompte', () => ({ ContenuMonCompte: () => <h1 tabIndex={-1}>Mon compte</h1> }));
 vi.mock('../PageReglages', () => ({ PageReglages: () => <h1 tabIndex={-1}>Réglages</h1> }));
 afterEach(cleanup);
+it('cadre PC unique et grille des parties, y compris hors connexion', () => {
+  const p = props();
+  const { container, rerender } = render(<ZoneCompte {...p} />);
+  expect(container.querySelectorAll('.compte-pc')).toHaveLength(1);
+  expect(container.querySelector('.parties-grille')?.contains(screen.getByRole('article'))).toBe(true);
+  rerender(<ZoneCompte {...p} horsConnexion />);
+  expect(screen.getByRole('status').textContent).toContain('Hors connexion');
+  expect(container.querySelector('.parties-grille')).toBeTruthy();
+  rerender(<ZoneCompte {...p} parties={[]} />);
+  expect(screen.getByRole('button', { name: 'Créer la partie' })).toBeTruthy();
+  expect(container.querySelector('.parties-grille')).toBeNull();
+});
 beforeEach(() => {
+  affichage.telephone = false;
   HTMLDialogElement.prototype.showModal = function () { this.setAttribute('open', ''); };
   HTMLDialogElement.prototype.close = function () { this.removeAttribute('open'); };
+});
+it('ne monte ni racine PC ni conteneur de grille sur téléphone', () => {
+  affichage.telephone = true;
+  const { container } = render(<ZoneCompte {...props()} />);
+  expect(container.querySelector('.compte-pc, .parties-pc, .parties-grille')).toBeNull();
+  expect(screen.getByRole('article').parentElement).toBe(screen.getByRole('heading', { name: 'Mes parties' }).parentElement?.parentElement);
 });
 const props = () => ({ parties: [{ id: 'a', nom: 'Voyage', regionCourante: 'kanto', zoneId: '', tempsJeuMs: 0, ecritLe: '2026-11-04T12:00:00Z', surServeur: true, courante: false }], horsConnexion: false, chargement: false, occupe: false, erreur: '', quandJouer: vi.fn(), quandCreer: vi.fn(), quandSupprimer: vi.fn(), compte: storeJeu.getState().compte, registre: [], etatSynchro: 'ok' as const, quandDeconnecter: vi.fn() });
 it('ouvre les trois onglets et place le focus sur leur titre', () => {

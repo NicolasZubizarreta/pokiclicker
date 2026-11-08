@@ -7,6 +7,12 @@ import { storeJeu } from './store';
 import { reglages } from '../core/reglages';
 
 const raison = 'Bats le boss de Tour Pokémon.';
+beforeEach(() => {
+  Object.defineProperties(HTMLDialogElement.prototype, {
+    showModal: { configurable: true, value: function (this: HTMLDialogElement) { this.open = true; } },
+    close: { configurable: true, value: function (this: HTMLDialogElement) { this.open = false; this.dispatchEvent(new Event('close')); } },
+  });
+});
 
 beforeEach(() => {
   storeJeu.getState().demarrer();
@@ -26,7 +32,7 @@ function afficher(ouvert = false, quandCentre = vi.fn()) {
   storeJeu.setState({ centre: { acces: { ouvert, raison: ouvert ? null : raison }, objets: [] } });
   const props = { quandArrive: vi.fn(), quandCentre };
   render(<CarteKanto {...props} />);
-  fireEvent.click(screen.getByRole('button', { name: /Céladopole/ }));
+  fireEvent.click(screen.getAllByRole('button', { name: /Céladopole/ })[0]!);
   return { bouton: screen.getByRole<HTMLButtonElement>('button', { name: 'Centre commercial' }), quandCentre };
 }
 
@@ -46,8 +52,8 @@ it('appelle une seule fois quandCentre par clic lorsque le Centre est ouvert', a
   const casino = screen.getByRole<HTMLButtonElement>('button', { name: 'Casino', description: 'Bientôt disponible.' });
   expect(casino.disabled).toBe(true);
   for (const cible of [bouton, casino]) {
-    expect(cible.classList.contains('min-h-11')).toBe(true);
-    expect(cible.classList.contains('min-w-11')).toBe(true);
+    expect(cible.classList.contains('min-h-14')).toBe(true);
+    expect(cible.classList.contains('w-full')).toBe(true);
   }
   await userEvent.click(bouton);
   expect(screen.queryByRole('region', { name: 'Zone sélectionnée' })).toBeNull();
@@ -80,7 +86,7 @@ it('réagit aux changements d’accès du store', () => {
 it('garde Bientôt disponible sans callback même lorsque le Centre est ouvert', () => {
   storeJeu.setState({ centre: { acces: { ouvert: true, raison: null }, objets: [] } });
   render(<CarteKanto quandArrive={vi.fn()} />);
-  fireEvent.click(screen.getByRole('button', { name: /Céladopole/ }));
+  fireEvent.click(screen.getAllByRole('button', { name: /Céladopole/ })[0]!);
   expect(screen.getByRole<HTMLButtonElement>('button', {
     name: 'Centre commercial', description: 'Bientôt disponible.',
   }).disabled).toBe(true);

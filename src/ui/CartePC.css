@@ -1,0 +1,18 @@
+@media (min-width: 1024px) {
+  main#contenu:has(.carte-page-pc) { display: flex; flex-direction: column; overflow: hidden; }
+  main#contenu > section:has(.carte-page-pc), .carte-page-pc, .carte-page-contenu-pc { display: flex; flex: 1; min-height: 0; width: 100%; max-width: none; }
+  .carte-pc { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); grid-template-rows: auto minmax(0, 1fr); flex: 1; min-height: 0; }
+  .carte-pc .carte-aide { color: var(--texte-doux); margin-bottom: calc(var(--spacing) * 4); text-align: right; }
+  .carte-pc .carte-grille { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 21rem); gap: calc(var(--spacing) * 5); min-height: 0; }
+  .carte-pc .liste-zones { grid-column: 2; grid-row: 1; overflow-y: auto; min-height: 0; }
+  .carte-pc .liste-zones button[aria-disabled] { border-style: dashed; }
+  .carte-pc .carte-grille > .cadre { grid-column: 1; grid-row: 1; align-self: start; aspect-ratio: 16 / 9; max-height: 100%; display: flex; align-items: center; justify-content: center; min-height: 0; }
+  .carte-pc .carte-support { width: 100%; height: 100%; min-height: 0; overflow: hidden; }
+  .carte-pc .carte-support > svg { width: 100%; height: 100%; }
+  .carte-pc .carte-pc-clignotement { stroke: var(--succes-base); animation: carte-pc-clignote var(--duree-carte-clignotement) steps(1) infinite; }
+  .carte-pc .fenetre-celadopole { margin: auto; }
+  @keyframes carte-pc-clignote { 50% { opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    .carte-pc .carte-pc-clignotement { animation: none; stroke: var(--succes-base); fill: none; opacity: 1; }
+  }
+}

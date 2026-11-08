@@ -16,8 +16,9 @@ export function EquipePC({ pokemon, dps, xpMax, pret, animation }: {
   animation?: ComponentProps<typeof SpriteEvolution>;
 }) {
   const nom = nomAffiche(pokemon);
+  const pieds = { '--pieds': `${(piedsSprites[pokemon.numero - 1] ?? 0) / 96 * 100}%` } as CSSProperties;
   return <>
-    <span className="portrait" style={{ '--pieds': `${(piedsSprites[pokemon.numero - 1] ?? 0) / 96 * 100}%` } as CSSProperties}>
+    <span className="portrait" style={pieds}>
       <span className="socle bg-region-socle" aria-hidden="true" />
       {animation ? <SpriteEvolution {...animation} /> : <Image genre="sprite" src={spriteAffiche(pokemon)} alt=""
         className={`object-contain max-h-full max-w-full ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(pokemon)}`} />}

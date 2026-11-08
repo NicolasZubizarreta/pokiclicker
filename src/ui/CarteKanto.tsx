@@ -15,6 +15,7 @@ import { cheminDecor, precharger } from './precharger';
 import { DresseurVol, imagesVol, useVol, VolGen1 } from './VolGen1';
 import { useTelephone } from './useTelephone';
 import './CarteTelephone.css';
+import './CartePC.css';
 
 const nomAccessible = (f: EtatForme) => f.numero === null || f.numero <= 0 ? f.nom : `${f.nom} (Zone ${f.numero})`;
 // Positions des repères sur l'image, en fractions de sa largeur et de sa hauteur (data/regions/kanto/carte-positions.json).
@@ -36,7 +37,6 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
   const ligneCeladopole = useRef<HTMLButtonElement>(null);
   const { etat: vol, reduit, lancer } = useVol(zone => storeJeu.getState().allerVers(zone), quandArrive);
   const carte = useStore(storeJeu, etat => etat.carte);
-  const lieu = useStore(storeJeu, etat => etat.lieu);
   const centre = useStore(storeJeu, etat => etat.centre.acces);
   const casino = useStore(storeJeu, etat => etat.casino.acces);
   const raisonCasino = quandCasino ? casino.raison : 'Bientôt disponible.';
@@ -49,6 +49,7 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
   const [largeur, mesurer] = useState(0);
   const svg = useRef<SVGSVGElement>(null);
   const fiche = useRef<HTMLElement>(null);
+  const origineFocus = useRef<HTMLElement | SVGElement | null>(null);
   const pointeurs = useRef(new Map<number, Point>());
   const origine = useRef<Point | null>(null);
   const zoneTouchee = useRef<string | null>(null);
@@ -82,7 +83,7 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
 
   useEffect(() => {
     const fenetre = dialogueCeladopole.current;
-    if (telephone && celadopoleOuverte && !vol.actif) {
+    if (celadopoleOuverte && !vol.actif) {
       if (!fenetre?.open) fenetre?.showModal();
     } else {
       if (fenetre?.open) fenetre.close();
@@ -92,6 +93,27 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
   function fermerCeladopole() {
     ouvrirCeladopole(false);
     dialogueCeladopole.current?.close();
+  }
+
+  function choisirRepere(zone: string | null) {
+    origineFocus.current = document.activeElement as HTMLElement;
+    if (zone === zoneCeladopole) ouvrirCeladopole(true);
+    else selectionner(zone);
+  }
+
+  useEffect(() => {
+    if (telephone || !choisie) return;
+    const element = fiche.current;
+    element?.querySelector<HTMLButtonElement>('button')?.focus();
+    return () => origineFocus.current?.focus();
+  }, [telephone, choisie]);
+
+  function retenirTab(event: React.KeyboardEvent<HTMLElement>) {
+    if (event.key !== 'Tab') return;
+    const boutons = [...event.currentTarget.querySelectorAll<HTMLButtonElement>('button:not(:disabled)')];
+    const premier = boutons[0], dernier = boutons[boutons.length - 1];
+    if (event.shiftKey && document.activeElement === premier) { event.preventDefault(); dernier?.focus(); }
+    else if (!event.shiftKey && document.activeElement === dernier) { event.preventDefault(); premier?.focus(); }
   }
 
   useEffect(() => {
@@ -105,7 +127,10 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
 
   useEffect(() => {
     const element = svg.current!;
-    const taille = () => mesurer(element.getBoundingClientRect().width);
+    const taille = () => {
+      const rect = element.getBoundingClientRect();
+      mesurer(telephone || !rect.height ? rect.width : Math.min(rect.width, rect.height * 16 / 9));
+    };
     taille();
     const observateur = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(taille);
     observateur?.observe(element);
@@ -165,23 +190,21 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
 
   function terminer(event: EvenementPointeur<SVGSVGElement>) {
     if (event.type !== 'pointerup') glissement.current = true;
-    if (pointeurs.current.has(event.pointerId) && !glissement.current && zoneTouchee.current) selectionner(zoneTouchee.current);
+    if (pointeurs.current.has(event.pointerId) && !glissement.current && zoneTouchee.current) choisirRepere(zoneTouchee.current);
     if (pointeurs.current.has(event.pointerId) && !glissement.current && !zoneTouchee.current) selectionner(null);
     pointeurs.current.delete(event.pointerId);
   }
 
-  return <section>
-    <h1 className="mb-4 font-titre text-2xl font-semibold">Carte</h1>
-    {!telephone && <section className="mb-4 bg-surface p-4 text-base" aria-label="Ton voyage">
-      <h2 className="font-titre text-xl font-semibold">Ton voyage</h2>
-      <p>{carte.badges.obtenus} badges sur {carte.badges.total} · {lieu?.nom ?? actuelle?.nom} en cours</p>
-      <progress className="w-full accent-region-accent" value={carte.badges.obtenus} max={carte.badges.total} aria-label="Badges obtenus" />
+  return <section className={telephone ? undefined : 'carte-pc'}>
+    <h1 className="mb-4 font-titre text-2xl font-semibold">{telephone ? 'Carte' : 'Carte de Kanto'}</h1>
+    {!telephone && <div className="carte-aide">
+      <p>Choisis une zone dans la liste pour t'y rendre. Tu es dans la zone qui clignote en vert.</p>
       {nouvelles.length > 0 && !choisie && <p role="status">
         Zone débloquée ! {carte.formes.filter(f => f.zone && nouvelles.includes(f.zone)).map(f => f.nom).join(', ')}
       </p>}
-    </section>}
+    </div>}
     <div className={telephone ? 'carte-telephone' : 'carte-grille grid gap-x-4'}>
-    {telephone && <ul aria-label="Zones de Kanto" className={`liste-zones flex flex-col gap-2 ${vol.actif ? 'opacity-60' : ''}`}>
+    {<ul aria-label="Zones de Kanto" className={`liste-zones flex flex-col gap-2 ${vol.actif ? 'opacity-60' : ''}`}>
       {zones.map(f => {
         const celadopole = f.nom === 'Céladopole';
         // Céladopole terminée reste ouverte : le Centre commercial et le Casino s'y atteignent toujours.
@@ -189,7 +212,7 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
         const inactive = vol.actif || fermee;
         const secondaire = [
           f.numero !== null && f.numero > 0 ? `Zone ${f.numero}` : '',
-          f.terminee ? ['Terminée', celadopole ? '3 lieux' : ''].filter(Boolean).join(' · ') : [f.actuelle ? 'tu es ici' : '', celadopole ? '3 lieux' : '', !f.ouverte ? 'fermée' : ''].filter(Boolean).join(' · '),
+          f.terminee ? ['Terminée', celadopole ? '3 lieux' : ''].filter(Boolean).join(' · ') : [f.actuelle ? 'tu es ici' : '', celadopole ? '3 lieux' : '', !f.ouverte ? telephone ? 'fermée' : 'verrouillée' : ''].filter(Boolean).join(' · '),
         ].filter(Boolean).join(' · ');
         return <li key={f.zone}>
           <button type="button" aria-label={`${nomAccessible(f)}${f.actuelle ? ', tu es ici' : ''}`}
@@ -198,6 +221,7 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
             className={`flex min-h-14 w-full items-center gap-3 border-2 px-3 py-1 text-left focus-visible:outline-2 focus-visible:outline-focus ${f.actuelle ? 'bg-selection border-succes-base' : fermee ? 'bg-surface-2 text-texte-doux border-bordure' : 'bg-surface border-bordure'}`}
             onClick={inactive || (f.actuelle && !celadopole) ? undefined : () => {
               if (celadopole) {
+                if (!telephone) origineFocus.current = document.activeElement as HTMLElement;
                 if (!celadopoleOuverte) ouvrirCeladopole(true);
               } else lancer(f.zone!, actuelle ? formeDepart(actuelle) : null);
             }}>
@@ -206,6 +230,7 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
               <span className="block font-semibold">{f.nom}</span>
               <span className="block text-sm text-texte-doux">{secondaire}</span>
             </span>
+            {!telephone && fermee && <span aria-hidden="true">🔒</span>}
             {!fermee && <svg aria-hidden="true" viewBox="0 0 24 24" className="size-6 shrink-0 fill-none stroke-current stroke-2"><path d="m9 6 6 6-6 6" /></svg>}
           </button>
         </li>;
@@ -233,11 +258,19 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
             const nouvelle = nouvelles.includes(f.zone!);
             return <g key={f.zone} data-zone={f.zone} data-forme={f.nom} role={telephone ? undefined : 'button'} tabIndex={telephone ? undefined : 0} aria-label={nomAccessible(f)}
               transform={`translate(${c.x} ${c.y}) scale(${1 / pxParUnite})`}
-              className={`${telephone ? 'group outline-none' : 'group cursor-pointer outline-none'} ${nouvelle ? fondu ? 'carte-deblocage' : 'opacity-0' : ''}`}
-              onClick={telephone ? undefined : () => { if (!glissement.current) selectionner(f.zone); }}
-              onKeyDown={telephone ? undefined : event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); selectionner(f.zone); } }}>
+              className={`${telephone ? 'group outline-none' : 'group cursor-pointer'} ${nouvelle ? fondu ? 'carte-deblocage' : 'opacity-0' : ''}`}
+              onClick={telephone ? undefined : () => { if (!glissement.current) choisirRepere(f.zone); }}
+              onKeyDown={telephone ? undefined : event => {
+                if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); choisirRepere(f.zone); }
+                if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+                  event.preventDefault();
+                  const voisin = event.key === 'ArrowDown' ? event.currentTarget.nextElementSibling : event.currentTarget.previousElementSibling;
+                  (voisin as SVGElement | null)?.focus();
+                }
+              }}>
               <circle r={rayonRepere} strokeWidth={choisieIci ? 3 : 1.5} className={`${!f.ouverte ? 'fill-texte-doux/30' : f.actuelle ? telephone ? 'fill-succes-base' : 'fill-succes-base/35' : 'fill-alerte-base/30'} ${choisieIci ? 'stroke-succes-base' : telephone && f.actuelle ? 'stroke-texte' : 'stroke-neutre-950 group-focus-visible:stroke-focus'}`} />
               {!telephone && <title>{nomAccessible(f)}</title>}
+              {!telephone && <circle r={22} fill="transparent" aria-hidden="true" />}
             </g>;
           })}
         </g>
@@ -245,7 +278,7 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
           {carte.tutorielRoute1 && carte.formes.filter(f => f.numero === 1).map(f => <circle key={f.nom}
             cx={centreDe(f).x} cy={centreDe(f).y} r={rayonRepere / pxParUnite} className="carte-clignotement" />)}
           {actuelle && <circle data-actuelle={actuelle.zone} cx={centreDe(actuelle).x} cy={centreDe(actuelle).y}
-            r={rayonRepere / pxParUnite} className="carte-pulsation" />}
+            r={rayonRepere / pxParUnite} className={telephone ? 'carte-pulsation' : 'carte-pc-clignotement'} />}
         </g>
         {vol.actif && !reduit && vol.depart && <DresseurVol ms={vol.ms} forme={vol.depart} />}
         {debug && <g className="pointer-events-none fill-texte font-texte text-base">
@@ -257,8 +290,8 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
       </svg>
       {vol.actif && !reduit && <VolGen1 ms={vol.ms} />}
       {!telephone && choisie && <section ref={fiche} aria-label="Zone sélectionnée" className="carte-fiche cadre absolute flex gap-2 overflow-y-auto bg-surface p-2 text-base text-texte outline-none"
-        onKeyDown={event => { if (event.key === 'Escape') selectionner(null); }}>
-        <button type="button" aria-label="Fermer" className="absolute right-0 top-0 min-h-11 min-w-11 text-xl focus-visible:outline-2 focus-visible:outline-focus" onClick={() => selectionner(null)}>×</button>
+        onKeyDown={event => { retenirTab(event); if (event.key === 'Escape') selectionner(null); }}>
+        <button type="button" aria-label="Fermer" className="absolute right-0 top-0 grid place-items-center min-h-11 min-w-11 text-xl focus-visible:outline-2 focus-visible:outline-focus" onClick={() => selectionner(null)}>×</button>
         {decor && imageConnue(decor) && <Image genre="decor" src={decor} alt={`Décor de ${choisie.nom}`} className="carte-miniature shrink-0 object-cover" />}
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-baseline gap-x-2 pr-11">
@@ -289,15 +322,16 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
         </div>
       </section>}
       </div>
-      {telephone && <dialog ref={dialogueCeladopole} aria-labelledby="carte-celadopole-titre"
+      {<dialog ref={dialogueCeladopole} aria-labelledby="carte-celadopole-titre"
         className="guide-fenetre fenetre-celadopole cadre max-w-sm bg-surface p-0 text-base text-texte"
-        onClose={() => { ouvrirCeladopole(false); ligneCeladopole.current?.focus(); }}>
+        onKeyDown={telephone ? undefined : event => { retenirTab(event); if (event.key === 'Escape') fermerCeladopole(); }}
+        onClose={() => { ouvrirCeladopole(false); (telephone ? ligneCeladopole.current : origineFocus.current)?.focus(); }}>
         <div className="fiche-contenu grid min-w-0 gap-4 p-4 lg:p-8">
-          <button type="button" aria-label="Fermer" className="cadre min-h-12 min-w-12 justify-self-end bg-surface p-3 text-2xl leading-none" onClick={fermerCeladopole}>×</button>
+          <button type="button" aria-label="Fermer" className={`${telephone ? '' : 'grid place-items-center ' }cadre min-h-12 min-w-12 justify-self-end bg-surface p-3 text-2xl leading-none`} onClick={fermerCeladopole}>×</button>
           <h2 id="carte-celadopole-titre" className="break-words font-titre text-2xl">Céladopole</h2>
           <p>Où veux-tu aller ?</p>
           {[
-            { nom: 'Arène', zone: zoneCeladopole, ouvert: actuelle?.zone !== zoneCeladopole, raison: 'Tu es ici.', arrivee: undefined, id: 'carte-arene-telephone' },
+            { nom: telephone ? 'Arène' : 'Arène de Céladopole', zone: zoneCeladopole, ouvert: telephone ? actuelle?.zone !== zoneCeladopole : carte.formes.some(f => f.zone === zoneCeladopole && f.ouverte && !f.terminee && !f.actuelle), raison: telephone ? 'Tu es ici.' : carte.formes.find(f => f.zone === zoneCeladopole)?.raison ?? 'Tu es ici.', arrivee: undefined, id: 'carte-arene-telephone' },
             { nom: 'Centre commercial', zone: 'centre-commercial', ouvert: centreOuvert, raison: raisonCentre, arrivee: quandCentre, id: 'carte-commerce-telephone' },
             { nom: 'Casino', zone: 'casino', ouvert: !!(casino.ouvert && quandCasino), raison: raisonCasino, arrivee: quandCasino, id: 'carte-casino-telephone' },
           ].map(choix => <div key={choix.id}>
@@ -315,27 +349,6 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
       </dialog>}
       {vol.actif && <p role="status" className="sr-only">Vol en cours vers {vol.cible === 'centre-commercial' ? 'Centre commercial' : vol.cible === 'casino' ? 'Casino' : carte.formes.find(f => f.zone === vol.cible)?.nom}…</p>}
     </div>
-      {!telephone && <div className="carte-liste relative min-w-0">
-        <ul role="listbox" aria-label="Zones de Kanto" className="max-h-64 overflow-y-auto overscroll-contain p-1 lg:absolute lg:inset-0 lg:max-h-none">
-          {zones.map(f => <li key={f.zone} role="option" aria-label={nomAccessible(f)}
-            aria-selected={selection === f.zone} tabIndex={0}
-            className={`flex min-h-11 cursor-pointer items-center gap-2 border-2 px-2 py-1 ${selection === f.zone ? 'border-succes-base' : 'border-transparent'} ${f.ouverte ? 'bg-surface text-texte' : 'bg-surface-2 text-texte-doux'}`}
-            onClick={() => selectionner(f.zone)}
-            onKeyDown={event => {
-              if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); selectionner(f.zone); }
-              if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-                event.preventDefault();
-                const suivante = event.key === 'ArrowDown' ? event.currentTarget.nextElementSibling : event.currentTarget.previousElementSibling;
-                (suivante as HTMLElement | null)?.focus();
-              }
-            }}>
-            <span className="w-2 shrink-0">{f.actuelle && <><span className="block size-2 rounded-full bg-succes-base" /><span className="sr-only">position actuelle</span></>}</span>
-            <span className="w-6 shrink-0 tabular-nums">{f.numero !== null && f.numero >= 0 ? f.numero : ''}</span>
-            <span>{f.nom}</span>
-            {f.terminee && <span className="text-texte-doux">Terminée</span>}
-          </li>)}
-        </ul>
-      </div>}
     </div>
   </section>;
 }

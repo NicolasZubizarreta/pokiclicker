@@ -70,7 +70,7 @@ it('présente les dix paliers automatiques et le prochain objectif accessible', 
 it('appelle Retour', () => {
   const retour = vi.fn();
   render(<Pokedex retour={retour} />);
-  fireEvent.click(screen.getByRole('button', { name: 'Retour' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Retour au menu' }));
   expect(retour).toHaveBeenCalledOnce();
 });
 

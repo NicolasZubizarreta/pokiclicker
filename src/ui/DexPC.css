@@ -1,0 +1,32 @@
+@media (min-width: 1024px) {
+  main#contenu:has(.dex-pc, .stats-pc, .guide-pc, .badges-pc) { display: flex; flex-direction: column; overflow: hidden; }
+  main#contenu > section:has(.dex-pc, .stats-pc, .guide-pc, .badges-pc),
+  main#contenu > div:has(> .dex-pc, > .stats-pc, > .guide-pc, > .badges-pc),
+  main#contenu > section > div:has(.dex-pc, .stats-pc, .guide-pc, .badges-pc) { display: flex; flex: 1; min-height: 0; width: 100%; max-width: none; }
+  .dex-pc, .stats-pc, .guide-pc { display: flex; flex-direction: column; flex: 1; min-width: 0; min-height: 0; gap: calc(var(--spacing) * 4); }
+  .dex-pc > header { display: flex; align-items: center; gap: calc(var(--spacing) * 4); }
+  .dex-pc .dex-outils, .dex-pc .dex-outils label { display: flex; align-items: center; gap: calc(var(--spacing) * 3); }
+  .dex-pc .dex-corps { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, .5fr); gap: calc(var(--spacing) * 5); flex: 1; min-height: 0; }
+  .dex-pc .dex-liste { grid-column: 1; grid-row: 1; overflow-y: auto; min-height: 0; }
+  .dex-pc .dex-grille { grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr)); }
+  .dex-pc .dex-case { overflow: hidden; border: calc(var(--spacing) / 4) solid var(--bordure); }
+  .dex-pc .dex-case[aria-pressed="true"] { background: var(--selection); }
+  .dex-pc .dex-panneau { grid-column: 2; grid-row: 1; overflow-y: auto; min-height: 0; }
+  .dex-pc .dex-panneau dl > div { padding-block: calc(var(--spacing) * 3); border-bottom: calc(var(--spacing) / 4) solid var(--bordure); }
+  .dex-pc .dex-sprite { display: grid; place-items: center; overflow: hidden; height: 192px; margin-block: calc(var(--spacing) * 4); }
+  .dex-pc .dex-sprite img { width: 192px; height: 192px; }
+  .stats-pc .stats-grille { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: calc(var(--spacing) * 4); min-height: 0; overflow-y: auto; align-content: start; }
+  .guide-pc .guide-corps { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 3fr); gap: calc(var(--spacing) * 5); flex: 1; min-height: 0; }
+  .guide-pc nav, .guide-pc article { overflow-y: auto; min-height: 0; }
+  .guide-pc nav { display: flex; flex-direction: column; gap: var(--spacing); }
+  .guide-pc [aria-current="true"] { background: var(--selection); color: var(--region-accent); }
+  .guide-pc article { display: flex; flex-direction: column; gap: calc(var(--spacing) * 3); }
+  .badges-pc > .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  main#contenu section:has(> .badges-pc) { display: flex; flex-direction: column; flex: 1; min-height: 0; max-width: none; }
+  .badges-pc { min-height: 0; overflow-y: auto; }
+  .badge-detail-pc { max-width: min(100%, var(--breakpoint-sm)); max-height: calc(100dvh - var(--spacing) * 8); overflow-y: auto; }
+  .badge-detail-pc::backdrop { background: var(--fond); opacity: .5; }
+  .badges-pc > .grid > button { aspect-ratio: auto; border-radius: 0; display: flex; flex-direction: column; gap: var(--spacing); background: var(--surface); border: calc(var(--spacing) / 4) solid var(--bordure); padding: calc(var(--spacing) * 5) calc(var(--spacing) * 3); }
+  .badges-pc > .grid > button img { width: 72px; height: 72px; object-fit: contain; }
+  .badges-pc > .grid > .badge-obtenu { background: var(--alerte-fond); color: var(--alerte-texte); }
+}

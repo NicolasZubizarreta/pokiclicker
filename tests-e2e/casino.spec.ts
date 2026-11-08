@@ -33,12 +33,11 @@ async function carte(page: Page) {
     // Céladopole fermée : la ligne est grisée, la fenêtre des trois lieux ne s’ouvre pas.
     const ligne = ligneZone(page, 'Céladopole');
     if (await ligne.getAttribute('aria-disabled') !== 'true') await ligne.click();
-  } else await page.getByRole('button', { name: /Céladopole/ }).click();
+  } else await page.getByRole('button', { name: /Céladopole/ }).last().click();
 }
 
 async function ouvrirCasino(page: Page) {
-  const conteneur = telephone(page) ? page.getByRole('dialog', { name: 'Céladopole', exact: true }) : page;
-  await conteneur.getByRole('button', { name: 'Casino', exact: true }).click();
+  await page.getByRole('dialog', { name: 'Céladopole', exact: true }).getByRole('button', { name: 'Casino', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Casino', exact: true })).toBeVisible({ timeout: 10000 });
 }
 
@@ -54,9 +53,8 @@ test('Casino fermé tant que la Tour Pokémon n’est pas vaincue, raison access
     await expect(page.getByRole('dialog')).toHaveCount(0);
     return;
   }
-  const conteneur = telephone(page) ? page.getByRole('dialog', { name: 'Céladopole', exact: true }) : page;
-  const bouton = conteneur.getByRole('button', { name: 'Casino', exact: true });
-  const raison = page.locator(telephone(page) ? '#carte-casino-telephone' : '#carte-casino');
+  const bouton = page.getByRole('dialog', { name: 'Céladopole', exact: true }).getByRole('button', { name: 'Casino', exact: true });
+  const raison = page.locator('#carte-casino-telephone');
   await expect(bouton).toBeDisabled();
   await expect(raison).not.toBeEmpty();
   await expect(bouton).toHaveAccessibleDescription(await raison.innerText());
@@ -131,5 +129,5 @@ test('Casino : jetons, boutique, trois jeux, rechargement et captures', async ({
   expect(await lireJetons(page)).toBe(avantRecharge);
   await page.getByRole('button', { name: 'Retour à la Carte' }).click();
   if (telephone(page)) await expect(ligneZone(page, 'Céladopole')).toBeVisible();
-  else await expect(page.getByRole('region', { name: 'Zone sélectionnée' })).toBeVisible();
+  else await expect(page.getByRole('button', { name: /Céladopole/ }).last()).toBeFocused();
 });

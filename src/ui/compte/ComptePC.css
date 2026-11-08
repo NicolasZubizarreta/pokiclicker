@@ -1,0 +1,32 @@
+@media (min-width: 1024px) {
+  .compte-pc { height: 100dvh; min-height: 0; overflow: hidden; }
+  dialog.compte-pc.zc-dialogue { height: auto; max-width: 40rem; }
+  .compte-pc.zc-zone:not(.zc-ecran) { display: flex; flex-direction: column; }
+  .compte-pc.zc-zone:not(.zc-ecran) > div { display: flex; flex-direction: column; flex: 1; min-height: 0; width: 100%; max-width: 90rem; padding: calc(var(--spacing) * 8); }
+  .compte-pc .zc-barre { flex: none; }
+  .compte-pc .zc-barre button { flex-direction: row; gap: calc(var(--spacing) * 2); }
+  .compte-pc .zc-barre + div, .compte-pc .parties-pc { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+  .compte-pc .parties-grille { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: calc(var(--spacing) * 5); overflow-y: auto; min-height: 0; align-content: start; padding: var(--spacing); }
+  .compte-pc .parties-grille > p { grid-column: 1 / -1; }
+  .compte-pc .zc-partie { min-width: 0; padding: calc(var(--spacing) * 5); }
+  .compte-pc .parties-grille > button { min-height: 14rem; flex-direction: column; }
+  .compte-pc button { min-height: calc(var(--spacing) * 11); }
+  .compte-pc button:has(> svg) { align-items: center; justify-content: center; }
+  .compte-pc .compte-formulaire { width: 100%; max-width: 34rem; }
+  .compte-pc.auth-pc { padding: 0; }
+  .compte-pc.auth-pc > section { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(24rem, 30rem); max-width: none; height: 100%; }
+  .compte-pc .compte-marque { grid-row: 1 / 3; display: flex; flex-direction: column; justify-content: end; text-align: left; padding: calc(var(--spacing) * 12); background: var(--fond) url('/img/decors/carte-kanto.webp') center / cover no-repeat; }
+  .compte-pc.auth-pc .compte-formulaire { align-self: end; padding: calc(var(--spacing) * 8); }
+  .compte-pc .compte-liens { margin: 0; padding: calc(var(--spacing) * 4); background: var(--surface); align-self: start; }
+  .compte-pc.zc-ecran > section, .compte-pc.zc-ecran > div { max-width: 40rem; }
+  .compte-pc .zc-dialogue { max-width: 40rem; max-height: calc(100dvh - var(--spacing) * 16); }
+  .compte-pc .zc-dialogue ul { overflow-y: auto; min-height: 0; }
+  .compte-pc .mc-layout-pc { max-width: none; display: grid; flex: 1; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); grid-template-rows: auto auto minmax(0, 1fr) auto; gap: calc(var(--spacing) * 5); min-height: 0; }
+  .compte-pc .mc-layout-pc > * { margin: 0; }
+  .compte-pc .mc-layout-pc > header { grid-column: 1 / -1; }
+  .compte-pc .mc-layout-pc > section.cadre { grid-column: 1; align-self: start; }
+  .compte-pc .mc-layout-pc > section:has(> h2 + p + div) { grid-column: 2; grid-row: 2 / 4; display: flex; flex-direction: column; min-height: 0; }
+  .compte-pc .mc-layout-pc > section:has(> h2 + p + div) > div { display: flex; flex-direction: column; overflow-y: auto; min-height: 0; padding: var(--spacing); }
+  .compte-pc .mc-layout-pc > section:last-child { grid-column: 2; }
+  .compte-pc.mon-compte-pc > section { display: flex; flex-direction: column; min-height: 0; height: 100%; }
+}

@@ -73,15 +73,10 @@ test('PC : tris, recherche, captures et pas de défilement horizontal', async ({
   await expect(page.getByText('200 Pokémon')).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
   const premier = () => grille(page).getByRole('button').first();
-  const telephone = informations.project.name === 'mobile';
-  // Téléphone : liste déroulante « Trie par » ; grand écran : boutons du groupe « Trie les Pokémon ».
-  const trier = async (nom: string, valeur: string) => {
-    if (telephone) await page.getByLabel('Trie par').selectOption(valeur);
-    else await page.getByRole('group', { name: 'Trie les Pokémon' }).getByRole('button', { name: nom, exact: true }).click();
-  };
+  // Téléphone et PC : liste déroulante « Trie par ».
+  const trier = async (_nom: string, valeur: string) => { await page.getByLabel('Trie par').selectOption(valeur); };
   // Tri par défaut : DPS décroissant, avec la ligne « DPS » sur chaque carte.
-  if (telephone) await expect(page.getByLabel('Trie par')).toHaveValue('dps');
-  else await expect(page.getByRole('group', { name: 'Trie les Pokémon' }).getByRole('button', { name: 'DPS', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByLabel('Trie par')).toHaveValue('dps');
   await expect(premier()).toContainText(' DPS');
   await trier('Numéro', 'numero');
   await expect(premier()).toContainText('N° 1');

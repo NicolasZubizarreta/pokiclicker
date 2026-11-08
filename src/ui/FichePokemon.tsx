@@ -18,6 +18,7 @@ import { niveauRequis, peutEvoluer, pierresPour } from '../core/evolution';
 import { chargerObjets } from '../core/boutique';
 import './FichePokemon.css';
 import { evolutionProposee } from './evolution-proposee';
+import { useTelephone } from './useTelephone';
 
 type Props = {
   uid: string; ouvert: boolean; fermer: () => void; declencheur: RefObject<HTMLButtonElement | null>;
@@ -39,6 +40,7 @@ export function FichePokemon(props: Props) {
 }
 
 function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: Props) {
+  const telephone = useTelephone();
   const sac = useStore(storeJeu, etat => etat.sac);
   const equipe = useStore(storeJeu, etat => etat.equipe);
   const pc = useStore(storeJeu, etat => etat.pc);
@@ -129,7 +131,7 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: 
       onClose={aLaFermeture} onCancel={event => { event.preventDefault(); if (edition) fermerEdition(); else fermerFiche(); }}
       onPointerDown={event => { if (event.target === event.currentTarget) fermerFiche(); }}>
       <div className="fiche-contenu grid min-w-0 gap-4 p-4 lg:p-8">
-        <button type="button" className={`${bouton} justify-self-end`} onClick={fermerFiche}>Ferme la fiche</button>
+        <button type="button" className={`${bouton} justify-self-end${telephone ? '' : ' fiche-fermer'}`} onClick={fermerFiche}>{telephone ? 'Ferme la fiche' : <><span className="sr-only">Ferme la fiche</span><span aria-hidden="true">×</span></>}</button>
         <header>
           <div className="flex min-w-0 flex-wrap items-center gap-2">
             <h2 id={titre} className="min-w-0 break-words font-titre text-2xl">{nom}{pokemon?.shiny && !pokemon.oeuf && <IconeShiny />}</h2>
@@ -160,7 +162,7 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: 
         {pokemonPc && <p>Dans le PC</p>}
         {pokemon && espece && membre && detail && <>
           <div className="relative isolate mx-auto grid size-48 max-w-full overflow-hidden place-items-center">
-            <div className="socle absolute bottom-4 -z-10 h-8 w-40 bg-region-socle" />
+            {telephone && <div className="socle absolute bottom-4 -z-10 h-8 w-40 bg-region-socle" />}
             <Image src={spriteAffiche(pokemon)} genre="sprite" alt={pokemon.oeuf ? nom : espece.nom} className={`size-full max-h-full max-w-full ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(pokemon)}`} />
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -178,7 +180,7 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: 
             <p>XP : {pokemon.niveau >= 100 ? <span>MAX</span> : <span>{Math.floor(pokemon.xp)} / {membre.xpMax}</span>}</p>
             <BarreXp xp={pokemon.xp} maximum={membre.xpMax} nom={nom} />
           </div>}
-          <p className="text-xl text-region-accent">{formaterDps(membre.dps)} DPS</p>
+          {(telephone || !pokemon.oeuf) && <><p className="text-xl text-region-accent">{formaterDps(membre.dps)} DPS</p>
           <dl className="grid grid-cols-2 gap-2">
             <dt>Base</dt><dd>{nombre(detail.base)}</dd>
             <dt>Type</dt><dd>× {nombre(detail.multiplicateurType)}</dd>
@@ -202,7 +204,7 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: 
               <p>+{nombre(pokemon.bonheur * reglages.degats.bonheurParPoint * 100)} % de dégâts</p></div>
           </div>
           <p>Calcium : {pokemon.calcium} · +{nombre(pokemon.calcium * reglages.degats.calciumParBoost * 100)} % de dégâts</p>
-          <p>Objet tenu : {pokemon.pierreEternelle ? 'Pierre Stase' : 'aucun'}</p>
+          <p>Objet tenu : {pokemon.pierreEternelle ? 'Pierre Stase' : 'aucun'}</p></>}
           {erreur && <p role="alert">{erreur}</p>}
           <button type="button" disabled={refusPc !== null} aria-describedby={refusPc ? raisonPc : undefined}
             className="min-h-11 bg-action px-4 py-2 text-action-texte" onClick={() => {

@@ -14,6 +14,8 @@ it('dispose huit disques accessibles dans quatre colonnes sans cadre', () => {
   const { container } = render(<BoiteBadges badges={badges} />);
   const boutons = screen.getAllByRole('button');
   expect(boutons).toHaveLength(8);
+  expect(container.querySelectorAll('.badges-pc')).toHaveLength(1);
+  expect(within(boutons[0]!).getByText('Roche')).toBeTruthy();
   expect(boutons[0]!.parentElement?.classList.contains('grid-cols-4')).toBe(true);
   expect(boutons[0]!.parentElement?.classList.contains('overflow-visible')).toBe(true);
   for (const bouton of boutons) {
@@ -77,4 +79,13 @@ it('cache seulement le badge désigné puis le fait claquer sans rognage', () =>
   expect(boutons[1]!.classList.contains('badge-slam')).toBe(false);
   rerender(<BoiteBadges badges={badges} />);
   expect(boutons[0]!.classList.contains('badge-slam')).toBe(false);
+});
+
+it('ouvre et ferme le détail PC au clic', () => {
+  render(<BoiteBadges badges={badges} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Badge Roche' }));
+  const detail = screen.getByRole('dialog', { name: 'Détail du badge Roche' });
+  expect(within(detail).getByText('Dégâts Clic +50%')).toBeTruthy();
+  fireEvent.click(within(detail).getByRole('button', { name: 'Fermer' }));
+  expect(screen.queryByRole('dialog')).toBeNull();
 });

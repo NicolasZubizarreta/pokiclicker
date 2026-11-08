@@ -53,7 +53,7 @@ it('chaque objet du Shop (toutes catégories, tout débloqué) a une vraie icôn
   const vus: string[] = [];
   const repli: string[] = [];
   for (const { nom } of categoriesShop) {
-    fireEvent.click(screen.getByRole('button', { name: nom }));
+    fireEvent.click(screen.getByRole('tab', { name: nom }));
     for (const carte of container.querySelectorAll('article[data-objet]')) {
       const id = carte.getAttribute('data-objet')!;
       vus.push(id);

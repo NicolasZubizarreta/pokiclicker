@@ -7,7 +7,9 @@ afterEach(cleanup)
 
 describe('PageMonde', () => {
   it('affiche les huit régions verrouillées sans bouton', () => {
-    render(<PageMonde retour={vi.fn()} jouerKanto={vi.fn()} />)
+    const { container } = render(<PageMonde retour={vi.fn()} jouerKanto={vi.fn()} />)
+    expect(container.querySelectorAll('.monde-pc')).toHaveLength(1)
+    expect(screen.getByRole('heading', { name: 'Autres régions' })).toBeTruthy()
 
     for (const nom of ['Johto', 'Hoenn', 'Sinnoh', 'Unys', 'Kalos', 'Alola', 'Galar', 'Paldea']) {
       const region = screen.getByText(nom).closest('li')!
@@ -24,7 +26,7 @@ describe('PageMonde', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Jouer à Kanto' }))
     expect(jouerKanto).toHaveBeenCalledTimes(1)
-    fireEvent.click(screen.getByRole('button', { name: 'Retour' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Retour au menu' }))
     expect(retour).toHaveBeenCalledTimes(1)
   })
 

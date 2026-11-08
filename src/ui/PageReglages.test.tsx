@@ -9,7 +9,10 @@ const audio = vi.hoisted(() => ({ actif: true, basculer: vi.fn() }));
 vi.mock('./musique', () => ({ musique: { abonner: () => () => {}, estActive: () => audio.actif, basculer: audio.basculer } }));
 const initial = storeJeu.getState();
 it('affiche les réglages sans bouton Retour dans la zone compte', () => {
-  render(<PageReglages />);
+  const { container } = render(<PageReglages />);
+  expect(container.querySelectorAll('.reglages-pc')).toHaveLength(1);
+  expect(screen.getByRole('heading', { name: 'Son' })).toBeTruthy();
+  expect(screen.getByRole('heading', { name: 'Jeu' })).toBeTruthy();
   expect(screen.getByRole('heading', { level: 1, name: 'Réglages' })).toBeTruthy();
   expect(screen.queryByRole('button', { name: 'Retour' })).toBeNull();
 });
@@ -70,7 +73,7 @@ it.each([true, false])('inverse la liaison auto-clic depuis %s', actif => {
 it('revient au menu et ne propose aucun arrêt auto', () => {
   const retour = vi.fn();
   render(<PageReglages retour={retour} />);
-  fireEvent.click(screen.getByRole('button', { name: 'Retour' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Retour au menu' }));
   expect(retour).toHaveBeenCalledTimes(1);
   expect(screen.queryByText(/arrêt auto/i)).toBeNull();
 });
