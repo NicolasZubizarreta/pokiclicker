@@ -73,7 +73,7 @@ async function vaincre(page: Page) {
   await expect(page.getByText('Étape 10 sur 10', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: /^(Auto-attaque|Attaque auto)$/ }).click();
   await page.getByRole('button', { name: /^Attaquer / }).focus();
-  const annonce = page.getByRole('status').filter({ hasText: 'Badge Roche obtenu !' });
+  const annonce = page.locator('[data-notifications] p').filter({ hasText: 'Badge Roche obtenu !' });
   for (let tick = 0; tick < 100 && !await annonce.isVisible(); tick++) {
     await page.clock.runFor(100);
   }
@@ -104,7 +104,7 @@ test('Argenta : annonce, boîte, claque, fermeture et badge conservé', async ({
   await page.reload();
   await page.clock.runFor(3400);
   await expect(boite).not.toBeVisible();
-  await expect(page.getByRole('status').filter({ hasText: 'Badge Roche obtenu !' })).toHaveCount(0);
+  await expect(page.locator('[data-notifications] p').filter({ hasText: 'Badge Roche obtenu !' })).toHaveCount(0);
   await page.getByRole('button', { name: 'Menu', exact: true }).click();
   const partie = page.getByRole('region', { name: 'Partie en cours', exact: true });
   await expect(partie).toBeVisible();

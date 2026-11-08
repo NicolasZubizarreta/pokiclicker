@@ -31,7 +31,7 @@ export function BarreLaterale({ page, choisir, signalCarte, inerte, origineMonde
         {titre === 'Équipe' && evolution && <span aria-hidden="true" className="h-2 w-2 rounded-full bg-succes-base" />}
       </button>)}
     </nav>
-    <div className="bas-pc mt-auto grid gap-2 border border-bordure bg-surface-2 p-3 text-sm"><b>{nomPartie}</b>{quandMenuPrincipal && etatSynchro && <EtatSynchronisation etat={etatSynchro} />}</div>
+    {(nomPartie || (quandMenuPrincipal && etatSynchro)) && <div className="bas-pc mt-auto grid gap-2 border border-bordure bg-surface-2 p-3 text-sm"><b>{nomPartie}</b>{quandMenuPrincipal && etatSynchro && <EtatSynchronisation etat={etatSynchro} />}</div>}
     {quandMenuPrincipal && <button type="button" className="entree-pc flex min-h-14 items-center gap-3 p-3 text-left" disabled={retourEnCours} onClick={revenirAuMenuPrincipal}><IconeSortie /><span>Menu principal</span></button>}
     {retourEchoue && <p role="alert">{erreurRetourMenu}</p>}
   </aside>;

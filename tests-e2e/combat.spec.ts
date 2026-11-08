@@ -180,7 +180,7 @@ test('Récompenses : Pokédollars, XP, recherche et montée de niveau', async ({
   await page.clock.runFor(2000);
   await expect(recherche).toBeHidden();
 
-  const montee = page.getByRole('status').filter({ hasText: /(passe au niveau \d+|montent de niveau) !/ });
+  const montee = page.locator('[data-notifications] p').filter({ hasText: /(passe au niveau \d+|montent de niveau) !/ });
   for (let appui = 0; appui < 1500 && !(await montee.first().isVisible()); appui++) {
     if (await recherche.isVisible()) await page.clock.runFor(2000);
     await page.getByRole('button', { name: /^Attaquer / }).click({ force: true });

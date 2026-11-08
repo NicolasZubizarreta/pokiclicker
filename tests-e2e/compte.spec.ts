@@ -114,7 +114,7 @@ async function creerPartie(page: Page, context: BrowserContext) {
 
 async function menuPrincipal(page: Page) {
   await page.getByRole('button', { name: 'Menu', exact: true }).click();
-  await page.getByRole('button', { name: /Menu principal/ }).click();
+  await page.getByRole('button', { name: /Menu principal/ }).first().click();
 }
 
 test('Reprise ici sans choix : la version serveur remplace la partie locale', async ({ page, context, serveur }) => {
@@ -337,7 +337,7 @@ test('Menu principal : onglet Parties puis Continuer ramène au jeu', async ({ p
   await page.getByRole('button', { name: 'Créer la partie', exact: true }).click();
   await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
   await page.getByRole('button', { name: 'Menu', exact: true }).click();
-  await page.getByRole('button', { name: /Menu principal/ }).click();
+  await page.getByRole('button', { name: /Menu principal/ }).first().click();
   await expect(page.getByRole('navigation', { name: 'Zone compte' }).getByRole('button', { name: 'Parties', exact: true })).toHaveAttribute('aria-current', 'page');
   await page.getByRole('article', { name: 'Test', exact: true }).getByRole('button', { name: 'Continuer Test' }).click();
   await expect(page.getByRole('navigation', { name: 'Zone compte' })).toHaveCount(0);

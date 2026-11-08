@@ -14,7 +14,9 @@ export function FenetreRaccourcis({ fermer }: { fermer(): void }) {
     <div className="fiche-contenu grid gap-4 p-8">
       <button type="button" className="cadre min-h-11 justify-self-end p-3" onClick={clore}>Fermer</button>
       <h2 id={titre} className="font-titre text-2xl">Raccourcis clavier</h2>
-      {(['Combat', 'Partout'] as const).map(groupe => <section key={groupe}><h3 className="font-bold">{groupe}</h3><dl className="grid gap-2">{raccourcis.filter(r => r.groupe === groupe).map(r => <div key={r.action} className="flex justify-between gap-4"><dt><kbd>{r.touche}</kbd></dt><dd>{r.libelle}</dd></div>)}</dl></section>)}
+      <div className="grid grid-cols-2 gap-8">
+        {(['Combat', 'Partout'] as const).map(groupe => <section key={groupe}><h3 className="mb-2 font-bold">{groupe}</h3><dl className="grid gap-2">{raccourcis.filter(r => r.groupe === groupe).map(r => <div key={r.action} className="flex items-center gap-3"><dt className="w-36 shrink-0"><kbd>{r.touche}</kbd></dt><dd>{r.libelle}</dd></div>)}</dl></section>)}
+      </div>
       <p>Les raccourcis n'existent que sur ordinateur. Ils sont ignorés quand tu écris dans un champ.</p>
     </div>
   </dialog>;

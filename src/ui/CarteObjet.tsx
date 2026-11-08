@@ -55,10 +55,10 @@ export function CarteObjet({ id, nom, description, image, prix, stock, possede, 
     <div className="flex min-w-0 items-center gap-3">
       <IconeObjet id={id} image={image} nom={nom} />
       <h3 className="min-w-0 break-words font-titre text-xl">{nom}</h3>
+      {stock > 0 && <span className="ml-auto shrink-0">×{stock}</span>}
     </div>
     <p>{description}</p>
     <strong>{acquis ? 'Possédé' : `${prix.toLocaleString('fr-FR')}\u00a0₽`}</strong>
-    {stock > 0 && <p>×{stock}</p>}
     {!acquis && <div className="mt-auto grid gap-3">
       {!unique && <div role="group" aria-label={`Quantité de ${nom}`} className="flex flex-wrap items-center gap-3">
         <button type="button" aria-label="Moins" className={bouton} disabled={quantite <= 1}

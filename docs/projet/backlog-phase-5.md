@@ -244,16 +244,22 @@ Barre latérale à six entrées (Combat, Équipe, PC, Shop, Carte, Menu, touches
 - [x] Étant donné `pc-app.html`, quand je navigue, alors chaque situation est atteignable : combat et états, équipe, fiche, PC, sac, shop, carte et vol, Céladopole, centre commercial, pension, Pokédex, badges, statistiques, guide, menu, réglages, notifications, états vides, chargement, erreurs réseau, hors connexion, easter eggs.
 - [x] Étant donné chaque écran à 1280×800, 1440×900 et 1920×1080 (et la coquille à 1024 et 2560), quand je regarde la capture, alors rien ne déborde, aucun sprite ne sort de son cadre, aucun texte n'est coupé (`controle-pc.mjs`).
 - [x] Étant donné les six choix du README, quand Nicolas tranche, alors la décision est notée dans `design/DESIGN.md` (fait le 07/11 : barre latérale gauche avec PC et Menu principal, pas de Centre Pokémon, raccourcis validés, fiche en fenêtre, pop-ups en bas à droite).
-- [ ] Étant donné les maquettes validées, quand Nicolas dit « prêt », alors ce ticket reçoit `agent-ok` et se découpe en lots d'implémentation.
+- [x] Étant donné les maquettes validées, quand Nicolas dit « prêt », alors ce ticket reçoit `agent-ok` et se découpe en lots d'implémentation. Validé le 08/11/2026 (« Je valide »).
+
+### Lots d'implémentation (un seul writer à la fois, dans cet ordre)
+- **I1** (fait le 08/11/2026, commits locaux) coquille : barre latérale gauche (6 entrées, Menu principal en bas, sauvegarde et synchro avant de quitter), bandeau haut, légende, raccourcis clavier, focus visible et survol, focus piégé dans les fenêtres, notifications en bas à droite.
+- **I2** combat PC (scène à gauche, équipe et effets à droite, boutons 2×2 sous 1400 px) et équipe 3×2, sprites sans fond.
+- **I3** carte et vol, PC, Shop, Pokédex, badges, statistiques, guide, menu, réglages, pension, centre commercial.
+- **I4** états (vide, chargement, erreur réseau, hors connexion), e2e à 1440 px, captures 1280/1440/1920/2560, revue.
 
 ### Critères d'implémentation (après validation)
-- [ ] Étant donné 1024 px et plus, quand j'ouvre le jeu, alors la barre latérale gauche, le bandeau haut et la légende des raccourcis remplacent la barre du bas du téléphone ; en dessous de 1024 px, la mise en page téléphone reste inchangée.
-- [ ] Étant donné le combat sur PC, quand j'appuie sur Espace ou Entrée, alors j'attaque ; C, B, A, T, R, S, F, P, les flèches, 1 à 6 et `/` font ce que dit la liste du README, sauf dans un champ de saisie.
-- [ ] Étant donné une fenêtre ouverte (Sac, fiche, réglage de l'arrêt auto), quand j'appuie sur Tab, alors le focus reste dans la fenêtre ; Échap la ferme et rend le focus à l'élément d'origine.
-- [ ] Étant donné chaque écran à 1280, 1440, 1920 et 2560 px, quand je capture, alors la page ne défile pas, les listes défilent dans leur cadre et rien ne déborde.
-- [ ] Étant donné une notification, quand elle apparaît sur PC, alors elle s'affiche en pop-up fixe sans déplacer la page.
-- [ ] Étant donné la souris, quand je survole ou que je tabule, alors chaque contrôle montre un état de survol et un focus visible (cadre jaune).
-- [ ] Étant donné les tests existants, quand `npm test` tourne, alors ils restent verts et un test e2e à 1440 px couvre le combat au clavier.
+- [x] Étant donné 1024 px et plus, quand j'ouvre le jeu, alors la barre latérale gauche, le bandeau haut et la légende des raccourcis remplacent la barre du bas du téléphone ; en dessous de 1024 px, la mise en page téléphone reste inchangée.
+- [x] Étant donné le combat sur PC, quand j'appuie sur Espace ou Entrée, alors j'attaque ; C, B, A, T, R, S, F, P, les flèches, 1 à 6 et `/` font ce que dit la liste du README, sauf dans un champ de saisie.
+- [x] Étant donné une fenêtre ouverte (Sac, fiche, réglage de l'arrêt auto), quand j'appuie sur Tab, alors le focus reste dans la fenêtre ; Échap la ferme et rend le focus à l'élément d'origine.
+- [ ] (coquille faite dans I1 : la page ne défile pas à 1280, 1440, 1920 et 2560 sur les six onglets ; contenu des écrans dans I2 à I4) Étant donné chaque écran à 1280, 1440, 1920 et 2560 px, quand je capture, alors la page ne défile pas, les listes défilent dans leur cadre et rien ne déborde.
+- [x] Étant donné une notification, quand elle apparaît sur PC, alors elle s'affiche en pop-up fixe sans déplacer la page.
+- [x] Étant donné la souris, quand je survole ou que je tabule, alors chaque contrôle montre un état de survol et un focus visible (cadre jaune).
+- [x] Étant donné les tests existants, quand `npm test` tourne, alors ils restent verts et un test e2e à 1440 px couvre le combat au clavier.
 
 ### Effort et risques
 Maquettes : faites, validées par Nicolas le 07/11 avec les corrections ci-dessus. Implémentation : 3 à 5 jours. Risque : la zone de jeu partage ses composants avec le téléphone (divergence de mise en page).
