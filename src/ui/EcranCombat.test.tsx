@@ -457,6 +457,17 @@ it('cache le sprite sans message pendant la réapparition qui suit une capture',
   expect(container.querySelector('.will-change-transform')?.classList.contains('opacity-0')).toBe(true);
 });
 
+it('pose un signe de gain (argent, XP) sur la scène à la victoire, sans capter le clic ni être lu, puis le retire', () => {
+  const { container, horloge } = preparer();
+  for (let i = 0; i < 200 && !container.querySelector('.gain-flottant'); i++) act(() => { horloge.avancer(1000); store.getState().tick(); });
+  const gain = container.querySelector('.gain-flottant')!;
+  expect(gain.textContent).toMatch(/^\+[\d\s  ]+₽\+[\d\s  ]+ XP$/);
+  const calque = gain.parentElement!;
+  expect(calque.getAttribute('aria-hidden')).toBe('true');
+  expect(calque.classList.contains('pointer-events-none')).toBe(true);
+  act(() => vi.advanceTimersByTime(1100));
+  expect(container.querySelector('.gain-flottant')).toBeNull();
+});
 it('rend la scène attaquable, avec des PV accessibles et dix étapes dont le boss', () => {
   const { container, horloge } = preparer();
   const attaque = screen.getByRole('button', { name: /^Attaquer / });

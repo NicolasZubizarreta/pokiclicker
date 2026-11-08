@@ -53,6 +53,8 @@ import { imageConnue } from './Image';
 import { cheminDecor, precharger, prechargerZone } from './precharger';
 
 export type Degat = { id: number; valeur: number };
+/** Signe visible d'un gain (ticket L) : `lignes` s'empilent dans un seul flottant, `type` fixe la place et la couleur. */
+export type Gain = { type: 'butin' | 'capture' | 'diamants'; lignes: string[] };
 export type ResumeCompte = { diamants: number; succes: string[]; skins: string[] };
 export type CaseEquipe = { pokemon: PokemonPossede; dps: number; xpMax: number; multiplicateur: number; evolution?: number | null } | null;
 export type Destination = { id: string; nom: string; ouverte: boolean; raison: string | null };
@@ -197,6 +199,9 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
   let finPokedexEnAttente = false;
   const objets = chargerObjets();
   const abonnesDegats = new Set<(degat: Degat) => void>();
+  const abonnesGains = new Set<(gain: Gain) => void>();
+  const emettreGain = (gain: Gain) => { abonnesGains.forEach(abonne => abonne(gain)); };
+  let compteVu = false;
   const abonnesSons = new Set<(ton: Ton) => void>();
   const emettreSon = (ton: Ton) => { abonnesSons.forEach(abonne => abonne(ton)); };
   const limiteur = creerLimiteurClics(horloge);
@@ -208,6 +213,9 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
   const actualiserCompte = () => {
     const actuel = persistance.compte();
     const precedent = store.getState().compte;
+    // Le premier relevé (chargement de la partie) n'est pas un gain.
+    if (compteVu && actuel.diamants > precedent.diamants) emettreGain({ type: 'diamants', lignes: [`+${(actuel.diamants - precedent.diamants).toLocaleString('fr-FR')} ◆`] });
+    compteVu = true;
     if (precedent.diamants === actuel.diamants
       && precedent.succes.length === actuel.succes.length && precedent.succes.every((id, i) => id === actuel.succes[i])
       && precedent.skins.length === actuel.skins.length && precedent.skins.every((id, i) => id === actuel.skins[i])) return;
@@ -302,6 +310,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       if (message) { messagesCapture.push(message); sauvegarder = true; }
       if (evenement.type === 'capture-reussie') {
         emettreSon('catch');
+        emettreGain({ type: 'capture', lignes: [evenement.shiny ? 'Chromatique !' : 'Capturé !'] });
         const resultat = appliquerCapture(region, evenement, coeur.actifs, alea, genererId);
         region = resultat.region;
         if (evenement.shiny) important = true;
@@ -314,6 +323,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         if (region.equipe.some(p => p.oeuf)) sauvegarder = true;
         const r = appliquerVictoire(region, evenement, coeur.actifs);
         region = r.region;
+        emettreGain({ type: 'butin', lignes: [`+${r.or.toLocaleString('fr-FR')} ₽`, `+${r.xp.toLocaleString('fr-FR')} XP`] });
         if (r.montees.length > 0) emettreSon('up');
         if (pension.accesPension(kanto, etatMondeDe(region)).ouvert) {
           const suivante = pension.pondre(region, alea, genererId);
@@ -1116,6 +1126,10 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     abonnerSauvegarde(abonne: (fermeture: boolean) => void) {
       abonnesSauvegarde.add(abonne);
       return () => { abonnesSauvegarde.delete(abonne); };
+    },
+    abonnerGains(abonne: (gain: Gain) => void) {
+      abonnesGains.add(abonne);
+      return () => { abonnesGains.delete(abonne); };
     },
     abonnerDegats(abonne: (degat: Degat) => void) {
       abonnesDegats.add(abonne);

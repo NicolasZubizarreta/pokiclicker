@@ -18,6 +18,7 @@ import { FichePokemon } from './FichePokemon';
 import { IconeShiny } from './IconeShiny';
 import { PastilleCapture, Sac as IconeSac } from './icones';
 import { DegatsFlottants } from './DegatsFlottants';
+import { GainsFlottants } from './GainsFlottants';
 import { DialogueChen } from './DialogueChen';
 import { ScenesBourgPalette } from './ScenesBourgPalette';
 import { SceneRonflex } from './SceneRonflex';
@@ -162,6 +163,7 @@ function Scene({ store, ouvrirPension }: { store: StoreJeu; ouvrirPension(): voi
       onPointerDown={event => { if (event.button === 0) attaquer(); }}
       onClick={event => { if (event.detail === 0) attaquer(); }} />
     <DegatsFlottants store={store} />
+    <GainsFlottants store={store} />
     {/* Sur téléphone, la capture (avec Fauchage) et les actions sont sous la scène (ActionsTelephone) ; le Poké-Radar reste dans la scène. */}
     {radar && <button data-raccourci="radar" type="button" aria-label="Poké-Radar" disabled={zone.type === 'ligue'}
       title={zone.type === 'ligue' ? 'Inutile à la Ligue : il n’y a que des boss, aucun Pokémon à capturer.' : undefined}

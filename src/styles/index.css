@@ -380,6 +380,9 @@ html:has(dialog[open]) { overflow: hidden; }
     drop-shadow(0 calc(var(--spacing) / -4) 0 var(--alerte-base)) brightness(1.1);
 }
 .degat-flottant { animation: degats var(--duree-degats) var(--ease-sortie) forwards; }
+/* Gains (ticket L) : montée lente puis fondu ; en mouvement réduit la règle globale coupe l'animation, le texte reste lisible jusqu'à son retrait. */
+.gain-flottant { animation: gain 1100ms var(--ease-sortie) forwards; }
+@keyframes gain { 70% { opacity: 1; } to { transform: translateY(calc(var(--spacing) * -8)); opacity: 0; } }
 .fleche-chen { animation: fleche var(--duree-degats) var(--ease-standard) infinite alternate; }
 @keyframes degats { to { transform: translateY(calc(var(--spacing) * -6)); opacity: 0; } }
 @keyframes fleche { to { transform: translateY(var(--spacing)); } }

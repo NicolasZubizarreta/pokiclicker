@@ -299,15 +299,15 @@ Lot 6 fait (05/11), partie carte seulement : sous 1024 px, liste des zones à d�
 
 ## L. `feat(ui): retours visuels des gains, des dégâts et de la synchro`
 
-`type:feat`, `etat:a_faire`, `est:2-3`, `prio:4` · branche : `v2` · `agent-ok` après maquette validée · dépend de : D
+`type:feat`, `etat:fait`, `est:2-3`, `prio:4` · branche : `v2` · `agent-ok` après maquette validée · dépend de : D
 
 ### Contexte
 Reprendre les animations et effets de la V1 (`docs/projet/v1-visuel-a-porter.md`) avant d'en inventer.
 
 ### Critères d'acceptation
-- [ ] Étant donné l'inventaire `docs/projet/v1-visuel-a-porter.md`, quand le ticket est fini, alors chaque effet marqué « à porter » est porté ou écarté avec une raison.
-- [ ] Étant donné un gain (argent, XP, capture, diamants), quand il arrive, alors un signe visible l'accompagne sans masquer le combat.
-- [ ] Étant donné la préférence système « réduire les animations », quand elle est active, alors les effets forts sont coupés.
+- [x] Étant donné l'inventaire `docs/projet/v1-visuel-a-porter.md`, quand le ticket est fini, alors chaque effet marqué « à porter » est porté ou écarté avec une raison. (08/11 : aucun effet de l'inventaire n'est resté pour L, les repris sont faits (section 4) et les autres appartiennent à leur ticket (V, W, X, R, T). La V1 n'avait aucun signe de gain : créé en V2, choix de Nicolas le 08/11. Synchro : écartée, l'état est déjà dans la page Plus.)
+- [x] Étant donné un gain (argent, XP, capture, diamants), quand il arrive, alors un signe visible l'accompagne sans masquer le combat. (`GainsFlottants` : « +N ₽ » et « +N XP » à la victoire, « Capturé ! » / « Chromatique ! », « +N ◆ » ; calque sans clic ni lecture d'écran, 1,1 s ; captures 390 et 1440 regardées.)
+- [x] Étant donné la préférence système « réduire les animations », quand elle est active, alors les effets forts sont coupés. (règle globale `animation: none` de `index.css` : le gain reste affiché sans bouger puis disparaît ; test dans `GainsFlottants.test.tsx`.)
 
 ### Effort et risques
 2 à 3 jours.
