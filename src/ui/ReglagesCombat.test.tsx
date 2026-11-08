@@ -35,6 +35,18 @@ it('réserve Auto-clic aux Restes et reflète son état par props', () => {
   expect(vue.container.querySelector('.bg-action')).toBeNull();
 });
 
+it("propose le lien de l'auto-clic dans les réglages de l'arrêt quand il est fourni", () => {
+  const arret: ReglagesArret = { actif: true, commun: false, peuCommun: false, rare: true,
+    tresRare: true, legendaire: true, shiny: true, nouveau: true };
+  const regler = vi.fn();
+  render(<ReglagesCombat autoAttaque arret={arret} basculer={vi.fn()} regler={vi.fn()} lienAutoClic={{ lie: false, regler }} />);
+  fireEvent.click(screen.getByRole('button', { name: "Réglages de l'arrêt" }));
+  const lie = screen.getByRole('checkbox', { name: "Auto-clic lié à l'attaque auto" }) as HTMLInputElement;
+  expect(lie.checked).toBe(false);
+  fireEvent.click(lie);
+  expect(regler).toHaveBeenCalledWith(true);
+});
+
 it("pilote les préférences par props et rend le focus après le dialogue et Échap", () => {
   const arret: ReglagesArret = { actif: true, commun: false, peuCommun: false, rare: true,
     tresRare: true, legendaire: true, shiny: true, nouveau: true };

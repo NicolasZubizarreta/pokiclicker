@@ -1,17 +1,18 @@
 import { useId, useRef } from 'react';
 import type { ReglagesArret } from '../core/sauvegarde-types';
 import { AutoAttaque, ArretAuto, ReglagesArret as IconeReglagesArret, Sac } from './icones';
-import { optionsArret } from './ReglagesCombat';
+import { CaseAutoClicLie, optionsArret, type LienAutoClic } from './ReglagesCombat';
 import './Plaques.css';
 import './ActionsCombat.css';
 
 type Props = {
   autoAttaque: boolean; basculerAutoAttaque(): void;
   arret: ReglagesArret; reglerArret(partiel: Partial<ReglagesArret>): void;
+  lienAutoClic: LienAutoClic;
   sac: { accessible: boolean; total: number; ouvrir: (() => void) | null };
 };
 
-export function ActionsCombat({ autoAttaque, basculerAutoAttaque, arret, reglerArret, sac }: Props) {
+export function ActionsCombat({ autoAttaque, basculerAutoAttaque, arret, reglerArret, lienAutoClic, sac }: Props) {
   const dialogue = useRef<HTMLDialogElement>(null);
   const declencheur = useRef<HTMLButtonElement>(null);
   const titre = useId();
@@ -29,11 +30,11 @@ export function ActionsCombat({ autoAttaque, basculerAutoAttaque, arret, reglerA
       onClose={() => declencheur.current?.focus()} onCancel={event => { event.preventDefault(); fermer(); }}>
       <div className="fiche-contenu grid min-w-0 gap-4 p-4 lg:p-8">
         <h2 id={titre} className="font-titre text-xl">Réglage de l'arrêt auto</h2>
-        <p className="text-texte-doux">Le lien avec l'auto-clic se règle dans Menu, puis Réglages.</p>
         <h3>L'attaque auto s'arrête quand apparaît</h3>
         {optionsArret.map(([cle, nom]) => <label key={cle} className="flex min-h-11 min-w-11 cursor-pointer items-center gap-3">
           <input type="checkbox" checked={arret[cle]} onChange={event => reglerArret({ [cle]: event.currentTarget.checked })} />{nom}
         </label>)}
+        <CaseAutoClicLie lien={lienAutoClic} />
         <button type="button" className="cadre min-h-11 min-w-11 bg-surface p-3 aria-pressed:bg-selection" onClick={fermer}>Fermer</button>
       </div>
     </dialog>

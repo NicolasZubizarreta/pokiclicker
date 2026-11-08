@@ -189,11 +189,14 @@ function ActionsTelephone({ store }: { store: StoreJeu }) {
   const fauchage = useStore(store, etat => etat.fauchage);
   const faucher = useStore(store, etat => etat.faucher);
   const sac = useStore(store, etat => etat.sac);
+  const autoClicLie = useStore(store, etat => etat.autoClicLie);
+  const reglerAutoClicLie = useStore(store, etat => etat.reglerAutoClicLie);
   if (!zone) return null;
   return <div className="actions-telephone">
     <LigneCapture {...capture} capturer={capturer}
       outil={fauchage.possede ? <BoutonFauchage fauchage={fauchage} faucher={faucher} /> : undefined} />
     <ActionsCombat autoAttaque={autoAttaque} basculerAutoAttaque={basculerAutoAttaque} arret={arret} reglerArret={reglerArret}
+      lienAutoClic={{ lie: autoClicLie, regler: reglerAutoClicLie }}
       sac={{ accessible: sac.acces.ouvert, total: sac.entrees.reduce((total, entree) => total + entree.quantite, 0), ouvrir: ouvrirSacFenetre }} />
   </div>;
 }
@@ -214,6 +217,8 @@ function Equipe({ store }: { store: StoreJeu }) {
   const autoAttaque = useStore(store, etat => etat.autoAttaque);
   const autoClic = useStore(store, etat => etat.autoClic);
   const basculerAutoClic = useStore(store, etat => etat.basculerAutoClic);
+  const autoClicLie = useStore(store, etat => etat.autoClicLie);
+  const reglerAutoClicLie = useStore(store, etat => etat.reglerAutoClicLie);
   const arret = useStore(store, etat => etat.arretAuto);
   const basculer = useStore(store, etat => etat.basculerAutoAttaque);
   const regler = useStore(store, etat => etat.reglerArretAuto);
@@ -260,7 +265,8 @@ function Equipe({ store }: { store: StoreJeu }) {
       </h2>
       {zone && !telephone && <div className="bandeau-action-rangee" role="group" aria-label="Actions du combat">
         <ReglagesCombat autoAttaque={autoAttaque} arret={arret} basculer={basculer} regler={regler}
-          autoClic={autoClic} basculerAutoClic={basculerAutoClic} />
+          autoClic={autoClic} basculerAutoClic={basculerAutoClic}
+          lienAutoClic={{ lie: autoClicLie, regler: reglerAutoClicLie }} />
         <OutilsCombat fauchage={fauchage} faucher={faucher} />
         {sac.acces.ouvert && <div className="relative"><BoutonAction data-raccourci="sac" nom="Sac" onClick={event => ouvrirSac(event.currentTarget)}
           icone={<><IconeSac />

@@ -10,8 +10,17 @@ export const optionsArret = [
 ] as const;
 const bouton = 'cadre min-h-11 min-w-11 bg-surface p-3 aria-pressed:bg-selection';
 
-export function ReglagesCombat({ autoAttaque, arret, basculer, regler, autoClic, basculerAutoClic }: {
+export type LienAutoClic = { lie: boolean; regler(actif: boolean): void };
+/** Même réglage que Menu, Réglages : il est ici pour ne pas avoir à quitter le combat. */
+export function CaseAutoClicLie({ lien }: { lien: LienAutoClic }) {
+  return <label className="flex min-h-11 min-w-11 cursor-pointer items-center gap-3">
+    <input type="checkbox" checked={lien.lie} onChange={event => lien.regler(event.currentTarget.checked)} />Auto-clic lié à l'attaque auto
+  </label>;
+}
+
+export function ReglagesCombat({ autoAttaque, arret, basculer, regler, autoClic, basculerAutoClic, lienAutoClic }: {
   autoAttaque: boolean;
+  lienAutoClic?: LienAutoClic;
   arret: ReglagesArret;
   basculer(): void;
   regler(partiel: Partial<ReglagesArret>): void;
@@ -43,6 +52,7 @@ export function ReglagesCombat({ autoAttaque, arret, basculer, regler, autoClic,
             onChange={event => regler({ [cle]: event.currentTarget.checked })} />
           {nom}
         </label>)}
+        {lienAutoClic && <CaseAutoClicLie lien={lienAutoClic} />}
         <button type="button" className={bouton} onClick={fermer}>Fermer</button>
       </div>
     </dialog>
