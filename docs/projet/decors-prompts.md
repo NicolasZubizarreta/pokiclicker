@@ -17,7 +17,7 @@ The attached image is the Kanto map: use it only for the visual style (brush, ou
 
 Place: Route 1 of Kanto, between Pallet Town and Viridian City: a north-south dirt path through a green meadow, patches of tall grass on both sides, one-way ledges of earth, small round trees along the edges, a few flowers, a wooden signpost, the sea glimpsed far away.
 
-Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): a red cap with a white front panel carrying a stylized green "L" shape, open like an incomplete triangle, resting on a fence post.
+Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): Ash's first-season cap resting on a fence post: red cap with a white front panel carrying a stylized green "L" shape, open like an incomplete triangle.
 ```
 
 ## 2. Forêt de Jade
@@ -59,7 +59,7 @@ The attached image is the Kanto map: use it only for the visual style (brush, ou
 
 Place: Mt. Moon: a large cave floor in blue-grey rock with several wooden ladders going up and down, small rock bridges, scattered fossils (a dome-shaped fossil and a spiral shell fossil) half buried in the ground, a few pale crystals glowing softly, dim bluish light.
 
-Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): a cube-shaped block of shiny blue diamond ore with a blocky pixel texture embedded in the cave wall, and a pickaxe leaning against it.
+Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): A cube-shaped block of diamond ore with a blocky pixel texture embedded in the cave wall, and a pickaxe leaning against it (Minecraft style).
 ```
 
 ## 5. Arène d'Azuria
@@ -71,7 +71,7 @@ Detailed hand-illustrated scene, 16:9 landscape, in exactly the same style as th
 
 The attached image is the Kanto map: use it only for the visual style (brush, outlines, colours, level of detail), never for the content or the layout. The place below is a new scene to design from the Pokémon games (Red, Blue, FireRed, LeafGreen), not a copy of any existing picture.
 
-Place: The Cerulean City Gym (water type): a huge indoor swimming pool in the middle of the room with round stone platforms and narrow walkways crossing it, a diving board, a star-shaped fountain, blue tiled walls decorated with waves and bubbles.
+Place: The Cerulean City Gym (water type): a huge indoor swimming pool in the middle of the room with round stone platforms and narrow walkways crossing it, a diving board, a Staryu-shaped fountain, blue tiled walls decorated with waves and bubbles.
 
 Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): A twisted red bicycle lying at the bottom of the pool, visible through the clear water.
 ```
@@ -87,7 +87,7 @@ The attached image is the Kanto map: use it only for the visual style (brush, ou
 
 Place: Nugget Bridge north of Cerulean City: a long wooden plank bridge with railings crossing a river, grassy banks with flowers and tall grass at both ends, a few trees, a wide blue sky, water flowing underneath.
 
-Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): a tiny hot-air balloon shaped like a cream-coloured cat's head with a gold coin on its forehead, very small and far away high in the sky.
+Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): A tiny hot-air balloon shaped like a cat's head with a gold coin on its forehead, very small and far away high in the sky (a Meowth balloon).
 ```
 
 ## 7. Arène de Carmin
@@ -113,7 +113,7 @@ Detailed hand-illustrated scene, 16:9 landscape, in exactly the same style as th
 
 The attached image is the Kanto map: use it only for the visual style (brush, outlines, colours, level of detail), never for the content or the layout. The place below is a new scene to design from the Pokémon games (Red, Blue, FireRed, LeafGreen), not a copy of any existing picture.
 
-Place: A cave of burrowing creatures: a long underground tunnel with a sandy brown dirt floor, round holes in the ground, rough earth walls, wooden ladders at both ends, a few rocks, dim light from the entrance.
+Place: Diglett's Cave: a long underground tunnel with a sandy brown dirt floor, round holes in the ground, rough earth walls, wooden ladders at both ends, a few rocks, dim light from the entrance.
 
 Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): A huge wooden toy mallet leaning against the earth wall, as in a whack-a-mole game.
 ```
@@ -197,7 +197,7 @@ Detailed hand-illustrated scene, 16:9 landscape, in exactly the same style as th
 
 The attached image is the Kanto map: use it only for the visual style (brush, outlines, colours, level of detail), never for the content or the layout. The place below is a new scene to design from the Pokémon games (Red, Blue, FireRed, LeafGreen), not a copy of any existing picture.
 
-Place: A large corporate headquarters: a tall corporate building interior with white and grey tiled floors, offices with desks and computers, glass doors, teleport pads on the floor, a lobby plant, a corporate blue and white colour scheme.
+Place: Silph Co. headquarters in Saffron City: a tall corporate building interior with white and grey tiled floors, offices with desks and computers, glass doors, teleport pads on the floor, a lobby plant, a corporate blue and white colour scheme.
 
 Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): A white coffee mug printed "World's Best Boss" on a desk (the only text allowed in this picture).
 ```
@@ -255,7 +255,7 @@ The attached image is the Kanto map: use it only for the visual style (brush, ou
 
 Place: The Viridian City Gym (ground type): a dark floor covered with spinner arrow tiles pointing in different directions forming a maze, stone pillars, a heavy desk and a throne-like chair at the back, brown and black colours.
 
-Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): a big leather armchair with a long-haired white cat with a flat face lying on it.
+Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): A big leather armchair with a white Persian (the long-tailed cream-white cat Pokémon) lying on it. This is the only Pokémon allowed in this picture.
 ```
 
 ## 19. Caverne Azurée
@@ -283,7 +283,7 @@ The attached image is the Kanto map: use it only for the visual style (brush, ou
 
 Place: Victory Road: a huge cave with a brown and grey rocky floor, large round boulders and holes in the ground, floor switches, ladders, wide dark passages, a rugged and heroic mood.
 
-Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): a small bright green warp pipe with a dark rim sticking out of the rock wall, like in a classic plumber platform video game.
+Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): A small green warp pipe sticking out of the rock wall (Super Mario style).
 ```
 
 ## 21. Ligue Pokémon
@@ -297,7 +297,7 @@ The attached image is the Kanto map: use it only for the visual style (brush, ou
 
 Place: The Indigo Plateau Pokémon League: one grand palace hall (not five rooms) with a long red carpet, tall columns, golden decorations and banners, marble floor, warm light, solemn and imposing.
 
-Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): an iron throne made of piled swords at the far end of the hall.
+Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): An iron throne made of piled swords at the far end of the hall (Game of Thrones style).
 ```
 
 ## 22. Route de Ronflex
@@ -311,7 +311,7 @@ The attached image is the Kanto map: use it only for the visual style (brush, ou
 
 Place: A road in Kanto blocked by a sleeping giant Pokémon, as on Routes 12 and 16: a wide dirt road bordered by tall grass and trees, narrowing in the middle, a large empty clearing at the centre (the game places the sleeping Pokémon there: do not draw any Pokémon), soft daylight. The centre must stay completely clear for a flute mini-game.
 
-Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): a rusty bus stop shelter at one side of the road, with a forgotten open umbrella and a few acorns on the ground.
+Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): A rusty bus stop shelter at one side of the road, with a forgotten open umbrella and a few acorns on the ground (My Neighbor Totoro).
 ```
 
 ## 23. Pension Pokémon
@@ -339,7 +339,7 @@ The attached image is the Kanto map: use it only for the visual style (brush, ou
 
 Place: The Rival's house in Pallet Town: a small one-floor house interior with a wooden floor, a table with a stool, a bookcase, a window, a big map of Kanto on the wall, a cosy family kitchen corner.
 
-Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): a translucent purple handheld game console with a cracked screen lying on the table.
+Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): A Game Boy Color with a cracked screen lying on the table.
 ```
 
 ## 25. Chez Maman
@@ -353,7 +353,7 @@ The attached image is the Kanto map: use it only for the visual style (brush, ou
 
 Place: The player's house in Pallet Town: a two-room cut-away of the house in one picture, with a living room (television, kitchen table with chairs, a staircase) and a bedroom (a bed, a PC on a desk, a bookcase), wooden floors, plants. Everything fills the whole frame.
 
-Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): two details: an old yellowed envelope addressed in emerald-green ink and sealed with a red wax seal bearing a crest with the letter H, lying on the staircase; and a grey 16-bit game console plugged into the television, with its controller (coloured buttons) on the floor.
+Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): Two details: an old yellowed envelope addressed in emerald-green ink and sealed with a red wax seal bearing a crest with the letter H, lying on the staircase (a Hogwarts admission letter); and a Super Nintendo console plugged into the television, with its controller on the floor.
 ```
 
 ## 26. Centre Commercial
@@ -367,7 +367,7 @@ The attached image is the Kanto map: use it only for the visual style (brush, ou
 
 Place: The Celadon Department Store: the inside of a big store with shelves of goods, a service counter, a vending machine area, escalators, potted plants, bright floors with a pastel tile pattern.
 
-Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): an arcade cabinet in a corner whose screen shows a yellow round character with a wedge mouth chasing small coloured ghosts.
+Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): An arcade cabinet in a corner whose screen shows a yellow round character chasing small ghosts (Pac-Man style).
 ```
 
 ## 27. Casino
@@ -379,9 +379,9 @@ Detailed hand-illustrated scene, 16:9 landscape, in exactly the same style as th
 
 The attached image is the Kanto map: use it only for the visual style (brush, outlines, colours, level of detail), never for the content or the layout. The place below is a new scene to design from the Pokémon games (Red, Blue, FireRed, LeafGreen), not a copy of any existing picture.
 
-Place: The Celadon Game Corner: a casino hall with rows of slot machines with glowing lights and cartoon creature and ball symbols, a prize counter, a patterned carpet, neon decorations, a purple and gold colour scheme.
+Place: The Celadon Game Corner: a casino hall with rows of slot machines with glowing lights and Poké Ball or Pikachu symbols, a prize counter, a patterned carpet, neon decorations, a purple and gold colour scheme.
 
-Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): two details: a small "STAFF ONLY" sign behind a slot machine with a discreet red letter R on it (the only text allowed in this picture); and a baby wearing sunglasses sitting in a car seat on a bar stool.
+Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): Two details: a small "STAFF ONLY" sign behind a slot machine with a discreet red letter R on it (the only text allowed in this picture); and a baby wearing sunglasses sitting in a car seat on a bar stool (The Hangover).
 ```
 
 ## 28. Bourg Palette
@@ -407,9 +407,9 @@ Detailed hand-illustrated scene, 16:9 landscape, in exactly the same style as th
 
 The attached image is the Kanto map: use it only for the visual style (brush, outlines, colours, level of detail), never for the content or the layout. The place below is a new scene to design from the Pokémon games (Red, Blue, FireRed, LeafGreen), not a copy of any existing picture.
 
-Place: A professor's Laboratory: a research lab interior with tall bookshelves, lab machines and computers, a big table with three red and white capsule balls, a blackboard, cables and monitors.
+Place: Professor Oak's Laboratory: a research lab interior with tall bookshelves, lab machines and computers, a big table with three Poké Balls, a blackboard, cables and monitors.
 
-Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): a blackboard with a big "42" written on it, and a kettle whistling with steam on a table (the only text allowed in this picture).
+Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): A blackboard with a big "42" written on it, and a kettle whistling with steam on a table (The Hitchhiker's Guide to the Galaxy; the only text allowed in this picture).
 ```
 
 ## 30. Panthéon
@@ -423,5 +423,5 @@ The attached image is the Kanto map: use it only for the visual style (brush, ou
 
 Place: The Hall of Fame in Indigo Plateau: a grand ceremonial hall with a red carpet, rows of empty framed plaques on the walls, marble pedestals, tall columns, warm golden light.
 
-Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): a golden five-pointed star embedded in the floor with a lightning bolt inside it.
+Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): A golden star embedded in the floor with a lightning bolt inside it (Hollywood Walk of Fame style).
 ```
