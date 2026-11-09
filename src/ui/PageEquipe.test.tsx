@@ -3,6 +3,7 @@ import { act, cleanup, fireEvent, render, screen, within } from '@testing-librar
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import type { PokemonPossede } from '../core/sauvegarde';
 import { formaterDps } from './nombres';
+import { Notifications } from './Notifications';
 import { PageEquipe } from './PageEquipe';
 import { FenetreSac } from './FenetreSac';
 import { storeNotifications, viderNotifications } from './pileNotifications';
@@ -155,7 +156,7 @@ it('sur grand écran, actualise le détail puis ouvre sa fiche avec son propre d
 it('propose l’échange, appelle le store, affiche son erreur et permet d’annuler', () => {
   storeJeu.setState({ echange: { uid: 'pc', nom: 'Pikachu' } });
   echanger.mockReturnValue('Il faut au moins 1 Pokémon actif dans l’équipe.');
-  render(<PageEquipe />);
+  render(<><PageEquipe /><Notifications /></>);
   expect(screen.getAllByRole('status').map(zone => zone.textContent).join(' ')).toContain('Choisis le Pokémon à remplacer par Pikachu');
   fireEvent.click(screen.getByRole('button', { name: 'Salamèche, niveau 16' }));
   expect(echanger).toHaveBeenCalledWith('pc', 'second');

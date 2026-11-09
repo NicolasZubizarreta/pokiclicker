@@ -141,6 +141,29 @@ test('PC : placer jusqu’à six, échanger, et tout survit au rechargement', as
   await expect(page.getByText(/(?:· |^)6 \/ 6$/)).toBeVisible();
 });
 
+test('PC (ordinateur) : pas de bouton Retour, équipe alignée, Déplacer glisse un Pokémon dans l’équipe', async ({ page }, informations) => {
+  test.skip(informations.project.name !== 'pc', 'Mode Déplacer : version ordinateur seulement');
+  await demarrer(page);
+  await remplirPc(page, 12);
+  await ouvrirPc(page);
+  await expect(page.getByRole('button', { name: /^Retour/ })).toHaveCount(0);
+  const haut = async (locator: ReturnType<Page['locator']>) => (await locator.boundingBox())!.y;
+  expect(Math.abs(await haut(page.locator('.pc-panneau')) - await haut(page.locator('.pc-grille')))).toBeLessThanOrEqual(1);
+  await expect(page.getByText('12 Pokémon')).toBeVisible();
+  await page.getByRole('button', { name: 'Déplacer', exact: true }).click();
+  await grille(page).getByRole('button').first().dragTo(page.locator('aside').getByText('Emplacement libre').first());
+  await expect(page.getByText('11 Pokémon')).toBeVisible();
+  // Équipe pleine : le message de remplacement est un calque, la page ne bouge pas.
+  const avant = await haut(grille(page));
+  for (let i = 0; i < 2; i++) await grille(page).getByRole('button').first().dragTo(page.locator('aside').getByText('Emplacement libre').first());
+  await expect(page.locator('aside').getByText('Emplacement libre')).toHaveCount(0);
+  await grille(page).getByRole('button').first().dragTo(page.locator('aside').getByRole('button').first());
+  await expect(page.getByRole('status').filter({ hasText: 'Choisis le Pokémon à remplacer par' })).toHaveCount(0);
+  expect(Math.abs(avant - await haut(grille(page)))).toBeLessThanOrEqual(1);
+  await mkdir('design/captures', { recursive: true });
+  await page.screenshot({ path: 'design/captures/i-pc-deplacer-1440.png', animations: 'disabled' });
+});
+
 test('Pokédex : 151 cases et compteur des starters', async ({ page }, informations) => {
   await demarrer(page);
   await page.getByRole('button', { name: 'Menu', exact: true }).click();

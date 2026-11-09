@@ -48,7 +48,9 @@ it.each(['Menu'] as const)('revient du PC vers %s et garde son onglet actif', or
   fireEvent.click(screen.getByRole('button', { name: /PC de Léo/ }));
   expect(screen.getByRole('heading', { name: 'PC de Léo' })).toBeTruthy();
   expect(within(screen.getByRole('navigation')).getByRole('button', { name: 'PC' }).getAttribute('aria-current')).toBe('page');
-  fireEvent.click(screen.getByRole('button', { name: 'Retour au menu' }));
+  // Sur PC il n'y a plus de bouton Retour : on repart par la barre latérale.
+  expect(screen.queryByRole('button', { name: /^Retour/ })).toBeNull();
+  fireEvent.click(within(screen.getByRole('navigation')).getByRole('button', { name: 'Menu' }));
   expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Menu');
 });
 

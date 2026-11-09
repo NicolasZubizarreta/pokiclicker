@@ -1,10 +1,11 @@
-﻿// @vitest-environment jsdom
+// @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { chargerPokemon } from '../core/pokemon';
 import { trierPc, type TriPc } from '../core/pc';
 import type { PokemonPossede } from '../core/sauvegarde';
 import { PagePC } from './PagePC';
+import { Notifications } from './Notifications';
 import { storeJeu } from './store';
 import { dpsSansType } from './dps-pc';
 import { formaterDps } from './nombres';
@@ -25,6 +26,7 @@ const pc: PokemonPossede[] = [
 ];
 const catalogue = chargerPokemon();
 const nomDe = (pokemon: PokemonPossede) => pokemon.surnom ?? catalogue.parNumero(pokemon.numero).nom;
+const enTelephone = () => vi.stubGlobal('matchMedia', vi.fn((requete: string) => ({ matches: requete.includes('max-width'), addEventListener: vi.fn(), removeEventListener: vi.fn() })));
 const cartes = () => within(screen.getByRole('list')).getAllByRole('button');
 
 beforeEach(() => storeJeu.setState({ pc: [...pc], accesPc: { ouvert: true, raison: '' } }));
@@ -62,6 +64,7 @@ it.each(['Favoris', 'Shiny', 'Œufs'])('filtre %s et efface les filtres et la re
 });
 
 it('donne un libellé accessible au retour', () => {
+  enTelephone();
   render(<PagePC retour={vi.fn()} libelleRetour="Retour au voyage" />);
   expect(screen.getByRole('button', { name: 'Retour au voyage' }).textContent).toBe('Retour');
 });
@@ -116,6 +119,7 @@ it.each([0, 1, 2])('compte %i Pokémon', nombre => {
 it('ne présente que le retour, le titre et la raison quand le PC est verrouillé', () => {
   const raison = "Le PC de Léo s'ouvre à l'Arène d'Argenta.";
   storeJeu.setState({ accesPc: { ouvert: false, raison } });
+  enTelephone();
   const { container } = render(<PagePC retour={vi.fn()} />);
   expect(screen.getByRole('heading').textContent).toBe('PC de Léo');
   expect(screen.getByText(raison).tagName).toBe('P');
@@ -196,6 +200,7 @@ it('sélectionne une carte par défaut puis au clic, et conserve le choix après
 
 it('appelle retour', () => {
   const retour = vi.fn();
+  enTelephone();
   render(<PagePC retour={retour} />);
   fireEvent.click(screen.getByRole('button', { name: 'Retour' }));
   expect(retour).toHaveBeenCalledOnce();
@@ -263,7 +268,7 @@ it('place le Pokémon dans une équipe incomplète et sélectionne le suivant', 
 
 it('échange avec une équipe pleine depuis la colonne, puis annule', () => {
   storeJeu.setState({ equipe: Array.from({ length: 6 }, (_, i) => caseDe({ ...base, uid: `e${i}`, surnom: `Partenaire ${i}` })) });
-  render(<PagePC retour={vi.fn()} />);
+  render(<><PagePC retour={vi.fn()} /><Notifications /></>);
   fireEvent.click(screen.getByRole('button', { name: 'Zéphyr, niveau 30' }));
   fireEvent.click(screen.getByRole('button', { name: "Placer dans l'équipe" }));
   expect(screen.getByRole('status').textContent).toContain('Choisis le Pokémon à remplacer par Zéphyr');
@@ -292,11 +297,41 @@ it('affiche les erreurs de placement, de favori et d’échange', () => {
   expect(screen.getByRole('alert').textContent).toBe('Favori impossible. Réessaie.');
   cleanup();
   storeJeu.setState({ echange: { uid: 'autre', nom: 'Zéphyr' } });
-  render(<PagePC retour={vi.fn()} />);
+  render(<><PagePC retour={vi.fn()} /><Notifications /></>);
   fireEvent.click(within(screen.getByRole('complementary')).getAllByRole('button', { name: 'Pikachu, niveau 8' })[0]!);
   expect(screen.getByRole('alert').textContent).toBe('Échange impossible. Réessaie.');
   fireEvent.click(screen.getByRole('button', { name: 'Annuler' }));
   expect(screen.queryByRole('alert')).toBeNull();
+});
+
+const transfert = (uid: string) => ({ dataTransfer: { getData: () => uid, setData: vi.fn(), effectAllowed: '' } });
+
+it('le mode Déplacer rend les Pokémon du PC glissables et dépose sur l\'équipe', () => {
+  render(<PagePC />);
+  const carte = screen.getByRole('button', { name: 'Zéphyr, niveau 30' });
+  expect(carte.getAttribute('draggable')).toBeNull();
+  const bouton = screen.getByRole('button', { name: 'Déplacer' });
+  expect(bouton.getAttribute('aria-pressed')).toBe('false');
+  fireEvent.click(bouton);
+  expect(bouton.getAttribute('aria-pressed')).toBe('true');
+  expect(carte.getAttribute('draggable')).toBe('true');
+  // Place libre : le Pokémon entre dans l'équipe.
+  fireEvent.dragStart(carte, transfert('autre'));
+  const libre = screen.getAllByText('Emplacement libre')[0]!.parentElement!;
+  fireEvent.dragOver(libre, transfert('autre'));
+  fireEvent.drop(libre, transfert('autre'));
+  expect(placerDansEquipe).toHaveBeenCalledWith('autre');
+  // Place occupée : échange avec le Pokémon d'équipe.
+  fireEvent.drop(within(screen.getByRole('complementary')).getAllByRole('button', { name: 'Pikachu, niveau 8' })[0]!, transfert('electrode'));
+  expect(echanger).toHaveBeenCalledWith('electrode', 'e1');
+  fireEvent.click(bouton);
+  expect(bouton.getAttribute('aria-pressed')).toBe('false');
+});
+
+it('sans le mode Déplacer, un dépôt ne change rien', () => {
+  render(<PagePC />);
+  fireEvent.drop(screen.getAllByText('Emplacement libre')[0]!.parentElement!, transfert('autre'));
+  expect(placerDansEquipe).not.toHaveBeenCalled();
 });
 
 it('bascule le favori depuis le détail', () => {
@@ -322,7 +357,7 @@ it('ouvre une seule fiche depuis la carte et restaure le focus', () => {
 
 it('échange en choisissant le partenaire avant le Pokémon du PC au clavier', () => {
   render(<PagePC />);
-  const partenaire = within(screen.getByRole('complementary')).getAllByRole('button')[0]!;
+  const partenaire = within(screen.getByRole('complementary')).getAllByRole('button', { name: /niveau/ })[0]!;
   partenaire.focus();
   fireEvent.click(partenaire, { detail: 0 });
   expect(partenaire.getAttribute('aria-pressed')).toBe('true');
@@ -336,7 +371,7 @@ it('échange en choisissant le partenaire avant le Pokémon du PC au clavier', (
 
 it('garde le focus clavier dans le mode échange puis le rend à l’action', () => {
   storeJeu.setState({ equipe: Array.from({ length: 6 }, (_, i) => caseDe({ ...base, uid: `e${i}`, surnom: `Partenaire ${i}` })) });
-  render(<PagePC retour={vi.fn()} />);
+  render(<><PagePC retour={vi.fn()} /><Notifications /></>);
   fireEvent.click(within(screen.getByRole('list')).getByRole('button', { pressed: true }));
   fireEvent.click(screen.getByRole('button', { name: "Placer dans l'équipe" }));
   expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Annuler' }));

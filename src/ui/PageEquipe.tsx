@@ -139,11 +139,6 @@ export function PageEquipe({ ouvrirPC }: { ouvrirPC?: () => void }) {
     <h1 ref={titre} tabIndex={-1} className="font-titre text-2xl font-semibold">Ton équipe</h1>
     <p className="mt-2 text-region-accent">{`${formaterDps(dps)} DPS · ${equipe.filter(Boolean).length} / ${reglages.equipe.taille}`}</p>
     </>}
-    {echange && <div role="status" className={`cadre mt-4 flex flex-wrap items-center gap-4 bg-surface p-4${telephone ? '' : ' bandeau-choix'}`}>
-      <p>Choisis le Pokémon à remplacer par {echange.nom}</p>
-      <button type="button" className="min-h-11 bg-surface-2 px-4 py-2"
-        onClick={() => storeJeu.getState().annulerEchange()}>Annuler</button>
-    </div>}
     {echange && erreur?.echange === echange && <p role="alert" className="mt-4 text-erreur-base">{erreur.message}</p>}
     {mode ? <div className={`cadre sticky top-0 z-10 flex items-center justify-between gap-4 bg-surface p-4${telephone ? '' : ' bandeau-choix'}`}>
       <p role="status">{mode.nom} ×{sac.entrees.find(e => e.id === mode.cle)?.quantite ?? 0} : touche un Pokémon</p>

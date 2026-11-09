@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type DragEvent } from 'react';
 import { useStore } from 'zustand';
 import { dpsPc, filtrerParAttributs, filtrerPc, trierPc, type TriPc } from '../core/pc';
 import { chargerPokemon } from '../core/pokemon';
@@ -29,6 +29,9 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
   const [fiche, ouvrir] = useState<string | null>(null);
   const [partenaire, selectionnerPartenaire] = useState<string | null>(null);
   const [ouvert, afficher] = useState(false);
+  const [deplacer, definirDeplacer] = useState(false);
+  const [glisse, glisser] = useState<string | null>(null);
+  const [survol, survoler] = useState<number | null>(null);
   const [erreur, signaler] = useState<{ message: string; echange: typeof echange } | null>(null);
   const declencheur = useRef<HTMLButtonElement>(null);
   const panneau = useRef<HTMLElement>(null);
@@ -43,13 +46,11 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
 
   useEffect(() => () => storeJeu.getState().annulerEchange(), []);
 
-  // Le mode échange déplace le focus sur « Annuler », puis le rend à l'action ou au titre.
-  const annuler = useRef<HTMLButtonElement>(null);
+  // Le mode échange (message dans les notifications) place le focus sur « Annuler » ; à sa fin, le focus revient à l'action ou au titre.
   const placer = useRef<HTMLButtonElement>(null);
   const titre = useRef<HTMLHeadingElement>(null);
   const echangeAvant = useRef(echange);
   useEffect(() => {
-    if (echange && !echangeAvant.current) annuler.current?.focus();
     if (!echange && echangeAvant.current) {
       const cible = panneau.current?.getClientRects().length ? placer.current : null;
       (cible ?? titre.current)?.focus();
@@ -63,11 +64,30 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
     afficher(true);
   }
 
+  // Mode « Déplacer » (PC seulement) : on glisse un Pokémon du PC sur une place de l'équipe.
+  // Place occupée : échange ; place libre : il entre dans l'équipe.
+  function deposer(index: number, event: DragEvent<HTMLElement>) {
+    event.preventDefault();
+    const uid = event.dataTransfer.getData('text/plain') || glisse;
+    survoler(null);
+    glisser(null);
+    if (!uid || !pc.some(p => p.uid === uid)) return;
+    const membre = equipe[index];
+    const message = membre ? storeJeu.getState().echanger(uid, membre.pokemon.uid) : storeJeu.getState().placerDansEquipe(uid);
+    signaler(message ? { message, echange } : null);
+  }
+  const cibleDepot = (index: number) => deplacer && !telephone ? {
+    onDragOver: (event: DragEvent<HTMLElement>) => { event.preventDefault(); survoler(index); },
+    onDragLeave: () => survoler(null),
+    onDrop: (event: DragEvent<HTMLElement>) => deposer(index, event),
+    'data-depot': glisse ? (survol === index ? 'actif' : 'possible') : undefined,
+  } : {};
+
   function places(mobile: boolean) {
     return Array.from({ length: 6 }, (_, index) => {
       const membre = equipe[index];
       const classe = mobile ? 'flex min-w-0 items-center gap-2 border border-bordure bg-surface text-left' : 'flex min-h-14 w-full items-center gap-2 bg-surface-2 text-left';
-      if (!membre) return <div key={index} className={telephone ? classe : `${classe} pc-libre`}>
+      if (!membre) return <div key={index} {...cibleDepot(index)} className={telephone ? classe : `${classe} pc-libre`}>
         <span className={mobile ? 'sr-only' : 'p-2 text-texte-doux'}>Emplacement libre</span>
       </div>;
       const { pokemon, dps } = membre;
@@ -79,7 +99,7 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
         </span>
       </>;
       return echange || !telephone ? <button key={index} type="button" aria-label={pokemon.oeuf ? `${nom}, ${progressionOeuf(pokemon.oeuf)}` : `${nom}, niveau ${pokemon.niveau}`}
-        aria-pressed={!telephone ? partenaire === pokemon.uid : undefined}
+        aria-pressed={!telephone ? partenaire === pokemon.uid : undefined} {...cibleDepot(index)}
         className={`${classe} hover:bg-selection`} onClick={() => {
           if (!echange) { selectionnerPartenaire(partenaire === pokemon.uid ? null : pokemon.uid); return; }
           const message = storeJeu.getState().echanger(echange.uid, pokemon.uid);
@@ -89,17 +109,10 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
   }
 
   return <section className={telephone ? 'mx-auto max-w-screen-xl text-base' : 'pc-pc text-base'}>
-    {retour && <button type="button" aria-label={libelleRetour} className="mb-4 min-h-11 bg-surface-2 px-4 py-2 hover:bg-selection" onClick={retour}>Retour</button>}
+    {retour && telephone && <button type="button" aria-label={libelleRetour} className="mb-4 min-h-11 bg-surface-2 px-4 py-2 hover:bg-selection" onClick={retour}>Retour</button>}
     <h1 ref={titre} tabIndex={-1} className="font-titre text-2xl font-semibold">PC de Léo</h1>
     {!accesPc.ouvert ? <p className="mt-4">{accesPc.raison}</p> : <>
       <p className="mt-2 text-region-accent">{liste.length < pc.length ? `${liste.length} sur ${pc.length}` : pc.length} Pokémon</p>
-      {echange && <div role="status" className={`cadre mt-4 flex flex-wrap items-center gap-4 bg-surface p-4 ${!telephone ? 'bandeau-choix' : ''}`}>
-        <p>Choisis le Pokémon à remplacer par {echange.nom}</p>
-        <button ref={annuler} type="button" className="min-h-11 bg-surface-2 px-4 py-2" onClick={() => {
-          storeJeu.getState().annulerEchange();
-          signaler(null);
-        }}>Annuler</button>
-      </div>}
       {telephone && echange && <div role="group" aria-label="Équipe mobile" className="mt-4 lg:hidden"><p>Ton équipe · {equipe.filter(Boolean).length} / 6</p><div className="grid grid-cols-2 gap-2">{places(true)}</div></div>}
       {erreur && erreur.echange === echange && <p role="alert" className="mt-4 text-erreur-base">{erreur.message}</p>}
       <div className={`mt-4 grid min-w-0 items-start gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]${telephone ? '' : ' pc-corps'}`}>
@@ -122,7 +135,12 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
                 const nom = nomDe(pokemon);
                 return <li key={pokemon.uid} className="min-w-0">
                   <button type="button" aria-label={pokemon.oeuf ? `${nom}, ${progressionOeuf(pokemon.oeuf)}` : `${nom}, niveau ${pokemon.niveau}`} aria-pressed={selection === pokemon.uid}
-                    className={`cadre flex overflow-hidden h-full min-h-11 w-full items-center gap-2 p-2 text-left lg:grid lg:grid-rows-[auto_1fr_auto] lg:justify-items-center lg:p-4 lg:text-center hover:bg-selection ${selection === pokemon.uid ? 'bg-selection' : 'bg-surface'}`}
+                    {...(deplacer && !telephone ? {
+                      draggable: true,
+                      onDragStart: (event: DragEvent<HTMLElement>) => { event.dataTransfer.setData('text/plain', pokemon.uid); event.dataTransfer.effectAllowed = 'move'; glisser(pokemon.uid); },
+                      onDragEnd: () => { glisser(null); survoler(null); },
+                    } : {})}
+                    className={`${deplacer && !telephone ? 'cursor-grab ' : ''}cadre flex overflow-hidden h-full min-h-11 w-full items-center gap-2 p-2 text-left lg:grid lg:grid-rows-[auto_1fr_auto] lg:justify-items-center lg:p-4 lg:text-center hover:bg-selection ${selection === pokemon.uid ? 'bg-selection' : 'bg-surface'}`}
                     onClick={event => {
                       choisir(pokemon.uid);
                       if (!telephone && partenaire) {
@@ -152,7 +170,12 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
             </ul>}
       </div>
       <aside ref={panneau} className="pc-panneau cadre sticky top-8 hidden min-w-0 space-y-4 overflow-y-auto overscroll-contain bg-surface p-4 lg:block">
-        <h2 className={`font-titre text-xl font-semibold${telephone ? '' : ' text-region-accent'}`}>{telephone ? 'Équipe' : 'Ton équipe'} · {equipe.filter(Boolean).length} / 6</h2>
+        <div className="sticky -top-4 z-10 -mx-4 -mt-4 flex flex-wrap items-center justify-between gap-2 bg-surface px-4 pt-4 pb-2">
+          <h2 className={`font-titre text-xl font-semibold${telephone ? '' : ' text-region-accent'}`}>{telephone ? 'Équipe' : 'Ton équipe'} · {equipe.filter(Boolean).length} / 6</h2>
+          {!telephone && <button type="button" aria-pressed={deplacer} title="Glisse un Pokémon du PC sur l'équipe"
+            className={`min-h-11 px-3 ${deplacer ? 'bg-selection' : 'bg-surface-2'}`}
+            onClick={() => { definirDeplacer(!deplacer); glisser(null); survoler(null); }}>Déplacer</button>}
+        </div>
         <div className={!telephone ? 'pc-places grid gap-2' : 'grid gap-2'}>{places(false)}</div>
         {telephone && (pokemon ? <>
           <Image src={spriteAffiche(pokemon)} genre="sprite" alt="" className={`mx-auto size-24 max-w-full ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(pokemon)}`} />
