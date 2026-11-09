@@ -1,7 +1,7 @@
-// Prépare les décors générés par IA (Gemini) : retire le logo de génération en bas à droite, met au format 16:9,
+// Prépare les décors générés par IA (ChatGPT) : met au format 16:9 (option --marge pour retirer un logo en bas à droite),
 // écrit le WebP dans public/img/decors/ et enregistre sa taille dans tailles.json.
-// Usage : déposer les images dans assets-src/decors-gemini/ sous le nom du lieu (ex. route-1.png), puis
-//   node scripts/preparer-decors-gemini.mjs [--marge 0.105] [--sources <dossier>] [--sorties <dossier>]
+// Usage : déposer les images dans assets-src/decors-chatgpt/ sous le nom du lieu (ex. route-1.png), puis
+//   node scripts/preparer-decors.mjs [--marge 0] [--sources <dossier>] [--sorties <dossier>]
 import { readFile, readdir, writeFile, mkdir } from 'node:fs/promises';
 import { basename, extname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -14,7 +14,7 @@ const EN_PLUS = ['route-de-ronflex'];
 
 /**
  * Fenêtre 16:9 ancrée en haut à gauche, après retrait d'une marge `marge` (part de la largeur et de la hauteur) à droite et en bas,
- * là où Gemini place son logo. Garde le plus grand 16:9 possible, centré dans la largeur restante.
+ * là où certains générateurs placent leur logo. Garde le plus grand 16:9 possible, centré dans la largeur restante.
  * @param {number} largeur @param {number} hauteur @param {number} marge
  */
 export function fenetre(largeur, hauteur, marge) {
@@ -30,12 +30,12 @@ export function fenetre(largeur, hauteur, marge) {
 
 async function preparer() {
   const { values } = parseArgs({ options: {
-    sources: { type: 'string' }, sorties: { type: 'string' }, marge: { type: 'string', default: '0.105' },
+    sources: { type: 'string' }, sorties: { type: 'string' }, marge: { type: 'string', default: '0' },
   } });
   const marge = Number(values.marge);
   if (!(marge >= 0 && marge < 0.3)) throw new Error('--marge doit être entre 0 et 0,3.');
   const { decor, dossiers } = JSON.parse(await readFile(join(racine, 'data/images.json'), 'utf8'));
-  const sources = resolve(racine, values.sources ?? 'assets-src/decors-gemini');
+  const sources = resolve(racine, values.sources ?? 'assets-src/decors-chatgpt');
   const sorties = resolve(racine, values.sorties ?? dossiers.sorties);
   const tailles = join(sorties, 'tailles.json');
   const zones = JSON.parse(await readFile(join(racine, 'data/regions/kanto/zones.json'), 'utf8'));

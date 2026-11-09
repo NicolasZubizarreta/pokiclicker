@@ -10,8 +10,8 @@ Décision de Nicolas (09/11) : tous les décors sont refaits dans le style de la
 
 ## Méthode
 1. Coller le prompt du décor dans ChatGPT et joindre la carte seule (pour le rendu). Aucune ancienne image de décor : chaque lieu est décrit d'après les jeux.
-2. Enregistrer l'image sous le nom du lieu dans `assets-src/decors-gemini/` (ex. `route-1.png`).
-3. `node scripts/preparer-decors-gemini.mjs --marge 0` : recadre en 16:9, écrit `public/img/decors/<nom>.webp` en 1920 × 1080 et met `tailles.json` à jour. Il refuse un nom inconnu ou une image de moins de 1920 px de large. Sans `--marge 0`, il retire 10,5 % à droite et en bas, là où Gemini place son logo.
+2. Enregistrer l'image sous le nom du lieu dans `assets-src/decors-chatgpt/` (ex. `route-1.png`).
+3. `node scripts/preparer-decors.mjs` : recadre en 16:9, écrit `public/img/decors/<nom>.webp` en 1920 × 1080 et met `tailles.json` à jour. Il refuse un nom inconnu ou une image de moins de 1920 px de large. Option `--marge 0.105` : retire 10,5 % à droite et en bas, pour une image qui aurait un logo (inutile avec ChatGPT).
 4. `tests/decors-formats.test.ts` garde le format. Pension livrée : la retirer de `SANS_DECOR_16_9`.
 
 ## À faire dans le code quand les images arrivent

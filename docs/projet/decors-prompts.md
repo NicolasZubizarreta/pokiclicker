@@ -2,7 +2,7 @@
 
 Un bloc par décor, à coller tel quel dans ChatGPT. Une seule image à joindre : la carte (`public/img/decors/carte-kanto.webp`), uniquement pour garder le même rendu. Aucune ancienne image de décor : chaque lieu est décrit d'après les jeux (Rouge, Bleu, Rouge Feu, Vert Feuille).
 
-Enregistrer chaque image sous le nom indiqué dans `assets-src/decors-gemini/`, puis `node scripts/preparer-decors-gemini.mjs --marge 0` (pas de logo à retirer avec ChatGPT). Avant de tout lancer, génère la Route 1 et vérifie la largeur de l'image : il en faut au moins 1920 px.
+Enregistrer chaque image sous le nom indiqué dans `assets-src/decors-chatgpt/`, puis `node scripts/preparer-decors.mjs` (pas de logo à retirer avec ChatGPT). Avant de tout lancer, génère la Route 1 et vérifie la largeur de l'image : il en faut au moins 1920 px.
 
 Les easter eggs sont tous validés par Nicolas (09/11). Les textes à l'intérieur des images sont à relire : ChatGPT peut se tromper d'orthographe, et un texte faux se refait.
 

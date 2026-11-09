@@ -5,9 +5,9 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
 import { afterEach, expect, it } from 'vitest';
-import { fenetre } from '../scripts/preparer-decors-gemini.mjs';
+import { fenetre } from '../scripts/preparer-decors.mjs';
 
-const script = fileURLToPath(new URL('../scripts/preparer-decors-gemini.mjs', import.meta.url));
+const script = fileURLToPath(new URL('../scripts/preparer-decors.mjs', import.meta.url));
 const temporaires: string[] = [];
 afterEach(async () => { for (const d of temporaires.splice(0)) await rm(d, { recursive: true, force: true }); });
 
