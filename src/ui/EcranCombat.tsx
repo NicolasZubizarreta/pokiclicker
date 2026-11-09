@@ -19,7 +19,6 @@ import { IconeShiny } from './IconeShiny';
 import { PastilleCapture, Sac as IconeSac } from './icones';
 import { DegatsFlottants } from './DegatsFlottants';
 import { GainsFlottants } from './GainsFlottants';
-import { DialogueChen } from './DialogueChen';
 import { ScenesBourgPalette } from './ScenesBourgPalette';
 import { SceneRonflex } from './SceneRonflex';
 import { PagePension } from './PagePension';
@@ -110,15 +109,18 @@ function Scene({ store, ouvrirPension }: { store: StoreJeu; ouvrirPension(): voi
   // Bourg Palette et le labo (retour de Chen) : scène carrée entière, jamais rognée, avec ses zones cliquables.
   // Le labo clignote sur sa « Sortie » (V1 : visitedLab && !hasExitedLab) et y ramène le joueur à Bourg Palette.
   const auLabo = lieu?.id === 'kanto.labo' && !zone && !ennemi;
-  if (lieu && (lieu.id === kanto.depart || auLabo)) return <div
-    className="scene-limitee scene-depart relative grid bg-surface-2 lg:grid-rows-[minmax(0,1fr)_auto] lg:col-span-3 lg:aspect-video lg:h-auto">
-    <div className="min-h-0 lg:[&>div]:h-full lg:[&_section]:grid lg:[&_section]:h-full lg:[&_section]:grid-rows-[minmax(0,1fr)_auto_auto] lg:[&_section>div]:h-full lg:[&_section>div]:w-auto lg:[&_section>div]:max-w-full lg:[&_section>div]:justify-self-center [&_section>p:not([role])]:sr-only">
-      <ScenesBourgPalette key={lieu.id} accesPension={accesPension} quandPension={ouvrirPension}
-        sceneInitiale={auLabo ? lieu.id : undefined} sortieLaboClignote={auLabo}
-        quandScene={auLabo ? id => { if (id === kanto.depart) store.getState().allerVers(id); } : undefined} />
-    </div>
-    {'message' in lieu && lieu.message && <p className="bg-surface p-2">{lieu.message}</p>}
-  </div>;
+  if (lieu && (lieu.id === kanto.depart || auLabo)) {
+    const scenes = <ScenesBourgPalette key={lieu.id} accesPension={accesPension} quandPension={ouvrirPension} remplir={!telephone}
+      sceneInitiale={auLabo ? lieu.id : undefined} sortieLaboClignote={auLabo}
+      quandScene={auLabo ? id => { if (id === kanto.depart) store.getState().allerVers(id); } : undefined} />;
+    const message = 'message' in lieu && lieu.message ? lieu.message : null;
+    // PC : la scène remplit toute la zone de gauche (le message devient un texte pour lecteurs d'écran, « Suivant » est dans la ligne de zone).
+    if (!telephone) return <div className="scene-limitee scene-depart relative bg-surface-2">{scenes}{message && <p className="sr-only">{message}</p>}</div>;
+    return <div className="scene-limitee scene-depart relative grid bg-surface-2">
+      <div className="min-h-0 [&_section>p:not([role])]:sr-only">{scenes}</div>
+      {message && <p className="bg-surface p-2">{message}</p>}
+    </div>;
+  }
   if (lieu?.id === 'kanto.route-de-ronflex' && !ennemi) return <SceneRonflex decor={cheminDecor(lieu)}
     commande={commande} possedeFlute={objetsCles.includes('pokeflute')} reussirSouffle={reussirSouffle} />;
   if (!zone && !ennemi && lieu) return <section aria-label={lieu.nom}
@@ -308,6 +310,7 @@ function Equipe({ store }: { store: StoreJeu }) {
 function CombatPC({ store, cadre, ouvrirPension }: { store: StoreJeu; cadre: RefObject<HTMLDivElement | null>; ouvrirPension(): void }) {
   const lieu = useStore(store, etat => etat.lieu);
   const etape = useStore(store, etat => etat.etape);
+  const zone = useStore(store, etat => etat.zone);
   const zonePrecedente = useStore(store, etat => etat.zonePrecedente);
   const zoneSuivante = useStore(store, etat => etat.zoneSuivante);
   const allerVers = useStore(store, etat => etat.allerVers);
@@ -321,14 +324,14 @@ function CombatPC({ store, cadre, ouvrirPension }: { store: StoreJeu; cadre: Ref
   return <div ref={cadre} className="combat-pc">
     <h1 className="sr-only">{lieu?.nom}</h1>
     <div className="combat-pc-gauche">
-      <ZoneLigne nom={lieu?.nom} etape={etape} precedente={zonePrecedente} suivante={zoneSuivante} aller={allerVers} />
+      <ZoneLigne nom={lieu?.nom} etape={zone ? etape : null} precedente={zonePrecedente} suivante={zoneSuivante} aller={allerVers} />
       <Scene store={store} ouvrirPension={ouvrirPension} />
       <ActionsTelephone store={store} />
     </div>
     <div className="combat-pc-droite">
       <section aria-label="Ton équipe" className="combat-pc-equipe cadre bg-surface p-2">
         <h2 className="font-titre text-xl flex justify-between">Ton équipe <span>{equipe.filter(Boolean).length} / 6</span></h2>
-        <ul className="min-h-0 overflow-y-auto grid gap-2">{equipe.map((membre, i) => <li key={membre?.pokemon.uid ?? i}><RangEquipe membre={membre}
+        <ul className="min-h-0 grid gap-2">{equipe.map((membre, i) => <li key={membre?.pokemon.uid ?? i}><RangEquipe membre={membre}
           evolution={membre ? evolutionProposee(membre.pokemon, entrees) : null}
           animation={evolution?.uid === membre?.pokemon.uid ? evolution : null}
           ouvrirFiche={bouton => { if (!membre) return; declencheur.current = bouton; ouvrirFiche(ancienne => ({ uid: membre.pokemon.uid, ouverture: (ancienne?.ouverture ?? 0) + 1 })); afficher(true); }} /></li>)}</ul>
@@ -350,6 +353,7 @@ export function EcranCombat({ store = storeJeu }: { store?: StoreJeu }) {
   const sceneRonflex = useStore(store, etat => etat.lieu?.id === 'kanto.route-de-ronflex' && !etat.ennemi);
   const telephone = useTelephone();
   const combatActif = useStore(store, etat => !!etat.zone && !!etat.ennemi);
+  const horsZone = useStore(store, etat => !etat.zone && !!etat.lieu);
   useEffect(() => {
     if (!pensionOuverte && rendreFocus.current) {
       cadre.current?.querySelector<HTMLButtonElement>('button[aria-label="Pension Pokémon"]')?.focus();
@@ -360,7 +364,7 @@ export function EcranCombat({ store = storeJeu }: { store?: StoreJeu }) {
     rendreFocus.current = true;
     ouvrirPension(false);
   }} />;
-  if (!telephone && combatActif && !fatale) return <>
+  if (!telephone && (combatActif || (horsZone && !sceneRonflex)) && !fatale) return <>
     {erreur && <div role="alert" className="cadre bg-surface p-4"><p>{erreur.split('\n')[0]}</p></div>}
     <CombatPC store={store} cadre={cadre} ouvrirPension={() => ouvrirPension(true)} />
   </>;
@@ -374,7 +378,7 @@ export function EcranCombat({ store = storeJeu }: { store?: StoreJeu }) {
       <Entete store={store} /><div className={`${sceneRonflex ? '' : `combat-grille${telephone ? ' combat-grille-tel' : ''}`} grid gap-2 lg:contents`}>
         <Scene store={store} ouvrirPension={() => ouvrirPension(true)} />
         {telephone && <ActionsTelephone store={store} />}
-        <Equipe store={store} />{!telephone && <DialogueChen store={store} />}
+        <Equipe store={store} />
       </div></div>}
   </div>;
 }

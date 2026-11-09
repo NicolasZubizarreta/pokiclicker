@@ -21,8 +21,11 @@ it('réserve les deux panneaux PC au combat actif', () => {
   expect(container.querySelectorAll('.combat-pc')).toHaveLength(1);
   expect(screen.getByRole('region', { name: 'Ton équipe' })).toBeTruthy();
   expect(screen.getByRole('region', { name: 'Effets actifs' })).toBeTruthy();
+  // Bourg Palette garde la même mise en page PC (ligne de zone, scène pleine, équipe, effets), sans les boutons de combat.
   act(() => store.getState().allerVers('kanto.bourg-palette'));
-  expect(container.querySelector('.combat-pc')).toBeNull();
+  expect(container.querySelectorAll('.combat-pc')).toHaveLength(1);
+  expect(screen.getByRole('region', { name: 'Effets actifs' })).toBeTruthy();
+  expect(screen.queryByRole('button', { name: 'Capturer' })).toBeNull();
 });
 it('précharge le chromatique courant et garde ses deux couches sur chaque taille', () => {
   const precharger = vi.spyOn(chargement, 'precharger').mockResolvedValue({ charges: 1, echecs: 0 });
@@ -534,10 +537,7 @@ it('permet de choisir les destinations ouvertes', () => {
   expect(screen.queryByText(/terminée !/)).toBeNull();
   expect(screen.queryByText('La suite arrive bientôt.')).toBeNull();
   act(() => store.setState({ zonePrecedente: null, zoneSuivante: null }));
-  for (const bouton of screen.getAllByRole('button', { name: /^Zone / })) {
-    expect(bouton.getAttribute('aria-disabled')).toBe('true');
-    fireEvent.click(bouton);
-  }
+  expect(screen.queryAllByRole('button', { name: /^Zone / })).toHaveLength(0);
   expect(allerVers).toHaveBeenCalledTimes(2);
   expect(screen.queryByText('La suite arrive bientôt.')).toBeNull();
 });
@@ -558,7 +558,6 @@ it('affiche le lieu sans combat, son décor et son message en gardant l’équip
   expect(zone).toBeNull();
   expect(ennemi).toBeNull();
   expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(lieu!.nom);
-  expect(within(screen.getByRole('banner')).getByText(lieu!.nom, { selector: 'p' })).toBeTruthy();
   expect(screen.getByText(('message' in lieu! ? lieu.message : undefined)!)).toBeTruthy();
   expect(container.querySelector('img[src="img/decors/bourg-palette.webp"]')).not.toBeNull();
   expect(screen.queryByRole('button', { name: /^Attaquer/ })).toBeNull();
@@ -566,7 +565,12 @@ it('affiche le lieu sans combat, son décor et son message en gardant l’équip
   expect(screen.queryByText(/Étape .* sur 10/)).toBeNull();
   expect(screen.getByRole('region', { name: 'Ton équipe' })).toBeTruthy();
   expect(screen.getAllByRole('progressbar', { name: /^XP de / })).toHaveLength(3);
-  expect(screen.getByText('Choisis une zone pour partir à l’aventure.')).toBeTruthy();
+  // Plus de bloc « Prof. Chen » : « Suivant » (avec le nom de la zone) est dans la ligne de zone, sans « Précédent » ni 1/10.
+  expect(screen.queryByText('Choisis une zone pour partir à l’aventure.')).toBeNull();
+  expect(screen.getAllByText(lieu!.nom, { selector: 'strong' })).toHaveLength(1);
+  expect(screen.getByRole('button', { name: /^Zone suivante : / }).textContent).toBe(`Suivant : ${store.getState().zoneSuivante!.nom}`);
+  expect(screen.queryByRole('button', { name: /^Zone précédente/ })).toBeNull();
+  expect(screen.queryByText(/\/10$/)).toBeNull();
   expect(screen.queryByText('La suite arrive bientôt.')).toBeNull();
 });
 it('affiche une erreur française sans toucher au stockage corrompu', () => {

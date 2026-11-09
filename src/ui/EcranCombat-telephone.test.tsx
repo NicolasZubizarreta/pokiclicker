@@ -88,7 +88,7 @@ it('PC : reprend les actions du téléphone sans dialogue de Chen', () => {
 it('bandeau : la ligne de zone n’existe que dans le combat sur téléphone', () => {
   ecran(true);
   const { rerender } = render(<BandeauHaut combat />);
-  expect(screen.getAllByRole('button', { name: /^Zone (précédente|suivante)/ }).length).toBe(2);
+  expect(document.querySelector('.zone-ligne')).not.toBeNull();
   rerender(<BandeauHaut />);
-  expect(screen.queryByRole('button', { name: /^Zone (précédente|suivante)/ })).toBeNull();
+  expect(document.querySelector('.zone-ligne')).toBeNull();
 });

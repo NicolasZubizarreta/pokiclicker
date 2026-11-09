@@ -50,15 +50,14 @@ test('Chez Blue : la sortie en losange ne réagit qu’à l’intérieur du losa
   await expect(sortie).toBeVisible({ timeout: 20_000 });
   const boite = (await sortie.boundingBox())!;
   const repere = page.locator('[data-repere="Sortie"]');
-  // Coin de la boîte englobante : hors du losange, donc aucun repère et aucun cadre.
-  await page.mouse.move(boite.x + 3, boite.y + 3);
+  // Hors de la zone (le tapis est maintenant un rectangle posé précisément dessus) : aucun repère et aucun cadre.
+  await page.mouse.move(boite.x - 12, boite.y - 12);
   await expect(repere).toHaveCount(0);
   expect(await sortie.evaluate(e => getComputedStyle(e).outlineStyle)).toBe('none');
-  // Centre du losange : le voile apparaît, de la forme exacte du polygone (quatre points, pas un rectangle).
+  // Centre de la zone : le voile apparaît, dans la forme exacte du tapis.
   await page.mouse.move(boite.x + boite.width / 2, boite.y + boite.height / 2);
   await expect(repere).toHaveCount(1);
-  expect(await repere.evaluate(e => e.tagName.toLowerCase())).toBe('polygon');
-  expect(await repere.evaluate(e => e.getAttribute('points')!.trim().split(/\s+/).length)).toBe(4);
+  expect(['rect', 'polygon']).toContain(await repere.evaluate(e => e.tagName.toLowerCase()));
   await page.screenshot({ path: 'test-results/survol-losange.png' });
   // Clavier : contour fin dans la forme, aucun rectangle autour du bouton.
   await page.mouse.move(5, 5);

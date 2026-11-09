@@ -160,8 +160,28 @@ test('PC (ordinateur) : pas de bouton Retour, équipe alignée, Déplacer glisse
   await grille(page).getByRole('button').first().dragTo(page.locator('aside').getByRole('button').first());
   await expect(page.getByRole('status').filter({ hasText: 'Choisis le Pokémon à remplacer par' })).toHaveCount(0);
   expect(Math.abs(avant - await haut(grille(page)))).toBeLessThanOrEqual(1);
+  // Les six places de l'équipe sont toujours visibles, sans défilement dans le panneau.
+  const panneau = (await page.locator('.pc-panneau').boundingBox())!;
+  expect(await page.locator('.pc-panneau').evaluate(el => el.scrollHeight <= el.clientHeight + 1)).toBe(true);
+  for (const place of await page.locator('.pc-places > *').all()) {
+    const boite = (await place.boundingBox())!;
+    expect(boite.y).toBeGreaterThanOrEqual(panneau.y);
+    expect(boite.y + boite.height).toBeLessThanOrEqual(panneau.y + panneau.height + 1);
+  }
+  // Le bouton Déplacer est à côté du compteur, pas dans la zone équipe.
+  expect(await page.locator('.pc-panneau').getByRole('button', { name: 'Déplacer' }).count()).toBe(0);
   await mkdir('design/captures', { recursive: true });
   await page.screenshot({ path: 'design/captures/i-pc-deplacer-1440.png', animations: 'disabled' });
+  // Sens inverse : de l'équipe vers le PC, jusqu'au dernier Pokémon, qui reste.
+  const places = page.locator('.pc-places button');
+  const nombre = await places.count();
+  const dansPc = Number((await page.locator('.pc-compteur p').innerText()).split(' ')[0]);
+  for (let i = 1; i < nombre; i++) await places.first().dragTo(grille(page));
+  await expect(places).toHaveCount(1);
+  await expect(page.getByText(`${dansPc + nombre - 1} Pokémon`)).toBeVisible();
+  await places.first().dragTo(grille(page));
+  await expect(places).toHaveCount(1);
+  await expect(page.getByText("C'est ton dernier Pokémon")).toBeVisible();
 });
 
 test('Pokédex : 151 cases et compteur des starters', async ({ page }, informations) => {

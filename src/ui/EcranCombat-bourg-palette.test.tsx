@@ -19,8 +19,9 @@ it('intègre les visites à Bourg Palette, garde Chen dessous et une seule phras
     render(<EcranCombat store={store} />);
     const image = screen.getByRole('img', { name: 'Bourg Palette' });
     expect(image.getAttribute('src')).toBe('img/decors/bourg-palette.webp');
-    const chen = screen.getByRole('complementary', { name: 'Dialogue' });
-    expect(image.compareDocumentPosition(chen) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    // Plus de bloc « Prof. Chen » sous la scène : la navigation de zone est en haut.
+    expect(screen.queryByRole('complementary', { name: 'Dialogue' })).toBeNull();
+    expect(screen.getByRole('button', { name: /^Zone suivante : / })).toBeTruthy();
     fireEvent.focus(screen.getByRole('button', { name: 'Pension Pokémon' }));
     expect(screen.getByRole('status').textContent).toContain('Tour Pokémon');
     // Une annonce du jeu n'écrase plus la phrase d'état du lieu : elle s'affiche dans le calque de notifications.

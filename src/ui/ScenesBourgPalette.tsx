@@ -27,9 +27,10 @@ type Props = {
   quandPension?: () => void;
   sceneInitiale?: string;
   bloquee?: boolean;
+  remplir?: boolean;
 };
 
-export function ScenesBourgPalette({ laboAVisiter = false, sortieLaboClignote = false, quandLabo, quandSortieLabo, quandScene, accesPension = accesPensionParDefaut, quandPension, sceneInitiale = bourg, bloquee = false }: Props) {
+export function ScenesBourgPalette({ laboAVisiter = false, sortieLaboClignote = false, quandLabo, quandSortieLabo, quandScene, accesPension = accesPensionParDefaut, quandPension, sceneInitiale = bourg, bloquee = false, remplir = false }: Props) {
   const [courante, changerScene] = useState(sceneInitiale);
   const [phase, changerPhase] = useState<'repos' | 'couvrir' | 'decouvrir'>('repos');
   const [sortieVue, noterSortie] = useState(false);
@@ -73,8 +74,8 @@ export function ScenesBourgPalette({ laboAVisiter = false, sortieLaboClignote = 
   const clignotements = courante === bourg ? laboAVisiter ? ['kanto.labo'] : []
     : courante !== 'kanto.labo' || (sortieLaboClignote && !sortieVue) ? [bourg] : [];
 
-  return <div ref={cadre} className="relative">
-    <SceneLieu key={courante} scene={scene} nom={noms[courante]!} quandChoisir={choisir}
+  return <div ref={cadre} className={remplir ? 'absolute inset-0' : 'relative'}>
+    <SceneLieu key={courante} scene={scene} nom={noms[courante]!} quandChoisir={choisir} remplir={remplir}
       raisons={raisons} clignotements={clignotements} occupe={phase !== 'repos' || bloquee} />
     <div data-voile aria-hidden="true" className={`pointer-events-none absolute inset-0 bg-texte motion-safe:intro-voile ${phase === 'couvrir' ? 'opacity-100' : 'opacity-0'}`} />
   </div>;

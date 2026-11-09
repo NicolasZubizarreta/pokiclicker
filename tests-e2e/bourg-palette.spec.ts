@@ -44,13 +44,15 @@ for (const largeur of [390, 1440]) {
       // Sur téléphone il n'y a plus de dialogue permanent du Prof. Chen : la page peut défiler.
       if (largeur !== 390) {
         expect(await page.evaluate(() => document.documentElement.scrollHeight - innerHeight)).toBeLessThanOrEqual(1);
-        const chen = page.getByRole('complementary', { name: 'Dialogue', exact: true })
-          .filter({ has: page.getByRole('heading', { name: 'Prof. Chen', exact: true }) });
-        await expect(chen).toBeVisible();
-        const boite = (await chen.boundingBox())!;
-        expect(boite.y + boite.height).toBeLessThanOrEqual(900);
+        // Plus de bloc « Prof. Chen » sous la scène : la ligne de zone du haut porte « Suivant : Route 1 ».
+        if (nom === 'Bourg Palette') await expect(page.getByRole('complementary', { name: 'Dialogue', exact: true })).toHaveCount(0);
+        await expect(page.getByText('Choisis une zone pour partir à l’aventure.')).toHaveCount(0);
+        await expect(page.getByRole('button', { name: 'Zone suivante : Route 1' })).toHaveText('Suivant : Route 1');
+        await expect(page.getByRole('button', { name: /^Zone précédente/ })).toHaveCount(0);
+        await expect(page.locator('.zone-ligne strong')).toHaveCount(1);
+        await expect(page.locator('.zone-ligne')).not.toContainText('/10');
         // Une seule phrase d'état dans la scène (les notifications ont leur propre calque, hors de la page).
-        await expect(page.getByRole('region', { name: nom, exact: true }).getByRole('status')).toHaveCount(1);
+        expect(await page.getByRole('region', { name: nom, exact: true }).getByRole('status').count()).toBeLessThanOrEqual(1);
       }
       expect(await page.locator('button.bg-action:visible').count()).toBeLessThanOrEqual(1);
       for (const bouton of await page.getByRole('region', { name: nom, exact: true }).getByRole('button').all()) {

@@ -17,9 +17,11 @@ type Props = {
   raisons?: Record<string, string>;
   clignotements?: string[];
   occupe?: boolean;
+  /** PC : l'image remplit tout son conteneur (jamais de bande), les bords dépassants sont rognés ; textes en calques. */
+  remplir?: boolean;
 };
 
-export function SceneLieu({ scene, nom, quandChoisir, raisons = {}, clignotements = [], occupe = false }: Props) {
+export function SceneLieu({ scene, nom, quandChoisir, raisons = {}, clignotements = [], occupe = false, remplir = false }: Props) {
   const [annonce, annoncer] = useState('');
   const [teleAllumee, allumer] = useState(false);
   // Repère de la zone (survol souris ou focus clavier) : il épouse la forme exacte du polygone, jamais sa boîte englobante.
@@ -37,7 +39,10 @@ export function SceneLieu({ scene, nom, quandChoisir, raisons = {}, clignotement
   }
   const video = useRef<HTMLVideoElement>(null);
   const id = useId();
-  const dimensions = { aspectRatio: String(ratioUtile(scene)) };
+  const ratio = ratioUtile(scene);
+  const dimensions = remplir
+    ? { width: `max(100cqw, calc(100cqh * ${ratio}))`, height: `max(100cqh, calc(100cqw / ${ratio}))` }
+    : { aspectRatio: String(ratio) };
   // L'image entière est posée dans une couche plus grande que le cadre : seule la partie utile reste visible, sans étirement.
   const utile = partieUtile(scene);
   const couche = {
@@ -59,8 +64,8 @@ export function SceneLieu({ scene, nom, quandChoisir, raisons = {}, clignotement
     }
     allumer(!teleAllumee);
   }
-  return <section aria-label={nom} className="text-base">
-    <div className="relative w-full overflow-clip" style={dimensions}>
+  return <section aria-label={nom} className={remplir ? 'absolute inset-0 overflow-clip text-base [container-type:size]' : 'text-base'}>
+    <div className={remplir ? 'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2' : 'relative w-full overflow-clip'} style={dimensions}>
       <div className="absolute" style={couche}>
       <img src={`img/${scene.image}`} alt={nom} className="absolute inset-0 h-full w-full object-contain" />
       {scene.tele && <video ref={video} src={scene.tele.video} muted playsInline preload="metadata" aria-hidden="true" hidden={!teleAllumee}
@@ -102,11 +107,11 @@ export function SceneLieu({ scene, nom, quandChoisir, raisons = {}, clignotement
         className="absolute min-h-11 min-w-11 -translate-x-1/2 -translate-y-1/2 bg-transparent focus-visible:outline-focus" />}
       </div>
     </div>
-    <p role="status" aria-live="polite" className="min-h-11 bg-surface p-2">{annonce}</p>
-    {scene.bulle && <aside aria-label="Dialogue" className="cadre bg-surface p-4">{scene.bulle}</aside>}
+    <p role="status" aria-live="polite" className={remplir ? 'pointer-events-none absolute top-2 left-2 z-10 cadre bg-surface/90 p-2 empty:hidden' : 'min-h-11 bg-surface p-2'}>{annonce}</p>
+    {scene.bulle && <aside aria-label="Dialogue" className={remplir ? 'pointer-events-none absolute top-4 left-1/2 z-10 -translate-x-1/2 cadre bg-surface/90 p-3' : 'cadre bg-surface p-4'}>{scene.bulle}</aside>}
     {scene.formes.map((f, index) => {
       const raison = f.zone ? raisons[f.zone] : 'Bientôt disponible.';
-      return raison && <p key={f.nom} id={`${id}-${index}`} className="text-texte-doux">{f.nom} : {raison}</p>;
+      return raison && <p key={f.nom} id={`${id}-${index}`} className={remplir ? 'sr-only' : 'text-texte-doux'}>{f.nom} : {raison}</p>;
     })}
   </section>;
 }

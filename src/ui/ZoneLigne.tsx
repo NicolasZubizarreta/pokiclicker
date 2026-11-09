@@ -3,8 +3,13 @@ import { reglages } from '../core/reglages';
 import type { Destination } from './store';
 import './ZoneLigne.css';
 
-// `etape` est null hors d'une zone de combat (labo, Bourg Palette) : la ligne ne garde alors que les deux flèches.
+// `etape` est null hors d'une zone de combat (labo, Bourg Palette) : la ligne ne garde alors que le titre et les boutons,
+// et « Suivant » nomme la zone où il mène. Sans destination, le bouton n'est pas affiché.
 type Props = { nom?: string; etape: number | null; precedente: Destination | null; suivante: Destination | null; aller(zoneId: string): void };
+
+function Chevron() {
+  return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>;
+}
 
 export function ZoneLigne({ nom, etape, precedente, suivante, aller }: Props) {
   const [raison, annoncer] = useState<string | null>(null);
@@ -26,10 +31,10 @@ export function ZoneLigne({ nom, etape, precedente, suivante, aller }: Props) {
 
   return (
     <div className="zone-ligne">
-      <button type="button" className="zone-nav zone-nav-precedente" aria-label={`Zone précédente${precedente ? ` : ${precedente.nom}` : ''}`} aria-disabled={!precedente?.ouverte} onClick={() => naviguer(precedente)}>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
-      </button>
-      {nom && <strong className="font-titre text-lg">{nom}</strong>}
+      {precedente && <button type="button" className="zone-nav zone-nav-precedente" aria-label={`Zone précédente : ${precedente.nom}`} aria-disabled={!precedente.ouverte} onClick={() => naviguer(precedente)}>
+        <Chevron /><span>Précédent</span>
+      </button>}
+      {nom && <strong className="zone-titre font-titre text-lg">{nom}</strong>}
       <div className="zone-etapes">
         {etape !== null && <>
           <div className="zone-marques">
@@ -38,13 +43,13 @@ export function ZoneLigne({ nom, etape, precedente, suivante, aller }: Props) {
               return <span key={numero} aria-hidden="true" className={`zone-marque${numero < etape ? ' zone-marque-passee' : ''}${numero === etape ? ' zone-marque-courante' : ''}${numero === 10 ? ' zone-marque-boss' : ''}`} />;
             })}
           </div>
-          <span className="text-sm text-texte-doux">{etape}/10</span>
+          <span className="zone-etape-texte text-sm text-texte-doux">{etape}/10</span>
           <span className="sr-only">Étape {etape} sur 10</span>
         </>}
       </div>
-      <button type="button" className="zone-nav zone-nav-suivante" aria-label={`Zone suivante${suivante ? ` : ${suivante.nom}` : ''}`} aria-disabled={!suivante?.ouverte} onClick={() => naviguer(suivante)}>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
-      </button>
+      {suivante && <button type="button" className="zone-nav zone-nav-suivante" aria-label={`Zone suivante : ${suivante.nom}`} aria-disabled={!suivante.ouverte} onClick={() => naviguer(suivante)}>
+        <span>Suivant{etape === null ? ` : ${suivante.nom}` : ''}</span><Chevron />
+      </button>}
       {raison !== null && <p role="status" className="zone-raison cadre">{raison}</p>}
     </div>
   );

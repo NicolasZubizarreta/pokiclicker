@@ -38,15 +38,23 @@ describe('ZoneLigne', () => {
     expect(screen.queryByRole('status')).toBeNull();
   });
 
-  it('désactive les boutons sans destination et sans nom de zone', () => {
-    const aller = vi.fn();
-    render(<ZoneLigne etape={3} precedente={null} suivante={null} aller={aller} />);
-    for (const name of ['Zone précédente', 'Zone suivante']) {
-      const bouton = screen.getByRole('button', { name });
-      expect(bouton.getAttribute('aria-disabled')).toBe('true');
-      fireEvent.click(bouton);
-    }
-    expect(aller).not.toHaveBeenCalled();
-    expect(screen.queryByRole('status')).toBeNull();
+  it('n’affiche pas de bouton sans destination', () => {
+    render(<ZoneLigne etape={3} precedente={null} suivante={null} aller={vi.fn()} />);
+    expect(screen.queryAllByRole('button')).toHaveLength(0);
+  });
+
+  it('montre des boutons Précédent et Suivant lisibles, sans nom de zone en combat', () => {
+    render(<ZoneLigne etape={3} precedente={precedente} suivante={suivante} aller={vi.fn()} />);
+    expect(screen.getByRole('button', { name: 'Zone précédente : Bois' }).textContent).toBe('Précédent');
+    expect(screen.getByRole('button', { name: 'Zone suivante : Mont' }).textContent).toBe('Suivant');
+  });
+
+  it('hors zone de combat (Bourg Palette) : seulement Suivant, avec le nom de la zone, sans marques ni 1/10', () => {
+    const { container } = render(<ZoneLigne nom="Bourg Palette" etape={null} precedente={null} suivante={{ ...suivante, nom: 'Route 1' }} aller={vi.fn()} />);
+    expect(screen.getAllByText('Bourg Palette')).toHaveLength(1);
+    expect(screen.getByRole('button', { name: 'Zone suivante : Route 1' }).textContent).toBe('Suivant : Route 1');
+    expect(screen.queryByRole('button', { name: /précédente/ })).toBeNull();
+    expect(container.querySelector('.zone-marques')).toBeNull();
+    expect(screen.queryByText(/\/10/)).toBeNull();
   });
 });
