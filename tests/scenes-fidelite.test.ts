@@ -1,41 +1,24 @@
-import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import donnees from '../data/regions/kanto/scenes.json';
 import { chargerScenes } from '../src/core/scenes';
 
-const lignes = readFileSync('legacy/js/ui/update.js', 'utf8').split(/\r?\n/);
-
 describe('scènes fidèles à la V1', () => {
-  it('recalcule chaque rectangle et chaque sommet depuis les pixels V1', () => {
+  it('garde les zones cliquables de la V1 (une par lieu), toutes à l\'intérieur de l\'image 16:9', () => {
     const scenes = chargerScenes().filter(scene => scene.id !== 'kanto.route-de-ronflex');
-    const sources = [
-      ['kanto.chez-maman', 0, 314, 1166, 656, -17],
-      ['kanto.labo', 0, 334, 2048, 2048, 0],
-      ['kanto.chez-blue', 0, 362, 1230, 692, 88],
-      ['kanto.bourg-palette', 0, 447, 2048, 2048, 0],
-      ['kanto.bourg-palette', 1, 450, 2048, 2048, 0],
-      ['kanto.bourg-palette', 2, 453, 2048, 2048, 0],
-      ['kanto.bourg-palette', 3, 460, 2048, 2048, 0],
-      ['kanto.bourg-palette', 4, 437, 2048, 2048, 0],
-    ] as const;
     expect(scenes).toHaveLength(4);
-    expect(scenes.reduce((total, scene) => total + scene.formes.length, 0)).toBe(sources.length);
-    for (const [id, index, ligne, largeur, hauteur, decalage] of sources) {
-      const forme = scenes.find(scene => scene.id === id)!.formes[index]!;
-      const source = lignes[ligne - 1]!;
-      if (forme.forme === 'rect') {
-        const pixels = (attribut: string) => Number(source.match(new RegExp(` ${attribut}="(\\d+)"`))![1]);
-        expect(forme.x).toBeCloseTo((pixels('x') + decalage) / largeur, 9);
-        expect(forme.y).toBeCloseTo(pixels('y') / hauteur, 9);
-        expect(forme.l).toBeCloseTo(pixels('width') / largeur, 9);
-        expect(forme.h).toBeCloseTo(pixels('height') / hauteur, 9);
-      } else {
-        const points = source.match(/points="([^"]+)"/)![1]!.split(' ').map(point => point.split(',').map(Number));
-        expect(forme.points).toHaveLength(points.length);
-        points.forEach(([x, y], i) => {
-          expect(forme.points[i]![0]).toBeCloseTo((x! + decalage) / largeur, 9);
-          expect(forme.points[i]![1]).toBeCloseTo(y! / hauteur, 9);
-        });
+    expect(scenes.map(scene => scene.formes.length)).toEqual([5, 1, 1, 1]);
+    for (const scene of scenes) {
+      for (const forme of scene.formes) {
+        const points = forme.forme === 'rect'
+          ? [[forme.x, forme.y], [forme.x + forme.l, forme.y + forme.h]]
+          : forme.points;
+        for (const [x, y] of points) {
+          const nom = `${scene.id} ${forme.nom}`;
+          expect(x, nom).toBeGreaterThanOrEqual(0);
+          expect(x, nom).toBeLessThanOrEqual(1);
+          expect(y, nom).toBeGreaterThanOrEqual(0);
+          expect(y, nom).toBeLessThanOrEqual(1);
+        }
       }
     }
   });
@@ -43,10 +26,10 @@ describe('scènes fidèles à la V1', () => {
   it('conserve les images, ratios, bulles et destinations', () => {
     const scenes = chargerScenes().filter(scene => scene.id !== 'kanto.route-de-ronflex');
     expect(scenes.map(scene => [scene.id, scene.image, scene.ratio])).toEqual([
-      ['kanto.bourg-palette', 'scenes/bourg-palette.webp', [1, 1]],
+      ['kanto.bourg-palette', 'decors/bourg-palette.webp', [16, 9]],
       ['kanto.chez-maman', 'decors/chez-maman.webp', [16, 9]],
       ['kanto.chez-blue', 'decors/chez-blue.webp', [16, 9]],
-      ['kanto.labo', 'scenes/labo.webp', [1, 1]],
+      ['kanto.labo', 'decors/labo.webp', [16, 9]],
     ]);
     expect(scenes[1]!.bulle).toBe("Il n'y a rien à faire ici, sortons.");
     expect(scenes[2]!.bulle).toBe('Eh pourquoi il a le droit à une maison en 3D lui ?');

@@ -3,53 +3,50 @@
   "scenes": [
     {
       "id": "kanto.bourg-palette",
-      "image": "scenes/bourg-palette.webp",
-      "ratio": [1, 1],
+      "image": "decors/bourg-palette.webp",
+      "ratio": [16, 9],
       "formes": [
-        { "zone": "kanto.chez-maman", "nom": "Chez Maman", "teinte": "red", "forme": "rect", "x": 0.1103515625, "y": 0.33740234375, "l": 0.03955078125, "h": 0.04248046875 },
-        { "zone": "kanto.chez-blue", "nom": "Chez Blue", "teinte": "blue", "forme": "rect", "x": 0.32568359375, "y": 0.337890625, "l": 0.0390625, "h": 0.04150390625 },
-        { "zone": "kanto.pension", "nom": "Pension Pokémon", "teinte": "gray", "forme": "rect", "x": 0.19140625, "y": 0.63134765625, "l": 0.0400390625, "h": 0.04443359375 },
-        { "zone": "kanto.labo", "nom": "Labo Pokémon du Prof. Chen", "teinte": "green", "forme": "rect", "x": 0.64794921875, "y": 0.408203125, "l": 0.046875, "h": 0.046875 },
-        { "zone": null, "nom": "Bateau en direction de Johto", "teinte": "gray", "forme": "rect", "x": 0.3115234375, "y": 0.8818359375, "l": 0.1123046875, "h": 0.11669921875 }
+        { "zone": "kanto.chez-maman", "nom": "Chez Maman", "teinte": "red", "forme": "rect", "x": 0.2161, "y": 0.162, "l": 0.1135, "h": 0.2065 },
+        { "zone": "kanto.chez-blue", "nom": "Chez Blue", "teinte": "blue", "forme": "rect", "x": 0.3568, "y": 0.162, "l": 0.1214, "h": 0.2065 },
+        { "zone": "kanto.pension", "nom": "Pension Pokémon", "teinte": "gray", "forme": "rect", "x": 0.2542, "y": 0.474, "l": 0.1354, "h": 0.185 },
+        { "zone": "kanto.labo", "nom": "Labo Pokémon du Prof. Chen", "teinte": "green", "forme": "rect", "x": 0.5156, "y": 0.2056, "l": 0.263, "h": 0.237 },
+        { "zone": null, "nom": "Bateau en direction de Johto", "teinte": "gray", "forme": "rect", "x": 0.501, "y": 0.768, "l": 0.254, "h": 0.176 }
       ]
     },
     {
       "id": "kanto.chez-maman",
       "image": "decors/chez-maman.webp",
       "ratio": [16, 9],
-      "recadrage": { "x": 0, "y": 0, "l": 0.9766, "h": 0.9787 },
       "bulle": "Il n'y a rien à faire ici, sortons.",
       "tele": {
         "video": "img/easter-eggs/daran.mp4",
-        "ecran": { "x": 0.0990840965861782, "y": 0.1585365853658537, "l": 0.1248959200666112, "h": 0.1143292682926829 },
-        "bouton": { "x": 0.2173189009159034, "y": 0.2759146341463415, "l": 0.0066611157368859, "h": 0.0106707317073171 }
+        "ecran": { "x": 0.35, "y": 0.259, "l": 0.0552, "h": 0.0722 },
+        "bouton": { "x": 0.372, "y": 0.29, "l": 0.01, "h": 0.012 }
       },
       "formes": [
-        { "zone": "kanto.bourg-palette", "nom": "Sortie", "teinte": "green", "forme": "rect", "x": 0.2281303602058319, "y": 0.8704268292682927, "l": 0.12006861063464837, "h": 0.10823170731707317 }
+        { "zone": "kanto.bourg-palette", "nom": "Sortie", "teinte": "green", "forme": "rect", "x": 0.398, "y": 0.75, "l": 0.2, "h": 0.25 }
       ]
     },
     {
       "id": "kanto.chez-blue",
       "image": "decors/chez-blue.webp",
       "ratio": [16, 9],
-      "recadrage": { "x": 0.1302, "y": 0.0222, "l": 0.5995, "h": 0.9676 },
       "bulle": "Eh pourquoi il a le droit à une maison en 3D lui ?",
       "formes": [
-        { "zone": "kanto.bourg-palette", "nom": "Sortie", "teinte": "green", "forme": "polygone", "points": [[0.23821138211382115, 0.8265895953757225], [0.1975609756097561, 0.8627167630057804], [0.26260162601626014, 0.9277456647398844], [0.3016260162601626, 0.8872832369942196]] }
+        { "zone": "kanto.bourg-palette", "nom": "Sortie", "teinte": "green", "forme": "rect", "x": 0.4, "y": 0.75, "l": 0.2, "h": 0.25 }
       ]
     },
     {
       "id": "kanto.labo",
-      "image": "scenes/labo.webp",
-      "ratio": [1, 1],
-      "recadrage": { "x": 0, "y": 0, "l": 1, "h": 0.937 },
+      "image": "decors/labo.webp",
+      "ratio": [16, 9],
       "formes": [
-        { "zone": "kanto.bourg-palette", "nom": "Sortie", "teinte": "green", "forme": "rect", "x": 0.4306640625, "y": 0.88623046875, "l": 0.1376953125, "h": 0.06005859375 }
+        { "zone": "kanto.bourg-palette", "nom": "Sortie", "teinte": "green", "forme": "rect", "x": 0.4167, "y": 0.75, "l": 0.171, "h": 0.25 }
       ]
     },
     {
       "id": "kanto.route-de-ronflex",
-      "image": "decors/centrale.webp",
+      "image": "decors/route-de-ronflex.webp",
       "ratio": [16, 9],
       "formes": []
     }

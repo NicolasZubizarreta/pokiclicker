@@ -1,7 +1,7 @@
 // Prépare les décors générés par IA (ChatGPT) : met au format 16:9 (option --marge pour retirer un logo en bas à droite),
 // écrit le WebP dans public/img/decors/ et enregistre sa taille dans tailles.json.
 // Usage : déposer les images dans assets-src/decors-chatgpt/ sous le nom du lieu (ex. route-1.png), puis
-//   node scripts/preparer-decors.mjs [--marge 0] [--sources <dossier>] [--sorties <dossier>]
+//   node scripts/preparer-decors.mjs [--marge 0] [--min-largeur 1920] [--sources <dossier>] [--sorties <dossier>]
 import { readFile, readdir, writeFile, mkdir } from 'node:fs/promises';
 import { basename, extname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -30,11 +30,13 @@ export function fenetre(largeur, hauteur, marge) {
 
 async function preparer() {
   const { values } = parseArgs({ options: {
-    sources: { type: 'string' }, sorties: { type: 'string' }, marge: { type: 'string', default: '0' },
+    sources: { type: 'string' }, sorties: { type: 'string' }, marge: { type: 'string', default: '0' }, 'min-largeur': { type: 'string' },
   } });
   const marge = Number(values.marge);
   if (!(marge >= 0 && marge < 0.3)) throw new Error('--marge doit être entre 0 et 0,3.');
   const { decor, dossiers } = JSON.parse(await readFile(join(racine, 'data/images.json'), 'utf8'));
+  // Par défaut la source doit avoir au moins la largeur finale ; --min-largeur 1600 accepte un léger agrandissement (ChatGPT sort en 1672 px).
+  const minLargeur = Number(values['min-largeur'] ?? decor.largeur);
   const sources = resolve(racine, values.sources ?? 'assets-src/decors-chatgpt');
   const sorties = resolve(racine, values.sorties ?? dossiers.sorties);
   const tailles = join(sorties, 'tailles.json');
@@ -50,7 +52,7 @@ async function preparer() {
     const source = sharp(await readFile(join(sources, fichier)));
     const { width, height } = await source.metadata();
     const zone = fenetre(width, height, marge);
-    if (zone.width < decor.largeur) { erreurs.push(`${fichier} : ${width} × ${height}, trop petite (il faut au moins ${decor.largeur} px de large après recadrage, ici ${zone.width}).`); continue; }
+    if (zone.width < minLargeur) { erreurs.push(`${fichier} : ${width} × ${height}, trop petite (il faut au moins ${minLargeur} px de large après recadrage, ici ${zone.width}).`); continue; }
     prets.push({ slug, contenu: await source.extract(zone).resize(decor.largeur, decor.hauteur).webp({ quality: decor.qualiteWebp }).toBuffer() });
   }
   if (erreurs.length) throw new Error(erreurs.join('\n'));

@@ -139,11 +139,11 @@ Fichier à enregistrer : `tour-pokemon.png`
 ```
 Detailed hand-illustrated scene, 16:9 landscape, in exactly the same style as the attached Kanto map: painterly illustration with fine ink outlines and a pixel-art feel, rich saturated natural colours, bright and readable on a dark interface. Classic Pokémon-game 3/4 top-down view, seen from above at an angle. Full-bleed: the scene fills the whole picture to every edge, with no black bars, no white margins, no border, no frame, no cut-away floor plan and no collage of several rooms. No characters, no Pokémon, no text, no labels, no user interface and no watermark, except where stated below. Keep the middle of the picture fairly calm and open, because a Pokémon battle is displayed on top of it; put the detail around the edges. Image size: 16:9, as large as possible.
 
-The attached image is the Kanto map: use it only for the visual style (brush, outlines, colours, level of detail), never for the content or the layout. The place below is a new scene to design from the Pokémon games (Red, Blue, FireRed, LeafGreen), not a copy of any existing picture.
+Two images are attached. Image 1 is the Kanto map: use it only for the visual style (brush, outlines, colours, level of detail). Image 2 is a picture of a haunted crypt: it is the reference for the content and the layout, and I like it. Redraw exactly this scene, same composition, in the style of image 1.
 
-Place: A tall haunted memorial tower: the inside of a tall stone tower with a purple-grey floor, rows of old gravestones, a staircase going up, drifting ghostly mist, candle lights, a gloomy lilac atmosphere.
+Place: the crypt of image 2, faithful to it: a stone hall seen from above with a worn wooden floor tinted purple by a drifting lilac mist, rows of gravestones of different sizes, clay jars along the walls, candles and torches on the walls, cobwebs in the corners, a few rubble stones, two pale ghosts and two wisps of spirit smoke, a staircase going up at the top centre, a staircase in the middle leading down to a stone-tiled lower area, and two exits at the bottom. Keep the small creature standing in front of the large gravestone at the left, seen from behind: a small figure in brown hide wearing a white bone skull helmet and holding a bone, mourning at the grave. Keep it at the same place and the same size. To fill the 16:9 frame, extend the walls and the floor to every edge of the picture: remove the black areas around the room. Remove the sparkle or star logo in the bottom-right corner. Keep the middle of the picture fairly open.
 
-Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): a single gravestone slightly larger than the others, with a long bone resting against it and a small bunch of wild flowers at its foot. No creature in this picture.
+Hidden detail: the small skull-helmeted creature in front of the gravestone is the detail. Add a small bunch of wild flowers at the foot of that gravestone.
 ```
 
 ## 11. Arène de Céladopole
@@ -386,14 +386,14 @@ Hidden detail (a discreet easter egg, small enough to be missed at first glance,
 
 ## 28. Bourg Palette
 
-Fichier à enregistrer : `bourg-palette.png`
+Fichier à enregistrer : `bourg-palette.png` (joindre DEUX images : la carte de Kanto, puis `public/img/scenes/bourg-palette.webp`, la scène actuelle qui sert de plan)
 
 ```
 Detailed hand-illustrated scene, 16:9 landscape, in exactly the same style as the attached Kanto map: painterly illustration with fine ink outlines and a pixel-art feel, rich saturated natural colours, bright and readable on a dark interface. Classic Pokémon-game 3/4 top-down view, seen from above at an angle. Full-bleed: the scene fills the whole picture to every edge, with no black bars, no white margins, no border, no frame, no cut-away floor plan and no collage of several rooms. No characters, no Pokémon, no text, no labels, no user interface and no watermark, except where stated below. Keep the middle of the picture fairly calm and open, because a Pokémon battle is displayed on top of it; put the detail around the edges. Image size: 16:9, as large as possible.
 
-The attached image is the Kanto map: use it only for the visual style (brush, outlines, colours, level of detail), never for the content or the layout. The place below is a new scene to design from the Pokémon games (Red, Blue, FireRed, LeafGreen), not a copy of any existing picture.
+Two images are attached. Image 1 is the Kanto map: use it only for the visual style (brush, outlines, colours, level of detail). Image 2 is the current square picture of Pallet Town: it is the reference for the content and the layout, and I like it as it is. Redraw exactly this village in the same style as image 1, extended to a 16:9 landscape.
 
-Place: Pallet Town: a small quiet village by the sea at the south of Kanto, two small houses (one with a red roof, one with a blue roof), a larger research laboratory at the bottom, white picket fences, flower beds, a dirt path, tall grass at the north exit, water to the south, a fenced garden.
+Place: Pallet Town, faithful to image 2. Keep every building, path and object at the same relative position and with the same look: the red-roofed house and the blue-grey-roofed house side by side in the upper left, each with its mailbox and the round bushes between and beside them; the large laboratory with the big red tiled roof, its annex on the right, the rooftop chimney and the computers and machines around it, in the upper right; the dirt paths forming the same network, with the same two grids of orange and yellow flower beds in the middle right; the wooden cabin with the orange roof in the lower left with its fenced yard and the small animals inside; the sea at the bottom with the wooden pier in the lower centre and the boat moored at the lower right; the border of pine trees around the village. To reach 16:9, add more meadow, trees and sea on the left and right sides, and compress nothing: do not stretch or distort the buildings. Remove any sparkle, star or generator logo in a corner. Keep the middle of the lawn open.
 
 Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): A wooden sign planted in the tall grass reading "Les hautes herbes sont dangereuses sans Pokémon" (the only text allowed in this picture).
 ```

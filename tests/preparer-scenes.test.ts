@@ -89,7 +89,9 @@ it('signale clairement une source absente et traite les cinq autres images', asy
 it('livre les six fichiers publics aux dimensions annoncées dans tailles.json', async () => {
   const publicImages = new URL('../public/img/', import.meta.url);
   const tailles = JSON.parse(await readFile(new URL('tailles.json', publicImages), 'utf8'));
-  for (const [, chemin, width, height] of fichiers) {
+  // Bourg Palette et le labo sont des décors 16:9 générés (ticket O), plus des scènes carrées issues de la V1.
+  const livres = fichiers.filter(([, chemin]) => chemin !== 'scenes/bourg-palette.webp' && chemin !== 'scenes/labo.webp');
+  for (const [, chemin, width, height] of livres) {
     expect(await sharp(await readFile(new URL(chemin, publicImages))).metadata()).toMatchObject({ width, height });
     expect(tailles[`img/${chemin}`]).toEqual({ largeur: width, hauteur: height });
   }

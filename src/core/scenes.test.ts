@@ -23,12 +23,12 @@ describe('recadrage des scènes', () => {
     expect(() => chargerScenes(fichier({ x: 0, y: 0, l: 0, h: 1 }))).toThrow(/Scène invalide/);
   });
 
-  it('les lieux d’intro de Kanto sont recadrés sur leur partie utile, plus étroite que l’image entière', () => {
+  it('les lieux d’intro de Kanto sont des images 16:9 pleines, sans recadrage ni bande', () => {
     const scenes = chargerScenes();
-    for (const id of ['kanto.chez-maman', 'kanto.chez-blue', 'kanto.labo']) {
+    for (const id of ['kanto.bourg-palette', 'kanto.chez-maman', 'kanto.chez-blue', 'kanto.labo']) {
       const scene = scenes.find(s => s.id === id)!;
-      expect(scene.recadrage, id).toBeDefined();
-      expect(partieUtile(scene).l * partieUtile(scene).h, id).toBeLessThan(1);
+      expect(scene.recadrage, id).toBeUndefined();
+      expect(ratioUtile(scene), id).toBeCloseTo(16 / 9, 6);
     }
   });
 });

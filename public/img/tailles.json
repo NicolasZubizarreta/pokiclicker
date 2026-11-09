@@ -883,14 +883,6 @@
     "largeur": 96,
     "hauteur": 96
   },
-  "img/scenes/bourg-palette.webp": {
-    "largeur": 1080,
-    "hauteur": 1080
-  },
-  "img/scenes/labo.webp": {
-    "largeur": 1080,
-    "hauteur": 1080
-  },
   "img/scenes/pantheon.webp": {
     "largeur": 1080,
     "hauteur": 1080
@@ -1582,5 +1574,25 @@
   "img/easter-eggs/gabriel-stade-3.webp": {
     "largeur": 288,
     "hauteur": 288
+  },
+  "img/decors/bourg-palette.webp": {
+    "largeur": 1920,
+    "hauteur": 1080
+  },
+  "img/decors/labo.webp": {
+    "largeur": 1920,
+    "hauteur": 1080
+  },
+  "img/decors/pantheon.webp": {
+    "largeur": 1920,
+    "hauteur": 1080
+  },
+  "img/decors/pension.webp": {
+    "largeur": 1920,
+    "hauteur": 1080
+  },
+  "img/decors/route-de-ronflex.webp": {
+    "largeur": 1920,
+    "hauteur": 1080
   }
 }

@@ -19,7 +19,7 @@ it('choisit le sprite chromatique uniquement sur demande', async () => {
 it('reprend le décor 16/9 d’une zone, ou la scène carrée du lieu qui n’en a pas encore (le labo)', async () => {
   const { cheminDecor } = await import('./precharger');
   expect(cheminDecor({ decor: 'kanto/route-1.webp' })).toBe('img/decors/route-1.webp');
-  expect(cheminDecor({ decor: 'kanto/labo.webp' })).toBe('img/scenes/labo.webp');
+  expect(cheminDecor({ decor: 'kanto/labo.webp' })).toBe('img/decors/labo.webp');
   // Sans image connue nulle part, le chemin du décor est conservé : l’appelant décide de l’afficher ou non.
   expect(cheminDecor({ decor: 'kanto/inexistant.webp' })).toBe('img/decors/inexistant.webp');
 });

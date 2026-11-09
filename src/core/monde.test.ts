@@ -24,7 +24,7 @@ describe('monde Kanto', () => {
     const victoire = { ...apres, drapeaux: ['ronflex-vaincu'] };
     expect(kanto.zone(centrale).ancienId).toBe(12);
     expect(kanto.zone(parmanie).ancienId).toBe(13);
-    expect(kanto.zone(route)).toMatchObject({ sansCombat: true, decor: kanto.zone(centrale).decor });
+    expect(kanto.zone(route)).toMatchObject({ sansCombat: true, decor: 'kanto/route-de-ronflex.webp' });
     expect(kanto.accesZone(route, avant).ok).toBe(false);
     expect(kanto.accesZone(parmanie, avant).ok).toBe(false);
     expect(kanto.accesZone(route, apres).ok).toBe(true);

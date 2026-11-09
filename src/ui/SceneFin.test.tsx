@@ -31,7 +31,7 @@ const chen = (conteneur: HTMLElement) => conteneur.querySelector('.scene-fin-che
 it('ouvre sur le glitch avec le vrai décor du labo, sans Chen ni boîte de dialogue', () => {
   const { container } = render(<SceneFin commande={replique()} terminerEtape={vi.fn()} />);
   expect(screen.getByRole('dialog', { name: 'Dialogue de scène' }).hasAttribute('open')).toBe(true);
-  expect(decor(container).getAttribute('src')).toBe('img/scenes/labo.webp');
+  expect(decor(container).getAttribute('src')).toBe('img/decors/labo.webp');
   expect(container.querySelector('.scene-fin-glitch')).not.toBeNull();
   expect(chen(container)).toBeNull();
   expect(screen.queryByRole('button')).toBeNull();

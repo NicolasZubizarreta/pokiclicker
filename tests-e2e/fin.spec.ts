@@ -95,7 +95,7 @@ test('Fin : le Pokédex complet fait dire huit répliques à Chen devant le labo
   await lire(page, dialogue, async (indice, fenetre) => {
     // V1 : décor du labo et Chen dès la première réplique, diplôme à la 5e, Charme Chroma à la 7e.
     if (indice === 0) {
-      await expect(fenetre.locator('.scene-fin-decor')).toHaveAttribute('src', 'img/scenes/labo.webp');
+      await expect(fenetre.locator('.scene-fin-decor')).toHaveAttribute('src', 'img/decors/labo.webp');
       await expect(fenetre.locator('img.scene-fin-chen')).toHaveAttribute('src', 'img/sprites/chen/chen-1.png');
       await expect(fenetre.locator('[data-vitrine]')).toHaveCount(0);
     }

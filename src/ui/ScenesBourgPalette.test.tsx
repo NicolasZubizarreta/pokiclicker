@@ -104,7 +104,7 @@ it('cale les formes et cibles sur les fractions, même après redimensionnement'
   expect(image.getAttribute('src')).toBe(`img/${scene.image}`);
   expect(image.classList.contains('object-contain')).toBe(true);
   // Image entière (sans recadrage) : le cadre a le ratio de l'image ; la couche qui la porte la remplit.
-  expect(image.parentElement?.parentElement?.style.aspectRatio).toBe('1 / 1');
+  expect(image.parentElement?.parentElement?.style.aspectRatio).toBe(`${16 / 9} / 1`);
   expect(image.parentElement?.style.width).toBe('100%');
   for (const forme of scene.formes) {
     const cible = screen.getByRole('button', { name: forme.nom });
@@ -138,10 +138,10 @@ it('permet la visite de Blue et le retour au clavier', async () => {
   expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Chez Blue' }));
   await user.keyboard('{Enter}');
   expect(screen.getByText('Eh pourquoi il a le droit à une maison en 3D lui ?')).toBeTruthy();
-  // Chez Blue est recadrée sur la maison : le cadre prend le ratio de la partie utile, pas celui de l'image entière.
+  // Chez Blue est une image 16:9 pleine : le cadre a le ratio de l'image.
   const blue = chargerScenes().find(s => s.id === 'kanto.chez-blue')!;
   expect(screen.getByRole('img').parentElement?.parentElement?.style.aspectRatio).toBe(`${ratioUtile(blue)} / 1`);
-  expect(ratioUtile(blue)).toBeLessThan(16 / 9);
+  expect(ratioUtile(blue)).toBeCloseTo(16 / 9, 6);
   expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Sortie' }));
   await user.keyboard(' ');
   expect(screen.getByRole('button', { name: 'Chez Blue' })).toBeTruthy();

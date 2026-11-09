@@ -18,7 +18,7 @@ it('intègre les visites à Bourg Palette, garde Chen dessous et une seule phras
     store.getState().allerVers(store.getState().zonePrecedente!.id);
     render(<EcranCombat store={store} />);
     const image = screen.getByRole('img', { name: 'Bourg Palette' });
-    expect(image.getAttribute('src')).toBe('img/scenes/bourg-palette.webp');
+    expect(image.getAttribute('src')).toBe('img/decors/bourg-palette.webp');
     const chen = screen.getByRole('complementary', { name: 'Dialogue' });
     expect(image.compareDocumentPosition(chen) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     fireEvent.focus(screen.getByRole('button', { name: 'Pension Pokémon' }));
@@ -53,7 +53,7 @@ it('montre le labo en entier avec sa Sortie clignotante, qui ramène à Bourg Pa
       lieu: { id: 'kanto.labo', nom: labo.nom, decor: labo.decor, ancienId: labo.ancienId, sansCombat: true, liens: [{ vers: labo.depuis }] } }));
     render(<EcranCombat store={store} />);
     const image = screen.getByRole('img', { name: labo.nom });
-    expect(image.getAttribute('src')).toBe('img/scenes/labo.webp');
+    expect(image.getAttribute('src')).toBe('img/decors/labo.webp');
     expect(image.className).toContain('object-contain');
     const sortie = screen.getByRole('button', { name: 'Sortie' });
     expect(document.querySelector('[data-forme="Sortie"]')?.getAttribute('class')).toContain('flash-vert');

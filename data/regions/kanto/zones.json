@@ -794,7 +794,7 @@
       "id": "kanto.route-de-ronflex",
       "nom": "Route de Ronflex",
       "sansCombat": true,
-      "decor": "kanto/centrale.webp",
+      "decor": "kanto/route-de-ronflex.webp",
       "liens": [
         {
           "vers": "kanto.arene-de-parmanie",

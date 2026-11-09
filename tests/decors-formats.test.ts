@@ -7,7 +7,7 @@ const racine = new URL('../', import.meta.url);
 const lire = async (chemin: string) => JSON.parse(await readFile(new URL(chemin, racine), 'utf8'));
 
 /** Lieux et zones encore sans décor 16:9 (images à fournir, voir docs/projet/decors-a-regenerer.md). Retirer un nom ici quand son décor est livré. */
-const SANS_DECOR_16_9 = ['bourg-palette', 'labo', 'pantheon', 'pension'];
+const SANS_DECOR_16_9: string[] = [];
 
 it('chaque décor livré est un WebP 16:9 aux dimensions annoncées dans tailles.json', async () => {
   const { decor } = await lire('data/images.json');

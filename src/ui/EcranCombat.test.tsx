@@ -560,8 +560,7 @@ it('affiche le lieu sans combat, son décor et son message en gardant l’équip
   expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(lieu!.nom);
   expect(within(screen.getByRole('banner')).getByText(lieu!.nom, { selector: 'p' })).toBeTruthy();
   expect(screen.getByText(('message' in lieu! ? lieu.message : undefined)!)).toBeTruthy();
-  // Le décor de Bourg Palette arrive avec le ticket P : sans image au registre, l'écran reste affiché sans décor.
-  expect(container.querySelector('img[src^="img/decors/"]')).toBeNull();
+  expect(container.querySelector('img[src="img/decors/bourg-palette.webp"]')).not.toBeNull();
   expect(screen.queryByRole('button', { name: /^Attaquer/ })).toBeNull();
   expect(screen.queryByRole('list', { name: 'Étapes de la zone' })).toBeNull();
   expect(screen.queryByText(/Étape .* sur 10/)).toBeNull();

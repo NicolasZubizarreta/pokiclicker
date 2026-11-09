@@ -24,7 +24,7 @@ function dialogues(r: DonneesRegion): DonneesRegion {
 
 describe('scènes Kanto : Pokéflûte et Ronflex', () => {
   it('déclare une scène locale sans rencontre ordinaire', () => {
-    expect(chargerScenes().find(s => s.id === route)).toMatchObject({ image: 'decors/centrale.webp', formes: [] });
+    expect(chargerScenes().find(s => s.id === route)).toMatchObject({ image: 'decors/route-de-ronflex.webp', formes: [] });
   });
 
   it('ne présente pas Ronflex à la Centrale ni sur la route avant le boss', () => {

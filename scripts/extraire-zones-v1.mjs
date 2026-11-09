@@ -109,7 +109,7 @@ const zonesLibres = /** @type {Record<string, unknown>[]} */ (/** @type {unknown
   { vers: identifiant(indiceCentrale + 1), si: { tous: [conditionBoss(indiceCentrale), ronflexVaincu] } },
 ];
 zonesLibres.splice(indiceCentrale + 1, 0, {
-  id: routeRonflex, nom: 'Route de Ronflex', sansCombat: true, decor: 'kanto/centrale.webp',
+  id: routeRonflex, nom: 'Route de Ronflex', sansCombat: true, decor: 'kanto/route-de-ronflex.webp',
   liens: [{ vers: identifiant(indiceCentrale + 1), si: ronflexVaincu }], ancienId: -8,
 });
 // Repère ajouté après les 24 formes V1 : leurs indices, donc leur ordre de dessin, ne changent pas.
