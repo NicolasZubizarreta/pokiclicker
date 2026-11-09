@@ -1,4 +1,4 @@
-# Prompts des décors (ticket O)
+﻿# Prompts des décors (ticket O)
 
 Un bloc par décor, à coller tel quel dans ChatGPT. Une seule image à joindre : la carte (`public/img/decors/carte-kanto.webp`), uniquement pour garder le même rendu. Aucune ancienne image de décor : chaque lieu est décrit d'après les jeux (Rouge, Bleu, Rouge Feu, Vert Feuille).
 
@@ -213,7 +213,7 @@ The attached image is the Kanto map: use it only for the visual style (brush, ou
 
 Place: The Saffron City Gym (psychic type): a maze of small square rooms linked by teleport pads, floors with colourful patterned tiles (pink, blue, yellow), glowing pads, pale walls, a mystical purple light.
 
-Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): A single spoon bending by itself, floating in mid-air with a few sparkles around it.
+Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): Professor X's Cerebro helmet (X-Men): a sleek silver-white domed helmet floating in mid-air, with a faint blue glow and a few sparkles, hovering just above the seat of an empty black electric wheelchair (Professor X's wheelchair: simple, high back, two big wheels, armrests) standing alone against the wall. The wheelchair is what makes the reference recognisable, so draw it clearly.
 ```
 
 ## 16. Îles Écume
@@ -255,7 +255,7 @@ The attached image is the Kanto map: use it only for the visual style (brush, ou
 
 Place: The Viridian City Gym (ground type): a dark floor covered with spinner arrow tiles pointing in different directions forming a maze, stone pillars, a heavy desk and a throne-like chair at the back, brown and black colours.
 
-Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): A big leather armchair with a white Persian (the long-tailed cream-white cat Pokémon) lying on it. This is the only Pokémon allowed in this picture.
+Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): An open black briefcase on the boss's desk, glowing with a warm golden light that lights up the desk around it, its content hidden by the open lid (the glowing briefcase of Pulp Fiction). No text, no object visible inside.
 ```
 
 ## 19. Caverne Azurée
@@ -325,7 +325,7 @@ The attached image is the Kanto map: use it only for the visual style (brush, ou
 
 Place: The Pokémon Day Care: the inside of a cosy wooden house with an orange wooden floor, a reception counter on the left, a fenced grassy enclosure with a sandy patch in the middle, shelves of eggs, bookshelves, potted plants, a stone-paved entrance with a red doormat. No people and no Pokémon.
 
-Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): A golden egg among the ordinary coloured eggs on a shelf.
+Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): A Yoshi egg (Super Mario): a white egg covered in large green spots, clearly bigger than the other eggs, resting alone on a small red cushion at the end of the egg shelf, so that it stands out at once from the ordinary pastel eggs around it.
 ```
 
 ## 24. Chez Blue
@@ -339,7 +339,7 @@ The attached image is the Kanto map: use it only for the visual style (brush, ou
 
 Place: The Rival's house in Pallet Town: a small one-floor house interior with a wooden floor, a table with a stool, a bookcase, a window, a big map of Kanto on the wall, a cosy family kitchen corner.
 
-Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): A Game Boy Color with a cracked screen lying on the table.
+Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): A ninja forehead protector lying on the table (Sasuke's headband from Naruto): a dark blue cloth band with a rectangular metal plate engraved with the Hidden Leaf village symbol (a leaf with a spiral), and one deep horizontal scratch cutting across the symbol. The plate and the scratch must be clearly visible; no letters.
 ```
 
 ## 25. Chez Maman
@@ -353,7 +353,7 @@ The attached image is the Kanto map: use it only for the visual style (brush, ou
 
 Place: The player's house in Pallet Town: a two-room cut-away of the house in one picture, with a living room (television, kitchen table with chairs, a staircase) and a bedroom (a bed, a PC on a desk, a bookcase), wooden floors, plants. Everything fills the whole frame.
 
-Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): Two details: an old yellowed envelope addressed in emerald-green ink and sealed with a red wax seal bearing a crest with the letter H, lying on the staircase (a Hogwarts admission letter); and a Super Nintendo console plugged into the television, with its controller on the floor.
+Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): Two details: a Super Nintendo console plugged into the television, with its controller on the floor; and an articulated desk lamp (Luxo Jr. from Pixar: a white-grey lamp with a spring arm and a conical head) on the bedroom desk, bending its head down toward a small striped ball with a red star, as if looking at it.
 ```
 
 ## 26. Centre Commercial
@@ -367,7 +367,7 @@ The attached image is the Kanto map: use it only for the visual style (brush, ou
 
 Place: The Celadon Department Store: the inside of a big store with shelves of goods, a service counter, a vending machine area, escalators, potted plants, bright floors with a pastel tile pattern.
 
-Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): An arcade cabinet in a corner whose screen shows a yellow round character chasing small ghosts (Pac-Man style).
+Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): A tiny Waldo from "Where's Waldo?" (Où est Charlie ?) hiding among the shelves in the background: red-and-white horizontally striped sweater, red-and-white bobble hat, round black glasses, blue trousers, a walking stick. He is the only character allowed in this picture (no other person, no Pokémon). He is small, partly hidden behind a shelf, but his stripes and hat must be recognisable.
 ```
 
 ## 27. Casino
@@ -414,14 +414,8 @@ Hidden detail (a discreet easter egg, small enough to be missed at first glance,
 
 ## 30. Panthéon
 
-Fichier à enregistrer : `pantheon.png`
+Fichier à enregistrer : `pantheon.png`. Correction de l'image existante, pas une nouvelle scène : joindre seulement l'image actuelle (`assets-src/decors-chatgpt/pantheon.png`), pas la carte. La photo d'une vraie étoile (`assets-src/ref-etoile-walk-of-fame.webp`, hors du dossier des sources car le script de conversion refuse tout fichier inconnu ; nom d'une personne réelle dessus) a fait refuser le prompt par ChatGPT le 09/11 : ne pas la joindre.
 
 ```
-Detailed hand-illustrated scene, 16:9 landscape, in exactly the same style as the attached Kanto map: painterly illustration with fine ink outlines and a pixel-art feel, rich saturated natural colours, bright and readable on a dark interface. Classic Pokémon-game 3/4 top-down view, seen from above at an angle. Full-bleed: the scene fills the whole picture to every edge, with no black bars, no white margins, no border, no frame, no cut-away floor plan and no collage of several rooms. No characters, no Pokémon, no text, no labels, no user interface and no watermark, except where stated below. Keep the middle of the picture fairly calm and open, because a Pokémon battle is displayed on top of it; put the detail around the edges. Image size: 16:9, as large as possible.
-
-The attached image is the Kanto map: use it only for the visual style (brush, outlines, colours, level of detail), never for the content or the layout. The place below is a new scene to design from the Pokémon games (Red, Blue, FireRed, LeafGreen), not a copy of any existing picture.
-
-Place: The Hall of Fame in Indigo Plateau: a grand ceremonial hall with a red carpet, rows of empty framed plaques on the walls, marble pedestals, tall columns, warm golden light.
-
-Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): A golden star embedded in the floor with a lightning bolt inside it (Hollywood Walk of Fame style).
+Keep this picture exactly the same: same composition, same colours, same painterly style with fine ink outlines, same objects at the same places, same 16:9 size, full-bleed. Change only one thing: the golden star embedded in the floor. Redraw it at the same place and about the same size as a commemorative star plaque set into a pavement: a five-pointed star in dark red terrazzo (red-pink speckled marble) with a thin polished yellow-brass outline, set into the floor. In the centre, a round brass emblem showing a golden Poké Ball. Above the emblem, in the upper part of the star, the name "CHEN" in capital letters, in yellow brass. Do not write any other text. The star must be clearly readable at a glance. No characters, no Pokémon, no watermark.
 ```

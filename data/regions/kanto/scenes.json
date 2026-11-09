@@ -20,8 +20,8 @@
       "bulle": "Il n'y a rien à faire ici, sortons.",
       "tele": {
         "video": "img/easter-eggs/daran.mp4",
-        "ecran": { "x": 0.35, "y": 0.259, "l": 0.0552, "h": 0.0722 },
-        "bouton": { "x": 0.372, "y": 0.29, "l": 0.01, "h": 0.012 }
+        "ecran": { "x": 0.3714, "y": 0.2915, "l": 0.0588, "h": 0.0652 },
+        "bouton": { "x": 0.3958, "y": 0.3181, "l": 0.01, "h": 0.012 }
       },
       "formes": [
         { "zone": "kanto.bourg-palette", "nom": "Sortie", "teinte": "green", "forme": "rect", "x": 0.398, "y": 0.75, "l": 0.2, "h": 0.25 }
