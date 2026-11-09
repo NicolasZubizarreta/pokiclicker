@@ -32,7 +32,7 @@ describe('scènes fidèles à la V1', () => {
       ['kanto.labo', 'decors/labo.webp', [16, 9]],
     ]);
     expect(scenes[1]!.bulle).toBe("Il n'y a rien à faire ici, sortons.");
-    expect(scenes[2]!.bulle).toBe('Eh pourquoi il a le droit à une maison en 3D lui ?');
+    expect(scenes[2]!.bulle).toBeUndefined();
     expect(scenes[0]!.formes.map(forme => forme.zone)).toEqual([
       'kanto.chez-maman', 'kanto.chez-blue', 'kanto.pension', 'kanto.labo', null,
     ]);

@@ -31,7 +31,6 @@
       "id": "kanto.chez-blue",
       "image": "decors/chez-blue.webp",
       "ratio": [16, 9],
-      "bulle": "Eh pourquoi il a le droit à une maison en 3D lui ?",
       "formes": [
         { "zone": "kanto.bourg-palette", "nom": "Sortie", "teinte": "green", "forme": "rect", "x": 0.4, "y": 0.75, "l": 0.2, "h": 0.25 }
       ]

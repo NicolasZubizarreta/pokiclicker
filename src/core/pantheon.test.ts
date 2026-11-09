@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import donnees from '../../data/pantheon.json';
+import scene from '../../data/pantheon-scene.json';
 import fixture from '../../tests/fixtures/v1-pantheon.json';
-import { calendrierPantheon, chargerPantheon, issueDuPantheon, tirerConfetti, tirerFeu } from './pantheon';
+import { calendrierPantheon, chargerMiseEnPagePantheon, chargerPantheon, issueDuPantheon, tirerConfetti, tirerFeu } from './pantheon';
+
+const g = scene.geometrie;
 
 describe('calendrier du Panthéon', () => {
   for (const entree of fixture.entrees) {
@@ -17,14 +20,16 @@ describe('calendrier du Panthéon', () => {
           .map(e => e.tMs)).toEqual([0, entree.minuteurs[0]]);
         expect(calendrier.filter(e => e.action.type === 'chute').map(e => {
           if (e.action.type !== 'chute') throw new Error('Chute attendue');
-          return { tMs: e.tMs - debut, x: e.action.x * 1024, y: e.action.y * 1024,
-            taille: e.action.taille * 1024, depart: e.action.depart * 1024, index: e.action.index };
+          return { tMs: e.tMs - debut, x: e.action.x, y: e.action.y,
+            taille: e.action.taille, depart: e.action.depart, index: e.action.index };
         })).toEqual(equipe.chutes.map((chute, index) => ({ tMs: chute.tMs,
-          x: chute.attributs.x, y: chute.attributs.y, taille: chute.attributs.width, depart: -300, index })));
+          x: scene.socles[index]!.x - g.tailleSprite / 2, y: scene.socles[index]!.y - g.tailleSprite + g.decalageBase,
+          taille: g.tailleSprite, depart: g.departChute, index })));
         expect(calendrier.filter(e => e.action.type === 'niveau').map(e => {
           if (e.action.type !== 'niveau') throw new Error('Niveau attendu');
-          return { tMs: e.tMs - debut, x: e.action.x * 1024, y: e.action.y * 1024 };
-        })).toEqual(equipe.niveaux.map(n => ({ tMs: n.tMs, x: n.attributs.x, y: n.attributs.y })));
+          return { tMs: e.tMs - debut, x: e.action.x, y: e.action.y };
+        })).toEqual(equipe.niveaux.map((n, index) => ({ tMs: n.tMs,
+          x: scene.socles[index]!.x, y: scene.socles[index]!.y + g.decalageNiveau })));
         expect(calendrier.filter(e => ['titre', 'confettis', 'feux', 'fin'].includes(e.action.type))
           .map(e => e.tMs - debut)).toEqual(Array(4).fill(equipe.finalMs));
         if (entree.premiere) {
@@ -80,6 +85,30 @@ describe('données du Panthéon', () => {
     { ...donnees, dialogues: [''] }, { ...donnees, titre: '' }, { ...donnees, boutonSortie: null },
   ])('rejette les données invalides en français : %#', fichier => {
     expect(() => chargerPantheon(fichier)).toThrow(/^Panthéon invalide : /);
+  });
+});
+
+describe('mise en page 16:9 du Panthéon', () => {
+  it('valide sans modifier ni partager les données', () => {
+    const resultat = chargerMiseEnPagePantheon(scene);
+    expect(resultat).toEqual(scene);
+    expect(resultat).not.toBe(scene);
+  });
+
+  it('garde les six socles dans l\'image, de gauche à droite sur deux gradins', () => {
+    const hauteur = scene.ratio[1]! / scene.ratio[0]!;
+    for (const s of scene.socles) expect(s.y).toBeLessThan(hauteur);
+    expect(scene.socles.map(s => s.x)).toEqual([...scene.socles.map(s => s.x)].sort((a, b) => a - b));
+  });
+
+  it.each([
+    null, {}, { ...scene, version: 2 }, { ...scene, image: '' }, { ...scene, ratio: [16] },
+    { ...scene, socles: scene.socles.slice(1) },
+    { ...scene, socles: [{ x: 0.5, y: 0.9 }, ...scene.socles.slice(1)] },
+    { ...scene, geometrie: { ...scene.geometrie, departChute: 0.2 } },
+    { ...scene, geometrie: { ...scene.geometrie, tailleSprite: 0 } },
+  ])('rejette les données invalides en français : %#', fichier => {
+    expect(() => chargerMiseEnPagePantheon(fichier)).toThrow(/^Mise en page du Panthéon invalide : /);
   });
 });
 

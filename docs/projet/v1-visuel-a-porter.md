@@ -19,7 +19,7 @@ Pas de déplacement libre : des **scènes avec zones cliquables en SVG** (pixels
 1. **Écran titre** (sans sauvegarde) : « POKÉ CLICKER / KANTO ORIGINS » qui rebondit, bouton JOUER, import JSON ; fondu d'entrée de l'interface 1 s.
 2. **Chez Maman** (`Chez Maman.png`) : « Il n'y a rien à faire ici, sortons. », sortie verte pulsante ; **télé cliquable cachée = easter egg** (lecture de `Daran.mp4`).
 3. Transition : voile noir 300 ms.
-4. **Bourg Palette** (`Zone 0.png`) : Chez Maman, Chez Blue (scène gag : « Eh pourquoi il a le droit à une maison en 3D lui ? »), Pension (après la zone 11), **Labo de Chen** (clignote en vert tant que non visité), Bateau vers Johto.
+4. **Bourg Palette** (`Zone 0.png`) : Chez Maman, Chez Blue (scène sans texte depuis le 09/11 : le gag de la V1 est retiré à la demande de Nicolas), Pension (après la zone 11), **Labo de Chen** (clignote en vert tant que non visité), Bateau vers Johto.
 5. **Labo** : à la première visite, dialogue de Chen après 1 s : Chen glisse de la droite en 1,5 s, boîte de dialogue à 1,6 s, **machine à écrire 30 ms par caractère**, ▼ rouge qui rebondit, `SpriteChen1-3`, à la 4e ligne **le cadenas du sac se brise** (`break-lock`) et +5 Pokéballs, à la 6e la **carte est débloquée** (bouton qui rebondit).
 6. **Choix du starter** : « CHOISIS TON PARTENAIRE », 3 Poké Balls ; au survol la ball cède la place à l'artwork (fondu 300 ms, ×1,1) avec le nom ; au clic l'artwork passe à ×1,5, les autres disparaissent, bouton « CHOISIR <NOM> » ; niveau 5, sexe aléatoire, shiny pré-tiré 1/256 avec halo doré.
 7. Sortie du labo qui clignote → bouton carte qui rebondit → Route 1 qui clignote → info → vol.

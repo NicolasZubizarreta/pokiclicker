@@ -337,10 +337,10 @@ Reprendre les animations et effets de la V1 (`docs/projet/v1-visuel-a-porter.md`
 
 ## O. `chore(assets): régénérer les décors et la carte au bon format`
 
-`type:chore`, `etat:en_cours`, `est:2-3`, `prio:5` · branche : `v2` · pas d'`agent-ok` (génération d'images, choix artistique) · voir `docs/projet/decors-provisoires.md` et `docs/projet/decors-a-regenerer.md`
+`type:chore`, `etat:fait`, `est:2-3`, `prio:5` · branche : `v2` · pas d'`agent-ok` (génération d'images, choix artistique) · voir `docs/projet/decors-provisoires.md` et `docs/projet/decors-a-regenerer.md`
 
 ### Critères d'acceptation
-- [ ] Étant donné les décors provisoires recadrés de la V1, quand les nouveaux décors sont intégrés, alors chaque lieu a un décor 16:9 au bon format (un seul ratio par type d'image). *(09/11 : les 30 décors ChatGPT (style de la carte, sans logo, avec fond de Ronflex et easter eggs) sont livrés en WebP 1920 × 1080 par `scripts/preparer-decors.mjs`, branchés (Route de Ronflex, Pension, Bourg Palette, Chez Maman, Chez Blue, Labo avec zones cliquables replacées), `tests/decors-formats.test.ts` vert, vitest et e2e ciblés verts. Reste le Panthéon : image 16:9 livrée mais le jeu affiche encore l'ancienne scène carrée, socles à recaler dans `data/pantheon.json` et `src/ui/Pantheon.tsx`.)*
+- [x] Étant donné les décors provisoires recadrés de la V1, quand les nouveaux décors sont intégrés, alors chaque lieu a un décor 16:9 au bon format (un seul ratio par type d'image). *(09/11 : les 30 décors ChatGPT (style de la carte, sans logo, avec fond de Ronflex et easter eggs) sont livrés en WebP 1920 × 1080 par `scripts/preparer-decors.mjs`, branchés (Route de Ronflex, Pension, Bourg Palette, Chez Maman, Chez Blue, Labo avec zones cliquables replacées), `tests/decors-formats.test.ts` vert, vitest et e2e ciblés verts. Panthéon migré le même jour : mise en page 16:9 dans `data/pantheon-scene.json` (socles recalés sur les six piédestaux, sprites plus gros et étiquettes sous l'image sur téléphone), `pantheon.json` garde le relevé V1 (délais, textes), ancienne scène carrée supprimée. Reste à regarder les easter eggs sur un vrai téléphone.)*
 - [x] Étant donné la carte de Kanto, quand elle est remplacée, alors les zones cliquables restent alignées (test de géométrie existant vert). *(Déjà fait : carte réaliste en place depuis le commit 1f8a0c5, `carte-geometrie.test.ts` vert.)*
 
 ### Effort et risques

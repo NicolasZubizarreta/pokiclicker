@@ -5,10 +5,10 @@
 - Sources : `assets-src/decors-chatgpt/<lieu>.png` (1672 × 941, ignoré par git).
 - Sorties : `public/img/decors/<lieu>.webp`, 1920 × 1080 (agrandissement de 15 %, qualité WebP 82, 400 Ko en moyenne, 605 Ko au plus), par `node scripts/preparer-decors.mjs --min-largeur 1600`.
 - Les zones cliquables de Bourg Palette, Chez Maman, Chez Blue et du Labo sont dans `data/regions/kanto/scenes.json` (images 16:9, plus de recadrage).
-- Les anciennes scènes carrées `scenes/bourg-palette.webp` et `scenes/labo.webp` sont supprimées.
+- Le Panthéon utilise `decors/pantheon.webp` ; la position des six Pokémon est dans `data/pantheon-scene.json` (x, y et tailles en largeurs d'image), les délais et textes V1 restent dans `data/pantheon.json`. Sur écran de moins de 768 px, les sprites sont agrandis de 30 % et les étiquettes passent sous l'image, sur trois rangées.
+- Les anciennes scènes carrées (`scenes/bourg-palette.webp`, `labo.webp`, `pantheon.webp`) sont supprimées.
 
 ## Reste
-- **Panthéon** : l'image 16:9 `decors/pantheon.webp` est livrée mais le jeu affiche encore l'ancienne scène carrée `scenes/pantheon.webp` (socles des 6 Pokémon calés sur le carré, `data/pantheon.json` et `src/ui/Pantheon.tsx`). À migrer.
 - Vérifier la visibilité des easter eggs sur téléphone (le décor y est coupé au centre).
 
 ## Hors connexion

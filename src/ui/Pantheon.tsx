@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import donnees from '../../data/pantheon.json';
+import miseEnPage from '../../data/pantheon-scene.json';
 import { calendrierPantheon } from '../core/pantheon';
 import type { PokemonPossede } from '../core/sauvegarde';
 import { BoiteDialogue, mouvementReduit } from './BoiteDialogue';
@@ -8,14 +9,19 @@ import { nomAffiche } from './affichage-pokemon';
 import { IconeShiny } from './IconeShiny';
 import { creerConfettis } from './confettis';
 
-// Écart entre les deux rangées d'étiquettes sur écran étroit, en tailles de sprite (deux lignes de texte).
-const rangeeMobile = .55;
+// Décor 16:9 : x, y et tailles sont en largeurs d'image. Sur écran étroit (moins de 768 px, le seuil `md`),
+// les sprites grossissent et les étiquettes passent sous l'image, sur trois rangées (deux lignes de texte chacune).
+const hauteurImage = miseEnPage.ratio[1]! / miseEnPage.ratio[0]!;
+const echelleEtroit = 1.3;
+const pasRangee = .12;
+const ecartImage = .03;
+const verticale = (largeurs: number) => `${largeurs / hauteurImage * 100}%`;
 
 export function Pantheon({ equipe, premiereVictoire, quitter }: {
   equipe: readonly PokemonPossede[]; premiereVictoire: boolean; quitter(): void;
 }) {
   const [reduit] = useState(mouvementReduit);
-  const [large] = useState(() => window.matchMedia?.('(min-width: 1024px)').matches ?? true);
+  const [large] = useState(() => window.matchMedia?.('(min-width: 768px)').matches ?? true);
   const [ligne, changerLigne] = useState<number | null>(null);
   const [ferme, fermer] = useState(false);
   const dialogue = useRef<HTMLDialogElement>(null);
@@ -69,8 +75,10 @@ export function Pantheon({ equipe, premiereVictoire, quitter }: {
           case 'chute': {
             const place = scene.current!.querySelector<HTMLElement>(`[data-partenaire="${action.index}"]`)!;
             place.hidden = false;
+            // Les pieds restent sur le socle : la taille affichée change avec l'écran, pas la surface du socle.
+            const taille = action.type === 'chute' ? action.taille * (large ? 1 : echelleEtroit) : 0;
             if (action.type === 'chute') animer(place, [
-              { transform: `translateY(${(action.depart - action.y) / action.taille * 100}%)` },
+              { transform: `translateY(${(action.depart - (action.y + action.taille - taille)) / taille * 100}%)` },
               { transform: 'translateY(0)' },
             ], donnees.delais.niveauMs);
             break;
@@ -99,7 +107,7 @@ export function Pantheon({ equipe, premiereVictoire, quitter }: {
       fenetre.close();
       if (precedent instanceof HTMLElement && precedent.isConnected) precedent.focus();
     };
-  }, [equipe, premiereVictoire, reduit]);
+  }, [equipe, premiereVictoire, reduit, large]);
 
   function sortir() {
     if (ferme) return;
@@ -107,25 +115,27 @@ export function Pantheon({ equipe, premiereVictoire, quitter }: {
     fermer(true);
     quitter();
   }
-  const geometrie = donnees.geometrie;
-  const basSocles = Math.max(...donnees.socles.map(socle => socle.y));
-  const tailleScene = { width: 'min(100vw, 100dvh)' };
+  const geometrie = miseEnPage.geometrie;
+  const tailleSprite = geometrie.tailleSprite * (large ? 1 : echelleEtroit);
+  const tailleScene = { width: 'min(100vw, calc(100dvh * 16 / 9))' };
   return <dialog ref={dialogue} aria-label="Panthéon" onCancel={event => { event.preventDefault(); sortir(); }}
     className="fixed inset-0 m-0 h-dvh max-h-none w-screen max-w-none overflow-hidden border-0 bg-fond p-0 text-texte backdrop:bg-fond">
     <div className="flex h-full items-center justify-center">
-      <div ref={scene} style={tailleScene} className="relative aspect-square overflow-hidden">
-        <img src="img/scenes/pantheon.webp" alt="" className="absolute inset-0 size-full object-contain" />
-        {equipe.slice(0, donnees.socles.length).map((pokemon, index) => {
-          const socle = donnees.socles[index]!;
+      <div ref={scene} style={tailleScene} className="relative aspect-video">
+        <div className="absolute inset-0 overflow-hidden">
+          <img src={`img/${miseEnPage.image}`} alt="" className="size-full object-contain" />
+        </div>
+        {equipe.slice(0, miseEnPage.socles.length).map((pokemon, index) => {
+          const socle = miseEnPage.socles[index]!;
           const apparence = apparenceSprite(pokemon);
-          const position = { left: `${(socle.x - geometrie.tailleSprite / 2) * 100}%`,
-            top: `${(socle.y - geometrie.tailleSprite + geometrie.decalageBase) * 100}%`, width: `${geometrie.tailleSprite * 100}%` };
-          // Écran large : l'étiquette est sous son socle. Écran étroit : deux rangées fixes sous le plus bas
-          // des socles (les étiquettes voisines se chevauchaient), un Pokémon sur deux par rangée.
-          const hautSprite = socle.y - geometrie.tailleSprite + geometrie.decalageBase;
+          const hautSprite = socle.y - tailleSprite + geometrie.decalageBase;
+          const position = { left: `${(socle.x - tailleSprite / 2) * 100}%`, top: verticale(hautSprite),
+            width: `${tailleSprite * 100}%` };
+          // Écran large : l'étiquette est sous son socle. Écran étroit : trois rangées fixes sous l'image
+          // (les étiquettes voisines se chevauchaient), un Pokémon sur trois par rangée.
           const hautEtiquette = large ? socle.y + geometrie.decalageNiveau
-            : basSocles + geometrie.decalageNiveau + (index % 2) * geometrie.tailleSprite * rangeeMobile;
-          const niveau = { top: `${(hautEtiquette - hautSprite) / geometrie.tailleSprite * 100}%` };
+            : hauteurImage + ecartImage + (index % 3) * pasRangee;
+          const niveau = { top: `${(hautEtiquette - hautSprite) / tailleSprite * 100}%` };
           return <div key={pokemon.uid} data-partenaire={index} hidden style={position} className="absolute aspect-square text-center">
             <img src={apparence.src} alt={nomAffiche(pokemon)} className={`size-full object-contain ${apparence.photo ? '' : 'image-rendering-pixelated'} ${apparence.classe} ${pokemon.shiny ? 'halo-shiny' : ''}`} />
             <div data-identite={index} hidden style={niveau} className={`absolute left-1/2 -translate-x-1/2 whitespace-nowrap rounded-sm bg-fond px-1 text-xs lg:text-sm`}>
@@ -134,8 +144,8 @@ export function Pantheon({ equipe, premiereVictoire, quitter }: {
             </div>
           </div>;
         })}
-        <h1 ref={titre} hidden className="absolute inset-x-8 top-4 bg-fond p-3 text-center font-titre text-xl text-alerte-base lg:text-3xl">{donnees.titre}</h1>
-        <div ref={chen} hidden className="absolute inset-x-4 bottom-20">
+        <h1 ref={titre} hidden className="absolute inset-x-0 bottom-full mx-auto mb-4 w-fit bg-fond p-3 text-center font-titre text-xl text-alerte-base md:bottom-auto md:top-4 md:mb-0 lg:text-3xl">{donnees.titre}</h1>
+        <div ref={chen} hidden className="absolute inset-x-4 top-full mt-4 md:top-auto md:bottom-20 md:mt-0">
           <div className="flex items-end">
             <img src="img/sprites/chen/chen-2.png" alt="Professeur Chen" className="image-rendering-pixelated w-1/5 object-contain" />
             <div className="min-w-0 flex-1">
@@ -147,12 +157,12 @@ export function Pantheon({ equipe, premiereVictoire, quitter }: {
             </div>
           </div>
         </div>
-        <div ref={effets} className="pointer-events-none absolute inset-0 overflow-hidden" />
-        <div ref={rideau} aria-hidden="true" className="pointer-events-none absolute inset-0 bg-fond opacity-0" />
-        <div className="absolute inset-x-0 bottom-4 flex justify-center">
-          <button ref={sortie} type="button" onClick={sortir} className="cadre min-h-11 min-w-36 bg-surface px-4 py-2">{donnees.boutonSortie}</button>
-        </div>
       </div>
+    </div>
+    <div ref={effets} className="pointer-events-none absolute inset-0 overflow-hidden" />
+    <div ref={rideau} aria-hidden="true" className="pointer-events-none absolute inset-0 bg-fond opacity-0" />
+    <div className="absolute inset-x-0 bottom-4 flex justify-center">
+      <button ref={sortie} type="button" onClick={sortir} className="cadre min-h-11 min-w-36 bg-surface px-4 py-2">{donnees.boutonSortie}</button>
     </div>
   </dialog>;
 }

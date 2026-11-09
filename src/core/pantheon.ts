@@ -1,4 +1,5 @@
 import donnees from '../../data/pantheon.json';
+import miseEnPageDonnees from '../../data/pantheon-scene.json';
 
 export type FichierPantheon = typeof donnees;
 
@@ -41,6 +42,35 @@ export function chargerPantheon(fichier: unknown): FichierPantheon {
 
 const pantheon = chargerPantheon(donnees);
 
+export type MiseEnPagePantheon = typeof miseEnPageDonnees;
+
+/** Mise en page sur le décor 16:9 (ticket O). Les timbres et textes restent ceux de la V1 (pantheon.json) ;
+ * ici x, y et les tailles sont en largeurs d'image (la hauteur de l'image vaut 9/16), y est la surface du socle. */
+export function chargerMiseEnPagePantheon(fichier: unknown): MiseEnPagePantheon {
+  function verifier(ok: unknown, raison: string): asserts ok {
+    if (!ok) throw new Error(`Mise en page du Panthéon invalide : ${raison}`);
+  }
+  const objet = (v: unknown) => v !== null && typeof v === 'object' && !Array.isArray(v);
+  const fraction = (v: unknown) => typeof v === 'number' && Number.isFinite(v) && v >= 0 && v <= 1;
+  verifier(objet(fichier), 'fichier attendu.');
+  const m = fichier as MiseEnPagePantheon;
+  verifier(m.version === 1, 'version inconnue.');
+  verifier(typeof m.image === 'string' && m.image.length > 0, 'image attendue.');
+  verifier(Array.isArray(m.ratio) && m.ratio.length === 2 && m.ratio.every(v => Number.isFinite(v) && v > 0), 'ratio invalide.');
+  verifier(Array.isArray(m.socles) && m.socles.length === 6, 'six socles attendus.');
+  for (const socle of m.socles) {
+    verifier(objet(socle) && fraction(socle.x) && fraction(socle.y) && socle.y < m.ratio[1]! / m.ratio[0]!,
+      'socle hors de l\'image.');
+  }
+  verifier(objet(m.geometrie), 'géométrie attendue.');
+  const g = m.geometrie;
+  verifier(fraction(g.tailleSprite) && g.tailleSprite > 0 && fraction(g.decalageBase) && fraction(g.decalageNiveau)
+    && typeof g.departChute === 'number' && g.departChute < 0 && fraction(-g.departChute), 'géométrie invalide.');
+  return structuredClone(m);
+}
+
+const miseEnPage = chargerMiseEnPagePantheon(miseEnPageDonnees);
+
 type Position = { index: number; x: number; y: number };
 export type ActionPantheon =
   | { type: 'fondu-noir' | 'fondu-retour' | 'entree-chen' | 'sortie-chen' | 'masquer-chen' | 'fin' }
@@ -58,7 +88,7 @@ export type EtapePantheon = { tMs: number; action: ActionPantheon };
  */
 export function calendrierPantheon(n: number, premiere: boolean, reduit: boolean): EtapePantheon[] {
   if (!Number.isInteger(n) || n < 0) throw new Error('Nombre de Pokémon invalide.');
-  const nombre = Math.min(n, pantheon.socles.length);
+  const nombre = Math.min(n, miseEnPage.socles.length);
   const d = pantheon.delais;
   const calendrier: EtapePantheon[] = [];
   const ajouter = (tMs: number, action: ActionPantheon) => calendrier.push({ tMs, action });
@@ -74,8 +104,8 @@ export function calendrierPantheon(n: number, premiere: boolean, reduit: boolean
     ajouter(debut, { type: 'masquer-chen' });
     debut += d.apresChenMs;
   }
-  const g = pantheon.geometrie;
-  pantheon.socles.slice(0, nombre).forEach((socle, index) => {
+  const g = miseEnPage.geometrie;
+  miseEnPage.socles.slice(0, nombre).forEach((socle, index) => {
     const tMs = debut + (reduit ? 0 : index * d.entrePokemonMs);
     const position = { index, x: socle.x - g.tailleSprite / 2,
       y: socle.y - g.tailleSprite + g.decalageBase, taille: g.tailleSprite };

@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "image": "decors/pantheon.webp",
+  "ratio": [16, 9],
+  "socles": [
+    { "x": 0.138, "y": 0.352 },
+    { "x": 0.216, "y": 0.263 },
+    { "x": 0.271, "y": 0.18 },
+    { "x": 0.729, "y": 0.18 },
+    { "x": 0.784, "y": 0.263 },
+    { "x": 0.862, "y": 0.352 }
+  ],
+  "geometrie": {
+    "tailleSprite": 0.085,
+    "decalageBase": 0.01,
+    "decalageNiveau": 0.02,
+    "departChute": -0.2
+  }
+}

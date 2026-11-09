@@ -137,7 +137,7 @@ it('permet la visite de Blue et le retour au clavier', async () => {
   await user.tab();
   expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Chez Blue' }));
   await user.keyboard('{Enter}');
-  expect(screen.getByText('Eh pourquoi il a le droit à une maison en 3D lui ?')).toBeTruthy();
+  expect(screen.queryByLabelText('Dialogue')).toBeNull();
   // Chez Blue est une image 16:9 pleine : le cadre a le ratio de l'image.
   const blue = chargerScenes().find(s => s.id === 'kanto.chez-blue')!;
   expect(screen.getByRole('img').parentElement?.parentElement?.style.aspectRatio).toBe(`${ratioUtile(blue)} / 1`);

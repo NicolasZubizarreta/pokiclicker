@@ -70,7 +70,7 @@ for (const largeur of [390, 1440]) {
       await page.getByRole('button', { name: nom, exact: true }).focus();
       await page.keyboard.press('Enter');
       if (nom === 'Chez Maman') await expect(page.getByText("Il n'y a rien à faire ici, sortons.")).toBeVisible();
-      if (nom === 'Chez Blue') await expect(page.getByText('Eh pourquoi il a le droit à une maison en 3D lui ?')).toBeVisible();
+      if (nom === 'Chez Blue') await expect(page.getByRole('region', { name: 'Chez Blue', exact: true }).getByLabel('Dialogue', { exact: true })).toHaveCount(0);
       await capturer(nom);
       await page.getByRole('button', { name: 'Sortie', exact: true }).press('Enter');
       await expect(page.getByRole('img', { name: 'Bourg Palette' })).toBeVisible();
