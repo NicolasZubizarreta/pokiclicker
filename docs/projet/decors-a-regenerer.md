@@ -4,12 +4,12 @@ Décision de Nicolas (09/11) : tous les décors sont refaits dans le style de la
 
 ## Les 30 décors
 - 21 zones de combat : Route 1, Forêt de Jade, Arène d'Argenta, Mont Sélénite, Arène d'Azuria, Pont Pépite, Arène de Carmin, Cave Taupiqueur, Tunnel Rocheux, Tour Pokémon, Arène de Céladopole, Centrale, Arène de Parmanie, Sylphe SARL, Arène de Safrania, Îles Écume, Arène de Cramois'Île, Arène de Jadielle, Caverne Azurée, Route Victoire, Ligue Pokémon (une seule salle, plus de collage).
-- Route de Ronflex (nouveau, centre dégagé pour le sprite et le mini-jeu de flûte) et Pension (V1 : `legacy/img/kanto/background/Pension.png`, jamais convertie car le recadrage 16:9 perdait 12,7 %).
+- Route de Ronflex (nouveau, centre dégagé pour le sprite et le mini-jeu de flûte) et Pension (la V1 avait une pension, `Pension.png`, jamais convertie car le recadrage 16:9 perdait 12,7 % ; on ne la reprend pas).
 - Chez Blue, Chez Maman, Centre Commercial, Casino.
 - À la fin : Bourg Palette, Labo, Panthéon. Ce sont des scènes carrées avec zones cliquables : une fois les versions 16:9 livrées, replacer les zones (`data/regions/kanto/scenes.json`, ratio 1:1 aujourd'hui) et refaire leurs tests.
 
 ## Méthode
-1. Coller le prompt du décor dans ChatGPT, joindre la carte puis l'image de référence indiquée.
+1. Coller le prompt du décor dans ChatGPT et joindre la carte seule (pour le rendu). Aucune ancienne image de décor : chaque lieu est décrit d'après les jeux.
 2. Enregistrer l'image sous le nom du lieu dans `assets-src/decors-gemini/` (ex. `route-1.png`).
 3. `node scripts/preparer-decors-gemini.mjs --marge 0` : recadre en 16:9, écrit `public/img/decors/<nom>.webp` en 1920 × 1080 et met `tailles.json` à jour. Il refuse un nom inconnu ou une image de moins de 1920 px de large. Sans `--marge 0`, il retire 10,5 % à droite et en bas, là où Gemini place son logo.
 4. `tests/decors-formats.test.ts` garde le format. Pension livrée : la retirer de `SANS_DECOR_16_9`.
