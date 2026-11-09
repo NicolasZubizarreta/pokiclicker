@@ -337,11 +337,11 @@ Reprendre les animations et effets de la V1 (`docs/projet/v1-visuel-a-porter.md`
 
 ## O. `chore(assets): régénérer les décors et la carte au bon format`
 
-`type:chore`, `etat:a_faire`, `est:2-3`, `prio:5` · branche : `v2` · pas d'`agent-ok` (génération d'images, choix artistique) · voir `docs/projet/decors-provisoires.md`
+`type:chore`, `etat:en_cours`, `est:2-3`, `prio:5` · branche : `v2` · pas d'`agent-ok` (génération d'images, choix artistique) · voir `docs/projet/decors-provisoires.md` et `docs/projet/decors-a-regenerer.md`
 
 ### Critères d'acceptation
-- [ ] Étant donné les décors provisoires recadrés de la V1, quand les nouveaux décors sont intégrés, alors chaque lieu a un décor 16:9 au bon format (un seul ratio par type d'image).
-- [ ] Étant donné la carte de Kanto, quand elle est remplacée, alors les zones cliquables restent alignées (test de géométrie existant vert).
+- [ ] Étant donné les décors provisoires recadrés de la V1, quand les nouveaux décors sont intégrés, alors chaque lieu a un décor 16:9 au bon format (un seul ratio par type d'image). *(09/11 : décision de Nicolas, tout refaire dans le style de la carte, sans logo Gemini, avec fond de Ronflex et easter eggs. Prêt côté code : `scripts/preparer-decors-gemini.mjs` (retire le logo, 16:9, WebP, `tailles.json`), `tests/decors-formats.test.ts` (format des 25 décors livrés, liste des 4 lieux sans décor 16:9), liste des 27 prompts et easter eggs dans `decors-a-regenerer.md`. Attend les images de Nicolas.)*
+- [x] Étant donné la carte de Kanto, quand elle est remplacée, alors les zones cliquables restent alignées (test de géométrie existant vert). *(Déjà fait : carte réaliste en place depuis le commit 1f8a0c5, `carte-geometrie.test.ts` vert.)*
 
 ### Effort et risques
 2 à 3 jours. Dépend du choix de style de Nicolas.
