@@ -143,7 +143,7 @@ The attached image is the Kanto map: use it only for the visual style (brush, ou
 
 Place: A tall haunted memorial tower: the inside of a tall stone tower with a purple-grey floor, rows of old gravestones, a staircase going up, drifting ghostly mist, candle lights, a gloomy lilac atmosphere.
 
-Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): a small brown creature wearing a bone skull as a helmet and holding a bone club, seen from behind, standing alone in front of one gravestone. This is the only creature allowed in this picture; it must be tiny compared to the tower.
+Hidden detail (a discreet easter egg, small enough to be missed at first glance, placed in the upper half of the picture within the middle 50% of its width): a single gravestone slightly larger than the others, with a long bone resting against it and a small bunch of wild flowers at its foot. No creature in this picture.
 ```
 
 ## 11. Arène de Céladopole
