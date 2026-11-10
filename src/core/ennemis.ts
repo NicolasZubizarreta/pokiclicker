@@ -6,7 +6,7 @@ import { statsDeCombat } from './stats';
 const catalogue = chargerPokemon();
 export type Ennemi = {
   numero: number; niveau: number; shiny: boolean; boss: boolean;
-  capture: number; pv: number; pvMax: number; rarete: Rarete | null; fauche?: true;
+  capture: number; pv: number; pvMax: number; rarete: Rarete | null; fauche?: true; /** Lancers de balle ratés sur cet ennemi (pitié de la capture). */ echecs?: number;
 };
 
 export function creerEnnemi(zone: Zone, etape: number, alea: () => number,

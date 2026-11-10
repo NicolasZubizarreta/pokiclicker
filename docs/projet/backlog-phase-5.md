@@ -444,3 +444,32 @@ Toute autre règle de jeu ; une fiche détaillée pour un Pokémon « vu » (nom
 Sauvegarde en version 4 (`vus` dans la partie, migration 3 → 4 : capturés + PC sans œufs ; addendum dans l'ADR 0001). Un sauvage qui s'affiche entre dans `vus` une fois (les boss et dresseurs ne comptent pas) ; `capturés ⊆ vus` est garanti au chargement et à l'écriture. Pokédex à trois états sur téléphone et PC (maquettes a5 et PC mises à jour) ; fiche d'un « vu » réduite au nom, au sprite grisé et à un message de capture, sans types. Serveur : aucun changement de code (il stocke `donnees` sans la lire), test ajouté pour la version 4.
 Fusion à la synchro : aucune fusion champ par champ n'existe (ADR 0004 : le serveur fait foi, la divergence archive le local), donc pas d'union à coder ; `vus` suit la règle de `pokedexNational`.
 À la mise en ligne : sauvegarde de la base, puis redéployer le serveur, puis le jeu.
+
+## W. `fix(capture): adoucir la pénalité de niveau et ajouter une pitié par catégorie de Pokémon et par balle`
+
+`type:fix`, `etat:fait`, `est:1`, `prio:2` · branche : `v2` · pas d'`agent-ok` (touche une règle de jeu, validée par Nicolas le 10/11/2026)
+
+### Histoire
+En tant que joueur, je veux que capturer demande un nombre de balles raisonnable (1 ou 2 pour un Rattata, une centaine pour un légendaire en Pokéball) afin que la capture reste un défi sans devenir une corvée.
+
+### Contexte
+Retours d'amis testeurs : plus de 100 Hyperballs pour un légendaire, 80 Pokéballs pour un starter, 10 Pokéballs pour un Rattata. La formule actuelle (identique à la V1) est `taux/255 × santé × balle / (1 + niveau/25)` ; le taux de capture des spawns est l'officiel de génération 1. Décisions de Nicolas : le calcul en fonction des PV ne bouge pas (la CT Fauchage laisse l'ennemi à 1 PV, c'est voulu) ; Hyperball reste ×4 ; Master Ball reste certaine. Il a fixé lui-même, ligne par ligne, le nombre de balles qui suffit dans 90 % des cas (24 lignes : 12 niveaux de Pokémon × Pokéball et Hyperball, colonnes PV pleins, 50 %, 5 %, 1 PV) et validé le réglage ci-dessous le 10/11.
+
+### Critères d'acceptation
+- [x] Étant donné un ennemi capturable, quand la chance de capture est calculée, alors la pénalité de niveau vaut `1 + niveau / diviseur` avec le diviseur lu dans `data/reglages.json` (100 au lieu de 25).
+- [x] Étant donné plusieurs lancers ratés de suite sur le même ennemi, quand le lancer n (n = échecs précédents) est calculé, alors la chance est multipliée par `1 + pitié × n`, la pitié dépendant de la catégorie de taux de capture de l'ennemi et de la balle, lue dans `data/reglages.json`.
+- [x] Étant donné un nouvel ennemi (suivant, boss, changement de zone), quand il apparaît, alors son compteur d'échecs repart à zéro.
+- [x] Étant donné la Master Ball, quand elle est lancée, alors la capture reste certaine ; le calcul en fonction des PV et le bonus du badge Marais ne changent pas.
+- [x] Étant donné les cibles de Nicolas (24 lignes), quand un test les simule, alors le nombre de balles à 90 % reste dans sa fourchette (±15 % ou ±1 balle) sur la grande majorité des cases ; les écarts connus (Évolué niv50, Rare niv35 et 45 en Pokéball, Évolué en Hyperball, Rare niv45 et Légendaires en Hyperball) sont consignés dans la réalisation.
+- [x] Étant donné les tests, quand `tsc -b`, eslint et vitest tournent, alors ils restent verts (hors les 3 échecs déjà présents) et le simulateur est relancé (`node scripts/simuler-parcours.mjs --clics 7`).
+
+### Hors périmètre
+Formule des PV, multiplicateurs de balles, taux de capture des spawns, Master Ball, affichage d'un pourcentage de chance, auto-attaque qui tue avant le lancer.
+
+### Effort et risques
+Environ 1 jour. Risque : la Superball n'est pas couverte par les cibles de Nicolas (valeurs intermédiaires entre Pokéball et Hyperball, à lui faire confirmer) ; l'équilibre de la progression (argent des balles) peut bouger, d'où le simulateur.
+
+### Réalisation (10/11/2026)
+Diviseur de niveau 100 et table de pitié dans data/reglages.json (capture.diviseurNiveau, capture.pitie, validées dans src/core/reglages.ts) ; Ennemi.echecs compté à chaque capture-echouee (src/core/combat.ts), donc remis à zéro avec chaque nouvel ennemi ; chanceCapture et pitieCapture dans src/core/capture.ts. Pitié (Pokéball / Superball / Hyperball) : taux ≥ 150 : 0,085 / 0,04 / 0 ; 100 à 149 : 0,09 / 0,05 / 0 ; 40 à 99 : 0,18 / 0,16 / 0,13 ; 10 à 39 : 0,23 / 0,33 / 0,42 ; moins de 10 : 0,15 / 0,23 / 0,31. Les valeurs de la Superball sont les moyennes Pokéball/Hyperball de la catégorie, que Nicolas n'a pas fixées : à lui faire confirmer.
+Tableau de ses 24 lignes (96 cases) : 82 cases à ±15 % ou ±1 balle ; écarts : lignes 6, 7 (5 % : 9 au lieu de 7), 9, 10, 17, 18, 22, 23, 24, jusqu'à 25 % sur les plus hautes, en cohérence avec ce qu'il a accepté. Test dans src/core/capture.test.ts. Les tests de fidélité V1 (	ests/capture-fidelite.test.ts, 	ests/progression-fidelite.test.ts) passent par l'écart voulu chanceCaptureAttendueV2 de 	ests/ecarts-v1.ts.
+Simulateur (--clics 7) : Ligue gagnée en 420,6 min de jeu ; au même commit sans le ticket, bloqué en Ligue après 335,7 min. La référence de 87,0 min du ticket V n'est plus reproduite depuis les changements suivants, indépendamment de la capture.

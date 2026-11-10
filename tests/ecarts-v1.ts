@@ -17,6 +17,14 @@ import { reglages } from '../src/core/reglages';
 export const MULTIPLICATEUR_OR_V2 = reglages.recompenses.or.multiplicateur;
 export const MULTIPLICATEUR_OR_CAPTURE_V1 = 2;
 
+// Ticket W (10/11/2026) : la pénalité de niveau de la capture passe de 1 + niveau/25 (V1) à 1 + niveau/100, sans échec
+// précédent (la pitié ne joue pas). Chance V2 attendue en pourcentage, plafonnée à 100 comme l'affichage de la V1.
+export const DIVISEUR_NIVEAU_V1 = 25;
+export function chanceCaptureAttendueV2(chanceV1Pourcent: number, niveau: number): number {
+  const rapport = (1 + niveau / DIVISEUR_NIVEAU_V1) / (1 + niveau / reglages.capture.diviseurNiveau);
+  return Math.min(100, chanceV1Pourcent * rapport);
+}
+
 // Ticket AB : à partir de la Centrale, les PV des ennemis sont multipliés par 0,8 (le multiplicateur de PV de la zone,
 // pas les dégâts). Les zones d'avant, les zones 1 et 2 comprises, gardent la valeur de la V1.
 export const PREMIERE_ZONE_ADOUCIE_V1 = 12;

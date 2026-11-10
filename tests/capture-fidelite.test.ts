@@ -1,6 +1,6 @@
 import { expect, it } from 'vitest';
 import fixture from './fixtures/v1-capture.json';
-import { MULTIPLICATEUR_OR_V2 } from './ecarts-v1';
+import { chanceCaptureAttendueV2, MULTIPLICATEUR_OR_V2 } from './ecarts-v1';
 import { appliquerCapture, chanceCapture, retirerBalle } from '../src/core/capture';
 import { motifArret } from '../src/core/combat';
 import { reglages } from '../src/core/reglages';
@@ -10,7 +10,8 @@ import type { DonneesRegion } from '../src/core/sauvegarde-types';
 it('compare les 30 chances affichées par la V1 sans tolérance', () => {
   expect(fixture.chances.length).toBe(30);
   for (const cas of fixture.chances) {
-    expect(Math.min(chanceCapture(cas.ennemi, cas.cle, cas.marais ? ['badge:marais'] : []), 1) * 100).toBe(cas.chance);
+    expect(Math.min(chanceCapture(cas.ennemi, cas.cle, cas.marais ? ['badge:marais'] : []), 1) * 100)
+      .toBeCloseTo(chanceCaptureAttendueV2(cas.chance, cas.ennemi.niveau), 9);
   }
 });
 

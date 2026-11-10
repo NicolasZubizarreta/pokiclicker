@@ -38,6 +38,10 @@ export type ReglagesIntro = {
 export type ReglagesCapture = {
   balles: { cle: string; nom: string; image: string; multiplicateur: number }[];
   multiplicateurCertain: number; bonus: Bonus[];
+  /** Pénalité de niveau : 1 + niveau / diviseurNiveau. */
+  diviseurNiveau: number;
+  /** Pitié : après n échecs sur le même ennemi, la chance est multipliée par 1 + pitié × n. Catégories par taux de capture décroissant. */
+  pitie: { tauxMin: number; balles: Partial<Record<string, number>> }[];
   animationMs: number; reapparitionMs: number; raisonImpossible: string;
 };
 
@@ -206,8 +210,13 @@ if (!capture.raisonImpossible || !capture.balles.length
   || new Set(capture.balles.map((balle) => balle.cle)).size !== capture.balles.length
   || capture.balles.some((balle) => !balle.cle || !balle.nom || !balle.image
     || !Number.isFinite(balle.multiplicateur) || balle.multiplicateur <= 0)
-  || [capture.multiplicateurCertain, capture.animationMs, capture.reapparitionMs]
+  || [capture.multiplicateurCertain, capture.diviseurNiveau, capture.animationMs, capture.reapparitionMs]
     .some((valeur) => !Number.isFinite(valeur) || valeur <= 0)
+  || capture.pitie.length === 0 || capture.pitie[capture.pitie.length - 1]!.tauxMin !== 0
+  || capture.pitie.some((categorie, i) => !Number.isFinite(categorie.tauxMin)
+    || (i > 0 && categorie.tauxMin >= capture.pitie[i - 1]!.tauxMin)
+    || Object.entries(categorie.balles).some(([cle, valeur]) => !capture.balles.some((balle) => balle.cle === cle)
+      || !Number.isFinite(valeur) || valeur! < 0))
   || capture.bonus.some((bonus) => !bonus.cle || !Number.isFinite(bonus.x) || bonus.x <= 0)) {
   throw new Error('Réglages de capture invalides');
 }

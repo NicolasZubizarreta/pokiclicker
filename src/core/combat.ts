@@ -171,6 +171,7 @@ export function avancerCombat(etat: EtatCombat, pasMs: number): EtatCombat {
         continue;
       }
       etat = { ...etat, capture: null,
+        ennemi: etat.ennemi && { ...etat.ennemi, echecs: (etat.ennemi.echecs ?? 0) + 1 },
         evenements: [...etat.evenements, { type: 'capture-echouee' }] };
     }
     if (etat.minuteurMs === 0) {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import fixture from './fixtures/v1-badges.json';
-import { MULTIPLICATEUR_OR_V2 } from './ecarts-v1';
+import { chanceCaptureAttendueV2, MULTIPLICATEUR_OR_V2 } from './ecarts-v1';
 import donneesZones from '../data/regions/kanto/zones.json';
 import { actifsDe, accorderJalons, badgeDeZone, chargerBadges, chargerJalons } from '../src/core/progression';
 import { calculerClic, calculerDpsEquipe } from '../src/core/combat';
@@ -55,8 +55,9 @@ describe('progression : fidélité V1 de bout en bout', () => {
       expect(calculerXp({ ...victoire, boss }, actifs)).toBe(jeu.xp[mode]);
     }
     // V1 exprime la chance en pourcentage ; V2 renvoie une probabilité.
-    expect(chanceCapture({ capture: cible.catchRate, pv: cible.hp,
-      pvMax: cible.maxHp, niveau: cible.level }, balles[fixture.balle]!, actifs) * 100).toBe(jeu.chance);
+    expect(Math.min(chanceCapture({ capture: cible.catchRate, pv: cible.hp,
+      pvMax: cible.maxHp, niveau: cible.level }, balles[fixture.balle]!, actifs) * 100, 100))
+      .toBeCloseTo(chanceCaptureAttendueV2(jeu.chance, cible.level), 9);
     expect(delaiEnnemiSuivant(actifs)).toBe(jeu.delai);
     expect(prixObjet(objet, { badges: entree.badges.length,
       palier: entree.jalonsRecus.includes(70) })).toBe(jeu.prix);

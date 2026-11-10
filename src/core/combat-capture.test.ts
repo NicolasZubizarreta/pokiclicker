@@ -192,6 +192,16 @@ describe('Capture dans le combat', () => {
     expect(apres.evenements).toEqual([{ type: 'capture-echouee' }]);
   });
 
+  it('compte les échecs sur l’ennemi courant, qui repartent à zéro avec le suivant', () => {
+    const initial = creerCombat(route, equipe, alea);
+    let etat = { ...initial, ennemi: { ...initial.ennemi, pv: 1e9, pvMax: 1e9 } };
+    for (let i = 1; i <= 2; i++) {
+      etat = avancerCombat(lancerCapture(etat, 0), 1500);
+      expect(etat.ennemi.echecs).toBe(i);
+    }
+    expect(creerCombat(route, equipe, alea).ennemi.echecs).toBeUndefined();
+  });
+
   it.each(['dps', 'clic', 'échéance'] as const)('annule sans tirage ni événement de capture à la mort (%s)', (cause) => {
     let tirages = 0;
     const initial = creerCombat(route, equipe, () => { tirages++; return 0.5; });

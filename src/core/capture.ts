@@ -4,16 +4,23 @@ import { reglages } from './reglages';
 import type { DonneesRegion, PokemonPossede } from './sauvegarde-types';
 import { tirerSexe } from './sexe';
 
-type EnnemiCapture = { capture: number; pv: number; pvMax: number; niveau: number };
+type EnnemiCapture = { capture: number; pv: number; pvMax: number; niveau: number; echecs?: number };
 type Inventaire = Readonly<Record<string, number>>;
+
+/** Pitié de la balle pour la catégorie de taux de capture de l'ennemi (0 si la balle n'en a pas). */
+export function pitieCapture(taux: number, cle: string): number {
+  const categorie = reglages.capture.pitie.find((entree) => taux >= entree.tauxMin);
+  return categorie?.balles[cle] ?? 0;
+}
 
 export function chanceCapture(ennemi: EnnemiCapture, cle: string, actifs: readonly string[]): number {
   const balle = reglages.capture.balles.find((entree) => entree.cle === cle);
   if (!balle || ennemi.capture === 0 || ennemi.pv <= 0) return 0;
   const base = ennemi.capture / 255;
   const sante = ((3 * ennemi.pvMax) - (2 * ennemi.pv)) / (3 * ennemi.pvMax);
-  const niveau = 1 + (ennemi.niveau / 25);
+  const niveau = 1 + (ennemi.niveau / reglages.capture.diviseurNiveau);
   let chance = (base * sante * balle.multiplicateur) / niveau;
+  chance *= 1 + pitieCapture(ennemi.capture, cle) * (ennemi.echecs ?? 0);
   for (const bonus of reglages.capture.bonus) {
     if (actifs.includes(bonus.cle)) chance *= bonus.x;
   }
