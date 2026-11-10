@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { avancerCombat, calculerClic, cliquer, creerCombat, faucher, invoquerBoss, lancerCapture } from './combat';
+import { avancerCombat, calculerClic, calculerDpsEquipe, cliquer, creerCombat, faucher, invoquerBoss, lancerCapture } from './combat';
 import { creerEnnemi } from './ennemis';
 import type { Zone } from './monde';
 import { reglages } from './reglages';
@@ -57,13 +57,67 @@ describe('objets actifs dans le combat', () => {
     const marque = faucher(etat);
     const frappe = cliquer(marque, { essayer: () => true });
     expect(frappe.ennemi.pv).toBe(1);
-    expect(cliquer(frappe, { essayer: () => true }).ennemi.pv).toBe(1);
-    expect(frappe.evenements).toEqual([]);
+    expect(frappe.evenements).toEqual([{ type: 'arret-fauchage' }]);
     expect(etat.ennemi.pv).toBe(clic);
     expect(etat.ennemi.fauche).toBeUndefined();
     const capture = avancerCombat(lancerCapture(frappe, 1), reglages.capture.animationMs);
     expect(capture.evenements.some(e => e.type === 'capture-reussie')).toBe(true);
     expect(capture.ennemi.fauche).toBeUndefined();
+  });
+
+  describe('pause de l’attaque auto à 1 PV (ticket X)', () => {
+    const essayer = { essayer: () => true };
+    const equipe = [{ numero: 19, niveau: 50 }];
+    // Ennemi qui tombe à 0 en deux secondes d'attaque auto si rien ne l'épargne.
+    const fauchee = (options = {}, pv?: number) => {
+      const initial = creerCombat(zone, equipe, () => 0.5, [], options);
+      const dps = calculerDpsEquipe(equipe, initial.ennemi, []);
+      return faucher({ ...initial, ennemi: { ...initial.ennemi, pv: pv ?? Math.ceil(dps * 2), pvMax: 1e9 } });
+    };
+
+    it('l’attaque auto laisse l’ennemi à 1 PV, puis s’arrête sans plus rien infliger', () => {
+      const etat = avancerCombat(fauchee({ autoAttaque: true }), 5000);
+      expect(etat.ennemi.pv).toBe(1);
+      expect(etat).toMatchObject({ autoAttaque: false, autoClic: false, interrompu: true,
+        avantArret: { autoAttaque: true, autoClic: false } });
+      expect(etat.evenements.filter(e => e.type === 'arret-fauchage')).toHaveLength(1);
+      expect(avancerCombat(etat, 5000).ennemi.pv).toBe(1);
+    });
+
+    it('un clic sur l’ennemi à 1 PV le tue, et l’attaque auto reprend', () => {
+      const pause = avancerCombat(fauchee({ autoAttaque: true }), 5000);
+      const apres = cliquer(pause, essayer);
+      expect(apres.evenements.map(e => e.type)).toEqual(['arret-fauchage', 'ennemi-vaincu', 'reprise-auto']);
+      expect(apres).toMatchObject({ autoAttaque: true, interrompu: false, avantArret: null });
+      expect(apres.ennemi.fauche).toBeUndefined();
+    });
+
+    it('la capture réussie à 1 PV relance aussi l’attaque auto, et l’auto-clic est rendu avec elle', () => {
+      const pause = avancerCombat(fauchee({ autoAttaque: true, autoClic: true }), 5000);
+      expect(pause.autoClic).toBe(false);
+      const capture = avancerCombat(lancerCapture(pause, 1), reglages.capture.animationMs);
+      expect(capture.evenements.map(e => e.type)).toContain('reprise-auto');
+      expect(capture).toMatchObject({ autoAttaque: true, autoClic: true });
+    });
+
+    it('un clic qui aurait tué avant 1 PV laisse 1 PV et met aussi l’auto en pause ; sans auto rien ne change', () => {
+      const base = fauchee({ autoAttaque: true });
+      const clic = calculerClic(calculerDpsEquipe(equipe, base.ennemi, []));
+      const premier = cliquer(fauchee({ autoAttaque: true }, clic - 1), essayer);
+      expect(premier).toMatchObject({ autoAttaque: false, interrompu: true });
+      expect(premier.ennemi.pv).toBe(1);
+      const manuel = cliquer(fauchee({ autoAttaque: false }, clic - 1), essayer);
+      expect(manuel.interrompu).toBe(false);
+      expect(manuel.evenements).toEqual([]);
+    });
+
+    it('si l’arrêt auto avait déjà interrompu, la reprise garde l’état d’origine', () => {
+      const interrompu = { ...fauchee({ autoAttaque: false }, 5), interrompu: true,
+        avantArret: { autoAttaque: true, autoClic: false } };
+      const apres = cliquer(avancerCombat(interrompu, 100), essayer);
+      expect(apres.ennemi.pv).toBe(1);
+      expect(apres.avantArret).toEqual({ autoAttaque: true, autoClic: false });
+    });
   });
 
   it('refuse le fauchage sur un boss ou pendant l’attente', () => {

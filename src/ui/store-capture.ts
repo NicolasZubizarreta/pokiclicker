@@ -34,6 +34,7 @@ export function banniereArret(motif: Extract<EvenementCombat, { type: 'arret-aut
 }
 export function annonceCapture(evenement: EvenementCombat, numero: number): string | null {
   if (evenement.type === 'arret-auto') return `${motifs[evenement.motif]} ! Auto-attaque arrêtée.`;
+  if (evenement.type === 'arret-fauchage') return 'À 1 PV ! Auto-attaque en pause.';
   if (evenement.type === 'reprise-auto') return 'Auto-attaque reprise.';
   if (evenement.type === 'capture-reussie') return `${chargerPokemon().parNumero(evenement.numero).nom} est capturé !`;
   if (evenement.type === 'capture-echouee') return `${chargerPokemon().parNumero(numero).nom} s'est échappé !`;

@@ -26,6 +26,8 @@
   .combat-pc .actions-quatre { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .combat-pc .plaque-vertical { flex-direction: row; min-height: calc(var(--spacing) * 13); }
   .combat-pc .touche-pc { display: inline-block; font-family: var(--font-mono); font-size: var(--text-xs); margin-left: var(--spacing); }
+  /* Bouton carré (Fauchage) : la touche se pose dans le coin pour laisser la place à l'icône et à la recharge. */
+  .combat-pc .plaque-carre .touche-pc { position: absolute; top: var(--spacing); left: var(--spacing); margin: 0; }
   .combat-pc .ligne-capture, .combat-pc .actions-combat { flex-shrink: 0; }
   @container (min-height: 26rem) {
     .combat-pc .scene-limitee > .pointer-events-none.absolute.right-1,

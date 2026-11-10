@@ -43,7 +43,7 @@
 .plaque-carre {
   flex-direction: column;
   gap: 0;
-  width: calc(var(--spacing) * 14);
+  width: calc(var(--spacing) * 20);
   min-height: calc(var(--spacing) * 14);
   padding: var(--spacing);
   font-size: var(--text-xs);

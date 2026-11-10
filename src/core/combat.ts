@@ -47,6 +47,7 @@ export type EvenementCombat =
   | { type: 'capture-reussie'; numero: number; niveau: number; shiny: boolean; boss: boolean; rarete: Rarete | null }
   | { type: 'capture-echouee' }
   | { type: 'arret-auto'; motif: Rarete | 'shiny' | 'nouveau' }
+  | { type: 'arret-fauchage' }
   | { type: 'reprise-auto' };
 type OptionsCombat = {
   autoAttaque?: boolean; arret?: ReglagesArret | null; pokedex?: readonly number[]; autoClic?: boolean;
@@ -107,11 +108,20 @@ export function reprendreCombat(zone: Zone, equipe: readonly MembreEquipe[], ale
     minuteurMs: ennemi.boss ? reglages.combat.minuteurBossMs : null });
 }
 
-function infliger(etat: EtatCombat, degats: number): EtatCombat {
+/**
+ * Fauchage : les dégâts laissent l'ennemi à 1 PV et mettent l'attaque auto en pause (reprise à sa mort ou à sa capture,
+ * par `avantArret`). Un clic du joueur sur un ennemi déjà à 1 PV le met K.O. comme d'habitude.
+ */
+function infliger(etat: EtatCombat, degats: number, clic = false): EtatCombat {
   const reste = etat.ennemi.pv - degats;
-  const pv = etat.ennemi.fauche && reste < 1 ? 1 : Math.max(0, reste);
-  if (pv > 0) return { ...etat, ennemi: { ...etat.ennemi, pv } };
-  return terminerEnnemi(etat, false);
+  const epargne = etat.ennemi.fauche === true && reste < 1 && !(clic && etat.ennemi.pv <= 1);
+  const pv = epargne ? 1 : Math.max(0, reste);
+  if (pv <= 0) return terminerEnnemi(etat, false);
+  const suivant = { ...etat, ennemi: { ...etat.ennemi, pv } };
+  if (!epargne || (!etat.autoAttaque && !etat.autoClic)) return suivant;
+  return { ...suivant, autoAttaque: false, autoClic: false, interrompu: true,
+    avantArret: etat.avantArret ?? { autoAttaque: etat.autoAttaque, autoClic: etat.autoClic },
+    evenements: [...etat.evenements, { type: 'arret-fauchage' }] };
 }
 
 function terminerEnnemi(etat: EtatCombat, capture: boolean): EtatCombat {
@@ -162,7 +172,8 @@ export function avancerCombat(etat: EtatCombat, pasMs: number): EtatCombat {
       ? calculerDpsEquipe(etat.equipe, etat.ennemi, etat.actifs) * dt / 1e3 : 0);
     pasMs -= dt;
     // La victoire prime sur l’expiration, même dans la dernière tranche ; une seule mort par pas, comme avant.
-    if (suivant.evenements.length !== etat.evenements.length) return suivant;
+    // (La pause du Fauchage à 1 PV n'est pas une mort : le pas continue.)
+    if (suivant.evenements.slice(etat.evenements.length).some((evenement) => evenement.type !== 'arret-fauchage')) return suivant;
     etat = { ...suivant, minuteurMs: minuteur === null ? null : minuteur - dt,
       capture: etat.capture ? { ...etat.capture, restantMs: etat.capture.restantMs - dt } : null };
     if (etat.capture?.restantMs === 0) {
@@ -188,7 +199,7 @@ export function avancerCombat(etat: EtatCombat, pasMs: number): EtatCombat {
 
 export function cliquer(etat: EtatCombat, limiteur: { essayer(): boolean }): EtatCombat {
   if (etat.attenteMs > 0 || !limiteur.essayer()) return etat;
-  return infliger(etat, calculerClic(calculerDpsEquipe(etat.equipe, etat.ennemi, etat.actifs), etat.actifs));
+  return infliger(etat, calculerClic(calculerDpsEquipe(etat.equipe, etat.ennemi, etat.actifs), etat.actifs), true);
 }
 
 export function faucher(etat: EtatCombat): EtatCombat {

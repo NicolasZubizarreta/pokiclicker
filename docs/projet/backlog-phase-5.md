@@ -473,3 +473,27 @@ Environ 1 jour. Risque : la Superball n'est pas couverte par les cibles de Nicol
 Diviseur de niveau 100 et table de pitié dans data/reglages.json (capture.diviseurNiveau, capture.pitie, validées dans src/core/reglages.ts) ; Ennemi.echecs compté à chaque capture-echouee (src/core/combat.ts), donc remis à zéro avec chaque nouvel ennemi ; chanceCapture et pitieCapture dans src/core/capture.ts. Pitié (Pokéball / Superball / Hyperball) : taux ≥ 150 : 0,085 / 0,04 / 0 ; 100 à 149 : 0,09 / 0,05 / 0 ; 40 à 99 : 0,18 / 0,16 / 0,13 ; 10 à 39 : 0,23 / 0,33 / 0,42 ; moins de 10 : 0,15 / 0,23 / 0,31. Les valeurs de la Superball sont les moyennes Pokéball/Hyperball de la catégorie, que Nicolas n'a pas fixées : à lui faire confirmer.
 Tableau de ses 24 lignes (96 cases) : 82 cases à ±15 % ou ±1 balle ; écarts : lignes 6, 7 (5 % : 9 au lieu de 7), 9, 10, 17, 18, 22, 23, 24, jusqu'à 25 % sur les plus hautes, en cohérence avec ce qu'il a accepté. Test dans src/core/capture.test.ts. Les tests de fidélité V1 (	ests/capture-fidelite.test.ts, 	ests/progression-fidelite.test.ts) passent par l'écart voulu chanceCaptureAttendueV2 de 	ests/ecarts-v1.ts.
 Simulateur (--clics 7) : Ligue gagnée en 420,6 min de jeu ; au même commit sans le ticket, bloqué en Ligue après 335,7 min. La référence de 87,0 min du ticket V n'est plus reproduite depuis les changements suivants, indépendamment de la capture.
+
+## X. `feat(fauchage): mettre l'attaque auto en pause à 1 PV, nouvelle icône, bouton agrandi`
+
+`type:feat`, `etat:fait`, `est:1`, `prio:2` · branche : `v2` · pas d'`agent-ok` (touche une règle de jeu, demandée par Nicolas le 10/11/2026)
+
+### Histoire
+En tant que joueur, je veux que le Fauchage arrête l'attaque auto pile à 1 PV afin de capturer sans que l'écran se remplisse de dégâts, et de pouvoir tuer le Pokémon d'un clic si je renonce à le capturer.
+
+### Contexte
+Avant : l'ennemi fauché restait à 1 PV mais l'attaque auto et l'auto-clic continuaient à frapper (flood de dégâts) et même un clic ne pouvait plus le tuer : le joueur restait coincé tant qu'il n'était pas capturé. L'icône (une faux mal dessinée) est jugée laide. Le bouton est étroit alors que la ligne de capture a de la place, sur PC comme sur téléphone (même composant `BoutonFauchage` sous la scène).
+
+### Critères d'acceptation
+- [x] Étant donné le Fauchage actif, quand les dégâts de l'attaque auto ou de l'auto-clic amènent l'ennemi à 1 PV, alors il reste à 1 PV, l'attaque auto et l'auto-clic s'arrêtent (annonce « À 1 PV ! Auto-attaque en pause. ») et plus aucun dégât ne s'affiche.
+- [x] Étant donné un ennemi à 1 PV sous Fauchage, quand je clique, alors il meurt normalement (récompenses, ennemi suivant).
+- [x] Étant donné un ennemi fauché à 1 PV, quand il meurt ou qu'il est capturé, alors l'attaque auto (et l'auto-clic) reprennent (« Auto-attaque reprise. »), sauf si le Pokémon suivant déclenche l'arrêt auto, qui garde alors la main comme d'habitude.
+- [x] Étant donné un clic qui aurait tué un ennemi fauché au-dessus de 1 PV, quand il tombe, alors il reste à 1 PV (inchangé) et l'auto se met aussi en pause ; sans attaque auto active, rien d'autre ne change.
+- [x] Étant donné le bouton Fauchage (PC et téléphone), quand il s'affiche, alors l'icône est un cœur marqué « 1 » (plus grande qu'avant), le bouton est plus large (80 px au lieu de 56) et reste lisible avec la recharge ; la touche F sur PC passe dans le coin.
+- [x] Étant donné les tests, quand `tsc -b`, eslint, vitest et les e2e concernés tournent, alors ils sont verts (tests du cœur : `src/core/objets-actifs-combat.test.ts` ; e2e : `objets-actifs.spec.ts`).
+
+### Hors périmètre
+Durée de recharge, boss (toujours non fauchables), nombre de PV laissés, raccourci clavier.
+
+### Réalisation (10/11/2026)
+`infliger` (`src/core/combat.ts`) : sous Fauchage les dégâts laissent 1 PV, sauf un clic quand l'ennemi est déjà à 1 PV ; atteindre 1 PV stoppe l'auto via `avantArret` et `interrompu`, que la mort ou la capture restaurent (mécanisme de l'arrêt auto, nouvel événement `arret-fauchage`). La boucle d'auto-clic du store s'arrête dès que l'auto-clic est coupé. Icône `Fauchage` dans `src/ui/icones.tsx` (reprise aussi pour la CT du Shop), largeur de `.plaque-carre` dans `src/ui/Plaques.css`, touche dans le coin dans `src/ui/CombatPC.css`. Captures vérifiées à 390 et 1440 px.

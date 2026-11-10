@@ -1077,7 +1077,8 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
           if (coeur?.autoClic && coeur.attenteMs === 0 && !enPause) {
             const resultat = clicsAutomatiques(resteAutoClicMs, reglages.boucle.pasMs, reglages.combat.autoClicIntervalleMs);
             resteAutoClicMs = resultat.resteMs;
-            for (let i = 0; i < resultat.clics; i++) frapper();
+            // Fauchage : l'auto-clic s'arrête à 1 PV, les clics restants du pas ne tuent pas.
+            for (let i = 0; i < resultat.clics && coeur?.autoClic; i++) frapper();
           } else resteAutoClicMs = 0;
           if (coeur && !enPause) coeur = avancerCombat(coeur, reglages.boucle.pasMs);
           traiter();

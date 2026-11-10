@@ -112,14 +112,21 @@ test('Fauchage : un PV, recharge ; Poupée : boss invoqué', async ({ page }) =>
   await fauchage.click({ force: true });
   await expect(page.getByText('Recharge : 20 s', { exact: true })).toBeVisible();
   const pv = page.getByRole('progressbar', { name: /^PV/ });
+  const auto = page.getByRole('button', { name: 'Attaque auto' });
+  if (await auto.getAttribute('aria-pressed') !== 'true') await auto.click();
   for (let appui = 0; appui < 100 && await pv.getAttribute('aria-valuenow') !== '1'; appui++) {
     await page.clock.runFor(90);
-    await page.getByRole('button', { name: /^Attaquer / }).click();
   }
   await expect(pv).toHaveAttribute('aria-valuenow', '1');
-  await page.clock.runFor(90);
-  await page.getByRole('button', { name: /^Attaquer / }).click();
+  // Ticket X : l'attaque auto s'arrête à 1 PV (annonce), l'ennemi reste à 1 PV, et un clic le tue.
+  await expect(page.locator('[data-notifications]')).toContainText('Auto-attaque en pause');
+  await expect(auto).toHaveAttribute('aria-pressed', 'false');
+  await page.clock.runFor(3000);
   await expect(pv).toHaveAttribute('aria-valuenow', '1');
+  await page.getByRole('button', { name: /^Attaquer / }).click();
+  await page.clock.runFor(200);
+  await expect(page.locator('[data-notifications]')).toContainText('Auto-attaque reprise');
+  await expect(auto).toHaveAttribute('aria-pressed', 'true');
   await page.clock.fastForward(20000);
   await expect(fauchage).toBeEnabled();
   await utiliser(page, 'Poké Poupée');

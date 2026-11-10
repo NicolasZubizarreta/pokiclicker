@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 
 /** Tracé de l'icône Fauchage : celui du bouton du combat, repris pour la CT Fauchage du Shop (aucune image d'objet n'existe). */
-const TRACE_FAUCHAGE = 'M5 22 15 3M10 5c6-3 10 0 11 6-4-3-7-3-11-1';
+const TRACE_FAUCHAGE = 'M12 20.5C6 16.5 3 13 3 9a4.5 4.5 0 0 1 9-1.2A4.5 4.5 0 0 1 21 9c0 4-3 7.5-9 11.5zM10.5 11l1.7-1.3v5.8M10.5 15.5h3.4';
 const TRACE_REPLI = 'm12 3 9 5v9l-9 5-9-5V8zM3 8l9 5 9-5M12 13v9M8 5l9 5';
 /** Objets sans image dont une icône du jeu existe déjà ; les autres retombent sur l'icône de repli. */
 const TRACES_SANS_IMAGE: Record<string, string> = { falseSwipe: TRACE_FAUCHAGE };
@@ -16,9 +16,9 @@ export function IconeObjet({ image, nom, taille, id }: { image: string | null; n
   </svg>;
 }
 
-function Icone({ children }: { children: ReactNode }) {
+function Icone({ children, taille = 24 }: { children: ReactNode; taille?: number }) {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+    <svg width={taille} height={taille} viewBox="0 0 24 24" fill="none" stroke="currentColor"
       strokeWidth="2" aria-hidden="true" focusable="false" className="shrink-0">
       {children}
     </svg>
@@ -45,8 +45,9 @@ export function AutoClic() {
   return <Icone><path d="m5 3 14 10-7 1-3 7zM15 3v4M19 6l3-2" /></Icone>;
 }
 
-export function Fauchage() {
-  return <Icone><path d={TRACE_FAUCHAGE} /></Icone>;
+/** Cœur marqué « 1 » : le Fauchage laisse l'ennemi à 1 PV. */
+export function Fauchage({ taille }: { taille?: number } = {}) {
+  return <Icone taille={taille}><path d={TRACE_FAUCHAGE} /></Icone>;
 }
 
 export function Sac() {
