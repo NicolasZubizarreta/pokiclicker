@@ -1,4 +1,4 @@
-:root {
+﻿:root {
   --color-primaire-50: #fff2ed;
   --color-primaire-100: #ffe3db;
   --color-primaire-200: #ffc9bb;
@@ -125,7 +125,7 @@
   --action-texte: #ffffff;
   --lien: #b32a0a;
   --focus: #1b7fa8;
-  --selection: #ffe2d2;
+  --selection: #e1f1f8;
   --blanc: #ffffff;
   --succes-fond: #e3f3e5;
   --succes-base: #3d9a4a;
@@ -155,7 +155,7 @@
     --action-texte: #ffffff;
     --lien: #5fc3ea;
     --focus: #ffcc00;
-    --selection: #451c12;
+    --selection: #0f3347;
     --blanc: #ffffff;
     --succes-fond: #1d3a28;
     --succes-base: #5fbf6c;
@@ -185,7 +185,7 @@
   --action-texte: #ffffff;
   --lien: #5fc3ea;
   --focus: #ffcc00;
-  --selection: #451c12;
+  --selection: #0f3347;
   --blanc: #ffffff;
   --succes-fond: #1d3a28;
   --succes-base: #5fbf6c;

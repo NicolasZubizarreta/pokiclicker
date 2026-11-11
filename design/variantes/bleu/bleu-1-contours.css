@@ -1,0 +1,4 @@
+/* 1. Contours bleus : cadres et boutons gardent leur fond gris, seul le trait passe au bleu Pokédex #30A7D7. */
+:root:root:root, [data-region][data-region][data-region] { --bordure: #30a7d7; }
+.cadre, .cadre-alerte { border-color: #30a7d7; }
+.plaque:not(.plaque-action) { border-color: #30a7d7; }

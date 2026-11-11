@@ -8,17 +8,17 @@
   min-height: calc(var(--spacing) * 12);
   min-width: calc(var(--spacing) * 12);
   padding: var(--spacing) calc(var(--spacing) * 3);
-  background: var(--surface-2);
+  background: var(--region-accent-fond, var(--surface-2));
   color: var(--texte);
-  border: calc(var(--spacing) / 2) solid var(--bordure);
+  border: calc(var(--spacing) / 2) solid var(--region-accent, var(--bordure));
   border-radius: var(--radius-md);
   transition: filter var(--duration-rapide) var(--ease-standard);
 }
 .plaque:active:not([aria-disabled="true"], :disabled) { filter: brightness(0.9); }
 .plaque[aria-pressed="true"] {
-  background: var(--selection);
+  background: var(--region-accent-fort, var(--selection));
   border-color: var(--region-accent);
-  color: var(--region-accent);
+  color: var(--blanc);
 }
 .plaque:disabled,
 .plaque[aria-disabled="true"] { opacity: 0.5; cursor: default; }

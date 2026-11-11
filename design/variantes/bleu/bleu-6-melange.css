@@ -1,0 +1,4 @@
+/* 6. Mélange : accents bleus (chiffres, onglet actif), boutons secondaires à contour bleu sur fond bleu nuit, cadres gris, barre rouge et action rouge gardés. */
+:root:root:root, [data-region][data-region][data-region] { --region-accent: #30a7d7; --selection: #14425a; }
+.plaque:not(.plaque-action) { background: #172f40; border-color: #30a7d7; }
+.plaque[aria-pressed="true"] { background: #1f6f93; border-color: #5fc3ea; color: #ffffff; }

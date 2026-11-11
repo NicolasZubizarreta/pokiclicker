@@ -1,0 +1,2 @@
+/* 5. Chiffres et accents bleus : l'orange (Pokédollars, DPS, zone, onglet actif, titres de section, contour du bouton actif) passe au bleu. Rouge et jaune gardés. */
+:root:root:root, [data-region][data-region][data-region] { --region-accent: #30a7d7; --selection: #14425a; }

@@ -15,7 +15,7 @@
 | clair | focus / fond | 4.04 | 3 | OK |
 | clair | focus / surface | 4.52 | 3 | OK |
 | clair | bordure / surface | 1.74 | 1.3 | OK |
-| clair | texte / selection | 13.08 | 4.5 | OK |
+| clair | texte / selection | 13.91 | 4.5 | OK |
 | sombre | texte / fond | 15.22 | 4.5 | OK |
 | sombre | texte / surface | 12.65 | 4.5 | OK |
 | sombre | texte / surface-2 | 8.98 | 4.5 | OK |
@@ -29,7 +29,7 @@
 | sombre | focus / fond | 11.27 | 3 | OK |
 | sombre | focus / surface | 9.36 | 3 | OK |
 | sombre | bordure / surface | 2.12 | 1.3 | OK |
-| sombre | texte / selection | 13.14 | 4.5 | OK |
+| sombre | texte / selection | 11.84 | 4.5 | OK |
 | succes | texte / fond | 7.14 | 4.5 | OK |
 | succes | base / roles.clair.surface | 3.55 | 3 | OK |
 | succes sombre | texte-sombre / fond-sombre | 8.42 | 4.5 | OK |

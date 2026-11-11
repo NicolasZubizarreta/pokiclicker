@@ -1,0 +1,4 @@
+/* 2. Boutons bleus : les boutons secondaires passent en fond bleu (texte blanc 5,4:1), l'action reste rouge, les cadres restent gris. */
+:root:root:root, [data-region][data-region][data-region] { --selection: #14425a; }
+.plaque:not(.plaque-action) { background: #1f6f93; border-color: #30a7d7; color: #ffffff; }
+.plaque[aria-pressed="true"] { background: #0f3d52; border-color: #5fc3ea; color: #ffffff; }

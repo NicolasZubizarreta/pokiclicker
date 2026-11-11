@@ -1,0 +1,5 @@
+/* 4. Barre latérale bleue : le grand aplat passe du rouge au bleu, le rouge ne reste que sur les boutons d'action (PC). Bande du haut jaune gardée. */
+.barre-laterale { background: #1f6f93; }
+.barre-laterale [aria-current], .barre-laterale [aria-current] * { background-color: #0f3d52; }
+/* Téléphone : l'onglet actif de la barre du bas passe aussi au bleu (accent). */
+:root:root:root, [data-region][data-region][data-region] { --region-accent: #30a7d7; --selection: #14425a; }

@@ -3,20 +3,26 @@
 
 /* kanto : Rouge Feu / Vert Feuille : thème de base (tokens.css) ; seuls les rôles de région sont ici */
 :root, [data-region="kanto"] {
-  --region-accent: #b32a0a;
+  --region-accent: #17728f;
+  --region-accent-fond: #eef7fb;
+  --region-accent-fort: #125f78;
   --region-argent: #ffcc00;
   --region-socle: #7fb35f;
   --rayon: 8px;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]), [data-region="kanto"]:not([data-theme="light"]) {
-    --region-accent: #ee6b2f;
+    --region-accent: #30a7d7;
+    --region-accent-fond: #172f40;
+    --region-accent-fort: #1f6f93;
     --region-argent: #ffcc00;
     --region-socle: #3fb88f;
   }
 }
 :root[data-theme="dark"], [data-region="kanto"][data-theme="dark"] {
-  --region-accent: #ee6b2f;
+  --region-accent: #30a7d7;
+  --region-accent-fond: #172f40;
+  --region-accent-fort: #1f6f93;
   --region-argent: #ffcc00;
   --region-socle: #3fb88f;
 }

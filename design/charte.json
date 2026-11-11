@@ -117,7 +117,7 @@
       "action-texte": "#ffffff",
       "lien": "#b32a0a",
       "focus": "#1b7fa8",
-      "selection": "#ffe2d2",
+      "selection": "#e1f1f8",
       "blanc": "#ffffff"
     },
     "sombre": {
@@ -133,7 +133,7 @@
       "action-texte": "#ffffff",
       "lien": "#5fc3ea",
       "focus": "#ffcc00",
-      "selection": "#451c12",
+      "selection": "#0f3347",
       "blanc": "#ffffff"
     }
   },

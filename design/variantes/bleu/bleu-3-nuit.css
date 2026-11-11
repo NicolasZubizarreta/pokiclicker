@@ -1,0 +1,5 @@
+/* 3. Cadres bleu nuit : fond, cartes et boutons prennent une teinte bleu marine à la place du gris anthracite. Barre latérale rouge gardée. */
+:root:root:root, [data-region][data-region][data-region] {
+  --fond: #0f1a24; --surface: #172636; --surface-2: #223a50; --bordure: #3f6482; --selection: #14425a;
+}
+.cadre, .cadre-alerte { border-color: #3f6482; }
