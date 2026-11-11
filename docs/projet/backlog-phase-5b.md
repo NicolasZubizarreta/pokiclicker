@@ -80,7 +80,7 @@ Habillage et mise en page du casino (ticket C), nouveaux jeux, jetons offerts, b
 
 ## C. `feat(ui): refonte du casino, visibilité, habillage, jeux et jetons offerts`
 
-`type:feat`, `etat:a_faire`, `est:2-3`, `prio:2` · branche : `v2` · pas d'`agent-ok` avant la maquette validée · dépend de : A, B · remplace le ticket U de `backlog-plus-tard.md`
+`type:feat`, `etat:en_cours` (reste le mini-tuto du ticket E), `est:2-3`, `prio:2` · branche : `v2` · pas d'`agent-ok` avant la maquette validée · dépend de : A, B · remplace le ticket U de `backlog-plus-tard.md`
 
 ### Histoire
 En tant que joueur, je veux savoir que le casino existe, avoir envie d'y entrer et m'y amuser (téléphone et PC) afin qu'il ne reste pas un lieu que personne ne visite.
@@ -95,11 +95,17 @@ Décision du 07/11 : refonte complète du casino, sur téléphone et PC. Décisi
   - À moitié fait (11/11) : les 100 jetons offerts sont faits (`premiereEntree` dans `data/casino.json`, champ sauvegardé `casinoVu`, message de bienvenue dans la page). Le mini-tuto n'est pas branché (ticket E inexistant) : s'y brancher avec `surPremiereEntreeCasino(() => ouvrirTuto())` dans `src/ui/store-casino.ts`, appelé une seule fois par partie, juste après le cadeau.
   - Choix pour les anciennes sauvegardes : `casinoVu` est optionnel, sans migration ni changement de version. Absent = « jamais entré » : un joueur qui a déjà le casino ouvert (ou des jetons) reçoit les 100 jetons à sa première entrée après la mise à jour et voit la pastille, mais pas l'annonce, si `annoncesVues` contient déjà `casino`.
   - Faits pour les critères 1 et 2 : annonce « carte » (`carte` dans `data/deblocages.json`) qui reste jusqu'à « Y aller » ou « Fermer » et revient au rechargement ; pastille sur les onglets Menu et Carte (barre du bas et barre latérale), sur la ligne Casino du Menu et sur la ligne Casino de la Carte. Sur PC, l'annonce s'affiche en bas à droite (mécanisme des notifications), en haut sur téléphone.
-- [ ] Étant donné la maquette, quand 3 variantes téléphone et PC sont prêtes (écran du casino, chacun des 3 jeux, la boutique, avec la charte du ticket A), alors Nicolas choisit ou mélange, et les maquettes sont des pages HTML dans `design/examples/`.
-- [ ] Étant donné le choix de Nicolas, quand le casino est codé, alors il ressemble à la maquette à 360, 390, 430 et 1440 px, les animations et sons du casino de la V1 sont portés (rouleaux, pièces), et le casino reste utilisable au pouce.
-- [ ] Étant donné de nouveaux jeux, quand je les propose, alors 2 ou 3 idées avec leurs règles, leur espérance de gain (sous 100 %) et leur coût de développement sont présentées à Nicolas ; seuls les jeux qu'il valide sont codés, les autres restent des idées notées dans `backlog-plus-tard.md`.
-- [ ] Étant donné les règles de jeu, quand le casino est refait, alors aucune règle non décidée ne change (les chiffres du ticket B font foi).
-- [ ] Étant donné les tests, quand `tsc -b`, eslint, vitest et les e2e (projets `pc`, `mobile`, `iphone`) tournent, alors ils sont verts.
+- [x] Étant donné la maquette, quand 3 variantes téléphone et PC sont prêtes (écran du casino, chacun des 3 jeux, la boutique, avec la charte du ticket A), alors Nicolas choisit ou mélange, et les maquettes sont des pages HTML dans `design/examples/`.
+  - Fait (11/11) : Nicolas a choisi la variante A « salle en scène ». Sa version autonome (HTML unique, images et polices incluses) est dans `design/examples/2026-11-11-casino-a-scene.html` ; les trois variantes de travail restent dans `design/variantes/casino/`. `design/examples/` n'a pas de fichier `index.md`, rien n'y a été ajouté.
+- [x] Étant donné le choix de Nicolas, quand le casino est codé, alors il ressemble à la maquette à 360, 390, 430 et 1440 px, les animations et sons du casino de la V1 sont portés (rouleaux, pièces), et le casino reste utilisable au pouce.
+  - Fait (11/11) : `PageCasino.tsx` + `PageCasino.css` (jetons de `design/tokens.css` seulement, textes ≥ 16 px, boutons ≥ 44 px), captures regardées à 360, 390, 430 et 1440 px. La page s'ouvre sur la salle (sur la table de blackjack si une main est en cours). Rouleaux de la machine : changement de symbole toutes les 80 ms puis retombée de 350 ms (V1 : 700, 950 et 1 200 ms), pièce de 500 ms, « réduire les animations » respecté.
+  - La V1 n'avait aucun son au casino : le ton existant `coin` est joué à chaque victoire. De vrais sons sont le ticket N.
+  - Les notifications du jeu ne montrent plus les résultats du casino (elles les dévoilaient avant la fin de l'animation) ; la phrase d'état de la page les annonce.
+- [x] Étant donné de nouveaux jeux, quand je les propose, alors 2 ou 3 idées avec leurs règles, leur espérance de gain (sous 100 %) et leur coût de développement sont présentées à Nicolas ; seuls les jeux qu'il valide sont codés, les autres restent des idées notées dans `backlog-plus-tard.md`.
+  - Fait : roulette européenne, plus ou moins et carte à gratter (cœur et chiffres au ticket B) sont branchés dans la page, chaque coup est sauvegardé tout de suite. La carte visible du plus ou moins est sauvegardée (`plusOuMoinsCarte`, champ facultatif de la région, sans changement de version). Carte à gratter : un rechargement en plein ticket garde les jetons (déjà crédités) mais perd la révélation des cases.
+- [x] Étant donné les règles de jeu, quand le casino est refait, alors aucune règle non décidée ne change (les chiffres du ticket B font foi).
+- [x] Étant donné les tests, quand `tsc -b`, eslint, vitest et les e2e (projets `pc`, `mobile`, `iphone`) tournent, alors ils sont verts.
+  - Vérifié (12/11) : `tsc -b` et eslint propres, vitest complet, e2e `casino` et `casino-visibilite` sur `pc` et `mobile` (16 tests, dont une partie de chaque nouveau jeu) et `fenetres-iphone` sur `iphone` (4 tests).
 
 ### Hors périmètre
 Équilibrage et montant des jetons (ticket B), contenu du tuto (ticket E), sons nouveaux (ticket N), argent réel (aucun paiement, mention « argent virtuel » conservée).
