@@ -58,7 +58,7 @@ const region = (page: Page) => page.evaluate(() => {
 const carteAnnonce = (page: Page) => page.locator('[data-annonce-deblocage] [data-annonce-carte]');
 const navigation = (page: Page) => page.getByRole('navigation', { name: 'Navigation principale' });
 const pastilles = (page: Page) => page.locator('[data-pastille-casino]');
-const jetons = (page: Page) => page.locator('[aria-label="Tes jetons"] strong');
+const jetons = (page: Page) => page.locator('[data-jetons]:visible').first();
 const bienvenue = `${offerts} jetons offerts pour ta première visite !`;
 
 test('annonce qui reste, pastille, « Y aller », jetons offerts une seule fois, pastille retirée', async ({ page }) => {
@@ -77,7 +77,7 @@ test('annonce qui reste, pastille, « Y aller », jetons offerts une seule fois,
   await annonce.getByRole('button', { name: 'Y aller' }).click();
   await expect(page.getByRole('heading', { name: 'Casino', exact: true })).toBeVisible();
   await expect(page.getByText(bienvenue)).toBeVisible();
-  await expect(jetons(page)).toHaveText(`${offerts} jetons`);
+  await expect(jetons(page)).toHaveText(new RegExp(`^${offerts}( jetons)?$`));
   await expect(carteAnnonce(page)).toHaveCount(0);
   await expect(pastilles(page)).toHaveCount(0);
   expect(await region(page)).toMatchObject({ jetons: offerts, casinoVu: true });
@@ -89,7 +89,7 @@ test('annonce qui reste, pastille, « Y aller », jetons offerts une seule fois,
   await page.getByRole('button', { name: /^Casino/ }).click();
   await expect(page.getByRole('heading', { name: 'Casino', exact: true })).toBeVisible();
   await expect(page.getByText(bienvenue)).toHaveCount(0);
-  await expect(jetons(page)).toHaveText(`${offerts} jetons`);
+  await expect(jetons(page)).toHaveText(new RegExp(`^${offerts}( jetons)?$`));
 
   await page.reload();
   await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
@@ -127,7 +127,7 @@ test('accès direct par le Menu : entrée avec pastille, puis la pastille dispar
   await expect(entree.locator('[data-pastille-casino]')).toBeVisible();
   await entree.click();
   await expect(page.getByText(bienvenue)).toBeVisible();
-  await expect(jetons(page)).toHaveText(`${offerts} jetons`);
+  await expect(jetons(page)).toHaveText(new RegExp(`^${offerts}( jetons)?$`));
   await expect(pastilles(page)).toHaveCount(0);
 });
 

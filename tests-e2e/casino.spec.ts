@@ -43,10 +43,14 @@ async function carte(page: Page) {
 
 async function ouvrirCasino(page: Page) {
   await page.getByRole('dialog', { name: 'Céladopole', exact: true }).getByRole('button', { name: 'Casino', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Casino', exact: true })).toBeVisible({ timeout: 10000 });
+  // Salle du casino, ou la table de Blackjack quand une main est en cours.
+  await expect(page.locator('.cs-page h1')).toBeVisible({ timeout: 10000 });
 }
 
-const jetons = (page: Page) => page.locator('[aria-label="Tes jetons"] strong');
+const jetons = (page: Page) => page.locator('[data-jetons]:visible').first();
+const salle = (page: Page) => page.getByRole('button', { name: 'Salle', exact: true }).click();
+const lot = (page: Page) => page.getByRole('button', { name: /^Lot de 50 jetons/ });
+const miser = (page: Page, mise: number) => page.getByLabel('Mise en jetons').fill(String(mise));
 const lireJetons = async (page: Page) => parseInt((await jetons(page).innerText()).replace(/\D/g, ''), 10);
 const statut = (page: Page) => page.getByRole('status');
 const argent = (page: Page, montant: string) => expect(page.getByText(new RegExp(`^${montant.replace(' ', '[\\s\\u202f\\u00a0]')} ₽$`))).toBeVisible();
@@ -71,17 +75,18 @@ test('Casino : jetons, boutique, trois jeux, rechargement et captures', async ({
   await ouvrirCasino(page);
   await expect(page.getByText('Argent virtuel uniquement : aucun paiement réel.')).toBeVisible();
   expect(await lireJetons(page)).toBe(0);
-  await page.getByRole('button', { name: 'Échanger 50 jetons' }).click();
+  await page.getByLabel('Combien de jetons ?').fill('50');
+  await page.getByRole('button', { name: 'Racheter', exact: true }).click();
   await expect(statut(page)).toContainText('Pas assez de jetons.');
   expect(await lireJetons(page)).toBe(0);
 
   // Jetons : 1 000 $ → 50 jetons, cinq fois pour 250 jetons.
-  for (let i = 0; i < 5; i++) await page.getByRole('button', { name: 'Acheter 50 jetons' }).click();
+  for (let i = 0; i < 5; i++) await lot(page).click();
   expect(await lireJetons(page)).toBe(250);
   await argent(page, '45 000');
 
   // Boutique : Abra à 250 jetons, le Master Ball reste hors de portée avec la raison.
-  await page.getByRole('button', { name: 'Boutique', exact: true }).click();
+  await page.getByRole('button', { name: 'Voir la boutique' }).click();
   const master = page.getByRole('button', { name: /^Obtenir Master Ball/ });
   await expect(master).toBeDisabled();
   await expect(master).toHaveAccessibleDescription(/jetons/i);
@@ -94,24 +99,59 @@ test('Casino : jetons, boutique, trois jeux, rechargement et captures', async ({
   await page.screenshot({ path: `design/captures/v-casino-boutique-${largeur}.png`, animations: 'disabled' });
 
   // Pile ou face et machine à sous : la mise est débitée, le résultat annoncé (tirage non fixé, bornes vérifiées).
-  await page.getByRole('button', { name: 'Acheter 50 jetons' }).click();
-  await page.getByRole('button', { name: 'Pile ou face', exact: true }).click();
-  await page.getByRole('button', { name: 'Pile', exact: true }).click();
-  await page.getByLabel('Mise').fill('10');
-  await page.getByRole('button', { name: 'Lancer' }).click();
+  await salle(page);
+  await lot(page).click();
+  await page.getByRole('button', { name: 'Lancer la pièce' }).click();
+  await page.getByRole('button', { name: /^Pile/ }).click();
+  await miser(page, 10);
+  await page.getByRole('button', { name: 'Lancer la pièce' }).click();
   await expect(statut(page)).toContainText(/Pile|Face/);
   expect([40, 60]).toContain(await lireJetons(page));
   const apresPile = await lireJetons(page);
-  await page.getByRole('button', { name: 'Machine à sous', exact: true }).click();
-  await page.getByLabel('Mise').fill('5');
-  await page.getByRole('button', { name: 'Lancer' }).click();
+  await salle(page);
+  await page.getByRole('button', { name: 'Jouer à la machine' }).click();
+  await miser(page, 5);
+  await page.getByRole('button', { name: 'Lancer', exact: true }).click();
   await expect(statut(page)).toContainText(/Perdu|Gagné|Baie/);
-  expect(await lireJetons(page)).toBeGreaterThanOrEqual(apresPile - 5);
+  const apresMachine = await lireJetons(page);
+  expect(apresMachine).toBeGreaterThanOrEqual(apresPile - 5);
   await page.screenshot({ path: `design/captures/v-casino-machine-${largeur}.png`, animations: 'disabled' });
 
+  // Roulette : une mise de 5 sur le rouge, le numéro sorti est annoncé, le solde bouge d'au plus la mise.
+  await salle(page);
+  await page.getByRole('button', { name: 'Lancer la bille' }).click();
+  await miser(page, 5);
+  await page.getByRole('button', { name: 'Lancer la bille' }).click();
+  await expect(statut(page)).toContainText('est sorti');
+  const apresRoulette = await lireJetons(page);
+  expect([apresMachine - 5, apresMachine + 5]).toContain(apresRoulette);
+  await page.screenshot({ path: `design/captures/v-casino-roulette-${largeur}.png`, animations: 'disabled' });
+
+  // Plus ou moins : la carte visible est tirée, on joue le sens possible.
+  await salle(page);
+  await page.getByRole('button', { name: 'Jouer', exact: true }).click();
+  await miser(page, 5);
+  await page.getByRole('button', { name: /^(Plus haut|Plus bas)/ }).and(page.locator(':enabled')).first().click();
+  await expect(statut(page)).toContainText('après');
+  const apresPlusMoins = await lireJetons(page);
+  expect(apresPlusMoins).toBeGreaterThanOrEqual(apresRoulette - 5);
+  await page.screenshot({ path: `design/captures/v-casino-plus-moins-${largeur}.png`, animations: 'disabled' });
+
+  // Carte à gratter : une carte à 1 jeton, les six cases se découvrent d'un coup, le résultat est annoncé.
+  await salle(page);
+  await page.getByRole('button', { name: 'Gratter', exact: true }).click();
+  await miser(page, 1);
+  await page.getByRole('button', { name: 'Acheter une carte' }).click();
+  await page.getByRole('button', { name: 'Tout gratter' }).click();
+  await expect(statut(page)).toContainText(/Perdu|Gagné/);
+  await expect(page.getByRole('button', { name: /^Case 6 : / })).toBeVisible();
+  expect(await lireJetons(page)).toBeGreaterThanOrEqual(apresPlusMoins - 1);
+  await page.screenshot({ path: `design/captures/v-casino-gratter-${largeur}.png`, animations: 'disabled' });
+
   // Blackjack : la carte du croupier reste cachée, la main survit au rechargement, doubler paie ×2 sur la mise doublée.
-  await page.getByRole('button', { name: 'Blackjack', exact: true }).click();
-  await page.getByLabel('Mise').fill('4');
+  await salle(page);
+  await page.getByRole('button', { name: 'S’asseoir à la table' }).click();
+  await miser(page, 4);
   const avantMain = await lireJetons(page);
   await page.getByRole('button', { name: 'Distribuer' }).click();
   await expect(page.getByText('Ta main · 11')).toBeVisible();
@@ -124,8 +164,8 @@ test('Casino : jetons, boutique, trois jeux, rechargement et captures', async ({
   await expect(page.getByRole('heading', { name: 'Blackjack', exact: true })).toBeVisible();
   await expect(page.getByText(/^Main en cours · 4 jetons engagés/)).toBeVisible();
   await expect(page.getByRole('img', { name: 'Carte cachée' })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Distribuer' })).toBeDisabled();
-  await page.getByRole('region', { name: 'Blackjack', exact: true }).screenshot({ path: `design/captures/v-casino-blackjack-${largeur}.png`, animations: 'disabled' });
+  await expect(page.getByRole('button', { name: 'Distribuer' })).toHaveCount(0);
+  await page.locator('.cs-page').screenshot({ path: `design/captures/v-casino-blackjack-${largeur}.png`, animations: 'disabled' });
   await page.getByRole('button', { name: 'Doubler' }).click();
   await expect(statut(page)).toContainText('Gagné');
   await expect(page.getByRole('img', { name: 'Carte cachée' })).toHaveCount(0);
@@ -135,7 +175,7 @@ test('Casino : jetons, boutique, trois jeux, rechargement et captures', async ({
   await expect(page.getByText(/^Main en cours/)).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Distribuer' })).toBeEnabled();
 
-  // Rechargement : jetons conservés ; échange de 50 jetons contre 1 000 $ quand le solde le permet.
+  // Rechargement : jetons conservés (page ouverte sur la salle, plus de main en cours).
   const avantRecharge = await lireJetons(page);
   await page.reload();
   await carte(page);
@@ -149,8 +189,8 @@ test('Casino : jetons, boutique, trois jeux, rechargement et captures', async ({
 test('Blackjack : séparer jusqu’à quatre mains, lisibles et sans débordement', async ({ page }, informations) => {
   await preparer(page, true, sabotImpose('8-S', '6-C', '8-H', '10-D', '8-D', '8-C', '3-S', '3-H', '3-C', '3-D'));
   await ouvrirCasino(page);
-  await page.getByRole('button', { name: 'Acheter 50 jetons' }).click();
-  await page.getByRole('button', { name: 'Blackjack', exact: true }).click();
+  await lot(page).click();
+  await page.getByRole('button', { name: 'S’asseoir à la table' }).click();
   await page.getByRole('button', { name: 'Distribuer' }).click();
   await expect(page.getByRole('button', { name: 'Séparer' })).toBeEnabled();
   await expect(page.getByRole('button', { name: 'Abandonner' })).toBeDisabled();
