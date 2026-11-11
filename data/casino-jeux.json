@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "roulette": {
+    "cases": 37,
+    "rouges": [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36],
+    "gains": { "couleur": 2, "parite": 2, "numero": 36 },
+    "couleurs": { "rouge": "Rouge", "noir": "Noir", "vert": "Vert" },
+    "parites": { "pair": "Pair", "impair": "Impair" }
+  },
+  "plusOuMoins": {
+    "rangs": 13,
+    "rendementPourCent": 96,
+    "noms": { "as": "As", "valet": "Valet", "dame": "Dame", "roi": "Roi" }
+  },
+  "gratter": {
+    "cases": 6,
+    "minimumIdentiques": 3,
+    "symboles": [
+      { "id": "7", "nom": "7", "image": "objets/master-ball.png", "poids": 1, "gains": [200, 400, 800, 5000] },
+      { "id": "Pikachu", "nom": "Pikachu", "image": "pokemon/25", "poids": 3, "gains": [40, 80, 200, 800] },
+      { "id": "Ronflex", "nom": "Ronflex", "image": "pokemon/143", "poids": 5, "gains": [20, 40, 100, 400] },
+      { "id": "Staross", "nom": "Staross", "image": "pokemon/121", "poids": 7, "gains": [12, 25, 60, 250] },
+      { "id": "Evoli", "nom": "Évoli", "image": "pokemon/133", "poids": 9, "gains": [8, 16, 40, 150] },
+      { "id": "Baie", "nom": "Baie", "image": "objets/cheri-berry.png", "poids": 11, "gains": [5, 10, 25, 100] },
+      { "id": "Roucool", "nom": "Roucool", "image": "pokemon/16", "poids": 13, "gains": [3, 6, 15, 60] },
+      { "id": "Rattata", "nom": "Rattata", "image": "pokemon/19", "poids": 15, "gains": [2, 4, 10, 40] },
+      { "id": "Nosferapti", "nom": "Nosferapti", "image": "pokemon/41", "poids": 17, "gains": [2, 4, 9, 35] },
+      { "id": "Magicarpe", "nom": "Magicarpe", "image": "pokemon/129", "poids": 19, "gains": [2, 3, 6, 20] }
+    ]
+  },
+  "messages": {
+    "miseInvalide": "Mise invalide.",
+    "jetonsInsuffisants": "Pas assez de jetons.",
+    "choixInvalide": "Choix invalide.",
+    "perdu": "Perdu…",
+    "rouletteSortie": "Le {numero} {couleur} est sorti.",
+    "rouletteGagne": "Le {numero} {couleur} est sorti. Gagné ×{multiplicateur} !",
+    "plusOuMoinsGagne": "{nouvelle} après {visible}. Gagné : +{gain} jetons !",
+    "plusOuMoinsPerdu": "{nouvelle} après {visible}. Perdu…",
+    "plusOuMoinsEgalite": "{nouvelle} après {visible} : l'égalité perd.",
+    "gratterGagne": "{nombre} × {symbole} ! Gagné ×{multiplicateur} !",
+    "gratterPerdu": "Pas de série de 3. Perdu…"
+  }
+}
