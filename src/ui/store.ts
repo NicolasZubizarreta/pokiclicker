@@ -43,7 +43,7 @@ import { afficherEvolution, annonceEvolution, type EvolutionAffichee } from './s
 import { afficherProgression, phaseObtention, type AffichageProgression, type PhaseObtention } from './store-progression';
 import { afficherEffets, afficherFauchage, type EffetsAffiches, type FauchageAffiche } from './store-objets';
 import { afficherBoutique, afficherCentre, afficherSac, type AffichageBoutique, type AffichageSac } from './store-boutique';
-import { afficherCasino, type ActionsCasino, type AffichageCasino } from './store-casino';
+import { afficherCasino, signalerPremiereEntreeCasino, type ActionsCasino, type AffichageCasino } from './store-casino';
 import { detailErreur, ouvrirPartie } from './persistance';
 import { creerStockageLocal } from './stockage-local';
 import { CLE_ACTIVATION_JOURNAL, creerJournalLocal, instantaneDe } from './journal-zones';
@@ -120,6 +120,10 @@ export type AffichageJeu = ActionsCasino & {
   argent: number; enRecherche: boolean; cache: boolean; annonce: string | null; banniere: string | null;
   /** Texte de l'annonce de déblocage affichée (PC, Pension, Casino…) ; les suivantes attendent leur tour. */
   deblocage: string | null;
+  /** Bouton de l'annonce de déblocage affichée quand elle reste jusqu'à un geste (casino) ; `null` pour une annonce qui s'éteint seule. */
+  deblocageCarte: { libelle: string; cible: string } | null;
+  /** Ferme l'annonce « carte » affichée (geste du joueur) et la note comme vue. */
+  fermerDeblocage(): void;
   sonActive: boolean; basculerSon(): void;
   journalActif: boolean; basculerJournal(): void;
   exporterJournal(): ReturnType<NonNullable<ReturnType<typeof creerJournalLocal>>['exporter']>;
@@ -272,14 +276,23 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       && tempsJeuMs >= finEvolutionMs && !commandeCourante(evenements, region);
   };
   const avancerDeblocages = () => {
-    if (deblocageEnCours && tempsJeuMs >= finDeblocageMs) deblocageEnCours = null;
+    // Une annonce « carte » ne s'éteint pas toute seule : seul un geste du joueur la ferme (`fermerDeblocage`).
+    if (deblocageEnCours && !deblocageEnCours.carte && tempsJeuMs >= finDeblocageMs) deblocageEnCours = null;
     if (deblocageEnCours || fileDeblocages.length === 0 || !ecranLibre()) return;
     deblocageEnCours = fileDeblocages.shift()!;
     finDeblocageMs = tempsJeuMs + reglages.interface.annonceDeblocageMs;
-    marquerAnnoncesVues([deblocageEnCours.id]);
+    // Une annonce « carte » n'est notée vue qu'à sa fermeture : rechargée sans geste, elle revient.
+    if (!deblocageEnCours.carte) marquerAnnoncesVues([deblocageEnCours.id]);
+  };
+  const fermerAnnonceCarte = (id: string) => {
+    fileDeblocages = fileDeblocages.filter(deblocage => deblocage.id !== id);
+    if (deblocageEnCours?.id === id) deblocageEnCours = null;
+    marquerAnnoncesVues([id]);
   };
   const detecterDeblocages = () => {
-    const { annoncer, silencieux } = nouveauxDeblocages(region, kanto, fileDeblocages.map(deblocage => deblocage.id));
+    // L'annonce en cours n'est plus dans la file : elle reste exclue tant qu'elle n'est pas notée vue (cas des annonces « carte »).
+    const { annoncer, silencieux } = nouveauxDeblocages(region, kanto,
+      [...fileDeblocages.map(deblocage => deblocage.id), ...(deblocageEnCours ? [deblocageEnCours.id] : [])]);
     marquerAnnoncesVues(silencieux);
     fileDeblocages = [...fileDeblocages, ...annoncer];
   };
@@ -556,7 +569,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       statistiques: calculerStatistiques(region, maintenant),
       evolution: afficherEvolution(evolutionEnCours, finEvolutionMs, tempsJeuMs),
       argent: region.argent, enRecherche: (coeur?.attenteMs ?? 0) > 0 && !coeur?.attenteCapture, cache: (coeur?.attenteMs ?? 0) > 0, annonce, banniere,
-      deblocage: deblocageEnCours?.texte ?? null, sonActive, echange,
+      deblocage: deblocageEnCours?.texte ?? null, deblocageCarte: deblocageEnCours?.carte ?? null, sonActive, echange,
       minuteur: coeur && coeur.attenteMs === 0 && coeur.minuteurMs !== null
         ? { restantMs: coeur.minuteurMs, totalMs: reglages.combat.minuteurBossMs } : null,
       zonePrecedente: JSON.stringify(zonePrecedente) === JSON.stringify(precedent.zonePrecedente) ? precedent.zonePrecedente : zonePrecedente,
@@ -760,7 +773,18 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       afficher();
     },
     casino: { acces: { ouvert: false, raison: casino.chargerCasino().acces.raison },
-      jetons: 0, blackjackEnCours: null, objets: [] },
+      jetons: 0, nouveau: false, blackjackEnCours: null, objets: [] },
+    entrerAuCasino() {
+      if (!initialise || !casino.accesCasino(kanto, etatMondeDe(region)).ok) return { offerts: 0 };
+      const resultat = casino.entrerAuCasino(region);
+      if (resultat.offerts === 0) return { offerts: 0 };
+      region = resultat.region;
+      // Entrer au casino vaut lecture de l'annonce de déblocage : elle ne revient plus.
+      fermerAnnonceCarte('casino');
+      enregistrer(); afficher();
+      signalerPremiereEntreeCasino(resultat.offerts);
+      return { offerts: resultat.offerts };
+    },
     acheterJetons: jetons => modifierCasino(region => casino.acheterJetons(region, jetons)),
     echangerJetons: jetons => modifierCasino(region => casino.echangerJetons(region, jetons)),
     jouerMachine: mise => modifierCasino(region => casino.jouerMachine(region, mise, alea)),
@@ -841,6 +865,11 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     progression: afficherProgression({ badges: [], jalonsRecus: [] }, []),
     obtentionBadge: null,
     fermerBoiteBadges() { obtentionBadge = null; afficher(); },
+    fermerDeblocage() {
+      if (!initialise || !deblocageEnCours?.carte) return;
+      fermerAnnonceCarte(deblocageEnCours.id);
+      afficher();
+    },
     effets: [], fauchage: { possede: false, disponible: false, raison: 'Nécessite la CT Fauchage.', rechargeS: 0, actif: false }, radar: false,
     utiliserObjetActif(id) {
       if (!initialise) return 'La partie n’est pas démarrée.';
@@ -988,7 +1017,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     statistiques: calculerStatistiques(),
     nomAdversaire: null, ligueGagnee: 0,
     erreur: null, erreurChargement: false, zonePrecedente: null, zoneSuivante: null, evenementsDegats: [],
-    evolution: null, argent: 0, enRecherche: false, cache: false, annonce: null, banniere: null, deblocage: null, echange: null,
+    evolution: null, argent: 0, enRecherche: false, cache: false, annonce: null, banniere: null, deblocage: null, deblocageCarte: null, echange: null,
     pc: [], pokedex, vus: [], accesPc: { ouvert: false, raison: reglages.pc.raison },
     pension: { acces: { ouvert: false, raison: null }, parents: [], oeufs: [],
       emplacements: reglages.depart.region.pension.emplacementsOeuf, emplacementsMax: reglages.pension.emplacementsMax,

@@ -1,6 +1,7 @@
 import { useTelephone } from './useTelephone';
 import { BarreLaterale, type InfosPartie } from './BarreLaterale';
 import { Carte, Combat, Equipe, Menu, Shop } from './icones';
+import { PastilleCasino, useCasinoNouveau } from './PastilleCasino';
 
 const entrees = [
   { titre: 'Combat', Icone: Combat },
@@ -10,7 +11,8 @@ const entrees = [
   { titre: 'Menu', Icone: Menu },
 ] as const;
 
-export type Page = 'Combat' | 'Équipe' | 'PC' | 'Shop' | 'Carte' | 'Menu' | 'Monde';
+/** `Casino` n'a pas d'onglet : il s'ouvre depuis le Menu ou l'annonce de déblocage, et l'onglet Menu reste actif. */
+export type Page = 'Combat' | 'Équipe' | 'PC' | 'Shop' | 'Carte' | 'Menu' | 'Monde' | 'Casino';
 
 export function Navigation({ page, choisir, signalCarte = false, inerte = false, origineMonde = 'Menu', originePC = 'Menu', ...infos }:  {
   page: Page; choisir: (page: Page) => void; signalCarte?: boolean; inerte?: boolean;
@@ -18,8 +20,9 @@ export function Navigation({ page, choisir, signalCarte = false, inerte = false,
   originePC?: 'Menu' | 'Équipe';
 } & InfosPartie) {
   const telephone = useTelephone();
+  const casinoNouveau = useCasinoNouveau();
   if (!telephone) return <BarreLaterale page={page} choisir={choisir} signalCarte={signalCarte} inerte={inerte} origineMonde={origineMonde} {...infos} />;
-  const active = page === 'PC' ? originePC : page === 'Monde' ? origineMonde : page;
+  const active = page === 'PC' ? originePC : page === 'Monde' ? origineMonde : page === 'Casino' ? 'Menu' : page;
   return (
     <nav aria-label="Navigation principale" inert={inerte}
       className="fixed inset-x-0 bottom-0 z-10 box-content border-t border-bordure bg-surface pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pt-1 pb-[env(safe-area-inset-bottom)] lg:rounded-cadre lg:border-t-0 lg:after:pointer-events-none lg:after:absolute lg:after:inset-0 lg:after:rounded-cadre lg:after:border lg:after:border-bordure lg:after:inset-ring lg:after:inset-ring-region-argent lg:inset-x-auto lg:inset-y-0 lg:left-0 lg:h-auto lg:w-24 lg:p-0">
@@ -32,6 +35,7 @@ export function Navigation({ page, choisir, signalCarte = false, inerte = false,
             {active === titre && <span aria-hidden="true" className="absolute inset-x-0 top-0 h-1 bg-region-accent lg:inset-x-auto lg:inset-y-0 lg:left-0 lg:h-full lg:w-1" />}
             <Icone />
             <span>{titre}</span>
+            {casinoNouveau && (titre === 'Menu' || titre === 'Carte') && <PastilleCasino className="absolute right-4 top-2" />}
           </button>
         ))}
       </div>

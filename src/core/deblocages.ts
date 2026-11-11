@@ -15,6 +15,12 @@ export type Deblocage = {
   id: string; declencheur: DeclencheurDeblocage; texte: string;
   /** Drapeau posé par un événement qui annonce déjà la fonction lui-même (l'intro pour le Sac). */
   dejaAnnonceSi?: string;
+  /**
+   * Annonce « carte » : elle reste affichée jusqu'à un geste du joueur (fermer ou « Y aller ») au lieu de disparaître
+   * après `annonceDeblocageMs`, et n'est notée vue qu'à ce moment (rechargée sans geste, elle revient).
+   * `cible` : page à ouvrir avec le bouton (`casino`).
+   */
+  carte?: { libelle: string; cible: string };
 };
 type Monde = Pick<ReturnType<typeof chargerMonde>, 'zonesOuvertes' | 'lieu' | 'zone'>;
 
@@ -27,6 +33,10 @@ export function chargerDeblocages(): Deblocage[] {
     if (!deblocage.id || ids.has(deblocage.id) || deblocage.id.includes(':')) throw new Error(`Déblocage invalide : ${deblocage.id}`);
     ids.add(deblocage.id);
     if (typeof deblocage.texte !== 'string' || !deblocage.texte.trim()) throw new Error(`Texte de déblocage manquant : ${deblocage.id}`);
+    if (deblocage.carte !== undefined && (typeof deblocage.carte.libelle !== 'string' || !deblocage.carte.libelle.trim()
+      || typeof deblocage.carte.cible !== 'string' || !deblocage.carte.cible.trim())) {
+      throw new Error(`Carte de déblocage invalide : ${deblocage.id}`);
+    }
     const declencheur = deblocage.declencheur as Record<string, unknown>;
     const cles = Object.keys(declencheur);
     if (cles.length !== 1 || !['zone', 'lieu', 'amelioration', 'objetShop'].includes(cles[0]!) || typeof declencheur[cles[0]!] !== 'string') {

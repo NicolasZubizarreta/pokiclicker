@@ -20,6 +20,7 @@ const chemins = {
   Sortie: 'M10 3H4v18h6M15 7l5 5-5 5M20 12H9',
   Chevron: 'm9 4 8 8-8 8',
   Retour: 'M15 4 7 12l8 8',
+  Casino: 'M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zM8 8h1M15 8h1M11.5 12h1M8 16h1M15 16h1',
 } as const;
 
 const faire = (chemin: string) => () => <Icone><path d={chemin} /></Icone>;
@@ -34,3 +35,4 @@ export const IconeDisque = faire(chemins.Disque);
 export const IconeSortie = faire(chemins.Sortie);
 export const IconeChevron = faire(chemins.Chevron);
 export const IconeRetour = faire(chemins.Retour);
+export const IconeCasino = faire(chemins.Casino);

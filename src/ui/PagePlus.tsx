@@ -17,7 +17,8 @@ import { PageReglages } from './PageReglages';
 import type { EtatSynchro } from './synchro';
 import { EtatSynchronisation } from './EtatSynchronisation';
 import { estProbleme } from './synchronisations';
-import { IconeMonde, IconePokedex, IconeBadges, IconeStats, IconeGuide, IconeReglages, IconeDisque, IconeSortie, IconeChevron } from './icones-menu';
+import { PastilleCasino, useCasinoNouveau } from './PastilleCasino';
+import { IconeCasino, IconeMonde, IconePokedex, IconeBadges, IconeStats, IconeGuide, IconeReglages, IconeDisque, IconeSortie, IconeChevron } from './icones-menu';
 
 function GroupeMenu({ telephone, children }: { telephone: boolean; children: ReactNode }) {
   return telephone ? <>{children}</> : <div className="menu-pc-tuiles grid-cols-3">{children}</div>;
@@ -46,17 +47,21 @@ function LigneMenu({ icone, titre, titreVisible, sousTexte, children, entree, on
   </button>;
 }
 
-export function PagePlus({ ouvrirPC, ouvrirMonde, menuPrincipal, attendreEnvoi, etatSynchro }: {
+export function PagePlus({ ouvrirPC, ouvrirMonde, ouvrirCasino, menuPrincipal, attendreEnvoi, etatSynchro }: {
   /** Affiché dans le Menu du téléphone seulement quand il y a un problème (sur PC : barre latérale). */
   etatSynchro?: EtatSynchro;
   ouvrirPC(): void;
   ouvrirMonde(): void;
+  /** Accès direct au casino (une fois débloqué). */
+  ouvrirCasino?(): void;
   /** Sauvegarde puis ouvre les parties ; absent hors ligne. */
   menuPrincipal?: () => Promise<boolean>;
   /** Attend l'envoi après la sauvegarde locale ; false si la partie n'est partie nulle part (hors ligne, refus, conflit). */
   attendreEnvoi?: () => Promise<boolean | void>;
 }) {
   const pcOuvert = useStore(storeJeu, etat => etat.accesPc.ouvert);
+  const casinoOuvert = useStore(storeJeu, etat => etat.casino.acces.ouvert);
+  const casinoNouveau = useCasinoNouveau();
   const diplome = useStore(storeJeu, etat => etat.fin.diplome);
   const [diplomeOuvert, ouvrirDiplome] = useState(false);
   const [sousPage, choisir] = useState<null | 'pokedex' | 'badges' | 'reglages' | 'stats' | 'guide'>(null);
@@ -139,6 +144,9 @@ export function PagePlus({ ouvrirPC, ouvrirMonde, menuPrincipal, attendreEnvoi, 
           <LigneMenu icone={<IconeMonde />} titre="Monde Pokémon" titreVisible={telephone ? undefined : 'Monde'} sousTexte="Kanto jouable" onClick={ouvrirMonde} />
           <h2 className="font-titre text-lg text-region-accent">Ton aventure</h2>
           <LigneMenu icone={<PC />} titre="PC de Léo" entree="pc" grise={!pcOuvert} onClick={ouvrirPC} />
+          {casinoOuvert && ouvrirCasino && <LigneMenu icone={<span className="relative inline-flex"><IconeCasino />
+            {casinoNouveau && <PastilleCasino className="absolute -right-1 -top-1" />}</span>} titre="Casino" entree="casino"
+            sousTexte={casinoNouveau ? 'Nouveau ! Des jetons offerts à ta première visite' : 'Jetons, jeux et boutique'} onClick={ouvrirCasino} />}
           <LigneMenu icone={<IconePokedex />} titre="Pokédex" sousTexte={`${nombre} / ${total}`}
             entree="pokedex" compteurDansNom
             onClick={() => { entree.current = 'pokedex'; choisir('pokedex'); }}>

@@ -122,6 +122,8 @@ it('bloque la ponte avant la Tour Pokémon et annonce le déblocage une seule fo
   };
   expect(annonces(p.store)[0]).toBe('Pension débloquée ! Elle est à Bourg Palette.');
   expect(p.lire().annoncesVues).toContain('pension');
+  // L'annonce du casino reste jusqu'à un geste du joueur : on la ferme pour que le rechargement parte d'un écran vide.
+  p.store.getState().fermerDeblocage();
   p.store.getState().arreter();
   p.gestionnaire.ecrireRegion('test', 'kanto', { ...p.lire(), etape: reglages.combat.etapeBoss });
   const reprise = p.ouvrir();

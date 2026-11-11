@@ -80,11 +80,69 @@ it('enchaîne Pension, Centre commercial et Casino après le boss de la Tour Pok
   const suite = suivre(p, store, 13000);
   const annonces = suite.filter(etape => etape.texte !== null);
   expect(annonces.map(etape => etape.texte)).toEqual([texte('pension'), texte('centre-commercial'), texte('casino')]);
-  // Chaque annonce de déblocage dure 3 s, sans trou ni superposition entre deux annonces.
-  for (const etape of annonces) expect(etape.pas * reglages.boucle.pasMs).toBe(reglages.interface.annonceDeblocageMs);
+  // Pension et Centre commercial durent 3 s chacun, sans trou ni superposition ; le Casino reste affiché (carte) jusqu'à un geste.
+  for (const etape of annonces.slice(0, 2)) expect(etape.pas * reglages.boucle.pasMs).toBe(reglages.interface.annonceDeblocageMs);
+  expect(annonces[2]!.pas * reglages.boucle.pasMs).toBeGreaterThan(reglages.interface.annonceDeblocageMs);
   expect(suite.filter(etape => etape.texte === null).length).toBeLessThanOrEqual(2);
+  expect(store.getState().deblocage).toBe(texte('casino'));
+  expect(store.getState().deblocageCarte).toEqual({ libelle: 'Y aller', cible: 'casino' });
+  expect(p.lire().annoncesVues).toEqual(['sac', 'pc', 'pension', 'centre-commercial']);
+});
+
+it('l’annonce du casino reste bien au-delà de 3 s, sans bouton pour les autres annonces, jusqu’à ce que le joueur la ferme', () => {
+  const p = preparer(tour);
+  const store = p.ouvrir();
+  p.gagner(store);
+  suivre(p, store, 8000);
+  expect(store.getState().deblocage).toBe(texte('casino'));
+  expect(store.getState().deblocageCarte).not.toBeNull();
+  p.avancer(store, 60000);
+  expect(store.getState().deblocage).toBe(texte('casino'));
+  store.getState().fermerDeblocage();
   expect(store.getState().deblocage).toBeNull();
-  expect(p.lire().annoncesVues).toEqual(['sac', 'pc', 'pension', 'centre-commercial', 'casino']);
+  expect(store.getState().deblocageCarte).toBeNull();
+  expect(p.lire().annoncesVues).toContain('casino');
+  p.avancer(store, 5000);
+  expect(store.getState().deblocage).toBeNull();
+});
+
+it('fermerDeblocage ne touche pas une annonce ordinaire', () => {
+  const p = preparer(tour);
+  const store = p.ouvrir();
+  p.gagner(store);
+  for (let i = 0; i < 40 && store.getState().deblocage === null; i++) p.avancer(store, reglages.boucle.pasMs);
+  expect(store.getState().deblocage).toBe(texte('pension'));
+  expect(store.getState().deblocageCarte).toBeNull();
+  store.getState().fermerDeblocage();
+  expect(store.getState().deblocage).toBe(texte('pension'));
+});
+
+it('l’annonce du casino revient au rechargement tant qu’elle n’est pas fermée, puis ne revient plus', () => {
+  const p = preparer(tour);
+  const store = p.ouvrir();
+  p.gagner(store);
+  suivre(p, store, 8000);
+  expect(store.getState().deblocage).toBe(texte('casino'));
+  store.getState().arreter();
+  const reprise = p.ouvrir();
+  suivre(p, reprise, 1000);
+  expect(reprise.getState().deblocage).toBe(texte('casino'));
+  reprise.getState().fermerDeblocage();
+  reprise.getState().arreter();
+  const encore = p.ouvrir();
+  suivre(p, encore, 3000);
+  expect(encore.getState().deblocage).toBeNull();
+});
+
+it('entrer au casino ferme l’annonce du casino', () => {
+  const p = preparer(tour);
+  const store = p.ouvrir();
+  p.gagner(store);
+  suivre(p, store, 8000);
+  expect(store.getState().deblocage).toBe(texte('casino'));
+  expect(store.getState().entrerAuCasino().offerts).toBeGreaterThan(0);
+  expect(store.getState().deblocage).toBeNull();
+  expect(p.lire().annoncesVues).toContain('casino');
 });
 
 it('attend la fin de l’annonce du jeu avant d’afficher la première annonce de déblocage', () => {
@@ -108,6 +166,7 @@ it('ne rejoue rien au rechargement ni quand la page est rouverte au milieu de la
   store.getState().arreter();
   const reprise = p.ouvrir();
   expect(annonces(suivre(p, reprise, 6000))).toEqual([texte('casino')]);
+  reprise.getState().fermerDeblocage();
   reprise.getState().arreter();
   const encore = p.ouvrir();
   expect(annonces(suivre(p, encore, 8000))).toEqual([]);

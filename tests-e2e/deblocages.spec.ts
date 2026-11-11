@@ -68,7 +68,8 @@ async function relever(page: Page, ms: number) {
     await page.clock.runFor(100);
     suite.push(await page.evaluate(() => {
       const zone = document.querySelector('[data-annonce-deblocage]')!;
-      return { texte: zone.textContent ?? '', cadres: zone.querySelectorAll('p').length,
+      // Le texte de l'annonce seul : la carte du casino porte aussi les boutons « Y aller » et « Fermer ».
+      return { texte: [...zone.querySelectorAll('p')].map(p => p.textContent).join(''), cadres: zone.querySelectorAll('p').length,
         animations: zone.getAnimations({ subtree: true }).length };
     }));
   }
@@ -96,15 +97,26 @@ test('Tour Pokémon : l’annonce attend le dialogue de M. Fuji, puis Pension, C
   const suite = await relever(page, 11000);
   expect(distincts(suite)).toEqual([textes.pension, textes['centre-commercial'], textes.casino]);
   expect(suite.every(e => e.cadres <= 1)).toBe(true);
-  for (const texte of [textes.pension, textes['centre-commercial'], textes.casino]) {
+  for (const texte of [textes.pension, textes['centre-commercial']]) {
     // 3 s par annonce, relevées toutes les 100 ms (la première est déjà entamée quand le relevé commence).
     expect(suite.filter(e => e.texte === texte).length).toBeGreaterThanOrEqual(dureeAnnonce / 100 - 1);
     expect(suite.filter(e => e.texte === texte).length).toBeLessThanOrEqual(dureeAnnonce / 100);
   }
+  // Le Casino est une carte : elle reste au-delà de 3 s, avec « Y aller » et « Fermer », et n'est pas encore notée vue.
+  expect(suite.filter(e => e.texte === textes.casino).length).toBeGreaterThan(dureeAnnonce / 100);
+  expect(suite.at(-1)!.texte).toBe(textes.casino);
+  await expect(page.locator('[data-annonce-deblocage]').getByRole('button', { name: 'Y aller' })).toBeVisible();
+  expect((await regionSauvee(page)).annoncesVues).toEqual(['sac', 'pc', 'pension', 'centre-commercial']);
+  // Rechargée sans geste, elle revient (les deux autres ne reviennent pas).
+  await page.reload();
+  await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
+  expect(distincts(await relever(page, 11000))).toEqual([textes.casino]);
+  await page.locator('[data-annonce-deblocage]').getByRole('button', { name: 'Fermer' }).click();
+  await expect(page.locator('[data-annonce-deblocage] p')).toHaveCount(0);
   expect((await regionSauvee(page)).annoncesVues).toEqual(['sac', 'pc', 'pension', 'centre-commercial', 'casino']);
   await page.reload();
   await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
-  expect(distincts(await relever(page, 11000))).toEqual([]);
+  expect(distincts(await relever(page, 5000))).toEqual([]);
 });
 
 test('Poké-Radar, CT Fauchage et Auto-clic arrivent au Shop : trois annonces de 3 s, une à la fois, dans l’ordre, sans attendre l’achat', async ({ page }) => {

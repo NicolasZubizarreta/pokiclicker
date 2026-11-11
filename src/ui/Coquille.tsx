@@ -10,6 +10,7 @@ import { BandeauHaut } from './BandeauHaut';
 import type { Page } from './Navigation';
 import { EcranCombat } from './EcranCombat';
 import { PageCarte } from './PageCentre';
+import { AccueilCasino } from './AccueilCasino';
 import { PageEquipe } from './PageEquipe';
 import { PagePC } from './PagePC';
 import { PagePlus } from './PagePlus';
@@ -125,7 +126,7 @@ export function Coquille({ region = 'kanto', theme = 'dark', quandMenuPrincipal,
       <main id="contenu" tabIndex={-1} inert={compteOuvert} className="min-w-0 px-4 pb-[calc(var(--spacing)*20+env(safe-area-inset-bottom))] pt-2 lg:flex-1 lg:min-h-0 lg:overflow-y-auto lg:p-8">
         {/* Avec un compte, le résumé du compte (diamants, succès, skins) est dans la zone compte, par Menu principal. */}
         {!quandMenuPrincipal && <button ref={boutonCompte} className="min-h-11 p-2 text-lien underline" onClick={() => fixerCompteOuvert(true)}>Mon compte</button>}
-        {page === 'Combat' ? introVue || introActive ? <PageIntro quandTerminee={() => fixerIntroVue(false)} /> : <EcranCombat /> : page === 'Carte' ? <PageCarte quandArrive={() => choisir('Combat')} /> : page === 'Équipe' ? <PageEquipe ouvrirPC={() => aller('PC')} /> : page === 'PC' ? <PagePC retour={() => choisir(originePC)} libelleRetour={originePC === 'Équipe' ? "Retour à l'équipe" : 'Retour au menu'} /> : page === 'Monde' ? <PageMonde retour={() => choisir(origineMonde)} jouerKanto={() => choisir('Combat')} /> : page === 'Menu' ? <PagePlus ouvrirPC={() => aller('PC')} ouvrirMonde={() => aller('Monde')} menuPrincipal={quandMenuPrincipal} attendreEnvoi={attendreEnvoi} etatSynchro={quandMenuPrincipal ? etatSynchro : undefined} /> : <PageShop />}
+        {page === 'Combat' ? introVue || introActive ? <PageIntro quandTerminee={() => fixerIntroVue(false)} /> : <EcranCombat /> : page === 'Carte' ? <PageCarte quandArrive={() => choisir('Combat')} /> : page === 'Équipe' ? <PageEquipe ouvrirPC={() => aller('PC')} /> : page === 'PC' ? <PagePC retour={() => choisir(originePC)} libelleRetour={originePC === 'Équipe' ? "Retour à l'équipe" : 'Retour au menu'} /> : page === 'Monde' ? <PageMonde retour={() => choisir(origineMonde)} jouerKanto={() => choisir('Combat')} /> : page === 'Casino' ? <AccueilCasino retour={() => choisir('Menu')} /> : page === 'Menu' ? <PagePlus ouvrirPC={() => aller('PC')} ouvrirMonde={() => aller('Monde')} ouvrirCasino={() => aller('Casino')} menuPrincipal={quandMenuPrincipal} attendreEnvoi={attendreEnvoi} etatSynchro={quandMenuPrincipal ? etatSynchro : undefined} /> : <PageShop />}
       </main>
       {!introActive && !introVue && <LegendeRaccourcis page={page} />}
       </div>
@@ -138,7 +139,7 @@ export function Coquille({ region = 'kanto', theme = 'dark', quandMenuPrincipal,
         cache={obtentionBadge?.phase === 'message' || obtentionBadge?.phase === 'boite' ? obtentionBadge.id : null}
         claque={obtentionBadge?.phase === 'claque' ? obtentionBadge.id : null}
         fermer={() => storeJeu.getState().fermerBoiteBadges()} declencheur={declencheur} />
-      <Notifications />
+      <Notifications quandAller={cible => { if (cible === 'casino') aller('Casino'); }} />
       {!introActive && !introVue && <FenetreSac />}
       {credits && <Credits fermerCredits={() => storeJeu.getState().fermerCredits()} />}
       {pantheon?.ouvert && <Pantheon equipe={pantheon.equipe} premiereVictoire={pantheon.premiereVictoire}

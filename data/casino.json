@@ -2,6 +2,7 @@
   "version": 1,
   "acces": { "raison": "Le Casino s'ouvre à Céladopole après la Tour Pokémon." },
   "jetons": { "achat": { "cost": 1000, "tokens": 50 }, "rachat": { "tokens": 50, "money": 1000 } },
+  "premiereEntree": { "jetons": 100, "message": "{jetons} jetons offerts pour ta première visite !" },
   "symboles": [
     { "id": "7", "nom": "7", "image": "objets/master-ball.png", "poids": 1, "gain": 500 },
     { "id": "Pikachu", "nom": "Pikachu", "image": "pokemon/25", "poids": 6, "gain": 50 },

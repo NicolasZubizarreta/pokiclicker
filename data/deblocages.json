@@ -24,7 +24,8 @@
     {
       "id": "casino",
       "declencheur": { "lieu": "casino" },
-      "texte": "Casino débloqué ! Il est sur la Carte, dans la fiche de Céladopole."
+      "carte": { "libelle": "Y aller", "cible": "casino" },
+      "texte": "Casino débloqué ! Tu y accèdes depuis le Menu et la Carte."
     },
     {
       "id": "poke-radar-au-shop",

@@ -6,6 +6,7 @@ import positionsCarte from '../../data/regions/kanto/carte-positions.json';
 import { centreForme, deplacer, positionFiche, rayonCible, vueInitiale, zoomer } from './carte-geometrie';
 import type { Point, Vue } from './carte-geometrie';
 import { storeJeu } from './store';
+import { PastilleCasino, useCasinoNouveau } from './PastilleCasino';
 import type { EtatForme } from './store';
 import { kanto } from '../core/regions';
 import type { FormeCarte } from '../core/monde';
@@ -39,6 +40,7 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
   const carte = useStore(storeJeu, etat => etat.carte);
   const centre = useStore(storeJeu, etat => etat.centre.acces);
   const casino = useStore(storeJeu, etat => etat.casino.acces);
+  const casinoNouveau = useCasinoNouveau();
   const raisonCasino = quandCasino ? casino.raison : 'Bientôt disponible.';
   const centreOuvert = !!quandCentre && centre.ouvert;
   const raisonCentre = quandCentre ? centre.raison : 'Bientôt disponible.';
@@ -238,6 +240,19 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
           </button>
         </li>;
       })}
+      {/* Accès direct au casino, sans passer par la fiche de Céladopole. */}
+      {casino.ouvert && quandCasino && <li>
+        <button type="button" data-casino-direct aria-label="Casino, accès direct" aria-disabled={vol.actif ? true : undefined}
+          onClick={vol.actif ? undefined : quandCasino}
+          className={`flex min-h-14 w-full items-center gap-3 border-2 border-bordure bg-surface px-3 py-1 text-left focus-visible:outline-2 focus-visible:outline-focus ${vol.actif ? '' : 'hover:bg-selection'}`}>
+          <span className="min-w-0 flex-1">
+            <span className="block font-semibold">Casino</span>
+            <span className="block text-sm text-texte-doux">{casinoNouveau ? 'Nouveau ! Des jetons offerts à ta première visite' : 'Céladopole · Jetons, jeux et boutique'}</span>
+          </span>
+          {casinoNouveau && <PastilleCasino />}
+          <svg aria-hidden="true" viewBox="0 0 24 24" className="size-6 shrink-0 fill-none stroke-current stroke-2"><path d="m9 6 6 6-6 6" /></svg>
+        </button>
+      </li>}
     </ul>}
     <div className={telephone ? 'cadre aspect-video flex-none overflow-hidden bg-surface p-1' : 'cadre overflow-hidden bg-surface p-2'}>
       <div className={`carte-support relative ${vol.actif && reduit ? 'fondu-carte' : ''}`}

@@ -17,7 +17,8 @@ async function preparer(page: Page, ouvert: boolean, sabot?: string[]) {
     if (!cle || sessionStorage.getItem('casino-prepare')) return;
     sessionStorage.setItem('casino-prepare', '1');
     const enveloppe = JSON.parse(localStorage.getItem(cle)!);
-    Object.assign(enveloppe.donnees, { argent: 50000, jetons: 0, zoneId: 'kanto.tour-pokemon', etape: 1,
+    // casinoVu : le cadeau de la première entrée est déjà pris, ces tests partent de 0 jeton (voir casino-visibilite.spec.ts).
+    Object.assign(enveloppe.donnees, { argent: 50000, jetons: 0, casinoVu: true, zoneId: 'kanto.tour-pokemon', etape: 1,
       starterId: 1, evenementsJoues: ['kanto.intro'], drapeaux: ['sac-ouvert'],
       equipe: [{ uid: 'casino-starter', numero: 1, sexe: 'male', niveau: 5, xp: 0,
         shiny: false, bonheur: 0, pierreEternelle: false, calcium: 0, favori: false }],

@@ -43,7 +43,7 @@ export function chargerCasino(source: unknown = donnees): Casino {
     throw new Error('Règles casino invalides');
   }
   for (const nombre of [casino.jetons.achat.cost, casino.jetons.achat.tokens,
-    casino.jetons.rachat.tokens, casino.jetons.rachat.money,
+    casino.jetons.rachat.tokens, casino.jetons.rachat.money, casino.premiereEntree.jetons,
     ...casino.symboles.flatMap(s => [s.poids, s.gain]), ...casino.boutique.map(o => o.price),
     casino.blackjack.paquets, casino.blackjack.maxMains, casino.blackjack.seuilCroupier, casino.blackjack.retourAssurance]) {
     if (!Number.isSafeInteger(nombre)) throw new Error('Entier casino invalide');
@@ -106,6 +106,18 @@ export function lireMise(valeur: string, jetons = Infinity): number {
 }
 
 const espaces = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+
+/**
+ * Première entrée au casino : `premiereEntree.jetons` jetons offerts, une seule fois par partie.
+ * Le drapeau `casinoVu` est posé avec le cadeau ; une sauvegarde sans le champ n'a jamais reçu le cadeau.
+ */
+export function entrerAuCasino<R extends RegionCasino & { readonly casinoVu?: boolean }>(region: R): { region: R; offerts: number } {
+  if (region.casinoVu === true) return { region, offerts: 0 };
+  const offerts = casino.premiereEntree.jetons;
+  return { region: { ...region, casinoVu: true, jetons: region.jetons + offerts }, offerts };
+}
+/** Message de bienvenue affiché dans la page du casino quand le cadeau vient d'être donné. */
+export const messageBienvenue = (offerts: number) => casino.premiereEntree.message.replace('{jetons}', espaces(offerts));
 
 /** Prix d'un jeton à l'achat, en ₽ (1 000 ₽ pour 50 jetons = 20). */
 export const prixJeton = () => casino.jetons.achat.cost / casino.jetons.achat.tokens;

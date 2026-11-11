@@ -5,7 +5,7 @@ import { CarteKanto } from './CarteKanto';
 import { IconeObjet } from './icones';
 import { Image } from './Image';
 import { storeJeu } from './store';
-import { PageCasino } from './PageCasino';
+import { AccueilCasino } from './AccueilCasino';
 import { useTelephone } from './useTelephone';
 import './ShopPC.css';
 
@@ -30,7 +30,7 @@ export function PageCarte({ quandArrive }: { quandArrive: () => void }) {
       <CarteKanto quandArrive={quandArrive} quandCentre={() => ouvrir('centre')} quandCasino={() => ouvrir('casino')} />
     </div>
     {ouvert === 'centre' && <PageCentre retour={() => ouvrir(null)} />}
-    {ouvert === 'casino' && <PageCasino retour={() => ouvrir(null)} />}
+    {ouvert === 'casino' && <AccueilCasino retour={() => ouvrir(null)} />}
   </div>;
 }
 

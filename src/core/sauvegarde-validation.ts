@@ -144,6 +144,7 @@ export function validerDonneesRegion(v: unknown): asserts v is DonneesRegion {
       legendaire: booleen, shiny: booleen, nouveau: booleen }) }, {
     diplomeLe: dateUtc,
     annoncesVues: textes,
+    casinoVu: booleen,
     evenementEnCours: e => forme(e, { id: identifiant,
       etape: i => { entier(i); exiger((i as number) >= 0, 'Étape invalide'); },
       file: liste(identifiant) }),

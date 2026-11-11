@@ -6,6 +6,7 @@ import type { EtatSynchro } from './synchro';
 import { EtatSynchronisation } from './EtatSynchronisation';
 import { estProbleme } from './synchronisations';
 import { storeJeu } from './store';
+import { PastilleCasino, useCasinoNouveau } from './PastilleCasino';
 import { evolutionProposee } from './evolution-proposee';
 import { erreurRetourMenu, useRetourMenuPrincipal } from './useRetourMenuPrincipal';
 
@@ -20,7 +21,8 @@ export function BarreLaterale({ page, choisir, signalCarte, inerte, origineMonde
   const sac = useStore(storeJeu, e => e.sac);
   const evolution = equipe.some(c => c && evolutionProposee(c.pokemon, sac.entrees));
   const { retourEnCours, retourEchoue, revenirAuMenuPrincipal } = useRetourMenuPrincipal(quandMenuPrincipal);
-  const active = page === 'Monde' ? origineMonde : page;
+  const casinoNouveau = useCasinoNouveau();
+  const active = page === 'Monde' ? origineMonde : page === 'Casino' ? 'Menu' : page;
   return <aside inert={inerte} className="barre-laterale hidden min-h-0 flex-col gap-4 border-r border-bordure bg-surface p-4 lg:flex">
     <div className="marque-pc py-4"><b className="font-titre text-xl text-region-accent">PokiClicker</b><span className="sous-titre-pc block text-sm text-texte-doux">Kanto</span></div>
     <nav aria-label="Navigation principale" className="grid gap-1">
@@ -30,6 +32,7 @@ export function BarreLaterale({ page, choisir, signalCarte, inerte, origineMonde
         {active === titre && <span aria-hidden="true" className="absolute inset-y-0 left-0 w-1 bg-region-accent" />}
         <Icone /><span>{titre}</span><kbd aria-hidden="true" className="touche-pc ml-auto">{index + 1}</kbd>
         {titre === 'Équipe' && evolution && <span aria-hidden="true" className="h-2 w-2 rounded-full bg-succes-base" />}
+        {casinoNouveau && (titre === 'Menu' || titre === 'Carte') && <PastilleCasino />}
       </button>)}
     </nav>
     {(nomPartie || (quandMenuPrincipal && etatSynchro)) && <div className="bas-pc mt-auto grid gap-2 border border-bordure bg-surface-2 p-3 text-sm"><b>{nomPartie}</b>{quandMenuPrincipal && etatSynchro && estProbleme(etatSynchro) && <EtatSynchronisation etat={etatSynchro} />}</div>}
