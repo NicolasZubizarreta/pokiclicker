@@ -1,7 +1,241 @@
-@keyframes coin-spin {
-  to { transform: rotateY(720deg); }
+/* Casino, variante A « la salle en scène » (design/variantes/casino/a.css + commun.css).
+   Tout vient de design/tokens.css et design/regions.css : un seul contour de 2 px, aucune ombre, mouvement en transform et opacity.
+   Les classes sont préfixées cs- pour ne pas heurter .plaque, .cadre et .cadre-alerte, déjà globales. */
+.cs-page { --f: 1; --carte-l: calc(var(--spacing) * 15); --carte-h: calc(var(--spacing) * 21); display: grid; gap: calc(var(--spacing) * 4); max-width: 80rem; margin-inline: auto; padding-bottom: calc(var(--spacing) * 6); }
+@media (min-width: 64rem) { .cs-page { --f: 2; --carte-l: calc(var(--spacing) * 18); --carte-h: calc(var(--spacing) * 25); } }
+.cs-page h1, .cs-page h2, .cs-page h3, .cs-page b { font-family: var(--font-titre); font-weight: 700; }
+.cs-page ul, .cs-page dl, .cs-page dd, .cs-page figure { margin: 0; padding: 0; list-style: none; }
+.cs-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.cs-px { image-rendering: pixelated; max-width: none; }
+.cs-sprite { width: calc(var(--spacing) * 24); height: calc(var(--spacing) * 24); }
+.cs-objet { width: calc(var(--spacing) * 22.5); height: calc(var(--spacing) * 22.5); }
+.cs-rappel { color: var(--texte-doux); font-size: var(--text-base); }
+.cs-doux { color: var(--texte-doux); }
+.cs-chiffre { color: var(--region-accent); }
+.cs-ic { width: calc(var(--spacing) * 6); height: calc(var(--spacing) * 6); fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+
+/* Jetons, pastille, verdict */
+.cs-jeton { display: inline-block; flex-shrink: 0; width: calc(var(--spacing) * 5); height: calc(var(--spacing) * 5); border-radius: var(--radius-plein); background: radial-gradient(circle, var(--region-argent) 0 44%, var(--fond) 45% 56%, var(--region-argent) 57%); }
+.cs-jeton-gros { width: calc(var(--spacing) * 8); height: calc(var(--spacing) * 8); }
+.cs-pastille { display: inline-flex; align-items: center; gap: calc(var(--spacing) * 2); min-height: calc(var(--spacing) * 8); padding: 0 calc(var(--spacing) * 3); background: var(--region-accent-fond); border: calc(var(--spacing) / 2) solid var(--region-accent); border-radius: var(--radius-md); color: var(--texte); white-space: nowrap; }
+.cs-pastille b { color: var(--region-accent); }
+.cs-verdict { min-height: calc(var(--spacing) * 6); font-weight: 700; text-align: center; }
+.cs-verdict[data-ton="gain"] { color: var(--succes-texte); }
+.cs-verdict[data-ton="perte"] { color: var(--erreur-texte); }
+.cs-verdict[data-ton="info"] { color: var(--info-texte); }
+.cs-verdict[data-ton="alerte"] { color: var(--alerte-texte); }
+
+/* Salle : décor en bandeau, accueil, cartes de jeux, colonne de la caisse */
+.cs-scene { position: relative; background: var(--region-accent-fond); border: calc(var(--spacing) / 2) solid var(--region-accent); border-radius: var(--rayon); overflow: hidden; }
+.cs-scene-img { width: 100%; height: auto; image-rendering: auto; }
+.cs-hotspots { display: none; }
+.cs-colonne { display: grid; gap: calc(var(--spacing) * 4); min-width: 0; align-content: start; }
+.cs-accueil { display: flex; align-items: center; justify-content: space-between; gap: calc(var(--spacing) * 3); }
+.cs-accueil h1 { font-size: var(--text-3xl); line-height: var(--text-3xl--line-height); }
+.cs-accueil p { color: var(--texte-doux); }
+.cs-solde-mobile { margin-top: calc(var(--spacing) * 2); }
+.cs-jeux-grille { display: grid; gap: calc(var(--spacing) * 4); }
+.cs-carte-jeu { display: grid; grid-template-rows: auto 1fr; overflow: hidden; background: var(--surface); border: calc(var(--spacing) / 2) solid var(--bordure); border-radius: var(--rayon); }
+.cs-vitrine { display: flex; align-items: center; justify-content: center; gap: calc(var(--spacing) * 2); min-height: calc(var(--spacing) * 34); padding: calc(var(--spacing) * 3); background: var(--region-accent-fond); border-bottom: calc(var(--spacing) / 2) solid var(--region-accent); }
+.cs-mini { display: grid; place-items: center; width: calc(var(--spacing) * 24); height: calc(var(--spacing) * 24); background: var(--fond); border: calc(var(--spacing) / 2) solid var(--region-argent); border-radius: var(--radius-lg); box-sizing: content-box; }
+.cs-mini-piece { border-radius: var(--radius-plein); background: var(--region-argent); border-color: var(--alerte-base); }
+.cs-hachure { background-color: var(--region-argent); background-image: repeating-linear-gradient(45deg, var(--fond) 0 calc(var(--spacing) / 2), transparent calc(var(--spacing) / 2) calc(var(--spacing) * 2)); }
+.cs-vitrine .cs-cartes { min-height: 0; }
+.cs-vitrine .cs-carte { animation: none; }
+/* Dans l'appli la carte d'un jeu peut être plus étroite que dans la maquette : les vignettes rétrécissent au lieu d'être coupées. */
+.cs-vitrine .cs-mini, .cs-vitrine .cs-produit-image { box-sizing: border-box; flex: 0 1 calc(var(--spacing) * 25); min-width: 0; width: auto; height: auto; aspect-ratio: 1; }
+.cs-vitrine .cs-mini .cs-px, .cs-vitrine .cs-produit-image .cs-px { width: 100%; height: 100%; }
+.cs-carte-corps { display: grid; gap: calc(var(--spacing) * 2); align-content: start; padding: calc(var(--spacing) * 4); }
+.cs-carte-corps h2 { font-size: var(--text-xl); line-height: var(--text-xl--line-height); }
+.cs-carte-corps p { color: var(--texte-doux); }
+.cs-carte-corps .plaque { width: 100%; margin-top: calc(var(--spacing) * 2); }
+.cs-jeux-grille .cs-carte-jeu:last-child:nth-child(odd) { grid-column: auto; }
+.cs-fleche-grande { width: calc(var(--spacing) * 10); height: calc(var(--spacing) * 10); fill: none; stroke: var(--region-argent); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+.cs-droite { gap: calc(var(--spacing) * 4); }
+.cs-cadeau { padding: calc(var(--spacing) * 4); font-weight: 700; }
+
+/* Caisse */
+.cs-caisse { display: grid; gap: calc(var(--spacing) * 4); padding: calc(var(--spacing) * 4); }
+.cs-soldes { display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--spacing) * 3); }
+.cs-soldes > div { display: grid; gap: var(--spacing); padding: calc(var(--spacing) * 3); background: var(--region-accent-fond); border: calc(var(--spacing) / 2) solid var(--region-accent); border-radius: var(--radius-md); min-width: 0; }
+.cs-soldes dt { color: var(--texte-doux); font-size: var(--text-base); }
+.cs-soldes dd { display: flex; align-items: center; gap: calc(var(--spacing) * 2); font-size: var(--text-2xl); font-family: var(--font-titre); font-weight: 700; color: var(--region-accent); white-space: nowrap; }
+.cs-echange { display: grid; gap: calc(var(--spacing) * 3); }
+.cs-echange > label { font-weight: 700; }
+.cs-pas { display: grid; grid-template-columns: calc(var(--spacing) * 12) minmax(0, 1fr) calc(var(--spacing) * 12); gap: var(--spacing); }
+.cs-pas .plaque { padding: 0; font-size: var(--text-xl); }
+.cs-champ { min-width: 0; min-height: calc(var(--spacing) * 12); padding: 0 calc(var(--spacing) * 2); background: var(--fond); color: var(--texte); border: calc(var(--spacing) / 2) solid var(--region-accent); border-radius: var(--radius-md); font-family: var(--font-titre); font-weight: 700; font-size: var(--text-xl); text-align: center; appearance: textfield; }
+.cs-champ::-webkit-outer-spin-button, .cs-champ::-webkit-inner-spin-button { appearance: none; margin: 0; }
+.cs-rapides { display: flex; flex-wrap: wrap; gap: calc(var(--spacing) * 2); }
+.cs-rapides .plaque { flex: 1 1 0; min-width: calc(var(--spacing) * 12); padding-inline: calc(var(--spacing) * 2); }
+.cs-prix { display: flex; flex-wrap: wrap; gap: 0 calc(var(--spacing) * 3); color: var(--texte-doux); }
+.cs-prix span { white-space: nowrap; }
+.cs-prix b { color: var(--region-accent); }
+.cs-actions-echange { display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--spacing) * 2); }
+
+/* Vue de jeu : en-tête, plateau, commandes */
+.cs-jeu-entete { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: calc(var(--spacing) * 3); }
+.cs-jeu-entete h1 { font-size: var(--text-xl); line-height: var(--text-xl--line-height); text-align: center; min-width: 0; }
+.cs-jeu-entete .cs-pastille b { font-size: var(--text-lg); }
+.cs-jeu { display: grid; gap: calc(var(--spacing) * 4); align-items: start; }
+.cs-plateau { display: grid; gap: calc(var(--spacing) * 4); justify-items: center; align-content: start; padding: calc(var(--spacing) * 4); background: var(--surface); border: calc(var(--spacing) / 2) solid var(--bordure); border-radius: var(--rayon); }
+.cs-plateau > * { max-width: 100%; }
+.cs-tapis { background: var(--region-accent-fond); border-color: var(--region-accent); }
+.cs-commandes { display: grid; gap: calc(var(--spacing) * 3); align-content: start; padding: calc(var(--spacing) * 4); background: var(--surface); border: calc(var(--spacing) / 2) solid var(--bordure); border-radius: var(--rayon); }
+.cs-grand { min-height: calc(var(--spacing) * 14); font-size: var(--text-lg); width: 100%; }
+.cs-large { grid-column: 1 / -1; }
+.cs-pluie-zone { position: relative; display: grid; justify-items: center; gap: calc(var(--spacing) * 4); width: 100%; overflow: hidden; }
+.cs-pluie { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.cs-piece-chute { position: absolute; top: 0; width: calc(var(--spacing) * 6); height: calc(var(--spacing) * 6); border-radius: var(--radius-plein); pointer-events: none; background: radial-gradient(circle, var(--region-argent) 0 44%, var(--fond) 45% 56%, var(--region-argent) 57%); }
+
+/* Mise */
+.cs-mise { display: grid; gap: calc(var(--spacing) * 2); }
+.cs-mise-libelle { font-weight: 700; display: flex; justify-content: space-between; align-items: center; gap: calc(var(--spacing) * 2); }
+.cs-mise-libelle span { color: var(--texte-doux); font-weight: 400; font-size: var(--text-base); }
+
+/* Gains (détails ou tableau ouvert) */
+.cs-gains { background: var(--region-accent-fond); border: calc(var(--spacing) / 2) solid var(--region-accent); border-radius: var(--radius-md); }
+.cs-gains summary { display: flex; align-items: center; min-height: calc(var(--spacing) * 12); padding: 0 calc(var(--spacing) * 3); font-weight: 700; cursor: pointer; }
+.cs-gains ul { display: grid; gap: var(--spacing); padding: 0 calc(var(--spacing) * 3) calc(var(--spacing) * 3); }
+.cs-gains li { display: flex; align-items: center; gap: calc(var(--spacing) * 3); min-height: calc(var(--spacing) * 8); }
+.cs-gains li img { width: calc(var(--spacing) * 8); height: calc(var(--spacing) * 8); object-fit: contain; }
+.cs-gains .cs-mult { margin-left: auto; font-family: var(--font-titre); font-weight: 700; color: var(--region-argent); text-align: right; }
+.cs-gains > .cs-rappel { padding: 0 calc(var(--spacing) * 3) calc(var(--spacing) * 3); }
+.cs-gains-ouvert h3 { padding: calc(var(--spacing) * 3) calc(var(--spacing) * 3) var(--spacing); font-size: var(--text-base); }
+
+/* Rouleaux (sprites 96 px natifs ×1 téléphone, ×2 PC ; objets 30 px natifs ×3 / ×6) */
+.cs-reels { --cell: calc(var(--spacing) * 24 * var(--f)); display: grid; grid-template-columns: repeat(3, auto); gap: var(--spacing); justify-content: center; }
+@media (min-width: 40rem) { .cs-reels { gap: calc(var(--spacing) * 2); } }
+.cs-rouleau { box-sizing: content-box; position: relative; width: var(--cell); height: var(--cell); overflow: hidden; background: var(--fond); border: calc(var(--spacing) / 2) solid var(--region-argent); border-radius: var(--radius-lg); }
+.cs-cell { display: flex; align-items: center; justify-content: center; width: 100%; height: var(--cell); }
+.cs-rouleau .cs-sprite { width: calc(var(--spacing) * 24 * var(--f)); height: calc(var(--spacing) * 24 * var(--f)); }
+.cs-rouleau .cs-objet { width: calc(var(--spacing) * 22.5 * var(--f)); height: calc(var(--spacing) * 22.5 * var(--f)); }
+.cs-rouleau[data-tourne="true"] .cs-cell { animation: cs-defile var(--duration-rapide) linear infinite; }
+.cs-rouleau[data-arret="true"] .cs-cell { animation: cs-retombe var(--duration-normal) var(--ease-sortie) both; }
+.cs-rouleau[data-gagnant="true"] { border-color: var(--succes-base); background: var(--succes-fond); }
+@keyframes cs-defile { from { transform: translateY(-12%); } to { transform: translateY(12%); } }
+@keyframes cs-retombe { from { transform: translateY(-25%); } to { transform: translateY(0); } }
+
+/* Cartes */
+.cs-cartes { display: flex; align-items: flex-start; min-height: var(--carte-h); }
+.cs-carte { position: relative; flex-shrink: 0; width: var(--carte-l); height: var(--carte-h); background: var(--blanc); color: var(--fond); border: calc(var(--spacing) / 2) solid var(--fond); border-radius: var(--radius-md); font-family: var(--font-titre); font-weight: 700; animation: cs-carte-arrive var(--duration-normal) var(--ease-sortie) both; }
+.cs-cartes li + li .cs-carte { margin-left: calc(var(--carte-l) * -0.45); }
+.cs-rang { position: absolute; top: var(--spacing); left: calc(var(--spacing) * 1.5); font-size: var(--text-lg); line-height: 1; }
+.cs-couleur { position: absolute; width: calc(var(--carte-l) * 0.5); height: calc(var(--carte-l) * 0.5); right: calc(var(--spacing) * 1.5); bottom: calc(var(--spacing) * 1.5); fill: currentColor; }
+.cs-rouge { color: var(--action); }
+.cs-dos { background: var(--region-accent-fort); border-color: var(--region-accent); background-image: repeating-linear-gradient(45deg, var(--region-accent) 0 var(--spacing), transparent var(--spacing) calc(var(--spacing) * 3)); }
+@keyframes cs-carte-arrive { from { transform: translateY(calc(var(--spacing) * -4)); opacity: 0; } }
+
+/* Blackjack */
+.cs-table { gap: calc(var(--spacing) * 4); }
+.cs-mains { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: calc(var(--spacing) * 3); width: 100%; }
+.cs-mains[data-nb="1"] { grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 64rem) { .cs-mains[data-nb="3"] { grid-template-columns: repeat(3, minmax(0, 1fr)); } .cs-mains[data-nb="4"] { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.cs-croupier { width: 100%; }
+.cs-main { display: grid; gap: calc(var(--spacing) * 2); justify-items: center; align-content: start; padding: calc(var(--spacing) * 2); border: calc(var(--spacing) / 2) solid var(--region-accent); border-radius: var(--radius-lg); min-width: 0; background: var(--region-accent-fond); }
+.cs-main[data-actif="true"] { background: var(--selection); border-color: var(--region-argent); }
+.cs-mains[data-nb="1"] .cs-main, .cs-croupier .cs-main { background: transparent; border-color: transparent; }
+.cs-main h3 { font-size: var(--text-base); text-align: center; }
+.cs-mains:not([data-nb="1"]) .cs-cartes li + li .cs-carte { margin-left: calc(var(--carte-l) * -0.62); }
+.cs-issue { display: inline-flex; align-items: center; gap: var(--spacing); min-height: calc(var(--spacing) * 8); padding: 0 calc(var(--spacing) * 2); border: calc(var(--spacing) / 2) solid; border-radius: var(--radius-md); font-weight: 700; font-size: var(--text-base); }
+.cs-issue[data-ton="gain"] { background: var(--succes-fond); color: var(--succes-texte); border-color: var(--succes-base); }
+.cs-issue[data-ton="perte"] { background: var(--erreur-fond); color: var(--erreur-texte); border-color: var(--erreur-base); }
+.cs-issue[data-ton="nul"] { background: var(--info-fond); color: var(--info-texte); border-color: var(--info-base); }
+.cs-pictogramme { width: calc(var(--spacing) * 4); height: calc(var(--spacing) * 4); fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.cs-actions-bj { display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--spacing) * 2); }
+.cs-actions-bj .plaque { min-height: calc(var(--spacing) * 14); }
+
+/* Pile ou face (la classe coin-spin garde le nom de la V1 et des tests) */
+.cs-piece-scene { display: grid; place-items: center; perspective: calc(var(--spacing) * 200); padding: calc(var(--spacing) * 3) 0; }
+.cs-piece { --fp: 1; position: relative; width: calc(var(--spacing) * 36 * var(--fp)); height: calc(var(--spacing) * 36 * var(--fp)); transform-style: preserve-3d; }
+@media (min-width: 64rem) { .cs-piece { --fp: 1.5; } }
+.cs-face { position: absolute; inset: 0; display: grid; place-items: center; border-radius: var(--radius-plein); background: var(--region-argent); border: calc(var(--spacing) * 2) solid var(--alerte-base); backface-visibility: hidden; }
+.cs-face::after { content: ""; position: absolute; inset: calc(var(--spacing) * 2); border: calc(var(--spacing) / 2) solid var(--fond); border-radius: var(--radius-plein); }
+.cs-f-pile { transform: rotateY(180deg); }
+.coin-spin { animation: coin-spin var(--duration-normal) linear both; }
+@keyframes coin-spin { from { transform: rotateY(var(--depart, 0deg)); } to { transform: rotateY(var(--fin, 1440deg)); } }
+.cs-choix { display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--spacing) * 2); }
+.cs-choix .plaque { flex-direction: column; gap: 0; min-height: calc(var(--spacing) * 14); }
+.cs-choix small { font-weight: 400; font-size: var(--text-base); }
+
+/* Roulette */
+.cs-puce { display: inline-block; flex-shrink: 0; width: calc(var(--spacing) * 6); height: calc(var(--spacing) * 6); border-radius: var(--radius-plein); background: var(--fond); border: calc(var(--spacing) / 2) solid var(--texte); }
+.cs-puce[data-c="rouge"] { background: var(--action); border-color: var(--action-survol); }
+.cs-puce[data-c="vert"] { background: var(--succes-base); border-color: var(--succes-texte); }
+.cs-grande { width: calc(var(--spacing) * 14); height: calc(var(--spacing) * 14); display: grid; place-items: center; font-family: var(--font-titre); font-weight: 700; font-size: var(--text-xl); color: var(--blanc); }
+.cs-roue { --r: calc(var(--spacing) * 28); --poche: calc(var(--spacing) * 4); position: relative; flex-shrink: 0; width: calc(var(--r) * 2 + var(--poche) * 3); max-width: 100%; aspect-ratio: 1; border-radius: var(--radius-plein); background: var(--fond); border: calc(var(--spacing) / 2) solid var(--region-argent); }
+.cs-poche { position: absolute; left: 50%; top: 50%; box-sizing: border-box; width: var(--poche); height: calc(var(--poche) * 1.25); margin: calc(var(--poche) * -0.625) 0 0 calc(var(--poche) / -2); border-radius: var(--radius-sm); background: var(--fond); border: calc(var(--spacing) / 2) solid var(--texte-doux); transform: rotate(var(--a)) translateY(calc(var(--r) * -1)); }
+.cs-poche[data-c="rouge"] { background: var(--action); border-color: var(--action-survol); }
+.cs-poche[data-c="vert"] { background: var(--succes-base); border-color: var(--succes-texte); }
+.cs-poche[data-c="noir"] { background: var(--fond); border-color: var(--texte); }
+.cs-poche[data-gagnant="true"] { outline: calc(var(--spacing) / 2) solid var(--region-argent); outline-offset: calc(var(--spacing) / 2); }
+.cs-piste { position: absolute; inset: 0; }
+.cs-bille { position: absolute; left: 50%; top: 50%; width: calc(var(--spacing) * 3.5); height: calc(var(--spacing) * 3.5); margin: calc(var(--spacing) * -1.75) 0 0 calc(var(--spacing) * -1.75); border-radius: var(--radius-plein); background: var(--blanc); border: calc(var(--spacing) / 2) solid var(--fond); transform: translateY(calc(var(--r) * -1)); }
+.cs-centre { position: absolute; left: 50%; top: 50%; width: calc((var(--r) - var(--poche) * 1.5) * 2); aspect-ratio: 1; transform: translate(-50%, -50%); display: grid; place-items: center; border-radius: var(--radius-plein); background: var(--surface); border: var(--spacing) solid var(--texte); }
+.cs-centre[data-c="rouge"] { border-color: var(--action); }
+.cs-centre[data-c="vert"] { border-color: var(--succes-base); }
+.cs-centre b { font-size: var(--text-4xl); line-height: var(--text-4xl--line-height); }
+.cs-paris { display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--spacing) * 2); }
+.cs-paris .plaque { gap: calc(var(--spacing) * 2); min-height: calc(var(--spacing) * 13); }
+.cs-paris small { font-weight: 400; font-size: var(--text-base); }
+.cs-numero { display: grid; gap: calc(var(--spacing) * 2); font-weight: 700; }
+
+/* Plus ou moins */
+.cs-pm-table { display: flex; justify-content: center; gap: calc(var(--spacing) * 8); }
+.cs-pm-colonne { display: grid; justify-items: center; align-content: start; gap: calc(var(--spacing) * 2); }
+.cs-etiquette { font-weight: 700; color: var(--texte-doux); font-size: var(--text-base); }
+.cs-retourne .cs-carte { animation: cs-retourne var(--duration-normal) var(--ease-sortie) both; }
+@keyframes cs-retourne { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.cs-pm-boutons { display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--spacing) * 2); }
+.cs-pm-boutons .plaque { flex-direction: column; gap: 0; min-height: calc(var(--spacing) * 20); padding: var(--spacing) calc(var(--spacing) * 2); }
+.cs-pm-lib { display: inline-flex; align-items: center; gap: var(--spacing); }
+.cs-pm-boutons .cs-gain { font-size: var(--text-xl); color: var(--region-argent); }
+.cs-pm-boutons small { font-weight: 400; font-size: var(--text-base); }
+
+/* Carte à gratter */
+.cs-ticket { width: 100%; max-width: calc(var(--spacing) * 100); display: grid; gap: calc(var(--spacing) * 3); padding: calc(var(--spacing) * 3); background: var(--region-accent-fond); border: calc(var(--spacing) / 2) solid var(--region-argent); border-radius: var(--radius-lg); }
+.cs-ticket-tete { display: grid; gap: var(--spacing); text-align: center; }
+.cs-ticket-tete b { color: var(--region-argent); font-size: var(--text-xl); }
+.cs-ticket-tete span { color: var(--texte-doux); font-size: var(--text-base); }
+.cs-cases { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: calc(var(--spacing) * 2); }
+.cs-case { position: relative; display: grid; place-items: center; aspect-ratio: 1; min-height: calc(var(--spacing) * 20); padding: 0; overflow: hidden; background: var(--fond); border: calc(var(--spacing) / 2) solid var(--bordure); border-radius: var(--radius-md); color: var(--fond); }
+.cs-dessous { display: grid; place-items: center; width: 100%; height: 100%; }
+.cs-dessous .cs-sprite { width: calc(var(--spacing) * 24); height: calc(var(--spacing) * 24); }
+.cs-dessous .cs-objet { width: calc(var(--spacing) * 15); height: calc(var(--spacing) * 15); }
+.cs-couvercle { position: absolute; inset: 0; display: grid; place-items: center; transition: opacity var(--duration-normal) var(--ease-sortie), transform var(--duration-normal) var(--ease-sortie); }
+.cs-couvercle b { padding: 0 calc(var(--spacing) * 2); background: var(--region-argent); border-radius: var(--radius-sm); font-size: var(--text-base); }
+.cs-case[data-etat="gratte"] .cs-couvercle { opacity: 0; transform: scale(1.15); pointer-events: none; }
+.cs-case:disabled[data-etat="couvert"] { opacity: 0.6; }
+.cs-case[data-gagnant="true"] { background: var(--succes-fond); border-color: var(--succes-base); }
+
+/* Boutique */
+.cs-jeu-boutique .cs-plateau { justify-items: stretch; }
+.cs-produits { display: grid; gap: calc(var(--spacing) * 3); }
+.cs-produit { display: grid; grid-template-columns: calc(var(--spacing) * 24) minmax(0, 1fr); gap: calc(var(--spacing) * 3); align-items: center; padding: calc(var(--spacing) * 3); background: var(--surface); border: calc(var(--spacing) / 2) solid var(--bordure); border-radius: var(--rayon); }
+.cs-produit-image { display: grid; place-items: center; width: calc(var(--spacing) * 24); height: calc(var(--spacing) * 24); background: radial-gradient(ellipse 40% 8% at 50% 90%, var(--region-socle) 98%, transparent 100%); }
+.cs-produit-texte { display: grid; gap: var(--spacing); min-width: 0; }
+.cs-produit-nom { font-size: var(--text-lg); }
+.cs-produit-desc { color: var(--texte-doux); font-size: var(--text-base); }
+.cs-produit-prix { display: inline-flex; align-items: center; gap: calc(var(--spacing) * 2); font-family: var(--font-titre); font-weight: 700; color: var(--region-accent); font-size: var(--text-lg); }
+.cs-produit .plaque, .cs-produit .cs-manque { grid-column: 1 / -1; }
+.cs-manque { color: var(--texte-doux); font-size: var(--text-base); }
+
+@media (min-width: 64rem) {
+  .cs-salle-grille { display: grid; grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr); gap: calc(var(--spacing) * 8); align-items: start; }
+  .cs-colonne { gap: calc(var(--spacing) * 6); }
+  .cs-solde-mobile { display: none; }
+  .cs-jeux-grille { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: calc(var(--spacing) * 6); }
+  .cs-jeux-grille .cs-carte-jeu:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .cs-vitrine { min-height: calc(var(--spacing) * 52); gap: calc(var(--spacing) * 4); }
+  .cs-vitrine .cs-carte { --carte-l: calc(var(--spacing) * 24); --carte-h: calc(var(--spacing) * 33); }
+  .cs-jeu { grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: calc(var(--spacing) * 6); }
+  .cs-jeu-boutique { display: block; }
+  .cs-plateau { padding: calc(var(--spacing) * 8); min-height: calc(var(--spacing) * 110); align-content: center; }
+  .cs-jeu-boutique .cs-plateau { min-height: 0; align-content: start; }
+  .cs-produits { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cs-hotspots { display: block; position: absolute; inset: 0; }
+  .cs-hotspots button { position: absolute; transform: translate(-50%, -50%); min-height: calc(var(--spacing) * 12); padding: 0 calc(var(--spacing) * 4); background: var(--surface); color: var(--texte); border: calc(var(--spacing) / 2) solid var(--region-argent); border-radius: var(--radius-md); font-weight: 700; }
+  .cs-hotspots button:hover { background: var(--region-accent-fort); color: var(--blanc); }
 }
-.coin-spin { animation: coin-spin calc(var(--duree-signal) / 2) var(--ease-standard); }
-@media (prefers-reduced-motion: reduce) {
-  .coin-spin { animation: none; }
-}
+
+@media (prefers-reduced-motion: reduce) { .cs-page *, .cs-page *::before, .cs-page *::after { animation: none !important; transition: none !important; } }
