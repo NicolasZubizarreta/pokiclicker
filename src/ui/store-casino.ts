@@ -1,4 +1,5 @@
 import * as casino from '../core/casino';
+import type * as jeux from '../core/jeux-casino';
 import { kanto } from '../core/regions';
 import { etatMondeDe, type DonneesRegion } from '../core/sauvegarde';
 
@@ -16,6 +17,17 @@ export type ActionsCasino = {
   refuserAssuranceBlackjack(): ReturnType<typeof casino.refuserAssurance<DonneesRegion>>;
   abandonnerBlackjack(): ReturnType<typeof casino.abandonner<DonneesRegion>>;
   acheterAuCasino(id: string): ReturnType<typeof casino.acheterAuCasino<DonneesRegion>>;
+  jouerRoulette(mise: number, pari: jeux.PariRoulette): ReturnType<typeof jeux.jouerRoulette<DonneesRegion>>;
+  /**
+   * Carte visible du « plus ou moins » : celle de la sauvegarde si elle existe, sinon un tirage qui est aussitôt sauvegardé
+   * (aucune mise n'est débitée avant le choix). Casino fermé : `{ ok: false }`.
+   */
+  carteVisiblePlusOuMoins(): { ok: true; carte: number } | { ok: false; raison: string };
+  /** Joue la carte visible sauvegardée ; la carte tirée devient la nouvelle carte visible (sauvegardée avec le coup). */
+  jouerPlusOuMoins(mise: number, choix: jeux.ChoixPlusOuMoins): ReturnType<typeof jeux.jouerPlusOuMoins<DonneesRegion>>;
+  gratter(mise: number): ReturnType<typeof jeux.gratter<DonneesRegion>>;
+  /** Le ton « coin » de la V1, joué quand un gain est révélé (le casino de la V1 n'avait pas de son propre). Muet si le son est coupé. */
+  sonnerCasino(): void;
   /**
    * Ouverture de la page du casino : la première fois, offre les jetons de `premiereEntree` (une seule fois, sauvegardé)
    * et renvoie leur nombre ; ensuite, ou si le casino est fermé, renvoie 0.
@@ -45,6 +57,8 @@ export type AffichageCasino = {
   nouveau: boolean;
   /** Main en cours, sans la carte cachée du croupier. */
   blackjackEnCours: casino.VueBlackjack | null;
+  /** Carte visible du « plus ou moins » (1 à 13), `null` tant qu'aucune n'a été tirée. */
+  plusOuMoinsCarte: number | null;
   objets: ReturnType<typeof casino.objetsDuCasino>;
 };
 
@@ -53,6 +67,7 @@ export function afficherCasino(region: DonneesRegion, precedent: AffichageCasino
   const affichage: AffichageCasino = {
     acces: { ouvert: acces.ok, raison: acces.ok ? null : acces.raison ?? null },
     jetons: region.jetons, nouveau: acces.ok && region.casinoVu !== true, blackjackEnCours: casino.vueBlackjack(region),
+    plusOuMoinsCarte: region.plusOuMoinsCarte ?? null,
     objets: casino.objetsDuCasino(region),
   };
   return JSON.stringify(affichage) === JSON.stringify(precedent) ? precedent! : affichage;

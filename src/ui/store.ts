@@ -29,6 +29,7 @@ import { accesPc } from '../core/pc';
 import { deblocagesAtteints, nouveauxDeblocages, type Deblocage } from '../core/deblocages';
 import * as pension from '../core/pension';
 import * as casino from '../core/casino';
+import * as jeuxCasino from '../core/jeux-casino';
 import { ajouterAuPokedex, ajouterAuxVus, completerVus, completerPokedex, pokedexDeKanto } from '../core/pokedex';
 import { appliquerVictoire, calculerMaxXp, delaiEnnemiSuivant } from '../core/recompenses';
 import type { FormeCarte, Zone, ZoneMonde } from '../core/monde';
@@ -720,11 +721,23 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     const resultat = action(region);
     if (!resultat.ok) return resultat;
     region = resultat.region;
-    annonce = resultat.message;
-    finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs;
+    // Pas de notification : la page du casino annonce chaque résultat dans sa propre phrase d'état (après l'animation du jeu).
     if (resultat.numero !== undefined) noterDansPokedex(resultat.numero);
     if (coeur) coeur = { ...coeur, equipe: region.equipe.map(versMembreEquipe) };
     actualiserActifs();
+    enregistrer(); afficher();
+    return { ...resultat, region };
+  };
+  /** Coup d'un jeu du casino sans objet à gagner (roulette, plus ou moins, carte à gratter) : même accès, même annonce, sauvegarde immédiate. */
+  const jouerAuCasino = <T extends { ok: true; region: DonneesRegion; message: string } | { ok: false; raison: string }>(
+    action: (region: DonneesRegion) => T): T | { ok: false; raison: string } => {
+    if (!initialise) return { ok: false, raison: 'La partie n’est pas démarrée.' };
+    const acces = casino.accesCasino(kanto, etatMondeDe(region));
+    if (!acces.ok) return { ok: false, raison: acces.raison! };
+    const resultat = action(region);
+    if (!resultat.ok) return resultat;
+    region = resultat.region;
+    // Pas de notification : le résultat est révélé par l'animation du jeu, puis annoncé par sa page (une notification le montrerait avant).
     enregistrer(); afficher();
     return { ...resultat, region };
   };
@@ -773,7 +786,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       afficher();
     },
     casino: { acces: { ouvert: false, raison: casino.chargerCasino().acces.raison },
-      jetons: 0, nouveau: false, blackjackEnCours: null, objets: [] },
+      jetons: 0, nouveau: false, blackjackEnCours: null, plusOuMoinsCarte: null, objets: [] },
     entrerAuCasino() {
       if (!initialise || !casino.accesCasino(kanto, etatMondeDe(region)).ok) return { offerts: 0 };
       const resultat = casino.entrerAuCasino(region);
@@ -798,6 +811,24 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     refuserAssuranceBlackjack: () => modifierCasino(region => casino.refuserAssurance(region, alea)),
     abandonnerBlackjack: () => modifierCasino(region => casino.abandonner(region, alea)),
     acheterAuCasino: id => modifierCasino(region => casino.acheterAuCasino(region, id, alea, genererId)),
+    jouerRoulette: (mise, pari) => jouerAuCasino(region => jeuxCasino.jouerRoulette(region, mise, pari, alea)),
+    carteVisiblePlusOuMoins() {
+      if (!initialise) return { ok: false, raison: 'La partie n’est pas démarrée.' };
+      const acces = casino.accesCasino(kanto, etatMondeDe(region));
+      if (!acces.ok) return { ok: false, raison: acces.raison! };
+      if (region.plusOuMoinsCarte === undefined) {
+        region = { ...region, plusOuMoinsCarte: jeuxCasino.tirerCarteVisible(alea) };
+        enregistrer(); afficher();
+      }
+      return { ok: true, carte: region.plusOuMoinsCarte! };
+    },
+    jouerPlusOuMoins: (mise, choix) => jouerAuCasino(region => {
+      if (region.plusOuMoinsCarte === undefined) return { ok: false as const, raison: 'Tire d’abord une carte.' };
+      const resultat = jeuxCasino.jouerPlusOuMoins(region, mise, region.plusOuMoinsCarte, choix, alea);
+      return resultat.ok ? { ...resultat, region: { ...resultat.region, plusOuMoinsCarte: resultat.nouvelleCarte } } : resultat;
+    }),
+    gratter: mise => jouerAuCasino(region => jeuxCasino.gratter(region, mise, alea)),
+    sonnerCasino: () => emettreSon('coin'),
     sonActive,
     journalActif: false,
     basculerJournal() {

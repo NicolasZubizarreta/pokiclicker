@@ -1,4 +1,5 @@
 import donneesCasino from '../../data/casino.json';
+import donneesJeuxCasino from '../../data/casino-jeux.json';
 import { migrer } from './migrations';
 import { reglages } from './reglages';
 import { sexeEspece } from './sexe';
@@ -150,6 +151,7 @@ export function validerDonneesRegion(v: unknown): asserts v is DonneesRegion {
       file: liste(identifiant) }),
     blackjackEnCours: validerBlackjackEnCours,
     sabotBlackjack: s => validerSabot(s),
+    plusOuMoinsCarte: c => { entier(c); exiger((c as number) >= 1 && (c as number) <= donneesJeuxCasino.plusOuMoins.rangs, 'Carte du plus ou moins invalide'); },
   });
 }
 export function dateUtc(v: unknown): void {

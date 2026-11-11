@@ -12,6 +12,7 @@
   ],
   "deuxBaies": { "symbole": "Baie", "nombre": 2, "gain": 3 },
   "animation": { "rouleaux": [700, 950, 1200], "defilement": 80, "piece": 500 },
+  "animationJeux": { "rouleauxArret": 350, "roue": 3200, "carteRetournee": 300, "revelation": 1500, "grattage": 140 },
   "blackjack": { "seuilCroupier": 17, "gainVictoire": 2, "gainEgalite": 1, "gainNaturel": 2.5,
     "paquets": 6, "remelangeSous": 0.25, "maxMains": 4,
     "coutAssurance": 0.5, "retourAssurance": 3, "retourAbandon": 0.5 },

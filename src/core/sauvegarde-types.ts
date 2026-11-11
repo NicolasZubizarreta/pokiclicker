@@ -69,6 +69,8 @@ export type DonneesRegion = {
   blackjackEnCours?: MainBlackjack | MainBlackjackAncienne;
   /** Sabot de blackjack (cartes restantes, la prochaine en premier), conservé entre les mains. */
   sabotBlackjack?: string[];
+  /** « Plus ou moins » : rang (1 = as … 13 = roi) de la carte visible, gardé pour qu'un rechargement la retrouve. Aucune mise n'est engagée. */
+  plusOuMoinsCarte?: number;
   arretAuto: {
     commun: boolean; peuCommun: boolean; rare: boolean; tresRare: boolean;
     legendaire: boolean; shiny: boolean; nouveau: boolean;

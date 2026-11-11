@@ -167,3 +167,55 @@ it('renvoie les refus du cœur sans débiter ni tirer et actualise la boutique a
   expect(riche.store.getState().acheterAuCasino('ctJackpot')).toEqual({ ok: false, raison: 'Déjà acquis !' });
   expect(riche.lire()).toMatchObject({ jetons: 0, ameliorations: ['ctJackpot'] });
 });
+
+it('roulette : débit, gain et sauvegarde immédiate, avec un casino fermé refusé', () => {
+  const p = preparer();
+  p.alea.mockReturnValue(0);
+  // alea 0 → le numéro 0 (vert) : un pari rouge perd, un pari sur le 0 paie ×36
+  expect(p.store.getState().jouerRoulette(10, { type: 'couleur', couleur: 'rouge' })).toMatchObject({ ok: true, numero: 0, gain: 0 });
+  expect(p.lire().jetons).toBe(990);
+  expect(p.store.getState().jouerRoulette(10, { type: 'numero', numero: 0 })).toMatchObject({ ok: true, gain: 360 });
+  expect(p.lire().jetons).toBe(1340);
+  expect(p.ouvrir().getState().casino.jetons).toBe(1340);
+  expect(p.store.getState().jouerRoulette(5000, { type: 'numero', numero: 0 })).toMatchObject({ ok: false });
+  const ferme = preparer(r => ({ ...r, bossVaincus: [] }));
+  expect(ferme.store.getState().jouerRoulette(1, { type: 'numero', numero: 0 })).toMatchObject({ ok: false });
+  expect(ferme.lire().jetons).toBe(1000);
+});
+
+it('plus ou moins : la carte visible est sauvegardée, retrouvée après rechargement et remplacée à chaque coup', () => {
+  const p = preparer();
+  p.alea.mockReturnValue(0.5); // rang 7 (floor(0,5 × 13) + 1)
+  expect(p.store.getState().carteVisiblePlusOuMoins()).toEqual({ ok: true, carte: 7 });
+  expect(p.lire().plusOuMoinsCarte).toBe(7);
+  expect(p.lire().jetons).toBe(1000);
+  expect(p.store.getState().casino.plusOuMoinsCarte).toBe(7);
+  p.alea.mockReturnValue(0.99); // le roi : plus haut que le 7
+  expect(p.store.getState().carteVisiblePlusOuMoins()).toEqual({ ok: true, carte: 7 }); // déjà tirée : pas de nouveau tirage
+  expect(p.store.getState().jouerPlusOuMoins(10, 'plus')).toMatchObject({ ok: true, carteVisible: 7, nouvelleCarte: 13 });
+  expect(p.lire().plusOuMoinsCarte).toBe(13);
+  expect(p.lire().jetons).toBeGreaterThan(1000);
+  expect(p.ouvrir().getState().casino.plusOuMoinsCarte).toBe(13);
+  expect(p.store.getState().jouerPlusOuMoins(10, 'plus')).toMatchObject({ ok: false });
+  expect(p.lire().plusOuMoinsCarte).toBe(13);
+  expect(preparer(r => ({ ...r, bossVaincus: [] })).store.getState().carteVisiblePlusOuMoins()).toMatchObject({ ok: false });
+});
+
+it('carte à gratter : un coup atomique, six symboles, jetons déjà crédités et sauvegardés', () => {
+  const p = preparer();
+  p.alea.mockReturnValue(0); // le premier symbole (7) six fois : 6 identiques
+  const resultat = p.store.getState().gratter(10);
+  expect(resultat).toMatchObject({ ok: true, symboles: ['7', '7', '7', '7', '7', '7'], gain: 50_000 });
+  expect(p.lire().jetons).toBe(1000 - 10 + 50_000);
+  expect(p.store.getState().gratter(0)).toMatchObject({ ok: false });
+  expect(p.store.getState().gratter(1e9)).toMatchObject({ ok: false });
+});
+
+it('sonnerCasino émet le ton « coin » vers les abonnés', () => {
+  const p = preparer();
+  const ecoute = vi.fn();
+  const retirer = p.store.abonnerSons(ecoute);
+  p.store.getState().sonnerCasino();
+  expect(ecoute).toHaveBeenCalledWith('coin');
+  retirer();
+});
