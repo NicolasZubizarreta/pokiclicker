@@ -185,3 +185,61 @@ nav.principale .marque { display:none; }
 .cadeau p b { color:var(--region-argent); }
 
 @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation:none !important; transition:none !important; } }
+
+/* ---- roulette, plus ou moins, carte à gratter ---- */
+[hidden] { display:none !important; }
+.puce { display:inline-block; flex-shrink:0; width:calc(var(--spacing) * 6); height:calc(var(--spacing) * 6); border-radius:var(--radius-plein); background:var(--fond); border:calc(var(--spacing) / 2) solid var(--texte); }
+.puce[data-c="rouge"] { background:var(--action); border-color:var(--action-survol); }
+.puce[data-c="vert"] { background:var(--succes-base); border-color:var(--succes-texte); }
+.puce.grande { width:calc(var(--spacing) * 14); height:calc(var(--spacing) * 14); display:grid; place-items:center; font-family:var(--font-titre); font-weight:700; font-size:var(--text-xl); color:var(--blanc); }
+.hachure { background-color:var(--region-argent); background-image:repeating-linear-gradient(45deg, var(--fond) 0 calc(var(--spacing) / 2), transparent calc(var(--spacing) / 2) calc(var(--spacing) * 2)); }
+
+/* Roulette */
+.roue { --r:calc(var(--spacing) * 28); --poche:calc(var(--spacing) * 4); position:relative; flex-shrink:0; width:calc(var(--r) * 2 + var(--poche) * 3); aspect-ratio:1; border-radius:var(--radius-plein); background:var(--fond); border:calc(var(--spacing) / 2) solid var(--region-argent); }
+.poche { position:absolute; left:50%; top:50%; box-sizing:border-box; width:var(--poche); height:calc(var(--poche) * 1.25); margin:calc(var(--poche) * -0.625) 0 0 calc(var(--poche) / -2); border-radius:var(--radius-sm); background:var(--fond); border:calc(var(--spacing) / 2) solid var(--texte-doux); transform:rotate(var(--a)) translateY(calc(var(--r) * -1)); }
+.poche[data-c="rouge"] { background:var(--action); border-color:var(--action-survol); }
+.poche[data-c="vert"] { background:var(--succes-base); border-color:var(--succes-texte); }
+.poche[data-c="noir"] { background:var(--fond); border-color:var(--texte); }
+.poche[data-gagnant="true"] { outline:calc(var(--spacing) / 2) solid var(--region-argent); outline-offset:calc(var(--spacing) / 2); }
+.piste { position:absolute; inset:0; }
+.bille { position:absolute; left:50%; top:50%; width:calc(var(--spacing) * 3.5); height:calc(var(--spacing) * 3.5); margin:calc(var(--spacing) * -1.75) 0 0 calc(var(--spacing) * -1.75); border-radius:var(--radius-plein); background:var(--blanc); border:calc(var(--spacing) / 2) solid var(--fond); transform:translateY(calc(var(--r) * -1)); }
+.centre { position:absolute; left:50%; top:50%; width:calc((var(--r) - var(--poche) * 1.5) * 2); aspect-ratio:1; transform:translate(-50%, -50%); display:grid; place-items:center; border-radius:var(--radius-plein); background:var(--surface); border:calc(var(--spacing) * 1) solid var(--texte); }
+.centre[data-c="rouge"] { border-color:var(--action); }
+.centre[data-c="vert"] { border-color:var(--succes-base); }
+.centre b { font-size:var(--text-4xl); line-height:var(--text-4xl--line-height); }
+.paris { display:grid; grid-template-columns:1fr 1fr; gap:calc(var(--spacing) * 2); }
+.paris .plaque { gap:calc(var(--spacing) * 2); min-height:calc(var(--spacing) * 13); }
+.paris .plaque small { font-weight:400; font-size:var(--text-sm); }
+.paris .large { grid-column:1 / -1; }
+.numero { display:grid; grid-template-columns:auto minmax(0, 1fr); align-items:center; gap:calc(var(--spacing) * 3); font-weight:700; }
+
+/* Plus ou moins */
+.pm-table { display:flex; justify-content:center; gap:calc(var(--spacing) * 8); }
+.pm-colonne { display:grid; justify-items:center; align-content:start; gap:calc(var(--spacing) * 2); }
+.etiquette-pm { font-weight:700; color:var(--texte-doux); font-size:var(--text-sm); }
+.pm-boutons { display:grid; grid-template-columns:1fr 1fr; gap:calc(var(--spacing) * 2); }
+.pm-boutons .plaque { flex-direction:column; gap:0; min-height:calc(var(--spacing) * 20); padding:var(--spacing) calc(var(--spacing) * 2); }
+.pm-boutons .pm-lib { display:inline-flex; align-items:center; gap:var(--spacing); }
+.pm-boutons .gain { font-size:var(--text-xl); color:var(--region-argent); }
+.pm-boutons small { font-weight:400; font-size:var(--text-sm); }
+.pm-boutons .plaque[aria-pressed="true"] { background:var(--region-accent-fond); }
+
+/* Carte à gratter */
+.ticket { width:100%; max-width:calc(var(--spacing) * 100); display:grid; gap:calc(var(--spacing) * 3); padding:calc(var(--spacing) * 3); background:var(--region-accent-fond); border:calc(var(--spacing) / 2) solid var(--region-argent); border-radius:var(--radius-lg); }
+.ticket-tete { display:grid; gap:var(--spacing); text-align:center; }
+.ticket-tete b { color:var(--region-argent); font-size:var(--text-xl); }
+.ticket-tete span { color:var(--texte-doux); font-size:var(--text-sm); }
+.cases { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:calc(var(--spacing) * 2); }
+.case { position:relative; display:grid; place-items:center; aspect-ratio:1; min-height:calc(var(--spacing) * 20); padding:0; overflow:hidden; background:var(--fond); border:calc(var(--spacing) / 2) solid var(--bordure); border-radius:var(--radius-md); color:var(--fond); }
+.case .dessous { display:grid; place-items:center; width:100%; height:100%; }
+.case .dessous img.sprite { width:calc(var(--spacing) * 24); height:calc(var(--spacing) * 24); max-width:none; }
+.case .dessous img.objet { width:calc(var(--spacing) * 15); height:calc(var(--spacing) * 15); max-width:none; }
+.case .couvercle { position:absolute; inset:0; display:grid; place-items:center; transition:opacity var(--duration-normal) var(--ease-sortie), transform var(--duration-normal) var(--ease-sortie); }
+.case .couvercle b { padding:0 calc(var(--spacing) * 2); background:var(--region-argent); border-radius:var(--radius-sm); font-size:var(--text-sm); }
+.case[data-etat="gratte"] .couvercle { opacity:0; transform:scale(1.15); pointer-events:none; }
+.case:disabled[data-etat="couvert"] { opacity:0.6; }
+.case[data-gagnant="true"] { background:var(--succes-fond); border-color:var(--succes-base); }
+.gains-ouvert h3 { padding:calc(var(--spacing) * 3) calc(var(--spacing) * 3) var(--spacing); font-size:var(--text-base); }
+.fleche-grande { width:calc(var(--spacing) * 10); height:calc(var(--spacing) * 10); fill:none; stroke:var(--region-argent); stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
+.mini.couvert { display:grid; place-items:center; }
+.vitrine .mini.couvert.hachure { background:var(--region-argent) repeating-linear-gradient(45deg, var(--fond) 0 calc(var(--spacing) / 2), transparent calc(var(--spacing) / 2) calc(var(--spacing) * 2)); }

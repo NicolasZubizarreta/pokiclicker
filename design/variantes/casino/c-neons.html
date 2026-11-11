@@ -22,8 +22,8 @@
       </figure>
       <div class="defile" aria-label="Gains du casino">
         <div class="defile-piste">
-          <span><img class="px" src="../../../public/img/objets/master-ball.png" alt="" width="30" height="30">Machine à sous : 7 <b>×500</b></span><span>Pikachu <b>×50</b></span><span>Staross <b>×25</b></span><span><img class="px" src="../../../public/img/objets/cheri-berry.png" alt="" width="30" height="30">Baie <b>×15</b></span><span>Pile ou face <b>×2</b></span><span>Blackjack <b>×2,5</b></span>
-          <span aria-hidden="true"><img class="px" src="../../../public/img/objets/master-ball.png" alt="" width="30" height="30">Machine à sous : 7 <b>×500</b></span><span aria-hidden="true">Pikachu <b>×50</b></span><span aria-hidden="true">Staross <b>×25</b></span><span aria-hidden="true"><img class="px" src="../../../public/img/objets/cheri-berry.png" alt="" width="30" height="30">Baie <b>×15</b></span><span aria-hidden="true">Pile ou face <b>×2</b></span><span aria-hidden="true">Blackjack <b>×2,5</b></span>
+          <span><img class="px" src="../../../public/img/objets/master-ball.png" alt="" width="30" height="30">Machine à sous : 7 <b>×500</b></span><span>Pikachu <b>×50</b></span><span>Staross <b>×25</b></span><span><img class="px" src="../../../public/img/objets/cheri-berry.png" alt="" width="30" height="30">Baie <b>×15</b></span><span>Pile ou face <b>×2</b></span><span>Blackjack <b>×2,5</b></span><span>Roulette : numéro plein <b>×36</b></span>
+          <span aria-hidden="true"><img class="px" src="../../../public/img/objets/master-ball.png" alt="" width="30" height="30">Machine à sous : 7 <b>×500</b></span><span aria-hidden="true">Pikachu <b>×50</b></span><span aria-hidden="true">Staross <b>×25</b></span><span aria-hidden="true"><img class="px" src="../../../public/img/objets/cheri-berry.png" alt="" width="30" height="30">Baie <b>×15</b></span><span aria-hidden="true">Pile ou face <b>×2</b></span><span aria-hidden="true">Blackjack <b>×2,5</b></span><span aria-hidden="true">Roulette : numéro plein <b>×36</b></span>
         </div>
       </div>
       <div class="contenu">
@@ -60,6 +60,32 @@
               </div>
               <div class="corps"><p>Choisis un côté : ta mise ×2.</p><button type="button" class="plaque" data-va="coin">Jouer</button></div>
             </article>
+            <article class="cabine" data-c="rouge">
+              <div class="ampoules" data-ampoules="9"></div>
+              <div class="bandeau-titre">Roulette</div>
+              <div class="vitrine" aria-hidden="true">
+                <span class="puce grande" data-c="rouge">17</span><span class="puce grande" data-c="vert">0</span><span class="puce grande" data-c="noir">22</span>
+              </div>
+              <div class="corps"><p>37 cases, 0 vert. Couleur ou parité ×2, numéro plein ×36.</p><button type="button" class="plaque" data-va="roulette">Jouer</button></div>
+            </article>
+            <article class="cabine" data-c="bleu">
+              <div class="ampoules" data-ampoules="9"></div>
+              <div class="bandeau-titre">Plus ou moins</div>
+              <div class="vitrine" aria-hidden="true">
+                <div class="cartes"><span class="carte"><span class="rang">7</span><svg class="suit" viewBox="0 0 24 24"><use href="#s-pique"/></svg></span></div>
+                <svg class="fleche-grande" viewBox="0 0 24 24"><path d="M8 20V4M4 8l4-4 4 4M16 4v16M12 16l4 4 4-4"/></svg>
+              </div>
+              <div class="corps"><p>La suivante sera-t-elle plus haute ou plus basse ? Égalité : perdu.</p><button type="button" class="plaque" data-va="plusmoins">Jouer</button></div>
+            </article>
+            <article class="cabine" data-c="jaune">
+              <div class="ampoules" data-ampoules="9"></div>
+              <div class="bandeau-titre">Carte à gratter</div>
+              <div class="vitrine" aria-hidden="true">
+                <span class="mini"><img class="px sprite" src="../../../public/img/sprites/pokemon/25.png" alt="" width="96" height="96"></span>
+                <span class="mini couvert hachure"></span>
+              </div>
+              <div class="corps"><p>Six cases : 3 symboles identiques ou plus, tu gagnes.</p><button type="button" class="plaque" data-va="gratte">Gratter</button></div>
+            </article>
             <article class="cabine" data-c="jaune">
               <div class="ampoules" data-ampoules="9"></div>
               <div class="bandeau-titre">Boutique de jetons</div>
@@ -74,6 +100,9 @@
             <button type="button" aria-label="Machine à sous" aria-current="true"></button>
             <button type="button" aria-label="Blackjack" aria-current="false"></button>
             <button type="button" aria-label="Pile ou face" aria-current="false"></button>
+            <button type="button" aria-label="Roulette" aria-current="false"></button>
+            <button type="button" aria-label="Plus ou moins" aria-current="false"></button>
+            <button type="button" aria-label="Carte à gratter" aria-current="false"></button>
             <button type="button" aria-label="Boutique" aria-current="false"></button>
           </div>
         </div>
@@ -99,6 +128,24 @@
       <div class="cabinet"><div class="enseigne"><div class="ampoules" data-ampoules="12"></div><h1 class="nom" id="t-coin">Pile ou face</h1></div><div data-gabarit="coin"></div></div>
     </section>
 
+    <!-- Roulette -->
+    <section data-vue="roulette" class="contenu" hidden aria-labelledby="t-roul">
+      <div class="jeu-entete"><button type="button" class="plaque" data-va="salle">Salle</button><span></span><span class="pastille"><span class="jeton"></span><b data-jetons></b></span></div>
+      <div class="cabinet"><div class="enseigne"><div class="ampoules" data-ampoules="12"></div><h1 class="nom" id="t-roul">Roulette</h1></div><div data-gabarit="roulette"></div></div>
+    </section>
+
+    <!-- Plus ou moins -->
+    <section data-vue="plusmoins" class="contenu" hidden aria-labelledby="t-pm">
+      <div class="jeu-entete"><button type="button" class="plaque" data-va="salle">Salle</button><span></span><span class="pastille"><span class="jeton"></span><b data-jetons></b></span></div>
+      <div class="cabinet"><div class="enseigne"><div class="ampoules" data-ampoules="12"></div><h1 class="nom" id="t-pm">Plus ou moins</h1></div><div data-gabarit="pm"></div></div>
+    </section>
+
+    <!-- Carte à gratter -->
+    <section data-vue="gratte" class="contenu" hidden aria-labelledby="t-gratte">
+      <div class="jeu-entete"><button type="button" class="plaque" data-va="salle">Salle</button><span></span><span class="pastille"><span class="jeton"></span><b data-jetons></b></span></div>
+      <div class="cabinet"><div class="enseigne"><div class="ampoules" data-ampoules="12"></div><h1 class="nom" id="t-gratte">Carte à gratter</h1></div><div data-gabarit="gratte"></div></div>
+    </section>
+
     <!-- Boutique -->
     <section data-vue="boutique" class="contenu" hidden aria-labelledby="t-boutique">
       <div class="jeu-entete"><button type="button" class="plaque" data-va="salle">Salle</button><span></span><span class="pastille"><span class="jeton"></span><b data-jetons></b></span></div>
@@ -110,7 +157,7 @@
 (function () {
   var t = document.getElementById('tourniquet'), pts = Array.prototype.slice.call(document.querySelectorAll('.points button'));
   if (!t) return;
-  function pas() { return t.scrollWidth / 4; }
+  function pas() { return t.scrollWidth / pts.length; }
   function maj() { var i = Math.round(t.scrollLeft / pas()); pts.forEach(function (b, k) { b.setAttribute('aria-current', k === i ? 'true' : 'false'); }); }
   t.addEventListener('scroll', function () { window.requestAnimationFrame(maj); });
   pts.forEach(function (b, k) { b.addEventListener('click', function () { t.scrollTo({ left: k * pas(), behavior: 'smooth' }); }); });

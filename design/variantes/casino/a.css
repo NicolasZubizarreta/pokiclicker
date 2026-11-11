@@ -64,3 +64,6 @@
 .jeu-slots .plateau { padding-inline:calc(var(--spacing) * 2); }
 .reels { gap:var(--spacing); }
 @media (min-width:40rem) { .jeu-slots .plateau { padding-inline:calc(var(--spacing) * 4); } .reels { gap:calc(var(--spacing) * 2); } }
+
+.jeux-grille .carte-jeu:last-child:nth-child(odd) { grid-column:1 / -1; }
+@media (max-width:63.99rem) { .jeux-grille .carte-jeu:last-child:nth-child(odd) { grid-column:auto; } }

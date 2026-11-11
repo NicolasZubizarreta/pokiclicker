@@ -71,6 +71,40 @@
               </article>
               <article class="carte-jeu">
                 <div class="vitrine" aria-hidden="true">
+                  <span class="puce grande" data-c="rouge">17</span><span class="puce grande" data-c="vert">0</span><span class="puce grande" data-c="noir">22</span>
+                </div>
+                <div class="carte-corps">
+                  <h2>Roulette</h2>
+                  <p>37 cases, le 0 est vert. Rouge ou noir, pair ou impair ×2, numéro plein ×36.</p>
+                  <button type="button" class="plaque" data-va="roulette">Lancer la bille</button>
+                </div>
+              </article>
+              <article class="carte-jeu">
+                <div class="vitrine" aria-hidden="true">
+                  <div class="cartes"><span class="carte"><span class="rang">7</span><svg class="suit" viewBox="0 0 24 24"><use href="#s-pique"/></svg></span></div>
+                  <svg class="fleche-grande" viewBox="0 0 24 24"><path d="M8 20V4M4 8l4-4 4 4M16 4v16M12 16l4 4 4-4"/></svg>
+                  <div class="cartes"><span class="carte dos"></span></div>
+                </div>
+                <div class="carte-corps">
+                  <h2>Plus ou moins</h2>
+                  <p>Une carte visible : la suivante sera-t-elle plus haute ou plus basse ? Égalité : tu perds.</p>
+                  <button type="button" class="plaque" data-va="plusmoins">Jouer</button>
+                </div>
+              </article>
+              <article class="carte-jeu">
+                <div class="vitrine" aria-hidden="true">
+                  <span class="mini"><img class="px sprite" src="../../../public/img/sprites/pokemon/25.png" alt="" width="96" height="96"></span>
+                  <span class="mini"><img class="px sprite" src="../../../public/img/sprites/pokemon/25.png" alt="" width="96" height="96"></span>
+                  <span class="mini couvert hachure"></span>
+                </div>
+                <div class="carte-corps">
+                  <h2>Carte à gratter</h2>
+                  <p>Six cases à gratter : trois symboles identiques ou plus, tu gagnes.</p>
+                  <button type="button" class="plaque" data-va="gratte">Gratter</button>
+                </div>
+              </article>
+              <article class="carte-jeu">
+                <div class="vitrine" aria-hidden="true">
                   <span class="produit-image"><img class="px sprite" src="../../../public/img/sprites/pokemon/63.png" alt="" width="96" height="96"></span>
                   <span class="produit-image"><img class="px objet" src="../../../public/img/objets/master-ball.png" alt="" width="30" height="30"></span>
                   <span class="produit-image"><img class="px sprite" src="../../../public/img/sprites/pokemon/137.png" alt="" width="96" height="96"></span>
@@ -107,6 +141,24 @@
     <section data-vue="coin" class="contenu" hidden aria-labelledby="t-coin">
       <div class="jeu-entete"><button type="button" class="plaque" data-va="salle">Salle</button><h1 id="t-coin">Pile ou face</h1><span class="pastille"><span class="jeton"></span><b data-jetons></b></span></div>
       <div data-gabarit="coin"></div>
+    </section>
+
+    <!-- Roulette -->
+    <section data-vue="roulette" class="contenu" hidden aria-labelledby="t-roul">
+      <div class="jeu-entete"><button type="button" class="plaque" data-va="salle">Salle</button><h1 id="t-roul">Roulette</h1><span class="pastille"><span class="jeton"></span><b data-jetons></b></span></div>
+      <div data-gabarit="roulette"></div>
+    </section>
+
+    <!-- Plus ou moins -->
+    <section data-vue="plusmoins" class="contenu" hidden aria-labelledby="t-pm">
+      <div class="jeu-entete"><button type="button" class="plaque" data-va="salle">Salle</button><h1 id="t-pm">Plus ou moins</h1><span class="pastille"><span class="jeton"></span><b data-jetons></b></span></div>
+      <div data-gabarit="pm"></div>
+    </section>
+
+    <!-- Carte à gratter -->
+    <section data-vue="gratte" class="contenu" hidden aria-labelledby="t-gratte">
+      <div class="jeu-entete"><button type="button" class="plaque" data-va="salle">Salle</button><h1 id="t-gratte">Carte à gratter</h1><span class="pastille"><span class="jeton"></span><b data-jetons></b></span></div>
+      <div data-gabarit="gratte"></div>
     </section>
 
     <!-- Boutique -->

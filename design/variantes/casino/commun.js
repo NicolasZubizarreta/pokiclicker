@@ -42,6 +42,9 @@
     slots: '<path d="M4 3h16v15H4zM8 7v7M12 7v7M16 7v7M8 18v3M16 18v3M20 8h2v5h-2"/>',
     bj: '<path d="M6 4h9v14H6zM9 7h3M18 7l3 1-3 11-3-1"/>',
     pile: '<circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 10h6M9 14h6"/>',
+    roulette: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M12 3v6M12 15v6M3 12h6M15 12h6"/>',
+    plusmoins: '<path d="M8 20V4M4 8l4-4 4 4M16 4v16M12 16l4 4 4-4"/>',
+    gratte: '<path d="M3 6h18v12H3zM9 6v12M15 6v12M3 12h18"/>',
     retour: '<path d="m15 5-7 7 7 7"/>'
   };
   function ic(nom) { return '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">' + ICONES[nom] + '</svg>'; }
@@ -90,6 +93,7 @@
     $$('[data-vue]').forEach(function (v) { v.hidden = v.getAttribute('data-vue') !== nom; });
     $$('[data-va]').forEach(function (b) { var on = b.getAttribute('data-va') === nom; b.setAttribute('aria-current', on ? 'true' : 'false'); if (b.hasAttribute('aria-pressed')) b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
     document.body.setAttribute('data-vue', nom);
+    $$('.barre-jeux [aria-current="true"]').forEach(function (b) { try { b.scrollIntoView({ block: 'nearest', inline: 'center' }); } catch (e) { /* ancien navigateur */ } });
     try { if (location.hash !== '#' + nom) history.replaceState(null, '', location.pathname + location.search + '#' + nom); } catch (e) { /* file:// : on s'en passe */ }
     window.scrollTo(0, 0);
   }
@@ -166,6 +170,47 @@
         '<p class="verdict" data-verdict="coin" aria-live="polite">Choisis ton côté, puis lance.</p></div>' +
         '<div class="commandes">' + miseHTML('coin') + '<div class="choix" role="group" aria-label="Ton côté"><button type="button" class="plaque" data-choix="face" aria-pressed="true">Face<small>Pikachu</small></button><button type="button" class="plaque" data-choix="pile" aria-pressed="false">Pile<small>Poké Ball</small></button></div>' +
         '<button type="button" class="plaque plaque-action grand" data-lancer>Lancer la pièce</button><p class="rappel">Gain ×2 si tu trouves le bon côté.</p></div></div>';
+    },
+    roulette: function () {
+      var poches = ORDRE.map(function (n, i) { return '<i class="poche" data-n="' + n + '" data-c="' + couleurN(n) + '" style="--a:' + (i * 360 / 37).toFixed(3) + 'deg"></i>'; }).join('');
+      return '<div class="jeu jeu-roulette"><div class="plateau tapis" data-pluie><h2 class="jeu-titre">Roulette</h2>' +
+        '<div class="roue" data-roue role="img" aria-label="Roue de roulette à 37 cases"><div class="poches">' + poches + '</div><div class="piste" data-piste><span class="bille"></span></div><div class="centre" data-c="vert"><b data-sortie>0</b></div></div>' +
+        '<p class="verdict" data-verdict="roulette" aria-live="polite">Choisis ta mise sur la table, puis lance la bille.</p></div>' +
+        '<div class="commandes">' + miseHTML('roulette') +
+        '<div class="paris" role="group" aria-label="Ta mise sur la table">' +
+        '<button type="button" class="plaque" data-pari="rouge" aria-pressed="true"><span class="puce" data-c="rouge"></span>Rouge<small>×2</small></button>' +
+        '<button type="button" class="plaque" data-pari="noir" aria-pressed="false"><span class="puce" data-c="noir"></span>Noir<small>×2</small></button>' +
+        '<button type="button" class="plaque" data-pari="pair" aria-pressed="false">Pair<small>×2</small></button>' +
+        '<button type="button" class="plaque" data-pari="impair" aria-pressed="false">Impair<small>×2</small></button>' +
+        '<button type="button" class="plaque large" data-pari="plein" aria-pressed="false">Numéro plein<small>×36</small></button></div>' +
+        '<div class="numero" data-numero hidden><label for="num-plein">Ton numéro</label><div class="stepper"><button type="button" class="plaque" data-num-pas="-1" aria-label="Numéro précédent">−</button><input id="num-plein" class="champ" data-num-champ inputmode="numeric" pattern="[0-9]*" value="17"><button type="button" class="plaque" data-num-pas="1" aria-label="Numéro suivant">+</button></div></div>' +
+        '<button type="button" class="plaque plaque-action grand" data-lancer-roulette>Lancer la bille</button>' +
+        '<details class="gains"><summary>Gains de la roulette</summary><ul>' +
+        '<li><span class="puce" data-c="rouge"></span><span class="puce" data-c="noir"></span><span>Rouge ou noir</span><span class="mult">×2</span></li>' +
+        '<li><span>Pair ou impair</span><span class="mult">×2</span></li><li><span>Numéro plein (0 à 36)</span><span class="mult">×36</span></li>' +
+        '<li><span class="puce" data-c="vert"></span><span>Le 0 perd les mises simples</span></li></ul></details></div></div>';
+    },
+    pm: function () {
+      var fl = function (haut) { return '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="' + (haut ? 'M12 19V5M5 12l7-7 7 7' : 'M12 5v14M5 12l7 7 7-7') + '"/></svg>'; };
+      return '<div class="jeu jeu-pm"><div class="plateau tapis" data-pluie><h2 class="jeu-titre">Plus ou moins</h2>' +
+        '<div class="pm-table"><div class="pm-colonne"><span class="etiquette-pm">Carte visible</span><div class="cartes" data-pm-visible></div></div>' +
+        '<div class="pm-colonne"><span class="etiquette-pm">Carte suivante</span><div class="cartes" data-pm-suivante></div></div></div>' +
+        '<p class="verdict" data-verdict="pm" aria-live="polite">La suivante sera-t-elle plus haute ou plus basse ?</p></div>' +
+        '<div class="commandes">' + miseHTML('pm') +
+        '<div class="pm-boutons"><button type="button" class="plaque" data-pm="haut"><span class="pm-lib">' + fl(true) + 'Plus haut</span><b class="gain" data-pm-gain="haut"></b><small data-pm-rend="haut"></small></button>' +
+        '<button type="button" class="plaque" data-pm="bas"><span class="pm-lib">' + fl(false) + 'Plus bas</span><b class="gain" data-pm-gain="bas"></b><small data-pm-rend="bas"></small></button></div>' +
+        '<p class="rappel" data-aide-pm></p><p class="rappel">As = 1, Roi = 13. Égalité : tu perds.</p>' +
+        '<details class="outil-maquette"><summary>Maquette : choisir la carte</summary><select data-pm-depart aria-label="Carte visible au départ"><option value="">Au hasard</option><option value="A">As (plus bas impossible)</option><option value="7">7</option><option value="K">Roi (plus haut impossible)</option></select></details></div></div>';
+    },
+    gratte: function () {
+      var lignes = SYMBOLES.map(function (s) { return '<li>' + imgTag(s.image, '') + '<span>3 ou plus : ' + s.nom + '</span><span class="mult">×' + s.gain + '</span></li>'; }).join('');
+      return '<div class="jeu jeu-gratte"><div class="plateau" data-pluie><h2 class="jeu-titre">Carte à gratter</h2>' +
+        '<div class="ticket"><div class="ticket-tete"><b>Carte à gratter</b><span>3 symboles identiques ou plus : tu gagnes</span></div><div class="cases" data-cases></div></div>' +
+        '<p class="verdict" data-verdict="gratte" aria-live="polite">Achète une carte, puis gratte les 6 cases.</p></div>' +
+        '<div class="commandes">' + miseHTML('gratte') +
+        '<button type="button" class="plaque plaque-action grand" data-acheter-carte>Acheter une carte</button>' +
+        '<button type="button" class="plaque" data-tout-gratter disabled>Tout gratter</button>' +
+        '<div class="gains gains-ouvert"><h3>Tableau des gains</h3><ul>' + lignes + '</ul></div></div></div>';
     },
     boutique: function () {
       return '<div class="jeu jeu-boutique"><div class="plateau"><h2 class="jeu-titre">Boutique de jetons</h2><p class="doux">Tu as <b class="chiffre" data-jetons></b> jetons.</p><ul class="produits" data-boutique></ul><p class="verdict verdict-boutique" data-verdict="boutique" aria-live="polite"></p></div></div>';
@@ -402,6 +447,138 @@
     majBj();
   }
 
+  /* ---- roulette : 37 cases, 0 vert, bille qui tombe sur la case tirée ---- */
+  var ROUGES = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
+  var ORDRE = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
+  function couleurN(n) { return n === 0 ? 'vert' : ROUGES.indexOf(n) >= 0 ? 'rouge' : 'noir'; }
+  function initRoulette() {
+    var roue = $('[data-roue]'); if (!roue) return;
+    var piste = $('[data-piste]', roue), bille = $('.bille', roue), sortie = $('[data-sortie]', roue), centre = $('.centre', roue);
+    var btn = $('[data-lancer-roulette]'), champ = $('[data-num-champ]'), pari = 'rouge', angle = 0, occupe = false;
+    function numero() { var n = parseInt(champ.value, 10); return isNaN(n) ? 0 : Math.min(36, Math.max(0, n)); }
+    function choisir(p) { pari = p; $$('[data-pari]').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-pari') === p ? 'true' : 'false'); }); $('[data-numero]').hidden = p !== 'plein'; }
+    $$('[data-pari]').forEach(function (b) { b.addEventListener('click', function () { choisir(b.getAttribute('data-pari')); }); });
+    $$('[data-num-pas]').forEach(function (b) { b.addEventListener('click', function () { champ.value = (numero() + parseInt(b.getAttribute('data-num-pas'), 10) + 37) % 37; }); });
+    champ.addEventListener('change', function () { champ.value = numero(); });
+    var pEnv = new URLSearchParams(location.search).get('pari'); if (pEnv) choisir(pEnv);
+    btn.addEventListener('click', function () {
+      if (occupe) return;
+      var mise = miseOk('roulette'); if (!mise) return;
+      occupe = true; etat.jetons -= mise; maj(); dire('roulette', '…', null); btn.disabled = true; sortie.textContent = '…';
+      $$('.poche', roue).forEach(function (p) { p.removeAttribute('data-gagnant'); });
+      var n = rand(37), i = ORDRE.indexOf(n), a = i * 360 / 37, choisi = numero();
+      function fin() {
+        piste.style.transform = 'rotate(' + a + 'deg)'; angle = a;
+        sortie.textContent = n; centre.setAttribute('data-c', couleurN(n)); $('.poche[data-n="' + n + '"]', roue).setAttribute('data-gagnant', 'true');
+        var c = couleurN(n), gain = 0;
+        if (pari === 'plein') { if (n === choisi) gain = 36; }
+        else if (n !== 0 && ((pari === 'rouge' && c === 'rouge') || (pari === 'noir' && c === 'noir') || (pari === 'pair' && n % 2 === 0) || (pari === 'impair' && n % 2 === 1))) gain = 2;
+        var txt = 'La bille tombe sur le ' + n + ' (' + c + '). ';
+        if (gain) { etat.jetons += gain * mise; maj(); dire('roulette', txt + 'Gagné ×' + gain + ' ! +' + fmt(gain * mise) + ' jetons', 'gain'); pluie($('.jeu-roulette [data-pluie]'), gain === 36 ? 24 : 10); }
+        else dire('roulette', txt + (n === 0 && pari !== 'plein' ? 'Le 0 perd les mises simples.' : 'Perdu…'), 'perte');
+        occupe = false; btn.disabled = false;
+      }
+      if (reduit) { fin(); return; }
+      var rr = roue.getBoundingClientRect(), pr = $('.poche', roue).getBoundingClientRect();
+      var R = (rr.top + rr.height / 2) - (pr.top + pr.height / 2), dehors = R + pr.width * 1.4;
+      var duree = 3200, an = piste.animate([{ transform: 'rotate(' + angle + 'deg)' }, { transform: 'rotate(' + (a - 1440) + 'deg)' }], { duration: duree, easing: 'cubic-bezier(0.15, 0.6, 0.2, 1)', fill: 'forwards' });
+      bille.animate([{ transform: 'translateY(-' + dehors + 'px)' }, { transform: 'translateY(-' + dehors + 'px)', offset: 0.6 }, { transform: 'translateY(-' + R + 'px)' }], { duration: duree, easing: 'ease-in-out' });
+      an.onfinish = function () { fin(); an.cancel(); };
+    });
+  }
+
+  /* ---- plus ou moins ---- */
+  function initPlusMoins() {
+    var vis = $('[data-pm-visible]'); if (!vis) return;
+    var suiv = $('[data-pm-suivante]'), pm = { carte: null, occupe: false };
+    var idx = function (c) { return RANGS.indexOf(c.r) + 1; };
+    var mult = function (i, dir) { var k = dir === 'haut' ? 13 - i : i - 1; return k > 0 ? Math.round(0.96 * 13 / k * 100) / 100 : 0; };
+    var fm = function (m) { return '×' + m.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
+    var dos = '<span class="carte dos" aria-label="Carte cachée"></span>';
+    function depart() { var d = $('[data-pm-depart]'), q = new URLSearchParams(location.search).get('pm'), v = q || (d ? d.value : ''); return v ? carte(v) : carte(RANGS[rand(13)]); }
+    function aff() {
+      vis.innerHTML = cartesHTML([pm.carte]); suiv.innerHTML = dos;
+      var i = idx(pm.carte), mise = Math.max(0, lireMise('pm')), aide = [];
+      ['haut', 'bas'].forEach(function (d) {
+        var m = mult(i, d), b = $('[data-pm="' + d + '"]');
+        $('[data-pm-gain="' + d + '"]').textContent = m ? fm(m) : 'Impossible';
+        $('[data-pm-rend="' + d + '"]').textContent = m ? 'rend ' + fmt(Math.floor(mise * m)) + ' jetons' : (d === 'haut' ? 'Roi : rien au-dessus' : 'As : rien en dessous');
+        b.disabled = pm.occupe || !m;
+        if (!m) aide.push(d === 'haut' ? 'Plus haut est impossible sur un Roi.' : 'Plus bas est impossible sur un As.');
+      });
+      $('[data-aide-pm]').textContent = aide.join(' ');
+    }
+    pm.carte = depart(); aff();
+    var d = $('[data-pm-depart]'); if (d) { d.addEventListener('change', function () { if (!pm.occupe) { pm.carte = depart(); aff(); dire('pm', 'La suivante sera-t-elle plus haute ou plus basse ?', null); } }); }
+    document.addEventListener('click', function () { setTimeout(function () { if (!pm.occupe) aff(); }, 0); });
+    document.addEventListener('input', function () { if (!pm.occupe) aff(); });
+    $$('[data-pm]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        if (pm.occupe) return;
+        var dir = b.getAttribute('data-pm'), i = idx(pm.carte), m = mult(i, dir); if (!m) return;
+        var mise = miseOk('pm'); if (!mise) return;
+        pm.occupe = true; etat.jetons -= mise; maj(); dire('pm', '…', null); aff();
+        var nouvelle = carte(RANGS[rand(13)]), j = idx(nouvelle);
+        suiv.innerHTML = cartesHTML([nouvelle]);
+        var cc = $('.carte', suiv); if (cc && !reduit) cc.animate([{ transform: 'scaleX(0)' }, { transform: 'scaleX(1)' }], { duration: 300, easing: 'cubic-bezier(0.2, 0, 0, 1)' });
+        var gagne = dir === 'haut' ? j > i : j < i;
+        if (gagne) { var paye = Math.floor(mise * m); etat.jetons += paye; maj(); dire('pm', nouvelle.r + ' : bien vu ! ' + fm(m) + ' · +' + fmt(paye) + ' jetons', 'gain'); pluie($('.jeu-pm [data-pluie]'), 10); }
+        else dire('pm', j === i ? 'Même valeur (' + nouvelle.r + ') : égalité, tu perds.' : nouvelle.r + ' : perdu…', 'perte');
+        setTimeout(function () { pm.carte = nouvelle; pm.occupe = false; aff(); }, reduit ? 50 : 1500);
+      });
+    });
+  }
+
+  /* ---- carte à gratter : 6 cases, 3 identiques ou plus gagnent (gains de la machine à sous) ---- */
+  function initGratte() {
+    var zone = $('[data-cases]'); if (!zone) return;
+    var g = { sym: [], revele: [], actif: false, mise: 0 }, achat = $('[data-acheter-carte]'), tout = $('[data-tout-gratter]');
+    function tirage(force) {
+      var gagne = force === 'gagne' ? true : force === 'perdu' ? false : Math.random() < 0.45, a = [], s = -1;
+      if (gagne) { s = tirageSymbole(); var k = [3, 3, 3, 3, 4, 4, 5][rand(7)]; for (var q = 0; q < k; q++) a.push(s); }
+      while (a.length < 6) { var t = tirageSymbole(); if (gagne && t === s) continue; if (a.filter(function (x) { return x === t; }).length < 2) a.push(t); }
+      for (var z = a.length - 1; z > 0; z--) { var r = rand(z + 1), tmp = a[z]; a[z] = a[r]; a[r] = tmp; }
+      return a;
+    }
+    function dessiner() {
+      zone.innerHTML = [0, 1, 2, 3, 4, 5].map(function (i) {
+        var vu = g.revele[i];
+        return '<button type="button" class="case" data-case="' + i + '" data-etat="' + (vu ? 'gratte' : 'couvert') + '"' + (g.actif && !vu ? '' : ' disabled') + ' aria-label="Case ' + (i + 1) + (vu ? ' : ' + SYMBOLES[g.sym[i]].nom : ', à gratter') + '">' +
+          '<span class="dessous">' + (g.sym.length ? imgTag(SYMBOLES[g.sym[i]].image, '') : '') + '</span><span class="couvercle hachure"><b>Gratte</b></span></button>';
+      }).join('');
+    }
+    function revele(i) {
+      if (!g.actif || g.revele[i]) return;
+      g.revele[i] = true;
+      var b = $('[data-case="' + i + '"]', zone); b.setAttribute('data-etat', 'gratte'); b.disabled = true; b.setAttribute('aria-label', 'Case ' + (i + 1) + ' : ' + SYMBOLES[g.sym[i]].nom);
+      if (g.revele.filter(Boolean).length === 6) conclure();
+    }
+    function conclure() {
+      g.actif = false; tout.disabled = true; achat.disabled = false; achat.textContent = 'Nouvelle carte';
+      var gagnant = -1;
+      SYMBOLES.forEach(function (s, k) { if (g.sym.filter(function (x) { return x === k; }).length >= 3) gagnant = k; });
+      if (gagnant >= 0) {
+        var nb = g.sym.filter(function (x) { return x === gagnant; }).length, gain = SYMBOLES[gagnant].gain;
+        $$('.case', zone).forEach(function (c, i) { if (g.sym[i] === gagnant) c.setAttribute('data-gagnant', 'true'); });
+        etat.jetons += gain * g.mise; maj();
+        dire('gratte', nb + ' × ' + SYMBOLES[gagnant].nom + ' : gagné ×' + gain + ' ! +' + fmt(gain * g.mise) + ' jetons', 'gain'); pluie($('.jeu-gratte [data-pluie]'), gain >= 25 ? 24 : 10);
+      } else dire('gratte', 'Pas trois symboles identiques. Perdu…', 'perte');
+    }
+    zone.addEventListener('click', function (ev) { var b = ev.target.closest('[data-case]'); if (b) revele(parseInt(b.getAttribute('data-case'), 10)); });
+    function acheter() {
+      var mise = miseOk('gratte'); if (!mise) return false;
+      var q = new URLSearchParams(location.search).get('gratte');
+      etat.jetons -= mise; maj(); g.mise = mise; g.sym = tirage(q); g.revele = []; g.actif = true; dessiner();
+      achat.disabled = true; achat.textContent = 'Gratte les 6 cases'; tout.disabled = false; dire('gratte', 'Gratte chaque case avec ton doigt ou ta souris.', null);
+      return true;
+    }
+    achat.addEventListener('click', acheter);
+    tout.addEventListener('click', function () { [0, 1, 2, 3, 4, 5].forEach(function (i) { setTimeout(function () { revele(i); }, reduit ? 0 : i * 140); }); tout.disabled = true; });
+    dessiner();
+    var auto = new URLSearchParams(location.search).get('auto');
+    if (auto === 'gratter') setTimeout(function () { if (acheter()) tout.click(); }, 80);
+  }
+
   /* ---- boutique ---- */
   function boutique() {
     var ul = $('[data-boutique]'); if (!ul) return;
@@ -433,7 +610,7 @@
 
   function demarrer() {
     suitSprite(); bandeau(); navPrincipale(); gabarits(); ampoules();
-    initSlots(); initCoin(); initBj(); boutique(); brancherJetons();
+    initSlots(); initCoin(); initBj(); initRoulette(); initPlusMoins(); initGratte(); boutique(); brancherJetons();
     $$('[data-va]').forEach(function (b) { b.addEventListener('click', function () { aller(b.getAttribute('data-va')); }); });
     window.addEventListener('hashchange', function () { aller(depuisHash()); });
     maj(); aller(depuisHash());

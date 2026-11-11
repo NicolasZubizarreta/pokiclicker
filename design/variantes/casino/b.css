@@ -12,8 +12,9 @@ nav.principale { display:none; }
 .ecran > section { min-height:0; overflow:auto; overscroll-behavior:contain; }
 .ecran > section > [data-gabarit] { height:100%; }
 
-.barre-jeux { display:grid; grid-template-columns:repeat(5, minmax(0, 1fr)); background:var(--surface); padding-bottom:env(safe-area-inset-bottom); }
-.barre-jeux button { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:var(--spacing); min-height:calc(var(--spacing) * 18); padding:var(--spacing) 0; background:none; border:0; border-top:var(--spacing) solid transparent; color:var(--texte-doux); font-size:var(--text-sm); line-height:1.15; text-align:center; }
+.barre-jeux { display:flex; overflow-x:auto; overscroll-behavior-x:contain; scroll-snap-type:x proximity; scrollbar-width:none; background:var(--surface); padding-bottom:env(safe-area-inset-bottom); }
+.barre-jeux::-webkit-scrollbar { display:none; }
+.barre-jeux button { flex:0 0 22%; scroll-snap-align:start; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:var(--spacing); min-height:calc(var(--spacing) * 18); padding:var(--spacing) 0; background:none; border:0; border-top:var(--spacing) solid transparent; color:var(--texte-doux); font-size:var(--text-sm); line-height:1.15; text-align:center; }
 .barre-jeux button[aria-current="true"] { background:var(--selection); color:var(--region-accent); border-top-color:var(--region-accent); font-weight:700; }
 .barre-jeux button:hover { color:var(--texte); }
 
@@ -59,7 +60,7 @@ nav.principale { display:none; }
   .plateau { padding:calc(var(--spacing) * 10); }
   .plateau .jeu-titre { top:calc(var(--spacing) * 6); font-size:var(--text-xl); }
   .outil-maquette { display:block; }
-  .barre-jeux button { flex-direction:row; justify-content:center; gap:calc(var(--spacing) * 3); min-height:calc(var(--spacing) * 16); font-size:var(--text-base); }
+  .barre-jeux button { flex:1 1 0; flex-direction:row; justify-content:center; gap:calc(var(--spacing) * 3); min-height:calc(var(--spacing) * 16); font-size:var(--text-base); }
   .hall { display:grid; grid-template-columns:minmax(0, 1.5fr) minmax(0, 1fr); align-items:stretch; min-height:100%; }
   .hall figure { position:relative; min-height:calc(var(--spacing) * 100); }
   .hall img { position:absolute; inset:0; height:100%; aspect-ratio:auto; }
@@ -67,3 +68,4 @@ nav.principale { display:none; }
   .produits { grid-template-columns:repeat(2, minmax(0, 1fr)); }
   .jeu-boutique { max-width:none; }
 }
+.gains-ouvert ul { max-height:none; overflow:visible; }

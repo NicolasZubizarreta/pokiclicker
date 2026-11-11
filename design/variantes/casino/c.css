@@ -51,7 +51,7 @@
 .cabine .corps p { color:var(--texte-doux); }
 .cabine .corps .plaque { width:100%; }
 .cabine[data-c="rouge"] .corps .plaque { background:var(--action); color:var(--action-texte); border-color:var(--action-survol); }
-.points { display:flex; justify-content:center; gap:var(--spacing); margin-top:calc(var(--spacing) * -1); }
+.points { display:flex; justify-content:center; gap:0; margin-top:calc(var(--spacing) * -1); }
 .points button { width:calc(var(--spacing) * 11); height:calc(var(--spacing) * 11); display:grid; place-items:center; background:none; border:0; padding:0; }
 .points button::before { content:""; width:calc(var(--spacing) * 3); height:calc(var(--spacing) * 3); border-radius:var(--radius-plein); background:var(--bordure); }
 .points button[aria-current="true"]::before { background:var(--region-argent); width:calc(var(--spacing) * 6); }
