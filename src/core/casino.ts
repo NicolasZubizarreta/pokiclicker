@@ -3,7 +3,7 @@ import objets from '../../data/objets.json';
 import { evaluer } from './conditions';
 import type { EtatMonde, ResultatCondition } from './conditions';
 import type { chargerMonde } from './monde';
-import type { DonneesRegion, MainBlackjack, PokemonPossede } from './sauvegarde-types';
+import type { DonneesRegion, PokemonPossede } from './sauvegarde-types';
 import { reglages } from './reglages';
 import { tirerSexe } from './sexe';
 
@@ -38,12 +38,14 @@ export function chargerCasino(source: unknown = donnees): Casino {
     || new Set(casino.symboles.map(s => s.id)).size !== casino.symboles.length
     || new Set(casino.boutique.map(o => o.key)).size !== casino.boutique.length
     || !casino.symboles.some(s => s.id === casino.deuxBaies.symbole)
-    || casino.deuxBaies.nombre !== 2 || casino.pileOuFace.seuilFace >= 1) {
+    || casino.deuxBaies.nombre !== 2 || casino.pileOuFace.seuilFace >= 1
+    || casino.blackjack.remelangeSous >= 1 || casino.blackjack.coutAssurance > 1 || casino.blackjack.retourAbandon > 1) {
     throw new Error('Règles casino invalides');
   }
   for (const nombre of [casino.jetons.achat.cost, casino.jetons.achat.tokens,
     casino.jetons.rachat.tokens, casino.jetons.rachat.money,
-    ...casino.symboles.flatMap(s => [s.poids, s.gain]), ...casino.boutique.map(o => o.price)]) {
+    ...casino.symboles.flatMap(s => [s.poids, s.gain]), ...casino.boutique.map(o => o.price),
+    casino.blackjack.paquets, casino.blackjack.maxMains, casino.blackjack.seuilCroupier, casino.blackjack.retourAssurance]) {
     if (!Number.isSafeInteger(nombre)) throw new Error('Entier casino invalide');
   }
   return casino;
@@ -172,83 +174,6 @@ export function jouerPileOuFace<R extends RegionCasino>(region: R, mise: number,
     message: gain === 0 ? casino.messages.perdu : casino.messages.gagne.replace('{gain}', String(casino.pileOuFace.gain)) };
 }
 
-export function construirePaquet(alea: () => number): string[] {
-  const paquet = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K']
-    .flatMap(rang => ['S', 'H', 'D', 'C'].map(couleur => `${rang}-${couleur}`));
-  for (let i = paquet.length - 1; i > 0; i--) {
-    const j = Math.floor(alea() * (i + 1));
-    [paquet[i], paquet[j]] = [paquet[j]!, paquet[i]!];
-  }
-  return paquet;
-}
-
-function cartesValides(cartes: readonly string[]): boolean {
-  return cartes.every(c => /^(A|[2-9]|10|J|Q|K)-[SHDC]$/.test(c))
-    && new Set(cartes).size === cartes.length;
-}
-
-export function valeurMain(main: readonly string[]): number {
-  if (!cartesValides(main)) throw new Error('Carte blackjack invalide');
-  let total = 0;
-  let as = 0;
-  for (const carte of main) {
-    const rang = carte.split('-')[0]!;
-    total += rang === 'A' ? 11 : ['J', 'Q', 'K'].includes(rang) ? 10 : Number(rang);
-    if (rang === 'A') as++;
-  }
-  while (total > 21 && as > 0) { total -= 10; as--; }
-  return total;
-}
-
-type RegionBlackjack = RegionCasino & { blackjackEnCours?: MainBlackjack };
-type ResultatBlackjack<R> = Resultat<R, MainBlackjack & { gain: number }>;
-
-function piocher(main: MainBlackjack, alea: () => number): string {
-  if (!main.paquet.length) main.paquet = construirePaquet(alea);
-  return main.paquet.pop()!;
-}
-
-function resultatBlackjack<R extends RegionBlackjack>(region: R, main: MainBlackjack,
-  multiplicateur: number | null, message: string): ResultatBlackjack<R> {
-  const gain = multiplicateur === null ? 0 : Math.floor(main.mise * multiplicateur);
-  const copie = { ...region, jetons: region.jetons + gain };
-  if (multiplicateur === null) copie.blackjackEnCours = main;
-  else delete copie.blackjackEnCours;
-  return { ok: true, region: copie, ...main, gain, message };
-}
-
-export function distribuer<R extends RegionBlackjack>(region: R, mise: number, alea: () => number,
-  paquet?: readonly string[]): ResultatBlackjack<R> {
-  if (region.blackjackEnCours) return { ok: false, raison: 'Une main est déjà en cours.' };
-  const debit = debiter(region, mise);
-  if (!debit.ok) return debit;
-  if (paquet && !cartesValides(paquet)) return { ok: false, raison: 'Paquet blackjack invalide.' };
-  const main: MainBlackjack = { mise, paquet: paquet ? [...paquet] : construirePaquet(alea), joueur: [], croupier: [] };
-  main.joueur.push(piocher(main, alea), piocher(main, alea));
-  main.croupier.push(piocher(main, alea));
-  return valeurMain(main.joueur) === 21
-    ? resultatBlackjack(debit.region, main, casino.blackjack.gainNaturel, casino.messages.blackjack)
-    : resultatBlackjack(debit.region, main, null, casino.messages.jouer);
-}
-
-export function tirerCarte<R extends RegionBlackjack>(region: R, alea: () => number): ResultatBlackjack<R> {
-  if (!region.blackjackEnCours) return { ok: false, raison: 'Aucune main en cours.' };
-  const main = structuredClone(region.blackjackEnCours);
-  main.joueur.push(piocher(main, alea));
-  return valeurMain(main.joueur) > 21
-    ? resultatBlackjack(region, main, 0, casino.messages.bust)
-    : resultatBlackjack(region, main, null, casino.messages.jouer);
-}
-
-export function rester<R extends RegionBlackjack>(region: R, alea: () => number): ResultatBlackjack<R> {
-  if (!region.blackjackEnCours) return { ok: false, raison: 'Aucune main en cours.' };
-  const main = structuredClone(region.blackjackEnCours);
-  while (valeurMain(main.croupier) < casino.blackjack.seuilCroupier) main.croupier.push(piocher(main, alea));
-  const joueur = valeurMain(main.joueur);
-  const croupier = valeurMain(main.croupier);
-  return croupier > 21 || joueur > croupier
-    ? resultatBlackjack(region, main, casino.blackjack.gainVictoire, casino.messages.gagne.replace('{gain}', String(casino.blackjack.gainVictoire)))
-    : joueur === croupier
-      ? resultatBlackjack(region, main, casino.blackjack.gainEgalite, casino.messages.egalite)
-      : resultatBlackjack(region, main, 0, casino.messages.perdu);
-}
+export { abandonner, actionsPossibles, assurer, construirePaquet, construireSabot, distribuer, doubler, paireSeparable,
+  refuserAssurance, rester, separer, seuilRemelange, tirerCarte, valeurMain, vueBlackjack } from './blackjack';
+export type { ActionsBlackjack, FinBlackjack, MainReglee, ResultatBlackjack, VueBlackjack } from './blackjack';

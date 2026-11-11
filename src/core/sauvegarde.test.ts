@@ -16,7 +16,8 @@ import compteV2 from './migrations/__fixtures__/compte-v2.json';
 import exportV1 from './migrations/__fixtures__/export-v1.json';
 import { validerDonneesCompte } from './sauvegarde-validation';
 import { ouvrirPartie } from '../ui/persistance';
-import { construirePaquet, distribuer, rester } from './casino';
+import { assurer, construirePaquet, construireSabot, distribuer, rester, separer } from './casino';
+import type { MainBlackjack } from './sauvegarde-types';
 
 // Les espèces des fixtures v2 (1 et 25) ne figurent dans aucune liste à sexe fixe.
 const v3 = { ...v2, version: 4, donnees: { ...v2.donnees, vus: [1, 25] } };
@@ -120,12 +121,15 @@ describe('sauvegarde du blackjack', () => {
     expect(region.donnees).not.toHaveProperty('blackjackEnCours');
     expect(() => validerDonneesRegion(region.donnees)).not.toThrow();
   });
+  const depart = (jetons = 100): DonneesRegion => ({ ...regionInitiale('kanto', 'kanto.route-1'), jetons });
+  const remplissage = construireSabot(() => 0.25).slice(0, 80);
   it('reprend une main après écriture, lecture, export et import puis la supprime', () => {
     const { jeu } = contexte();
     const partie = jeu.creerPartie('Casino');
-    const donne = distribuer({ ...regionInitiale('kanto', 'kanto.route-1'), jetons: 100 }, 3, () => 0.5);
+    const donne = distribuer(depart(), 3, () => 0.5, ['5-S', '10-D', '6-H', '7-C', ...remplissage]);
     if (!donne.ok) throw new Error(donne.raison);
     expect(donne.region.blackjackEnCours).toBeDefined();
+    expect(donne.region.sabotBlackjack).toHaveLength(80);
     jeu.ecrireRegion(partie.id, 'kanto', donne.region);
     const copie = jeu.importerPartie(jeu.exporterPartie(partie.id));
     const reprise = jeu.chargerRegion(copie.id, 'kanto')!;
@@ -134,9 +138,49 @@ describe('sauvegarde du blackjack', () => {
     const fin = rester(reprise.donnees, () => 0.5);
     if (!fin.ok) throw new Error(fin.raison);
     jeu.ecrireRegion(copie.id, 'kanto', fin.region);
-    expect(jeu.chargerRegion(copie.id, 'kanto')!.donnees).not.toHaveProperty('blackjackEnCours');
+    const finale = jeu.chargerRegion(copie.id, 'kanto')!.donnees;
+    expect(finale).not.toHaveProperty('blackjackEnCours');
+    expect(finale.sabotBlackjack).toHaveLength(80);
   });
-  it('rejette cartes inconnues, doublons, paquet incomplet, mise invalide et champs inconnus', () => {
+  it('reprend plusieurs mains séparées et une assurance prise, y compris après export et import', () => {
+    const { jeu } = contexte();
+    const partie = jeu.creerPartie('Casino');
+    const separee = distribuer(depart(), 10, () => 0.5, ['8-S', '6-C', '8-H', '10-D', '3-D', '9-S', ...remplissage]);
+    if (!separee.ok) throw new Error(separee.raison);
+    const deux = separer(separee.region, () => 0.5);
+    if (!deux.ok) throw new Error(deux.raison);
+    expect(deux.region.blackjackEnCours).toMatchObject({ mains: [{ cartes: ['8-S', '3-D'] }, { cartes: ['8-H', '9-S'] }] });
+    const assure = distribuer(depart(), 10, () => 0.5, ['10-S', 'A-D', '8-H', '6-C', ...remplissage]);
+    if (!assure.ok) throw new Error(assure.raison);
+    const pris = assurer(assure.region, () => 0.5);
+    if (!pris.ok) throw new Error(pris.raison);
+    expect(pris.region.blackjackEnCours).toMatchObject({ phase: 'jeu', assurance: 5 });
+    for (const [region, jetons] of [[deux.region, 80], [assure.region, 90], [pris.region, 85]] as const) {
+      jeu.ecrireRegion(partie.id, 'kanto', region);
+      const copie = jeu.importerPartie(jeu.exporterPartie(partie.id));
+      const reprise = jeu.chargerRegion(copie.id, 'kanto')!.donnees;
+      expect(reprise).toEqual(region);
+      expect(reprise.jetons).toBe(jetons);
+      expect(() => validerDonneesRegion(reprise)).not.toThrow();
+    }
+    const suite = rester(jeu.chargerRegion(partie.id, 'kanto')!.donnees, () => 0.5);
+    expect(suite.ok && suite.termine).toBe(true);
+  });
+  it('lit encore une main de l’ancien format (un paquet de 52 cartes) et la convertit à la première action', () => {
+    const cartes = construirePaquet(() => 0.5);
+    const ancienne = { mise: 5, paquet: cartes.slice(3), joueur: cartes.slice(0, 2), croupier: cartes.slice(2, 3) };
+    const region = { ...depart(), blackjackEnCours: ancienne };
+    expect(() => validerDonneesRegion(region)).not.toThrow();
+    const { jeu } = contexte();
+    const partie = jeu.creerPartie('Casino');
+    jeu.ecrireRegion(partie.id, 'kanto', region);
+    const lue = jeu.chargerRegion(partie.id, 'kanto')!.donnees;
+    expect(lue.blackjackEnCours).toEqual(ancienne);
+    const fin = rester(lue, () => 0.5);
+    expect(fin.ok && fin.termine).toBe(true);
+    if (fin.ok) expect(() => validerDonneesRegion(fin.region)).not.toThrow();
+  });
+  it('rejette cartes inconnues, doublons de l’ancien format, paquet incomplet, mise invalide et champs inconnus', () => {
     const cartes = construirePaquet(() => 0.5);
     const main = { mise: 1, paquet: cartes.slice(3), joueur: cartes.slice(0, 2), croupier: cartes.slice(2, 3) };
     for (const invalide of [
@@ -150,6 +194,29 @@ describe('sauvegarde du blackjack', () => {
     ]) {
       expect(() => validerDonneesRegion({ ...regionInitiale('kanto', 'kanto.route-1'),
         blackjackEnCours: invalide })).toThrow();
+    }
+  });
+  it('rejette une main ou un sabot de blackjack invalide (nouveau format)', () => {
+    const donne = distribuer(depart(), 10, () => 0.5, ['8-S', '6-C', '8-H', '10-D', ...remplissage]);
+    if (!donne.ok) throw new Error(donne.raison);
+    const main = donne.region.blackjackEnCours as MainBlackjack;
+    const mains = (cartes: string[]) => [{ ...main.mains[0]!, cartes }];
+    const sept = Array.from({ length: 7 }, () => '2-S');
+    for (const invalide of [
+      { ...main, phase: 'attente' }, { ...main, mains: [] }, { ...main, mains: Array.from({ length: 5 }, () => main.mains[0]) },
+      { ...main, mains: [{ ...main.mains[0]!, mise: 0 }] }, { ...main, mains: [{ ...main.mains[0]!, mise: 1.5 }] },
+      { ...main, mains: [{ ...main.mains[0]!, statut: 'perdu' }] }, { ...main, mains: [{ ...main.mains[0]!, cartes: [] }] },
+      { ...main, mains: mains(['X-S', '8-H']) }, { ...main, mains: mains(sept) },
+      { ...main, active: 1 }, { ...main, active: -1 }, { ...main, croupier: ['6-C'] }, { ...main, assurance: 1.5 },
+      { ...main, mains: [{ ...main.mains[0]!, statut: 'reste' }] },
+      { ...main, phase: 'assurance', assurance: 3 }, { ...main, inconnu: true },
+    ]) {
+      expect(() => validerDonneesRegion({ ...donne.region, blackjackEnCours: invalide })).toThrow();
+    }
+    const sabot = construireSabot(() => 0.5);
+    expect(() => validerDonneesRegion({ ...donne.region, sabotBlackjack: sabot })).not.toThrow();
+    for (const invalide of [[...sabot, '2-S'], ['X-S'], sept, [1], 'sabot']) {
+      expect(() => validerDonneesRegion({ ...donne.region, sabotBlackjack: invalide })).toThrow();
     }
   });
 });

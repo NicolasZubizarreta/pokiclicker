@@ -58,6 +58,12 @@ export function prixAttendu(source: { id: string; prix: number; type: string; no
 export const GAINS_MACHINE_V2: Record<string, number> = { '7': 500, Pikachu: 50, Staross: 25, Baie: 15, Magicarpe: 2 };
 export const GAIN_DEUX_BAIES_V2 = 3;
 
+// Ticket B, blackjack (11/11/2026) : à la demande de Nicolas (« un vrai blackjack avec les vraies chances »), le blackjack de la V1
+// (un paquet de 52 par main, deux cartes visibles, tirer ou rester) est remplacé par les règles du casino : sabot de 6 paquets
+// remélangé sous 25 % de cartes, carte cachée du croupier, blackjack naturel ×2,5, doubler, séparer (4 mains), assurance, abandon.
+// Les anciennes sauvegardes (paquet de 52 par main) restent lisibles et sont converties à la première action.
+export const BLACKJACK_V2 = { paquets: 6, gainNaturel: 2.5, maxMains: 4, remelangeSous: 0.25 } as const;
+
 /** Gain attendu en V2 pour un tirage (symboles de la V1) et une mise. */
 export function gainMachineAttenduV2(symboles: readonly string[], mise = 1): number {
   if (symboles[0] === symboles[1] && symboles[1] === symboles[2]) return mise * (GAINS_MACHINE_V2[symboles[0]!] ?? 0);

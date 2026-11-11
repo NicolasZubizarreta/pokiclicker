@@ -68,6 +68,10 @@ En tant que joueur, je veux que le casino reste un jeu de hasard où l'on perd e
 - [ ] Étant donné les textes du casino (« +1 000 $ » dans `messages.rachatJetons`), quand l'argent s'affiche, alors la monnaie est ₽ partout.
 - [ ] Étant donné les tests, quand `tsc -b`, eslint, vitest et l'e2e du casino tournent, alors ils sont verts (tests du cœur : `src/core/casino.test.ts`, `tests/` de fidélité V1 : l'écart de règle voulu est noté dans `tests/ecarts-v1.ts`).
 
+### Note du 11/11/2026 : blackjack
+Blackjack complet (sabot de 6 paquets, carte cachée, doubler, séparer, assurance, abandon) à la demande de Nicolas le 11/11 (« un vrai blackjack avec les vraies chances »). Règles standard, aucun pourcentage réglé : sabot de 6 paquets remélangé sous 25 % de cartes restantes entre deux mains, croupier qui reste sur tous les 17, blackjack naturel ×2,5, doubler sur une carte, séparer jusqu'à 4 mains (as séparés : une carte chacun), assurance ×2 sur demi-mise, abandon (moitié de la mise). Arrondi toujours vers le bas ; assurance et abandon sont donc impossibles avec une mise de 1 jeton. Moteur : `src/core/blackjack.ts`, règles dans `data/casino.json`.
+Rendement mesuré (`src/core/casino-blackjack-simulation.test.ts`, 1 000 000 de mains, stratégie de base simplifiée : tirer, rester, doubler ; ni séparation, ni abandon, ni assurance) : **99,04 %** à mise 10, **96,98 %** à mise 1 (le blackjack naturel y est arrondi à 2 au lieu de 2,5). La banque garde son avantage ; le chiffre exact dépend du joueur.
+
 ### Hors périmètre
 Habillage et mise en page du casino (ticket C), nouveaux jeux, jetons offerts, boutique du casino (prix), simulateur de parcours.
 

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { creerHorlogeSimulee } from '../core/clock';
-import { chargerCasino } from '../core/casino';
+import { chargerCasino, construireSabot, vueBlackjack } from '../core/casino';
 import { chargerEvenements } from '../core/evenements';
 import { kanto } from '../core/regions';
 import { creerGestionnaire, creerStockageMemoire, type DonneesRegion, type PokemonPossede } from '../core/sauvegarde';
@@ -62,14 +62,19 @@ it('renvoie les résultats déterministes des jeux et persiste chaque coup sans 
   expect(p.lire().jetons).toBe(1005);
 });
 
+const remplissage = construireSabot(() => 0.25).slice(0, 80);
+const avecSabot = (...cartes: string[]) => (region: DonneesRegion): DonneesRegion => ({ ...region, sabotBlackjack: [...cartes, ...remplissage] });
+
 it('garde une référence stable puis retrouve la main débitée et la termine après rechargement', () => {
-  const p = preparer();
+  const p = preparer(avecSabot('K-C', 'K-D', 'K-H', 'K-S'));
   p.alea.mockClear();
-  expect(p.store.getState().distribuerBlackjack(10)).toMatchObject({ ok: true,
-    joueur: ['K-C', 'K-D'], croupier: ['K-H'], gain: 0 });
-  expect(p.alea).toHaveBeenCalledTimes(51);
+  expect(p.store.getState().distribuerBlackjack(10)).toMatchObject({ ok: true, termine: false, gain: 0,
+    vue: { croupier: ['K-D'], cachee: true, mains: [{ cartes: ['K-C', 'K-H'] }] } });
+  expect(p.alea).not.toHaveBeenCalled();
   const casino = p.store.getState().casino;
-  expect(casino).toMatchObject({ jetons: 990, blackjackEnCours: p.lire().blackjackEnCours });
+  expect(casino.jetons).toBe(990);
+  expect(casino.blackjackEnCours).toEqual(vueBlackjack(p.lire()));
+  expect(JSON.stringify(casino)).not.toContain('K-S');
   p.horloge.avancer(100);
   p.store.getState().tick();
   expect(p.store.getState().casino).toBe(casino);
@@ -77,20 +82,44 @@ it('garde une référence stable puis retrouve la main débitée et la termine a
   const reprise = p.ouvrir();
   expect(reprise.getState().casino).toEqual(casino);
   expect(reprise.getState().distribuerBlackjack(10)).toEqual({ ok: false, raison: 'Une main est déjà en cours.' });
-  expect(reprise.getState().resterBlackjack()).toMatchObject({ ok: true, gain: 10,
-    joueur: ['K-C', 'K-D'], croupier: ['K-H', 'K-S'] });
+  expect(reprise.getState().resterBlackjack()).toMatchObject({ ok: true, gain: 10, termine: true,
+    fin: { croupier: ['K-D', 'K-S'], mains: [{ cartes: ['K-C', 'K-H'] }] } });
   expect(p.lire().blackjackEnCours).toBeUndefined();
+  expect(p.lire().sabotBlackjack).toHaveLength(80);
   expect(p.lire().jetons).toBe(1000);
   expect(p.ouvrir().getState().casino.blackjackEnCours).toBeNull();
 });
 
 it('sauvegarde aussi la fin d’une main après avoir tiré', () => {
-  const p = preparer();
+  const p = preparer(avecSabot('K-C', 'K-D', 'K-H', 'K-S', 'K-S'));
   p.store.getState().distribuerBlackjack(10);
-  expect(p.store.getState().tirerBlackjack()).toMatchObject({ ok: true, gain: 0, message: 'Bust ! Perdu.',
-    joueur: ['K-C', 'K-D', 'K-S'] });
+  expect(p.store.getState().tirerBlackjack()).toMatchObject({ ok: true, gain: 0, message: 'Dépassé ! Perdu.',
+    fin: { mains: [{ cartes: ['K-C', 'K-H', 'K-S'] }] } });
   expect(p.lire().jetons).toBe(990);
   expect(p.lire().blackjackEnCours).toBeUndefined();
+});
+
+it('sépare, double, assure puis abandonne par le store, avec sauvegarde à chaque coup', () => {
+  const p = preparer(avecSabot('8-S', '6-C', '8-H', '10-D', '3-D', '9-S', '10-C', '10-H'));
+  p.store.getState().distribuerBlackjack(10);
+  expect(p.store.getState().separerBlackjack()).toMatchObject({ ok: true, termine: false });
+  expect(p.lire().jetons).toBe(980);
+  expect(p.store.getState().casino.blackjackEnCours).toMatchObject({ mains: [{ cartes: ['8-S', '3-D'] }, { cartes: ['8-H', '9-S'] }], active: 0 });
+  p.store.getState().arreter();
+  const reprise = p.ouvrir();
+  expect(reprise.getState().doublerBlackjack()).toMatchObject({ ok: true, termine: false });
+  expect(reprise.getState().resterBlackjack()).toMatchObject({ ok: true, termine: true, gain: 60, message: 'Bilan : +30 jetons.' });
+  expect(p.lire().jetons).toBe(1030);
+  const assure = preparer(avecSabot('10-S', 'A-D', '8-H', '6-C'));
+  assure.store.getState().distribuerBlackjack(10);
+  expect(assure.store.getState().tirerBlackjack()).toEqual({ ok: false, raison: 'Action impossible.' });
+  expect(assure.store.getState().assurerBlackjack()).toMatchObject({ ok: true, termine: false });
+  expect(assure.lire().jetons).toBe(985);
+  expect(assure.lire().blackjackEnCours).toMatchObject({ phase: 'jeu', assurance: 5 });
+  const abandon = preparer(avecSabot('10-S', '10-D', '6-H', '7-C'));
+  abandon.store.getState().distribuerBlackjack(10);
+  expect(abandon.store.getState().abandonnerBlackjack()).toMatchObject({ ok: true, gain: 5 });
+  expect(abandon.lire().jetons).toBe(995);
 });
 
 it('refuse toutes les actions avant l’ouverture, sans aléa ni modification', () => {
@@ -102,7 +131,8 @@ it('refuse toutes les actions avant l’ouverture, sans aléa ni modification', 
   expect(etat.casino.acces).toEqual({ ouvert: false, raison: refus.raison });
   for (const resultat of [etat.acheterJetons(), etat.echangerJetons(), etat.jouerMachine(1),
     etat.jouerPileOuFace(1, 'face'), etat.distribuerBlackjack(1), etat.tirerBlackjack(),
-    etat.resterBlackjack(), etat.acheterAuCasino('abra')]) expect(resultat).toEqual(refus);
+    etat.resterBlackjack(), etat.doublerBlackjack(), etat.separerBlackjack(), etat.assurerBlackjack(),
+    etat.refuserAssuranceBlackjack(), etat.abandonnerBlackjack(), etat.acheterAuCasino('abra')]) expect(resultat).toEqual(refus);
   expect(p.alea).not.toHaveBeenCalled();
   expect(p.lire()).toEqual(avant);
 });

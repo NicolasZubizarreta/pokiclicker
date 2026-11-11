@@ -1,7 +1,8 @@
+import donneesCasino from '../../data/casino.json';
 import { migrer } from './migrations';
 import { reglages } from './reglages';
 import { sexeEspece } from './sexe';
-import type { DonneesCompte, DonneesPartie, DonneesRegion, Enveloppe, Niveau, PokemonPossede } from './sauvegarde-types';
+import type { DonneesCompte, DonneesPartie, DonneesRegion, Enveloppe, MainBlackjack, MainBlackjackAncienne, Niveau, PokemonPossede } from './sauvegarde-types';
 
 type Validateur = (valeur: unknown) => void;
 export function exiger(condition: unknown, raison: string): asserts condition {
@@ -71,6 +72,53 @@ export function validerDonneesPartie(v: unknown): asserts v is DonneesPartie {
   const partie = v as DonneesPartie;
   exiger(partie.regionsDebloquees.includes(partie.regionCourante), 'Région courante non débloquée');
 }
+const CARTE_BLACKJACK = /^(A|[2-9]|10|J|Q|K)-[SHDC]$/;
+const carteBlackjack: Validateur = c => {
+  chaine(c);
+  exiger(CARTE_BLACKJACK.test(c), 'Carte blackjack invalide');
+};
+/** Une carte apparaît au plus une fois par paquet du sabot, et le sabot n'a jamais plus de cartes que ses paquets. */
+function compterCartes(cartes: readonly string[]): void {
+  const total = donneesCasino.blackjack.paquets;
+  exiger(cartes.length <= total * 52, 'Sabot blackjack invalide : trop de cartes');
+  const compte = new Map<string, number>();
+  for (const carte of cartes) {
+    const n = (compte.get(carte) ?? 0) + 1;
+    exiger(n <= total, 'Sabot blackjack invalide : carte en trop');
+    compte.set(carte, n);
+  }
+}
+function validerSabot(s: unknown): void {
+  liste(carteBlackjack)(s);
+  compterCartes(s as string[]);
+}
+/** Ancien format (un paquet de 52 par main, sans carte cachée), encore lisible, ou main du sabot de plusieurs paquets. */
+function validerBlackjackEnCours(b: unknown): void {
+  const cartes = liste(carteBlackjack);
+  if (b !== null && typeof b === 'object' && Object.hasOwn(b, 'joueur')) {
+    forme(b, { mise: positif, paquet: cartes, joueur: cartes, croupier: cartes });
+    const main = b as MainBlackjackAncienne;
+    const toutes = [...main.paquet, ...main.joueur, ...main.croupier];
+    exiger(toutes.length === 52 && new Set(toutes).size === 52, 'Paquet blackjack invalide');
+    exiger(main.joueur.length >= 2 && main.croupier.length >= 1, 'Main blackjack invalide');
+    return;
+  }
+  forme(b, {
+    phase: p => exiger(p === 'assurance' || p === 'jeu', 'Phase blackjack invalide'),
+    mains: liste(m => forme(m, { cartes, mise: positif, separee: booleen, doublee: booleen,
+      statut: s => exiger(s === 'en-cours' || s === 'reste' || s === 'depasse' || s === 'abandon', 'Statut blackjack invalide') })),
+    active: entier, croupier: cartes, assurance: entier,
+  });
+  const main = b as MainBlackjack;
+  exiger(main.mains.length >= 1 && main.mains.length <= donneesCasino.blackjack.maxMains, 'Mains blackjack invalides');
+  exiger(main.active < main.mains.length, 'Main active invalide');
+  exiger(main.mains.every(m => m.cartes.length >= 1), 'Main blackjack invalide');
+  exiger(main.croupier.length >= 2, 'Croupier blackjack invalide');
+  exiger(main.phase === 'assurance' || main.mains[main.active]!.statut === 'en-cours', 'Main active terminée');
+  exiger(main.phase === 'jeu' || (main.mains.length === 1 && main.mains[0]!.cartes.length === 2 && main.assurance === 0),
+    'Assurance blackjack invalide');
+  compterCartes([...main.mains.flatMap(m => m.cartes), ...main.croupier]);
+}
 export function validerDonneesRegion(v: unknown): asserts v is DonneesRegion {
   forme(v, { regionId: identifiant, zoneId: chaine, etape: positif, equipe: liste(validerPokemonPossede),
     badges: textes, bossVaincus: textes, objetsCles: textes, quetes: textes, drapeaux: textes,
@@ -99,17 +147,8 @@ export function validerDonneesRegion(v: unknown): asserts v is DonneesRegion {
     evenementEnCours: e => forme(e, { id: identifiant,
       etape: i => { entier(i); exiger((i as number) >= 0, 'Étape invalide'); },
       file: liste(identifiant) }),
-    blackjackEnCours: b => {
-      const cartes = liste(c => {
-        chaine(c);
-        exiger(/^(A|[2-9]|10|J|Q|K)-[SHDC]$/.test(c), 'Carte blackjack invalide');
-      });
-      forme(b, { mise: positif, paquet: cartes, joueur: cartes, croupier: cartes });
-      const main = b as NonNullable<DonneesRegion['blackjackEnCours']>;
-      const toutes = [...main.paquet, ...main.joueur, ...main.croupier];
-      exiger(toutes.length === 52 && new Set(toutes).size === 52, 'Paquet blackjack invalide');
-      exiger(main.joueur.length >= 2 && main.croupier.length >= 1, 'Main blackjack invalide');
-    },
+    blackjackEnCours: validerBlackjackEnCours,
+    sabotBlackjack: s => validerSabot(s),
   });
 }
 export function dateUtc(v: unknown): void {

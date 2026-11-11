@@ -26,7 +26,27 @@ export type DonneesPartie = {
   pcGlobal: PokemonPossede[]; drapeaux: string[];
   statistiques: { victoires: number; argentTotalGagne: number; tempsJeuMs?: number };
 };
-export type MainBlackjack = { mise: number; paquet: string[]; joueur: string[]; croupier: string[] };
+/** Main de blackjack d'avant le sabot de 6 paquets (un paquet de 52 par main, sans carte cachée). Lue puis convertie à la première action. */
+export type MainBlackjackAncienne = { mise: number; paquet: string[]; joueur: string[]; croupier: string[] };
+export type StatutMainBlackjack = 'en-cours' | 'reste' | 'depasse' | 'abandon';
+export type MainJoueurBlackjack = {
+  cartes: string[];
+  /** Jetons engagés sur cette main (doublés si elle est doublée). */
+  mise: number;
+  separee: boolean;
+  doublee: boolean;
+  statut: StatutMainBlackjack;
+};
+/** Main en cours : le sabot vit à part (sabotBlackjack de la région). La carte cachée du croupier est croupier[1]. */
+export type MainBlackjack = {
+  /** « assurance » : le croupier montre un As, le joueur doit accepter ou refuser l'assurance avant tout autre choix. */
+  phase: 'assurance' | 'jeu';
+  mains: MainJoueurBlackjack[];
+  active: number;
+  croupier: string[];
+  /** Jetons misés en assurance (0 si refusée ou pas encore proposée). */
+  assurance: number;
+};
 export type DonneesRegion = {
   regionId: string; zoneId: string; etape: number; equipe: PokemonPossede[];
   badges: string[]; bossVaincus: string[]; objetsCles: string[]; quetes: string[];
@@ -44,7 +64,9 @@ export type DonneesRegion = {
   };
   pension: { parents: PokemonPossede[]; oeufs: PokemonPossede[]; emplacementsOeuf: number };
   jetons: number;
-  blackjackEnCours?: MainBlackjack;
+  blackjackEnCours?: MainBlackjack | MainBlackjackAncienne;
+  /** Sabot de blackjack (cartes restantes, la prochaine en premier), conservé entre les mains. */
+  sabotBlackjack?: string[];
   arretAuto: {
     commun: boolean; peuCommun: boolean; rare: boolean; tresRare: boolean;
     legendaire: boolean; shiny: boolean; nouveau: boolean;

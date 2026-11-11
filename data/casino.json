@@ -11,7 +11,9 @@
   ],
   "deuxBaies": { "symbole": "Baie", "nombre": 2, "gain": 3 },
   "animation": { "rouleaux": [700, 950, 1200], "defilement": 80, "piece": 500 },
-  "blackjack": { "seuilCroupier": 17, "gainVictoire": 2, "gainEgalite": 1, "gainNaturel": 2.5 },
+  "blackjack": { "seuilCroupier": 17, "gainVictoire": 2, "gainEgalite": 1, "gainNaturel": 2.5,
+    "paquets": 6, "remelangeSous": 0.25, "maxMains": 4,
+    "coutAssurance": 0.5, "retourAssurance": 3, "retourAbandon": 0.5 },
   "pileOuFace": { "faces": { "face": "pokemon/25", "pile": "objets/poke-ball.png" }, "seuilFace": 0.5, "gain": 2 },
   "boutique": [
     { "key": "abra", "name": "Abra", "price": 250, "type": "pokemon", "id": 63 },
@@ -28,7 +30,11 @@
     "miseInvalide": "Mise invalide.", "choixInvalide": "Choix invalide.",
     "achatJetons": "+{jetons} jetons !", "rachatJetons": "+{argent} ₽ !", "perdu": "Perdu…",
     "gagne": "Gagné ×{gain} !", "baies": "Baie ×2 !", "blackjack": "Blackjack ! ×2,5",
-    "bust": "Bust ! Perdu.", "egalite": "Égalité. Mise rendue.", "jouer": "À toi de jouer.",
+    "bust": "Dépassé ! Perdu.", "egalite": "Égalité. Mise rendue.", "jouer": "À toi de jouer.",
+    "assurance": "Le croupier montre un As. Assurance ?", "blackjackEgalite": "Deux blackjacks. Égalité, mise rendue.",
+    "croupierBlackjack": "Le croupier a un blackjack. Perdu.", "abandon": "Abandon. Moitié de la mise rendue.",
+    "assurancePayee": "Assurance payée ×2.", "assurancePerdue": "Assurance perdue.",
+    "bilan": "Bilan : {net} jetons.", "actionImpossible": "Action impossible.",
     "dejaAcquis": "Déjà acquis !", "achat": "+{nom} !", "croupier": "Croupier Rocket"
   },
   "rappel": "Argent virtuel uniquement : aucun paiement réel."
