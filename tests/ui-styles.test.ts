@@ -16,7 +16,7 @@ describe('Jetons et styles de l’interface', () => {
     expect(styles).toContain('@import "../../design/tokens.tailwind.css"');
     expect(styles).toContain('@import "../../design/regions.css"');
     expect(regions).toMatch(/\[data-region="johto"\]\s*\{[^}]*--fond:/);
-    for (const [region, rayon] of [['kanto', '0'], ['johto', '0.25rem'], ['atlas', '0.75rem']]) {
+    for (const [region, rayon] of [['kanto', '8px'], ['johto', '0.25rem'], ['atlas', '0.75rem']]) {
       const bloc = regions.split(`[data-region="${region}"] {`)[1]?.split('}')[0];
       expect(bloc).toContain(`--rayon: ${rayon};`);
     }

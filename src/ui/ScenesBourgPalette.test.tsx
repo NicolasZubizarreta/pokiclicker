@@ -110,7 +110,8 @@ it('cale les formes et cibles sur les fractions, même après redimensionnement'
     const cible = screen.getByRole('button', { name: forme.nom });
     const centre = centreForme(forme);
     expect(cible.style.left).toBe(`${centre.x / 16 * 100}%`);
-    expect(cible.style.top).toBe(`${centre.y / 9 * 100}%`);
+    // Le centre reste sur la fraction, borné pour que la cible de 44 px ne dépasse jamais le bas de l'image.
+    expect(cible.style.top).toBe(`min(${centre.y / 9 * 100}%, calc(100% - var(--spacing) * 5.5))`);
     expect(cible.classList.contains('min-h-11') && cible.classList.contains('min-w-11')).toBe(true);
     fireEvent(window, new Event('resize'));
     expect(cible.style.left).toBe(`${centre.x / 16 * 100}%`);

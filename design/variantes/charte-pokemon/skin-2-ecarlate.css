@@ -1,0 +1,16 @@
+/* 2. Écarlate : boutons bonbon tout ronds, jaune et rose, fond crème chaud.
+   Source : scarletviolet.pokemon.com/fr-fr relevé le 10/11/2026 (jaune #FDD23E, rose #FF69B4, texte #3E3B3A, boutons 80 px, Nunito Sans).
+   Valeurs dérivées : rose assombri à #B8165F pour le texte et les contours actifs (contraste 5,6:1 sur blanc) ; tranches en jaune foncé. */
+:root:root:root, [data-region][data-region][data-region] {
+  --sk-r-petit: 12px; --sk-r-bouton: 999px; --sk-r-cadre: 24px; --sk-bord: 3px;
+  --sk-liseré: #f2c230; --sk-plaque: #fff4c2; --sk-plaque-bord: #f2c230; --sk-tranche: #d9a400;
+  --fond: #fff7d6; --surface: #ffffff; --surface-2: #ffeaa0; --bordure: #d9a400;
+  --texte: #3e3b3a; --texte-doux: #67625f; --texte-inverse: #ffffff;
+  --action: #fdd23e; --action-survol: #d9a400; --action-texte: #3e3b3a; --sk-action-bord: #3e3b3a;
+  --lien: #b8165f; --focus: #b8165f; --selection: #ffd3e8; --blanc: #ffffff;
+  --region-accent: #b8165f; --region-argent: #f2c230; --region-socle: #7fb35f;
+  --succes-fond: #e3f3e5; --succes-base: #3d9a4a; --succes-texte: #1f5a29;
+  --alerte-fond: #fdf1cf; --alerte-base: #c38600; --alerte-texte: #6d4a00;
+  --erreur-fond: #fbe2e6; --erreur-base: #b81d3a; --erreur-texte: #7a0f25;
+  --info-fond: #e1effc; --info-base: #2b6c9e; --info-texte: #174b72;
+}

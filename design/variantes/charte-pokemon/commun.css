@@ -1,0 +1,68 @@
+/* Habillage commun des variantes de charte (ticket A, phase 4.5).
+   Chaque variante pose des variables --sk-* et des jetons ; ce fichier les applique aux composants du jeu.
+   Rien ne change de place : seulement couleurs, rayons, bordures, ombres et survols.
+   Cause relevée du rendu « gris à doubles bordures » : .cadre empile une bordure, un anneau de fond et un anneau d'argent (3 lignes) ;
+   .plaque ajoute une bordure grise et une ombre pleine ; --radius-* valent 0 ; fond, surface et surface-2 sont trois gris proches. */
+
+:root:root:root {
+  --rayon: var(--sk-r-cadre);
+  --radius-sm: var(--sk-r-petit);
+  --radius-md: var(--sk-r-bouton);
+  --radius-lg: var(--sk-r-cadre);
+  --radius-xl: var(--sk-r-cadre);
+  --shadow-sm: 0 2px 0 0 var(--sk-tranche);
+  --shadow-md: 0 4px 0 0 var(--sk-tranche);
+  --shadow-lg: 0 6px 0 0 var(--sk-tranche);
+}
+
+/* Cadres : une seule ligne nette au lieu de trois. */
+.cadre, .cadre-alerte {
+  border: var(--sk-bord) solid var(--sk-liseré);
+  border-radius: var(--sk-r-cadre);
+  box-shadow: var(--shadow-md);
+}
+.cadre-alerte { border-color: var(--alerte-base); }
+
+/* Boutons, champs, listes : coins arrondis (la scène et les zones cliquables de décor ne bougent pas). */
+:where(button, [role="button"], select, input:not([type="range"], [type="checkbox"], [type="radio"]), summary, .zone-compte-bouton):not(.cible-combat, .bg-transparent, .zone-scene, g) {
+  border-radius: var(--sk-r-bouton);
+}
+dialog { border-radius: var(--sk-r-cadre); }
+
+/* Plaques (boutons de jeu) : relief net, une bordure, tranche colorée. */
+.plaque {
+  background: var(--sk-plaque);
+  color: var(--sk-plaque-texte, var(--texte));
+  border: var(--sk-bord) solid var(--sk-plaque-bord);
+  border-radius: var(--sk-r-bouton);
+  box-shadow: 0 4px 0 0 var(--sk-tranche);
+  font-weight: 700;
+}
+.plaque-action {
+  background: var(--action);
+  color: var(--action-texte);
+  border-color: var(--sk-action-bord, var(--action-survol));
+  box-shadow: 0 4px 0 0 var(--action-survol);
+}
+.plaque[aria-pressed="true"] {
+  background: var(--selection);
+  border-color: var(--region-accent);
+  color: var(--texte);
+}
+.plaque:active:not([aria-disabled="true"], :disabled) { transform: translateY(3px); box-shadow: 0 1px 0 0 var(--sk-tranche); }
+.plaque-action:active:not(:disabled) { box-shadow: 0 1px 0 0 var(--action-survol); }
+
+/* Survol (souris seulement) : le bouton se soulève et s'éclaircit ; plus d'aplat sombre. */
+@media (hover: hover) {
+  .plaque:hover:not([aria-disabled="true"], :disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 0 var(--sk-tranche);
+    filter: brightness(var(--sk-survol, 1.06));
+  }
+  .plaque-action:hover:not(:disabled) { box-shadow: 0 6px 0 0 var(--action-survol); }
+}
+
+/* Barre latérale et bandeau du haut sur PC : une ligne, pas deux. */
+.barre-laterale { box-shadow: none; border-right: var(--sk-bord) solid var(--sk-liseré); }
+.bandeau-pc { box-shadow: none; border-bottom: var(--sk-bord) solid var(--sk-liseré); }
+.bandeau-action-bouton { border-radius: var(--sk-r-bouton); }

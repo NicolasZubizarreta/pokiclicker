@@ -14,17 +14,17 @@ Ne choisis aucune valeur : tout vient de ces fichiers. Cas non couvert : pose la
 ## Jetons par rôle (jamais par teinte)
 | Rôle | Kanto sombre | Kanto clair | Usage |
 |---|---|---|---|
-| `--fond` | #141821 | #f4efe4 | fond de page |
-| `--surface` | #2c3039 | #fffdf7 | cadres, cartes |
-| `--surface-2` | #2f3648 | #e8e6e0 | zones imbriquées |
-| `--bordure` | #737781 | #bfc4cf | liserés |
-| `--texte` | #f4efe4 | #141821 | texte principal |
-| `--texte-doux` | #bfc4cf | #595e67 | texte secondaire |
-| `--action` + `--action-texte` | #c8321e + #ffffff | #c8321e + #ffffff | bouton principal, un seul par écran |
-| `--action-survol` | #ac1c0a | #ac1c0a | survol, pressé |
-| `--lien` | #f5c033 | #ac1c0a | liens |
-| `--focus` | #f5c033 | #2b6c9e | anneau de focus |
-| `--selection` | #3a3320 | #f9ecce | carte ou ligne choisie |
+| `--fond` | #1c1c1c | #f2f2f2 | fond de page |
+| `--surface` | #2b2b2b | #ffffff | cadres, cartes |
+| `--surface-2` | #424242 | #e8e8e8 | zones imbriquées, boutons secondaires |
+| `--bordure` | #5c5c5c | #c4c4c4 | contours (un seul trait) |
+| `--texte` | #f2f2f2 | #212121 | texte principal |
+| `--texte-doux` | #c4c4c4 | #424242 | texte secondaire |
+| `--action` + `--action-texte` | #c92a05 + #ffffff | #c92a05 + #ffffff | bouton principal, un seul par écran ; rouge Pokédex |
+| `--action-survol` | #8f1d03 | #8f1d03 | survol, pressé |
+| `--lien` | #5fc3ea | #b32a0a | liens |
+| `--focus` | #ffcc00 | #1b7fa8 | anneau de focus |
+| `--selection` | #5a2418 | #ffe2d2 | carte ou ligne choisie |
 | `--region-accent`, `--region-argent`, `--region-socle` | définis par région (`regions.css`) | idem | chiffres importants, liserés, socle sous le Pokémon |
 Valeurs exactes : `tokens.css` et `regions.css`. Sémantiques : `--succes-*`, `--alerte-*`, `--erreur-*`, `--info-*` (toujours avec pictogramme).
 
@@ -32,13 +32,14 @@ Valeurs exactes : `tokens.css` et `regions.css`. Sémantiques : `--succes-*`, `-
 - Texte : xs 12 · sm 14 · **base 16 (minimum mobile)** · lg 18 · xl 20 · 2xl 24 · 3xl 32 · 4xl 40 · 5xl 48 (px). Titres et chiffres Atkinson Hyperlegible Next gras (700), texte courant Atkinson Hyperlegible Next, `tabular-nums` partout ; atlas : Lilita One + Nunito.
 - Espacement : multiples de 8 px (4 px de base). Marges de page 16 px mobile, 32 px PC.
 - Unité de pixel : 1 px d'art = 2 px CSS (mobile) ou 3 px (PC). Sprites 96 × 96 natifs, facteur **entier**, `image-rendering: pixelated`.
-- Rayons : Kanto 0 · Johto 4 px · atlas 12 px. Ombres pleines, sans flou : `sm` 0 2px · `md` 0 4px · `lg` 0 8px (noir à 45 %).
+- Rayons : sm 5 px · md 6 px (boutons, champs) · lg 8 px (cadres, fenêtres) · xl 12 px ; `--rayon` de région : Kanto 8 px · Johto 4 px · atlas 12 px. **Aucune ombre** (`--shadow-*: none`) : plat, ni ombre basse ni filet de couleur sur le haut d'un bouton.
 - Mouvement : 90 ms (recul, pression) · 150 ms · 300 ms (barre fantôme). Courbe `cubic-bezier(0.2, 0, 0, 1)`. Propriétés : `transform` et `opacity` seulement.
 - Ruptures : 390 · 768 · 1024 · 1440 px, container queries et `clamp()`, aucune largeur fixe en px sur un conteneur.
 
 ## Composants nommés
-- **Bouton d'action** : plaque en relief, ≥ 44 px. États : survol, pressé (descend de 2 px), désactivé (avec explication visible), focus (anneau 3:1). **Il n'y a plus de bouton « Attaque » (décision du 24/10) : on touche la scène, comme dans la V1.** La scène entière est la cible (un seul élément focalisable, nom accessible « Attaquer <Pokémon> », Entrée et Espace comme alternative au toucher) ; le recul du sprite et le chiffre de dégâts confirment l'appui.
-- **Cadre** : double liseré (Kanto : crème ; Johto : or puis argent ; atlas : encre irrégulière). Un seul style de cadre par écran.
+- **Bouton d'action** : plaque plate, coins à 6 px, ≥ 44 px, texte gras. États : survol (`brightness(1.25)`), pressé (`brightness(0.9)`, aucun déplacement), désactivé (avec explication visible), focus (anneau 3:1). **Il n'y a plus de bouton « Attaque » (décision du 24/10) : on touche la scène, comme dans la V1.** La scène entière est la cible (un seul élément focalisable, nom accessible « Attaquer <Pokémon> », Entrée et Espace comme alternative au toucher) ; le recul du sprite et le chiffre de dégâts confirment l'appui.
+- **Cadre** : **un seul contour** de 2 px (`--bordure`, `--alerte-base` pour l'alerte), coins à `--rayon`, aucune ombre. Plus de double liseré. Un seul style de cadre par écran.
+- **Barre latérale PC** : rouge `--action`, entrée active en `--fond` ; bande jaune `--region-argent` de 4 px sous le bandeau du haut. Orange `--region-accent` pour les chiffres, bleu `--lien` pour les liens.
 - **Barre de PV** : pixel, vert puis jaune puis rouge ; `scaleX` en 120 ms, barre fantôme après 300 ms.
 - **Étapes** : 10 marques ; la 10e = boss (Poké Ball / cachet / cachet de cire).
 - **Carte de Pokémon** : sprite sur socle `--region-socle`, nom, niveau, DPS.
@@ -59,7 +60,7 @@ Valeurs exactes : `tokens.css` et `regions.css`. Sémantiques : `--succes-*`, `-
 
 ## Interdits de la marque
 1. Pas de publicité. 2. Pas de texte en anglais. 3. Pas de mascotte inventée. 4. Pas d'animation saccadée (ni `steps()` sur un sprite, ni flou animé). 5. Pas d'image qui saute, bugue ou soit mal découpée (bandes noires, étirement, décalage : un seul ratio par type d'image, `width`/`height` posés, sprite suivant préchargé).
-Hérités : pas de `backdrop-filter`, pas de dégradé violet, pas de texte en dégradé, pas d'emoji en icône, pas d'ombre floue, pas d'animation sur chaque bloc, pas de capitales espacées ni de numérotation de sections, pas de flèche décorative, pas de valeur en dur hors des jetons.
+Hérités : pas de `backdrop-filter`, pas de dégradé violet, pas de texte en dégradé, pas d'emoji en icône, pas d'ombre (ni floue ni dure), pas d'animation sur chaque bloc, pas de capitales espacées ni de numérotation de sections, pas de flèche décorative, pas de valeur en dur hors des jetons.
 
 ## Voix
 Tutoiement, phrases courtes, chaleureux. Boutons à l'impératif court. Erreur = ce qui s'est passé + quoi faire. Textes de la V1 à reprendre.
@@ -102,3 +103,4 @@ Tutoiement, phrases courtes, chaleureux. Boutons à l'impératif court. Erreur =
 - 2026-11-08 — Lot I4 de la version PC (états, 1024 px et plus ; en dessous, téléphone inchangé). Fiche d'un Pokémon : fenêtre de 56 rem au plus sur deux colonnes (portrait, types et sexe à gauche ; niveau, favori, renommer, XP, DPS, six facteurs, évolution, actions à droite) avec barre de titre et croix carrée, qui défile dans la fenêtre si la hauteur manque. Zone compte : en-tête PokiClicker avec onglets Parties / Compte / Réglages, contenu jusqu'à 90 rem qui défile dans son cadre, parties en grille de colonnes de 24 rem au moins avec carte « Nouvelle partie » en pointillés, connexion sur toute la hauteur (carte de Kanto à gauche, formulaire à droite), fenêtres de 40 rem au plus avec barre de titre et croix, Mon compte en deux colonnes. Chargement de la partie : rond, titre et barre indéterminée centrés. Les touches 1 à 6 s'affichent dans la barre latérale dès 1200 px.
 - 2026-11-08 — Retours du premier test PC (1024 px et plus ; téléphone inchangé). Survol : plus d'aplat marron ni de cadre jaune sur les zones cliquables de Bourg Palette et de ses lieux : le survol souris est un voile léger (`fill-texte/20`) qui épouse exactement la forme de l'image mapping (polygone du SVG, détecté par `isPointInFill`, pas la boîte du bouton), le focus clavier un contour fin dans la même forme (`stroke-texte`), jamais un rectangle (`.zone-scene:focus-visible { outline: none }`). Sur la carte, le rond survolé s'éclaircit (`brightness`). La règle globale de survol exclut `.bg-transparent` et les `g`. Carte : le rond de la zone actuelle clignote en vert à la taille du rond de base (le trait de l'ancien repère faisait environ 77 px) ; aucun contour carré au clic souris, focus clavier par `:focus-visible` (cadre `--focus`). Combat PC : plus de bouton Auto-clic dans « Ton équipe » (le réglage « Lier l'auto-clic à l'attaque auto » reste dans les Réglages), six rangs visibles sans défilement de 1280 à 2560 px. Bandeau haut : 5 rem de haut, bouton « Raccourcis ? » réduit (2,25 rem) avec marge basse. Centre commercial PC : même présentation que sur téléphone (cartes d'objets à icône, quantité, total), décor en fond de toute la zone de jeu (`main#contenu`), grille de 3, 4 ou 5 colonnes (dès 1024, 1400 et 1800 px) qui défile dans son cadre, colonne « Ton achat » à gauche. Jetons existants seulement.
 - 2026-11-08 — Ticket S : section « Types » du Guide (dernière section, ajoutée dans `GuidePage`). Téléphone : une liste par type (boutons de 48 px, pastille de type, un seul type déplié : « Quand il attaque » fort contre, peu efficace contre, sans effet sur ; « Quand il défend » faible contre, résiste à, immunisé contre). PC : table attaque en ligne × défense en colonne sur les 17 types portés par un Pokémon de Kanto, en-têtes de colonne verticaux, cellules ×2 (succes), ×0,5 (erreur), ×0 (erreur gras), neutre vide (×1 en `sr-only`), cadre défilant à en-têtes collants ; survol d'une cellule = cadre `--focus` de 2 px et ligne/colonne éclairées, clavier = les en-têtes de ligne prennent le focus (anneau `--focus` sur la ligne). Les multiplicateurs sont lus dans le cœur (`src/core/table-types.ts`), jamais copiés dans l'UI. Jetons existants seulement.
+- 2026-11-11 — Ticket A (charte Pokédex sombre, décision de Nicolas). Nicolas (10/11) : « les couleurs, les styles de boutons, les styles de bordure, les styles de hover c'est moche… un site tout gris avec des boutons carrés gris et des doubles bordures partout » ; agencement et fonctionnement inchangés. Cause : cadre à triple trait, plaque à bordure grise et ombre dure, rayons à 0, trois gris proches. Trois rondes de 4, 3 puis 3 habillages (`design/variantes/charte-pokemon/`, 10 skins) : ronde 1 « trop IA ou bugué », ronde 2 « beaucoup trop pauvre en couleur… je n'aime pas les trucs clair je suis toujours en dark mode », ronde 3 (skin 9 Pokédex rouge) « j'aime bien » mais ni ligne bleue en haut des boutons ni « ombre basse » (« ça fait IA au max ») ; « nan ça me va en vrai ». Retenu : skin 9, sombre en premier, plat. Valeurs mesurées le 11/11/2026 sur pokemon.com/fr/pokedex (rouge #E3350D, orange #EE6B2F, bleu #30A7D7, jaune #FFCC00, gris #424242, rayon 5 px), dérivées pour le contraste (rouge d'action #C92A05 à 5,3:1, fond #1C1C1C, lien #5FC3EA). Appliqué : `charte.json` (rôles, rayons 5/6/8/12, ombres `none`), `regions.json` (Kanto accent orange, argent jaune), `Plaques.css`, `index.css` (cadres à un trait, coins des boutons et champs, barre latérale rouge, bande jaune). Contrastes : 44 OK, 0 échec. Le mode clair suit la même base, secondaire. Les jetons `--duree-*` (signal, pulsation et clignotement de la carte) sont ajoutés à la main dans `tokens.css` : `charte-build` ne les produit pas, à remettre après chaque régénération.

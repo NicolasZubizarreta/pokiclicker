@@ -105,35 +105,35 @@
   },
   "roles": {
     "clair": {
-      "fond": "{couleurs.neutre.50}",
-      "surface": "#fffdf7",
-      "surface-2": "{couleurs.neutre.100}",
-      "bordure": "{couleurs.neutre.300}",
-      "texte": "{couleurs.neutre.950}",
-      "texte-doux": "{couleurs.neutre.700}",
-      "texte-inverse": "#fffdf7",
-      "action": "{couleurs.primaire.600}",
-      "action-survol": "{couleurs.primaire.700}",
+      "fond": "#f2f2f2",
+      "surface": "#ffffff",
+      "surface-2": "#e8e8e8",
+      "bordure": "#c4c4c4",
+      "texte": "#212121",
+      "texte-doux": "#424242",
+      "texte-inverse": "#ffffff",
+      "action": "#c92a05",
+      "action-survol": "#8f1d03",
       "action-texte": "#ffffff",
-      "lien": "{couleurs.primaire.700}",
-      "focus": "{couleurs.accent.600}",
-      "selection": "{couleurs.secondaire.100}",
+      "lien": "#b32a0a",
+      "focus": "#1b7fa8",
+      "selection": "#ffe2d2",
       "blanc": "#ffffff"
     },
     "sombre": {
-      "fond": "{couleurs.neutre.950}",
-      "surface": "{couleurs.neutre.900}",
-      "surface-2": "#2f3648",
-      "bordure": "{couleurs.neutre.600}",
-      "texte": "{couleurs.neutre.50}",
-      "texte-doux": "{couleurs.neutre.300}",
+      "fond": "#1c1c1c",
+      "surface": "#2b2b2b",
+      "surface-2": "#424242",
+      "bordure": "#5c5c5c",
+      "texte": "#f2f2f2",
+      "texte-doux": "#c4c4c4",
       "texte-inverse": "#ffffff",
-      "action": "{couleurs.primaire.600}",
-      "action-survol": "{couleurs.primaire.700}",
+      "action": "#c92a05",
+      "action-survol": "#8f1d03",
       "action-texte": "#ffffff",
-      "lien": "{couleurs.secondaire.400}",
-      "focus": "{couleurs.secondaire.400}",
-      "selection": "#3a3320",
+      "lien": "#5fc3ea",
+      "focus": "#ffcc00",
+      "selection": "#451c12",
       "blanc": "#ffffff"
     }
   },
@@ -213,16 +213,16 @@
     "base": "0.25rem"
   },
   "rayons": {
-    "sm": "0",
-    "md": "0",
-    "lg": "0",
-    "xl": "0",
+    "sm": "5px",
+    "md": "6px",
+    "lg": "8px",
+    "xl": "12px",
     "plein": "9999px"
   },
   "ombres": {
-    "sm": "0 2px 0 0 rgb(0 0 0 / 0.45)",
-    "md": "0 4px 0 0 rgb(0 0 0 / 0.45)",
-    "lg": "0 8px 0 0 rgb(0 0 0 / 0.45)"
+    "sm": "none",
+    "md": "none",
+    "lg": "none"
   },
   "mouvement": {
     "durees": {

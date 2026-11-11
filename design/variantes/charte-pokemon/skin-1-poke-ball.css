@@ -1,0 +1,16 @@
+/* 1. Poké Ball : contours francs façon dessin animé, rouge et jaune Pokémon, fond clair.
+   Source : pokemon.com/fr relevé le 10/11/2026 (rouge #E3350D, jaune #E6BC2F, anthracite #313131, rayon 5 px).
+   Valeurs dérivées : rouge d'action assombri à #C92A05 pour un contraste de 5,3:1 avec le texte blanc. */
+:root:root:root, [data-region][data-region][data-region] {
+  --sk-r-petit: 6px; --sk-r-bouton: 10px; --sk-r-cadre: 14px; --sk-bord: 2px;
+  --sk-liseré: #313131; --sk-plaque: #ffffff; --sk-plaque-bord: #313131; --sk-tranche: #313131;
+  --fond: #fff3e8; --surface: #ffffff; --surface-2: #ffe3d2; --bordure: #313131;
+  --texte: #313131; --texte-doux: #5c5c5c; --texte-inverse: #ffffff;
+  --action: #c92a05; --action-survol: #8f1d03; --action-texte: #ffffff; --sk-action-bord: #313131;
+  --lien: #a82004; --focus: #1d5fa8; --selection: #ffe9a0; --blanc: #ffffff;
+  --region-accent: #a82004; --region-argent: #313131; --region-socle: #7fb35f;
+  --succes-fond: #e3f3e5; --succes-base: #3d9a4a; --succes-texte: #1f5a29;
+  --alerte-fond: #fdf1cf; --alerte-base: #c38600; --alerte-texte: #6d4a00;
+  --erreur-fond: #fbe2e6; --erreur-base: #b81d3a; --erreur-texte: #7a0f25;
+  --info-fond: #e1effc; --info-base: #2b6c9e; --info-texte: #174b72;
+}

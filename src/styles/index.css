@@ -279,16 +279,20 @@ html:has(dialog[open]) { overflow: hidden; }
   70% { transform: scale(1.4); }
   100% { transform: scale(1); }
 }
+/* Cadre : une seule ligne nette (charte Pokédex, 11/11/2026). Fini le triple liseré. */
 .cadre {
-  border: calc(var(--spacing) / 2) solid var(--region-argent);
+  border: calc(var(--spacing) / 2) solid var(--bordure);
   border-radius: var(--rayon);
-  box-shadow: inset 0 0 0 calc(var(--spacing) / 2) var(--fond), inset 0 0 0 var(--spacing) var(--region-argent);
 }
 /* Variante d'alerte du cadre : une classe utilitaire perd contre .cadre, déclaré hors des couches. */
 .cadre-alerte {
   border: calc(var(--spacing) / 2) solid var(--alerte-base);
   border-radius: var(--rayon);
-  box-shadow: inset 0 0 0 calc(var(--spacing) / 2) var(--fond), inset 0 0 0 var(--spacing) var(--alerte-base);
+}
+/* Coins arrondis des boutons et champs ; une classe `rounded-*` ou le calque utilitaire garde la main (pastilles, zones de décor). */
+@layer base {
+  :where(button, [role="button"], select, input:not([type="range"], [type="checkbox"], [type="radio"]), summary):not(.cible-combat, .bg-transparent, g) { border-radius: var(--radius-md); }
+  dialog { border-radius: var(--radius-lg); }
 }
 .carte-evo-action {
   display: flex;
@@ -526,8 +530,12 @@ html:has(dialog[open]) { overflow: hidden; }
   /* Seule la coquille de jeu tient dans l'écran ; les pages de compte et de connexion défilent comme avant. */
   html:has(.coquille-pc), body:has(.coquille-pc) { height: 100%; overflow: hidden; }
   .coquille-pc { display: grid; grid-template-columns: calc(var(--spacing) * 60) minmax(0, 1fr); height: 100dvh; overflow: hidden; max-width: calc(var(--spacing) * 480); margin-inline: auto; border-inline: 1px solid var(--bordure); }
-  .barre-laterale { border-right-color: var(--region-argent); box-shadow: inset calc(var(--spacing) * -1) 0 0 var(--fond), inset calc(var(--spacing) * -1.5) 0 0 var(--region-argent); }
-  .bandeau-pc { border-bottom-color: var(--region-argent); box-shadow: inset 0 calc(var(--spacing) * -1) 0 var(--fond), inset 0 calc(var(--spacing) * -1.5) 0 var(--region-argent); }
+  /* Barre latérale rouge Pokédex, bandeau du haut souligné d'une bande jaune ; une ligne chacun, sans double bordure. */
+  .barre-laterale { background: var(--action); color: var(--action-texte); border-right-color: var(--action); }
+  .barre-laterale .marque-pc b, .barre-laterale .sous-titre-pc, .barre-laterale .entree-pc { color: var(--action-texte); }
+  .barre-laterale .entree-pc[aria-current="page"] { background: var(--fond); color: var(--texte); }
+  .barre-laterale .bas-pc, .barre-laterale kbd { color: var(--texte); }
+  .bandeau-pc { border-bottom: calc(var(--spacing)) solid var(--region-argent); }
   /* Le bouton Raccourcis reste dans le bandeau : plus bas que la plaque du téléphone, il ne touche ni la bordure ni la bande du bas. */
   .bandeau-pc .plaque { min-height: calc(var(--spacing) * 9); padding-block: 0; }
   .entree-pc[aria-current="page"] { border-color: var(--region-accent); }
@@ -536,6 +544,8 @@ html:has(dialog[open]) { overflow: hidden; }
   :focus-visible { outline: calc(var(--spacing) * 3 / 4) solid var(--focus); outline-offset: calc(var(--spacing) / 2); }
   @media (hover: hover) {
     :where(button, a, input, select, textarea, [role="button"]):not(.cible-combat, .bg-transparent, g, :disabled, [aria-disabled="true"], [class*="hover:"]):hover { background-color: var(--selection); border-color: var(--region-accent); }
+    /* Un bouton d'action rouge s'assombrit au survol, il ne vire pas au brun des boutons désactivés. */
+    :where(button, a, [role="button"])[class~="bg-action"]:hover:not(:disabled, [aria-disabled="true"]) { background-color: var(--action-survol); border-color: var(--action-survol); }
   }
 }
 @media (min-width: 1200px) {

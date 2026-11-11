@@ -91,7 +91,7 @@ export function SceneLieu({ scene, nom, quandChoisir, raisons = {}, clignotement
       {scene.formes.map((f, index) => {
         const centre = centreForme(f);
         const boite = boiteForme(f);
-        const position = { left: `${centre.x / 16 * 100}%`, top: `${centre.y / 9 * 100}%`, width: `${boite.l * 100}%`, height: `${boite.h * 100}%` };
+        const position = { left: `${centre.x / 16 * 100}%`, top: `min(${centre.y / 9 * 100}%, calc(100% - var(--spacing) * 5.5))`, width: `${boite.l * 100}%`, height: `${boite.h * 100}%` };
         const raison = f.zone ? raisons[f.zone] : 'Bientôt disponible.';
         const texte = raison ?? f.nom;
         return <button key={f.nom} type="button" aria-label={f.nom}

@@ -29,6 +29,8 @@ Chemin critique : A → B → C → D → (E, F, G, H en parallèle de choix, ja
 | 15 | O. Décors et cartes régénérés au bon format | 2 à 3 j |
 | 16 | P. Passe finale : Kanto « propre » sur téléphone et PC | 1 à 2 j |
 
+Demande de Nicolas du 10/11 (charte Pokémon, casino, pension, tutoriel) : à jouer **avant N et P**, dans la phase 4.5 `backlog-phase-5b.md` (plus de lettre libre ici).
+
 ## Décision de Nicolas (05/11) : UX complète d'abord, téléphone puis PC
 
 On valide toute l'interface téléphone en une fois : zone compte, choix de la partie, carte du monde (même avec Kanto seul pour l'instant) et toute l'interface de jeu. Ensuite, même travail pour le PC. Pas de bricolage écran par écran : l'UX est dessinée en entier et proprement maintenant, y compris pour les écrans dont le code n'existe pas encore (monde, menu principal, réglages). Les tickets C à K se lisent donc comme un seul lot de maquettes validées avant l'implémentation ; le PC (ticket I et reprise des écrans) vient après la validation du téléphone.

@@ -6,7 +6,8 @@
     { "id": 2, "nom": "Kanto jouable", "jalon": "Kanto terminable", "statut": "fait", "backlog": "backlog-phase-2.md" },
     { "id": 3, "nom": "Équilibrage outillé", "jalon": "Kanto en 60-90 min à 7 clics/s", "statut": "fait", "backlog": "backlog-phase-3.md" },
     { "id": 4, "nom": "Compte et sauvegarde en ligne", "jalon": "partie jouable sur deux appareils", "statut": "fait", "backlog": "backlog-phase-4.md" },
-    { "id": 5, "nom": "Design et UX", "jalon": "Kanto « propre »", "statut": "en_cours", "backlog": "backlog-phase-5.md" },
+    { "id": 4.5, "nom": "Habillage et découverte", "jalon": "Kanto « attirant » : charte Pokémon, casino, pension, tuto", "statut": "en_cours", "backlog": "backlog-phase-5b.md" },
+    { "id": 5, "nom": "Design et UX", "jalon": "Kanto « propre »", "statut": "a_faire", "backlog": "backlog-phase-5.md" },
     { "id": 6, "nom": "Monde", "jalon": "Johto jouable", "statut": "a_faire" },
     { "id": 7, "nom": "Régions suivantes et méta", "jalon": "une région par livraison", "statut": "a_faire" }
   ]

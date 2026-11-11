@@ -1,0 +1,17 @@
+/* 3. Aventure : nuit bleu marine et vert menthe lumineux, boutons en pilule à contour.
+   Source : pokemongolive.com relevé le 10/11/2026 (marine #0C1C3E, bouton #0F224A, menthe #24CBAA, pilules 999 px, Lato).
+   Valeurs dérivées : surface-2 #16306A (marine éclairci), tranche #061230 (marine assombri). */
+:root:root:root, [data-region][data-region][data-region] {
+  --sk-r-petit: 10px; --sk-r-bouton: 999px; --sk-r-cadre: 20px; --sk-bord: 2px;
+  --sk-liseré: #24cbaa; --sk-plaque: #16306a; --sk-plaque-bord: #24cbaa; --sk-tranche: #061230;
+  --fond: #0c1c3e; --surface: #0f224a; --surface-2: #16306a; --bordure: #2b7f95;
+  --texte: #ffffff; --texte-doux: #b9c7e6; --texte-inverse: #0c1c3e;
+  --action: #24cbaa; --action-survol: #1ba88c; --action-texte: #0c1c3e; --sk-action-bord: #7df0d6;
+  --lien: #7df0d6; --focus: #7df0d6; --selection: #1b4a6e; --blanc: #ffffff;
+  --region-accent: #24cbaa; --region-argent: #24cbaa; --region-socle: #3fb88f;
+  --succes-fond: #1d3a28; --succes-base: #5fbf6c; --succes-texte: #a6e3ae;
+  --alerte-fond: #3a3016; --alerte-base: #f5c033; --alerte-texte: #f9e0a1;
+  --erreur-fond: #401c27; --erreur-base: #f07088; --erreur-texte: #f8b8c4;
+  --info-fond: #1b2f44; --info-base: #7eb1dd; --info-texte: #c6def5;
+  --sk-survol: 1.12;
+}

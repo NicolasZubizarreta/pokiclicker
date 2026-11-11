@@ -1,0 +1,28 @@
+/* 6. Pokédex : aplats francs, petit rayon, rouge Pokédex et orange, gris neutres. Famille « appareil / site officiel du Pokédex ».
+   Source mesurée le 11/11/2026 dans le navigateur : pokemon.com/fr/pokedex (fond sombre #424242, texte #212121, rouge #E3350D, orange des boutons #EE6B2F,
+   bleu #30A7D7, gris clair #F2F2F2, jaune #FFCC00, rayon des boutons 5 px, boutons sans bordure ni ombre, polices Flexo/Roboto).
+   Valeurs dérivées : orange d'action assombri à #C24A14 (contraste 4,9:1 avec le texte blanc), bordure grise #C4C4C4 pour détacher les blocs blancs du fond. */
+:root:root:root, [data-region][data-region][data-region] {
+  --sk-r-petit: 4px; --sk-r-bouton: 5px; --sk-r-cadre: 8px; --sk-bord: 1px;
+  --sk-liseré: #c4c4c4; --sk-plaque: #ffffff; --sk-plaque-bord: #c4c4c4; --sk-tranche: #c4c4c4;
+  --fond: #f2f2f2; --surface: #ffffff; --surface-2: #e8e8e8; --bordure: #c4c4c4;
+  --texte: #212121; --texte-doux: #424242; --texte-inverse: #ffffff;
+  --action: #c24a14; --action-survol: #8f3408; --action-texte: #ffffff; --sk-action-bord: #8f3408;
+  --lien: #b32a0a; --focus: #1b7fa8; --selection: #ffe2d2; --blanc: #ffffff;
+  --region-accent: #b32a0a; --region-argent: #c4c4c4; --region-socle: #7fb35f;
+  --succes-fond: #e3f3e5; --succes-base: #3d9a4a; --succes-texte: #1f5a29;
+  --alerte-fond: #fdf1cf; --alerte-base: #c38600; --alerte-texte: #6d4a00;
+  --erreur-fond: #fbe2e6; --erreur-base: #b81d3a; --erreur-texte: #7a0f25;
+  --info-fond: #e1effc; --info-base: #1b7fa8; --info-texte: #0d4b66;
+}
+.plaque { box-shadow: 0 1px 2px rgba(0,0,0,.18); font-weight: 600; }
+.plaque-action { border-color: transparent; box-shadow: 0 1px 2px rgba(0,0,0,.25); }
+.plaque:active:not([aria-disabled="true"], :disabled) { transform: none; box-shadow: none; filter: brightness(.92); }
+@media (hover: hover) {
+  .plaque:hover:not([aria-disabled="true"], :disabled) { transform: none; box-shadow: 0 1px 2px rgba(0,0,0,.18); filter: none; background: #ffe2d2; border-color: #c24a14; }
+  .plaque-action:hover:not(:disabled) { background: #8f3408; border-color: transparent; }
+}
+.cadre, .cadre-alerte { box-shadow: 0 1px 3px rgba(0,0,0,.15); }
+.barre-laterale { background: #424242; border-right: 0; }
+.barre-laterale, .barre-laterale * { color: #ffffff; }
+.barre-laterale [aria-current], .barre-laterale [aria-current] * { color: #212121; }

@@ -80,3 +80,16 @@ Aussi du coup pour le PC. C'est bien mais y'a quelque détail a corriger déjà 
 (08/11/2026) guide : « dans le guide aussi je rajouterai une table des types dans la version PC et Téléphone. »
 
 (08/11/2026, utilisation d'un objet sur l'équipe, capture retours-pc-08-11/74.png) « autre détail quand je veux utiliser un objet ça ouvre l'équipe c'est très bien mais déjà les boutons sont trop rectangles étirés fin pas beau essaye au moins de les mettre carré et le truc le plus chiant c'est genre si je veux mettre des bonbons j'applique sur un pokémon et ensuite ça ferme la page et si je veux en mettre sur tous j'suis obligé de réouvrir a chaque fois donc la page ne se ferme pas dans que j'ai pas cliquer sur fermer(qui est actuellement le bouton annuler mais non on va plutot l'appeler fermer) ou que j'ai changé d'onglet »
+
+
+## 10/11/2026 : habillage, casino, pension, tutoriel (phase 4.5)
+
+Message de Nicolas, mot pour mot : « rajoute dans les tickets( a faire avant l'audio et tu devras me poser des questions c'est en vrac) refonte du casino et le rendre plus attractif(les joueurs souvent ne savent même pas qu'il existe), refonte graphique de la pension et la rendre plus attractive(les joueurs ne savent pas qu'elle existe et en plus elle est inutile même moi je m'en suis jamais servi avec la facilité en endgame d'avoir de l'argent et de capturer des pokémons pourquoi faire des oeufs au lieu de master ball un mewtwo lui mettre un jeton shiny et lui mettre full baie pour avoir son bonheur au max). Créer un tuto sur tout le long du jeu pour que à la route 1 le joueur comprenne comment jouer et le principe mais pas trop long et pas trop de texte qu'il ne liront pas des indications/encadrés sur les éléments 1 par 1 ça peut etre bien, et faire une petite partie tuto pour les différents éléments débloqués en cours de jeu(le centre commercial, le casino, la pension, fauchage, pokéradar, autoclic...). Faire la charte graphique avec nos skills design du jeu, l'agencement des éléments est parfait je ne veux rien bouger ni au fonctionnement, mais les couleurs, les styles de boutons, les styles de bordure, les styles de hover c'est moche c'est pas attractif c'est pas ludique ni attirant et ça rappel pas pokémon la c'est un site tout gris avec des boutons carrés gris et des doubles bordures partout je sais meme pas d'ou ça sort cette idée »
+
+Réponses aux questions :
+- Casino, visibilité : annonce + rappel, jeton offert, mini-tuto au déblocage.
+- Casino, contenu : « ok peu garder les jeux V1 et en ajouter si tu as des idées, mais surtout on ne peut acheter les jetons et les vendres que par 50 on doit pour choisir le montant a chaque fois et surtout changé l'équilibrage le jeu et trop facile c'est abusé a la machine a sous un ami à juste spam il c'est fait 60 millions en 10 min en partant de 100k ». Équilibrage : « Peu rentable, fun ».
+- Pension : « Je n'ai pas d'idée » ; il tranchera à la maquette (pistes chiffrées).
+- Charte : 3 à 4 variantes navigables.
+- Tuto : bulles + action guidée ; rappel dans le Guide.
+- Rangement : nouvelle phase 4.5 (`backlog-phase-5b.md`), avant l'audio (N) et la passe finale (P).

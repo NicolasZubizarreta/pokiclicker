@@ -1,0 +1,19 @@
+/* 8. Logo de nuit : bleu profond du logo Pokémon, jaune Pikachu en action, contours bleu vif. SOMBRE.
+   Source : couleurs du logo Pokémon documentées (jaune #FFCB05, bleu clair #3D7DCA, bleu foncé #003A70), reprises de Bulbapedia, non mesurées sur un site en direct.
+   Valeurs dérivées : fond #00213F (bleu foncé assombri), surface-2 #0A4F8F (éclairci), tranches #002447 et #B38F00 (versions plus sombres). Boutons rectangulaires à tranche, pas de pilule. */
+:root:root:root, [data-region][data-region][data-region] {
+  --sk-r-petit: 6px; --sk-r-bouton: 8px; --sk-r-cadre: 10px; --sk-bord: 2px;
+  --sk-liseré: #3d7dca; --sk-plaque: #0a4f8f; --sk-plaque-bord: #3d7dca; --sk-tranche: #002447;
+  --fond: #00213f; --surface: #003a70; --surface-2: #0a4f8f; --bordure: #3d7dca;
+  --texte: #ffffff; --texte-doux: #b7d1ee; --texte-inverse: #00213f;
+  --action: #ffcb05; --action-survol: #b38f00; --action-texte: #00213f; --sk-action-bord: #ffe27a;
+  --lien: #8cc0f5; --focus: #ffcb05; --selection: #0e5aa8; --blanc: #ffffff;
+  --region-accent: #ffcb05; --region-argent: #3d7dca; --region-socle: #3fb88f;
+  --succes-fond: #1d3a28; --succes-base: #5fbf6c; --succes-texte: #a6e3ae;
+  --alerte-fond: #3a3016; --alerte-base: #f5c033; --alerte-texte: #f9e0a1;
+  --erreur-fond: #401c27; --erreur-base: #f07088; --erreur-texte: #f8b8c4;
+  --info-fond: #0d3358; --info-base: #7eb1dd; --info-texte: #c6def5;
+  --sk-survol: 1.1;
+}
+.cadre, .cadre-alerte { box-shadow: 0 4px 0 0 #00132a; }
+.plaque[aria-pressed="true"] { background: #ffcb05; color: #00213f; border-color: #ffe27a; }

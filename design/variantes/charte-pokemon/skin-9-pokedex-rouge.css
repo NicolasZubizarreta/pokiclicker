@@ -1,0 +1,29 @@
+/* 9. Pokédex rouge : gris anthracite, barre latérale rouge Pokédex, orange et bleu en accents. SOMBRE.
+   Source mesurée le 11/11/2026 dans le navigateur : pokemon.com/fr/pokedex (rouge #E3350D, orange #EE6B2F, bleu #30A7D7, jaune #FFCC00, gris #424242, texte clair #F2F2F2, rayon 5 px).
+   Valeurs dérivées : fond #1C1C1C et surface #2B2B2B (assombris), rouge d'action assombri à #C92A05 (5,3:1 avec le texte blanc), lien #5FC3EA (bleu éclairci). */
+:root:root:root, [data-region][data-region][data-region] {
+  --sk-r-petit: 5px; --sk-r-bouton: 6px; --sk-r-cadre: 8px; --sk-bord: 2px;
+  --sk-liseré: #5c5c5c; --sk-plaque: #424242; --sk-plaque-bord: #6b6b6b; --sk-tranche: #121212;
+  --fond: #1c1c1c; --surface: #2b2b2b; --surface-2: #424242; --bordure: #5c5c5c;
+  --texte: #f2f2f2; --texte-doux: #c4c4c4; --texte-inverse: #1c1c1c;
+  --action: #c92a05; --action-survol: #8f1d03; --action-texte: #ffffff; --sk-action-bord: #ff7a55;
+  --lien: #5fc3ea; --focus: #ffcc00; --selection: #5a2418; --blanc: #ffffff;
+  --region-accent: #ee6b2f; --region-argent: #30a7d7; --region-socle: #3fb88f;
+  --succes-fond: #1d3a28; --succes-base: #5fbf6c; --succes-texte: #a6e3ae;
+  --alerte-fond: #3a3016; --alerte-base: #ffcc00; --alerte-texte: #f9e0a1;
+  --erreur-fond: #401c27; --erreur-base: #f07088; --erreur-texte: #f8b8c4;
+  --info-fond: #12313f; --info-base: #30a7d7; --info-texte: #b9e4f5;
+  --sk-survol: 1.15;
+}
+.barre-laterale { background: #c92a05; border-right: 0; }
+.barre-laterale, .barre-laterale * { color: #ffffff; }
+.barre-laterale [aria-current], .barre-laterale [aria-current] * { background-color: #1c1c1c; color: #ffffff; }
+.bandeau-pc { border-bottom: 4px solid #ffcc00; }
+/* Plat : ni filet de couleur sur le haut, ni ombre basse, ni relief au clic. */
+:root:root:root, [data-region][data-region][data-region] { --shadow-sm: none; --shadow-md: none; --shadow-lg: none; }
+.cadre, .cadre-alerte { box-shadow: none; }
+.plaque, .plaque-action { box-shadow: none; }
+.plaque:active:not([aria-disabled="true"], :disabled) { transform: none; box-shadow: none; filter: brightness(.9); }
+@media (hover: hover) {
+  .plaque:hover:not([aria-disabled="true"], :disabled), .plaque-action:hover:not(:disabled) { transform: none; box-shadow: none; filter: brightness(1.25); }
+}

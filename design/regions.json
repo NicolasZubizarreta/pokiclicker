@@ -1,17 +1,17 @@
 {
   "_note": "Thèmes de région : mêmes noms de rôles que charte.json (Kanto = charte.json). Source de regions.css, généré par scripts/regions-build.cjs. Une région ajoute ses valeurs ici, rien d'autre.",
   "kanto": {
-    "rayon": "0",
+    "rayon": "8px",
     "jeu": "Rouge Feu / Vert Feuille : thème de base (tokens.css) ; seuls les rôles de région sont ici",
     "clair": {
-      "region-accent": "#8a6a12",
-      "region-argent": "#595e67",
+      "region-accent": "#b32a0a",
+      "region-argent": "#ffcc00",
       "region-socle": "#7fb35f"
     },
     "sombre": {
-      "region-accent": "#f5c033",
-      "region-argent": "#f4efe4",
-      "region-socle": "#9bd37a"
+      "region-accent": "#ee6b2f",
+      "region-argent": "#ffcc00",
+      "region-socle": "#3fb88f"
     }
   },
   "johto": {

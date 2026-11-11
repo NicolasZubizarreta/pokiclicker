@@ -11,13 +11,10 @@
   background: var(--surface-2);
   color: var(--texte);
   border: calc(var(--spacing) / 2) solid var(--bordure);
-  box-shadow: var(--shadow-md);
-  transition: transform var(--duration-rapide) var(--ease-standard), box-shadow var(--duration-rapide) var(--ease-standard);
+  border-radius: var(--radius-md);
+  transition: filter var(--duration-rapide) var(--ease-standard);
 }
-.plaque:active:not([aria-disabled="true"], :disabled) {
-  transform: translateY(calc(var(--spacing) / 2));
-  box-shadow: var(--shadow-sm);
-}
+.plaque:active:not([aria-disabled="true"], :disabled) { filter: brightness(0.9); }
 .plaque[aria-pressed="true"] {
   background: var(--selection);
   border-color: var(--region-accent);
@@ -31,7 +28,8 @@
   border-color: var(--action-survol);
   font-weight: 700;
 }
-.plaque-action:active:not(:disabled) { background: var(--action-survol); }
+.plaque-action:hover:not(:disabled, [aria-disabled="true"]),
+.plaque-action:active:not(:disabled) { background: var(--action-survol); border-color: var(--action-survol); }
 .plaque-vertical {
   flex-direction: column;
   gap: 0;
@@ -43,12 +41,13 @@
 .plaque-carre {
   flex-direction: column;
   gap: 0;
-  width: calc(var(--spacing) * 20);
+  width: calc(var(--spacing) * 14);
   min-height: calc(var(--spacing) * 14);
   padding: var(--spacing);
   font-size: var(--text-xs);
   line-height: var(--text-sm--line-height);
 }
+@media (min-width: 1024px) { .plaque-carre { width: calc(var(--spacing) * 20); } }
 .plaque-carre[aria-pressed="true"]::after {
   content: "";
   position: absolute;

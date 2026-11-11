@@ -1,0 +1,16 @@
+/* 4. Home : fond blanc verdi, grands arrondis, vert Pokémon HOME, ombres douces sans contour appuyé.
+   Source : home.pokemon.com relevé le 10/11/2026 (vert #009D7B / #469B79, cartes 20 px, boutons 40 px, Montserrat).
+   Valeurs dérivées : vert d'action assombri à #00775F (contraste 5,6:1 avec le texte blanc), teintes claires du vert pour les fonds. */
+:root:root:root, [data-region][data-region][data-region] {
+  --sk-r-petit: 10px; --sk-r-bouton: 999px; --sk-r-cadre: 20px; --sk-bord: 2px;
+  --sk-liseré: #a5dcc8; --sk-plaque: #dff3ea; --sk-plaque-bord: #a5dcc8; --sk-tranche: #a5dcc8;
+  --fond: #eef9f4; --surface: #ffffff; --surface-2: #dff3ea; --bordure: #8ccfb8;
+  --texte: #14211d; --texte-doux: #46605a; --texte-inverse: #ffffff;
+  --action: #00775f; --action-survol: #005646; --action-texte: #ffffff; --sk-action-bord: #005646;
+  --lien: #00775f; --focus: #00775f; --selection: #c7ecdd; --blanc: #ffffff;
+  --region-accent: #00775f; --region-argent: #a5dcc8; --region-socle: #6fbf8f;
+  --succes-fond: #e3f3e5; --succes-base: #3d9a4a; --succes-texte: #1f5a29;
+  --alerte-fond: #fdf1cf; --alerte-base: #c38600; --alerte-texte: #6d4a00;
+  --erreur-fond: #fbe2e6; --erreur-base: #b81d3a; --erreur-texte: #7a0f25;
+  --info-fond: #e1effc; --info-base: #2b6c9e; --info-texte: #174b72;
+}

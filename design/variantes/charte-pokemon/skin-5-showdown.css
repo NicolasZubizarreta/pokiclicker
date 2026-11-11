@@ -1,0 +1,36 @@
+/* 5. Showdown : boutons biseautés à dégradé léger et petit rayon, panneaux gris-bleu clair. Famille « clickers et jeux communautaires ».
+   Source mesurée le 11/11/2026 : play.pokemonshowdown.com/style/client.css (boutons dégradé #f6f6f6 → #e3e3e3, bordure #AAA, rayon 5 px ;
+   bouton bleu hsl(210,40%,62%) → hsl(210,40%,52%), bordure hsl(210,40%,40%) ; panneau #E1E8E8, bordure #999, rayon 6 px ; fond #344b6c ; lien #248).
+   Valeurs dérivées : fond de page hsl(210,25%,88%) (le #344b6c d'origine rend le texte noir illisible), bleu d'action assombri à hsl(210,45%,38%) pour 5,6:1 avec le texte blanc. */
+:root:root:root, [data-region][data-region][data-region] {
+  --sk-r-petit: 4px; --sk-r-bouton: 5px; --sk-r-cadre: 6px; --sk-bord: 1px;
+  --sk-liseré: #999999; --sk-plaque: #eeeeee; --sk-plaque-bord: #aaaaaa; --sk-tranche: #bdbdbd;
+  --fond: #d9e2ec; --surface: #e1e8e8; --surface-2: #f2f7fa; --bordure: #999999;
+  --texte: #000000; --texte-doux: #444c55; --texte-inverse: #ffffff;
+  --action: #3b6ea5; --action-survol: #2b5282; --action-texte: #ffffff; --sk-action-bord: #2b5282;
+  --lien: #224488; --focus: #224488; --selection: #c9dcf0; --blanc: #ffffff;
+  --region-accent: #344b6c; --region-argent: #999999; --region-socle: #7fb35f;
+  --succes-fond: #e3f3e5; --succes-base: #3d9a4a; --succes-texte: #1f5a29;
+  --alerte-fond: #fdf1cf; --alerte-base: #c38600; --alerte-texte: #6d4a00;
+  --erreur-fond: #fbe2e6; --erreur-base: #b81d3a; --erreur-texte: #7a0f25;
+  --info-fond: #e1effc; --info-base: #2b6c9e; --info-texte: #174b72;
+}
+.plaque {
+  background: linear-gradient(to bottom, #f6f6f6, #e3e3e3);
+  box-shadow: 0 1px 2px rgba(0,0,0,.25), inset 0 -1px 2px #fff;
+  text-shadow: 0 1px 0 rgba(255,255,255,.5);
+  font-weight: 600;
+}
+.plaque-action {
+  background: linear-gradient(to bottom, #5d8fc4, #3b6ea5);
+  border-color: #2b5282;
+  box-shadow: 0 1px 2px rgba(0,0,0,.3), inset 0 1px 1px rgba(255,255,255,.5);
+  text-shadow: 0 -1px 0 rgba(0,20,60,.6);
+}
+.plaque[aria-pressed="true"] { background: linear-gradient(to bottom, #c5d8ee, #a9c4e2); border-color: #344b6c; }
+.plaque:active:not([aria-disabled="true"], :disabled) { transform: none; box-shadow: inset 0 1px 3px rgba(0,0,0,.35); }
+@media (hover: hover) {
+  .plaque:hover:not([aria-disabled="true"], :disabled) { transform: none; filter: none; background: linear-gradient(to bottom, #f2f2f2, #cfcfcf); border-color: #606060; box-shadow: 0 1px 2px rgba(0,0,0,.25), inset 0 -1px 2px #fff; }
+  .plaque-action:hover:not(:disabled) { background: linear-gradient(to bottom, #4f82ba, #2f5f94); box-shadow: 0 1px 2px rgba(0,0,0,.3), inset 0 1px 1px rgba(255,255,255,.4); }
+}
+.cadre, .cadre-alerte { box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #ddd, 2px 2px 3px rgba(0,0,0,.2); }
