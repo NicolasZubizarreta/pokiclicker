@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Casino · trois variantes</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="commun.css">
+<style>
+.index { display:grid; gap:calc(var(--spacing) * 6); padding:calc(var(--spacing) * 6) var(--marge); max-width:calc(var(--spacing) * 380); margin:0 auto; }
+.index h1 { font-size:var(--text-3xl); line-height:var(--text-3xl--line-height); }
+.index .intro { color:var(--texte-doux); max-width:calc(var(--spacing) * 180); }
+.variantes { display:grid; gap:calc(var(--spacing) * 6); align-items:start; }
+.var { display:grid; gap:calc(var(--spacing) * 3); background:var(--surface); border:calc(var(--spacing) / 2) solid var(--region-accent); border-radius:var(--radius-xl); padding:calc(var(--spacing) * 4); min-width:0; }
+.var h2 { font-size:var(--text-xl); line-height:var(--text-xl--line-height); }
+.var h2 b { color:var(--region-argent); }
+.var p { color:var(--texte-doux); }
+.vues { display:flex; flex-wrap:wrap; gap:calc(var(--spacing) * 2); }
+.vues .plaque { min-height:calc(var(--spacing) * 11); padding-inline:calc(var(--spacing) * 3); }
+.vues .plaque[aria-pressed="true"] { background:var(--region-accent-fort); border-color:var(--region-argent); }
+.ecran-tel { width:100%; max-width:calc(var(--spacing) * 97.5); height:calc(var(--spacing) * 190); border:calc(var(--spacing) / 2) solid var(--bordure); border-radius:var(--radius-lg); background:var(--fond); justify-self:center; }
+.liens { display:flex; flex-wrap:wrap; gap:calc(var(--spacing) * 2); }
+.liens .plaque { text-decoration:none; display:inline-flex; align-items:center; justify-content:center; min-height:calc(var(--spacing) * 11); padding-inline:calc(var(--spacing) * 3); }
+.notes { display:grid; gap:calc(var(--spacing) * 2); color:var(--texte-doux); }
+.notes h2 { color:var(--texte); font-size:var(--text-xl); }
+@media (min-width:64rem) { .variantes { grid-template-columns:repeat(3, minmax(0, 1fr)); } }
+</style>
+</head>
+<body>
+<main class="index">
+  <header>
+    <h1>Casino : trois variantes</h1>
+    <p class="intro">Même règles, mêmes textes, mêmes images du jeu ; trois façons d'organiser l'écran. Les rouleaux tournent, les cartes se distribuent, la mise se règle avec les boutons rapides. Chaque aperçu ci-dessous est la page en largeur téléphone (390 px). « Ouvrir » affiche la page en entier : redimensionne la fenêtre pour voir le PC (1440 px) ou le téléphone (360 à 430 px).</p>
+  </header>
+
+  <div class="variantes">
+    <section class="var" data-page="a-scene.html" aria-labelledby="ta">
+      <h2 id="ta"><b>A</b> · La salle en scène</h2>
+      <p>Le décor du casino en bandeau, les jeux sont de grandes cartes à choisir ; on garde la navigation du jeu en bas.</p>
+      <div class="vues" role="group" aria-label="Vue de A"></div>
+      <iframe class="ecran-tel" title="Aperçu de la variante A" src="a-scene.html"></iframe>
+      <div class="liens"><a class="plaque" href="a-scene.html">Ouvrir A</a></div>
+    </section>
+    <section class="var" data-page="b-pouce.html" aria-labelledby="tb">
+      <h2 id="tb"><b>B</b> · Au pouce</h2>
+      <p>Une barre de jeux collée en bas, plateau plein écran, mise et boutons d'action dans la zone du pouce.</p>
+      <div class="vues" role="group" aria-label="Vue de B"></div>
+      <iframe class="ecran-tel" title="Aperçu de la variante B" src="b-pouce.html"></iframe>
+      <div class="liens"><a class="plaque" href="b-pouce.html">Ouvrir B</a></div>
+    </section>
+    <section class="var" data-page="c-neons.html" aria-labelledby="tc">
+      <h2 id="tc"><b>C</b> · Salle de jeux animée</h2>
+      <p>Enseigne à ampoules, gains qui défilent, jeux en cabines colorées à faire glisser.</p>
+      <div class="vues" role="group" aria-label="Vue de C"></div>
+      <iframe class="ecran-tel" title="Aperçu de la variante C" src="c-neons.html"></iframe>
+      <div class="liens"><a class="plaque" href="c-neons.html">Ouvrir C</a></div>
+    </section>
+  </div>
+
+  <section class="notes" aria-labelledby="tn">
+    <h2 id="tn">Questions de charte restées sans réponse</h2>
+    <p>Voir le rapport de la session : pas d'image pour le CT Jackpot (icône générique), pas de sprite du Croupier Rocket, fond de tapis en bleu faute de jeton « tapis », cartes à jouer en blanc et rouge hors des rôles de la charte, 100 jetons offerts à valider.</p>
+  </section>
+</main>
+<script>
+(function () {
+  var vues = [['salle', 'Salle'], ['slots', 'Machine à sous'], ['blackjack', 'Blackjack'], ['coin', 'Pile ou face'], ['boutique', 'Boutique']];
+  document.querySelectorAll('.var').forEach(function (v) {
+    var cadre = v.querySelector('iframe'), zone = v.querySelector('.vues'), page = v.getAttribute('data-page');
+    vues.forEach(function (x, i) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'plaque'; b.textContent = x[1]; b.setAttribute('aria-pressed', i === 0 ? 'true' : 'false');
+      b.addEventListener('click', function () {
+        var url = page + (x[0] === 'blackjack' ? '?demo=separer&auto=separer' : '') + '#' + x[0];
+        cadre.src = url;
+        zone.querySelectorAll('button').forEach(function (o) { o.setAttribute('aria-pressed', o === b ? 'true' : 'false'); });
+      });
+      zone.appendChild(b);
+    });
+  });
+})();
+</script>
+</body>
+</html>

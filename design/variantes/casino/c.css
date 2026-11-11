@@ -1,0 +1,100 @@
+/* Variante C, « Salle de jeux animée » : enseigne à ampoules qui chenillent, bandeau défilant des gains, jeux en cabines colorées à faire défiler.
+   Néons = contours francs et opacités qui pulsent (aucune ombre, aucun flou, aucun dégradé violet). Trois couleurs vives au plus : rouge d'action, jaune argent, bleu Pokédex. */
+@import "commun.css";
+.page { padding-bottom:calc(var(--spacing) * 6); }
+
+/* Ampoules : une rangée de petits ronds, jaune et couleur de la cabine en alternance, chenille en opacité */
+.ampoules { display:flex; justify-content:space-between; align-items:center; padding:0 calc(var(--spacing) * 2); min-height:calc(var(--spacing) * 5); }
+.ampoules i { display:block; width:calc(var(--spacing) * 2.5); height:calc(var(--spacing) * 2.5); border-radius:var(--radius-plein); background:var(--region-argent); animation:chenille var(--duree-signal) var(--ease-standard) infinite; animation-delay:calc(var(--i) * 0.12s); }
+.ampoules i:nth-child(even) { background:var(--c, var(--action)); animation-direction:alternate-reverse; }
+@keyframes chenille { 0%, 100% { opacity:0.25; } 50% { opacity:1; } }
+@keyframes enseigne-pulse { 0%, 100% { opacity:1; } 50% { opacity:0.8; } }
+@keyframes defile { to { transform:translateX(-50%); } }
+
+/* Façade : le décor + l'enseigne */
+.facade { position:relative; margin:0; background:var(--fond); }
+.facade img.decor { width:100%; height:auto; aspect-ratio:16 / 9; object-fit:cover; }
+.enseigne { display:grid; justify-items:center; gap:var(--spacing); background:var(--fond); border:calc(var(--spacing) / 2) solid var(--region-argent); border-radius:var(--radius-lg); padding:var(--spacing) calc(var(--spacing) * 3) calc(var(--spacing) * 2); min-width:0; }
+.enseigne .ampoules { width:100%; padding:0; }
+.enseigne h1, .enseigne .nom { font-size:var(--text-3xl); line-height:var(--text-3xl--line-height); color:var(--region-argent); animation:enseigne-pulse calc(var(--duree-carte-pulsation) * 1.5) var(--ease-standard) infinite; }
+.enseigne small { color:var(--texte-doux); font-size:var(--text-sm); }
+.facade .enseigne { position:absolute; left:50%; bottom:calc(var(--spacing) * 3); transform:translateX(-50%); width:calc(100% - var(--spacing) * 12); max-width:calc(var(--spacing) * 90); }
+.defile { overflow:hidden; background:var(--region-accent-fond); border-block:calc(var(--spacing) / 2) solid var(--region-accent); }
+.defile-piste { display:flex; width:max-content; animation:defile 28s linear infinite; }
+.defile-piste span { display:inline-flex; align-items:center; gap:calc(var(--spacing) * 2); min-height:calc(var(--spacing) * 11); padding:0 calc(var(--spacing) * 4); white-space:nowrap; font-weight:700; }
+.defile-piste b { color:var(--region-argent); }
+.defile-piste img { width:calc(var(--spacing) * 7.5); height:calc(var(--spacing) * 7.5); object-fit:contain; }
+
+.contenu { display:grid; gap:calc(var(--spacing) * 5); padding:var(--marge); }
+.contenu > * { min-width:0; }
+.cadeau { border-color:var(--region-argent); }
+
+/* Cabines */
+.tourniquet { display:flex; gap:calc(var(--spacing) * 3); overflow-x:auto; scroll-snap-type:x mandatory; margin:0 calc(var(--marge) * -1); padding:var(--spacing) var(--marge) calc(var(--spacing) * 2); scrollbar-width:none; }
+.tourniquet::-webkit-scrollbar { display:none; }
+.cabine { --c:var(--region-argent); --c-texte:var(--fond); flex:0 0 82%; scroll-snap-align:center; display:grid; grid-template-rows:auto auto 1fr; background:var(--surface); border:calc(var(--spacing) / 2) solid var(--c); border-radius:var(--radius-xl); overflow:hidden; min-width:0; }
+.cabine[data-c="rouge"] { --c:var(--action); --c-texte:var(--action-texte); }
+.cabine[data-c="bleu"] { --c:var(--region-accent); --c-texte:var(--blanc); }
+.cabine .ampoules { padding-top:var(--spacing); }
+.cabine .bandeau-titre { display:flex; align-items:center; justify-content:center; min-height:calc(var(--spacing) * 12); margin:var(--spacing) calc(var(--spacing) * 3) 0; background:var(--c); color:var(--c-texte); border-radius:var(--radius-md); font-family:var(--font-titre); font-weight:700; font-size:var(--text-xl); }
+.cabine[data-c="bleu"] .bandeau-titre { background:var(--region-accent-fort); }
+.cabine .vitrine { display:flex; align-items:center; justify-content:center; gap:var(--spacing); min-height:calc(var(--spacing) * 36); padding:calc(var(--spacing) * 3); }
+.cabine .vitrine .mini { display:grid; place-items:center; width:calc(var(--spacing) * 24); height:calc(var(--spacing) * 24); background:var(--fond); border:calc(var(--spacing) / 2) solid var(--c); border-radius:var(--radius-lg); }
+.cabine .vitrine .mini img.sprite { width:calc(var(--spacing) * 24); height:calc(var(--spacing) * 24); }
+.cabine .vitrine .mini img.objet { width:calc(var(--spacing) * 22.5); height:calc(var(--spacing) * 22.5); }
+.cabine .vitrine .mini:nth-child(3) { display:none; }
+.cabine .vitrine .carte { animation:none; }
+.cabine .vitrine .piece { --fp:0.9; }
+.cabine .vitrine .piece .f-pile { display:none; }
+.cabine .vitrine .produit-image { width:calc(var(--spacing) * 24); }
+.cabine .corps { display:grid; gap:calc(var(--spacing) * 2); align-content:start; padding:0 calc(var(--spacing) * 4) calc(var(--spacing) * 4); }
+.cabine .corps p { color:var(--texte-doux); }
+.cabine .corps .plaque { width:100%; }
+.cabine[data-c="rouge"] .corps .plaque { background:var(--action); color:var(--action-texte); border-color:var(--action-survol); }
+.points { display:flex; justify-content:center; gap:var(--spacing); margin-top:calc(var(--spacing) * -1); }
+.points button { width:calc(var(--spacing) * 11); height:calc(var(--spacing) * 11); display:grid; place-items:center; background:none; border:0; padding:0; }
+.points button::before { content:""; width:calc(var(--spacing) * 3); height:calc(var(--spacing) * 3); border-radius:var(--radius-plein); background:var(--bordure); }
+.points button[aria-current="true"]::before { background:var(--region-argent); width:calc(var(--spacing) * 6); }
+
+/* Jeux : cabine plein cadre */
+.cabinet { display:grid; gap:0; }
+.cabinet > .enseigne { border-radius:var(--radius-lg) var(--radius-lg) 0 0; border-bottom:0; padding-bottom:var(--spacing); }
+.jeu-entete { display:grid; grid-template-columns:auto minmax(0, 1fr) auto; align-items:center; gap:calc(var(--spacing) * 3); margin-bottom:calc(var(--spacing) * 3); }
+.jeu-entete .pastille b { font-size:var(--text-lg); }
+.jeu { display:grid; gap:0; align-items:stretch; }
+.plateau { display:grid; gap:calc(var(--spacing) * 4); justify-items:center; align-content:start; padding:calc(var(--spacing) * 4); background:var(--fond); border:calc(var(--spacing) / 2) solid var(--region-argent); border-top:0; }
+.plateau .jeu-titre { display:none; }
+.plateau.tapis { background:var(--region-accent-fond); border-color:var(--region-argent); }
+.plateau .verdict { text-align:center; }
+.commandes { display:grid; gap:calc(var(--spacing) * 3); align-content:start; padding:calc(var(--spacing) * 4); background:var(--surface); border:calc(var(--spacing) / 2) solid var(--region-argent); border-top:0; border-radius:0 0 var(--radius-lg) var(--radius-lg); }
+.mains, .croupier { width:100%; }
+.jeu-boutique .plateau { justify-items:stretch; border-radius:0 0 var(--radius-lg) var(--radius-lg); }
+.jeu-boutique .plateau .jeu-titre { display:none; }
+.rouleau { border-color:var(--region-argent); }
+.reels { gap:var(--spacing); }
+.jeu-slots .plateau { padding:calc(var(--spacing) * 2); }
+@media (min-width:40rem) {
+  .reels { gap:calc(var(--spacing) * 2); padding:calc(var(--spacing) * 3); background:var(--surface); border:calc(var(--spacing) / 2) solid var(--action); border-radius:var(--radius-lg); }
+  .jeu-slots .plateau { padding:calc(var(--spacing) * 4); }
+}
+
+/* Caisse en comptoir */
+.caisse { border-color:var(--region-accent); }
+
+@media (min-width:64rem) {
+  .facade img.decor { aspect-ratio:3 / 1; }
+  .facade .enseigne { bottom:calc(var(--spacing) * 6); max-width:calc(var(--spacing) * 120); }
+  .enseigne h1 { font-size:var(--text-5xl); line-height:var(--text-5xl--line-height); }
+  .contenu { gap:calc(var(--spacing) * 8); }
+  .tourniquet { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); overflow:visible; margin:0; padding:0; gap:calc(var(--spacing) * 5); }
+  .cabine { flex:none; }
+  .points { display:none; }
+  .cabine .vitrine { min-height:calc(var(--spacing) * 52); flex-wrap:wrap; gap:calc(var(--spacing) * 2); }  .cabine .vitrine .carte { --carte-l:calc(var(--spacing) * 15); --carte-h:calc(var(--spacing) * 21); }
+  .comptoir { display:grid; grid-template-columns:minmax(0, 1fr) minmax(0, 1.4fr); gap:calc(var(--spacing) * 6); align-items:start; }
+  .jeu { grid-template-columns:minmax(0, 1.7fr) minmax(0, 1fr); }
+  .plateau { border-top:0; border-right:0; padding:calc(var(--spacing) * 8); min-height:calc(var(--spacing) * 110); align-content:center; }
+  .commandes { border-top:0; border-radius:0 0 var(--radius-lg) 0; padding:calc(var(--spacing) * 8); align-content:center; }
+  .jeu-boutique { display:block; }
+  .jeu-boutique .plateau { padding:calc(var(--spacing) * 8); border-right:calc(var(--spacing) / 2) solid var(--region-argent); }
+  .produits { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+}

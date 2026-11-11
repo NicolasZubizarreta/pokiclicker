@@ -1,0 +1,187 @@
+/* Casino, ticket C : socle commun des trois variantes (charte du ticket A : Pokédex sombre, bleu --region-accent, un seul contour, aucune ombre).
+   Tout vient de design/tokens.css et design/regions.css ; rien n'est inventé. Les rouleaux et le blackjack se comportent pareil dans les trois variantes (commun.js). */
+@import "../../tokens.css";
+@import "../../regions.css";
+@font-face { font-family:"Atkinson Hyperlegible Next"; font-style:normal; font-weight:400; font-display:swap; src:url("../../../node_modules/@fontsource/atkinson-hyperlegible-next/files/atkinson-hyperlegible-next-latin-400-normal.woff2") format("woff2"); }
+@font-face { font-family:"Atkinson Hyperlegible Next"; font-style:normal; font-weight:700; font-display:swap; src:url("../../../node_modules/@fontsource/atkinson-hyperlegible-next/files/atkinson-hyperlegible-next-latin-700-normal.woff2") format("woff2"); }
+
+:root { color-scheme:dark; --marge:calc(var(--spacing) * 4); --f:1; --carte-l:calc(var(--spacing) * 15); --carte-h:calc(var(--spacing) * 21); --bande-nav:calc(var(--spacing) * 14); }
+@media (min-width:64rem) { :root { --marge:calc(var(--spacing) * 8); --f:2; --carte-l:calc(var(--spacing) * 18); --carte-h:calc(var(--spacing) * 25); } }
+* { box-sizing:border-box; }
+html { background:var(--fond); }
+body { margin:0; background:var(--fond); color:var(--texte); font:400 var(--text-base)/var(--text-base--line-height) var(--font-texte); font-variant-numeric:tabular-nums; -webkit-text-size-adjust:100%; }
+h1,h2,h3,p,ul,dl,dd,figure { margin:0; padding:0; }
+ul { list-style:none; }
+h1,h2,h3,.titre,b,strong { font-family:var(--font-titre); font-weight:700; }
+h1 { font-size:var(--text-2xl); line-height:var(--text-2xl--line-height); }
+h2 { font-size:var(--text-xl); line-height:var(--text-xl--line-height); }
+button,input,select { font:inherit; color:inherit; }
+button { cursor:pointer; touch-action:manipulation; }
+img { display:block; max-width:100%; }
+a { color:var(--lien); }
+:focus-visible { outline:calc(var(--spacing) * 0.75) solid var(--focus); outline-offset:var(--spacing); }
+[hidden] { display:none !important; }
+.sr { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
+.px { image-rendering:pixelated; }
+svg.ic { width:calc(var(--spacing) * 6); height:calc(var(--spacing) * 6); fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
+svg.suit { fill:currentColor; stroke:none; }
+
+/* Coquille : bandeau du haut, navigation (bas sur téléphone, colonne rouge à gauche sur PC) */
+.coque { min-height:100dvh; padding-bottom:calc(var(--bande-nav) + env(safe-area-inset-bottom)); }
+.bandeau { position:sticky; top:0; z-index:40; display:flex; align-items:center; gap:calc(var(--spacing) * 4); min-height:calc(var(--spacing) * 14); padding:0 var(--marge); background:var(--surface); }
+.bandeau .lieu { margin-right:auto; font-weight:700; font-family:var(--font-titre); min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.chiffre { font-family:var(--font-titre); font-weight:700; color:var(--region-accent); white-space:nowrap; }
+.bandeau .chiffre { font-size:var(--text-lg); }
+.bandeau .doux { color:var(--texte-doux); font-size:var(--text-sm); }
+.bandeau .raccourci { display:none; }
+nav.principale { position:fixed; inset:auto 0 0 0; z-index:50; display:flex; height:calc(var(--bande-nav) + env(safe-area-inset-bottom)); padding-bottom:env(safe-area-inset-bottom); background:var(--surface); }
+nav.principale button { flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; justify-content:center; background:none; border:0; border-top:var(--spacing) solid transparent; padding:0; color:var(--texte-doux); }
+nav.principale button[aria-current="page"] { background:var(--selection); color:var(--region-accent); border-top-color:var(--region-accent); font-weight:700; }
+nav.principale .menu-principal, nav.principale .lot-nav { display:none; }
+@media (min-width:64rem) {
+  .coque { padding:0 0 0 calc(var(--spacing) * 60); }
+  .bandeau { min-height:calc(var(--spacing) * 20); border-bottom:var(--spacing) solid var(--region-argent); }
+  .bandeau .raccourci { display:inline-flex; }
+  nav.principale { inset:0 auto 0 0; width:calc(var(--spacing) * 60); height:auto; padding:calc(var(--spacing) * 6) calc(var(--spacing) * 3); flex-direction:column; gap:var(--spacing); background:var(--action); color:var(--action-texte); }
+  nav.principale .marque { display:block; padding:var(--spacing) calc(var(--spacing) * 3) calc(var(--spacing) * 6); font-family:var(--font-titre); font-weight:700; font-size:var(--text-xl); }
+  nav.principale button { flex:none; flex-direction:row; justify-content:flex-start; gap:calc(var(--spacing) * 3); min-height:calc(var(--spacing) * 12); padding:0 calc(var(--spacing) * 3); border:0; border-radius:var(--radius-md); color:var(--action-texte); font-size:var(--text-base); }
+  nav.principale button:hover { background:var(--action-survol); }
+  nav.principale button[aria-current="page"] { background:var(--fond); color:var(--texte); }
+  nav.principale .menu-principal { display:flex; margin-top:auto; }
+}
+nav.principale .marque { display:none; }
+
+/* Composants : cadre à un seul contour, plaques (boutons), champ */
+.cadre { background:var(--surface); border:calc(var(--spacing) / 2) solid var(--bordure); border-radius:var(--rayon); }
+.cadre-alerte { background:var(--alerte-fond); border:calc(var(--spacing) / 2) solid var(--alerte-base); border-radius:var(--rayon); }
+.plaque { position:relative; display:inline-flex; align-items:center; justify-content:center; gap:calc(var(--spacing) * 2); min-height:calc(var(--spacing) * 12); min-width:calc(var(--spacing) * 12); padding:var(--spacing) calc(var(--spacing) * 3); background:var(--region-accent-fond); color:var(--texte); border:calc(var(--spacing) / 2) solid var(--region-accent); border-radius:var(--radius-md); font-weight:700; text-align:center; transition:filter var(--duration-rapide) var(--ease-standard), transform var(--duration-rapide) var(--ease-standard); }
+.plaque:hover:not(:disabled) { filter:brightness(1.25); }
+.plaque:active:not(:disabled) { filter:brightness(0.9); }
+.plaque[aria-pressed="true"], .plaque[aria-current="true"] { background:var(--region-accent-fort); color:var(--blanc); }
+.plaque:disabled { opacity:0.5; cursor:default; }
+.plaque-action { background:var(--action); color:var(--action-texte); border-color:var(--action-survol); }
+.plaque-action:hover:not(:disabled) { filter:none; background:var(--action-survol); }
+.plaque-action:active:not(:disabled) { filter:none; background:var(--action-survol); }
+.plaque.grand { min-height:calc(var(--spacing) * 14); font-size:var(--text-lg); width:100%; }
+.champ { min-width:0; min-height:calc(var(--spacing) * 12); padding:0 calc(var(--spacing) * 2); background:var(--fond); color:var(--texte); border:calc(var(--spacing) / 2) solid var(--region-accent); border-radius:var(--radius-md); font-family:var(--font-titre); font-weight:700; font-size:var(--text-xl); text-align:center; }
+.champ::-webkit-outer-spin-button, .champ::-webkit-inner-spin-button { appearance:none; margin:0; }
+.champ { appearance:textfield; -moz-appearance:textfield; }
+.pastille { display:inline-flex; align-items:center; gap:calc(var(--spacing) * 2); min-height:calc(var(--spacing) * 8); padding:0 calc(var(--spacing) * 3); background:var(--region-accent-fond); border:calc(var(--spacing) / 2) solid var(--region-accent); border-radius:var(--radius-md); color:var(--texte); white-space:nowrap; }
+.pastille b { color:var(--region-accent); }
+.jeton { display:inline-block; flex-shrink:0; width:calc(var(--spacing) * 5); height:calc(var(--spacing) * 5); border-radius:var(--radius-plein); background:radial-gradient(circle, var(--region-argent) 0 44%, var(--fond) 45% 56%, var(--region-argent) 57%); }
+.jeton.gros { width:calc(var(--spacing) * 8); height:calc(var(--spacing) * 8); }
+.rappel { color:var(--texte-doux); font-size:var(--text-sm); }
+.doux { color:var(--texte-doux); }
+
+/* Caisse : solde et achat/rachat de jetons au nombre libre */
+.caisse { display:grid; gap:calc(var(--spacing) * 4); padding:calc(var(--spacing) * 4); }
+.soldes { display:grid; grid-template-columns:1fr 1fr; gap:calc(var(--spacing) * 3); }
+.soldes div { display:grid; gap:var(--spacing); padding:calc(var(--spacing) * 3); background:var(--region-accent-fond); border:calc(var(--spacing) / 2) solid var(--region-accent); border-radius:var(--radius-md); min-width:0; }
+.soldes dt { color:var(--texte-doux); font-size:var(--text-sm); }
+.soldes dd { display:flex; align-items:center; gap:calc(var(--spacing) * 2); font-size:var(--text-2xl); font-family:var(--font-titre); font-weight:700; color:var(--region-accent); white-space:nowrap; }
+.echange { display:grid; gap:calc(var(--spacing) * 3); }
+.echange > label { font-weight:700; }
+.stepper { display:grid; grid-template-columns:calc(var(--spacing) * 12) minmax(0,1fr) calc(var(--spacing) * 12); gap:var(--spacing); }
+.stepper .plaque { padding:0; font-size:var(--text-xl); }
+.rapides { display:flex; flex-wrap:wrap; gap:calc(var(--spacing) * 2); }
+.rapides .plaque { flex:1 1 0; min-width:calc(var(--spacing) * 12); padding-inline:calc(var(--spacing) * 2); }
+.prix { display:flex; flex-wrap:wrap; gap:0 calc(var(--spacing) * 3); color:var(--texte-doux); }
+.prix span { white-space:nowrap; }
+.prix b { color:var(--region-accent); }
+.actions-echange { display:grid; grid-template-columns:1fr 1fr; gap:calc(var(--spacing) * 2); }
+.verdict { min-height:calc(var(--spacing) * 6); font-weight:700; }
+.verdict[data-ton="gain"] { color:var(--succes-texte); }
+.verdict[data-ton="perte"] { color:var(--erreur-texte); }
+.verdict[data-ton="info"] { color:var(--info-texte); }
+.verdict[data-ton="alerte"] { color:var(--alerte-texte); }
+
+/* Mise : stepper + boutons rapides */
+.mise { display:grid; gap:calc(var(--spacing) * 2); }
+.mise-label { font-weight:700; display:flex; justify-content:space-between; align-items:center; gap:calc(var(--spacing) * 2); }
+.mise-label span:last-child { color:var(--texte-doux); font-weight:400; font-size:var(--text-sm); }
+
+/* Rouleaux : 1 px d'art = facteur entier ; sprites 96 px natifs (×1 téléphone, ×2 PC), objets 30 px natifs (×3 / ×6) */
+.reels { display:grid; grid-template-columns:repeat(3, auto); gap:calc(var(--spacing) * 2); justify-content:center; }
+.reels { --cell:calc(var(--spacing) * 24 * var(--f)); }
+.rouleau { box-sizing:content-box; position:relative; width:var(--cell); height:var(--cell); overflow:hidden; background:var(--fond); border:calc(var(--spacing) / 2) solid var(--region-argent); border-radius:var(--radius-lg); }
+.rouleau .bande { display:block; will-change:transform; }
+.rouleau .cell { display:flex; align-items:center; justify-content:center; width:100%; height:var(--cell); }
+.rouleau .cell img.sprite { width:calc(var(--spacing) * 24 * var(--f)); height:calc(var(--spacing) * 24 * var(--f)); max-width:none; }
+.rouleau .cell img.objet { width:calc(var(--spacing) * 22.5 * var(--f)); height:calc(var(--spacing) * 22.5 * var(--f)); max-width:none; }
+.rouleau[data-gagnant="true"] { border-color:var(--succes-base); background:var(--succes-fond); }
+.gains { background:var(--region-accent-fond); border:calc(var(--spacing) / 2) solid var(--region-accent); border-radius:var(--radius-md); }
+.gains summary { display:flex; align-items:center; min-height:calc(var(--spacing) * 12); padding:0 calc(var(--spacing) * 3); font-weight:700; cursor:pointer; }
+.gains ul { display:grid; gap:var(--spacing); padding:0 calc(var(--spacing) * 3) calc(var(--spacing) * 3); }
+.gains li { display:flex; align-items:center; gap:calc(var(--spacing) * 3); min-height:calc(var(--spacing) * 8); }
+.gains li img { width:calc(var(--spacing) * 8); height:calc(var(--spacing) * 8); object-fit:contain; }
+.gains li .mult { margin-left:auto; font-family:var(--font-titre); font-weight:700; color:var(--region-argent); }
+
+/* Cartes de blackjack */
+.cartes { display:flex; align-items:flex-start; min-height:var(--carte-h); }
+.carte { position:relative; flex-shrink:0; width:var(--carte-l); height:var(--carte-h); background:var(--blanc); color:var(--fond); border:calc(var(--spacing) / 2) solid var(--fond); border-radius:var(--radius-md); font-family:var(--font-titre); font-weight:700; animation:carte-arrive var(--duration-normal) var(--ease-sortie) both; }
+.carte + .carte { margin-left:calc(var(--carte-l) * -0.45); }
+.carte .rang { position:absolute; top:var(--spacing); left:calc(var(--spacing) * 1.5); font-size:var(--text-lg); line-height:1; }
+.carte .suit { position:absolute; width:calc(var(--carte-l) * 0.5); height:calc(var(--carte-l) * 0.5); right:calc(var(--spacing) * 1.5); bottom:calc(var(--spacing) * 1.5); }
+.carte.rouge { color:var(--action); }
+.carte.dos { background:var(--region-accent-fort); border-color:var(--region-accent); background-image:repeating-linear-gradient(45deg, var(--region-accent) 0 var(--spacing), transparent var(--spacing) calc(var(--spacing) * 3)); }
+.carte.dos .rang, .carte.dos .suit { display:none; }
+@keyframes carte-arrive { from { transform:translateY(calc(var(--spacing) * -4)); opacity:0; } }
+.mains { display:grid; grid-template-columns:repeat(var(--nb,1), minmax(0, 1fr)); gap:calc(var(--spacing) * 3); }
+.mains[data-nb="3"], .mains[data-nb="4"] { --nb:2; }
+@media (min-width:64rem) { .mains[data-nb="3"] { --nb:3; } .mains[data-nb="4"] { --nb:4; } }
+.main { display:grid; gap:calc(var(--spacing) * 2); justify-items:center; align-content:start; padding:calc(var(--spacing) * 2); border:calc(var(--spacing) / 2) solid var(--region-accent); border-radius:var(--radius-lg); min-width:0; background:var(--region-accent-fond); }
+.main[data-actif="true"] { background:var(--selection); border-color:var(--region-argent); }
+.main .entete, .croupier .etiquette { display:flex; flex-wrap:wrap; justify-content:center; gap:var(--spacing) calc(var(--spacing) * 2); font-size:var(--text-base); }
+.croupier { display:grid; gap:calc(var(--spacing) * 2); justify-items:center; }
+.mains[data-nb="1"] .main { background:transparent; border-color:transparent; }
+.mains[data-nb="1"] .main[data-actif="true"] { background:transparent; }
+.mains[data-nb="2"] .carte + .carte, .mains[data-nb="3"] .carte + .carte, .mains[data-nb="4"] .carte + .carte { margin-left:calc(var(--carte-l) * -0.62); }
+.issue { display:inline-flex; align-items:center; gap:var(--spacing); min-height:calc(var(--spacing) * 8); padding:0 calc(var(--spacing) * 2); border:calc(var(--spacing) / 2) solid; border-radius:var(--radius-md); font-weight:700; font-size:var(--text-sm); }
+.issue[data-ton="gain"] { background:var(--succes-fond); color:var(--succes-texte); border-color:var(--succes-base); }
+.issue[data-ton="perte"] { background:var(--erreur-fond); color:var(--erreur-texte); border-color:var(--erreur-base); }
+.issue[data-ton="nul"] { background:var(--info-fond); color:var(--info-texte); border-color:var(--info-base); }
+.actions-bj { display:grid; grid-template-columns:1fr 1fr; gap:calc(var(--spacing) * 2); }
+.actions-bj .plaque { min-height:calc(var(--spacing) * 14); }
+.actions-bj .large { grid-column:1 / -1; }
+.aide-bj { color:var(--texte-doux); font-size:var(--text-sm); }
+.outil-maquette { border:calc(var(--spacing) / 2) dashed var(--bordure); border-radius:var(--radius-md); padding:0 calc(var(--spacing) * 3); color:var(--texte-doux); font-size:var(--text-sm); }
+.outil-maquette summary { min-height:calc(var(--spacing) * 11); display:flex; align-items:center; cursor:pointer; }
+.outil-maquette select { width:100%; min-height:calc(var(--spacing) * 11); margin-bottom:calc(var(--spacing) * 3); background:var(--fond); border:calc(var(--spacing) / 2) solid var(--bordure); border-radius:var(--radius-md); padding:0 calc(var(--spacing) * 2); }
+
+/* Pile ou face */
+.piece-scene { display:grid; place-items:center; perspective:calc(var(--spacing) * 200); padding:calc(var(--spacing) * 3) 0; }
+.piece { position:relative; width:calc(var(--spacing) * 36 * var(--fp,1)); height:calc(var(--spacing) * 36 * var(--fp,1)); transform-style:preserve-3d; }
+@media (min-width:64rem) { .piece { --fp:1.5; } }
+.piece .face { position:absolute; inset:0; display:grid; place-items:center; border-radius:var(--radius-plein); background:var(--region-argent); border:calc(var(--spacing) * 2) solid var(--alerte-base); backface-visibility:hidden; }
+.piece .face::after { content:""; position:absolute; inset:calc(var(--spacing) * 2); border:calc(var(--spacing) / 2) solid var(--fond); border-radius:var(--radius-plein); }
+.piece .f-pile { transform:rotateY(180deg); }
+.piece .f-face img { width:calc(var(--spacing) * 24); height:calc(var(--spacing) * 24); }
+.piece .f-pile img { width:calc(var(--spacing) * 22.5); height:calc(var(--spacing) * 22.5); }
+.choix { display:grid; grid-template-columns:1fr 1fr; gap:calc(var(--spacing) * 2); }
+.choix .plaque { flex-direction:column; gap:0; min-height:calc(var(--spacing) * 14); }
+.choix .plaque small { font-weight:400; font-size:var(--text-sm); }
+
+/* Boutique de jetons */
+.produits { display:grid; gap:calc(var(--spacing) * 3); }
+.produit { display:grid; grid-template-columns:calc(var(--spacing) * 24) minmax(0,1fr); gap:calc(var(--spacing) * 3); align-items:center; padding:calc(var(--spacing) * 3); background:var(--surface); border:calc(var(--spacing) / 2) solid var(--bordure); border-radius:var(--rayon); }
+.produit-image { display:grid; place-items:center; width:calc(var(--spacing) * 24); height:calc(var(--spacing) * 24); background:radial-gradient(ellipse 40% 8% at 50% 90%, var(--region-socle) 98%, transparent 100%); }
+.produit-image img.sprite { width:calc(var(--spacing) * 24); height:calc(var(--spacing) * 24); }
+.produit-image img.objet { width:calc(var(--spacing) * 22.5); height:calc(var(--spacing) * 22.5); }
+.produit-image svg { width:calc(var(--spacing) * 16); height:calc(var(--spacing) * 16); }
+.produit-texte { display:grid; gap:var(--spacing); min-width:0; }
+.produit-nom { font-family:var(--font-titre); font-weight:700; font-size:var(--text-lg); }
+.produit-desc { color:var(--texte-doux); font-size:var(--text-sm); }
+.produit-prix { display:inline-flex; align-items:center; gap:calc(var(--spacing) * 2); font-family:var(--font-titre); font-weight:700; color:var(--region-accent); font-size:var(--text-lg); }
+.produit .plaque { grid-column:1 / -1; }
+.produit .manque { grid-column:1 / -1; color:var(--texte-doux); font-size:var(--text-sm); }
+.produit[data-acquis="true"] { border-color:var(--succes-base); }
+.verdict-boutique { margin-top:calc(var(--spacing) * 3); }
+
+/* Pluie de pièces (V1 : pièce 500 ms) */
+[data-pluie] { position:relative; overflow:hidden; }
+.piece-chute { position:absolute; top:0; width:calc(var(--spacing) * 6); height:calc(var(--spacing) * 6); border-radius:var(--radius-plein); pointer-events:none; background:radial-gradient(circle, var(--region-argent) 0 44%, var(--fond) 45% 56%, var(--region-argent) 57%); }
+
+.cadeau { display:grid; gap:calc(var(--spacing) * 3); padding:calc(var(--spacing) * 4); }
+.cadeau p b { color:var(--region-argent); }
+
+@media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation:none !important; transition:none !important; } }

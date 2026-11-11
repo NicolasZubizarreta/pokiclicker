@@ -1,0 +1,120 @@
+﻿<!doctype html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Casino · C, salle de jeux animée</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="c.css">
+<script src="commun.js" defer></script>
+</head>
+<body data-variante="c">
+<div class="coque">
+  <header data-bandeau data-lieu="Céladopole"></header>
+  <nav data-nav="principale"></nav>
+  <main class="page">
+
+    <!-- Salle : enseigne, gains qui défilent, cabines à faire défiler -->
+    <section data-vue="salle" aria-labelledby="t-salle">
+      <figure class="facade">
+        <img class="decor" src="../../../public/img/decors/casino.webp" width="1920" height="1080" alt="La salle du casino de Céladopole : machines à sous, comptoir de la boutique et tapis à l'emblème Poké Ball">
+        <div class="enseigne"><div class="ampoules" data-ampoules="14"></div><h1 id="t-salle">CASINO</h1><small>Céladopole · Kanto</small></div>
+      </figure>
+      <div class="defile" aria-label="Gains du casino">
+        <div class="defile-piste">
+          <span><img class="px" src="../../../public/img/objets/master-ball.png" alt="" width="30" height="30">Machine à sous : 7 <b>×500</b></span><span>Pikachu <b>×50</b></span><span>Staross <b>×25</b></span><span><img class="px" src="../../../public/img/objets/cheri-berry.png" alt="" width="30" height="30">Baie <b>×15</b></span><span>Pile ou face <b>×2</b></span><span>Blackjack <b>×2,5</b></span>
+          <span aria-hidden="true"><img class="px" src="../../../public/img/objets/master-ball.png" alt="" width="30" height="30">Machine à sous : 7 <b>×500</b></span><span aria-hidden="true">Pikachu <b>×50</b></span><span aria-hidden="true">Staross <b>×25</b></span><span aria-hidden="true"><img class="px" src="../../../public/img/objets/cheri-berry.png" alt="" width="30" height="30">Baie <b>×15</b></span><span aria-hidden="true">Pile ou face <b>×2</b></span><span aria-hidden="true">Blackjack <b>×2,5</b></span>
+        </div>
+      </div>
+      <div class="contenu">
+        <div data-gabarit="cadeau"></div>
+        <div>
+          <div class="tourniquet" id="tourniquet" role="group" aria-label="Les jeux du casino">
+            <article class="cabine" data-c="jaune">
+              <div class="ampoules" data-ampoules="9"></div>
+              <div class="bandeau-titre">Machine à sous</div>
+              <div class="vitrine" aria-hidden="true">
+                <span class="mini"><img class="px sprite" src="../../../public/img/sprites/pokemon/121.png" alt="" width="96" height="96"></span>
+                <span class="mini"><img class="px objet" src="../../../public/img/objets/master-ball.png" alt="" width="30" height="30"></span>
+                <span class="mini"><img class="px sprite" src="../../../public/img/sprites/pokemon/25.png" alt="" width="96" height="96"></span>
+              </div>
+              <div class="corps"><p>Trois symboles identiques, jusqu'à ×500 avec les 7.</p><button type="button" class="plaque" data-va="slots">Jouer</button></div>
+            </article>
+            <article class="cabine" data-c="rouge">
+              <div class="ampoules" data-ampoules="9"></div>
+              <div class="bandeau-titre">Blackjack</div>
+              <div class="vitrine" aria-hidden="true">
+                <div class="cartes">
+                  <span class="carte"><span class="rang">A</span><svg class="suit" viewBox="0 0 24 24"><use href="#s-pique"/></svg></span>
+                  <span class="carte rouge"><span class="rang">K</span><svg class="suit" viewBox="0 0 24 24"><use href="#s-coeur"/></svg></span>
+                  <span class="carte dos"></span>
+                </div>
+              </div>
+              <div class="corps"><p>Bats le Croupier Rocket sans dépasser 21.</p><button type="button" class="plaque" data-va="blackjack">Jouer</button></div>
+            </article>
+            <article class="cabine" data-c="bleu">
+              <div class="ampoules" data-ampoules="9"></div>
+              <div class="bandeau-titre">Pile ou face</div>
+              <div class="vitrine" aria-hidden="true">
+                <div class="piece-scene" style="padding:0"><div class="piece"><div class="face f-face"><img class="px" src="../../../public/img/sprites/pokemon/25.png" alt="" width="96" height="96"></div><div class="face f-pile"></div></div></div>
+              </div>
+              <div class="corps"><p>Choisis un côté : ta mise ×2.</p><button type="button" class="plaque" data-va="coin">Jouer</button></div>
+            </article>
+            <article class="cabine" data-c="jaune">
+              <div class="ampoules" data-ampoules="9"></div>
+              <div class="bandeau-titre">Boutique de jetons</div>
+              <div class="vitrine" aria-hidden="true">
+                <span class="produit-image"><img class="px sprite" src="../../../public/img/sprites/pokemon/63.png" alt="" width="96" height="96"></span>
+                <span class="produit-image"><img class="px objet" src="../../../public/img/objets/master-ball.png" alt="" width="30" height="30"></span>
+              </div>
+              <div class="corps"><p>Abra, Porygon, Master Ball… dès 250 jetons.</p><button type="button" class="plaque" data-va="boutique">Voir la boutique</button></div>
+            </article>
+          </div>
+          <div class="points" role="group" aria-label="Choisir un jeu">
+            <button type="button" aria-label="Machine à sous" aria-current="true"></button>
+            <button type="button" aria-label="Blackjack" aria-current="false"></button>
+            <button type="button" aria-label="Pile ou face" aria-current="false"></button>
+            <button type="button" aria-label="Boutique" aria-current="false"></button>
+          </div>
+        </div>
+        <div data-gabarit="caisse"></div>
+      </div>
+    </section>
+
+    <!-- Machine à sous -->
+    <section data-vue="slots" class="contenu" hidden aria-labelledby="t-slots">
+      <div class="jeu-entete"><button type="button" class="plaque" data-va="salle">Salle</button><span></span><span class="pastille"><span class="jeton"></span><b data-jetons></b></span></div>
+      <div class="cabinet"><div class="enseigne"><div class="ampoules" data-ampoules="12"></div><h1 class="nom" id="t-slots">Machine à sous</h1></div><div data-gabarit="slots"></div></div>
+    </section>
+
+    <!-- Blackjack -->
+    <section data-vue="blackjack" class="contenu" hidden aria-labelledby="t-bj">
+      <div class="jeu-entete"><button type="button" class="plaque" data-va="salle">Salle</button><span></span><span class="pastille"><span class="jeton"></span><b data-jetons></b></span></div>
+      <div class="cabinet"><div class="enseigne"><div class="ampoules" data-ampoules="12"></div><h1 class="nom" id="t-bj">Blackjack</h1></div><div data-gabarit="bj"></div></div>
+    </section>
+
+    <!-- Pile ou face -->
+    <section data-vue="coin" class="contenu" hidden aria-labelledby="t-coin">
+      <div class="jeu-entete"><button type="button" class="plaque" data-va="salle">Salle</button><span></span><span class="pastille"><span class="jeton"></span><b data-jetons></b></span></div>
+      <div class="cabinet"><div class="enseigne"><div class="ampoules" data-ampoules="12"></div><h1 class="nom" id="t-coin">Pile ou face</h1></div><div data-gabarit="coin"></div></div>
+    </section>
+
+    <!-- Boutique -->
+    <section data-vue="boutique" class="contenu" hidden aria-labelledby="t-boutique">
+      <div class="jeu-entete"><button type="button" class="plaque" data-va="salle">Salle</button><span></span><span class="pastille"><span class="jeton"></span><b data-jetons></b></span></div>
+      <div class="cabinet"><div class="enseigne"><div class="ampoules" data-ampoules="12"></div><h1 class="nom" id="t-boutique">Boutique de jetons</h1></div><div data-gabarit="boutique"></div></div>
+    </section>
+  </main>
+</div>
+<script>
+(function () {
+  var t = document.getElementById('tourniquet'), pts = Array.prototype.slice.call(document.querySelectorAll('.points button'));
+  if (!t) return;
+  function pas() { return t.scrollWidth / 4; }
+  function maj() { var i = Math.round(t.scrollLeft / pas()); pts.forEach(function (b, k) { b.setAttribute('aria-current', k === i ? 'true' : 'false'); }); }
+  t.addEventListener('scroll', function () { window.requestAnimationFrame(maj); });
+  pts.forEach(function (b, k) { b.addEventListener('click', function () { t.scrollTo({ left: k * pas(), behavior: 'smooth' }); }); });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+/* Variante B, « Au pouce » : plateau plein écran, barre de jeux collée en bas (elle remplace la barre du jeu pendant qu'on est au casino),
+   mise et boutons d'action dans la zone du pouce, sous le plateau. */
+@import "commun.css";
+.coque { padding:0; }
+.coque-b { height:100dvh; display:grid; grid-template-rows:auto minmax(0, 1fr) auto; }
+nav.principale { display:none; }
+.bandeau .retour { min-height:calc(var(--spacing) * 11); padding:0 calc(var(--spacing) * 3) 0 var(--spacing); gap:var(--spacing); }
+.bandeau .retour svg { width:calc(var(--spacing) * 5); height:calc(var(--spacing) * 5); }
+.bandeau .solde { display:inline-flex; align-items:center; gap:calc(var(--spacing) * 2); }
+.bandeau .lieu { color:var(--texte); }
+.ecran { min-height:0; display:grid; }
+.ecran > section { min-height:0; overflow:auto; overscroll-behavior:contain; }
+.ecran > section > [data-gabarit] { height:100%; }
+
+.barre-jeux { display:grid; grid-template-columns:repeat(5, minmax(0, 1fr)); background:var(--surface); padding-bottom:env(safe-area-inset-bottom); }
+.barre-jeux button { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:var(--spacing); min-height:calc(var(--spacing) * 18); padding:var(--spacing) 0; background:none; border:0; border-top:var(--spacing) solid transparent; color:var(--texte-doux); font-size:var(--text-sm); line-height:1.15; text-align:center; }
+.barre-jeux button[aria-current="true"] { background:var(--selection); color:var(--region-accent); border-top-color:var(--region-accent); font-weight:700; }
+.barre-jeux button:hover { color:var(--texte); }
+
+/* Salle */
+.hall figure { margin:0; }
+.hall img { width:100%; height:auto; aspect-ratio:16 / 9; object-fit:cover; }
+.hall .contenu { display:grid; gap:calc(var(--spacing) * 4); padding:var(--marge); }
+.hall .invite { display:grid; gap:var(--spacing); }
+.hall .invite h1 { font-size:var(--text-2xl); }
+.hall .invite p { color:var(--texte-doux); }
+
+/* Jeux : plateau qui remplit, commandes en bas */
+.jeu { height:100%; display:grid; grid-template-rows:minmax(0, 1fr) auto; }
+.plateau { position:relative; display:grid; align-content:center; justify-items:center; gap:calc(var(--spacing) * 4); padding:calc(var(--spacing) * 4) var(--marge); overflow:auto; background:var(--region-accent-fond); }
+.plateau .jeu-titre { position:absolute; top:calc(var(--spacing) * 3); left:var(--marge); font-size:var(--text-base); color:var(--region-accent); }
+.plateau .verdict { text-align:center; }
+.jeu-bj .plateau { align-content:space-evenly; padding-top:calc(var(--spacing) * 3); }
+.jeu-bj .plateau .croupier, .jeu-bj .plateau .mains { width:100%; }
+.commandes { display:grid; gap:calc(var(--spacing) * 2); padding:calc(var(--spacing) * 3) var(--marge) calc(var(--spacing) * 3); background:var(--surface); border-top:calc(var(--spacing) / 2) solid var(--region-accent); }
+.commandes .mise { grid-template-columns:minmax(0, 1fr); gap:var(--spacing); }
+.commandes .mise-label { display:none; }
+.commandes .mise .stepper { grid-template-columns:calc(var(--spacing) * 12) minmax(0, 1fr) calc(var(--spacing) * 12); }
+.commandes .rapides .plaque { min-height:calc(var(--spacing) * 11); }
+.commandes details.gains { order:5; }
+.commandes .rappel { text-align:center; }
+.commandes .plaque.grand { min-height:calc(var(--spacing) * 14); }
+.actions-bj .plaque { min-height:calc(var(--spacing) * 13); }
+.outil-maquette { display:none; }
+.jeu-boutique { display:block; height:auto; }
+.jeu-boutique .plateau { align-content:start; justify-items:stretch; background:var(--fond); padding-top:calc(var(--spacing) * 12); min-height:100%; }
+.jeu-boutique .produit { background:var(--surface); }
+.gains ul { max-height:calc(var(--spacing) * 40); overflow:auto; }
+
+@media (min-width:64rem) {
+  nav.principale { display:flex; }
+  .coque { padding-left:calc(var(--spacing) * 60); }
+  .bandeau { justify-content:space-between; }
+  .bandeau .retour { display:none; }
+  .jeu { grid-template-rows:none; grid-template-columns:minmax(0, 1fr) calc(var(--spacing) * 96); }
+  .commandes { border-top:0; border-left:calc(var(--spacing) / 2) solid var(--region-accent); align-content:center; gap:calc(var(--spacing) * 4); padding:calc(var(--spacing) * 8); }
+  .commandes .mise-label { display:flex; }
+  .commandes .mise { gap:calc(var(--spacing) * 2); }
+  .plateau { padding:calc(var(--spacing) * 10); }
+  .plateau .jeu-titre { top:calc(var(--spacing) * 6); font-size:var(--text-xl); }
+  .outil-maquette { display:block; }
+  .barre-jeux button { flex-direction:row; justify-content:center; gap:calc(var(--spacing) * 3); min-height:calc(var(--spacing) * 16); font-size:var(--text-base); }
+  .hall { display:grid; grid-template-columns:minmax(0, 1.5fr) minmax(0, 1fr); align-items:stretch; min-height:100%; }
+  .hall figure { position:relative; min-height:calc(var(--spacing) * 100); }
+  .hall img { position:absolute; inset:0; height:100%; aspect-ratio:auto; }
+  .jeu-boutique .plateau { padding-inline:calc(var(--spacing) * 10); }
+  .produits { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+  .jeu-boutique { max-width:none; }
+}

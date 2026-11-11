@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Casino · A, la salle en scène</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="a.css">
+<script src="commun.js" defer></script>
+</head>
+<body data-variante="a">
+<div class="coque">
+  <header data-bandeau data-lieu="Céladopole"></header>
+  <nav data-nav="principale"></nav>
+  <main class="page">
+
+    <!-- Salle : le décor en bandeau, puis les jeux à choisir -->
+    <section data-vue="salle" aria-labelledby="t-salle">
+      <div class="salle-grille">
+        <div class="colonne">
+          <figure class="scene">
+            <img class="px-non" src="../../../public/img/decors/casino.webp" width="1920" height="1080" alt="La salle du casino de Céladopole : machines à sous, comptoir de la boutique et tapis à l'emblème Poké Ball">
+            <div class="hotspots">
+              <button type="button" data-va="slots" style="left:19%;top:40%">Machines à sous</button>
+              <button type="button" data-va="coin" style="left:50%;top:56%">Pile ou face</button>
+              <button type="button" data-va="blackjack" style="left:50%;top:80%">Blackjack</button>
+              <button type="button" data-va="boutique" style="left:85%;top:46%">Boutique</button>
+            </div>
+          </figure>
+          <div class="accueil">
+            <div><h1 id="t-salle">Casino</h1><p>Céladopole · Kanto</p><span class="pastille solde-mobile"><span class="jeton"></span><b data-jetons></b> jetons</span></div>
+            <button type="button" class="plaque">Retour à la Carte</button>
+          </div>
+          <div class="contenu" style="padding-top:0;padding-inline:0">
+            <div class="jeux-grille">
+              <article class="carte-jeu">
+                <div class="vitrine" aria-hidden="true">
+                  <span class="mini"><img class="px sprite" src="../../../public/img/sprites/pokemon/121.png" alt="" width="96" height="96"></span>
+                  <span class="mini"><img class="px objet" src="../../../public/img/objets/master-ball.png" alt="" width="30" height="30"></span>
+                  <span class="mini"><img class="px sprite" src="../../../public/img/sprites/pokemon/25.png" alt="" width="96" height="96"></span>
+                </div>
+                <div class="carte-corps">
+                  <h2>Machine à sous</h2>
+                  <p>Trois symboles identiques et ça paie, jusqu'à ×500 avec les 7.</p>
+                  <button type="button" class="plaque" data-va="slots">Jouer à la machine</button>
+                </div>
+              </article>
+              <article class="carte-jeu">
+                <div class="vitrine" aria-hidden="true">
+                  <div class="cartes">
+                    <span class="carte"><span class="rang">A</span><svg class="suit" viewBox="0 0 24 24"><use href="#s-pique"/></svg></span>
+                    <span class="carte rouge"><span class="rang">K</span><svg class="suit" viewBox="0 0 24 24"><use href="#s-coeur"/></svg></span>
+                    <span class="carte dos"></span>
+                  </div>
+                </div>
+                <div class="carte-corps">
+                  <h2>Blackjack</h2>
+                  <p>Bats le Croupier Rocket sans dépasser 21. Blackjack payé ×2,5.</p>
+                  <button type="button" class="plaque" data-va="blackjack">S'asseoir à la table</button>
+                </div>
+              </article>
+              <article class="carte-jeu">
+                <div class="vitrine" aria-hidden="true">
+                  <div class="piece-scene" style="padding:0"><div class="piece"><div class="face f-face"><img class="px" src="../../../public/img/sprites/pokemon/25.png" alt="" width="96" height="96"></div><div class="face f-pile"></div></div></div>
+                </div>
+                <div class="carte-corps">
+                  <h2>Pile ou face</h2>
+                  <p>Choisis un côté. Bonne réponse : ta mise ×2.</p>
+                  <button type="button" class="plaque" data-va="coin">Lancer la pièce</button>
+                </div>
+              </article>
+              <article class="carte-jeu">
+                <div class="vitrine" aria-hidden="true">
+                  <span class="produit-image"><img class="px sprite" src="../../../public/img/sprites/pokemon/63.png" alt="" width="96" height="96"></span>
+                  <span class="produit-image"><img class="px objet" src="../../../public/img/objets/master-ball.png" alt="" width="30" height="30"></span>
+                  <span class="produit-image"><img class="px sprite" src="../../../public/img/sprites/pokemon/137.png" alt="" width="96" height="96"></span>
+                </div>
+                <div class="carte-corps">
+                  <h2>Boutique de jetons</h2>
+                  <p>Abra, Porygon, Master Ball… dès 250 jetons.</p>
+                  <button type="button" class="plaque" data-va="boutique">Voir la boutique</button>
+                </div>
+              </article>
+            </div>
+          </div>
+        </div>
+        <div class="colonne contenu" style="padding:var(--marge)">
+          <div data-gabarit="cadeau"></div>
+          <div data-gabarit="caisse"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Machine à sous -->
+    <section data-vue="slots" class="contenu" hidden aria-labelledby="t-slots">
+      <div class="jeu-entete"><button type="button" class="plaque" data-va="salle">Salle</button><h1 id="t-slots">Machine à sous</h1><span class="pastille"><span class="jeton"></span><b data-jetons></b></span></div>
+      <div data-gabarit="slots"></div>
+    </section>
+
+    <!-- Blackjack -->
+    <section data-vue="blackjack" class="contenu" hidden aria-labelledby="t-bj">
+      <div class="jeu-entete"><button type="button" class="plaque" data-va="salle">Salle</button><h1 id="t-bj">Blackjack</h1><span class="pastille"><span class="jeton"></span><b data-jetons></b></span></div>
+      <div data-gabarit="bj"></div>
+    </section>
+
+    <!-- Pile ou face -->
+    <section data-vue="coin" class="contenu" hidden aria-labelledby="t-coin">
+      <div class="jeu-entete"><button type="button" class="plaque" data-va="salle">Salle</button><h1 id="t-coin">Pile ou face</h1><span class="pastille"><span class="jeton"></span><b data-jetons></b></span></div>
+      <div data-gabarit="coin"></div>
+    </section>
+
+    <!-- Boutique -->
+    <section data-vue="boutique" class="contenu" hidden aria-labelledby="t-boutique">
+      <div class="jeu-entete"><button type="button" class="plaque" data-va="salle">Salle</button><h1 id="t-boutique">Boutique</h1><span class="pastille"><span class="jeton"></span><b data-jetons></b></span></div>
+      <div data-gabarit="boutique"></div>
+    </section>
+  </main>
+</div>
+</body>
+</html>

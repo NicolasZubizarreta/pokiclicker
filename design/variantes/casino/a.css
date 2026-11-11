@@ -1,0 +1,66 @@
+/* Variante A, « La salle en scène » : le décor du casino en bandeau, les jeux sont de grandes cartes à choisir. */
+@import "commun.css";
+.page { padding-bottom:calc(var(--spacing) * 6); }
+.scene { position:relative; margin:0; background:var(--region-accent-fond); }
+.scene img { width:100%; height:auto; aspect-ratio:16 / 9; object-fit:cover; }
+.accueil { display:flex; align-items:center; justify-content:space-between; gap:calc(var(--spacing) * 3); padding:calc(var(--spacing) * 4) var(--marge) 0; }
+.accueil h1 { font-size:var(--text-3xl); line-height:var(--text-3xl--line-height); }
+.accueil p { color:var(--texte-doux); }
+.contenu { display:grid; gap:calc(var(--spacing) * 4); padding:var(--marge); }
+.jeux-grille { display:grid; gap:calc(var(--spacing) * 4); }
+.carte-jeu { display:grid; grid-template-rows:auto 1fr; overflow:hidden; background:var(--surface); border:calc(var(--spacing) / 2) solid var(--bordure); border-radius:var(--rayon); }
+.vitrine { display:flex; align-items:center; justify-content:center; gap:calc(var(--spacing) * 2); min-height:calc(var(--spacing) * 34); padding:calc(var(--spacing) * 3); background:var(--region-accent-fond); border-bottom:calc(var(--spacing) / 2) solid var(--region-accent); }
+.vitrine .mini { display:grid; place-items:center; width:calc(var(--spacing) * 24); height:calc(var(--spacing) * 24); background:var(--fond); border:calc(var(--spacing) / 2) solid var(--region-argent); border-radius:var(--radius-lg); }
+.vitrine .mini img.sprite { width:calc(var(--spacing) * 24); height:calc(var(--spacing) * 24); }
+.vitrine .mini img.objet { width:calc(var(--spacing) * 22.5); height:calc(var(--spacing) * 22.5); }
+.vitrine .piece { --fp:0.9; }
+.vitrine .piece .f-pile { display:none; }
+.vitrine .cartes { min-height:0; }
+.vitrine .carte { animation:none; }
+.vitrine .produit-image { width:calc(var(--spacing) * 24); }
+.carte-corps { display:grid; gap:calc(var(--spacing) * 2); align-content:start; padding:calc(var(--spacing) * 4); }
+.carte-corps h2 { font-size:var(--text-xl); }
+.carte-corps p { color:var(--texte-doux); }
+.carte-corps .plaque { width:100%; margin-top:calc(var(--spacing) * 2); }
+.carte-corps .info { display:flex; align-items:center; gap:calc(var(--spacing) * 2); color:var(--region-accent); font-weight:700; }
+
+.jeu-entete { display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center; gap:calc(var(--spacing) * 3); margin-bottom:calc(var(--spacing) * 4); }
+.jeu-entete h1 { font-size:var(--text-xl); line-height:var(--text-xl--line-height); text-align:center; min-width:0; }
+.jeu-entete .pastille b { font-size:var(--text-lg); }
+.jeu { display:grid; gap:calc(var(--spacing) * 4); align-items:start; }
+.plateau { display:grid; gap:calc(var(--spacing) * 4); justify-items:center; align-content:start; padding:calc(var(--spacing) * 4); background:var(--surface); border:calc(var(--spacing) / 2) solid var(--bordure); border-radius:var(--rayon); }
+.plateau .jeu-titre { display:none; }
+.plateau.tapis { background:var(--region-accent-fond); border-color:var(--region-accent); }
+.plateau .verdict { text-align:center; }
+.commandes { display:grid; gap:calc(var(--spacing) * 3); align-content:start; padding:calc(var(--spacing) * 4); background:var(--surface); border:calc(var(--spacing) / 2) solid var(--bordure); border-radius:var(--rayon); }
+.jeu-boutique .plateau { justify-items:stretch; }
+.jeu-boutique .jeu-titre { display:block; }
+.mains, .croupier { width:100%; }
+.hotspots { display:none; }
+
+@media (min-width:64rem) {
+  .contenu { padding:var(--marge); }
+  .salle-grille { display:grid; grid-template-columns:minmax(0, 1.75fr) minmax(0, 1fr); gap:calc(var(--spacing) * 8); align-items:start; }
+  .salle-grille > .colonne { display:grid; gap:calc(var(--spacing) * 6); min-width:0; }
+  .scene { border:calc(var(--spacing) / 2) solid var(--region-accent); border-radius:var(--rayon); overflow:hidden; }
+  .accueil { padding:calc(var(--spacing) * 8) var(--marge) 0; }
+  .jeux-grille { grid-template-columns:repeat(2, minmax(0, 1fr)); gap:calc(var(--spacing) * 6); }
+  .carte-jeu { grid-template-rows:auto 1fr; }
+  .vitrine { min-height:calc(var(--spacing) * 52); gap:calc(var(--spacing) * 4); }
+  .vitrine .carte { --carte-l:calc(var(--spacing) * 24); --carte-h:calc(var(--spacing) * 33); }
+  .vitrine .piece { --fp:1.3; }
+  .jeu { grid-template-columns:minmax(0, 1.7fr) minmax(0, 1fr); gap:calc(var(--spacing) * 6); }
+  .plateau { padding:calc(var(--spacing) * 8); min-height:calc(var(--spacing) * 110); align-content:center; }
+  .jeu-boutique { display:block; }
+  .produits { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+  .hotspots { display:block; position:absolute; inset:0; }
+  .hotspots button { position:absolute; transform:translate(-50%, -50%); min-height:calc(var(--spacing) * 12); padding:0 calc(var(--spacing) * 4); background:var(--surface); color:var(--texte); border:calc(var(--spacing) / 2) solid var(--region-argent); border-radius:var(--radius-md); font-weight:700; }
+  .hotspots button:hover { background:var(--region-accent-fort); color:var(--blanc); }
+}
+
+.solde-mobile { margin-top:calc(var(--spacing) * 2); margin-bottom:calc(var(--spacing) * 3); }
+@media (min-width:64rem) { .solde-mobile { display:none; } }
+
+.jeu-slots .plateau { padding-inline:calc(var(--spacing) * 2); }
+.reels { gap:var(--spacing); }
+@media (min-width:40rem) { .jeu-slots .plateau { padding-inline:calc(var(--spacing) * 4); } .reels { gap:calc(var(--spacing) * 2); } }

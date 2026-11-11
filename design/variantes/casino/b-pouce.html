@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Casino · B, au pouce</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="b.css">
+<script src="commun.js" defer></script>
+</head>
+<body data-variante="b">
+<div class="coque coque-b">
+  <nav data-nav="principale"></nav>
+  <header class="bandeau">
+    <button type="button" class="plaque retour"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg>Carte</button>
+    <span class="lieu">Casino</span>
+    <span class="solde chiffre"><span class="jeton"></span><span data-jetons></span></span>
+    <span class="chiffre"><span data-argent></span> ₽</span>
+  </header>
+
+  <main class="ecran">
+    <!-- Salle : accueil, jetons -->
+    <section data-vue="salle" class="hall" aria-labelledby="t-salle">
+      <figure><img src="../../../public/img/decors/casino.webp" width="1920" height="1080" alt="La salle du casino de Céladopole : machines à sous, comptoir de la boutique et tapis à l'emblème Poké Ball"></figure>
+      <div class="contenu">
+        <div class="invite"><h1 id="t-salle">Bienvenue au casino</h1><p>Choisis ton jeu dans la barre du bas.</p></div>
+        <div data-gabarit="cadeau"></div>
+        <div data-gabarit="caisse"></div>
+      </div>
+    </section>
+    <section data-vue="slots" hidden aria-label="Machine à sous"><div data-gabarit="slots"></div></section>
+    <section data-vue="blackjack" hidden aria-label="Blackjack"><div data-gabarit="bj"></div></section>
+    <section data-vue="coin" hidden aria-label="Pile ou face"><div data-gabarit="coin"></div></section>
+    <section data-vue="boutique" hidden aria-label="Boutique de jetons"><div data-gabarit="boutique"></div></section>
+  </main>
+
+  <nav class="barre-jeux" aria-label="Jeux du casino">
+    <button type="button" data-va="salle" aria-current="true"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 3l9 8M5 10v10h14V10M10 20v-6h4v6"/></svg>Salle</button>
+    <button type="button" data-va="slots" aria-current="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 3h16v15H4zM8 7v7M12 7v7M16 7v7M8 18v3M16 18v3M20 8h2v5h-2"/></svg>Machine</button>
+    <button type="button" data-va="blackjack" aria-current="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h9v14H6zM9 7h3M18 7l3 1-3 11-3-1"/></svg>Blackjack</button>
+    <button type="button" data-va="coin" aria-current="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 10h6M9 14h6"/></svg>Pile ou face</button>
+    <button type="button" data-va="boutique" aria-current="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h16v13H4zM8 8V3h8v5M4 13h16M10 12v3h4v-3"/></svg>Boutique</button>
+  </nav>
+</div>
+</body>
+</html>
