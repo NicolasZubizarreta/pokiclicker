@@ -103,18 +103,29 @@ export function lireMise(valeur: string, jetons = Infinity): number {
   return Number.isFinite(mise) && mise >= 1 && mise <= jetons ? mise : 0;
 }
 
-export function acheterJetons<R extends RegionCasino & { argent: number }>(region: R): Resultat<R> {
-  const lot = casino.jetons.achat;
-  if (region.argent < lot.cost) return { ok: false, raison: casino.messages.argentInsuffisant };
-  return { ok: true, region: { ...region, argent: region.argent - lot.cost, jetons: region.jetons + lot.tokens },
-    message: casino.messages.achatJetons };
+const espaces = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+
+/** Prix d'un jeton à l'achat, en ₽ (1 000 ₽ pour 50 jetons = 20). */
+export const prixJeton = () => casino.jetons.achat.cost / casino.jetons.achat.tokens;
+/** Valeur d'un jeton au rachat, en ₽ (même taux : pas d'arbitrage). */
+export const valeurJeton = () => casino.jetons.rachat.money / casino.jetons.rachat.tokens;
+
+/** Achète `jetons` jetons (entier ≥ 1) ; sans argument, le lot de 50. */
+export function acheterJetons<R extends RegionCasino & { argent: number }>(region: R, jetons: number = casino.jetons.achat.tokens): Resultat<R> {
+  if (!Number.isInteger(jetons) || jetons < 1) return { ok: false, raison: casino.messages.miseInvalide };
+  const cout = jetons * prixJeton();
+  if (region.argent < cout) return { ok: false, raison: casino.messages.argentInsuffisant };
+  return { ok: true, region: { ...region, argent: region.argent - cout, jetons: region.jetons + jetons },
+    message: casino.messages.achatJetons.replace('{jetons}', espaces(jetons)) };
 }
 
-export function echangerJetons<R extends RegionCasino & { argent: number }>(region: R): Resultat<R> {
-  const lot = casino.jetons.rachat;
-  if (region.jetons < lot.tokens) return { ok: false, raison: casino.messages.jetonsInsuffisants };
-  return { ok: true, region: { ...region, argent: region.argent + lot.money, jetons: region.jetons - lot.tokens },
-    message: casino.messages.rachatJetons };
+/** Rachète `jetons` jetons (entier ≥ 1) contre des ₽ ; sans argument, le lot de 50. */
+export function echangerJetons<R extends RegionCasino & { argent: number }>(region: R, jetons: number = casino.jetons.rachat.tokens): Resultat<R> {
+  if (!Number.isInteger(jetons) || jetons < 1) return { ok: false, raison: casino.messages.miseInvalide };
+  if (region.jetons < jetons) return { ok: false, raison: casino.messages.jetonsInsuffisants };
+  const argent = jetons * valeurJeton();
+  return { ok: true, region: { ...region, argent: region.argent + argent, jetons: region.jetons - jetons },
+    message: casino.messages.rachatJetons.replace('{argent}', espaces(argent)) };
 }
 
 export function tirerSymbole(alea: () => number): string {

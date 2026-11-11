@@ -3,8 +3,8 @@ import { kanto } from '../core/regions';
 import { etatMondeDe, type DonneesRegion } from '../core/sauvegarde';
 
 export type ActionsCasino = {
-  acheterJetons(): ReturnType<typeof casino.acheterJetons<DonneesRegion>>;
-  echangerJetons(): ReturnType<typeof casino.echangerJetons<DonneesRegion>>;
+  acheterJetons(jetons?: number): ReturnType<typeof casino.acheterJetons<DonneesRegion>>;
+  echangerJetons(jetons?: number): ReturnType<typeof casino.echangerJetons<DonneesRegion>>;
   jouerMachine(mise: number): ReturnType<typeof casino.jouerMachine<DonneesRegion>>;
   jouerPileOuFace(mise: number, choix: casino.Face): ReturnType<typeof casino.jouerPileOuFace<DonneesRegion>>;
   distribuerBlackjack(mise: number): ReturnType<typeof casino.distribuer<DonneesRegion>>;

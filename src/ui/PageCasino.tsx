@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useStore } from 'zustand';
-import { chargerCasino } from '../core/casino';
+import { chargerCasino, prixJeton, valeurJeton } from '../core/casino';
 import { storeJeu, type StoreJeu } from './store';
 import { Image, imageConnue } from './Image';
 import { boutonCasino, IllustrationCasino } from './casino-interface';
@@ -16,6 +16,8 @@ export function PageCasino({ retour, store = storeJeu }: { retour(): void; store
   const actions = store.getState();
   const [onglet, choisir] = useState(casino.blackjackEnCours ? 'Blackjack' : 'Machine à sous');
   const [occupe, occuper] = useState(false), [message, signaler] = useState('Choisis ton jeu et ta mise.');
+  const [montant, saisir] = useState('');
+  const lireMontant = () => (/^\d+$/.test(montant.trim()) ? Number(montant) : NaN);
   const titre = useRef<HTMLHeadingElement>(null);
   useEffect(() => { titre.current?.focus(); }, []);
   function agir(action: () => { ok: true; message: string } | { ok: false; raison: string }) {
@@ -32,11 +34,16 @@ export function PageCasino({ retour, store = storeJeu }: { retour(): void; store
     <p>{donnees.rappel}</p>
     {casino.acces.ouvert && <>
       <section aria-label="Tes jetons" className="cadre flex flex-wrap items-center gap-4 bg-surface p-4">
-        <div><strong className="text-2xl text-region-accent">{nombre(casino.jetons)} jetons</strong><p>{nombre(argent)} $</p></div>
-        <div><button className={boutonCasino} disabled={occupe || argent < donnees.jetons.achat.cost} onClick={() => agir(actions.acheterJetons)}>Acheter 50 jetons</button><p>Coût : {nombre(donnees.jetons.achat.cost)} $</p>
-          {argent < donnees.jetons.achat.cost && <p>{donnees.messages.argentInsuffisant}</p>}</div>
-        <div><button className={boutonCasino} disabled={occupe || casino.jetons < donnees.jetons.rachat.tokens} onClick={() => agir(actions.echangerJetons)}>Échanger 50 jetons</button><p>Reçois {nombre(donnees.jetons.rachat.money)} $</p>
-          {casino.jetons < donnees.jetons.rachat.tokens && <p>{donnees.messages.jetonsInsuffisants}</p>}</div>
+        <div><strong className="text-2xl text-region-accent">{nombre(casino.jetons)} jetons</strong><p>{nombre(argent)} ₽</p></div>
+        <div className="flex flex-wrap items-center gap-2"><label htmlFor="jetons-echange">Nombre de jetons</label>
+          <input id="jetons-echange" type="text" inputMode="numeric" autoComplete="off" className="cadre w-28 bg-surface p-2"
+            value={montant} disabled={occupe} onChange={e => saisir(e.target.value)} /></div>
+        <div><button className={boutonCasino} disabled={occupe} onClick={() => agir(() => actions.acheterJetons(lireMontant()))}>Acheter</button>
+          <p>{nombre(prixJeton())} ₽ le jeton</p></div>
+        <div><button className={boutonCasino} disabled={occupe} onClick={() => agir(() => actions.echangerJetons(lireMontant()))}>Échanger</button>
+          <p>{nombre(valeurJeton())} ₽ le jeton</p></div>
+        <div className="flex flex-wrap gap-2"><button className={boutonCasino} disabled={occupe} onClick={() => agir(() => actions.acheterJetons())}>Acheter 50 jetons</button>
+          <button className={boutonCasino} disabled={occupe} onClick={() => agir(() => actions.echangerJetons())}>Échanger 50 jetons</button></div>
       </section>
       <nav aria-label="Activités du casino" className="flex flex-wrap gap-2">{['Machine à sous', 'Pile ou face', 'Blackjack', 'Boutique'].map(nom =>
         <button key={nom} className={boutonCasino} aria-pressed={onglet === nom} disabled={occupe} onClick={() => { choisir(nom); signaler(nom === 'Blackjack' && casino.blackjackEnCours ? 'À toi de jouer.' : 'Choisis ton jeu et ta mise.'); }}>{nom}</button>)}</nav>

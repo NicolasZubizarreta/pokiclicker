@@ -51,3 +51,15 @@ export function prixAttendu(source: { id: string; prix: number; type: string; no
   const base = source.type === 'consumable' && !sansInflation ? Math.floor(prix * (1 + badges * 0.05)) : prix;
   return palier ? Math.floor(base * 0.85) : base;
 }
+
+// Ticket B (11/11/2026) : la machine à sous rendait 162 % en V1 (trois Magicarpe seuls : 137 %). Nicolas a choisi l'option 2 :
+// poids V1 gardés, gains Magicarpe ×2, Baie ×15, Staross ×25, Pikachu ×50, 7 ×500, exactement deux Baies ×3 (rendu 91,2 %).
+// Les tirages restent ceux de la V1 ; seul le gain change.
+export const GAINS_MACHINE_V2: Record<string, number> = { '7': 500, Pikachu: 50, Staross: 25, Baie: 15, Magicarpe: 2 };
+export const GAIN_DEUX_BAIES_V2 = 3;
+
+/** Gain attendu en V2 pour un tirage (symboles de la V1) et une mise. */
+export function gainMachineAttenduV2(symboles: readonly string[], mise = 1): number {
+  if (symboles[0] === symboles[1] && symboles[1] === symboles[2]) return mise * (GAINS_MACHINE_V2[symboles[0]!] ?? 0);
+  return symboles.filter(s => s === 'Baie').length === 2 ? mise * GAIN_DEUX_BAIES_V2 : 0;
+}

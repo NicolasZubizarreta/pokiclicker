@@ -13,7 +13,7 @@ describe('casino : données et accès', () => {
     expect(c.jetons).toEqual({ achat: fixture.constantes.lot, rachat: fixture.constantes.rachat });
     expect(c.symboles.map(s => s.id)).toEqual(fixture.constantes.symboles);
     expect(c.symboles.map(s => s.poids)).toEqual(fixture.constantes.poids);
-    expect(c.symboles.map(s => s.gain)).toEqual([500, 50, 20, 10, 5]);
+    expect(c.symboles.map(s => s.gain)).toEqual([500, 50, 25, 15, 2]); // écart voulu du ticket B (tests/ecarts-v1.ts)
     expect(c.animation).toEqual(fixture.animation);
     expect(c.boutique).toEqual(fixture.constantes.boutique);
     expect(c.noms).toEqual(fixture.constantes.noms);
@@ -69,6 +69,45 @@ describe('jetons et mises', () => {
     expect(lireMise('12jetons', 11)).toBe(0);
     expect(lireMise('12jetons', 12)).toBe(12);
   });
+  it('achète et rachète un nombre libre de jetons au même taux (20 ₽ le jeton)', () => {
+    expect(acheterJetons({ argent: 1000, jetons: 0 }, 37)).toMatchObject({ ok: true, region: { argent: 260, jetons: 37 }, message: '+37 jetons !' });
+    expect(acheterJetons({ argent: 1000, jetons: 0 }, 50)).toMatchObject({ ok: true, region: { argent: 0, jetons: 50 } });
+    expect(echangerJetons({ argent: 0, jetons: 1500 }, 1234)).toMatchObject({ ok: true, region: { argent: 24680, jetons: 266 }, message: '+24 680 ₽ !' });
+    // Aller-retour : on ne gagne jamais de ₽ en achetant puis en revendant.
+    for (const n of [1, 7, 50, 333]) {
+      const achat = acheterJetons({ argent: 100000, jetons: 0 }, n);
+      if (!achat.ok) throw new Error(achat.raison);
+      const retour = echangerJetons(achat.region, n);
+      if (!retour.ok) throw new Error(retour.raison);
+      expect(retour.region.argent).toBe(100000);
+    }
+  });
+  it.each([1, 7, 42, 2026])('dix minutes de spam à 7 parties par seconde ne font pas gagner de jetons (graine %i)', seed => {
+    let etat = seed >>> 0;
+    const alea = () => {
+      etat = (etat + 0x6D2B79F5) >>> 0;
+      let n = Math.imul(etat ^ (etat >>> 15), 1 | etat);
+      n ^= n + Math.imul(n ^ (n >>> 7), 61 | n);
+      return ((n ^ (n >>> 14)) >>> 0) / 4294967296;
+    };
+    let region = { jetons: 100000 };
+    for (let i = 0; i < 7 * 600; i++) {
+      const r = jouerMachine(region, 100, alea);
+      if (!r.ok) throw new Error(r.raison);
+      region = r.region;
+    }
+    expect(region.jetons).toBeLessThanOrEqual(100000);
+  });
+  it('refuse sans rien changer un montant invalide ou trop grand', () => {
+    const region = { argent: 100, jetons: 5 };
+    for (const n of [0, -3, 1.5, NaN, Infinity]) {
+      expect(acheterJetons(region, n)).toEqual({ ok: false, raison: 'Mise invalide.' });
+      expect(echangerJetons(region, n)).toEqual({ ok: false, raison: 'Mise invalide.' });
+    }
+    expect(acheterJetons(region, 6)).toEqual({ ok: false, raison: "Pas assez d'argent." });
+    expect(echangerJetons(region, 6)).toEqual({ ok: false, raison: 'Pas assez de jetons.' });
+    expect(region).toEqual({ argent: 100, jetons: 5 });
+  });
 });
 
 describe('coups atomiques', () => {
@@ -89,8 +128,8 @@ describe('coups atomiques', () => {
     expect(jouerPileOuFace(region, 3, 'face', () => 0)).toMatchObject({ region: { jetons: 6 }, gain: 6, resultat: 'face' });
     expect(jouerPileOuFace(region, 3, 'face', () => 0.5)).toMatchObject({ region: { jetons: 0 }, gain: 0, resultat: 'pile' });
     expect(region).toEqual({ jetons: 3, autre: { valeur: 1 } });
-    expect(gainMachine(['Baie', 'Baie', 'Baie'], 3)).toBe(30);
-    expect(gainMachine(['Baie', 'Baie', '7'], 3)).toBe(6);
+    expect(gainMachine(['Baie', 'Baie', 'Baie'], 3)).toBe(45);
+    expect(gainMachine(['Baie', 'Baie', '7'], 3)).toBe(9);
   });
   it('respecte les bornes inclusives de chaque poids', () => {
     // 0.07 * 100 dépasse légèrement 7 en IEEE-754, comme en V1.

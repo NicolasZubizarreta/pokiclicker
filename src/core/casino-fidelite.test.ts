@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { createContext, runInContext } from 'node:vm';
 import { describe, expect, it } from 'vitest';
 import fixture from '../../tests/fixtures/v1-casino.json';
+import { gainMachineAttenduV2 } from '../../tests/ecarts-v1';
 import { gainMachine, jouerMachine, jouerPileOuFace } from './casino';
 
 function graine(valeur: number) {
@@ -54,13 +55,13 @@ describe('fidélité du casino', () => {
       const attendu = v1(() => valeurs.shift()!);
       const gain = gainMachine(symboles as [string, string, string], 1);
       expect(attendu.symboles).toEqual(symboles);
-      expect(gain).toBe(attendu.gain);
+      expect(gain).toBe(gainMachineAttenduV2(attendu.symboles));
       const poids = symboles.reduce((p, s) => p * c.poids[c.symboles.indexOf(s)]!, 1);
       numerateurV1 += poids * attendu.gain;
       numerateurV2 += poids * gain;
     }
-    expect(numerateurV2).toBe(numerateurV1);
-    expect(numerateurV2).toBe(1622153);
+    expect(numerateurV1).toBe(1622153); // la V1 rendait 162,2 %
+    expect(numerateurV2).toBe(912142); // option 2 du ticket B : 91,2 %
   });
 
   it.each([fixture.machine.serie.graine, 1, 42])('100 000 tours et 10 000 lancers : graine %i', seed => {
@@ -80,7 +81,10 @@ describe('fidélité du casino', () => {
         const avant = region.jetons;
         const r = jeu === 'machine' ? jouerMachine(region, 1, alea) : jouerPileOuFace(region, 1, 'face', alea);
         if (!r.ok) throw new Error(r.raison);
-        const attendu = jeu === 'machine' ? v1(suivantV1) : (() => {
+        const attendu = jeu === 'machine' ? (() => {
+          const { symboles } = v1(suivantV1); // mêmes tirages que la V1, gain du ticket B
+          return { symboles, gain: gainMachineAttenduV2(symboles) };
+        })() : (() => {
           const resultat = suivantV1() < 0.5 ? 'face' : 'pile';
           return { resultat, gain: resultat === 'face' ? 2 : 0 };
         })();
@@ -94,10 +98,12 @@ describe('fidélité du casino', () => {
       expect(identique).toBe(true);
       expect(tirages).toBe(serie.tirages);
       if (seed === serie.graine) {
-        expect(total).toBe(serie.total);
-        expect(histogramme).toEqual(serie.histogramme);
+        if (jeu === 'pileOuFace') {
+          expect(total).toBe(serie.total);
+          expect(histogramme).toEqual(serie.histogramme);
+        }
         expect(premiers).toEqual(serie.premiers.map(r => 'symboles' in r
-          ? { symboles: r.symboles, gain: r.gain } : { resultat: r.resultat, gain: r.gain }));
+          ? { symboles: r.symboles, gain: gainMachineAttenduV2(r.symboles) } : { resultat: r.resultat, gain: r.gain }));
       }
     }
   });

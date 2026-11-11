@@ -43,7 +43,7 @@ it('achète et échange un lot, sauvegarde immédiatement et ne compte pas le ra
   const total = p.lire().statistiques.argentTotalGagne;
   expect(p.store.getState().acheterJetons()).toMatchObject({ ok: true, message: '+50 jetons !' });
   expect(p.lire()).toMatchObject({ argent: 1000, jetons: 1050 });
-  expect(p.store.getState().echangerJetons()).toMatchObject({ ok: true, message: '+1 000 $ !' });
+  expect(p.store.getState().echangerJetons()).toMatchObject({ ok: true, message: '+1 000 ₽ !' });
   expect(p.lire()).toMatchObject({ argent: 2000, jetons: 1000 });
   expect(p.lire().statistiques.argentTotalGagne).toBe(total);
   expect(p.ouvrir().getState().casino.jetons).toBe(1000);
@@ -53,13 +53,13 @@ it('renvoie les résultats déterministes des jeux et persiste chaque coup sans 
   const p = preparer();
   p.alea.mockClear();
   expect(p.store.getState().jouerMachine(2)).toMatchObject({ ok: true,
-    symboles: ['Magicarpe', 'Magicarpe', 'Magicarpe'], gain: 10 });
+    symboles: ['Magicarpe', 'Magicarpe', 'Magicarpe'], gain: 4 });
   expect(p.alea).toHaveBeenCalledTimes(3);
-  expect(p.lire().jetons).toBe(1008);
+  expect(p.lire().jetons).toBe(1002);
   expect(p.store.getState().jouerPileOuFace(3, 'pile')).toMatchObject({ ok: true, resultat: 'pile', gain: 6 });
   expect(p.alea).toHaveBeenCalledTimes(4);
-  expect(p.store.getState().casino.jetons).toBe(1011);
-  expect(p.lire().jetons).toBe(1011);
+  expect(p.store.getState().casino.jetons).toBe(1005);
+  expect(p.lire().jetons).toBe(1005);
 });
 
 it('garde une référence stable puis retrouve la main débitée et la termine après rechargement', () => {
