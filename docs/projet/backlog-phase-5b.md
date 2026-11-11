@@ -50,7 +50,7 @@ Agencement, textes, règles de jeu, sprites et décors (ticket O), sons (ticket 
 
 ## B. `fix(casino): équilibrer la machine à sous et laisser choisir le montant des jetons`
 
-`type:fix`, `etat:a_faire`, `est:1`, `prio:1` · branche : `v2` · pas d'`agent-ok` (touche une règle de jeu, chiffres à valider par Nicolas)
+`type:fix`, `etat:fait`, `est:1`, `prio:1` · branche : `v2` · pas d'`agent-ok` (touche une règle de jeu, chiffres à valider par Nicolas)
 
 ### Histoire
 En tant que joueur, je veux que le casino reste un jeu de hasard où l'on perd en moyenne, et acheter ou revendre le nombre de jetons que je veux, afin que le casino ne soit pas une machine à argent et ne m'oblige pas à cliquer dix fois.
@@ -59,14 +59,14 @@ En tant que joueur, je veux que le casino reste un jeu de hasard où l'on perd e
 `data/casino.json` : jetons achetés et rachetés par lots fixes de 50 (1 000 pour 50, soit 20 par jeton). Machine à sous : trois rouleaux indépendants, poids Magicarpe 65, Baie 18, Staross 10, Pikachu 6, 7 1 ; gain pour trois symboles identiques ×5, ×10, ×20, ×50, ×500, et ×2 pour exactement deux Baies. Estimation à confirmer par le calcul exact : espérance ≈ 1,46 (trois identiques) + 0,16 (deux Baies) ≈ **162 % de la mise**, donc le spam rapporte (Nicolas : 100 000 → 60 millions en 10 minutes). Pile ou face est à 100 % ; le blackjack est à mesurer. La boutique du casino vend au contraire cher (Master Ball 40 000 jetons).
 
 ### Critères d'acceptation
-- [ ] Étant donné les trois jeux et la boutique du casino, quand le calcul exact (machine) et la simulation de 1 million de parties (blackjack avec la stratégie du croupier, pile ou face) tournent, alors un tableau note l'espérance de chaque jeu et le gain horaire d'un joueur qui joue sans arrêt.
-- [ ] Étant donné ce tableau, quand je propose de nouveaux gains et poids pour que chaque jeu soit sous 100 % (cible proposée : 90 à 97 % pour la machine, « peu rentable, fun » selon Nicolas), alors Nicolas valide les chiffres avant qu'ils soient écrits dans `data/casino.json`.
-- [ ] Étant donné les chiffres validés, quand un test simule 10 minutes de spam à 7 parties par seconde en partant de 100 000, alors le solde final reste proche du départ ou en baisse (seuil noté dans le test), loin des 60 millions constatés.
-- [ ] Étant donné l'écran du casino, quand j'achète des jetons, alors je saisis le montant en jetons (entier de 1 au maximum payable), avec les boutons rapides conservés (le lot de 50 reste proposé), au même taux qu'avant ; la même chose pour le rachat.
-- [ ] Étant donné un montant invalide (zéro, négatif, trop grand, non entier), quand je valide, alors rien ne se passe et le message « Mise invalide. » ou « Pas assez d'argent. » s'affiche.
-- [ ] Étant donné le taux d'achat et de rachat, quand j'achète puis je revends la même quantité, alors je ne gagne rien (pas d'arbitrage).
-- [ ] Étant donné les textes du casino (« +1 000 $ » dans `messages.rachatJetons`), quand l'argent s'affiche, alors la monnaie est ₽ partout.
-- [ ] Étant donné les tests, quand `tsc -b`, eslint, vitest et l'e2e du casino tournent, alors ils sont verts (tests du cœur : `src/core/casino.test.ts`, `tests/` de fidélité V1 : l'écart de règle voulu est noté dans `tests/ecarts-v1.ts`).
+- [x] Étant donné les trois jeux et la boutique du casino, quand le calcul exact (machine) et la simulation de 1 million de parties (blackjack avec la stratégie du croupier, pile ou face) tournent, alors un tableau note l'espérance de chaque jeu et le gain horaire d'un joueur qui joue sans arrêt.
+- [x] Étant donné ce tableau, quand je propose de nouveaux gains et poids pour que chaque jeu soit sous 100 % (cible proposée : 90 à 97 % pour la machine, « peu rentable, fun » selon Nicolas), alors Nicolas valide les chiffres avant qu'ils soient écrits dans `data/casino.json`.
+- [x] Étant donné les chiffres validés, quand un test simule 10 minutes de spam à 7 parties par seconde en partant de 100 000, alors le solde final reste proche du départ ou en baisse (seuil noté dans le test), loin des 60 millions constatés.
+- [x] Étant donné l'écran du casino, quand j'achète des jetons, alors je saisis le montant en jetons (entier de 1 au maximum payable), avec les boutons rapides conservés (le lot de 50 reste proposé), au même taux qu'avant ; la même chose pour le rachat.
+- [x] Étant donné un montant invalide (zéro, négatif, trop grand, non entier), quand je valide, alors rien ne se passe et le message « Mise invalide. » ou « Pas assez d'argent. » s'affiche.
+- [x] Étant donné le taux d'achat et de rachat, quand j'achète puis je revends la même quantité, alors je ne gagne rien (pas d'arbitrage).
+- [x] Étant donné les textes du casino (« +1 000 $ » dans `messages.rachatJetons`), quand l'argent s'affiche, alors la monnaie est ₽ partout.
+- [x] Étant donné les tests, quand `tsc -b`, eslint, vitest et l'e2e du casino tournent, alors ils sont verts (tests du cœur : `src/core/casino.test.ts`, `tests/` de fidélité V1 : l'écart de règle voulu est noté dans `tests/ecarts-v1.ts`).
 
 ### Note du 11/11/2026 : blackjack
 Blackjack complet (sabot de 6 paquets, carte cachée, doubler, séparer, assurance, abandon) à la demande de Nicolas le 11/11 (« un vrai blackjack avec les vraies chances »). Règles standard, aucun pourcentage réglé : sabot de 6 paquets remélangé sous 25 % de cartes restantes entre deux mains, croupier qui reste sur tous les 17, blackjack naturel ×2,5, doubler sur une carte, séparer jusqu'à 4 mains (as séparés : une carte chacun), assurance ×2 sur demi-mise, abandon (moitié de la mise). Arrondi toujours vers le bas ; assurance et abandon sont donc impossibles avec une mise de 1 jeton. Moteur : `src/core/blackjack.ts`, règles dans `data/casino.json`.
