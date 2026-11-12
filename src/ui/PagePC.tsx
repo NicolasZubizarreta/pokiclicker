@@ -111,12 +111,9 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
       const { pokemon, dps } = membre;
       const nom = nomDe(pokemon);
       const contenu = <>
-        <span className="relative shrink-0">
         <Image src={spriteAffiche(pokemon)} genre="sprite" alt="" className={`${mobile ? 'size-16' : 'size-14'} shrink-0 ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(pokemon)}`} />
-        {pokemon.marqueEclosion && <span className="repere-marque-sur-portrait"><RepereMarque /></span>}
-        </span>
         <span className="grid min-w-0 gap-1 break-words">
-          <strong>{nom}{pokemon.shiny && !pokemon.oeuf && <IconeShiny />}</strong><span>{pokemon.oeuf ? progressionOeuf(pokemon.oeuf) : `Niv. ${pokemon.niveau}`}</span>{!mobile && <span>{formaterDps(dps)} DPS</span>}
+          <strong>{nom}{pokemon.shiny && !pokemon.oeuf && <IconeShiny />}{pokemon.marqueEclosion && <RepereMarque />}</strong><span>{pokemon.oeuf ? progressionOeuf(pokemon.oeuf) : `Niv. ${pokemon.niveau}`}</span>{!mobile && <span>{formaterDps(dps)} DPS</span>}
         </span>
       </>;
       return echange || !telephone ? <button key={index} type="button" aria-label={pokemon.oeuf ? `${nom}, ${progressionOeuf(pokemon.oeuf)}` : `${nom}, niveau ${pokemon.niveau}`}

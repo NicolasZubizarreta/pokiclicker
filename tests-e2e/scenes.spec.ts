@@ -226,9 +226,9 @@ for (const largeur of [390, 1440]) {
       await expect(page.getByRole('dialog', { name: 'Dialogue de scène' })).toHaveCount(0);
       await selectionner(page, 'Route de Ronflex');
       const fiche = page.getByRole('region', { name: 'Zone sélectionnée' });
-      await expect(page.getByRole('button', { name: 'Y aller', exact: true })).toHaveCount(0);
+      await expect(page.getByRole('region', { name: 'Zone sélectionnée' }).getByRole('button', { name: 'Y aller', exact: true })).toHaveCount(0);
       await selectionner(page, 'Arène de Parmanie');
-      await expect(page.getByRole('button', { name: 'Y aller', exact: true })).toHaveCount(0);
+      await expect(page.getByRole('region', { name: 'Zone sélectionnée' }).getByRole('button', { name: 'Y aller', exact: true })).toHaveCount(0);
       expect((await regionSauvee(page)).zoneId).toBe('kanto.centrale');
       await page.getByRole('button', { name: 'Combat', exact: true }).click();
       await vaincre(page, /^Électhor/);
@@ -245,7 +245,7 @@ for (const largeur of [390, 1440]) {
       await selectionner(page, 'Arène de Parmanie');
       await expect(fiche).toContainText('Bloquée');
       await expect(fiche).toContainText(raisonRonflex);
-      await expect(page.getByRole('button', { name: 'Y aller', exact: true })).toHaveCount(0);
+      await expect(page.getByRole('region', { name: 'Zone sélectionnée' }).getByRole('button', { name: 'Y aller', exact: true })).toHaveCount(0);
       await ouvrirSac(page);
       const objets = page.getByRole('region', { name: 'Objets clés', exact: true });
       await expect(objets).toContainText('Pokéflûte');
@@ -276,7 +276,7 @@ for (const largeur of [390, 1440]) {
         await expect(page.getByRole('dialog', { name: 'Dialogue de scène' })).toHaveCount(0);
         await selectionner(page, 'Route de Ronflex');
         await expect(fiche).toContainText('Terminée');
-        await expect(page.getByRole('button', { name: 'Y aller', exact: true })).toHaveCount(0);
+        await expect(page.getByRole('region', { name: 'Zone sélectionnée' }).getByRole('button', { name: 'Y aller', exact: true })).toHaveCount(0);
         await page.keyboard.press('Enter');
         expect((await regionSauvee(page)).zoneId).toBe('kanto.arene-de-parmanie');
         expect((await regionSauvee(page)).argent).toBe(apres.argent);

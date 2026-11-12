@@ -33,13 +33,14 @@ it('respecte les succès déjà crédités au compte', () => {
   expect(within(screen.getByText('Éleveur débutant').closest('li')!).getByText('Obtenu')).toBeTruthy();
   expect(screen.getByRole('progressbar').getAttribute('aria-valuemax')).toBe('50');
 });
-it('cache les noms inconnus, charge les sprites paresseusement et filtre la grille', () => {
+it('cache les noms inconnus, filtre la grille', () => {
   render(<CollectionEclosions store={preparer(1)} />);
   const eclos = screen.getByLabelText('Bulbizarre, éclos');
   const inconnu = screen.getByLabelText('N° 025, pas encore éclos');
   expect(eclos.querySelector('img')?.className).not.toContain('brightness-0');
   expect(inconnu.querySelector('img')?.className).toContain('brightness-0');
-  expect(inconnu.querySelector('img')?.getAttribute('loading')).toBe('lazy');
+  // Pas de chargement paresseux : un sprite hors de la zone visible ne se chargerait jamais et bloquerait `decode()` (ecrans-pc.spec).
+  expect(inconnu.querySelector('img')?.getAttribute('loading')).toBeNull();
   expect(screen.queryByText('Pikachu')).toBeNull();
   fireEvent.click(screen.getByRole('button', { name: 'Écloses (1)' }));
   expect(screen.queryByLabelText('N° 025, pas encore éclos')).toBeNull();

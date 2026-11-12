@@ -31,7 +31,7 @@ export function CollectionEclosions({ store = storeJeu }: { store?: StoreJeu }) 
       const eclos = ecloses.includes(numero), identifiant = `N° ${String(numero).padStart(3, '0')}`;
       const nom = eclos ? catalogue.parNumero(numero).nom : '?';
       return <li key={numero} className={`cadre pension-espece ${eclos ? 'pension-eclose' : ''}`} aria-label={eclos ? `${nom}, éclos` : `${identifiant}, pas encore éclos`}>
-        <img src={`img/sprites/pokemon/${numero}.png`} alt="" width={96} height={96} loading="lazy" className={eclos ? '' : 'brightness-0 opacity-45'} /><span>{identifiant}</span><strong>{nom}</strong>
+        <img src={`img/sprites/pokemon/${numero}.png`} alt="" width={96} height={96} className={eclos ? '' : 'brightness-0 opacity-45'} /><span>{identifiant}</span><strong>{nom}</strong>
       </li>;
     })}</ul>
   </section>;
