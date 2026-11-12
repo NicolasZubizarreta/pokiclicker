@@ -144,7 +144,7 @@ export function PagePlus({ ouvrirPC, ouvrirMonde, ouvrirCasino, menuPrincipal, a
           <LigneMenu icone={<IconeMonde />} titre="Monde Pokémon" titreVisible={telephone ? undefined : 'Monde'} sousTexte="Kanto jouable" onClick={ouvrirMonde} />
           <h2 className="font-titre text-lg text-region-accent">Ton aventure</h2>
           <LigneMenu icone={<PC />} titre="PC de Léo" entree="pc" grise={!pcOuvert} onClick={ouvrirPC} />
-          {casinoOuvert && ouvrirCasino && <LigneMenu icone={<span className="relative inline-flex"><IconeCasino />
+          {casinoOuvert && ouvrirCasino && <LigneMenu icone={<span className="relative inline-flex menu-icone"><IconeCasino />
             {casinoNouveau && <PastilleCasino className="absolute -right-1 -top-1" />}</span>} titre="Casino" entree="casino"
             sousTexte={casinoNouveau ? 'Nouveau ! Des jetons offerts à ta première visite' : 'Jetons, jeux et boutique'} onClick={ouvrirCasino} />}
           <LigneMenu icone={<IconePokedex />} titre="Pokédex" sousTexte={`${nombre} / ${total}`}

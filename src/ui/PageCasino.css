@@ -28,7 +28,6 @@
 /* Salle : décor en bandeau, accueil, cartes de jeux, colonne de la caisse */
 .cs-scene { position: relative; background: var(--region-accent-fond); border: calc(var(--spacing) / 2) solid var(--region-accent); border-radius: var(--rayon); overflow: hidden; }
 .cs-scene-img { width: 100%; height: auto; image-rendering: auto; }
-.cs-hotspots { display: none; }
 .cs-colonne { display: grid; gap: calc(var(--spacing) * 4); min-width: 0; align-content: start; }
 .cs-accueil { display: flex; align-items: center; justify-content: space-between; gap: calc(var(--spacing) * 3); }
 .cs-accueil h1 { font-size: var(--text-3xl); line-height: var(--text-3xl--line-height); }
@@ -233,9 +232,6 @@
   .cs-plateau { padding: calc(var(--spacing) * 8); min-height: calc(var(--spacing) * 110); align-content: center; }
   .cs-jeu-boutique .cs-plateau { min-height: 0; align-content: start; }
   .cs-produits { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .cs-hotspots { display: block; position: absolute; inset: 0; }
-  .cs-hotspots button { position: absolute; transform: translate(-50%, -50%); min-height: calc(var(--spacing) * 12); padding: 0 calc(var(--spacing) * 4); background: var(--surface); color: var(--texte); border: calc(var(--spacing) / 2) solid var(--region-argent); border-radius: var(--radius-md); font-weight: 700; }
-  .cs-hotspots button:hover { background: var(--region-accent-fort); color: var(--blanc); }
 }
 
 @media (prefers-reduced-motion: reduce) { .cs-page *, .cs-page *::before, .cs-page *::after { animation: none !important; transition: none !important; } }

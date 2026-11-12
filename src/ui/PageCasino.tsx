@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { useStore } from 'zustand';
 import { chargerCasino, messageBienvenue, prixJeton, valeurJeton } from '../core/casino';
 import { storeJeu, type StoreJeu } from './store';
@@ -40,13 +40,6 @@ const vitrines: { vue: Exclude<Vue, 'salle'>; titre: string; texte: string; bout
   { vue: 'boutique', titre: 'Boutique de jetons', texte: 'Abra, Porygon, Master Ball… dès 250 jetons.', bouton: 'Voir la boutique',
     vitrine: ['pokemon/63', 'objets/master-ball.png', 'pokemon/137'].map(i => <span key={i} className="cs-produit-image"><Illustration image={i} nom="" /></span>) },
 ];
-const hotspots: { vue: Vue; nom: string; x: number; y: number }[] = [
-  { vue: 'machine', nom: 'Machines à sous', x: 19, y: 40 }, { vue: 'pile', nom: 'Pile ou face', x: 50, y: 56 },
-  { vue: 'blackjack', nom: 'Blackjack', x: 50, y: 80 }, { vue: 'boutique', nom: 'Boutique', x: 85, y: 46 },
-];
-
-const positionPoint = (h: { x: number; y: number }): CSSProperties => ({ left: `${h.x}%`, top: `${h.y}%` });
-
 export function PageCasino({ retour, store = storeJeu, offerts = 0 }: { retour(): void; store?: StoreJeu; offerts?: number }) {
   const casino = useStore(store, e => e.casino), argent = useStore(store, e => e.argent);
   const actions = store.getState();
@@ -87,8 +80,6 @@ export function PageCasino({ retour, store = storeJeu, offerts = 0 }: { retour()
         <figure className="cs-scene">
           {imageConnue('img/decors/casino.webp') && <Image src="img/decors/casino.webp" genre="decor" couvrir className="cs-scene-img"
             alt="La salle du casino de Céladopole : machines à sous, comptoir de la boutique et tapis à l’emblème Poké Ball" />}
-          <div className="cs-hotspots" aria-hidden="true">{hotspots.map(h =>
-            <button key={h.vue} type="button" tabIndex={-1} style={positionPoint(h)} onClick={() => changer(h.vue)}>{h.nom}</button>)}</div>
         </figure>
         <div className="cs-accueil">
           <div><h1 ref={titre} tabIndex={-1}>Casino</h1><p>Céladopole · Kanto</p>

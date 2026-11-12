@@ -14,6 +14,8 @@
   .menu-pc-tuiles > h2 { display: none; }
   .menu-pc-tuiles > button { display: flex; flex-direction: column; align-items: start; justify-content: start; padding: calc(var(--u) * 4); gap: var(--u); min-width: 0; overflow: hidden; }
   .menu-pc-tuiles > button > svg:first-child { width: calc(var(--u) * 9); height: calc(var(--u) * 9); flex-shrink: 0; color: var(--region-accent); }
+  .menu-pc-tuiles > button > .menu-icone { flex-shrink: 0; color: var(--region-accent); }
+  .menu-pc-tuiles > button > .menu-icone > svg { width: calc(var(--u) * 9); height: calc(var(--u) * 9); }
   .menu-pc-tuiles > button > svg:last-child { display: none; }
   .menu-pc-tuiles > button[data-entree="pc"] { order: 1; }
   .monde-pc { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
