@@ -84,11 +84,11 @@ export function PagePension({ retour, libelleRetour, store = storeJeu }: { retou
           <div role="group" aria-label="Emplacements des œufs"><ul className="pension-fentes">{Array.from({ length: pension.emplacementsMax }, (_, i) => {
             const oeuf = pension.oeufs[i], ouvert = i < pension.emplacements;
             const raison = i > pension.emplacements ? 'Ouvre d’abord l’emplacement précédent.' : pension.prochainEmplacement?.raison;
-            return <li className="cadre pension-fente" key={i}><h3>Emplacement {i + 1}</h3>{oeuf ? <>
+            return <li className="cadre pension-fente" key={i} title={i > pension.emplacements ? raison ?? undefined : undefined}><h3>Emplacement {i + 1}</h3>{oeuf ? <>
               <Portrait pokemon={oeuf} /><button className="plaque" onClick={() => agir(() => store.getState().prendreOeuf(oeuf.uid), `L’œuf rejoint ${destination}.`)}>Prendre l’œuf</button><p>Destination : {destination}.</p>
             </> : ouvert ? <><span className="pension-place">+</span><p>Nid libre</p><p>Le prochain œuf trouvera sa place ici.</p></> : <><p>Emplacement fermé</p>
               <button className="plaque" disabled={i !== pension.emplacements || !!raison} onClick={() => agir(() => store.getState().acheterEmplacementOeuf(), 'Emplacement ouvert. Tu peux accueillir un œuf de plus.')}>
-                Ouvrir · {nombre(i === pension.emplacements ? pension.prochainEmplacement!.prix : i * reglages.pension.prixParEmplacement)}{'\u00a0₽'}</button>{raison && <p>{raison}</p>}</>}</li>;
+                Ouvrir · {nombre(i === pension.emplacements ? pension.prochainEmplacement!.prix : i * reglages.pension.prixParEmplacement)}{'\u00a0₽'}</button>{raison && <p className={i > pension.emplacements ? 'pension-raison-suite' : undefined}>{raison}</p>}</>}</li>;
           })}</ul></div>
         </section>
       </div>

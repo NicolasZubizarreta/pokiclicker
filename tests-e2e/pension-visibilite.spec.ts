@@ -124,6 +124,44 @@ test('accès direct par le Menu : entrée avec pastille, puis la pastille dispar
   expect(await region(page)).toMatchObject({ pensionVue: true });
 });
 
+test('sur PC, le décor entier et toute la zone des œufs tiennent d’un coup, sans rien rogner', async ({ page }, info) => {
+  test.skip(info.project.name !== 'pc', 'mise en page PC');
+  await demarrer(page, { annoncesVues: [...annoncesSaufPension, 'pension'], pensionVue: true });
+  await navigation(page).getByRole('button', { name: 'Menu', exact: true }).click();
+  await page.getByRole('button', { name: /^Pension/ }).click();
+  await expect(titrePension(page)).toBeVisible();
+  for (const [largeur, hauteur] of [[1280, 800], [1440, 900], [1920, 1080]]) {
+    await page.setViewportSize({ width: largeur, height: hauteur });
+    await page.clock.runFor(300);
+    const mesures = await page.evaluate(() => {
+      const zone = document.querySelector('main#contenu')!.getBoundingClientRect();
+      const decor = document.querySelector('.pension-scene')!.getBoundingClientRect();
+      const fentes = [...document.querySelectorAll<HTMLElement>('.pension-fente')];
+      return {
+        decorBas: decor.bottom, zoneBas: zone.bottom, decorHaut: decor.top, zoneHaut: zone.top,
+        decorGauche: decor.left, decorDroite: decor.right,
+        fentes: fentes.map(f => ({ bas: f.getBoundingClientRect().bottom, gauche: f.getBoundingClientRect().left, droite: f.getBoundingClientRect().right,
+          rogne: f.scrollHeight > f.clientHeight + 1 || f.scrollWidth > f.clientWidth + 1 })),
+        titreVisible: [...document.querySelectorAll('.pension-oeufs h2')].every(h => h.getBoundingClientRect().width <= 1),
+        decorBasFentes: decor.bottom,
+      };
+    });
+    const etiquette = `${largeur}×${hauteur}`;
+    expect(mesures.decorHaut, `haut du décor à ${etiquette}`).toBeGreaterThanOrEqual(mesures.zoneHaut);
+    expect(mesures.decorBas, `bas du décor à ${etiquette}`).toBeLessThanOrEqual(mesures.zoneBas);
+    expect(mesures.fentes, `cartes d’emplacement à ${etiquette}`).toHaveLength(5);
+    for (const f of mesures.fentes) {
+      expect(f.bas, `bas d’une carte à ${etiquette}`).toBeLessThanOrEqual(mesures.decorBas);
+      expect(f.gauche, `bord gauche d’une carte à ${etiquette}`).toBeGreaterThanOrEqual(mesures.decorGauche);
+      expect(f.droite, `bord droit d’une carte à ${etiquette}`).toBeLessThanOrEqual(mesures.decorDroite);
+      expect(f.rogne, `texte rogné dans une carte à ${etiquette}`).toBe(false);
+    }
+    expect(mesures.titreVisible, `un seul compteur d’œufs à ${etiquette}`).toBe(true);
+    await expect(page.locator('.pension-compteur')).toBeVisible();
+    expect(await debordeHorizontalement(page), `défilement horizontal à ${etiquette}`).toBe(false);
+  }
+});
+
 test('accès direct par la Carte : ligne « Pension » avec pastille, sans passer par Bourg Palette', async ({ page }) => {
   await demarrer(page, { annoncesVues: [...annoncesSaufPension, 'pension'] });
   await navigation(page).getByRole('button', { name: 'Carte', exact: true }).click();
@@ -135,12 +173,12 @@ test('accès direct par la Carte : ligne « Pension » avec pastille, sans passe
   await expect(page.getByRole('button', { name: 'Pension, accès direct' }).locator('[data-pastille-pension]')).toHaveCount(0);
 });
 
-/** Captures de contrôle (CAPTURES=1) : quatre largeurs, ignorées par git (design/captures/). */
+/** Captures de contrôle (CAPTURES=1) : six largeurs, ignorées par git (design/captures/). */
 async function capturer(page: Page, nom: string) {
   if (!process.env.CAPTURES) return;
   const origine = page.viewportSize()!;
-  for (const largeur of [360, 390, 430, 1440]) {
-    await page.setViewportSize({ width: largeur, height: largeur > 800 ? 900 : 844 });
+  for (const [largeur, hauteur] of [[360, 844], [390, 844], [430, 844], [1280, 800], [1440, 900], [1920, 1080]]) {
+    await page.setViewportSize({ width: largeur, height: hauteur });
     await page.clock.runFor(300);
     expect(await debordeHorizontalement(page), `défilement horizontal à ${largeur} px (${nom})`).toBe(false);
     // Sur PC, la page défile dans la zone centrale : le défilement est conservé d'une largeur à l'autre.

@@ -61,6 +61,8 @@
   .pension-grille { grid-template-columns:repeat(5,minmax(0,1fr)); }
   .pension-chance p, .pension-compteur { display:block; }
   .pension-chance { max-width:70%; }
+  /* La pastille « Œufs · n / m » de la scène remplace le titre : il reste dans l'arbre d'accessibilité. */
+  .pension-oeufs h2 { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
 }
 @media (min-width:48rem) {
   .pension-fentes, .pension-paliers { grid-template-columns:repeat(2,minmax(0,1fr)); }
@@ -75,19 +77,20 @@
   .pension-grille { grid-template-columns:repeat(auto-fill,minmax(calc(var(--spacing) * 28),1fr)); }
   .pension-paliers { grid-template-columns:repeat(4,minmax(0,1fr)); }
 }
-@media (min-width:88rem) {
-  .pension-acteur { top:56%; }
+@media (min-width:72rem) and (min-height:50rem) {
+  .pension-acteur { top:53%; }
   .pension-acteur img { width:calc(var(--spacing) * 48); height:calc(var(--spacing) * 48); }
   .pension-sous-scene { display:contents; }
-  .pension-parents { position:absolute; top:50%; left:33%; right:14%; pointer-events:none; }
+  .pension-parents { position:absolute; top:47%; left:33%; right:14%; pointer-events:none; }
   .pension-parent { pointer-events:auto; }
   .pension-parents h2, .pension-parent > .pension-portrait, .pension-parent > .pension-place, .pension-parent > p { display:none; }
   .pension-parent { justify-self:center; width:max-content; max-width:100%; padding:var(--spacing); gap:var(--spacing); background:var(--surface); }
   .pension-parent:has(.pension-place) { visibility:hidden; }
   .pension-oeufs { position:absolute; bottom:2%; left:2%; right:2%; gap:var(--spacing); }
-  .pension-oeufs > p { font-size:var(--text-sm); background:var(--surface); border-radius:var(--radius-md); }
-  .pension-oeufs h2 { font-size:var(--text-base); width:fit-content; background:var(--surface); }
+  .pension-monde { width:min(100%, calc((100dvh - 19.5rem) * 16 / 9)); margin-inline:auto; }
+  .pension-oeufs > p { justify-self:start; max-width:100%; padding:var(--spacing) calc(var(--spacing) * 2); font-size:var(--text-sm); background:var(--surface); border:calc(var(--spacing) / 2) solid var(--bordure); border-radius:var(--radius-md); }
   .pension-fentes { grid-template-columns:repeat(5,minmax(0,1fr)); gap:calc(var(--spacing) * 2); }
+  .pension-raison-suite { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
   .pension-fente { grid-template-columns:minmax(0,1fr); padding:calc(var(--spacing) * 2); gap:var(--spacing); font-size:var(--text-sm); text-align:center; }
   .pension-fente > * { grid-column:1; }
   .pension-fente h3, .pension-fente .pension-portrait, .pension-fente > strong, .pension-fente .pension-place { display:none; }
@@ -96,7 +99,8 @@
   .pension-fente .pension-portrait-oeuf img { width:calc(var(--spacing) * 7.5); height:calc(var(--spacing) * 7.5); }
   .pension-fente .pension-portrait-oeuf::before { display:none; }
   .pension-fente .pension-detail { padding-left:calc(var(--spacing) * 7.5); }
-  .pension-fente .plaque { padding:var(--spacing); width:100%; }
+  .pension-fente .plaque { padding:var(--spacing) 0; width:100%; font-size:var(--text-sm); }
+  .pension-oeufs > div { min-width:0; }
   .pension-reperes { display:none; }
 }
 @keyframes pension-monter { from { opacity:0; transform:translateY(0); } 25% { opacity:1; } to { opacity:0; transform:translateY(calc(var(--spacing) * -10)); } }
