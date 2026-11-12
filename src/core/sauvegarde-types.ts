@@ -59,6 +59,8 @@ export type DonneesRegion = {
   annoncesVues?: string[];
   /** Le joueur est déjà entré au casino : le cadeau de la première entrée est donné et la pastille est retirée. Absent = jamais entré. */
   casinoVu?: boolean;
+  /** Le joueur est déjà entré dans la pension : la pastille de rappel est retirée. Absent = jamais entré (sauf si la pension a déjà servi). */
+  pensionVue?: boolean;
   inventaire: Record<string, number>; ligueGagnee: number;
   pc: PokemonPossede[]; ameliorations: string[]; jalonsRecus: number[]; starterId: number | null;
   statistiques: { eliminations: number; argentTotalGagne: number };

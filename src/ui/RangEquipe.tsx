@@ -4,6 +4,7 @@ import { Image } from './Image';
 import { BarreXp } from './BarreXp';
 import { SpriteEvolution } from './SpriteEvolution';
 import { IconeShiny } from './IconeShiny';
+import { RepereMarque } from './RepereMarque';
 import { classeSprite, nomAffiche, progressionOeuf, spriteAffiche } from './affichage-pokemon';
 import { formaterDps } from './nombres';
 
@@ -14,7 +15,8 @@ export function RangEquipe({ membre, evolution, animation, ouvrirFiche }: Props)
   const nom = nomAffiche(pokemon);
   return <button type="button" aria-label={`Ouvrir la fiche de ${nom}`} onClick={event => ouvrirFiche(event.currentTarget)}
     className={`rang-equipe cadre min-h-14 flex items-center gap-2 bg-surface p-2 text-left ${evolution ? 'pret-evoluer' : ''}`}>
-    <span className="size-14 shrink-0 grid place-items-center [&_img]:max-h-full [&_img]:max-w-full [&_span]:max-h-full [&_span]:max-w-full">
+    <span className="relative size-14 shrink-0 grid place-items-center [&_img]:max-h-full [&_img]:max-w-full [&_span]:max-h-full [&_span]:max-w-full">
+      {pokemon.marqueEclosion && <span className="repere-marque-sur-portrait"><RepereMarque /></span>}
       {animation ? <SpriteEvolution ancien={spriteAffiche({ ...pokemon, numero: animation.ancien })} nouveau={spriteAffiche({ ...pokemon, numero: animation.nouveau })} nom={nom} actif shiny={pokemon.shiny} />
         : <Image src={spriteAffiche(pokemon)} genre="sprite" alt="" className={`size-14 object-contain max-h-full max-w-full ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(pokemon)}`} />}
     </span>

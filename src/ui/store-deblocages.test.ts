@@ -72,21 +72,63 @@ const deblocagesSansRadar = tousSauf('poke-radar');
 const tour = (region: DonneesRegion): DonneesRegion => ({ ...region, bossVaincus: [], zoneId: 'kanto.tour-pokemon',
   etape: reglages.combat.etapeBoss, annoncesVues: ['sac', 'pc'] });
 
+/** Ferme l'annonce « carte » affichée et laisse passer la suivante : la Pension et le Casino attendent chacun un geste. */
+function fermerEtSuivre(p: ReturnType<typeof preparer>, store: StoreJeu, ms: number) {
+  store.getState().fermerDeblocage();
+  return suivre(p, store, ms);
+}
+
 it('enchaîne Pension, Centre commercial et Casino après le boss de la Tour Pokémon, une annonce à la fois', () => {
   const p = preparer(tour);
   const store = p.ouvrir();
   expect(store.getState().deblocage).toBeNull();
   p.gagner(store);
-  const suite = suivre(p, store, 13000);
+  // La Pension reste affichée (carte) jusqu'à un geste ; rien ne passe devant elle ni ne la coupe.
+  const attente = suivre(p, store, 8000);
+  expect(attente.filter(etape => etape.texte !== null).map(etape => etape.texte)).toEqual([texte('pension')]);
+  expect(store.getState().deblocageCarte).toEqual({ libelle: 'Y aller', cible: 'pension' });
+  const suite = fermerEtSuivre(p, store, 13000);
   const annonces = suite.filter(etape => etape.texte !== null);
-  expect(annonces.map(etape => etape.texte)).toEqual([texte('pension'), texte('centre-commercial'), texte('casino')]);
-  // Pension et Centre commercial durent 3 s chacun, sans trou ni superposition ; le Casino reste affiché (carte) jusqu'à un geste.
-  for (const etape of annonces.slice(0, 2)) expect(etape.pas * reglages.boucle.pasMs).toBe(reglages.interface.annonceDeblocageMs);
-  expect(annonces[2]!.pas * reglages.boucle.pasMs).toBeGreaterThan(reglages.interface.annonceDeblocageMs);
+  expect(annonces.map(etape => etape.texte)).toEqual([texte('centre-commercial'), texte('casino')]);
+  // Le Centre commercial dure 3 s, sans trou ni superposition ; le Casino reste affiché (carte) jusqu'à un geste.
+  // La durée relevée peut perdre un pas : la fermeture tombe en cours de pas.
+  expect(annonces[0]!.pas * reglages.boucle.pasMs).toBeGreaterThanOrEqual(reglages.interface.annonceDeblocageMs - reglages.boucle.pasMs);
+  expect(annonces[0]!.pas * reglages.boucle.pasMs).toBeLessThanOrEqual(reglages.interface.annonceDeblocageMs);
+  expect(annonces[1]!.pas * reglages.boucle.pasMs).toBeGreaterThan(reglages.interface.annonceDeblocageMs);
   expect(suite.filter(etape => etape.texte === null).length).toBeLessThanOrEqual(2);
   expect(store.getState().deblocage).toBe(texte('casino'));
   expect(store.getState().deblocageCarte).toEqual({ libelle: 'Y aller', cible: 'casino' });
   expect(p.lire().annoncesVues).toEqual(['sac', 'pc', 'pension', 'centre-commercial']);
+});
+
+it('l’annonce de la pension revient au rechargement tant qu’elle n’est pas fermée, puis ne revient plus', () => {
+  const p = preparer(tour);
+  const store = p.ouvrir();
+  p.gagner(store);
+  suivre(p, store, 8000);
+  expect(store.getState().deblocage).toBe(texte('pension'));
+  expect(p.lire().annoncesVues).not.toContain('pension');
+  store.getState().arreter();
+  const reprise = p.ouvrir();
+  suivre(p, reprise, 1000);
+  expect(reprise.getState().deblocage).toBe(texte('pension'));
+  expect(reprise.getState().deblocageCarte).toEqual({ libelle: 'Y aller', cible: 'pension' });
+  reprise.getState().fermerDeblocage();
+  expect(p.lire().annoncesVues).toContain('pension');
+});
+
+it('entrer dans la pension ferme son annonce et laisse passer la suivante', () => {
+  const p = preparer(tour);
+  const store = p.ouvrir();
+  p.gagner(store);
+  suivre(p, store, 8000);
+  expect(store.getState().pension.nouveau).toBe(true);
+  store.getState().entrerALaPension();
+  expect(store.getState().deblocage).not.toBe(texte('pension'));
+  expect(store.getState().pension.nouveau).toBe(false);
+  expect(p.lire().annoncesVues).toContain('pension');
+  const suite = suivre(p, store, 2500).filter(etape => etape.texte !== null);
+  expect(suite.map(etape => etape.texte)).toEqual([texte('centre-commercial')]);
 });
 
 it('l’annonce du casino reste bien au-delà de 3 s, sans bouton pour les autres annonces, jusqu’à ce que le joueur la ferme', () => {
@@ -94,6 +136,7 @@ it('l’annonce du casino reste bien au-delà de 3 s, sans bouton pour les autre
   const store = p.ouvrir();
   p.gagner(store);
   suivre(p, store, 8000);
+  fermerEtSuivre(p, store, 8000);
   expect(store.getState().deblocage).toBe(texte('casino'));
   expect(store.getState().deblocageCarte).not.toBeNull();
   p.avancer(store, 60000);
@@ -110,15 +153,17 @@ it('fermerDeblocage ne touche pas une annonce ordinaire', () => {
   const p = preparer(tour);
   const store = p.ouvrir();
   p.gagner(store);
-  for (let i = 0; i < 40 && store.getState().deblocage === null; i++) p.avancer(store, reglages.boucle.pasMs);
-  expect(store.getState().deblocage).toBe(texte('pension'));
+  suivre(p, store, 3000);
+  store.getState().fermerDeblocage();
+  for (let i = 0; i < 40 && store.getState().deblocage !== texte('centre-commercial'); i++) p.avancer(store, reglages.boucle.pasMs);
+  expect(store.getState().deblocage).toBe(texte('centre-commercial'));
   expect(store.getState().deblocageCarte).toBeNull();
   store.getState().fermerDeblocage();
-  expect(store.getState().deblocage).toBe(texte('pension'));
+  expect(store.getState().deblocage).toBe(texte('centre-commercial'));
 });
 
 it('l’annonce du casino revient au rechargement tant qu’elle n’est pas fermée, puis ne revient plus', () => {
-  const p = preparer(tour);
+  const p = preparer(region => ({ ...tour(region), annoncesVues: ['sac', 'pc', 'pension'] }));
   const store = p.ouvrir();
   p.gagner(store);
   suivre(p, store, 8000);
@@ -135,7 +180,7 @@ it('l’annonce du casino revient au rechargement tant qu’elle n’est pas fer
 });
 
 it('entrer au casino ferme l’annonce du casino', () => {
-  const p = preparer(tour);
+  const p = preparer(region => ({ ...tour(region), annoncesVues: ['sac', 'pc', 'pension'] }));
   const store = p.ouvrir();
   p.gagner(store);
   suivre(p, store, 8000);
@@ -162,7 +207,8 @@ it('ne rejoue rien au rechargement ni quand la page est rouverte au milieu de la
   const store = p.ouvrir();
   p.gagner(store);
   const annonces = (suite: ReturnType<typeof suivre>) => suite.map(etape => etape.texte).filter(Boolean);
-  expect(annonces(suivre(p, store, 5000))).toEqual([texte('pension'), texte('centre-commercial')]);
+  expect(annonces(suivre(p, store, 3000))).toEqual([texte('pension')]);
+  expect(annonces(fermerEtSuivre(p, store, 2500))).toEqual([texte('centre-commercial')]);
   store.getState().arreter();
   const reprise = p.ouvrir();
   expect(annonces(suivre(p, reprise, 6000))).toEqual([texte('casino')]);

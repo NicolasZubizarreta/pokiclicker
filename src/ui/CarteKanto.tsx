@@ -7,6 +7,7 @@ import { centreForme, deplacer, positionFiche, rayonCible, vueInitiale, zoomer }
 import type { Point, Vue } from './carte-geometrie';
 import { storeJeu } from './store';
 import { PastilleCasino, useCasinoNouveau } from './PastilleCasino';
+import { PastillePension, usePensionNouveau } from './PastillePension';
 import type { EtatForme } from './store';
 import { kanto } from '../core/regions';
 import type { FormeCarte } from '../core/monde';
@@ -31,7 +32,7 @@ const formeDepart = (f: EtatForme): FormeCarte => {
   return { zone: f.zone, nom: f.nom, teinte: f.forme.teinte, forme: 'cercle', x: c.x / 16, y: c.y / 9, r: 0.01 };
 };
 
-export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArrive: () => void; quandCentre?: () => void; quandCasino?: () => void }) {
+export function CarteKanto({ quandArrive, quandCentre, quandCasino, quandPension }: { quandArrive: () => void; quandCentre?: () => void; quandCasino?: () => void; quandPension?: () => void }) {
   const telephone = useTelephone();
   const [celadopoleOuverte, ouvrirCeladopole] = useState(false);
   const dialogueCeladopole = useRef<HTMLDialogElement>(null);
@@ -41,6 +42,8 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
   const centre = useStore(storeJeu, etat => etat.centre.acces);
   const casino = useStore(storeJeu, etat => etat.casino.acces);
   const casinoNouveau = useCasinoNouveau();
+  const pension = useStore(storeJeu, etat => etat.pension.acces);
+  const pensionNouveau = usePensionNouveau();
   const raisonCasino = quandCasino ? casino.raison : 'Bientôt disponible.';
   const centreOuvert = !!quandCentre && centre.ouvert;
   const raisonCentre = quandCentre ? centre.raison : 'Bientôt disponible.';
@@ -240,6 +243,19 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino }: { quandArr
           </button>
         </li>;
       })}
+      {/* Accès direct à la pension, sans passer par Bourg Palette. */}
+      {pension.ouvert && quandPension && <li>
+        <button type="button" data-pension-direct aria-label="Pension, accès direct" aria-disabled={vol.actif ? true : undefined}
+          onClick={vol.actif ? undefined : quandPension}
+          className={`flex min-h-14 w-full items-center gap-3 border-2 border-bordure bg-surface px-3 py-1 text-left focus-visible:outline-2 focus-visible:outline-focus ${vol.actif ? '' : 'hover:bg-selection'}`}>
+          <span className="min-w-0 flex-1">
+            <span className="block font-semibold">Pension</span>
+            <span className="block text-sm text-texte-doux">{pensionNouveau ? 'Nouveau ! Parents, œufs et collection d’éclosions' : 'Bourg Palette · Parents, œufs et collection'}</span>
+          </span>
+          {pensionNouveau && <PastillePension />}
+          <svg aria-hidden="true" viewBox="0 0 24 24" className="size-6 shrink-0 fill-none stroke-current stroke-2"><path d="m9 6 6 6-6 6" /></svg>
+        </button>
+      </li>}
       {/* Accès direct au casino, sans passer par la fiche de Céladopole. */}
       {casino.ouvert && quandCasino && <li>
         <button type="button" data-casino-direct aria-label="Casino, accès direct" aria-disabled={vol.actif ? true : undefined}

@@ -2,6 +2,7 @@ import { Fragment, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useStore } from 'zustand';
 import { classeSprite, nomAffiche, progressionOeuf, spriteAffiche } from './affichage-pokemon';
 import { IconeShiny } from './IconeShiny';
+import { RepereMarque } from './RepereMarque';
 import { chargerObjets } from '../core/boutique';
 import { reglages } from '../core/reglages';
 import { type TypeObjetEquipe, cibleValide, cibleValideStase, quantiteMax } from '../core/objets-equipe';
@@ -203,10 +204,13 @@ export function PageEquipe({ ouvrirPC }: { ouvrirPC?: () => void }) {
                 if (!panneau.current?.getClientRects().length) ouvrirFiche(pokemon.uid, event.currentTarget);
               }}>
               {!telephone ? <EquipePC pokemon={pokemon} dps={dps} xpMax={xpMax} pret={typeof caseEquipe.evolution === 'number'} animation={evolution?.uid === pokemon.uid ? { ancien: spriteAffiche({ ...pokemon, numero: evolution.ancien }), nouveau: spriteAffiche({ ...pokemon, numero: evolution.nouveau }), nom, actif: true, shiny: pokemon.shiny } : undefined} /> : <>
+              <span className="relative shrink-0">
               {evolution?.uid === pokemon.uid
                 ? <span className="grid size-14 lg:size-24 max-w-full overflow-hidden place-items-center [&_img]:size-14 lg:[&_img]:size-24 [&_img]:max-h-full [&_img]:max-w-full"><SpriteEvolution ancien={spriteAffiche({ ...pokemon, numero: evolution.ancien })}
                   nouveau={spriteAffiche({ ...pokemon, numero: evolution.nouveau })} nom={nom} actif shiny={pokemon.shiny} /></span>
                 : <Image src={spriteAffiche(pokemon)} genre="sprite" alt="" className={`size-14 lg:size-24 max-h-full max-w-full ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(pokemon)}`} />}
+              {pokemon.marqueEclosion && <span className="repere-marque-sur-portrait"><RepereMarque /></span>}
+              </span>
               <span className="grid min-w-0 gap-1 lg:gap-2">
                 <strong className="flex items-center gap-2 break-words">{nom}{pokemon.shiny && !pokemon.oeuf && <IconeShiny />}{pokemon.favori &&
                   <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" className="size-5 shrink-0 fill-current text-lien">

@@ -95,14 +95,38 @@ export function accesPension(
   return resultat.ok ? { ouvert: true } : { ouvert: false, raison: resultat.raison };
 }
 
-export function chancePonte(parents: readonly PokemonPossede[]): number {
+/** Pourquoi un couple pond (ou non) : l'écran de choix d'un parent montre la raison à côté du pourcentage. */
+export type RaisonPonte = 'incomplet' | 'metamorph' | 'memeSexe' | 'sansSexe' | 'memeEspece' | 'typePartage' | 'aucunType';
+
+export function couplePonte(parents: readonly PokemonPossede[]): { chance: number; raison: RaisonPonte } {
   const [premier, second] = parents;
-  if (!premier || !second) return 0;
-  if (premier.numero === pension.metamorph || second.numero === pension.metamorph) return pension.chances.metamorph;
-  if (premier.sexe === second.sexe || premier.sexe === 'sansSexe' || second.sexe === 'sansSexe') return 0;
-  if (formeDeBase(premier.numero) === formeDeBase(second.numero)) return pension.chances.memeEspece;
+  if (!premier || !second) return { chance: 0, raison: 'incomplet' };
+  if (premier.numero === pension.metamorph || second.numero === pension.metamorph) return { chance: pension.chances.metamorph, raison: 'metamorph' };
+  if (premier.sexe === second.sexe) return { chance: 0, raison: 'memeSexe' };
+  if (premier.sexe === 'sansSexe' || second.sexe === 'sansSexe') return { chance: 0, raison: 'sansSexe' };
+  if (formeDeBase(premier.numero) === formeDeBase(second.numero)) return { chance: pension.chances.memeEspece, raison: 'memeEspece' };
   const types = catalogue.parNumero(second.numero).types;
-  return catalogue.parNumero(premier.numero).types.some(type => types.includes(type)) ? pension.chances.typePartage : 0;
+  return catalogue.parNumero(premier.numero).types.some(type => types.includes(type))
+    ? { chance: pension.chances.typePartage, raison: 'typePartage' } : { chance: 0, raison: 'aucunType' };
+}
+
+export function chancePonte(parents: readonly PokemonPossede[]): number {
+  return couplePonte(parents).chance;
+}
+
+/**
+ * Le joueur est entré dans la pension (la pastille de rappel est retirée). Une sauvegarde sans `pensionVue` compte comme
+ * « déjà entré » dès que la pension a servi (parents, œufs ou espèce éclose) : inutile de rappeler un lieu qu'il connaît.
+ */
+export function pensionVisitee(region: Pick<DonneesRegion, 'pensionVue' | 'pension' | 'especesEcloses'>): boolean {
+  return region.pensionVue === true || region.pension.parents.length > 0 || region.pension.oeufs.length > 0
+    || nombreEspecesEcloses(region) > 0;
+}
+
+/** Première entrée : pose le drapeau `pensionVue` ; `premiere` n'est vrai qu'une fois par partie, et jamais si la pension a déjà servi. */
+export function entrerALaPension<R extends Pick<DonneesRegion, 'pensionVue' | 'pension' | 'especesEcloses'>>(region: R): { region: R; premiere: boolean } {
+  if (region.pensionVue === true) return { region, premiere: false };
+  return { region: { ...region, pensionVue: true }, premiere: !pensionVisitee(region) };
 }
 
 export function tirerOeuf(

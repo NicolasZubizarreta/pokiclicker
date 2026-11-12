@@ -14,7 +14,8 @@
     {
       "id": "pension",
       "declencheur": { "lieu": "pension" },
-      "texte": "Pension débloquée ! Elle est à Bourg Palette."
+      "carte": { "libelle": "Y aller", "cible": "pension" },
+      "texte": "Pension débloquée ! Tu y accèdes depuis le Menu, la Carte et Bourg Palette."
     },
     {
       "id": "centre-commercial",

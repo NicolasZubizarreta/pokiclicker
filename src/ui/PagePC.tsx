@@ -12,6 +12,7 @@ import { Image } from './Image';
 import { formaterDps } from './nombres';
 import { classeSprite, nomAffiche as nomDe, progressionOeuf, spriteAffiche } from './affichage-pokemon';
 import { IconeShiny } from './IconeShiny';
+import { RepereMarque } from './RepereMarque';
 import { storeJeu } from './store';
 import { notifier } from './pileNotifications';
 import './PagePC.css';
@@ -110,7 +111,10 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
       const { pokemon, dps } = membre;
       const nom = nomDe(pokemon);
       const contenu = <>
+        <span className="relative shrink-0">
         <Image src={spriteAffiche(pokemon)} genre="sprite" alt="" className={`${mobile ? 'size-16' : 'size-14'} shrink-0 ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(pokemon)}`} />
+        {pokemon.marqueEclosion && <span className="repere-marque-sur-portrait"><RepereMarque /></span>}
+        </span>
         <span className="grid min-w-0 gap-1 break-words">
           <strong>{nom}{pokemon.shiny && !pokemon.oeuf && <IconeShiny />}</strong><span>{pokemon.oeuf ? progressionOeuf(pokemon.oeuf) : `Niv. ${pokemon.niveau}`}</span>{!mobile && <span>{formaterDps(dps)} DPS</span>}
         </span>
@@ -177,6 +181,7 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
                       } else if (!telephone || !panneau.current?.getClientRects().length) ouvrirFiche(pokemon.uid, event.currentTarget);
                     }}>
                     <span className="relative isolate grid size-12 shrink-0 max-w-full overflow-hidden place-items-center lg:size-24">
+                      {pokemon.marqueEclosion && <span className="repere-marque-sur-portrait"><RepereMarque /></span>}
                       {telephone && <span aria-hidden="true" className="socle absolute bottom-2 -z-10 hidden h-4 w-20 bg-region-socle lg:block" />}
                       <Image src={spriteAffiche(pokemon)} genre="sprite" alt="" className={`size-12 lg:size-24 max-h-full max-w-full ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(pokemon)}`} />
                     </span>

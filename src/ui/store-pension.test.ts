@@ -81,6 +81,13 @@ it('pond après une victoire, retire l’œuf, avance et éclot à la 25e victoi
   expect(p.store.getState().pokedex).toContain(25);
   expect(p.store.getState().annonce).toContain('Pikachu éclot !');
   expect(p.lire().equipe.find(p => p.uid === oeuf.uid)?.oeuf).toBeUndefined();
+  // Éclosion mise en scène : une entrée à la fois, avec la marque, la collection et le son de montée.
+  expect(p.store.getState().eclosion).toEqual({ uid: oeuf.uid, numero: 25, nom: 'Pikachu', shiny: true, sexe: 'male', niveau: 1,
+    bonheur: 125, marquePourcent: 5, nouvelleEspece: true, especesEcloses: 1, paliersGagnes: [] });
+  expect(p.store.getState().pension.especesEcloses).toEqual([25]);
+  expect(p.store.getState().equipe.find(p => p?.pokemon.uid === oeuf.uid)?.pokemon.marqueEclosion).toBe(true);
+  p.store.getState().fermerEclosion();
+  expect(p.store.getState().eclosion).toBeNull();
 });
 
 it('persiste les parents, les œufs et les emplacements et garde une référence stable', () => {
@@ -120,16 +127,21 @@ it('bloque la ponte avant la Tour Pokémon et annonce le déblocage une seule fo
     }
     return textes;
   };
-  expect(annonces(p.store)[0]).toBe('Pension débloquée ! Elle est à Bourg Palette.');
+  const texte = 'Pension débloquée ! Tu y accèdes depuis le Menu, la Carte et Bourg Palette.';
+  expect(annonces(p.store)[0]).toBe(texte);
+  // L'annonce « carte » reste jusqu'à un geste du joueur : elle n'est notée vue qu'à sa fermeture.
+  expect(p.lire().annoncesVues).not.toContain('pension');
+  p.store.getState().fermerDeblocage();
   expect(p.lire().annoncesVues).toContain('pension');
-  // L'annonce du casino reste jusqu'à un geste du joueur : on la ferme pour que le rechargement parte d'un écran vide.
+  // L'annonce du casino, notée après celle de la pension, attend elle aussi un geste du joueur.
+  annonces(p.store);
   p.store.getState().fermerDeblocage();
   p.store.getState().arreter();
   p.gestionnaire.ecrireRegion('test', 'kanto', { ...p.lire(), etape: reglages.combat.etapeBoss });
   const reprise = p.ouvrir();
   expect(reprise.getState().deblocage).toBeNull();
   p.victoire(reprise);
-  expect(annonces(reprise)).not.toContain('Pension débloquée ! Elle est à Bourg Palette.');
+  expect(annonces(reprise)).not.toContain(texte);
 });
 
 it('inscrit aussi au Pokédex une espèce inconnue lors de l’éclosion', () => {

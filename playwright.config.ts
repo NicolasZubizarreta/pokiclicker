@@ -14,7 +14,7 @@ export default defineConfig({
     { name: 'mobile', testIgnore: sansWebkit, use: { storageState: 'tests-e2e/etat-equipe-de-depart.json', viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true } },
     { name: 'pc', testIgnore: sansWebkit, use: { storageState: 'tests-e2e/etat-equipe-de-depart.json', viewport: { width: 1440, height: 900 } } },
     { name: 'pwa', testMatch: '**/pwa.spec.ts', use: { storageState: 'tests-e2e/etat-equipe-de-depart.json', serviceWorkers: 'allow', viewport: { width: 390, height: 844 } } },
-    { name: 'iphone', testMatch: '**/fenetres-iphone.spec.ts', use: { ...devices['iPhone 15'], browserName: 'webkit', storageState: 'tests-e2e/etat-equipe-de-depart.json' } },
+    { name: 'iphone', testMatch: ['**/fenetres-iphone.spec.ts', '**/pension-visibilite.spec.ts'], use: { ...devices['iPhone 15'], browserName: 'webkit', storageState: 'tests-e2e/etat-equipe-de-depart.json' } },
   ],
   webServer: {
     command: 'npm run build && npm run preview -- --port 4173 --strictPort',

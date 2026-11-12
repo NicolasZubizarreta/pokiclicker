@@ -44,6 +44,7 @@ import { afficherEvolution, annonceEvolution, type EvolutionAffichee } from './s
 import { afficherProgression, phaseObtention, type AffichageProgression, type PhaseObtention } from './store-progression';
 import { afficherEffets, afficherFauchage, type EffetsAffiches, type FauchageAffiche } from './store-objets';
 import { afficherBoutique, afficherCentre, afficherSac, type AffichageBoutique, type AffichageSac } from './store-boutique';
+import { construireEclosions, signalerPremiereEntreePension, type EclosionAffichee } from './store-pension';
 import { afficherCasino, signalerPremiereEntreeCasino, type ActionsCasino, type AffichageCasino } from './store-casino';
 import { detailErreur, ouvrirPartie } from './persistance';
 import { creerStockageLocal } from './stockage-local';
@@ -109,7 +110,16 @@ export type AffichageJeu = ActionsCasino & {
     acces: { ouvert: boolean; raison: string | null }; parents: PokemonPossede[]; oeufs: PokemonPossede[];
     emplacements: number; emplacementsMax: number; chance: number;
     prochainEmplacement: { prix: number; raison: string | null } | null;
+    /** Pension ouverte et jamais visitée : la pastille de rappel est affichée (menu, Carte). */
+    nouveau: boolean;
+    /** Espèces (formes de base) déjà écloses, dans l'ordre de première éclosion. */
+    especesEcloses: readonly number[];
   };
+  /** Éclosion à mettre en scène (la première de la file), `null` sinon ; les suivantes attendent la fermeture. */
+  eclosion: EclosionAffichee | null;
+  fermerEclosion(): void;
+  /** Ouverture de la pension : pose le drapeau « visitée » (pastille retirée, annonce « carte » close) ; sans effet si la pension est fermée. */
+  entrerALaPension(): void;
   deposerParent(uid: string): string | null;
   retirerParent(uid: string): string | null;
   prendreOeuf(uid: string): string | null;
@@ -197,6 +207,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
   let resteAutoClicMs = 0;
   let evolutionEnCours: EvolutionAffichee | null = null;
   let finEvolutionMs = 0;
+  let fileEclosions: EclosionAffichee[] = [];
   let obtentionBadge: { id: string; debutMs: number } | null = null;
   let pantheon: AffichageJeu['pantheon'] = null;
   let debutDefiChenMs: number | null = null;
@@ -335,10 +346,12 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       if (evenement.type === 'ennemi-vaincu') {
         emettreSon('coin');
         if (region.equipe.some(p => p.oeuf)) sauvegarder = true;
+        const especesAvant = pension.especesEcloses(region);
         const r = appliquerVictoire(region, evenement, coeur.actifs);
         region = r.region;
         emettreGain({ type: 'butin', lignes: [`+${r.or.toLocaleString('fr-FR')} ₽`, `+${r.xp.toLocaleString('fr-FR')} XP`] });
-        if (r.montees.length > 0) emettreSon('up');
+        if (r.montees.length > 0 || r.eclosions.length > 0) emettreSon('up'); // le ton « up » de la V1 sonne aussi à l'éclosion
+        fileEclosions.push(...construireEclosions(especesAvant, r.region, r.eclosions));
         if (pension.accesPension(kanto, etatMondeDe(region)).ouvert) {
           const suivante = pension.pondre(region, alea, genererId);
           if (suivante !== region) sauvegarder = true;
@@ -499,6 +512,8 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       emplacements: region.pension.emplacementsOeuf, emplacementsMax: reglages.pension.emplacementsMax,
       chance: pension.chancePonte(region.pension.parents),
       prochainEmplacement: prix === null ? null : { prix, raison: region.argent < prix ? "Pas assez d'argent." : null },
+      nouveau: accesPension.ouvert && !pension.pensionVisitee(region),
+      especesEcloses: pension.especesEcloses(region),
     };
     const ouvertes = new Set(kanto.zonesOuvertes(etatMonde).filter(zone => acces(zone.id).ok).map(zone => zone.id));
     const carte: AffichageJeu['carte'] = {
@@ -569,6 +584,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       dps: coeur ? calculerDpsEquipe(coeur.equipe, coeur.ennemi, actifs) : 0, erreur,
       statistiques: calculerStatistiques(region, maintenant),
       evolution: afficherEvolution(evolutionEnCours, finEvolutionMs, tempsJeuMs),
+      eclosion: fileEclosions[0] ?? null,
       argent: region.argent, enRecherche: (coeur?.attenteMs ?? 0) > 0 && !coeur?.attenteCapture, cache: (coeur?.attenteMs ?? 0) > 0, annonce, banniere,
       deblocage: deblocageEnCours?.texte ?? null, deblocageCarte: deblocageEnCours?.carte ?? null, sonActive, echange,
       minuteur: coeur && coeur.attenteMs === 0 && coeur.minuteurMs !== null
@@ -1052,7 +1068,23 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     pc: [], pokedex, vus: [], accesPc: { ouvert: false, raison: reglages.pc.raison },
     pension: { acces: { ouvert: false, raison: null }, parents: [], oeufs: [],
       emplacements: reglages.depart.region.pension.emplacementsOeuf, emplacementsMax: reglages.pension.emplacementsMax,
-      chance: 0, prochainEmplacement: null },
+      chance: 0, prochainEmplacement: null, nouveau: false, especesEcloses: [] },
+    eclosion: null,
+    fermerEclosion() {
+      if (fileEclosions.length === 0) return;
+      fileEclosions = fileEclosions.slice(1);
+      afficher();
+    },
+    entrerALaPension() {
+      if (!initialise || !pension.accesPension(kanto, etatMondeDe(region)).ouvert) return;
+      const resultat = pension.entrerALaPension(region);
+      if (resultat.region === region) return;
+      region = resultat.region;
+      // Entrer dans la pension vaut lecture de l'annonce de déblocage : elle ne revient plus.
+      fermerAnnonceCarte('pension');
+      enregistrer(); afficher();
+      if (resultat.premiere) signalerPremiereEntreePension();
+    },
     deposerParent: uid => modifierPension(region => pension.deposerParent(region, uid)),
     retirerParent: uid => modifierPension(region => pension.retirerParent(region, uid)),
     prendreOeuf: uid => modifierPension(region => pension.prendreOeuf(region, uid), true),

@@ -1,0 +1,38 @@
+.fenetre-eclosion { width:min(calc(100% - var(--spacing) * 4), calc(var(--spacing) * 130)); max-height:calc(100dvh - var(--spacing) * 4); margin:auto; padding:0; overflow:auto; border:calc(var(--spacing) / 2) solid var(--bordure); border-radius:var(--rayon); background:var(--surface); color:var(--texte); font-size:var(--text-base); }
+.fenetre-eclosion::backdrop { background:var(--fond); opacity:0.85; }
+.eclosion-corps { display:grid; justify-items:center; gap:calc(var(--spacing) * 4); padding:calc(var(--spacing) * 4); text-align:center; overflow-wrap:anywhere; }
+.eclosion-corps h2 { font-size:var(--text-2xl); font-weight:700; }
+.eclosion-corps > button, .eclosion-resultat { width:100%; }
+.eclosion-scene { position:relative; isolation:isolate; display:grid; place-items:center; width:100%; max-width:calc(var(--spacing) * 70); aspect-ratio:1; overflow:hidden; background:var(--region-accent-fond, var(--surface-2)); border:calc(var(--spacing) / 2) solid var(--region-accent); border-radius:var(--radius-lg); }
+.eclosion-socle { position:absolute; z-index:-1; bottom:calc(var(--spacing) * 16); width:calc(var(--spacing) * 40); height:calc(var(--spacing) * 10); border-radius:var(--radius-plein); background:var(--region-socle); }
+.eclosion-scene img, .eclosion-fissures { grid-area:1 / 1; max-width:none; image-rendering:pixelated; }
+.eclosion-oeuf, .eclosion-fissures { width:calc(var(--spacing) * 45); height:calc(var(--spacing) * 45); }
+.eclosion-pokemon { width:calc(var(--spacing) * 48); height:calc(var(--spacing) * 48); opacity:0; }
+.eclosion-fissures { opacity:0; fill:none; stroke:var(--fond); stroke-width:1; }
+.eclosion-eclair { position:absolute; inset:0; background:var(--blanc); opacity:0; }
+.eclosion-scene[data-etape="secousse"] .eclosion-oeuf { animation:eclosion-secousse calc(var(--duration-lent) * 3) var(--ease-standard) 2; }
+.eclosion-scene[data-etape="fissure"] .eclosion-oeuf, .eclosion-scene[data-etape="fissure"] .eclosion-fissures { animation:eclosion-secousse calc(var(--duration-normal) * 3) var(--ease-standard) 2; }
+.eclosion-scene[data-etape="fissure"] .eclosion-fissures, .eclosion-scene[data-etape="eclair"] .eclosion-fissures { opacity:1; }
+.eclosion-scene[data-etape="eclair"] .eclosion-eclair { animation:eclosion-eclair var(--duration-lent) var(--ease-standard); }
+.eclosion-scene[data-etape="revele"] .eclosion-oeuf { opacity:0; }
+.eclosion-scene[data-etape="revele"] .eclosion-pokemon { opacity:1; animation:eclosion-apparait calc(var(--duration-lent) * 2) var(--ease-sortie); }
+.eclosion-eclats i { position:absolute; left:50%; top:50%; width:calc(var(--spacing) * 2); height:calc(var(--spacing) * 2); background:var(--region-argent); opacity:0; --dx:calc(var(--spacing) * -15); --dy:calc(var(--spacing) * -17); }
+.eclosion-eclats i:nth-child(2) { --dx:calc(var(--spacing) * 17); --dy:calc(var(--spacing) * -12); }
+.eclosion-eclats i:nth-child(3) { --dx:calc(var(--spacing) * -20); --dy:calc(var(--spacing) * 5); }
+.eclosion-eclats i:nth-child(4) { --dx:calc(var(--spacing) * 19); --dy:calc(var(--spacing) * 8); }
+.eclosion-eclats i:nth-child(5) { --dx:0; --dy:calc(var(--spacing) * -22); }
+.eclosion-scene[data-etape="revele"] .eclosion-eclats i { animation:eclosion-eclat calc(var(--duration-lent) * 4) var(--ease-sortie); }
+.eclosion-resultat { display:grid; gap:calc(var(--spacing) * 3); }
+.eclosion-pastilles { display:flex; flex-wrap:wrap; justify-content:center; gap:calc(var(--spacing) * 2); }
+.eclosion-pastilles > span { display:inline-flex; align-items:center; gap:var(--spacing); padding:var(--spacing) calc(var(--spacing) * 2); border-radius:var(--radius-md); background:var(--surface-2); }
+.eclosion-pastilles svg { width:calc(var(--spacing) * 5); height:calc(var(--spacing) * 5); fill:none; stroke:currentColor; stroke-width:2; }
+.eclosion-marque, .eclosion-palier { padding:calc(var(--spacing) * 3); text-align:left; border:calc(var(--spacing) / 2) solid var(--alerte-base); border-radius:var(--rayon); background:var(--alerte-fond); color:var(--alerte-texte); }
+.eclosion-marque { display:flex; align-items:center; gap:calc(var(--spacing) * 3); }
+.eclosion-marque > .repere-marque { width:calc(var(--spacing) * 10); height:calc(var(--spacing) * 10); }
+.eclosion-marque p + p { font-size:var(--text-sm); line-height:var(--text-sm--line-height); }
+.eclosion-palier { border-color:var(--info-base); background:var(--info-fond); color:var(--info-texte); }
+@keyframes eclosion-secousse { 0%,100% { transform:rotate(0); } 20%,60% { transform:rotate(-8deg); } 40%,80% { transform:rotate(8deg); } }
+@keyframes eclosion-eclair { 0%,100% { opacity:0; } 40% { opacity:1; } }
+@keyframes eclosion-apparait { from { transform:scale(0.5); opacity:0; } to { transform:scale(1); opacity:1; } }
+@keyframes eclosion-eclat { from { transform:translate(0,0); opacity:1; } to { transform:translate(var(--dx),var(--dy)); opacity:0; } }
+@media (prefers-reduced-motion:reduce) { .eclosion-scene * { animation:none !important; } }

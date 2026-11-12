@@ -12,5 +12,6 @@ export async function voyagerVers(page: Page, nom: string) {
   if (telephone(page)) { await ligneZone(page, nom).click(); return; }
   await page.locator(`[data-forme="${nom}"]`).first().focus();
   await page.keyboard.press('Enter');
-  await page.getByRole('button', { name: 'Y aller', exact: true }).click();
+  // Une annonce de déblocage « Y aller » (casino, pension) peut être affichée en même temps : on vise la zone sélectionnée.
+  await page.getByRole('region', { name: 'Zone sélectionnée' }).getByRole('button', { name: 'Y aller', exact: true }).click();
 }

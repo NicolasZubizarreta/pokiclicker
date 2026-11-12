@@ -5,6 +5,10 @@ import { RangEquipe } from './RangEquipe';
 import type { CaseEquipe } from './store';
 afterEach(cleanup);
 const membre: NonNullable<CaseEquipe> = { pokemon: { uid: 'a', numero: 1, niveau: 1, xp: 0, sexe: 'male', shiny: false, favori: false, bonheur: 0, calcium: 0, pierreEternelle: false }, dps: 3, xpMax: 100, multiplicateur: 1 };
+it.each([false, true])('repère accessible seulement sur une carte marquée : %s', marqueEclosion => {
+  render(<RangEquipe membre={{ ...membre, pokemon: { ...membre.pokemon, marqueEclosion } }} ouvrirFiche={vi.fn()} />);
+  expect(!!screen.queryByRole('img', { name: "Marque d'éclosion" })).toBe(marqueEclosion);
+});
 it('ouvre la fiche et signale une évolution sans bouton dédié', () => {
   const ouvrir = vi.fn();
   render(<RangEquipe membre={membre} evolution={{ vers: 2, pierre: null }} ouvrirFiche={ouvrir} />);

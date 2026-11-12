@@ -6,12 +6,13 @@ import { IconeObjet } from './icones';
 import { Image } from './Image';
 import { storeJeu } from './store';
 import { AccueilCasino } from './AccueilCasino';
+import { PagePension } from './PagePension';
 import { useTelephone } from './useTelephone';
 import './ShopPC.css';
 
 export function PageCarte({ quandArrive }: { quandArrive: () => void }) {
   const telephone = useTelephone();
-  const [ouvert, ouvrir] = useState<'centre' | 'casino' | null>(null);
+  const [ouvert, ouvrir] = useState<'centre' | 'casino' | 'pension' | null>(null);
   const dernier = useRef('centre');
   const conteneur = useRef<HTMLDivElement>(null);
   const visite = useRef(false);
@@ -27,9 +28,10 @@ export function PageCarte({ quandArrive }: { quandArrive: () => void }) {
   }, [ouvert]);
   return <div ref={conteneur} className={!telephone && ouvert === null ? 'carte-page-pc' : undefined}>
     <div hidden={ouvert !== null} className={!telephone && ouvert === null ? 'carte-page-contenu-pc' : undefined}>
-      <CarteKanto quandArrive={quandArrive} quandCentre={() => ouvrir('centre')} quandCasino={() => ouvrir('casino')} />
+      <CarteKanto quandArrive={quandArrive} quandCentre={() => ouvrir('centre')} quandCasino={() => ouvrir('casino')} quandPension={() => ouvrir('pension')} />
     </div>
     {ouvert === 'centre' && <PageCentre retour={() => ouvrir(null)} />}
+    {ouvert === 'pension' && <PagePension retour={() => ouvrir(null)} libelleRetour="Retour à la carte" />}
     {ouvert === 'casino' && <AccueilCasino retour={() => ouvrir(null)} />}
   </div>;
 }

@@ -11,6 +11,7 @@ import { dpsSansType } from './dps-pc';
 import { Image } from './Image';
 import { IconeShiny } from './IconeShiny';
 import { IconeSexe } from './IconeSexe';
+import { RepereMarque } from './RepereMarque';
 import { formaterDps } from './nombres';
 import { classeSprite, nomAffiche, progressionOeuf, spriteAffiche } from './affichage-pokemon';
 import { storeJeu } from './store';
@@ -127,6 +128,7 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: 
   const verificationPc = verifierEnvoi(regionVerification, uid);
   const refusPc = caseEquipe && !verificationPc.ok ? verificationPc.raison : null;
   const detail = membre ? detailDps(membre.pokemon, membre.multiplicateur) : null;
+  const marque = pokemon?.marqueEclosion && detail ? `+${Math.round((detail.marqueEclosion - 1) * 100)} %` : null;
 
   const fermeture = <button type="button" className={`${bouton} justify-self-end${telephone ? '' : ' fiche-fermer'}`} onClick={fermerFiche}>{telephone ? 'Ferme la fiche' : <><span className="sr-only">Ferme la fiche</span><svg viewBox="0 0 24 24" aria-hidden="true" className="size-5"><path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" strokeWidth="2" /></svg></>}</button>;
   const favori = pokemon && <button type="button" aria-pressed={pokemon.favori}
@@ -136,6 +138,7 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: 
   const entete = <header>
           <div className="flex min-w-0 flex-wrap items-center gap-2">
             {telephone && <h2 id={titre} className="min-w-0 break-words font-titre text-2xl">{nom}{pokemon?.shiny && !pokemon.oeuf && <IconeShiny />}</h2>}
+            {telephone && marque && <RepereMarque />}
             {!telephone && favori}
             {pokemon && !pokemon.oeuf && <BoutonRenommer ref={crayon} nom={nom} ouvrir={ouvrirEdition} />}
           </div>
@@ -184,10 +187,12 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: 
             <dt>Bonheur</dt><dd>× {nombre(detail.bonheur)}</dd>
             <dt>Pierre Stase</dt><dd>× {nombre(detail.pierreEternelle)}</dd>
             <dt>Calcium</dt><dd>× {nombre(detail.calcium)}</dd>
+            {marque && <><dt>Marque d'éclosion</dt><dd>{marque}</dd></>}
           </dl> : <dl className="fiche-pc-facteurs">{[
             ['Base', nombre(detail.base)], ['Type', `× ${nombre(detail.multiplicateurType)}`],
             ['Shiny', `× ${nombre(detail.shiny)}`], ['Bonheur', `× ${nombre(detail.bonheur)}`],
             ['Pierre Stase', `× ${nombre(detail.pierreEternelle)}`], ['Calcium', `× ${nombre(detail.calcium)}`],
+            ...(marque ? [["Marque d'éclosion", marque]] : []),
           ].map(([libelle, valeur]) => <div key={libelle}><dt>{libelle}</dt><dd>{valeur}</dd></div>)}</dl>}
           {!pokemon.oeuf && peutEvoluer(pokemon.numero) && <p>{pokemon.pierreEternelle
             ? 'Évolution bloquée (Pierre Stase).'
@@ -232,7 +237,7 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: 
         {fermeture}{entete}{boutonEvolution}{pokemonPc && <p>Dans le PC</p>}
         {pokemon && espece && membre && detail && <>{portrait}{identite}{statistiques}{actions}</>}
       </div> : <>
-        <div className="fiche-pc-titre"><h2 id={titre} className="min-w-0 break-words font-titre text-2xl">{nom}{pokemon?.shiny && !pokemon.oeuf && <IconeShiny />}</h2>{fermeture}</div>
+        <div className="fiche-pc-titre"><h2 id={titre} className="min-w-0 break-words font-titre text-2xl">{nom}{pokemon?.shiny && !pokemon.oeuf && <IconeShiny />}{marque && <RepereMarque />}</h2>{fermeture}</div>
         <div className="fiche-pc-corps">
           <div className="fiche-pc-portrait">{portrait}{identite}</div>
           <div className="fiche-pc-detail">{entete}{statistiques}{boutonEvolution}<div className="fiche-pc-actions">{actions}</div></div>

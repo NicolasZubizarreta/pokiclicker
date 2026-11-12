@@ -30,7 +30,7 @@ export function validerSucces(liste: unknown): DefinitionSucces[] {
     if (!MESURES_SUCCES.includes(mesure as MesureSucces)) {
       throw new Error(`Mesure du succès inconnue : ${id}`);
     }
-    return { id, nom, description, diamants, mesure, seuil };
+    return { id, nom, description, diamants, mesure: mesure as MesureSucces, seuil };
   });
 }
 

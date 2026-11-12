@@ -3,6 +3,7 @@ import { BarreXp } from './BarreXp';
 import { BoutonRenommer } from './BoutonRenommer';
 import { Image } from './Image';
 import { IconeShiny } from './IconeShiny';
+import { RepereMarque } from './RepereMarque';
 import { IconeObjet } from './icones';
 import { SpriteEvolution } from './SpriteEvolution';
 import type { EvolutionAffichee } from './store-evolution';
@@ -34,6 +35,7 @@ export function CarteEquipe({ membre, renommer, retirerObjet, evolution, evoluer
   return <div aria-label={membre ? `${nom}, ${niveau}, ${formaterDps(membre.dps)} DPS` : 'Case libre'}
     className={`cadre relative isolate grid h-14 min-w-0 place-items-center overflow-hidden bg-surface lg:h-26 ${membre ? 'lg:grid-cols-[auto_minmax(0,1fr)] lg:pb-1 lg:pe-4' : ''} ${forme ? telephone ? 'pret-evoluer' : 'carte-evo cadre-alerte' : ''} ${cible ? cible.valide ? 'motion-safe:cible-valide' : 'grayscale opacity-50' : ''}`}>
     {membre ? <>
+      {membre.pokemon.marqueEclosion && <span className="repere-marque-sur-portrait"><RepereMarque /></span>}
       {animation ? <span className="carte-evo-sprite grid size-full max-h-full max-w-full overflow-hidden place-items-center lg:size-24 lg:row-span-3 [&_span]:max-h-full [&_span]:max-w-full [&_img]:max-h-full [&_img]:max-w-full">
         <SpriteEvolution ancien={spriteAffiche({ ...membre.pokemon, numero: animation.ancien })}
           nouveau={spriteAffiche({ ...membre.pokemon, numero: animation.nouveau })} nom={nom} actif shiny={membre.pokemon.shiny} />

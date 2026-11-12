@@ -30,6 +30,11 @@ const enTelephone = () => vi.stubGlobal('matchMedia', vi.fn((requete: string) =>
 const cartes = () => within(screen.getByRole('list')).getAllByRole('button');
 
 beforeEach(() => storeJeu.setState({ pc: [...pc], accesPc: { ouvert: true, raison: '' } }));
+it.each([false, true])('repère sur les cartes marquées du PC : %s', marqueEclosion => {
+  storeJeu.setState({ pc: [{ ...base, marqueEclosion }] });
+  render(<PagePC />);
+  expect(!!within(screen.getByRole('list')).queryByRole('img', { name: "Marque d'éclosion" })).toBe(marqueEclosion);
+});
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
 
 it('structure le PC en trois colonnes et garde six places dans son cadre', () => {

@@ -1,34 +1,103 @@
-@keyframes pension-battre {
-  to { transform: scale(calc(1 + 1 / 8)); }
+.page-pension { display:grid; gap:calc(var(--spacing) * 4); width:100%; min-width:0; font-size:var(--text-base); }
+.page-pension h1 { font-size:var(--text-2xl); }
+.page-pension h2 { font-size:var(--text-xl); }
+.page-pension .plaque { font-size:var(--text-base); }
+.pension-parent, .pension-fente, .pension-collection, .pension-statut { background:var(--surface); }
+.pension-chance, .pension-compteur, .pension-reperes > span { background:var(--surface); }
+.page-pension h1, .page-pension h2, .page-pension h3 { font-family:var(--font-titre); font-weight:700; }
+.pension-entete, .pension-filtres { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:calc(var(--spacing) * 2); }
+.pension-filtres { justify-content:start; }
+.pension-monde { position:relative; display:grid; gap:calc(var(--spacing) * 4); min-width:0; }
+.pension-scene { position:relative; aspect-ratio:16 / 9; isolation:isolate; }
+.pension-decor { width:100%; height:100%; border-radius:var(--rayon); }
+.pension-chance { position:absolute; z-index:2; top:2.5%; left:1.5%; display:flex; align-items:center; gap:var(--spacing); padding:var(--spacing) calc(var(--spacing) * 2); max-width:97%; }
+.pension-chance strong { color:var(--region-accent); }
+.pension-chance p { display:none; font-size:var(--text-sm); }
+.pension-coeur { width:calc(var(--spacing) * 6); height:calc(var(--spacing) * 6); fill:var(--erreur-base); flex-shrink:0; }
+.pension-compteur { display:none; position:absolute; right:1.5%; top:2.5%; padding:calc(var(--spacing) * 2); }
+.pension-acteur { position:absolute; top:70%; transform:translate(-50%, -100%); }
+.pension-acteur-0 { left:45%; }
+.pension-acteur-1 { left:74%; }
+.pension-acteur img, .pension-portrait img, .pension-espece img { width:calc(var(--spacing) * 24); height:calc(var(--spacing) * 24); max-width:none; image-rendering:pixelated; }
+.pension-miroir { transform:scaleX(-1); }
+.pension-portrait-oeuf img { width:calc(var(--spacing) * 22.5); height:calc(var(--spacing) * 22.5); }
+.pension-coeurs { position:absolute; left:57.5%; top:47%; }
+.pension-place-decor { display:grid; place-items:center; width:calc(var(--spacing) * 24); height:calc(var(--spacing) * 12); border:calc(var(--spacing) / 2) dashed var(--texte); border-radius:var(--radius-plein); background:var(--surface); }
+.pension-reperes { position:absolute; display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:var(--spacing); bottom:3%; left:3%; right:3%; font-size:var(--text-sm); text-align:center; }
+.pension-sous-scene, .pension-oeufs, .pension-parents { display:grid; min-width:0; gap:calc(var(--spacing) * 3); }
+.pension-duo, .pension-candidats { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:calc(var(--spacing) * 2); }
+.pension-parent, .pension-fente, .pension-candidat { display:grid; min-width:0; justify-items:center; align-content:start; gap:calc(var(--spacing) * 2); padding:calc(var(--spacing) * 3); text-align:center; overflow-wrap:anywhere; }
+.pension-parent .plaque { align-self:end; }
+.pension-portrait { position:relative; isolation:isolate; }
+.pension-portrait::before { content:""; position:absolute; z-index:-1; bottom:calc(var(--spacing) * 2); left:calc(var(--spacing) * 2); width:calc(var(--spacing) * 20); height:calc(var(--spacing) * 5); background:var(--region-socle); border-radius:var(--radius-plein); }
+.pension-place { display:grid; place-items:center; width:calc(var(--spacing) * 24); height:calc(var(--spacing) * 24); border:calc(var(--spacing) / 2) dashed var(--bordure); border-radius:var(--radius-md); }
+.pension-fentes { display:grid; gap:calc(var(--spacing) * 3); }
+.pension-fente { grid-template-columns:calc(var(--spacing) * 26) minmax(0,1fr); text-align:left; justify-items:stretch; }
+.pension-fente > * { grid-column:2; }
+.pension-fente > .pension-portrait, .pension-fente > .pension-place { grid-column:1; grid-row:1 / span 5; align-self:center; }
+.pension-detail, .pension-compat { font-size:var(--text-sm); }
+.pension-statut, .pension-collection { padding:calc(var(--spacing) * 4); }
+.pension-collection { display:grid; gap:calc(var(--spacing) * 4); min-width:0; }
+.pension-total { font-size:var(--text-4xl); color:var(--region-accent); }
+.pension-paliers { display:grid; gap:calc(var(--spacing) * 2); }
+.pension-palier { display:grid; gap:var(--spacing); padding:calc(var(--spacing) * 3); }
+.pension-palier > svg { width:calc(var(--spacing) * 8); height:calc(var(--spacing) * 8); }
+.pension-gain { display:flex; align-items:center; gap:var(--spacing); color:var(--info-texte); }
+.pension-compatible { background:var(--succes-fond); border-color:var(--succes-base); color:var(--succes-texte); }
+.pension-intermediaire { background:var(--region-accent-fond); border-color:var(--region-accent); }
+.pension-compat { padding:var(--spacing); border:calc(var(--spacing) / 2) solid var(--bordure); border-radius:var(--radius-sm); }
+.pension-progression { height:calc(var(--spacing) * 3); background:var(--surface-2); overflow:hidden; border-radius:var(--radius-sm); }
+.pension-progression span { display:block; height:100%; background:var(--region-accent); transform-origin:left; }
+.pension-grille { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:var(--spacing); }
+.pension-espece { display:grid; justify-items:center; min-width:0; padding-block:calc(var(--spacing) * 2); background:var(--surface-2); font-size:var(--text-sm); text-align:center; }
+.pension-espece strong { max-width:100%; overflow:hidden; text-overflow:ellipsis; }
+.pension-eclose { background:var(--region-accent-fond); border-color:var(--region-accent); }
+.pension-choix { width:100%; max-width:100%; max-height:85dvh; margin:auto 0 0; padding:0; background:var(--surface); color:var(--texte); border:calc(var(--spacing) / 2) solid var(--bordure); border-radius:var(--radius-lg) var(--radius-lg) 0 0; overflow:auto; }
+.pension-choix::backdrop { background:var(--fond); opacity:0.85; }
+.pension-choix-corps { display:grid; gap:calc(var(--spacing) * 3); padding:calc(var(--spacing) * 4); }
+.pension-choix input { min-width:0; min-height:calc(var(--spacing) * 11); padding:calc(var(--spacing) * 2); border:calc(var(--spacing) / 2) solid var(--bordure); border-radius:var(--radius-md); background:var(--surface-2); }
+.pension-candidat { width:100%; height:100%; padding:calc(var(--spacing) * 2); }
+@media (min-width:36rem) {
+  .pension-grille { grid-template-columns:repeat(5,minmax(0,1fr)); }
+  .pension-chance p, .pension-compteur { display:block; }
+  .pension-chance { max-width:70%; }
 }
-@media (min-width: 1024px) {
-  main#contenu:has(.pension-pc) { display: flex; flex-direction: column; overflow: hidden; }
-  main#contenu > section:has(.pension-pc) { display: flex; flex: 1; min-height: 0; max-width: none; width: 100%; }
-  .pension-pc { display: flex; flex-direction: column; flex: 1; min-width: 0; min-height: 0; max-width: none; }
-  .pension-pc > div.grid { flex: 1; min-height: 0; grid-template-rows: auto minmax(0, 1fr); }
-  .pension-pc > div.grid > div.grid { min-height: 0; height: 100%; }
-  .pension-pc section[aria-label="Parents"], .pension-pc section[aria-label="Œufs"] { max-height: 100%; min-height: 0; overflow-y: auto; }
-  .pension-pc section[aria-label="Parents"] article { background: none; gap: .5rem; }
-  .pension-pc section[aria-label="Œufs"] li { background: none; overflow: hidden; padding-block: .5rem; }
-  .pension-pc section[aria-label="Œufs"] > div.grid { grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; }
-  .pension-pc section[aria-label="Œufs"] > div.grid > div.grid { align-content: start; }
-  .pension-pc section[aria-label="Œufs"] > div.grid p { font-size: .875rem; }
-  /* Pas de note sous les emplacements verrouillés suivants : le bouton grisé suffit à l'œil, la note reste lue par les lecteurs d'écran. */
-  .pension-pc section[aria-label="Œufs"] > div.grid > div.grid:nth-child(n+2) p { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-  .pension-pc > header { margin-bottom: .5rem; }
-  .pension-pc > div.grid { gap: .75rem; }
-  .pension-pc > div.grid > div.flex { padding-block: .5rem; }
-  .pension-pc img { object-fit: contain; max-height: 100%; max-width: 100%; }
-  .pension-pc span.relative.isolate { display: grid; place-items: center; overflow: hidden; height: 12rem; max-width: 100%; }
-  .pension-pc span.relative.isolate > span { display: none; }
-  .pension-pc span.relative.isolate img { width: 12rem; height: 12rem; object-fit: contain; max-height: 100%; max-width: 100%; }
-  .pension-pc section[aria-label="Choisir un parent"] { position: absolute; inset: 0; z-index: 1; overflow-y: auto; }
-  .pension-pc [role="status"] { flex: none; margin-bottom: 0; }
+@media (min-width:48rem) {
+  .pension-fentes, .pension-paliers { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .pension-choix { width:min(calc(100vw - var(--spacing) * 8),calc(var(--spacing) * 200)); max-height:calc(100dvh - var(--spacing) * 8); margin:auto; border-radius:var(--rayon); }
+  .pension-candidats { grid-template-columns:repeat(3,minmax(0,1fr)); }
 }
-@keyframes pension-rebond {
-  to { transform: translateY(calc(var(--spacing) * -2)); }
+@media (min-width:64rem) {
+  main#contenu:has(.pension-pc) { display:flex; flex-direction:column; overflow:hidden; }
+  main#contenu > section:has(.pension-pc) { display:flex; flex:1; min-height:0; min-width:0; width:100%; max-width:none; }
+  .pension-pc { display:block; flex:1; min-height:0; overflow-y:auto; padding-right:calc(var(--spacing) * 2); }
+  .pension-pc > * + * { margin-top:calc(var(--spacing) * 4); }
+  .pension-grille { grid-template-columns:repeat(auto-fill,minmax(calc(var(--spacing) * 28),1fr)); }
+  .pension-paliers { grid-template-columns:repeat(4,minmax(0,1fr)); }
 }
-@media (prefers-reduced-motion: no-preference) {
-  .pension-coeur { animation: pension-battre var(--duree-signal) var(--ease-standard) infinite alternate; }
-  .pension-oeuf { animation: pension-rebond var(--duree-signal) var(--ease-standard) infinite alternate; }
+@media (min-width:88rem) {
+  .pension-acteur { top:56%; }
+  .pension-acteur img { width:calc(var(--spacing) * 48); height:calc(var(--spacing) * 48); }
+  .pension-sous-scene { display:contents; }
+  .pension-parents { position:absolute; top:50%; left:33%; right:14%; pointer-events:none; }
+  .pension-parent { pointer-events:auto; }
+  .pension-parents h2, .pension-parent > .pension-portrait, .pension-parent > .pension-place, .pension-parent > p { display:none; }
+  .pension-parent { justify-self:center; width:max-content; max-width:100%; padding:var(--spacing); gap:var(--spacing); background:var(--surface); }
+  .pension-parent:has(.pension-place) { visibility:hidden; }
+  .pension-oeufs { position:absolute; bottom:2%; left:2%; right:2%; gap:var(--spacing); }
+  .pension-oeufs > p { font-size:var(--text-sm); background:var(--surface); border-radius:var(--radius-md); }
+  .pension-oeufs h2 { font-size:var(--text-base); width:fit-content; background:var(--surface); }
+  .pension-fentes { grid-template-columns:repeat(5,minmax(0,1fr)); gap:calc(var(--spacing) * 2); }
+  .pension-fente { grid-template-columns:minmax(0,1fr); padding:calc(var(--spacing) * 2); gap:var(--spacing); font-size:var(--text-sm); text-align:center; }
+  .pension-fente > * { grid-column:1; }
+  .pension-fente h3, .pension-fente .pension-portrait, .pension-fente > strong, .pension-fente .pension-place { display:none; }
+  .pension-fente { position:relative; }
+  .pension-fente .pension-portrait-oeuf { display:block; position:absolute; left:var(--spacing); top:var(--spacing); }
+  .pension-fente .pension-portrait-oeuf img { width:calc(var(--spacing) * 7.5); height:calc(var(--spacing) * 7.5); }
+  .pension-fente .pension-portrait-oeuf::before { display:none; }
+  .pension-fente .pension-detail { padding-left:calc(var(--spacing) * 7.5); }
+  .pension-fente .plaque { padding:var(--spacing); width:100%; }
+  .pension-reperes { display:none; }
 }
+@keyframes pension-monter { from { opacity:0; transform:translateY(0); } 25% { opacity:1; } to { opacity:0; transform:translateY(calc(var(--spacing) * -10)); } }
+@media (prefers-reduced-motion:no-preference) { .pension-coeurs { animation:pension-monter var(--duree-signal) var(--ease-standard) infinite; } }

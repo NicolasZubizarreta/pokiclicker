@@ -23,6 +23,15 @@ vi.mock('./store', async original => {
 const pokemon: PokemonPossede = { uid: 'premier', numero: 1, niveau: 16, xp: 30,
   surnom: 'Bourgeon', sexe: 'male', shiny: false, favori: true, bonheur: 128, calcium: 0, pierreEternelle: false };
 const echanger = vi.fn((): string | null => null);
+it.each([false, true])('repère sur les cartes d’équipe, téléphone : %s', telephone => {
+  vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: telephone, addEventListener: vi.fn(), removeEventListener: vi.fn() })));
+  const equipe = storeJeu.getState().equipe;
+  storeJeu.setState({ equipe: equipe.map((m, i) => m ? { ...m, pokemon: { ...m.pokemon, marqueEclosion: i === 0 } } : null) });
+  const { container } = render(<PageEquipe />);
+  expect(container.querySelectorAll('.repere-marque')).toHaveLength(1);
+  expect(screen.getByRole('img', { name: "Marque d'éclosion" })).toBeTruthy();
+  vi.unstubAllGlobals();
+});
 const annulerEchange = vi.fn(() => storeJeu.setState({ echange: null }));
 beforeEach(() => {
   Object.defineProperties(HTMLDialogElement.prototype, {

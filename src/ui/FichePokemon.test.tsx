@@ -27,6 +27,19 @@ vi.mock('./store', async (original) => {
 
 const pokemon: PokemonPossede = { uid: 'fiche', numero: 1, niveau: 16, xp: 30,
   surnom: 'Bourgeon', sexe: 'male', shiny: true, favori: false, bonheur: 128, calcium: 2, pierreEternelle: true };
+it.each([false, true])('affiche uniquement la marque reçue, téléphone : %s', telephone => {
+  vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: telephone, addEventListener: vi.fn(), removeEventListener: vi.fn() })));
+  storeJeu.setState({ equipe: [{ pokemon: { ...pokemon, marqueEclosion: true }, dps: 42, xpMax: 100, multiplicateur: 1 }] });
+  afficher();
+  expect(screen.getByRole('img', { name: "Marque d'éclosion" })).toBeTruthy();
+  expect(screen.getByText("Marque d'éclosion", { selector: 'dt' })).toBeTruthy();
+  const facteur = actions.detailDps({ ...pokemon, marqueEclosion: true }, 1).marqueEclosion;
+  expect(screen.getByText(`+${Math.round((facteur - 1) * 100)} %`, { selector: 'dd' })).toBeTruthy();
+  act(() => storeJeu.setState({ equipe: [{ pokemon, dps: 42, xpMax: 100, multiplicateur: 1 }] }));
+  expect(screen.queryByRole('img', { name: "Marque d'éclosion" })).toBeNull();
+  expect(screen.queryByText("Marque d'éclosion", { selector: 'dt' })).toBeNull();
+  vi.unstubAllGlobals();
+});
 it.each([false, true])('propose l’évolution dans la fiche, sur PC comme sur téléphone (téléphone : %s)', telephone => {
   vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: telephone, addEventListener: vi.fn(), removeEventListener: vi.fn() })));
   storeJeu.setState({ equipe: [{ pokemon: { ...pokemon, pierreEternelle: false }, dps: 42, xpMax: 100, multiplicateur: 1 }] });

@@ -22,6 +22,8 @@ const chemins = {
   Retour: 'M15 4 7 12l8 8',
   // Machine à sous : corps, fenêtre à trois rouleaux, fente, levier avec sa boule.
   Casino: 'M5 3h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zM6 7h8v5H6zM8.67 7v5M11.33 7v5M7 16h6M17 14h3V7M19 4h2v2h-2z',
+  // Œuf fissuré : l'enclos de la pension.
+  Pension: 'M12 3c-3.5 0-6 5-6 9.5A6 6 0 0 0 12 21a6 6 0 0 0 6-8.5C18 8 15.5 3 12 3zM8.5 13l2 2 2-2 2 2',
 } as const;
 
 const faire = (chemin: string) => () => <Icone><path d={chemin} /></Icone>;
@@ -37,3 +39,4 @@ export const IconeSortie = faire(chemins.Sortie);
 export const IconeChevron = faire(chemins.Chevron);
 export const IconeRetour = faire(chemins.Retour);
 export const IconeCasino = faire(chemins.Casino);
+export const IconePension = faire(chemins.Pension);
