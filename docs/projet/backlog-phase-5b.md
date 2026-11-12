@@ -115,7 +115,7 @@ Décision du 07/11 : refonte complète du casino, sur téléphone et PC. Décisi
 
 ## D. `feat(pension): refonte graphique, visibilité et utilité de la pension`
 
-`type:feat`, `etat:a_faire`, `est:2-3`, `prio:3` · branche : `v2` · pas d'`agent-ok` (règles de jeu à décider avec Nicolas) · dépend de : A
+`type:feat`, `etat:en_cours`, `est:2-3`, `prio:3` · branche : `v2` · pas d'`agent-ok` (règles de jeu à décider avec Nicolas) · dépend de : A
 
 ### Histoire
 En tant que joueur, je veux connaître la pension, la trouver attirante et avoir une vraie raison de m'en servir afin qu'elle compte dans ma progression.
@@ -124,8 +124,8 @@ En tant que joueur, je veux connaître la pension, la trouver attirante et avoir
 Réglages actuels (`data/reglages.json`, bloc `pension`) : 5 emplacements à 5 000 chacun, éclosion après 25 pas, bonheur de naissance 125, chromatique à 12,5 %, Métamorph, même espèce (4 %) ou type partagé (2 %), espèces tirées parmi les 151. Constat de Nicolas : personne ne la connaît, lui-même ne s'en est jamais servi, et en fin de partie l'argent est abondant : une Master Ball sur un Mewtwo, un Jeton Shiny et des baies pour le bonheur maximal rendent l'œuf inutile. Il n'a pas d'idée de remède : il tranchera sur des pistes chiffrées.
 
 ### Critères d'acceptation
-- [ ] Étant donné les mécaniques de la pension et de la capture (Master Ball, Jeton Shiny, baies, bonbons, évolutions), quand j'analyse, alors un tableau compare ce qu'un œuf rapporte à ce que coûte la même chose par une autre voie, et dit lesquelles de ces choses la pension ne peut pas remplacer aujourd'hui.
-- [ ] Étant donné ce tableau, quand je propose 3 pistes d'utilité chiffrées (exemples : œufs donnant des Pokémon obtenables seulement par œuf, œufs à objectif avec parents choisis pour un résultat sûr, ressource ou objet unique à l'éclosion), alors Nicolas choisit une ou plusieurs pistes avant tout code, et le choix est noté dans `docs/vision.md` ou `docs/plan.md`.
+- [x] Étant donné les mécaniques de la pension et de la capture (Master Ball, Jeton Shiny, baies, bonbons, évolutions), quand j'analyse, alors un tableau compare ce qu'un œuf rapporte à ce que coûte la même chose par une autre voie, et dit lesquelles de ces choses la pension ne peut pas remplacer aujourd'hui.
+- [x] (12/11 : pistes 1 et 2 retenues, marque +5 %, paliers = succès + diamants ; décision dans `docs/plan.md`) Étant donné ce tableau, quand je propose 3 pistes d'utilité chiffrées (exemples : œufs donnant des Pokémon obtenables seulement par œuf, œufs à objectif avec parents choisis pour un résultat sûr, ressource ou objet unique à l'éclosion), alors Nicolas choisit une ou plusieurs pistes avant tout code, et le choix est noté dans `docs/vision.md` ou `docs/plan.md`.
 - [ ] Étant donné la maquette, quand 3 variantes téléphone et PC sont prêtes (écran de la pension, une éclosion, avec la charte du ticket A), alors Nicolas choisit ou mélange, et les maquettes sont des pages HTML dans `design/examples/`.
 - [ ] Étant donné la pension débloquée, quand le déblocage a lieu, alors l'annonce est plus marquante et la pension est rappelée (pastille, accès direct depuis le menu de jeu ou la Carte) tant que le joueur n'y est jamais entré, sur le modèle du ticket C.
 - [ ] Étant donné les règles choisies, quand elles sont codées dans le cœur (`src/core/pension.ts`, données dans `data/`), alors des tests couvrent chaque règle nouvelle, la sauvegarde existante se migre sans perte, et l'écart avec la V1 est noté dans `tests/ecarts-v1.ts`.

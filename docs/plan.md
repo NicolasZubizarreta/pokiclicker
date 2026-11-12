@@ -24,7 +24,7 @@ La phase 5 démarre dès la phase 1 pour la coquille d'UI et le système de desi
 ## Décidé le 23/10
 Kanto en 60-90 min ; plafond de 12 clics/s ; chaque région repart avec une équipe neuve et un choix de starter animé ; carte du monde libre de style ; aucune charte graphique écrite (à créer).
 
-Pension, centre commercial et casino sont gardés (principe bon en V1, design et pratique à refaire). Les Pokémon du PC global ne rejoignent pas l'équipe d'une région.
+Pension, centre commercial et casino sont gardés (principe bon en V1, design et pratique à refaire). **Pension, décision du 12/11 (ticket D, analyse dans `docs/projet/pension-analyse.md`)** : deux règles nouvelles. 1) Marque d'éclosion : un Pokémon né d'un œuf gagne +5 % de dégâts propres (une fois par Pokémon, non achetable). 2) Collection d'éclosions : compteur d'espèces écloses sur 151, paliers 10, 50, 100 et 151, chacun est un succès qui donne des diamants (mécanique des succès, une fois par compte). L'œuf garanti payant est écarté. Les Pokémon du PC global ne rejoignent pas l'équipe d'une région.
 
 ## Questions ouvertes
 1. Nom du jeu et nom du dépôt (Nicolas y réfléchit).
