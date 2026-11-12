@@ -1,0 +1,22 @@
+/* Variante A, « La bulle sur l'élément » : bulle de dialogue ancrée à l'élément visé, petite flèche vers lui,
+   cadre jaune (--region-argent) qui respire doucement autour de la cible. Mouvement réduit : cadre fixe plus épais, sans animation. */
+.tuto { width:min(calc(var(--spacing) * 82), calc(100% - var(--spacing) * 8)); padding:calc(var(--spacing) * 3) calc(var(--spacing) * 4); border-color:var(--region-argent); }
+.tuto-entete { display:flex; align-items:center; gap:calc(var(--spacing) * 2); margin-bottom:var(--spacing); font-size:var(--text-sm); line-height:var(--text-sm--line-height); color:var(--texte-doux); }
+.tuto-entete:empty { display:none; }
+.compteur { font-weight:700; color:var(--region-argent); }
+.segs { display:none; }
+.tuto-texte { font:600 var(--text-lg)/var(--text-lg--line-height) var(--font-texte); }
+.tuto-actions { display:flex; align-items:center; justify-content:space-between; gap:calc(var(--spacing) * 3); margin-top:calc(var(--spacing) * 2); }
+.tuto-actions .tuto-ok { min-height:calc(var(--spacing) * 12); padding-inline:calc(var(--spacing) * 5); }
+.tuto-actions:has(.tuto-ok) { flex-direction:row-reverse; }
+.fleche { position:absolute; width:calc(var(--spacing) * 3); height:calc(var(--spacing) * 3); background:var(--surface); border:var(--trait) solid var(--region-argent); }
+.tuto[data-cote="bas"] .fleche { top:calc(var(--spacing) * -1.5 - var(--trait) * 0.5); left:calc(var(--fl, 50%) - var(--spacing) * 1.5 - var(--trait)); transform:rotate(45deg); border-right:0; border-bottom:0; }
+.tuto[data-cote="haut"] .fleche { bottom:calc(var(--spacing) * -1.5 - var(--trait) * 0.5); left:calc(var(--fl, 50%) - var(--spacing) * 1.5 - var(--trait)); transform:rotate(45deg); border-left:0; border-top:0; }
+.tuto[data-cote="droite"] .fleche { left:calc(var(--spacing) * -1.5 - var(--trait) * 0.5); top:calc(var(--fl, 50%) - var(--spacing) * 1.5 - var(--trait)); transform:rotate(45deg); border-right:0; border-top:0; }
+.tuto[data-cote="gauche"] .fleche { right:calc(var(--spacing) * -1.5 - var(--trait) * 0.5); top:calc(var(--fl, 50%) - var(--spacing) * 1.5 - var(--trait)); transform:rotate(45deg); border-left:0; border-bottom:0; }
+.tuto[data-cote="centre"] .fleche { display:none; }
+.repere { border:calc(var(--spacing) * 1) solid var(--region-argent); border-radius:var(--radius-md); }
+@media (prefers-reduced-motion:no-preference) {
+  .repere { border-width:calc(var(--spacing) * 0.75); animation:respire var(--duree-carte-pulsation) var(--ease-standard) infinite; }
+}
+@keyframes respire { 50% { opacity:0.35; } }

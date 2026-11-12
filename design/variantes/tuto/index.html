@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tutoriel : variantes de bulles</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="commun.css">
+<style>
+/* Index des variantes : mêmes jetons que les pages (commun.css), aucune valeur propre. */
+body { height:auto; min-height:100dvh; overflow:auto; display:block; padding:var(--marge); }
+main { max-width:calc(var(--spacing) * 360); margin-inline:auto; display:grid; gap:calc(var(--spacing) * 6); }
+h1 { font-size:var(--text-3xl); line-height:var(--text-3xl--line-height); }
+h2 { font-size:var(--text-xl); line-height:var(--text-xl--line-height); }
+.doux { color:var(--texte-doux); }
+.variantes { display:grid; gap:calc(var(--spacing) * 4); grid-template-columns:minmax(0, 1fr); }
+.carte { display:grid; gap:calc(var(--spacing) * 3); align-content:start; padding:calc(var(--spacing) * 4); }
+.carte h2 span { color:var(--region-accent); }
+.liens { display:flex; flex-wrap:wrap; gap:calc(var(--spacing) * 2); }
+.liens a { display:inline-flex; align-items:center; min-height:calc(var(--spacing) * 11); padding:0 calc(var(--spacing) * 3); background:var(--region-accent-fond); border:var(--trait) solid var(--region-accent); border-radius:var(--radius-md); color:var(--texte); text-decoration:none; font-weight:600; }
+.liens a.principal { background:var(--action); border-color:var(--action-survol); color:var(--action-texte); font-weight:700; }
+.liens a:hover { filter:brightness(1.25); }
+iframe { width:100%; height:calc(var(--spacing) * 190); border:var(--trait) solid var(--bordure); border-radius:var(--rayon); background:var(--fond); }
+table { width:100%; min-width:calc(var(--spacing) * 160); border-collapse:collapse; }
+th, td { padding:calc(var(--spacing) * 2) calc(var(--spacing) * 3); border-top:var(--trait) solid var(--bordure); text-align:left; vertical-align:top; }
+th { color:var(--texte-doux); font-weight:600; font-size:var(--text-sm); }
+.tableau { padding:calc(var(--spacing) * 2) calc(var(--spacing) * 4); overflow-x:auto; }
+code { font-family:var(--font-mono); color:var(--region-accent); }
+@media (min-width:64rem) {
+  .variantes { grid-template-columns:repeat(3, minmax(0, 1fr)); }
+  body { padding:calc(var(--spacing) * 8); }
+}
+</style>
+</head>
+<body>
+<!-- Ticket E (tutoriel de la Route 1 et mini-tutos de déblocage) : trois variantes de maquette du système de bulles.
+     Chaque page est l'appli de démonstration (Combat, Équipe, Menu, Pension, Guide) avec le tuto qui tourne dessus.
+     Axe de comparaison : l'apparence ET l'interaction de la bulle, pas la couleur. -->
+<main>
+  <div>
+    <h1>Tutoriel : trois bulles à comparer</h1>
+    <p class="doux">PokiClicker v2 · ticket E · maquettes navigables sur l’interface réelle : téléphone dès 390 px, PC dès 1024 px (redimensionne la fenêtre ou ouvre sur ton téléphone).</p>
+  </div>
+
+  <section class="variantes" aria-label="Variantes">
+    <article class="carte cadre">
+      <h2><span>A</span> · La bulle sur l’élément</h2>
+      <p>Bulle de dialogue accrochée à l’élément visé, avec une flèche. Cadre jaune qui respire autour de la cible. Se replace au-dessus, en dessous ou à côté pour ne rien cacher.</p>
+      <div class="liens"><a class="principal" href="variante-a.html">Ouvrir</a><a href="variante-a.html#route1">Route 1</a><a href="variante-a.html#pension">Pension</a><a href="variante-a.html#fauchage">Fauchage</a><a href="variante-a.html#guide">Guide</a></div>
+      <iframe title="Variante A, aperçu téléphone" loading="lazy" src="variante-a.html#route1/2"></iframe>
+    </article>
+    <article class="carte cadre">
+      <h2><span>B</span> · La carte de guidage</h2>
+      <p>Carte compacte fixe au bord de l’écran, numérotée « 3/6 », avec frise de progression et geste attendu écrit. Le reste de l’écran est atténué, sans rien bloquer.</p>
+      <div class="liens"><a class="principal" href="variante-b.html">Ouvrir</a><a href="variante-b.html#route1">Route 1</a><a href="variante-b.html#pension">Pension</a><a href="variante-b.html#fauchage">Fauchage</a><a href="variante-b.html#guide">Guide</a></div>
+      <iframe title="Variante B, aperçu téléphone" loading="lazy" src="variante-b.html#route1/2"></iframe>
+    </article>
+    <article class="carte cadre">
+      <h2><span>C</span> · Le Professeur Chen explique</h2>
+      <p>Le Prof. Chen parle dans une bulle au bord de l’écran, le texte s’écrit comme dans l’intro. Quatre équerres jaunes et un numéro marquent la cible ; « Passer le tuto » reste en lien discret.</p>
+      <div class="liens"><a class="principal" href="variante-c.html">Ouvrir</a><a href="variante-c.html#route1">Route 1</a><a href="variante-c.html#pension">Pension</a><a href="variante-c.html#fauchage">Fauchage</a><a href="variante-c.html#guide">Guide</a></div>
+      <iframe title="Variante C, aperçu téléphone" loading="lazy" src="variante-c.html#route1/2"></iframe>
+    </article>
+  </section>
+
+  <section class="cadre tableau" aria-label="Contenu commun aux trois variantes">
+    <h2 style="padding-top:calc(var(--spacing) * 2)">Ce que montrent les trois pages</h2>
+    <table>
+      <thead><tr><th>Scénario</th><th>Étape</th><th>Bulle (12 mots au plus)</th><th>Se valide quand</th></tr></thead>
+      <tbody>
+        <tr><td rowspan="6"><code>#route1</code><br>Route 1</td><td>1</td><td>Touche le Pokémon pour l’attaquer.</td><td>tu touches le Pokémon</td></tr>
+        <tr><td>2</td><td>Sa barre de PV baisse. À zéro, il est vaincu.</td><td>tu attaques encore</td></tr>
+        <tr><td>3</td><td>Capture-le avec une Poké Ball avant qu’il parte.</td><td>tu touches Capturer</td></tr>
+        <tr><td>4</td><td>Tes Pokémon attaquent seuls : regarde ton équipe.</td><td>tu ouvres Équipe</td></tr>
+        <tr><td>5</td><td>Les objets sont dans le Sac.</td><td>tu ouvres le Sac</td></tr>
+        <tr><td>6</td><td>Bats les champions pour avancer vers la Ligue.</td><td>tu touches « Compris »</td></tr>
+        <tr><td rowspan="2"><code>#pension</code><br>Déblocage</td><td>1</td><td>Dépose deux parents compatibles.</td><td>les deux parents sont déposés</td></tr>
+        <tr><td>2</td><td>Éclosion après 25 combats : le Pokémon né fait +5 % de dégâts.</td><td>tu touches « Compris »</td></tr>
+        <tr><td><code>#fauchage</code><br>Une bulle</td><td>1</td><td>Fauchage laisse l’ennemi à 1 PV : idéal pour capturer.</td><td>tu touches Fauchage</td></tr>
+        <tr><td><code>#guide</code></td><td>–</td><td>Section « Tutoriels » du Guide, ligne « Rejouer le tuto » pour chaque tuto.</td><td>un appui relance le tuto</td></tr>
+      </tbody>
+    </table>
+    <p class="doux" style="padding:calc(var(--spacing) * 2) calc(var(--spacing) * 3) calc(var(--spacing) * 3)">Dans toutes les pages : « Passer le tuto » toujours visible, sans pénalité ; le jeu reste jouable pendant le tuto (rien n’est verrouillé) ; la bulle ne cache jamais l’élément expliqué et se replace près du bord ; appuis d’au moins 44 px ; mouvement réduit : plus de clignotement ni de défilement de texte. Le bouton « Maquette » en haut de chaque page change de scénario et rejoue le tuto.</p>
+  </section>
+
+  <section class="cadre carte" aria-label="Comment ouvrir">
+    <h2>Comment ouvrir</h2>
+    <p>Double-clic sur <code>index.html</code> ou une variante (aucun serveur nécessaire), ou <code>npm run dev</code> puis <code>/design/variantes/tuto/index.html</code>. Un fragment d’adresse choisit le scénario : <code>variante-a.html#route1/3</code> ouvre la bulle 4 de la Route 1.</p>
+  </section>
+</main>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tutoriel · Variante A, La bulle sur l’élément</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="commun.css">
+<link rel="stylesheet" href="variante-a.css">
+</head>
+<!-- Ticket E, tutoriel par bulles : variante A, « La bulle sur l’élément ».
+     Apparence et interaction : une bulle de dialogue accrochée à l’élément visé, avec une petite flèche, qui se repositionne (au-dessus, en dessous, à côté) pour ne jamais le cacher. L’élément est entouré d’un cadre jaune qui respire doucement (cadre fixe et plus épais si le mouvement est réduit). L’étape passe quand tu fais le geste ; « Passer le tuto » est dans la bulle.
+     Socle commun : commun.css (coque de l'appli, jetons du ticket A) et commun.js (jeu de démonstration + moteur de bulles).
+     Scénarios : #route1 (6 bulles), #pension (2 bulles), #fauchage (1 bulle), #guide (rejouer le tuto). -->
+<body data-variante="a" data-mode="ancre" data-focus="cadre">
+<header class="maq">
+  <a href="index.html">‹ Variantes</a>
+  <span class="maq-nom">Variante A</span>
+  <button class="maq-ouvrir" type="button" aria-expanded="false" aria-controls="maq-panneau">Maquette ▾</button>
+  <div class="maq-panneau" id="maq-panneau" hidden>
+    <p class="axe"><strong>La bulle sur l’élément.</strong> Apparence et interaction : une bulle de dialogue accrochée à l’élément visé, avec une petite flèche, qui se repositionne (au-dessus, en dessous, à côté) pour ne jamais le cacher. L’élément est entouré d’un cadre jaune qui respire doucement (cadre fixe et plus épais si le mouvement est réduit). L’étape passe quand tu fais le geste ; « Passer le tuto » est dans la bulle.</p>
+    <label>Scénario
+      <select id="scenario">
+        <option value="route1">Route 1 : 6 bulles</option>
+        <option value="pension">Déblocage de la Pension : 2 bulles</option>
+        <option value="fauchage">Déblocage du Fauchage : 1 bulle</option>
+        <option value="guide">Guide : rejouer le tuto</option>
+      </select>
+    </label>
+    <button class="plaque neutre" id="relancer" type="button">Rejouer ce scénario</button>
+    <p>Fais le geste demandé (toucher le Pokémon, Capturer, Équipe, Sac…) pour passer à la bulle suivante. Le jeu reste jouable pendant le tuto.</p>
+    <p id="bilan"></p>
+  </div>
+</header>
+<div class="jeu">
+  <aside class="barre-laterale" aria-label="Navigation principale">
+    <div class="marque"><b>PokiClicker</b><span>Kanto</span></div>
+    <nav></nav>
+    <div class="bas"><div class="partie"><b>Test</b><span>Hors connexion</span></div><button type="button" disabled><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4H5v16h4M16 8l4 4-4 4M20 12H9"/></svg>Menu principal</button></div>
+  </aside>
+  <div class="colonne">
+    <header class="bandeau">
+      <dl class="stats"><div><dt>Pokédollars</dt><dd id="argent">0 ₽</dd></div><div><dt>DPS</dt><dd>234</dd></div><div><dt>Zone</dt><dd>Route 1</dd></div></dl>
+      <button class="plaque" type="button" disabled>Raccourcis ?</button>
+    </header>
+    <main id="contenu"></main>
+    <footer class="legende" aria-label="Raccourcis"></footer>
+    <nav class="barre-nav" aria-label="Navigation principale"></nav>
+  </div>
+  <div class="tuto-couche"></div>
+  <div id="annonce" class="sr-only" aria-live="polite"></div>
+</div>
+<script src="commun.js"></script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+/* Variante B, « La carte de guidage » : carte compacte fixe, au-dessus de la barre du bas sur téléphone (en haut quand
+   la cible est dans la moitié basse), numérotation « 2/6 » et frise de progression, geste attendu écrit en clair.
+   Le reste de l'écran est atténué (voile qui laisse passer les appuis) ; la cible garde un cadre jaune fixe, sans animation. */
+.tuto { max-width:calc(var(--spacing) * 100); padding:calc(var(--spacing) * 3) calc(var(--spacing) * 4); border-color:var(--region-accent); }
+.fleche { display:none; }
+.tuto-corps { display:grid; grid-template-columns:minmax(0, 1fr) auto; align-items:center; gap:calc(var(--spacing) * 2) calc(var(--spacing) * 3); }
+.tuto-entete, .tuto-texte { grid-column:1 / -1; }
+.geste { grid-column:1; }
+.tuto-entete { display:flex; align-items:center; gap:calc(var(--spacing) * 3); }
+.tuto-entete:empty { display:none; }
+.compteur { font:700 var(--text-lg)/var(--text-lg--line-height) var(--font-titre); color:var(--region-accent); }
+.segs { flex:1; display:flex; gap:var(--spacing); }
+.segs i { flex:1; height:calc(var(--spacing) * 1); background:var(--surface-2); }
+.segs i.fait { background:var(--region-accent); }
+.segs i.ici { background:var(--region-argent); }
+.tuto-texte { font:700 var(--text-lg)/var(--text-lg--line-height) var(--font-texte); }
+.geste { display:flex; align-items:center; gap:calc(var(--spacing) * 2); font-size:var(--text-sm); line-height:var(--text-sm--line-height); color:var(--texte-doux); }
+.geste span { padding:0 calc(var(--spacing) * 2); background:var(--region-accent-fond); border:var(--trait) solid var(--region-accent); border-radius:var(--radius-sm); color:var(--texte); font-weight:600; }
+.tuto-actions { grid-column:2; display:flex; align-items:center; justify-content:flex-end; gap:calc(var(--spacing) * 2); }
+.tuto-actions .tuto-ok { min-height:calc(var(--spacing) * 12); padding-inline:calc(var(--spacing) * 5); }
+.tuto-passer { padding:0 calc(var(--spacing) * 3); background:var(--surface-2); color:var(--texte); border:var(--trait) solid var(--bordure); border-radius:var(--radius-md); text-decoration:none; font-weight:600; }
+.repere { border:calc(var(--spacing) * 0.75) solid var(--region-argent); border-radius:var(--radius-md); }
+.voile { position:absolute; z-index:1; background:var(--fond); opacity:0.65; }
