@@ -80,7 +80,7 @@ Habillage et mise en page du casino (ticket C), nouveaux jeux, jetons offerts, b
 
 ## C. `feat(ui): refonte du casino, visibilité, habillage, jeux et jetons offerts`
 
-`type:feat`, `etat:en_cours` (codé et poussé le 12/11, en attente du test de Nicolas ; passe à `fait` quand il valide), `est:2-3`, `prio:2` · branche : `v2` · pas d'`agent-ok` avant la maquette validée · dépend de : A, B · remplace le ticket U de `backlog-plus-tard.md`
+`type:feat`, `etat:fait` (codé et poussé le 12/11 ; Nicolas est passé au ticket D le 12/11 sans signaler de défaut au test ; mini-tuto au ticket E), `est:2-3`, `prio:2` · branche : `v2` · pas d'`agent-ok` avant la maquette validée · dépend de : A, B · remplace le ticket U de `backlog-plus-tard.md`
 
 ### Histoire
 En tant que joueur, je veux savoir que le casino existe, avoir envie d'y entrer et m'y amuser (téléphone et PC) afin qu'il ne reste pas un lieu que personne ne visite.
