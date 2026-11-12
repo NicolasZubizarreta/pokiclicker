@@ -43,7 +43,7 @@ export function validerPokemonPossede(v: unknown): asserts v is PokemonPossede {
   forme(v, { uid: identifiant, numero: positif, niveau: positif, xp: nombre, shiny: booleen,
     bonheur: nombre, pierreEternelle: booleen, calcium: entier, favori: booleen,
     sexe: s => exiger(s === 'male' || s === 'femelle' || s === 'sansSexe', `Sexe invalide : ${String(s)}`) },
-  { surnom: s => {
+  { marqueEclosion: booleen, surnom: s => {
     chaine(s);
     exiger(s.trim().length > 0 && s.trim().length <= reglages.equipe.surnomMax, 'Surnom invalide');
   }, oeuf: o => {
@@ -151,6 +151,12 @@ export function validerDonneesRegion(v: unknown): asserts v is DonneesRegion {
       file: liste(identifiant) }),
     blackjackEnCours: validerBlackjackEnCours,
     sabotBlackjack: s => validerSabot(s),
+    especesEcloses: e => {
+      liste(positif)(e);
+      const especes = e as number[];
+      exiger(new Set(especes).size === especes.length, 'Espèces écloses : doublon');
+      exiger(especes.every(n => n <= reglages.pension.especesTirees), 'Espèces écloses : numéro inconnu');
+    },
     plusOuMoinsCarte: c => { entier(c); exiger((c as number) >= 1 && (c as number) <= donneesJeuxCasino.plusOuMoins.rangs, 'Carte du plus ou moins invalide'); },
   });
 }

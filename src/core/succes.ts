@@ -1,7 +1,8 @@
 import donnees from '../../data/succes.json';
 import type { DonneesCompte, DonneesRegion } from './sauvegarde-types';
 
-export type MesureSucces = 'pokedex' | 'badges' | 'eliminations';
+export const MESURES_SUCCES = ['pokedex', 'badges', 'eliminations', 'eclosions'] as const;
+export type MesureSucces = typeof MESURES_SUCCES[number];
 export type Mesures = Record<MesureSucces, number>;
 export type DefinitionSucces = {
   id: string; nom: string; description: string; diamants: number; mesure: MesureSucces; seuil: number;
@@ -26,7 +27,7 @@ export function validerSucces(liste: unknown): DefinitionSucces[] {
     if (typeof seuil !== 'number' || !Number.isInteger(seuil) || seuil < 1) {
       throw new Error(`Seuil du succès invalide : ${id}`);
     }
-    if (mesure !== 'pokedex' && mesure !== 'badges' && mesure !== 'eliminations') {
+    if (!MESURES_SUCCES.includes(mesure as MesureSucces)) {
       throw new Error(`Mesure du succès inconnue : ${id}`);
     }
     return { id, nom, description, diamants, mesure, seuil };
@@ -56,5 +57,17 @@ export function succesAccordes(registre: readonly DefinitionSucces[], compte: Do
 }
 
 export function mesuresDe(region: DonneesRegion, pokedex: readonly number[]): Mesures {
-  return { pokedex: pokedex.length, badges: region.badges.length, eliminations: region.statistiques.eliminations };
+  return {
+    pokedex: pokedex.length, badges: region.badges.length, eliminations: region.statistiques.eliminations,
+    eclosions: region.especesEcloses?.length ?? 0,
+  };
+}
+
+export type PalierSucces = DefinitionSucces & { atteint: boolean; obtenu: boolean };
+
+/** État des paliers d'une mesure (ex. `eclosions`) : `atteint` selon la mesure, `obtenu` selon les succès déjà crédités au compte. */
+export function paliersDeMesure(registre: readonly DefinitionSucces[], mesure: MesureSucces,
+  mesures: Mesures, compte: Pick<DonneesCompte, 'succes'>): PalierSucces[] {
+  return registre.filter(succes => succes.mesure === mesure).sort((a, b) => a.seuil - b.seuil)
+    .map(succes => ({ ...succes, atteint: mesures[mesure] >= succes.seuil, obtenu: compte.succes.includes(succes.id) }));
 }

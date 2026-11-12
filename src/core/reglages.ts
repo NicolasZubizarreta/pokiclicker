@@ -24,6 +24,8 @@ export type ReglagesPension = {
   bonheurNaissance: number; metamorph: number; especesTirees: number;
   chances: { metamorph: number; memeEspece: number; typePartage: number };
   chanceShiny: number;
+  /** Bonus de dégâts propres d'un Pokémon né d'un œuf (0,05 = +5 %). */
+  marqueEclosion: number;
   messages: { pleine: string; envoyePc: string; eclosion: string };
 };
 
@@ -170,6 +172,7 @@ const pension = reglages.pension;
 if ([pension.emplacementsMax, pension.prixParEmplacement, pension.pasEclosion,
   pension.metamorph, pension.especesTirees].some(valeur => !Number.isSafeInteger(valeur) || valeur <= 0)
   || !Number.isSafeInteger(pension.bonheurNaissance) || pension.bonheurNaissance < 0
+  || !Number.isFinite(pension.marqueEclosion) || pension.marqueEclosion < 0
   || [pension.chanceShiny, pension.chances.metamorph, pension.chances.memeEspece, pension.chances.typePartage]
     .some(valeur => !Number.isFinite(valeur) || valeur < 0 || valeur > 1)
   || [pension.messages.pleine, pension.messages.envoyePc, pension.messages.eclosion]

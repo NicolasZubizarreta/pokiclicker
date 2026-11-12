@@ -1,6 +1,6 @@
 import type { Rarete } from './monde';
 import { chargerPokemon } from './pokemon';
-import { avancerOeuf } from './pension';
+import { avancerOeuf, noterEclosion } from './pension';
 import { reglages } from './reglages';
 import type { Bonus } from './reglages';
 import type { DonneesRegion } from './sauvegarde-types';
@@ -86,15 +86,16 @@ export function appliquerVictoire(region: DonneesRegion, v: Victoire, actifs: re
   });
   const inventaire = { ...region.inventaire };
   if (v.shiny) inventaire[t.shiny.objet] = (inventaire[t.shiny.objet] ?? 0) + bonbons;
-  return {
-    region: {
-      ...region, equipe, inventaire, argent: region.argent + or,
-      statistiques: {
-        ...region.statistiques,
-        eliminations: region.statistiques.eliminations + 1,
-        argentTotalGagne: region.statistiques.argentTotalGagne + or,
-      },
+  const suivante: DonneesRegion = {
+    ...region, equipe, inventaire, argent: region.argent + or,
+    statistiques: {
+      ...region.statistiques,
+      eliminations: region.statistiques.eliminations + 1,
+      argentTotalGagne: region.statistiques.argentTotalGagne + or,
     },
+  };
+  return {
+    region: eclosions.reduce((r, { numero }) => noterEclosion(r, numero), suivante),
     or, xp, bonbons, montees, eclosions,
   };
 }

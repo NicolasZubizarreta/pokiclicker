@@ -130,6 +130,7 @@ describe('détail du DPS', () => {
           bonheur: 1 + p.bonheur * reglages.degats.bonheurParPoint,
           pierreEternelle: bonus ? reglages.degats.pierreEternelle : 1,
           calcium: 1 + p.calcium * reglages.degats.calciumParBoost,
+          marqueEclosion: 1,
         });
         expect(Object.values(detail).reduce((produit, facteur) => produit * facteur, 1))
           .toBeCloseTo(calculerDps({ ...p, multiplicateurType }));

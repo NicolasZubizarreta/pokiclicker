@@ -2,6 +2,10 @@
   "succes": [
     { "id": "premiers-pas", "nom": "Premiers pas", "description": "Attrape ton premier Pokémon.", "diamants": 5, "mesure": "pokedex", "seuil": 1 },
     { "id": "premier-badge", "nom": "Premier badge", "description": "Gagne un badge d'arène.", "diamants": 5, "mesure": "badges", "seuil": 1 },
-    { "id": "collectionneur", "nom": "Collectionneur", "description": "Enregistre 25 Pokémon dans ton Pokédex.", "diamants": 10, "mesure": "pokedex", "seuil": 25 }
+    { "id": "collectionneur", "nom": "Collectionneur", "description": "Enregistre 25 Pokémon dans ton Pokédex.", "diamants": 10, "mesure": "pokedex", "seuil": 25 },
+    { "id": "eclosions-10", "nom": "Éleveur débutant", "description": "Fais éclore 10 espèces différentes à la pension.", "diamants": 10, "mesure": "eclosions", "seuil": 10 },
+    { "id": "eclosions-50", "nom": "Éleveur confirmé", "description": "Fais éclore 50 espèces différentes à la pension.", "diamants": 25, "mesure": "eclosions", "seuil": 50 },
+    { "id": "eclosions-100", "nom": "Maître éleveur", "description": "Fais éclore 100 espèces différentes à la pension.", "diamants": 50, "mesure": "eclosions", "seuil": 100 },
+    { "id": "eclosions-151", "nom": "Pension au complet", "description": "Fais éclore les 151 espèces de Kanto à la pension.", "diamants": 100, "mesure": "eclosions", "seuil": 151 }
   ]
 }

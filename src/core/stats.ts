@@ -30,6 +30,7 @@ type EntreeDps = {
   bonheur?: number;
   pierreEternelle?: boolean;
   calcium?: number;
+  marqueEclosion?: boolean;
   multiplicateurType?: number;
 };
 
@@ -47,5 +48,6 @@ export function calculerDps(
     * (entree.shiny ? bonus.shiny : 1)
     * (1 + (entree.bonheur ?? 0) * bonus.bonheurParPoint)
     * (entree.pierreEternelle ? bonus.pierreEternelle : 1)
-    * (1 + (entree.calcium ?? 0) * bonus.calciumParBoost);
+    * (1 + (entree.calcium ?? 0) * bonus.calciumParBoost)
+    * (1 + (entree.marqueEclosion ? reglages.pension.marqueEclosion : 0));
 }

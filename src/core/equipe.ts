@@ -98,5 +98,6 @@ export function detailDps(pokemon: PokemonPossede, multiplicateurType: number) {
     bonheur: 1 + pokemon.bonheur * bonus.bonheurParPoint,
     pierreEternelle: pokemon.pierreEternelle ? bonus.pierreEternelle : 1,
     calcium: 1 + pokemon.calcium * bonus.calciumParBoost,
+    marqueEclosion: 1 + (pokemon.marqueEclosion ? reglages.pension.marqueEclosion : 0),
   };
 }

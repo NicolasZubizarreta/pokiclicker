@@ -66,9 +66,25 @@ export function avancerOeuf(pokemon: PokemonPossede): PokemonPossede {
   if (!pokemon.oeuf) return pokemon;
   const pasRestants = Math.max(0, pokemon.oeuf.pasRestants - 1);
   if (pasRestants > 0) return { ...pokemon, oeuf: { ...pokemon.oeuf, pasRestants } };
-  const eclos = { ...pokemon, niveau: 1, bonheur: pension.bonheurNaissance };
+  const eclos = { ...pokemon, niveau: 1, bonheur: pension.bonheurNaissance, marqueEclosion: true };
   delete eclos.oeuf;
   return eclos;
+}
+
+/** Espèces (formes de base) déjà écloses d'un œuf, dans l'ordre de première éclosion. Absent dans une ancienne sauvegarde = aucune. */
+export function especesEcloses(region: Pick<DonneesRegion, 'especesEcloses'>): readonly number[] {
+  return region.especesEcloses ?? [];
+}
+
+export function nombreEspecesEcloses(region: Pick<DonneesRegion, 'especesEcloses'>): number {
+  return especesEcloses(region).length;
+}
+
+/** Note l'espèce d'une éclosion ; une espèce déjà connue n'est jamais comptée deux fois. */
+export function noterEclosion(region: DonneesRegion, numero: number): DonneesRegion {
+  const connues = especesEcloses(region);
+  if (connues.includes(numero)) return region;
+  return { ...region, especesEcloses: [...connues, numero] };
 }
 
 export function accesPension(

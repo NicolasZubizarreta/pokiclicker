@@ -10,6 +10,8 @@ export type PokemonPossede = {
   bonheur: number; pierreEternelle: boolean; calcium: number; surnom?: string;
   sexe: 'male' | 'femelle' | 'sansSexe'; favori: boolean;
   oeuf?: { pasRestants: number; pasMax: number };
+  /** Marque d'éclosion : posée à la naissance d'un œuf (jamais par capture ni achat), +5 % de dégâts propres. Absent = pas de marque. */
+  marqueEclosion?: boolean;
 };
 export type ReglagesArret = {
   actif: boolean; commun: boolean; peuCommun: boolean; rare: boolean; tresRare: boolean;
@@ -71,6 +73,8 @@ export type DonneesRegion = {
   sabotBlackjack?: string[];
   /** « Plus ou moins » : rang (1 = as … 13 = roi) de la carte visible, gardé pour qu'un rechargement la retrouve. Aucune mise n'est engagée. */
   plusOuMoinsCarte?: number;
+  /** Numéros des espèces (forme de base) déjà écloses d'un œuf, chacune une seule fois. Absent = aucune connue. */
+  especesEcloses?: number[];
   arretAuto: {
     commun: boolean; peuCommun: boolean; rare: boolean; tresRare: boolean;
     legendaire: boolean; shiny: boolean; nouveau: boolean;

@@ -7,10 +7,11 @@ const premiersPas: DefinitionSucces = {
   id: 'premiers-pas', nom: 'Premiers pas', description: 'Attrape ton premier Pokémon.',
   diamants: 5, mesure: 'pokedex', seuil: 1,
 };
-const mesures: Mesures = { pokedex: 1, badges: 0, eliminations: 0 };
+const mesures: Mesures = { pokedex: 1, badges: 0, eliminations: 0, eclosions: 0 };
 
-it('charge les trois succès du registre réel', () => {
-  expect(chargerSucces().map(succes => succes.id)).toEqual(['premiers-pas', 'premier-badge', 'collectionneur']);
+it('charge les sept succès du registre réel', () => {
+  expect(chargerSucces().map(succes => succes.id)).toEqual(['premiers-pas', 'premier-badge', 'collectionneur',
+    'eclosions-10', 'eclosions-50', 'eclosions-100', 'eclosions-151']);
   expect(chargerSucces()).toEqual(registreSucces);
 });
 
@@ -50,9 +51,9 @@ it('accorde deux succès à la fois et additionne leurs diamants', () => {
 
 it('rend le même compte quand aucun seuil n’est atteint', () => {
   const compte = compteInitial();
-  expect(succesAccordes(registreSucces, compte, { pokedex: 0, badges: 0, eliminations: 0 }))
+  expect(succesAccordes(registreSucces, compte, { pokedex: 0, badges: 0, eliminations: 0, eclosions: 0 }))
     .toEqual({ compte, nouveaux: [] });
-  expect(succesAccordes(registreSucces, compte, { pokedex: 0, badges: 0, eliminations: 0 }).compte).toBe(compte);
+  expect(succesAccordes(registreSucces, compte, { pokedex: 0, badges: 0, eliminations: 0, eclosions: 0 }).compte).toBe(compte);
 });
 
 it('ne touche pas un compte ayant déjà le succès même avec des mesures supérieures', () => {
@@ -72,7 +73,7 @@ it('lit les compteurs existants sans modifier la région ni le Pokédex', () => 
     statistiques: { eliminations: 42, argentTotalGagne: 100 } };
   const pokedex = [1, 4, 7];
   const avant = structuredClone({ region, pokedex });
-  expect(mesuresDe(region, pokedex)).toEqual({ pokedex: 3, badges: 1, eliminations: 42 });
+  expect(mesuresDe(region, pokedex)).toEqual({ pokedex: 3, badges: 1, eliminations: 42, eclosions: 0 });
   expect({ region, pokedex }).toEqual(avant);
 });
 

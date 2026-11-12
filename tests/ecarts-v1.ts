@@ -69,3 +69,7 @@ export function gainMachineAttenduV2(symboles: readonly string[], mise = 1): num
   if (symboles[0] === symboles[1] && symboles[1] === symboles[2]) return mise * (GAINS_MACHINE_V2[symboles[0]!] ?? 0);
   return symboles.filter(s => s === 'Baie').length === 2 ? mise * GAIN_DEUX_BAIES_V2 : 0;
 }
+// Ticket D (12/11/2026) : deux règles de pension absentes de la V1, choisies par Nicolas. (1) Un Pokémon né d'un œuf reçoit une
+// marque d'éclosion : +5 % de dégâts propres, en facteur comme le Calcium, une fois par Pokémon, jamais par capture ni achat.
+// (2) Les espèces différentes écloses (sur 151) donnent des succès à 10, 50, 100 et 151, crédités une fois par compte.
+export const ECARTS_ECLOSION_V1 = { marqueDegats: 0.05, paliers: [10, 50, 100, 151] } as const;

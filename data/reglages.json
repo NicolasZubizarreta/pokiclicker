@@ -17,6 +17,7 @@
     "bonheurNaissance": 125, "metamorph": 132, "especesTirees": 151,
     "chances": { "metamorph": 0.04, "memeEspece": 0.04, "typePartage": 0.02 },
     "chanceShiny": 0.125,
+    "marqueEclosion": 0.05,
     "messages": {
       "pleine": "La pension est pleine.",
       "envoyePc": "{nom} est envoyé au PC.",
