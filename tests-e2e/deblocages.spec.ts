@@ -94,24 +94,35 @@ test('Tour Pokémon : l’annonce attend le dialogue de M. Fuji, puis Pension, C
   await auto.evaluate(bouton => (bouton as HTMLButtonElement).click());
   await dialogue.click();
   await expect(dialogue).not.toBeVisible();
-  const suite = await relever(page, 11000);
-  expect(distincts(suite)).toEqual([textes.pension, textes['centre-commercial'], textes.casino]);
+  const annonce = page.locator('[data-annonce-deblocage]');
+  // La Pension est une carte : elle reste au-delà de 3 s, avec « Y aller » et « Fermer », et passe avant les deux autres.
+  const suite = await relever(page, 5000);
+  expect(distincts(suite)).toEqual([textes.pension]);
   expect(suite.every(e => e.cadres <= 1)).toBe(true);
-  for (const texte of [textes.pension, textes['centre-commercial']]) {
-    // 3 s par annonce, relevées toutes les 100 ms (la première est déjà entamée quand le relevé commence).
-    expect(suite.filter(e => e.texte === texte).length).toBeGreaterThanOrEqual(dureeAnnonce / 100 - 1);
-    expect(suite.filter(e => e.texte === texte).length).toBeLessThanOrEqual(dureeAnnonce / 100);
-  }
-  // Le Casino est une carte : elle reste au-delà de 3 s, avec « Y aller » et « Fermer », et n'est pas encore notée vue.
-  expect(suite.filter(e => e.texte === textes.casino).length).toBeGreaterThan(dureeAnnonce / 100);
-  expect(suite.at(-1)!.texte).toBe(textes.casino);
-  await expect(page.locator('[data-annonce-deblocage]').getByRole('button', { name: 'Y aller' })).toBeVisible();
+  expect(suite.filter(e => e.texte === textes.pension).length).toBeGreaterThan(dureeAnnonce / 100);
+  expect(suite.at(-1)!.texte).toBe(textes.pension);
+  await expect(annonce.getByRole('button', { name: 'Y aller' })).toBeVisible();
+  expect((await regionSauvee(page)).annoncesVues).toEqual(['sac', 'pc']);
+  // Rechargée sans geste, elle revient.
+  await page.reload();
+  await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
+  expect(distincts(await relever(page, 5000))).toEqual([textes.pension]);
+  await annonce.getByRole('button', { name: 'Fermer' }).click();
+  // Une fois fermée, le Centre commercial passe 3 s, puis le Casino (carte) reste.
+  const apres = await relever(page, 8000);
+  expect(distincts(apres)).toEqual([textes['centre-commercial'], textes.casino]);
+  expect(apres.every(e => e.cadres <= 1)).toBe(true);
+  expect(apres.filter(e => e.texte === textes['centre-commercial']).length).toBeGreaterThanOrEqual(dureeAnnonce / 100 - 1);
+  expect(apres.filter(e => e.texte === textes['centre-commercial']).length).toBeLessThanOrEqual(dureeAnnonce / 100);
+  expect(apres.filter(e => e.texte === textes.casino).length).toBeGreaterThan(dureeAnnonce / 100);
+  expect(apres.at(-1)!.texte).toBe(textes.casino);
+  await expect(annonce.getByRole('button', { name: 'Y aller' })).toBeVisible();
   expect((await regionSauvee(page)).annoncesVues).toEqual(['sac', 'pc', 'pension', 'centre-commercial']);
   // Rechargée sans geste, elle revient (les deux autres ne reviennent pas).
   await page.reload();
   await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
   expect(distincts(await relever(page, 11000))).toEqual([textes.casino]);
-  await page.locator('[data-annonce-deblocage]').getByRole('button', { name: 'Fermer' }).click();
+  await annonce.getByRole('button', { name: 'Fermer' }).click();
   await expect(page.locator('[data-annonce-deblocage] p')).toHaveCount(0);
   expect((await regionSauvee(page)).annoncesVues).toEqual(['sac', 'pc', 'pension', 'centre-commercial', 'casino']);
   await page.reload();
