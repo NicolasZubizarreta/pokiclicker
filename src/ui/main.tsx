@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
+import { nettoyerCachesImages } from '../pwa/nettoyer-caches';
 import { brancherSons } from './sons';
 import { musique } from './musique';
 import { storeJeu } from './store';
@@ -17,6 +18,8 @@ const premierGeste = () => {
 document.addEventListener('visibilitychange', () => musique.masquer(document.hidden));
 window.addEventListener('pointerdown', premierGeste, true);
 window.addEventListener('keydown', premierGeste, true);
+
+void nettoyerCachesImages(__CACHE_IMAGES__).catch(() => undefined);
 
 const racine = document.getElementById('racine');
 

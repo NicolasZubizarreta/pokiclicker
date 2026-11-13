@@ -17,7 +17,7 @@ async function demarrer(page: Page, largeur = 1440, hauteur = 900) {
 
 test.beforeEach(({ page }) => { test.skip(telephone(page), 'Coquille PC : 1024 px et plus'); });
 
-test('1440 px : barre latérale de 15 rem, six entrées, bandeau et légende', async ({ page }) => {
+test('1440 px : barre latérale de 15 rem, six entrées, bandeau, pas de légende en bas', async ({ page }) => {
   await demarrer(page);
   const barre = await page.locator('aside.barre-laterale').boundingBox();
   expect(barre?.width).toBeCloseTo(240, 0);
@@ -25,7 +25,7 @@ test('1440 px : barre latérale de 15 rem, six entrées, bandeau et légende', a
   for (const [i, nom] of ONGLETS.entries()) await expect(nav(page).getByRole('button').nth(i)).toContainText(nom);
   await expect(page.getByRole('banner', { name: 'Chiffres clés' })).toContainText('Pokédollars');
   await expect(page.getByRole('banner', { name: 'Chiffres clés' })).toContainText('DPS');
-  await expect(page.getByRole('contentinfo', { name: 'Raccourcis clavier' })).toContainText('Espace');
+  await expect(page.getByRole('contentinfo')).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Raccourcis ?' })).toBeVisible();
 });
 

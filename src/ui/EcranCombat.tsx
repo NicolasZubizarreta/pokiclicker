@@ -325,7 +325,7 @@ function CombatPC({ store, cadre, ouvrirPension }: { store: StoreJeu; cadre: Ref
     <h1 className="sr-only">{lieu?.nom}</h1>
     <div className="combat-pc-gauche">
       <ZoneLigne nom={lieu?.nom} etape={zone ? etape : null} precedente={zonePrecedente} suivante={zoneSuivante} aller={allerVers} />
-      <Scene store={store} ouvrirPension={ouvrirPension} />
+      <div className="scene-boite"><Scene store={store} ouvrirPension={ouvrirPension} /></div>
       <ActionsTelephone store={store} />
     </div>
     <div className="combat-pc-droite">

@@ -12,4 +12,4 @@
 - Vérifier la visibilité des easter eggs sur téléphone (le décor y est coupé au centre).
 
 ## Hors connexion
-Seul le décor de la Route 1 est préchargé avec l'application (`vite.config.ts`, `workbox.globIgnores`). Les autres décors, les artworks et l'animation de Roucarnage entrent dans le cache à leur première vue (`CacheFirst`, cache `images-lourdes`) : un décor jamais affiché en ligne n'est pas disponible hors connexion. Précharger les 30 décors (≈ 12 Mo) ralentirait l'installation du service worker.
+Seul le décor de la Route 1 est préchargé avec l'application (`vite.config.ts`, `workbox.globIgnores`). Les autres décors, les artworks et l'animation de Roucarnage entrent dans le cache à leur première vue (`CacheFirst`, cache `images-lourdes-<hash>`) : le nom du cache change quand un fichier de ces dossiers change (hash dans `vite.config.ts`), et `src/pwa/nettoyer-caches.ts` supprime les anciens au démarrage, donc un décor remplacé n'est plus servi depuis l'ancienne copie. Un décor jamais affiché en ligne n'est pas disponible hors connexion. Précharger les 30 décors (≈ 12 Mo) ralentirait l'installation du service worker.

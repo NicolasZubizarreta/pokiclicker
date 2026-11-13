@@ -3,12 +3,12 @@
 @media (min-width: 1024px) {
   main#contenu:has(> .combat-pc) { display: flex; flex-direction: column; overflow: hidden; }
   main#contenu:has(> .combat-pc) > button { display: none; }
-  main#contenu:has(> .combat-pc) { padding-top: calc(var(--spacing) * 2); }
-  .combat-pc { display: grid; grid-template-columns: minmax(0, 1fr) clamp(17rem, 22vw, 24rem); grid-template-rows: minmax(0, 1fr); gap: calc(var(--spacing) * 4); flex: 1; min-height: 0; }
+  main#contenu:has(> .combat-pc) { padding-block: calc(var(--spacing) * 2); }
+  .combat-pc { display: grid; grid-template-columns: minmax(0, 1fr) clamp(15rem, 17vw, 19rem); grid-template-rows: minmax(0, 1fr); gap: calc(var(--spacing) * 4); flex: 1; min-height: 0; }
   .combat-pc .combat-pc-gauche { display: flex; flex-direction: column; gap: calc(var(--spacing) * 2); min-height: 0; min-width: 0; }
   .combat-pc .combat-pc-droite { display: flex; flex-direction: column; gap: calc(var(--spacing) * 2); min-height: 0; }
   .combat-pc .combat-pc-equipe { display: flex; flex-direction: column; gap: calc(var(--spacing) * 2); flex: 1 1 auto; min-height: 0; }
-  .combat-pc .combat-pc-equipe ul { flex: 1; min-height: 0; overflow: hidden; grid-template-rows: repeat(6, minmax(0, 1fr)); }
+  .combat-pc .combat-pc-equipe ul { flex: 1; min-height: 0; overflow: hidden; grid-template-columns: minmax(0, 1fr); grid-template-rows: repeat(6, minmax(0, 1fr)); }
   .combat-pc .combat-pc-equipe li { min-height: 0; }
   .combat-pc .combat-pc-equipe li > * { height: 100%; min-height: 0; overflow: hidden; }
   .combat-pc .combat-pc-equipe .rang-equipe { padding-block: var(--spacing); }
@@ -16,14 +16,18 @@
   .combat-pc .combat-pc-equipe .rang-equipe > span:last-child > span { flex-wrap: nowrap; }
   .combat-pc .combat-pc-equipe .rang-equipe > span:first-child { height: 100%; width: auto; aspect-ratio: 1; max-height: calc(var(--spacing) * 14); }
   .combat-pc .zone-ligne { flex-shrink: 0; }
-  .combat-pc .scene-limitee { container-type: size; flex: 1; min-height: 0; height: auto; max-height: none; width: 100%; aspect-ratio: auto; overflow: hidden; }
+  /* La scène est toujours un 16:9 entier (les décors le sont) : la boîte prend la place restante, la scène s'y inscrit sans rien recadrer. */
+  .combat-pc .scene-boite { flex: 0 1 auto; width: 100%; aspect-ratio: 16 / 9; min-height: 0; min-width: 0; container-type: size; display: grid; place-items: center; }
+  .combat-pc .scene-limitee { container-type: size; flex: none; height: auto; max-height: none; width: min(100cqw, calc(100cqh * 16 / 9)); aspect-ratio: 16 / 9; overflow: hidden; }
   .combat-pc .scene-limitee > .pointer-events-none.absolute.right-1 { right: 5%; bottom: 4%; width: calc(var(--spacing) * 48); height: calc(var(--spacing) * 48); }
   .combat-pc .scene-limitee .socle { bottom: 0; height: calc(var(--spacing) * 8); }
   .combat-pc .scene-limitee span.hidden.size-72 { display: block; width: calc(var(--spacing) * 48); height: calc(var(--spacing) * 48); transform: translateY(var(--pieds)); }
   .combat-pc .scene-limitee span.block.size-32 { display: none; }
-  .combat-pc .scene-limitee > .pointer-events-none.cadre { width: min(48%, calc(var(--spacing) * 96)); }
+  /* Cadre de l'ennemi : moitié moins large, donc moitié moins d'écart entre le nom et le niveau, et plus de décor visible. */
+  .combat-pc .scene-limitee > .pointer-events-none.cadre { width: min(32%, calc(var(--spacing) * 64)); }
+  .combat-pc .scene-limitee > .pointer-events-none.cadre.bg-alerte-base { text-wrap: balance; }
   .combat-pc .rang-equipe { width: 100%; position: relative; }
-  .combat-pc .actions-quatre { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .combat-pc .actions-quatre { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .combat-pc .plaque-vertical { flex-direction: row; min-height: calc(var(--spacing) * 13); }
   .combat-pc .touche-pc { display: inline-block; font-family: var(--font-mono); font-size: var(--text-xs); margin-left: var(--spacing); }
   /* Bouton carré (Fauchage) : la touche se pose dans le coin pour laisser la place à l'icône et à la recharge. */
@@ -37,7 +41,4 @@
     .combat-pc .scene-limitee > .pointer-events-none.absolute.right-1,
     .combat-pc .scene-limitee span.hidden.size-72 { width: calc(var(--spacing) * 96); height: calc(var(--spacing) * 96); }
   }
-}
-@media (min-width: 1400px) {
-  .combat-pc .actions-quatre { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }

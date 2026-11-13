@@ -75,9 +75,13 @@ test('combat PC : scène à gauche, équipe et effets à droite, quatre boutons,
     await expect(page.getByRole('region', { name: 'Effets actifs' })).toBeVisible();
     const boutons = await Promise.all([/^Attaque auto/, /^Arrêt auto/, /^Réglage/, /^Sac/]
       .map(nom => page.getByRole('button', { name: nom }).first().boundingBox()));
-    expect(new Set(boutons.map(b => Math.round(b!.y))).size).toBe(largeur >= 1400 ? 1 : 2);
-    if (largeur < 1400) expect(new Set(boutons.map(b => Math.round(b!.x))).size).toBe(2);
+    // Les quatre boutons tiennent toujours sur une seule ligne.
+    expect(new Set(boutons.map(b => Math.round(b!.y))).size).toBe(1);
     for (const b of boutons) expect(b!.height).toBeGreaterThanOrEqual(44);
+    // La scène est un 16:9 entier (les décors le sont), jamais recadré, et reste au-dessus des boutons.
+    const scene = await page.locator('.combat-pc .scene-limitee').boundingBox();
+    expect(Math.abs(scene!.width / scene!.height - 16 / 9)).toBeLessThan(0.02);
+    expect(scene!.y + scene!.height).toBeLessThanOrEqual(boutons[0]!.y);
     await pasDeDefilement(page);
     await spritesDansCadres(page.getByRole('region', { name: 'Ton équipe' }), '.rang-equipe');
   }

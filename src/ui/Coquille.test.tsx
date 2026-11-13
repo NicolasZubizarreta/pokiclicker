@@ -467,7 +467,7 @@ describe('Coquille', () => {
         if (nom === 'Équipe' && ['Mâle', 'Femelle', 'Favori'].includes(element.getAttribute('aria-label') ?? '')) continue; // icônes de sexe et de favori des cartes PC
         // Le Sac de l'onglet Équipe : région, filtre, liste et pastilles « <objet> ×n ».
         if (nom === 'Équipe' && ['Sac', 'Catégories', 'Objets du Sac', 'Pokéball ×0', 'Bonbon ×0'].includes(element.getAttribute('aria-label') ?? '')) continue;
-        expect(element.getAttribute('aria-label')).toBe(element.tagName === 'FOOTER' ? 'Raccourcis clavier' : attendu);
+        expect(element.getAttribute('aria-label')).toBe(attendu);
       }
     }
     const icones = container.querySelectorAll('svg');

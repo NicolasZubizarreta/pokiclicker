@@ -3,7 +3,6 @@ import { useStore } from 'zustand';
 import { useTelephone } from './useTelephone';
 import { useRaccourcisPC } from './useRaccourcisPC';
 import type { InfosPartie } from './BarreLaterale';
-import { LegendeRaccourcis } from './LegendeRaccourcis';
 import { FenetreRaccourcis } from './FenetreRaccourcis';
 import { Navigation } from './Navigation';
 import { BandeauHaut } from './BandeauHaut';
@@ -131,7 +130,6 @@ export function Coquille({ region = 'kanto', theme = 'dark', quandMenuPrincipal,
         {!quandMenuPrincipal && <button ref={boutonCompte} className="min-h-11 p-2 text-lien underline" onClick={() => fixerCompteOuvert(true)}>Mon compte</button>}
         {page === 'Combat' ? introVue || introActive ? <PageIntro quandTerminee={() => fixerIntroVue(false)} /> : <EcranCombat /> : page === 'Carte' ? <PageCarte quandArrive={() => choisir('Combat')} /> : page === 'Équipe' ? <PageEquipe ouvrirPC={() => aller('PC')} /> : page === 'PC' ? <PagePC retour={() => choisir(originePC)} libelleRetour={originePC === 'Équipe' ? "Retour à l'équipe" : 'Retour au menu'} /> : page === 'Monde' ? <PageMonde retour={() => choisir(origineMonde)} jouerKanto={() => choisir('Combat')} /> : page === 'Casino' ? <AccueilCasino retour={() => choisir('Menu')} /> : page === 'Pension' ? <PagePension retour={() => choisir('Menu')} libelleRetour="Retour au menu" /> : page === 'Menu' ? <PagePlus ouvrirPC={() => aller('PC')} ouvrirMonde={() => aller('Monde')} ouvrirCasino={() => aller('Casino')} ouvrirPension={() => aller('Pension')}menuPrincipal={quandMenuPrincipal} attendreEnvoi={attendreEnvoi} etatSynchro={quandMenuPrincipal ? etatSynchro : undefined} /> : <PageShop />}
       </main>
-      {!introActive && !introVue && <LegendeRaccourcis page={page} />}
       </div>
       {raccourcisOuverts && <FenetreRaccourcis fermer={() => ouvrirRaccourcis(false)} />}
       {/* La Carte reste montée jusqu’à la fin du vol ; l’évolution garde aussi la priorité. */}
