@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { test as base, expect } from '@playwright/test';
 import type { Locator, Page } from '@playwright/test';
 
-// Ticket E : tutoriel de la Route 1 (8 bulles), mini-tutos de déblocage, rejeu depuis le Guide, persistance, placement de la carte et de Chen.
+// Ticket E : tutoriel de la Route 1 (8 bulles), mini-tutos de déblocage, rejeu depuis le Guide, persistance, placement de la carte, voile sur le reste de l’écran.
 type Etape = { cible: string | null; texte: string; action: string };
 type Tuto = { id: string; ecran: string; titre: string; etapes: Etape[] };
 type Rect = { x: number; y: number; w: number; h: number };
@@ -64,41 +64,39 @@ const vus = (page: Page) => page.evaluate(() => {
   const cle = Object.keys(localStorage).find(c => c.startsWith('pokiclicker:region:') && c.endsWith(':kanto'))!;
   return (JSON.parse(localStorage.getItem(cle)!).donnees.tutosVus ?? []) as string[];
 });
-const chevauche = (a: Rect, b: Rect) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
 const recouvrement = (a: Rect, b: Rect) => Math.max(0, Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x)) * Math.max(0, Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y));
 
-/** La carte et Chen restent dans l'écran, au-dessus de la barre du bas, et ne couvrent ni la cible ni l'autre. */
+/** La carte reste dans l'écran, au-dessus de la barre du bas, et ne couvre pas la cible ; le reste de l'écran est voilé. */
 async function verifierPlacement(page: Page, cible: string | null) {
   const m = await page.evaluate(id => {
     const rect = (e: Element | null) => { if (!e) return null; const b = e.getBoundingClientRect(); return { x: b.x, y: b.y, w: b.width, h: b.height }; };
     const visible = id ? [...document.querySelectorAll(`[data-tuto="${id}"]`)].find(e => { const b = e.getBoundingClientRect(); return b.width > 0 && b.height > 0; }) ?? null : null;
-    return { carte: rect(document.querySelector('.tuto-couche .tuto')), chen: rect(document.querySelector('.tuto-couche .avatar')),
-      cible: rect(visible ?? null), nav: rect(document.querySelector('nav[aria-label="Navigation principale"]')), l: innerWidth, h: innerHeight };
+    const repere = document.querySelector('.tuto-couche .repere:not([hidden])'), voile = document.querySelector('.tuto-couche .voile:not([hidden])');
+    return { carte: rect(document.querySelector('.tuto-couche .tuto')), avatar: document.querySelector('.tuto-couche .avatar') !== null,
+      cible: rect(visible ?? null), nav: rect(document.querySelector('nav[aria-label="Navigation principale"]')), l: innerWidth, h: innerHeight,
+      bordureCarte: getComputedStyle(document.querySelector('.tuto-couche .tuto')!).borderTopWidth,
+      bordureRepere: repere ? getComputedStyle(repere).borderTopWidth : null,
+      ombreRepere: repere ? getComputedStyle(repere).boxShadow : null,
+      fondVoile: voile ? getComputedStyle(voile).backgroundColor : null };
   }, cible);
   expect(m.carte).not.toBeNull();
-  expect(m.chen).not.toBeNull();
-  const bordures = await page.evaluate(() => ['.tuto-couche .tuto', '.tuto-couche .repere'].map(s => {
-    const e = document.querySelector(s);
-    return e ? getComputedStyle(e).borderTopWidth : null;
-  }));
-  expect(bordures[0], 'la carte a un contour').not.toBe('0px');
-  if (bordures[1] !== null) expect(bordures[1], 'le repère a un contour').not.toBe('0px');
-  const { carte: c, chen: k } = { carte: m.carte!, chen: m.chen! };
-  for (const r of [c, k]) {
-    expect(r.x).toBeGreaterThanOrEqual(-1);
-    expect(r.y).toBeGreaterThanOrEqual(-1);
-    expect(r.x + r.w).toBeLessThanOrEqual(m.l + 1);
-    expect(r.y + r.h).toBeLessThanOrEqual(m.h + 1);
-    if (m.nav && m.nav.y > m.h / 2) expect(r.y + r.h).toBeLessThanOrEqual(m.nav.y + 1);
-  }
-  expect(chevauche(c, k), 'la carte ne couvre pas Chen').toBe(false);
+  expect(m.avatar, 'plus de sprite du professeur').toBe(false);
+  expect(m.bordureCarte, 'la carte a un contour').not.toBe('0px');
+  if (m.bordureRepere !== null) expect(m.bordureRepere, 'le repère a un contour').not.toBe('0px');
+  // Le reste de l'écran est grisé : l'ombre étalée du repère (cible) ou le voile plein écran (sans cible) est teinté, pas transparent.
+  const teinte = (couleur: string | null) => couleur !== null && !/rgba?(0, 0, 0, 0)|transparent|^none$/.test(couleur);
+  expect(m.ombreRepere !== null ? teinte(m.ombreRepere) : teinte(m.fondVoile), 'le reste de l’écran est voilé').toBe(true);
+  const c = m.carte!;
+  expect(c.x).toBeGreaterThanOrEqual(-1);
+  expect(c.y).toBeGreaterThanOrEqual(-1);
+  expect(c.x + c.w).toBeLessThanOrEqual(m.l + 1);
+  expect(c.y + c.h).toBeLessThanOrEqual(m.h + 1);
+  if (m.nav && m.nav.y > m.h / 2) expect(c.y + c.h).toBeLessThanOrEqual(m.nav.y + 1);
   if (m.cible && m.nav && m.nav.y > m.h / 2 && m.cible.h < m.h / 2 && m.cible.y < m.nav.y - 1) expect(m.cible.y + m.cible.h, 'la cible n’est pas cachée par la barre du bas').toBeLessThanOrEqual(m.nav.y + 1);
   if (m.cible) {
     // Une cible qui occupe plus du quart de l'écran (la scène de combat) ne peut pas toujours rester entièrement libre.
     const grande = m.cible.w * m.cible.h > 0.25 * m.l * m.h;
-    const part = (r: Rect) => recouvrement(r, m.cible!) / (m.cible!.w * m.cible!.h);
-    expect(part(c), 'la carte couvre peu la cible').toBeLessThanOrEqual(grande ? 0.2 : 0);
-    expect(part(k), 'Chen couvre peu la cible').toBeLessThanOrEqual(grande ? 0.1 : 0);
+    expect(recouvrement(c, m.cible) / (m.cible.w * m.cible.h), 'la carte couvre peu la cible').toBeLessThanOrEqual(grande ? 0.2 : 0);
   }
 }
 
@@ -182,6 +180,32 @@ test('« Passer le tuto » ferme sans pénalité et ne revient pas au rechargeme
   await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
   await page.waitForTimeout(800);
   await expect(carte(page)).toHaveCount(0);
+});
+
+/** Luminance moyenne (0 à 255) d'une capture PNG, calculée dans la page. */
+const luminance = (page: Page, png: Buffer) => page.evaluate(async base64 => {
+  const image = await createImageBitmap(await (await fetch(`data:image/png;base64,${base64}`)).blob());
+  const toile = document.createElement('canvas');
+  toile.width = image.width; toile.height = image.height;
+  const contexte = toile.getContext('2d')!;
+  contexte.drawImage(image, 0, 0);
+  const { data } = contexte.getImageData(0, 0, image.width, image.height);
+  let somme = 0;
+  for (let i = 0; i < data.length; i += 4) somme += 0.2126 * data[i]! + 0.7152 * data[i + 1]! + 0.0722 * data[i + 2]!;
+  return somme / (data.length / 4);
+}, png.toString('base64'));
+
+test('le reste de l’écran est grisé, la cible et la carte restent nettes', async ({ page }) => {
+  await debutDePartie(page);
+  await expect(page.locator('.tuto-couche .repere')).toBeVisible();
+  const zone = (await navigation(page).boundingBox())!;
+  const avec = await page.screenshot({ clip: zone });
+  // La cible (l'ennemi) reste cliquable à travers le voile : il n'intercepte aucun appui.
+  expect(await page.evaluate(() => getComputedStyle(document.querySelector('.tuto-couche .repere')!).pointerEvents)).toBe('none');
+  await page.getByRole('button', { name: 'Passer le tuto' }).click();
+  await expect(page.locator('.tuto-couche')).toHaveCount(0);
+  const sans = await page.screenshot({ clip: zone });
+  expect(await luminance(page, avec), 'la navigation voilée est plus sombre').toBeLessThan(await luminance(page, sans) * 0.9);
 });
 
 test('le jeu reste jouable pendant le tuto : l’ennemi se touche sans voile', async ({ page }) => {

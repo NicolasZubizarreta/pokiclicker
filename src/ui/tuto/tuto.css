@@ -1,9 +1,9 @@
-.tuto-couche { position:fixed; inset:0; z-index:20; pointer-events:none; }
+.tuto-couche { --tuto-voile:color-mix(in srgb, var(--fond) 70%, transparent); position:fixed; inset:0; z-index:20; pointer-events:none; }
 .tuto-couche, .tuto-couche * { animation:none; transition:none; }
 .tuto-couche[hidden], .tuto-couche .repere[hidden] { display:none; }
 .tuto-couche .tuto { position:fixed; pointer-events:auto; background:var(--surface); color:var(--texte); border:calc(var(--spacing) / 2) solid var(--region-accent); border-radius:var(--rayon); padding:calc(var(--spacing) * 3) calc(var(--spacing) * 4); }
-.tuto-couche .avatar { position:fixed; width:calc(var(--spacing) * 28.5); height:calc(var(--spacing) * 24); object-fit:cover; object-position:top; image-rendering:pixelated; pointer-events:none; }
-.tuto-couche .repere { position:fixed; border:calc(var(--spacing) * 0.75) solid var(--region-argent); border-radius:var(--radius-md); }
+.tuto-couche .repere { position:fixed; border:calc(var(--spacing) * 0.75) solid var(--region-argent); border-radius:var(--radius-md); box-shadow:0 0 0 100vmax var(--tuto-voile); }
+.tuto-couche .voile { position:fixed; inset:0; background:var(--tuto-voile); }
 .tuto-corps { display:grid; grid-template-columns:minmax(0, 1fr) auto; align-items:center; gap:calc(var(--spacing) * 2) calc(var(--spacing) * 3); }
 .tuto-entete, .tuto-texte { grid-column:1 / -1; }
 .tuto-entete { display:flex; align-items:center; gap:calc(var(--spacing) * 3); }

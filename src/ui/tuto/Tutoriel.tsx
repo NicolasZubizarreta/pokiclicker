@@ -12,15 +12,12 @@ const modaleOuverte = () => Array.from(document.querySelectorAll('dialog[open], 
 function poser(element: HTMLElement, r: Rect) {
   Object.assign(element.style, { left: `${r.x}px`, top: `${r.y}px`, width: `${r.w}px` });
 }
-/** Chen en plus petit sur téléphone : l'écran y est trop serré pour son sprite entier. */
-const tailleChen = () => innerWidth < 640 ? { w: 76, h: 64 } : { w: 114, h: 96 };
-
 /** Le bouton cliqué disparaît avec la carte : le focus revient au contenu de la page. */
 const rendreLeFocus = () => queueMicrotask(() => document.getElementById('contenu')?.focus({ preventScroll: true }));
 
 export function Tutoriel({ page, aller }: { page: Page; aller(page: Page): void }) {
   const actif = useTuto();
-  const carte = useRef<HTMLDivElement>(null), chen = useRef<HTMLImageElement>(null), repere = useRef<HTMLDivElement>(null);
+  const carte = useRef<HTMLDivElement>(null), repere = useRef<HTMLDivElement>(null), voile = useRef<HTMLDivElement>(null);
   const couche = useRef<HTMLDivElement>(null);
   const rejeu = useRef<object | null>(null);
   const [annonce, annoncer] = useState('');
@@ -105,7 +102,7 @@ export function Tutoriel({ page, aller }: { page: Page; aller(page: Page): void 
       decrite = null;
     };
     const placer = () => {
-      if (!carte.current || !chen.current || !repere.current || !couche.current) return;
+      if (!carte.current || !repere.current || !voile.current || !couche.current) return;
       const masque = modaleOuverte();
       if (couche.current.hidden !== masque) couche.current.hidden = masque;
       if (masque) return;
@@ -131,11 +128,12 @@ export function Tutoriel({ page, aller }: { page: Page; aller(page: Page): void 
       }
       const rect = r ? { x: r.left, y: r.top, w: r.width, h: r.height } : null;
       const placement = placerTuto({ zone: zoneUtile(), cible: rect, obstacles: obstaclesVisibles(cible), marge: 16,
-        chen: tailleChen(), carte: { largeurMax: 340, largeurMin: 240, hauteur: largeur => {
+        carte: { largeurMax: 340, largeurMin: 240, hauteur: largeur => {
           carte.current!.style.width = `${largeur}px`; return carte.current!.offsetHeight;
         } } });
-      poser(carte.current, placement.carte); poser(chen.current, placement.chen); chen.current.style.height = `${placement.chen.h}px`;
+      poser(carte.current, placement.carte);
       repere.current.hidden = !rect;
+      voile.current.hidden = !!rect;
       if (rect) { poser(repere.current, { x: rect.x - 6, y: rect.y - 6, w: rect.w + 12, h: rect.h + 12 }); repere.current.style.height = `${rect.h + 12}px`; }
     };
     let frame = 0;
@@ -153,9 +151,9 @@ export function Tutoriel({ page, aller }: { page: Page; aller(page: Page): void 
   if (!actif || !tuto || !etape) return <>{null}{regionLive}</>;
   const n = tuto.etapes.length, compteur = n > 1 ? `${actif.etape + 1}/${n}` : '';
   return <>{<div ref={couche} className="tuto-couche">
+    <div ref={voile} className="voile" hidden />
     <div ref={repere} className="repere" hidden />
     <div ref={carte} className="tuto" role="region" aria-label={`Tutoriel ${tuto.titre}${compteur ? `, étape ${compteur}` : ''}`}>
-      <img ref={chen} className="avatar" src="img/sprites/chen/chen-1.png" width={114} height={96} alt="" />
       <div className="tuto-corps">
         <p className="tuto-entete"><span className="qui">Prof. Chen</span>{compteur && <span className="compteur">{compteur}</span>}{n > 1 && <span className="segs" aria-hidden="true">{tuto.etapes.map((_, i) => <i key={i} className={i < actif.etape ? 'fait' : i === actif.etape ? 'ici' : ''} />)}</span>}</p>
         <p className="tuto-texte" id="tuto-texte"><span className="lu">{etape.texte}</span></p>
