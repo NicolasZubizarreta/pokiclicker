@@ -12,7 +12,8 @@
   .equipe-pc .carte-equipe { display: flex; flex-direction: column; padding: .5rem; gap: .25rem; text-align: center; }
   .equipe-pc .portrait { position: relative; isolation: isolate; flex: 1; min-height: 0; width: 100%; display: grid; place-items: center; overflow: hidden; container-type: size; }
   .equipe-pc .portrait { align-items: end; }
-  .equipe-pc .portrait > * { --taille: 96px; }
+  /* La taille ne dépasse jamais la hauteur du cadre : sinon le décalage des pieds pousse le sprite hors du cadre, où il est coupé. */
+  .equipe-pc .portrait > * { --taille: min(96px, 100cqh); }
   .equipe-pc .portrait img { width: var(--taille); height: var(--taille); object-fit: contain; max-height: 100%; max-width: 100%; }
   /* Les pieds (lignes vides sous le sprite : pieds-sprites.json) tombent au centre du socle, dont la taille suit celle du sprite. */
   .equipe-pc .portrait > img { transform: translateY(calc(var(--pieds, 0%) - 9%)); }
@@ -22,6 +23,6 @@
   .equipe-pc .corps { display: grid; gap: .25rem; width: 100%; }
   .equipe-pc .bandeau-choix { background: var(--selection); border-left: 4px solid var(--region-accent); }
   .equipe-pc .superposition { position: absolute; inset: 0; z-index: 20; overflow: auto; background: var(--surface); display: grid; align-content: center; }
-  @container (height > 11rem) { .equipe-pc .portrait > * { --taille: 192px; } }
-  @container (height > 20rem) and (width > 18rem) { .equipe-pc .portrait > * { --taille: 288px; } }
+  @container (height > 11rem) { .equipe-pc .portrait > * { --taille: min(192px, 100cqh); } }
+  @container (height > 20rem) and (width > 18rem) { .equipe-pc .portrait > * { --taille: min(288px, 100cqh); } }
 }

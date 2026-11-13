@@ -115,6 +115,21 @@ test('équipe PC : toujours 3 colonnes sur 2 lignes, sans défilement, sprites d
   }
 });
 
+test('équipe PC : le dessin du sprite (sans ses lignes vides) reste dans le cadre du portrait, même sur un écran bas', async ({ page }) => {
+  await demarrer(page, 1280, 800);
+  await page.keyboard.press('2');
+  await expect(page.getByRole('heading', { name: 'Ton équipe' })).toBeVisible();
+  for (const [largeur, hauteur] of [[1100, 700], [1366, 768], ...TAILLES]) {
+    await page.setViewportSize({ width: largeur, height: hauteur });
+    const hors = await page.locator('.equipe-pc .portrait').evaluateAll(portraits => portraits.map(p => {
+      const cadre = p.getBoundingClientRect(), image = p.querySelector('img')!.getBoundingClientRect();
+      const pieds = parseFloat(getComputedStyle(p).getPropertyValue('--pieds')) / 100;
+      return image.bottom - pieds * image.height - cadre.bottom;
+    }).filter(depassement => depassement > 0.5));
+    expect(hors, `${largeur}×${hauteur}`).toEqual([]);
+  }
+});
+
 test('équipe PC : le clic ouvre la fiche en fenêtre, le tri d’affichage garde six cartes', async ({ page }) => {
   await demarrer(page, 1440, 900);
   await page.keyboard.press('2');
