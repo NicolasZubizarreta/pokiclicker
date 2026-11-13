@@ -1,0 +1,6 @@
+/* Composition retenue le 12/11 : carte de la variante B + Prof. Chen de la C posé en bas à droite de l'écran, au-dessus de la barre du bas
+   (téléphone) ; il ne reçoit aucun appui, il est donc toujours possible de toucher ce qui se trouve dessous. */
+.tuto { animation:none; }
+.tuto .avatar { position:fixed; z-index:4; right:var(--marge); bottom:calc(var(--spacing) * 17 + env(safe-area-inset-bottom)); width:calc(var(--spacing) * 28.5); height:calc(var(--spacing) * 24); object-fit:cover; object-position:top; pointer-events:none; }
+.tuto-entete .qui { font:700 var(--text-sm)/var(--text-sm--line-height) var(--font-titre); color:var(--region-accent); }
+@media (min-width:64rem) { .tuto .avatar { bottom:var(--marge); } }

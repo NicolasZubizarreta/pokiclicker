@@ -134,10 +134,13 @@ export function PageEquipe({ ouvrirPC }: { ouvrirPC?: () => void }) {
       <select aria-label="Trier l'équipe" value={tri} onChange={event => trier(event.target.value)}>
         <option value="ordre">Ordre de l'équipe</option><option value="dps">DPS, du plus grand au plus petit</option>
       </select>
-      {sac.acces.ouvert && <button type="button" className="plaque" onClick={ouvrirSac}>Sac</button>}
+      {sac.acces.ouvert && <button data-tuto="sac" type="button" className="plaque" onClick={ouvrirSac}>Sac</button>}
     </header>}
     {telephone && <>
-    <h1 ref={titre} tabIndex={-1} className="font-titre text-2xl font-semibold">Ton équipe</h1>
+    <div className="flex items-center justify-between gap-4">
+      <h1 ref={titre} tabIndex={-1} className="font-titre text-2xl font-semibold">Ton équipe</h1>
+      {sac.acces.ouvert && <button data-tuto="sac" type="button" className="plaque min-h-11" onClick={ouvrirSac}>Sac</button>}
+    </div>
     <p className="mt-2 text-region-accent">{`${formaterDps(dps)} DPS · ${equipe.filter(Boolean).length} / ${reglages.equipe.taille}`}</p>
     </>}
     {echange && erreur?.echange === echange && <p role="alert" className="mt-4 text-erreur-base">{erreur.message}</p>}

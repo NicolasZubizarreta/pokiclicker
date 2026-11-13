@@ -2,8 +2,9 @@ import { useEffect, useId, useRef, useState } from 'react';
 import type { MouseEvent, ReactNode } from 'react';
 import { reglages } from '../core/reglages';
 
-export function BoutonAction({ icone, nom, actif, verrouille = false, infobulle = nom, onClick, 'data-raccourci': raccourci }: {
+export function BoutonAction({ icone, nom, actif, verrouille = false, infobulle = nom, onClick, 'data-raccourci': raccourci, 'data-tuto': tuto }: {
   'data-raccourci'?: string;
+  'data-tuto'?: string;
   icone: ReactNode;
   nom: string;
   actif?: boolean;
@@ -21,7 +22,7 @@ export function BoutonAction({ icone, nom, actif, verrouille = false, infobulle 
     annoncer(true);
     minuterie.current = setTimeout(() => annoncer(false), reglages.interface.annonceMs);
   };
-  return <button data-raccourci={raccourci} type="button" aria-label={nom} aria-pressed={actif}
+  return <button data-raccourci={raccourci} data-tuto={tuto} type="button" aria-label={nom} aria-pressed={actif}
     aria-disabled={verrouille || undefined} aria-describedby={id}
     className="bandeau-action-bouton group min-h-11 min-w-11"
     onFocus={expliquer} onPointerDown={expliquer}

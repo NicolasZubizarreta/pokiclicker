@@ -133,7 +133,7 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
 
   return <section className={telephone ? 'mx-auto max-w-screen-xl text-base' : 'pc-pc text-base'}>
     {retour && telephone && <button type="button" aria-label={libelleRetour} className="mb-4 min-h-11 bg-surface-2 px-4 py-2 hover:bg-selection" onClick={retour}>Retour</button>}
-    <h1 ref={titre} tabIndex={-1} className="font-titre text-2xl font-semibold">PC de Léo</h1>
+    <h1 ref={titre} data-tuto="page-pc" tabIndex={-1} className="font-titre text-2xl font-semibold">PC de Léo</h1>
     {!accesPc.ouvert ? <p className="mt-4">{accesPc.raison}</p> : <>
       <div className={telephone ? 'mt-2' : 'pc-compteur'}>
         <p className="text-region-accent">{liste.length < pc.length ? `${liste.length} sur ${pc.length}` : pc.length} Pokémon</p>

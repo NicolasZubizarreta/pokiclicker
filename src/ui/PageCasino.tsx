@@ -86,7 +86,7 @@ export function PageCasino({ retour, store = storeJeu, offerts = 0 }: { retour()
             <span className="cs-pastille cs-solde-mobile"><Jeton /><b data-jetons>{nombre(jetons)} jetons</b></span></div>
           <button type="button" className="plaque" onClick={retour}>Retour à la Carte</button>
         </div>
-        <div className="cs-jeux-grille">{vitrines.map(v => <article key={v.vue} className="cs-carte-jeu">
+        <div className="cs-jeux-grille">{vitrines.map((v, i) => <article key={v.vue} data-tuto={i === 0 ? "casino-jeux" : undefined} className="cs-carte-jeu">
           <div className="cs-vitrine" aria-hidden="true">{v.vitrine}</div>
           <div className="cs-carte-corps"><h2>{v.titre}</h2><p>{v.texte}</p>
             <button type="button" className="plaque" onClick={() => changer(v.vue)}>{v.bouton}</button></div>
@@ -96,7 +96,7 @@ export function PageCasino({ retour, store = storeJeu, offerts = 0 }: { retour()
         {/* Zone vivante toujours présente pour que le cadeau soit annoncé ; sans role="status", réservé à la phrase d'état. */}
         <div aria-live="polite">{offerts > 0 && <section className="cs-cadeau cadre-alerte" aria-label="Cadeau de bienvenue">
           <p data-bienvenue-casino>{messageBienvenue(offerts)}</p></section>}</div>
-        <section className="cs-caisse cadre" aria-labelledby="cs-t-caisse"><h2 id="cs-t-caisse">Tes jetons</h2>
+        <section className="cs-caisse cadre" aria-labelledby="cs-t-caisse"><h2 id="cs-t-caisse" data-tuto="casino-jetons">Tes jetons</h2>
           <dl className="cs-soldes"><div><dt>Jetons</dt><dd><Jeton gros /><span data-jetons>{nombre(jetons)}</span></dd></div>
             <div><dt>Pokédollars</dt><dd>{nombre(argent)} ₽</dd></div></dl>
           <div className="cs-echange"><label htmlFor="cs-nb-jetons">Combien de jetons ?</label>

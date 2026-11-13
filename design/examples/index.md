@@ -9,3 +9,4 @@ Une page autonome par choix de Nicolas (images en base64, aucune dépendance), g
 | `2026-10-23-kanto-combat.html` | Écran de combat, thème Kanto |
 | `2026-11-11-casino-a-scene.html` | Casino, variante A « la salle en scène » (ticket C) |
 | `2026-11-12-pension-nid-en-scene.html` | Pension, variante 1b « le nid en scène » : décor entier, parents dans l'enclos, emplacements d'œuf, éclosion mise en scène avec la marque +5 %, collection x/151 et quatre paliers (ticket D) |
+| `2026-11-12-tuto-carte-chen.html` | Tutoriel, variante B « carte fixe + progression n/N » avec le Prof. Chen posé dans un coin libre ; bulles de la Route 1 et mini-tutos de déblocage (ticket E) |

@@ -31,6 +31,7 @@ export function Navigation({ page, choisir, signalCarte = false, inerte = false,
       <div className="flex h-full gap-2 lg:flex-col lg:gap-0">
         {entrees.map(({ titre, Icone }) => (
           <button key={titre} type="button" aria-current={active === titre ? 'page' : undefined}
+            data-tuto={titre === 'Équipe' ? 'onglet-equipe' : undefined}
             data-signal={titre === 'Carte' && signalCarte ? 'true' : undefined}
             onClick={() => choisir(titre)}
             className={`relative flex min-h-14 min-w-0 flex-1 flex-col items-center justify-center text-sm lg:h-14 lg:min-h-11 lg:min-w-11 lg:flex-none ${active === titre ? 'bg-selection font-bold text-region-accent' : 'text-texte-doux'}${titre === 'Carte' && signalCarte ? ' ring-4 ring-succes-base rebond-signal' : ''}`}>

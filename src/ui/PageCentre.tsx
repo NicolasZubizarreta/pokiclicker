@@ -8,6 +8,7 @@ import { storeJeu } from './store';
 import { AccueilCasino } from './AccueilCasino';
 import { PagePension } from './PagePension';
 import { useTelephone } from './useTelephone';
+import { useTuto } from './tuto/store-tuto';
 import './ShopPC.css';
 
 export function PageCarte({ quandArrive }: { quandArrive: () => void }) {
@@ -16,6 +17,11 @@ export function PageCarte({ quandArrive }: { quandArrive: () => void }) {
   const dernier = useRef('centre');
   const conteneur = useRef<HTMLDivElement>(null);
   const visite = useRef(false);
+  const tuto = useTuto();
+  // Le rejeu du mini-tuto du Centre commercial depuis le Guide ouvre le Centre : sa cible n'est pas sur la carte.
+  const rejoueCentre = tuto?.id === 'centre-commercial' && tuto.rejeu;
+  const [rejeuOuvert, noterRejeu] = useState(false);
+  if (rejoueCentre !== rejeuOuvert) { noterRejeu(rejoueCentre); if (rejoueCentre) ouvrir('centre'); }
   useEffect(() => {
     if (!visite.current) { visite.current = true; return; }
     if (ouvert) dernier.current = ouvert;
@@ -58,7 +64,7 @@ export function PageCentre({ retour }: { retour: () => void }) {
     <header className="cadre flex flex-wrap items-center justify-between gap-4 bg-surface p-4">
       <div className="grid gap-2">
         <p className="text-texte-doux">Kanto · Céladopole</p>
-        <h1 tabIndex={-1} className="font-titre text-3xl font-semibold">Centre commercial</h1>
+        <h1 data-tuto="page-centre" tabIndex={-1} className="font-titre text-3xl font-semibold">Centre commercial</h1>
         <p>Objets exclusifs · {centre.objets.length} objets</p>
       </div>
       <div className="grid gap-2">

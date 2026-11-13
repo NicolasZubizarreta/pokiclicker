@@ -57,6 +57,8 @@ export type DonneesRegion = {
   diplomeLe?: string;
   /** Annonces de déblocage déjà affichées (`data/deblocages.json`). Absent dans une sauvegarde ancienne : alors tout ce qui est ouvert au chargement compte comme vu. */
   annoncesVues?: string[];
+  /** Tutoriels déjà vus ou passés ; absent dans une sauvegarde ancienne (alors `tutosDejaDepasses`). */
+  tutosVus?: string[];
   /** Le joueur est déjà entré au casino : le cadeau de la première entrée est donné et la pastille est retirée. Absent = jamais entré. */
   casinoVu?: boolean;
   /** Le joueur est déjà entré dans la pension : la pastille de rappel est retirée. Absent = jamais entré (sauf si la pension a déjà servi). */

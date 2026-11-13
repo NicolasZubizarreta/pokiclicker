@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tutoriel · Variante B + Chen, La carte de guidage</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="commun.css">
+<link rel="stylesheet" href="variante-b.css">
+<link rel="stylesheet" href="variante-b-chen.css">
+</head>
+<!-- Ticket E, tutoriel par bulles : variante B, « La carte de guidage ».
+     Apparence et interaction : une carte compacte fixe au bord de l’écran (au-dessus de la barre du bas sur téléphone, en haut quand la cible est en bas), avec la numérotation « 2/6 », une frise de progression et le geste attendu écrit en clair. Le reste de l’écran est atténué sans rien bloquer ; la cible garde un cadre jaune fixe, sans clignotement. « Passer le tuto » est un bouton de la carte.
+     Socle commun : commun.css (coque de l'appli, jetons du ticket A) et commun.js (jeu de démonstration + moteur de bulles).
+     Scénarios : #route1 (6 bulles), #pension (2 bulles), #fauchage (1 bulle), #guide (rejouer le tuto). -->
+<body data-variante="b-chen" data-mode="fixe" data-focus="voile" data-avatar="chen">
+<header class="maq">
+  <a href="index.html">‹ Variantes</a>
+  <span class="maq-nom">Variante B + Chen</span>
+  <button class="maq-ouvrir" type="button" aria-expanded="false" aria-controls="maq-panneau">Maquette ▾</button>
+  <div class="maq-panneau" id="maq-panneau" hidden>
+    <p class="axe"><strong>La carte de guidage.</strong> Apparence et interaction : une carte compacte fixe au bord de l’écran (au-dessus de la barre du bas sur téléphone, en haut quand la cible est en bas), avec la numérotation « 2/6 », une frise de progression et le geste attendu écrit en clair. Le reste de l’écran est atténué sans rien bloquer ; la cible garde un cadre jaune fixe, sans clignotement. « Passer le tuto » est un bouton de la carte.</p>
+    <label>Scénario
+      <select id="scenario">
+        <option value="route1">Route 1 : 6 bulles</option>
+        <option value="pension">Déblocage de la Pension : 2 bulles</option>
+        <option value="fauchage">Déblocage du Fauchage : 1 bulle</option>
+        <option value="guide">Guide : rejouer le tuto</option>
+      </select>
+    </label>
+    <button class="plaque neutre" id="relancer" type="button">Rejouer ce scénario</button>
+    <p>Fais le geste demandé (toucher le Pokémon, Capturer, Équipe, Sac…) pour passer à la bulle suivante. Le jeu reste jouable pendant le tuto.</p>
+    <p id="bilan"></p>
+  </div>
+</header>
+<div class="jeu">
+  <aside class="barre-laterale" aria-label="Navigation principale">
+    <div class="marque"><b>PokiClicker</b><span>Kanto</span></div>
+    <nav></nav>
+    <div class="bas"><div class="partie"><b>Test</b><span>Hors connexion</span></div><button type="button" disabled><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4H5v16h4M16 8l4 4-4 4M20 12H9"/></svg>Menu principal</button></div>
+  </aside>
+  <div class="colonne">
+    <header class="bandeau">
+      <dl class="stats"><div><dt>Pokédollars</dt><dd id="argent">0 ₽</dd></div><div><dt>DPS</dt><dd>234</dd></div><div><dt>Zone</dt><dd>Route 1</dd></div></dl>
+      <button class="plaque" type="button" disabled>Raccourcis ?</button>
+    </header>
+    <main id="contenu"></main>
+    <footer class="legende" aria-label="Raccourcis"></footer>
+    <nav class="barre-nav" aria-label="Navigation principale"></nav>
+  </div>
+  <div class="tuto-couche"></div>
+  <div id="annonce" class="sr-only" aria-live="polite"></div>
+</div>
+<script src="commun.js"></script>
+</body>
+</html>

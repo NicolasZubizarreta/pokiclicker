@@ -25,6 +25,7 @@ import { DialogueScene } from './DialogueScene';
 import { SceneFin } from './SceneFin';
 import { Credits } from './Credits';
 import { Notifications } from './Notifications';
+import { Tutoriel } from './tuto/Tutoriel';
 import { FenetreSac } from './FenetreSac';
 import { storeSac, terminerChoix } from './sacContexte';
 import { Pantheon } from './Pantheon';
@@ -142,6 +143,7 @@ export function Coquille({ region = 'kanto', theme = 'dark', quandMenuPrincipal,
         claque={obtentionBadge?.phase === 'claque' ? obtentionBadge.id : null}
         fermer={() => storeJeu.getState().fermerBoiteBadges()} declencheur={declencheur} />
       <Notifications quandAller={cible => { if (cible === 'casino') aller('Casino'); else if (cible === 'pension') aller('Pension'); }} />
+      {!introActive && !introVue && <Tutoriel page={page} aller={aller} />}
       {!introActive && !introVue && <FenetreSac />}
       {!introActive && !introVue && <FenetreEclosion />}
       {credits && <Credits fermerCredits={() => storeJeu.getState().fermerCredits()} />}

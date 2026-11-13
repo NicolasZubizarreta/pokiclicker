@@ -45,7 +45,7 @@ export function ReglagesCombat({ autoAttaque, arret, basculer, regler, autoClic,
       onClick={basculerAutoClic} />}
     <BoutonAction data-raccourci="arret" icone={<ArretAuto />} nom="Arrêt auto" actif={arret.actif}
       onClick={() => regler({ actif: !arret.actif })} />
-    <BoutonAction data-raccourci="reglage" icone={<IconeReglagesArret />} nom="Réglages de l'arrêt"
+    <BoutonAction data-tuto="reglage" data-raccourci="reglage" icone={<IconeReglagesArret />} nom="Réglages de l'arrêt"
       onClick={event => { declencheur.current = event.currentTarget; dialogue.current?.showModal(); }} />
     <dialog ref={dialogue} aria-labelledby={titre}
       className="fiche-pokemon cadre w-full max-w-3xl bg-surface p-0 text-base text-texte"

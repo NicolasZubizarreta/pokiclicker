@@ -29,6 +29,7 @@ export function BarreLaterale({ page, choisir, signalCarte, inerte, origineMonde
     <div className="marque-pc py-4"><b className="font-titre text-xl text-region-accent">PokiClicker</b><span className="sous-titre-pc block text-sm text-texte-doux">Kanto</span></div>
     <nav aria-label="Navigation principale" className="grid gap-1">
       {entrees.map(([titre, Icone], index) => <button key={titre} type="button" aria-current={active === titre ? 'page' : undefined}
+        data-tuto={titre === 'Équipe' ? 'onglet-equipe' : undefined}
         data-signal={titre === 'Carte' && signalCarte ? 'true' : undefined} onClick={() => choisir(titre)}
         className={`entree-pc relative flex min-h-14 items-center gap-3 border border-transparent px-3 text-left text-lg ${active === titre ? 'bg-selection font-bold text-region-accent' : 'text-texte-doux'}${titre === 'Carte' && signalCarte ? ' ring-4 ring-succes-base rebond-signal' : ''}`}>
         {active === titre && <span aria-hidden="true" className="absolute inset-y-0 left-0 w-1 bg-region-accent" />}

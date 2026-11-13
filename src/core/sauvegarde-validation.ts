@@ -145,6 +145,7 @@ export function validerDonneesRegion(v: unknown): asserts v is DonneesRegion {
       legendaire: booleen, shiny: booleen, nouveau: booleen }) }, {
     diplomeLe: dateUtc,
     annoncesVues: textes,
+    tutosVus: textes,
     casinoVu: booleen,
     pensionVue: booleen,
     evenementEnCours: e => forme(e, { id: identifiant,

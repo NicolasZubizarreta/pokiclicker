@@ -9,7 +9,7 @@ export function BoutonFauchage({ fauchage, faucher }: {
 }) {
   const description = useId();
   const raison = !fauchage.disponible ? fauchage.raison : null;
-  return <button data-raccourci="fauchage" type="button" className="plaque plaque-carre" aria-label="Fauchage" aria-pressed={fauchage.actif}
+  return <button data-tuto="fauchage" data-raccourci="fauchage" type="button" className="plaque plaque-carre" aria-label="Fauchage" aria-pressed={fauchage.actif}
     aria-describedby={raison ? description : undefined}
     aria-disabled={!fauchage.disponible || undefined} title={!fauchage.disponible ? fauchage.raison ?? undefined : undefined}
     onClick={() => { if (fauchage.disponible) faucher(); }}>

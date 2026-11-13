@@ -74,7 +74,7 @@ export function PagePension({ retour, libelleRetour, store = storeJeu }: { retou
         <div className="pension-reperes" aria-hidden="true">{Array.from({ length: pension.emplacementsMax }, (_, i) => <span className="cadre" key={i}>{pension.oeufs[i] ? 'Œuf' : i < pension.emplacements ? 'Libre' : 'Fermé'} · {i + 1}</span>)}</div>
       </div>
       <div className="pension-sous-scene">
-        <section ref={parents} aria-label="Parents" className="pension-parents"><h2>Les parents</h2><div className="pension-duo">{Array.from({ length: 2 }, (_, i) => {
+        <section ref={parents} aria-label="Parents" className="pension-parents"><h2>Les parents</h2><div data-tuto="pension-parents" className="pension-duo">{Array.from({ length: 2 }, (_, i) => {
           const parent = pension.parents[i];
           return <article className="cadre pension-parent" key={i}>{parent ? <Portrait pokemon={parent} /> : <><span className="pension-place">+</span><p>Place libre</p></>}
             <button className="plaque" data-uid={parent?.uid} onClick={e => parent ? retirer(parent) : ouvrir(e.currentTarget)}>{parent ? `Retirer ${nomAffiche(parent)}` : 'Déposer un parent'}</button></article>;
@@ -84,7 +84,7 @@ export function PagePension({ retour, libelleRetour, store = storeJeu }: { retou
           <div role="group" aria-label="Emplacements des œufs"><ul className="pension-fentes">{Array.from({ length: pension.emplacementsMax }, (_, i) => {
             const oeuf = pension.oeufs[i], ouvert = i < pension.emplacements;
             const raison = i > pension.emplacements ? 'Ouvre d’abord l’emplacement précédent.' : pension.prochainEmplacement?.raison;
-            return <li className="cadre pension-fente" key={i} title={i > pension.emplacements ? raison ?? undefined : undefined}><h3>Emplacement {i + 1}</h3>{oeuf ? <>
+            return <li className="cadre pension-fente" data-tuto={i === 0 ? "pension-oeufs" : undefined} key={i} title={i > pension.emplacements ? raison ?? undefined : undefined}><h3>Emplacement {i + 1}</h3>{oeuf ? <>
               <Portrait pokemon={oeuf} /><button className="plaque" onClick={() => agir(() => store.getState().prendreOeuf(oeuf.uid), `L’œuf rejoint ${destination}.`)}>Prendre l’œuf</button><p>Destination : {destination}.</p>
             </> : ouvert ? <><span className="pension-place">+</span><p>Nid libre</p><p>Le prochain œuf trouvera sa place ici.</p></> : <><p>Emplacement fermé</p>
               <button className="plaque" disabled={i !== pension.emplacements || !!raison} onClick={() => agir(() => store.getState().acheterEmplacementOeuf(), 'Emplacement ouvert. Tu peux accueillir un œuf de plus.')}>

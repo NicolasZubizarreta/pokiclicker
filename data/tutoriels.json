@@ -1,0 +1,85 @@
+{
+  "tutoriels": [
+    {
+      "id": "route-1",
+      "ecran": "Combat",
+      "titre": "Premiers pas sur la Route 1",
+      "declencheur": { "debut": "nouvelle-partie" },
+      "etapes": [
+        { "cible": "ennemi", "texte": "Touche le Pokémon pour l'attaquer.", "geste": "Touche le Pokémon sauvage", "action": "clic" },
+        { "cible": "pv-ennemi", "texte": "Sa barre de PV baisse. À zéro, il est vaincu.", "geste": "Bats le Pokémon sauvage", "action": "vaincu" },
+        { "cible": "capturer", "texte": "Capture-le avec une Poké Ball avant qu'il parte.", "geste": "Touche Capturer", "action": "clic" },
+        { "cible": "auto", "texte": "Attaque auto fait attaquer ton équipe seule.", "geste": "Touche Attaque auto", "action": "clic" },
+        { "cible": "arret", "texte": "Arrêt auto coupe l'attaque auto sur les raretés choisies.", "geste": "Touche Arrêt auto", "action": "clic" },
+        { "cible": "onglet-equipe", "texte": "Tes Pokémon attaquent seuls : regarde ton équipe.", "geste": "Ouvre l'onglet Équipe", "action": "equipe" },
+        { "cible": "sac", "texte": "Les objets sont dans le Sac.", "geste": "Ouvre le Sac", "action": "sac" },
+        { "cible": null, "texte": "Bats les champions pour avancer vers la Ligue.", "action": "ok" }
+      ]
+    },
+    {
+      "id": "pc",
+      "ecran": "PC",
+      "titre": "Le PC",
+      "declencheur": { "cible": "page-pc", "deblocage": "pc" },
+      "etapes": [
+        { "cible": "page-pc", "texte": "Tes Pokémon en trop vont au PC, dans le Menu.", "action": "ok" }
+      ]
+    },
+    {
+      "id": "centre-commercial",
+      "ecran": "Carte",
+      "titre": "Le Centre commercial",
+      "declencheur": { "cible": "page-centre", "deblocage": "centre-commercial" },
+      "etapes": [
+        { "cible": "page-centre", "texte": "Ici, tu achètes des objets exclusifs avec tes Pokédollars.", "action": "ok" }
+      ]
+    },
+    {
+      "id": "pension",
+      "ecran": "Pension",
+      "titre": "La Pension",
+      "declencheur": { "cible": "pension-parents", "deblocage": "pension" },
+      "etapes": [
+        { "cible": "pension-parents", "texte": "Dépose deux Pokémon compatibles : ce sont les parents.", "action": "ok" },
+        { "cible": "pension-oeufs", "texte": "Un œuf éclot après 25 combats, avec une marque +5 %.", "action": "ok" }
+      ]
+    },
+    {
+      "id": "casino",
+      "ecran": "Casino",
+      "titre": "Le Casino",
+      "declencheur": { "cible": "casino-jetons", "deblocage": "casino" },
+      "etapes": [
+        { "cible": "casino-jetons", "texte": "Achète des jetons avec tes Pokédollars : 1000 ₽ pour 50.", "action": "ok" },
+        { "cible": "casino-jeux", "texte": "Joue avec tes jetons : le casino gagne à long terme.", "action": "ok" }
+      ]
+    },
+    {
+      "id": "poke-radar",
+      "ecran": "Combat",
+      "titre": "Le Poké-Radar",
+      "declencheur": { "cible": "radar", "deblocage": "poke-radar" },
+      "etapes": [
+        { "cible": "radar", "texte": "Le Poké-Radar liste les Pokémon qu'on trouve dans la zone.", "action": "ok" }
+      ]
+    },
+    {
+      "id": "fauchage",
+      "ecran": "Combat",
+      "titre": "Fauchage",
+      "declencheur": { "cible": "fauchage", "deblocage": "fauchage" },
+      "etapes": [
+        { "cible": "fauchage", "texte": "Fauchage laisse un Pokémon sauvage à 1 PV, jamais un boss.", "action": "ok" }
+      ]
+    },
+    {
+      "id": "auto-clic",
+      "ecran": "Combat",
+      "titre": "L'Auto-clic",
+      "declencheur": { "cible": "reglage", "deblocage": "auto-clic" },
+      "etapes": [
+        { "cible": "reglage", "texte": "Auto-clic clique à ta place : active-le dans les réglages.", "action": "ok" }
+      ]
+    }
+  ]
+}

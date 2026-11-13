@@ -43,6 +43,7 @@ export function LigneCapture({ balles, possible, raison, enCours, capturer, outi
       {selection && explication && <p id={description} className="sr-only">{explication}</p>}
       <button
         type="button"
+        data-tuto="capturer"
         data-raccourci="capturer"
         className="plaque plaque-action text-lg"
         disabled={!possible || enCours || !selection}

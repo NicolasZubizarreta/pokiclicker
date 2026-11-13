@@ -68,6 +68,25 @@ function suivre(p: ReturnType<typeof preparer>, store: StoreJeu, ms: number) {
 }
 
 const tousSauf = (...retires: string[]) => deblocages.map(d => d.id).filter(id => !retires.includes(id));
+
+it('arme les tutoriels avec la région courante et les cibles visibles', () => {
+  const p = preparer(region => ({ ...region, zoneId: 'kanto.route-1', evenementsJoues: ['kanto.intro'], starterId: 6,
+    tutosVus: [], statistiques: { ...region.statistiques, eliminations: 0 } }));
+  const store = p.ouvrir();
+  expect(store.getState().eliminations).toBe(0);
+  expect(store.getState().tutoAArmer(new Set())).toBeNull();
+  expect(store.getState().tutoAArmer(new Set(['ennemi']))).toBe('route-1');
+  store.getState().marquerTutoVu('route-1');
+  expect(store.getState().tutoAArmer(new Set(['ennemi']))).toBeNull();
+  p.gagner(store);
+  store.getState().marquerTutoVu('route-1');
+  expect(store.getState().eliminations).toBe(p.lire().statistiques.eliminations);
+  expect(store.getState().eliminations).toBeGreaterThan(0);
+  const pc = preparer(region => ({ ...region, tutosVus: ['route-1'], bossVaincus: toutesLesZones,
+    evenementsJoues: ['kanto.intro'], starterId: 6 })).ouvrir();
+  expect(pc.getState().tutoAArmer(new Set(['page-pc']))).toBe('pc');
+  expect(pc.getState().tutoAArmer(new Set())).toBeNull();
+});
 const deblocagesSansRadar = tousSauf('poke-radar');
 const tour = (region: DonneesRegion): DonneesRegion => ({ ...region, bossVaincus: [], zoneId: 'kanto.tour-pokemon',
   etape: reglages.combat.etapeBoss, annoncesVues: ['sac', 'pc'] });

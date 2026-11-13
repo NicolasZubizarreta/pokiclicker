@@ -27,6 +27,7 @@ import { creerBoucle } from '../core/loop';
 import { chargerPokemon } from '../core/pokemon';
 import { accesPc } from '../core/pc';
 import { deblocagesAtteints, nouveauxDeblocages, type Deblocage } from '../core/deblocages';
+import { avecTutoVu, tutosDejaDepasses, tutoAArmer } from '../core/tutoriels';
 import * as pension from '../core/pension';
 import * as casino from '../core/casino';
 import * as jeuxCasino from '../core/jeux-casino';
@@ -135,6 +136,10 @@ export type AffichageJeu = ActionsCasino & {
   deblocageCarte: { libelle: string; cible: string } | null;
   /** Ferme l'annonce « carte » affichée (geste du joueur) et la note comme vue. */
   fermerDeblocage(): void;
+  tutosVus: readonly string[];
+  eliminations: number;
+  tutoAArmer(visibles: ReadonlySet<string>): string | null;
+  marquerTutoVu(id: string): void;
   sonActive: boolean; basculerSon(): void;
   journalActif: boolean; basculerJournal(): void;
   exporterJournal(): ReturnType<NonNullable<ReturnType<typeof creerJournalLocal>>['exporter']>;
@@ -554,7 +559,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         ? { nom: persistance.nom, date: region.diplomeLe } : null,
       credits: region.drapeaux.includes('credits-disponibles') && !region.drapeaux.includes('credits-vus'),
     };
-    store.setState({ pantheon, fin: JSON.stringify(fin) === JSON.stringify(precedent.fin) ? precedent.fin : fin,
+    store.setState({ pantheon, tutosVus: region.tutosVus ?? [], eliminations: region.statistiques.eliminations, fin: JSON.stringify(fin) === JSON.stringify(precedent.fin) ? precedent.fin : fin,
       lieu, zone: coeur?.zone ?? null, etape: region.etape, ennemi, pv: ennemi?.pv ?? 0,
       nomAdversaire: coeur ? evenement?.type === 'combat' && zoneDuCombat(evenements, region) === region.zoneId
         ? nomAdversaireEvenement(evenement, region.starterId, coeur.etape)
@@ -912,6 +917,16 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     progression: afficherProgression({ badges: [], jalonsRecus: [] }, []),
     obtentionBadge: null,
     fermerBoiteBadges() { obtentionBadge = null; afficher(); },
+    tutosVus: [],
+    eliminations: 0,
+    tutoAArmer(visibles) {
+      return initialise ? tutoAArmer(region, deblocagesAtteints(region, kanto), visibles)?.id ?? null : null;
+    },
+    marquerTutoVu(id) {
+      if (!initialise) return;
+      region = avecTutoVu(region, id);
+      enregistrer(); afficher();
+    },
     fermerDeblocage() {
       if (!initialise || !deblocageEnCours?.carte) return;
       fermerAnnonceCarte(deblocageEnCours.id);
@@ -1128,6 +1143,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
           region = normaliserRonflex(persistance.region);
           // Ancienne sauvegarde sans le champ : tout ce qui est déjà ouvert compte comme vu, rien ne se rejoue.
           if (region.annoncesVues === undefined) region = { ...region, annoncesVues: deblocagesAtteints(region, kanto) };
+          if (region.tutosVus === undefined) region = { ...region, tutosVus: tutosDejaDepasses(region) };
           // Ancienne sauvegarde : si Blue a déjà défié le joueur à la Forêt de Jade, on ne le présente pas après coup.
           if ((region.evenementsJoues.includes('kanto.rival-foret') || region.evenementEnCours?.id === 'kanto.rival-foret')
             && !region.evenementsJoues.includes('kanto.blue-presentation')) {
@@ -1244,6 +1260,12 @@ export function departNouvellePartie(): Pick<DonneesRegion, 'equipe' | 'drapeaux
 export const storeJeu = creerStoreJeu({ horloge: creerHorlogeSysteme(), stockage: creerStockageLocal(),
   alea: Math.random, genererId: genererIdentifiant,
   nouvellePartie: import.meta.env.MODE === 'test' || equipeDeDeveloppement() ? 'equipe-de-depart' : 'intro' });
+
+/** Tests et mode développeur : aucun tuto ne s'arme tout seul, sauf si la clé `pokiclicker-dev:tuto` est posée (le rejeu depuis le Guide marche toujours). */
+export function armementTutoAutorise(): boolean {
+  if (import.meta.env.MODE !== 'test' && !equipeDeDeveloppement()) return true;
+  try { return localStorage.getItem('pokiclicker-dev:tuto') !== null; } catch { return false; }
+}
 
 function equipeDeDeveloppement(): boolean {
   try { return typeof localStorage !== 'undefined' && localStorage.getItem('pokiclicker-dev:equipe-de-depart') !== null; }
