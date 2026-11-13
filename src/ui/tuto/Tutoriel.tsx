@@ -90,6 +90,8 @@ export function Tutoriel({ page, aller }: { page: Page; aller(page: Page): void 
     const jeu = storeJeu.subscribe(verifier), sac = storeSac.subscribe(verifier);
     verifier();
     return () => { jeu(); sac(); document.removeEventListener('click', clic, true); };
+    // « avancer » est recréée à chaque rendu : l'étape ne se réarme que quand l'étape ou la page change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [actif, etape, page]);
 
   useLayoutEffect(() => {
