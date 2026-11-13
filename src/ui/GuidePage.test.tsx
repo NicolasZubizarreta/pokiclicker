@@ -9,6 +9,8 @@ vi.mock('./tuto/store-tuto', () => ({ lancerTuto: vi.fn() }));
 afterEach(cleanup);
 it('liste les huit tutoriels et permet leur rejeu', () => {
   render(<GuidePage retour={vi.fn()} />);
+  const nav = screen.queryByRole('navigation', { name: 'Sections du guide' });
+  if (nav) fireEvent.click(within(nav).getByRole('button', { name: 'Tutoriels' }));
   const section = within(screen.getByRole('region', { name: 'Tutoriels' }));
   const boutons = section.getAllByRole('button', { name: 'Rejouer le tuto' });
   expect(boutons).toHaveLength(8);

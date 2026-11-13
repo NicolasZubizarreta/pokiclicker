@@ -15,7 +15,7 @@ test('le Guide du jeu sur PC : page à deux colonnes, sections au clavier, retou
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await expect(page.getByRole('heading', { level: 1, name: 'Guide du jeu' })).toBeVisible();
   const navigation = page.getByRole('navigation', { name: 'Sections du guide' });
-  await expect(navigation.getByRole('button')).toHaveCount(12);
+  await expect(navigation.getByRole('button')).toHaveCount(13);
   await expect(page.getByRole('article')).toBeVisible();
   // Rien ne fait défiler la page : le Guide défile dans son cadre.
   const defilements = await page.evaluate(() => ({ page: document.documentElement.scrollHeight - innerHeight, contenu: document.getElementById('contenu')!.scrollHeight - document.getElementById('contenu')!.clientHeight }));

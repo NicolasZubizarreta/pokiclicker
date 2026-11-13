@@ -92,6 +92,7 @@ async function verifierPlacement(page: Page, cible: string | null) {
     if (m.nav && m.nav.y > m.h / 2) expect(r.y + r.h).toBeLessThanOrEqual(m.nav.y + 1);
   }
   expect(chevauche(c, k), 'la carte ne couvre pas Chen').toBe(false);
+  if (m.cible && m.nav && m.nav.y > m.h / 2 && m.cible.h < m.h / 2 && m.cible.y < m.nav.y - 1) expect(m.cible.y + m.cible.h, 'la cible n’est pas cachée par la barre du bas').toBeLessThanOrEqual(m.nav.y + 1);
   if (m.cible) {
     // Une cible qui occupe plus du quart de l'écran (la scène de combat) ne peut pas toujours rester entièrement libre.
     const grande = m.cible.w * m.cible.h > 0.25 * m.l * m.h;
@@ -114,6 +115,13 @@ async function parcourir(page: Page, tuto: Tuto) {
   }
   await expect(carte(page)).toHaveCount(0);
   await expect.poll(() => vus(page)).toContain(tuto.id);
+}
+
+/** Sur PC, la liste des tutoriels est une section de la navigation du Guide. */
+async function ouvrirTutoriels(page: Page) {
+  await ouvrirMenu(page, /^Guide du jeu/);
+  const nav = page.getByRole('navigation', { name: 'Sections du guide' });
+  if (await nav.isVisible()) await nav.getByRole('button', { name: 'Tutoriels', exact: true }).click();
 }
 
 async function ouvrirMenu(page: Page, ligne: RegExp) {
@@ -187,7 +195,7 @@ test('le jeu reste jouable pendant le tuto : l’ennemi se touche sans voile', a
 for (const tuto of minis) {
   test(`mini-tuto « ${tuto.titre} » : rejoué depuis le Guide`, async ({ page }) => {
     await partieAvancee(page, []);
-    await ouvrirMenu(page, /^Guide du jeu/);
+    await ouvrirTutoriels(page);
     await page.locator('.ligne-tuto', { hasText: tuto.titre }).getByRole('button', { name: 'Rejouer le tuto' }).click();
     await parcourir(page, tuto);
   });
@@ -217,7 +225,7 @@ for (const tuto of minis.filter(t => ['poke-radar', 'fauchage', 'auto-clic', 'pc
 test('Guide : chaque tutoriel est listé avec son état et peut être rejoué', async ({ page }) => {
   await debutDePartie(page);
   await page.getByRole('button', { name: 'Passer le tuto' }).click();
-  await ouvrirMenu(page, /^Guide du jeu/);
+  await ouvrirTutoriels(page);
   const section: Locator = page.getByRole('region', { name: 'Tutoriels' });
   for (const tuto of tutos) await expect(section.locator('.ligne-tuto', { hasText: tuto.titre })).toBeVisible();
   await expect(section.locator('.ligne-tuto', { hasText: route1.titre })).toContainText('Vu');

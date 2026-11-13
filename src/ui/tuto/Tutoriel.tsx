@@ -84,7 +84,7 @@ export function Tutoriel({ page, aller }: { page: Page; aller(page: Page): void 
 
   useLayoutEffect(() => {
     if (!etape) return;
-    let decrite: HTMLElement | null = null, ancienneDescription: string | null = null, defilee: HTMLElement | null = null;
+    let decrite: HTMLElement | null = null, ancienneDescription: string | null = null, defilee: HTMLElement | null = null, debutDefilement = 0;
     const retirerDescription = () => {
       if (decrite) {
         if (ancienneDescription === null) decrite.removeAttribute('aria-describedby');
@@ -108,11 +108,13 @@ export function Tutoriel({ page, aller }: { page: Page; aller(page: Page): void 
       }
       fixerInactive(!!etape.cible && (!cible || cible.matches(':disabled, [aria-disabled="true"]')));
       let r = cible?.getBoundingClientRect();
-      if (cible && cible !== defilee) {
-        defilee = cible;
-        if (r && (r.top < 0 || r.bottom > innerHeight || r.left < 0 || r.right > innerWidth)
+      // La mise en page peut bouger juste après l’arrivée sur l’écran : on recadre pendant 1,5 s, puis le joueur reprend la main.
+      if (cible && cible !== defilee) { defilee = cible; debutDefilement = performance.now(); }
+      if (cible && performance.now() - debutDefilement < 1500) {
+        const zone = zoneUtile();
+        if (r && (r.top < 0 || r.bottom > zone.y + zone.h || r.left < zone.x || r.right > innerWidth)
           && !cible.closest('nav, .barre-nav, .barre-laterale')) {
-          cible.scrollIntoView({ block: 'nearest' }); r = cible.getBoundingClientRect();
+          cible.scrollIntoView({ block: r.height < zone.h ? 'center' : 'nearest' }); r = cible.getBoundingClientRect();
         }
       }
       const rect = r ? { x: r.left, y: r.top, w: r.width, h: r.height } : null;
