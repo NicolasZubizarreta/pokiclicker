@@ -32,8 +32,14 @@ function preparer(eliminations: number, tutosVus?: string[]) {
   return { store, lire };
 }
 
-it('migre une sauvegarde déjà avancée sans rejouer la Route 1', () => {
-  expect(preparer(1).store.getState().tutosVus).toContain('route-1');
+it('migre une sauvegarde déjà avancée sans rejouer la Route 1, et l’enregistre tout de suite', () => {
+  const { store, lire } = preparer(1);
+  expect(store.getState().tutosVus).toContain('route-1');
+  expect(lire().tutosVus).toContain('route-1');
+});
+
+it('retire les doublons d’une liste déjà sauvegardée', () => {
+  expect(preparer(1, ['casino', 'casino', 'pc']).store.getState().tutosVus).toEqual(['casino', 'pc']);
 });
 
 it('laisse les tutoriels disponibles dans une sauvegarde neuve et enregistre les vues', () => {

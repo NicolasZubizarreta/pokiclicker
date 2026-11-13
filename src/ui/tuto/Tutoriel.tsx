@@ -27,6 +27,18 @@ export function Tutoriel({ page, aller }: { page: Page; aller(page: Page): void 
   const [cibleInactive, fixerInactive] = useState(false);
   const tuto = actif ? tutoriel(actif.id) : null;
   const etape = tuto && actif ? tuto.etapes[actif.etape] : null;
+  // Région live permanente : montée une fois, elle reçoit le texte de chaque étape puis se vide au bout de 6 s.
+  useEffect(() => {
+    if (!annonce) return;
+    const minuterie = setTimeout(() => annoncer(''), 6000);
+    return () => clearTimeout(minuterie);
+  }, [annonce]);
+  const [etapeDite, noterEtape] = useState('');
+  const cleEtape = actif ? `${actif.id}:${actif.etape}` : '';
+  if (cleEtape !== etapeDite) {
+    noterEtape(cleEtape);
+    if (tuto && etape && actif) annoncer(`${tuto.titre}, étape ${actif.etape + 1} sur ${tuto.etapes.length} : ${etape.texte}${etape.geste ? ` À faire : ${etape.geste}` : ''}`);
+  }
   const avancer = () => { if (actif && etapeSuivanteTuto()) { storeJeu.getState().marquerTutoVu(actif.id); rendreLeFocus(); } };
 
   useEffect(() => {
@@ -42,7 +54,7 @@ export function Tutoriel({ page, aller }: { page: Page; aller(page: Page): void 
       if (storeTuto.getState().actif || !armementTutoAutorise() || storeSac.getState().ouvert || modaleOuverte()) return;
       // Sans DOM d'abord : plus rien à voir, plus de mesure.
       if (tutoriels.every(({ id }) => storeJeu.getState().tutosVus.includes(id))) return;
-      const id = storeJeu.getState().tutoAArmer(ciblesVisibles());
+      const id = storeJeu.getState().tutoAArmer(ciblesVisibles);
       if (id) lancerTuto(id);
     };
     armer();
@@ -61,7 +73,7 @@ export function Tutoriel({ page, aller }: { page: Page; aller(page: Page): void 
 
   useEffect(() => {
     if (!actif || !etape) return;
-    const debut = storeJeu.getState().eliminations;
+    const debut = actif.debut;
     let avance = false;
     const verifier = () => {
       if (avance) return;
@@ -78,8 +90,6 @@ export function Tutoriel({ page, aller }: { page: Page; aller(page: Page): void 
     const jeu = storeJeu.subscribe(verifier), sac = storeSac.subscribe(verifier);
     verifier();
     return () => { jeu(); sac(); document.removeEventListener('click', clic, true); };
-    // L'étape capture sa valeur initiale d'éliminations.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [actif, etape, page]);
 
   useLayoutEffect(() => {
@@ -137,19 +147,20 @@ export function Tutoriel({ page, aller }: { page: Page; aller(page: Page): void 
     return () => { retirerDescription(); mutations.disconnect(); tailles.disconnect(); cancelAnimationFrame(frame); window.removeEventListener('resize', programmer); document.removeEventListener('scroll', programmer, true); };
   }, [etape]);
 
-  if (!actif || !tuto || !etape) return annonce ? <p className="sr-only" aria-live="polite">{annonce}</p> : null;
+  const regionLive = <p className="sr-only" aria-live="polite" aria-atomic="true">{annonce}</p>;
+  if (!actif || !tuto || !etape) return <>{null}{regionLive}</>;
   const n = tuto.etapes.length, compteur = n > 1 ? `${actif.etape + 1}/${n}` : '';
-  return <><div ref={couche} className="tuto-couche">
+  return <>{<div ref={couche} className="tuto-couche">
     <div ref={repere} className="repere" hidden />
     <div ref={carte} className="tuto" role="region" aria-label={`Tutoriel ${tuto.titre}${compteur ? `, étape ${compteur}` : ''}`}>
       <img ref={chen} className="avatar" src="img/sprites/chen/chen-1.png" width={114} height={96} alt="" />
       <div className="tuto-corps">
         <p className="tuto-entete"><span className="qui">Prof. Chen</span>{compteur && <span className="compteur">{compteur}</span>}{n > 1 && <span className="segs" aria-hidden="true">{tuto.etapes.map((_, i) => <i key={i} className={i < actif.etape ? 'fait' : i === actif.etape ? 'ici' : ''} />)}</span>}</p>
-        <p className="tuto-texte" id="tuto-texte" aria-live="polite"><span className="lu">{etape.texte}</span></p>
+        <p className="tuto-texte" id="tuto-texte"><span className="lu">{etape.texte}</span></p>
         {etape.geste && <p className="geste"><span>À faire</span> {etape.geste}</p>}
         <div className="tuto-actions">{(etape.action === 'ok' || cibleInactive) && <button type="button" className="plaque action tuto-ok min-h-11 min-w-11" onClick={avancer}>{actif.etape === n - 1 ? 'Compris' : 'Suivant'}</button>}
           <button type="button" className="tuto-passer min-h-11 min-w-11" onClick={() => { storeJeu.getState().marquerTutoVu(actif.id); fermerTuto(); rendreLeFocus(); annoncer('Tuto passé. Rejoue-le depuis le Guide.'); }}>Passer le tuto</button></div>
       </div>
     </div>
-  </div><p className="sr-only" aria-live="polite">{annonce}</p></>;
+  </div>}{regionLive}</>;
 }

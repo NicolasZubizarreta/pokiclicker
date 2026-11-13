@@ -30,6 +30,11 @@ const liste = (valider: Validateur): Validateur => v => {
   for (const element of v) valider(element);
 };
 const textes = liste(chaine);
+/** Identifiants de tutoriels vus : au plus 64 textes de 40 caractères (le jeu en compte une dizaine). */
+const tutosVus: Validateur = v => {
+  exiger(Array.isArray(v) && v.length <= 64, 'Liste de tutoriels trop longue');
+  for (const element of v) { chaine(element); exiger((element as string).length <= 40, 'Identifiant de tutoriel trop long'); }
+};
 export function forme(v: unknown, requis: Record<string, Validateur>, facultatifs: Record<string, Validateur> = {}) {
   objet(v);
   exiger(Object.keys(v).every(cle => Object.hasOwn(requis, cle) || Object.hasOwn(facultatifs, cle)), 'Champ inconnu');
@@ -145,7 +150,7 @@ export function validerDonneesRegion(v: unknown): asserts v is DonneesRegion {
       legendaire: booleen, shiny: booleen, nouveau: booleen }) }, {
     diplomeLe: dateUtc,
     annoncesVues: textes,
-    tutosVus: textes,
+    tutosVus,
     casinoVu: booleen,
     pensionVue: booleen,
     evenementEnCours: e => forme(e, { id: identifiant,

@@ -48,21 +48,24 @@ export function tutoriel(id: string): Tutoriel {
 }
 
 export function tutosDejaDepasses(region: DonneesRegion): string[] {
-  return tutoriels.filter(({ id }) => {
+  return tutoriels.filter(({ id, declencheur }) => {
     if (id === 'route-1') return region.statistiques.eliminations > 0 || region.bossVaincus.length > 0 || region.etape > reglages.depart.etape;
     if (id === 'pc') return region.pc.length > 0;
     if (id === 'pension') return pensionVisitee(region);
     if (id === 'casino') return region.casinoVu === true || region.jetons > 0;
     // Une fonction déjà annoncée avant la mise à jour est déjà connue du joueur.
-    return (region.annoncesVues ?? []).includes(id);
+    return !('debut' in declencheur) && (region.annoncesVues ?? []).includes(declencheur.deblocage);
   }).map(tuto => tuto.id);
 }
 
-export function tutoAArmer(region: DonneesRegion, atteints: readonly string[], visibles: ReadonlySet<string>): Tutoriel | null {
+/** « visibles » peut être une fonction : le DOM n'est interrogé qu'une fois, et seulement si un tutoriel non vu a déjà son déblocage. */
+export function tutoAArmer(region: DonneesRegion, atteints: readonly string[], visibles: ReadonlySet<string> | (() => ReadonlySet<string>)): Tutoriel | null {
+  let lues: ReadonlySet<string> | undefined;
+  const vues = () => lues ??= typeof visibles === 'function' ? visibles() : visibles;
   return tutoriels.find(({ id, declencheur, etapes }) => !(region.tutosVus ?? []).includes(id) && (
     'debut' in declencheur
-      ? visibles.has(etapes[0]!.cible ?? '') && region.evenementsJoues.includes('kanto.intro') && region.starterId !== null && region.statistiques.eliminations === 0
-      : visibles.has(declencheur.cible) && atteints.includes(declencheur.deblocage)
+      ? region.evenementsJoues.includes('kanto.intro') && region.starterId !== null && region.statistiques.eliminations === 0 && vues().has(etapes[0]!.cible ?? '')
+      : atteints.includes(declencheur.deblocage) && vues().has(declencheur.cible)
   )) ?? null;
 }
 

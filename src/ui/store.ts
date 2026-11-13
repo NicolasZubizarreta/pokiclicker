@@ -138,7 +138,7 @@ export type AffichageJeu = ActionsCasino & {
   fermerDeblocage(): void;
   tutosVus: readonly string[];
   eliminations: number;
-  tutoAArmer(visibles: ReadonlySet<string>): string | null;
+  tutoAArmer(visibles: ReadonlySet<string> | (() => ReadonlySet<string>)): string | null;
   marquerTutoVu(id: string): void;
   sonActive: boolean; basculerSon(): void;
   journalActif: boolean; basculerJournal(): void;
@@ -1143,7 +1143,9 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
           region = normaliserRonflex(persistance.region);
           // Ancienne sauvegarde sans le champ : tout ce qui est déjà ouvert compte comme vu, rien ne se rejoue.
           if (region.annoncesVues === undefined) region = { ...region, annoncesVues: deblocagesAtteints(region, kanto) };
-          if (region.tutosVus === undefined) region = { ...region, tutosVus: tutosDejaDepasses(region) };
+          const tutosMigres = region.tutosVus === undefined;
+          if (tutosMigres) region = { ...region, tutosVus: tutosDejaDepasses(region) };
+          else if (new Set(region.tutosVus).size !== region.tutosVus!.length) region = { ...region, tutosVus: [...new Set(region.tutosVus)] };
           // Ancienne sauvegarde : si Blue a déjà défié le joueur à la Forêt de Jade, on ne le présente pas après coup.
           if ((region.evenementsJoues.includes('kanto.rival-foret') || region.evenementEnCours?.id === 'kanto.rival-foret')
             && !region.evenementsJoues.includes('kanto.blue-presentation')) {
@@ -1167,6 +1169,8 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
           // Rechargement (ou fermeture) pendant le Panthéon : le défi réservé repart comme à la sortie du Panthéon.
           if (region.drapeaux.includes(DRAPEAU_DEFI_RESERVE)) debutDefiChenMs = horloge.maintenant() + donneesPantheon.delais.defiChenMs;
           noterDansPokedex();
+          // Enregistre tout de suite la dérivation : un autre appareil ne la refera pas avec un état différent.
+          if (tutosMigres) enregistrer();
           traiter();
           prechargerLieu();
         }

@@ -45,14 +45,14 @@ it('permet de passer avec une annonce', () => {
 });
 it('avance uniquement au clic sur la cible', () => {
   const i = tutoriel('route-1').etapes.findIndex(e => e.action === 'clic');
-  lancerTuto('route-1'); storeTuto.setState({ actif: { id: 'route-1', etape: i, rejeu: false } });
+  lancerTuto('route-1'); storeTuto.setState({ actif: { id: 'route-1', etape: i, rejeu: false, debut: 0 } });
   render(<><button data-tuto={tutoriel('route-1').etapes[i]!.cible!}>Cible</button><Tutoriel page="Combat" aller={vi.fn()} /></>);
   fireEvent.click(document.body); expect(storeTuto.getState().actif?.etape).toBe(i);
   fireEvent.click(screen.getByText('Cible')); expect(storeTuto.getState().actif?.etape).toBe(i + 1);
 });
 it('avance à l’ouverture du Sac', () => {
   const i = tutoriel('route-1').etapes.findIndex(e => e.action === 'sac');
-  lancerTuto('route-1'); storeTuto.setState({ actif: { id: 'route-1', etape: i, rejeu: false } });
+  lancerTuto('route-1'); storeTuto.setState({ actif: { id: 'route-1', etape: i, rejeu: false, debut: 0 } });
   render(<Tutoriel page="Combat" aller={vi.fn()} />);
   act(() => storeSac.setState({ ouvert: true }));
   expect(storeTuto.getState().actif?.etape).not.toBe(i);
@@ -67,4 +67,25 @@ it('arme le tutoriel proposé par le jeu', () => {
   vi.mocked(storeJeu.getState().tutoAArmer).mockReturnValueOnce('route-1');
   render(<Tutoriel page="Combat" aller={vi.fn()} />);
   expect(storeTuto.getState().actif?.id).toBe('route-1');
+});
+
+it('une victoire pendant un changement de page valide quand même l’étape « vaincu »', () => {
+  const i = tutoriel('route-1').etapes.findIndex(e => e.action === 'vaincu');
+  expect(i).toBeGreaterThan(-1);
+  storeTuto.setState({ actif: { id: 'route-1', etape: i, rejeu: false, debut: 0 } });
+  const { rerender } = render(<Tutoriel page="Combat" aller={vi.fn()} />);
+  expect(storeTuto.getState().actif?.etape).toBe(i);
+  act(() => { storeJeu.setState({ eliminations: 1 }); });
+  rerender(<Tutoriel page="Équipe" aller={vi.fn()} />);
+  expect(storeTuto.getState().actif?.etape).not.toBe(i);
+});
+
+it('garde une région live permanente qui reçoit le texte de l’étape', () => {
+  const { container, rerender } = render(<Tutoriel page="PC" aller={vi.fn()} />);
+  const region = container.querySelector('[aria-live="polite"]')!;
+  expect(region.textContent).toBe('');
+  act(() => { lancerTuto('pc'); });
+  rerender(<Tutoriel page="PC" aller={vi.fn()} />);
+  expect(container.querySelector('[aria-live="polite"]')).toBe(region);
+  expect(region.textContent).toContain(tutoriel('pc').etapes[0]!.texte);
 });

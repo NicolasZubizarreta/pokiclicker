@@ -1,4 +1,4 @@
-import { expect, it } from 'vitest';
+import { expect, it, vi } from 'vitest';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import casino from '../../data/casino.json';
@@ -61,6 +61,13 @@ it('reconnaît seulement les tutoriels déjà dépassés', () => {
   expect(tutosDejaDepasses({ ...region, pensionVue: true })).toEqual(['pension']);
 });
 
+it('dérive un tutoriel de déblocage depuis l’annonce déjà vue, sans toucher à la Route 1', () => {
+  const region = { ...depart(), annoncesVues: ['poke-radar', 'route-1'] };
+  const declencheur = tutoriel('poke-radar').declencheur;
+  expect('deblocage' in declencheur && region.annoncesVues.includes(declencheur.deblocage)).toBe(true);
+  expect(tutosDejaDepasses(region)).toEqual(['poke-radar']);
+});
+
 it('arme la Route 1 après l’intro et avant la première victoire', () => {
   const visibles = new Set<string>();
   expect(tutoAArmer(depart(), [], visibles)).toBeNull();
@@ -82,6 +89,15 @@ it('exige visibilité, déblocage et absence de vue, dans l’ordre du fichier',
   expect(tutoAArmer(region, ['casino', 'pc'], new Set(['casino-jetons', 'page-pc']))?.id).toBe('pc');
 });
 
+it('n’interroge le DOM que si un tutoriel non vu a son déblocage, et une seule fois', () => {
+  const region = { ...depart(), evenementsJoues: ['kanto.intro'], starterId: 25, statistiques: { ...depart().statistiques, eliminations: 3 } };
+  const lire = vi.fn(() => new Set(['page-pc', 'casino-jetons']));
+  expect(tutoAArmer(region, [], lire)).toBeNull();
+  expect(lire).not.toHaveBeenCalled();
+  expect(tutoAArmer(region, ['casino', 'pc'], lire)?.id).toBe('pc');
+  expect(lire).toHaveBeenCalledTimes(1);
+});
+
 it('ajoute une vue sans doublon et sans mutation', () => {
   const region = depart();
   const vue = avecTutoVu(region, 'pc');
@@ -97,6 +113,12 @@ it('valide la liste sauvegardée et accepte les anciennes sauvegardes', () => {
   expect(() => validerDonneesRegion(region)).not.toThrow();
   expect(() => validerDonneesRegion({ ...region, tutosVus: ['pc'] })).not.toThrow();
   expect(() => validerDonneesRegion({ ...region, tutosVus: 'pc' })).toThrow();
+  expect(() => validerDonneesRegion({ ...region, tutosVus: [1] })).toThrow();
+  expect(() => validerDonneesRegion({ ...region, tutosVus: [{}] })).toThrow();
+  expect(() => validerDonneesRegion({ ...region, tutosVus: Array(100_000).fill('pc') })).toThrow();
+  expect(() => validerDonneesRegion({ ...region, tutosVus: Array(65).fill('pc') })).toThrow();
+  expect(() => validerDonneesRegion({ ...region, tutosVus: ['x'.repeat(41)] })).toThrow();
+  expect(() => validerDonneesRegion({ ...region, tutosVus: Array(64).fill('x'.repeat(40)) })).not.toThrow();
 });
 
 it('retrouve chaque cible dans les attributs de l’interface', () => {

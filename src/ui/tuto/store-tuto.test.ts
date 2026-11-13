@@ -1,11 +1,12 @@
 import { afterEach, expect, it } from 'vitest';
+import { storeJeu } from '../store';
 import { tutoriel } from '../../core/tutoriels';
 import { etapeSuivanteTuto, fermerTuto, lancerTuto, storeTuto } from './store-tuto';
 
 afterEach(fermerTuto);
 it('lance puis avance jusqu’à la dernière étape', () => {
   lancerTuto('route-1');
-  expect(storeTuto.getState().actif).toEqual({ id: 'route-1', etape: 0, rejeu: false });
+  expect(storeTuto.getState().actif).toMatchObject({ id: 'route-1', etape: 0, rejeu: false });
   for (let etape = 1; etape < tutoriel('route-1').etapes.length; etape++) {
     expect(etapeSuivanteTuto()).toBe(false);
     expect(storeTuto.getState().actif?.etape).toBe(etape);
@@ -27,4 +28,13 @@ it('ignore un identifiant inconnu sans modifier le tutoriel actif', () => {
   lancerTuto('pc');
   lancerTuto('inconnu');
   expect(storeTuto.getState().actif?.id).toBe('pc');
+});
+it('garde les éliminations du début de chaque étape dans le tutoriel actif', () => {
+  storeJeu.setState({ eliminations: 3 });
+  lancerTuto('route-1');
+  expect(storeTuto.getState().actif?.debut).toBe(3);
+  storeJeu.setState({ eliminations: 5 });
+  etapeSuivanteTuto();
+  expect(storeTuto.getState().actif?.debut).toBe(5);
+  storeJeu.setState({ eliminations: 0 });
 });
