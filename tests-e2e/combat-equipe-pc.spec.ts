@@ -82,6 +82,10 @@ test('combat PC : scène à gauche, équipe et effets à droite, quatre boutons,
     const scene = await page.locator('.combat-pc .scene-limitee').boundingBox();
     expect(Math.abs(scene!.width / scene!.height - 16 / 9)).toBeLessThan(0.02);
     expect(scene!.y + scene!.height).toBeLessThanOrEqual(boutons[0]!.y);
+    // Le décor suit l'arrondi du cadre de la scène : il ne dépasse pas des coins.
+    expect(await page.locator('.combat-pc .scene-limitee').evaluate(e => getComputedStyle(e).borderTopLeftRadius)).not.toBe('0px');
+    // Le texte « Prêt à évoluer » ne s'affiche pas dans les rangs de l'équipe (le cadre jaune suffit).
+    for (const texte of await page.locator('.combat-pc .rang-equipe .texte-pret').all()) expect((await texte.boundingBox())!.width).toBeLessThanOrEqual(1);
     await pasDeDefilement(page);
     await spritesDansCadres(page.getByRole('region', { name: 'Ton équipe' }), '.rang-equipe');
   }

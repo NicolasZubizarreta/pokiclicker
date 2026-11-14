@@ -27,6 +27,8 @@
   .combat-pc .scene-limitee > .pointer-events-none.cadre { width: min(32%, calc(var(--spacing) * 64)); }
   .combat-pc .scene-limitee > .pointer-events-none.cadre.bg-alerte-base { text-wrap: balance; }
   .combat-pc .rang-equipe { width: 100%; position: relative; }
+  /* « Prêt à évoluer » ne tient pas dans le rang : le cadre jaune le dit, le texte reste pour les lecteurs d'écran. */
+  .combat-pc .rang-equipe .texte-pret { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   .combat-pc .actions-quatre { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .combat-pc .plaque-vertical { flex-direction: row; min-height: calc(var(--spacing) * 13); }
   .combat-pc .touche-pc { display: inline-block; font-family: var(--font-mono); font-size: var(--text-xs); margin-left: var(--spacing); }

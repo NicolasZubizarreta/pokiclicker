@@ -23,7 +23,7 @@ export function RangEquipe({ membre, evolution, animation, ouvrirFiche }: Props)
     <span className="min-w-0 flex-1">
       <span className="flex flex-wrap justify-between gap-x-2"><strong>{nom}{pokemon.shiny && !pokemon.oeuf && <IconeShiny />}</strong><span>{pokemon.oeuf ? progressionOeuf(pokemon.oeuf) : `Niv. ${pokemon.niveau}`}</span></span>
       <span className="flex items-center justify-between gap-2"><span className="text-region-accent">{formaterDps(dps)} DPS</span>
-        {!pokemon.oeuf && (evolution ? <span>Prêt à évoluer</span> : xpMax === 0 ? <span>XP max</span> : <span className="min-w-0 flex-1"><BarreXp xp={pokemon.xp} maximum={xpMax} nom={nom} /></span>)}
+        {!pokemon.oeuf && (evolution ? <span className="texte-pret">Prêt à évoluer</span> : xpMax === 0 ? <span>XP max</span> : <span className="min-w-0 flex-1"><BarreXp xp={pokemon.xp} maximum={xpMax} nom={nom} /></span>)}
       </span>
     </span>
   </button>;

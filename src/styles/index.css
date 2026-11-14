@@ -78,6 +78,7 @@ select:not(:disabled) {
     inset: 0;
     pointer-events: none;
     border: calc(var(--spacing) / 2) solid var(--succes-base);
+    border-radius: inherit;
     animation: cible-pulsation var(--duree-carte-pulsation) var(--ease-standard) infinite;
   }
 }
@@ -90,6 +91,7 @@ select:not(:disabled) {
     inset: 0;
     pointer-events: none;
     border: calc(var(--spacing) / 2) solid var(--alerte-base);
+    border-radius: inherit;
     opacity: 1;
     @media (prefers-reduced-motion: no-preference) {
       animation: cible-pulsation var(--duree-carte-pulsation) var(--ease-standard) infinite;
@@ -341,6 +343,8 @@ html:has(dialog[open]) { overflow: hidden; }
 .dock-capture { max-width: calc(100% - var(--spacing) * 22); }
 .radar-rond { border-radius: var(--radius-plein); }
 .combat-grille { height: calc(100dvh - var(--spacing) * 52); grid-template-rows: minmax(0, 1fr) auto auto; }
+/* La scène suit l'arrondi du cadre de sa zone cliquable : le décor ne dépasse pas des coins. */
+.scene-limitee { border-radius: var(--rayon); }
 .combat-grille > .scene-limitee { @apply min-h-0 overflow-hidden; height: 100%; max-height: calc(var(--spacing) * 76); }
 /* Scène d’intro : carrée, jamais plus haute que l’écran (la nav mobile et l’en-tête restent visibles). */
 /* Téléphone : dialogue et choix du starter ancrés juste au-dessus de la barre de navigation (60 px + zone sûre), hors de la scène. */
