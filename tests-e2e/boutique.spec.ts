@@ -73,6 +73,15 @@ test('Pokéball ×2 : prix, sauvegarde, filtre et largeur', async ({ page }, inf
   await expect(sac.getByRole('button', { name: 'Pokéball ×2', exact: true })).toBeVisible();
 });
 
+test('Shop PC : onglet Tout par défaut, grille d’au moins 2 colonnes, titres de rayon entre deux traits', async ({ page }, informations) => {
+  test.skip(informations.project.name !== 'pc', 'Grille du Shop : PC seulement');
+  await demarrer(page);
+  await expect(rayon(page, 'Tout')).toHaveAttribute('aria-selected', 'true');
+  await expect(page.locator('.separateur-rayon').first()).toBeVisible();
+  const colonnes = await page.locator('.produits').evaluate(e => getComputedStyle(e).gridTemplateColumns.split(' ').length);
+  expect(colonnes).toBeGreaterThanOrEqual(2);
+});
+
 test('Protéine unique conservée au rechargement', async ({ page }) => {
   await demarrer(page);
   await rayon(page, 'Accessoires').click();

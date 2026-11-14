@@ -32,9 +32,10 @@
     filter: brightness(1.15);
   }
 }
-/* Les boutons d'action du combat montrent qu'ils sont activés par un carré dans le coin, comme le Fauchage. */
+/* Les boutons d'action du combat montrent qu'ils sont activés par un rond dans le coin, comme le Fauchage. */
 .actions-quatre .plaque[aria-pressed="true"]::after {
   content: "";
+  border-radius: 50%;
   position: absolute;
   top: var(--spacing);
   right: var(--spacing);
@@ -72,6 +73,7 @@
 @media (min-width: 1024px) { .plaque-carre { width: calc(var(--spacing) * 20); } }
 .plaque-carre[aria-pressed="true"]::after {
   content: "";
+  border-radius: 50%;
   position: absolute;
   top: var(--spacing);
   right: var(--spacing);

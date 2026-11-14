@@ -64,11 +64,13 @@ it('ouvre en zone 2, affiche seulement le catalogue disponible et filtre les cat
   expect(container.querySelectorAll('.shop-pc')).toHaveLength(1);
   expect(container.querySelector('.produits')).toBeTruthy();
   expect(screen.getByRole('tablist', { name: 'Rayons' })).toBeTruthy();
+  // Onglet Tout (par défaut) : tout le catalogue, un titre de rayon centré avant chaque groupe.
   expect(Array.from(container.querySelectorAll('article')).map(c => c.getAttribute('data-objet')).sort())
-    .toEqual(objets.filter(o => categorieShop(o) === 'balles').map(o => o.id).sort());
+    .toEqual(objets.map(o => o.id).sort());
+  expect(screen.getByRole('tab', { name: 'Tout' }).getAttribute('aria-selected')).toBe('true');
+  const titres = Array.from(container.querySelectorAll('.separateur-rayon')).map(t => t.textContent);
+  expect(titres).toEqual(categoriesShop.filter(c => objets.some(o => categorieShop(o) === c.cle)).map(c => c.nom));
   expect(container.querySelector('[data-objet="hyperball"]')).toBeNull();
-  expect(screen.getByRole('tab', { name: 'Poké Ball' }).getAttribute('aria-selected')).toBe('true');
-  expect(screen.queryByRole('button', { name: 'Tout' })).toBeNull();
   expect(screen.queryByRole('button', { name: 'Soins' })).toBeNull();
   for (const { cle, nom } of categoriesShop) {
     fireEvent.click(screen.getByRole('tab', { name: nom }));
