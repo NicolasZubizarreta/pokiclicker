@@ -5,7 +5,7 @@ import { IconeSexe } from './IconeSexe';
 import { IconeShiny } from './IconeShiny';
 import { RepereMarque } from './RepereMarque';
 import { BarreXp } from './BarreXp';
-import { classeSprite, nomAffiche, progressionOeuf, spriteAffiche } from './affichage-pokemon';
+import { classeSprite, nomAffiche, progressionOeuf, spriteAffiche, spriteEstPhoto } from './affichage-pokemon';
 import { chargerPokemon, nomType } from '../core/pokemon';
 import { formaterDps } from './nombres';
 import piedsSprites from './pieds-sprites.json';
@@ -17,7 +17,8 @@ export function EquipePC({ pokemon, dps, xpMax, pret, animation }: {
   animation?: ComponentProps<typeof SpriteEvolution>;
 }) {
   const nom = nomAffiche(pokemon);
-  const pieds = { '--pieds': `${(piedsSprites[pokemon.numero - 1] ?? 0) / 96 * 100}%` } as CSSProperties;
+  // Une image entière (Daran, Gabriel, Bjorn) n'a pas de lignes vides sous les pieds : 9 % annule le décalage du socle, l'image reste entière dans le cadre.
+  const pieds = { '--pieds': spriteEstPhoto(pokemon) ? '9%' : `${(piedsSprites[pokemon.numero - 1] ?? 0) / 96 * 100}%` } as CSSProperties;
   return <>
     <span className="portrait relative" style={pieds}>
       {pokemon.marqueEclosion && <span className="repere-marque-sur-portrait"><RepereMarque /></span>}

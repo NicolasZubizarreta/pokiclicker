@@ -94,8 +94,8 @@ const donnees = {
     { nom: 'Jeb_', declencheurs: ['jeb_'], effet: 'arc-en-ciel', assets: [], inactif: false },
     { nom: 'Caca', declencheurs: ['caca'], effet: 'caca', assets: [], inactif: false },
     { nom: 'Daran', declencheurs: ['daran'], effet: 'photo', assets: [1, 2, 3].map(stade => `img/easter-eggs/daran-stade-${stade}.webp`), inactif: false },
-    { nom: 'Bjorn', declencheurs: ['bjorn'], effet: null, assets: [], inactif: true,
-      raison: 'Apparence non définie par Nicolas (design/DESIGN.md)' },
+    // Ajout du 14/11 : Bjorn prend le dessin de Nicolas (Bjorn1, Bjorn2, Bjorn3) selon le stade ; images : scripts/preparer-bjorn.mjs.
+    { nom: 'Bjorn', declencheurs: ['bjorn'], effet: 'photo', assets: [1, 2, 3].map(stade => `img/easter-eggs/bjorn-stade-${stade}.webp`), inactif: false },
     // Ajout du 05/11 (absent de la V1) : Gabriel prend l'image de Charbambin, Carmadura ou Malvalame selon le stade.
     { nom: 'Gabriel', declencheurs: ['gabriel'], effet: 'photo', assets: [1, 2, 3].map(stade => `img/easter-eggs/gabriel-stade-${stade}.webp`), inactif: false },
   ],

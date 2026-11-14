@@ -43,14 +43,14 @@ test('Easter eggs : chaque nom déclencheur change le sprite, le surnom suivant 
   await expect(sprite(page, 'DinnerBone')).toHaveClass(/ee-retourne/);
   await expect(sprite(page, 'caca')).toHaveClass(/ee-caca/);
 
-  // Grumm retourne aussi ; Daran remplace le sprite par la photo du stade ; Bjorn et Gabriel ne font rien.
+  // Grumm retourne aussi ; Daran remplace le sprite par la photo du stade ; Bjorn prend son dessin ; Gabriel ne fait rien ici.
   await renommer(page, 'DinnerBone', 'grumm');
   await expect(sprite(page, 'grumm')).toHaveClass(/ee-retourne/);
   await renommer(page, 'jeb_', 'Daran');
   await expect(sprite(page, 'Daran')).toHaveAttribute('src', /easter-eggs\/daran-stade-1\.webp$/);
   await renommer(page, 'caca', 'Bjorn');
   await expect(sprite(page, 'Bjorn')).not.toHaveClass(/ee-/);
-  await expect(sprite(page, 'Bjorn')).toHaveAttribute('src', /sprites\/pokemon\/7\.png$/);
+  await expect(sprite(page, 'Bjorn')).toHaveAttribute('src', /easter-eggs\/bjorn-stade-1\.webp$/);
   await renommer(page, 'Bjorn', 'Gabriel');
   await expect(sprite(page, 'Gabriel')).not.toHaveClass(/ee-/);
 

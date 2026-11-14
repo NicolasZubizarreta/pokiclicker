@@ -6,7 +6,8 @@ import { chargerEasterEggs, effetDe, stadeEvolution } from './easter-eggs';
 it('normalise les surnoms et respecte les effets inactifs', () => {
   expect(effetDe(' DinnerBone ')).toBe('retourne');
   expect(effetDe('DARAN')).toBe('photo');
-  expect(effetDe('Bjorn')).toBeNull();
+  expect(effetDe(' BJORN ')).toBe('photo');
+  expect(effetDe('Pikachu')).toBeNull();
   expect(effetDe()).toBeNull();
 });
 it.each(fixture.stades)('retrouve le stade V1 de $numero', ({ numero, stade }) => {

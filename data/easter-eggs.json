@@ -47,10 +47,13 @@
       "declencheurs": [
         "bjorn"
       ],
-      "effet": null,
-      "assets": [],
-      "inactif": true,
-      "raison": "Apparence non définie par Nicolas (design/DESIGN.md)"
+      "effet": "photo",
+      "assets": [
+        "img/easter-eggs/bjorn-stade-1.webp",
+        "img/easter-eggs/bjorn-stade-2.webp",
+        "img/easter-eggs/bjorn-stade-3.webp"
+      ],
+      "inactif": false
     },
     {
       "nom": "Gabriel",

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import fixture from '../../tests/fixtures/v1-easter-eggs.json';
 import type { PokemonPossede } from '../core/sauvegarde';
-import { spriteAffiche } from './affichage-pokemon';
+import { spriteAffiche, spriteEstPhoto } from './affichage-pokemon';
 import { apparenceSprite } from './easter-eggs';
 
 const pokemon: PokemonPossede = {
@@ -24,7 +24,7 @@ describe('apparence des easter eggs', () => {
     ['GRUMM', 'ee-retourne'],
     ['Jeb_', 'ee-arc-en-ciel motion-safe:ee-arc-en-ciel-anime'],
     ['CACA', 'ee-caca'],
-    ['Bjorn', ''],['Pikachu', ''], ['', ''],
+    ['Pikachu', ''], ['', ''],
   ])('applique l’apparence de %s', (surnom, classe) => {
     const entree = Object.freeze({ ...pokemon, surnom });
     expect(apparenceSprite(entree)).toEqual({
@@ -53,6 +53,17 @@ describe('apparence des easter eggs', () => {
       expect(apparenceSprite(entree)).toEqual({
         src: `img/easter-eggs/gabriel-stade-${stade}.webp`, classe: '', photo: true,
       });
+    },
+  );
+
+  it.each([[1, 1], [2, 2], [3, 3], [7, 1], [8, 2], [9, 3]])(
+    'Bjorn prend le dessin du stade de l’espèce %i (stade %i)',
+    (numero, stade) => {
+      const entree = Object.freeze({ ...pokemon, numero, surnom: ' bjorn ' });
+      expect(apparenceSprite(entree)).toEqual({
+        src: `img/easter-eggs/bjorn-stade-${stade}.webp`, classe: '', photo: true,
+      });
+      expect(spriteEstPhoto(entree)).toBe(true);
     },
   );
 

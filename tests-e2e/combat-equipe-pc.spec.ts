@@ -19,7 +19,7 @@ async function demarrer(page: Page, largeur: number, hauteur: number) {
     const pokemon = (numero: number, surnom?: string) => ({ uid: `i2-${numero}`, numero, surnom,
       niveau: 16, xp: 0, shiny: false, bonheur: 0, pierreEternelle: false, calcium: 0, sexe: 'male', favori: false });
     enveloppe.donnees.equipe = [pokemon(1, 'Daran'), pokemon(4, 'Gabriel'), pokemon(7, 'DinnerBone'),
-      pokemon(10, 'jeb_'), pokemon(13, 'caca'), pokemon(16)];
+      pokemon(10, 'jeb_'), pokemon(13, 'caca'), pokemon(6, 'Bjorn')];
     enveloppe.revision += 1;
     localStorage.setItem(cle, JSON.stringify(enveloppe));
   });

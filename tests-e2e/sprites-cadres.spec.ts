@@ -34,7 +34,7 @@ async function preparer(page: Page) {
       niveau: 16, xp: 0, shiny: false, bonheur: 0, pierreEternelle: false, calcium: 0, sexe: 'male', favori: false });
     enveloppe.donnees.equipe = [pokemon(1, 'Daran'), pokemon(4, 'Gabriel'), pokemon(7, 'DinnerBone'),
       pokemon(10, 'jeb_'), pokemon(13, 'caca'), pokemon(16)];
-    enveloppe.donnees.pc = [pokemon(19, 'Daran')];
+    enveloppe.donnees.pc = [pokemon(19, 'Daran'), pokemon(3, 'Bjorn'), pokemon(17, 'Bjorn')];
     enveloppe.donnees.bossVaincus = ['kanto.route-1', 'kanto.foret-de-jade'];
     enveloppe.revision += 1;
     localStorage.setItem(cle, JSON.stringify(enveloppe));

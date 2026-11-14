@@ -46,7 +46,7 @@ Jeu **perso et amis**, ni public ni monétisé. Plateforme : **PC et mobile**, l
 - Triche : le jeu tourne côté client, une sauvegarde modifiée reste possible. Accepté entre amis ; les skins sont cosmétiques, donc l'enjeu est faible.
 
 ## Easter eggs (à conserver tous)
-Renommer un Pokémon change son apparence : `dinnerbone`/`grumm` (inversé), `jeb_` (arc-en-ciel), `caca` (filtre), `Daran` (skin exclusif). **À ajouter : `Bjorn` et `Gabriel`.** Registre en données : nom, effet. **À trancher par Nicolas** : l'apparence de Bjorn et de Gabriel (aucune idée ni image pour l'instant).
+Renommer un Pokémon change son apparence : `dinnerbone`/`grumm` (inversé), `jeb_` (arc-en-ciel), `caca` (filtre), `Daran` (skin exclusif), `Gabriel` (ajouté le 05/11) et `Bjorn` (ajouté le 14/11 : dessin de Nicolas, `Bjorn1`, `Bjorn2`, `Bjorn3` selon le stade, entier avec une marge, images préparées par `scripts/preparer-bjorn.mjs`). Registre en données : nom, effet.
 
 ## Direction artistique
 - **Trois couches** (décidé le 23/10) : (1) un **squelette** d'interface commun (structure, composants, comportements) ; (2) un **thème par région**, qui reprend l'esprit visuel du jeu officiel de la région, en pixel mais moderne : Kanto = Rouge Feu / Vert Feuille, Johto = HeartGold / SoulSilver, les autres régions à définir une par une ; (3) la **carte du monde** (hub) dans un style propre, neutre, illustré : l'atlas, pas le style Rouge Feu. « L'esprit Rouge Feu » ne vaut que pour Kanto.

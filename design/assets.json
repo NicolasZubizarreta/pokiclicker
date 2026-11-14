@@ -23,7 +23,7 @@
     { "besoin": "carte réelle de chaque région avec la géographie fidèle (référence : carte de ville officielle de chaque jeu) et zones cliquables en %", "usage": "atlas", "remplacement": "carte d'exemple KANTO-JOHTO" },
     { "besoin": "cadres 9 tranches par région (Kanto, Johto, …)", "usage": "cadres pixel des composants", "remplacement": "cadres dessinés en CSS dans les maquettes" },
     { "besoin": "logo et nom du jeu", "usage": "en-tête, écran de titre, icône de la PWA", "remplacement": "nom de travail en police de titre" },
-    { "besoin": "apparence des easter eggs Bjorn et Gabriel", "usage": "renommage de Pokémon", "remplacement": "aucune" },
+    { "besoin": "apparence des easter eggs Bjorn et Gabriel (Bjorn livré le 14/11 : public/img/easter-eggs/bjorn-stade-1 à 3.webp)", "usage": "renommage de Pokémon", "remplacement": "aucune" },
     { "besoin": "captures d'interface HeartGold / SoulSilver pour recaler le thème Johto", "usage": "thème Johto", "remplacement": "interprétation actuelle" }
   ]
 }

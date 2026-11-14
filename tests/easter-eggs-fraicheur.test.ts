@@ -22,17 +22,17 @@ it('toute image d’easter egg actif est dans tailles.json, au même format carr
   for (const image of images) expect(tailles[image], image).toEqual({ largeur: 288, hauteur: 288 });
 });
 
-it('relève les 151 stades, les six sites V1 et les effets actifs (quatre de la V1, plus Gabriel ajouté le 05/11)', async () => {
+it('relève les 151 stades, les six sites V1 et les effets actifs (quatre de la V1, plus Gabriel ajouté le 05/11 et Bjorn le 14/11)', async () => {
   const lire = async (chemin: string) => JSON.parse(await readFile(new URL(chemin, import.meta.url), 'utf8'));
   const registre = await lire('../data/easter-eggs.json');
   const fixture = await lire('./fixtures/v1-easter-eggs.json');
   expect(registre.version).toBe(1);
   expect(registre.effets.filter((effet: { inactif: boolean }) => !effet.inactif)
     .map((effet: { declencheurs: string[] }) => effet.declencheurs))
-    .toEqual([['dinnerbone', 'grumm'], ['jeb_'], ['caca'], ['daran'], ['gabriel']]);
-  expect(registre.effets.filter((effet: { inactif: boolean }) => effet.inactif)).toEqual([
-    { nom: 'Bjorn', declencheurs: ['bjorn'], effet: null, assets: [], inactif: true, raison: 'Apparence non définie par Nicolas (design/DESIGN.md)' },
-  ]);
+    .toEqual([['dinnerbone', 'grumm'], ['jeb_'], ['caca'], ['daran'], ['bjorn'], ['gabriel']]);
+  expect(registre.effets.filter((effet: { inactif: boolean }) => effet.inactif)).toEqual([]);
+  expect(registre.effets.find((effet: { nom: string }) => effet.nom === 'Bjorn')?.assets)
+    .toEqual([1, 2, 3].map((stade) => `img/easter-eggs/bjorn-stade-${stade}.webp`));
   expect(registre.effets.find((effet: { nom: string }) => effet.nom === 'Gabriel')?.assets)
     .toEqual([1, 2, 3].map((stade) => `img/easter-eggs/gabriel-stade-${stade}.webp`));
   expect(fixture.stades.map((cas: { numero: number }) => cas.numero)).toEqual(Array.from({ length: 151 }, (_, i) => i + 1));

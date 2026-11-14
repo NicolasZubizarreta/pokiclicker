@@ -19,6 +19,25 @@ it.each([1, 2, 3])('livre Daran au stade %i en WebP transparent de 288 × 288 so
   expect(tailles[chemin]).toEqual({ largeur: 288, hauteur: 288 });
 });
 
+it.each([1, 2, 3])('livre Bjorn au stade %i en WebP transparent de 288 × 288, dessin entier avec une marge', async (stade) => {
+  const chemin = `img/easter-eggs/bjorn-stade-${stade}.webp`;
+  const image = await lire(`public/${chemin}`);
+  expect(image.length).toBeLessThan(60_000);
+  expect(await sharp(image).metadata()).toMatchObject({ format: 'webp', width: 288, height: 288, hasAlpha: true });
+  // Le dessin ne touche aucun bord : rien n'est coupé, ni en haut, ni en bas, ni sur les côtés.
+  const { data, info } = await sharp(image).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  let [gauche, haut, droite, bas] = [info.width, info.height, -1, -1];
+  for (let y = 0; y < info.height; y++) for (let x = 0; x < info.width; x++) {
+    if (data[(y * info.width + x) * 4 + 3]! > 20) { gauche = Math.min(gauche, x); droite = Math.max(droite, x); haut = Math.min(haut, y); bas = Math.max(bas, y); }
+  }
+  expect(gauche).toBeGreaterThanOrEqual(4);
+  expect(haut).toBeGreaterThanOrEqual(4);
+  expect(info.width - 1 - droite).toBeGreaterThanOrEqual(4);
+  expect(info.height - 1 - bas).toBeGreaterThanOrEqual(4);
+  const tailles = JSON.parse((await lire('public/img/tailles.json')).toString());
+  expect(tailles[chemin]).toEqual({ largeur: 288, hauteur: 288 });
+});
+
 it('copie la vidéo de Daran sans modifier ses octets', async () => {
   const video = await lire('public/img/easter-eggs/daran.mp4');
   expect(video.equals(await lire('legacy/img/kanto/EasterEgg/Daran.mp4'))).toBe(true);

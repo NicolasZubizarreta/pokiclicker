@@ -1590,5 +1590,17 @@
   "img/decors/route-de-ronflex.webp": {
     "largeur": 1920,
     "hauteur": 1080
+  },
+  "img/easter-eggs/bjorn-stade-1.webp": {
+    "largeur": 288,
+    "hauteur": 288
+  },
+  "img/easter-eggs/bjorn-stade-2.webp": {
+    "largeur": 288,
+    "hauteur": 288
+  },
+  "img/easter-eggs/bjorn-stade-3.webp": {
+    "largeur": 288,
+    "hauteur": 288
   }
 }
