@@ -48,20 +48,19 @@ export function PageCentre({ retour }: { retour: () => void }) {
   const argent = useStore(storeJeu, etat => etat.argent);
   const acheter = useStore(storeJeu, etat => etat.acheter);
   const [selection, selectionner] = useState<string | null>(null);
-  const [quantite, changerQuantite] = useState('1');
-  const quantiteId = useId(), raisonId = useId(), choixId = useId();
+  const [nombre, changerQuantite] = useState(1);
+  const raisonId = useId(), choixId = useId();
   const objet = centre.objets.find(o => o.id === selection) ?? centre.objets[0];
-  const nombre = Number(quantite);
-  const valide = Number.isInteger(nombre) && nombre >= 1 && nombre <= reglages.boutique.quantiteMax;
-  const raison = !valide ? `Choisis une quantité de 1 à ${reglages.boutique.quantiteMax}.`
-    : objet && (!objet.abordable || objet.prix * nombre > argent) ? "Pas assez d'argent." : null;
+  const raison = objet && (!objet.abordable || objet.prix * nombre > argent) ? "Pas assez d'argent." : null;
   const bouton = 'min-h-11 min-w-11 p-2';
+  // Éléments posés sur le décor : fond à 80 % d'opacité pour qu'on le voie derrière.
+  const voile = 'bg-surface/80';
 
   return <section className={telephone ? 'relative isolate mx-auto max-w-screen-xl pb-24 text-base tabular-nums' : 'commercial-pc text-base tabular-nums'}>
     <div className={telephone ? 'pointer-events-none fixed inset-0 -z-10' : 'commercial-decor pointer-events-none'}>
       <Image genre="decor" src="img/decors/centre-commercial.webp" alt="" couvrir className="h-full w-full" />
     </div>
-    <header className="cadre flex flex-wrap items-center justify-between gap-4 bg-surface p-4">
+    <header className={`cadre flex flex-wrap items-center justify-between gap-4 ${voile} p-4`}>
       <div className="grid gap-2">
         <p className="text-texte-doux">Kanto · Céladopole</p>
         <h1 data-tuto="page-centre" tabIndex={-1} className="font-titre text-3xl font-semibold">Centre commercial</h1>
@@ -73,31 +72,34 @@ export function PageCentre({ retour }: { retour: () => void }) {
           className={telephone ? `${bouton} cadre fixed inset-x-4 bottom-20 z-10 bg-surface text-lien shadow-md md:static` : `${bouton} plaque`}>Retour à la carte</button>
       </div>
     </header>
-    {!centre.acces.ouvert ? <p className="cadre mt-4 bg-surface p-4">{centre.acces.raison}</p> : objet &&
+    {!centre.acces.ouvert ? <p className={`cadre mt-4 ${voile} p-4`}>{centre.acces.raison}</p> : objet &&
       <div className={telephone ? 'mt-4 grid items-start gap-4 lg:grid-cols-3' : 'commercial-contenu'}>
         <div role="group" aria-label="Choisis un objet" className={telephone ? 'grid grid-cols-2 gap-2 md:grid-cols-3 lg:col-span-2 lg:col-start-2' : 'commercial-grille'}>
           {centre.objets.map(o => <button type="button" key={o.id} data-objet={o.id} aria-pressed={o.id === objet.id}
             onClick={() => selectionner(o.id)}
-            className={`${bouton} cadre grid content-start gap-2 text-left ${o.id === objet.id ? 'border-focus bg-selection' : 'bg-surface hover:bg-selection'}`}>
+            className={`${bouton} cadre grid content-start gap-2 text-left ${o.id === objet.id ? 'border-focus bg-selection/80' : `${voile} hover:bg-selection/80`}`}>
             <IconeObjet image={o.image} nom={o.nom} taille="petite" />
             <strong>{o.id === objet.id && '✓ '}{o.nom}</strong>
             <span className="text-region-accent">{o.prix.toLocaleString('fr-FR')}{'\u00a0₽'}</span>
             <span aria-label={`En sac : ${o.stock}`}>×{o.stock}</span>
           </button>)}
         </div>
-        <section aria-labelledby={choixId} className={telephone ? 'cadre grid gap-2 bg-surface p-4 lg:sticky lg:top-8 lg:col-start-1 lg:row-start-1' : 'commercial-achat cadre grid gap-2 bg-surface p-4'}>
+        <section aria-labelledby={choixId} className={telephone ? `cadre grid gap-2 ${voile} p-4 lg:sticky lg:top-8 lg:col-start-1 lg:row-start-1` : `commercial-achat cadre grid gap-2 ${voile} p-4`}>
           <p className="text-texte-doux">Ton achat</p>
           <h2 id={choixId} className="font-titre text-xl font-semibold">{objet.nom}</h2>
           <p>{objet.description}</p>
-          <div className="flex flex-wrap items-center gap-4">
-            <label htmlFor={quantiteId}>Quantité</label>
-            <input id={quantiteId} type="number" min={1} max={reglages.boutique.quantiteMax} step={1} value={quantite}
-              onChange={event => changerQuantite(event.target.value)} className="cadre min-h-11 w-18 bg-surface-2 p-2" />
+          <div role="group" aria-label={`Quantité de ${objet.nom}`} className="flex flex-wrap items-center gap-3">
+            <button type="button" aria-label="Moins" className={`${bouton} cadre bg-surface`} disabled={nombre <= 1}
+              onClick={() => changerQuantite(q => Math.max(1, q - 1))}>−</button>
+            <output aria-label="Quantité">{nombre}</output>
+            <button type="button" aria-label="Plus" className={`${bouton} cadre bg-surface`} disabled={nombre >= reglages.boutique.quantiteMax}
+              onClick={() => changerQuantite(q => Math.min(reglages.boutique.quantiteMax, q + 1))}>+</button>
+            <output aria-label="Total" className="text-region-accent">= {(objet.prix * nombre).toLocaleString('fr-FR')}{' ₽'}</output>
           </div>
           <button type="button" disabled={raison !== null} aria-describedby={raisonId}
             onClick={() => acheter(objet.id, nombre)}
             className={`${bouton} cadre bg-action text-action-texte shadow-sm hover:bg-action-survol disabled:cursor-not-allowed disabled:bg-surface-2 disabled:text-texte-doux disabled:shadow-none`}>
-            {valide ? `Acheter ×${nombre} · ${(objet.prix * nombre).toLocaleString('fr-FR')}\u00a0₽` : 'Acheter'}
+            Acheter ×{nombre}
           </button>
           <p id={raisonId}>{raison ?? 'Les objets achetés rejoignent ton Sac.'}</p>
         </section>

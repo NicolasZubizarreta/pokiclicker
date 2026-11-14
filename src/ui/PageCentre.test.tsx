@@ -29,7 +29,8 @@ it('affiche sur PC la grille, le décor et le bloc d’achat commun', () => {
   fireEvent.click(carte);
   expect(carte.getAttribute('aria-pressed')).toBe('true');
   expect(screen.getByRole('heading', { name: 'calcium' })).toBeTruthy();
-  fireEvent.change(screen.getByRole('spinbutton', { name: 'Quantité' }), { target: { value: '2' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Plus' }));
+  expect(screen.getByLabelText('Total').textContent).toMatch(/^= 15\s000\s₽$/);
   fireEvent.click(screen.getByRole('button', { name: /^Acheter ×2/ }));
   expect(acheter).toHaveBeenCalledExactlyOnceWith('calcium', 2);
   fireEvent.click(screen.getByRole('button', { name: 'Retour à la carte' }));
@@ -63,15 +64,20 @@ it('borne la quantité et expose le refus puis transmet l’achat et son annonce
     return 'Acheté.';
   });
   render(<PageCentre retour={vi.fn()} />);
-  const quantite = screen.getByRole('spinbutton', { name: 'Quantité' });
-  for (const valeur of ['0', '100', '1.5', '']) {
-    fireEvent.change(quantite, { target: { value: valeur } });
-    expect(screen.getByRole<HTMLButtonElement>('button', { name: /^Acheter/ }).disabled).toBe(true);
-    expect(screen.getByText('Choisis une quantité de 1 à 99.')).toBeTruthy();
-  }
-  fireEvent.change(quantite, { target: { value: '3' } });
+  const plus = screen.getByRole<HTMLButtonElement>('button', { name: 'Plus' });
+  const moins = screen.getByRole<HTMLButtonElement>('button', { name: 'Moins' });
+  // La quantité reste entre 1 et le maximum : « Moins » est bloqué à 1, « Plus » au maximum.
+  expect(moins.disabled).toBe(true);
+  for (let i = 0; i < reglages.boutique.quantiteMax + 5; i++) fireEvent.click(plus);
+  expect(screen.getByLabelText('Quantité').textContent).toBe(String(reglages.boutique.quantiteMax));
+  expect(plus.disabled).toBe(true);
+  for (let i = 0; i < reglages.boutique.quantiteMax + 5; i++) fireEvent.click(moins);
+  expect(screen.getByLabelText('Quantité').textContent).toBe('1');
+  fireEvent.click(plus);
+  expect(screen.getByRole<HTMLButtonElement>('button', { name: /^Acheter ×2/ }).disabled).toBe(false);
+  fireEvent.click(plus);
   expect(screen.getByRole<HTMLButtonElement>('button', { name: /^Acheter/, description: "Pas assez d'argent." }).disabled).toBe(true);
-  fireEvent.change(quantite, { target: { value: '2' } });
+  fireEvent.click(moins);
   fireEvent.click(screen.getByRole('button', { name: /^Acheter/ }));
   expect(acheter).toHaveBeenCalledExactlyOnceWith('xAttack', 2);
   expect(screen.queryByText('Acheté.')).toBeNull();

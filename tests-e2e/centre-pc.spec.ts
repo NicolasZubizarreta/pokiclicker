@@ -64,7 +64,7 @@ for (const [width, height, colonnes] of [[1280, 800, 3], [1440, 900, 4], [1920, 
     await expect(carte).toHaveAttribute('aria-pressed', 'true');
     const stock = carte.locator('[aria-label^="En sac :"]');
     const avant = Number((await stock.textContent())!.replace('×', ''));
-    await centre.getByRole('spinbutton', { name: 'Quantité' }).fill('2');
+    await centre.getByRole('button', { name: 'Plus', exact: true }).click();
     await centre.getByRole('button', { name: /^Acheter ×2/ }).click();
     await expect(stock).toHaveText(`×${avant + 2}`);
   });
