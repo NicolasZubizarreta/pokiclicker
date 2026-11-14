@@ -20,6 +20,28 @@
   border-color: var(--region-accent);
   color: var(--blanc);
 }
+/* Trois états lisibles : repos, survol (fond éclairci), activé (fond plein + carré). Le survol d'un bouton activé le garde activé. */
+@media (hover: hover) {
+  .plaque:hover:not(:disabled, [aria-disabled="true"], [aria-pressed="true"]) {
+    background-color: color-mix(in srgb, var(--region-accent) 25%, var(--region-accent-fond, var(--surface-2)));
+    border-color: var(--region-accent);
+  }
+  .plaque[aria-pressed="true"]:hover:not(:disabled, [aria-disabled="true"]) {
+    background-color: var(--region-accent-fort, var(--selection));
+    border-color: var(--region-accent);
+    filter: brightness(1.15);
+  }
+}
+/* Les boutons d'action du combat montrent qu'ils sont activés par un carré dans le coin, comme le Fauchage. */
+.actions-quatre .plaque[aria-pressed="true"]::after {
+  content: "";
+  position: absolute;
+  top: var(--spacing);
+  right: var(--spacing);
+  width: calc(var(--spacing) * 2);
+  height: calc(var(--spacing) * 2);
+  background: currentColor;
+}
 .plaque:disabled,
 .plaque[aria-disabled="true"] { opacity: 0.5; cursor: default; }
 .plaque-action {

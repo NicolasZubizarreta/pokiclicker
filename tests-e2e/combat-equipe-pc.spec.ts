@@ -91,6 +91,23 @@ test('combat PC : scène à gauche, équipe et effets à droite, quatre boutons,
   }
 });
 
+test('combat PC : repos, survol et activé des boutons d’action ont trois apparences distinctes, l’activé gardé sous la souris', async ({ page }) => {
+  await demarrer(page, 1440, 900);
+  const fond = (nom: RegExp) => page.getByRole('button', { name: nom }).first().evaluate(b => getComputedStyle(b).backgroundColor);
+  const repos = await fond(/^Réglage/);
+  await page.getByRole('button', { name: /^Réglage/ }).hover();
+  expect(await fond(/^Réglage/)).not.toBe(repos);
+  const auto = page.getByRole('button', { name: /^Attaque auto/ });
+  if (await auto.getAttribute('aria-pressed') !== 'true') await auto.click();
+  await expect(auto).toHaveAttribute('aria-pressed', 'true');
+  await page.mouse.move(5, 5);
+  const actif = await fond(/^Attaque auto/);
+  expect(actif).not.toBe(repos);
+  await auto.hover();
+  expect(await fond(/^Attaque auto/)).toBe(actif);
+  expect(await auto.evaluate(b => getComputedStyle(b, '::after').content)).not.toBe('none');
+});
+
 test('combat PC : la scène s’attaque à la souris et à l’espace, le clic sur un Pokémon ouvre sa fiche', async ({ page }) => {
   await demarrer(page, 1440, 900);
   const pv = page.getByRole('progressbar', { name: /^PV de / });
