@@ -80,6 +80,19 @@ test('Shop PC : onglet Tout par défaut, grille d’au moins 2 colonnes, titres 
   await expect(page.locator('.separateur-rayon').first()).toBeVisible();
   const colonnes = await page.locator('.produits').evaluate(e => getComputedStyle(e).gridTemplateColumns.split(' ').length);
   expect(colonnes).toBeGreaterThanOrEqual(2);
+  // Dans une même rangée, les boutons d'achat sont alignés en bas, quelle que soit la longueur de l'effet.
+  for (const largeur of [1100, 1440]) {
+    await page.setViewportSize({ width: largeur, height: 900 });
+    const rangees = await page.locator('.produits article').evaluateAll(cartes => {
+      const parTop: Record<number, number[]> = {};
+      for (const carte of cartes) {
+        const bouton = [...carte.querySelectorAll('button')].pop();
+        if (bouton) (parTop[Math.round(carte.getBoundingClientRect().top)] ??= []).push(Math.round(bouton.getBoundingClientRect().bottom));
+      }
+      return Object.values(parTop);
+    });
+    for (const bas of rangees) expect(new Set(bas).size).toBe(1);
+  }
 });
 
 test('Protéine unique conservée au rechargement', async ({ page }) => {
