@@ -14,10 +14,26 @@ Atelier 2 du cours SOLID Architecture, branche `atelier-2/patterns`. Je pars de 
 
 **Avant / après.**
 
-```text
-AVANT  écrans → store.ts (porte d'entrée + règles + sons + messages) → core/
+Avant : un seul gros fichier fait tout.
 
-APRÈS  écrans → store.ts (mince) → ServiceCombat (règles) → core/
+```mermaid
+flowchart LR
+  E["Écrans<br/>85 fichiers"] --> S["store.ts<br/>1278 lignes<br/>porte d'entrée + règles<br/>+ sons + messages"]
+  S --> C["core/<br/>capture, récompenses, pension"]
+  classDef probleme fill:#fadbd8,stroke:#c0392b,stroke-width:2px,color:#000
+  class S probleme
+```
+
+Après : le store reste la porte d'entrée, un service porte les règles.
+
+```mermaid
+flowchart LR
+  E["Écrans<br/>85 fichiers, inchangés"] --> S["store.ts<br/>façade mince"]
+  S -->|"1. l'ordre"| SC["ServiceCombat<br/>nouveau<br/>capture, victoire, ponte"]
+  SC -->|"2. le résultat<br/>région, sons, messages"| S
+  SC --> C["core/<br/>inchangé"]
+  classDef nouveau fill:#d5f5e3,stroke:#1e8449,stroke-width:2px,color:#000
+  class SC nouveau
 ```
 
 ```text
@@ -50,12 +66,30 @@ Le service décide mais ne joue rien : il renvoie ce qu'il faut faire, et le sto
 
 **Avant / après.**
 
-```text
-AVANT  synchro.ts, appareil.ts, api-compte.ts → fetch → serveur
+Avant : chaque fichier parle HTTP lui-même, et le même appel est recopié.
 
-APRÈS  synchro.ts, appareil.ts → ServeurSauvegarde (port)
-                                      ▲
-                       HttpServeurSauvegarde (adapter) → fetch → serveur
+```mermaid
+flowchart LR
+  A["synchro.ts<br/>lit les codes 409"] --> F1["fetch + URL<br/>+ en-têtes + délai"]
+  B["appareil.ts"] --> F2["fetch + URL<br/>+ en-têtes + délai"]
+  C["api-compte.ts"] --> F3["fetch + URL<br/>+ en-têtes + délai"]
+  F1 --> SRV["Serveur HTTP"]
+  F2 --> SRV
+  F3 --> SRV
+  classDef probleme fill:#fadbd8,stroke:#c0392b,stroke-width:2px,color:#000
+  class F1,F2,F3 probleme
+```
+
+Après : un seul endroit traduit vers HTTP, les autres parlent le langage du jeu.
+
+```mermaid
+flowchart LR
+  A["synchro.ts"] --> P["ServeurSauvegarde<br/>le port<br/>envoyer, lister, lire"]
+  B["appareil.ts"] --> P
+  P -.->|"implémenté par"| H["HttpServeurSauvegarde<br/>l'adapter<br/>seul à connaître fetch, URL, 409"]
+  H --> SRV["Serveur HTTP"]
+  classDef nouveau fill:#d5f5e3,stroke:#1e8449,stroke-width:2px,color:#000
+  class P,H nouveau
 ```
 
 ```text
