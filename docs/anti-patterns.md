@@ -47,11 +47,11 @@ Principe en cause : SRP. Le fichier est dans 21 % des commits, c'est donc là qu
 
 Gravité 3, fréquence 3, score 9. Effort gros. Priorité haute.
 
-### AP-3. Les règles du jeu vivent dans la couche d'affichage
+### AP-3. Le déroulé des règles du jeu vit dans la couche d'affichage
 
-`src/ui/store.ts:351-460` applique les règles de victoire, de ponte, de Ligue et de défi, avec 37 imports depuis `src/core`. Notre propre règle dit pourtant que le cœur du jeu est en TypeScript pur dans `src/core`.
+`src/ui/store.ts:351-460` enchaîne les règles de victoire, de ponte, de Ligue et de défi, avec 37 imports depuis `src/core`. Les calculs eux-mêmes sont bien dans `core` (`appliquerVictoire`, `pondre`, `appliquerCapture`). Ce qui reste dans le store, c'est le scénario autour : dans quel ordre, avec quelles conditions, et quels messages donner au joueur. Notre propre règle dit pourtant que le cœur du jeu est en TypeScript pur dans `src/core`.
 
-Principes en cause : SRP et inversion des dépendances (DIP). Pour tester une règle, il faut monter le store de l'interface.
+Principes en cause : SRP et inversion des dépendances (DIP). Pour tester ce déroulé, par exemple « une victoire contre un boss de la Ligue donne les bons messages », il faut monter le store de l'interface.
 
 Gravité 3, fréquence 3, score 9. Effort gros. Priorité haute.
 
@@ -60,6 +60,8 @@ Gravité 3, fréquence 3, score 9. Effort gros. Priorité haute.
 On trouve `'kanto.labo'`, `'kanto.intro'` et leurs semblables 42 fois dans 7 fichiers de `src/ui` : 23 lignes dans `store.ts` (186, 191, 289, 386, 389, 398, 425, 455, 611, 674, 794…), 9 dans `ScenesBourgPalette.tsx`, 3 dans `EcranCombat.tsx`, 2 chacun dans `Coquille.tsx`, `PageIntro.tsx` et `SceneRonflex.tsx`, 1 dans `store-boutique.ts`. Un cas particulier est même écrit à la main : `kanto.rival-foret` et `kanto.blue-presentation`, `store.ts:1150-1152`.
 
 Principes en cause : ouvert/fermé (OCP) et obsession des types primitifs, une chaîne de caractères tient lieu de concept. Pour ajouter une région il faut modifier du code existant. C'est l'inverse de l'objectif « toutes les régions » du projet, et de notre règle « contenu en JSON, jamais en dur ».
+
+Pour corriger, une simple constante (`ZONE_LABO = 'kanto.labo'`) ne suffirait pas : elle évite les fautes de frappe, mais le code générique continuerait à connaître un nom de Kanto. Il faut changer la question que pose le code. Au lieu de « est-ce `kanto.labo` ? », il demanderait « est-ce la zone du défi de Chen ? » et la région répondrait. Il y a déjà une fonction `zoneDuDefi` dans `core/defi-chen.ts`, que `store.ts` importe ligne 10 tout en écrivant `'kanto.labo'` à la main aux lignes 191, 386, 425, 611 et 794. Les identifiants d'histoire comme `kanto.intro` ou `kanto.rival-foret` iraient dans `core/evenements-kanto.ts`. Une autre piste est une propriété dans le JSON de la zone, lue par le code. Je n'ai pas relu un par un les 23 usages de `store.ts` pour les répartir. Tant qu'il n'y a qu'une région rien ne casse, le coût arrive avec la deuxième.
 
 Gravité 3, fréquence 2, score 6. Effort moyen. Priorité haute, parce que ça bloque la suite de la feuille de route.
 
@@ -71,13 +73,15 @@ Principe en cause : SRP. Ces 17 lectures font 17 raisons de se redessiner, et on
 
 Gravité 2, fréquence 3, score 6. Effort moyen. Priorité moyenne.
 
-### AP-6. God component `CarteKanto`
+### AP-6. God component `CarteKanto` (débattable)
 
 `src/ui/CarteKanto.tsx:35`, complexité 92. Le composant porte au moins six rôles : zoom à la molette et glissement (lignes 137-160), focus et piège du Tab (112-125), fenêtre de Céladopole (92-104), position de la fiche (77-88), fondu des nouvelles zones (127-134) et mesure de la carte. Du métier y traîne aussi : le texte « Bientôt disponible. » (47 et 49), Céladopole retrouvée par son nom (66), les zones triées par `findIndex` en plein affichage (70-71).
 
 Principes en cause : SRP, et OCP pour les règles de Céladopole écrites en dur. La mise en page de la fiche (ligne 88) dépend de 7 valeurs à la fois, ce qui laisse craindre des régressions de focus et d'accessibilité. Le fichier a 30 commits.
 
-Gravité 3, fréquence 2, score 6. Effort moyen. Priorité moyenne.
+Ce point se discute. Le cours dit que « ce qui change ensemble reste ensemble », et j'ai relu les 30 messages de commit du fichier : presque tous ajoutent une fonctionnalité de la carte (fiche de zone, repères, vol) ou un lieu (Centre commercial, casino, pension). Aucun ne touche seulement au zoom. Le zoom, la mesure de la carte et la position de la fiche partagent les mêmes variables (`vue` et `largeur`) et changent ensemble : je les laisserais ensemble. Les deux morceaux qui ont une autre raison de changer sont le piège du Tab (utilisable pour n'importe quelle fenêtre) et la fenêtre de Céladopole ; on pourrait les sortir, sans que ce soit obligatoire. Le défaut le plus net que montrent les commits est autre : la signature du composant reçoit une propriété par lieu (`quandCentre`, `quandCasino`, `quandPension`, ligne 35), donc chaque nouveau lieu oblige à modifier ce composant. C'est le principe ouvert/fermé, pas la taille.
+
+Gravité 2, fréquence 2, score 4. Effort moyen. Priorité basse.
 
 ### AP-7. Interface obèse `AffichageJeu`
 
@@ -120,17 +124,11 @@ Gravité 1, fréquence 3, score 3. Effort petit. Priorité basse, mais c'est la 
 | 3 | AP-3 | Règles du jeu dans l'affichage | 9 | gros | haute |
 | 4 | AP-4 | Identifiants en chaînes | 6 | moyen | haute |
 | 5 | AP-5 | God component `Scene` | 6 | moyen | moyenne |
-| 6 | AP-6 | God component `CarteKanto` | 6 | moyen | moyenne |
-| 7 | AP-7 | Interface `AffichageJeu` | 6 | lié à AP-2 | moyenne |
+| 6 | AP-7 | Interface `AffichageJeu` | 6 | lié à AP-2 | moyenne |
+| 7 | AP-6 | God component `CarteKanto` (débattable) | 4 | moyen | basse |
 | 8 | AP-8 | Store global lu en direct | 4 | moyen | basse |
 | 9 | AP-9 | Choix PC / téléphone éparpillé | 4 | gros | basse |
 | 10 | AP-10 | Sélecteurs recopiés | 3 | petit | basse |
 
 AP-1 passe avant AP-2 parce qu'il se fait par petits pas, avec les 23 fichiers de test du store comme filet de sécurité, et qu'il prépare le découpage du God module. AP-4 est classé en haute priorité malgré son score de 6, parce qu'il empêche d'ajouter une région sans toucher au code.
 
-## 4. Limites
-
-- Je n'ai ouvert et lu que les trois premiers hotspots. `PageEquipe.tsx`, `Coquille.tsx` et `synchro.ts` sont des candidats sans fiche.
-- La complexité d'un fichier est la somme de celle de ses fonctions, sans tenir compte de sa taille.
-- Le script de cycles ignore les imports qui ne portent que des types.
-- Rien n'a été corrigé, conformément à l'étape 6 de l'atelier.
