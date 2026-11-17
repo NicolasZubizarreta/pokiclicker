@@ -173,3 +173,318 @@ Contenu des écrans casino et pension (tickets C et D), dialogue Chen existant, 
 
 ### Effort et risques
 2 à 3 jours. Risque : le moteur de bulles doit viser des éléments dont l'agencement change selon téléphone et PC (cibler par rôle ou identifiant, pas par position) ; le champ de suivi ajoute à la sauvegarde (revue obligatoire, pas d'`agent-ok`).
+
+## Retours du testeur du 17/11 (tickets F à V)
+
+Source : retour d'un testeur qui a fini le jeu à 100 % et tenté le shiny dex avec les seuls œufs. Décisions et valeurs de Nicolas : `docs/projet/decisions-retour-testeur-17-11.md`. Le point 5 du testeur (PC de Léo sur mobile) est refusé par Nicolas. Ordre conseillé : F, R, S, T (bug et équilibrage, chacun suivi du simulateur `node scripts/simuler-parcours.mjs --clics 7`), puis G, H, I, K, L, J, M, N, P, O, Q, et en dernier U puis V (fusion Équipe/PC, décision de Nicolas). Toute valeur de jeu change seulement dans le ticket qui la nomme.
+
+## F. `fix(pension): compter les évolutions des Pokémon éclos dans le dex éclos`
+
+`type:fix`, `etat:a_faire`, `est:0.5-1`, `prio:1` · branche : `v2` · `agent-ok` recommandé (une migration légère, pas de règle de jeu)
+
+### Histoire
+En tant que joueur, je veux que l'évolution d'un Pokémon éclos compte dans la liste des éclos, afin de pouvoir finir le x/151 (aujourd'hui seuls les stades 1 éclosent, donc il est impossible à compléter).
+
+### Critères d'acceptation
+- [ ] Étant donné un Pokémon portant la marque d'éclosion, quand il évolue (Bulbizarre en Herbizarre, puis en Florizarre), alors chaque espèce atteinte s'ajoute à `especesEcloses` et le compteur x/151 monte.
+- [ ] Étant donné un Pokémon sans marque d'éclosion, quand il évolue, alors `especesEcloses` ne change pas.
+- [ ] Étant donné une sauvegarde où des Pokémon à marque ont déjà évolué (équipe ou PC), quand la partie se charge, alors leurs espèces sont ajoutées à `especesEcloses` (migration de rattrapage, sans perte).
+- [ ] Étant donné la collection d'éclosions, quand tous les stades d'une lignée ont été obtenus par œuf puis évolution, alors ils sont tous marqués comme éclos.
+- [ ] Étant donné les tests, quand `tsc -b`, eslint, vitest et les e2e `pension` tournent, alors ils sont verts.
+
+### Hors périmètre
+Les nouvelles listes (ticket G).
+
+### Effort et risques
+0,5 à 1 jour. Risque : la migration touche la sauvegarde (revue de la migration).
+
+## G. `feat(pokedex): quatre listes de dex (Pokédex, shiny, œuf, œuf shiny) et inscription croisée`
+
+`type:feat`, `etat:a_faire`, `est:1.5-2`, `prio:2` · branche : `v2` · pas d'`agent-ok` (sauvegarde) · dépend de : F
+
+### Histoire
+En tant que joueur, je veux un dex shiny, un dex œuf et un dex œuf shiny qui se remplissent tout seuls, afin de les compléter sans que le Pokédex principal cesse de compter.
+
+### Contexte
+Le dex œuf existe déjà (`especesEcloses`, corrigé au ticket F). Il manque la liste des espèces shiny et celle des espèces œuf shiny. Règle de Nicolas : toute première obtention d'une espèce, quelle que soit sa catégorie, l'inscrit aussi au Pokédex principal.
+
+### Critères d'acceptation
+- [ ] Étant donné la capture d'un Pokémon normal d'une espèce jamais obtenue, quand elle a lieu, alors l'espèce s'inscrit au Pokédex.
+- [ ] Étant donné la capture d'un Pokémon shiny d'une espèce jamais vue en shiny, quand elle a lieu, alors l'espèce s'inscrit au dex shiny et au Pokédex.
+- [ ] Étant donné l'éclosion d'une espèce jamais éclose, quand elle a lieu, alors l'espèce s'inscrit au dex œuf et au Pokédex ; si l'éclos est shiny, elle s'inscrit aussi au dex œuf shiny et au dex shiny (hypothèse à confirmer par Nicolas : un éclos shiny remplit les quatre listes).
+- [ ] Étant donné l'évolution d'un Pokémon shiny, d'un éclos ou d'un éclos shiny, quand elle a lieu, alors l'espèce atteinte s'inscrit dans les listes que ce Pokémon remplit.
+- [ ] Étant donné une ancienne sauvegarde, quand elle se charge, alors les listes shiny, œuf shiny et œuf sont rattrapées depuis les Pokémon possédés (drapeau shiny, marque d'éclosion), sans rien retirer.
+- [ ] Étant donné les tests, quand `tsc -b`, eslint, vitest (dont migration) et e2e tournent, alors ils sont verts.
+
+### Hors périmètre
+L'écran des dex (ticket H), le relâchement automatique (ticket L).
+
+### Effort et risques
+1,5 à 2 jours. Risque : migration de sauvegarde (revue obligatoire) ; les Pokémon déjà relâchés ne se rattrapent pas.
+
+## H. `feat(pokedex): quatre boutons de dex, filtre en liste déroulante et tags shiny/éclos`
+
+`type:feat`, `etat:a_faire`, `est:1.5-2`, `prio:2` · branche : `v2` · `agent-ok` recommandé après G · dépend de : G
+
+### Histoire
+En tant que joueur, je veux passer d'un dex à l'autre d'un bouton, et voir d'un coup d'œil quelles espèces sont shiny ou éclosent, afin de suivre ma collection.
+
+### Critères d'acceptation
+- [ ] Étant donné la page Pokédex (téléphone et PC), quand je l'ouvre, alors quatre boutons choisissent le dex (Pokédex, Shiny, Œuf, Œuf shiny) et chacun affiche son x/151.
+- [ ] Étant donné les trois boutons Tous / Capturés / À trouver, quand la page s'ouvre, alors ils sont remplacés par une liste déroulante au même style que le filtre du PC, qui s'applique au dex choisi.
+- [ ] Étant donné une espèce du Pokédex principal qui est aussi dans le dex shiny ou œuf, quand la case s'affiche, alors un tag shiny et un tag éclos y figurent.
+- [ ] Étant donné les cases, quand elles sont capturées, vues ou inconnues, alors elles gardent la même taille (règle du 17/11), et les sprites des dex shiny sont chromatiques.
+- [ ] Étant donné les paliers du Pokédex, quand les autres dex changent, alors la progression des paliers reste celle du Pokédex principal.
+- [ ] Étant donné les tests, quand `tsc -b`, eslint, vitest et e2e (`mobile`, `pc`, `iphone`) tournent, alors ils sont verts, et des captures à 360, 390 et 1440 px sont regardées.
+
+### Hors périmètre
+Les listes elles-mêmes (G), les zones (I).
+
+### Effort et risques
+1,5 à 2 jours. Risque : la grille de 151 cases doit rester fluide.
+
+## I. `feat(pokedex): zones où trouver l'espèce dans la fiche`
+
+`type:feat`, `etat:a_faire`, `est:1-2`, `prio:3` · branche : `v2` · `agent-ok` recommandé
+
+### Histoire
+En tant que joueur, je veux voir où trouver un Pokémon que j'ai capturé ou vu, afin de savoir où aller le chercher.
+
+### Critères d'acceptation
+- [ ] Étant donné une espèce capturée ou vue, quand j'ouvre sa fiche du Pokédex, alors les zones de `data/regions/kanto/zones.json` où elle apparaît s'affichent (nom de la zone).
+- [ ] Étant donné une évolution introuvable à l'état sauvage, quand j'ouvre sa fiche, alors les zones de son stade précédent s'affichent avec la mention « via l'évolution de X ».
+- [ ] Étant donné une espèce jamais vue ni capturée, quand j'ouvre sa fiche, alors aucune zone n'est révélée.
+- [ ] Étant donné une espèce introuvable en zone (cadeau, pension), quand j'ouvre sa fiche, alors un texte le dit.
+- [ ] Étant donné les données, quand la liste est calculée, alors elle vient du JSON des zones et de `data/evolutions.json`, pas d'un tableau écrit en dur, avec un test sur trois espèces.
+
+### Hors périmètre
+Les taux d'apparition (affichés plus tard si Nicolas le veut).
+
+### Effort et risques
+1 à 2 jours.
+
+## J. `feat(pc): relâcher par lot avec favoris verrouillés`
+
+`type:feat`, `etat:a_faire`, `est:1-2`, `prio:3` · branche : `v2` · pas d'`agent-ok` (suppression en masse)
+
+### Histoire
+En tant que joueur, je veux sélectionner plusieurs Pokémon du PC et les relâcher d'un coup, sans risquer mes favoris.
+
+### Critères d'acceptation
+- [ ] Étant donné la page PC, quand j'appuie sur « Relâcher », alors je passe en mode sélection et je coche autant de Pokémon que je veux.
+- [ ] Étant donné un favori, quand je suis en mode sélection, alors un verrou l'indique et il ne peut pas être coché.
+- [ ] Étant donné une sélection, quand je confirme, alors une fenêtre annonce le nombre de Pokémon (et dit si des shiny en font partie) avant toute suppression, et seuls les Pokémon cochés sont relâchés.
+- [ ] Étant donné un filtre actif, quand je choisis « tout sélectionner », alors seuls les Pokémon visibles et non favoris sont cochés.
+- [ ] Étant donné un objet porté par un Pokémon relâché, quand le lot est relâché, alors l'objet revient au sac comme pour un relâchement seul (comportement existant à vérifier).
+- [ ] Étant donné les tests, quand `tsc -b`, eslint, vitest et e2e tournent, alors ils sont verts.
+
+### Hors périmètre
+Relâche automatique (ticket L).
+
+### Effort et risques
+1 à 2 jours. Risque : perte involontaire de Pokémon (revue obligatoire).
+
+## K. `feat(reglages): passer automatiquement les éclosions`
+
+`type:feat`, `etat:a_faire`, `est:0.5-1`, `prio:3` · branche : `v2` · `agent-ok` recommandé
+
+### Histoire
+En tant que joueur, je veux un réglage pour que les éclosions ne m'arrêtent plus, afin de laisser tourner la pension.
+
+### Critères d'acceptation
+- [ ] Étant donné la page Réglages, quand je l'ouvre, alors une option « Passer les éclosions » existe, éteinte par défaut, mémorisée avec le compte comme l'évolution automatique.
+- [ ] Étant donné l'option allumée, quand un œuf éclôt, alors la fenêtre d'éclosion ne s'ouvre pas, le Pokémon est ajouté comme d'habitude (marque d'éclosion, shiny, succès) et une notification discrète le dit.
+- [ ] Étant donné l'option éteinte, quand un œuf éclôt, alors la fenêtre s'ouvre comme aujourd'hui.
+- [ ] Étant donné les tests, quand `tsc -b`, eslint, vitest et e2e tournent, alors ils sont verts.
+
+### Effort et risques
+0,5 à 1 jour.
+
+## L. `feat(reglages): relâche automatique des doublons`
+
+`type:feat`, `etat:a_faire`, `est:1.5-2.5`, `prio:3` · branche : `v2` · pas d'`agent-ok` (suppression automatique) · dépend de : G
+
+### Histoire
+En tant que joueur, je veux que les doublons soient relâchés tout seuls, afin de spammer les œufs pour l'œuf shiny dex sans relâcher à la main.
+
+### Critères d'acceptation
+- [ ] Étant donné la page Réglages, quand je l'ouvre, alors l'option « Relâcher automatiquement les doublons » existe, éteinte par défaut, avec un texte qui explique les deux cas.
+- [ ] Étant donné l'option allumée, quand je capture en combat un Pokémon non shiny dont l'espèce est déjà au Pokédex, alors il est relâché aussitôt et ne prend aucune place dans l'équipe ni au PC.
+- [ ] Étant donné l'option allumée, quand un œuf éclôt en donnant un Pokémon non shiny dont l'espèce est déjà dans le dex œuf, alors il est relâché aussitôt.
+- [ ] Étant donné un Pokémon shiny, quand il est capturé ou éclôt, alors il n'est jamais relâché.
+- [ ] Étant donné une espèce nouvelle pour le Pokédex ou le dex œuf, quand elle arrive, alors elle est gardée et inscrite.
+- [ ] Étant donné des relâches automatiques, quand elles ont lieu, alors une notification groupée donne le nombre, et les récompenses de capture restent versées.
+- [ ] Étant donné les tests, quand `tsc -b`, eslint, vitest et e2e tournent, alors ils sont verts.
+
+### Effort et risques
+1,5 à 2,5 jours. Risque : relâcher à tort (la règle est testée cas par cas, revue obligatoire).
+
+## M. `fix(fiche): n'afficher les bonus de la fiche que s'ils s'appliquent`
+
+`type:fix`, `etat:a_faire`, `est:0.5`, `prio:3` · branche : `v2` · `agent-ok` recommandé
+
+### Histoire
+En tant que joueur, je veux que la fiche d'un Pokémon n'affiche « Pierre Stase », « shiny » ou « calcium » que s'il les possède, afin de ne pas être perturbé par des lignes à ×1.
+
+### Critères d'acceptation
+- [ ] Étant donné un Pokémon sans Pierre Stase, sans statut shiny ni calcium, quand j'ouvre sa fiche, alors ces trois lignes n'apparaissent pas.
+- [ ] Étant donné un Pokémon qui en possède un, quand j'ouvre sa fiche, alors la ligne correspondante apparaît avec sa valeur.
+- [ ] Étant donné les tests de la fiche, quand vitest tourne, alors ils sont verts.
+
+### Effort et risques
+0,5 jour.
+
+## N. `feat(fiche): retirer un objet donné à un Pokémon`
+
+`type:feat`, `etat:a_faire`, `est:1`, `prio:3` · branche : `v2` · `agent-ok` recommandé
+
+### Histoire
+En tant que joueur, je veux retirer l'objet donné à un Pokémon depuis sa fiche, afin de ne pas condamner un Pokémon à une Pierre Stase.
+
+### Critères d'acceptation
+- [ ] Étant donné un Pokémon qui porte un objet, quand j'ouvre sa fiche, alors un bouton « Retirer » est proposé à côté de l'objet.
+- [ ] Étant donné le bouton, quand je l'appuie, alors l'objet revient dans le sac (quantité +1) et le Pokémon n'en porte plus ; les bonus de l'objet disparaissent du DPS.
+- [ ] Étant donné un Pokémon du PC, quand j'ouvre sa fiche, alors le bouton marche de même.
+- [ ] Étant donné les tests, quand `tsc -b`, eslint, vitest et e2e tournent, alors ils sont verts.
+
+### Effort et risques
+1 jour.
+
+## O. `feat(navigation): accès direct à la pension`
+
+`type:feat`, `etat:a_faire`, `est:0.5-1`, `prio:3` · branche : `v2` · pas d'`agent-ok` avant la précision demandée à Nicolas
+
+### Histoire
+En tant que joueur qui farme des œufs, je veux atteindre la pension en un clic, afin de ne pas perdre de temps entre le combat et la pension.
+
+### Contexte
+Le ticket D a déjà posé un lien vers la pension dans le Menu et la Carte. Le testeur trouve que le lien manque : à confirmer avec Nicolas où il en veut un de plus. Proposition : un raccourci « Pension » à côté des œufs dans l'écran de Combat.
+
+### Critères d'acceptation
+- [ ] Étant donné la pension ouverte, quand je suis en Combat, alors un accès à la pension est visible en un clic (emplacement validé par Nicolas).
+- [ ] Étant donné la pension fermée, quand je suis en Combat, alors l'accès n'apparaît pas.
+- [ ] Étant donné les tests, quand `tsc -b`, eslint, vitest et e2e tournent, alors ils sont verts.
+
+### Effort et risques
+0,5 à 1 jour.
+
+## P. `feat(pc): tag shiny en haut à droite à côté du tag œuf`
+
+`type:feat`, `etat:a_faire`, `est:0.5`, `prio:3` · branche : `v2` · `agent-ok` recommandé
+
+### Histoire
+En tant que joueur, je veux voir qu'un Pokémon du PC est shiny d'un coup d'œil, au même endroit que le tag œuf.
+
+### Critères d'acceptation
+- [ ] Étant donné un Pokémon shiny, quand sa case du PC s'affiche, alors un tag shiny figure en haut à droite, à côté du tag œuf s'il en a un.
+- [ ] Étant donné un Pokémon shiny, quand le repère d'éclosion s'affiche ailleurs (fiche, équipe, Combat), alors le tag shiny l'accompagne de la même façon.
+- [ ] Étant donné la charte, quand les tags s'affichent, alors ils respectent `design/DESIGN.md` et les cases gardent leur taille.
+- [ ] Étant donné les tests, quand `tsc -b`, eslint, vitest et e2e tournent, alors ils sont verts.
+
+### Effort et risques
+0,5 jour.
+
+## Q. `feat(carte): centre commercial dans la navigation des zones`
+
+`type:feat`, `etat:a_faire`, `est:0.5-1`, `prio:4` · branche : `v2` · `agent-ok` recommandé
+
+### Histoire
+En tant que joueur, je veux trouver le centre commercial dans la navigation des zones, entre Céladopole et la Centrale, et pas seulement sur la carte.
+
+### Critères d'acceptation
+- [ ] Étant donné la navigation des zones, quand le centre commercial est débloqué, alors il apparaît entre Céladopole et la Centrale et ouvre le centre.
+- [ ] Étant donné le centre commercial non débloqué, quand je navigue, alors il n'apparaît pas.
+- [ ] Étant donné les tests, quand `tsc -b`, eslint, vitest et e2e tournent, alors ils sont verts.
+
+### Effort et risques
+0,5 à 1 jour.
+
+## R. `fix(equilibrage): shiny moins faciles, Super Bonbon plus rare et inflation à 0,20`
+
+`type:fix`, `etat:a_faire`, `est:1-1.5`, `prio:1` · branche : `v2` · pas d'`agent-ok` (règles de jeu, valeurs fixées par Nicolas le 17/11)
+
+### Histoire
+En tant que joueur, je veux que les shiny restent rares et que l'XP serve, afin que le jeu dure.
+
+### Critères d'acceptation
+- [ ] Étant donné `data/reglages.json`, quand les valeurs sont appliquées, alors `degats.shiny` passe de 1,5 à 1,25, `combat.chanceShiny` de 1/256 à 1/512, `pension.chanceShiny` de 0,125 à 0,0625, et `boutique.inflationParBadge` de 0,05 à 0,20.
+- [ ] Étant donné `data/objets.json`, quand le Jeton Shiny s'affiche, alors son prix de base est 1 000 000 (toujours sans inflation).
+- [ ] Étant donné le butin d'un shiny, quand il est donné, alors il vaut 2 Super Bonbons au lieu de 5 (les deux entrées « shiny » de `reglages.json` sont lues et la bonne est changée).
+- [ ] Étant donné l'objet « Bonbon », quand il s'affiche (boutique, sac, butin, casino, jalons), alors il s'appelle « Super Bonbon » partout, sans changer son identifiant.
+- [ ] Étant donné les textes qui citent ces valeurs, quand ils s'affichent, alors ils sont à jour.
+- [ ] Étant donné le simulateur, quand `node scripts/simuler-parcours.mjs --clics 7` tourne avant et après, alors le temps de la Ligue des deux passes est donné à Nicolas.
+- [ ] Étant donné les tests de fidélité à la V1 qui lisent ces valeurs, quand ils tournent, alors ils sont mis à jour, et `tsc -b`, eslint, vitest et e2e sont verts.
+
+### Effort et risques
+1 à 1,5 jour. Risque : l'équilibrage global bouge (le simulateur mesure).
+
+## S. `fix(pension): ponte plus rare, éclosion à 50 combats, emplacements ×10`
+
+`type:fix`, `etat:a_faire`, `est:0.5-1`, `prio:1` · branche : `v2` · pas d'`agent-ok` (règles de jeu)
+
+### Histoire
+En tant que joueur, je veux que la pension ne remplisse pas tout en 30 secondes, afin que l'élevage demande du temps.
+
+### Critères d'acceptation
+- [ ] Étant donné `pension.chances`, quand les valeurs sont appliquées, alors Métamorph et même espèce valent 0,02, et type partagé 0,01.
+- [ ] Étant donné `pension.pasEclosion`, quand la valeur est appliquée, alors un œuf éclôt après 50 victoires.
+- [ ] Étant donné `pension.prixParEmplacement`, quand la valeur est appliquée, alors les emplacements d'œuf coûtent 50 000, 100 000, 150 000 et 200 000.
+- [ ] Étant donné un œuf déjà pondu avant la mise à jour, quand la partie se charge, alors il n'est ni perdu ni cassé (comportement vérifié dans le code et testé).
+- [ ] Étant donné les pourcentages affichés au choix d'un parent et les textes de prix, quand ils s'affichent, alors ils suivent les nouvelles valeurs.
+- [ ] Étant donné les tests, quand `tsc -b`, eslint, vitest et e2e `pension` tournent, alors ils sont verts.
+
+### Effort et risques
+0,5 à 1 jour.
+
+## T. `fix(equilibrage): légendaires plus rares, balles à ×1,5 et ×3`
+
+`type:fix`, `etat:a_faire`, `est:1-1.5`, `prio:1` · branche : `v2` · pas d'`agent-ok` (règles de jeu)
+
+### Histoire
+En tant que joueur, je veux que les légendaires restent des trouvailles rares et que l'Hyper Ball ne les rende pas faciles.
+
+### Critères d'acceptation
+- [ ] Étant donné `zones.json`, quand les taux sont appliqués, alors Mew vaut 0,5 % au Pont Pépite, Mewtwo 1 % à la Caverne Azurée, Artikodin 2 % aux Îles Écume, Sulfura 2 % à la Route Victoire, Électhor reste à 2 %, et le total de chaque zone retombe à 100 % (Abra 30,5 ; Otaria 21, Kokiyas 21, Krabby 15,5, Hypotrempe 15,5 ; Parasect 21, Kadabra 21, Raichu 26, Draco 31 ; Machopeur 31, Gravalanch 31, Nosferalto 26).
+- [ ] Étant donné deux Métamorph à la pension, quand le tirage au hasard a lieu, alors chaque légendaire (144, 145, 146, 150, 151, listés dans les données) pèse 1/10 d'une espèce normale (environ 1 sur 290 au total).
+- [ ] Étant donné `combat.balles`, quand les valeurs sont appliquées, alors Super Ball ×1,5 et Hyper Ball ×3 (Master Ball inchangée), les descriptions de `objets.json` sont à jour, et la pitié de capture ne change pas.
+- [ ] Étant donné un test sur la somme des taux, quand il tourne, alors il vérifie que chaque zone fait 100 %.
+- [ ] Étant donné le simulateur, quand il tourne avant et après, alors le temps de la Ligue est donné à Nicolas ; `tsc -b`, eslint, vitest et e2e sont verts.
+
+### Effort et risques
+1 à 1,5 jour. Risque : les tests de fidélité V1 lisent les taux des zones (à mettre à jour, accord de Nicolas donné ici).
+
+## U. `feat(pc): fusionner l'Équipe et le PC en une seule page`
+
+`type:feat`, `etat:a_faire`, `est:2-3`, `prio:4` · branche : `v2` · pas d'`agent-ok` (refonte de navigation) · en dernier, avec V
+
+### Histoire
+En tant que joueur, je veux une seule page PC où je vois l'équipe et ouvre la fiche de chaque Pokémon, afin de ne plus naviguer entre deux pages.
+
+### Critères d'acceptation
+- [ ] Étant donné la barre de navigation, quand elle s'affiche, alors la page Équipe n'existe plus et le PC la remplace.
+- [ ] Étant donné la page PC, quand je touche un Pokémon de l'équipe, alors sa fiche s'ouvre.
+- [ ] Étant donné les touches de raccourci, quand l'Équipe est retirée, alors les touches suivantes se décalent d'un cran, sans autre changement.
+- [ ] Étant donné l'écran de Combat, quand j'y vois l'équipe, alors il continue de fonctionner (clic sur la ligne d'équipe ouvre la fiche).
+- [ ] Étant donné les tests, quand `tsc -b`, eslint, vitest et e2e (`pc`, `mobile`, `iphone`) tournent, alors ils sont verts, avec captures à 360, 390 et 1440 px.
+
+### Hors périmètre
+Le sac dans le PC et les objets sur les Pokémon du PC (ticket V).
+
+### Effort et risques
+2 à 3 jours. Risque : touches de raccourci, tuto et tests e2e qui citent la page Équipe.
+
+## V. `feat(pc): sac dans le PC et objets sur les Pokémon du PC`
+
+`type:feat`, `etat:a_faire`, `est:1.5-2.5`, `prio:4` · branche : `v2` · pas d'`agent-ok` · dépend de : U
+
+### Histoire
+En tant que joueur, je veux appliquer des objets à n'importe quel Pokémon du PC depuis la page PC, afin de ne plus devoir passer par l'équipe.
+
+### Critères d'acceptation
+- [ ] Étant donné la page PC, quand je regarde l'en-tête, alors une icône sac ouvre le sac.
+- [ ] Étant donné un objet du sac, quand je l'applique à un Pokémon du PC, alors l'effet est le même que pour un Pokémon d'équipe (objet donné, pierre d'évolution, Super Bonbon).
+- [ ] Étant donné une évolution déclenchée sur un Pokémon du PC, quand elle a lieu, alors la modale d'évolution s'affiche comme pour l'équipe.
+- [ ] Étant donné les tests, quand `tsc -b`, eslint, vitest et e2e tournent, alors ils sont verts.
+
+### Effort et risques
+1,5 à 2,5 jours.
