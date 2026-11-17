@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useStore } from 'zustand';
-import { classeSprite, nomAffiche, progressionOeuf, spriteAffiche } from './affichage-pokemon';
+import { classeSprite, libelleOeuf, nomAffiche, progressionOeuf, spriteAffiche } from './affichage-pokemon';
 import { IconeShiny } from './IconeShiny';
 import { RepereTags } from './RepereMarque';
 import { chargerObjets } from '../core/boutique';
@@ -162,7 +162,7 @@ export function PageEquipe({ ouvrirPC }: { ouvrirPC?: () => void }) {
             : mode.type === 'stase' ? cibleValideStase(pokemon) : mode.type === 'jeton' ? true
             : cibleValide(mode.type, pokemon) && maximum > 0);
           return <li key={pokemon.uid} className="relative min-w-0">
-            <button type="button" aria-label={pokemon.oeuf ? `${nom}, ${progressionOeuf(pokemon.oeuf)}` : `${nom}, niveau ${pokemon.niveau}`} aria-pressed={membre?.pokemon.uid === pokemon.uid} data-uid={pokemon.uid}
+            <button type="button" aria-label={pokemon.oeuf ? `${nom}, ${libelleOeuf(pokemon.oeuf)}` : `${nom}, niveau ${pokemon.niveau}`} aria-pressed={membre?.pokemon.uid === pokemon.uid} data-uid={pokemon.uid}
               disabled={!!mode && (mode.type === 'bonbon' || mode.type === 'calcium' || mode.type === 'baie') && !valide}
               className={`${telephone ? '' : 'carte-equipe '}cadre relative grid overflow-hidden h-full min-h-11 w-full grid-cols-[auto_minmax(0,1fr)_auto] lg:grid-cols-[auto_minmax(0,1fr)] items-center gap-2 p-3 pe-3 lg:p-4 lg:pe-24 text-left ${!mode && !echange && typeof caseEquipe.evolution === 'number' ? 'pret-evoluer' : ''} ${mode && !valide ? '' : 'hover:bg-selection'} ${membre?.pokemon.uid === pokemon.uid ? 'bg-surface lg:bg-selection' : 'bg-surface'} ${mode ? valide ? 'relative border-info-base motion-safe:cible-valide' : 'grayscale opacity-50' : ''}`}
               onContextMenu={event => {
@@ -221,8 +221,8 @@ export function PageEquipe({ ouvrirPC }: { ouvrirPC?: () => void }) {
                   </svg>}</strong>
                 <span className="lg:contents">
                   <span>{pokemon.oeuf ? progressionOeuf(pokemon.oeuf) : `Niv. ${pokemon.niveau}`}</span>
-                  <span className="lg:hidden"> · </span>
-                  <span className="text-region-accent lg:order-3">{formaterDps(dps)} DPS</span>
+                  {!pokemon.oeuf && <><span className="lg:hidden"> · </span>
+                    <span className="text-region-accent lg:order-3">{formaterDps(dps)} DPS</span></>}
                 </span>
                 {!pokemon.oeuf && <span className="lg:order-2"><BarreXp xp={pokemon.xp} maximum={xpMax} nom={nom} /></span>}
               </span>
@@ -297,7 +297,7 @@ export function PageEquipe({ ouvrirPC }: { ouvrirPC?: () => void }) {
           <BarreXp xp={membre.pokemon.xp} maximum={membre.xpMax} nom={nom} />
           <p>{membre.xpMax === 0 ? 'MAX' : `${Math.floor(membre.pokemon.xp)} / ${membre.xpMax} XP`}</p>
         </>}
-        <p className="text-region-accent">{formaterDps(membre.dps)} DPS</p>
+        {!membre.pokemon.oeuf && <p className="text-region-accent">{formaterDps(membre.dps)} DPS</p>}
         {!echange && !mode && <button type="button" className="min-h-11 bg-action px-4 py-2 text-action-texte hover:bg-action-survol"
           onClick={event => ouvrirFiche(membre.pokemon.uid, event.currentTarget)}>Ouvre la fiche</button>}
       </aside>}

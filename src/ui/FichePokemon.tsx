@@ -178,17 +178,17 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: 
             <Image src={spriteAffiche(pokemon)} genre="sprite" alt={pokemon.oeuf ? nom : espece.nom} className={`size-full max-h-full max-w-full ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(pokemon)}`} />
           </div>;
   const identite = pokemon && espece && <div className="flex flex-wrap items-center gap-2">
-            {(pokemon.sexe === 'male' || pokemon.sexe === 'femelle') && <IconeSexe sexe={pokemon.sexe} />}
-            {pokemon.shiny && <span className="h-7 inline-flex items-center gap-1 px-2 font-bold"><IconeShiny />Shiny</span>}
+            {!pokemon.oeuf && (pokemon.sexe === 'male' || pokemon.sexe === 'femelle') && <IconeSexe sexe={pokemon.sexe} />}
+            {pokemon.shiny && !pokemon.oeuf && <span className="h-7 inline-flex items-center gap-1 px-2 font-bold"><IconeShiny />Shiny</span>}
             {telephone && favori}
-            {(telephone || !pokemon.oeuf) && espece.types.map(type => <span key={type} className={`h-7 inline-flex items-center gap-1 px-2 font-bold pastille-type pastille-type-${type}`}>{nomType(type)}</span>)}
+            {!pokemon.oeuf && espece.types.map(type => <span key={type} className={`h-7 inline-flex items-center gap-1 px-2 font-bold pastille-type pastille-type-${type}`}>{nomType(type)}</span>)}
           </div>;
   const statistiques = pokemon && membre && detail && <>
           {!pokemon.oeuf && <div>
             <p>XP : {pokemon.niveau >= 100 ? <span>MAX</span> : <span>{Math.floor(pokemon.xp)} / {membre.xpMax}</span>}</p>
             <BarreXp xp={pokemon.xp} maximum={membre.xpMax} nom={nom} />
           </div>}
-          {(telephone || !pokemon.oeuf) && <><p className="text-xl text-region-accent">{formaterDps(membre.dps)} DPS</p>
+          {!pokemon.oeuf && <><p className="text-xl text-region-accent">{formaterDps(membre.dps)} DPS</p>
           {telephone ? <dl className="grid grid-cols-2 gap-2">{facteurs.map(([libelle, valeur]) => <Fragment key={libelle}><dt>{libelle}</dt><dd>{valeur}</dd></Fragment>)}</dl>
             : <dl className="fiche-pc-facteurs">{facteurs.map(([libelle, valeur]) => <div key={libelle}><dt>{libelle}</dt><dd>{valeur}</dd></div>)}</dl>}
           {!pokemon.oeuf && peutEvoluer(pokemon.numero) && <p>{pokemon.pierreEternelle

@@ -31,7 +31,7 @@ export function EquipePC({ pokemon, dps, xpMax, pret, animation }: {
         {!pokemon.oeuf && (pokemon.sexe === 'male' || pokemon.sexe === 'femelle') && <IconeSexe sexe={pokemon.sexe} />}
         {pokemon.favori && <span aria-label="Favori">★</span>}{pokemon.shiny && !pokemon.oeuf && <IconeShiny />}
       </strong>
-      <span className="text-region-accent">{formaterDps(dps)} DPS</span>
+      {!pokemon.oeuf && <span className="text-region-accent">{formaterDps(dps)} DPS</span>}
       {pokemon.oeuf ? <span>{progressionOeuf(pokemon.oeuf)}</span> : <>
         <span>Niv. {pokemon.niveau}{xpMax === 0 ? ' · XP max' : ''}</span>
         {xpMax > 0 && <BarreXp xp={pokemon.xp} maximum={xpMax} nom={nom} />}

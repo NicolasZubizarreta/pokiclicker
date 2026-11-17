@@ -25,6 +25,6 @@ it('affiche une case libre', () => {
 });
 it('affiche la progression de l’œuf sans XP', () => {
   render(<RangEquipe membre={{ ...membre, pokemon: { ...membre.pokemon, oeuf: { pasRestants: 18, pasMax: 25 } } }} ouvrirFiche={vi.fn()} />);
-  expect(screen.getByText('Éclosion : 7/25')).toBeTruthy();
+  expect(screen.getByText('7/25')).toBeTruthy();
   expect(screen.queryByRole('progressbar')).toBeNull();
 });

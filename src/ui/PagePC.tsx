@@ -10,7 +10,7 @@ import { IconeSexe } from './IconeSexe';
 import { FichePokemon } from './FichePokemon';
 import { Image } from './Image';
 import { formaterDps } from './nombres';
-import { classeSprite, nomAffiche as nomDe, progressionOeuf, spriteAffiche } from './affichage-pokemon';
+import { classeSprite, libelleOeuf, nomAffiche as nomDe, progressionOeuf, spriteAffiche } from './affichage-pokemon';
 import { IconeShiny } from './IconeShiny';
 import { RepereTags } from './RepereMarque';
 import { storeJeu } from './store';
@@ -138,10 +138,10 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
       const contenu = <>
         <Image src={spriteAffiche(pokemon)} genre="sprite" alt="" className={`${mobile ? 'size-16' : 'size-14'} shrink-0 ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(pokemon)}`} />
         <span className="grid min-w-0 gap-1 break-words">
-          <strong>{nom}<RepereTags pokemon={pokemon} enLigne /></strong><span>{pokemon.oeuf ? progressionOeuf(pokemon.oeuf) : `Niv. ${pokemon.niveau}`}</span>{!mobile && <span>{formaterDps(dps)} DPS</span>}
+          <strong>{nom}<RepereTags pokemon={pokemon} enLigne /></strong><span>{pokemon.oeuf ? progressionOeuf(pokemon.oeuf) : `Niv. ${pokemon.niveau}`}</span>{!mobile && !pokemon.oeuf && <span>{formaterDps(dps)} DPS</span>}
         </span>
       </>;
-      return echange || !telephone ? <button key={index} type="button" aria-label={pokemon.oeuf ? `${nom}, ${progressionOeuf(pokemon.oeuf)}` : `${nom}, niveau ${pokemon.niveau}`}
+      return echange || !telephone ? <button key={index} type="button" aria-label={pokemon.oeuf ? `${nom}, ${libelleOeuf(pokemon.oeuf)}` : `${nom}, niveau ${pokemon.niveau}`}
         aria-pressed={!telephone ? partenaire === pokemon.uid : undefined} {...cibleDepot(index)}
         {...(!telephone && selectionLot === null ? {
           draggable: true,
@@ -198,7 +198,7 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
               {liste.map(pokemon => {
                 const nom = nomDe(pokemon);
                 return <li key={pokemon.uid} className="min-w-0">
-                  <button type="button" aria-label={pokemon.oeuf ? `${nom}, ${progressionOeuf(pokemon.oeuf)}` : `${nom}, niveau ${pokemon.niveau}`} aria-pressed={selectionLot !== null ? effectifs.some(p => p.uid === pokemon.uid) : selection === pokemon.uid}
+                  <button type="button" aria-label={pokemon.oeuf ? `${nom}, ${libelleOeuf(pokemon.oeuf)}` : `${nom}, niveau ${pokemon.niveau}`} aria-pressed={selectionLot !== null ? effectifs.some(p => p.uid === pokemon.uid) : selection === pokemon.uid}
                     aria-disabled={selectionLot !== null && pokemon.favori ? true : undefined}
                     {...(!telephone && selectionLot === null ? {
                       draggable: true,
@@ -228,7 +228,7 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
                     </span>
                     <span className="grid min-w-0 gap-1 lg:contents"><strong className="flex min-w-0 max-w-full items-center gap-1 lg:justify-center">
                       <span className="min-w-0 truncate">{nom}</span>
-                      {(pokemon.sexe === 'femelle' || pokemon.sexe === 'male') && <IconeSexe sexe={pokemon.sexe} className="size-4" />}
+                      {!pokemon.oeuf && (pokemon.sexe === 'femelle' || pokemon.sexe === 'male') && <IconeSexe sexe={pokemon.sexe} className="size-4" />}
                       {pokemon.favori && <><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" className="size-5 shrink-0 fill-current text-lien">
                         <path d="m12 2 3 6 7 1-5 5 1 8-6-4-6 4 1-8-5-5 7-1z" />
                       </svg><span className="sr-only">Favori</span></>}
@@ -249,7 +249,7 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
           <Image src={spriteAffiche(pokemon)} genre="sprite" alt="" className={`mx-auto size-24 max-w-full ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(pokemon)}`} />
           <h2 className="break-words font-titre text-xl font-semibold">{nomDe(pokemon)}{pokemon.shiny && !pokemon.oeuf && <IconeShiny />}</h2>
           <p>{pokemon.oeuf ? progressionOeuf(pokemon.oeuf) : `N° ${pokemon.numero} · Niveau ${pokemon.niveau}`}</p>
-          <p className="text-region-accent">{formaterDps(dpsPc(pokemon))} DPS</p>
+          {!pokemon.oeuf && <p className="text-region-accent">{formaterDps(dpsPc(pokemon))} DPS</p>}
           {!pokemon.oeuf && <BarreXp xp={pokemon.xp} maximum={calculerMaxXp(pokemon.numero, pokemon.niveau)} nom={nomDe(pokemon)} />}
           <button type="button" aria-pressed={pokemon.favori} className="min-h-11 bg-surface-2 px-4 py-2 hover:bg-selection"
             onClick={() => {

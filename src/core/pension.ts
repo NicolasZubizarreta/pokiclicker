@@ -66,7 +66,8 @@ export function avancerOeuf(pokemon: PokemonPossede): PokemonPossede {
   if (!pokemon.oeuf) return pokemon;
   const pasRestants = Math.max(0, pokemon.oeuf.pasRestants - 1);
   if (pasRestants > 0) return { ...pokemon, oeuf: { ...pokemon.oeuf, pasRestants } };
-  const eclos = { ...pokemon, niveau: 1, bonheur: pension.bonheurNaissance, marqueEclosion: true };
+  // Niveau 1 et XP 0 quoi qu'ait l'œuf (une ancienne sauvegarde peut en avoir un autre) ; bonheur = valeur de naissance.
+  const eclos = { ...pokemon, niveau: 1, xp: 0, bonheur: pension.bonheurNaissance, marqueEclosion: true };
   delete eclos.oeuf;
   return eclos;
 }

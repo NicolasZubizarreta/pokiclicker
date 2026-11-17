@@ -10,7 +10,7 @@ beforeEach(() => vi.useFakeTimers());
 afterEach(() => { stores.forEach(s => s.getState().arreter()); stores.length = 0; vi.useRealTimers(); });
 const pokemon = (uid: string): PokemonPossede => ({ uid, numero: 6, niveau: 100, calcium: 100000,
   xp: 0, shiny: false, sexe: 'male', bonheur: 0, pierreEternelle: false, favori: false });
-function preparer({ actif = true, connue = true, shiny = false, pleine = false, oeufs = 0, dexOeuf = true } = {}) {
+function preparer({ actif = true, connue = true, shiny = false, pleine = false, oeufs = 0, dexOeuf = true, ancienOeuf = false } = {}) {
   const stockage = creerStockageMemoire(), horloge = creerHorlogeSimulee();
   const gestionnaire = creerGestionnaire({ stockage, horloge, genererId: () => 'test' });
   const compte = compteInitial();
@@ -24,7 +24,7 @@ function preparer({ actif = true, connue = true, shiny = false, pleine = false, 
     especesEcloses: dexOeuf ? [133] : [], inventaire: { masterball: 3 },
     equipe: [...Array.from({ length: pleine ? 6 : 1 }, (_, i) => pokemon(`fort-${i}`)),
       ...Array.from({ length: oeufs }, (_, i) => ({ ...pokemon(`oeuf-${i}`), numero: 133, niveau: 1,
-        shiny, oeuf: { pasRestants: 1, pasMax: 25 } }))] });
+        shiny, oeuf: { pasRestants: 1, pasMax: 25 }, ...(ancienOeuf ? { niveau: 50, xp: 99, bonheur: 40 } : {}) }))] });
   let id = 0;
   const ouvrir = () => {
     const store = creerStoreJeu({ stockage, horloge, alea: () => shiny ? 0 : .1, genererId: () => `id-${++id}` });
@@ -93,4 +93,10 @@ it('notification : deux doublons relâchés annoncés une seule fois', () => {
 });
 it('préférence désactivée par défaut puis persistée avec le compte', () => {
   const p = preparer(); p.store.getState().arreter(); expect(p.ouvrir().getState().relacherDoublons).toBe(true);
+});
+it.each([false, true])('éclosion d’un œuf d’ancienne sauvegarde : niveau 1, XP 0, bonheur de naissance (passer les éclosions=%s)', passer => {
+  const p = preparer({ oeufs: 1, dexOeuf: false, ancienOeuf: true });
+  p.store.getState().reglerPasserEclosions(passer); p.victoire();
+  expect(p.lire().equipe.find(e => e.uid === 'oeuf-0')).toMatchObject({ niveau: 1, xp: 0, bonheur: reglages.pension.bonheurNaissance });
+  if (!passer) expect(p.store.getState().eclosion).toMatchObject({ niveau: 1, bonheur: reglages.pension.bonheurNaissance });
 });

@@ -19,9 +19,11 @@ it('affiche un chromatique avec son sprite, son halo et son icône près du nom'
 
 it('cache l’espèce d’un œuf et montre sa progression', () => {
   const { container } = render(<CarteEquipe membre={{ pokemon: { ...base, oeuf: { pasRestants: 18, pasMax: 25 } },
-    dps: 0, xpMax: 100, multiplicateur: 1 }} />);
-  expect(screen.getByLabelText('Œuf, Éclosion : 7/25, 0 DPS')).toBeTruthy();
-  expect(container.textContent).toContain('Éclosion : 7/25');
+    dps: 25.5, xpMax: 100, multiplicateur: 1 }} />);
+  expect(screen.getByLabelText('Œuf, Éclosion : 7/25')).toBeTruthy();
+  expect(container.textContent).toContain('7/25');
+  expect(container.textContent).not.toContain('Éclosion');
+  expect(container.textContent).not.toContain('DPS');
   expect(container.textContent).not.toContain('Bulbizarre');
   expect(container.querySelector('img')?.getAttribute('src')).toContain('lucky-egg');
 });

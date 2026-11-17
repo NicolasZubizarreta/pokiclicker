@@ -164,15 +164,17 @@ it('ne présente que le retour, le titre et la raison quand le PC est verrouill�
 });
 
 it('ouvre la fiche d’un œuf sans DPS ni statistiques', () => {
-  storeJeu.setState({ pc: [{ ...base, uid: 'oeuf', oeuf: { pasRestants: 10, pasMax: 10 } }] });
+  storeJeu.setState({ pc: [{ ...base, uid: 'oeuf', shiny: true, sexe: 'femelle', oeuf: { pasRestants: 10, pasMax: 10 } }] });
   render(<PagePC />);
   const carte = within(screen.getByRole('list')).getByRole('button');
   expect(within(carte).queryByText(/DPS/)).toBeNull();
-  expect(carte.textContent).toContain('Éclosion');
+  expect(carte.textContent).toContain('0/10');
   fireEvent.click(carte);
   const fiche = screen.getByRole('dialog');
   expect(within(fiche).queryByText(/DPS/)).toBeNull();
   expect(fiche.querySelector('dl')).toBeNull();
+  expect(fiche.textContent).not.toMatch(/Shiny|Plante|Poison|Femelle|Chromatique/);
+  expect(within(carte).queryByRole('img', { name: /Femelle|Mâle|Chromatique/ })).toBeNull();
 });
 
 it.each<[TriPc, string]>([

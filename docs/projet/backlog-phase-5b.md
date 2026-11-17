@@ -533,7 +533,7 @@ Les raccourcis de combat (lettres), la fusion Équipe/PC (U).
 
 ## Y. `fix(pension): œufs sans DPS ni bonus, éclosion au niveau 1, libellé x/50`
 
-`type:fix`, `etat:a_faire`, `est:1-1.5`, `prio:1` · branche : `v2` · pas d'`agent-ok` (règles de jeu, sauvegarde) · après le test de Nicolas du 17/11
+`type:fix`, `etat:fait`, `est:1-1.5`, `prio:1` · branche : `v2` · pas d'`agent-ok` (règles de jeu, sauvegarde) · après le test de Nicolas du 17/11
 
 ### Histoire
 En tant que joueur, je ne veux pas pouvoir deviner ce qui sortira d'un œuf, et je veux qu'un œuf ne gagne rien tant qu'il n'a pas éclos.
@@ -542,12 +542,12 @@ En tant que joueur, je ne veux pas pouvoir deviner ce qui sortira d'un œuf, et 
 Retour de Nicolas (17/11) : les œufs de l'équipe affichent un DPS (25,5 et 28,7 sur sa capture), différent d'un œuf à l'autre selon le Pokémon caché (shiny, type) : c'est devinable. Il doit valoir 0 et ne pas s'afficher. Nicolas a aussi vu des Pokémon sortir d'un œuf à un autre niveau que 1, et veut vérifier qu'un œuf ne gagne ni bonheur ni XP pendant les combats qui servent à le faire éclore. Le texte « Éclosion : 22/50 » est coupé dans la carte.
 
 ### Critères d'acceptation
-- [ ] Étant donné un œuf dans l'équipe, quand sa carte s'affiche (Équipe, Combat, PC), alors aucun DPS n'y figure, et le DPS total de l'équipe ne compte rien pour lui (valeur 0 dans le calcul, pas seulement masquée).
-- [ ] Étant donné deux œufs de Pokémon différents (un shiny, des types différents), quand je compare leurs cartes, alors rien ne les distingue (ni DPS, ni sprite, ni texte) à part leur avancement.
-- [ ] Étant donné un œuf qui éclôt, quand le Pokémon apparaît, alors il est au niveau 1, sans XP ni bonheur acquis, dans tous les cas (éclosion normale, passer les éclosions, relâche automatique, évolution automatique ensuite) ; un test couvre chaque chemin et la cause est notée si un chemin donnait un autre niveau.
-- [ ] Étant donné un œuf, quand des combats sont gagnés, alors seul son compteur d'éclosion avance : aucune XP, aucun bonheur, aucun effet d'objet n'est appliqué à l'œuf ; un test le vérifie.
-- [ ] Étant donné la carte d'un œuf, quand elle s'affiche à 360, 390 et 1440 px, alors le texte est « 22/50 » (sans « Éclosion : »), lisible et dans le cadre.
-- [ ] Étant donné une ancienne sauvegarde avec des œufs, quand elle se charge, alors rien n'est perdu ni cassé.
+- [x] Étant donné un œuf dans l'équipe, quand sa carte s'affiche (Équipe, Combat, PC), alors aucun DPS n'y figure, et le DPS total de l'équipe ne compte rien pour lui (valeur 0 dans le calcul, pas seulement masquée).
+- [x] Étant donné deux œufs de Pokémon différents (un shiny, des types différents), quand je compare leurs cartes, alors rien ne les distingue (ni DPS, ni sprite, ni texte) à part leur avancement.
+- [x] Étant donné un œuf qui éclôt, quand le Pokémon apparaît, alors il est au niveau 1, sans XP ni bonheur acquis, dans tous les cas (éclosion normale, passer les éclosions, relâche automatique, évolution automatique ensuite) ; un test couvre chaque chemin et la cause est notée si un chemin donnait un autre niveau.
+- [x] Étant donné un œuf, quand des combats sont gagnés, alors seul son compteur d'éclosion avance : aucune XP, aucun bonheur, aucun effet d'objet n'est appliqué à l'œuf ; un test le vérifie.
+- [x] Étant donné la carte d'un œuf, quand elle s'affiche à 360, 390 et 1440 px, alors le texte est « 22/50 » (sans « Éclosion : »), lisible et dans le cadre.
+- [x] Étant donné une ancienne sauvegarde avec des œufs, quand elle se charge, alors rien n'est perdu ni cassé.
 - [ ] Étant donné les tests, quand `tsc`, eslint, vitest et les e2e ciblés (pension, équipe, combat) tournent, alors ils sont verts.
 
 ### Hors périmètre
@@ -555,6 +555,11 @@ Les tags (Z), les valeurs de la pension (S).
 
 ### Effort et risques
 1 à 1,5 jour. Risque : le niveau à l'éclosion peut venir d'un chemin que le code ne distingue pas (évolution automatique, migration) ; la cause doit être prouvée, pas devinée.
+
+### Résultat (17/11)
+- DPS : `versMembreEquipe` n'envoyait pas l'indicateur d'œuf au cœur de combat, donc `calculerDpsEquipe` comptait les œufs (DPS propre, DPS total de l'équipe et dégâts du clic, qui en dépendent). L'œuf est maintenant transmis : 0 dans le calcul, et plus aucun DPS affiché (Équipe, Combat, PC, fiches). Le sexe et le tag shiny d'un œuf, qui trahissaient aussi l'espèce, sont masqués dans la grille du PC et la fiche.
+- Bonheur : `appliquerVictoire` donnait +1 de bonheur à chaque œuf de l'équipe à chaque victoire (reprise de la V1). Supprimé, écart assumé avec la V1 (tests de fidélité adaptés). Aucune XP n'était donnée, et aucun objet ne s'applique à un œuf (garde existante, testée).
+- Niveau à l'éclosion : tous les chemins (éclosion normale, passer les éclosions, relâche automatique) passent par `avancerOeuf`, qui force le niveau 1 ; l'évolution automatique ne change pas le niveau. Aucun chemin du code ne donne un autre niveau à un œuf normal (test de la ponte à l'éclosion). Seule faille trouvée : l'XP n'était pas remise à 0 (un œuf d'ancienne sauvegarde avec de l'XP naissait avec) ; corrigé et testé. Un niveau 2 vu juste après l'éclosion vient sans doute du combat suivant (le niveau 1 monte vite), pas de l'éclosion.
 
 ## Z. `fix(ui): une seule étoile shiny à droite du nom, tag œuf réduit à l'icône, plus de « XP max »`
 
