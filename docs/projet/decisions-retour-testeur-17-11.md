@@ -29,3 +29,10 @@ Source : retour d'un testeur qui a fini le jeu à 100 % et tenté le shiny dex a
 - Pension, poids des légendaires dans Métamorph + Métamorph (1/10) et tables de taux d'apparition : validés tels que proposés.
 - Inflation par badge : 0.20 (choisi après tableau avec et sans la remise de 15 % du palier Pokédex 70).
 - Tickets F à V écrits dans `backlog-phase-5b.md` (17/11), en attente du go de Nicolas pour coder. Questions ouvertes : un éclos shiny remplit-il les quatre dex (hypothèse oui, ticket G) ; où mettre l'accès pension (ticket O) ; point 14 (jeu austère) sans décision.
+
+## Réponses du 17/11 (après F, R, S, T)
+
+- Un Pokémon éclos shiny remplit les quatre listes (Pokédex, shiny, œuf, œuf shiny).
+- Accès à la pension : un bouton dans la barre de navigation, entre Pokédex et Menu (ticket O).
+- Point 14 (jeu austère) : ticket W, à traiter en dernier, quand il ne restera que lui.
+- Plus de simulateur par ticket, la V1 ne fait plus foi.

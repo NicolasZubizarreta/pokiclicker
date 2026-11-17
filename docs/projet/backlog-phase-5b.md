@@ -211,7 +211,7 @@ Le dex œuf existe déjà (`especesEcloses`, corrigé au ticket F). Il manque la
 ### Critères d'acceptation
 - [ ] Étant donné la capture d'un Pokémon normal d'une espèce jamais obtenue, quand elle a lieu, alors l'espèce s'inscrit au Pokédex.
 - [ ] Étant donné la capture d'un Pokémon shiny d'une espèce jamais vue en shiny, quand elle a lieu, alors l'espèce s'inscrit au dex shiny et au Pokédex.
-- [ ] Étant donné l'éclosion d'une espèce jamais éclose, quand elle a lieu, alors l'espèce s'inscrit au dex œuf et au Pokédex ; si l'éclos est shiny, elle s'inscrit aussi au dex œuf shiny et au dex shiny (hypothèse à confirmer par Nicolas : un éclos shiny remplit les quatre listes).
+- [ ] Étant donné l'éclosion d'une espèce jamais éclose, quand elle a lieu, alors l'espèce s'inscrit au dex œuf et au Pokédex ; si l'éclos est shiny, elle s'inscrit aussi au dex œuf shiny et au dex shiny (confirmé par Nicolas le 17/11 : un éclos shiny remplit les quatre listes).
 - [ ] Étant donné l'évolution d'un Pokémon shiny, d'un éclos ou d'un éclos shiny, quand elle a lieu, alors l'espèce atteinte s'inscrit dans les listes que ce Pokémon remplit.
 - [ ] Étant donné une ancienne sauvegarde, quand elle se charge, alors les listes shiny, œuf shiny et œuf sont rattrapées depuis les Pokémon possédés (drapeau shiny, marque d'éclosion), sans rien retirer.
 - [ ] Étant donné les tests, quand `tsc -b`, eslint, vitest (dont migration) et e2e tournent, alors ils sont verts.
@@ -352,17 +352,18 @@ En tant que joueur, je veux retirer l'objet donné à un Pokémon depuis sa fich
 
 ## O. `feat(navigation): accès direct à la pension`
 
-`type:feat`, `etat:a_faire`, `est:0.5-1`, `prio:3` · branche : `v2` · pas d'`agent-ok` avant la précision demandée à Nicolas
+`type:feat`, `etat:a_faire`, `est:0.5-1`, `prio:3` · branche : `v2` · `agent-ok` recommandé
 
 ### Histoire
 En tant que joueur qui farme des œufs, je veux atteindre la pension en un clic, afin de ne pas perdre de temps entre le combat et la pension.
 
 ### Contexte
-Le ticket D a déjà posé un lien vers la pension dans le Menu et la Carte. Le testeur trouve que le lien manque : à confirmer avec Nicolas où il en veut un de plus. Proposition : un raccourci « Pension » à côté des œufs dans l'écran de Combat.
+Le ticket D a déjà posé un lien vers la pension dans le Menu et la Carte. Décision de Nicolas (17/11) : un bouton « Pension » dans la barre de navigation, placé entre « Pokédex » et « Menu ». Sur téléphone comme sur PC, sans rien déplacer d'autre.
 
 ### Critères d'acceptation
-- [ ] Étant donné la pension ouverte, quand je suis en Combat, alors un accès à la pension est visible en un clic (emplacement validé par Nicolas).
-- [ ] Étant donné la pension fermée, quand je suis en Combat, alors l'accès n'apparaît pas.
+- [ ] Étant donné la pension débloquée, quand la barre de navigation s'affiche (téléphone et PC), alors un bouton « Pension » figure entre « Pokédex » et « Menu » et ouvre la pension.
+- [ ] Étant donné la pension non débloquée, quand la barre s'affiche, alors le bouton n'apparaît pas.
+- [ ] Étant donné la barre, quand le bouton s'ajoute, alors tous les boutons restent lisibles et touchables à 360, 390 et 1440 px, et les touches de raccourci existantes ne changent pas.
 - [ ] Étant donné les tests, quand `tsc -b`, eslint, vitest et e2e tournent, alors ils sont verts.
 
 ### Effort et risques
@@ -488,3 +489,19 @@ En tant que joueur, je veux appliquer des objets à n'importe quel Pokémon du P
 
 ### Effort et risques
 1,5 à 2,5 jours.
+
+## W. `feat(combat): un objectif permanent pour le jeu austère du début`
+
+`type:feat`, `etat:a_faire`, `est:1-2`, `prio:5` · branche : `v2` · pas d'`agent-ok` (idée à cadrer avec Nicolas) · à traiter quand il ne reste plus que ce ticket
+
+### Histoire
+En tant que nouveau joueur, je veux toujours voir ce que je dois viser, afin de ne pas trouver le début du jeu austère et de ne pas sauter le tuto (point 14 du testeur).
+
+### Contexte
+Décision de Nicolas (17/11) : on fait ce ticket, mais plus tard ; tout le reste passe avant. Piste à valider avec lui avant de coder : un objectif permanent affiché dans l'écran de Combat (prochain badge, prochaine zone, prochain palier du Pokédex), qui change quand il est atteint.
+
+### Critères d'acceptation
+- [ ] À écrire avec Nicolas au moment de s'y mettre (le contenu de l'objectif, sa place, sa charte).
+
+### Effort et risques
+1 à 2 jours. Risque : un écran de plus dans un combat déjà dense, à cadrer avec trois variantes avant de coder.
