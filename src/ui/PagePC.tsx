@@ -61,6 +61,14 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
   const actif = filtre !== 'tous';
   const liste = useMemo(() => trierPc(filtrerParAttributs(filtrerPc(pc, recherche, nomDe, nomEspece), filtre, new Set(pokedex)), tri, nomDe), [pc, tri, recherche, filtre, pokedex]);
   const [choisi, choisir] = useState(() => liste[0]?.uid);
+  const [selectionLot, selectionnerLot] = useState<Set<string> | null>(null);
+  const confirmation = useRef<HTMLDialogElement>(null);
+  const [erreurLot, signalerLot] = useState<string | null>(null);
+  const eligibles = liste.filter(p => !p.favori);
+  const effectifs = eligibles.filter(p => selectionLot?.has(p.uid));
+  const tousCoches = eligibles.length > 0 && effectifs.length === eligibles.length;
+  const nombre = effectifs.length;
+  const shiny = effectifs.filter(p => p.shiny).length;
   const selection = liste.find(pokemon => pokemon.uid === choisi)?.uid ?? liste[0]?.uid;
   const pokemon = liste.find(p => p.uid === selection);
 
@@ -96,7 +104,7 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
     const message = membre ? storeJeu.getState().echanger(uid, membre.pokemon.uid) : storeJeu.getState().placerDansEquipe(uid);
     signaler(message ? { message, echange } : null);
   }
-  const cibleDepot = (index: number) => !telephone ? {
+  const cibleDepot = (index: number) => !telephone && selectionLot === null ? {
     onDragOver: (event: DragEvent<HTMLElement>) => { event.preventDefault(); survoler(index); },
     onDragLeave: () => survoler(null),
     onDrop: (event: DragEvent<HTMLElement>) => deposer(index, event),
@@ -111,7 +119,7 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
     if (!uid || !equipe.some(membre => membre?.pokemon.uid === uid)) return;
     notifier(storeJeu.getState().envoyerAuPc(uid));
   }
-  const cibleGrille = !telephone ? {
+  const cibleGrille = !telephone && selectionLot === null ? {
     onDragOver: (event: DragEvent<HTMLElement>) => { event.preventDefault(); survoler(-1); },
     onDragLeave: () => survoler(null),
     onDrop: deposerSurPc,
@@ -135,12 +143,13 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
       </>;
       return echange || !telephone ? <button key={index} type="button" aria-label={pokemon.oeuf ? `${nom}, ${progressionOeuf(pokemon.oeuf)}` : `${nom}, niveau ${pokemon.niveau}`}
         aria-pressed={!telephone ? partenaire === pokemon.uid : undefined} {...cibleDepot(index)}
-        {...(!telephone ? {
+        {...(!telephone && selectionLot === null ? {
           draggable: true,
           onDragStart: (event: DragEvent<HTMLElement>) => { event.dataTransfer.setData('text/plain', pokemon.uid); event.dataTransfer.effectAllowed = 'move'; glisser(pokemon.uid); },
           onDragEnd: () => { glisser(null); survoler(null); },
         } : {})}
         className={`${classe} hover:bg-selection${!telephone ? ' cursor-grab' : ''}`} onClick={() => {
+          if (selectionLot !== null) return;
           if (!echange) { selectionnerPartenaire(partenaire === pokemon.uid ? null : pokemon.uid); return; }
           const message = storeJeu.getState().echanger(echange.uid, pokemon.uid);
           signaler(message ? { message, echange } : null);
@@ -171,7 +180,17 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
             <input id="recherche-pc" type="search" aria-label={!telephone ? 'Nom ou numéro' : undefined} value={recherche} onChange={event => rechercher(event.target.value)}
               className="min-h-11 min-w-0 w-full border border-bordure bg-surface px-4 py-2 text-texte" />
           </div>
+          {pc.length > 0 && selectionLot === null && <button type="button" className="min-h-11 bg-surface-2 px-3 text-erreur-base" onClick={() => {
+            selectionnerLot(new Set()); selectionnerPartenaire(null); glisser(null); survoler(null); storeJeu.getState().annulerEchange();
+          }}>Relâcher</button>}
         </div>
+        {selectionLot !== null && <div className="bandeau-choix flex flex-wrap items-center gap-2 p-4">
+          <p role="status">{nombre === 0 ? 'Aucun Pokémon sélectionné' : `${nombre} Pokémon sélectionné${nombre > 1 ? 's' : ''}`}</p>
+          <button type="button" className="min-h-11 bg-surface-2 px-3" onClick={() => selectionnerLot(tousCoches ? new Set() : new Set(eligibles.map(p => p.uid)))}>{tousCoches ? 'Tout désélectionner' : 'Tout sélectionner'}</button>
+          <button type="button" className="min-h-11 bg-surface-2 px-3 text-erreur-base" disabled={!nombre} aria-describedby={!nombre ? 'selection-vide' : undefined} onClick={() => { signalerLot(null); confirmation.current?.showModal(); }}>Relâcher la sélection</button>
+          {!nombre && <p id="selection-vide">Sélectionne au moins un Pokémon non favori.</p>}
+          <button type="button" className="min-h-11 bg-surface-2 px-3" onClick={() => { confirmation.current?.close(); selectionnerLot(null); }}>Annuler</button>
+        </div>}
         {(recherche || actif) && <button type="button" className="min-h-11 bg-surface-2 px-3" onClick={() => { rechercher(''); filtrer('tous'); }}>Effacer la recherche et les filtres</button>}
         {pc.length === 0 ? <p {...cibleGrille}>Ton PC est vide. Capture des Pokémon pour les ranger ici.</p>
           : liste.length === 0 ? <p role="status" {...cibleGrille}>{!recherche && actif ? 'Aucun Pokémon ne correspond à ces filtres.' : `Aucun Pokémon ne correspond à « ${recherche} ».`}</p>
@@ -179,14 +198,22 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
               {liste.map(pokemon => {
                 const nom = nomDe(pokemon);
                 return <li key={pokemon.uid} className="min-w-0">
-                  <button type="button" aria-label={pokemon.oeuf ? `${nom}, ${progressionOeuf(pokemon.oeuf)}` : `${nom}, niveau ${pokemon.niveau}`} aria-pressed={selection === pokemon.uid}
-                    {...(!telephone ? {
+                  <button type="button" aria-label={pokemon.oeuf ? `${nom}, ${progressionOeuf(pokemon.oeuf)}` : `${nom}, niveau ${pokemon.niveau}`} aria-pressed={selectionLot !== null ? effectifs.some(p => p.uid === pokemon.uid) : selection === pokemon.uid}
+                    aria-disabled={selectionLot !== null && pokemon.favori ? true : undefined}
+                    {...(!telephone && selectionLot === null ? {
                       draggable: true,
                       onDragStart: (event: DragEvent<HTMLElement>) => { event.dataTransfer.setData('text/plain', pokemon.uid); event.dataTransfer.effectAllowed = 'move'; glisser(pokemon.uid); },
                       onDragEnd: () => { glisser(null); survoler(null); },
                     } : {})}
-                    className={`${!telephone ? 'cursor-grab ' : ''}cadre flex overflow-hidden h-full min-h-11 w-full items-center gap-2 p-2 text-left lg:grid lg:grid-rows-[auto_1fr_auto] lg:justify-items-center lg:p-4 lg:text-center hover:bg-selection ${selection === pokemon.uid ? 'bg-selection' : 'bg-surface'}`}
+                    className={`${!telephone && selectionLot === null ? 'cursor-grab ' : ''}cadre flex overflow-hidden h-full min-h-11 w-full items-center gap-2 p-2 text-left lg:grid lg:grid-rows-[auto_1fr_auto] lg:justify-items-center lg:p-4 lg:text-center hover:bg-selection ${(selectionLot !== null ? effectifs.some(p => p.uid === pokemon.uid) : selection === pokemon.uid) ? 'bg-selection' : 'bg-surface'}`}
                     onClick={event => {
+                      if (selectionLot !== null) {
+                        if (pokemon.favori) return;
+                        const prochaine = new Set(selectionLot);
+                        if (prochaine.has(pokemon.uid)) prochaine.delete(pokemon.uid); else prochaine.add(pokemon.uid);
+                        selectionnerLot(prochaine);
+                        return;
+                      }
                       choisir(pokemon.uid);
                       if (!telephone && partenaire) {
                         const message = storeJeu.getState().echanger(pokemon.uid, partenaire);
@@ -201,6 +228,7 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
                     </span>
                     <span className="grid min-w-0 gap-1 lg:contents"><strong className="flex min-w-0 max-w-full items-center gap-1 lg:justify-center">
                       <span className="min-w-0 truncate">{nom}</span>
+                      {selectionLot !== null && (pokemon.favori ? <><svg aria-hidden="true" viewBox="0 0 24 24" className="size-5 shrink-0" fill="none" stroke="currentColor"><rect x="5" y="10" width="14" height="11" /><path d="M8 10V6a4 4 0 0 1 8 0v4" /></svg><span className="sr-only">Favori verrouillé</span></> : selectionLot.has(pokemon.uid) && <svg aria-hidden="true" viewBox="0 0 24 24" className="size-5 shrink-0" fill="none" stroke="currentColor"><path d="m4 12 5 5L20 6" /></svg>)}
                       {(pokemon.sexe === 'femelle' || pokemon.sexe === 'male') && <IconeSexe sexe={pokemon.sexe} className="size-4" />}
                       {pokemon.favori && <><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" className="size-5 shrink-0 fill-current text-lien">
                         <path d="m12 2 3 6 7 1-5 5 1 8-6-4-6 4 1-8-5-5 7-1z" />
@@ -230,7 +258,7 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
               signaler(message ? { message, echange } : null);
             }}>{pokemon.favori ? 'Retire des favoris' : 'Ajoute aux favoris'}</button>
         </> : <h2 className="font-titre text-xl font-semibold">Aucune sélection</h2>)}
-        {telephone && !ouvert && <button ref={placer} type="button" disabled={!pokemon}
+        {telephone && !ouvert && <button ref={placer} type="button" disabled={!pokemon || selectionLot !== null}
           className="min-h-11 bg-action px-4 py-2 text-action-texte hover:bg-action-survol disabled:text-texte-doux"
           onClick={() => {
             if (!pokemon) return;
@@ -243,5 +271,19 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
       </div>
     </>}
     {fiche !== null && <FichePokemon uid={fiche} ouvert={ouvert} fermer={() => afficher(false)} declencheur={declencheur} />}
+    {selectionLot !== null && <dialog ref={confirmation} aria-labelledby="titre-relacher-lot" className="fiche-pokemon cadre w-full max-w-xl bg-surface p-4 text-base text-texte lg:p-8">
+      <h2 id="titre-relacher-lot">Relâcher {nombre} Pokémon ?</h2>
+      {shiny > 0 && <p>Attention : {shiny} shiny en {shiny === 1 ? 'fait partie' : 'font partie'}.</p>}
+      <p>Ils partent pour toujours.</p>
+      {erreurLot && <p role="alert">{erreurLot}</p>}
+      <button type="button" autoFocus className="min-h-11 bg-surface-2 px-3" onClick={() => confirmation.current?.close()}>Annuler</button>
+      <button type="button" className="min-h-11 bg-action px-3 text-action-texte" onClick={() => {
+        const raison = storeJeu.getState().relacherLot(effectifs.map(p => p.uid));
+        if (raison) { signalerLot(raison); return; }
+        confirmation.current?.close(); selectionnerLot(null);
+        notifier(`${nombre} Pokémon relâché${nombre > 1 ? 's' : ''}.`);
+        titre.current?.focus();
+      }}>Relâche définitivement</button>
+    </dialog>}
   </section>;
 }

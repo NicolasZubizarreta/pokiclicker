@@ -53,6 +53,25 @@ export function relacher(region: DonneesRegion, uid: string): ResultatEquipe {
   return { ok: true, region: { ...region, [liste]: region[liste].filter((p) => p.uid !== uid) } };
 }
 
+export function relacherPokemon(region: DonneesRegion, uid: string): ResultatEquipe {
+  const resultat = relacher(region, uid);
+  if (!resultat.ok) return resultat;
+  const liste = listeDuPokemon(region, uid)!;
+  if (!region[liste].find(p => p.uid === uid)?.pierreEternelle) return resultat;
+  return { ok: true, region: { ...resultat.region, inventaire: { ...region.inventaire, everstone: (region.inventaire.everstone ?? 0) + 1 } } };
+}
+
+export function relacherLot(region: DonneesRegion, uids: readonly string[]): ResultatEquipe {
+  const uniques = new Set(uids);
+  if (!uniques.size) return { ok: false, raison: 'Aucun Pokémon sélectionné.' };
+  const selection = region.pc.filter(p => uniques.has(p.uid));
+  if (selection.length !== uniques.size) return absent;
+  if (selection.some(p => p.favori)) return { ok: false, raison: "Les favoris ne se relâchent pas : retire d'abord le favori." };
+  const pierres = selection.filter(p => p.pierreEternelle === true).length;
+  return { ok: true, region: { ...region, pc: region.pc.filter(p => !uniques.has(p.uid)),
+    inventaire: pierres ? { ...region.inventaire, everstone: (region.inventaire.everstone ?? 0) + pierres } : region.inventaire } };
+}
+
 export function envoyerAuPc(region: DonneesRegion, uid: string): ResultatEquipe {
   const pokemon = region.equipe.find((p) => p.uid === uid);
   if (!pokemon) return absent;

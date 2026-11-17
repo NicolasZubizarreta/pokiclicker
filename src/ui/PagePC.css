@@ -1,4 +1,8 @@
+.bandeau-choix { background: var(--selection); border-left: var(--spacing) solid var(--region-accent); }
+.bandeau-choix ~ ul button[aria-pressed="true"] { border-color: var(--focus); }
 @media (min-width: 1024px) {
+  .pc-pc .bandeau-choix { grid-column: 1 / 10; }
+  .pc-pc .pc-corps:has(.bandeau-choix) { grid-template-rows: auto auto minmax(0, 1fr); }
   main#contenu:has(> section > .pc-pc) { display: flex; flex-direction: column; overflow: hidden; }
   main#contenu > section:has(> .pc-pc) { flex: 1; min-height: 0; width: 100%; max-width: none; display: flex; }
   main#contenu:has(> .pc-pc) { display: flex; flex-direction: column; overflow: hidden; }

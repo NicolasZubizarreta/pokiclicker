@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { basculerFavori, detailDps, echanger, envoyerAuPc, placerDansEquipe, relacher, renommer } from './equipe';
+import { basculerFavori, detailDps, echanger, envoyerAuPc, placerDansEquipe, relacher, relacherPokemon, relacherLot, renommer } from './equipe';
 import { reglages } from './reglages';
 import type { DonneesRegion, PokemonPossede } from './sauvegarde-types';
 import { calculerDps } from './stats';
@@ -30,6 +30,17 @@ function figer(objet: object) {
 
 const dernier = "C'est ton dernier Pokémon : garde-le dans l'équipe.";
 const actif = "Il faut au moins 1 Pokémon actif dans l'équipe.";
+
+it('relâche un lot atomiquement et rend les pierres sans compter les doublons', () => {
+  const entree = region(undefined, [{ ...pokemon('x'), pierreEternelle: true }, pokemon('y'), { ...pokemon('f'), favori: true }]);
+  figer(entree);
+  for (const uids of [[], ['x', '?'], ['x', 'a'], ['x', 'f']]) expect(relacherLot(entree, uids).ok).toBe(false);
+  expect(relacherLot(entree, [])).toEqual({ ok: false, raison: 'Aucun Pokémon sélectionné.' });
+  const resultat = relacherLot(entree, ['x', 'x', 'y']);
+  expect(resultat).toEqual({ ok: true, region: { ...entree, pc: [entree.pc[2]], inventaire: { everstone: 1 } } });
+  expect(relacherPokemon(entree, 'x')).toEqual({ ok: true, region: { ...entree, pc: entree.pc.slice(1), inventaire: { everstone: 1 } } });
+  expect(relacherPokemon(entree, '?').ok).toBe(false);
+});
 
 describe('règles d’équipe', () => {
   it.each(['a', 'pc'])('renomme dans les deux listes : %s, après trim', (uid) => {

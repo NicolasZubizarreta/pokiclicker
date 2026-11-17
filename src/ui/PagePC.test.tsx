@@ -261,6 +261,41 @@ const basculerFavori = vi.fn((uid: string): string | null => {
   storeJeu.setState({ pc: storeJeu.getState().pc.map(p => p.uid === uid ? { ...p, favori: !p.favori } : p) });
   return null;
 });
+const relacherLot = vi.fn<(uids: string[]) => string | null>(() => null);
+
+it.each([false, true])('sélection et confirmation prudente, téléphone : %s', mobile => {
+  if (mobile) enTelephone();
+  render(<PagePC />);
+  fireEvent.click(screen.getByRole('button', { name: 'Relâcher' }));
+  expect((screen.getByRole('button', { name: 'Relâcher la sélection' }) as HTMLButtonElement).disabled).toBe(true);
+  const favori = cartes().find(c => c.getAttribute('aria-disabled') === 'true')!;
+  expect(within(favori).getByText('Favori verrouillé')).toBeTruthy();
+  fireEvent.click(favori);
+  expect(screen.getByText('Aucun Pokémon sélectionné')).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: 'Boule, niveau 20' }));
+  fireEvent.click(cartes().find(c => c.getAttribute('aria-label') === 'Pikachu, niveau 8')!);
+  expect(screen.getByText('2 Pokémon sélectionnés')).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: 'Relâcher la sélection' }));
+  const dialogue = screen.getByRole('dialog');
+  expect(within(dialogue).getByText('Relâcher 2 Pokémon ?')).toBeTruthy();
+  expect(within(dialogue).getByText('Attention : 1 shiny en fait partie.')).toBeTruthy();
+  fireEvent.click(within(dialogue).getByRole('button', { name: 'Annuler' }));
+  expect(relacherLot).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole('button', { name: 'Relâcher la sélection' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Relâche définitivement' }));
+  expect(relacherLot.mock.calls[0]![0].sort()).toEqual(['electrode', 'pikachu']);
+  expect(screen.queryByText('2 Pokémon sélectionnés')).toBeNull();
+});
+
+it('ne compte que les Pokémon visibles non favoris', () => {
+  render(<PagePC />);
+  fireEvent.click(screen.getByRole('button', { name: 'Relâcher' }));
+  fireEvent.change(screen.getByLabelText('Filtre'), { target: { value: 'shiny' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Tout sélectionner' }));
+  expect(screen.getByText('1 Pokémon sélectionné')).toBeTruthy();
+  fireEvent.change(screen.getByLabelText('Filtre'), { target: { value: 'favori' } });
+  expect(screen.getByText('Aucun Pokémon sélectionné')).toBeTruthy();
+});
 
 beforeEach(() => {
   vi.spyOn(HTMLElement.prototype, 'getClientRects').mockReturnValue({ length: 1 } as DOMRectList);
@@ -272,7 +307,7 @@ beforeEach(() => {
   });
   vi.clearAllMocks();
   storeJeu.setState({ equipe: [caseDe({ ...base, uid: 'e1' }), caseDe({ ...base, uid: 'e2' }), null, null, null, null],
-    echange: null, annulerEchange, placerDansEquipe, echanger, basculerFavori });
+    echange: null, annulerEchange, placerDansEquipe, echanger, basculerFavori, relacherLot });
 });
 afterEach(() => vi.restoreAllMocks());
 

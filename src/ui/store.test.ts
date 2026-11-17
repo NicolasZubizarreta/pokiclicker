@@ -311,6 +311,22 @@ it.each(['relacher', 'envoyerAuPc'] as const)('%s recalcule le combat et récomp
   expect(region.pc.find(p => p.uid === 'retire')?.xp).toBe(action === 'envoyerAuPc' ? 0 : undefined);
 });
 
+it('relâche seulement le lot choisi, protège les favoris et restitue la Pierre Stase', () => {
+  const { store, stockage } = preparerRegion(region => ({ ...region, pc: [
+    { ...region.equipe[0]!, uid: 'x', pierreEternelle: true, favori: false },
+    { ...region.equipe[0]!, uid: 'y', favori: false },
+    { ...region.equipe[0]!, uid: 'f', favori: true },
+  ], inventaire: { everstone: 2 } }));
+  const avant = store.getState().pc;
+  expect(store.getState().relacherLot(['x', 'f'])).toBeTruthy();
+  expect(store.getState().pc).toBe(avant);
+  expect(store.getState().relacherLot(['x', 'y'])).toBeNull();
+  expect(store.getState().pc.map(p => p.uid)).toEqual(['f']);
+  const sauvegarde = JSON.parse(stockage.lire('pokiclicker:region:test:kanto')!).donnees as DonneesRegion;
+  expect(sauvegarde.inventaire.everstone).toBe(3);
+  store.getState().fermer();
+});
+
 it('refuse le dernier Pokémon et les actions invalides sans sauvegarde ni changement d’équipe', () => {
   const { store, stockage } = preparerRegion(region => ({ ...region, equipe: [region.equipe[0]!] }));
   const avant = store.getState().equipe;

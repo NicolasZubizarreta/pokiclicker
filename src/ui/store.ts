@@ -155,6 +155,7 @@ export type AffichageJeu = ActionsCasino & {
   renommer(uid: string, texte: string): string | null;
   basculerFavori(uid: string): string | null;
   relacher(uid: string): string | null;
+  relacherLot(uids: string[]): string | null;
   envoyerAuPc(uid: string): string | null;
   placerDansEquipe(uidPc: string): string | null;
   echanger(uidPc: string, uidEquipe: string): string | null;
@@ -1186,7 +1187,8 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     },
     renommer: (uid, texte) => modifierEquipe(region => equipe.renommer(region, uid, texte)),
     basculerFavori: uid => modifierEquipe(region => equipe.basculerFavori(region, uid)),
-    relacher: uid => modifierEquipe(region => equipe.relacher(region, uid)),
+    relacher: uid => modifierEquipe(region => equipe.relacherPokemon(region, uid)),
+    relacherLot: uids => modifierEquipe(region => equipe.relacherLot(region, uids)),
     envoyerAuPc: uid => modifierEquipe(region => equipe.envoyerAuPc(region, uid), undefined, false, 'pc'),
     placerDansEquipe: uid => modifierEquipe(region => equipe.placerDansEquipe(region, uid), uid, false, 'pc'),
     echanger: (uidPc, uidEquipe) => modifierEquipe(region => equipe.echanger(region, uidPc, uidEquipe), undefined, true, 'pc'),
