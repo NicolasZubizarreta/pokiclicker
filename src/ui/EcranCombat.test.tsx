@@ -388,7 +388,7 @@ it('affiche les niveaux, DPS et XP accessibles de chaque rang d’équipe', () =
 it('n’affiche plus l’annonce du store dans la scène : elle passe par le calque de notifications', () => {
   preparer();
   expect(screen.queryByRole('status')).toBeNull();
-  const annonce = 'Salamèche passe au niveau 6 ! Chromatique ! +5 Bonbons';
+  const annonce = 'Salamèche passe au niveau 6 ! Chromatique ! +2 Super Bonbons';
   const avant = document.body.innerHTML;
   act(() => store.setState({ annonce }));
   expect(screen.queryByText(annonce)).toBeNull();

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { MULTIPLICATEUR_OR_V2 } from '../../tests/ecarts-v1';
+import { bonbonsAttendusV2, MULTIPLICATEUR_OR_V2 } from '../../tests/ecarts-v1';
 import references from '../../tests/fixtures/v1-recompenses.json';
 import { appliquerVictoire, calculerMaxXp, calculerOr, calculerXp,
   delaiEnnemiSuivant } from './recompenses';
@@ -34,8 +34,8 @@ describe('Fidélité stricte des récompenses à la V1', () => {
     expect(region.equipe.map(({ niveau, xp, bonheur }) => ({ niveau, xp, bonheur })))
       .toEqual(scenario.equipeApres);
     expect(region.argent).toEqual(scenario.or * MULTIPLICATEUR_OR_V2);
-    expect(bonbons).toEqual(scenario.bonbons);
-    expect(region.inventaire.bonbon ?? 0).toEqual(scenario.bonbons);
+    expect(bonbons).toEqual(bonbonsAttendusV2(scenario.bonbons));
+    expect(region.inventaire.bonbon ?? 0).toEqual(bonbonsAttendusV2(scenario.bonbons));
     expect(region.statistiques.eliminations).toEqual(scenario.eliminations);
     expect(region.statistiques.argentTotalGagne).toEqual(scenario.argentTotalGagne * MULTIPLICATEUR_OR_V2);
   });

@@ -116,17 +116,17 @@ test('Objet trop cher : achat désactivé sans texte superflu', async ({ page })
   await expect(page.getByText(/manque|panier|Prépare/)).toHaveCount(0);
 });
 
-test('Bonbon : annulation puis deux niveaux', async ({ page }, informations) => {
+test('Super Bonbon : annulation puis deux niveaux', async ({ page }, informations) => {
   await demarrer(page);
   const sac = await ouvrirSac(page);
-  await sac.getByRole('button', { name: 'Bonbon ×5', exact: true }).click();
-  const message = page.getByText(/^Bonbon ×\d+ : touche un Pokémon$/);
+  await sac.getByRole('button', { name: 'Super Bonbon ×5', exact: true }).click();
+  const message = page.getByText(/^Super Bonbon ×\d+ : touche un Pokémon$/);
   await expect(message).toBeVisible();
   // Téléphone et PC : Fermer rouvre le Sac, là où l'on était.
   await page.getByRole('button', { name: 'Fermer', exact: true }).click();
   await expect(message).toHaveCount(0);
-  await expect(sac.getByRole('button', { name: 'Bonbon ×5', exact: true })).toBeVisible();
-  await sac.getByRole('button', { name: 'Bonbon ×5', exact: true }).click();
+  await expect(sac.getByRole('button', { name: 'Super Bonbon ×5', exact: true })).toBeVisible();
+  await sac.getByRole('button', { name: 'Super Bonbon ×5', exact: true }).click();
   await expect(message).toBeVisible();
   const bulbizarre = page.getByRole('button', { name: 'Bulbizarre, niveau 5', exact: true });
   await bulbizarre.click();
@@ -138,6 +138,6 @@ test('Bonbon : annulation puis deux niveaux', async ({ page }, informations) => 
   await page.getByRole('button', { name: 'Équipe', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Bulbizarre, niveau 7', exact: true })).toBeVisible();
   const sacApres = await ouvrirSac(page);
-  await expect(sacApres.getByRole('button', { name: 'Bonbon ×3', exact: true })).toBeVisible();
+  await expect(sacApres.getByRole('button', { name: 'Super Bonbon ×3', exact: true })).toBeVisible();
   await capturer(page, 'sac', informations.project.name);
 });

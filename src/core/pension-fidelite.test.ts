@@ -1,4 +1,6 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+import { ECART_CHANCE_SHINY_PENSION_V1 } from '../../tests/ecarts-v1';
+import { reglages } from './reglages';
 import fixture from '../../tests/fixtures/v1-pension.json';
 import { formeDeBase } from './evolution';
 import { chancePonte, pondre, tirerOeuf } from './pension';
@@ -7,6 +9,11 @@ import type { PokemonPossede } from './sauvegarde-types';
 import { sexeEspece } from './sexe';
 import { acheterEmplacementOeuf, deposerParent, prendreOeuf, prixEmplacementOeuf, retirerParent } from './pension';
 import { appliquerVictoire } from './recompenses';
+
+// 17/11/2026 (ticket R) : la chance de shiny à la ponte change ; les tirages de la V1 se rejouent avec l'ancienne valeur.
+const chanceShinyActuelle = reglages.pension.chanceShiny;
+beforeAll(() => { reglages.pension.chanceShiny = ECART_CHANCE_SHINY_PENSION_V1; });
+afterAll(() => { reglages.pension.chanceShiny = chanceShinyActuelle; });
 
 const cheminGraine = new URL('../../scripts/lib/graine.mjs', import.meta.url).href;
 const { graine } = await import(/* @vite-ignore */ cheminGraine) as {

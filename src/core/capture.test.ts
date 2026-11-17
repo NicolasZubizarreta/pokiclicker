@@ -129,15 +129,15 @@ describe('capture réussie', () => {
     expect(alea).toHaveBeenCalledTimes(1);
     expect(genererId).toHaveBeenCalledTimes(1);
   });
-  it('applique les bonus d’or, le facteur chromatique et les cinq bonbons sans XP', () => {
+  it('applique les bonus d’or, le facteur chromatique et les deux Super Bonbons sans XP', () => {
     const avant = region();
     const copie = structuredClone(avant);
     const shiny = { ...prise, shiny: true };
     const actifs = ['badge:prisme', 'objet:amuletCoin'];
     const resultat = appliquerCapture(avant, shiny, actifs, () => 0, () => 'shiny');
     expect(resultat.region.argent).toBe(100 + calculerOr(prise, actifs) * 2 * 5);
-    expect(resultat.bonbons).toBe(5);
-    expect(resultat.region.inventaire.bonbon).toBe(8);
+    expect(resultat.bonbons).toBe(2);
+    expect(resultat.region.inventaire.bonbon).toBe(5);
     expect(resultat.region.equipe.slice(0, 5)).toEqual(avant.equipe);
     expect(resultat.region.statistiques).toEqual(avant.statistiques);
     expect(avant).toEqual(copie);

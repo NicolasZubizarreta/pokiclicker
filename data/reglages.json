@@ -16,7 +16,7 @@
     "emplacementsMax": 5, "prixParEmplacement": 5000, "pasEclosion": 25,
     "bonheurNaissance": 125, "metamorph": 132, "especesTirees": 151,
     "chances": { "metamorph": 0.04, "memeEspece": 0.04, "typePartage": 0.02 },
-    "chanceShiny": 0.125,
+    "chanceShiny": 0.0625,
     "marqueEclosion": 0.05,
     "messages": {
       "pleine": "La pension est pleine.",
@@ -61,7 +61,7 @@
     "objets": ["xAttack", "xSpecial", "pokeDoll", "everstone", "calcium", "pomegBerry", "fireStone", "waterStone", "leafStone", "thunderStone", "moonStone", "shinyToken"]
   },
   "boutique": {
-    "inflationParBadge": 0.05, "palierRemise": 70, "remise": 0.85, "quantiteMax": 99,
+    "inflationParBadge": 0.20, "palierRemise": 70, "remise": 0.85, "quantiteMax": 99,
     "reportes": []
   },
   "objetsActifs": {
@@ -131,7 +131,7 @@
     "clicPartDps": 0.002,
     "pvParNiveau": 2,
     "pvBoss": 4,
-    "chanceShiny": 0.00390625,
+    "chanceShiny": 0.001953125,
     "shiny": [{ "cle": "objet:shinyCharm", "x": 3 }, { "cle": "jalon:151", "x": 2 }],
     "clicsMaxParSeconde": 12,
     "fenetreClicsMs": 1000,
@@ -193,7 +193,7 @@
       "bonus": [ { "cle": "objet:expShare", "x": 1.5, "arrondi": true }, { "cle": "objet:luckyEgg", "x": 1.5, "arrondi": true },
         { "cle": "objet:omniExp", "x": 2, "arrondi": true }, { "cle": "badge:ame", "x": 1.5, "arrondi": true } ]
     },
-    "shiny": { "objet": "bonbon", "quantite": 5 },
+    "shiny": { "objet": "bonbon", "quantite": 2 },
     "maxXp": { "coef": 50, "exposant": 2.2, "faible": { "sous": 100, "x": 0.8 }, "fort": { "dessus": 180, "x": 1.2 } },
     "bonheur": { "gain": 1, "gainBaie": 2, "max": 255, "ecartMax": 25 }
   },
@@ -205,7 +205,7 @@
   "degats": {
     "calciumMax": 10,
     "diviseurNiveau": 5,
-    "shiny": 1.5,
+    "shiny": 1.25,
     "bonheurParPoint": 0.001,
     "pierreEternelle": 1.25,
     "calciumParBoost": 0.02

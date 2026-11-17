@@ -37,7 +37,7 @@ describe('DPS de la V1', () => {
   const base = { numero: 25, niveau: 10 };
   it.each([
     [base, 160],
-    [{ ...base, shiny: true }, 240],
+    [{ ...base, shiny: true }, 200], // 160 × 1,25 (ticket R ; V1 : 1,5)
     [{ ...base, bonheur: 100 }, 176],
     [{ ...base, calcium: 5 }, 176],
     [{ ...base, pierreEternelle: true }, 200],
@@ -52,10 +52,10 @@ describe('DPS de la V1', () => {
   });
 
   it('combine les bonus de Rattata sans arrondir le DPS', () => {
-    // 63 × 20 / 5 × 1,5 × 1,05 × 1,25 × 1,2 = 595,35.
+    // 63 × 20 / 5 × 1,25 × 1,05 × 1,25 × 1,2 = 496,125 (V1 : shiny 1,5, soit 595,35).
     expect(calculerDps({
       numero: 19, niveau: 20, shiny: true, bonheur: 50, calcium: 10, pierreEternelle: true,
-    }, catalogue, surcharges)).toBeCloseTo(595.35, 12);
+    }, catalogue, surcharges)).toBeCloseTo(496.125, 12);
   });
 
   it('utilise le catalogue et les surcharges par défaut', () => {

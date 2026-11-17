@@ -16,7 +16,7 @@ describe('casino : données et accès', () => {
     expect(c.symboles.map(s => s.gain)).toEqual([500, 50, 25, 15, 2]); // écart voulu du ticket B (tests/ecarts-v1.ts)
     expect(c.animation).toEqual(fixture.animation);
     expect(c.boutique).toEqual(fixture.constantes.boutique);
-    expect(c.noms).toEqual(fixture.constantes.noms);
+    expect(c.noms).toEqual({ ...fixture.constantes.noms, candy: 'Super Bonbon' }); // renommage du ticket R
     expect(c.symboles.every(s => s.image === null || !s.image.includes('://'))).toBe(true);
     c.symboles[0]!.poids = 99;
     expect(chargerCasino().symboles[0]!.poids).toBe(1);

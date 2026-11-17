@@ -169,7 +169,7 @@ describe('boutique et sac du store', () => {
     persiste.region.jalonsRecus = [70];
     const boutique = afficherBoutique(persiste.region, null);
     const base = chargerObjets().find(o => o.id === 'pokeball')!.prix;
-    expect(boutique.objets.find(o => o.id === 'pokeball')!.prix).toBe(Math.floor(Math.floor(base * 1.05) * 0.85));
+    expect(boutique.objets.find(o => o.id === 'pokeball')!.prix).toBe(Math.floor(Math.floor(base * (1 + reglages.boutique.inflationParBadge)) * 0.85));
     expect(afficherSac(persiste.region, null).entrees.find(o => o.id === 'protein')).toMatchObject({ actif: true, utilisable: null });
   });
 });

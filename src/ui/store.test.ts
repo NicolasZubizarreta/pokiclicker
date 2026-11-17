@@ -521,17 +521,17 @@ it('expose un maximum d’XP nul au niveau 100', () => {
   expect(store.getState().equipe[0]!.xpMax).toBe(0);
 });
 
-it.each([false, true])('accorde cinq bonbons au shiny et joint les annonces si montée : %s', montee => {
+it.each([false, true])('accorde deux Super Bonbons au shiny et joint les annonces si montée : %s', montee => {
   const partie = preparerRegion(region => ({ ...region, equipe: [{ ...region.equipe[0]!,
     surnom: 'Compagnon', xp: montee ? calculerMaxXp(region.equipe[0]!.numero, region.equipe[0]!.niveau) - 1 : 0 }] }), () => 0);
   expect(partie.store.getState().ennemi?.shiny).toBe(true);
   const niveau = partie.store.getState().equipe[0]!.pokemon.niveau;
   vaincre(partie);
   expect(partie.store.getState().annonce).toBe(montee
-    ? `Compagnon passe au niveau ${niveau + 1} ! · Chromatique ! +5 Bonbons` : 'Chromatique ! +5 Bonbons');
+    ? `Compagnon passe au niveau ${niveau + 1} ! · Chromatique ! +2 Super Bonbons` : 'Chromatique ! +2 Super Bonbons');
   partie.store.getState().fermer();
   const region = JSON.parse(partie.stockage.lire('pokiclicker:region:test:kanto')!).donnees;
-  expect(region.inventaire.bonbon).toBe(5);
+  expect(region.inventaire.bonbon).toBe(2);
 });
 
 it('démarre et sauvegarde une nouvelle partie sans randomUUID', () => {

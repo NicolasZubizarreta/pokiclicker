@@ -12,12 +12,12 @@ const zone: Parameters<typeof creerEnnemi>[0] = {
 describe('chance de shiny', () => {
   it.each([
     { actifs: [], tirage: 0.01, shiny: false },
-    { actifs: ['objet:shinyCharm'], tirage: 0.01, shiny: true },
-    { actifs: ['jalon:151'], tirage: 0.007, shiny: true },
-    { actifs: ['jalon:151'], tirage: 0.01, shiny: false },
-    { actifs: ['jalon:151', 'objet:shinyCharm'], tirage: 0.0117, shiny: true },
-    { actifs: ['objet:shinyCharm', 'jalon:151'], tirage: 0.0117, shiny: true },
-    { actifs: ['objet:shinyCharm', 'jalon:151'], tirage: 0.02, shiny: false },
+    { actifs: ['objet:shinyCharm'], tirage: 0.005, shiny: true },
+    { actifs: ['jalon:151'], tirage: 0.003, shiny: true },
+    { actifs: ['jalon:151'], tirage: 0.005, shiny: false },
+    { actifs: ['jalon:151', 'objet:shinyCharm'], tirage: 0.0058, shiny: true },
+    { actifs: ['objet:shinyCharm', 'jalon:151'], tirage: 0.0058, shiny: true },
+    { actifs: ['objet:shinyCharm', 'jalon:151'], tirage: 0.01, shiny: false },
   ])('$actifs, tirage $tirage → shiny $shiny', ({ actifs, tirage, shiny }) => {
     const alea = vi.fn(() => tirage);
     const options = structuredClone(reglages.combat);

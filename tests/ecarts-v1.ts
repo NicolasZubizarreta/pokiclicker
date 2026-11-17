@@ -1,8 +1,10 @@
 // Écarts voulus avec la V1 (rapports de Nicolas du 28/10/2026, tickets AA, AB et AC). Les fixtures V1 restent la référence :
 // ces écarts sont les seuls permis dans les tests de fidélité, et chacun est une décision, pas un oubli.
+// 17/11/2026 (ticket R) : le Jeton Shiny coûte 1 000 000 (sans inflation) et l'inflation par badge passe de 0,05 à 0,20.
 // Les pierres (cinq d'évolution et Pierre Stase) coûtent 8 000 de base et gardent l'inflation par badge.
 export const ECARTS_V1: Record<string, { prix?: number; sansInflation?: boolean }> = {
   calcium: { prix: 20000 },
+  shinyToken: { prix: 1000000 },
   fireStone: { prix: 8000 },
   waterStone: { prix: 8000 },
   leafStone: { prix: 8000 },
@@ -10,6 +12,19 @@ export const ECARTS_V1: Record<string, { prix?: number; sansInflation?: boolean 
   moonStone: { prix: 8000 },
   everstone: { prix: 8000 },
 };
+
+// Ticket R : prix d'un consommable soumis à l'inflation (0,20 par badge en V2, 0,05 en V1), remise de 15 % du palier comprise.
+export function prixConsommableV2(prixBase: number, badges: number, palier: boolean): number {
+  const prix = Math.floor(prixBase * (1 + badges * reglages.boutique.inflationParBadge));
+  return palier ? Math.floor(prix * 0.85) : prix;
+}
+
+// Ticket R : chance de shiny à la ponte de la V1 (0,125 ; V2 : 1/16), rejouée par les tests de fidélité de la pension.
+export const ECART_CHANCE_SHINY_PENSION_V1 = 0.125;
+
+// Ticket R (17/11/2026) : bonus de dégâts shiny de la V1 (1,5 ; V2 : 1,25) et bonbons par shiny de la V1 (5 ; V2 : valeur des réglages).
+export const ECART_SHINY_V1 = 1.5;
+export const bonbonsAttendusV2 = (bonbonsV1: number): number => bonbonsV1 > 0 ? reglages.recompenses.shiny.quantite : 0;
 
 // Tickets AB et J : les gains V1 suivent le multiplicateur global ; la capture garde son facteur V1 de 2.
 import { reglages } from '../src/core/reglages';
@@ -48,7 +63,7 @@ export function prixAttendu(source: { id: string; prix: number; type: string; no
   const ecart = ECARTS_V1[source.id];
   const prix = ecart?.prix ?? source.prix;
   const sansInflation = ecart?.sansInflation ?? source.noBadgeInflation;
-  const base = source.type === 'consumable' && !sansInflation ? Math.floor(prix * (1 + badges * 0.05)) : prix;
+  const base = source.type === 'consumable' && !sansInflation ? Math.floor(prix * (1 + badges * reglages.boutique.inflationParBadge)) : prix;
   return palier ? Math.floor(base * 0.85) : base;
 }
 

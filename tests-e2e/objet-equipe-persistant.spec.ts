@@ -21,12 +21,12 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('applications successives, annulation, fermeture, navigation et épuisement', async ({ page }) => {
-  await (await ouvrirSac(page)).getByRole('button', { name: 'Bonbon ×3', exact: true }).click();
+  await (await ouvrirSac(page)).getByRole('button', { name: 'Super Bonbon ×3', exact: true }).click();
   for (const [index, nom] of ['Bulbizarre', 'Salamèche'].entries()) {
     const carte = page.getByRole('button', { name: `${nom}, niveau 16`, exact: true });
     await carte.click();
     await page.getByRole('button', { name: 'Valider', exact: true }).click();
-    await expect(page.getByRole('status').filter({ hasText: 'touche un Pokémon' })).toHaveText(`Bonbon ×${2 - index} : touche un Pokémon`);
+    await expect(page.getByRole('status').filter({ hasText: 'touche un Pokémon' })).toHaveText(`Super Bonbon ×${2 - index} : touche un Pokémon`);
     await expect(page.getByRole('button', { name: `${nom}, niveau 17`, exact: true })).toBeFocused();
   }
   await page.getByRole('button', { name: 'Bulbizarre, niveau 17', exact: true }).click();
@@ -34,21 +34,21 @@ test('applications successives, annulation, fermeture, navigation et épuisement
   await expect(page.locator('dialog[open]')).toHaveCount(0);
   await page.getByRole('button', { name: 'Fermer', exact: true }).click();
   await expect(page.getByRole('dialog', { name: 'Ton Sac' })).toBeVisible();
-  await page.getByRole('button', { name: 'Bonbon ×1', exact: true }).click();
+  await page.getByRole('button', { name: 'Super Bonbon ×1', exact: true }).click();
   await page.getByRole('button', { name: 'Combat', exact: true }).click();
   await page.getByRole('button', { name: 'Équipe', exact: true }).click();
   await expect(page.getByText(/touche un Pokémon/)).toHaveCount(0);
-  await (await ouvrirSac(page)).getByRole('button', { name: 'Bonbon ×1', exact: true }).click();
+  await (await ouvrirSac(page)).getByRole('button', { name: 'Super Bonbon ×1', exact: true }).click();
   await page.getByRole('button', { name: 'Bulbizarre, niveau 17', exact: true }).click();
   await page.getByRole('button', { name: 'Valider', exact: true }).click();
   await expect(page.getByText(/touche un Pokémon/)).toHaveCount(0);
-  await expect(page.locator('[data-notifications]')).toContainText('Plus de Bonbon.');
+  await expect(page.locator('[data-notifications]')).toContainText('Plus de Super Bonbon.');
 });
 
 test('dimensions calculées des confirmations et des sélecteurs', async ({ page }, informations) => {
   for (const largeur of informations.project.name === 'pc' ? [1024, 1280, 1440, 1920, 2560] : [390]) {
     await page.setViewportSize({ width: largeur, height: 900 });
-    for (const objet of ['Jeton Shiny ×2', 'Bonbon ×3']) {
+    for (const objet of ['Jeton Shiny ×2', 'Super Bonbon ×3']) {
       await (await ouvrirSac(page)).getByRole('button', { name: objet, exact: true }).click();
       await page.getByRole('button', { name: 'Bulbizarre, niveau 16', exact: true }).click();
       const groupe = page.getByRole('group', { name: objet.startsWith('Jeton') ? 'Utiliser Jeton Shiny sur Bulbizarre ?' : 'Quantité', exact: true });

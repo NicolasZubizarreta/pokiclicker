@@ -45,11 +45,11 @@ it('ferme le Centre en zone 10 avec la raison et refuse tout achat sans mutation
   expect(store.getState()).toBe(avant);
 });
 
-it('ouvre les 12 objets dans l’ordre prévu et calcule Attaque + à 8 625 avec trois badges', () => {
+it('ouvre les 12 objets dans l’ordre prévu et calcule Attaque + à 12 000 avec trois badges', () => {
   const { store } = preparer();
   expect(store.getState().centre.acces).toEqual({ ouvert: true, raison: null });
   expect(store.getState().centre.objets.map(objet => objet.id)).toEqual(ordreV1);
-  expect(store.getState().centre.objets[0]).toMatchObject({ nom: 'Attaque +', prix: 8625,
+  expect(store.getState().centre.objets[0]).toMatchObject({ nom: 'Attaque +', prix: 12000,
     stock: 2, possede: false, unique: false, abordable: true });
 });
 
@@ -61,12 +61,12 @@ it('relève les achats du Centre et l’usage réussi d’Attaque +', () => {
   const journal = store.getState().exporterJournal()!;
   const actions = journal.zones[journal.zoneCourante!]!.visites.at(-1)!.actions;
   expect(actions).toEqual([
-    expect.objectContaining({ type: 'achat', objet: 'xAttack', quantite: 1, prix: 8625, soldeApres: 91375 }),
-    expect.objectContaining({ type: 'objet', objet: 'xAttack', quantite: 1, soldeApres: 91375 }),
+    expect.objectContaining({ type: 'achat', objet: 'xAttack', quantite: 1, prix: 12000, soldeApres: 88000 }),
+    expect.objectContaining({ type: 'objet', objet: 'xAttack', quantite: 1, soldeApres: 88000 }),
   ]);
 });
 
-it.each([[0, false, 500], [8, false, 700], [8, true, 595]] as const)(
+it.each([[0, false, 500], [8, false, 1300], [8, true, 1105]] as const)(
   'vend la baie avec %i badges et remise %s au prix de %i', (badges, remise, prix) => {
     const { store, ouvrir } = preparer(region => ({ ...region,
       badges: Array.from({ length: badges }, (_, i) => `badge-${i}`),
@@ -89,12 +89,12 @@ it('achète, annonce et conserve argent et stock dans un nouveau store avec le m
   expect(store.getState().acheter('xAttack', 1)).toBeNull();
   expect(store.getState().centre).not.toBe(avant);
   expect(store.getState().centre.objets[0]!.stock).toBe(3);
-  expect(store.getState().argent).toBe(100000 - 8625);
-  expect(store.getState().annonce).toBe(`Attaque + ×1 acheté. ${(8625).toLocaleString('fr-FR')}\u00a0₽ dépensés.`);
+  expect(store.getState().argent).toBe(100000 - 12000);
+  expect(store.getState().annonce).toBe(`Attaque + ×1 acheté. ${(12000).toLocaleString('fr-FR')}\u00a0₽ dépensés.`);
   store.getState().arreter();
   const recharge = ouvrir().getState();
   expect(recharge.centre.objets[0]!.stock).toBe(3);
-  expect(recharge.argent).toBe(100000 - 8625);
+  expect(recharge.argent).toBe(100000 - 12000);
   expect(avant.objets[0]!.stock).toBe(2);
 });
 

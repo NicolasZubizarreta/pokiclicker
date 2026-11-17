@@ -401,19 +401,19 @@ En tant que joueur, je veux trouver le centre commercial dans la navigation des 
 
 ## R. `fix(equilibrage): shiny moins faciles, Super Bonbon plus rare et inflation à 0,20`
 
-`type:fix`, `etat:a_faire`, `est:1-1.5`, `prio:1` · branche : `v2` · pas d'`agent-ok` (règles de jeu, valeurs fixées par Nicolas le 17/11)
+`type:fix`, `etat:fait`, `est:1-1.5`, `prio:1` · branche : `v2` · pas d'`agent-ok` (règles de jeu, valeurs fixées par Nicolas le 17/11)
 
 ### Histoire
 En tant que joueur, je veux que les shiny restent rares et que l'XP serve, afin que le jeu dure.
 
 ### Critères d'acceptation
-- [ ] Étant donné `data/reglages.json`, quand les valeurs sont appliquées, alors `degats.shiny` passe de 1,5 à 1,25, `combat.chanceShiny` de 1/256 à 1/512, `pension.chanceShiny` de 0,125 à 0,0625, et `boutique.inflationParBadge` de 0,05 à 0,20.
-- [ ] Étant donné `data/objets.json`, quand le Jeton Shiny s'affiche, alors son prix de base est 1 000 000 (toujours sans inflation).
-- [ ] Étant donné le butin d'un shiny, quand il est donné, alors il vaut 2 Super Bonbons au lieu de 5 (les deux entrées « shiny » de `reglages.json` sont lues et la bonne est changée).
-- [ ] Étant donné l'objet « Bonbon », quand il s'affiche (boutique, sac, butin, casino, jalons), alors il s'appelle « Super Bonbon » partout, sans changer son identifiant.
-- [ ] Étant donné les textes qui citent ces valeurs, quand ils s'affichent, alors ils sont à jour.
-- [ ] Étant donné le simulateur, quand `node scripts/simuler-parcours.mjs --clics 7` tourne avant et après, alors le temps de la Ligue des deux passes est donné à Nicolas.
-- [ ] Étant donné les tests de fidélité à la V1 qui lisent ces valeurs, quand ils tournent, alors ils sont mis à jour, et `tsc -b`, eslint, vitest et e2e sont verts.
+- [x] Étant donné `data/reglages.json`, quand les valeurs sont appliquées, alors `degats.shiny` passe de 1,5 à 1,25, `combat.chanceShiny` de 1/256 à 1/512, `pension.chanceShiny` de 0,125 à 0,0625, et `boutique.inflationParBadge` de 0,05 à 0,20.
+- [x] Étant donné `data/objets.json`, quand le Jeton Shiny s'affiche, alors son prix de base est 1 000 000 (toujours sans inflation).
+- [x] Étant donné le butin d'un shiny, quand il est donné, alors il vaut 2 Super Bonbons au lieu de 5 (les deux entrées « shiny » de `reglages.json` sont lues et la bonne est changée).
+- [x] Étant donné l'objet « Bonbon », quand il s'affiche (boutique, sac, butin, casino, jalons), alors il s'appelle « Super Bonbon » partout, sans changer son identifiant.
+- [x] Étant donné les textes qui citent ces valeurs, quand ils s'affichent, alors ils sont à jour.
+- [x] Étant donné le simulateur, quand `node scripts/simuler-parcours.mjs --clics 7` tourne avant et après, alors le temps de la Ligue des deux passes est donné à Nicolas. **Résultat (17/11)** : avant, Ligue gagnée en 4,0 min (420,6 min de jeu au total) ; après, la Ligue n'est plus atteinte : le simulateur est bloqué à la Centrale après 120 min (288,6 min de jeu, 4 badges, 48/151 espèces). À examiner par Nicolas : l'inflation à 0,20 ou la perte des Super Bonbons du butin shiny pèse sur le joueur simulé.
+- [x] Étant donné les tests de fidélité à la V1 qui lisent ces valeurs, quand ils tournent, alors ils sont mis à jour, et `tsc -b`, eslint, vitest et e2e sont verts (e2e `objet-equipe-persistant` rouge avant comme après sur `v2` : le clic sur l'onglet Équipe expire ; `boutique` vert).
 
 ### Effort et risques
 1 à 1,5 jour. Risque : l'équilibrage global bouge (le simulateur mesure).

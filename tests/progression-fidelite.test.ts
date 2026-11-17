@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import fixture from './fixtures/v1-badges.json';
-import { chanceCaptureAttendueV2, MULTIPLICATEUR_OR_V2 } from './ecarts-v1';
+import { chanceCaptureAttendueV2, MULTIPLICATEUR_OR_V2, prixConsommableV2 } from './ecarts-v1';
 import donneesZones from '../data/regions/kanto/zones.json';
 import { actifsDe, accorderJalons, badgeDeZone, chargerBadges, chargerJalons } from '../src/core/progression';
 import { calculerClic, calculerDpsEquipe } from '../src/core/combat';
@@ -38,7 +38,7 @@ const corrections: Record<string, string> = {
   'Vitesse de spawn +20%': "Vitesse d'apparition +20%",
   'Spawn +20%': 'Apparition +20%', '+2,500 $P': '+2 500\u00a0₽',
   'Jeton Brillant': 'Jeton Shiny', 'Kanto Master': 'Maître de Kanto',
-  'Shop -15%': 'Boutique -15%',
+  'Shop -15%': 'Boutique -15%', 'Master Ball + 10 Bonbons': 'Master Ball + 10 Super Bonbons',
 };
 const corriger = (texte: string) => corrections[texte] ?? texte;
 
@@ -60,7 +60,8 @@ describe('progression : fidélité V1 de bout en bout', () => {
       .toBeCloseTo(chanceCaptureAttendueV2(jeu.chance, cible.level), 9);
     expect(delaiEnnemiSuivant(actifs)).toBe(jeu.delai);
     expect(prixObjet(objet, { badges: entree.badges.length,
-      palier: entree.jalonsRecus.includes(70) })).toBe(jeu.prix);
+      palier: entree.jalonsRecus.includes(70) }))
+      .toBe(prixConsommableV2(objet.prix, entree.badges.length, entree.jalonsRecus.includes(70)));
     expect(entree).toEqual(avant);
   });
 
@@ -114,9 +115,10 @@ describe('progression : fidélité V1 de bout en bout', () => {
     const reference = fixture.jeux.find(j => j.badges[0] === 'prisme')!;
     const sansPalier = region(reference.badges);
     const avecPalier = region(reference.badges, [70]);
-    expect(prixObjet(objet, { badges: sansPalier.badges.length, palier: false })).toBe(reference.prix);
+    expect(prixObjet(objet, { badges: sansPalier.badges.length, palier: false }))
+      .toBe(prixConsommableV2(objet.prix, sansPalier.badges.length, false));
     expect(prixObjet(objet, { badges: avecPalier.badges.length,
-      palier: avecPalier.jalonsRecus.includes(70) })).toBe(Math.floor(reference.prix * 0.85));
+      palier: avecPalier.jalonsRecus.includes(70) })).toBe(prixConsommableV2(objet.prix, avecPalier.badges.length, true));
     for (const entree of [sansPalier, avecPalier]) {
       expect(calculerOr(victoire, actifsDe(entree))).toBe(reference.or.sauvage * MULTIPLICATEUR_OR_V2);
       expect(calculerOr({ ...victoire, boss: true }, actifsDe(entree))).toBe(reference.or.boss * MULTIPLICATEUR_OR_V2);

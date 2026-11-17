@@ -357,7 +357,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         if (evenement.shiny) important = true;
         noterDansPokedex(evenement.numero, messagesCapture);
         if (resultat.destination === 'pc') messagesCapture.push(`${catalogue.parNumero(evenement.numero).nom} est envoyé au PC.`);
-        if (resultat.bonbons > 0) messagesCapture.push(`Chromatique ! +${resultat.bonbons} Bonbons`);
+        if (resultat.bonbons > 0) messagesCapture.push(`Chromatique ! +${resultat.bonbons} Super Bonbons`);
       }
       if (evenement.type === 'ennemi-vaincu') {
         emettreSon('coin');
@@ -383,7 +383,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
           const pokemon = region.equipe.find(p => p.uid === montee.uid)!;
           messages.push(`${nomAffiche(pokemon)} passe au niveau ${montee.niveau} !`);
         } else if (r.montees.length > 1) messages.push(`${r.montees.length} Pokémon montent de niveau !`);
-        if (evenement.shiny) messages.push(`Chromatique ! +${r.bonbons} Bonbons`);
+        if (evenement.shiny) messages.push(`Chromatique ! +${r.bonbons} Super Bonbons`);
         if (combatEvenement) sauvegarder = true;
         if (!combatEvenement && evenement.boss && estZoneDeLigue(coeur.zone)) {
           const message = messageEnchainement(coeur.zone, evenement.etape);

@@ -1,7 +1,7 @@
 import { expect, it } from 'vitest';
 import fixture from '../../tests/fixtures/v1-centre.json';
 import objetsV1 from '../../tests/fixtures/v1-objets.json';
-import { ECARTS_V1, prixAttendu } from '../../tests/ecarts-v1';
+import { prixAttendu } from '../../tests/ecarts-v1';
 import { accesCentre, acheter, chargerObjets, objetsDuCentre, prixObjet } from './boutique';
 import { kanto } from './regions';
 import type { EtatMonde } from './conditions';
@@ -9,10 +9,10 @@ import type { EtatMonde } from './conditions';
 const objets = chargerObjets();
 const etat: EtatMonde = { badges: [], bossVaincus: ['kanto.tour-pokemon'], objets: [], quetes: [], drapeaux: [] };
 
-// Prix attendu : celui de la V1, sauf pour les écarts voulus de `tests/ecarts-v1.ts` (calcium, pierres).
-function prixDuCentre(id: string, prixV1: number, badges: number, palier: boolean): number {
+// Prix attendu : celui de la V1, sauf pour les écarts voulus de `tests/ecarts-v1.ts` (calcium, pierres, Jeton Shiny, inflation par badge).
+function prixDuCentre(id: string, badges: number, palier: boolean): number {
   const source = objetsV1.objets.find(objet => objet.id === id)!;
-  return id in ECARTS_V1 ? prixAttendu(source, badges, palier) : prixV1;
+  return prixAttendu(source, badges, palier);
 }
 
 it('conserve l’ordre et chaque prix affiché du Centre V1, aux écarts voulus près', () => {
@@ -20,7 +20,7 @@ it('conserve l’ordre et chaque prix affiché du Centre V1, aux écarts voulus 
   expect(catalogue.map(objet => objet.id)).toEqual(fixture.ordre);
   for (const cas of fixture.affichage) {
     expect(catalogue.map(objet => ({ id: objet.id, prix: prixObjet(objet, cas) })))
-      .toEqual(cas.objets.map(({ id, prix }) => ({ id, prix: prixDuCentre(id, prix, cas.badges, cas.palier) })));
+      .toEqual(cas.objets.map(({ id }) => ({ id, prix: prixDuCentre(id, cas.badges, cas.palier) })));
   }
 });
 
@@ -30,8 +30,8 @@ it('reproduit les 99 achats V1 sans modifier les entrées', () => {
     const region = { argent: cas.argent, inventaire: { [objet.inventaire!]: 2 }, ameliorations: [] as string[] };
     const avant = structuredClone({ region, objet });
     const achat = acheter(region, objet, 1, prixObjet(objet, { badges: cas.badges, palier: false }));
-    const prix = prixDuCentre(cas.id, cas.argent - cas.argentApres, cas.badges, false);
-    const refuse = cas.id in ECARTS_V1 ? cas.argent < prix : cas.stockApres === 2;
+    const prix = prixDuCentre(cas.id, cas.badges, false);
+    const refuse = cas.argent < prix;
     if (refuse) expect(achat).toEqual({ ok: false, raison: "Pas assez d'argent." });
     else expect(achat).toEqual({ ok: true, region: { ...region, argent: cas.argent - prix,
       inventaire: { [objet.inventaire!]: 3 } } });

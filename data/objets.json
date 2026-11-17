@@ -43,7 +43,7 @@
   },
   {
     "id": "candy",
-    "nom": "Bonbon",
+    "nom": "Super Bonbon",
     "description": "Fait monter un Pokémon de niveau",
     "prix": 5000,
     "type": "consommable",
@@ -255,7 +255,7 @@
     "id": "shinyToken",
     "nom": "Jeton Shiny",
     "description": "Rend chromatique un Pokémon de ton équipe.",
-    "prix": 250000,
+    "prix": 1000000,
     "type": "consommable",
     "zone": null,
     "boutique": "mall",

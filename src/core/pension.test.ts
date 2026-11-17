@@ -122,7 +122,7 @@ describe('pension', () => {
   it('crée un œuf valide sans modifier la région ni ses parents', () => {
     const region = preparer();
     const avant = structuredClone(region);
-    const valeurs = [0, 0.124, 0.6];
+    const valeurs = [0, reglages.pension.chanceShiny - 0.001, 0.6];
     const alea = vi.fn(() => valeurs.shift()!);
     const genererId = vi.fn(() => 'nouvel-oeuf');
     const apres = pondre(region, alea, genererId);
@@ -158,7 +158,7 @@ describe('pension', () => {
     const alea = vi.fn(() => reglages.pension.chances.memeEspece);
     expect(tirerOeuf(parents, alea)).toBeNull();
     expect(alea).toHaveBeenCalledTimes(1);
-    const valeurs = [0, 0.125];
+    const valeurs = [0, reglages.pension.chanceShiny];
     expect(tirerOeuf(parents, () => valeurs.shift()!)).toEqual({ numero: 25, shiny: false });
   });
 

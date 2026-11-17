@@ -79,12 +79,12 @@ describe('Récompenses de victoire', () => {
     expect(resultat.region.equipe.map((membre) => membre.bonheur)).toEqual([255, 255]);
   });
 
-  it.each([undefined, 2])('ajoute cinq bonbons pour un shiny avec un stock initial de %s', (stock) => {
+  it.each([undefined, 2])('ajoute deux Super Bonbons pour un shiny avec un stock initial de %s', (stock) => {
     const entree = region([]);
     if (stock !== undefined) entree.inventaire.bonbon = stock;
     const resultat = appliquerVictoire(entree, { ...victoire, shiny: true });
-    expect(resultat.bonbons).toBe(5);
-    expect(resultat.region.inventaire.bonbon).toBe((stock ?? 0) + 5);
+    expect(resultat.bonbons).toBe(2);
+    expect(resultat.region.inventaire.bonbon).toBe((stock ?? 0) + 2);
     expect(resultat.or).toBe(calculerOr(victoire) * 5);
   });
 
