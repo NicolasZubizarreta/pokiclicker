@@ -508,7 +508,7 @@ Décision de Nicolas (17/11) : on fait ce ticket, mais plus tard ; tout le reste
 
 ## X. `fix(navigation): Pension toujours dans la barre (grisée), raccourcis 7 et 8, centre commercial dans Précédent/Suivant`
 
-`type:fix`, `etat:a_faire`, `est:1-1.5`, `prio:1` · branche : `v2` · `agent-ok` recommandé · reprend O et Q après le test de Nicolas du 17/11
+`type:fix`, `etat:fait`, `est:1-1.5`, `prio:1` · branche : `v2` · `agent-ok` recommandé · reprend O et Q après le test de Nicolas du 17/11
 
 ### Histoire
 En tant que joueur, je veux voir la Pension dans la barre dès le début (grisée tant qu'elle est verrouillée), l'atteindre au clavier avec la touche 7, et passer de Céladopole à la Centrale en traversant le centre commercial avec les boutons Précédent et Suivant de la zone de combat.
@@ -517,13 +517,13 @@ En tant que joueur, je veux voir la Pension dans la barre dès le début (grisé
 Retour de Nicolas (17/11, après avoir joué) : le bouton « Pension » doit toujours figurer dans la barre (O le cachait tant que la pension était fermée) ; les raccourcis clavier doivent être 7 pour la Pension et 8 pour le Menu ; le ticket Q a été compris comme « sur la carte » alors que Nicolas parlait des boutons Précédent et Suivant de l'écran de combat, où Céladopole mène encore directement à la Centrale.
 
 ### Critères d'acceptation
-- [ ] Étant donné la pension non débloquée, quand la barre s'affiche (téléphone et PC), alors le bouton « Pension » est présent, grisé, non activable, et sa raison est lisible comme celle des autres boutons verrouillés du jeu.
-- [ ] Étant donné la pension débloquée, quand la barre s'affiche, alors le bouton est actif, entre « Pokédex » et « Menu ».
-- [ ] Étant donné le clavier, quand j'appuie sur 7, alors la pension s'ouvre (si elle est débloquée) ; sur 8, le Menu s'ouvre ; les touches 1 à 6 ne changent pas. La fenêtre « Raccourcis ? » et les textes qui citent ces touches sont à jour.
-- [ ] Étant donné la zone de combat, quand je suis à l'Arène de Céladopole et que j'appuie sur « Suivant », alors j'arrive au centre commercial, puis « Suivant » depuis le centre mène à la Centrale ; « Précédent » refait le chemin inverse (Centrale, centre commercial, Céladopole).
-- [ ] Étant donné le centre commercial non débloqué, quand je navigue avec Précédent et Suivant, alors il est sauté comme aujourd'hui et aucun bouton n'y mène.
-- [ ] Étant donné la barre à 360, 390 et 1440 px, quand le bouton grisé s'affiche, alors tous les boutons restent lisibles et touchables.
-- [ ] Étant donné les tests, quand `tsc`, eslint, vitest et les e2e ciblés tournent, alors ils sont verts (les tests e2e de la pension, de la navigation et des raccourcis sont adaptés).
+- [x] Étant donné la pension non débloquée, quand la barre s'affiche (téléphone et PC), alors le bouton « Pension » est présent, grisé, non activable, et sa raison est lisible comme celle des autres boutons verrouillés du jeu.
+- [x] Étant donné la pension débloquée, quand la barre s'affiche, alors le bouton est actif, entre « Pokédex » et « Menu ».
+- [x] Étant donné le clavier, quand j'appuie sur 7, alors la pension s'ouvre (si elle est débloquée) ; sur 8, le Menu s'ouvre ; les touches 1 à 6 ne changent pas. La fenêtre « Raccourcis ? » et les textes qui citent ces touches sont à jour.
+- [x] Étant donné la zone de combat, quand je suis à l'Arène de Céladopole et que j'appuie sur « Suivant », alors j'arrive au centre commercial, puis « Suivant » depuis le centre mène à la Centrale ; « Précédent » refait le chemin inverse (Centrale, centre commercial, Céladopole).
+- [x] Étant donné le centre commercial non débloqué, quand je navigue avec Précédent et Suivant, alors il est sauté comme aujourd'hui et aucun bouton n'y mène.
+- [x] Étant donné la barre à 360, 390 et 1440 px, quand le bouton grisé s'affiche, alors tous les boutons restent lisibles et touchables.
+- [x] Étant donné les tests, quand `tsc`, eslint, vitest et les e2e ciblés tournent, alors ils sont verts (les tests e2e de la pension, de la navigation et des raccourcis sont adaptés).
 
 ### Hors périmètre
 Les raccourcis de combat (lettres), la fusion Équipe/PC (U).
