@@ -12,6 +12,7 @@ import { PageCarte } from './PageCentre';
 import { AccueilCasino } from './AccueilCasino';
 import { PagePension } from './PagePension';
 import { FenetreEclosion } from './FenetreEclosion';
+import { FenetreEvolution } from './FenetreEvolution';
 import { PageEquipe } from './PageEquipe';
 import { PagePC } from './PagePC';
 import { PagePlus } from './PagePlus';
@@ -98,6 +99,7 @@ export function Coquille({ region = 'kanto', theme = 'dark', quandMenuPrincipal,
     ancienLieu.current = lieuId;
   }, [lieuId, evenement?.type]);
   const evolution = useStore(storeJeu, etat => etat.evolution);
+  const modalEvolution = useStore(storeJeu, etat => etat.modalEvolution);
   const terminerEtape = useStore(storeJeu, etat => etat.terminerEtape);
   const [introVue, fixerIntroVue] = useState(false);
   if (introActive && !introVue) fixerIntroVue(true);
@@ -135,7 +137,7 @@ export function Coquille({ region = 'kanto', theme = 'dark', quandMenuPrincipal,
       </div>
       {raccourcisOuverts && <FenetreRaccourcis fermer={() => ouvrirRaccourcis(false)} />}
       {/* La Carte reste montée jusqu’à la fin du vol ; l’évolution garde aussi la priorité. */}
-      {!introActive && !introVue && page !== 'Carte' && !evolution && evenement?.type === 'dialogue'
+      {!introActive && !introVue && page !== 'Carte' && !evolution && !modalEvolution && evenement?.type === 'dialogue'
         && (evenement.scene ? <SceneFin key={evenement.evenement} commande={evenement} terminerEtape={terminerEtape} />
           : <DialogueScene commande={evenement} terminerEtape={terminerEtape} />)}
       <ObtentionBadge ouvert={obtentionBadge !== null && obtentionBadge.phase !== 'message'} badges={badges}
@@ -146,6 +148,7 @@ export function Coquille({ region = 'kanto', theme = 'dark', quandMenuPrincipal,
       {!introActive && !introVue && <Tutoriel page={page} aller={aller} />}
       {!introActive && !introVue && <FenetreSac />}
       {!introActive && !introVue && <FenetreEclosion />}
+      {!introActive && !introVue && <FenetreEvolution />}
       {credits && <Credits fermerCredits={() => storeJeu.getState().fermerCredits()} />}
       {pantheon?.ouvert && <Pantheon equipe={pantheon.equipe} premiereVictoire={pantheon.premiereVictoire}
         quitter={() => storeJeu.getState().quitterPantheon()} />}

@@ -52,3 +52,19 @@ describe('LigneCapture', () => {
     expect(ligne.children[ligne.children.length - 2]).toBe(screen.getByRole('button', { name: 'Capturer' }));
   });
 });
+
+describe('balle mémorisée', () => {
+  it('affiche la balle mémorisée et la signale au jeu quand on en change', () => {
+    const choisir = vi.fn();
+    render(<LigneCapture balles={balles} possible raison={null} enCours={false} capturer={vi.fn()} choisie="superball" choisir={choisir} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Balle choisie : Superball, ×3. Toucher pour changer' }));
+    expect(choisir).toHaveBeenCalledWith('pokeball');
+  });
+  it('retombe sur la première balle possédée quand la balle mémorisée n’est plus en stock ou n’existe plus', () => {
+    for (const choisie of ['masterball', 'balle-disparue']) {
+      const { unmount } = render(<LigneCapture balles={balles} possible raison={null} enCours={false} capturer={vi.fn()} choisie={choisie} />);
+      expect(screen.getByRole('button', { name: /Balle choisie : Pokéball, ×2/ })).toBeTruthy();
+      unmount();
+    }
+  });
+});

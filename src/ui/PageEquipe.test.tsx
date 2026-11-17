@@ -392,8 +392,8 @@ function preparerEvolution(p: PokemonPossede = pokemon) {
 it('propose l’évolution au niveau requis, précharge la cible et relaie les refus', () => {
   preparerEvolution();
   const precharger = vi.spyOn(chargement, 'precharger').mockResolvedValue({ charges: 1, echecs: 0 });
-  const evoluer = vi.fn(() => 'Évolution bloquée !');
-  storeJeu.setState({ evoluer });
+  const demanderEvolution = vi.fn(() => 'Évolution bloquée !');
+  storeJeu.setState({ demanderEvolution });
   const { container } = render(<PageEquipe />);
   fireEvent.click(screen.getByRole('button', { name: 'Bourgeon, niveau 16' }));
   const bouton = screen.getByRole('button', { name: /Faire évoluer Bourgeon en/ });
@@ -404,13 +404,13 @@ it('propose l’évolution au niveau requis, précharge la cible et relaie les r
   expect(screen.getByRole('button', { name: /Faire évoluer/ }).closest('dialog')).toBeTruthy();
   expect(precharger).toHaveBeenCalledWith(['img/sprites/pokemon/2.png']);
   fireEvent.click(bouton);
-  expect(evoluer).toHaveBeenCalledWith('premier');
+  expect(demanderEvolution).toHaveBeenCalledWith('premier', undefined);
   expect(screen.getByRole('alert').textContent).toBe('Évolution bloquée !');
 });
 
 it('rend le focus au bouton de la ligne après une évolution réussie', () => {
   preparerEvolution();
-  storeJeu.setState({ evoluer: vi.fn(() => null) });
+  storeJeu.setState({ demanderEvolution: vi.fn(() => null) });
   render(<PageEquipe />);
   fireEvent.click(screen.getByRole('button', { name: 'Bourgeon, niveau 16' }));
   fireEvent.click(screen.getByRole('button', { name: /Faire évoluer Bourgeon en/ }));

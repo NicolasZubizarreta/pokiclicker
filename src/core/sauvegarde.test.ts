@@ -300,7 +300,8 @@ describe('préférences de combat du compte', () => {
       skins: ['rouge'], preferences: { sombre: true, sonActive: false } });
     const options = { stockage, horloge, genererId: () => 'nouvelle' };
     const session = ouvrirPartie(options);
-    const preferences = { autoAttaque: false, autoClicLie: false, arretAuto: { ...reglages.depart.preferences.arretAuto, rare: false } };
+    const preferences = { autoAttaque: false, autoClicLie: false, evolutionAuto: false, balleChoisie: 'hyperball',
+      arretAuto: { ...reglages.depart.preferences.arretAuto, rare: false } };
     const avant = structuredClone(preferences);
     const ecrire = vi.spyOn(stockage, 'ecrire');
     session.enregistrerPreferences(preferences);
@@ -319,6 +320,15 @@ describe('préférences de combat du compte', () => {
     preferences.arretAuto.rare = true;
     expect(ouvrirPartie(options).preferences.arretAuto.rare).toBe(false);
     expect(reglages.depart.preferences.arretAuto.rare).toBe(true);
+  });
+  it('relit la balle choisie et ignore une valeur inconnue ou illisible sans refuser le compte', () => {
+    for (const [ecrite, attendue] of [['hyperball', 'hyperball'], ['balle-disparue', undefined], [42, undefined], [{ x: 1 }, undefined]] as const) {
+      const { stockage, horloge, jeu } = contexte();
+      jeu.ecrireCompte({ ...compteInitial(), preferences: { balleChoisie: ecrite as unknown as string } });
+      const session = ouvrirPartie({ stockage, horloge, genererId: () => 'nouvelle' });
+      expect(session.preferences.balleChoisie).toBe(attendue);
+      expect(session.preferences.evolutionAuto).toBe(true);
+    }
   });
 });
 

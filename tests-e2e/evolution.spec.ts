@@ -19,13 +19,14 @@ const test = base.extend<{ surveillance: void }>({
   }, { auto: true }],
 });
 
-async function demarrer(page: Page, numero: number, niveau = 16) {
+/** `auto` : l'évolution automatique (fenêtre) ; sinon l'option est coupée pour garder l'ancien comportement. */
+async function demarrer(page: Page, numero: number, niveau = 16, auto = false) {
   await page.clock.install();
   await page.clock.pauseAt(new Date());
   await page.addInitScript(() => { Math.random = () => 0.1; });
   await page.goto('/');
   await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
-  await page.addInitScript(({ numero, niveau }) => {
+  await page.addInitScript(({ numero, niveau, auto }) => {
     const cle = Object.keys(localStorage).find(c => c.startsWith('pokiclicker:region:') && c.endsWith(':kanto'));
     if (!cle || sessionStorage.getItem('evolution-prepare')) return;
     sessionStorage.setItem('evolution-prepare', '1');
@@ -36,9 +37,16 @@ async function demarrer(page: Page, numero: number, niveau = 16) {
     enveloppe.donnees.bossVaincus = ['kanto.route-1'];
     enveloppe.revision += 1;
     localStorage.setItem(cle, JSON.stringify(enveloppe));
-  }, { numero, niveau });
+    const cleCompte = 'pokiclicker:compte:local';
+    const brut = localStorage.getItem(cleCompte);
+    const compte = brut ? JSON.parse(brut) : { version: enveloppe.version, niveau: 'compte', id: 'local', revision: 0,
+      ecritLe: enveloppe.ecritLe, donnees: { diamants: 0, succes: [], skins: [], preferences: {} } };
+    compte.donnees.preferences.evolutionAuto = auto;
+    compte.revision += 1;
+    localStorage.setItem(cleCompte, JSON.stringify(compte));
+  }, { numero, niveau, auto });
   await page.reload();
-  await page.getByRole('button', { name: 'Équipe', exact: true }).click();
+  if (!auto) await page.getByRole('button', { name: 'Équipe', exact: true }).click();
 }
 
 async function choisirPierre(page: Page, pierre: string) {
@@ -132,4 +140,57 @@ test('Animations réduites : remplacement immédiat sans animation', async ({ pa
   await expect(ligne).toBeVisible();
   expect(await ligne.evaluate(element => [...element.querySelectorAll('*')]
     .every(enfant => getComputedStyle(enfant).animationName === 'none'))).toBe(true);
+});
+
+test('Évolution automatique : Plus tard, fiche, Confirmer, animation dans la fenêtre et message final', async ({ page }, informations) => {
+  const largeur = informations.project.name === 'mobile' ? 390 : 1440;
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await demarrer(page, 1, 16, true);
+  await page.clock.runFor(500);
+  const fenetre = page.getByRole('dialog', { name: "Bulbizarre est sur le point d'évoluer" });
+  await expect(fenetre).toBeVisible();
+  await page.evaluate(() => Promise.all([...document.images].map(i => i.decode().catch(() => undefined))));
+  await mkdir('design/captures', { recursive: true });
+  await page.screenshot({ path: `design/captures/evolution-auto-proposition-${largeur}.png` });
+  await fenetre.getByRole('button', { name: 'Plus tard', exact: true }).click();
+  await expect(fenetre).toHaveCount(0);
+  await page.clock.runFor(5000);
+  await expect(fenetre).toHaveCount(0);
+  await page.screenshot({ path: `design/captures/evolution-auto-plus-tard-${largeur}.png` });
+  await page.getByRole('button', { name: 'Équipe', exact: true }).click();
+  await page.getByRole('button', { name: 'Bulbizarre, niveau 16', exact: true }).click();
+  await page.getByRole('button', { name: 'Faire évoluer Bulbizarre en Herbizarre', exact: true }).click();
+  await expect(fenetre).toBeVisible();
+  await fenetre.getByRole('button', { name: 'Confirmer', exact: true }).click();
+  await page.clock.runFor(1000);
+  await expect(page.getByRole('dialog', { name: 'Bulbizarre évolue…' })).toBeVisible();
+  await page.screenshot({ path: `design/captures/evolution-auto-animation-${largeur}.png` });
+  await page.clock.runFor(2500);
+  const fin = page.getByRole('dialog', { name: 'Félicitations ! Ton « Bulbizarre » a évolué en « Herbizarre »' });
+  await expect(fin).toBeVisible();
+  await page.screenshot({ path: `design/captures/evolution-auto-fin-${largeur}.png` });
+  await fin.getByRole('button', { name: 'Fermer', exact: true }).click();
+  await expect(fin).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Herbizarre, niveau 16', exact: true })).toBeVisible();
+});
+
+test('Évolution automatique : option coupée dans les Réglages, plus de fenêtre', async ({ page }) => {
+  await demarrer(page, 1, 16, true);
+  await page.clock.runFor(500);
+  await page.getByRole('dialog', { name: "Bulbizarre est sur le point d'évoluer" }).getByRole('button', { name: 'Plus tard', exact: true }).click();
+  await page.getByRole('button', { name: 'Menu', exact: true }).click();
+  await page.getByRole('button', { name: /^Réglages/ }).click();
+  const interrupteur = page.getByRole('switch', { name: 'Évolution automatique', exact: true });
+  await expect(interrupteur).toHaveAttribute('aria-checked', 'true');
+  await interrupteur.evaluate(element => element.scrollIntoView({ block: 'center', behavior: 'instant' }));
+  await page.waitForTimeout(300);
+  await page.screenshot({ path: `design/captures/evolution-auto-reglages-${page.viewportSize()!.width}.png` });
+  await interrupteur.click();
+  await expect(interrupteur).toHaveAttribute('aria-checked', 'false');
+  await page.getByRole('button', { name: 'Équipe', exact: true }).click();
+  await page.getByRole('button', { name: 'Bulbizarre, niveau 16', exact: true }).click();
+  await page.getByRole('button', { name: 'Faire évoluer Bulbizarre en Herbizarre', exact: true }).click();
+  await expect(page.getByRole('dialog', { name: /Bulbizarre/ })).toHaveCount(0);
+  await page.clock.runFor(1000);
+  await expect(page.getByRole('button', { name: 'Herbizarre, niveau 16', exact: true }).locator('[class*="evolution-flash"]')).toBeVisible();
 });

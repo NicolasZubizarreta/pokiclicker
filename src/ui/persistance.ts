@@ -39,7 +39,10 @@ export function ouvrirPartie(options: Parameters<typeof creerGestionnaire>[0],
     autoAttaque: compte.preferences.autoAttaque ?? reglages.depart.preferences.autoAttaque,
     autoClicLie: compte.preferences.autoClicLie ?? reglages.depart.preferences.autoClicLie,
     arretAuto: structuredClone(compte.preferences.arretAuto ?? reglages.depart.preferences.arretAuto),
+    evolutionAuto: compte.preferences.evolutionAuto ?? reglages.depart.preferences.evolutionAuto,
   };
+  const balle: unknown = compte.preferences.balleChoisie;
+  if (typeof balle === 'string' && reglages.capture.balles.some(b => b.cle === balle)) preferences.balleChoisie = balle;
   let dernieresPreferences = JSON.stringify(preferences);
   const id = gestionnaire.partieCourante() ?? creerPartieNommee(options, 'Partie 1', depart);
   let partie = gestionnaire.chargerPartie(id)!;

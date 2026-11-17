@@ -275,7 +275,8 @@ it('ouvre les réglages d’arrêt auto et transmet les critères au store', () 
 it('branche la ligne de capture sous la scène et permet de changer de balle', () => {
   const { container } = preparer();
   const capturer = vi.fn();
-  act(() => store.setState({ capturer, capture: { ...store.getState().capture,
+  const choisirBalle = vi.fn();
+  act(() => store.setState({ capturer, choisirBalle, capture: { ...store.getState().capture,
     possible: true, raison: null, balles: [
       { cle: 'pokeball', nom: 'Pokéball', image: 'img/objets/poke-ball.png', quantite: 3 },
       { cle: 'superball', nom: 'Superball', image: 'img/objets/great-ball.png', quantite: 2 },
@@ -290,6 +291,7 @@ it('branche la ligne de capture sous la scène et permet de changer de balle', (
   fireEvent.click(screen.getByRole('button', { name: 'Balle choisie : Pokéball, ×3. Toucher pour changer' }));
   expect(screen.getByRole('button', { name: 'Balle choisie : Superball, ×2. Toucher pour changer' })).toBeTruthy();
   fireEvent.click(screen.getByRole('button', { name: 'Capturer' }));
+  expect(choisirBalle).toHaveBeenCalledWith('superball');
   expect(capturer).toHaveBeenCalledWith('superball');
 });
 it('désactive les balles et la capture sur un boss sans afficher la raison (lecteur d’écran seulement)', () => {

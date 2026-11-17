@@ -29,6 +29,7 @@ export function PageReglages({ retour }: { retour?(): void }) {
   const musiqueActive = useSyncExternalStore(musique.abonner, musique.estActive);
   const sonActive = useStore(storeJeu, e => e.sonActive);
   const autoClicLie = useStore(storeJeu, e => e.autoClicLie);
+  const evolutionAuto = useStore(storeJeu, e => e.evolutionAuto);
   const journalActif = useStore(storeJeu, e => e.journalActif);
   const exporterReleve = () => {
     const releve = storeJeu.getState().exporterJournal();
@@ -80,6 +81,14 @@ export function PageReglages({ retour }: { retour?(): void }) {
         <Interrupteur nom="Auto-clic lié à l'attaque auto" actif={autoClicLie} basculer={() => storeJeu.getState().reglerAutoClicLie(!autoClicLie)} />
       </div>
       <p className="mt-2 text-sm text-texte-doux">Sans effet tant que tu n'as pas acheté les Restes (Shop, Sylphe SARL).</p>
+    </section>
+    <section className="cadre bg-surface p-4">
+      <div className="flex items-center justify-between gap-4">
+        <div><h3 className="font-titre font-semibold">Évolution automatique</h3>
+          <p className="text-sm text-texte-doux">{evolutionAuto ? 'Activée' : 'Désactivée'}</p></div>
+        <Interrupteur nom="Évolution automatique" actif={evolutionAuto} basculer={() => storeJeu.getState().reglerEvolutionAuto(!evolutionAuto)} />
+      </div>
+      <p className="mt-2 text-sm text-texte-doux">Quand un Pokémon est prêt, une fenêtre te propose de le faire évoluer. Désactivée, il faut l'évoluer toi-même depuis sa fiche.</p>
     </section>
     {!import.meta.env.PROD && <details className="cadre mt-4 space-y-4 bg-surface p-4">
       <summary className="min-h-12 cursor-pointer py-2">Relevé de partie (développement)</summary>

@@ -43,27 +43,27 @@ it.each([false, true])('affiche uniquement la marque reçue, téléphone : %s', 
 it.each([false, true])('propose l’évolution dans la fiche, sur PC comme sur téléphone (téléphone : %s)', telephone => {
   vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: telephone, addEventListener: vi.fn(), removeEventListener: vi.fn() })));
   storeJeu.setState({ equipe: [{ pokemon: { ...pokemon, pierreEternelle: false }, dps: 42, xpMax: 100, multiplicateur: 1 }] });
-  const evoluer = vi.fn(() => null);
-  storeJeu.setState({ evoluer });
+  const demanderEvolution = vi.fn(() => null);
+  storeJeu.setState({ demanderEvolution });
   afficher();
   const action = screen.queryByRole('button', { name: 'Faire évoluer Bourgeon en Herbizarre' });
   expect(!!action).toBe(true);
   if (action) {
     fireEvent.click(action);
-    expect(evoluer).toHaveBeenCalledWith('fiche');
+    expect(demanderEvolution).toHaveBeenCalledWith('fiche', undefined);
     expect(screen.queryByRole('dialog')).toBeNull();
   }
   vi.unstubAllGlobals();
 });
 it('évolue par pierre sur téléphone et ferme la fiche', () => {
   vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() })));
-  const utiliserPierre = vi.fn(() => null);
+  const demanderEvolution = vi.fn(() => null);
   storeJeu.setState({ equipe: [{ pokemon: { ...pokemon, numero: 133, pierreEternelle: false }, dps: 42, xpMax: 100, multiplicateur: 1 }],
-    utiliserPierre, sac: { acces: { ouvert: true, raison: null }, entrees: [{ id: 'waterStone', nom: 'Pierre Eau', image: null,
+    demanderEvolution, sac: { acces: { ouvert: true, raison: null }, entrees: [{ id: 'waterStone', nom: 'Pierre Eau', image: null,
       description: '', categorie: 'equipement', quantite: 1, actif: false, utilisable: 'pierre' }] } });
   afficher();
   fireEvent.click(screen.getByRole('button', { name: 'Faire évoluer Bourgeon en Aquali avec la Pierre Eau' }));
-  expect(utiliserPierre).toHaveBeenCalledWith('fiche', 'waterStone');
+  expect(demanderEvolution).toHaveBeenCalledWith('fiche', 'waterStone');
   expect(screen.queryByRole('dialog')).toBeNull();
   vi.unstubAllGlobals();
 });

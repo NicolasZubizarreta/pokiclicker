@@ -160,7 +160,7 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: 
   const boutonEvolution = evolution && pokemon && <button type="button" className={`${bouton} cadre-alerte${telephone ? '' : ' plaque plaque-action'}`}
           aria-label={`Faire évoluer ${nom} en ${nomAffiche({ ...pokemon, numero: evolution.vers, surnom: undefined })}${evolution.pierre ? ` avec la ${evolution.pierre.nom}` : ''}`}
           onClick={() => {
-            const message = evolution.pierre ? storeJeu.getState().utiliserPierre(uid, evolution.pierre.id) : storeJeu.getState().evoluer(uid);
+            const message = storeJeu.getState().demanderEvolution(uid, evolution.pierre?.id);
             if (message) signaler(message);
             else fermerFiche();
           }}>Évoluer</button>;

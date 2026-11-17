@@ -117,7 +117,8 @@ export const reglages: {
   bonus: { dps: Bonus[]; clic: Bonus[] };
   recompenses: ReglagesRecompenses;
   capture: ReglagesCapture;
-  evolution: { animationMs: number; alternanceMs: number };
+  evolution: { animationMs: number; alternanceMs: number;
+    messages: { surLePoint: string; enCours: string; felicitations: string } };
   animations: { flottementMs: number; secousseMs: number; banniereMs: number };
   sons: ReglagesSons;
   delais: ReglagesDelais;
@@ -225,6 +226,7 @@ if (!capture.raisonImpossible || !capture.balles.length
 }
 if (typeof reglages.depart.preferences.autoAttaque !== 'boolean'
   || typeof reglages.depart.preferences.autoClicLie !== 'boolean'
+  || typeof reglages.depart.preferences.evolutionAuto !== 'boolean'
   || Object.values(reglages.depart.preferences.arretAuto).some((valeur) => typeof valeur !== 'boolean')) {
   throw new Error('Préférences de combat invalides');
 }
