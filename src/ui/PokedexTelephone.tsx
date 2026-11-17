@@ -12,6 +12,7 @@ import { IconeCadenas, PastilleCapture } from './icones';
 import { Image } from './Image';
 import { cheminSprite } from './precharger';
 import './FichePokemon.css';
+import { ZonesEspeceFiche } from './ZonesEspeceFiche';
 import { BoutonsDex, FiltreDex, TagsDex, etatDansDex, libelleCaseDex, useListesDex, type CleDex } from './SelecteurDex';
 
 const catalogue = chargerPokemon();
@@ -143,6 +144,7 @@ function DetailEspece({ numero, etat, fermer }: { numero: number; etat: ReturnTy
         <Image src={cheminSprite(numero)} genre="sprite" alt={etat !== 'inconnu' ? nom : 'Pokémon inconnu'}
           className={`size-32 max-h-full max-w-full ${capture ? '' : etat === 'vu' ? 'grayscale opacity-60' : 'brightness-0 opacity-50'}`} />
       </div>
+      {etat !== 'inconnu' && <ZonesEspeceFiche numero={numero} />}
       {capture ? <>
         <div className="flex flex-wrap items-center justify-center gap-2">
           {espece.types.map(type => <span key={type}

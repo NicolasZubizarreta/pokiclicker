@@ -11,7 +11,8 @@ import { cheminSprite } from './precharger';
 import { storeJeu } from './store';
 import { formaterProchainPalier } from './store-progression';
 import { IconeCadenas, PastilleCapture } from './icones';
-import { BoutonsDex, FiltreDex, TagsDex, etatDansDex, libelleCaseDex, useListesDex, type CleDex } from './SelecteurDex';
+import { ZonesEspeceFiche } from './ZonesEspeceFiche';
+import { BoutonsDex,FiltreDex, TagsDex, etatDansDex, libelleCaseDex, useListesDex, type CleDex } from './SelecteurDex';
 
 const catalogue = chargerPokemon();
 
@@ -87,6 +88,7 @@ function Fiche({ numero, etat, fermer }: { numero: number; etat: ReturnType<type
   const espece = catalogue.parNumero(numero);
   return <><header className="flex items-center justify-between gap-2"><h2 className="font-titre text-xl font-bold">{etat !== 'inconnu' ? espece.nom : '???'} · N° {numero}</h2><button type="button" aria-label="Revenir aux paliers" onClick={fermer} className="flex min-h-11 min-w-11 items-center justify-center">×</button></header>
     <div className="dex-sprite"><Image genre="sprite" src={cheminSprite(numero)} alt={etat !== 'inconnu' ? espece.nom : 'Pokémon inconnu'} className={`object-contain max-h-full max-w-full ${capture ? '' : etat === 'vu' ? 'grayscale opacity-60' : 'brightness-0 opacity-50'}`} /></div>
+    {etat !== 'inconnu' && <ZonesEspeceFiche numero={numero} />}
     {capture ? <><div className="flex flex-wrap gap-2">{espece.types.map(t => <span key={t} className={`pastille-type pastille-type-${t} px-2`}>{nomType(t)}</span>)}<span>Déjà capturé</span></div>
       <p>{equipe.some(c => c?.pokemon.numero === numero) ? 'Dans ton équipe' : pc.some(p => p.numero === numero) ? 'Rangé dans ton PC' : 'Enregistré au Pokédex'}</p>
       <dl aria-label="Dégâts de base"><dt>Dégâts de base</dt><dd>{statsDeCombat(espece).puissance}</dd></dl>
