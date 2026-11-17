@@ -92,6 +92,8 @@ export function PageReglages({ retour }: { retour?(): void }) {
       </div>
       <p className="mt-2 text-sm text-texte-doux">Quand un Pokémon est prêt, une fenêtre te propose de le faire évoluer. Désactivée, il faut l'évoluer toi-même depuis sa fiche.</p>
     </section>
+    </PanneauPC>
+    <PanneauPC telephone={telephone} titre="Collection">
     <section className="cadre bg-surface p-4">
       <div className="flex items-center justify-between gap-4">
         <div><h3 className="font-titre font-semibold">Passer les éclosions</h3>

@@ -19,7 +19,7 @@ test.describe('lot 5 : Shop, Pokédex, Badges téléphone', () => {
       await page.getByRole('button', { name: /^Pokédex/ }).click();
       await expect(page.getByRole('heading', { level: 1, name: 'Pokédex' })).toBeFocused();
       await expect(page.getByRole('progressbar', { name: 'Espèces capturées' })).toBeVisible();
-      await page.getByLabel('Afficher', { exact: true }).selectOption('obtenus');
+      await page.getByRole('combobox', { name: /^Afficher/ }).selectOption('obtenus');
       await expect(page.getByRole('button', { name: /déjà capturé/ }).first()).toBeVisible();
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
       await page.screenshot({ path: `design/captures/lot5-pokedex-${largeur}.png` });
