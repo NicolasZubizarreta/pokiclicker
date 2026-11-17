@@ -505,3 +505,77 @@ Décision de Nicolas (17/11) : on fait ce ticket, mais plus tard ; tout le reste
 
 ### Effort et risques
 1 à 2 jours. Risque : un écran de plus dans un combat déjà dense, à cadrer avec trois variantes avant de coder.
+
+## X. `fix(navigation): Pension toujours dans la barre (grisée), raccourcis 7 et 8, centre commercial dans Précédent/Suivant`
+
+`type:fix`, `etat:a_faire`, `est:1-1.5`, `prio:1` · branche : `v2` · `agent-ok` recommandé · reprend O et Q après le test de Nicolas du 17/11
+
+### Histoire
+En tant que joueur, je veux voir la Pension dans la barre dès le début (grisée tant qu'elle est verrouillée), l'atteindre au clavier avec la touche 7, et passer de Céladopole à la Centrale en traversant le centre commercial avec les boutons Précédent et Suivant de la zone de combat.
+
+### Contexte
+Retour de Nicolas (17/11, après avoir joué) : le bouton « Pension » doit toujours figurer dans la barre (O le cachait tant que la pension était fermée) ; les raccourcis clavier doivent être 7 pour la Pension et 8 pour le Menu ; le ticket Q a été compris comme « sur la carte » alors que Nicolas parlait des boutons Précédent et Suivant de l'écran de combat, où Céladopole mène encore directement à la Centrale.
+
+### Critères d'acceptation
+- [ ] Étant donné la pension non débloquée, quand la barre s'affiche (téléphone et PC), alors le bouton « Pension » est présent, grisé, non activable, et sa raison est lisible comme celle des autres boutons verrouillés du jeu.
+- [ ] Étant donné la pension débloquée, quand la barre s'affiche, alors le bouton est actif, entre « Pokédex » et « Menu ».
+- [ ] Étant donné le clavier, quand j'appuie sur 7, alors la pension s'ouvre (si elle est débloquée) ; sur 8, le Menu s'ouvre ; les touches 1 à 6 ne changent pas. La fenêtre « Raccourcis ? » et les textes qui citent ces touches sont à jour.
+- [ ] Étant donné la zone de combat, quand je suis à l'Arène de Céladopole et que j'appuie sur « Suivant », alors j'arrive au centre commercial, puis « Suivant » depuis le centre mène à la Centrale ; « Précédent » refait le chemin inverse (Centrale, centre commercial, Céladopole).
+- [ ] Étant donné le centre commercial non débloqué, quand je navigue avec Précédent et Suivant, alors il est sauté comme aujourd'hui et aucun bouton n'y mène.
+- [ ] Étant donné la barre à 360, 390 et 1440 px, quand le bouton grisé s'affiche, alors tous les boutons restent lisibles et touchables.
+- [ ] Étant donné les tests, quand `tsc`, eslint, vitest et les e2e ciblés tournent, alors ils sont verts (les tests e2e de la pension, de la navigation et des raccourcis sont adaptés).
+
+### Hors périmètre
+Les raccourcis de combat (lettres), la fusion Équipe/PC (U).
+
+### Effort et risques
+1 à 1,5 jour. Risque : le centre commercial est un lieu et pas une zone de combat ; sa place dans la suite Précédent/Suivant doit rester cohérente avec la barre de progression des zones.
+
+## Y. `fix(pension): œufs sans DPS ni bonus, éclosion au niveau 1, libellé x/50`
+
+`type:fix`, `etat:a_faire`, `est:1-1.5`, `prio:1` · branche : `v2` · pas d'`agent-ok` (règles de jeu, sauvegarde) · après le test de Nicolas du 17/11
+
+### Histoire
+En tant que joueur, je ne veux pas pouvoir deviner ce qui sortira d'un œuf, et je veux qu'un œuf ne gagne rien tant qu'il n'a pas éclos.
+
+### Contexte
+Retour de Nicolas (17/11) : les œufs de l'équipe affichent un DPS (25,5 et 28,7 sur sa capture), différent d'un œuf à l'autre selon le Pokémon caché (shiny, type) : c'est devinable. Il doit valoir 0 et ne pas s'afficher. Nicolas a aussi vu des Pokémon sortir d'un œuf à un autre niveau que 1, et veut vérifier qu'un œuf ne gagne ni bonheur ni XP pendant les combats qui servent à le faire éclore. Le texte « Éclosion : 22/50 » est coupé dans la carte.
+
+### Critères d'acceptation
+- [ ] Étant donné un œuf dans l'équipe, quand sa carte s'affiche (Équipe, Combat, PC), alors aucun DPS n'y figure, et le DPS total de l'équipe ne compte rien pour lui (valeur 0 dans le calcul, pas seulement masquée).
+- [ ] Étant donné deux œufs de Pokémon différents (un shiny, des types différents), quand je compare leurs cartes, alors rien ne les distingue (ni DPS, ni sprite, ni texte) à part leur avancement.
+- [ ] Étant donné un œuf qui éclôt, quand le Pokémon apparaît, alors il est au niveau 1, sans XP ni bonheur acquis, dans tous les cas (éclosion normale, passer les éclosions, relâche automatique, évolution automatique ensuite) ; un test couvre chaque chemin et la cause est notée si un chemin donnait un autre niveau.
+- [ ] Étant donné un œuf, quand des combats sont gagnés, alors seul son compteur d'éclosion avance : aucune XP, aucun bonheur, aucun effet d'objet n'est appliqué à l'œuf ; un test le vérifie.
+- [ ] Étant donné la carte d'un œuf, quand elle s'affiche à 360, 390 et 1440 px, alors le texte est « 22/50 » (sans « Éclosion : »), lisible et dans le cadre.
+- [ ] Étant donné une ancienne sauvegarde avec des œufs, quand elle se charge, alors rien n'est perdu ni cassé.
+- [ ] Étant donné les tests, quand `tsc`, eslint, vitest et les e2e ciblés (pension, équipe, combat) tournent, alors ils sont verts.
+
+### Hors périmètre
+Les tags (Z), les valeurs de la pension (S).
+
+### Effort et risques
+1 à 1,5 jour. Risque : le niveau à l'éclosion peut venir d'un chemin que le code ne distingue pas (évolution automatique, migration) ; la cause doit être prouvée, pas devinée.
+
+## Z. `fix(ui): une seule étoile shiny à droite du nom, tag œuf réduit à l'icône, plus de « XP max »`
+
+`type:fix`, `etat:a_faire`, `est:1-1.5`, `prio:2` · branche : `v2` · `agent-ok` recommandé · après le test de Nicolas du 17/11 (reprend P)
+
+### Histoire
+En tant que joueur, je veux un seul repère shiny et un repère d'œuf discret, au même endroit partout, et ne pas voir de texte qui sort du cadre.
+
+### Contexte
+Retour de Nicolas (17/11) : le shiny apparaît en double (une étoile dans un cercle sur le sprite, plus une étoile après le nom). Décision : on garde l'étoile à droite du nom du Pokémon, dans la zone de combat, dans l'équipe et dans le PC ; on supprime l'autre. Dans le Pokédex, on garde le tag en haut à droite de la case. Le tag œuf devient la seule icône d'œuf, sans cercle jaune ni fond noir, placé à droite de l'étoile shiny (à droite du nom, ou en haut à droite de la case dans le Pokédex). Le texte « XP max » d'un Pokémon niveau 100 est inutile et sort du cadre.
+
+### Critères d'acceptation
+- [ ] Étant donné un Pokémon shiny, quand il s'affiche dans le Combat, l'Équipe ou le PC, alors une seule étoile figure, à droite de son nom ; le cercle étoilé sur le sprite n'existe plus.
+- [ ] Étant donné un Pokémon issu d'un œuf, quand il s'affiche dans le Combat, l'Équipe ou le PC, alors une icône d'œuf seule (sans cercle jaune ni fond noir) figure à droite de l'étoile shiny, ou juste à droite du nom s'il n'est pas shiny.
+- [ ] Étant donné une case du Pokédex, quand l'espèce est shiny et éclose, alors les tags sont en haut à droite de la case, l'icône d'œuf à droite de l'étoile shiny, et la case garde sa taille.
+- [ ] Étant donné un Pokémon niveau 100, quand sa carte s'affiche, alors le texte « XP max » n'apparaît plus et rien ne sort du cadre.
+- [ ] Étant donné la charte, quand les tags s'affichent à 360, 390 et 1440 px, alors ils respectent `design/DESIGN.md` et les captures sont regardées.
+- [ ] Étant donné les tests, quand `tsc`, eslint, vitest et les e2e ciblés tournent, alors ils sont verts (tests des tags adaptés).
+
+### Hors périmètre
+Le libellé et le DPS des œufs (Y), la fusion Équipe/PC (U).
+
+### Effort et risques
+1 à 1,5 jour. Risque : les mêmes composants servent à plusieurs écrans ; Y touche la carte d'œuf de l'équipe, donc Y et Z se fusionnent dans l'ordre Y puis Z.

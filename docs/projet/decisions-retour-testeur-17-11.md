@@ -36,3 +36,13 @@ Source : retour d'un testeur qui a fini le jeu à 100 % et tenté le shiny dex a
 - Accès à la pension : un bouton dans la barre de navigation, entre Pokédex et Menu (ticket O).
 - Point 14 (jeu austère) : ticket W, à traiter en dernier, quand il ne restera que lui.
 - Plus de simulateur par ticket, la V1 ne fait plus foi.
+
+## Retour du test en ligne (17/11, soir) : tickets X, Y, Z
+
+Nicolas a joué la version poussée (`0fa543b`) et demande :
+- Pension : toujours dans la barre, grisée tant qu'elle est fermée (remplace « absent si non débloqué » du ticket O). Raccourcis : 7 = Pension, 8 = Menu.
+- Centre commercial : il parlait des boutons Précédent et Suivant de la zone de combat, pas de la carte ; Céladopole mène aujourd'hui directement à la Centrale (ticket Q mal compris).
+- Œufs : DPS à 0 et non affiché (aujourd'hui différent selon le Pokémon caché, donc devinable) ; vérifier que le Pokémon éclos est toujours niveau 1 ; vérifier qu'un œuf ne gagne ni bonheur ni XP pendant les combats qui le font éclore ; libellé « x/50 » au lieu de « Éclosion : x/50 » (texte coupé).
+- « XP max » au niveau 100 : supprimé (inutile, sort du cadre).
+- Tags : un seul repère shiny, l'étoile à droite du nom (Combat, Équipe, PC) ; dans le Pokédex le tag reste en haut à droite. Tag œuf : l'icône seule, sans cercle jaune ni fond noir, à droite de l'étoile shiny (ou en haut à droite de la case dans le Pokédex).
+- Tickets : X (navigation), Y (œufs), Z (tags et XP max), avant U, V et W.
