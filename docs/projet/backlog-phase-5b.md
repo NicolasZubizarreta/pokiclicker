@@ -336,16 +336,16 @@ En tant que joueur, je veux que la fiche d'un Pokémon n'affiche « Pierre Stase
 
 ## N. `feat(fiche): retirer un objet donné à un Pokémon`
 
-`type:feat`, `etat:a_faire`, `est:1`, `prio:3` · branche : `v2` · `agent-ok` recommandé
+`type:feat`, `etat:fait`, `est:1`, `prio:3` · branche : `v2` · `agent-ok` recommandé
 
 ### Histoire
 En tant que joueur, je veux retirer l'objet donné à un Pokémon depuis sa fiche, afin de ne pas condamner un Pokémon à une Pierre Stase.
 
 ### Critères d'acceptation
-- [ ] Étant donné un Pokémon qui porte un objet, quand j'ouvre sa fiche, alors un bouton « Retirer » est proposé à côté de l'objet.
-- [ ] Étant donné le bouton, quand je l'appuie, alors l'objet revient dans le sac (quantité +1) et le Pokémon n'en porte plus ; les bonus de l'objet disparaissent du DPS.
-- [ ] Étant donné un Pokémon du PC, quand j'ouvre sa fiche, alors le bouton marche de même.
-- [ ] Étant donné les tests, quand `tsc -b`, eslint, vitest et e2e tournent, alors ils sont verts.
+- [x] Étant donné un Pokémon qui porte un objet, quand j'ouvre sa fiche, alors un bouton « Retirer » est proposé à côté de l'objet.
+- [x] Étant donné le bouton, quand je l'appuie, alors l'objet revient dans le sac (quantité +1) et le Pokémon n'en porte plus ; les bonus de l'objet disparaissent du DPS.
+- [x] Étant donné un Pokémon du PC, quand j'ouvre sa fiche, alors le bouton marche de même.
+- [x] Étant donné les tests, quand `tsc -b`, eslint, vitest et e2e tournent, alors ils sont verts.
 
 ### Effort et risques
 1 jour.

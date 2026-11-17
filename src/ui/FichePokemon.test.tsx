@@ -450,3 +450,15 @@ it.each([false, true])('n’affiche Shiny, Pierre Stase et Calcium que si le Pok
   for (const libelle of ['Shiny', 'Pierre Stase', 'Calcium']) expect(screen.getByText(libelle, { selector: 'dt' })).toBeTruthy();
   vi.unstubAllGlobals();
 });
+
+it.each([false, true])('retire la Pierre Stase depuis la fiche, équipe ou PC, téléphone : %s', telephone => {
+  vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: telephone, addEventListener: vi.fn(), removeEventListener: vi.fn() })));
+  const retirerStase = vi.fn(() => null);
+  storeJeu.setState({ equipe: [{ pokemon: { ...pokemon, pierreEternelle: false }, dps: 42, xpMax: 100, multiplicateur: 1 }], retirerStase });
+  afficher();
+  expect(screen.queryByRole('button', { name: /Retirer la Pierre Stase/ })).toBeNull();
+  act(() => mettreAuPc());
+  fireEvent.click(screen.getByRole('button', { name: 'Retirer la Pierre Stase de Bourgeon' }));
+  expect(retirerStase).toHaveBeenCalledWith('fiche');
+  vi.unstubAllGlobals();
+});

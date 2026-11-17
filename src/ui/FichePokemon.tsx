@@ -206,7 +206,9 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: 
               <p>+{nombre(pokemon.bonheur * reglages.degats.bonheurParPoint * 100)} % de dégâts</p></div>
           </div>
           {pokemon.calcium > 0 && <p>Calcium : {pokemon.calcium} · +{nombre(pokemon.calcium * reglages.degats.calciumParBoost * 100)} % de dégâts</p>}
-          <p>Objet tenu : {pokemon.pierreEternelle ? 'Pierre Stase' : 'aucun'}</p></>}
+          <div className="flex flex-wrap items-center gap-2"><p>Objet tenu : {pokemon.pierreEternelle ? 'Pierre Stase' : 'aucun'}</p>
+            {pokemon.pierreEternelle && <button type="button" aria-label={`Retirer la Pierre Stase de ${nom}`} className={`${bouton}${telephone ? '' : ' plaque'}`}
+              onClick={() => signaler(storeJeu.getState().retirerStase(uid))}>Retirer</button>}</div></>}
           </>;
   const actions = pokemon && espece && membre && detail && <>
           {erreur && <p role="alert">{erreur}</p>}
