@@ -1,9 +1,9 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { useStore } from 'zustand';
-import { reglages } from '../core/reglages';
 import { CarteKanto } from './CarteKanto';
 import { IconeObjet } from './icones';
 import { Image } from './Image';
+import { QuantiteAchat } from './QuantiteAchat';
 import { storeJeu } from './store';
 import { AccueilCasino } from './AccueilCasino';
 import { PagePension } from './PagePension';
@@ -88,14 +88,7 @@ export function PageCentre({ retour }: { retour: () => void }) {
           <p className="text-texte-doux">Ton achat</p>
           <h2 id={choixId} className="font-titre text-xl font-semibold">{objet.nom}</h2>
           <p>{objet.description}</p>
-          <div role="group" aria-label={`Quantité de ${objet.nom}`} className="flex flex-wrap items-center gap-3">
-            <button type="button" aria-label="Moins" className={`${bouton} cadre bg-surface`} disabled={nombre <= 1}
-              onClick={() => changerQuantite(q => Math.max(1, q - 1))}>−</button>
-            <output aria-label="Quantité">{nombre}</output>
-            <button type="button" aria-label="Plus" className={`${bouton} cadre bg-surface`} disabled={nombre >= reglages.boutique.quantiteMax}
-              onClick={() => changerQuantite(q => Math.min(reglages.boutique.quantiteMax, q + 1))}>+</button>
-            <output aria-label="Total" className="text-region-accent">= {(objet.prix * nombre).toLocaleString('fr-FR')}{' ₽'}</output>
-          </div>
+          <QuantiteAchat nom={objet.nom} quantite={nombre} changer={changerQuantite} prix={objet.prix} argent={argent} bouton={`${bouton} cadre bg-surface`} />
           <button type="button" disabled={raison !== null} aria-describedby={raisonId}
             onClick={() => acheter(objet.id, nombre)}
             className={`${bouton} cadre bg-action text-action-texte shadow-sm hover:bg-action-survol disabled:cursor-not-allowed disabled:bg-surface-2 disabled:text-texte-doux disabled:shadow-none`}>

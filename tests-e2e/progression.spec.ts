@@ -124,7 +124,7 @@ test('20 espèces : 2 500 ₽ une seule fois malgré deux rechargements', async 
     await expect.poll(async () => (await regionSauvee(page)).argent).toBe(3500);
     expect((await regionSauvee(page)).jalonsRecus).toEqual([10, 20]);
     await page.getByRole('button', { name: 'Menu', exact: true }).click();
-    await expect(page.getByRole('button', { name: /^Pokédex/ })).toContainText('20 / 151');
+    await expect(page.locator('#contenu').getByRole('button', { name: /^Pokédex/ })).toContainText('20 / 151');
     if (chargement < 2) await page.reload();
   }
 });

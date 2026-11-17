@@ -31,6 +31,10 @@ export function pierresPour(numero: number): string[] {
   return catalogue.pierre.filter((ligne) => ligne.de === numero).map((ligne) => ligne.pierre);
 }
 
+export function evolutionsDirectes(numero: number): number[] {
+  return [...catalogue.niveau, ...catalogue.pierre].filter((ligne) => ligne.de === numero).map((ligne) => ligne.vers);
+}
+
 export function stade(numero: number): number {
   const origine = catalogue.niveau.find((ligne) => ligne.vers === numero)
     ?? catalogue.pierre.find((ligne) => ligne.vers === numero);

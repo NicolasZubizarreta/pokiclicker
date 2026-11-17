@@ -1,6 +1,6 @@
 import { useStore } from 'zustand';
 import { Carte, Combat, Equipe, Menu, PC, Shop } from './icones';
-import { IconeSortie } from './icones-menu';
+import { IconePokedex, IconeSortie } from './icones-menu';
 import type { Page } from './Navigation';
 import type { EtatSynchro } from './synchro';
 import { EtatSynchronisation } from './EtatSynchronisation';
@@ -11,7 +11,7 @@ import { PastillePension, usePensionNouveau } from './PastillePension';
 import { evolutionProposee } from './evolution-proposee';
 import { erreurRetourMenu, useRetourMenuPrincipal } from './useRetourMenuPrincipal';
 
-const entrees = [ ['Combat', Combat], ['Équipe', Equipe], ['PC', PC], ['Shop', Shop], ['Carte', Carte], ['Menu', Menu] ] as const;
+const entrees = [ ['Combat', Combat], ['Équipe', Equipe], ['PC', PC], ['Shop', Shop], ['Carte', Carte], ['Pokédex', IconePokedex], ['Menu', Menu] ] as const;
 
 export type InfosPartie = { nomPartie?: string; etatSynchro?: EtatSynchro; quandMenuPrincipal?: () => Promise<boolean> };
 

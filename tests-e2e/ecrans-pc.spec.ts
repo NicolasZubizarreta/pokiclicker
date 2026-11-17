@@ -37,7 +37,7 @@ async function demarrer(page: Page, largeur: number, hauteur: number, lieu: fals
 }
 
 const menu = async (page: Page, tuile: string | RegExp) => {
-  await page.keyboard.press('6');
+  await page.keyboard.press('7');
   await page.getByRole('button', { name: tuile }).first().click();
 };
 
@@ -51,7 +51,7 @@ const ECRANS: { nom: string; titre: string | RegExp; lieu?: 'centre' | 'bourg'; 
   { nom: 'PC', titre: 'PC de Léo', aller: async page => { await page.keyboard.press('3'); } },
   { nom: 'Shop', titre: 'Shop', aller: async page => { await page.keyboard.press('4'); } },
   { nom: 'Carte', titre: /^Carte/, aller: async page => { await page.keyboard.press('5'); } },
-  { nom: 'Menu', titre: 'Menu', aller: async page => { await page.keyboard.press('6'); } },
+  { nom: 'Menu', titre: 'Menu', aller: async page => { await page.keyboard.press('7'); } },
   { nom: 'Monde', titre: 'Monde', aller: page => menu(page, /^Monde/) },
   { nom: 'Réglages', titre: 'Réglages', aller: page => menu(page, /^Réglages/) },
   { nom: 'Pokédex', titre: 'Pokédex', aller: page => menu(page, /^Pokédex/) },
@@ -145,7 +145,7 @@ test.describe('détails PC', () => {
 
   test('le Menu a trois colonnes et les Badges quatre', async ({ page }) => {
     await demarrer(page, 1440, 900);
-    await page.keyboard.press('6');
+    await page.keyboard.press('7');
     await expect(page.getByRole('heading', { name: 'Menu', level: 1 })).toBeVisible();
     const colonnes = (selecteur: string) => page.locator(selecteur).first().evaluate(e => getComputedStyle(e).gridTemplateColumns.split(' ').length);
     expect(await colonnes('.menu-pc-tuiles')).toBe(3);

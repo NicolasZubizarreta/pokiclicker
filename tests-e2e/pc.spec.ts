@@ -141,8 +141,8 @@ test('PC : placer jusqu’à six, échanger, et tout survit au rechargement', as
   await expect(page.getByText(/(?:· |^)6 \/ 6$/)).toBeVisible();
 });
 
-test('PC (ordinateur) : pas de bouton Retour, équipe alignée, Déplacer glisse un Pokémon dans l’équipe', async ({ page }, informations) => {
-  test.skip(informations.project.name !== 'pc', 'Mode Déplacer : version ordinateur seulement');
+test('PC (ordinateur) : pas de bouton Retour, équipe alignée, le glisser-déposer est toujours actif', async ({ page }, informations) => {
+  test.skip(informations.project.name !== 'pc', 'Glisser-déposer : version ordinateur seulement');
   await demarrer(page);
   await remplirPc(page, 12);
   await ouvrirPc(page);
@@ -150,7 +150,7 @@ test('PC (ordinateur) : pas de bouton Retour, équipe alignée, Déplacer glisse
   const haut = async (locator: ReturnType<Page['locator']>) => (await locator.boundingBox())!.y;
   expect(Math.abs(await haut(page.locator('.pc-panneau')) - await haut(page.locator('.pc-grille')))).toBeLessThanOrEqual(1);
   await expect(page.getByText('12 Pokémon')).toBeVisible();
-  await page.getByRole('button', { name: 'Déplacer', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Déplacer', exact: true })).toHaveCount(0);
   await grille(page).getByRole('button').first().dragTo(page.locator('aside').getByText('Emplacement libre').first());
   await expect(page.getByText('11 Pokémon')).toBeVisible();
   // Équipe pleine : le message de remplacement est un calque, la page ne bouge pas.
@@ -168,8 +168,6 @@ test('PC (ordinateur) : pas de bouton Retour, équipe alignée, Déplacer glisse
     expect(boite.y).toBeGreaterThanOrEqual(panneau.y);
     expect(boite.y + boite.height).toBeLessThanOrEqual(panneau.y + panneau.height + 1);
   }
-  // Le bouton Déplacer est à côté du compteur, pas dans la zone équipe.
-  expect(await page.locator('.pc-panneau').getByRole('button', { name: 'Déplacer' }).count()).toBe(0);
   await mkdir('design/captures', { recursive: true });
   await page.screenshot({ path: 'design/captures/i-pc-deplacer-1440.png', animations: 'disabled' });
   // Sens inverse : de l'équipe vers le PC, jusqu'au dernier Pokémon, qui reste.
@@ -187,7 +185,7 @@ test('PC (ordinateur) : pas de bouton Retour, équipe alignée, Déplacer glisse
 test('Pokédex : 151 cases et compteur des starters', async ({ page }, informations) => {
   await demarrer(page);
   await page.getByRole('button', { name: 'Menu', exact: true }).click();
-  await page.getByRole('button', { name: /^Pokédex/ }).click();
+  await page.locator('#contenu').getByRole('button', { name: /^Pokédex/ }).click();
   await expect(page.getByRole('heading', { name: 'Pokédex', level: 1 })).toBeVisible();
   await expect(page.getByText('3 / 151')).toBeVisible();
   await expect(casesPokedex(page)).toHaveCount(151);

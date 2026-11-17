@@ -66,13 +66,18 @@ it('borne la quantité et expose le refus puis transmet l’achat et son annonce
   render(<PageCentre retour={vi.fn()} />);
   const plus = screen.getByRole<HTMLButtonElement>('button', { name: 'Plus' });
   const moins = screen.getByRole<HTMLButtonElement>('button', { name: 'Moins' });
-  // La quantité reste entre 1 et le maximum : « Moins » est bloqué à 1, « Plus » au maximum.
-  expect(moins.disabled).toBe(true);
-  for (let i = 0; i < reglages.boutique.quantiteMax + 5; i++) fireEvent.click(plus);
-  expect(screen.getByLabelText('Quantité').textContent).toBe(String(reglages.boutique.quantiteMax));
-  expect(plus.disabled).toBe(true);
-  for (let i = 0; i < reglages.boutique.quantiteMax + 5; i++) fireEvent.click(moins);
-  expect(screen.getByLabelText('Quantité').textContent).toBe('1');
+  // La quantité boucle : « Moins » à 1 donne le maximum, « Plus » au maximum revient à 1.
+  const quantite = () => screen.getByLabelText('Quantité').textContent;
+  fireEvent.click(moins);
+  expect(quantite()).toBe(String(reglages.boutique.quantiteMax));
+  fireEvent.click(plus);
+  expect(quantite()).toBe('1');
+  // « +10 » s'arrête au maximum ; « Max » suit l'argent (15 000 ₽ à 7 500 ₽ pièce : 2).
+  fireEvent.click(screen.getByRole('button', { name: 'Plus dix' }));
+  expect(quantite()).toBe('11');
+  fireEvent.click(screen.getByRole('button', { name: 'Maximum possible' }));
+  expect(quantite()).toBe('2');
+  fireEvent.click(moins);
   fireEvent.click(plus);
   expect(screen.getByRole<HTMLButtonElement>('button', { name: /^Acheter ×2/ }).disabled).toBe(false);
   fireEvent.click(plus);
