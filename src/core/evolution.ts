@@ -1,5 +1,6 @@
 import donnees from '../../data/evolutions.json';
 import type { ResultatEquipe } from './equipe';
+import { noterEclosion } from './pension';
 import type { DonneesRegion, PokemonPossede } from './sauvegarde-types';
 
 export type Evolutions = {
@@ -17,6 +18,12 @@ const origines = new Map([...catalogue.niveau, ...catalogue.pierre].map(ligne =>
 export function formeDeBase(numero: number): number {
   const origine = origines.get(numero);
   return origine === undefined ? numero : formeDeBase(origine);
+}
+
+/** Lignée de l'espèce, de sa forme de base jusqu'à elle-même. */
+export function lignee(numero: number): number[] {
+  const origine = origines.get(numero);
+  return origine === undefined ? [numero] : [...lignee(origine), numero];
 }
 
 export function niveauRequis(numero: number): number | null {
@@ -59,12 +66,14 @@ export function cibleValidePierre(pokemon: PokemonPossede, pierre: string): bool
 type ResultatEvolution = ResultatEquipe & { evolution?: { uid: string; de: number; vers: number } };
 
 function appliquer(region: DonneesRegion, pokemon: PokemonPossede, vers: number): ResultatEvolution {
+  const evolue = {
+    ...region,
+    equipe: region.equipe.map((p) => p.uid === pokemon.uid ? { ...p, numero: vers } : p),
+  };
   return {
     ok: true,
-    region: {
-      ...region,
-      equipe: region.equipe.map((p) => p.uid === pokemon.uid ? { ...p, numero: vers } : p),
-    },
+    // Un Pokémon à marque d'éclosion fait entrer chaque espèce atteinte dans la liste des éclos.
+    region: pokemon.marqueEclosion ? noterEclosion(evolue, vers) : evolue,
     evolution: { uid: pokemon.uid, de: pokemon.numero, vers },
   };
 }

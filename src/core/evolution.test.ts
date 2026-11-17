@@ -133,3 +133,36 @@ it('refuse en priorité les œufs, le PC et les uid absents pour les deux métho
 it('configure la durée et l’alternance de l’animation', () => {
   expect(reglages.evolution).toMatchObject({ animationMs: 3000, alternanceMs: 150 });
 });
+
+describe('évolution et liste des éclos', () => {
+  it('ajoute chaque espèce atteinte par un Pokémon à marque d\'éclosion', () => {
+    const premiere = evoluer(region(pokemon({ marqueEclosion: true })), 'cible');
+    if (!premiere.ok) throw new Error(premiere.raison);
+    expect(premiere.region.especesEcloses).toEqual([2]);
+    const suivante = evoluer(region(pokemon({ marqueEclosion: true, numero: 2, niveau: 32 }), {}), 'cible');
+    if (!suivante.ok) throw new Error(suivante.raison);
+    expect(suivante.region.especesEcloses).toEqual([3]);
+  });
+
+  it('ne compte jamais deux fois une espèce déjà éclose', () => {
+    const entree = { ...region(pokemon({ marqueEclosion: true })), especesEcloses: [1, 2] };
+    const resultat = evoluer(entree, 'cible');
+    if (!resultat.ok) throw new Error(resultat.raison);
+    expect(resultat.region.especesEcloses).toEqual([1, 2]);
+  });
+
+  it('laisse la liste inchangée sans marque d\'éclosion, par niveau comme par pierre', () => {
+    const parNiveau = evoluer(region(), 'cible');
+    if (!parNiveau.ok) throw new Error(parNiveau.raison);
+    expect(parNiveau.region.especesEcloses).toBeUndefined();
+    const parPierre = evoluerParPierre(region(pokemon({ numero: 25 }), { thunderStone: 1 }), 'cible', 'thunderStone');
+    if (!parPierre.ok) throw new Error(parPierre.raison);
+    expect(parPierre.region.especesEcloses).toBeUndefined();
+  });
+
+  it('note aussi l\'évolution par pierre d\'un Pokémon à marque', () => {
+    const resultat = evoluerParPierre(region(pokemon({ numero: 25, marqueEclosion: true }), { thunderStone: 1 }), 'cible', 'thunderStone');
+    if (!resultat.ok) throw new Error(resultat.raison);
+    expect(resultat.region.especesEcloses).toEqual([26]);
+  });
+});

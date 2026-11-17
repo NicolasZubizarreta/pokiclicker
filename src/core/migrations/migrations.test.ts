@@ -8,7 +8,7 @@ import regionV1 from './__fixtures__/region-v1.json';
 import regionV2 from './__fixtures__/region-v2.json';
 import compteV1 from './__fixtures__/compte-v1.json';
 import compteV2 from './__fixtures__/compte-v2.json';
-import { migrer, migrerV1versV2, migrerV2versV3, migrerV3versV4, migrationsParDefaut } from './index';
+import { migrer, rattraperEspecesEcloses, migrerV1versV2, migrerV2versV3, migrerV3versV4, migrationsParDefaut } from './index';
 import { VERSION_ACTUELLE } from '../sauvegarde-types';
 import { partieInitiale, regionInitiale } from '../sauvegarde';
 import type { Enveloppe } from '../sauvegarde-types';
@@ -218,5 +218,35 @@ describe('migration 1 → 2 : données mal formées', () => {
       ecritLe: '2026-10-24T10:00:00.000Z', donnees: { regionId: 'kanto', equipe: 'oups' } };
     expect(() => migrer(region as Enveloppe<unknown>)).not.toThrow();
     expect(migrer(region as Enveloppe<unknown>).donnees).toMatchObject({ equipe: 'oups', pc: [] });
+  });
+});
+
+describe('rattrapage des espèces écloses', () => {
+  const marque = (numero: number) => ({ ...v2.donnees.pcGlobal[0], uid: `m${numero}`, numero, marqueEclosion: true });
+  const enveloppe = (donnees: Record<string, unknown>) => ({ ...regionV2, version: 4, donnees: { ...regionV2.donnees, ...donnees } }) as Enveloppe<unknown>;
+
+  it('ajoute la lignée des Pokémon à marque (équipe, PC, parents), sans perte ni mutation', () => {
+    const source = enveloppe({ especesEcloses: [1], equipe: [marque(3)], pc: [marque(5)],
+      pension: { ...regionV2.donnees.pension, parents: [marque(26)] } });
+    const avant = structuredClone(source);
+    const donnees = migrer(source).donnees as { especesEcloses: number[]; equipe: unknown[] };
+    expect(donnees.especesEcloses).toEqual([1, 2, 3, 4, 5, 25, 26]);
+    expect(donnees.equipe).toEqual((avant.donnees as { equipe: unknown[] }).equipe);
+    expect(source).toEqual(avant);
+  });
+
+  it('laisse intacte une région sans Pokémon à marque, ou déjà à jour', () => {
+    const sans = enveloppe({ equipe: [{ ...marque(3), marqueEclosion: undefined }] });
+    expect(migrer(sans)).toEqual(sans);
+    const ajour = enveloppe({ especesEcloses: [1, 2, 3], equipe: [marque(3)] });
+    expect(migrer(ajour)).toEqual(ajour);
+    expect(rattraperEspecesEcloses(null)).toBeNull();
+    expect(rattraperEspecesEcloses([1])).toEqual([1]);
+  });
+
+  it('produit une sauvegarde que la validation accepte', () => {
+    const region = { ...regionInitiale('kanto', 'kanto.route-1'), especesEcloses: [], equipe: [{ ...marque(3), sexe: 'femelle', favori: false }] };
+    const valide = validerEnveloppe({ ...regionV2, version: 4, donnees: region }, 'region');
+    expect((valide.donnees as { especesEcloses: number[] }).especesEcloses).toEqual([1, 2, 3]);
   });
 });

@@ -180,17 +180,17 @@ Source : retour d'un testeur qui a fini le jeu à 100 % et tenté le shiny dex a
 
 ## F. `fix(pension): compter les évolutions des Pokémon éclos dans le dex éclos`
 
-`type:fix`, `etat:a_faire`, `est:0.5-1`, `prio:1` · branche : `v2` · `agent-ok` recommandé (une migration légère, pas de règle de jeu)
+`type:fix`, `etat:fait`, `est:0.5-1`, `prio:1` · branche : `v2` · `agent-ok` recommandé (une migration légère, pas de règle de jeu)
 
 ### Histoire
 En tant que joueur, je veux que l'évolution d'un Pokémon éclos compte dans la liste des éclos, afin de pouvoir finir le x/151 (aujourd'hui seuls les stades 1 éclosent, donc il est impossible à compléter).
 
 ### Critères d'acceptation
-- [ ] Étant donné un Pokémon portant la marque d'éclosion, quand il évolue (Bulbizarre en Herbizarre, puis en Florizarre), alors chaque espèce atteinte s'ajoute à `especesEcloses` et le compteur x/151 monte.
-- [ ] Étant donné un Pokémon sans marque d'éclosion, quand il évolue, alors `especesEcloses` ne change pas.
-- [ ] Étant donné une sauvegarde où des Pokémon à marque ont déjà évolué (équipe ou PC), quand la partie se charge, alors leurs espèces sont ajoutées à `especesEcloses` (migration de rattrapage, sans perte).
-- [ ] Étant donné la collection d'éclosions, quand tous les stades d'une lignée ont été obtenus par œuf puis évolution, alors ils sont tous marqués comme éclos.
-- [ ] Étant donné les tests, quand `tsc -b`, eslint, vitest et les e2e `pension` tournent, alors ils sont verts.
+- [x] Étant donné un Pokémon portant la marque d'éclosion, quand il évolue (Bulbizarre en Herbizarre, puis en Florizarre), alors chaque espèce atteinte s'ajoute à `especesEcloses` et le compteur x/151 monte.
+- [x] Étant donné un Pokémon sans marque d'éclosion, quand il évolue, alors `especesEcloses` ne change pas.
+- [x] Étant donné une sauvegarde où des Pokémon à marque ont déjà évolué (équipe ou PC), quand la partie se charge, alors leurs espèces sont ajoutées à `especesEcloses` (migration de rattrapage, sans perte).
+- [x] Étant donné la collection d'éclosions, quand tous les stades d'une lignée ont été obtenus par œuf puis évolution, alors ils sont tous marqués comme éclos.
+- [x] Étant donné les tests, quand `tsc -b`, eslint, vitest et les e2e `pension` tournent, alors ils sont verts (vitest : seuls échecs, `PagePlus.test.tsx` — texte « Vu » retiré par c70f13b, déjà rouge sur `v2` — et les deux tests de sons/musiques liés aux mp3 ignorés par git dans un worktree).
 
 ### Hors périmètre
 Les nouvelles listes (ticket G).

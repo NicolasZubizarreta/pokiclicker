@@ -1,5 +1,6 @@
 import { ERREUR_VERSION, VERSION_ACTUELLE } from '../sauvegarde-types';
 import type { Enveloppe, Niveau } from '../sauvegarde-types';
+import { lignee } from '../evolution';
 import { reglages } from '../reglages';
 import { sexeEspece } from '../sexe';
 
@@ -74,5 +75,25 @@ export function migrer(enveloppe: Enveloppe<unknown>, table = migrationsParDefau
       resultat.donnees = { ...source, statistiques: { eliminations: 0, argentTotalGagne: 0, ...stats } };
     }
   }
+  if (resultat.niveau === 'region') resultat.donnees = rattraperEspecesEcloses(resultat.donnees);
   return resultat;
+}
+
+/** Rattrapage idempotent : les espèces atteintes par évolution depuis une éclosion entrent dans `especesEcloses`. */
+export function rattraperEspecesEcloses(donnees: unknown): unknown {
+  if (donnees === null || typeof donnees !== 'object' || Array.isArray(donnees)) return donnees;
+  const source = donnees as Record<string, unknown>;
+  const pension = source.pension !== null && typeof source.pension === 'object' ? source.pension as Record<string, unknown> : {};
+  const marques = [source.equipe, source.pc, pension.parents].flatMap(liste => Array.isArray(liste) ? liste : [])
+    .filter(valeur => valeur !== null && typeof valeur === 'object' && (valeur as Record<string, unknown>).marqueEclosion === true
+      && Number.isInteger((valeur as Record<string, unknown>).numero) && ((valeur as Record<string, unknown>).numero as number) >= 1);
+  if (marques.length === 0) return donnees;
+  const connues = Array.isArray(source.especesEcloses) ? source.especesEcloses as unknown[] : [];
+  const ajoutees: number[] = [];
+  for (const marque of marques) {
+    let especes: number[];
+    try { especes = lignee((marque as { numero: number }).numero); } catch { continue; }
+    for (const espece of especes) if (!connues.includes(espece) && !ajoutees.includes(espece)) ajoutees.push(espece);
+  }
+  return ajoutees.length === 0 ? donnees : { ...source, especesEcloses: [...connues, ...ajoutees] };
 }
