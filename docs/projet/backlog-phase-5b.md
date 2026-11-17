@@ -587,3 +587,30 @@ Le libellé et le DPS des œufs (Y), la fusion Équipe/PC (U).
 
 ### Résultat (17/11)
 Les tags viennent d'un seul composant, `RepereTags` (`src/ui/RepereMarque.tsx`), posé juste après le nom dans la carte d'équipe, la ligne d'équipe du Combat, la carte du PC, l'en-tête de la fiche et le panneau de l'Équipe : étoile shiny (une seule), puis icône d'œuf seule (plus de cercle jaune ni de fond noir). Le cercle étoilé sur le sprite est supprimé ; le halo shiny reste. Le Pokédex garde ses tags en haut à droite de la case (`TagsDex`), l'œuf à droite de l'étoile. « XP max » est retiré des cartes de niveau 100 (la fiche garde « MAX »). Sur la petite carte téléphone du Combat, qui n'affiche pas le nom, l'icône d'œuf reste seule dans le coin du sprite. Sur le PC, le nom passe à la ligne au lieu d'être tronqué.
+
+## AA. `fix(pension): sprites des parents plus grands et centrés sur l'herbe de l'enclos`
+
+`type:fix`, `etat:fait`, `est:0.5`, `prio:3` · branche : `v2` · `agent-ok` recommandé · demande de Nicolas (17/11), après Y et Z
+
+### Histoire
+En tant que joueur, je veux voir mes deux parents bien lisibles, au milieu de l'herbe de l'enclos, et pas petits ni collés au bas de la clôture.
+
+### Contexte
+Dans l'écran Pension, les deux sprites de parents sont trop petits et placés trop bas : leurs pieds touchent la lisse du bas de l'enclos (70 % de la hauteur de la scène) et ils ne sont pas au centre de la zone d'herbe de l'arrière-plan. Les sprites n'étaient pas calés sur la largeur de la scène (96 px fixes sur téléphone, 192 px sur grand écran) et laissaient les lignes vides sous les pieds (Pikachu flottait plus haut qu'Onix).
+
+### Critères d'acceptation
+- [x] Étant donné deux parents déposés, quand la scène de la pension s'affiche à 360, 390 et 1440 px, alors leurs pieds sont dans l'herbe (54 à 60 % de la hauteur de la scène) et leur milieu est au centre de l'herbe (environ 58 % de la largeur).
+- [x] Étant donné les mêmes parents, quand l'écran s'affiche, alors les sprites sont plus grands qu'avant (grand écran : environ +45 %, 27 % de la largeur de la scène contre 18 % ; téléphone : 30 % contre 27 % sur une scène plus étroite) et restent dans l'enclos, y compris pour les plus grands (Onix, Dracolosse), à la tête près qui dépasse au-dessus de la clôture.
+- [x] Étant donné un sprite avec des lignes vides sous les pieds, quand il s'affiche, alors ses pieds sont posés sur la même ligne que ceux d'un sprite plein cadre (`pieds-sprites.json`).
+- [x] Étant donné le grand écran, quand les cartes des parents recouvrent l'herbe, alors elles ne passent pas sur la note des œufs.
+- [x] Étant donné la taille et la position, quand on lit le code, alors elles sont des variables CSS de la scène (`--taille-parent`, `--pieds-parent`), sans valeur de design inventée.
+- [x] Étant donné les tests, quand `tsc`, eslint, vitest ciblé et les e2e `pension` et `pension-visibilite` (mobile, pc, iphone) tournent, alors ils sont verts.
+
+### Hors périmètre
+Le décor, les cartes des parents, la logique de pension.
+
+### Effort et risques
+Une demi-journée. Risque : sur téléphone la scène est étroite (environ 330 px) et l'herbe ne fait que 42 % de sa largeur : +50 % remplirait toute la scène et sortirait de la clôture, d'où +12 % seulement en taille de sprite, plus la remontée et l'alignement des pieds.
+
+### Résultat (17/11)
+`src/ui/PagePension.css` et `PagePension.tsx` : la scène devient un conteneur (`container-type:inline-size`), la taille des parents se règle en `cqw` et les pieds sur `--pieds-parent`, avec le décalage des lignes vides de chaque espèce (`--vide`). Captures regardées à 360, 390 et 1440 px avec Onix et Dracolosse, puis Pikachu et Bulbizarre. Vitest `PagePension` et e2e `pension`, `pension-visibilite` : 26 passés, 2 ignorés.

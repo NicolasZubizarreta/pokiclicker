@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { useStore } from 'zustand';
 import { reglages } from '../core/reglages';
 import { couplePonte, type RaisonPonte } from '../core/pension';
@@ -6,6 +6,7 @@ import { filtrerPc, trierPc } from '../core/pc';
 import type { PokemonPossede } from '../core/sauvegarde';
 import { classeSprite, nomAffiche, progressionOeuf, spriteAffiche } from './affichage-pokemon';
 import { Image } from './Image';
+import piedsSprites from './pieds-sprites.json';
 import { IconeShiny } from './IconeShiny';
 import { CollectionEclosions } from './CollectionEclosions';
 import { storeJeu, type StoreJeu } from './store';
@@ -68,7 +69,7 @@ export function PagePension({ retour, libelleRetour, store = storeJeu }: { retou
         <Image src="img/decors/pension.webp" genre="decor" alt="" className="pension-decor" />
         <div className="pension-chance cadre"><Coeur /><div><strong>{nombre(pension.chance * 100)} % par élimination</strong><p>{phrase}</p></div></div>
         <p className="pension-compteur cadre">Œufs · {pension.oeufs.length} / {pension.emplacements}</p>
-        <div className="pension-acteurs">{Array.from({ length: 2 }, (_, i) => <div key={i} className={`pension-acteur pension-acteur-${i}`}>
+        <div className="pension-acteurs">{Array.from({ length: 2 }, (_, i) => <div key={i} className={`pension-acteur pension-acteur-${i}`} style={{ '--vide': (piedsSprites[(pension.parents[i]?.numero ?? 1) - 1] ?? 0) / 96 } as CSSProperties}>
           {pension.parents[i] ? <Image src={spriteAffiche(pension.parents[i])} genre="sprite" alt="" className={`${i ? 'pension-miroir' : ''} ${pension.parents[i].shiny ? 'halo-shiny' : ''} ${classeSprite(pension.parents[i])}`} /> : <button aria-label="Déposer un parent" className="pension-place-decor" onClick={e => ouvrir(e.currentTarget)}>+</button>}
         </div>)}{pension.chance > 0 && <span className="pension-coeurs"><Coeur /></span>}</div>
         <div className="pension-reperes" aria-hidden="true">{Array.from({ length: pension.emplacementsMax }, (_, i) => <span className="cadre" key={i}>{pension.oeufs[i] ? 'Œuf' : i < pension.emplacements ? 'Libre' : 'Fermé'} · {i + 1}</span>)}</div>

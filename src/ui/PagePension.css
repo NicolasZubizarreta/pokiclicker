@@ -8,17 +8,19 @@
 .pension-entete, .pension-filtres { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:calc(var(--spacing) * 2); }
 .pension-filtres { justify-content:start; }
 .pension-monde { position:relative; display:grid; gap:calc(var(--spacing) * 4); min-width:0; }
-.pension-scene { position:relative; aspect-ratio:16 / 9; isolation:isolate; }
+/* Les parents se règlent sur la largeur de la scène (cqw) : l'herbe de l'enclos va de 37 à 79 % de la largeur et de 39 à 69 % de la hauteur de l'image, et les pieds (hors lignes vides du sprite, `--vide`) se posent à 60 % (54 % quand les cartes des parents recouvrent l'herbe). Plus étroite, la scène du téléphone garde des parents plus grands en proportion. */
+.pension-scene { position:relative; aspect-ratio:16 / 9; isolation:isolate; container-type:inline-size; --taille-parent:30cqw; --pieds-parent:60%; }
 .pension-decor { width:100%; height:100%; border-radius:var(--rayon); }
 .pension-chance { position:absolute; z-index:2; top:2.5%; left:1.5%; display:flex; align-items:center; gap:var(--spacing); padding:var(--spacing) calc(var(--spacing) * 2); max-width:97%; }
 .pension-chance strong { color:var(--region-accent); }
 .pension-chance p { display:none; font-size:var(--text-sm); }
 .pension-coeur { width:calc(var(--spacing) * 6); height:calc(var(--spacing) * 6); fill:var(--erreur-base); flex-shrink:0; }
 .pension-compteur { display:none; position:absolute; right:1.5%; top:2.5%; padding:calc(var(--spacing) * 2); }
-.pension-acteur { position:absolute; top:70%; transform:translate(-50%, -100%); }
-.pension-acteur-0 { left:45%; }
-.pension-acteur-1 { left:74%; }
-.pension-acteur img, .pension-portrait img, .pension-espece img { width:calc(var(--spacing) * 24); height:calc(var(--spacing) * 24); max-width:none; image-rendering:pixelated; }
+.pension-acteur { position:absolute; top:var(--pieds-parent); transform:translate(-50%, calc(var(--taille-parent) * var(--vide, 0) - 100%)); }
+.pension-acteur-0 { left:47%; }
+.pension-acteur-1 { left:69%; }
+.pension-acteur img { width:var(--taille-parent); height:var(--taille-parent); max-width:none; image-rendering:pixelated; }
+.pension-portrait img, .pension-espece img { width:calc(var(--spacing) * 24); height:calc(var(--spacing) * 24); max-width:none; image-rendering:pixelated; }
 .pension-miroir { transform:scaleX(-1); }
 .pension-portrait-oeuf img { width:calc(var(--spacing) * 22.5); height:calc(var(--spacing) * 22.5); }
 .pension-coeurs { position:absolute; left:57.5%; top:47%; }
@@ -65,6 +67,7 @@
   .pension-oeufs h2 { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
 }
 @media (min-width:48rem) {
+  .pension-scene { --taille-parent:27cqw; }
   .pension-fentes, .pension-paliers { grid-template-columns:repeat(2,minmax(0,1fr)); }
   .pension-choix { width:min(calc(100vw - var(--spacing) * 8),calc(var(--spacing) * 200)); max-height:calc(100dvh - var(--spacing) * 8); margin:auto; border-radius:var(--rayon); }
   .pension-candidats { grid-template-columns:repeat(3,minmax(0,1fr)); }
@@ -78,10 +81,9 @@
   .pension-paliers { grid-template-columns:repeat(4,minmax(0,1fr)); }
 }
 @media (min-width:72rem) and (min-height:50rem) {
-  .pension-acteur { top:53%; }
-  .pension-acteur img { width:calc(var(--spacing) * 48); height:calc(var(--spacing) * 48); }
+  .pension-scene { --pieds-parent:54%; }
   .pension-sous-scene { display:contents; }
-  .pension-parents { position:absolute; top:47%; left:33%; right:14%; pointer-events:none; }
+  .pension-parents { position:absolute; top:54%; left:33%; right:14%; pointer-events:none; }
   .pension-parent { pointer-events:auto; }
   .pension-parents h2, .pension-parent > .pension-portrait, .pension-parent > .pension-place, .pension-parent > p { display:none; }
   .pension-parent { justify-self:center; width:max-content; max-width:100%; padding:var(--spacing); gap:var(--spacing); background:var(--surface); }
