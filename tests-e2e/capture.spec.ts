@@ -64,6 +64,14 @@ test('échec : la Pokéball est consommée', async ({ page }) => {
   await expect(balle(page, 'Pokéball', 4)).toBeVisible();
 });
 
+test('la balle choisie est gardée au rechargement', async ({ page }) => {
+  await demarrer(page);
+  await choisirBalle(page, 'Hyperball', 1);
+  await page.reload();
+  await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
+  await expect(balle(page, 'Hyperball', 1)).toBeVisible();
+});
+
 test('arrêt automatique sur chaque nouveau Pokémon, à chaque apparition', async ({ page }) => {
   // Aléa fixé : toujours un Rattata, nouveau tant qu'il n'est pas capturé (comme en V1).
   await page.addInitScript(() => { Math.random = () => 0.1; });
