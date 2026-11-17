@@ -28,8 +28,9 @@ it.each([false, true])('repère sur les cartes d’équipe, téléphone : %s', t
   const equipe = storeJeu.getState().equipe;
   storeJeu.setState({ equipe: equipe.map((m, i) => m ? { ...m, pokemon: { ...m.pokemon, marqueEclosion: i === 0 } } : null) });
   const { container } = render(<PageEquipe />);
-  expect(container.querySelectorAll('.repere-marque')).toHaveLength(1);
-  expect(screen.getByRole('img', { name: "Marque d'éclosion" })).toBeTruthy();
+  // Une seule icône d'œuf par carte d'équipe (le panneau de droite répète le nom du Pokémon choisi, avec ses tags).
+  expect([...container.querySelectorAll('.repere-marque')].filter(tag => !tag.closest('aside'))).toHaveLength(1);
+  expect(screen.getAllByRole('img', { name: "Marque d'éclosion" }).length).toBeGreaterThanOrEqual(1);
   vi.unstubAllGlobals();
 });
 const annulerEchange = vi.fn(() => storeJeu.setState({ echange: null }));

@@ -548,7 +548,7 @@ Retour de Nicolas (17/11) : les œufs de l'équipe affichent un DPS (25,5 et 28,
 - [x] Étant donné un œuf, quand des combats sont gagnés, alors seul son compteur d'éclosion avance : aucune XP, aucun bonheur, aucun effet d'objet n'est appliqué à l'œuf ; un test le vérifie.
 - [x] Étant donné la carte d'un œuf, quand elle s'affiche à 360, 390 et 1440 px, alors le texte est « 22/50 » (sans « Éclosion : »), lisible et dans le cadre.
 - [x] Étant donné une ancienne sauvegarde avec des œufs, quand elle se charge, alors rien n'est perdu ni cassé.
-- [ ] Étant donné les tests, quand `tsc`, eslint, vitest et les e2e ciblés (pension, équipe, combat) tournent, alors ils sont verts.
+- [x] Étant donné les tests, quand `tsc`, eslint, vitest et les e2e ciblés (pension, équipe, combat) tournent, alors ils sont verts. _Vérifié le 17/11 : tsc et eslint propres, vitest complet (seuls échecs : `musiques.test.ts` et `sons-fidelite.test.ts`, mp3 absents, connus), e2e équipe, PC, pension, combat sur `mobile` et `pc` ; seuls échecs : 4 de `combat-equipe-pc.spec.ts`, connus sur la base._
 
 ### Hors périmètre
 Les tags (Z), les valeurs de la pension (S).
@@ -563,7 +563,7 @@ Les tags (Z), les valeurs de la pension (S).
 
 ## Z. `fix(ui): une seule étoile shiny à droite du nom, tag œuf réduit à l'icône, plus de « XP max »`
 
-`type:fix`, `etat:a_faire`, `est:1-1.5`, `prio:2` · branche : `v2` · `agent-ok` recommandé · après le test de Nicolas du 17/11 (reprend P)
+`type:fix`, `etat:fait`, `est:1-1.5`, `prio:2` · branche : `v2` · `agent-ok` recommandé · après le test de Nicolas du 17/11 (reprend P)
 
 ### Histoire
 En tant que joueur, je veux un seul repère shiny et un repère d'œuf discret, au même endroit partout, et ne pas voir de texte qui sort du cadre.
@@ -572,15 +572,18 @@ En tant que joueur, je veux un seul repère shiny et un repère d'œuf discret, 
 Retour de Nicolas (17/11) : le shiny apparaît en double (une étoile dans un cercle sur le sprite, plus une étoile après le nom). Décision : on garde l'étoile à droite du nom du Pokémon, dans la zone de combat, dans l'équipe et dans le PC ; on supprime l'autre. Dans le Pokédex, on garde le tag en haut à droite de la case. Le tag œuf devient la seule icône d'œuf, sans cercle jaune ni fond noir, placé à droite de l'étoile shiny (à droite du nom, ou en haut à droite de la case dans le Pokédex). Le texte « XP max » d'un Pokémon niveau 100 est inutile et sort du cadre.
 
 ### Critères d'acceptation
-- [ ] Étant donné un Pokémon shiny, quand il s'affiche dans le Combat, l'Équipe ou le PC, alors une seule étoile figure, à droite de son nom ; le cercle étoilé sur le sprite n'existe plus.
-- [ ] Étant donné un Pokémon issu d'un œuf, quand il s'affiche dans le Combat, l'Équipe ou le PC, alors une icône d'œuf seule (sans cercle jaune ni fond noir) figure à droite de l'étoile shiny, ou juste à droite du nom s'il n'est pas shiny.
-- [ ] Étant donné une case du Pokédex, quand l'espèce est shiny et éclose, alors les tags sont en haut à droite de la case, l'icône d'œuf à droite de l'étoile shiny, et la case garde sa taille.
-- [ ] Étant donné un Pokémon niveau 100, quand sa carte s'affiche, alors le texte « XP max » n'apparaît plus et rien ne sort du cadre.
-- [ ] Étant donné la charte, quand les tags s'affichent à 360, 390 et 1440 px, alors ils respectent `design/DESIGN.md` et les captures sont regardées.
-- [ ] Étant donné les tests, quand `tsc`, eslint, vitest et les e2e ciblés tournent, alors ils sont verts (tests des tags adaptés).
+- [x] Étant donné un Pokémon shiny, quand il s'affiche dans le Combat, l'Équipe ou le PC, alors une seule étoile figure, à droite de son nom ; le cercle étoilé sur le sprite n'existe plus.
+- [x] Étant donné un Pokémon issu d'un œuf, quand il s'affiche dans le Combat, l'Équipe ou le PC, alors une icône d'œuf seule (sans cercle jaune ni fond noir) figure à droite de l'étoile shiny, ou juste à droite du nom s'il n'est pas shiny.
+- [x] Étant donné une case du Pokédex, quand l'espèce est shiny et éclose, alors les tags sont en haut à droite de la case, l'icône d'œuf à droite de l'étoile shiny, et la case garde sa taille.
+- [x] Étant donné un Pokémon niveau 100, quand sa carte s'affiche, alors le texte « XP max » n'apparaît plus et rien ne sort du cadre.
+- [x] Étant donné la charte, quand les tags s'affichent à 360, 390 et 1440 px, alors ils respectent `design/DESIGN.md` et les captures sont regardées.
+- [x] Étant donné les tests, quand `tsc`, eslint, vitest et les e2e ciblés tournent, alors ils sont verts (tests des tags adaptés).
 
 ### Hors périmètre
 Le libellé et le DPS des œufs (Y), la fusion Équipe/PC (U).
 
 ### Effort et risques
 1 à 1,5 jour. Risque : les mêmes composants servent à plusieurs écrans ; Y touche la carte d'œuf de l'équipe, donc Y et Z se fusionnent dans l'ordre Y puis Z.
+
+### Résultat (17/11)
+Les tags viennent d'un seul composant, `RepereTags` (`src/ui/RepereMarque.tsx`), posé juste après le nom dans la carte d'équipe, la ligne d'équipe du Combat, la carte du PC, l'en-tête de la fiche et le panneau de l'Équipe : étoile shiny (une seule), puis icône d'œuf seule (plus de cercle jaune ni de fond noir). Le cercle étoilé sur le sprite est supprimé ; le halo shiny reste. Le Pokédex garde ses tags en haut à droite de la case (`TagsDex`), l'œuf à droite de l'étoile. « XP max » est retiré des cartes de niveau 100 (la fiche garde « MAX »). Sur la petite carte téléphone du Combat, qui n'affiche pas le nom, l'icône d'œuf reste seule dans le coin du sprite. Sur le PC, le nom passe à la ligne au lieu d'être tronqué.

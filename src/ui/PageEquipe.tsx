@@ -1,7 +1,6 @@
 import { Fragment, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useStore } from 'zustand';
 import { classeSprite, libelleOeuf, nomAffiche, progressionOeuf, spriteAffiche } from './affichage-pokemon';
-import { IconeShiny } from './IconeShiny';
 import { RepereTags } from './RepereMarque';
 import { chargerObjets } from '../core/boutique';
 import { reglages } from '../core/reglages';
@@ -212,10 +211,9 @@ export function PageEquipe({ ouvrirPC }: { ouvrirPC?: () => void }) {
                 ? <span className="grid size-14 lg:size-24 max-w-full overflow-hidden place-items-center [&_img]:size-14 lg:[&_img]:size-24 [&_img]:max-h-full [&_img]:max-w-full"><SpriteEvolution ancien={spriteAffiche({ ...pokemon, numero: evolution.ancien })}
                   nouveau={spriteAffiche({ ...pokemon, numero: evolution.nouveau })} nom={nom} actif shiny={pokemon.shiny} /></span>
                 : <Image src={spriteAffiche(pokemon)} genre="sprite" alt="" className={`size-14 lg:size-24 max-h-full max-w-full ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(pokemon)}`} />}
-              <RepereTags pokemon={pokemon} />
               </span>
               <span className="grid min-w-0 gap-1 lg:gap-2">
-                <strong className="flex items-center gap-2 break-words">{nom}{pokemon.shiny && !pokemon.oeuf && <IconeShiny />}{pokemon.favori &&
+                <strong className="flex items-center gap-2 break-words"><span>{nom}<RepereTags pokemon={pokemon} /></span>{pokemon.favori &&
                   <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" className="size-5 shrink-0 fill-current text-lien">
                     <path d="m12 2 3 6 7 1-5 5 1 8-6-4-6 4 1-8-5-5 7-1z" />
                   </svg>}</strong>
@@ -291,7 +289,7 @@ export function PageEquipe({ ouvrirPC }: { ouvrirPC?: () => void }) {
               nouveau={spriteAffiche({ ...membre.pokemon, numero: evolution.nouveau })} nom={nom} actif shiny={membre.pokemon.shiny} /></span>
             : <Image src={spriteAffiche(membre.pokemon)} genre="sprite" alt="" className={`size-48 max-w-full ${membre.pokemon.shiny && !membre.pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(membre.pokemon)}`} />}
         </div>
-        <h2 className="break-words font-titre text-xl font-semibold">{nom}{membre.pokemon.shiny && !membre.pokemon.oeuf && <IconeShiny />}</h2>
+        <h2 className="break-words font-titre text-xl font-semibold">{nom}<RepereTags pokemon={membre.pokemon} /></h2>
         <p>{membre.pokemon.oeuf ? progressionOeuf(membre.pokemon.oeuf) : `Niv. ${membre.pokemon.niveau}`}</p>
         {!membre.pokemon.oeuf && <>
           <BarreXp xp={membre.pokemon.xp} maximum={membre.xpMax} nom={nom} />

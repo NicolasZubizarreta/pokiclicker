@@ -11,7 +11,6 @@ import { FichePokemon } from './FichePokemon';
 import { Image } from './Image';
 import { formaterDps } from './nombres';
 import { classeSprite, libelleOeuf, nomAffiche as nomDe, progressionOeuf, spriteAffiche } from './affichage-pokemon';
-import { IconeShiny } from './IconeShiny';
 import { RepereTags } from './RepereMarque';
 import { storeJeu } from './store';
 import { notifier } from './pileNotifications';
@@ -138,7 +137,7 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
       const contenu = <>
         <Image src={spriteAffiche(pokemon)} genre="sprite" alt="" className={`${mobile ? 'size-16' : 'size-14'} shrink-0 ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(pokemon)}`} />
         <span className="grid min-w-0 gap-1 break-words">
-          <strong>{nom}<RepereTags pokemon={pokemon} enLigne /></strong><span>{pokemon.oeuf ? progressionOeuf(pokemon.oeuf) : `Niv. ${pokemon.niveau}`}</span>{!mobile && !pokemon.oeuf && <span>{formaterDps(dps)} DPS</span>}
+          <strong>{nom}<RepereTags pokemon={pokemon} /></strong><span>{pokemon.oeuf ? progressionOeuf(pokemon.oeuf) : `Niv. ${pokemon.niveau}`}</span>{!mobile && !pokemon.oeuf && <span>{formaterDps(dps)} DPS</span>}
         </span>
       </>;
       return echange || !telephone ? <button key={index} type="button" aria-label={pokemon.oeuf ? `${nom}, ${libelleOeuf(pokemon.oeuf)}` : `${nom}, niveau ${pokemon.niveau}`}
@@ -222,17 +221,15 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
                       } else if (!telephone || !panneau.current?.getClientRects().length) ouvrirFiche(pokemon.uid, event.currentTarget);
                     }}>
                     <span className="relative isolate grid size-12 shrink-0 max-w-full overflow-hidden place-items-center lg:size-24">
-                      <RepereTags pokemon={pokemon} />
                       {telephone && <span aria-hidden="true" className="socle absolute bottom-2 -z-10 hidden h-4 w-20 bg-region-socle lg:block" />}
                       <Image src={spriteAffiche(pokemon)} genre="sprite" alt="" className={`size-12 lg:size-24 max-h-full max-w-full ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(pokemon)}`} />
                     </span>
-                    <span className="grid min-w-0 gap-1 lg:contents"><strong className="flex min-w-0 max-w-full items-center gap-1 lg:justify-center">
-                      <span className="min-w-0 truncate">{nom}</span>
+                    <span className="grid min-w-0 gap-1 lg:contents"><strong className="flex min-w-0 max-w-full flex-wrap items-center gap-x-1 lg:justify-center">
+                      <span className="min-w-0 break-words">{nom}</span><RepereTags pokemon={pokemon} decoratif={false} />
                       {!pokemon.oeuf && (pokemon.sexe === 'femelle' || pokemon.sexe === 'male') && <IconeSexe sexe={pokemon.sexe} className="size-4" />}
                       {pokemon.favori && <><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" className="size-5 shrink-0 fill-current text-lien">
                         <path d="m12 2 3 6 7 1-5 5 1 8-6-4-6 4 1-8-5-5 7-1z" />
                       </svg><span className="sr-only">Favori</span></>}
-                      {pokemon.shiny && !pokemon.oeuf && <span className="sr-only">Shiny</span>}
                     </strong>
                     {(!telephone || tri === 'dps') && !pokemon.oeuf && <span className="whitespace-nowrap text-region-accent font-bold">{formaterDps(dpsPc(pokemon))} DPS</span>}
                     {pokemon.oeuf ? <span>{progressionOeuf(pokemon.oeuf)}</span>
@@ -247,7 +244,7 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
         <div className={!telephone ? 'pc-places grid gap-2' : 'grid gap-2'}>{places(false)}</div>
         {telephone && (pokemon ? <>
           <Image src={spriteAffiche(pokemon)} genre="sprite" alt="" className={`mx-auto size-24 max-w-full ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(pokemon)}`} />
-          <h2 className="break-words font-titre text-xl font-semibold">{nomDe(pokemon)}{pokemon.shiny && !pokemon.oeuf && <IconeShiny />}</h2>
+          <h2 className="break-words font-titre text-xl font-semibold">{nomDe(pokemon)}<RepereTags pokemon={pokemon} /></h2>
           <p>{pokemon.oeuf ? progressionOeuf(pokemon.oeuf) : `N° ${pokemon.numero} · Niveau ${pokemon.niveau}`}</p>
           {!pokemon.oeuf && <p className="text-region-accent">{formaterDps(dpsPc(pokemon))} DPS</p>}
           {!pokemon.oeuf && <BarreXp xp={pokemon.xp} maximum={calculerMaxXp(pokemon.numero, pokemon.niveau)} nom={nomDe(pokemon)} />}

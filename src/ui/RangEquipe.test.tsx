@@ -28,3 +28,16 @@ it('affiche la progression de l’œuf sans XP', () => {
   expect(screen.getByText('7/25')).toBeTruthy();
   expect(screen.queryByRole('progressbar')).toBeNull();
 });
+it('pose une seule étoile à droite du nom, puis l’icône d’œuf, et rien sur le sprite', () => {
+  const { container } = render(<RangEquipe membre={{ ...membre, pokemon: { ...membre.pokemon, shiny: true, marqueEclosion: true } }} ouvrirFiche={vi.fn()} />);
+  expect(container.querySelectorAll('svg')).toHaveLength(2);
+  const nom = container.querySelector('strong')!;
+  expect(nom.querySelectorAll('.repere-tags > *')).toHaveLength(2);
+  expect(nom.querySelector('.repere-tags')!.lastElementChild!.classList.contains('repere-marque')).toBe(true);
+  expect(container.querySelectorAll('.repere-marque')).toHaveLength(1);
+});
+it('n’écrit plus « XP max » à un niveau 100', () => {
+  render(<RangEquipe membre={{ ...membre, pokemon: { ...membre.pokemon, niveau: 100 }, xpMax: 0 }} ouvrirFiche={vi.fn()} />);
+  expect(screen.queryByText(/XP max/)).toBeNull();
+  expect(screen.getByText('Niv. 100')).toBeTruthy();
+});

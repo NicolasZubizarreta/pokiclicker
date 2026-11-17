@@ -83,7 +83,7 @@ test('PC : tris, recherche, captures et pas de défilement horizontal', async ({
   await trier('Niveau', 'niveau');
   await expect(premier()).toContainText(/Niv\. 6[0-9]/);
   await trier('Shiny', 'shiny');
-  await expect(premier().getByText('Shiny')).toBeAttached();
+  await expect(premier().getByRole('img', { name: 'Chromatique' })).toBeAttached();
   await trier('Favori', 'favori');
   await expect(premier().locator('svg').first()).toBeAttached();
   await trier('Nom', 'nom');
