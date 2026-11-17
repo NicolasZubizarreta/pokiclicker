@@ -8,6 +8,17 @@ import { volumes } from './volumes';
 const audio = vi.hoisted(() => ({ actif: true, basculer: vi.fn() }));
 vi.mock('./musique', () => ({ musique: { abonner: () => () => {}, estActive: () => audio.actif, basculer: audio.basculer } }));
 const initial = storeJeu.getState();
+it('bascule Passer les éclosions, désactivé par défaut', () => {
+  expect(initial.passerEclosions).toBe(false);
+  const reglerPasserEclosions = vi.fn((actif: boolean) => storeJeu.setState({ passerEclosions: actif }));
+  storeJeu.setState({ reglerPasserEclosions });
+  render(<PageReglages />);
+  const interrupteur = screen.getByRole('switch', { name: 'Passer les éclosions' });
+  expect(interrupteur.getAttribute('aria-checked')).toBe('false');
+  fireEvent.click(interrupteur);
+  expect(reglerPasserEclosions).toHaveBeenCalledWith(true);
+  expect(interrupteur.getAttribute('aria-checked')).toBe('true');
+});
 it('affiche les réglages sans bouton Retour dans la zone compte', () => {
   const { container } = render(<PageReglages />);
   expect(container.querySelectorAll('.reglages-pc')).toHaveLength(1);

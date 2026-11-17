@@ -101,6 +101,7 @@ export type AffichageJeu = ActionsCasino & {
   evolution: EvolutionAffichee | null;
   /** Évolution automatique : une fenêtre propose d'évoluer (réglage du compte, active par défaut). */
   evolutionAuto: boolean; reglerEvolutionAuto(actif: boolean): void;
+  passerEclosions: boolean; reglerPasserEclosions(actif: boolean): void;
   modalEvolution: ModalEvolution | null;
   /** Bouton « Évoluer » : ouvre la fenêtre si l'option est active, sinon évolue tout de suite (animation dans le cadre). */
   demanderEvolution(uid: string, pierre?: string): string | null;
@@ -369,7 +370,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         region = r.region;
         emettreGain({ type: 'butin', lignes: [`+${r.or.toLocaleString('fr-FR')} ₽`, `+${r.xp.toLocaleString('fr-FR')} XP`] });
         if (r.montees.length > 0 || r.eclosions.length > 0) emettreSon('up'); // le ton « up » de la V1 sonne aussi à l'éclosion
-        fileEclosions.push(...construireEclosions(especesAvant, r.region, r.eclosions));
+        if (!preferences.passerEclosions) fileEclosions.push(...construireEclosions(especesAvant, r.region, r.eclosions));
         if (pension.accesPension(kanto, etatMondeDe(region)).ouvert) {
           const suivante = pension.pondre(region, alea, genererId);
           if (suivante !== region) sauvegarder = true;
@@ -379,6 +380,10 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         for (const eclosion of r.eclosions) {
           noterDansPokedex(eclosion.numero, messages);
           messages.push(reglages.pension.messages.eclosion.replace('{nom}', catalogue.parNumero(eclosion.numero).nom));
+          if (preferences.passerEclosions) {
+            if (region.equipe.find(p => p.uid === eclosion.uid)?.shiny) messages.push('Chromatique !');
+            if (!especesAvant.includes(eclosion.numero)) messages.push('Nouvelle espèce');
+          }
         }
         if (r.montees.length === 1) {
           const montee = r.montees[0]!;
@@ -608,6 +613,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       statistiques: calculerStatistiques(region, maintenant),
       evolution: afficherEvolution(evolutionEnCours, finEvolutionMs, tempsJeuMs),
       modalEvolution, evolutionAuto: preferences.evolutionAuto,
+      passerEclosions: preferences.passerEclosions,
       eclosion: fileEclosions[0] ?? null,
       argent: region.argent, enRecherche: (coeur?.attenteMs ?? 0) > 0 && !coeur?.attenteCapture, cache: (coeur?.attenteMs ?? 0) > 0, annonce, banniere,
       deblocage: deblocageEnCours?.texte ?? null, deblocageCarte: deblocageEnCours?.carte ?? null, sonActive, echange,
@@ -1039,6 +1045,12 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       return modifierEquipe(region => evoluerEquipe(region, uid));
     },
     evolutionAuto: preferences.evolutionAuto, modalEvolution: null,
+    passerEclosions: preferences.passerEclosions,
+    reglerPasserEclosions(actif) {
+      if (!initialise) return;
+      preferences = { ...preferences, passerEclosions: actif };
+      enregistrer(); afficher();
+    },
     reglerEvolutionAuto(actif) {
       if (!initialise) return;
       preferences = { ...preferences, evolutionAuto: actif };

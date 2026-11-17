@@ -19,7 +19,7 @@ export type ReglagesArret = {
 };
 /** `balleChoisie` : clé de la dernière balle choisie dans le combat ; absente tant que le joueur n'en a pas choisi. */
 export type PreferencesCombat = { autoAttaque: boolean; autoClicLie: boolean; arretAuto: ReglagesArret;
-  evolutionAuto: boolean; balleChoisie?: string };
+  evolutionAuto: boolean; passerEclosions: boolean; balleChoisie?: string };
 export type DonneesCompte = {
   diamants: number; succes: string[]; skins: string[];
   preferences: { sombre?: boolean; sonActive?: boolean } & Partial<PreferencesCombat>;

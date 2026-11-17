@@ -40,6 +40,7 @@ export function ouvrirPartie(options: Parameters<typeof creerGestionnaire>[0],
     autoClicLie: compte.preferences.autoClicLie ?? reglages.depart.preferences.autoClicLie,
     arretAuto: structuredClone(compte.preferences.arretAuto ?? reglages.depart.preferences.arretAuto),
     evolutionAuto: compte.preferences.evolutionAuto ?? reglages.depart.preferences.evolutionAuto,
+    passerEclosions: compte.preferences.passerEclosions ?? reglages.depart.preferences.passerEclosions,
   };
   const balle: unknown = compte.preferences.balleChoisie;
   if (typeof balle === 'string' && reglages.capture.balles.some(b => b.cle === balle)) preferences.balleChoisie = balle;

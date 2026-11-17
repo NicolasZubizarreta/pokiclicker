@@ -73,7 +73,7 @@ export function validerPokemonPossede(v: unknown): asserts v is PokemonPossede {
 }
 export function validerDonneesCompte(v: unknown): asserts v is DonneesCompte {
   forme(v, { diamants: entier, succes: textes, skins: textes,
-    preferences: p => forme(p, {}, { sombre: booleen, sonActive: booleen, autoAttaque: booleen, autoClicLie: booleen, evolutionAuto: booleen,
+    preferences: p => forme(p, {}, { sombre: booleen, sonActive: booleen, autoAttaque: booleen, autoClicLie: booleen, evolutionAuto: booleen, passerEclosions: booleen,
       // Lue avec indulgence : une balle inconnue ou illisible retombe sur la balle par défaut, jamais sur un compte refusé.
       balleChoisie: () => undefined,
       arretAuto: a => forme(a, { actif: booleen, commun: booleen, peuCommun: booleen, rare: booleen,
