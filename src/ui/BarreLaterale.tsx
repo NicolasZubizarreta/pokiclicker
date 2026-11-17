@@ -1,6 +1,6 @@
 import { useStore } from 'zustand';
 import { Carte, Combat, Equipe, Menu, PC, Shop } from './icones';
-import { IconePokedex, IconeSortie } from './icones-menu';
+import { IconePension, IconePokedex, IconeSortie } from './icones-menu';
 import type { Page } from './Navigation';
 import type { EtatSynchro } from './synchro';
 import { EtatSynchronisation } from './EtatSynchronisation';
@@ -12,6 +12,7 @@ import { evolutionProposee } from './evolution-proposee';
 import { erreurRetourMenu, useRetourMenuPrincipal } from './useRetourMenuPrincipal';
 
 const entrees = [ ['Combat', Combat], ['Équipe', Equipe], ['PC', PC], ['Shop', Shop], ['Carte', Carte], ['Pokédex', IconePokedex], ['Menu', Menu] ] as const;
+const entreePension = ['Pension', IconePension] as const;
 
 export type InfosPartie = { nomPartie?: string; etatSynchro?: EtatSynchro; quandMenuPrincipal?: () => Promise<boolean> };
 
@@ -24,16 +25,19 @@ export function BarreLaterale({ page, choisir, signalCarte, inerte, origineMonde
   const { retourEnCours, retourEchoue, revenirAuMenuPrincipal } = useRetourMenuPrincipal(quandMenuPrincipal);
   const casinoNouveau = useCasinoNouveau();
   const pensionNouveau = usePensionNouveau();
-  const active = page === 'Monde' ? origineMonde : page === 'Casino' || page === 'Pension' ? 'Menu' : page;
+  const pensionOuverte = useStore(storeJeu, e => e.pension.acces.ouvert);
+  // Pension s'intercale entre Pokédex et Menu sans toucher aux touches : Menu garde la 7, Pension n'a pas de touche.
+  const liste = pensionOuverte ? [...entrees.slice(0, -1), entreePension, entrees.at(-1)!] : entrees;
+  const active = page === 'Monde' ? origineMonde : page === 'Casino' ? 'Menu' : page;
   return <aside inert={inerte} className="barre-laterale hidden min-h-0 flex-col gap-4 border-r border-bordure bg-surface p-4 lg:flex">
     <div className="marque-pc py-4"><b className="font-titre text-xl text-region-accent">PokiClicker</b><span className="sous-titre-pc block text-sm text-texte-doux">Kanto</span></div>
     <nav aria-label="Navigation principale" className="grid gap-1">
-      {entrees.map(([titre, Icone], index) => <button key={titre} type="button" aria-current={active === titre ? 'page' : undefined}
+      {liste.map(([titre, Icone]) => <button key={titre} type="button" aria-current={active === titre ? 'page' : undefined}
         data-tuto={titre === 'Équipe' ? 'onglet-equipe' : undefined}
         data-signal={titre === 'Carte' && signalCarte ? 'true' : undefined} onClick={() => choisir(titre)}
         className={`entree-pc relative flex min-h-14 items-center gap-3 border border-transparent px-3 text-left text-lg ${active === titre ? 'bg-selection font-bold text-region-accent' : 'text-texte-doux'}${titre === 'Carte' && signalCarte ? ' ring-4 ring-succes-base rebond-signal' : ''}`}>
         {active === titre && <span aria-hidden="true" className="absolute inset-y-0 left-0 w-1 bg-region-accent" />}
-        <Icone /><span>{titre}</span><kbd aria-hidden="true" className="touche-pc ml-auto">{index + 1}</kbd>
+        <Icone /><span>{titre}</span>{titre !== 'Pension' && <kbd aria-hidden="true" className="touche-pc ml-auto">{entrees.findIndex(([nom]) => nom === titre) + 1}</kbd>}
         {titre === 'Équipe' && evolution && <span aria-hidden="true" className="h-2 w-2 rounded-full bg-succes-base" />}
         {(titre === 'Menu' || titre === 'Carte') && (casinoNouveau ? <PastilleCasino /> : pensionNouveau && <PastillePension />)}
       </button>)}

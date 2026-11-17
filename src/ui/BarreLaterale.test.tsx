@@ -2,6 +2,7 @@
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, expect, it, vi } from 'vitest';
 import { BarreLaterale } from './BarreLaterale';
+import { storeJeu } from './store';
 
 afterEach(cleanup);
 it('présente sept entrées, active PC et conserve les noms accessibles', () => {
@@ -47,4 +48,16 @@ it('verrouille le retour pendant l’envoi et annonce un échec', async () => {
   terminer(false);
   expect(await screen.findByRole('alert')).toHaveProperty('textContent', 'La sauvegarde a échoué : tu restes dans la partie.');
   expect(bouton.disabled).toBe(false);
+});
+it.each([false, true])('place « Pension » entre Pokédex et Menu sans changer les touches (débloquée : %s)', ouvert => {
+  storeJeu.setState({ pension: { ...storeJeu.getState().pension, acces: { ouvert, raison: null } } });
+  render(<BarreLaterale page="Pension" choisir={vi.fn()} />);
+  const navigation = within(screen.getByRole('navigation'));
+  const boutons = navigation.getAllByRole('button');
+  expect(boutons.map(b => b.textContent?.replace(/\d+$/, ''))).toEqual(ouvert
+    ? ['Combat', 'Équipe', 'PC', 'Shop', 'Carte', 'Pokédex', 'Pension', 'Menu'] : ['Combat', 'Équipe', 'PC', 'Shop', 'Carte', 'Pokédex', 'Menu']);
+  expect(boutons.map(b => b.querySelector('kbd')?.textContent ?? '')).toEqual(ouvert
+    ? ['1', '2', '3', '4', '5', '6', '', '7'] : ['1', '2', '3', '4', '5', '6', '7']);
+  expect(navigation.queryByRole('button', { name: /^Pension/ })?.getAttribute('aria-current') ?? null).toBe(ouvert ? 'page' : null);
+  storeJeu.setState({ pension: { ...storeJeu.getState().pension, acces: { ouvert: false, raison: null } } });
 });
