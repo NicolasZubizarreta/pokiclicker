@@ -76,6 +76,7 @@ export function migrer(enveloppe: Enveloppe<unknown>, table = migrationsParDefau
     }
   }
   if (resultat.niveau === 'region') resultat.donnees = rattraperEspecesEcloses(resultat.donnees);
+  if (resultat.niveau === 'region') resultat.donnees = rattraperDex(resultat.donnees);
   return resultat;
 }
 
@@ -96,4 +97,26 @@ export function rattraperEspecesEcloses(donnees: unknown): unknown {
     for (const espece of especes) if (!connues.includes(espece) && !ajoutees.includes(espece)) ajoutees.push(espece);
   }
   return ajoutees.length === 0 ? donnees : { ...source, especesEcloses: [...connues, ...ajoutees] };
+}
+
+/** Rattrape seulement les chromatiques encore possédés ; les œufs attendent leur éclosion. */
+export function rattraperDex(donnees: unknown): unknown {
+  if (donnees === null || typeof donnees !== 'object' || Array.isArray(donnees)) return donnees;
+  const source = donnees as Record<string, unknown>;
+  const pension = source.pension !== null && typeof source.pension === 'object' ? source.pension as Record<string, unknown> : {};
+  let resultat = source;
+  for (const valeur of [source.equipe, source.pc, pension.parents].flatMap(liste => Array.isArray(liste) ? liste : [])) {
+    if (valeur === null || typeof valeur !== 'object') continue;
+    const pokemon = valeur as Record<string, unknown>;
+    if (pokemon.shiny !== true || pokemon.oeuf !== undefined || !Number.isInteger(pokemon.numero)
+      || (pokemon.numero as number) < 1 || (pokemon.numero as number) > reglages.pension.especesTirees) continue;
+    let numeros: number[];
+    try { numeros = pokemon.marqueEclosion === true ? lignee(pokemon.numero as number) : [pokemon.numero as number]; } catch { continue; }
+    for (const champ of pokemon.marqueEclosion === true ? ['especesShiny', 'especesEclosesShiny'] : ['especesShiny']) {
+      const connues: unknown[] = Array.isArray(resultat[champ]) ? resultat[champ] as unknown[] : [];
+      const ajoutees = numeros.filter(numero => !connues.includes(numero));
+      if (ajoutees.length) resultat = { ...resultat, [champ]: [...connues, ...ajoutees] };
+    }
+  }
+  return resultat;
 }

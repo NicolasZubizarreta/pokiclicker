@@ -15,6 +15,13 @@ import { calculerDps } from './stats';
 const ECLOSION = { marqueDegats: 0.05, paliers: [10, 50, 100, 151] } as const;
 
 const victoire = { numero: 19, niveau: 5, shiny: false, boss: false, rarete: null } as const;
+it.each([false, true])('inscrit une éclosion shiny=%s dans ses collections', shiny => {
+  const resultat = appliquerVictoire(regionAvec([{ ...oeuf(1), shiny }]), victoire, []);
+  expect(resultat.region.especesEcloses).toEqual([1]);
+  expect(resultat.region.especesShiny).toEqual(shiny ? [1] : undefined);
+  expect(resultat.region.especesEclosesShiny).toEqual(shiny ? [1] : undefined);
+  expect(resultat.eclosions[0]).toMatchObject({ numero: 1, shiny });
+});
 const pokemon = (numero: number, extra: Partial<PokemonPossede> = {}): PokemonPossede => ({
   uid: `p${numero}`, numero, niveau: 20, xp: 0, shiny: false, bonheur: 0, pierreEternelle: false, calcium: 0,
   sexe: 'male', favori: false, ...extra,

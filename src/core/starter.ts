@@ -1,5 +1,6 @@
 import type { DonneesRegion } from './sauvegarde-types';
 import { tirerSexe } from './sexe';
+import { noterObtention } from './dex';
 
 type Pokemon = DonneesRegion['equipe'][number];
 
@@ -18,11 +19,11 @@ export function creerStarter(
 }
 
 export function choisirStarter(region: DonneesRegion, pokemon: Pokemon): DonneesRegion {
-  return {
+  return noterObtention({
     ...region,
     equipe: [pokemon],
     starterId: pokemon.numero,
     drapeaux: region.drapeaux.includes('starter-choisi')
       ? [...region.drapeaux] : [...region.drapeaux, 'starter-choisi'],
-  };
+  }, pokemon.numero, { shiny: pokemon.shiny });
 }

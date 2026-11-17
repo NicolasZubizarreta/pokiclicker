@@ -6,6 +6,16 @@ import { reglages } from '../core/reglages';
 import { creerStoreJeu, type StoreJeu } from './store';
 
 const stores: StoreJeu[] = [];
+it('inscrit une capture shiny inconnue dans les deux dex', () => {
+  const { store, avancer } = preparer(() => 0);
+  const ennemi = store.getState().ennemi!;
+  expect(ennemi.shiny).toBe(true);
+  expect(store.getState().pokedex).not.toContain(ennemi.numero);
+  store.getState().capturer('masterball');
+  avancer(1000);
+  expect(store.getState().pokedex).toContain(ennemi.numero);
+  expect(store.getState().especesShiny).toContain(ennemi.numero);
+});
 beforeEach(() => vi.useFakeTimers());
 afterEach(() => { stores.forEach(s => s.getState().arreter()); stores.length = 0; vi.useRealTimers(); });
 function preparer(alea = () => .1, pleine = false) {

@@ -2,6 +2,7 @@ import type { ResultatCondition } from './conditions';
 import { calculerOr, type Victoire } from './recompenses';
 import { reglages } from './reglages';
 import type { DonneesRegion, PokemonPossede } from './sauvegarde-types';
+import { noterObtention } from './dex';
 import { tirerSexe } from './sexe';
 
 type EnnemiCapture = { capture: number; pv: number; pvMax: number; niveau: number; echecs?: number };
@@ -72,10 +73,10 @@ export function appliquerCapture(
     inventaire[objet] = (inventaire[objet] ?? 0) + bonbons;
   }
   return {
-    region: {
+    region: noterObtention({
       ...region, [destination]: [...region[destination], pokemon], inventaire,
       argent: region.argent + calculerOr(prise, actifs) * reglages.recompenses.or.capture,
-    },
+    }, pokemon.numero, { shiny: pokemon.shiny }),
     destination, bonbons,
   };
 }

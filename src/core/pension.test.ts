@@ -108,7 +108,7 @@ describe('mouvements et éclosion', () => {
     const avant = structuredClone(region);
     for (let n = 1; n <= 25; n++) {
       const resultat = appliquerVictoire(region, { numero: 1, niveau: 1, shiny: false, boss: false, rarete: null });
-      expect(resultat.eclosions).toEqual(n === 25 ? [{ uid: 'oeuf', numero: 25 }, { uid: 'second', numero: 25 }] : []);
+      expect(resultat.eclosions).toEqual(n === 25 ? [{ uid: 'oeuf', numero: 25, shiny: true }, { uid: 'second', numero: 25, shiny: true }] : []);
       expect(resultat.region.equipe[0]!.oeuf?.pasRestants).toBe(n === 25 ? undefined : 25 - n);
       region = resultat.region;
     }

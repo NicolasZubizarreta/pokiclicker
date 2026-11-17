@@ -85,6 +85,8 @@ it('pond après une victoire, retire l’œuf, avance et éclot à la 50e victoi
   expect(p.store.getState().eclosion).toEqual({ uid: oeuf.uid, numero: 25, nom: 'Pikachu', shiny: true, sexe: 'male', niveau: 1,
     bonheur: 125, marquePourcent: 5, nouvelleEspece: true, especesEcloses: 1, paliersGagnes: [] });
   expect(p.store.getState().pension.especesEcloses).toEqual([25]);
+  expect(p.store.getState().especesShiny).toContain(25);
+  expect(p.store.getState().pension.especesEclosesShiny).toContain(25);
   expect(p.store.getState().equipe.find(p => p?.pokemon.uid === oeuf.uid)?.pokemon.marqueEclosion).toBe(true);
   p.store.getState().fermerEclosion();
   expect(p.store.getState().eclosion).toBeNull();

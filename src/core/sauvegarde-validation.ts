@@ -6,6 +6,12 @@ import { sexeEspece } from './sexe';
 import type { DonneesCompte, DonneesPartie, DonneesRegion, Enveloppe, MainBlackjack, MainBlackjackAncienne, Niveau, PokemonPossede } from './sauvegarde-types';
 
 type Validateur = (valeur: unknown) => void;
+function validerCollectionShiny(valeur: unknown): void {
+  liste(positif)(valeur);
+  const especes = valeur as number[];
+  exiger(new Set(especes).size === especes.length, 'Espèces chromatiques : doublon');
+  exiger(especes.every(n => n <= reglages.pension.especesTirees), 'Espèces chromatiques : numéro inconnu');
+}
 export function exiger(condition: unknown, raison: string): asserts condition {
   if (!condition) throw new Error(raison);
 }
@@ -160,6 +166,8 @@ export function validerDonneesRegion(v: unknown): asserts v is DonneesRegion {
       file: liste(identifiant) }),
     blackjackEnCours: validerBlackjackEnCours,
     sabotBlackjack: s => validerSabot(s),
+    especesShiny: validerCollectionShiny,
+    especesEclosesShiny: validerCollectionShiny,
     especesEcloses: e => {
       liste(positif)(e);
       const especes = e as number[];

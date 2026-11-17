@@ -200,7 +200,7 @@ Les nouvelles listes (ticket G).
 
 ## G. `feat(pokedex): quatre listes de dex (Pokédex, shiny, œuf, œuf shiny) et inscription croisée`
 
-`type:feat`, `etat:a_faire`, `est:1.5-2`, `prio:2` · branche : `v2` · pas d'`agent-ok` (sauvegarde) · dépend de : F
+`type:feat`, `etat:en_cours`, `est:1.5-2`, `prio:2` · branche : `v2` · pas d'`agent-ok` (sauvegarde) · dépend de : F
 
 ### Histoire
 En tant que joueur, je veux un dex shiny, un dex œuf et un dex œuf shiny qui se remplissent tout seuls, afin de les compléter sans que le Pokédex principal cesse de compter.

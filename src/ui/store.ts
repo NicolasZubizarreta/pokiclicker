@@ -1,4 +1,5 @@
 import { createStore } from 'zustand/vanilla';
+import * as dex from '../core/dex';
 import { creerHorlogeSysteme } from '../core/clock';
 import type { Horloge } from '../core/clock';
 import { avancerCombat, calculerClic, calculerDpsEquipe, cliquer, creerCombat, creerLimiteurClics,
@@ -112,7 +113,7 @@ export type AffichageJeu = ActionsCasino & {
   nomAdversaire: string | null; ligueGagnee: number;
   equipe: CaseEquipe[]; dps: number; erreur: string | null;
   statistiques: Statistique[];
-  pc: PokemonPossede[]; pokedex: readonly number[]; vus: readonly number[];
+  pc: PokemonPossede[]; pokedex: readonly number[]; vus: readonly number[]; especesShiny: readonly number[];
   accesPc: { ouvert: boolean; raison: string | null };
   pension: {
     acces: { ouvert: boolean; raison: string | null }; parents: PokemonPossede[]; oeufs: PokemonPossede[];
@@ -122,6 +123,7 @@ export type AffichageJeu = ActionsCasino & {
     nouveau: boolean;
     /** Espèces (formes de base) déjà écloses, dans l'ordre de première éclosion. */
     especesEcloses: readonly number[];
+    especesEclosesShiny: readonly number[];
   };
   /** Éclosion à mettre en scène (la première de la file), `null` sinon ; les suivantes attendent la fermeture. */
   eclosion: EclosionAffichee | null;
@@ -534,6 +536,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       prochainEmplacement: prix === null ? null : { prix, raison: region.argent < prix ? "Pas assez d'argent." : null },
       nouveau: accesPension.ouvert && !pension.pensionVisitee(region),
       especesEcloses: pension.especesEcloses(region),
+      especesEclosesShiny: dex.especesEclosesShiny(region),
     };
     const ouvertes = new Set(kanto.zonesOuvertes(etatMonde).filter(zone => acces(zone.id).ok).map(zone => zone.id));
     const carte: AffichageJeu['carte'] = {
@@ -595,7 +598,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         && precedent.autoClic.actif === (coeur?.autoClic ?? false) ? precedent.autoClic
         : { possede: region.ameliorations.includes('leftovers'), actif: coeur?.autoClic ?? false },
       autoAttaque: preferences.autoAttaque, autoClicLie: preferences.autoClicLie, arretAuto: preferences.arretAuto,
-      pc: region.pc, pokedex, vus,
+      pc: region.pc, pokedex, vus, especesShiny: dex.especesShiny(region),
       pension: JSON.stringify(affichagePension) === JSON.stringify(precedent.pension) ? precedent.pension : affichagePension,
       accesPc: accesAuPc.ouvert === precedent.accesPc.ouvert && accesAuPc.raison === precedent.accesPc.raison
         ? precedent.accesPc : accesAuPc,
@@ -1154,10 +1157,10 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     nomAdversaire: null, ligueGagnee: 0,
     erreur: null, erreurChargement: false, zonePrecedente: null, zoneSuivante: null, evenementsDegats: [],
     evolution: null, argent: 0, enRecherche: false, cache: false, annonce: null, banniere: null, deblocage: null, deblocageCarte: null, echange: null,
-    pc: [], pokedex, vus: [], accesPc: { ouvert: false, raison: reglages.pc.raison },
+    pc: [], pokedex, vus: [], especesShiny: [], accesPc: { ouvert: false, raison: reglages.pc.raison },
     pension: { acces: { ouvert: false, raison: null }, parents: [], oeufs: [],
       emplacements: reglages.depart.region.pension.emplacementsOeuf, emplacementsMax: reglages.pension.emplacementsMax,
-      chance: 0, prochainEmplacement: null, nouveau: false, especesEcloses: [] },
+      chance: 0, prochainEmplacement: null, nouveau: false, especesEcloses: [], especesEclosesShiny: [] },
     eclosion: null,
     fermerEclosion() {
       if (fileEclosions.length === 0) return;
