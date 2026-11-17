@@ -10,7 +10,7 @@ it('recherche un vu, le garde à trouver et masque ses types et dégâts dans la
   const { container } = render(<Pokedex retour={() => {}} />);
   const recherche = screen.getByRole('searchbox');
   fireEvent.change(recherche, { target: { value: 'Salamèche' } });
-  fireEvent.click(screen.getByRole('button', { name: 'À trouver' }));
+  fireEvent.change(screen.getByLabelText('Afficher'), { target: { value: 'manquants' } });
   fireEvent.click(screen.getByRole('button', { name: 'Salamèche, numéro 4, vu, pas encore capturé' }));
   expect(screen.getByRole('heading', { name: 'Salamèche · N° 4' })).toBeTruthy();
   expect(screen.getByText('Vu, pas encore capturé')).toBeTruthy();
@@ -35,9 +35,9 @@ it('recherche par nom et numéro, filtre et ouvre les fiches PC', () => {
   fireEvent.click(screen.getByRole('button', { name: 'Revenir aux paliers' }));
   expect(screen.getByRole('heading', { name: 'Paliers' })).toBeTruthy();
   fireEvent.change(recherche, { target: { value: '2' } });
-  fireEvent.click(screen.getByRole('button', { name: 'À trouver' }));
+  fireEvent.change(screen.getByLabelText('Afficher'), { target: { value: 'manquants' } });
   fireEvent.click(screen.getByRole('button', { name: 'Pokémon inconnu, numéro 2' }));
   expect(screen.getByText('Capture ce Pokémon pour découvrir son nom, ses types et ses dégâts de base.')).toBeTruthy();
-  fireEvent.click(screen.getByRole('button', { name: 'Capturés' }));
+  fireEvent.change(screen.getByLabelText('Afficher'), { target: { value: 'obtenus' } });
   expect(screen.getByText('Aucune espèce capturée ou vue ne correspond à « 2 ».')).toBeTruthy();
 });

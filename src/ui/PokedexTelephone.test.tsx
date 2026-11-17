@@ -69,7 +69,7 @@ it('montre un vu, le recherche et le garde à trouver sans changer la progressio
   expect(image.classList.contains('brightness-0')).toBe(false);
   expect(caseVue.classList.contains('bg-surface-2')).toBe(true);
   rechercher('Carapuce');
-  fireEvent.click(screen.getByRole('button', { name: 'À trouver' }));
+  fireEvent.change(screen.getByLabelText('Afficher'), { target: { value: 'manquants' } });
   fireEvent.click(screen.getByRole('button', { name: 'Carapuce, numéro 7, vu, pas encore capturé' }));
   const fiche = screen.getByRole('dialog', { name: 'Carapuce · N° 7' });
   expect(within(fiche).getByText('Vu, pas encore capturé')).toBeTruthy();
@@ -172,17 +172,17 @@ it.each(['12', 'n°12', '#12', 'n12'])('cherche un inconnu avec %s', saisie => {
 it('filtre les captures et les inconnus avec les accords et le message vide', () => {
   render(<PokedexTelephone retour={vi.fn()} />);
   expect(screen.getByText('151 espèces affichées')).toBeTruthy();
-  fireEvent.click(screen.getByRole('button', { name: 'À trouver' }));
+  fireEvent.change(screen.getByLabelText('Afficher'), { target: { value: 'manquants' } });
   expect(screen.queryByRole('button', { name: /déjà capturé/ })).toBeNull();
   expect(screen.getByText('148 espèces affichées')).toBeTruthy();
-  expect(screen.getByRole('button', { name: 'À trouver' }).getAttribute('aria-pressed')).toBe('true');
-  fireEvent.click(screen.getByRole('button', { name: 'Capturées' }));
+  expect((screen.getByLabelText('Afficher') as HTMLSelectElement).value).toBe('manquants');
+  fireEvent.change(screen.getByLabelText('Afficher'), { target: { value: 'obtenus' } });
   expect(screen.getByText('3 espèces affichées')).toBeTruthy();
   expect(screen.getAllByText('Capturé')).toHaveLength(3);
   cleanup();
   storeJeu.setState({ pokedex: [] });
   render(<PokedexTelephone retour={vi.fn()} />);
-  fireEvent.click(screen.getByRole('button', { name: 'Capturées' }));
+  fireEvent.change(screen.getByLabelText('Afficher'), { target: { value: 'obtenus' } });
   expect(screen.getByText('Rien à montrer avec ce filtre.')).toBeTruthy();
 });
 
