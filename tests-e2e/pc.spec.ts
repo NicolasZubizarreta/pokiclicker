@@ -185,7 +185,7 @@ test('PC (ordinateur) : pas de bouton Retour, équipe alignée, le glisser-dépo
 test('Pokédex : 151 cases et compteur des starters', async ({ page }, informations) => {
   await demarrer(page);
   await page.getByRole('button', { name: 'Menu', exact: true }).click();
-  await page.getByRole('button', { name: /^Pokédex/ }).click();
+  await page.locator('#contenu').getByRole('button', { name: /^Pokédex/ }).click();
   await expect(page.getByRole('heading', { name: 'Pokédex', level: 1 })).toBeVisible();
   await expect(page.getByText('3 / 151')).toBeVisible();
   await expect(casesPokedex(page)).toHaveCount(151);

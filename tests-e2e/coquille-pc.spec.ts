@@ -3,7 +3,7 @@ import type { Page } from '@playwright/test';
 import { telephone } from './aide-carte';
 
 // Ticket I, lot I1 : coquille PC (barre latérale, bandeau, légende, clavier, fenêtres, notifications).
-const ONGLETS = ['Combat', 'Équipe', 'PC', 'Shop', 'Carte', 'Menu'];
+const ONGLETS = ['Combat', 'Équipe', 'PC', 'Shop', 'Carte', 'Pokédex', 'Menu'];
 const nav = (page: Page) => page.getByRole('navigation', { name: 'Navigation principale' });
 const bouton = (page: Page, nom: string) => nav(page).getByRole('button', { name: nom, exact: true });
 
@@ -17,11 +17,11 @@ async function demarrer(page: Page, largeur = 1440, hauteur = 900) {
 
 test.beforeEach(({ page }) => { test.skip(telephone(page), 'Coquille PC : 1024 px et plus'); });
 
-test('1440 px : barre latérale de 15 rem, six entrées, bandeau, pas de légende en bas', async ({ page }) => {
+test('1440 px : barre latérale de 15 rem, sept entrées, bandeau, pas de légende en bas', async ({ page }) => {
   await demarrer(page);
   const barre = await page.locator('aside.barre-laterale').boundingBox();
   expect(barre?.width).toBeCloseTo(240, 0);
-  expect(await nav(page).getByRole('button').count()).toBe(6);
+  expect(await nav(page).getByRole('button').count()).toBe(7);
   for (const [i, nom] of ONGLETS.entries()) await expect(nav(page).getByRole('button').nth(i)).toContainText(nom);
   await expect(page.getByRole('banner', { name: 'Chiffres clés' })).toContainText('Pokédollars');
   await expect(page.getByRole('banner', { name: 'Chiffres clés' })).toContainText('DPS');
@@ -29,7 +29,7 @@ test('1440 px : barre latérale de 15 rem, six entrées, bandeau, pas de légend
   await expect(page.getByRole('button', { name: 'Raccourcis ?' })).toBeVisible();
 });
 
-test('1 à 6 changent d\'onglet au clavier, la page ne défile jamais (1280, 1440, 1920, 2560)', async ({ page }) => {
+test('1 à 7 changent d\'onglet au clavier, la page ne défile jamais (1280, 1440, 1920, 2560)', async ({ page }) => {
   await demarrer(page);
   const tailles: [number, number][] = [[1280, 800], [1440, 900], [1920, 1080], [2560, 1440]];
   for (const [largeur, hauteur] of tailles) {

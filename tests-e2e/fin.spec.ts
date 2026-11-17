@@ -80,7 +80,7 @@ async function lire(page: Page, textes: string[], verifier?: (indice: number, fe
 async function ouvrirDiplome(page: Page) {
   await page.getByRole('button', { name: 'Menu', exact: true }).click();
   if (telephone(page)) {
-    await page.getByRole('button', { name: /^Pokédex/ }).click();
+    await page.locator('#contenu').getByRole('button', { name: /^Pokédex/ }).click();
     await page.getByRole('button', { name: /Diplôme du Pokédex/ }).click();
   } else await page.getByRole('button', { name: 'Diplôme du Pokédex', exact: true }).click();
 }

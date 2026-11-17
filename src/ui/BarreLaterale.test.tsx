@@ -4,12 +4,12 @@ import { afterEach, expect, it, vi } from 'vitest';
 import { BarreLaterale } from './BarreLaterale';
 
 afterEach(cleanup);
-it('présente six entrées, active PC et conserve les noms accessibles', () => {
+it('présente sept entrées, active PC et conserve les noms accessibles', () => {
   const choisir = vi.fn();
   render(<BarreLaterale page="PC" choisir={choisir} />);
   const navigation = within(screen.getByRole('navigation'));
-  expect(navigation.getAllByRole('button').length).toBe(6);
-  for (const nom of ['Combat', 'Équipe', 'PC', 'Shop', 'Carte', 'Menu']) {
+  expect(navigation.getAllByRole('button').length).toBe(7);
+  for (const nom of ['Combat', 'Équipe', 'PC', 'Shop', 'Carte', 'Pokédex', 'Menu']) {
     const bouton = navigation.getByRole('button', { name: nom });
     expect(bouton.getAttribute('aria-current')).toBe(nom === 'PC' ? 'page' : null);
   }

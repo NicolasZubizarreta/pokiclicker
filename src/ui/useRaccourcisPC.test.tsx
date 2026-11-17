@@ -26,9 +26,9 @@ beforeEach(() => {
 });
 afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
-it.each(['Combat', 'Équipe', 'PC', 'Shop', 'Carte', 'Menu'])('navigue vers %s', page => {
+it.each(['Combat', 'Équipe', 'PC', 'Shop', 'Carte', 'Pokédex', 'Menu'])('navigue vers %s', page => {
   render(<Essai />);
-  fireEvent.keyDown(document, { key: String(['Combat', 'Équipe', 'PC', 'Shop', 'Carte', 'Menu'].indexOf(page) + 1) });
+  fireEvent.keyDown(document, { key: String(['Combat', 'Équipe', 'PC', 'Shop', 'Carte', 'Pokédex', 'Menu'].indexOf(page) + 1) });
   expect(aller).toHaveBeenCalledWith(page);
 });
 it.each([[' ', 'attaquer'], ['Enter', 'attaquer'], ['c', 'capturer'], ['b', 'balle2'], ['a', 'auto'], ['t', 'arret'], ['r', 'reglage'], ['s', 'sac'], ['f', 'fauchage'], ['p', 'radar']])('%s clique %s', (key, action) => {
