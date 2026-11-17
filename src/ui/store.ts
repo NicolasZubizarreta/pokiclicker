@@ -100,7 +100,7 @@ export type AffichageJeu = ActionsCasino & {
   basculerAutoClic(): void;
   capture: AffichageCapture; autoAttaque: boolean; autoClicLie: boolean; arretAuto: ReglagesArret;
   reglerAutoClicLie(actif: boolean): void; sauvegarder(): boolean;
-  capturer(cle: string): void; basculerAutoAttaque(): void; reglerArretAuto(partiel: Partial<ReglagesArret>): void;
+  capturer(cle: string): void; choisirBalle(cle: string): void; basculerAutoAttaque(): void; reglerArretAuto(partiel: Partial<ReglagesArret>): void;
   lieu: ZoneMonde | null; zone: Zone | null; etape: number; ennemi: Omit<Ennemi, 'capture'> | null; pv: number;
   nomAdversaire: string | null; ligueGagnee: number;
   equipe: CaseEquipe[]; dps: number; erreur: string | null;
@@ -573,7 +573,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       effets: afficherEffets(region, maintenant, precedent.effets),
       fauchage: afficherFauchage(region, coeur, maintenant, precedent.fauchage),
       radar: region.ameliorations.includes('pokeradar'),
-      capture: afficherCapture(coeur, region.inventaire, precedent.capture),
+      capture: afficherCapture(coeur, region.inventaire, precedent.capture, preferences.balleChoisie ?? null),
       boutique: afficherBoutique(region, precedent.boutique), centre: afficherCentre(region, precedent.centre), sac,
       casino: afficherCasino(region, precedent.casino),
       autoClic: precedent.autoClic.possede === region.ameliorations.includes('leftovers')
@@ -1025,7 +1025,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       resteAutoClicMs = 0;
       afficher();
     },
-    capture: { balles: [], possible: false, raison: 'Aucun Pokémon à capturer.', enCours: false },
+    capture: { balles: [], possible: false, raison: 'Aucun Pokémon à capturer.', enCours: false, choisie: null },
     autoAttaque: preferences.autoAttaque, autoClicLie: preferences.autoClicLie, arretAuto: preferences.arretAuto,
     capturer(cle) {
       if (!initialise || minuteur === undefined) return;
@@ -1038,6 +1038,12 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         enregistrer();
       }
       afficher();
+    },
+    choisirBalle(cle) {
+      // Une clé inconnue (ancienne version, valeur trafiquée) est ignorée : la balle par défaut reste.
+      if (!initialise || !reglages.capture.balles.some(balle => balle.cle === cle) || preferences.balleChoisie === cle) return;
+      preferences = { ...preferences, balleChoisie: cle };
+      enregistrer(); afficher();
     },
     basculerAutoAttaque() {
       if (!initialise) return;

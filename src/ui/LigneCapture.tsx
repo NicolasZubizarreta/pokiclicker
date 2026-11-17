@@ -8,12 +8,17 @@ type Props = {
   raison: string | null;
   enCours: boolean;
   capturer(cle: string): void;
+  /** Balle mémorisée par le jeu : sert tant que le joueur n'a pas touché la ligne depuis l'ouverture de la page. */
+  choisie?: string | null;
+  choisir?(cle: string): void;
   /** Bouton carré à droite de « Capturer » (Fauchage une fois débloqué). */
   outil?: ReactNode;
 };
 
-export function LigneCapture({ balles, possible, raison, enCours, capturer, outil }: Props) {
-  const [choix, choisir] = useState<string | null>(null);
+export function LigneCapture({ balles, possible, raison, enCours, capturer, outil, choisie, choisir: memoriser }: Props) {
+  const [local, fixerLocal] = useState<string | null>(null);
+  const choix = local ?? choisie ?? null;
+  const choisir = (cle: string) => { fixerLocal(cle); memoriser?.(cle); };
   const description = useId();
   const possedees = balles.filter(balle => balle.quantite > 0);
   const selection = possedees.find(balle => balle.cle === choix) ?? possedees[0];

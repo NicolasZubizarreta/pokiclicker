@@ -184,6 +184,7 @@ function ActionsTelephone({ store }: { store: StoreJeu }) {
   const zone = useStore(store, etat => etat.zone);
   const capture = useStore(store, etat => etat.capture);
   const capturer = useStore(store, etat => etat.capturer);
+  const choisirBalle = useStore(store, etat => etat.choisirBalle);
   const autoAttaque = useStore(store, etat => etat.autoAttaque);
   const basculerAutoAttaque = useStore(store, etat => etat.basculerAutoAttaque);
   const arret = useStore(store, etat => etat.arretAuto);
@@ -195,7 +196,7 @@ function ActionsTelephone({ store }: { store: StoreJeu }) {
   const reglerAutoClicLie = useStore(store, etat => etat.reglerAutoClicLie);
   if (!zone) return null;
   return <div className="actions-telephone">
-    <LigneCapture {...capture} capturer={capturer}
+    <LigneCapture {...capture} capturer={capturer} choisir={choisirBalle}
       outil={fauchage.possede ? <BoutonFauchage fauchage={fauchage} faucher={faucher} /> : undefined} />
     <ActionsCombat autoAttaque={autoAttaque} basculerAutoAttaque={basculerAutoAttaque} arret={arret} reglerArret={reglerArret}
       lienAutoClic={{ lie: autoClicLie, regler: reglerAutoClicLie }}

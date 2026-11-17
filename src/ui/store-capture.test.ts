@@ -141,3 +141,27 @@ it('mémoïse la capture et refuse une clé inconnue sans consommation', () => {
   expect(store.getState().annonce).toBe("Tu n'as aucune balle.");
   expect(relire().inventaire).toEqual({ pokeball: 2, masterball: 2 });
 });
+
+it('mémorise la balle choisie au rechargement, ignore une clé inconnue et retombe sur la défaut si le stock est vide', () => {
+  const { store, lancer, gestionnaire } = preparer();
+  expect(store.getState().capture.choisie).toBeNull();
+  store.getState().choisirBalle('balle-disparue');
+  expect(store.getState().capture.choisie).toBeNull();
+  store.getState().choisirBalle('masterball');
+  expect(store.getState().capture.choisie).toBe('masterball');
+  expect(gestionnaire.chargerCompte()!.donnees.preferences.balleChoisie).toBe('masterball');
+  store.getState().arreter();
+  const relance = lancer();
+  expect(relance.getState().capture.choisie).toBe('masterball');
+  expect(relance.getState().capture.balles.map(b => b.cle)).toContain('masterball');
+});
+
+it('ne plante pas quand la balle mémorisée du compte est illisible', () => {
+  const { store, lancer, gestionnaire } = preparer();
+  const compte = gestionnaire.chargerCompte()?.donnees ?? { diamants: 0, succes: [], skins: [], preferences: {} };
+  store.getState().arreter();
+  gestionnaire.ecrireCompte({ ...compte, preferences: { ...compte.preferences, balleChoisie: 12 as unknown as string } });
+  const relance = lancer();
+  expect(relance.getState().capture.choisie).toBeNull();
+  expect(relance.getState().erreur).toBeNull();
+});

@@ -87,6 +87,7 @@
     "preferences": {
       "autoAttaque": true,
       "autoClicLie": true,
+      "evolutionAuto": true,
       "arretAuto": {
         "actif": true, "commun": false, "peuCommun": false, "rare": true,
         "tresRare": true, "legendaire": true, "shiny": true, "nouveau": true

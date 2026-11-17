@@ -17,7 +17,9 @@ export type ReglagesArret = {
   actif: boolean; commun: boolean; peuCommun: boolean; rare: boolean; tresRare: boolean;
   legendaire: boolean; shiny: boolean; nouveau: boolean;
 };
-export type PreferencesCombat = { autoAttaque: boolean; autoClicLie: boolean; arretAuto: ReglagesArret };
+/** `balleChoisie` : clé de la dernière balle choisie dans le combat ; absente tant que le joueur n'en a pas choisi. */
+export type PreferencesCombat = { autoAttaque: boolean; autoClicLie: boolean; arretAuto: ReglagesArret;
+  evolutionAuto: boolean; balleChoisie?: string };
 export type DonneesCompte = {
   diamants: number; succes: string[]; skins: string[];
   preferences: { sombre?: boolean; sonActive?: boolean } & Partial<PreferencesCombat>;

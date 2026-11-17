@@ -6,6 +6,8 @@ import { reglages } from '../core/reglages';
 export type AffichageCapture = {
   balles: { cle: string; nom: string; image: string; quantite: number }[];
   possible: boolean; raison: string | null; enCours: boolean;
+  /** Clé de la balle choisie par le joueur (mémorisée) ; `null` tant qu'il n'a rien choisi. */
+  choisie: string | null;
 };
 
 export function conditionCapture(coeur: EtatCombat | null, inventaire: Record<string, number>, cle: string) {
@@ -16,12 +18,13 @@ export function conditionCapture(coeur: EtatCombat | null, inventaire: Record<st
 // Les attentes entre deux ennemis ne méritent pas de message : la mise en page ne doit pas sauter à chaque victoire.
 const transitoires = ['Aucun Pokémon à capturer.', 'Une capture est déjà en cours.'];
 
-export function afficherCapture(coeur: EtatCombat | null, inventaire: Record<string, number>, precedent: AffichageCapture): AffichageCapture {
+export function afficherCapture(coeur: EtatCombat | null, inventaire: Record<string, number>, precedent: AffichageCapture,
+  choisie: string | null = null): AffichageCapture {
   const balles = reglages.capture.balles.filter(b => (inventaire[b.cle] ?? 0) > 0)
     .map(({ cle, nom, image }) => ({ cle, nom, image, quantite: inventaire[cle]! }));
   const condition = conditionCapture(coeur, inventaire, balles[0]?.cle ?? '');
   const capture = { balles, possible: condition.ok, raison: condition.ok || transitoires.includes(condition.raison ?? '') ? null : condition.raison ?? null,
-    enCours: coeur?.capture != null };
+    enCours: coeur?.capture != null, choisie };
   return JSON.stringify(capture) === JSON.stringify(precedent) ? precedent : capture;
 }
 

@@ -225,6 +225,7 @@ if (!capture.raisonImpossible || !capture.balles.length
 }
 if (typeof reglages.depart.preferences.autoAttaque !== 'boolean'
   || typeof reglages.depart.preferences.autoClicLie !== 'boolean'
+  || typeof reglages.depart.preferences.evolutionAuto !== 'boolean'
   || Object.values(reglages.depart.preferences.arretAuto).some((valeur) => typeof valeur !== 'boolean')) {
   throw new Error('Préférences de combat invalides');
 }
