@@ -9,8 +9,11 @@ Atelier 2 du cours SOLID Architecture, branche `atelier-2/patterns`. Je pars de 
 **Le pattern : Façade.** Le store reste la porte d'entrée, avec les mêmes noms pour les écrans. Mais il passe l'ordre à un service qui fait le travail, et il se contente d'exécuter le résultat. Le cours dit qu'une façade doit rester mince et sans règle métier : celle-ci ne l'est plus.
 
 **Pourquoi pas un autre.**
-- Découper le store en slices zustand : le store garde son état dans des variables internes, pas dans zustand, et il faudrait modifier les 85 fichiers qui l'importent.
-- Mediator : il sert quand des objets se parlent entre eux. Ici tout passe par un seul chef d'orchestre, donc on n'enlèverait rien à `store.ts`.
+La comparaison suit le tableau de la diapo 40 (Adapter, Decorator, Proxy, Façade).
+- Adapter : il traduit une API externe, son interface est différente de l'objet enveloppé. Ici il n'y a rien à traduire : le problème est la place des règles dans `store.ts`, pas un format étranger.
+- Decorator : il ajoute un comportement à un objet en gardant la même interface (cache, logs). Ici on ne veut rien ajouter, on veut sortir des règles de `store.ts`.
+- Proxy : il contrôle l'accès à un seul objet (droits, lazy, cache). Ici on veut simplifier l'accès à plusieurs règles, pas le contrôler.
+- La Façade est la seule dont l'interface est nouvelle et plus simple, et qui cache plusieurs objets derrière un seul : c'est ce que fait le store pour les 85 écrans.
 
 **Avant / après.**
 
@@ -62,7 +65,8 @@ Le service décide mais ne joue rien : il renvoie ce qu'il faut faire, et le sto
 
 **Pourquoi pas un autre.**
 - Une simple fonction partagée pour les quatre appels : c'est la solution la moins chère et elle supprime la copie, mais la synchro continuerait à lire des codes 409.
-- Decorator ou Proxy : ils gardent la même interface et ne traduisent rien. Un Decorator servirait plus tard pour ajouter un retry.
+- Decorator ou Proxy : ils gardent la même interface et ne traduisent rien (diapo 40). Un Decorator servirait plus tard pour ajouter un retry.
+- Façade : elle cache plusieurs objets derrière un seul. Ici il n'y a qu'un serveur à traduire.
 
 **Avant / après.**
 
