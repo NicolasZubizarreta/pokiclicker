@@ -300,7 +300,7 @@ describe('préférences de combat du compte', () => {
       skins: ['rouge'], preferences: { sombre: true, sonActive: false } });
     const options = { stockage, horloge, genererId: () => 'nouvelle' };
     const session = ouvrirPartie(options);
-    const preferences = { autoAttaque: false, autoClicLie: false, evolutionAuto: false, passerEclosions: true, balleChoisie: 'hyperball',
+    const preferences = { autoAttaque: false, autoClicLie: false, evolutionAuto: false, passerEclosions: true, relacherDoublons: true, balleChoisie: 'hyperball',
       arretAuto: { ...reglages.depart.preferences.arretAuto, rare: false } };
     const avant = structuredClone(preferences);
     const ecrire = vi.spyOn(stockage, 'ecrire');
@@ -329,6 +329,7 @@ describe('préférences de combat du compte', () => {
       expect(session.preferences.balleChoisie).toBe(attendue);
       expect(session.preferences.evolutionAuto).toBe(true);
       expect(session.preferences.passerEclosions).toBe(false);
+      expect(session.preferences.relacherDoublons).toBe(false);
     }
   });
 });

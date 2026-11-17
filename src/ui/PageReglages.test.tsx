@@ -8,6 +8,17 @@ import { volumes } from './volumes';
 const audio = vi.hoisted(() => ({ actif: true, basculer: vi.fn() }));
 vi.mock('./musique', () => ({ musique: { abonner: () => () => {}, estActive: () => audio.actif, basculer: audio.basculer } }));
 const initial = storeJeu.getState();
+it('bascule Relâcher automatiquement les doublons, désactivé par défaut', () => {
+  expect(initial.relacherDoublons).toBe(false);
+  const reglerRelacherDoublons = vi.fn((actif: boolean) => storeJeu.setState({ relacherDoublons: actif }));
+  storeJeu.setState({ reglerRelacherDoublons });
+  render(<PageReglages />);
+  const interrupteur = screen.getByRole('switch', { name: 'Relâcher automatiquement les doublons' });
+  expect(interrupteur.getAttribute('aria-checked')).toBe('false');
+  fireEvent.click(interrupteur);
+  expect(reglerRelacherDoublons).toHaveBeenCalledWith(true);
+  expect(interrupteur.getAttribute('aria-checked')).toBe('true');
+});
 it('bascule Passer les éclosions, désactivé par défaut', () => {
   expect(initial.passerEclosions).toBe(false);
   const reglerPasserEclosions = vi.fn((actif: boolean) => storeJeu.setState({ passerEclosions: actif }));
