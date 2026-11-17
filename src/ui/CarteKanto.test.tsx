@@ -402,3 +402,16 @@ it('annule la prise en compte des déblocages si la carte est quittée avant la 
   expect(voir).not.toHaveBeenCalled();
   expect(storeJeu.getState().carte.nouvelles).toEqual([zone]);
 });
+
+it.each([false, true])('range le Centre commercial entre Céladopole et la Centrale quand il est débloqué (%s)', ouvert => {
+  storeJeu.setState({ centre: { ...storeJeu.getState().centre, acces: { ouvert, raison: ouvert ? null : 'Pas encore.' } } });
+  const arrivee = vi.fn();
+  render(<CarteKanto quandArrive={vi.fn()} quandCentre={arrivee} />);
+  const noms = within(screen.getByRole('list', { name: 'Zones de Kanto' })).getAllByRole('button').map(b => b.getAttribute('aria-label') ?? '');
+  const ceLadopole = noms.findIndex(nom => nom.startsWith('Céladopole'));
+  const commerce = noms.findIndex(nom => nom.startsWith('Centre commercial'));
+  expect(ceLadopole).toBeGreaterThanOrEqual(0);
+  if (!ouvert) { expect(commerce).toBe(-1); return; }
+  expect(commerce).toBe(ceLadopole + 1);
+  expect(noms[commerce + 1]).toMatch(/^Centrale/);
+});

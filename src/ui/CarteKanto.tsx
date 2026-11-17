@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { PointerEvent as EvenementPointeur } from 'react';
 import { useStore } from 'zustand';
 import tailles from '../../public/img/tailles.json';
@@ -222,7 +222,7 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino, quandPension
           f.numero !== null && f.numero > 0 ? `Zone ${f.numero}` : '',
           f.terminee ? ['Terminée', celadopole ? '3 lieux' : ''].filter(Boolean).join(' · ') : [f.actuelle ? 'tu es ici' : '', celadopole ? '3 lieux' : '', !f.ouverte ? telephone ? 'fermée' : 'verrouillée' : ''].filter(Boolean).join(' · '),
         ].filter(Boolean).join(' · ');
-        return <li key={f.zone}>
+        return <Fragment key={f.zone}><li>
           <button type="button" aria-label={`${nomAccessible(f)}${f.actuelle ? ', tu es ici' : ''}`}
             ref={celadopole ? ligneCeladopole : undefined}
             aria-disabled={inactive ? true : undefined}
@@ -241,7 +241,20 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino, quandPension
             {!telephone && fermee && <span aria-hidden="true">🔒</span>}
             {!fermee && <svg aria-hidden="true" viewBox="0 0 24 24" className="size-6 shrink-0 fill-none stroke-current stroke-2"><path d="m9 6 6 6-6 6" /></svg>}
           </button>
-        </li>;
+        </li>
+        {/* Le Centre commercial se range entre Céladopole et la Centrale, une fois débloqué. */}
+        {celadopole && centreOuvert && <li>
+          <button type="button" data-centre-direct aria-label="Centre commercial, accès direct" aria-disabled={vol.actif ? true : undefined}
+            onClick={vol.actif ? undefined : () => lancer('centre-commercial', actuelle ? formeDepart(actuelle) : null, quandCentre)}
+            className={`flex min-h-14 w-full items-center gap-3 border-2 border-bordure bg-surface px-3 py-1 text-left focus-visible:outline-2 focus-visible:outline-focus ${vol.actif ? '' : 'hover:bg-selection'}`}>
+            <span className="min-w-0 flex-1">
+              <span className="block font-semibold">Centre commercial</span>
+              <span className="block text-sm text-texte-doux">Céladopole · Objets exclusifs</span>
+            </span>
+            <svg aria-hidden="true" viewBox="0 0 24 24" className="size-6 shrink-0 fill-none stroke-current stroke-2"><path d="m9 6 6 6-6 6" /></svg>
+          </button>
+        </li>}
+        </Fragment>;
       })}
       {/* Accès direct à la pension, sans passer par Bourg Palette. */}
       {pension.ouvert && quandPension && <li>
