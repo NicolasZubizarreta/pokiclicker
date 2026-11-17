@@ -205,7 +205,7 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
                       onDragStart: (event: DragEvent<HTMLElement>) => { event.dataTransfer.setData('text/plain', pokemon.uid); event.dataTransfer.effectAllowed = 'move'; glisser(pokemon.uid); },
                       onDragEnd: () => { glisser(null); survoler(null); },
                     } : {})}
-                    className={`${!telephone && selectionLot === null ? 'cursor-grab ' : ''}cadre flex overflow-hidden h-full min-h-11 w-full items-center gap-2 p-2 text-left lg:grid lg:grid-rows-[auto_1fr_auto] lg:justify-items-center lg:p-4 lg:text-center hover:bg-selection ${(selectionLot !== null ? effectifs.some(p => p.uid === pokemon.uid) : selection === pokemon.uid) ? 'bg-selection' : 'bg-surface'}`}
+                    className={`${!telephone && selectionLot === null ? 'cursor-grab ' : ''}cadre relative flex overflow-hidden h-full min-h-11 w-full items-center gap-2 p-2 text-left lg:grid lg:grid-rows-[auto_1fr_auto] lg:justify-items-center lg:p-4 lg:text-center hover:bg-selection ${(selectionLot !== null ? effectifs.some(p => p.uid === pokemon.uid) : selection === pokemon.uid) ? 'bg-selection' : 'bg-surface'}`}
                     onClick={event => {
                       if (selectionLot !== null) {
                         if (pokemon.favori) return;
@@ -228,7 +228,6 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
                     </span>
                     <span className="grid min-w-0 gap-1 lg:contents"><strong className="flex min-w-0 max-w-full items-center gap-1 lg:justify-center">
                       <span className="min-w-0 truncate">{nom}</span>
-                      {selectionLot !== null && (pokemon.favori ? <><svg aria-hidden="true" viewBox="0 0 24 24" className="size-5 shrink-0" fill="none" stroke="currentColor"><rect x="5" y="10" width="14" height="11" /><path d="M8 10V6a4 4 0 0 1 8 0v4" /></svg><span className="sr-only">Favori verrouillé</span></> : selectionLot.has(pokemon.uid) && <svg aria-hidden="true" viewBox="0 0 24 24" className="size-5 shrink-0" fill="none" stroke="currentColor"><path d="m4 12 5 5L20 6" /></svg>)}
                       {(pokemon.sexe === 'femelle' || pokemon.sexe === 'male') && <IconeSexe sexe={pokemon.sexe} className="size-4" />}
                       {pokemon.favori && <><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" className="size-5 shrink-0 fill-current text-lien">
                         <path d="m12 2 3 6 7 1-5 5 1 8-6-4-6 4 1-8-5-5 7-1z" />
@@ -237,7 +236,7 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
                     </strong>
                     {(!telephone || tri === 'dps') && !pokemon.oeuf && <span className="whitespace-nowrap text-region-accent font-bold">{formaterDps(dpsPc(pokemon))} DPS</span>}
                     {pokemon.oeuf ? <span>{progressionOeuf(pokemon.oeuf)}</span>
-                      : <span className={telephone ? 'grid text-sm text-texte-doux' : 'text-sm text-texte-doux'}><span>N° {pokemon.numero}</span>{!telephone && ' · '}<span>Niv. {pokemon.niveau}</span></span>}</span>
+                      : <span className={telephone ? 'grid text-sm text-texte-doux' : 'text-sm text-texte-doux'}><span>N° {pokemon.numero}</span>{!telephone && ' · '}<span>Niv. {pokemon.niveau}</span></span>}{selectionLot !== null && (pokemon.favori ? <><svg aria-hidden="true" viewBox="0 0 24 24" className="absolute bottom-2 right-2 size-5" fill="none" stroke="currentColor"><rect x="5" y="10" width="14" height="11" /><path d="M8 10V6a4 4 0 0 1 8 0v4" /></svg><span className="sr-only">Favori verrouillé</span></> : selectionLot.has(pokemon.uid) && <svg aria-hidden="true" viewBox="0 0 24 24" className="absolute bottom-2 right-2 size-5" fill="none" stroke="currentColor"><path d="m4 12 5 5L20 6" /></svg>)}</span>
                   </button>
                 </li>;
               })}
