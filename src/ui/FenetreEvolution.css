@@ -1,0 +1,3 @@
+.fenetre-evolution .evolution-scene img { width:calc(var(--spacing) * 48); height:calc(var(--spacing) * 48); object-fit:contain; }
+.fenetre-evolution .evolution-scene > span { grid-area:1 / 1; }
+.fenetre-evolution .evolution-boutons { display:grid; grid-template-columns:1fr 1fr; gap:calc(var(--spacing) * 2); width:100%; }

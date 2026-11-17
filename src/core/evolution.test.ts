@@ -131,5 +131,5 @@ it('refuse en priorité les œufs, le PC et les uid absents pour les deux métho
 });
 
 it('configure la durée et l’alternance de l’animation', () => {
-  expect(reglages.evolution).toEqual({ animationMs: 3000, alternanceMs: 150 });
+  expect(reglages.evolution).toMatchObject({ animationMs: 3000, alternanceMs: 150 });
 });

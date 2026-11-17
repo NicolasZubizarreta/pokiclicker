@@ -24,7 +24,11 @@
       "eclosion": "{nom} éclot !"
     }
   },
-  "evolution": { "animationMs": 3000, "alternanceMs": 150 },
+  "evolution": { "animationMs": 3000, "alternanceMs": 150, "messages": {
+    "surLePoint": "{nom} est sur le point d'évoluer",
+    "enCours": "{nom} évolue…",
+    "felicitations": "Félicitations ! Ton « {ancien} » a évolué en « {nouveau} »"
+  } },
   "animations": { "flottementMs": 3000, "secousseMs": 300, "banniereMs": 3000 },
   "sons": {
     "actifParDefaut": true,

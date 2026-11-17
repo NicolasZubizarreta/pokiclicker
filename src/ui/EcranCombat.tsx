@@ -293,8 +293,7 @@ function Equipe({ store }: { store: StoreJeu }) {
         animation={animation?.uid === membre?.pokemon.uid ? animation : null}
         evoluer={() => {
           if (!membre || !evolution) return;
-          if (evolution.pierre) store.getState().utiliserPierre(membre.pokemon.uid, evolution.pierre.id);
-          else store.getState().evoluer(membre.pokemon.uid);
+          store.getState().demanderEvolution(membre.pokemon.uid, evolution.pierre?.id);
         }} renommer={(uid, bouton) => {
         declencheur.current = bouton;
         ouvrirFiche(precedente => ({ uid, ouverture: (precedente?.ouverture ?? 0) + 1, renommer: true }));

@@ -117,7 +117,8 @@ export const reglages: {
   bonus: { dps: Bonus[]; clic: Bonus[] };
   recompenses: ReglagesRecompenses;
   capture: ReglagesCapture;
-  evolution: { animationMs: number; alternanceMs: number };
+  evolution: { animationMs: number; alternanceMs: number;
+    messages: { surLePoint: string; enCours: string; felicitations: string } };
   animations: { flottementMs: number; secousseMs: number; banniereMs: number };
   sons: ReglagesSons;
   delais: ReglagesDelais;

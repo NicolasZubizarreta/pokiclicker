@@ -77,3 +77,15 @@ it('revient au menu et ne propose aucun arrêt auto', () => {
   expect(retour).toHaveBeenCalledTimes(1);
   expect(screen.queryByText(/arrêt auto/i)).toBeNull();
 });
+
+it('bascule l’évolution automatique, active par défaut', () => {
+  const reglerEvolutionAuto = vi.fn((actif: boolean) => storeJeu.setState({ evolutionAuto: actif }));
+  storeJeu.setState({ evolutionAuto: true, reglerEvolutionAuto });
+  render(<PageReglages retour={vi.fn()} />);
+  const interrupteur = screen.getByRole('switch', { name: 'Évolution automatique' });
+  expect(interrupteur.getAttribute('aria-checked')).toBe('true');
+  expect(screen.getByText(/Quand un Pokémon est prêt, une fenêtre te propose/)).toBeTruthy();
+  fireEvent.click(interrupteur);
+  expect(reglerEvolutionAuto).toHaveBeenCalledWith(false);
+  expect(interrupteur.getAttribute('aria-checked')).toBe('false');
+});

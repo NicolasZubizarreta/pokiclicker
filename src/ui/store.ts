@@ -18,7 +18,7 @@ import donneesPantheon from '../../data/pantheon.json';
 import { clicsAutomatiques } from '../core/clics';
 import { type TypeObjetEquipe, utiliserSurPokemon, poserStase, retirerStase, utiliserJetonShiny } from '../core/objets-equipe';
 import { clesActives, utiliserTemporise, refusPoupee, utiliserPoupee, declencherRecharge } from '../core/objets-actifs';
-import { evoluer as evoluerEquipe, evoluerParPierre, evolutionDisponible } from '../core/evolution';
+import { evoluer as evoluerEquipe, evoluerParPierre, evolutionDisponible, evolutionParPierre } from '../core/evolution';
 import { appliquerCapture, chanceCapture, retirerBalle } from '../core/capture';
 import type { EtatCombat } from '../core/combat';
 import type { Ennemi } from '../core/ennemis';
@@ -41,7 +41,8 @@ import type { DonneesRegion, PokemonPossede, Stockage } from '../core/sauvegarde
 import type { PreferencesCombat, ReglagesArret } from '../core/sauvegarde-types';
 import { calculerStatistiques, type Statistique } from '../core/statistiques';
 import { afficherCapture, annonceCapture, banniereArret, conditionCapture, type AffichageCapture } from './store-capture';
-import { afficherEvolution, annonceEvolution, type EvolutionAffichee } from './store-evolution';
+import { afficherEvolution, annonceEvolution, cleEvolution, phaseModal, proposerModal, prochaineEvolutionAuto,
+  type EvolutionAffichee, type ModalEvolution } from './store-evolution';
 import { afficherProgression, phaseObtention, type AffichageProgression, type PhaseObtention } from './store-progression';
 import { afficherEffets, afficherFauchage, type EffetsAffiches, type FauchageAffiche } from './store-objets';
 import { afficherBoutique, afficherCentre, afficherSac, type AffichageBoutique, type AffichageSac } from './store-boutique';
@@ -97,6 +98,12 @@ export type AffichageJeu = ActionsCasino & {
   evoluer(uid: string): string | null;
   utiliserPierre(uid: string, pierre: string): string | null;
   evolution: EvolutionAffichee | null;
+  /** Évolution automatique : une fenêtre propose d'évoluer (réglage du compte, active par défaut). */
+  evolutionAuto: boolean; reglerEvolutionAuto(actif: boolean): void;
+  modalEvolution: ModalEvolution | null;
+  /** Bouton « Évoluer » : ouvre la fenêtre si l'option est active, sinon évolue tout de suite (animation dans le cadre). */
+  demanderEvolution(uid: string, pierre?: string): string | null;
+  confirmerEvolution(): void; reporterEvolution(): void; fermerEvolution(): void; passerAnimationEvolution(): void;
   basculerAutoClic(): void;
   capture: AffichageCapture; autoAttaque: boolean; autoClicLie: boolean; arretAuto: ReglagesArret;
   reglerAutoClicLie(actif: boolean): void; sauvegarder(): boolean;
@@ -211,6 +218,10 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
   let tempsJeuMs = 0;
   let resteAutoClicMs = 0;
   let evolutionEnCours: EvolutionAffichee | null = null;
+  let modalEvolution: ModalEvolution | null = null;
+  /** Pokémon dont le joueur a répondu « Plus tard » (clé uid:espèce) : pas de réouverture seule pendant la session. */
+  const evolutionsRefusees = new Set<string>();
+  let evolutionModale = false;
   let finEvolutionMs = 0;
   let fileEclosions: EclosionAffichee[] = [];
   let obtentionBadge: { id: string; debutMs: number } | null = null;
@@ -482,8 +493,12 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     journal?.synchroniser(lieuDe(region.zoneId), coeur);
     detecterDeblocages();
     avancerDeblocages();
+    modalEvolution = phaseModal(modalEvolution, finEvolutionMs, tempsJeuMs);
     if (!deblocageEnCours && ecranLibre()) {
-      const prochaine = annonceEvolution(region.equipe, region.annoncesVues ?? []);
+      const prete = preferences.evolutionAuto && modalEvolution === null
+        ? prochaineEvolutionAuto(region.equipe, evolutionsRefusees) : null;
+      if (prete) modalEvolution = proposerModal(prete, evolutionDisponible(prete)!);
+      const prochaine = preferences.evolutionAuto ? null : annonceEvolution(region.equipe, region.annoncesVues ?? []);
       if (prochaine) {
         annonce = prochaine.texte;
         finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs;
@@ -589,6 +604,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       dps: coeur ? calculerDpsEquipe(coeur.equipe, coeur.ennemi, actifs) : 0, erreur,
       statistiques: calculerStatistiques(region, maintenant),
       evolution: afficherEvolution(evolutionEnCours, finEvolutionMs, tempsJeuMs),
+      modalEvolution, evolutionAuto: preferences.evolutionAuto,
       eclosion: fileEclosions[0] ?? null,
       argent: region.argent, enRecherche: (coeur?.attenteMs ?? 0) > 0 && !coeur?.attenteCapture, cache: (coeur?.attenteMs ?? 0) > 0, annonce, banniere,
       deblocage: deblocageEnCours?.texte ?? null, deblocageCarte: deblocageEnCours?.carte ?? null, sonActive, echange,
@@ -686,11 +702,14 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
   const quitter = () => { journal?.pauser('rechargement'); signaler(true); };
   const demarrerEvolution = (evolution: { uid: string; de: number; vers: number }) => {
     emettreSon('up');
-    evolutionEnCours = { uid: evolution.uid, ancien: evolution.de, nouveau: evolution.vers };
     finEvolutionMs = tempsJeuMs + reglages.evolution.animationMs;
     if (coeur) coeur = suspendreDps(coeur, reglages.evolution.animationMs);
-    annonce = 'Évolution !';
-    finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs;
+    // Dans la fenêtre d'évolution, l'animation et le message final y sont : ni cadre d'équipe animé, ni annonce.
+    if (!evolutionModale) {
+      evolutionEnCours = { uid: evolution.uid, ancien: evolution.de, nouveau: evolution.vers };
+      annonce = 'Évolution !';
+      finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs;
+    }
     noterDansPokedex(evolution.vers);
   };
   const modifierEquipe = (action: (region: DonneesRegion) => equipe.ResultatEquipe & {
@@ -1016,6 +1035,55 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     evoluer(uid) {
       return modifierEquipe(region => evoluerEquipe(region, uid));
     },
+    evolutionAuto: preferences.evolutionAuto, modalEvolution: null,
+    reglerEvolutionAuto(actif) {
+      if (!initialise) return;
+      preferences = { ...preferences, evolutionAuto: actif };
+      enregistrer(); afficher();
+    },
+    demanderEvolution(uid, pierre) {
+      if (!initialise) return 'La partie n’est pas démarrée.';
+      if (!preferences.evolutionAuto) return modifierEquipe(courante => pierre ? evoluerParPierre(courante, uid, pierre) : evoluerEquipe(courante, uid));
+      const pokemon = region.equipe.find(p => p.uid === uid);
+      if (!pokemon || pokemon.oeuf) return 'Pokémon invalide !';
+      if (pokemon.pierreEternelle) return pierre ? 'Pierre Stase équipée !' : 'Évolution bloquée !';
+      const vers = pierre ? evolutionParPierre(pokemon.numero, pierre) : evolutionDisponible(pokemon);
+      if (vers === null) return pierre ? 'Pokémon incompatible !' : 'Évolution indisponible !';
+      modalEvolution = proposerModal(pokemon, vers, pierre ?? null);
+      afficher();
+      return null;
+    },
+    confirmerEvolution() {
+      const modal = modalEvolution;
+      if (!initialise || modal?.phase !== 'proposition') return;
+      evolutionModale = true;
+      let message: string | null;
+      try {
+        message = modifierEquipe(courante => modal.pierre ? evoluerParPierre(courante, modal.uid, modal.pierre)
+          : evoluerEquipe(courante, modal.uid));
+      } finally { evolutionModale = false; }
+      if (message) {
+        modalEvolution = null;
+        annonce = message; finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs;
+      } else modalEvolution = { ...modal, phase: 'animation' };
+      afficher();
+    },
+    reporterEvolution() {
+      if (!initialise || modalEvolution?.phase !== 'proposition') return;
+      evolutionsRefusees.add(cleEvolution(modalEvolution.pokemon));
+      modalEvolution = null;
+      afficher();
+    },
+    fermerEvolution() {
+      if (modalEvolution?.phase !== 'fin') return;
+      modalEvolution = null;
+      afficher();
+    },
+    passerAnimationEvolution() {
+      if (modalEvolution?.phase !== 'animation') return;
+      finEvolutionMs = tempsJeuMs;
+      afficher();
+    },
     utiliserPierre(uid, pierre) {
       return modifierEquipe(region => evoluerParPierre(region, uid, pierre));
     },
@@ -1158,6 +1226,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
             region = { ...region, evenementsJoues: [...region.evenementsJoues, 'kanto.blue-presentation'] };
           }
           preferences = persistance.preferences;
+          modalEvolution = null; evolutionsRefusees.clear();
           sonActive = persistance.sonActive;
           pokedex = completerPokedex(persistance.pokedex, region);
           vus = completerVus(completerVus(persistance.vus, persistance.pokedex), pokedex);
