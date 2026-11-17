@@ -11,7 +11,7 @@ import { dpsSansType } from './dps-pc';
 import { Image } from './Image';
 import { IconeShiny } from './IconeShiny';
 import { IconeSexe } from './IconeSexe';
-import { RepereMarque } from './RepereMarque';
+import { RepereTags } from './RepereMarque';
 import { formaterDps } from './nombres';
 import { classeSprite, nomAffiche, progressionOeuf, spriteAffiche } from './affichage-pokemon';
 import { storeJeu } from './store';
@@ -146,8 +146,8 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: 
     onClick={() => signaler(storeJeu.getState().basculerFavori(uid))}><Etoile />Favori</button>;
   const entete = <header>
           <div className="flex min-w-0 flex-wrap items-center gap-2">
-            {telephone && <h2 id={titre} className="min-w-0 break-words font-titre text-2xl">{nom}{pokemon?.shiny && !pokemon.oeuf && <IconeShiny />}</h2>}
-            {telephone && marque && <RepereMarque />}
+            {telephone && <h2 id={titre} className="min-w-0 break-words font-titre text-2xl">{nom}</h2>}
+            {telephone && pokemon && <RepereTags pokemon={pokemon} enLigne />}
             {!telephone && favori}
             {pokemon && !pokemon.oeuf && <BoutonRenommer ref={crayon} nom={nom} ouvrir={ouvrirEdition} />}
           </div>
@@ -236,7 +236,7 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: 
         {fermeture}{entete}{boutonEvolution}{pokemonPc && <p>Dans le PC</p>}
         {pokemon && espece && membre && detail && <>{portrait}{identite}{statistiques}{actions}</>}
       </div> : <>
-        <div className="fiche-pc-titre"><h2 id={titre} className="min-w-0 break-words font-titre text-2xl">{nom}{pokemon?.shiny && !pokemon.oeuf && <IconeShiny />}{marque && <RepereMarque />}</h2>{fermeture}</div>
+        <div className="fiche-pc-titre"><h2 id={titre} className="min-w-0 break-words font-titre text-2xl">{nom}{pokemon && <RepereTags pokemon={pokemon} enLigne />}</h2>{fermeture}</div>
         <div className="fiche-pc-corps">
           <div className="fiche-pc-portrait">{portrait}{identite}</div>
           <div className="fiche-pc-detail">{entete}{statistiques}{boutonEvolution}<div className="fiche-pc-actions">{actions}</div></div>

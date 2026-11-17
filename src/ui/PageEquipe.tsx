@@ -2,7 +2,7 @@ import { Fragment, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useStore } from 'zustand';
 import { classeSprite, nomAffiche, progressionOeuf, spriteAffiche } from './affichage-pokemon';
 import { IconeShiny } from './IconeShiny';
-import { RepereMarque } from './RepereMarque';
+import { RepereTags } from './RepereMarque';
 import { chargerObjets } from '../core/boutique';
 import { reglages } from '../core/reglages';
 import { type TypeObjetEquipe, cibleValide, cibleValideStase, quantiteMax } from '../core/objets-equipe';
@@ -212,7 +212,7 @@ export function PageEquipe({ ouvrirPC }: { ouvrirPC?: () => void }) {
                 ? <span className="grid size-14 lg:size-24 max-w-full overflow-hidden place-items-center [&_img]:size-14 lg:[&_img]:size-24 [&_img]:max-h-full [&_img]:max-w-full"><SpriteEvolution ancien={spriteAffiche({ ...pokemon, numero: evolution.ancien })}
                   nouveau={spriteAffiche({ ...pokemon, numero: evolution.nouveau })} nom={nom} actif shiny={pokemon.shiny} /></span>
                 : <Image src={spriteAffiche(pokemon)} genre="sprite" alt="" className={`size-14 lg:size-24 max-h-full max-w-full ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(pokemon)}`} />}
-              {pokemon.marqueEclosion && <span className="repere-marque-sur-portrait"><RepereMarque /></span>}
+              <RepereTags pokemon={pokemon} />
               </span>
               <span className="grid min-w-0 gap-1 lg:gap-2">
                 <strong className="flex items-center gap-2 break-words">{nom}{pokemon.shiny && !pokemon.oeuf && <IconeShiny />}{pokemon.favori &&

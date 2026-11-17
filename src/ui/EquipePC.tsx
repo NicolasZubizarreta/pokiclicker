@@ -3,7 +3,7 @@ import { Image } from './Image';
 import { SpriteEvolution } from './SpriteEvolution';
 import { IconeSexe } from './IconeSexe';
 import { IconeShiny } from './IconeShiny';
-import { RepereMarque } from './RepereMarque';
+import { RepereTags } from './RepereMarque';
 import { BarreXp } from './BarreXp';
 import { classeSprite, nomAffiche, progressionOeuf, spriteAffiche, spriteEstPhoto } from './affichage-pokemon';
 import { chargerPokemon, nomType } from '../core/pokemon';
@@ -21,7 +21,7 @@ export function EquipePC({ pokemon, dps, xpMax, pret, animation }: {
   const pieds = { '--pieds': spriteEstPhoto(pokemon) ? '9%' : `${(piedsSprites[pokemon.numero - 1] ?? 0) / 96 * 100}%` } as CSSProperties;
   return <>
     <span className="portrait relative" style={pieds}>
-      {pokemon.marqueEclosion && <span className="repere-marque-sur-portrait"><RepereMarque /></span>}
+      <RepereTags pokemon={pokemon} />
       <span className="socle bg-region-socle" aria-hidden="true" />
       {animation ? <SpriteEvolution {...animation} /> : <Image genre="sprite" src={spriteAffiche(pokemon)} alt=""
         className={`object-contain max-h-full max-w-full ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(pokemon)}`} />}

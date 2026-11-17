@@ -36,6 +36,18 @@ it.each([false, true])('repère sur les cartes marquées du PC : %s', marqueEclo
   expect(!!within(screen.getByRole('list')).queryByRole('img', { name: "Marque d'éclosion" })).toBe(marqueEclosion);
 });
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
+it.each([[false, false], [true, false], [false, true], [true, true]])('pose le tag shiny à côté du tag œuf sur la carte du PC (shiny %s, marque %s)', (shiny, marqueEclosion) => {
+  storeJeu.setState({ pc: [{ ...base, shiny, marqueEclosion }] });
+  render(<PagePC />);
+  const liste = within(screen.getByRole('list'));
+  expect(!!liste.queryByRole('img', { name: 'Chromatique' })).toBe(shiny);
+  expect(!!liste.queryByRole('img', { name: "Marque d'éclosion" })).toBe(marqueEclosion);
+  if (shiny || marqueEclosion) {
+    const tags = liste.getAllByRole('img', { name: /Chromatique|Marque d'éclosion/ }).map(tag => tag.parentElement!);
+    expect(new Set(tags).size).toBe(1);
+    expect(tags[0]!.classList.contains('repere-marque-sur-portrait')).toBe(true);
+  }
+});
 
 it('structure le PC en trois colonnes et garde six places dans son cadre', () => {
   const { container } = render(<PagePC />);

@@ -371,16 +371,16 @@ Le ticket D a déjà posé un lien vers la pension dans le Menu et la Carte. Dé
 
 ## P. `feat(pc): tag shiny en haut à droite à côté du tag œuf`
 
-`type:feat`, `etat:a_faire`, `est:0.5`, `prio:3` · branche : `v2` · `agent-ok` recommandé
+`type:feat`, `etat:fait`, `est:0.5`, `prio:3` · branche : `v2` · `agent-ok` recommandé
 
 ### Histoire
 En tant que joueur, je veux voir qu'un Pokémon du PC est shiny d'un coup d'œil, au même endroit que le tag œuf.
 
 ### Critères d'acceptation
-- [ ] Étant donné un Pokémon shiny, quand sa case du PC s'affiche, alors un tag shiny figure en haut à droite, à côté du tag œuf s'il en a un.
-- [ ] Étant donné un Pokémon shiny, quand le repère d'éclosion s'affiche ailleurs (fiche, équipe, Combat), alors le tag shiny l'accompagne de la même façon.
-- [ ] Étant donné la charte, quand les tags s'affichent, alors ils respectent `design/DESIGN.md` et les cases gardent leur taille.
-- [ ] Étant donné les tests, quand `tsc -b`, eslint, vitest et e2e tournent, alors ils sont verts.
+- [x] Étant donné un Pokémon shiny, quand sa case du PC s'affiche, alors un tag shiny figure en haut à droite, à côté du tag œuf s'il en a un.
+- [x] Étant donné un Pokémon shiny, quand le repère d'éclosion s'affiche ailleurs (fiche, équipe, Combat), alors le tag shiny l'accompagne de la même façon.
+- [x] Étant donné la charte, quand les tags s'affichent, alors ils respectent `design/DESIGN.md` et les cases gardent leur taille.
+- [x] Étant donné les tests, quand `tsc -b`, eslint, vitest et e2e tournent, alors ils sont verts.
 
 ### Effort et risques
 0,5 jour.
