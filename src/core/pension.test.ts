@@ -190,11 +190,36 @@ describe('pension', () => {
     expect(tirerOeuf(parents, () => 0)).toEqual({ numero: 81, shiny: true });
   });
 
-  it.each([0, 150 / 151])('Métamorph ×2 tire une espèce puis sa forme de base (%f)', (valeur) => {
+  it.each([0, 0.999999])('Métamorph ×2 tire une espèce puis sa forme de base (%f)', (valeur) => {
     const valeurs = [0, valeur, 0.125];
     const alea = vi.fn(() => valeurs.shift()!);
     expect(tirerOeuf([parent(132, 'sansSexe'), parent(132, 'sansSexe')], alea))
       .toEqual({ numero: valeur === 0 ? 1 : 151, shiny: false });
     expect(alea).toHaveBeenCalledTimes(3);
+  });
+});
+
+describe('Métamorph + Métamorph : poids des légendaires', () => {
+  const metamorphs = [parent(132, 'sansSexe'), parent(132, 'sansSexe')];
+  const { numeros, poids } = reglages.pension.legendaires;
+
+  it('liste les cinq légendaires dans les données, à 1/10 d\'une espèce normale', () => {
+    expect(numeros).toEqual([144, 145, 146, 150, 151]);
+    expect(poids).toBe(0.1);
+  });
+
+  it('tire chaque légendaire 10 fois moins qu\'une espèce normale (environ 1 sur 293 au total)', () => {
+    const pas = 14650;
+    const compte = new Map<number, number>();
+    for (let i = 0; i < pas; i++) {
+      const valeurs = [0, (i + 0.5) / pas, 0.9];
+      const oeuf = tirerOeuf(metamorphs, () => valeurs.shift()!)!;
+      compte.set(oeuf.numero, (compte.get(oeuf.numero) ?? 0) + 1);
+    }
+    // Les légendaires et Tauros n'ont pas d'évolution : leur compte est celui de leur seule espèce.
+    const legendaires = numeros.reduce((somme, n) => somme + (compte.get(n) ?? 0), 0);
+    expect(legendaires / pas).toBeCloseTo(0.5 / 146.5, 3);
+    expect(compte.get(128)).toBe(100);
+    for (const numero of numeros) expect(compte.get(numero)).toBe(10);
   });
 });

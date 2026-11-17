@@ -97,3 +97,27 @@ export function gainMachineAttenduV2(symboles: readonly string[], mise = 1): num
 // marque d'éclosion : +5 % de dégâts propres, en facteur comme le Calcium, une fois par Pokémon, jamais par capture ni achat.
 // (2) Les espèces différentes écloses (sur 151) donnent des succès à 10, 50, 100 et 151, crédités une fois par compte.
 export const ECARTS_ECLOSION_V1 = { marqueDegats: 0.05, paliers: [10, 50, 100, 151] } as const;
+
+/**
+ * Écart voulu avec la V1 (retour testeur du 17/11/2026, ticket T) : Superball ×1,5 au lieu de ×2 et Hyperball ×3 au lieu
+ * de ×4. Les tests de fidélité (formule, cibles du 10/11) gardent les multiplicateurs V1 le temps de leur exécution.
+ */
+export const MULTIPLICATEURS_BALLES_V1: Readonly<Record<string, number>> = { superball: 2, hyperball: 4 };
+export function imposerBallesV1(): () => void {
+  const avant = reglages.capture.balles.map((balle) => balle.multiplicateur);
+  for (const balle of reglages.capture.balles) balle.multiplicateur = MULTIPLICATEURS_BALLES_V1[balle.cle] ?? balle.multiplicateur;
+  return () => reglages.capture.balles.forEach((balle, i) => { balle.multiplicateur = avant[i]!; });
+}
+
+/**
+ * Écart voulu avec la V1 (ticket T) : taux d'apparition des zones à légendaires, la somme de chaque zone restant à 100 %.
+ * La fixture v1-zones.json garde les taux d'origine ; `scripts/extraire-zones-v1.mjs` applique les mêmes valeurs.
+ */
+export const TAUX_ZONES_V2: Readonly<Record<string, Readonly<Record<number, number>>>> = {
+  'kanto.pont-pepite': { 151: 0.005, 63: 0.305 },
+  'kanto.iles-ecume': { 144: 0.02, 86: 0.21, 90: 0.21, 98: 0.155, 116: 0.155 },
+  'kanto.caverne-azuree': { 150: 0.01, 47: 0.21, 64: 0.21, 26: 0.26, 148: 0.31 },
+  'kanto.route-victoire': { 146: 0.02, 67: 0.31, 75: 0.31, 42: 0.26 },
+};
+export const apparitionAttendueV2 = (zone: string, pokemon: number, apparitionV1: number): number =>
+  TAUX_ZONES_V2[zone]?.[pokemon] ?? apparitionV1;

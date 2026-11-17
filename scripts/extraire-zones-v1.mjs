@@ -54,6 +54,15 @@ const COEFFICIENT_PV_ADOUCI = 0.8;
 /** @param {number} indice */
 const multiplicateurPv = indice => indice < PREMIERE_ZONE_ADOUCIE ? ZONE_MULT[indice]
   : Math.round(ZONE_MULT[indice] * COEFFICIENT_PV_ADOUCI * 1e4) / 1e4;
+// Écart voulu avec la V1 (retour testeur du 17/11/2026, ticket T) : les légendaires apparaissent moins souvent et les
+// taux de chaque zone concernée font toujours 100 %. La fixture garde les taux V1 ; tests/ecarts-v1.ts liste cet écart.
+/** @type {Record<string, Record<number, number>>} */
+const TAUX_RETOUCHES = {
+  'kanto.pont-pepite': { 151: 0.005, 63: 0.305 },
+  'kanto.iles-ecume': { 144: 0.02, 86: 0.21, 90: 0.21, 98: 0.155, 116: 0.155 },
+  'kanto.caverne-azuree': { 150: 0.01, 47: 0.21, 64: 0.21, 26: 0.26, 148: 0.31 },
+  'kanto.route-victoire': { 146: 0.02, 67: 0.31, 75: 0.31, 42: 0.26 },
+};
 const zones = Array.from(ZONES, (zone, indice) => {
   const liens = indice === 21 ? [] : [{
     vers: identifiant(indice + 1),
@@ -81,7 +90,7 @@ const zones = Array.from(ZONES, (zone, indice) => {
       }
       return {
         pokemon: pokemon.id, rarete: raretes[pokemon.rarity],
-        apparition: pokemon.spawnRate, capture: pokemon.catchRate,
+        apparition: TAUX_RETOUCHES[identifiant(indice)]?.[pokemon.id] ?? pokemon.spawnRate, capture: pokemon.catchRate,
       };
     }),
     ...(indice === 21 ? { adversaires: Array.from(zone.pokemons, adversaire) } : {}),

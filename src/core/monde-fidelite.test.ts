@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import donnees from '../../data/regions/kanto/zones.json';
 import fixture from '../../tests/fixtures/v1-zones.json';
-import { COEFFICIENT_PV_ADOUCI_V2, PREMIERE_ZONE_ADOUCIE_V1, multiplicateurPvAttendu } from '../../tests/ecarts-v1';
+import { COEFFICIENT_PV_ADOUCI_V2, PREMIERE_ZONE_ADOUCIE_V1, apparitionAttendueV2, multiplicateurPvAttendu } from '../../tests/ecarts-v1';
 import badges from '../../data/badges.json';
 import { kanto } from './regions';
 import { chargerMonde } from './monde';
@@ -55,7 +55,7 @@ describe('fidélité des zones de Kanto à la V1', () => {
         if (!('spawnRate' in pokemon)) throw new Error('Apparition absente de la rencontre V1');
         return {
           pokemon: pokemon.id, rarete: raretes[pokemon.rarity],
-          apparition: pokemon.spawnRate, capture: pokemon.catchRate,
+          apparition: apparitionAttendueV2(id, pokemon.id, pokemon.spawnRate), capture: pokemon.catchRate,
         };
       }));
     }

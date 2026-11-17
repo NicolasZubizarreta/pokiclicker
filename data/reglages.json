@@ -17,6 +17,7 @@
     "bonheurNaissance": 125, "metamorph": 132, "especesTirees": 151,
     "chances": { "metamorph": 0.02, "memeEspece": 0.02, "typePartage": 0.01 },
     "chanceShiny": 0.0625,
+    "legendaires": { "numeros": [144, 145, 146, 150, 151], "poids": 0.1 },
     "marqueEclosion": 0.05,
     "messages": {
       "pleine": "La pension est pleine.",
@@ -140,8 +141,8 @@
   "capture": {
     "balles": [
       { "cle": "pokeball", "nom": "Pokéball", "image": "img/objets/poke-ball.png", "multiplicateur": 1 },
-      { "cle": "superball", "nom": "Superball", "image": "img/objets/great-ball.png", "multiplicateur": 2 },
-      { "cle": "hyperball", "nom": "Hyperball", "image": "img/objets/ultra-ball.png", "multiplicateur": 4 },
+      { "cle": "superball", "nom": "Superball", "image": "img/objets/great-ball.png", "multiplicateur": 1.5 },
+      { "cle": "hyperball", "nom": "Hyperball", "image": "img/objets/ultra-ball.png", "multiplicateur": 3 },
       { "cle": "masterball", "nom": "Master Ball", "image": "img/objets/master-ball.png", "multiplicateur": 255 }
     ],
     "multiplicateurCertain": 255,

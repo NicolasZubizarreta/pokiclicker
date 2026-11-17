@@ -16,7 +16,7 @@
   {
     "id": "superball",
     "nom": "Superball",
-    "description": "Capture des Pokémon (Moyenne chance x2)",
+    "description": "Capture des Pokémon (Moyenne chance x1,5)",
     "prix": 500,
     "type": "consommable",
     "zone": "kanto.pont-pepite",
@@ -30,7 +30,7 @@
   {
     "id": "hyperball",
     "nom": "Hyperball",
-    "description": "Capture des Pokémon (Haute chance x4)",
+    "description": "Capture des Pokémon (Haute chance x3)",
     "prix": 1200,
     "type": "consommable",
     "zone": "kanto.tunnel-rocheux",

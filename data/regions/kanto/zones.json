@@ -364,7 +364,7 @@
         {
           "pokemon": 63,
           "rarete": "commun",
-          "apparition": 0.3,
+          "apparition": 0.305,
           "capture": 200
         },
         {
@@ -394,7 +394,7 @@
         {
           "pokemon": 151,
           "rarete": "legendaire",
-          "apparition": 0.01,
+          "apparition": 0.005,
           "capture": 45
         }
       ],
@@ -1041,25 +1041,25 @@
         {
           "pokemon": 86,
           "rarete": "commun",
-          "apparition": 0.2,
+          "apparition": 0.21,
           "capture": 190
         },
         {
           "pokemon": 90,
           "rarete": "commun",
-          "apparition": 0.2,
+          "apparition": 0.21,
           "capture": 190
         },
         {
           "pokemon": 98,
           "rarete": "peu-commun",
-          "apparition": 0.15,
+          "apparition": 0.155,
           "capture": 225
         },
         {
           "pokemon": 116,
           "rarete": "peu-commun",
-          "apparition": 0.15,
+          "apparition": 0.155,
           "capture": 190
         },
         {
@@ -1077,7 +1077,7 @@
         {
           "pokemon": 144,
           "rarete": "legendaire",
-          "apparition": 0.05,
+          "apparition": 0.02,
           "capture": 3
         }
       ],
@@ -1238,31 +1238,31 @@
         {
           "pokemon": 47,
           "rarete": "commun",
-          "apparition": 0.2,
+          "apparition": 0.21,
           "capture": 75
         },
         {
           "pokemon": 64,
           "rarete": "commun",
-          "apparition": 0.2,
+          "apparition": 0.21,
           "capture": 100
         },
         {
           "pokemon": 26,
           "rarete": "rare",
-          "apparition": 0.25,
+          "apparition": 0.26,
           "capture": 75
         },
         {
           "pokemon": 148,
           "rarete": "tres-rare",
-          "apparition": 0.3,
+          "apparition": 0.31,
           "capture": 45
         },
         {
           "pokemon": 150,
           "rarete": "legendaire",
-          "apparition": 0.05,
+          "apparition": 0.01,
           "capture": 3
         }
       ],
@@ -1297,19 +1297,19 @@
         {
           "pokemon": 67,
           "rarete": "commun",
-          "apparition": 0.3,
+          "apparition": 0.31,
           "capture": 90
         },
         {
           "pokemon": 75,
           "rarete": "peu-commun",
-          "apparition": 0.3,
+          "apparition": 0.31,
           "capture": 120
         },
         {
           "pokemon": 42,
           "rarete": "rare",
-          "apparition": 0.25,
+          "apparition": 0.26,
           "capture": 90
         },
         {
@@ -1321,7 +1321,7 @@
         {
           "pokemon": 146,
           "rarete": "legendaire",
-          "apparition": 0.05,
+          "apparition": 0.02,
           "capture": 3
         }
       ],

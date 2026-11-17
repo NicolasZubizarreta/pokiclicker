@@ -24,6 +24,8 @@ export type ReglagesPension = {
   bonheurNaissance: number; metamorph: number; especesTirees: number;
   chances: { metamorph: number; memeEspece: number; typePartage: number };
   chanceShiny: number;
+  /** Métamorph + Métamorph : chaque espèce listée pèse `poids` fois une espèce normale dans le tirage. */
+  legendaires: { numeros: number[]; poids: number };
   /** Bonus de dégâts propres d'un Pokémon né d'un œuf (0,05 = +5 %). */
   marqueEclosion: number;
   messages: { pleine: string; envoyePc: string; eclosion: string };
@@ -174,6 +176,9 @@ if ([pension.emplacementsMax, pension.prixParEmplacement, pension.pasEclosion,
   pension.metamorph, pension.especesTirees].some(valeur => !Number.isSafeInteger(valeur) || valeur <= 0)
   || !Number.isSafeInteger(pension.bonheurNaissance) || pension.bonheurNaissance < 0
   || !Number.isFinite(pension.marqueEclosion) || pension.marqueEclosion < 0
+  || !Number.isFinite(pension.legendaires.poids) || pension.legendaires.poids <= 0 || pension.legendaires.poids > 1
+  || new Set(pension.legendaires.numeros).size !== pension.legendaires.numeros.length
+  || pension.legendaires.numeros.some(numero => !Number.isSafeInteger(numero) || numero < 1 || numero > pension.especesTirees)
   || [pension.chanceShiny, pension.chances.metamorph, pension.chances.memeEspece, pension.chances.typePartage]
     .some(valeur => !Number.isFinite(valeur) || valeur < 0 || valeur > 1)
   || [pension.messages.pleine, pension.messages.envoyePc, pension.messages.eclosion]

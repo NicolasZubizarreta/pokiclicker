@@ -438,17 +438,17 @@ En tant que joueur, je veux que la pension ne remplisse pas tout en 30 secondes,
 
 ## T. `fix(equilibrage): légendaires plus rares, balles à ×1,5 et ×3`
 
-`type:fix`, `etat:a_faire`, `est:1-1.5`, `prio:1` · branche : `v2` · pas d'`agent-ok` (règles de jeu)
+`type:fix`, `etat:fait`, `est:1-1.5`, `prio:1` · branche : `v2` · pas d'`agent-ok` (règles de jeu)
 
 ### Histoire
 En tant que joueur, je veux que les légendaires restent des trouvailles rares et que l'Hyper Ball ne les rende pas faciles.
 
 ### Critères d'acceptation
-- [ ] Étant donné `zones.json`, quand les taux sont appliqués, alors Mew vaut 0,5 % au Pont Pépite, Mewtwo 1 % à la Caverne Azurée, Artikodin 2 % aux Îles Écume, Sulfura 2 % à la Route Victoire, Électhor reste à 2 %, et le total de chaque zone retombe à 100 % (Abra 30,5 ; Otaria 21, Kokiyas 21, Krabby 15,5, Hypotrempe 15,5 ; Parasect 21, Kadabra 21, Raichu 26, Draco 31 ; Machopeur 31, Gravalanch 31, Nosferalto 26).
-- [ ] Étant donné deux Métamorph à la pension, quand le tirage au hasard a lieu, alors chaque légendaire (144, 145, 146, 150, 151, listés dans les données) pèse 1/10 d'une espèce normale (environ 1 sur 290 au total).
-- [ ] Étant donné `combat.balles`, quand les valeurs sont appliquées, alors Super Ball ×1,5 et Hyper Ball ×3 (Master Ball inchangée), les descriptions de `objets.json` sont à jour, et la pitié de capture ne change pas.
-- [ ] Étant donné un test sur la somme des taux, quand il tourne, alors il vérifie que chaque zone fait 100 %.
-- [ ] Étant donné le simulateur, quand il tourne avant et après, alors le temps de la Ligue est donné à Nicolas ; `tsc -b`, eslint, vitest et e2e sont verts.
+- [x] Étant donné `zones.json`, quand les taux sont appliqués, alors Mew vaut 0,5 % au Pont Pépite, Mewtwo 1 % à la Caverne Azurée, Artikodin 2 % aux Îles Écume, Sulfura 2 % à la Route Victoire, Électhor reste à 2 %, et le total de chaque zone retombe à 100 % (Abra 30,5 ; Otaria 21, Kokiyas 21, Krabby 15,5, Hypotrempe 15,5 ; Parasect 21, Kadabra 21, Raichu 26, Draco 31 ; Machopeur 31, Gravalanch 31, Nosferalto 26).
+- [x] Étant donné deux Métamorph à la pension, quand le tirage au hasard a lieu, alors chaque légendaire (144, 145, 146, 150, 151, listés dans les données) pèse 1/10 d'une espèce normale (environ 1 sur 290 au total).
+- [x] Étant donné `combat.balles`, quand les valeurs sont appliquées, alors Super Ball ×1,5 et Hyper Ball ×3 (Master Ball inchangée), les descriptions de `objets.json` sont à jour, et la pitié de capture ne change pas.
+- [x] Étant donné un test sur la somme des taux, quand il tourne, alors il vérifie que chaque zone fait 100 %.
+- [x] Étant donné le simulateur, quand il tourne avant et après, alors le temps de la Ligue est donné à Nicolas ; `tsc -b`, eslint, vitest et e2e sont verts **Résultat (17/11)** : avant R, Ligue gagnée en 4,0 min (420,6 min de jeu) ; avec R, S et T, la Ligue n'est plus atteinte : bloqué à Cramois'Île après 120 min, 400,4 min de jeu, 6 badges, 77/151 espèces (après R seul : bloqué à la Centrale, 4 badges). Vitest : seuls échecs `musiques.test.ts`, `PagePlus.test.tsx` et `tests/sons-fidelite.test.ts`, sans lien. Tests de fidélité V1 : balles ×2/×4 et taux d'origine des zones rejoués par des écarts dans `tests/ecarts-v1.ts` ; `scripts/extraire-zones-v1.mjs` applique les nouveaux taux (fixture V1 inchangée, hash casino régénéré).
 
 ### Effort et risques
 1 à 1,5 jour. Risque : les tests de fidélité V1 lisent les taux des zones (à mettre à jour, accord de Nicolas donné ici).

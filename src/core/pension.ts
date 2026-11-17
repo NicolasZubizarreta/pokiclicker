@@ -129,6 +129,19 @@ export function entrerALaPension<R extends Pick<DonneesRegion, 'pensionVue' | 'p
   return { region: { ...region, pensionVue: true }, premiere: !pensionVisitee(region) };
 }
 
+/** Tirage d'une espèce parmi les 151 ; les légendaires listés dans les réglages pèsent une fraction d'une espèce normale. */
+function tirerEspece(alea: () => number): number {
+  const { numeros, poids } = pension.legendaires;
+  const total = pension.especesTirees - numeros.length * (1 - poids);
+  const tirage = alea() * total;
+  let cumul = 0;
+  for (let numero = 1; numero <= pension.especesTirees; numero++) {
+    cumul += numeros.includes(numero) ? poids : 1;
+    if (tirage < cumul) return numero;
+  }
+  return pension.especesTirees;
+}
+
 export function tirerOeuf(
   parents: readonly PokemonPossede[], alea: () => number,
 ): { numero: number; shiny: boolean } | null {
@@ -137,7 +150,7 @@ export function tirerOeuf(
   const [premier, second] = parents as readonly [PokemonPossede, PokemonPossede];
   let numero: number;
   if (premier.numero === pension.metamorph && second.numero === pension.metamorph) {
-    numero = Math.floor(alea() * pension.especesTirees) + 1;
+    numero = tirerEspece(alea);
   } else if (premier.numero === pension.metamorph) {
     numero = second.numero;
   } else if (second.numero === pension.metamorph) {

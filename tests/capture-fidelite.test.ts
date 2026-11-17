@@ -1,11 +1,16 @@
-import { expect, it } from 'vitest';
+import { afterAll, beforeAll, expect, it } from 'vitest';
 import fixture from './fixtures/v1-capture.json';
-import { chanceCaptureAttendueV2, MULTIPLICATEUR_OR_V2 } from './ecarts-v1';
+import { chanceCaptureAttendueV2, imposerBallesV1, MULTIPLICATEUR_OR_V2 } from './ecarts-v1';
 import { appliquerCapture, chanceCapture, retirerBalle } from '../src/core/capture';
 import { motifArret } from '../src/core/combat';
 import { reglages } from '../src/core/reglages';
 import type { Rarete } from '../src/core/monde';
 import type { DonneesRegion } from '../src/core/sauvegarde-types';
+
+// Ticket T : Superball ×1,5 et Hyperball ×3 en V2 ; la fixture V1 se rejoue avec ×2 et ×4.
+let rendreBallesV2 = () => {};
+beforeAll(() => { rendreBallesV2 = imposerBallesV1(); });
+afterAll(() => rendreBallesV2());
 
 it('compare les 30 chances affichées par la V1 sans tolérance', () => {
   expect(fixture.chances.length).toBe(30);

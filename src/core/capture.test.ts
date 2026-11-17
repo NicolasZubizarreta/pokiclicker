@@ -1,4 +1,5 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+import { imposerBallesV1 } from '../../tests/ecarts-v1';
 import { appliquerCapture, chanceCapture, pitieCapture, retirerBalle, verifierLancer } from './capture';
 import { reglages } from './reglages';
 import { calculerOr, type Victoire } from './recompenses';
@@ -20,6 +21,10 @@ function region(taille = 5): DonneesRegion {
 }
 
 describe('chance de capture', () => {
+  // Ticket T : Superball ×1,5 et Hyperball ×3 en V2 ; la formule V1 et les cibles du 10/11 se rejouent en ×2 et ×4.
+  let rendreBallesV2 = () => {};
+  beforeAll(() => { rendreBallesV2 = imposerBallesV1(); });
+  afterAll(() => rendreBallesV2());
   it.each([['pokeball', 1], ['superball', 2], ['hyperball', 4]] as const)('%s conserve l’ordre de la formule V1', (cle, x) => {
     const attendue = ((120 / 255) * ((3 * 100 - 2 * 50) / (3 * 100)) * x) / (1 + 30 / 100);
     expect(chanceCapture(ennemi, cle, [])).toBe(attendue);
@@ -78,6 +83,23 @@ describe('chance de capture', () => {
     expect(chanceCapture({ ...ennemi, pv: 0 }, 'masterball', [])).toBe(0);
     expect(chanceCapture({ capture: 255, pv: 1, pvMax: 100, niveau: 2 }, 'hyperball', [])).toBeGreaterThan(1);
     expect(chanceCapture(ennemi, 'inconnue', [])).toBe(0);
+  });
+});
+
+describe('balles V2 (ticket T)', () => {
+  it.each([['pokeball', 1], ['superball', 1.5], ['hyperball', 3], ['masterball', 255]] as const)('%s multiplie la chance par %s', (cle, x) => {
+    const attendue = ((120 / 255) * ((3 * 100 - 2 * 50) / (3 * 100)) * x) / (1 + 30 / 100);
+    expect(chanceCapture(ennemi, cle === 'masterball' ? 'pokeball' : cle, [])).toBe(cle === 'masterball' ? attendue / 255 : attendue);
+    expect(reglages.capture.balles.find((balle) => balle.cle === cle)!.multiplicateur).toBe(x);
+  });
+  it('garde la pitié de capture de la V1', () => {
+    expect(reglages.capture.pitie).toEqual([
+      { tauxMin: 150, balles: { pokeball: 0.085, superball: 0.04, hyperball: 0 } },
+      { tauxMin: 100, balles: { pokeball: 0.09, superball: 0.05, hyperball: 0 } },
+      { tauxMin: 40, balles: { pokeball: 0.18, superball: 0.16, hyperball: 0.13 } },
+      { tauxMin: 10, balles: { pokeball: 0.23, superball: 0.33, hyperball: 0.42 } },
+      { tauxMin: 0, balles: { pokeball: 0.15, superball: 0.23, hyperball: 0.31 } },
+    ]);
   });
 });
 
