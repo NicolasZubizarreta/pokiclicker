@@ -3,7 +3,7 @@ import type { Page } from '@playwright/test';
 import { telephone } from './aide-carte';
 
 // Ticket I, lot I1 : coquille PC (barre latérale, bandeau, légende, clavier, fenêtres, notifications).
-const ONGLETS = ['Combat', 'Équipe', 'PC', 'Shop', 'Carte', 'Pokédex', 'Menu'];
+const ONGLETS = ['Combat', 'Équipe', 'PC', 'Shop', 'Carte', 'Pokédex', 'Pension', 'Menu'];
 const nav = (page: Page) => page.getByRole('navigation', { name: 'Navigation principale' });
 const bouton = (page: Page, nom: string) => nav(page).getByRole('button', { name: nom, exact: true });
 
@@ -17,11 +17,11 @@ async function demarrer(page: Page, largeur = 1440, hauteur = 900) {
 
 test.beforeEach(({ page }) => { test.skip(telephone(page), 'Coquille PC : 1024 px et plus'); });
 
-test('1440 px : barre latérale de 15 rem, sept entrées, bandeau, pas de légende en bas', async ({ page }) => {
+test('1440 px : barre latérale de 15 rem, huit entrées, bandeau, pas de légende en bas', async ({ page }) => {
   await demarrer(page);
   const barre = await page.locator('aside.barre-laterale').boundingBox();
   expect(barre?.width).toBeCloseTo(240, 0);
-  expect(await nav(page).getByRole('button').count()).toBe(7);
+  expect(await nav(page).getByRole('button').count()).toBe(8);
   for (const [i, nom] of ONGLETS.entries()) await expect(nav(page).getByRole('button').nth(i)).toContainText(nom);
   await expect(page.getByRole('banner', { name: 'Chiffres clés' })).toContainText('Pokédollars');
   await expect(page.getByRole('banner', { name: 'Chiffres clés' })).toContainText('DPS');
@@ -29,13 +29,17 @@ test('1440 px : barre latérale de 15 rem, sept entrées, bandeau, pas de légen
   await expect(page.getByRole('button', { name: 'Raccourcis ?' })).toBeVisible();
 });
 
-test('1 à 7 changent d\'onglet au clavier, la page ne défile jamais (1280, 1440, 1920, 2560)', async ({ page }) => {
+test('1 à 8 changent d\'onglet au clavier, la page ne défile jamais (1280, 1440, 1920, 2560)', async ({ page }) => {
   await demarrer(page);
   const tailles: [number, number][] = [[1280, 800], [1440, 900], [1920, 1080], [2560, 1440]];
   for (const [largeur, hauteur] of tailles) {
     await page.setViewportSize({ width: largeur, height: hauteur });
     for (const [i, nom] of ONGLETS.entries()) {
       await page.keyboard.press(String(i + 1));
+      if (nom === 'Pension' && await bouton(page, nom).getAttribute('aria-disabled') === 'true') {
+        await expect(bouton(page, nom)).not.toHaveAttribute('aria-current', 'page');
+        continue;
+      }
       await expect(bouton(page, nom)).toHaveAttribute('aria-current', 'page');
       const mesure = await page.evaluate(() => ({ h: document.documentElement.scrollHeight, vh: innerHeight, w: document.documentElement.scrollWidth, vw: innerWidth }));
       expect(mesure.h, `${nom} à ${largeur} : défilement de la page`).toBeLessThanOrEqual(mesure.vh);

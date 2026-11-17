@@ -26,10 +26,17 @@ beforeEach(() => {
 });
 afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
-it.each(['Combat', 'Équipe', 'PC', 'Shop', 'Carte', 'Pokédex', 'Menu'])('navigue vers %s', page => {
+it.each(['Combat', 'Équipe', 'PC', 'Shop', 'Carte', 'Pokédex', 'Pension', 'Menu'])('navigue vers %s', page => {
+  storeJeu.setState({ pension: { ...storeJeu.getState().pension, acces: { ouvert: true, raison: null } } });
   render(<Essai />);
-  fireEvent.keyDown(document, { key: String(['Combat', 'Équipe', 'PC', 'Shop', 'Carte', 'Pokédex', 'Menu'].indexOf(page) + 1) });
+  fireEvent.keyDown(document, { key: String(['Combat', 'Équipe', 'PC', 'Shop', 'Carte', 'Pokédex', 'Pension', 'Menu'].indexOf(page) + 1) });
   expect(aller).toHaveBeenCalledWith(page);
+});
+it('ignore 7 quand la pension est verrouillée', () => {
+  storeJeu.setState({ pension: { ...storeJeu.getState().pension, acces: { ouvert: false, raison: null } } });
+  render(<Essai />);
+  fireEvent.keyDown(document, { key: '7' });
+  expect(aller).not.toHaveBeenCalled();
 });
 it.each([[' ', 'attaquer'], ['Enter', 'attaquer'], ['c', 'capturer'], ['b', 'balle2'], ['a', 'auto'], ['t', 'arret'], ['r', 'reglage'], ['s', 'sac'], ['f', 'fauchage'], ['p', 'radar']])('%s clique %s', (key, action) => {
   render(<Essai />); fireEvent.keyDown(document, { key }); expect(clic).toHaveBeenCalledWith(action);

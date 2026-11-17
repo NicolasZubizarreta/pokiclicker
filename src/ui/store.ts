@@ -63,7 +63,7 @@ export type Degat = { id: number; valeur: number };
 export type Gain = { type: 'butin' | 'capture' | 'diamants'; lignes: string[] };
 export type ResumeCompte = { diamants: number; succes: string[]; skins: string[] };
 export type CaseEquipe = { pokemon: PokemonPossede; dps: number; xpMax: number; multiplicateur: number; evolution?: number | null } | null;
-export type Destination = { id: string; nom: string; ouverte: boolean; raison: string | null };
+export type Destination = { id: string; nom: string; ouverte: boolean; raison: string | null; lieu?: 'centre-commercial' };
 export type EtatForme = {
   forme: FormeCarte; zone: string | null; nom: string; numero: number | null;
   ouverte: boolean; actuelle: boolean; raison: string | null;
@@ -139,6 +139,7 @@ export type AffichageJeu = ActionsCasino & {
   acheterEmplacementOeuf(): string | null;
   noterEspece(numero: number): void;
   erreurChargement: boolean; zonePrecedente: Destination | null; zoneSuivante: Destination | null;
+  versCentre: number; centreVoisines: { precedente: Destination | null; suivante: Destination | null };
   minuteur: { restantMs: number; totalMs: number } | null;
   evenementsDegats: Degat[];
   argent: number; enRecherche: boolean; cache: boolean; annonce: string | null; banniere: string | null;
@@ -577,8 +578,13 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       nouvelles: [...ouvertes].filter(id => !zonesVues.has(id)),
       tutorielRoute1: region.zoneId === kanto.depart && region.bossVaincus.length === 0,
     };
-    const zonePrecedente = destination(lieu.id === 'kanto.labo' ? kanto.zone(kanto.lieu('labo').depuis) : kanto.zonePrecedente(lieu.id));
-    const zoneSuivante = destination(lien ? kanto.zone(lien.vers) : undefined);
+    const centre = afficherCentre(region, precedent.centre);
+    const avantCentre = kanto.zone(kanto.lieu('centre-commercial').depuis);
+    const apresCentre = kanto.lienSuivant(avantCentre.liens, etatMonde);
+    const centreVoisines = { precedente: destination(avantCentre), suivante: destination(apresCentre ? kanto.zone(apresCentre.vers) : undefined) };
+    const versCentre: Destination = { id: 'centre-commercial', nom: 'Centre commercial', ouverte: true, raison: null, lieu: 'centre-commercial' };
+    const zonePrecedente = centre.acces.ouvert && lieu.id === apresCentre?.vers ? versCentre : destination(lieu.id === 'kanto.labo' ? kanto.zone(kanto.lieu('labo').depuis) : kanto.zonePrecedente(lieu.id));
+    const zoneSuivante = centre.acces.ouvert && lieu.id === avantCentre.id ? versCentre : destination(lien ? kanto.zone(lien.vers) : undefined);
     const evenement = commandeCourante(evenements, region);
     const enCours = region.evenementEnCours?.id === 'kanto.intro';
     const introJouee = region.evenementsJoues.includes('kanto.intro');
@@ -616,7 +622,8 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       fauchage: afficherFauchage(region, coeur, maintenant, precedent.fauchage),
       radar: region.ameliorations.includes('pokeradar'),
       capture: afficherCapture(coeur, region.inventaire, precedent.capture, preferences.balleChoisie ?? null),
-      boutique: afficherBoutique(region, precedent.boutique), centre: afficherCentre(region, precedent.centre), sac,
+      boutique: afficherBoutique(region, precedent.boutique), centre, sac,
+      centreVoisines: JSON.stringify(centreVoisines) === JSON.stringify(precedent.centreVoisines) ? precedent.centreVoisines : centreVoisines,
       casino: afficherCasino(region, precedent.casino),
       autoClic: precedent.autoClic.possede === region.ameliorations.includes('leftovers')
         && precedent.autoClic.actif === (coeur?.autoClic ?? false) ? precedent.autoClic
@@ -1194,6 +1201,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     statistiques: calculerStatistiques(),
     nomAdversaire: null, ligueGagnee: 0,
     erreur: null, erreurChargement: false, zonePrecedente: null, zoneSuivante: null, evenementsDegats: [],
+    versCentre: 0, centreVoisines: { precedente: null, suivante: null },
     evolution: null, argent: 0, enRecherche: false, cache: false, annonce: null, banniere: null, deblocage: null, deblocageCarte: null, echange: null,
     pc: [], pokedex, vus: [], especesShiny: [], accesPc: { ouvert: false, raison: reglages.pc.raison },
     pension: { acces: { ouvert: false, raison: null }, parents: [], oeufs: [],
@@ -1240,6 +1248,10 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       afficher();
     },
     allerVers(zoneId) {
+      if (zoneId === 'centre-commercial') {
+        if (store.getState().centre.acces.ouvert) store.setState(e => ({ versCentre: e.versCentre + 1 }));
+        return;
+      }
       if (!initialise || !acces(zoneId).ok) return;
       changerDeZone(zoneId);
       executer({ type: 'entree-zone', zone: zoneId });

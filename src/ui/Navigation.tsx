@@ -1,6 +1,5 @@
-import { useStore } from 'zustand';
+import { useAccesPension } from './useAccesPension';
 import { useTelephone } from './useTelephone';
-import { storeJeu } from './store';
 import { BarreLaterale, type InfosPartie } from './BarreLaterale';
 import { Carte, Combat, Equipe, Menu, Shop } from './icones';
 import { IconePension } from './icones-menu';
@@ -12,12 +11,12 @@ const entrees = [
   { titre: 'Équipe', Icone: Equipe },
   { titre: 'Shop', Icone: Shop },
   { titre: 'Carte', Icone: Carte },
+  { titre: 'Pension', Icone: IconePension },
   { titre: 'Menu', Icone: Menu },
 ] as const;
-const entreePension = { titre: 'Pension', Icone: IconePension } as const;
 
-/** `Pokédex` n'a d'entrée que dans la barre latérale du PC (le téléphone le garde dans le Menu). `Pension` a une entrée entre `Carte` (ou `Pokédex` sur PC) et `Menu` dès qu'elle est débloquée. `Casino` n'a pas d'onglet : il s'ouvre depuis le Menu, la Carte ou l'annonce de déblocage, et l'onglet Menu reste actif. */
-export type Page = 'Combat' | 'Équipe' | 'PC' | 'Shop' | 'Carte' | 'Pokédex' | 'Menu' | 'Monde' | 'Casino' | 'Pension';
+/** `Pokédex` n'a d'entrée que dans la barre latérale du PC (le téléphone le garde dans le Menu). `Pension` a une entrée entre `Carte` (ou `Pokédex` sur PC) et `Menu` même verrouillée. `Casino` n'a pas d'onglet : il s'ouvre depuis le Menu, la Carte ou l'annonce de déblocage, et l'onglet Menu reste actif. */
+export type Page = 'Combat' | 'Équipe' | 'PC' | 'Shop' | 'Carte' | 'Pokédex' | 'Menu' | 'Monde' | 'Casino' | 'Pension' | 'Centre';
 
 export function Navigation({ page, choisir, signalCarte = false, inerte = false, origineMonde = 'Menu', originePC = 'Menu', ...infos }:  {
   page: Page; choisir: (page: Page) => void; signalCarte?: boolean; inerte?: boolean;
@@ -27,20 +26,23 @@ export function Navigation({ page, choisir, signalCarte = false, inerte = false,
   const telephone = useTelephone();
   const casinoNouveau = useCasinoNouveau();
   const pensionNouveau = usePensionNouveau();
-  const pensionOuverte = useStore(storeJeu, etat => etat.pension.acces.ouvert);
+  const pension = useAccesPension();
   if (!telephone) return <BarreLaterale page={page} choisir={choisir} signalCarte={signalCarte} inerte={inerte} origineMonde={origineMonde} {...infos} />;
-  const active = page === 'PC' ? originePC : page === 'Monde' ? origineMonde : page === 'Casino' || page === 'Pokédex' ? 'Menu' : page;
-  const liste = pensionOuverte ? [...entrees.slice(0, -1), entreePension, entrees.at(-1)!] : entrees;
+  const active = page === 'Centre' ? 'Combat' : page === 'PC' ? originePC : page === 'Monde' ? origineMonde : page === 'Casino' || page === 'Pokédex' ? 'Menu' : page;
   return (
     <nav aria-label="Navigation principale" inert={inerte}
       className="fixed inset-x-0 bottom-0 z-10 box-content border-t border-bordure bg-surface pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pt-1 pb-[env(safe-area-inset-bottom)] lg:rounded-cadre lg:border-t-0 lg:after:pointer-events-none lg:after:absolute lg:after:inset-0 lg:after:rounded-cadre lg:after:border lg:after:border-bordure lg:after:inset-ring lg:after:inset-ring-region-argent lg:inset-x-auto lg:inset-y-0 lg:left-0 lg:h-auto lg:w-24 lg:p-0">
-      <div className="flex h-full gap-2 lg:flex-col lg:gap-0">
-        {liste.map(({ titre, Icone }) => (
+      <span id={pension.description} className="sr-only">{pension.raison}</span>
+      {pension.message && <p role="status" className="fixed bottom-[calc(var(--spacing)*16+env(safe-area-inset-bottom))] inset-x-4 z-10 cadre bg-surface p-2 text-center">{pension.message}</p>}
+      <div className="flex h-full gap-0 lg:flex-col lg:gap-0">
+        {entrees.map(({ titre, Icone }) => (
           <button key={titre} type="button" aria-current={active === titre ? 'page' : undefined}
             data-tuto={titre === 'Équipe' ? 'onglet-equipe' : undefined}
             data-signal={titre === 'Carte' && signalCarte ? 'true' : undefined}
-            onClick={() => choisir(titre)}
-            className={`relative flex min-h-14 min-w-0 flex-1 flex-col items-center justify-center text-sm lg:h-14 lg:min-h-11 lg:min-w-11 lg:flex-none ${active === titre ? 'bg-selection font-bold text-region-accent' : 'text-texte-doux'}${titre === 'Carte' && signalCarte ? ' ring-4 ring-succes-base rebond-signal' : ''}`}>
+            aria-disabled={titre === 'Pension' && !pension.ouverte ? true : undefined}
+            aria-describedby={titre === 'Pension' && !pension.ouverte ? pension.description : undefined}
+            onClick={() => titre === 'Pension' && !pension.ouverte ? pension.expliquer() : choisir(titre)}
+            className={`relative flex min-h-14 min-w-0 flex-1 flex-col items-center justify-center text-sm lg:h-14 lg:min-h-11 lg:min-w-11 lg:flex-none ${titre === 'Pension' && !pension.ouverte ? 'opacity-60 ' : ''}${active === titre ? 'bg-selection font-bold text-region-accent' : 'text-texte-doux'}${titre === 'Carte' && signalCarte ? ' ring-4 ring-succes-base rebond-signal' : ''}`}>
             {active === titre && <span aria-hidden="true" className="absolute inset-x-0 top-0 h-1 bg-region-accent lg:inset-x-auto lg:inset-y-0 lg:left-0 lg:h-full lg:w-1" />}
             <Icone />
             <span>{titre}</span>

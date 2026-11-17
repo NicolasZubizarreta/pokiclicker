@@ -318,10 +318,10 @@ describe('Coquille', () => {
     expect(carte.classList.contains('rebond-signal')).toBe(false);
   });
 
-  it('présente les sept destinations dans l’ordre et active seulement Combat', () => {
+  it('présente les huit destinations dans l’ordre et active seulement Combat', () => {
     render(<Coquille />);
     const boutons = within(screen.getByRole('navigation')).getAllByRole('button');
-    expect(boutons.map((bouton) => bouton.querySelector('span:not([aria-hidden])')?.textContent)).toEqual(['Combat', 'Équipe', 'PC', 'Shop', 'Carte', 'Pokédex', 'Menu']);
+    expect(boutons.map((bouton) => bouton.querySelector('span:not([aria-hidden])')?.textContent)).toEqual(['Combat', 'Équipe', 'PC', 'Shop', 'Carte', 'Pokédex', 'Pension', 'Menu']);
     expect(boutons.filter((bouton) => bouton.getAttribute('aria-current') === 'page')).toEqual([boutons[0]]);
     expect(within(screen.getByRole('main')).getByRole('heading', { level: 1 }).textContent).toBe('Route 1');
     expect(screen.getByRole('button', { name: /^Attaquer / })).toBeTruthy();
@@ -404,7 +404,8 @@ describe('Coquille', () => {
         storeJeu.getState().tick();
       }
     });
-    const autorises = new Set(['PokiClicker', 'Kanto', 'PC', '1', '2', '3', '4', '5', '6', '7', 'Espace', 'Attaquer', 'C', 'Capturer', 'B', 'Balle', 'A', 'Auto', 'T', 'Arrêt', 'S', 'Sac', '← →', 'Zone', '1–7', 'Onglets', '?', 'Tous', 'Tab', 'Naviguer', 'Échap', 'Fermer', 'Raccourcis', 'Raccourcis ?', 'Aller au contenu', 'Mon compte', 'Carte de Kanto', "Choisis une zone dans la liste pour t'y rendre. Tu es dans la zone qui clignote en vert.", ...noms, "Le Shop s'ouvre à la Forêt de Jade.",
+    const autorises = new Set(['PokiClicker', 'Kanto', 'PC', '1', '2', '3', '4', '5', '6', '7', '8', 'Espace', 'Attaquer', 'C', 'Capturer', 'B', 'Balle', 'A', 'Auto', 'T', 'Arrêt', 'S', 'Sac', '← →', 'Zone', '1–8', 'Onglets', '?', 'Tous', 'Tab', 'Naviguer', 'Échap', 'Fermer', 'Raccourcis', 'Raccourcis ?', 'Aller au contenu', 'Mon compte', 'Carte de Kanto', "Choisis une zone dans la liste pour t'y rendre. Tu es dans la zone qui clignote en vert.", ...noms, "Le Shop s'ouvre à la Forêt de Jade.",
+      'Pension', storeJeu.getState().pension.acces.raison ?? 'Bientôt disponible.',
       'Pokédollars', 'Zone', storeJeu.getState().lieu!.nom, `${storeJeu.getState().argent.toLocaleString('fr-FR')}\u00a0₽`,
       'Ton aventure', 'Aide et réglages', 'Partie en cours', 'La partie se sauvegarde toute seule.', 'Sauvegarder maintenant',
       'Monde Pokémon', 'Kanto jouable', 'Dégâts, DPS et gains', 'Statistiques', 'Région', `Kanto · ${storeJeu.getState().lieu!.nom}`, 'Badges', '0 / 8', '0 sur 8', 'DPS',

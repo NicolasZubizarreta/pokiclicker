@@ -9,6 +9,7 @@ import { AccueilCasino } from './AccueilCasino';
 import { PagePension } from './PagePension';
 import { useTelephone } from './useTelephone';
 import { useTuto } from './tuto/store-tuto';
+import { ZoneLigne } from './ZoneLigne';
 import './ShopPC.css';
 
 export function PageCarte({ quandArrive }: { quandArrive: () => void }) {
@@ -42,9 +43,10 @@ export function PageCarte({ quandArrive }: { quandArrive: () => void }) {
   </div>;
 }
 
-export function PageCentre({ retour }: { retour: () => void }) {
+export function PageCentre({ retour, navigationZones = false, versCombat = retour }: { retour: () => void; navigationZones?: boolean; versCombat?: () => void }) {
   const telephone = useTelephone();
   const centre = useStore(storeJeu, etat => etat.centre);
+  const voisines = useStore(storeJeu, etat => etat.centreVoisines);
   const argent = useStore(storeJeu, etat => etat.argent);
   const acheter = useStore(storeJeu, etat => etat.acheter);
   const [selection, selectionner] = useState<string | null>(null);
@@ -57,6 +59,7 @@ export function PageCentre({ retour }: { retour: () => void }) {
   const voile = 'bg-surface/80';
 
   return <section className={telephone ? 'relative isolate mx-auto max-w-screen-xl pb-24 text-base tabular-nums' : 'commercial-pc text-base tabular-nums'}>
+    {navigationZones && <ZoneLigne etape={null} precedente={voisines.precedente} suivante={voisines.suivante} aller={zoneId => { storeJeu.getState().allerVers(zoneId); versCombat(); }} />}
     <div className={telephone ? 'pointer-events-none fixed inset-0 -z-10' : 'commercial-decor pointer-events-none'}>
       <Image genre="decor" src="img/decors/centre-commercial.webp" alt="" couvrir className="h-full w-full" />
     </div>
@@ -69,7 +72,7 @@ export function PageCentre({ retour }: { retour: () => void }) {
       <div className="grid gap-2">
         <strong className="text-region-accent">{argent.toLocaleString('fr-FR')}{'\u00a0₽'}</strong>
         <button type="button" onClick={retour}
-          className={telephone ? `${bouton} cadre fixed inset-x-4 bottom-20 z-10 bg-surface text-lien shadow-md md:static` : `${bouton} plaque`}>Retour à la carte</button>
+          className={telephone ? `${bouton} cadre fixed inset-x-4 bottom-20 z-10 bg-surface text-lien shadow-md md:static` : `${bouton} plaque`}>{navigationZones ? 'Retour au combat' : 'Retour à la carte'}</button>
       </div>
     </header>
     {!centre.acces.ouvert ? <p className={`cadre mt-4 ${voile} p-4`}>{centre.acces.raison}</p> : objet &&

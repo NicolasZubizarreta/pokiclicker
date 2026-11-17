@@ -22,6 +22,8 @@ it('ouvre une fenêtre modale, ferme sur annulation native et rend le focus', ()
   expect((dialogue as HTMLDialogElement).open).toBe(true);
   expect(screen.getByRole('heading', { name: 'Combat' })).toBeTruthy();
   expect(screen.getByRole('heading', { name: 'Partout' })).toBeTruthy();
+  expect(screen.getByText('Pension').previousElementSibling?.textContent).toBe('7');
+  expect(screen.getByText('Menu').previousElementSibling?.textContent).toBe('8');
   fireEvent(dialogue, new Event('cancel', { cancelable: true }));
   expect(screen.queryByRole('dialog')).toBeNull();
   expect(document.activeElement).toBe(ouvrir);
