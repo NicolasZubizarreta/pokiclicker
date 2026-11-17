@@ -10000,7 +10000,7 @@
       "zone": "kanto.pont-pepite",
       "objet": "repel",
       "r": 0.5,
-      "id": 151
+      "id": 48
     },
     {
       "zone": "kanto.pont-pepite",
@@ -10396,7 +10396,7 @@
       "zone": "kanto.pont-pepite",
       "objet": "superRepel",
       "r": 0.15,
-      "id": 151
+      "id": 22
     },
     {
       "zone": "kanto.pont-pepite",
@@ -27400,7 +27400,7 @@
       "zone": "kanto.iles-ecume",
       "objet": "aucune",
       "r": 0.21,
-      "id": 90
+      "id": 86
     },
     {
       "zone": "kanto.iles-ecume",
@@ -27520,13 +27520,13 @@
       "zone": "kanto.iles-ecume",
       "objet": "aucune",
       "r": 0.41,
-      "id": 98
+      "id": 90
     },
     {
       "zone": "kanto.iles-ecume",
       "objet": "aucune",
       "r": 0.42,
-      "id": 98
+      "id": 90
     },
     {
       "zone": "kanto.iles-ecume",
@@ -27610,13 +27610,13 @@
       "zone": "kanto.iles-ecume",
       "objet": "aucune",
       "r": 0.56,
-      "id": 116
+      "id": 98
     },
     {
       "zone": "kanto.iles-ecume",
       "objet": "aucune",
       "r": 0.57,
-      "id": 116
+      "id": 98
     },
     {
       "zone": "kanto.iles-ecume",
@@ -27700,19 +27700,19 @@
       "zone": "kanto.iles-ecume",
       "objet": "aucune",
       "r": 0.71,
-      "id": 73
+      "id": 116
     },
     {
       "zone": "kanto.iles-ecume",
       "objet": "aucune",
       "r": 0.72,
-      "id": 73
+      "id": 116
     },
     {
       "zone": "kanto.iles-ecume",
       "objet": "aucune",
       "r": 0.73,
-      "id": 73
+      "id": 116
     },
     {
       "zone": "kanto.iles-ecume",
@@ -27790,19 +27790,19 @@
       "zone": "kanto.iles-ecume",
       "objet": "aucune",
       "r": 0.86,
-      "id": 87
+      "id": 73
     },
     {
       "zone": "kanto.iles-ecume",
       "objet": "aucune",
       "r": 0.87,
-      "id": 87
+      "id": 73
     },
     {
       "zone": "kanto.iles-ecume",
       "objet": "aucune",
       "r": 0.88,
-      "id": 87
+      "id": 73
     },
     {
       "zone": "kanto.iles-ecume",
@@ -27850,19 +27850,19 @@
       "zone": "kanto.iles-ecume",
       "objet": "aucune",
       "r": 0.96,
-      "id": 144
+      "id": 87
     },
     {
       "zone": "kanto.iles-ecume",
       "objet": "aucune",
       "r": 0.97,
-      "id": 144
+      "id": 87
     },
     {
       "zone": "kanto.iles-ecume",
       "objet": "aucune",
       "r": 0.98,
-      "id": 144
+      "id": 87
     },
     {
       "zone": "kanto.iles-ecume",
@@ -28066,7 +28066,7 @@
       "zone": "kanto.iles-ecume",
       "objet": "repel",
       "r": 0.31,
-      "id": 73
+      "id": 116
     },
     {
       "zone": "kanto.iles-ecume",
@@ -28150,7 +28150,7 @@
       "zone": "kanto.iles-ecume",
       "objet": "repel",
       "r": 0.45,
-      "id": 87
+      "id": 73
     },
     {
       "zone": "kanto.iles-ecume",
@@ -28210,7 +28210,7 @@
       "zone": "kanto.iles-ecume",
       "objet": "repel",
       "r": 0.55,
-      "id": 144
+      "id": 87
     },
     {
       "zone": "kanto.iles-ecume",
@@ -28234,13 +28234,13 @@
       "zone": "kanto.iles-ecume",
       "objet": "repel",
       "r": 0.59,
-      "id": 144
+      "id": 98
     },
     {
       "zone": "kanto.iles-ecume",
       "objet": "repel",
       "r": 0.6,
-      "id": 144
+      "id": 98
     },
     {
       "zone": "kanto.iles-ecume",
@@ -28654,19 +28654,19 @@
       "zone": "kanto.iles-ecume",
       "objet": "superRepel",
       "r": 0.28,
-      "id": 144
+      "id": 73
     },
     {
       "zone": "kanto.iles-ecume",
       "objet": "superRepel",
       "r": 0.29,
-      "id": 144
+      "id": 73
     },
     {
       "zone": "kanto.iles-ecume",
       "objet": "superRepel",
       "r": 0.3,
-      "id": 144
+      "id": 73
     },
     {
       "zone": "kanto.iles-ecume",
@@ -32854,7 +32854,7 @@
       "zone": "kanto.caverne-azuree",
       "objet": "aucune",
       "r": 0.21,
-      "id": 64
+      "id": 47
     },
     {
       "zone": "kanto.caverne-azuree",
@@ -32974,13 +32974,13 @@
       "zone": "kanto.caverne-azuree",
       "objet": "aucune",
       "r": 0.41,
-      "id": 26
+      "id": 64
     },
     {
       "zone": "kanto.caverne-azuree",
       "objet": "aucune",
       "r": 0.42,
-      "id": 26
+      "id": 64
     },
     {
       "zone": "kanto.caverne-azuree",
@@ -33124,13 +33124,13 @@
       "zone": "kanto.caverne-azuree",
       "objet": "aucune",
       "r": 0.66,
-      "id": 148
+      "id": 26
     },
     {
       "zone": "kanto.caverne-azuree",
       "objet": "aucune",
       "r": 0.67,
-      "id": 148
+      "id": 26
     },
     {
       "zone": "kanto.caverne-azuree",
@@ -33304,25 +33304,25 @@
       "zone": "kanto.caverne-azuree",
       "objet": "aucune",
       "r": 0.96,
-      "id": 150
+      "id": 148
     },
     {
       "zone": "kanto.caverne-azuree",
       "objet": "aucune",
       "r": 0.97,
-      "id": 150
+      "id": 148
     },
     {
       "zone": "kanto.caverne-azuree",
       "objet": "aucune",
       "r": 0.98,
-      "id": 150
+      "id": 148
     },
     {
       "zone": "kanto.caverne-azuree",
       "objet": "aucune",
       "r": 0.99,
-      "id": 150
+      "id": 148
     },
     {
       "zone": "kanto.caverne-azuree",
@@ -33490,7 +33490,7 @@
       "zone": "kanto.caverne-azuree",
       "objet": "repel",
       "r": 0.26,
-      "id": 148
+      "id": 26
     },
     {
       "zone": "kanto.caverne-azuree",
@@ -33670,13 +33670,13 @@
       "zone": "kanto.caverne-azuree",
       "objet": "repel",
       "r": 0.56,
-      "id": 150
+      "id": 148
     },
     {
       "zone": "kanto.caverne-azuree",
       "objet": "repel",
       "r": 0.57,
-      "id": 150
+      "id": 148
     },
     {
       "zone": "kanto.caverne-azuree",
@@ -33688,13 +33688,13 @@
       "zone": "kanto.caverne-azuree",
       "objet": "repel",
       "r": 0.59,
-      "id": 150
+      "id": 26
     },
     {
       "zone": "kanto.caverne-azuree",
       "objet": "repel",
       "r": 0.6,
-      "id": 150
+      "id": 26
     },
     {
       "zone": "kanto.caverne-azuree",
@@ -34096,7 +34096,7 @@
       "zone": "kanto.caverne-azuree",
       "objet": "superRepel",
       "r": 0.26,
-      "id": 148
+      "id": 26
     },
     {
       "zone": "kanto.caverne-azuree",
@@ -34276,13 +34276,13 @@
       "zone": "kanto.caverne-azuree",
       "objet": "superRepel",
       "r": 0.56,
-      "id": 150
+      "id": 148
     },
     {
       "zone": "kanto.caverne-azuree",
       "objet": "superRepel",
       "r": 0.57,
-      "id": 150
+      "id": 148
     },
     {
       "zone": "kanto.caverne-azuree",
@@ -34294,13 +34294,13 @@
       "zone": "kanto.caverne-azuree",
       "objet": "superRepel",
       "r": 0.59,
-      "id": 150
+      "id": 26
     },
     {
       "zone": "kanto.caverne-azuree",
       "objet": "superRepel",
       "r": 0.6,
-      "id": 150
+      "id": 26
     },
     {
       "zone": "kanto.caverne-azuree",
@@ -34732,7 +34732,7 @@
       "zone": "kanto.route-victoire",
       "objet": "aucune",
       "r": 0.31,
-      "id": 75
+      "id": 67
     },
     {
       "zone": "kanto.route-victoire",
@@ -34912,13 +34912,13 @@
       "zone": "kanto.route-victoire",
       "objet": "aucune",
       "r": 0.61,
-      "id": 42
+      "id": 75
     },
     {
       "zone": "kanto.route-victoire",
       "objet": "aucune",
       "r": 0.62,
-      "id": 42
+      "id": 75
     },
     {
       "zone": "kanto.route-victoire",
@@ -35062,19 +35062,19 @@
       "zone": "kanto.route-victoire",
       "objet": "aucune",
       "r": 0.86,
-      "id": 149
+      "id": 42
     },
     {
       "zone": "kanto.route-victoire",
       "objet": "aucune",
       "r": 0.87,
-      "id": 149
+      "id": 42
     },
     {
       "zone": "kanto.route-victoire",
       "objet": "aucune",
       "r": 0.88,
-      "id": 149
+      "id": 42
     },
     {
       "zone": "kanto.route-victoire",
@@ -35122,19 +35122,19 @@
       "zone": "kanto.route-victoire",
       "objet": "aucune",
       "r": 0.96,
-      "id": 146
+      "id": 149
     },
     {
       "zone": "kanto.route-victoire",
       "objet": "aucune",
       "r": 0.97,
-      "id": 146
+      "id": 149
     },
     {
       "zone": "kanto.route-victoire",
       "objet": "aucune",
       "r": 0.98,
-      "id": 146
+      "id": 149
     },
     {
       "zone": "kanto.route-victoire",
@@ -35338,7 +35338,7 @@
       "zone": "kanto.route-victoire",
       "objet": "repel",
       "r": 0.31,
-      "id": 42
+      "id": 75
     },
     {
       "zone": "kanto.route-victoire",
@@ -35488,13 +35488,13 @@
       "zone": "kanto.route-victoire",
       "objet": "repel",
       "r": 0.56,
-      "id": 149
+      "id": 42
     },
     {
       "zone": "kanto.route-victoire",
       "objet": "repel",
       "r": 0.57,
-      "id": 149
+      "id": 42
     },
     {
       "zone": "kanto.route-victoire",
@@ -35548,13 +35548,13 @@
       "zone": "kanto.route-victoire",
       "objet": "repel",
       "r": 0.66,
-      "id": 146
+      "id": 149
     },
     {
       "zone": "kanto.route-victoire",
       "objet": "repel",
       "r": 0.67,
-      "id": 146
+      "id": 149
     },
     {
       "zone": "kanto.route-victoire",
@@ -35572,7 +35572,7 @@
       "zone": "kanto.route-victoire",
       "objet": "repel",
       "r": 0.7,
-      "id": 146
+      "id": 75
     },
     {
       "zone": "kanto.route-victoire",
@@ -35914,7 +35914,7 @@
       "zone": "kanto.route-victoire",
       "objet": "superRepel",
       "r": 0.26,
-      "id": 149
+      "id": 42
     },
     {
       "zone": "kanto.route-victoire",
@@ -35974,7 +35974,7 @@
       "zone": "kanto.route-victoire",
       "objet": "superRepel",
       "r": 0.36,
-      "id": 146
+      "id": 149
     },
     {
       "zone": "kanto.route-victoire",
@@ -35992,7 +35992,7 @@
       "zone": "kanto.route-victoire",
       "objet": "superRepel",
       "r": 0.39,
-      "id": 146
+      "id": 42
     },
     {
       "zone": "kanto.route-victoire",

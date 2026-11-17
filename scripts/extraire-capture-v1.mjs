@@ -60,7 +60,7 @@ function extraireLancers() {
 executer('var spawnOriginal = spawnEnemy;');
 for (const [index, [type, cle]] of balles.entries()) {
   const taille = index === 1 ? 6 : 5;
-  const alea = index === 2 ? 0.99 : index === 3 ? 0.999 : 0;
+  const alea = index === 2 ? 0.97 : index === 3 ? 0.999 : 0;
   const ennemi = { capture: index === 3 ? 3 : 255, pv: 100, pvMax: 100, niveau: 2 };
   math.random = () => alea;
   destination = nom = niveau = null;

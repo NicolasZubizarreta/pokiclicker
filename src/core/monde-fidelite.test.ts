@@ -1,13 +1,26 @@
 import { describe, expect, it } from 'vitest';
 import donnees from '../../data/regions/kanto/zones.json';
 import fixture from '../../tests/fixtures/v1-zones.json';
-import { COEFFICIENT_PV_ADOUCI_V2, PREMIERE_ZONE_ADOUCIE_V1, apparitionAttendueV2, multiplicateurPvAttendu } from '../../tests/ecarts-v1';
 import badges from '../../data/badges.json';
 import { kanto } from './regions';
 import { chargerMonde } from './monde';
 import type { FichierZones, Rarete, Zone } from './monde';
 import { chargerPokemon } from './pokemon';
 import type { EtatMonde } from './conditions';
+
+// Depuis la Centrale (zone V1 12), les PV des ennemis ont 20 % de moins : le multiplicateur de PV de la zone est multiplié par 0,8.
+const PREMIERE_ZONE_ADOUCIE_V1 = 12;
+const COEFFICIENT_PV_ADOUCI_V2 = 0.8;
+const multiplicateurPvAttendu = (ancienId: number, valeurV1: number): number => ancienId < PREMIERE_ZONE_ADOUCIE_V1 ? valeurV1
+  : Math.round(valeurV1 * COEFFICIENT_PV_ADOUCI_V2 * 1e4) / 1e4;
+// Taux d'apparition actuels des zones à légendaires (la V1 en avait d'autres) ; chaque zone fait toujours 100 %.
+const TAUX_ZONES: Record<string, Record<number, number>> = {
+  'kanto.pont-pepite': { 151: 0.005, 63: 0.305 },
+  'kanto.iles-ecume': { 144: 0.02, 86: 0.21, 90: 0.21, 98: 0.155, 116: 0.155 },
+  'kanto.caverne-azuree': { 150: 0.01, 47: 0.21, 64: 0.21, 26: 0.26, 148: 0.31 },
+  'kanto.route-victoire': { 146: 0.02, 67: 0.31, 75: 0.31, 42: 0.26 },
+};
+const apparitionAttendueV2 = (zone: string, pokemon: number, apparitionV1: number): number => TAUX_ZONES[zone]?.[pokemon] ?? apparitionV1;
 
 const vide: EtatMonde = { badges: [], bossVaincus: [], objets: [], quetes: [], drapeaux: [] };
 const ids = [

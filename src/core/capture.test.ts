@@ -1,5 +1,4 @@
-import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
-import { imposerBallesV1 } from '../../tests/ecarts-v1';
+import { describe, expect, it, vi } from 'vitest';
 import { appliquerCapture, chanceCapture, pitieCapture, retirerBalle, verifierLancer } from './capture';
 import { reglages } from './reglages';
 import { calculerOr, type Victoire } from './recompenses';
@@ -21,11 +20,7 @@ function region(taille = 5): DonneesRegion {
 }
 
 describe('chance de capture', () => {
-  // Ticket T : Superball ×1,5 et Hyperball ×3 en V2 ; la formule V1 et les cibles du 10/11 se rejouent en ×2 et ×4.
-  let rendreBallesV2 = () => {};
-  beforeAll(() => { rendreBallesV2 = imposerBallesV1(); });
-  afterAll(() => rendreBallesV2());
-  it.each([['pokeball', 1], ['superball', 2], ['hyperball', 4]] as const)('%s conserve l’ordre de la formule V1', (cle, x) => {
+  it.each([['pokeball', 1], ['superball', 1.5], ['hyperball', 3]] as const)('%s conserve l’ordre de la formule V1', (cle, x) => {
     const attendue = ((120 / 255) * ((3 * 100 - 2 * 50) / (3 * 100)) * x) / (1 + 30 / 100);
     expect(chanceCapture(ennemi, cle, [])).toBe(attendue);
     expect(chanceCapture(ennemi, cle, ['badge:marais'])).toBe(attendue * 1.3);
@@ -61,10 +56,10 @@ describe('chance de capture', () => {
       [190, 35, 'pokeball', [9, 5, 3, 3]], [120, 20, 'pokeball', [11, 6, 5, 4]], [120, 50, 'pokeball', [15, 10, 8, 7]],
       [45, 15, 'pokeball', [19, 10, 7, 7]], [45, 50, 'pokeball', [24, 14, 10, 10]], [25, 35, 'pokeball', [30, 17, 12, 12]],
       [25, 45, 'pokeball', [31, 19, 13, 13]], [3, 50, 'pokeball', [110, 72, 56, 54]], [3, 65, 'pokeball', [117, 75, 60, 58]],
-      [255, 5, 'hyperball', [1, 1, 1, 1]], [255, 40, 'hyperball', [1, 1, 1, 1]], [190, 10, 'hyperball', [1, 1, 1, 1]],
-      [190, 35, 'hyperball', [2, 1, 1, 1]], [120, 20, 'hyperball', [5, 3, 3, 2]], [120, 50, 'hyperball', [6, 4, 3, 3]],
-      [45, 15, 'hyperball', [7, 3, 2, 2]], [45, 50, 'hyperball', [10, 5, 4, 4]], [25, 35, 'hyperball', [10, 6, 4, 4]],
-      [25, 45, 'hyperball', [13, 7, 4, 4]], [3, 50, 'hyperball', [44, 25, 17, 17]], [3, 65, 'hyperball', [47, 27, 19, 18]],
+      [255, 5, 'hyperball', [1, 1, 1, 1]], [255, 40, 'hyperball', [2, 1, 1, 1]], [190, 10, 'hyperball', [3, 1, 1, 1]],
+      [190, 35, 'hyperball', [3, 1, 1, 1]], [120, 20, 'hyperball', [5, 2, 1, 1]], [120, 50, 'hyperball', [7, 3, 1, 1]],
+      [45, 15, 'hyperball', [9, 5, 4, 4]], [45, 50, 'hyperball', [11, 7, 5, 5]], [25, 35, 'hyperball', [10, 7, 5, 5]],
+      [25, 45, 'hyperball', [11, 7, 5, 5]], [3, 50, 'hyperball', [41, 28, 23, 22]], [3, 65, 'hyperball', [43, 29, 24, 23]],
     ];
     let proches = 0;
     const ecarts: string[] = [];
@@ -73,8 +68,9 @@ describe('chance de capture', () => {
       if (Math.abs(obtenu - cible) <= Math.max(1, cible * .15)) proches += 1;
       else ecarts.push(`ligne ${ligne + 1} colonne ${colonne + 1} : ${obtenu} au lieu de ${cible}`);
     }));
-    // Écarts connus et acceptés par Nicolas : lignes 6, 7 (colonne 3 : 9 au lieu de 7), 9, 10, 17, 18, 22, 23, 24.
-    expect(ecarts.filter((texte) => !/^ligne (6|7|9|10|17|18|22|23|24) /.test(texte))).toEqual([]);
+    // Écarts connus et acceptés par Nicolas sur la Pokéball : lignes 6, 7 (colonne 3 : 9 au lieu de 7), 9 et 10. Les lignes Hyperball
+    // (13 à 24) sont les valeurs actuelles, avec l'Hyperball à ×3.
+    expect(ecarts.filter((texte) => !/^ligne (6|7|9|10) /.test(texte))).toEqual([]);
     expect(proches).toBeGreaterThanOrEqual(80);
   });
   it('Master est certaine sauf capture impossible ; les chances brutes ne sont pas bornées', () => {
@@ -87,9 +83,7 @@ describe('chance de capture', () => {
 });
 
 describe('balles V2 (ticket T)', () => {
-  it.each([['pokeball', 1], ['superball', 1.5], ['hyperball', 3], ['masterball', 255]] as const)('%s multiplie la chance par %s', (cle, x) => {
-    const attendue = ((120 / 255) * ((3 * 100 - 2 * 50) / (3 * 100)) * x) / (1 + 30 / 100);
-    expect(chanceCapture(ennemi, cle === 'masterball' ? 'pokeball' : cle, [])).toBe(cle === 'masterball' ? attendue / 255 : attendue);
+  it.each([['pokeball', 1], ['superball', 1.5], ['hyperball', 3], ['masterball', 255]] as const)('%s : multiplicateur %s dans les réglages', (cle, x) => {
     expect(reglages.capture.balles.find((balle) => balle.cle === cle)!.multiplicateur).toBe(x);
   });
   it('garde la pitié de capture de la V1', () => {

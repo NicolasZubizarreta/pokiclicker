@@ -1,13 +1,23 @@
 import { describe, expect, it } from 'vitest';
 import fixture from './fixtures/v1-badges.json';
-import { chanceCaptureAttendueV2, MULTIPLICATEUR_OR_V2, prixConsommableV2 } from './ecarts-v1';
 import donneesZones from '../data/regions/kanto/zones.json';
 import { actifsDe, accorderJalons, badgeDeZone, chargerBadges, chargerJalons } from '../src/core/progression';
 import { calculerClic, calculerDpsEquipe } from '../src/core/combat';
 import { calculerOr, calculerXp, delaiEnnemiSuivant, type Victoire } from '../src/core/recompenses';
 import { chanceCapture } from '../src/core/capture';
+import { reglages } from '../src/core/reglages';
 import { chargerObjets, prixObjet } from '../src/core/boutique';
 import type { DonneesRegion } from '../src/core/sauvegarde-types';
+
+const MULTIPLICATEUR_OR = reglages.recompenses.or.multiplicateur;
+// Chance de capture affichée par la V1 (pénalité de niveau 1 + niveau/25) ramenée à la pénalité actuelle, plafonnée à 100 %.
+const chanceCaptureAttendue = (chanceV1Pourcent: number, niveau: number): number =>
+  Math.min(100, chanceV1Pourcent * ((1 + niveau / 25) / (1 + niveau / reglages.capture.diviseurNiveau)));
+// Prix d'un consommable soumis à l'inflation par badge, remise de 15 % du palier comprise.
+function prixConsommable(prixBase: number, badges: number, palier: boolean): number {
+  const prix = Math.floor(prixBase * (1 + badges * reglages.boutique.inflationParBadge));
+  return palier ? Math.floor(prix * 0.85) : prix;
+}
 
 const zones = donneesZones.zones;
 
@@ -51,17 +61,17 @@ describe('progression : fidélité V1 de bout en bout', () => {
     expect(dps).toBe(jeu.dps);
     expect(calculerClic(dps, actifs)).toBe(jeu.clic);
     for (const [mode, boss] of [['sauvage', false], ['boss', true]] as const) {
-      expect(calculerOr({ ...victoire, boss }, actifs)).toBe(jeu.or[mode] * MULTIPLICATEUR_OR_V2);
+      expect(calculerOr({ ...victoire, boss }, actifs)).toBe(jeu.or[mode] * MULTIPLICATEUR_OR);
       expect(calculerXp({ ...victoire, boss }, actifs)).toBe(jeu.xp[mode]);
     }
     // V1 exprime la chance en pourcentage ; V2 renvoie une probabilité.
     expect(Math.min(chanceCapture({ capture: cible.catchRate, pv: cible.hp,
       pvMax: cible.maxHp, niveau: cible.level }, balles[fixture.balle]!, actifs) * 100, 100))
-      .toBeCloseTo(chanceCaptureAttendueV2(jeu.chance, cible.level), 9);
+      .toBeCloseTo(chanceCaptureAttendue(jeu.chance, cible.level), 9);
     expect(delaiEnnemiSuivant(actifs)).toBe(jeu.delai);
     expect(prixObjet(objet, { badges: entree.badges.length,
       palier: entree.jalonsRecus.includes(70) }))
-      .toBe(prixConsommableV2(objet.prix, entree.badges.length, entree.jalonsRecus.includes(70)));
+      .toBe(prixConsommable(objet.prix, entree.badges.length, entree.jalonsRecus.includes(70)));
     expect(entree).toEqual(avant);
   });
 
@@ -116,12 +126,12 @@ describe('progression : fidélité V1 de bout en bout', () => {
     const sansPalier = region(reference.badges);
     const avecPalier = region(reference.badges, [70]);
     expect(prixObjet(objet, { badges: sansPalier.badges.length, palier: false }))
-      .toBe(prixConsommableV2(objet.prix, sansPalier.badges.length, false));
+      .toBe(prixConsommable(objet.prix, sansPalier.badges.length, false));
     expect(prixObjet(objet, { badges: avecPalier.badges.length,
-      palier: avecPalier.jalonsRecus.includes(70) })).toBe(prixConsommableV2(objet.prix, avecPalier.badges.length, true));
+      palier: avecPalier.jalonsRecus.includes(70) })).toBe(prixConsommable(objet.prix, avecPalier.badges.length, true));
     for (const entree of [sansPalier, avecPalier]) {
-      expect(calculerOr(victoire, actifsDe(entree))).toBe(reference.or.sauvage * MULTIPLICATEUR_OR_V2);
-      expect(calculerOr({ ...victoire, boss: true }, actifsDe(entree))).toBe(reference.or.boss * MULTIPLICATEUR_OR_V2);
+      expect(calculerOr(victoire, actifsDe(entree))).toBe(reference.or.sauvage * MULTIPLICATEUR_OR);
+      expect(calculerOr({ ...victoire, boss: true }, actifsDe(entree))).toBe(reference.or.boss * MULTIPLICATEUR_OR);
     }
   });
 });

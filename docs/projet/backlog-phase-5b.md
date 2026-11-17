@@ -176,7 +176,7 @@ Contenu des écrans casino et pension (tickets C et D), dialogue Chen existant, 
 
 ## Retours du testeur du 17/11 (tickets F à V)
 
-Source : retour d'un testeur qui a fini le jeu à 100 % et tenté le shiny dex avec les seuls œufs. Décisions et valeurs de Nicolas : `docs/projet/decisions-retour-testeur-17-11.md`. Le point 5 du testeur (PC de Léo sur mobile) est refusé par Nicolas. Ordre conseillé : F, R, S, T (bug et équilibrage, chacun suivi du simulateur `node scripts/simuler-parcours.mjs --clics 7`), puis G, H, I, K, L, J, M, N, P, O, Q, et en dernier U puis V (fusion Équipe/PC, décision de Nicolas). Toute valeur de jeu change seulement dans le ticket qui la nomme.
+Source : retour d'un testeur qui a fini le jeu à 100 % et tenté le shiny dex avec les seuls œufs. Décisions et valeurs de Nicolas : `docs/projet/decisions-retour-testeur-17-11.md`. Le point 5 du testeur (PC de Léo sur mobile) est refusé par Nicolas. Ordre conseillé : F, R, S, T (bug et équilibrage), puis G, H, I, K, L, J, M, N, P, O, Q, et en dernier U puis V (fusion Équipe/PC, décision de Nicolas). Toute valeur de jeu change seulement dans le ticket qui la nomme.
 
 ## F. `fix(pension): compter les évolutions des Pokémon éclos dans le dex éclos`
 
@@ -412,11 +412,11 @@ En tant que joueur, je veux que les shiny restent rares et que l'XP serve, afin 
 - [x] Étant donné le butin d'un shiny, quand il est donné, alors il vaut 2 Super Bonbons au lieu de 5 (les deux entrées « shiny » de `reglages.json` sont lues et la bonne est changée).
 - [x] Étant donné l'objet « Bonbon », quand il s'affiche (boutique, sac, butin, casino, jalons), alors il s'appelle « Super Bonbon » partout, sans changer son identifiant.
 - [x] Étant donné les textes qui citent ces valeurs, quand ils s'affichent, alors ils sont à jour.
-- [x] Étant donné le simulateur, quand `node scripts/simuler-parcours.mjs --clics 7` tourne avant et après, alors le temps de la Ligue des deux passes est donné à Nicolas. **Résultat (17/11)** : avant, Ligue gagnée en 4,0 min (420,6 min de jeu au total) ; après, la Ligue n'est plus atteinte : le simulateur est bloqué à la Centrale après 120 min (288,6 min de jeu, 4 badges, 48/151 espèces). À examiner par Nicolas : l'inflation à 0,20 ou la perte des Super Bonbons du butin shiny pèse sur le joueur simulé.
+- [x] ~~Étant donné le simulateur, quand il tourne avant et après, alors le temps de la Ligue est donné à Nicolas.~~ Critère abandonné le 17/11, Nicolas : le simulateur ne sert plus de critère.
 - [x] Étant donné les tests de fidélité à la V1 qui lisent ces valeurs, quand ils tournent, alors ils sont mis à jour, et `tsc -b`, eslint, vitest et e2e sont verts (e2e `objet-equipe-persistant` rouge avant comme après sur `v2` : le clic sur l'onglet Équipe expire ; `boutique` vert).
 
 ### Effort et risques
-1 à 1,5 jour. Risque : l'équilibrage global bouge (le simulateur mesure).
+1 à 1,5 jour. Risque : l'équilibrage global bouge.
 
 ## S. `fix(pension): ponte plus rare, éclosion à 50 combats, emplacements ×10`
 
@@ -448,7 +448,7 @@ En tant que joueur, je veux que les légendaires restent des trouvailles rares e
 - [x] Étant donné deux Métamorph à la pension, quand le tirage au hasard a lieu, alors chaque légendaire (144, 145, 146, 150, 151, listés dans les données) pèse 1/10 d'une espèce normale (environ 1 sur 290 au total).
 - [x] Étant donné `combat.balles`, quand les valeurs sont appliquées, alors Super Ball ×1,5 et Hyper Ball ×3 (Master Ball inchangée), les descriptions de `objets.json` sont à jour, et la pitié de capture ne change pas.
 - [x] Étant donné un test sur la somme des taux, quand il tourne, alors il vérifie que chaque zone fait 100 %.
-- [x] Étant donné le simulateur, quand il tourne avant et après, alors le temps de la Ligue est donné à Nicolas ; `tsc -b`, eslint, vitest et e2e sont verts **Résultat (17/11)** : avant R, Ligue gagnée en 4,0 min (420,6 min de jeu) ; avec R, S et T, la Ligue n'est plus atteinte : bloqué à Cramois'Île après 120 min, 400,4 min de jeu, 6 badges, 77/151 espèces (après R seul : bloqué à la Centrale, 4 badges). Vitest : seuls échecs `musiques.test.ts`, `PagePlus.test.tsx` et `tests/sons-fidelite.test.ts`, sans lien. Tests de fidélité V1 : balles ×2/×4 et taux d'origine des zones rejoués par des écarts dans `tests/ecarts-v1.ts` ; `scripts/extraire-zones-v1.mjs` applique les nouveaux taux (fixture V1 inchangée, hash casino régénéré).
+- [x] ~~Étant donné le simulateur, quand il tourne avant et après, alors le temps de la Ligue est donné à Nicolas.~~ Critère abandonné le 17/11, Nicolas : le simulateur ne sert plus de critère. `tsc -b`, eslint, vitest et e2e sont verts (vitest : seuls échecs `musiques.test.ts`, `PagePlus.test.tsx` et `tests/sons-fidelite.test.ts`, sans lien).
 
 ### Effort et risques
 1 à 1,5 jour. Risque : les tests de fidélité V1 lisent les taux des zones (à mettre à jour, accord de Nicolas donné ici).

@@ -3,7 +3,19 @@ import objets from '../data/objets.json';
 import fixture from './fixtures/v1-objets.json';
 import { reglages } from '../src/core/reglages';
 import { chargerObjets, prixObjet } from '../src/core/boutique';
-import { ECARTS_V1, prixAttendu } from './ecarts-v1';
+
+// Objets du Centre : prix de base de la V1, sauf calcium, pierres et Jeton Shiny dont le prix actuel est fixé par Nicolas.
+const PRIX_ACTUELS: Record<string, { prix?: number; sansInflation?: boolean }> = {
+  calcium: { prix: 20000 }, shinyToken: { prix: 1000000 },
+  fireStone: { prix: 8000 }, waterStone: { prix: 8000 }, leafStone: { prix: 8000 },
+  thunderStone: { prix: 8000 }, moonStone: { prix: 8000 }, everstone: { prix: 8000 },
+};
+function prixAttendu(source: { id: string; prix: number; type: string; noBadgeInflation: boolean }, badges: number, palier: boolean): number {
+  const prix = PRIX_ACTUELS[source.id]?.prix ?? source.prix;
+  const sansInflation = PRIX_ACTUELS[source.id]?.sansInflation ?? source.noBadgeInflation;
+  const base = source.type === 'consumable' && !sansInflation ? Math.floor(prix * (1 + badges * reglages.boutique.inflationParBadge)) : prix;
+  return palier ? Math.floor(base * 0.85) : base;
+}
 
 it('conserve les 31 objets V1 et convertit leurs zones', () => {
   expect(objets.length).toBe(32);
@@ -11,11 +23,11 @@ it('conserve les 31 objets V1 et convertit leurs zones', () => {
   expect(fixture.objets.length).toBe(31);
   for (const source of fixture.objets) {
     const objet = objets.find(entree => entree.id === source.id)!;
-    expect(objet.prix).toBe(ECARTS_V1[source.id]?.prix ?? source.prix);
+    expect(objet.prix).toBe(PRIX_ACTUELS[source.id]?.prix ?? source.prix);
     expect(objet.type).toBe(source.type === 'consumable' ? 'consommable' : 'amelioration');
     expect(objet.zone).toBe(source.zone == null || source.zone === 99 ? null : fixture.zones[source.zone]);
     expect(objet.boutique).toBe(source.zone === 99 ? null : source.shop ?? 'shop');
-    expect(objet.sansInflation).toBe(ECARTS_V1[source.id]?.sansInflation ?? source.noBadgeInflation);
+    expect(objet.sansInflation).toBe(PRIX_ACTUELS[source.id]?.sansInflation ?? source.noBadgeInflation);
     expect(objet.inventaire).toBe(source.type === 'consumable' ? source.id === 'candy' ? 'bonbon' : source.id : null);
   }
   expect(fixture.zones.length).toBe(22);

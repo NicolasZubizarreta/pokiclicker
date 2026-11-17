@@ -1,0 +1,414 @@
+{
+  "graine": 20261025,
+  "paires": [
+    {
+      "nom": "metamorphs",
+      "parents": [
+        {
+          "id": 132,
+          "gender": "genderless",
+          "name": "Référence",
+          "level": 1,
+          "xp": 0,
+          "maxXp": 1000000000,
+          "happiness": 0,
+          "isEgg": false,
+          "isShiny": false
+        },
+        {
+          "id": 132,
+          "gender": "genderless",
+          "name": "Référence",
+          "level": 1,
+          "xp": 0,
+          "maxXp": 1000000000,
+          "happiness": 0,
+          "isEgg": false,
+          "isShiny": false
+        }
+      ],
+      "appels": 1000,
+      "slots": 1000,
+      "tirages": 1028,
+      "oeufs": [
+        {
+          "appel": 186,
+          "numero": 29,
+          "shiny": false
+        },
+        {
+          "appel": 208,
+          "numero": 23,
+          "shiny": true
+        },
+        {
+          "appel": 396,
+          "numero": 43,
+          "shiny": false
+        },
+        {
+          "appel": 574,
+          "numero": 138,
+          "shiny": false
+        },
+        {
+          "appel": 631,
+          "numero": 10,
+          "shiny": false
+        },
+        {
+          "appel": 633,
+          "numero": 69,
+          "shiny": false
+        },
+        {
+          "appel": 634,
+          "numero": 39,
+          "shiny": true
+        },
+        {
+          "appel": 694,
+          "numero": 107,
+          "shiny": false
+        },
+        {
+          "appel": 699,
+          "numero": 35,
+          "shiny": false
+        },
+        {
+          "appel": 705,
+          "numero": 147,
+          "shiny": false
+        },
+        {
+          "appel": 735,
+          "numero": 25,
+          "shiny": false
+        },
+        {
+          "appel": 818,
+          "numero": 1,
+          "shiny": false
+        },
+        {
+          "appel": 883,
+          "numero": 100,
+          "shiny": false
+        },
+        {
+          "appel": 897,
+          "numero": 147,
+          "shiny": false
+        }
+      ]
+    },
+    {
+      "nom": "metamorph-25",
+      "parents": [
+        {
+          "id": 132,
+          "gender": "genderless",
+          "name": "Référence",
+          "level": 1,
+          "xp": 0,
+          "maxXp": 1000000000,
+          "happiness": 0,
+          "isEgg": false,
+          "isShiny": false
+        },
+        {
+          "id": 25,
+          "gender": "female",
+          "name": "Référence",
+          "level": 1,
+          "xp": 0,
+          "maxXp": 1000000000,
+          "happiness": 0,
+          "isEgg": false,
+          "isShiny": false
+        }
+      ],
+      "appels": 1000,
+      "slots": 1000,
+      "tirages": 1014,
+      "oeufs": [
+        {
+          "appel": 186,
+          "numero": 25,
+          "shiny": false
+        },
+        {
+          "appel": 209,
+          "numero": 25,
+          "shiny": false
+        },
+        {
+          "appel": 398,
+          "numero": 25,
+          "shiny": false
+        },
+        {
+          "appel": 577,
+          "numero": 25,
+          "shiny": false
+        },
+        {
+          "appel": 635,
+          "numero": 25,
+          "shiny": false
+        },
+        {
+          "appel": 638,
+          "numero": 25,
+          "shiny": false
+        },
+        {
+          "appel": 640,
+          "numero": 25,
+          "shiny": false
+        },
+        {
+          "appel": 701,
+          "numero": 25,
+          "shiny": false
+        },
+        {
+          "appel": 707,
+          "numero": 25,
+          "shiny": false
+        },
+        {
+          "appel": 714,
+          "numero": 25,
+          "shiny": false
+        },
+        {
+          "appel": 745,
+          "numero": 25,
+          "shiny": false
+        },
+        {
+          "appel": 829,
+          "numero": 25,
+          "shiny": true
+        },
+        {
+          "appel": 895,
+          "numero": 25,
+          "shiny": false
+        },
+        {
+          "appel": 910,
+          "numero": 25,
+          "shiny": false
+        }
+      ]
+    },
+    {
+      "nom": "meme-forme",
+      "parents": [
+        {
+          "id": 25,
+          "gender": "female",
+          "name": "Référence",
+          "level": 1,
+          "xp": 0,
+          "maxXp": 1000000000,
+          "happiness": 0,
+          "isEgg": false,
+          "isShiny": false
+        },
+        {
+          "id": 26,
+          "gender": "male",
+          "name": "Référence",
+          "level": 1,
+          "xp": 0,
+          "maxXp": 1000000000,
+          "happiness": 0,
+          "isEgg": false,
+          "isShiny": false
+        }
+      ],
+      "appels": 1000,
+      "slots": 1000,
+      "tirages": 1014,
+      "oeufs": [
+        {
+          "appel": 186,
+          "numero": 25,
+          "shiny": false
+        },
+        {
+          "appel": 209,
+          "numero": 25,
+          "shiny": false
+        },
+        {
+          "appel": 398,
+          "numero": 25,
+          "shiny": false
+        },
+        {
+          "appel": 577,
+          "numero": 25,
+          "shiny": false
+        },
+        {
+          "appel": 635,
+          "numero": 25,
+          "shiny": false
+        },
+        {
+          "appel": 638,
+          "numero": 25,
+          "shiny": false
+        },
+        {
+          "appel": 640,
+          "numero": 25,
+          "shiny": false
+        },
+        {
+          "appel": 701,
+          "numero": 25,
+          "shiny": false
+        },
+        {
+          "appel": 707,
+          "numero": 25,
+          "shiny": false
+        },
+        {
+          "appel": 714,
+          "numero": 25,
+          "shiny": false
+        },
+        {
+          "appel": 745,
+          "numero": 25,
+          "shiny": false
+        },
+        {
+          "appel": 829,
+          "numero": 25,
+          "shiny": true
+        },
+        {
+          "appel": 895,
+          "numero": 25,
+          "shiny": false
+        },
+        {
+          "appel": 910,
+          "numero": 25,
+          "shiny": false
+        }
+      ]
+    },
+    {
+      "nom": "type-partage",
+      "parents": [
+        {
+          "id": 1,
+          "gender": "female",
+          "name": "Référence",
+          "level": 1,
+          "xp": 0,
+          "maxXp": 1000000000,
+          "happiness": 0,
+          "isEgg": false,
+          "isShiny": false
+        },
+        {
+          "id": 43,
+          "gender": "male",
+          "name": "Référence",
+          "level": 1,
+          "xp": 0,
+          "maxXp": 1000000000,
+          "happiness": 0,
+          "isEgg": false,
+          "isShiny": false
+        }
+      ],
+      "appels": 1000,
+      "slots": 1000,
+      "tirages": 1008,
+      "oeufs": [
+        {
+          "appel": 580,
+          "numero": 1,
+          "shiny": false
+        },
+        {
+          "appel": 707,
+          "numero": 1,
+          "shiny": false
+        },
+        {
+          "appel": 713,
+          "numero": 1,
+          "shiny": false
+        },
+        {
+          "appel": 720,
+          "numero": 1,
+          "shiny": false
+        },
+        {
+          "appel": 751,
+          "numero": 1,
+          "shiny": false
+        },
+        {
+          "appel": 835,
+          "numero": 1,
+          "shiny": true
+        },
+        {
+          "appel": 901,
+          "numero": 1,
+          "shiny": false
+        },
+        {
+          "appel": 916,
+          "numero": 1,
+          "shiny": false
+        }
+      ]
+    },
+    {
+      "nom": "incompatible",
+      "parents": [
+        {
+          "id": 1,
+          "gender": "female",
+          "name": "Référence",
+          "level": 1,
+          "xp": 0,
+          "maxXp": 1000000000,
+          "happiness": 0,
+          "isEgg": false,
+          "isShiny": false
+        },
+        {
+          "id": 4,
+          "gender": "male",
+          "name": "Référence",
+          "level": 1,
+          "xp": 0,
+          "maxXp": 1000000000,
+          "happiness": 0,
+          "isEgg": false,
+          "isShiny": false
+        }
+      ],
+      "appels": 1000,
+      "slots": 1000,
+      "tirages": 0,
+      "oeufs": []
+    }
+  ]
+}

@@ -1,22 +1,28 @@
-import { afterAll, beforeAll, expect, it } from 'vitest';
+import { expect, it } from 'vitest';
 import fixture from './fixtures/v1-capture.json';
-import { chanceCaptureAttendueV2, imposerBallesV1, MULTIPLICATEUR_OR_V2 } from './ecarts-v1';
 import { appliquerCapture, chanceCapture, retirerBalle } from '../src/core/capture';
 import { motifArret } from '../src/core/combat';
 import { reglages } from '../src/core/reglages';
 import type { Rarete } from '../src/core/monde';
 import type { DonneesRegion } from '../src/core/sauvegarde-types';
 
-// Ticket T : Superball ×1,5 et Hyperball ×3 en V2 ; la fixture V1 se rejoue avec ×2 et ×4.
-let rendreBallesV2 = () => {};
-beforeAll(() => { rendreBallesV2 = imposerBallesV1(); });
-afterAll(() => rendreBallesV2());
+const MULTIPLICATEUR_OR_V2 = reglages.recompenses.or.multiplicateur;
+// Chance attendue en pourcentage, plafonnée à 100 % comme l'affichage de la V1, avec les valeurs actuelles : Superball ×1,5,
+// Hyperball ×3, pénalité de niveau 1 + niveau/100, Master Ball certaine.
+const BALLES_ACTUELLES: Record<string, number> = { pokeball: 1, superball: 1.5, hyperball: 3 };
+function chanceCaptureAttendueV2(cas: { ennemi: { capture: number; pv: number; pvMax: number; niveau: number }; cle: string; marais: boolean }): number {
+  const { capture, pv, pvMax, niveau } = cas.ennemi;
+  if (cas.cle === 'masterball') return capture > 0 ? 100 : 0;
+  const brute = (capture / 255) * ((3 * pvMax - 2 * pv) / (3 * pvMax)) * BALLES_ACTUELLES[cas.cle]!
+    / (1 + niveau / reglages.capture.diviseurNiveau) * (cas.marais ? 1.3 : 1);
+  return Math.min(100, brute * 100);
+}
 
 it('compare les 30 chances affichées par la V1 sans tolérance', () => {
   expect(fixture.chances.length).toBe(30);
   for (const cas of fixture.chances) {
     expect(Math.min(chanceCapture(cas.ennemi, cas.cle, cas.marais ? ['badge:marais'] : []), 1) * 100)
-      .toBeCloseTo(chanceCaptureAttendueV2(cas.chance, cas.ennemi.niveau), 9);
+      .toBeCloseTo(chanceCaptureAttendueV2(cas), 9);
   }
 });
 

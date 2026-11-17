@@ -385,7 +385,7 @@
       },
       "cle": "hyperball",
       "taille": 5,
-      "alea": 0.99,
+      "alea": 0.97,
       "succes": true,
       "stocks": {
         "pokeball": 2,

@@ -1,10 +1,13 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import references from '../../tests/fixtures/v1-boss.json';
-import { ARRONDI_PV_BOSS_V2, pvAdoucisV2 } from '../../tests/ecarts-v1';
 import { avancerCombat, creerEnnemi, reprendreCombat } from './combat';
 import * as ennemis from './ennemis';
 import { kanto } from './regions';
 import { reglages } from './reglages';
+
+// PV de la Ligue et des boss depuis la Centrale : 20 % de moins ; les PV de base arrondis puis ×4 écartent de 4 PV au plus.
+const ARRONDI_PV_BOSS = 4;
+const pvAdoucis = (pv: number): number => pv * 0.8;
 
 const alea = () => 0.5;
 const ligue = kanto.zoneDeCombat('kanto.ligue-pokemon');
@@ -63,7 +66,7 @@ describe('Fidélité stricte du minuteur des boss et de la Ligue à la V1', () =
       boss: cas.boss, tauxCapture: cas.tauxCapture,
     });
     // Écart voulu du ticket AB : PV des ennemis à 80 % de la V1 à partir de la Centrale, Ligue comprise.
-    expect(Math.abs(ennemi.pvMax - pvAdoucisV2(cas.pvMax))).toBeLessThanOrEqual(ARRONDI_PV_BOSS_V2);
+    expect(Math.abs(ennemi.pvMax - pvAdoucis(cas.pvMax))).toBeLessThanOrEqual(ARRONDI_PV_BOSS);
     expect(ennemi.boss).toEqual(true);
   });
 

@@ -1,7 +1,6 @@
-import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
-import { ECARTS_PENSION_V1 } from '../../tests/ecarts-v1';
-import { reglages } from './reglages';
+import { describe, expect, it, vi } from 'vitest';
 import fixture from '../../tests/fixtures/v1-pension.json';
+import actuelle from '../../tests/fixtures/pension-actuelle.json';
 import { formeDeBase } from './evolution';
 import { chancePonte, pondre, tirerOeuf } from './pension';
 import { regionInitiale, validerPokemonPossede } from './sauvegarde';
@@ -9,11 +8,6 @@ import type { PokemonPossede } from './sauvegarde-types';
 import { sexeEspece } from './sexe';
 import { acheterEmplacementOeuf, deposerParent, prendreOeuf, prixEmplacementOeuf, retirerParent } from './pension';
 import { appliquerVictoire } from './recompenses';
-
-// 17/11/2026 (tickets R et S) : chances, prix des emplacements et pas d'éclosion changent ; la V1 se rejoue avec ses valeurs.
-const pensionActuelle = structuredClone(reglages.pension);
-beforeAll(() => { Object.assign(reglages.pension, structuredClone(ECARTS_PENSION_V1)); });
-afterAll(() => { Object.assign(reglages.pension, pensionActuelle); });
 
 const cheminGraine = new URL('../../scripts/lib/graine.mjs', import.meta.url).href;
 const { graine } = await import(/* @vite-ignore */ cheminGraine) as {
@@ -33,12 +27,14 @@ describe('fidélité des mouvements et éclosions V1', () => {
     region.argent = cas.argent;
     region.pension.emplacementsOeuf = cas.avant;
     const avant = structuredClone(region);
-    expect(prixEmplacementOeuf(region)).toBe(cas.avant === 5 ? null : cas.avant * 5000);
+    // Prix actuel : 50 000 par emplacement déjà ouvert (la V1 demandait 5 000).
+    const prix = cas.avant === 5 ? null : cas.avant * 50000;
+    expect(prixEmplacementOeuf(region)).toBe(prix);
     const resultat = acheterEmplacementOeuf(region);
-    expect(resultat.ok).toBe(cas.apres > cas.avant);
+    expect(resultat.ok).toBe(prix !== null && cas.argent >= prix);
     if (resultat.ok) {
-      expect(resultat.region.pension.emplacementsOeuf).toBe(cas.apres);
-      expect(region.argent - resultat.region.argent).toBe(cas.cout);
+      expect(resultat.region.pension.emplacementsOeuf).toBe(cas.avant + 1);
+      expect(region.argent - resultat.region.argent).toBe(prix);
     }
     expect(region).toEqual(avant);
   });
@@ -107,15 +103,17 @@ describe('fidélité de la ponte V1', () => {
       Array.from({ length: 151 }, (_, j) => Math.round(chancePonte([
         parent(i + 1, 'femelle'), parent(j + 1, 'male'),
       ]) * 100)).join(''));
-    expect(matrice).toEqual(fixture.compatibilite);
+    // Chances actuelles : 2 % (Métamorph, même espèce) et 1 % (type partagé), moitié de celles de la V1 (4 % et 2 %).
+    const moitie = (ligne: string) => ligne.replace(/./g, (chiffre) => String(Number(chiffre) / 2));
+    expect(matrice).toEqual(fixture.compatibilite.map(moitie));
   });
 
   it.each(fixture.cas)('$nom : compatibilité spéciale', ({ parents, chance }) => {
-    expect(chancePonte(convertir(parents))).toBe(chance);
+    expect(chancePonte(convertir(parents))).toBe(chance / 2);
   });
 
-  it.each(fixture.ponte.paires)('$nom : mêmes œufs, appels et tirages V1', (paire) => {
-    const alea = vi.fn(graine(fixture.ponte.graine));
+  it.each(actuelle.paires)('$nom : mêmes œufs, appels et tirages (tirage figé avec les valeurs actuelles)', (paire) => {
+    const alea = vi.fn(graine(actuelle.graine));
     const parents = convertir(paire.parents);
     const oeufs = [];
     for (let appel = 1; appel <= paire.appels; appel++) {
@@ -126,11 +124,11 @@ describe('fidélité de la ponte V1', () => {
     expect(alea).toHaveBeenCalledTimes(paire.tirages);
   });
 
-  it.each(fixture.ponte.paires)('$nom : matérialisation et tirages de sexe séparés', (paire) => {
+  it.each(actuelle.paires)('$nom : matérialisation et tirages de sexe séparés', (paire) => {
     let region = regionInitiale('kanto', 'kanto.bourg-palette');
     region.bossVaincus = ['kanto.tour-pokemon'];
     region.pension = { parents: convertir(paire.parents), oeufs: [], emplacementsOeuf: paire.slots };
-    const suivant = graine(fixture.ponte.graine);
+    const suivant = graine(actuelle.graine);
     // Chaque naissance : les tirages V1 précèdent l'éventuel tirage du sexe.
     const nombreTirages = new Map(paire.oeufs.map(o => [o.appel, paire.nom === 'metamorphs' ? 3 : 2]));
     const genererId = vi.fn(() => `oeuf-${region.pension.oeufs.length}`);

@@ -1,15 +1,27 @@
 import { expect, it } from 'vitest';
 import fixture from '../../tests/fixtures/v1-centre.json';
 import objetsV1 from '../../tests/fixtures/v1-objets.json';
-import { prixAttendu } from '../../tests/ecarts-v1';
 import { accesCentre, acheter, chargerObjets, objetsDuCentre, prixObjet } from './boutique';
 import { kanto } from './regions';
+import { reglages } from './reglages';
 import type { EtatMonde } from './conditions';
+
+// Objets du Centre : prix de base de la V1, sauf calcium, pierres et Jeton Shiny dont le prix actuel est fixé par Nicolas.
+const PRIX_ACTUELS: Record<string, { prix?: number; sansInflation?: boolean }> = {
+  calcium: { prix: 20000 }, shinyToken: { prix: 1000000 },
+  fireStone: { prix: 8000 }, waterStone: { prix: 8000 }, leafStone: { prix: 8000 },
+  thunderStone: { prix: 8000 }, moonStone: { prix: 8000 }, everstone: { prix: 8000 },
+};
+function prixAttendu(source: { id: string; prix: number; type: string; noBadgeInflation: boolean }, badges: number, palier: boolean): number {
+  const prix = PRIX_ACTUELS[source.id]?.prix ?? source.prix;
+  const sansInflation = PRIX_ACTUELS[source.id]?.sansInflation ?? source.noBadgeInflation;
+  const base = source.type === 'consumable' && !sansInflation ? Math.floor(prix * (1 + badges * reglages.boutique.inflationParBadge)) : prix;
+  return palier ? Math.floor(base * 0.85) : base;
+}
 
 const objets = chargerObjets();
 const etat: EtatMonde = { badges: [], bossVaincus: ['kanto.tour-pokemon'], objets: [], quetes: [], drapeaux: [] };
 
-// Prix attendu : celui de la V1, sauf pour les écarts voulus de `tests/ecarts-v1.ts` (calcium, pierres, Jeton Shiny, inflation par badge).
 function prixDuCentre(id: string, badges: number, palier: boolean): number {
   const source = objetsV1.objets.find(objet => objet.id === id)!;
   return prixAttendu(source, badges, palier);

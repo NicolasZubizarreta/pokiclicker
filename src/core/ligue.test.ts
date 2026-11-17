@@ -1,13 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import donnees from '../../data/ligue.json';
 import references from '../../tests/fixtures/v1-ligue.json';
-import { ARRONDI_PV_BOSS_V2, pvAdoucisV2 } from '../../tests/ecarts-v1';
 import { avancerCombat, creerEnnemi, reprendreCombat } from './combat';
 import { chargerLigue, dresseurDe, enregistrerVictoireLigue, estZoneDeLigue,
   etapeDeReprise, messageDefaite, messageEnchainement, nomAdversaire, zoneDeLigue } from './ligue';
 import { refusPoupee, utiliserPoupee } from './objets-actifs';
 import { kanto } from './regions';
 import { regionInitiale } from './sauvegarde';
+
+// PV de la Ligue et des boss depuis la Centrale : 20 % de moins ; les PV de base arrondis puis ×4 écartent de 4 PV au plus.
+const ARRONDI_PV_BOSS = 4;
+const pvAdoucis = (pv: number): number => pv * 0.8;
 
 const zone = kanto.zoneDeCombat(donnees.zone);
 const alea = () => { throw new Error('Aléa inattendu'); };
@@ -40,7 +43,7 @@ describe('Ligue', () => {
     const ennemi = creerEnnemi(derivee, 10, alea);
     expect(ennemi).toMatchObject({ numero: cas.id, niveau: cas.level });
     // Écart voulu du ticket AB : PV des ennemis à 80 % de la V1 à partir de la Centrale, Ligue comprise.
-    expect(Math.abs(ennemi.pvMax - pvAdoucisV2(cas.maxHp))).toBeLessThanOrEqual(ARRONDI_PV_BOSS_V2);
+    expect(Math.abs(ennemi.pvMax - pvAdoucis(cas.maxHp))).toBeLessThanOrEqual(ARRONDI_PV_BOSS);
     expect(nomAdversaire(derivee, 10)).toBe(cas.name);
     expect({ ...derivee, boss: zone.boss }).toEqual(zone);
     expect(zone).toEqual(avant);

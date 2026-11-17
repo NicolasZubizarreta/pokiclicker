@@ -6,7 +6,7 @@ import {
 import type { ResultatBlackjack, VueBlackjack } from './casino';
 import type { DonneesRegion } from './sauvegarde-types';
 
-// Écart voulu avec la V1 (ticket B, 11/11/2026, voir tests/ecarts-v1.ts) : le blackjack est un vrai blackjack de casino
+// Écart voulu avec la V1 (ticket B, 11/11/2026) : le blackjack est un vrai blackjack de casino
 // (sabot de 6 paquets, carte cachée, doubler, séparer, assurance, abandon). Les comparaisons à la fixture V1 sont retirées :
 // ces tests vérifient les règles, avec des sabots imposés (première carte du tableau = première carte distribuée).
 

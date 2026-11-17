@@ -13,7 +13,7 @@ describe('casino : données et accès', () => {
     expect(c.jetons).toEqual({ achat: fixture.constantes.lot, rachat: fixture.constantes.rachat });
     expect(c.symboles.map(s => s.id)).toEqual(fixture.constantes.symboles);
     expect(c.symboles.map(s => s.poids)).toEqual(fixture.constantes.poids);
-    expect(c.symboles.map(s => s.gain)).toEqual([500, 50, 25, 15, 2]); // écart voulu du ticket B (tests/ecarts-v1.ts)
+    expect(c.symboles.map(s => s.gain)).toEqual([500, 50, 25, 15, 2]); // écart voulu du ticket B
     expect(c.animation).toEqual(fixture.animation);
     expect(c.boutique).toEqual(fixture.constantes.boutique);
     expect(c.noms).toEqual({ ...fixture.constantes.noms, candy: 'Super Bonbon' }); // renommage du ticket R

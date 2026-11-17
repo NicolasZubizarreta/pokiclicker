@@ -1,11 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { bonbonsAttendusV2, MULTIPLICATEUR_OR_V2 } from '../../tests/ecarts-v1';
 import references from '../../tests/fixtures/v1-recompenses.json';
 import { appliquerVictoire, calculerMaxXp, calculerOr, calculerXp,
   delaiEnnemiSuivant } from './recompenses';
 import type { Victoire } from './recompenses';
+import { reglages } from './reglages';
 import { regionInitiale } from './sauvegarde';
 import type { PokemonPossede } from './sauvegarde-types';
+
+const MULTIPLICATEUR_OR = reglages.recompenses.or.multiplicateur;
+// Un shiny rapporte la quantité de Super Bonbons des réglages (la V1 en donnait 5).
+const bonbonsAttendus = (bonbonsV1: number): number => bonbonsV1 > 0 ? reglages.recompenses.shiny.quantite : 0;
 
 const raretes: Record<string, Victoire['rarete']> = {
   Commun: 'commun', 'Peu Commun': 'peu-commun', Rare: 'rare',
@@ -28,16 +32,16 @@ describe('Fidélité stricte des récompenses à la V1', () => {
       ...(membre.oeuf ? { oeuf: { pasRestants: 5, pasMax: 5 } } : {}),
     }));
 
-    expect(calculerOr(victoire, scenario.actifs)).toEqual(scenario.or * MULTIPLICATEUR_OR_V2);
+    expect(calculerOr(victoire, scenario.actifs)).toEqual(scenario.or * MULTIPLICATEUR_OR);
     expect(calculerXp(victoire, scenario.actifs)).toEqual(scenario.xpMembre);
     const { region, bonbons } = appliquerVictoire(regionAvant, victoire, scenario.actifs);
     expect(region.equipe.map(({ niveau, xp, bonheur }) => ({ niveau, xp, bonheur })))
       .toEqual(scenario.equipeApres);
-    expect(region.argent).toEqual(scenario.or * MULTIPLICATEUR_OR_V2);
-    expect(bonbons).toEqual(bonbonsAttendusV2(scenario.bonbons));
-    expect(region.inventaire.bonbon ?? 0).toEqual(bonbonsAttendusV2(scenario.bonbons));
+    expect(region.argent).toEqual(scenario.or * MULTIPLICATEUR_OR);
+    expect(bonbons).toEqual(bonbonsAttendus(scenario.bonbons));
+    expect(region.inventaire.bonbon ?? 0).toEqual(bonbonsAttendus(scenario.bonbons));
     expect(region.statistiques.eliminations).toEqual(scenario.eliminations);
-    expect(region.statistiques.argentTotalGagne).toEqual(scenario.argentTotalGagne * MULTIPLICATEUR_OR_V2);
+    expect(region.statistiques.argentTotalGagne).toEqual(scenario.argentTotalGagne * MULTIPLICATEUR_OR);
   });
 
   it('reproduit les seuils des 151 Pokémon aux niveaux 1 à 99 et le plafond au niveau 100', () => {

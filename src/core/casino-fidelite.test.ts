@@ -2,8 +2,15 @@ import { readFileSync } from 'node:fs';
 import { createContext, runInContext } from 'node:vm';
 import { describe, expect, it } from 'vitest';
 import fixture from '../../tests/fixtures/v1-casino.json';
-import { gainMachineAttenduV2 } from '../../tests/ecarts-v1';
 import { gainMachine, jouerMachine, jouerPileOuFace } from './casino';
+
+// Gains actuels de la machine à sous (tirages de la V1, gains fixés par Nicolas le 11/11/2026).
+const GAINS_MACHINE: Record<string, number> = { '7': 500, Pikachu: 50, Staross: 25, Baie: 15, Magicarpe: 2 };
+const GAIN_DEUX_BAIES = 3;
+function gainMachineAttenduV2(symboles: readonly string[], mise = 1): number {
+  if (symboles[0] === symboles[1] && symboles[1] === symboles[2]) return mise * (GAINS_MACHINE[symboles[0]!] ?? 0);
+  return symboles.filter(s => s === 'Baie').length === 2 ? mise * GAIN_DEUX_BAIES : 0;
+}
 
 function graine(valeur: number) {
   let etat = valeur >>> 0;

@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import { ECARTS_ECLOSION_V1 } from '../../tests/ecarts-v1';
 import { calculerDpsEquipe } from './combat';
 import { detailDps, envoyerAuPc, placerDansEquipe } from './equipe';
 import { evoluer } from './evolution';
@@ -11,6 +10,9 @@ import type { DonneesRegion, PokemonPossede } from './sauvegarde-types';
 import { appliquerCapture } from './capture';
 import { mesuresDe, paliersDeMesure, registreSucces, succesAccordes } from './succes';
 import { calculerDps } from './stats';
+
+// Marque d'éclosion : +5 % de dégâts ; succès d'éclosion à 10, 50, 100 et 151 espèces.
+const ECLOSION = { marqueDegats: 0.05, paliers: [10, 50, 100, 151] } as const;
 
 const victoire = { numero: 19, niveau: 5, shiny: false, boss: false, rarete: null } as const;
 const pokemon = (numero: number, extra: Partial<PokemonPossede> = {}): PokemonPossede => ({
@@ -155,7 +157,7 @@ describe('sauvegarde', () => {
   });
 
   it('note l’écart avec la V1', () => {
-    expect(ECARTS_ECLOSION_V1.marqueDegats).toBe(reglages.pension.marqueEclosion);
-    expect(ECARTS_ECLOSION_V1.paliers).toEqual(registreSucces.filter(s => s.mesure === 'eclosions').map(s => s.seuil));
+    expect(ECLOSION.marqueDegats).toBe(reglages.pension.marqueEclosion);
+    expect(ECLOSION.paliers).toEqual(registreSucces.filter(s => s.mesure === 'eclosions').map(s => s.seuil));
   });
 });

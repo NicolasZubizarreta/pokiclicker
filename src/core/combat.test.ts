@@ -1,6 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
-import { ECART_SHINY_V1 } from '../../tests/ecarts-v1';
+import { describe, expect, it, vi } from 'vitest';
 import references from '../../tests/fixtures/v1-combat.json';
 import matrice from '../../tests/fixtures/v1-multiplicateurs.json';
 import statsV1 from '../../tests/fixtures/v1-stats.json';
@@ -26,10 +25,6 @@ const suite = (...valeurs: number[]) => {
 };
 
 describe('Non-régression stricte de la V1', () => {
-  // 17/11/2026 (ticket R) : le bonus shiny passe de 1,5 à 1,25 ; la référence V1 se rejoue avec l'ancienne valeur.
-  const shinyActuel = reglages.degats.shiny;
-  beforeAll(() => { reglages.degats.shiny = ECART_SHINY_V1; });
-  afterAll(() => { reglages.degats.shiny = shinyActuel; });
   it.each(references)('$nom', (s) => {
     const actifs = [...s.jalons.map((n) => `jalon:${n}`), ...s.badges.map((b) => `badge:${b}`),
       ...s.objets.map((o) => `objet:${o}`), ...s.boosts.map((b) => `boost:${b}`)];
