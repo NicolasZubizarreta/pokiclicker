@@ -438,3 +438,15 @@ it('cherche dans l’équipe avant le PC pour un même uid', () => {
   expect(screen.getByText('42 DPS')).toBeTruthy();
   expect(screen.getByRole('button', { name: 'Envoyer au PC' }).hasAttribute('disabled')).toBe(false);
 });
+
+it.each([false, true])('n’affiche Shiny, Pierre Stase et Calcium que si le Pokémon les a, téléphone : %s', telephone => {
+  vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: telephone, addEventListener: vi.fn(), removeEventListener: vi.fn() })));
+  const nu = { ...pokemon, shiny: false, calcium: 0, pierreEternelle: false };
+  storeJeu.setState({ equipe: [{ pokemon: nu, dps: 42, xpMax: 100, multiplicateur: 1 }] });
+  afficher();
+  for (const libelle of ['Shiny', 'Pierre Stase', 'Calcium']) expect(screen.queryByText(libelle, { selector: 'dt' })).toBeNull();
+  expect(screen.getByText('Bonheur', { selector: 'dt' })).toBeTruthy();
+  act(() => storeJeu.setState({ equipe: [{ pokemon, dps: 42, xpMax: 100, multiplicateur: 1 }] }));
+  for (const libelle of ['Shiny', 'Pierre Stase', 'Calcium']) expect(screen.getByText(libelle, { selector: 'dt' })).toBeTruthy();
+  vi.unstubAllGlobals();
+});

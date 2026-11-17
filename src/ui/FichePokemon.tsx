@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from 'react';
+import { Fragment, useEffect, useId, useRef, useState } from 'react';
 import type { RefObject } from 'react';
 import { useStore } from 'zustand';
 import { detailDps, envoyerAuPc as verifierEnvoi, relacher as verifierRelachement } from '../core/equipe';
@@ -129,6 +129,15 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: 
   const refusPc = caseEquipe && !verificationPc.ok ? verificationPc.raison : null;
   const detail = membre ? detailDps(membre.pokemon, membre.multiplicateur) : null;
   const marque = pokemon?.marqueEclosion && detail ? `+${Math.round((detail.marqueEclosion - 1) * 100)} %` : null;
+  // Un facteur n'apparaît que s'il s'applique : Shiny, Pierre Stase et Calcium restent cachés à × 1.
+  const facteurs: [string, string][] = pokemon && detail ? [
+    ['Base', nombre(detail.base)], ['Type', `× ${nombre(detail.multiplicateurType)}`],
+    ...(pokemon.shiny ? [['Shiny', `× ${nombre(detail.shiny)}`] as [string, string]] : []),
+    ['Bonheur', `× ${nombre(detail.bonheur)}`],
+    ...(pokemon.pierreEternelle ? [['Pierre Stase', `× ${nombre(detail.pierreEternelle)}`] as [string, string]] : []),
+    ...(pokemon.calcium > 0 ? [['Calcium', `× ${nombre(detail.calcium)}`] as [string, string]] : []),
+    ...(marque ? [["Marque d'éclosion", marque] as [string, string]] : []),
+  ] : [];
 
   const fermeture = <button type="button" className={`${bouton} justify-self-end${telephone ? '' : ' fiche-fermer'}`} onClick={fermerFiche}>{telephone ? 'Ferme la fiche' : <><span className="sr-only">Ferme la fiche</span><svg viewBox="0 0 24 24" aria-hidden="true" className="size-5"><path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" strokeWidth="2" /></svg></>}</button>;
   const favori = pokemon && <button type="button" aria-pressed={pokemon.favori}
@@ -180,20 +189,8 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: 
             <BarreXp xp={pokemon.xp} maximum={membre.xpMax} nom={nom} />
           </div>}
           {(telephone || !pokemon.oeuf) && <><p className="text-xl text-region-accent">{formaterDps(membre.dps)} DPS</p>
-          {telephone ? <dl className="grid grid-cols-2 gap-2">
-            <dt>Base</dt><dd>{nombre(detail.base)}</dd>
-            <dt>Type</dt><dd>× {nombre(detail.multiplicateurType)}</dd>
-            <dt>Shiny</dt><dd>× {nombre(detail.shiny)}</dd>
-            <dt>Bonheur</dt><dd>× {nombre(detail.bonheur)}</dd>
-            <dt>Pierre Stase</dt><dd>× {nombre(detail.pierreEternelle)}</dd>
-            <dt>Calcium</dt><dd>× {nombre(detail.calcium)}</dd>
-            {marque && <><dt>Marque d'éclosion</dt><dd>{marque}</dd></>}
-          </dl> : <dl className="fiche-pc-facteurs">{[
-            ['Base', nombre(detail.base)], ['Type', `× ${nombre(detail.multiplicateurType)}`],
-            ['Shiny', `× ${nombre(detail.shiny)}`], ['Bonheur', `× ${nombre(detail.bonheur)}`],
-            ['Pierre Stase', `× ${nombre(detail.pierreEternelle)}`], ['Calcium', `× ${nombre(detail.calcium)}`],
-            ...(marque ? [["Marque d'éclosion", marque]] : []),
-          ].map(([libelle, valeur]) => <div key={libelle}><dt>{libelle}</dt><dd>{valeur}</dd></div>)}</dl>}
+          {telephone ? <dl className="grid grid-cols-2 gap-2">{facteurs.map(([libelle, valeur]) => <Fragment key={libelle}><dt>{libelle}</dt><dd>{valeur}</dd></Fragment>)}</dl>
+            : <dl className="fiche-pc-facteurs">{facteurs.map(([libelle, valeur]) => <div key={libelle}><dt>{libelle}</dt><dd>{valeur}</dd></div>)}</dl>}
           {!pokemon.oeuf && peutEvoluer(pokemon.numero) && <p>{pokemon.pierreEternelle
             ? 'Évolution bloquée (Pierre Stase).'
             : `Évolution : ${niveauRequis(pokemon.numero) !== null ? `niveau ${niveauRequis(pokemon.numero)}`
@@ -208,8 +205,8 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: 
             <div><p>Bonheur : <span>{pokemon.bonheur}/255</span></p>
               <p>+{nombre(pokemon.bonheur * reglages.degats.bonheurParPoint * 100)} % de dégâts</p></div>
           </div>
-          <p>Calcium : {pokemon.calcium} · +{nombre(pokemon.calcium * reglages.degats.calciumParBoost * 100)} % de dégâts{!telephone && <> · Objet tenu : {pokemon.pierreEternelle ? 'Pierre Stase' : 'aucun'}</>}</p>
-          {telephone && <p>Objet tenu : {pokemon.pierreEternelle ? 'Pierre Stase' : 'aucun'}</p>}</>}
+          {pokemon.calcium > 0 && <p>Calcium : {pokemon.calcium} · +{nombre(pokemon.calcium * reglages.degats.calciumParBoost * 100)} % de dégâts</p>}
+          <p>Objet tenu : {pokemon.pierreEternelle ? 'Pierre Stase' : 'aucun'}</p></>}
           </>;
   const actions = pokemon && espece && membre && detail && <>
           {erreur && <p role="alert">{erreur}</p>}

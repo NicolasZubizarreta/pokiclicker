@@ -321,15 +321,15 @@ En tant que joueur, je veux que les doublons soient relâchés tout seuls, afin 
 
 ## M. `fix(fiche): n'afficher les bonus de la fiche que s'ils s'appliquent`
 
-`type:fix`, `etat:a_faire`, `est:0.5`, `prio:3` · branche : `v2` · `agent-ok` recommandé
+`type:fix`, `etat:fait`, `est:0.5`, `prio:3` · branche : `v2` · `agent-ok` recommandé
 
 ### Histoire
 En tant que joueur, je veux que la fiche d'un Pokémon n'affiche « Pierre Stase », « shiny » ou « calcium » que s'il les possède, afin de ne pas être perturbé par des lignes à ×1.
 
 ### Critères d'acceptation
-- [ ] Étant donné un Pokémon sans Pierre Stase, sans statut shiny ni calcium, quand j'ouvre sa fiche, alors ces trois lignes n'apparaissent pas.
-- [ ] Étant donné un Pokémon qui en possède un, quand j'ouvre sa fiche, alors la ligne correspondante apparaît avec sa valeur.
-- [ ] Étant donné les tests de la fiche, quand vitest tourne, alors ils sont verts.
+- [x] Étant donné un Pokémon sans Pierre Stase, sans statut shiny ni calcium, quand j'ouvre sa fiche, alors ces trois lignes n'apparaissent pas.
+- [x] Étant donné un Pokémon qui en possède un, quand j'ouvre sa fiche, alors la ligne correspondante apparaît avec sa valeur.
+- [x] Étant donné les tests de la fiche, quand vitest tourne, alors ils sont verts.
 
 ### Effort et risques
 0,5 jour.
