@@ -55,6 +55,17 @@ export function objetsDuShop(objets: readonly Objet[], monde: MondeBoutique, eta
     && ouvertes.has(objet.zone) && !reglages.boutique.reportes.includes(objet.id));
 }
 
+// Quantité d'achat : « − » et « + » tournent de 1 à la quantité maximale et inversement ; « +10 » s'arrête au maximum.
+export const quantiteMoins = (quantite: number): number => quantite <= 1 ? reglages.boutique.quantiteMax : quantite - 1;
+export const quantitePlus = (quantite: number): number => quantite >= reglages.boutique.quantiteMax ? 1 : quantite + 1;
+export const quantitePlusDix = (quantite: number): number => Math.min(reglages.boutique.quantiteMax, quantite + 10);
+
+/** Le plus grand achat permis : l'argent compte (division entière), la limite d'achat aussi ; au moins 1 pour garder une quantité valide. */
+export function quantiteMaximale(prix: number, argent: number): number {
+  if (!(prix > 0)) return reglages.boutique.quantiteMax;
+  return Math.max(1, Math.min(reglages.boutique.quantiteMax, Math.floor(argent / prix)));
+}
+
 export function acheter<R extends RegionBoutique>(region: R, objet: Objet, quantite: number, prix: number): ResultatAchat<R> {
   if (!Number.isInteger(quantite) || quantite < 1 || quantite > reglages.boutique.quantiteMax
     || (objet.type === 'amelioration' && quantite !== 1)) {

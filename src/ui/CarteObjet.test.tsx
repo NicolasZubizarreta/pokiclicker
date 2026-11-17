@@ -5,6 +5,22 @@ import { CarteObjet } from './CarteObjet';
 
 afterEach(cleanup);
 
+it('Max prend le plus grand achat que l’argent permet, au moins 1', () => {
+  const props = { id: 'pokeball', nom: 'Pokéball', description: 'Capture un Pokémon.', image: null, prix: 1200, stock: 0,
+    possede: false, unique: false, abordable: true, acheter: vi.fn() };
+  const vue = render(<CarteObjet {...props} argent={5000} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Maximum possible' }));
+  expect(screen.getByLabelText('Quantité').textContent).toBe('4');
+  expect(screen.getByLabelText('Total').textContent).toBe('= 4 800 ₽');
+  fireEvent.click(screen.getByRole('button', { name: 'Plus dix' }));
+  vue.rerender(<CarteObjet {...props} argent={100} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Maximum possible' }));
+  expect(screen.getByLabelText('Quantité').textContent).toBe('1');
+  vue.rerender(<CarteObjet {...props} argent={10_000_000} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Maximum possible' }));
+  expect(screen.getByLabelText('Quantité').textContent).toBe('99');
+});
+
 it('présente la carte B et achète une quantité bornée sans explication de fonds', () => {
   const acheter = vi.fn();
   const props = { id: 'pokeball', nom: 'Pokéball', description: 'Capture un Pokémon.',
@@ -15,9 +31,16 @@ it('présente la carte B et achète une quantité bornée sans explication de fo
   expect(screen.getByText(props.description)).toBeTruthy();
   expect(vue.container.querySelector('strong')?.textContent).toBe(`${props.prix.toLocaleString('fr-FR')}\u00a0₽`);
   expect(screen.getByText('×3')).toBeTruthy();
-  expect((screen.getByRole('button', { name: 'Moins' }) as HTMLButtonElement).disabled).toBe(true);
-  for (let i = 0; i < 100; i++) fireEvent.click(screen.getByRole('button', { name: 'Plus' }));
-  expect((screen.getByRole('button', { name: 'Plus' }) as HTMLButtonElement).disabled).toBe(true);
+  // « Moins » à 1 passe à 99 ; « Plus » à 99 revient à 1.
+  const quantite = () => screen.getByLabelText('Quantité').textContent;
+  fireEvent.click(screen.getByRole('button', { name: 'Moins' }));
+  expect(quantite()).toBe('99');
+  fireEvent.click(screen.getByRole('button', { name: 'Plus' }));
+  expect(quantite()).toBe('1');
+  fireEvent.click(screen.getByRole('button', { name: 'Plus dix' }));
+  expect(quantite()).toBe('11');
+  for (let i = 0; i < 20; i++) fireEvent.click(screen.getByRole('button', { name: 'Plus dix' }));
+  expect(quantite()).toBe('99');
   fireEvent.click(screen.getByRole('button', { name: 'Acheter ×99' }));
   expect(acheter).toHaveBeenLastCalledWith(99);
   fireEvent.click(screen.getByRole('button', { name: 'Moins' }));

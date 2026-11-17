@@ -3,6 +3,7 @@ import type { accesPc } from './pc';
 import { reglages } from './reglages';
 import {
   accesSac, accesShop, acheter, chargerObjets, contenuSac, objetsActifs, objetsDuShop,
+  quantiteMaximale, quantiteMoins, quantitePlus, quantitePlusDix,
 } from './boutique';
 
 const objets = chargerObjets();
@@ -105,5 +106,28 @@ describe('contenu du Sac', () => {
     expect(sac).toContainEqual(objet('hyperball'));
     // Décision de Nicolas : la Superball du Sac est alignée sur la zone 6 de la boutique, pas sur la zone 4.
     expect(contenuSac(region(), objets, mondeAvec('kanto.route-1', 'kanto.mont-selenite'), etat)).not.toContainEqual(objet('superball'));
+  });
+});
+
+describe('quantité d’achat', () => {
+  const max = reglages.boutique.quantiteMax;
+  it('− et + tournent de 1 à la quantité maximale et inversement', () => {
+    expect(max).toBe(99);
+    expect(quantiteMoins(1)).toBe(max);
+    expect(quantiteMoins(5)).toBe(4);
+    expect(quantitePlus(max)).toBe(1);
+    expect(quantitePlus(5)).toBe(6);
+  });
+  it('+10 ajoute dix sans dépasser le maximum, sans boucle', () => {
+    expect(quantitePlusDix(1)).toBe(11);
+    expect(quantitePlusDix(89)).toBe(99);
+    expect(quantitePlusDix(95)).toBe(max);
+    expect(quantitePlusDix(max)).toBe(max);
+  });
+  it.each([
+    [200, 1000, 5], [200, 199, 1], [200, 0, 1], [200, 200, 1], [200, 399, 1], [200, 400, 2],
+    [1, 1_000_000, 99], [100, 9_900, 99], [100, 9_899, 98],
+  ])('Max à %i ₽ l’unité avec %i ₽ en poche : %i', (prix, argent, attendu) => {
+    expect(quantiteMaximale(prix, argent)).toBe(attendu);
   });
 });
