@@ -420,18 +420,18 @@ En tant que joueur, je veux que les shiny restent rares et que l'XP serve, afin 
 
 ## S. `fix(pension): ponte plus rare, éclosion à 50 combats, emplacements ×10`
 
-`type:fix`, `etat:a_faire`, `est:0.5-1`, `prio:1` · branche : `v2` · pas d'`agent-ok` (règles de jeu)
+`type:fix`, `etat:fait`, `est:0.5-1`, `prio:1` · branche : `v2` · pas d'`agent-ok` (règles de jeu)
 
 ### Histoire
 En tant que joueur, je veux que la pension ne remplisse pas tout en 30 secondes, afin que l'élevage demande du temps.
 
 ### Critères d'acceptation
-- [ ] Étant donné `pension.chances`, quand les valeurs sont appliquées, alors Métamorph et même espèce valent 0,02, et type partagé 0,01.
-- [ ] Étant donné `pension.pasEclosion`, quand la valeur est appliquée, alors un œuf éclôt après 50 victoires.
-- [ ] Étant donné `pension.prixParEmplacement`, quand la valeur est appliquée, alors les emplacements d'œuf coûtent 50 000, 100 000, 150 000 et 200 000.
-- [ ] Étant donné un œuf déjà pondu avant la mise à jour, quand la partie se charge, alors il n'est ni perdu ni cassé (comportement vérifié dans le code et testé).
-- [ ] Étant donné les pourcentages affichés au choix d'un parent et les textes de prix, quand ils s'affichent, alors ils suivent les nouvelles valeurs.
-- [ ] Étant donné les tests, quand `tsc -b`, eslint, vitest et e2e `pension` tournent, alors ils sont verts.
+- [x] Étant donné `pension.chances`, quand les valeurs sont appliquées, alors Métamorph et même espèce valent 0,02, et type partagé 0,01.
+- [x] Étant donné `pension.pasEclosion`, quand la valeur est appliquée, alors un œuf éclôt après 50 victoires.
+- [x] Étant donné `pension.prixParEmplacement`, quand la valeur est appliquée, alors les emplacements d'œuf coûtent 50 000, 100 000, 150 000 et 200 000.
+- [x] Étant donné un œuf déjà pondu avant la mise à jour, quand la partie se charge, alors il n'est ni perdu ni cassé (comportement vérifié dans le code et testé).
+- [x] Étant donné les pourcentages affichés au choix d'un parent et les textes de prix, quand ils s'affichent, alors ils suivent les nouvelles valeurs.
+- [x] Étant donné les tests, quand `tsc -b`, eslint, vitest et e2e `pension` tournent, alors ils sont verts (vitest : seuls échecs `musiques.test.ts`, `PagePlus.test.tsx` et `tests/sons-fidelite.test.ts`, sans lien ; e2e `pension` 4 verts, pc et mobile). Un œuf pondu à 25 pas garde son `pasMax` 25 et éclôt après 25 pas : testé dans `pension.test.ts`.
 
 ### Effort et risques
 0,5 à 1 jour.

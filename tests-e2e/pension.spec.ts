@@ -54,7 +54,7 @@ for (const largeur of [390, 1440]) {
       const pokemon = (uid: string, sexe: string) => ({ uid, numero: 1, sexe, niveau: 100, xp: 0,
         shiny: false, bonheur: 0, pierreEternelle: false, calcium: 0, favori: false });
       Object.assign(enveloppe.donnees, {
-        zoneId: 'kanto.route-1', etape: 1, starterId: 1, argent: 12500,
+        zoneId: 'kanto.route-1', etape: 1, starterId: 1, argent: 125000,
         drapeaux: [], evenementsJoues: ['kanto.intro'],
         bossVaincus: ['kanto.tour-pokemon'],
         equipe: [{ ...pokemon('actif', 'male'), numero: 6 }], pc: [],
@@ -75,15 +75,15 @@ for (const largeur of [390, 1440]) {
     const ponte = (await regionSauvee(page)).pension;
     expect(ponte.oeufs).toHaveLength(1);
     await ouvrirPension(page);
-    await expect(page.getByText('4 % par élimination')).toBeVisible();
+    await expect(page.getByText('2 % par élimination')).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Les œufs · 1 / 2' })).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     await page.screenshot({ path: `design/captures/t-page-pension-${largeur}.png`, fullPage: true });
     await page.getByRole('button', { name: 'Prendre l’œuf' }).click();
     await expect(page.getByRole('status').filter({ hasText: 'L’œuf rejoint ton équipe.' })).toBeVisible();
-    await page.getByRole('button', { name: 'Ouvrir · 10 000 ₽' }).click();
+    await page.getByRole('button', { name: 'Ouvrir · 100 000 ₽' }).click();
     const apres = await regionSauvee(page);
-    expect(apres.equipe.find((p: { uid: string }) => p.uid === ponte.oeufs[0].uid).oeuf).toEqual({ pasRestants: 25, pasMax: 25 });
+    expect(apres.equipe.find((p: { uid: string }) => p.uid === ponte.oeufs[0].uid).oeuf).toEqual({ pasRestants: 50, pasMax: 50 });
     expect(apres.pension.emplacementsOeuf).toBe(3);
     await page.getByRole('button', { name: telephone(page) ? 'Sortir de la pension' : 'Retour à Bourg Palette' }).click();
     await expect(page.getByRole('button', { name: 'Pension Pokémon', exact: true })).toBeFocused();

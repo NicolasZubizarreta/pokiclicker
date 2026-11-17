@@ -22,6 +22,15 @@ export function prixConsommableV2(prixBase: number, badges: number, palier: bool
 // Ticket R : chance de shiny à la ponte de la V1 (0,125 ; V2 : 1/16), rejouée par les tests de fidélité de la pension.
 export const ECART_CHANCE_SHINY_PENSION_V1 = 0.125;
 
+// Ticket S (17/11/2026) : valeurs de pension de la V1 (V2 : chances 0,02 / 0,02 / 0,01, éclosion à 50 victoires, emplacements à 50 000),
+// rejouées par les tests de fidélité de la pension.
+export const ECARTS_PENSION_V1 = {
+  chanceShiny: ECART_CHANCE_SHINY_PENSION_V1, prixParEmplacement: 5000, pasEclosion: 25,
+  chances: { metamorph: 0.04, memeEspece: 0.04, typePartage: 0.02 },
+  // Ticket T : en V1 les 151 espèces ont le même poids dans le tirage Métamorph + Métamorph.
+  legendaires: { numeros: [] as number[], poids: 1 },
+} as const;
+
 // Ticket R (17/11/2026) : bonus de dégâts shiny de la V1 (1,5 ; V2 : 1,25) et bonbons par shiny de la V1 (5 ; V2 : valeur des réglages).
 export const ECART_SHINY_V1 = 1.5;
 export const bonbonsAttendusV2 = (bonbonsV1: number): number => bonbonsV1 > 0 ? reglages.recompenses.shiny.quantite : 0;

@@ -41,7 +41,7 @@
       "declencheur": { "cible": "pension-parents", "deblocage": "pension" },
       "etapes": [
         { "cible": "pension-parents", "texte": "Dépose deux Pokémon compatibles : ce sont les parents.", "action": "ok" },
-        { "cible": "pension-oeufs", "texte": "Un œuf éclot après 25 combats, avec une marque +5 %.", "action": "ok" }
+        { "cible": "pension-oeufs", "texte": "Un œuf éclot après 50 combats, avec une marque +5 %.", "action": "ok" }
       ]
     },
     {

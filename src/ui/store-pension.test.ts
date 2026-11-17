@@ -29,7 +29,7 @@ function preparer(modifier: (region: DonneesRegion) => DonneesRegion = region =>
     arretAuto: { ...reglages.depart.preferences.arretAuto, actif: false } } });
   gestionnaire.creerPartie('Test', 'kanto.bourg-palette');
   const lire = () => gestionnaire.chargerRegion('test', 'kanto')!.donnees;
-  gestionnaire.ecrireRegion('test', 'kanto', modifier({ ...lire(), argent: 100000,
+  gestionnaire.ecrireRegion('test', 'kanto', modifier({ ...lire(), argent: 600000,
     equipe: [{ ...pokemon('fort', 6), calcium: 100000 }], pc: [pokemon('mere', 26), pokemon('pere', 26, 'male')],
     bossVaincus: ['kanto.tour-pokemon'] }));
   const ouvrir = () => {
@@ -53,21 +53,21 @@ function preparer(modifier: (region: DonneesRegion) => DonneesRegion = region =>
   return { store, ouvrir, lire, horloge, victoire, gestionnaire };
 }
 
-it('pond après une victoire, retire l’œuf, avance et éclot à la 25e victoire avec annonce et Pokédex', () => {
+it('pond après une victoire, retire l’œuf, avance et éclot à la 50e victoire avec annonce et Pokédex', () => {
   const p = preparer();
   expect(p.store.getState().deposerParent('mere')).toBeNull();
   expect(p.store.getState().deposerParent('pere')).toBeNull();
-  expect(p.store.getState().pension.chance).toBe(.04);
+  expect(p.store.getState().pension.chance).toBe(.02);
   p.store.getState().allerVers('kanto.route-1');
   p.victoire();
   const oeuf = p.store.getState().pension.oeufs[0]!;
   expect(p.store.getState().pension.oeufs).toHaveLength(1);
-  expect(oeuf.oeuf).toEqual({ pasRestants: 25, pasMax: 25 });
+  expect(oeuf.oeuf).toEqual({ pasRestants: 50, pasMax: 50 });
   expect(p.lire().pension.oeufs).toEqual([oeuf]);
   expect(p.store.getState().pokedex).not.toContain(25);
   expect(p.store.getState().prendreOeuf(oeuf.uid)).toBeNull();
   expect(p.store.getState().pokedex).toContain(25);
-  for (let i = 0; i < 24; i++) p.victoire();
+  for (let i = 0; i < 49; i++) p.victoire();
   expect(p.store.getState().equipe.find(p => p?.pokemon.uid === oeuf.uid)?.pokemon.oeuf?.pasRestants).toBe(1);
   expect(p.lire().equipe.find(p => p.uid === oeuf.uid)?.oeuf?.pasRestants).toBe(1);
   p.store.getState().arreter();
@@ -98,7 +98,7 @@ it('persiste les parents, les œufs et les emplacements et garde une référence
   p.store.getState().allerVers('kanto.route-1');
   p.victoire();
   const pension = p.store.getState().pension;
-  expect(pension).toMatchObject({ emplacements: 2, emplacementsMax: 5, prochainEmplacement: { prix: 10000, raison: null } });
+  expect(pension).toMatchObject({ emplacements: 2, emplacementsMax: 5, prochainEmplacement: { prix: 100000, raison: null } });
   p.horloge.avancer(100);
   p.store.getState().tick();
   expect(p.store.getState().pension).toBe(pension);
@@ -157,8 +157,8 @@ it('inscrit aussi au Pokédex une espèce inconnue lors de l’éclosion', () =>
 });
 
 it('affiche le refus du prochain achat puis la limite des cinq emplacements', () => {
-  const pauvre = preparer(region => ({ ...region, argent: 4999 }));
-  expect(pauvre.store.getState().pension.prochainEmplacement).toEqual({ prix: 5000, raison: "Pas assez d'argent." });
+  const pauvre = preparer(region => ({ ...region, argent: 49999 }));
+  expect(pauvre.store.getState().pension.prochainEmplacement).toEqual({ prix: 50000, raison: "Pas assez d'argent." });
   expect(pauvre.store.getState().acheterEmplacementOeuf()).toBe("Pas assez d'argent.");
   const p = preparer();
   for (let i = 0; i < 4; i++) expect(p.store.getState().acheterEmplacementOeuf()).toBeNull();

@@ -20,6 +20,9 @@ function guideDeLaV1() {
 }
 
 const ECARTS_GUIDE = [
+  // 17/11/2026 (ticket S) : chances de ponte divisées par deux.
+  { section: 'Fonctionnalités clés', v1: 'Même type: 2% de chance', v2: 'Même type: 1% de chance' },
+  { section: 'Fonctionnalités clés', v1: 'Même espèce: 4% par combat', v2: 'Même espèce: 2% par combat' },
   { section: 'Fonctionnalités clés', v1: 'de bonheur.',
     v2: 'de bonheur. La Baie Grena du Centre commercial donne +2 de bonheur.' },
   { section: 'Fonctionnalités clés', v1: 'accessible via Profil', v2: 'accessible via la page Menu' },

@@ -13,9 +13,9 @@
   },
   "equipe": { "taille": 6, "surnomMax": 12 },
   "pension": {
-    "emplacementsMax": 5, "prixParEmplacement": 5000, "pasEclosion": 25,
+    "emplacementsMax": 5, "prixParEmplacement": 50000, "pasEclosion": 50,
     "bonheurNaissance": 125, "metamorph": 132, "especesTirees": 151,
-    "chances": { "metamorph": 0.04, "memeEspece": 0.04, "typePartage": 0.02 },
+    "chances": { "metamorph": 0.02, "memeEspece": 0.02, "typePartage": 0.01 },
     "chanceShiny": 0.0625,
     "marqueEclosion": 0.05,
     "messages": {

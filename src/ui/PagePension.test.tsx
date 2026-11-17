@@ -24,7 +24,7 @@ function preparer(ouvert = true, pleine = false, nouvelle = false) {
   gestionnaire.ecrireCompte(compteInitial());
   gestionnaire.creerPartie('Test', 'kanto.bourg-palette');
   const region = gestionnaire.chargerRegion('test', 'kanto')!.donnees;
-  gestionnaire.ecrireRegion('test', 'kanto', { ...region, argent: 12500,
+  gestionnaire.ecrireRegion('test', 'kanto', { ...region, argent: 62500,
     equipe: pleine ? Array.from({ length: 6 }, (_, i) => pokemon(`actif-${i}`)) : [pokemon('actif')], pc: [pokemon('mere'), { ...pokemon('pere', 'male'), shiny: true }],
     bossVaincus: ouvert ? ['kanto.tour-pokemon'] : [],
     pension: { parents: [], emplacementsOeuf: 1, oeufs: nouvelle ? [] : [{ ...pokemon('oeuf'), numero: 150, sexe: 'sansSexe', oeuf: { pasRestants: 25, pasMax: 25 } }] },
@@ -49,7 +49,7 @@ it('dépose depuis le PC, affiche le refus du cœur et retire les parents', () =
   fireEvent.click(within(screen.getByRole('region', { name: 'PC' })).getAllByRole('button')[0]!);
   fireEvent.click(screen.getAllByRole('button', { name: 'Déposer un parent' })[0]!);
   fireEvent.click(within(screen.getByRole('region', { name: 'PC' })).getByRole('button'));
-  expect(screen.getByText('4 % par élimination')).toBeTruthy();
+  expect(screen.getByText('2 % par élimination')).toBeTruthy();
   expect(document.querySelector('strong svg[aria-hidden="true"]')).toBeTruthy();
   expect(document.querySelector('img.halo-shiny')?.getAttribute('src')).toBe('img/sprites/pokemon-shiny/1.png');
   expect(document.querySelector('.halo-shiny')).toBeTruthy();
@@ -105,7 +105,7 @@ it('recherche, montre les chances du cœur et rend le focus après dépôt et an
   expect(screen.queryByRole('dialog')).toBeNull();
   const second = screen.getAllByRole('button', { name: 'Déposer un parent' })[0]!;
   fireEvent.click(second);
-  expect(screen.getByText('4 % · même espèce')).toBeTruthy();
+  expect(screen.getByText('2 % · même espèce')).toBeTruthy();
   expect(screen.getByText('0 % · même sexe')).toBeTruthy();
   fireEvent.click(screen.getByRole('button', { name: 'Annuler' }));
   expect(document.activeElement).toBe(second);

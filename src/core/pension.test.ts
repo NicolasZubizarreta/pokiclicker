@@ -83,6 +83,22 @@ describe('mouvements et éclosion', () => {
     expect(avancerOeuf(eclos)).toBe(eclos);
   });
 
+  it('garde un œuf pondu avant le passage à 50 combats : valide, compté sur ses 25 pas, jamais perdu', () => {
+    // Ticket S : le total d'éclosion est écrit dans chaque œuf ; changer le réglage ne touche que les œufs à pondre.
+    expect(reglages.pension.pasEclosion).toBe(50);
+    const ancien = creerOeuf();
+    expect(ancien.oeuf).toEqual({ pasRestants: 25, pasMax: 25 });
+    expect(() => validerPokemonPossede(ancien)).not.toThrow();
+    let courant: PokemonPossede = ancien;
+    for (let pas = 1; pas < 25; pas++) {
+      courant = avancerOeuf(courant);
+      expect(courant.oeuf).toEqual({ pasRestants: 25 - pas, pasMax: 25 });
+    }
+    const eclos = avancerOeuf(courant);
+    expect(eclos).not.toHaveProperty('oeuf');
+    expect(eclos).toMatchObject({ numero: ancien.numero, marqueEclosion: true });
+  });
+
   it('annonce chaque éclosion une fois et laisse PC, pension et parents immobiles', () => {
     let region = preparer();
     region.equipe = [creerOeuf(), { ...creerOeuf(), uid: 'second' }];
@@ -132,7 +148,7 @@ describe('pension', () => {
     expect(apres.pension.oeufs).toEqual([{
       uid: 'nouvel-oeuf', numero: 25, niveau: 1, xp: 0, bonheur: 0, calcium: 0,
       shiny: true, sexe: 'femelle', favori: false, pierreEternelle: false,
-      oeuf: { pasRestants: 25, pasMax: 25 },
+      oeuf: { pasRestants: reglages.pension.pasEclosion, pasMax: reglages.pension.pasEclosion },
     }]);
     expect(() => validerPokemonPossede(apres.pension.oeufs[0])).not.toThrow();
     expect(alea).toHaveBeenCalledTimes(3);
