@@ -80,8 +80,8 @@ test('annonce qui reste, pastille, « Y aller », pastille retirée à la premi�
 
   // Ressortir puis revenir : ni annonce, ni pastille.
   await navigation(page).getByRole('button', { name: 'Menu', exact: true }).click();
-  await expect(page.getByRole('button', { name: /^Pension/ }).locator('[data-pastille-pension]')).toHaveCount(0);
-  await page.getByRole('button', { name: /^Pension/ }).click();
+  await expect(page.getByRole('main').getByRole('button', { name: /^Pension/ }).locator('[data-pastille-pension]')).toHaveCount(0);
+  await page.getByRole('main').getByRole('button', { name: /^Pension/ }).click();
   await expect(titrePension(page)).toBeVisible();
 
   await page.reload();
@@ -116,7 +116,7 @@ test('accès direct par le Menu : entrée avec pastille, puis la pastille dispar
   await demarrer(page, { annoncesVues: [...annoncesSaufPension, 'pension'] });
   await expect(carteAnnonce(page)).toHaveCount(0);
   await navigation(page).getByRole('button', { name: 'Menu', exact: true }).click();
-  const entree = page.getByRole('button', { name: /^Pension/ });
+  const entree = page.getByRole('main').getByRole('button', { name: /^Pension/ });
   await expect(entree.locator('[data-pastille-pension]')).toBeVisible();
   await entree.click();
   await expect(titrePension(page)).toBeVisible();
@@ -124,11 +124,23 @@ test('accès direct par le Menu : entrée avec pastille, puis la pastille dispar
   expect(await region(page)).toMatchObject({ pensionVue: true });
 });
 
+test('accès direct par la barre de navigation, entre Carte (ou Pokédex) et Menu', async ({ page }, info) => {
+  await demarrer(page, { annoncesVues: [...annoncesSaufPension, 'pension'], pensionVue: true });
+  const noms = (await navigation(page).getByRole('button').allInnerTexts()).map(t => t.replace(/\s+/g, ' ').trim());
+  const rang = noms.findIndex(t => t.startsWith('Pension'));
+  expect(rang).toBeGreaterThan(0);
+  expect(noms[rang + 1]).toMatch(/^Menu/);
+  expect(noms[rang - 1]).toMatch(info.project.name === 'pc' ? /^Pokédex/ : /^Carte/);
+  await navigation(page).getByRole('button', { name: /^Pension/ }).click();
+  await expect(titrePension(page)).toBeVisible();
+  expect(await debordeHorizontalement(page)).toBe(false);
+});
+
 test('sur PC, le décor entier et toute la zone des œufs tiennent d’un coup, sans rien rogner', async ({ page }, info) => {
   test.skip(info.project.name !== 'pc', 'mise en page PC');
   await demarrer(page, { annoncesVues: [...annoncesSaufPension, 'pension'], pensionVue: true });
   await navigation(page).getByRole('button', { name: 'Menu', exact: true }).click();
-  await page.getByRole('button', { name: /^Pension/ }).click();
+  await page.getByRole('main').getByRole('button', { name: /^Pension/ }).click();
   await expect(titrePension(page)).toBeVisible();
   for (const [largeur, hauteur] of [[1280, 800], [1440, 900], [1920, 1080]]) {
     await page.setViewportSize({ width: largeur, height: hauteur });
@@ -194,7 +206,7 @@ test('parcours : deux parents compatibles, chance de ponte, éclosion avec la ma
     sexe: 'male', favori: false, oeuf: { pasRestants: 1, pasMax: 25 } };
   await demarrer(page, { equipe: [equipe[0], equipe[1], equipe[2], equipe[3], femelle, oeuf], annoncesVues: [...annoncesSaufPension, 'pension'], pensionVue: true });
   await navigation(page).getByRole('button', { name: 'Menu', exact: true }).click();
-  await page.getByRole('button', { name: /^Pension/ }).click();
+  await page.getByRole('main').getByRole('button', { name: /^Pension/ }).click();
   await expect(titrePension(page)).toBeVisible();
   await capturer(page, 'ecran-vide');
 
@@ -233,7 +245,7 @@ test('parcours : deux parents compatibles, chance de ponte, éclosion avec la ma
 
   // Collection : une espèce éclose en couleur, les autres en silhouette, quatre paliers.
   await navigation(page).getByRole('button', { name: 'Menu', exact: true }).click();
-  await page.getByRole('button', { name: /^Pension/ }).click();
+  await page.getByRole('main').getByRole('button', { name: /^Pension/ }).click();
   const collection = page.getByRole('region', { name: 'Collection d’éclosions' });
   await expect(collection).toContainText('1/151');
   await expect(collection.locator('.pension-palier')).toHaveCount(4);
@@ -247,7 +259,7 @@ test('pension fermée (Tour Pokémon non vaincue) : ni annonce, ni pastille, ni 
   await expect(carteAnnonce(page)).toHaveCount(0);
   await expect(pastilles(page)).toHaveCount(0);
   await navigation(page).getByRole('button', { name: 'Menu', exact: true }).click();
-  await expect(page.getByRole('button', { name: /^Pension/ })).toHaveCount(0);
+  await expect(page.getByRole('main').getByRole('button', { name: /^Pension/ })).toHaveCount(0);
   await navigation(page).getByRole('button', { name: 'Carte', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Pension, accès direct' })).toHaveCount(0);
 });

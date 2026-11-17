@@ -265,18 +265,18 @@ Les taux d'apparition (affichés plus tard si Nicolas le veut).
 
 ## J. `feat(pc): relâcher par lot avec favoris verrouillés`
 
-`type:feat`, `etat:a_faire`, `est:1-2`, `prio:3` · branche : `v2` · pas d'`agent-ok` (suppression en masse)
+`type:feat`, `etat:fait`, `est:1-2`, `prio:3` · branche : `v2` · pas d'`agent-ok` (suppression en masse)
 
 ### Histoire
 En tant que joueur, je veux sélectionner plusieurs Pokémon du PC et les relâcher d'un coup, sans risquer mes favoris.
 
 ### Critères d'acceptation
-- [ ] Étant donné la page PC, quand j'appuie sur « Relâcher », alors je passe en mode sélection et je coche autant de Pokémon que je veux.
-- [ ] Étant donné un favori, quand je suis en mode sélection, alors un verrou l'indique et il ne peut pas être coché.
-- [ ] Étant donné une sélection, quand je confirme, alors une fenêtre annonce le nombre de Pokémon (et dit si des shiny en font partie) avant toute suppression, et seuls les Pokémon cochés sont relâchés.
-- [ ] Étant donné un filtre actif, quand je choisis « tout sélectionner », alors seuls les Pokémon visibles et non favoris sont cochés.
-- [ ] Étant donné un objet porté par un Pokémon relâché, quand le lot est relâché, alors l'objet revient au sac comme pour un relâchement seul (comportement existant à vérifier).
-- [ ] Étant donné les tests, quand `tsc -b`, eslint, vitest et e2e tournent, alors ils sont verts.
+- [x] Étant donné la page PC, quand j'appuie sur « Relâcher », alors je passe en mode sélection et je coche autant de Pokémon que je veux.
+- [x] Étant donné un favori, quand je suis en mode sélection, alors un verrou l'indique et il ne peut pas être coché.
+- [x] Étant donné une sélection, quand je confirme, alors une fenêtre annonce le nombre de Pokémon (et dit si des shiny en font partie) avant toute suppression, et seuls les Pokémon cochés sont relâchés.
+- [x] Étant donné un filtre actif, quand je choisis « tout sélectionner », alors seuls les Pokémon visibles et non favoris sont cochés.
+- [x] Étant donné un objet porté par un Pokémon relâché, quand le lot est relâché, alors l'objet revient au sac comme pour un relâchement seul (comportement existant à vérifier).
+- [x] Étant donné les tests, quand `tsc -b`, eslint, vitest et e2e tournent, alors ils sont verts.
 
 ### Hors périmètre
 Relâche automatique (ticket L).
@@ -352,7 +352,7 @@ En tant que joueur, je veux retirer l'objet donné à un Pokémon depuis sa fich
 
 ## O. `feat(navigation): accès direct à la pension`
 
-`type:feat`, `etat:a_faire`, `est:0.5-1`, `prio:3` · branche : `v2` · `agent-ok` recommandé
+`type:feat`, `etat:fait`, `est:0.5-1`, `prio:3` · branche : `v2` · `agent-ok` recommandé
 
 ### Histoire
 En tant que joueur qui farme des œufs, je veux atteindre la pension en un clic, afin de ne pas perdre de temps entre le combat et la pension.
@@ -361,10 +361,10 @@ En tant que joueur qui farme des œufs, je veux atteindre la pension en un clic,
 Le ticket D a déjà posé un lien vers la pension dans le Menu et la Carte. Décision de Nicolas (17/11) : un bouton « Pension » dans la barre de navigation, placé entre « Pokédex » et « Menu ». Sur téléphone comme sur PC, sans rien déplacer d'autre.
 
 ### Critères d'acceptation
-- [ ] Étant donné la pension débloquée, quand la barre de navigation s'affiche (téléphone et PC), alors un bouton « Pension » figure entre « Pokédex » et « Menu » et ouvre la pension.
-- [ ] Étant donné la pension non débloquée, quand la barre s'affiche, alors le bouton n'apparaît pas.
-- [ ] Étant donné la barre, quand le bouton s'ajoute, alors tous les boutons restent lisibles et touchables à 360, 390 et 1440 px, et les touches de raccourci existantes ne changent pas.
-- [ ] Étant donné les tests, quand `tsc -b`, eslint, vitest et e2e tournent, alors ils sont verts.
+- [x] Étant donné la pension débloquée, quand la barre de navigation s'affiche (téléphone et PC), alors un bouton « Pension » figure entre « Pokédex » et « Menu » et ouvre la pension.
+- [x] Étant donné la pension non débloquée, quand la barre s'affiche, alors le bouton n'apparaît pas.
+- [x] Étant donné la barre, quand le bouton s'ajoute, alors tous les boutons restent lisibles et touchables à 360, 390 et 1440 px, et les touches de raccourci existantes ne changent pas.
+- [x] Étant donné les tests, quand `tsc -b`, eslint, vitest et e2e tournent, alors ils sont verts.
 
 ### Effort et risques
 0,5 à 1 jour.
@@ -387,15 +387,15 @@ En tant que joueur, je veux voir qu'un Pokémon du PC est shiny d'un coup d'œil
 
 ## Q. `feat(carte): centre commercial dans la navigation des zones`
 
-`type:feat`, `etat:a_faire`, `est:0.5-1`, `prio:4` · branche : `v2` · `agent-ok` recommandé
+`type:feat`, `etat:fait`, `est:0.5-1`, `prio:4` · branche : `v2` · `agent-ok` recommandé
 
 ### Histoire
 En tant que joueur, je veux trouver le centre commercial dans la navigation des zones, entre Céladopole et la Centrale, et pas seulement sur la carte.
 
 ### Critères d'acceptation
-- [ ] Étant donné la navigation des zones, quand le centre commercial est débloqué, alors il apparaît entre Céladopole et la Centrale et ouvre le centre.
-- [ ] Étant donné le centre commercial non débloqué, quand je navigue, alors il n'apparaît pas.
-- [ ] Étant donné les tests, quand `tsc -b`, eslint, vitest et e2e tournent, alors ils sont verts.
+- [x] Étant donné la navigation des zones, quand le centre commercial est débloqué, alors il apparaît entre Céladopole et la Centrale et ouvre le centre.
+- [x] Étant donné le centre commercial non débloqué, quand je navigue, alors il n'apparaît pas.
+- [x] Étant donné les tests, quand `tsc -b`, eslint, vitest et e2e tournent, alors ils sont verts.
 
 ### Effort et risques
 0,5 à 1 jour.
