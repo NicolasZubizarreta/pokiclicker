@@ -5,6 +5,10 @@ import { calculerOr, type Victoire } from './recompenses';
 import type { DonneesRegion, PokemonPossede } from './sauvegarde-types';
 
 const ennemi = { capture: 120, pv: 50, pvMax: 100, niveau: 30 };
+it('inscrit seulement les captures shiny au dex shiny', () => {
+  expect(appliquerCapture(region(), { ...prise, shiny: true }, [], () => 0, () => 's').region.especesShiny).toEqual([19]);
+  expect(appliquerCapture(region(), prise, [], () => 0, () => 's').region.especesShiny).toBeUndefined();
+});
 const prise: Victoire = { numero: 19, niveau: 30, shiny: false, boss: false, rarete: 'commun' };
 const membre: PokemonPossede = {
   uid: 'ancien', numero: 1, niveau: 5, xp: 12, shiny: false, bonheur: 7,

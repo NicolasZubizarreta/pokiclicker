@@ -30,6 +30,8 @@ export function PageReglages({ retour }: { retour?(): void }) {
   const sonActive = useStore(storeJeu, e => e.sonActive);
   const autoClicLie = useStore(storeJeu, e => e.autoClicLie);
   const evolutionAuto = useStore(storeJeu, e => e.evolutionAuto);
+  const passerEclosions = useStore(storeJeu, e => e.passerEclosions);
+  const relacherDoublons = useStore(storeJeu, e => e.relacherDoublons);
   const journalActif = useStore(storeJeu, e => e.journalActif);
   const exporterReleve = () => {
     const releve = storeJeu.getState().exporterJournal();
@@ -89,6 +91,24 @@ export function PageReglages({ retour }: { retour?(): void }) {
         <Interrupteur nom="Évolution automatique" actif={evolutionAuto} basculer={() => storeJeu.getState().reglerEvolutionAuto(!evolutionAuto)} />
       </div>
       <p className="mt-2 text-sm text-texte-doux">Quand un Pokémon est prêt, une fenêtre te propose de le faire évoluer. Désactivée, il faut l'évoluer toi-même depuis sa fiche.</p>
+    </section>
+    </PanneauPC>
+    <PanneauPC telephone={telephone} titre="Collection">
+    <section className="cadre bg-surface p-4">
+      <div className="flex items-center justify-between gap-4">
+        <div><h3 className="font-titre font-semibold">Passer les éclosions</h3>
+          <p className="text-sm text-texte-doux">{passerEclosions ? 'Activée' : 'Désactivée'}</p></div>
+        <Interrupteur nom="Passer les éclosions" actif={passerEclosions} basculer={() => storeJeu.getState().reglerPasserEclosions(!passerEclosions)} />
+      </div>
+      <p className="mt-2 text-sm text-texte-doux">Quand un œuf éclôt, la fenêtre d'éclosion ne s'ouvre pas : le Pokémon est ajouté directement et une notification le dit. Utile pour laisser tourner la pension.</p>
+    </section>
+    <section className="cadre bg-surface p-4">
+      <div className="flex items-center justify-between gap-4">
+        <div><h3 className="font-titre font-semibold">Relâcher automatiquement les doublons</h3>
+          <p className="text-sm text-texte-doux">{relacherDoublons ? 'Activée' : 'Désactivée'}</p></div>
+        <Interrupteur nom="Relâcher automatiquement les doublons" actif={relacherDoublons} basculer={() => storeJeu.getState().reglerRelacherDoublons(!relacherDoublons)} />
+      </div>
+      <p className="mt-2 text-sm text-texte-doux">Un Pokémon capturé dont l'espèce est déjà dans ton Pokédex est relâché aussitôt. Un Pokémon éclos dont l'espèce est déjà dans ta collection d'éclos est relâché aussitôt. Les chromatiques ne sont jamais relâchés, et les récompenses de capture sont versées comme d'habitude.</p>
     </section>
     {!import.meta.env.PROD && <details className="cadre mt-4 space-y-4 bg-surface p-4">
       <summary className="min-h-12 cursor-pointer py-2">Relevé de partie (développement)</summary>

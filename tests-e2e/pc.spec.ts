@@ -187,7 +187,7 @@ test('Pokédex : 151 cases et compteur des starters', async ({ page }, informati
   await page.getByRole('button', { name: 'Menu', exact: true }).click();
   await page.locator('#contenu').getByRole('button', { name: /^Pokédex/ }).click();
   await expect(page.getByRole('heading', { name: 'Pokédex', level: 1 })).toBeVisible();
-  await expect(page.getByText('3 / 151')).toBeVisible();
+  await expect(page.getByText('3 / 151', { exact: true })).toBeVisible();
   await expect(casesPokedex(page)).toHaveCount(151);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
   await page.evaluate(() => Promise.all([...document.images].map(image => image.decode().catch(() => undefined))));

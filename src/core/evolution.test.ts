@@ -8,6 +8,15 @@ import { calculerMaxXp } from './recompenses';
 import type { DonneesRegion, PokemonPossede } from './sauvegarde-types';
 import { calculerDps } from './stats';
 
+it.each([[false, false], [true, false], [false, true], [true, true]])('évolution shiny=%s éclos=%s', (shiny, marqueEclosion) => {
+  const resultat = evoluer(region(pokemon({ shiny, marqueEclosion })), 'cible');
+  expect(resultat.ok).toBe(true);
+  if (!resultat.ok) return;
+  expect(resultat.region.especesShiny).toEqual(shiny ? [2] : undefined);
+  expect(resultat.region.especesEcloses).toEqual(marqueEclosion ? [2] : undefined);
+  expect(resultat.region.especesEclosesShiny).toEqual(shiny && marqueEclosion ? [2] : undefined);
+});
+
 function pokemon(changements: Partial<PokemonPossede> = {}): PokemonPossede {
   return {
     uid: 'cible', numero: 1, niveau: 16, xp: 9999, shiny: true, bonheur: 42,

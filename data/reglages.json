@@ -93,6 +93,8 @@
       "autoAttaque": true,
       "autoClicLie": true,
       "evolutionAuto": true,
+      "passerEclosions": false,
+      "relacherDoublons": false,
       "arretAuto": {
         "actif": true, "commun": false, "peuCommun": false, "rare": true,
         "tresRare": true, "legendaire": true, "shiny": true, "nouveau": true

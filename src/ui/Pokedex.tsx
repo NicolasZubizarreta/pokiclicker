@@ -11,6 +11,8 @@ import { cheminSprite } from './precharger';
 import { storeJeu } from './store';
 import { formaterProchainPalier } from './store-progression';
 import { IconeCadenas, PastilleCapture } from './icones';
+import { ZonesEspeceFiche } from './ZonesEspeceFiche';
+import { BoutonsDex,FiltreDex, TagsDex, etatDansDex, libelleCaseDex, useListesDex, type CleDex } from './SelecteurDex';
 
 const catalogue = chargerPokemon();
 
@@ -23,12 +25,15 @@ export function Pokedex({ retour }: { retour(): void }) {
   const [diplomeOuvert, ouvrirDiplome] = useState(false);
   const [selection, choisir] = useState<number | null>(null);
   const [saisie, saisir] = useState('');
-  const [filtre, filtrer] = useState('Tous');
+  const [filtre, filtrer] = useState('tous');
+  const [dex, choisirDex] = useState<CleDex>('pokedex');
+  const listes = useListesDex();
+  const obtenus = listes[dex].captures;
   const normaliser = (s: string) => s.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').trim();
   const recherche = normaliser(saisie);
   const numeroRecherche = /^(?:#|n°|n)?\s*(\d+)$/.exec(recherche);
   const numeros = Array.from({ length: total }, (_, i) => i + 1).filter(n =>
-    !(filtre === 'Capturés' && !captures.has(n) || filtre === 'À trouver' && captures.has(n)) &&
+    !(filtre === 'obtenus' && !obtenus.has(n) || filtre === 'manquants' && obtenus.has(n)) &&
     (!recherche || (numeroRecherche ? n === Number(numeroRecherche[1]) : etatPokedex(n, captures, vus) !== 'inconnu' && normaliser(catalogue.parNumero(n).nom).includes(recherche))));
 
   return <section className="dex-pc text-base">
@@ -38,8 +43,9 @@ export function Pokedex({ retour }: { retour(): void }) {
       <h1 tabIndex={-1} className="font-titre text-2xl font-semibold">Pokédex</h1>
       <p className="text-region-accent">{`${nombre} / ${total}`}</p>
     </header>
+    <BoutonsDex listes={listes} dex={dex} choisir={cle => { choisirDex(cle); filtrer('tous'); }} />
     <div className="dex-outils"><label>Nom ou numéro <kbd>/</kbd><input type="search" value={saisie} onChange={e => saisir(e.target.value)} className="cadre min-h-11 bg-surface px-3" /></label>
-      <div role="group" aria-label="Filtrer le Pokédex">{['Tous', 'Capturés', 'À trouver'].map(f => <button key={f} type="button" aria-pressed={filtre === f} onClick={() => filtrer(f)} className="plaque min-h-11 px-3">{f}</button>)}</div></div>
+      <FiltreDex dex={dex} filtre={filtre} filtrer={filtrer} /></div>
     <div className="dex-corps">
     <aside aria-label="Détail du Pokémon" tabIndex={0} className="dex-panneau cadre bg-surface p-4">
     {selection === null ? <><h2 className="font-titre text-xl font-bold">Paliers</h2>
@@ -57,14 +63,17 @@ export function Pokedex({ retour }: { retour(): void }) {
     <div className="dex-liste cadre">{numeros.length === 0 && (recherche ? <div role="status"><p>Aucune espèce capturée ou vue ne correspond à « {saisie} ».</p><p className="text-texte-doux">Les espèces jamais croisées restent cachées : cherche-les par leur numéro.</p></div> : <p role="status">Aucune espèce ne correspond.</p>)}
     <ol className="dex-grille grid auto-rows-fr grid-cols-3 gap-2 sm:grid-cols-5 lg:grid-cols-10">
       {numeros.map(numero => {
-        const etat = etatPokedex(numero, captures, vus);
+        const etat = etatDansDex(numero, obtenus, captures, vus);
+        const shiny = dex === 'pokedex' && listes.shiny.captures.has(numero);
+        const eclos = dex === 'pokedex' && listes.oeuf.captures.has(numero);
         const capture = etat === 'capture';
         const nom = etat !== 'inconnu' ? catalogue.parNumero(numero).nom : '???';
-        return <li key={numero}><button type="button" onClick={() => choisir(numero)} aria-pressed={selection === numero} aria-label={capture ? `${nom}, numéro ${numero}, déjà capturé` : etat === 'vu' ? `${nom}, numéro ${numero}, vu, pas encore capturé` : `Pokémon inconnu, numéro ${numero}`} className={`dex-case flex h-full min-h-11 w-full min-w-0 flex-col items-center gap-2 ${capture ? 'bg-surface' : 'bg-surface-2'} p-1 text-center`}>
+        return <li key={numero} className="min-w-0"><button type="button" onClick={() => choisir(numero)} aria-pressed={selection === numero} aria-label={libelleCaseDex(nom, numero, etat, dex, shiny, eclos)} className={`dex-case relative flex h-44 min-h-11 w-full min-w-0 flex-col items-center gap-2 ${capture ? 'bg-surface' : 'bg-surface-2'} p-1 text-center`}>
+          <TagsDex shiny={shiny} eclos={eclos} />
           <span>N° {numero}</span>
-          <Image src={cheminSprite(numero)} genre="sprite" alt={etat !== 'inconnu' ? nom : 'Pokémon inconnu'}
+          <Image src={cheminSprite(numero, dex === 'shiny' || dex === 'oeufShiny')} genre="sprite" alt={etat !== 'inconnu' ? nom : 'Pokémon inconnu'}
             className={`size-24 object-contain max-h-full max-w-full ${capture ? '' : etat === 'vu' ? 'grayscale opacity-60' : 'brightness-0'}`} />
-          <span className="w-full break-words">{nom}{capture && <PastilleCapture />}</span>
+          <span className="w-full truncate">{nom}{capture && <PastilleCapture />}</span>
         </button></li>;
       })}
     </ol></div></div>
@@ -79,6 +88,7 @@ function Fiche({ numero, etat, fermer }: { numero: number; etat: ReturnType<type
   const espece = catalogue.parNumero(numero);
   return <><header className="flex items-center justify-between gap-2"><h2 className="font-titre text-xl font-bold">{etat !== 'inconnu' ? espece.nom : '???'} · N° {numero}</h2><button type="button" aria-label="Revenir aux paliers" onClick={fermer} className="flex min-h-11 min-w-11 items-center justify-center">×</button></header>
     <div className="dex-sprite"><Image genre="sprite" src={cheminSprite(numero)} alt={etat !== 'inconnu' ? espece.nom : 'Pokémon inconnu'} className={`object-contain max-h-full max-w-full ${capture ? '' : etat === 'vu' ? 'grayscale opacity-60' : 'brightness-0 opacity-50'}`} /></div>
+    {etat !== 'inconnu' && <ZonesEspeceFiche numero={numero} />}
     {capture ? <><div className="flex flex-wrap gap-2">{espece.types.map(t => <span key={t} className={`pastille-type pastille-type-${t} px-2`}>{nomType(t)}</span>)}<span>Déjà capturé</span></div>
       <p>{equipe.some(c => c?.pokemon.numero === numero) ? 'Dans ton équipe' : pc.some(p => p.numero === numero) ? 'Rangé dans ton PC' : 'Enregistré au Pokédex'}</p>
       <dl aria-label="Dégâts de base"><dt>Dégâts de base</dt><dd>{statsDeCombat(espece).puissance}</dd></dl>

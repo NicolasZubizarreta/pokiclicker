@@ -12,6 +12,8 @@ import { IconeCadenas, PastilleCapture } from './icones';
 import { Image } from './Image';
 import { cheminSprite } from './precharger';
 import './FichePokemon.css';
+import { ZonesEspeceFiche } from './ZonesEspeceFiche';
+import { BoutonsDex, FiltreDex, TagsDex, etatDansDex, libelleCaseDex, useListesDex, type CleDex } from './SelecteurDex';
 
 const catalogue = chargerPokemon();
 const normaliser = (texte: string) => texte.toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').trim();
@@ -23,13 +25,16 @@ export function PokedexTelephone({ retour, ouvrirDiplome }: { retour(): void; ou
   const { captures, nombre, total } = pokedexDeKanto(pokedex, catalogue);
   const [selection, choisir] = useState<number | null>(null);
   const [saisie, saisir] = useState('');
-  const [filtre, filtrer] = useState('Toutes');
+  const [filtre, filtrer] = useState('tous');
+  const [dex, choisirDex] = useState<CleDex>('pokedex');
+  const listes = useListesDex();
+  const obtenus = listes[dex].captures;
   const rechercheId = useId();
   const recherche = normaliser(saisie);
   const numeroRecherche = /^(?:#|n°|n)?\s*(\d+)$/.exec(recherche);
   const numeros = Array.from({ length: total }, (_, i) => i + 1).filter(numero => {
-    const capture = captures.has(numero);
-    if (filtre === 'Capturées' && !capture || filtre === 'À trouver' && capture) return false;
+    const capture = obtenus.has(numero);
+    if (filtre === 'obtenus' && !capture || filtre === 'manquants' && capture) return false;
     if (!recherche) return true;
     return numeroRecherche ? numero === Number(numeroRecherche[1])
       : etatPokedex(numero, captures, vus) !== 'inconnu' && normaliser(catalogue.parNumero(numero).nom).includes(recherche);
@@ -42,6 +47,7 @@ export function PokedexTelephone({ retour, ouvrirDiplome }: { retour(): void; ou
         className="flex min-h-11 min-w-11 items-center justify-center bg-surface-2 hover:bg-selection"><IconeRetour /></button>
       <h1 tabIndex={-1} className="font-titre text-2xl font-semibold">Pokédex</h1>
     </header>
+    <BoutonsDex listes={listes} dex={dex} choisir={cle => { choisirDex(cle); filtrer('tous'); }} />
     <section aria-label="Progression" className="cadre grid gap-2 bg-surface p-4">
       <p className="font-titre text-3xl font-bold text-region-accent">{nombre} / {total}</p>
       <p className="text-texte-doux">espèces capturées</p>
@@ -75,11 +81,7 @@ export function PokedexTelephone({ retour, ouvrirDiplome }: { retour(): void; ou
       <input id={rechercheId} type="search" autoComplete="off" enterKeyHint="search" value={saisie}
         onChange={e => saisir(e.target.value)} className="cadre min-h-11 w-full bg-surface px-3 text-texte" />
     </div>
-    <div role="group" aria-label="Filtrer le Pokédex" className="flex gap-2">
-      {['Toutes', 'Capturées', 'À trouver'].map(valeur => <button key={valeur} type="button"
-        aria-pressed={filtre === valeur} onClick={() => filtrer(valeur)}
-        className="flex-1 cadre min-h-11 bg-surface aria-pressed:bg-selection">{valeur}</button>)}
-    </div>
+    <FiltreDex dex={dex} filtre={filtre} filtrer={filtrer} feminin />
     <p role="status" className="text-texte-doux">{numeros.length} {numeros.length === 1 ? 'espèce affichée' : 'espèces affichées'}</p>
     {numeros.length === 0 && <div className="cadre border-dashed p-4 text-center">
       {recherche ? <><p>Aucune espèce capturée ou vue ne correspond à « {saisie} ».</p>
@@ -88,17 +90,20 @@ export function PokedexTelephone({ retour, ouvrirDiplome }: { retour(): void; ou
     </div>}
     <div className="grid auto-rows-fr grid-cols-3 gap-2">
       {numeros.map(numero => {
-        const etat = etatPokedex(numero, captures, vus);
+        const etat = etatDansDex(numero, obtenus, captures, vus);
+        const shiny = dex === 'pokedex' && listes.shiny.captures.has(numero);
+        const eclos = dex === 'pokedex' && listes.oeuf.captures.has(numero);
         const capture = etat === 'capture';
         const nom = etat !== 'inconnu' ? catalogue.parNumero(numero).nom : '???';
         return <button key={numero} type="button" onClick={() => choisir(numero)}
-          aria-label={capture ? `${nom}, numéro ${numero}, déjà capturé` : etat === 'vu' ? `${nom}, numéro ${numero}, vu, pas encore capturé` : `Pokémon inconnu, numéro ${numero}`}
-          className={`cadre flex h-full min-h-11 min-w-0 flex-col items-center overflow-hidden p-2 text-center ${capture ? 'bg-surface' : 'bg-surface-2'}`}>
-          <Image src={cheminSprite(numero)} genre="sprite" alt={etat !== 'inconnu' ? nom : 'Pokémon inconnu'}
+          aria-label={libelleCaseDex(nom, numero, etat, dex, shiny, eclos)}
+          className={`cadre relative flex h-40 min-h-11 min-w-0 flex-col items-center overflow-hidden p-2 text-center ${capture ? 'bg-surface' : 'bg-surface-2'}`}>
+          <TagsDex shiny={shiny} eclos={eclos} />
+          <Image src={cheminSprite(numero, dex === 'shiny' || dex === 'oeufShiny')} genre="sprite" alt={etat !== 'inconnu' ? nom : 'Pokémon inconnu'}
             className={`size-16 max-w-full ${capture ? '' : etat === 'vu' ? 'grayscale opacity-60' : 'brightness-0 opacity-50'}`} />
           <span className="text-sm text-texte-doux">N° {numero}</span>
           <span className="w-full truncate font-bold">{nom}</span>
-          {capture && <span className="flex items-center gap-1 text-sm text-succes-texte"><PastilleCapture />Capturé</span>}
+          {capture && <span className="flex items-center gap-1 text-sm text-succes-texte"><PastilleCapture />{dex === 'pokedex' ? 'Capturé' : 'Obtenu'}</span>}
         </button>;
       })}
     </div>
@@ -139,6 +144,7 @@ function DetailEspece({ numero, etat, fermer }: { numero: number; etat: ReturnTy
         <Image src={cheminSprite(numero)} genre="sprite" alt={etat !== 'inconnu' ? nom : 'Pokémon inconnu'}
           className={`size-32 max-h-full max-w-full ${capture ? '' : etat === 'vu' ? 'grayscale opacity-60' : 'brightness-0 opacity-50'}`} />
       </div>
+      {etat !== 'inconnu' && <ZonesEspeceFiche numero={numero} />}
       {capture ? <>
         <div className="flex flex-wrap items-center justify-center gap-2">
           {espece.types.map(type => <span key={type}

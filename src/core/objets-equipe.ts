@@ -1,4 +1,5 @@
 import type { ResultatEquipe } from './equipe';
+import { noterObtention } from './dex';
 import { peutEvoluer, stade } from './evolution';
 import { reglages } from './reglages';
 import type { DonneesRegion, PokemonPossede } from './sauvegarde-types';
@@ -53,11 +54,11 @@ export function utiliserJetonShiny(region: DonneesRegion, uid: string): Resultat
   if (raison) return { ok: false, raison, message: raison };
   return {
     ok: true, message: 'Chromatique !',
-    region: {
+    region: noterObtention({
       ...region,
       inventaire: { ...region.inventaire, shinyToken: stock - 1 },
       equipe: region.equipe.map((p) => p.uid === uid ? { ...p, shiny: true } : p),
-    },
+    }, pokemon!.numero, { shiny: !pokemon!.oeuf, eclos: !pokemon!.oeuf && pokemon!.marqueEclosion }),
   };
 }
 

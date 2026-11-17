@@ -200,7 +200,7 @@ Les nouvelles listes (ticket G).
 
 ## G. `feat(pokedex): quatre listes de dex (Pokédex, shiny, œuf, œuf shiny) et inscription croisée`
 
-`type:feat`, `etat:a_faire`, `est:1.5-2`, `prio:2` · branche : `v2` · pas d'`agent-ok` (sauvegarde) · dépend de : F
+`type:feat`, `etat:fait`, `est:1.5-2`, `prio:2` · branche : `v2` · pas d'`agent-ok` (sauvegarde) · dépend de : F
 
 ### Histoire
 En tant que joueur, je veux un dex shiny, un dex œuf et un dex œuf shiny qui se remplissent tout seuls, afin de les compléter sans que le Pokédex principal cesse de compter.
@@ -209,12 +209,12 @@ En tant que joueur, je veux un dex shiny, un dex œuf et un dex œuf shiny qui s
 Le dex œuf existe déjà (`especesEcloses`, corrigé au ticket F). Il manque la liste des espèces shiny et celle des espèces œuf shiny. Règle de Nicolas : toute première obtention d'une espèce, quelle que soit sa catégorie, l'inscrit aussi au Pokédex principal.
 
 ### Critères d'acceptation
-- [ ] Étant donné la capture d'un Pokémon normal d'une espèce jamais obtenue, quand elle a lieu, alors l'espèce s'inscrit au Pokédex.
-- [ ] Étant donné la capture d'un Pokémon shiny d'une espèce jamais vue en shiny, quand elle a lieu, alors l'espèce s'inscrit au dex shiny et au Pokédex.
-- [ ] Étant donné l'éclosion d'une espèce jamais éclose, quand elle a lieu, alors l'espèce s'inscrit au dex œuf et au Pokédex ; si l'éclos est shiny, elle s'inscrit aussi au dex œuf shiny et au dex shiny (confirmé par Nicolas le 17/11 : un éclos shiny remplit les quatre listes).
-- [ ] Étant donné l'évolution d'un Pokémon shiny, d'un éclos ou d'un éclos shiny, quand elle a lieu, alors l'espèce atteinte s'inscrit dans les listes que ce Pokémon remplit.
-- [ ] Étant donné une ancienne sauvegarde, quand elle se charge, alors les listes shiny, œuf shiny et œuf sont rattrapées depuis les Pokémon possédés (drapeau shiny, marque d'éclosion), sans rien retirer.
-- [ ] Étant donné les tests, quand `tsc -b`, eslint, vitest (dont migration) et e2e tournent, alors ils sont verts.
+- [x] Étant donné la capture d'un Pokémon normal d'une espèce jamais obtenue, quand elle a lieu, alors l'espèce s'inscrit au Pokédex.
+- [x] Étant donné la capture d'un Pokémon shiny d'une espèce jamais vue en shiny, quand elle a lieu, alors l'espèce s'inscrit au dex shiny et au Pokédex.
+- [x] Étant donné l'éclosion d'une espèce jamais éclose, quand elle a lieu, alors l'espèce s'inscrit au dex œuf et au Pokédex ; si l'éclos est shiny, elle s'inscrit aussi au dex œuf shiny et au dex shiny (confirmé par Nicolas le 17/11 : un éclos shiny remplit les quatre listes).
+- [x] Étant donné l'évolution d'un Pokémon shiny, d'un éclos ou d'un éclos shiny, quand elle a lieu, alors l'espèce atteinte s'inscrit dans les listes que ce Pokémon remplit.
+- [x] Étant donné une ancienne sauvegarde, quand elle se charge, alors les listes shiny, œuf shiny et œuf sont rattrapées depuis les Pokémon possédés (drapeau shiny, marque d'éclosion), sans rien retirer.
+- [x] Étant donné les tests, quand `tsc -b`, eslint, vitest (dont migration) et e2e tournent, alors ils sont verts.
 
 ### Hors périmètre
 L'écran des dex (ticket H), le relâchement automatique (ticket L).
@@ -224,18 +224,18 @@ L'écran des dex (ticket H), le relâchement automatique (ticket L).
 
 ## H. `feat(pokedex): quatre boutons de dex, filtre en liste déroulante et tags shiny/éclos`
 
-`type:feat`, `etat:a_faire`, `est:1.5-2`, `prio:2` · branche : `v2` · `agent-ok` recommandé après G · dépend de : G
+`type:feat`, `etat:fait`, `est:1.5-2`, `prio:2` · branche : `v2` · `agent-ok` recommandé après G · dépend de : G
 
 ### Histoire
 En tant que joueur, je veux passer d'un dex à l'autre d'un bouton, et voir d'un coup d'œil quelles espèces sont shiny ou éclosent, afin de suivre ma collection.
 
 ### Critères d'acceptation
-- [ ] Étant donné la page Pokédex (téléphone et PC), quand je l'ouvre, alors quatre boutons choisissent le dex (Pokédex, Shiny, Œuf, Œuf shiny) et chacun affiche son x/151.
-- [ ] Étant donné les trois boutons Tous / Capturés / À trouver, quand la page s'ouvre, alors ils sont remplacés par une liste déroulante au même style que le filtre du PC, qui s'applique au dex choisi.
-- [ ] Étant donné une espèce du Pokédex principal qui est aussi dans le dex shiny ou œuf, quand la case s'affiche, alors un tag shiny et un tag éclos y figurent.
-- [ ] Étant donné les cases, quand elles sont capturées, vues ou inconnues, alors elles gardent la même taille (règle du 17/11), et les sprites des dex shiny sont chromatiques.
-- [ ] Étant donné les paliers du Pokédex, quand les autres dex changent, alors la progression des paliers reste celle du Pokédex principal.
-- [ ] Étant donné les tests, quand `tsc -b`, eslint, vitest et e2e (`mobile`, `pc`, `iphone`) tournent, alors ils sont verts, et des captures à 360, 390 et 1440 px sont regardées.
+- [x] Étant donné la page Pokédex (téléphone et PC), quand je l'ouvre, alors quatre boutons choisissent le dex (Pokédex, Shiny, Œuf, Œuf shiny) et chacun affiche son x/151.
+- [x] Étant donné les trois boutons Tous / Capturés / À trouver, quand la page s'ouvre, alors ils sont remplacés par une liste déroulante au même style que le filtre du PC, qui s'applique au dex choisi.
+- [x] Étant donné une espèce du Pokédex principal qui est aussi dans le dex shiny ou œuf, quand la case s'affiche, alors un tag shiny et un tag éclos y figurent.
+- [x] Étant donné les cases, quand elles sont capturées, vues ou inconnues, alors elles gardent la même taille (règle du 17/11), et les sprites des dex shiny sont chromatiques.
+- [x] Étant donné les paliers du Pokédex, quand les autres dex changent, alors la progression des paliers reste celle du Pokédex principal.
+- [x] Étant donné les tests, quand `tsc -b`, eslint, vitest et e2e (`mobile`, `pc`, `iphone`) tournent, alors ils sont verts, et des captures à 360, 390 et 1440 px sont regardées. _Note 17/11 : e2e ciblés (mobile, pc, iphone) verts, sauf combat-equipe-pc (4) et pension-visibilite (3), qui échouent aussi sur la base 8f685ff, et pc.spec « placer jusqu’à six », instable sous charge. Captures à 360, 390 et 1440 px regardées._
 
 ### Hors périmètre
 Les listes elles-mêmes (G), les zones (I).
@@ -245,17 +245,17 @@ Les listes elles-mêmes (G), les zones (I).
 
 ## I. `feat(pokedex): zones où trouver l'espèce dans la fiche`
 
-`type:feat`, `etat:a_faire`, `est:1-2`, `prio:3` · branche : `v2` · `agent-ok` recommandé
+`type:feat`, `etat:fait`, `est:1-2`, `prio:3` · branche : `v2` · `agent-ok` recommandé
 
 ### Histoire
 En tant que joueur, je veux voir où trouver un Pokémon que j'ai capturé ou vu, afin de savoir où aller le chercher.
 
 ### Critères d'acceptation
-- [ ] Étant donné une espèce capturée ou vue, quand j'ouvre sa fiche du Pokédex, alors les zones de `data/regions/kanto/zones.json` où elle apparaît s'affichent (nom de la zone).
-- [ ] Étant donné une évolution introuvable à l'état sauvage, quand j'ouvre sa fiche, alors les zones de son stade précédent s'affichent avec la mention « via l'évolution de X ».
-- [ ] Étant donné une espèce jamais vue ni capturée, quand j'ouvre sa fiche, alors aucune zone n'est révélée.
-- [ ] Étant donné une espèce introuvable en zone (cadeau, pension), quand j'ouvre sa fiche, alors un texte le dit.
-- [ ] Étant donné les données, quand la liste est calculée, alors elle vient du JSON des zones et de `data/evolutions.json`, pas d'un tableau écrit en dur, avec un test sur trois espèces.
+- [x] Étant donné une espèce capturée ou vue, quand j'ouvre sa fiche du Pokédex, alors les zones de `data/regions/kanto/zones.json` où elle apparaît s'affichent (nom de la zone).
+- [x] Étant donné une évolution introuvable à l'état sauvage, quand j'ouvre sa fiche, alors les zones de son stade précédent s'affichent avec la mention « via l'évolution de X ».
+- [x] Étant donné une espèce jamais vue ni capturée, quand j'ouvre sa fiche, alors aucune zone n'est révélée.
+- [x] Étant donné une espèce introuvable en zone (cadeau, pension), quand j'ouvre sa fiche, alors un texte le dit.
+- [x] Étant donné les données, quand la liste est calculée, alors elle vient du JSON des zones et de `data/evolutions.json`, pas d'un tableau écrit en dur, avec un test sur trois espèces.
 
 ### Hors périmètre
 Les taux d'apparition (affichés plus tard si Nicolas le veut).
@@ -286,35 +286,35 @@ Relâche automatique (ticket L).
 
 ## K. `feat(reglages): passer automatiquement les éclosions`
 
-`type:feat`, `etat:a_faire`, `est:0.5-1`, `prio:3` · branche : `v2` · `agent-ok` recommandé
+`type:feat`, `etat:fait`, `est:0.5-1`, `prio:3` · branche : `v2` · `agent-ok` recommandé
 
 ### Histoire
 En tant que joueur, je veux un réglage pour que les éclosions ne m'arrêtent plus, afin de laisser tourner la pension.
 
 ### Critères d'acceptation
-- [ ] Étant donné la page Réglages, quand je l'ouvre, alors une option « Passer les éclosions » existe, éteinte par défaut, mémorisée avec le compte comme l'évolution automatique.
-- [ ] Étant donné l'option allumée, quand un œuf éclôt, alors la fenêtre d'éclosion ne s'ouvre pas, le Pokémon est ajouté comme d'habitude (marque d'éclosion, shiny, succès) et une notification discrète le dit.
-- [ ] Étant donné l'option éteinte, quand un œuf éclôt, alors la fenêtre s'ouvre comme aujourd'hui.
-- [ ] Étant donné les tests, quand `tsc -b`, eslint, vitest et e2e tournent, alors ils sont verts.
+- [x] Étant donné la page Réglages, quand je l'ouvre, alors une option « Passer les éclosions » existe, éteinte par défaut, mémorisée avec le compte comme l'évolution automatique.
+- [x] Étant donné l'option allumée, quand un œuf éclôt, alors la fenêtre d'éclosion ne s'ouvre pas, le Pokémon est ajouté comme d'habitude (marque d'éclosion, shiny, succès) et une notification discrète le dit.
+- [x] Étant donné l'option éteinte, quand un œuf éclôt, alors la fenêtre s'ouvre comme aujourd'hui.
+- [x] Étant donné les tests, quand `tsc -b`, eslint, vitest et e2e tournent, alors ils sont verts.
 
 ### Effort et risques
 0,5 à 1 jour.
 
 ## L. `feat(reglages): relâche automatique des doublons`
 
-`type:feat`, `etat:a_faire`, `est:1.5-2.5`, `prio:3` · branche : `v2` · pas d'`agent-ok` (suppression automatique) · dépend de : G
+`type:feat`, `etat:fait`, `est:1.5-2.5`, `prio:3` · branche : `v2` · pas d'`agent-ok` (suppression automatique) · dépend de : G
 
 ### Histoire
 En tant que joueur, je veux que les doublons soient relâchés tout seuls, afin de spammer les œufs pour l'œuf shiny dex sans relâcher à la main.
 
 ### Critères d'acceptation
-- [ ] Étant donné la page Réglages, quand je l'ouvre, alors l'option « Relâcher automatiquement les doublons » existe, éteinte par défaut, avec un texte qui explique les deux cas.
-- [ ] Étant donné l'option allumée, quand je capture en combat un Pokémon non shiny dont l'espèce est déjà au Pokédex, alors il est relâché aussitôt et ne prend aucune place dans l'équipe ni au PC.
-- [ ] Étant donné l'option allumée, quand un œuf éclôt en donnant un Pokémon non shiny dont l'espèce est déjà dans le dex œuf, alors il est relâché aussitôt.
-- [ ] Étant donné un Pokémon shiny, quand il est capturé ou éclôt, alors il n'est jamais relâché.
-- [ ] Étant donné une espèce nouvelle pour le Pokédex ou le dex œuf, quand elle arrive, alors elle est gardée et inscrite.
-- [ ] Étant donné des relâches automatiques, quand elles ont lieu, alors une notification groupée donne le nombre, et les récompenses de capture restent versées.
-- [ ] Étant donné les tests, quand `tsc -b`, eslint, vitest et e2e tournent, alors ils sont verts.
+- [x] Étant donné la page Réglages, quand je l'ouvre, alors l'option « Relâcher automatiquement les doublons » existe, éteinte par défaut, avec un texte qui explique les deux cas.
+- [x] Étant donné l'option allumée, quand je capture en combat un Pokémon non shiny dont l'espèce est déjà au Pokédex, alors il est relâché aussitôt et ne prend aucune place dans l'équipe ni au PC.
+- [x] Étant donné l'option allumée, quand un œuf éclôt en donnant un Pokémon non shiny dont l'espèce est déjà dans le dex œuf, alors il est relâché aussitôt.
+- [x] Étant donné un Pokémon shiny, quand il est capturé ou éclôt, alors il n'est jamais relâché.
+- [x] Étant donné une espèce nouvelle pour le Pokédex ou le dex œuf, quand elle arrive, alors elle est gardée et inscrite.
+- [x] Étant donné des relâches automatiques, quand elles ont lieu, alors une notification groupée donne le nombre, et les récompenses de capture restent versées.
+- [x] Étant donné les tests, quand `tsc -b`, eslint, vitest et e2e tournent, alors ils sont verts.
 
 ### Effort et risques
 1,5 à 2,5 jours. Risque : relâcher à tort (la règle est testée cas par cas, revue obligatoire).

@@ -6,6 +6,12 @@ import { sexeEspece } from './sexe';
 import type { DonneesCompte, DonneesPartie, DonneesRegion, Enveloppe, MainBlackjack, MainBlackjackAncienne, Niveau, PokemonPossede } from './sauvegarde-types';
 
 type Validateur = (valeur: unknown) => void;
+function validerCollectionShiny(valeur: unknown): void {
+  liste(positif)(valeur);
+  const especes = valeur as number[];
+  exiger(new Set(especes).size === especes.length, 'Espèces chromatiques : doublon');
+  exiger(especes.every(n => n <= reglages.pension.especesTirees), 'Espèces chromatiques : numéro inconnu');
+}
 export function exiger(condition: unknown, raison: string): asserts condition {
   if (!condition) throw new Error(raison);
 }
@@ -67,7 +73,7 @@ export function validerPokemonPossede(v: unknown): asserts v is PokemonPossede {
 }
 export function validerDonneesCompte(v: unknown): asserts v is DonneesCompte {
   forme(v, { diamants: entier, succes: textes, skins: textes,
-    preferences: p => forme(p, {}, { sombre: booleen, sonActive: booleen, autoAttaque: booleen, autoClicLie: booleen, evolutionAuto: booleen,
+    preferences: p => forme(p, {}, { sombre: booleen, sonActive: booleen, autoAttaque: booleen, autoClicLie: booleen, evolutionAuto: booleen, passerEclosions: booleen, relacherDoublons: booleen,
       // Lue avec indulgence : une balle inconnue ou illisible retombe sur la balle par défaut, jamais sur un compte refusé.
       balleChoisie: () => undefined,
       arretAuto: a => forme(a, { actif: booleen, commun: booleen, peuCommun: booleen, rare: booleen,
@@ -160,6 +166,8 @@ export function validerDonneesRegion(v: unknown): asserts v is DonneesRegion {
       file: liste(identifiant) }),
     blackjackEnCours: validerBlackjackEnCours,
     sabotBlackjack: s => validerSabot(s),
+    especesShiny: validerCollectionShiny,
+    especesEclosesShiny: validerCollectionShiny,
     especesEcloses: e => {
       liste(positif)(e);
       const especes = e as number[];

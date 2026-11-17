@@ -1,6 +1,6 @@
 import donnees from '../../data/evolutions.json';
 import type { ResultatEquipe } from './equipe';
-import { noterEclosion } from './pension';
+import { noterObtention } from './dex';
 import type { DonneesRegion, PokemonPossede } from './sauvegarde-types';
 
 export type Evolutions = {
@@ -73,7 +73,7 @@ function appliquer(region: DonneesRegion, pokemon: PokemonPossede, vers: number)
   return {
     ok: true,
     // Un Pokémon à marque d'éclosion fait entrer chaque espèce atteinte dans la liste des éclos.
-    region: pokemon.marqueEclosion ? noterEclosion(evolue, vers) : evolue,
+    region: noterObtention(evolue, vers, { shiny: pokemon.shiny, eclos: pokemon.marqueEclosion }),
     evolution: { uid: pokemon.uid, de: pokemon.numero, vers },
   };
 }

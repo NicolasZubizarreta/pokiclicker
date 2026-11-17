@@ -1,6 +1,7 @@
 import type { Rarete } from './monde';
 import { chargerPokemon } from './pokemon';
-import { avancerOeuf, noterEclosion } from './pension';
+import { avancerOeuf } from './pension';
+import { noterObtention } from './dex';
 import { reglages } from './reglages';
 import type { Bonus } from './reglages';
 import type { DonneesRegion } from './sauvegarde-types';
@@ -64,7 +65,7 @@ export function appliquerVictoire(region: DonneesRegion, v: Victoire, actifs: re
   const xp = calculerXp(v, actifs);
   const bonbons = v.shiny ? t.shiny.quantite : 0;
   const montees: { uid: string; niveau: number }[] = [];
-  const eclosions: { uid: string; numero: number }[] = [];
+  const eclosions: { uid: string; numero: number; shiny: boolean }[] = [];
   const equipe = region.equipe.map((original) => {
     const membre = { ...original };
     if (membre.oeuf === undefined && membre.niveau < t.niveauMax) {
@@ -81,7 +82,7 @@ export function appliquerVictoire(region: DonneesRegion, v: Victoire, actifs: re
       membre.bonheur += t.bonheur.gain;
     }
     const apres = avancerOeuf(membre);
-    if (membre.oeuf && !apres.oeuf) eclosions.push({ uid: apres.uid, numero: apres.numero });
+    if (membre.oeuf && !apres.oeuf) eclosions.push({ uid: apres.uid, numero: apres.numero, shiny: apres.shiny });
     return apres;
   });
   const inventaire = { ...region.inventaire };
@@ -95,7 +96,7 @@ export function appliquerVictoire(region: DonneesRegion, v: Victoire, actifs: re
     },
   };
   return {
-    region: eclosions.reduce((r, { numero }) => noterEclosion(r, numero), suivante),
+    region: eclosions.reduce((r, { numero, shiny }) => noterObtention(r, numero, { shiny, eclos: true }), suivante),
     or, xp, bonbons, montees, eclosions,
   };
 }

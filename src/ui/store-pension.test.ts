@@ -7,6 +7,27 @@ import { compteInitial, creerGestionnaire, creerStockageMemoire, type DonneesReg
 import { creerStoreJeu, type StoreJeu } from './store';
 
 const stores: StoreJeu[] = [];
+
+it('saute la fenêtre, conserve la collection et crédite le palier avec la préférence persistée', () => {
+  const p = preparer(region => ({ ...region, especesEcloses: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+    equipe: [...region.equipe, { ...pokemon('oeuf', 133), shiny: true, niveau: 1,
+      oeuf: { pasRestants: 1, pasMax: 25 } }] }));
+  expect(p.store.getState().passerEclosions).toBe(false);
+  p.store.getState().reglerPasserEclosions(true);
+  p.store.getState().arreter();
+  const reprise = p.ouvrir();
+  expect(reprise.getState().passerEclosions).toBe(true);
+  reprise.getState().allerVers('kanto.route-1');
+  p.victoire(reprise);
+  expect(reprise.getState().eclosion).toBeNull();
+  expect(reprise.getState().equipe.find(p => p?.pokemon.uid === 'oeuf')?.pokemon).toMatchObject({ marqueEclosion: true, shiny: true });
+  expect(reprise.getState().pension.especesEcloses).toContain(133);
+  expect(reprise.getState().annonce).toContain('Évoli éclot !');
+  expect(reprise.getState().annonce).toContain('Chromatique !');
+  expect(reprise.getState().annonce).toContain('Nouvelle espèce');
+  expect(p.gestionnaire.chargerCompte()!.donnees.succes).toContain('eclosions-10');
+  expect(p.gestionnaire.chargerCompte()!.donnees.diamants).toBeGreaterThanOrEqual(10);
+});
 beforeEach(() => vi.useFakeTimers());
 afterEach(() => {
   stores.forEach(store => store.getState().arreter());
@@ -85,6 +106,8 @@ it('pond après une victoire, retire l’œuf, avance et éclot à la 50e victoi
   expect(p.store.getState().eclosion).toEqual({ uid: oeuf.uid, numero: 25, nom: 'Pikachu', shiny: true, sexe: 'male', niveau: 1,
     bonheur: 125, marquePourcent: 5, nouvelleEspece: true, especesEcloses: 1, paliersGagnes: [] });
   expect(p.store.getState().pension.especesEcloses).toEqual([25]);
+  expect(p.store.getState().especesShiny).toContain(25);
+  expect(p.store.getState().pension.especesEclosesShiny).toContain(25);
   expect(p.store.getState().equipe.find(p => p?.pokemon.uid === oeuf.uid)?.pokemon.marqueEclosion).toBe(true);
   p.store.getState().fermerEclosion();
   expect(p.store.getState().eclosion).toBeNull();

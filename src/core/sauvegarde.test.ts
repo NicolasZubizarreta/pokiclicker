@@ -21,7 +21,7 @@ import type { MainBlackjack } from './sauvegarde-types';
 
 // Les espèces des fixtures v2 (1 et 25) ne figurent dans aucune liste à sexe fixe.
 const v3 = { ...v2, version: 4, donnees: { ...v2.donnees, vus: [1, 25] } };
-const regionV3 = { ...regionV2, version: 4 };
+const regionV3 = { ...regionV2, version: 4, donnees: { ...regionV2.donnees, especesShiny: [25] } };
 const compteV3 = { ...compteV2, version: 4 };
 
 const pokemon: PokemonPossede = { uid: 'bulbizarre', numero: 1, niveau: 5, xp: 12, shiny: true,
@@ -300,7 +300,7 @@ describe('préférences de combat du compte', () => {
       skins: ['rouge'], preferences: { sombre: true, sonActive: false } });
     const options = { stockage, horloge, genererId: () => 'nouvelle' };
     const session = ouvrirPartie(options);
-    const preferences = { autoAttaque: false, autoClicLie: false, evolutionAuto: false, balleChoisie: 'hyperball',
+    const preferences = { autoAttaque: false, autoClicLie: false, evolutionAuto: false, passerEclosions: true, relacherDoublons: true, balleChoisie: 'hyperball',
       arretAuto: { ...reglages.depart.preferences.arretAuto, rare: false } };
     const avant = structuredClone(preferences);
     const ecrire = vi.spyOn(stockage, 'ecrire');
@@ -328,6 +328,8 @@ describe('préférences de combat du compte', () => {
       const session = ouvrirPartie({ stockage, horloge, genererId: () => 'nouvelle' });
       expect(session.preferences.balleChoisie).toBe(attendue);
       expect(session.preferences.evolutionAuto).toBe(true);
+      expect(session.preferences.passerEclosions).toBe(false);
+      expect(session.preferences.relacherDoublons).toBe(false);
     }
   });
 });
@@ -345,7 +347,7 @@ describe('sauvegarde à trois niveaux', () => {
     const compte = { ...compteInitial(), diamants: 18, succes: ['premier'], skins: ['rouge'], preferences: { sombre: true, sonActive: false } };
     const partie = jeu.creerPartie('Épopée', 'kanto.bourg-palette');
     const donnees = { ...partie.donnees, pcGlobal: [pokemon], pokedexNational: [1], statistiques: { victoires: 10, argentTotalGagne: 500 } };
-    const region: DonneesRegion = { ...regionInitiale('kanto', 'kanto.route-1'), equipe: [pokemon], argent: 70,
+    const region: DonneesRegion = { ...regionInitiale('kanto', 'kanto.route-1'), equipe: [pokemon], especesShiny: [1], argent: 70,
       inventaire: { pokeball: 3 }, badges: ['roche'], bossVaincus: ['pierre'], objetsCles: ['carte'],
       quetes: ['chen'], drapeaux: ['intro'], evenementsJoues: ['depart'], ligueGagnee: 1 };
     expect(jeu.ecrireCompte(compte).revision).toBe(1);

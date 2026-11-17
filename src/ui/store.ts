@@ -1,4 +1,5 @@
 import { createStore } from 'zustand/vanilla';
+import * as dex from '../core/dex';
 import { creerHorlogeSysteme } from '../core/clock';
 import type { Horloge } from '../core/clock';
 import { avancerCombat, calculerClic, calculerDpsEquipe, cliquer, creerCombat, creerLimiteurClics,
@@ -47,6 +48,7 @@ import { afficherProgression, phaseObtention, type AffichageProgression, type Ph
 import { afficherEffets, afficherFauchage, type EffetsAffiches, type FauchageAffiche } from './store-objets';
 import { afficherBoutique, afficherCentre, afficherSac, type AffichageBoutique, type AffichageSac } from './store-boutique';
 import { construireEclosions, signalerPremiereEntreePension, type EclosionAffichee } from './store-pension';
+import { estDoublonCapture, capturerDoublon, doublonsEclos, retirerDeLEquipe } from '../core/relache-auto';
 import { afficherCasino, signalerPremiereEntreeCasino, type ActionsCasino, type AffichageCasino } from './store-casino';
 import { detailErreur, ouvrirPartie } from './persistance';
 import { creerStockageLocal } from './stockage-local';
@@ -100,6 +102,8 @@ export type AffichageJeu = ActionsCasino & {
   evolution: EvolutionAffichee | null;
   /** Évolution automatique : une fenêtre propose d'évoluer (réglage du compte, active par défaut). */
   evolutionAuto: boolean; reglerEvolutionAuto(actif: boolean): void;
+  passerEclosions: boolean; reglerPasserEclosions(actif: boolean): void;
+  relacherDoublons: boolean; reglerRelacherDoublons(actif: boolean): void;
   modalEvolution: ModalEvolution | null;
   /** Bouton « Évoluer » : ouvre la fenêtre si l'option est active, sinon évolue tout de suite (animation dans le cadre). */
   demanderEvolution(uid: string, pierre?: string): string | null;
@@ -112,7 +116,7 @@ export type AffichageJeu = ActionsCasino & {
   nomAdversaire: string | null; ligueGagnee: number;
   equipe: CaseEquipe[]; dps: number; erreur: string | null;
   statistiques: Statistique[];
-  pc: PokemonPossede[]; pokedex: readonly number[]; vus: readonly number[];
+  pc: PokemonPossede[]; pokedex: readonly number[]; vus: readonly number[]; especesShiny: readonly number[];
   accesPc: { ouvert: boolean; raison: string | null };
   pension: {
     acces: { ouvert: boolean; raison: string | null }; parents: PokemonPossede[]; oeufs: PokemonPossede[];
@@ -122,6 +126,7 @@ export type AffichageJeu = ActionsCasino & {
     nouveau: boolean;
     /** Espèces (formes de base) déjà écloses, dans l'ordre de première éclosion. */
     especesEcloses: readonly number[];
+    especesEclosesShiny: readonly number[];
   };
   /** Éclosion à mettre en scène (la première de la file), `null` sinon ; les suivantes attendent la fermeture. */
   eclosion: EclosionAffichee | null;
@@ -343,6 +348,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     let important = false;
     const bossBattus: string[] = [];
     const messagesCapture: string[] = [];
+    let doublonsRelaches = 0;
     for (const evenement of coeur.evenements) {
       if (evenement.type === 'arret-auto') {
         banniere = banniereArret(evenement.motif);
@@ -353,6 +359,11 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       if (evenement.type === 'capture-reussie') {
         emettreSon('catch');
         emettreGain({ type: 'capture', lignes: [evenement.shiny ? 'Chromatique !' : 'Capturé !'] });
+        if (preferences.relacherDoublons && estDoublonCapture(pokedex, evenement.numero, evenement.shiny)) {
+          region = capturerDoublon(region, evenement, coeur.actifs);
+          doublonsRelaches++;
+          continue;
+        }
         const resultat = appliquerCapture(region, evenement, coeur.actifs, alea, genererId);
         region = resultat.region;
         if (evenement.shiny) important = true;
@@ -366,9 +377,17 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         const especesAvant = pension.especesEcloses(region);
         const r = appliquerVictoire(region, evenement, coeur.actifs);
         region = r.region;
+        if (preferences.relacherDoublons) {
+          const uids = doublonsEclos(especesAvant, r.eclosions);
+          const avant = region.equipe.length;
+          region = retirerDeLEquipe(region, uids);
+          doublonsRelaches += avant - region.equipe.length;
+          coeur = { ...coeur, equipe: region.equipe.map(versMembreEquipe) };
+        }
+        const eclosionsGardees = r.eclosions.filter(e => region.equipe.some(p => p.uid === e.uid));
         emettreGain({ type: 'butin', lignes: [`+${r.or.toLocaleString('fr-FR')} ₽`, `+${r.xp.toLocaleString('fr-FR')} XP`] });
         if (r.montees.length > 0 || r.eclosions.length > 0) emettreSon('up'); // le ton « up » de la V1 sonne aussi à l'éclosion
-        fileEclosions.push(...construireEclosions(especesAvant, r.region, r.eclosions));
+        if (!preferences.passerEclosions) fileEclosions.push(...construireEclosions(especesAvant, region, eclosionsGardees));
         if (pension.accesPension(kanto, etatMondeDe(region)).ouvert) {
           const suivante = pension.pondre(region, alea, genererId);
           if (suivante !== region) sauvegarder = true;
@@ -377,7 +396,12 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         const messages: string[] = [];
         for (const eclosion of r.eclosions) {
           noterDansPokedex(eclosion.numero, messages);
+          if (!eclosionsGardees.some(e => e.uid === eclosion.uid)) continue;
           messages.push(reglages.pension.messages.eclosion.replace('{nom}', catalogue.parNumero(eclosion.numero).nom));
+          if (preferences.passerEclosions) {
+            if (region.equipe.find(p => p.uid === eclosion.uid)?.shiny) messages.push('Chromatique !');
+            if (!especesAvant.includes(eclosion.numero)) messages.push('Nouvelle espèce');
+          }
         }
         if (r.montees.length === 1) {
           const montee = r.montees[0]!;
@@ -449,6 +473,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         if (estZoneDeLigue(coeur.zone)) sauvegarder = true;
       }
     }
+    if (doublonsRelaches > 0) messagesCapture.push(`${doublonsRelaches} doublon${doublonsRelaches > 1 ? 's relâchés' : ' relâché'}`);
     if (messagesCapture.length) { annonce = messagesCapture.join(' · '); finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs; }
     if (coeur) {
       if (preferences.autoAttaque !== coeur.autoAttaque) { preferences = { ...preferences, autoAttaque: coeur.autoAttaque }; sauvegarder = true; }
@@ -535,6 +560,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       prochainEmplacement: prix === null ? null : { prix, raison: region.argent < prix ? "Pas assez d'argent." : null },
       nouveau: accesPension.ouvert && !pension.pensionVisitee(region),
       especesEcloses: pension.especesEcloses(region),
+      especesEclosesShiny: dex.especesEclosesShiny(region),
     };
     const ouvertes = new Set(kanto.zonesOuvertes(etatMonde).filter(zone => acces(zone.id).ok).map(zone => zone.id));
     const carte: AffichageJeu['carte'] = {
@@ -596,7 +622,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         && precedent.autoClic.actif === (coeur?.autoClic ?? false) ? precedent.autoClic
         : { possede: region.ameliorations.includes('leftovers'), actif: coeur?.autoClic ?? false },
       autoAttaque: preferences.autoAttaque, autoClicLie: preferences.autoClicLie, arretAuto: preferences.arretAuto,
-      pc: region.pc, pokedex, vus,
+      pc: region.pc, pokedex, vus, especesShiny: dex.especesShiny(region),
       pension: JSON.stringify(affichagePension) === JSON.stringify(precedent.pension) ? precedent.pension : affichagePension,
       accesPc: accesAuPc.ouvert === precedent.accesPc.ouvert && accesAuPc.raison === precedent.accesPc.raison
         ? precedent.accesPc : accesAuPc,
@@ -606,6 +632,8 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       statistiques: calculerStatistiques(region, maintenant),
       evolution: afficherEvolution(evolutionEnCours, finEvolutionMs, tempsJeuMs),
       modalEvolution, evolutionAuto: preferences.evolutionAuto,
+      passerEclosions: preferences.passerEclosions,
+      relacherDoublons: preferences.relacherDoublons,
       eclosion: fileEclosions[0] ?? null,
       argent: region.argent, enRecherche: (coeur?.attenteMs ?? 0) > 0 && !coeur?.attenteCapture, cache: (coeur?.attenteMs ?? 0) > 0, annonce, banniere,
       deblocage: deblocageEnCours?.texte ?? null, deblocageCarte: deblocageEnCours?.carte ?? null, sonActive, echange,
@@ -1037,6 +1065,18 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       return modifierEquipe(region => evoluerEquipe(region, uid));
     },
     evolutionAuto: preferences.evolutionAuto, modalEvolution: null,
+    passerEclosions: preferences.passerEclosions,
+    relacherDoublons: preferences.relacherDoublons,
+    reglerRelacherDoublons(actif) {
+      if (!initialise) return;
+      preferences = { ...preferences, relacherDoublons: actif };
+      enregistrer(); afficher();
+    },
+    reglerPasserEclosions(actif) {
+      if (!initialise) return;
+      preferences = { ...preferences, passerEclosions: actif };
+      enregistrer(); afficher();
+    },
     reglerEvolutionAuto(actif) {
       if (!initialise) return;
       preferences = { ...preferences, evolutionAuto: actif };
@@ -1155,10 +1195,10 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     nomAdversaire: null, ligueGagnee: 0,
     erreur: null, erreurChargement: false, zonePrecedente: null, zoneSuivante: null, evenementsDegats: [],
     evolution: null, argent: 0, enRecherche: false, cache: false, annonce: null, banniere: null, deblocage: null, deblocageCarte: null, echange: null,
-    pc: [], pokedex, vus: [], accesPc: { ouvert: false, raison: reglages.pc.raison },
+    pc: [], pokedex, vus: [], especesShiny: [], accesPc: { ouvert: false, raison: reglages.pc.raison },
     pension: { acces: { ouvert: false, raison: null }, parents: [], oeufs: [],
       emplacements: reglages.depart.region.pension.emplacementsOeuf, emplacementsMax: reglages.pension.emplacementsMax,
-      chance: 0, prochainEmplacement: null, nouveau: false, especesEcloses: [] },
+      chance: 0, prochainEmplacement: null, nouveau: false, especesEcloses: [], especesEclosesShiny: [] },
     eclosion: null,
     fermerEclosion() {
       if (fileEclosions.length === 0) return;

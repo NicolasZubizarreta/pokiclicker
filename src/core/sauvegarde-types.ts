@@ -19,7 +19,7 @@ export type ReglagesArret = {
 };
 /** `balleChoisie` : clé de la dernière balle choisie dans le combat ; absente tant que le joueur n'en a pas choisi. */
 export type PreferencesCombat = { autoAttaque: boolean; autoClicLie: boolean; arretAuto: ReglagesArret;
-  evolutionAuto: boolean; balleChoisie?: string };
+  evolutionAuto: boolean; passerEclosions: boolean; relacherDoublons: boolean; balleChoisie?: string };
 export type DonneesCompte = {
   diamants: number; succes: string[]; skins: string[];
   preferences: { sombre?: boolean; sonActive?: boolean } & Partial<PreferencesCombat>;
@@ -81,6 +81,10 @@ export type DonneesRegion = {
   plusOuMoinsCarte?: number;
   /** Numéros des espèces (forme de base) déjà écloses d'un œuf, chacune une seule fois. Absent = aucune connue. */
   especesEcloses?: number[];
+  /** Espèces obtenues chromatiques, dans l'ordre de première obtention ; absente = vide. */
+  especesShiny?: number[];
+  /** Espèces écloses chromatiques, dans l'ordre de première obtention ; absente = vide. */
+  especesEclosesShiny?: number[];
   arretAuto: {
     commun: boolean; peuCommun: boolean; rare: boolean; tresRare: boolean;
     legendaire: boolean; shiny: boolean; nouveau: boolean;

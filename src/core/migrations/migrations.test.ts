@@ -10,6 +10,25 @@ import compteV1 from './__fixtures__/compte-v1.json';
 import compteV2 from './__fixtures__/compte-v2.json';
 import { migrer, rattraperEspecesEcloses, migrerV1versV2, migrerV2versV3, migrerV3versV4, migrationsParDefaut } from './index';
 import { VERSION_ACTUELLE } from '../sauvegarde-types';
+import { rattraperDex } from './index';
+
+it('rattrape les shiny possédés et la lignée des éclos shiny sans toucher aux œufs', () => {
+  const source = { equipe: [{ numero: 26, shiny: true }, { numero: 7, marqueEclosion: true }],
+    pc: [{ numero: 3, shiny: true, marqueEclosion: true }],
+    pension: { parents: [{ numero: 4, shiny: true }], oeufs: [{ numero: 8, shiny: true }] },
+    especesShiny: [151] };
+  const resultat = rattraperDex(source);
+  expect(resultat).toMatchObject({ especesShiny: [151, 26, 1, 2, 3, 4], especesEclosesShiny: [1, 2, 3] });
+  expect(rattraperDex(resultat)).toBe(resultat);
+  expect(source.especesShiny).toEqual([151]);
+  expect(migrer({ version: VERSION_ACTUELLE, niveau: 'region', donnees: source } as Parameters<typeof migrer>[0]).donnees).toMatchObject({ especesEclosesShiny: [1, 2, 3] });
+});
+
+it.each([null, [], 3, {}, { equipe: [null, 3, {}, { numero: 999, shiny: true },
+  { numero: 1, shiny: true, oeuf: {} }, { numero: 2, marqueEclosion: true }], pc: false, pension: null }])(
+  'tolère les données mal formées et conserve la référence sans ajout (%j)', source => {
+    expect(rattraperDex(source)).toBe(source);
+  });
 import { partieInitiale, regionInitiale } from '../sauvegarde';
 import type { Enveloppe } from '../sauvegarde-types';
 import { validerEnveloppe, validerPokemonPossede } from '../sauvegarde-validation';
@@ -157,7 +176,8 @@ describe('marche 1 → 2', () => {
     const avant = structuredClone(source);
     const resultat = migrer(source as Enveloppe<unknown>);
     expect(resultat).toEqual({ ...attendu, version: 4,
-      donnees: niveau === 'partie' ? { ...attendu.donnees, vus: [1, 25] } : attendu.donnees });
+      donnees: niveau === 'partie' ? { ...attendu.donnees, vus: [1, 25] }
+        : niveau === 'region' ? { ...attendu.donnees, especesShiny: [25] } : attendu.donnees });
     const fichier = readFileSync(new URL(`./__fixtures__/${niveau}-v2.json`, import.meta.url), 'utf8');
     const intermediaire = { ...source, version: 2, donnees: migrerV1versV2(source.donnees, niveau) };
     expect(`${JSON.stringify(intermediaire, null, 2)}\n`).toBe(fichier.replace(/\r\n/g, '\n'));
@@ -207,7 +227,7 @@ describe('marche 1 → 2', () => {
     resultat.arretAuto.rare = false;
     resultat.pc.length = 1;
     expect(source).toEqual(avant);
-    expect(migrer(regionV1 as Enveloppe<unknown>)).toEqual({ ...regionV2, version: 4 });
+    expect(migrer(regionV1 as Enveloppe<unknown>)).toEqual({ ...regionV2, version: 4, donnees: { ...regionV2.donnees, especesShiny: [25] } });
     expect(migrerV1versV2(compteV1.donnees, 'compte')).toBe(compteV1.donnees);
   });
 });
@@ -236,9 +256,9 @@ describe('rattrapage des espèces écloses', () => {
   });
 
   it('laisse intacte une région sans Pokémon à marque, ou déjà à jour', () => {
-    const sans = enveloppe({ equipe: [{ ...marque(3), marqueEclosion: undefined }] });
+    const sans = enveloppe({ especesShiny: [25, 3], equipe: [{ ...marque(3), marqueEclosion: undefined }] });
     expect(migrer(sans)).toEqual(sans);
-    const ajour = enveloppe({ especesEcloses: [1, 2, 3], equipe: [marque(3)] });
+    const ajour = enveloppe({ especesEcloses: [1, 2, 3], especesShiny: [25, 1, 2, 3], especesEclosesShiny: [1, 2, 3], equipe: [marque(3)] });
     expect(migrer(ajour)).toEqual(ajour);
     expect(rattraperEspecesEcloses(null)).toBeNull();
     expect(rattraperEspecesEcloses([1])).toEqual([1]);
