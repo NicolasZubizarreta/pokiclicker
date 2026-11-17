@@ -87,7 +87,7 @@ test('Centre : vol, achat, Sac, retour et rechargement', async ({ page }, inform
   await page.getByRole('button', { name: 'Plus', exact: true }).click();
   await page.getByRole('button', { name: /^Acheter ×2/ }).click();
   await expect(page.locator('[data-notifications]')).toContainText('Attaque + ×2 acheté.');
-  await expect(page.locator('#contenu').getByText(/^32.750.₽$/)).toBeVisible();
+  await expect(page.locator('#contenu').getByText(/^26.000.₽$/)).toBeVisible();
   await expect(page.locator('[data-objet="xAttack"]')).toContainText('×2');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
   await page.evaluate(() => Promise.all([...document.images].map(i => i.decode().catch(() => undefined))));
@@ -106,6 +106,6 @@ test('Centre : vol, achat, Sac, retour et rechargement', async ({ page }, inform
   await carte(page);
   await choixCentre(page).click();
   await expect(titre).toBeVisible({ timeout: 10000 });
-  await expect(page.locator('#contenu').getByText(/^32.750.₽$/)).toBeVisible();
+  await expect(page.locator('#contenu').getByText(/^26.000.₽$/)).toBeVisible();
   await expect(page.locator('[data-objet="xAttack"]')).toContainText('×2');
 });

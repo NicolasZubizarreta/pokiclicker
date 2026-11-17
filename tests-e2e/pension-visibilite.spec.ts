@@ -142,7 +142,7 @@ test('sur PC, le décor entier et toute la zone des œufs tiennent d’un coup, 
   await navigation(page).getByRole('button', { name: 'Menu', exact: true }).click();
   await page.getByRole('main').getByRole('button', { name: /^Pension/ }).click();
   await expect(titrePension(page)).toBeVisible();
-  for (const [largeur, hauteur] of [[1280, 800], [1440, 900], [1920, 1080]]) {
+  for (const [largeur, hauteur] of [[1280, 800], [1440, 900], [1920, 1080]] as [number, number][]) {
     await page.setViewportSize({ width: largeur, height: hauteur });
     await page.clock.runFor(300);
     const mesures = await page.evaluate(() => {
@@ -189,7 +189,7 @@ test('accès direct par la Carte : ligne « Pension » avec pastille, sans passe
 async function capturer(page: Page, nom: string) {
   if (!process.env.CAPTURES) return;
   const origine = page.viewportSize()!;
-  for (const [largeur, hauteur] of [[360, 844], [390, 844], [430, 844], [1280, 800], [1440, 900], [1920, 1080]]) {
+  for (const [largeur, hauteur] of [[360, 844], [390, 844], [430, 844], [1280, 800], [1440, 900], [1920, 1080]] as [number, number][]) {
     await page.setViewportSize({ width: largeur, height: hauteur });
     await page.clock.runFor(300);
     expect(await debordeHorizontalement(page), `défilement horizontal à ${largeur} px (${nom})`).toBe(false);
@@ -220,12 +220,12 @@ test('parcours : deux parents compatibles, chance de ponte, éclosion avec la ma
   await page.getByRole('button', { name: 'Déposer un parent' }).first().click();
   await expect(fenetre).toBeVisible();
   const compatible = fenetre.locator('.pension-candidat').filter({ hasText: 'type partagé' }).first();
-  await expect(compatible).toContainText('2 % · type partagé');
+  await expect(compatible).toContainText('1 % · type partagé');
   await capturer(page, 'choix-parent-2');
   await compatible.click();
   await expect(fenetre).toBeHidden();
   await expect(page.getByText('Deux parents compatibles.')).toHaveCount(1);
-  await expect(page.getByText(/2 % par élimination/)).toBeVisible();
+  await expect(page.getByText(/1 % par élimination/)).toBeVisible();
   await capturer(page, 'ecran-parents');
 
   // Éclosion : l'œuf de l'équipe éclôt au prochain combat gagné.

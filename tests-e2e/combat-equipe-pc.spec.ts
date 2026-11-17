@@ -144,7 +144,7 @@ test('équipe PC : le dessin du sprite (sans ses lignes vides) reste dans le cad
   await demarrer(page, 1280, 800);
   await page.keyboard.press('2');
   await expect(page.getByRole('heading', { name: 'Ton équipe' })).toBeVisible();
-  for (const [largeur, hauteur] of [[1100, 700], [1366, 768], ...TAILLES]) {
+  for (const [largeur, hauteur] of [[1100, 700], [1366, 768], ...TAILLES] as [number, number][]) {
     await page.setViewportSize({ width: largeur, height: hauteur });
     const hors = await page.locator('.equipe-pc .portrait').evaluateAll(portraits => portraits.map(p => {
       const cadre = p.getBoundingClientRect(), image = p.querySelector('img')!.getBoundingClientRect();
