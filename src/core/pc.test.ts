@@ -48,22 +48,45 @@ describe('DPS du PC', () => {
 
 describe('filtrerParAttributs', () => {
   it.each([
-    [{ favori: false, shiny: false, oeuf: false }, ['a', 'b', 'c', 'd', 'e', 'f', 'g']],
-    [{ favori: true, shiny: false, oeuf: false }, ['b', 'd', 'g']],
-    [{ favori: false, shiny: true, oeuf: false }, ['c', 'd', 'f']],
-    [{ favori: true, shiny: true, oeuf: false }, ['d']],
-  ])('combine les filtres actifs : %o', (filtres, attendu) => {
-    const resultat = filtrerParAttributs(pc, filtres);
+    ['tous', ['a', 'b', 'c', 'd', 'e', 'f', 'g']],
+    ['favori', ['b', 'd', 'g']],
+    ['shiny', ['c', 'd', 'f']],
+  ] as const)('filtre %s', (filtre, attendu) => {
+    const resultat = filtrerParAttributs(pc, filtre);
     expect(uids(resultat)).toEqual(attendu);
     expect(resultat).not.toBe(pc);
   });
 
-  it('filtre les oeufs et combine leurs attributs', () => {
+  it('filtre les oeufs', () => {
     const oeuf = { ...pc[0]!, uid: 'oeuf', oeuf: { pasRestants: 5, pasMax: 5 } };
-    const oeufFavori = { ...oeuf, uid: 'favori', favori: true };
-    const liste = [pc[0]!, oeuf, oeufFavori];
-    expect(uids(filtrerParAttributs(liste, { favori: false, shiny: false, oeuf: true }))).toEqual(['oeuf', 'favori']);
-    expect(uids(filtrerParAttributs(liste, { favori: true, shiny: false, oeuf: true }))).toEqual(['favori']);
+    expect(uids(filtrerParAttributs([pc[0]!, oeuf], 'oeuf'))).toEqual(['oeuf']);
+  });
+
+  describe('évolution à découvrir', () => {
+    const espece = (uid: string, numero: number) => pokemon(uid, numero, 5, 'X');
+    const liste = [
+      espece('rattata', 19), espece('raticate', 20), espece('evoli', 133), espece('pikachu', 25),
+      espece('dracaufeu', 6), espece('salameche', 4), { ...espece('oeuf', 19), oeuf: { pasRestants: 5, pasMax: 5 } },
+      { ...espece('stase', 19), pierreEternelle: true },
+    ];
+    const selection = (vus: number[]) => uids(filtrerParAttributs(liste, 'evolution', new Set(vus)));
+
+    it('garde le Pokémon dont l’évolution directe manque au Pokédex', () => {
+      expect(selection([19])).toContain('rattata');
+      expect(selection([19, 20])).not.toContain('rattata');
+    });
+    it('ne montre ni les Pokémon sans évolution, ni les œufs, ni la Pierre Stase', () => {
+      expect(selection([])).toEqual(['rattata', 'evoli', 'pikachu', 'salameche']);
+    });
+    it('avec plusieurs évolutions, reste affiché tant qu’il en manque une', () => {
+      expect(selection([134, 135])).toContain('evoli');
+      expect(selection([134, 135, 136])).not.toContain('evoli');
+    });
+    it('ne regarde que l’évolution directe', () => {
+      expect(selection([6])).toContain('salameche');
+      expect(selection([5])).not.toContain('salameche');
+      expect(selection([])).not.toContain('dracaufeu');
+    });
   });
 });
 

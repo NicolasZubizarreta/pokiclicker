@@ -3,6 +3,7 @@ import type { chargerMonde } from './monde';
 import { reglages } from './reglages';
 import type { PokemonPossede } from './sauvegarde-types';
 import { detailDps } from './equipe';
+import { evolutionsDirectes } from './evolution';
 
 export type TriPc = 'dps' | 'numero' | 'nom' | 'niveau' | 'favori' | 'shiny';
 
@@ -10,8 +11,22 @@ export function dpsPc(pokemon: PokemonPossede): number {
   return pokemon.oeuf ? 0 : Object.values(detailDps(pokemon, 1)).reduce((produit, facteur) => produit * facteur, 1);
 }
 
-export function filtrerParAttributs<P extends PokemonPossede>(pc: readonly P[], filtres: { favori: boolean; shiny: boolean; oeuf: boolean }): P[] {
-  return pc.filter(pokemon => (!filtres.favori || pokemon.favori) && (!filtres.shiny || pokemon.shiny) && (!filtres.oeuf || pokemon.oeuf));
+export type FiltrePc = 'tous' | 'favori' | 'shiny' | 'oeuf' | 'evolution';
+
+// Vrai si une évolution directe du Pokémon manque au Pokédex (capturés) : en l'évoluant, le Pokédex grandit.
+// Un œuf ou un Pokémon sous Pierre Stase ne peut pas évoluer.
+export function evolutionAFaireDecouvrir(pokemon: PokemonPossede, pokedex: ReadonlySet<number>): boolean {
+  return !pokemon.oeuf && !pokemon.pierreEternelle && evolutionsDirectes(pokemon.numero).some(vers => !pokedex.has(vers));
+}
+
+export function filtrerParAttributs<P extends PokemonPossede>(pc: readonly P[], filtre: FiltrePc, pokedex: ReadonlySet<number> = new Set()): P[] {
+  switch (filtre) {
+    case 'favori': return pc.filter(pokemon => pokemon.favori);
+    case 'shiny': return pc.filter(pokemon => pokemon.shiny);
+    case 'oeuf': return pc.filter(pokemon => pokemon.oeuf);
+    case 'evolution': return pc.filter(pokemon => evolutionAFaireDecouvrir(pokemon, pokedex));
+    case 'tous': return [...pc];
+  }
 }
 
 const collateur = new Intl.Collator('fr');

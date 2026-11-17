@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { chargerPokemon } from '../core/pokemon';
 import { trierPc, type TriPc } from '../core/pc';
@@ -55,17 +55,33 @@ it('trie par DPS et conserve les DPS après un autre tri sur PC', () => {
   expect(within(cartes()[0]!).getByText(/ DPS$/)).toBeTruthy();
 });
 
-it.each(['Favoris', 'Shiny', 'Œufs'])('filtre %s et efface les filtres et la recherche', filtre => {
+it.each([['Favoris', 'favori'], ['Shiny', 'shiny'], ['Œufs', 'oeuf']])('filtre %s et efface les filtres et la recherche', (_texte, filtre) => {
   storeJeu.setState({ pc: pc.slice(0, 3) });
   render(<PagePC />);
-  fireEvent.click(screen.getAllByRole('button', { name: filtre, pressed: false }).find(b => !b.closest('[aria-label="Trie les Pokémon"]'))!);
-  expect(screen.getByRole('button', { name: filtre, pressed: true })).toBeTruthy();
-  if (filtre === 'Œufs') expect(screen.getByText('Aucun Pokémon ne correspond à ces filtres.')).toBeTruthy();
+  fireEvent.change(screen.getByLabelText('Filtre'), { target: { value: filtre } });
+  expect((screen.getByLabelText('Filtre') as HTMLSelectElement).value).toBe(filtre);
+  if (filtre === 'oeuf') expect(screen.getByText('Aucun Pokémon ne correspond à ces filtres.')).toBeTruthy();
   else expect(screen.getByText('1 sur 3 Pokémon')).toBeTruthy();
   fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'absent' } });
   fireEvent.click(screen.getByRole('button', { name: 'Effacer la recherche et les filtres' }));
   expect(cartes()).toHaveLength(3);
   expect((screen.getByRole('searchbox') as HTMLInputElement).value).toBe('');
+});
+
+it('propose un filtre en liste déroulante, dont les évolutions à découvrir', () => {
+  storeJeu.setState({ pokedex: [1, 25, 101] });
+  render(<PagePC />);
+  const filtre = screen.getByLabelText('Filtre');
+  expect(filtre.tagName).toBe('SELECT');
+  expect(within(filtre).getAllByRole('option').map(o => o.textContent)).toEqual(['Tous', 'Favoris', 'Shiny', 'Œufs', 'Évolution à découvrir']);
+  expect(within(screen.getByLabelText('Trie par')).getAllByRole('option').map(o => o.textContent))
+    .toEqual(['DPS', 'Numéro du Pokédex', 'Nom, de A à Z', 'Niveau', "Favoris d'abord", "Shiny d'abord"]);
+  expect(screen.queryByRole('button', { name: 'Favoris' })).toBeNull();
+  fireEvent.change(filtre, { target: { value: 'evolution' } });
+  // Bulbizarre (→ Herbizarre) et Pikachu (→ Raichu) n'ont pas leur évolution au Pokédex ; Électrode n'évolue pas.
+  expect(cartes().map(c => c.getAttribute('aria-label')).sort()).toEqual(['Bulbizarre, niveau 12', 'Pikachu, niveau 8', 'Zéphyr, niveau 30']);
+  act(() => storeJeu.setState({ pokedex: [1, 2, 25, 26, 101] }));
+  expect(screen.getByText('Aucun Pokémon ne correspond à ces filtres.')).toBeTruthy();
 });
 
 it('donne un libellé accessible au retour', () => {
@@ -79,7 +95,7 @@ it('range les œufs en dernier et les retrouve par filtre sans DPS', () => {
   render(<PagePC />);
   expect(cartes()[0]!.getAttribute('aria-label')).toBe('Boule, niveau 20');
   expect(within(cartes().at(-1)!).queryByText(/ DPS$/)).toBeNull();
-  fireEvent.click(screen.getByRole('button', { name: 'Œufs' }));
+  fireEvent.change(screen.getByLabelText('Filtre'), { target: { value: 'oeuf' } });
   expect(cartes()).toHaveLength(1);
   expect(screen.getByText('1 sur 5 Pokémon')).toBeTruthy();
 });
@@ -311,14 +327,10 @@ it('affiche les erreurs de placement, de favori et d’échange', () => {
 
 const transfert = (uid: string) => ({ dataTransfer: { getData: () => uid, setData: vi.fn(), effectAllowed: '' } });
 
-it('le mode Déplacer rend les Pokémon du PC glissables et dépose sur l\'équipe', () => {
+it('le glisser-déposer est toujours actif, sans bouton Déplacer, et dépose sur l’équipe', () => {
   render(<PagePC />);
   const carte = screen.getByRole('button', { name: 'Zéphyr, niveau 30' });
-  expect(carte.getAttribute('draggable')).toBeNull();
-  const bouton = screen.getByRole('button', { name: 'Déplacer' });
-  expect(bouton.getAttribute('aria-pressed')).toBe('false');
-  fireEvent.click(bouton);
-  expect(bouton.getAttribute('aria-pressed')).toBe('true');
+  expect(screen.queryByRole('button', { name: 'Déplacer' })).toBeNull();
   expect(carte.getAttribute('draggable')).toBe('true');
   // Place libre : le Pokémon entre dans l'équipe.
   fireEvent.dragStart(carte, transfert('autre'));
@@ -329,14 +341,12 @@ it('le mode Déplacer rend les Pokémon du PC glissables et dépose sur l\'équi
   // Place occupée : échange avec le Pokémon d'équipe.
   fireEvent.drop(within(screen.getByRole('complementary')).getAllByRole('button', { name: 'Pikachu, niveau 8' })[0]!, transfert('electrode'));
   expect(echanger).toHaveBeenCalledWith('electrode', 'e1');
-  fireEvent.click(bouton);
-  expect(bouton.getAttribute('aria-pressed')).toBe('false');
 });
 
-it('sans le mode Déplacer, un dépôt ne change rien', () => {
+it('sur téléphone, rien n’est glissable', () => {
+  enTelephone();
   render(<PagePC />);
-  fireEvent.drop(screen.getAllByText('Emplacement libre')[0]!.parentElement!, transfert('autre'));
-  expect(placerDansEquipe).not.toHaveBeenCalled();
+  expect(screen.getByRole('button', { name: 'Zéphyr, niveau 30' }).getAttribute('draggable')).toBeNull();
 });
 
 it('bascule le favori depuis le détail', () => {
