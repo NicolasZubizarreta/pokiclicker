@@ -170,3 +170,8 @@ Le filet de sécurité existe déjà : `store-fin.test.ts:61` (échec du labo), 
 - Lien avec l'atelier 2 : la Façade « ServiceCombat » touche aux mêmes lignes de `traiter`. Les deux changements ne se font pas en parallèle ; les stratégies pourraient vivre dans ce service.
 - Estimation : 2 à 3 jours.
 
+## Limites
+
+**Mettre `finDeBoss` uniquement côté serveur ?** Je ne le propose pas. Notre ADR 0004 accepte la triche par modification de sauvegarde entre amis (lignes 8 et 21) et le risque R8 le dit aussi : le serveur ne vérifie que la forme du fichier. Un tableau de règles sur le serveur ne protégerait donc rien tant que l'or, les badges et le Pokédex sont dans la sauvegarde du joueur. Il faudrait que tout le combat tourne sur le serveur, ce qui supprimerait le jeu hors ligne (ADR 0004, lignes 38 à 40) et obligerait à réécrire `src/core`. Le tableau irait dans `src/core`, en TypeScript pur, sans lien avec l'interface. Si un jour le serveur fait autorité, ce code pourrait y tourner tel quel.
+
+**Est-ce trop lourd à maintenir ?** Pour la Strategy, c'est possible : 2 à 3 jours pour un `if` qui marche aujourd'hui, et je ne sais pas combien de modes viendront. Je ne la ferais que si un quatrième mode apparaît ou si la ligne `'kanto.labo'` gêne l'ajout d'une région (AP-4). Le State sur la synchro coûte moins cher et enlève un vrai risque : deux variables à garder d'accord à la main. Je le ferais en premier.
