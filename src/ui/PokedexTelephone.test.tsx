@@ -62,7 +62,7 @@ it('montre un vu, le recherche et le garde à trouver sans changer la progressio
   expect(container.querySelector('details')!.textContent).toBe(paliers);
   const caseVue = screen.getByRole('button', { name: 'Carapuce, numéro 7, vu, pas encore capturé' });
   expect(within(caseVue).getByText('Carapuce')).toBeTruthy();
-  expect(within(caseVue).getByText('Vu').classList.contains('text-texte-doux')).toBe(true);
+  expect(within(caseVue).queryByText('Vu')).toBeNull();
   const image = within(caseVue).getByAltText('Carapuce');
   expect(image.classList.contains('grayscale')).toBe(true);
   expect(image.classList.contains('opacity-60')).toBe(true);

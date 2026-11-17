@@ -23,7 +23,7 @@ it('montre les espèces vues et conserve les silhouettes inconnues et le compteu
   act(() => { storeJeu.setState({ vus: [1, 25, 4, 200] }); });
   const caseVue = screen.getByRole('button', { name: 'Salamèche, numéro 4, vu, pas encore capturé' });
   expect(within(caseVue).getByText('Salamèche')).toBeTruthy();
-  expect(within(caseVue).getByText('Vu').classList.contains('text-texte-doux')).toBe(true);
+  expect(within(caseVue).queryByText('Vu')).toBeNull();
   const image = within(caseVue).getByAltText('Salamèche');
   expect(image.classList.contains('grayscale')).toBe(true);
   expect(image.classList.contains('opacity-60')).toBe(true);

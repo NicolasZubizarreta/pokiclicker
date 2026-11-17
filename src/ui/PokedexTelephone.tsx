@@ -86,20 +86,19 @@ export function PokedexTelephone({ retour, ouvrirDiplome }: { retour(): void; ou
         <p className="text-texte-doux">Les espèces jamais croisées restent cachées : cherche-les par leur numéro.</p></>
         : <p>Rien à montrer avec ce filtre.</p>}
     </div>}
-    <div className="grid grid-cols-3 gap-2">
+    <div className="grid auto-rows-fr grid-cols-3 gap-2">
       {numeros.map(numero => {
         const etat = etatPokedex(numero, captures, vus);
         const capture = etat === 'capture';
         const nom = etat !== 'inconnu' ? catalogue.parNumero(numero).nom : '???';
         return <button key={numero} type="button" onClick={() => choisir(numero)}
           aria-label={capture ? `${nom}, numéro ${numero}, déjà capturé` : etat === 'vu' ? `${nom}, numéro ${numero}, vu, pas encore capturé` : `Pokémon inconnu, numéro ${numero}`}
-          className={`cadre flex min-h-11 min-w-0 flex-col items-center overflow-hidden p-2 text-center ${capture ? 'bg-surface' : 'bg-surface-2'}`}>
+          className={`cadre flex h-full min-h-11 min-w-0 flex-col items-center overflow-hidden p-2 text-center ${capture ? 'bg-surface' : 'bg-surface-2'}`}>
           <Image src={cheminSprite(numero)} genre="sprite" alt={etat !== 'inconnu' ? nom : 'Pokémon inconnu'}
             className={`size-16 max-w-full ${capture ? '' : etat === 'vu' ? 'grayscale opacity-60' : 'brightness-0 opacity-50'}`} />
           <span className="text-sm text-texte-doux">N° {numero}</span>
           <span className="w-full truncate font-bold">{nom}</span>
           {capture && <span className="flex items-center gap-1 text-sm text-succes-texte"><PastilleCapture />Capturé</span>}
-          {etat === 'vu' && <span className="text-sm text-texte-doux">Vu</span>}
         </button>;
       })}
     </div>

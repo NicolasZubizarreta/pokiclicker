@@ -55,17 +55,16 @@ export function Pokedex({ retour }: { retour(): void }) {
     </> : <Fiche numero={selection} etat={etatPokedex(selection, captures, vus)} fermer={() => choisir(null)} />}
     </aside>
     <div className="dex-liste cadre">{numeros.length === 0 && (recherche ? <div role="status"><p>Aucune espèce capturée ou vue ne correspond à « {saisie} ».</p><p className="text-texte-doux">Les espèces jamais croisées restent cachées : cherche-les par leur numéro.</p></div> : <p role="status">Aucune espèce ne correspond.</p>)}
-    <ol className="dex-grille grid grid-cols-3 gap-2 sm:grid-cols-5 lg:grid-cols-10">
+    <ol className="dex-grille grid auto-rows-fr grid-cols-3 gap-2 sm:grid-cols-5 lg:grid-cols-10">
       {numeros.map(numero => {
         const etat = etatPokedex(numero, captures, vus);
         const capture = etat === 'capture';
         const nom = etat !== 'inconnu' ? catalogue.parNumero(numero).nom : '???';
-        return <li key={numero}><button type="button" onClick={() => choisir(numero)} aria-pressed={selection === numero} aria-label={capture ? `${nom}, numéro ${numero}, déjà capturé` : etat === 'vu' ? `${nom}, numéro ${numero}, vu, pas encore capturé` : `Pokémon inconnu, numéro ${numero}`} className={`dex-case flex min-h-11 w-full min-w-0 flex-col items-center gap-2 ${capture ? 'bg-surface' : 'bg-surface-2'} p-1 text-center`}>
+        return <li key={numero}><button type="button" onClick={() => choisir(numero)} aria-pressed={selection === numero} aria-label={capture ? `${nom}, numéro ${numero}, déjà capturé` : etat === 'vu' ? `${nom}, numéro ${numero}, vu, pas encore capturé` : `Pokémon inconnu, numéro ${numero}`} className={`dex-case flex h-full min-h-11 w-full min-w-0 flex-col items-center gap-2 ${capture ? 'bg-surface' : 'bg-surface-2'} p-1 text-center`}>
           <span>N° {numero}</span>
           <Image src={cheminSprite(numero)} genre="sprite" alt={etat !== 'inconnu' ? nom : 'Pokémon inconnu'}
             className={`size-24 object-contain max-h-full max-w-full ${capture ? '' : etat === 'vu' ? 'grayscale opacity-60' : 'brightness-0'}`} />
           <span className="w-full break-words">{nom}{capture && <PastilleCapture />}</span>
-          {etat === 'vu' && <span className="text-sm text-texte-doux">Vu</span>}
         </button></li>;
       })}
     </ol></div></div>
