@@ -98,12 +98,12 @@ test('réglages conservés au rechargement', async ({ page }) => {
   await demarrer(page);
   await page.getByRole('button', { name: 'Arrêt auto', exact: true }).click();
   await reglageArret(page).click();
-  await page.getByRole('checkbox', { name: 'Rare', exact: true }).uncheck();
+  await page.getByRole('switch', { name: 'Rare', exact: true }).click();
   await page.getByRole('button', { name: 'Fermer', exact: true }).click();
   await page.reload();
   await expect(page.getByRole('button', { name: 'Arrêt auto', exact: true })).toHaveAttribute('aria-pressed', 'false');
   await reglageArret(page).click();
-  await expect(page.getByRole('checkbox', { name: 'Rare', exact: true })).not.toBeChecked();
+  await expect(page.getByRole('switch', { name: 'Rare', exact: true })).toHaveAttribute('aria-checked', 'false');
 });
 
 test('boss : capture désactivée avec sa raison', async ({ page }) => {

@@ -264,8 +264,8 @@ it('ouvre les réglages d’arrêt auto et transmet les critères au store', () 
   bouton.focus();
   fireEvent.click(bouton);
   const dialogue = screen.getByRole('dialog', { name: "Réglage de l'arrêt auto" });
-  const rare = within(dialogue).getByRole('checkbox', { name: 'Rare' }) as HTMLInputElement;
-  const avant = rare.checked;
+  const rare = within(dialogue).getByRole('switch', { name: 'Rare' });
+  const avant = rare.getAttribute('aria-checked') === 'true';
   fireEvent.click(rare);
   expect(reglerArretAuto).toHaveBeenCalledWith({ rare: !avant });
   fireEvent.click(within(dialogue).getByRole('button', { name: 'Fermer' }));

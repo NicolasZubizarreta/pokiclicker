@@ -1,7 +1,7 @@
 import { useId, useRef } from 'react';
 import type { ReglagesArret } from '../core/sauvegarde-types';
 import { AutoAttaque, ArretAuto, ReglagesArret as IconeReglagesArret, Sac } from './icones';
-import { CurseurAutoClicLie, optionsArret, type LienAutoClic } from './ReglagesCombat';
+import { ContenuArret, type LienAutoClic } from './ReglagesCombat';
 import './Plaques.css';
 import './ActionsCombat.css';
 
@@ -28,15 +28,7 @@ export function ActionsCombat({ autoAttaque, basculerAutoAttaque, arret, reglerA
     </div>
     <dialog ref={dialogue} aria-labelledby={titre} className="fiche-pokemon cadre w-full max-w-3xl bg-surface p-0 text-base text-texte"
       onClose={() => declencheur.current?.focus()} onCancel={event => { event.preventDefault(); fermer(); }}>
-      <div className="fiche-contenu grid min-w-0 gap-4 p-4 lg:p-8">
-        <h2 id={titre} className="font-titre text-xl">Réglage de l'arrêt auto</h2>
-        <h3>L'attaque auto s'arrête quand apparaît</h3>
-        {optionsArret.map(([cle, nom]) => <label key={cle} className="flex min-h-11 min-w-11 cursor-pointer items-center gap-3">
-          <input type="checkbox" checked={arret[cle]} onChange={event => reglerArret({ [cle]: event.currentTarget.checked })} />{nom}
-        </label>)}
-        <CurseurAutoClicLie lien={lienAutoClic} />
-        <button type="button" className="cadre min-h-11 min-w-11 bg-surface p-3 aria-pressed:bg-selection" onClick={fermer}>Fermer</button>
-      </div>
+      <ContenuArret id={titre} titre="Réglage de l'arrêt auto" arret={arret} regler={reglerArret} lienAutoClic={lienAutoClic} fermer={fermer} />
     </dialog>
   </div>;
 }

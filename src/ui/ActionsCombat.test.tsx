@@ -40,11 +40,12 @@ it('affiche les quatre plaques, leurs états et transmet les actions et réglage
   expect(screen.queryByRole('button', { name: /Fauchage|Poké-Radar/ })).toBeNull();
   reglage.focus(); fireEvent.click(reglage);
   expect(screen.getByRole('dialog').hasAttribute('open')).toBe(true);
-  fireEvent.click(screen.getByRole('checkbox', { name: 'Rare' }));
+  expect(screen.getAllByRole('switch')).toHaveLength(9);
+  fireEvent.click(screen.getByRole('switch', { name: 'Rare' }));
   expect(props.reglerArret).toHaveBeenCalledWith({ rare: false });
   const lie = screen.getByRole('switch', { name: "Auto-clic lié à l'attaque auto" });
   expect(lie.getAttribute('aria-checked')).toBe('true');
-  expect(screen.getByRole('region', { name: 'Auto-clic' }).contains(screen.getByRole('checkbox', { name: 'Rare' }))).toBe(false);
+  expect(screen.getByRole('region', { name: 'Auto-clic' }).contains(screen.getByRole('switch', { name: 'Rare' }))).toBe(false);
   fireEvent.click(lie);
   expect(props.lienAutoClic.regler).toHaveBeenCalledWith(false);
   fireEvent.click(screen.getByRole('button', { name: 'Fermer' }));

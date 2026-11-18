@@ -43,7 +43,7 @@ it("propose le lien de l'auto-clic dans les réglages de l'arrêt quand il est f
   fireEvent.click(screen.getByRole('button', { name: "Réglages de l'arrêt" }));
   const lie = screen.getByRole('switch', { name: "Auto-clic lié à l'attaque auto" });
   expect(lie.getAttribute('aria-checked')).toBe('false');
-  expect(screen.getAllByRole('checkbox')).toHaveLength(7);
+  expect(screen.getAllByRole('switch')).toHaveLength(9);
   fireEvent.click(lie);
   expect(regler).toHaveBeenCalledWith(true);
 });
@@ -66,23 +66,28 @@ it("pilote les préférences par props et rend le focus après le dialogue et É
   ouvrir.focus();
   fireEvent.click(ouvrir);
   const dialogue = screen.getByRole('dialog', { name: "Réglages de l'arrêt" });
-  expect(screen.getAllByRole('checkbox')).toHaveLength(7);
+  expect(screen.getAllByRole('switch')).toHaveLength(8);
   const options = [['Commun', 'commun'], ['Peu commun', 'peuCommun'], ['Rare', 'rare'],
     ['Très rare', 'tresRare'], ['Légendaire', 'legendaire'], ['Chromatique', 'shiny'],
     ['Nouveau Pokémon', 'nouveau']] as const;
   for (const [nom, cle] of options) {
-    const caseACocher = screen.getByRole('checkbox', { name: nom }) as HTMLInputElement;
-    expect(caseACocher.checked).toBe(arret[cle]);
-    expect(caseACocher.closest('label')?.classList.contains('min-h-11')).toBe(true);
-    fireEvent.click(caseACocher);
+    const interrupteur = screen.getByRole('switch', { name: nom });
+    expect(interrupteur.getAttribute('aria-checked')).toBe(String(arret[cle]));
+    fireEvent.click(interrupteur);
     expect(regler).toHaveBeenLastCalledWith({ [cle]: !arret[cle] });
   }
-  screen.getByRole('checkbox', { name: 'Rare' }).focus();
+  // « Tous » : décoché tant qu'un type manque, il les coche tous ; coché, il les décoche tous.
+  const tous = screen.getByRole('switch', { name: 'Tous' });
+  expect(tous.getAttribute('aria-checked')).toBe('false');
+  fireEvent.click(tous);
+  expect(regler).toHaveBeenLastCalledWith({ commun: true, peuCommun: true, rare: true, tresRare: true,
+    legendaire: true, shiny: true, nouveau: true });
+  screen.getByRole('switch', { name: 'Rare' }).focus();
   fireEvent.click(screen.getByRole('button', { name: 'Fermer' }));
   expect(dialogue.hasAttribute('open')).toBe(false);
   expect(document.activeElement).toBe(ouvrir);
   fireEvent.click(ouvrir);
-  screen.getByRole('checkbox', { name: 'Commun' }).focus();
+  screen.getByRole('switch', { name: 'Commun' }).focus();
   fireEvent(dialogue, new Event('cancel', { cancelable: true }));
   expect(dialogue.hasAttribute('open')).toBe(false);
   expect(document.activeElement).toBe(ouvrir);
@@ -90,6 +95,12 @@ it("pilote les préférences par props et rend le focus après le dialogue et É
   expect(auto.getAttribute('aria-pressed')).toBe('false');
   expect(actif.getAttribute('aria-pressed')).toBe('false');
   fireEvent.click(ouvrir);
-  expect((screen.getByRole('checkbox', { name: 'Commun' }) as HTMLInputElement).checked).toBe(true);
+  expect(screen.getByRole('switch', { name: 'Commun' }).getAttribute('aria-checked')).toBe('true');
+  const toutCoche = { ...arret, commun: true, peuCommun: true };
+  vue.rerender(<ReglagesCombat autoAttaque arret={toutCoche} basculer={basculer} regler={regler} />);
+  expect(screen.getByRole('switch', { name: 'Tous' }).getAttribute('aria-checked')).toBe('true');
+  fireEvent.click(screen.getByRole('switch', { name: 'Tous' }));
+  expect(regler).toHaveBeenLastCalledWith({ commun: false, peuCommun: false, rare: false, tresRare: false,
+    legendaire: false, shiny: false, nouveau: false });
   expect(vue.container.querySelector('.bg-action')).toBeNull();
 });
