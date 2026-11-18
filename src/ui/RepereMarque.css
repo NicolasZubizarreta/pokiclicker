@@ -1,4 +1,5 @@
 /* L'icône d'œuf seule, à la hauteur de l'étoile shiny (1 em) ; elle prend la couleur jaune de l'étoile. */
-.repere-marque { display:inline-grid; place-items:center; vertical-align:middle; flex-shrink:0; width:calc(var(--spacing) * 5); height:calc(var(--spacing) * 5); color:var(--alerte-base); }
+.repere-marque { display:inline-grid; place-items:center; vertical-align:middle; flex-shrink:0; width:calc(var(--spacing) * 4); height:calc(var(--spacing) * 4); color:var(--alerte-base); }
 .repere-marque svg { width:100%; height:100%; fill:none; stroke:currentColor; stroke-width:2; }
+.repere-marque-shiny .repere-etoile { fill:var(--color-alerte-base-sombre); stroke:none; }
 .repere-tags { flex-shrink:0; display:inline-flex; align-items:center; vertical-align:middle; gap:calc(var(--spacing) / 2); margin-inline-start:calc(var(--spacing) / 2); }

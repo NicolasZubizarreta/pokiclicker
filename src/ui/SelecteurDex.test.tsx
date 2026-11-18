@@ -25,15 +25,13 @@ it.each([Pokedex, PokedexTelephone])('partage les dex, les filtres et les repèr
     expect(boutons.getByRole('button', { name: nom })).toBeTruthy();
   }
   const caseInitiale = screen.getByRole('button', { name: 'Bulbizarre, numéro 1, déjà capturé, chromatique, éclos' });
-  expect(within(caseInitiale).getByRole('img', { name: 'Chromatique' })).toBeTruthy();
-  expect(within(caseInitiale).getByRole('img', { name: "Marque d'éclosion" })).toBeTruthy();
+  expect(within(caseInitiale).getAllByRole('img', { name: "Chromatique, marque d'éclosion" })).toHaveLength(1);
   fireEvent.change(screen.getByLabelText('Afficher'), { target: { value: 'manquants' } });
   expect(screen.queryByRole('button', { name: /Bulbizarre, numéro/ })).toBeNull();
   fireEvent.click(boutons.getByRole('button', { name: 'Shiny 1 / 151' }));
   expect((screen.getByLabelText('Afficher') as HTMLSelectElement).value).toBe('tous');
   expect(boutons.getAllByRole('button', { pressed: true })).toHaveLength(1);
-  expect(screen.queryByRole('img', { name: 'Chromatique' })).toBeNull();
-  expect(screen.queryByRole('img', { name: "Marque d'éclosion" })).toBeNull();
+  expect(screen.queryByRole('img', { name: /Chromatique|marque d'éclosion/i })).toBeNull();
   expect(screen.getByAltText('Bulbizarre').getAttribute('src')).toContain('pokemon-shiny');
   expect(screen.getByAltText('Salamèche').classList.contains('grayscale')).toBe(true);
   expect(screen.getByRole('button', { name: 'Pokémon inconnu, numéro 2' })).toBeTruthy();
@@ -42,7 +40,7 @@ it.each([Pokedex, PokedexTelephone])('partage les dex, les filtres et les repèr
   expect(screen.getByAltText('Bulbizarre')).toBeTruthy();
   for (const nom of ['Œuf 2 / 151', 'Œuf shiny 1 / 151']) {
     fireEvent.click(boutons.getByRole('button', { name: nom }));
-    expect(screen.queryByRole('img', { name: "Marque d'éclosion" })).toBeNull();
+    expect(screen.queryByRole('img', { name: /marque d'éclosion/i })).toBeNull();
     expect(screen.getByAltText('Bulbizarre').getAttribute('src')!.includes('pokemon-shiny')).toBe(nom.startsWith('Œuf shiny'));
   }
   expect(screen.getByRole('progressbar').outerHTML).toBe(progression);

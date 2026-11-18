@@ -31,12 +31,12 @@ it.each([false, true])('affiche uniquement la marque reçue, téléphone : %s', 
   vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: telephone, addEventListener: vi.fn(), removeEventListener: vi.fn() })));
   storeJeu.setState({ equipe: [{ pokemon: { ...pokemon, marqueEclosion: true }, dps: 42, xpMax: 100, multiplicateur: 1 }] });
   afficher();
-  expect(screen.getByRole('img', { name: "Marque d'éclosion" })).toBeTruthy();
+  expect(screen.getByRole('img', { name: /marque d'éclosion/i })).toBeTruthy();
   expect(screen.getByText("Marque d'éclosion", { selector: 'dt' })).toBeTruthy();
   const facteur = actions.detailDps({ ...pokemon, marqueEclosion: true }, 1).marqueEclosion;
   expect(screen.getByText(`+${Math.round((facteur - 1) * 100)} %`, { selector: 'dd' })).toBeTruthy();
   act(() => storeJeu.setState({ equipe: [{ pokemon, dps: 42, xpMax: 100, multiplicateur: 1 }] }));
-  expect(screen.queryByRole('img', { name: "Marque d'éclosion" })).toBeNull();
+  expect(screen.queryByRole('img', { name: /marque d'éclosion/i })).toBeNull();
   expect(screen.queryByText("Marque d'éclosion", { selector: 'dt' })).toBeNull();
   vi.unstubAllGlobals();
 });

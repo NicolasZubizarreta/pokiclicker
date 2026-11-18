@@ -40,11 +40,12 @@ it.each([[false, false], [true, false], [false, true], [true, true]])("pose l’
   storeJeu.setState({ pc: [{ ...base, shiny, marqueEclosion }] });
   render(<PagePC />);
   const liste = within(screen.getByRole('list'));
-  expect(liste.queryAllByRole('img', { name: 'Chromatique' })).toHaveLength(shiny ? 1 : 0);
-  expect(liste.queryAllByRole('img', { name: "Marque d'éclosion" })).toHaveLength(marqueEclosion ? 1 : 0);
+  expect(liste.queryAllByRole('img', { name: 'Chromatique' })).toHaveLength(shiny && !marqueEclosion ? 1 : 0);
+  expect(liste.queryAllByRole('img', { name: "Marque d'éclosion" })).toHaveLength(marqueEclosion && !shiny ? 1 : 0);
+  expect(liste.queryAllByRole('img', { name: "Chromatique, marque d'éclosion" })).toHaveLength(shiny && marqueEclosion ? 1 : 0);
   const tags = liste.queryAllByRole('img', { name: /Chromatique|Marque d'éclosion/ });
+  expect(tags).toHaveLength(shiny || marqueEclosion ? 1 : 0);
   for (const tag of tags) expect(tag.closest('strong')).toBeTruthy();
-  if (shiny && marqueEclosion) expect(tags[0]!.compareDocumentPosition(tags[1]!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 });
 
 it('structure le PC en trois colonnes et garde six places dans son cadre', () => {

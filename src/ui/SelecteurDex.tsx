@@ -37,7 +37,7 @@ export function etatDansDex(numero: number, obtenus: ReadonlySet<number>, captur
 }
 export function TagsDex({ shiny, eclos }: { shiny: boolean; eclos: boolean }) {
   return <span className="absolute right-1 top-1 flex items-center gap-1">
-    {shiny && <IconeShiny decoratif={false} />}{eclos && <RepereMarque />}
+    {shiny && eclos ? <RepereMarque shiny /> : <>{shiny && <IconeShiny decoratif={false} />}{eclos && <RepereMarque />}</>}
   </span>;
 }
 export function libelleCaseDex(nom: string, numero: number, etat: ReturnType<typeof etatDansDex>, dex: CleDex, shiny: boolean, eclos: boolean) {
