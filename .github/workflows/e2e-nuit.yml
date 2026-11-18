@@ -1,0 +1,50 @@
+name: Tests e2e de nuit
+
+# Les e2e ne tournent jamais à chaque push : une fois par nuit si la branche v2 a bougé, ou à la demande (onglet Actions > Run workflow).
+on:
+  schedule:
+    - cron: '0 1 * * *'
+  workflow_dispatch:
+
+jobs:
+  e2e:
+    name: Tests e2e (mobile, PC, iPhone)
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+        with:
+          ref: v2
+      - name: Vérifier s'il y a du neuf
+        id: neuf
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ -n "$(git log --since='26 hours ago' --oneline)" ]; then
+            echo "lancer=oui" >> "$GITHUB_OUTPUT"
+          else
+            echo "lancer=non" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Installer Node.js
+        if: steps.neuf.outputs.lancer == 'oui'
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Installer les dépendances
+        if: steps.neuf.outputs.lancer == 'oui'
+        run: npm ci
+      - name: Installer les navigateurs
+        if: steps.neuf.outputs.lancer == 'oui'
+        run: npx playwright install --with-deps chromium webkit
+      - name: Lancer les e2e
+        if: steps.neuf.outputs.lancer == 'oui'
+        run: npm run test:e2e -- --reporter=line
+      - name: Garder le rapport en cas d'échec
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rapport-e2e
+          path: |
+            test-results
+            playwright-report
+          retention-days: 7
