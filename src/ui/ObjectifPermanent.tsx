@@ -32,7 +32,7 @@ export function ObjectifPermanent({ store, aller }: { store: StoreJeu; aller?: (
   return <>
     <button ref={bouton} type="button" aria-label={`Objectifs : ${affiche.texte}`}
       className="cadre absolute top-4 right-4 z-20 min-h-11 max-w-1/3 bg-surface/82 px-3 py-2 text-right text-sm font-bold tabular-nums text-neutre-50 lg:text-base"
-      onClick={() => dialogue.current?.showModal()}><span className="line-clamp-3">{affiche.texte}</span></button>
+      onClick={() => dialogue.current?.showModal()}><span aria-hidden="true" className="block text-xs font-normal text-texte-doux">Objectifs</span><span className="line-clamp-3">{affiche.texte}</span></button>
     <dialog ref={dialogue} aria-labelledby={titre} className="fiche-pokemon cadre w-full max-w-3xl bg-surface p-0 text-base text-texte"
       onClose={() => bouton.current?.focus()} onCancel={e => { e.preventDefault(); fermer(); }}>
       <div className="fiche-contenu grid min-w-0 gap-4 p-4 lg:p-8">
