@@ -72,7 +72,7 @@
     {
       "palier": 151,
       "titre": "Maître de Kanto",
-      "description": "Charme Chroma (Shiny x3)",
+      "description": "Charme Chroma (Shiny x3 au combat, x2 pour les œufs)",
       "recompense": {
         "ameliorations": [
           "shinyCharm"

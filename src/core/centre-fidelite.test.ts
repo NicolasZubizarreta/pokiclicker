@@ -8,7 +8,7 @@ import type { EtatMonde } from './conditions';
 
 // Objets du Centre : prix de base de la V1, sauf calcium, pierres et Jeton Shiny dont le prix actuel est fixé par Nicolas.
 const PRIX_ACTUELS: Record<string, { prix?: number; sansInflation?: boolean }> = {
-  calcium: { prix: 20000 }, shinyToken: { prix: 1000000 },
+  calcium: { prix: 20000 }, shinyToken: { prix: 1000000, sansInflation: false },
   fireStone: { prix: 8000 }, waterStone: { prix: 8000 }, leafStone: { prix: 8000 },
   thunderStone: { prix: 8000 }, moonStone: { prix: 8000 }, everstone: { prix: 8000 },
 };

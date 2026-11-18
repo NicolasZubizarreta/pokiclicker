@@ -614,3 +614,16 @@ Une demi-journée. Risque : sur téléphone la scène est étroite (environ 330 
 
 ### Résultat (17/11)
 `src/ui/PagePension.css` et `PagePension.tsx` : la scène devient un conteneur (`container-type:inline-size`), la taille des parents se règle en `cqw` et les pieds sur `--pieds-parent`, avec le décalage des lignes vides de chaque espèce (`--vide`). Captures regardées à 360, 390 et 1440 px avec Onix et Dracolosse, puis Pikachu et Bulbizarre. Vitest `PagePension` et e2e `pension`, `pension-visibilite` : 26 passés, 2 ignorés.
+
+## AB. `feat(pension): Charme Chroma ×2 sur les œufs, Jeton Shiny soumis à l'inflation`
+
+`type:feat`, `etat:fait`, `est:0.5`, `prio:1` · branche : `v2` · décidé par Nicolas le 18/11 (règles de jeu)
+
+### Histoire
+En tant que joueur, je veux que le Charme Chroma aide aussi à trouver des shiny dans les œufs, et que le Jeton Shiny coûte plus cher à mesure que j'avance.
+
+### Critères d'acceptation
+- [x] Étant donné le Charme Chroma, quand un œuf est pondu, alors sa chance shiny est doublée (1/16 → 1/8), valeur ×2 dans `data/reglages.json` (`pension.bonusShiny`) ; le ×3 du combat ne change pas.
+- [x] Étant donné le Jeton Shiny au centre commercial, quand j'ai des badges, alors son prix suit l'inflation comme les autres consommables (`sansInflation:false`).
+- [x] Étant donné les textes du Charme (objet et palier), alors ils disent « x3 au combat, x2 pour les œufs ».
+- [x] Étant donné les tests, quand vitest tourne, alors le cœur pension, les fidélités V1 (adaptées aux deux écarts voulus) sont verts.

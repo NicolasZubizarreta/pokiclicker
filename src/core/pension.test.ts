@@ -178,6 +178,19 @@ describe('pension', () => {
     expect(tirerOeuf(parents, () => valeurs.shift()!)).toEqual({ numero: 25, shiny: false });
   });
 
+  it('le Charme Chroma double la chance shiny d’un œuf (1/16 → 1/8), sans autre effet', () => {
+    const parents = preparer().pension.parents;
+    const seuil = reglages.pension.chanceShiny;
+    const tirage = (actifs: string[], valeur: number) => {
+      const valeurs = [0, valeur];
+      return tirerOeuf(parents, () => valeurs.shift()!, actifs)!.shiny;
+    };
+    expect(tirage([], seuil * 1.5)).toBe(false);
+    expect(tirage(['objet:shinyCharm'], seuil * 1.5)).toBe(true);
+    expect(tirage(['objet:shinyCharm'], seuil * 2)).toBe(false);
+    expect(seuil * 2).toBe(0.125);
+  });
+
   it.each([0, 1])('choisit la mère quel que soit son emplacement (%i)', (index) => {
     const parents = [parent(1, 'male'), parent(43, 'femelle')];
     if (index === 0) parents.reverse();

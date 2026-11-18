@@ -48,6 +48,7 @@ const corrections: Record<string, string> = {
   'Vitesse de spawn +20%': "Vitesse d'apparition +20%",
   'Spawn +20%': 'Apparition +20%', '+2,500 $P': '+2 500\u00a0₽',
   'Jeton Brillant': 'Jeton Shiny', 'Kanto Master': 'Maître de Kanto',
+  'Charme Chroma (Shiny x3)': 'Charme Chroma (Shiny x3 au combat, x2 pour les œufs)',
   'Shop -15%': 'Boutique -15%', 'Master Ball + 10 Bonbons': 'Master Ball + 10 Super Bonbons',
 };
 const corriger = (texte: string) => corrections[texte] ?? texte;

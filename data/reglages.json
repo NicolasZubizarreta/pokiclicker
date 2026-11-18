@@ -17,6 +17,7 @@
     "bonheurNaissance": 125, "metamorph": 132, "especesTirees": 151,
     "chances": { "metamorph": 0.02, "memeEspece": 0.02, "typePartage": 0.01 },
     "chanceShiny": 0.0625,
+    "bonusShiny": [{ "cle": "objet:shinyCharm", "x": 2 }],
     "legendaires": { "numeros": [144, 145, 146, 150, 151], "poids": 0.1 },
     "marqueEclosion": 0.05,
     "messages": {

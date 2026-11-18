@@ -5,6 +5,7 @@ import { relacher } from './equipe';
 import type { ResultatEquipe } from './equipe';
 import type { chargerMonde } from './monde';
 import { chargerPokemon } from './pokemon';
+import { actifsDe } from './progression';
 import { kanto } from './regions';
 import { reglages } from './reglages';
 import { etatMondeDe } from './sauvegarde';
@@ -144,7 +145,7 @@ function tirerEspece(alea: () => number): number {
 }
 
 export function tirerOeuf(
-  parents: readonly PokemonPossede[], alea: () => number,
+  parents: readonly PokemonPossede[], alea: () => number, actifs: readonly string[] = [],
 ): { numero: number; shiny: boolean } | null {
   const chance = chancePonte(parents);
   if (chance === 0 || alea() >= chance) return null;
@@ -159,13 +160,14 @@ export function tirerOeuf(
   } else {
     numero = premier.sexe === 'femelle' ? premier.numero : second.numero;
   }
-  return { numero: formeDeBase(numero), shiny: alea() < pension.chanceShiny };
+  const bonus = pension.bonusShiny.find(b => actifs.includes(b.cle));
+  return { numero: formeDeBase(numero), shiny: alea() < pension.chanceShiny * (bonus?.x ?? 1) };
 }
 
 export function pondre(region: DonneesRegion, alea: () => number, genererId: () => string): DonneesRegion {
   if (region.pension.oeufs.length >= region.pension.emplacementsOeuf
     || !accesPension(kanto, etatMondeDe(region)).ouvert) return region;
-  const tirage = tirerOeuf(region.pension.parents, alea);
+  const tirage = tirerOeuf(region.pension.parents, alea, actifsDe(region));
   if (!tirage) return region;
   const sexe = tirerSexe(tirage.numero, alea);
   const oeuf: PokemonPossede = {

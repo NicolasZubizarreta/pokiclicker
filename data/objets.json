@@ -259,7 +259,7 @@
     "type": "consommable",
     "zone": null,
     "boutique": "mall",
-    "sansInflation": true,
+    "sansInflation": false,
     "inventaire": "shinyToken",
     "image": "img/objets/JetonShiny.png",
     "categorie": "soins",
@@ -422,7 +422,7 @@
   {
     "id": "shinyCharm",
     "nom": "Charme Chroma",
-    "description": "Chances de Shiny x3 (Passif)",
+    "description": "Chances de Shiny x3 au combat, x2 pour les œufs de la pension (Passif)",
     "prix": 0,
     "type": "amelioration",
     "zone": null,
