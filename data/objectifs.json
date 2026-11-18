@@ -1,6 +1,6 @@
 {
   "alternanceMs": 8000,
-  "boss": { "texteBoss": "Boss : {nom}, étape {etapes}", "texteZoneSuivante": "Zone suivante : {zone}", "libelle": "Boss" },
+  "boss": { "texteBoss": "Boss : {nom}, étape {etapes}", "texteZoneSuivante": "Zone suivante : {zone}", "texteZoneSuivanteFait": "Zone suivante visitée : {zone}","libelle": "Boss" },
   "fonctionnalites": [
     { "id": "equipement", "type": "equipement", "exclus": ["pokeradar", "falseSwipe", "leftovers"], "texte": "Shop : achète un équipement", "texteFait": "Équipement acheté", "cible": "Shop" },
     { "id": "palier-pokedex", "type": "palierPokedex", "texte": "Pokédex : {nombre}/{palier} pour un bonus ({bonus})", "texteFait": "Tous les paliers du Pokédex sont atteints", "cible": "Pokédex" },

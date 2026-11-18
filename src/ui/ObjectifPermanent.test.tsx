@@ -2,6 +2,7 @@
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { ObjectifPermanent } from './ObjectifPermanent';
+import { storeGuideZone } from './GuideZoneSuivante';
 import { createStore } from 'zustand/vanilla';
 import { storeJeu, type StoreJeu } from './store';
 
@@ -36,6 +37,19 @@ it('ouvre les états, navigue vers le Shop et ferme avec la croix', () => {
   expect(aller).toHaveBeenCalledWith('Shop'); expect(dialogue.hasAttribute('open')).toBe(false);
   fireEvent.click(screen.getByRole('button', { name: /Objectifs :/ })); fireEvent.click(screen.getByRole('button', { name: 'Fermer' }));
   expect(dialogue.hasAttribute('open')).toBe(false);
+});
+it("lance le guide du bouton Suivant avec « Y aller » sur la zone suivante, et l'objectif est fait une fois la zone visitée", () => {
+  const aller = vi.fn();
+  const store = preparer(aller);
+  act(() => store.setState({ zoneSuivante: { id: 'kanto.route-2', nom: 'Route 2', ouverte: true, raison: null }, zonesAtteintes: [] }));
+  fireEvent.click(screen.getByRole('button', { name: /Objectifs : Zone suivante : Route 2/ }));
+  storeGuideZone.setState({ actif: false });
+  fireEvent.click(screen.getAllByRole('button', { name: 'Y aller' })[0]!);
+  expect(aller).toHaveBeenCalledWith('Combat');
+  expect(storeGuideZone.getState().actif).toBe(true);
+  storeGuideZone.setState({ actif: false });
+  act(() => store.setState({ zonesAtteintes: ['kanto.route-2'] }));
+  expect(screen.queryByRole('button', { name: /Zone suivante : Route 2/ })).toBeNull();
 });
 it('montre les objectifs faits et masque la navigation sans aller', () => {
   const store = preparer();

@@ -13,6 +13,10 @@ it('calcule le boss selon la zone et sa destination', () => {
   e.zone!.type = 'route'; e.zone!.boss.nom = 'Rattata (Géant)';
   expect(calculerObjectifs(e).boss?.texte).toContain('Rattata (Géant)');
   e.zoneSuivante!.ouverte = true; expect(calculerObjectifs(e).boss?.texte).toBe('Zone suivante : Route 2');
+  expect(calculerObjectifs(e).boss).toMatchObject({ fait: false, cible: 'Combat', guide: 'zoneSuivante' });
+  e.zoneSuivante!.atteinte = true;
+  expect(calculerObjectifs(e).boss).toMatchObject({ fait: true, applicable: false, cible: null, texte: 'Zone suivante visitée : Route 2' });
+  expect(calculerObjectifs(e).boss).not.toHaveProperty('guide');
   e.zoneSuivante = null; expect(calculerObjectifs(e).boss?.texte).toContain('Boss : ');
   e.zone = null; expect(calculerObjectifs(e).boss).toBeNull();
 });

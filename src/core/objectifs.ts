@@ -1,12 +1,12 @@
 import donnees from '../../data/objectifs.json';
 
 type Definition = { id: string; type: 'equipement' | 'palierPokedex' | 'pension' | 'objetShop'; exclus?: string[]; objet?: string; texte: string; texteFait: string; cible: string };
-export type CatalogueObjectifs = { alternanceMs: number; boss: { texteBoss: string; texteZoneSuivante: string; libelle: string }; fonctionnalites: Definition[] };
-export type Objectif = { id: string; libelle?: string; texte: string; fait: boolean; applicable: boolean; cible: string | null };
+export type CatalogueObjectifs = { alternanceMs: number; boss: { texteBoss: string; texteZoneSuivante: string; texteZoneSuivanteFait: string; libelle: string }; fonctionnalites: Definition[] };
+export type Objectif = { id: string; libelle?: string; texte: string; fait: boolean; applicable: boolean; cible: string | null; guide?: 'zoneSuivante' };
 export type ResultatObjectifs = { boss: Objectif | null; fonctionnalites: Objectif[] };
 export type EntreeObjectifs = {
   zone: { nom: string; type?: string; etapes: number; boss: { nom: string } } | null;
-  zoneSuivante: { nom: string; ouverte: boolean } | null; argent: number;
+  zoneSuivante: { nom: string; ouverte: boolean; atteinte?: boolean } | null; argent: number;
   boutique: { ouverte: boolean; objets: { id: string; categorie: string; possede: boolean; abordable: boolean }[] };
   progression: { pokedex: { nombre: number }; prochain: { palier: number; restantes: number } | null; paliers: { palier: number; description: string; recu: boolean }[] };
   pension: { ouverte: boolean; parents: number; oeufs: number; especesEcloses: number };
@@ -30,8 +30,8 @@ export function chargerObjectifs(source: unknown = donnees): CatalogueObjectifs 
   cles(racine, ['alternanceMs', 'boss', 'fonctionnalites']);
   if (!Number.isInteger(racine.alternanceMs) || (racine.alternanceMs as number) <= 0) erreur();
   const boss = objet(racine.boss);
-  cles(boss, ['texteBoss', 'texteZoneSuivante', 'libelle']);
-  texte(boss.texteBoss, ['nom', 'etapes']); texte(boss.texteZoneSuivante, ['zone']); texte(boss.libelle);
+  cles(boss, ['texteBoss', 'texteZoneSuivante', 'texteZoneSuivanteFait', 'libelle']);
+  texte(boss.texteBoss, ['nom', 'etapes']); texte(boss.texteZoneSuivante, ['zone']); texte(boss.texteZoneSuivanteFait, ['zone']); texte(boss.libelle);
   if (!Array.isArray(racine.fonctionnalites)) return erreur();
   const ids = new Set<string>();
   for (const valeur of racine.fonctionnalites) {
@@ -55,8 +55,11 @@ const remplir = (texte: string, valeurs: Record<string, string | number>) => tex
 
 export function calculerObjectifs(e: EntreeObjectifs): ResultatObjectifs {
   const { zone, zoneSuivante: suivante } = e;
-  const boss: Objectif | null = zone ? { id: 'boss', libelle: objectifs.boss.libelle, fait: false, applicable: true, cible: null,
-    texte: suivante?.ouverte ?remplir(objectifs.boss.texteZoneSuivante, { zone: suivante.nom })
+  const visitee = !!suivante?.ouverte && suivante.atteinte === true;
+  const guide = !!suivante?.ouverte && !visitee;
+  const boss: Objectif | null = zone ? { id: 'boss', libelle: objectifs.boss.libelle, fait: visitee, applicable: !visitee,
+    cible: guide ? 'Combat' : null, ...(guide ? { guide: 'zoneSuivante' as const } : {}),
+    texte: suivante?.ouverte ? remplir(visitee ? objectifs.boss.texteZoneSuivanteFait : objectifs.boss.texteZoneSuivante, { zone: suivante.nom })
       : remplir(objectifs.boss.texteBoss, { nom: ['arene', 'ligue'].includes(zone.type ?? '') ? zone.boss.nom.replace(/\s*\([^()]*\)$/, '') : zone.boss.nom, etapes: zone.etapes }) } : null;
   const fonctionnalites = objectifs.fonctionnalites.flatMap(d => {
     let fait = false; let applicable = false;

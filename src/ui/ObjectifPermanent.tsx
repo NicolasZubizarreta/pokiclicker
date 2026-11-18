@@ -1,6 +1,7 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useStore } from 'zustand';
 import { calculerObjectifs, listeFenetre, objectifAffiche, objectifs } from '../core/objectifs';
+import { lancerGuideZoneSuivante } from './GuideZoneSuivante';
 import type { Page } from './Navigation';
 import type { StoreJeu } from './store';
 
@@ -11,10 +12,11 @@ export function ObjectifPermanent({ store, aller }: { store: StoreJeu; aller?: (
   const boutique = useStore(store, e => e.boutique);
   const progression = useStore(store, e => e.progression);
   const pension = useStore(store, e => e.pension);
-  const resultat = useMemo(() => calculerObjectifs({ zone, zoneSuivante, argent, progression,
+  const zonesAtteintes = useStore(store, e => e.zonesAtteintes);
+  const resultat = useMemo(() => calculerObjectifs({ zone, zoneSuivante: zoneSuivante && { ...zoneSuivante, atteinte: zonesAtteintes.includes(zoneSuivante.id) }, argent, progression,
     boutique: { ouverte: boutique.acces.ouvert, objets: boutique.objets },
     pension: { ouverte: pension.acces.ouvert, parents: pension.parents.length, oeufs: pension.oeufs.length, especesEcloses: pension.especesEcloses.length },
-  }), [zone, zoneSuivante, argent, boutique, progression, pension]);
+  }), [zone, zoneSuivante, zonesAtteintes, argent, boutique, progression, pension]);
   const [compteur, fixerCompteur] = useState(0);
   const liste = listeFenetre(resultat);
   const nombre = liste.filter(o => o.applicable && !o.fait).length;
@@ -31,7 +33,7 @@ export function ObjectifPermanent({ store, aller }: { store: StoreJeu; aller?: (
   if (!affiche) return null;
   return <>
     <button ref={bouton} type="button" aria-label={`Objectifs : ${affiche.texte}`}
-      className="cadre absolute top-4 right-4 z-20 min-h-11 max-w-1/3 bg-surface/82 px-3 py-2 text-right text-sm font-bold tabular-nums text-neutre-50 lg:text-base"
+      className="cadre absolute top-4 right-4 z-20 min-h-11 max-w-1/2 bg-surface/82 px-3 py-2 text-right text-sm font-bold tabular-nums text-neutre-50 lg:text-base"
       onClick={() => dialogue.current?.showModal()}><span aria-hidden="true" className="block text-xs font-normal text-texte-doux">Objectifs</span><span className="line-clamp-3">{affiche.texte}</span></button>
     <dialog ref={dialogue} aria-labelledby={titre} className="fiche-pokemon cadre w-full max-w-3xl bg-surface p-0 text-base text-texte"
       onClose={() => bouton.current?.focus()} onCancel={e => { e.preventDefault(); fermer(); }}>
@@ -49,7 +51,7 @@ export function ObjectifPermanent({ store, aller }: { store: StoreJeu; aller?: (
             <svg viewBox="0 0 24 24" aria-hidden="true" className="size-5"><path d={o.fait ? 'm5 12 4 4L19 6' : 'M12 5v9m0 3v2'} fill="none" stroke="currentColor" strokeWidth="2" /></svg>
             {o.fait ? 'Fait' : 'À faire'}
           </span>
-          {!o.fait && o.cible && aller && <button type="button" className="cadre min-h-11 bg-surface-2 px-4" onClick={() => { fermer(); aller(o.cible as Page); }}>Y aller</button>}
+          {!o.fait && o.cible && aller && <button type="button" className="cadre min-h-11 bg-surface-2 px-4" onClick={() => { fermer(); aller(o.cible as Page); if (o.guide === 'zoneSuivante') lancerGuideZoneSuivante(); }}>Y aller</button>}
         </li>)}</ul>
       </div>
     </dialog>

@@ -6,6 +6,7 @@ import type { InfosPartie } from './BarreLaterale';
 import { FenetreRaccourcis } from './FenetreRaccourcis';
 import { Navigation } from './Navigation';
 import { BandeauHaut } from './BandeauHaut';
+import { GuideZoneSuivante } from './GuideZoneSuivante';
 import type { Page } from './Navigation';
 import { EcranCombat } from './EcranCombat';
 import { PageCarte, PageCentre } from './PageCentre';
@@ -150,6 +151,7 @@ export function Coquille({ region = 'kanto', theme = 'dark', quandMenuPrincipal,
         fermer={() => storeJeu.getState().fermerBoiteBadges()} declencheur={declencheur} />
       <Notifications quandAller={cible => { if (cible === 'casino') aller('Casino'); else if (cible === 'pension') aller('Pension'); }} />
       {!introActive && !introVue && <Tutoriel page={page === 'Centre' ? 'Carte' : page} aller={aller} />}
+      {!introActive && !introVue && <GuideZoneSuivante />}
       {!introActive && !introVue && <FenetreSac />}
       {!introActive && !introVue && <FenetreEclosion />}
       {!introActive && !introVue && <FenetreEvolution />}

@@ -47,7 +47,7 @@ export function ZoneLigne({ nom, etape, precedente, suivante, aller }: Props) {
           <span className="sr-only">Étape {etape} sur 10</span>
         </>}
       </div>
-      {suivante && <button type="button" className="zone-nav zone-nav-suivante" aria-label={`Zone suivante : ${suivante.nom}`} aria-disabled={!suivante.ouverte} onClick={() => naviguer(suivante)}>
+      {suivante && <button type="button" className="zone-nav zone-nav-suivante" data-guide="zone-suivante" aria-label={`Zone suivante : ${suivante.nom}`} aria-disabled={!suivante.ouverte} onClick={() => naviguer(suivante)}>
         <span>Suivant{etape === null ? ` : ${suivante.nom}` : ''}</span><Chevron />
       </button>}
       {raison !== null && <p role="status" className="zone-raison cadre">{raison}</p>}

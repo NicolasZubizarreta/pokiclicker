@@ -65,6 +65,8 @@ export type DonneesRegion = {
   casinoVu?: boolean;
   /** Le joueur est déjà entré dans la pension : la pastille de rappel est retirée. Absent = jamais entré (sauf si la pension a déjà servi). */
   pensionVue?: boolean;
+  /** Zones où le joueur est déjà entré (objectif « Zone suivante »). Absent dans une sauvegarde ancienne : alors les zones au boss vaincu et la zone courante. */
+  zonesAtteintes?: string[];
   inventaire: Record<string, number>; ligueGagnee: number;
   pc: PokemonPossede[]; ameliorations: string[]; jalonsRecus: number[]; starterId: number | null;
   statistiques: { eliminations: number; argentTotalGagne: number };

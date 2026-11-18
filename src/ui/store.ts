@@ -140,6 +140,8 @@ export type AffichageJeu = ActionsCasino & {
   acheterEmplacementOeuf(): string | null;
   noterEspece(numero: number): void;
   erreurChargement: boolean; zonePrecedente: Destination | null; zoneSuivante: Destination | null;
+  /** Zones où le joueur est déjà entré (objectif « Zone suivante »). */
+  zonesAtteintes: string[];
   versCentre: number; centreVoisines: { precedente: Destination | null; suivante: Destination | null };
   minuteur: { restantMs: number; totalMs: number } | null;
   evenementsDegats: Degat[];
@@ -650,6 +652,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         ? { restantMs: coeur.minuteurMs, totalMs: reglages.combat.minuteurBossMs } : null,
       zonePrecedente: JSON.stringify(zonePrecedente) === JSON.stringify(precedent.zonePrecedente) ? precedent.zonePrecedente : zonePrecedente,
       zoneSuivante: JSON.stringify(zoneSuivante) === JSON.stringify(precedent.zoneSuivante) ? precedent.zoneSuivante : zoneSuivante,
+      zonesAtteintes: JSON.stringify(region.zonesAtteintes ?? []) === JSON.stringify(precedent.zonesAtteintes) ? precedent.zonesAtteintes : region.zonesAtteintes ?? [],
       evenementsDegats: degats });
     degats = [];
   };
@@ -687,6 +690,10 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     resteAutoClicMs = 0;
     if (coeur && tempsJeuMs < finEvolutionMs) coeur = suspendreDps(coeur, finEvolutionMs - tempsJeuMs);
   };
+  const atteindre = (zoneId: string): string[] => {
+    const deja = region.zonesAtteintes ?? [];
+    return deja.includes(zoneId) ? deja : [...deja, zoneId];
+  };
   const changerDeZone = (zoneId: string): void => {
     const lieu = lieuDe(zoneId);
     journal?.synchroniser(lieu, null, region.bossVaincus.includes(zoneId));
@@ -694,7 +701,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     coeur = lieu.sansCombat ? null : creerCombat(zoneDeLigue(lieu, region.starterId), region.equipe.map(versMembreEquipe), alea, actifsCourants(region, horloge.maintenant()), { ...optionsCombat(), autoClic });
     resteAutoClicMs = 0;
     if (coeur && tempsJeuMs < finEvolutionMs) coeur = suspendreDps(coeur, finEvolutionMs - tempsJeuMs);
-    region = { ...region, zoneId, etape: 1 };
+    region = { ...region, zoneId, etape: 1, zonesAtteintes: atteindre(zoneId) };
     synchroniserCombatEvenement();
     annonce = null;
     traiter();
@@ -1211,7 +1218,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     lieu: null, zone: null, etape: 1, ennemi: null, pv: 0, equipe: [], dps: 0, minuteur: null,
     statistiques: calculerStatistiques(),
     nomAdversaire: null, ligueGagnee: 0,
-    erreur: null, erreurChargement: false, zonePrecedente: null, zoneSuivante: null, evenementsDegats: [],
+    erreur: null, erreurChargement: false, zonePrecedente: null, zoneSuivante: null, zonesAtteintes: [], evenementsDegats: [],
     versCentre: 0, centreVoisines: { precedente: null, suivante: null },
     evolution: null, argent: 0, enRecherche: false, cache: false, annonce: null, banniere: null, deblocage: null, deblocageCarte: null, echange: null,
     pc: [], pokedex, vus: [], especesShiny: [], accesPc: { ouvert: false, raison: reglages.pc.raison },
@@ -1260,7 +1267,12 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     },
     allerVers(zoneId) {
       if (zoneId === 'centre-commercial') {
-        if (store.getState().centre.acces.ouvert) store.setState(e => ({ versCentre: e.versCentre + 1 }));
+        if (store.getState().centre.acces.ouvert) {
+          region = { ...region, zonesAtteintes: atteindre(zoneId) };
+          enregistrer();
+          store.setState(e => ({ versCentre: e.versCentre + 1 }));
+          afficher();
+        }
         return;
       }
       if (!initialise || !acces(zoneId).ok) return;
@@ -1282,6 +1294,8 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
           region = normaliserRonflex(persistance.region);
           // Ancienne sauvegarde sans le champ : tout ce qui est déjà ouvert compte comme vu, rien ne se rejoue.
           if (region.annoncesVues === undefined) region = { ...region, annoncesVues: deblocagesAtteints(region, kanto) };
+          // Ancienne sauvegarde sans le champ : les zones au boss vaincu et la zone courante ont forcément été visitées.
+          if (region.zonesAtteintes === undefined) region = { ...region, zonesAtteintes: [...new Set([...region.bossVaincus, region.zoneId])] };
           const tutosMigres = region.tutosVus === undefined;
           if (tutosMigres) region = { ...region, tutosVus: tutosDejaDepasses(region) };
           else if (new Set(region.tutosVus).size !== region.tutosVus!.length) region = { ...region, tutosVus: [...new Set(region.tutosVus)] };

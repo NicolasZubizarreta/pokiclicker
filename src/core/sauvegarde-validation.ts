@@ -161,6 +161,7 @@ export function validerDonneesRegion(v: unknown): asserts v is DonneesRegion {
     tutosVus,
     casinoVu: booleen,
     pensionVue: booleen,
+    zonesAtteintes: textes,
     evenementEnCours: e => forme(e, { id: identifiant,
       etape: i => { entier(i); exiger((i as number) >= 0, 'Étape invalide'); },
       file: liste(identifiant) }),
