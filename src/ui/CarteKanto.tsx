@@ -2,14 +2,13 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { PointerEvent as EvenementPointeur } from 'react';
 import { useStore } from 'zustand';
 import tailles from '../../public/img/tailles.json';
-import positionsCarte from '../../data/regions/kanto/carte-positions.json';
 import { centreForme, deplacer, positionFiche, rayonCible, vueInitiale, zoomer } from './carte-geometrie';
 import type { Point, Vue } from './carte-geometrie';
 import { storeJeu } from './store';
 import { PastilleCasino, useCasinoNouveau } from './PastilleCasino';
 import { PastillePension, usePensionNouveau } from './PastillePension';
 import type { EtatForme } from './store';
-import { kanto } from '../core/regions';
+import { useRegion } from './ContexteRegion';
 import type { FormeCarte } from '../core/monde';
 import { reglages } from '../core/reglages';
 import { Image, imageConnue } from './Image';
@@ -20,19 +19,20 @@ import './CarteTelephone.css';
 import './CartePC.css';
 
 const nomAccessible = (f: EtatForme) => f.numero === null || f.numero <= 0 ? f.nom : `${f.nom} (Zone ${f.numero})`;
-// Positions des repères sur l'image, en fractions de sa largeur et de sa hauteur (data/regions/kanto/carte-positions.json).
-const positions = positionsCarte as Record<string, Point>;
-const centreDe = (f: EtatForme): Point => {
+// Positions des repères sur l'image, en fractions de sa largeur et de sa hauteur.
+const centreSur = (positions: Record<string, Point>, f: EtatForme): Point => {
   const p = f.zone ? positions[f.zone] : undefined;
   return p ? { x: p.x * 16, y: p.y * 9 } : centreForme(f.forme);
 };
-// Le vol part du repère de la zone actuelle : on le représente par un petit cercle posé dessus.
-const formeDepart = (f: EtatForme): FormeCarte => {
-  const c = centreDe(f);
-  return { zone: f.zone, nom: f.nom, teinte: f.forme.teinte, forme: 'cercle', x: c.x / 16, y: c.y / 9, r: 0.01 };
-};
 
 export function CarteKanto({ quandArrive, quandCentre, quandCasino, quandPension }: { quandArrive: () => void; quandCentre?: () => void; quandCasino?: () => void; quandPension?: () => void }) {
+  const { monde, positionsCarte } = useRegion();
+  const centreDe = (f: EtatForme) => centreSur(positionsCarte, f);
+  // Le vol part du repère de la zone actuelle : on le représente par un petit cercle posé dessus.
+  const formeDepart = (f: EtatForme): FormeCarte => {
+    const c = centreDe(f);
+    return { zone: f.zone, nom: f.nom, teinte: f.forme.teinte, forme: 'cercle', x: c.x / 16, y: c.y / 9, r: 0.01 };
+  };
   const telephone = useTelephone();
   const [celadopoleOuverte, ouvrirCeladopole] = useState(false);
   const dialogueCeladopole = useRef<HTMLDialogElement>(null);
@@ -68,9 +68,9 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino, quandPension
   // Sur PC l'Arène est grisée pour trois raisons distinctes : on dit la vraie.
   const raisonArene = formeArene?.terminee ? 'Terminée, plus accessible' : formeArene && !formeArene.ouverte ? formeArene.raison ?? 'Pas encore accessible.' : 'Tu es ici.';
   const zones = carte.formes.filter(f => f.zone !== null)
-    .sort((a, b) => kanto.zones.findIndex(z => z.id === a.zone) - kanto.zones.findIndex(z => z.id === b.zone));
+    .sort((a, b) => monde.zones.findIndex(z => z.id === a.zone) - monde.zones.findIndex(z => z.id === b.zone));
   const dimensions = tailles['img/decors/carte-kanto.webp'];
-  const decor = choisie?.zone ? cheminDecor(kanto.zone(choisie.zone)) : null;
+  const decor = choisie?.zone ? cheminDecor(monde.zone(choisie.zone)) : null;
   // Repères : 14 px de rayon sur grand écran, plus petits quand la carte est étroite.
   const rayonRepere = Math.min(14, largeur / 30);
 
@@ -80,12 +80,12 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino, quandPension
     const style = getComputedStyle(element);
     if (style.getPropertyValue('--fiche-ancree').trim() !== '1') return;
     const rect = svg.current.getBoundingClientRect();
-    const position = positionFiche(centreDe(choisie), vue,
+    const position = positionFiche(centreSur(positionsCarte, choisie), vue,
       { largeur: rect.width, hauteur: rect.height },
       { largeur: element.offsetWidth, hauteur: element.offsetHeight }, parseFloat(style.paddingLeft));
     element.style.setProperty('--fiche-x', `${position.x}px`);
     element.style.setProperty('--fiche-y', `${position.y}px`);
-  }, [choisie, vue, largeur, vol.actif, centreOuvert, raisonCentre, raisonCasino]);
+  }, [choisie, vue, largeur, vol.actif, centreOuvert, raisonCentre, raisonCasino, positionsCarte]);
 
   useEffect(() => { void precharger(imagesVol); }, []);
 

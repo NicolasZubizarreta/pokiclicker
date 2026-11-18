@@ -5,6 +5,8 @@ import { nettoyerCachesImages } from '../pwa/nettoyer-caches';
 import { brancherSons } from './sons';
 import { musique } from './musique';
 import { storeJeu } from './store';
+import { chargerRegion } from './composition-root';
+import { ContexteRegion } from './ContexteRegion';
 import '../styles/index.css';
 
 // Le contexte audio et la musique ne démarrent qu'au premier geste réel du joueur (règle des navigateurs).
@@ -27,8 +29,16 @@ if (!racine) {
   throw new Error('Le conteneur du jeu est introuvable.');
 }
 
-createRoot(racine).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-);
+chargerRegion('kanto')
+  .then(region => {
+    createRoot(racine).render(
+      <StrictMode>
+        <ContexteRegion.Provider value={region}>
+          <App />
+        </ContexteRegion.Provider>
+      </StrictMode>,
+    );
+  })
+  .catch(() => {
+    racine.textContent = 'Impossible de charger la région.';
+  });

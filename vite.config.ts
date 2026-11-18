@@ -61,5 +61,6 @@ export default defineConfig(({ command, mode, isPreview }) => ({
     // Les tests d'ESLint et d'encodage d'images (sharp) dépassent 5 s quand les tests tournent en parallèle.
     testTimeout: 30000,
     include: ['src/**/*.test.ts', 'src/**/*.test.tsx', 'tests/**/*.test.ts'],
+    setupFiles: ['src/ui/region-tests.ts'],
   },
 }));
