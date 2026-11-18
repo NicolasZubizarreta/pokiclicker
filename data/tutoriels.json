@@ -80,6 +80,33 @@
       "etapes": [
         { "cible": "reglage", "texte": "Auto-clic clique à ta place : active-le dans les réglages.", "action": "ok" }
       ]
+    },
+    {
+      "id": "evolution",
+      "ecran": "Combat",
+      "titre": "Première évolution",
+      "declencheur": { "evenement": "evolution" },
+      "etapes": [
+        { "cible": null, "texte": "Tu peux désactiver la fenêtre d'évolution : Réglages, Évolution automatique.", "action": "ok" }
+      ]
+    },
+    {
+      "id": "eclosion",
+      "ecran": "Combat",
+      "titre": "Première éclosion",
+      "declencheur": { "evenement": "eclosion" },
+      "etapes": [
+        { "cible": null, "texte": "Tu peux passer les éclosions : Réglages, Passer les éclosions.", "action": "ok" }
+      ]
+    },
+    {
+      "id": "relache",
+      "ecran": "Combat",
+      "titre": "Première relâche",
+      "declencheur": { "evenement": "relache" },
+      "etapes": [
+        { "cible": null, "texte": "Relâche les doublons tout seul : Réglages, Relâcher automatiquement les doublons.", "action": "ok" }
+      ]
     }
   ]
 }

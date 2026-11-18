@@ -320,7 +320,11 @@ it('relâche seulement le lot choisi, protège les favoris et restitue la Pierre
   const avant = store.getState().pc;
   expect(store.getState().relacherLot(['x', 'f'])).toBeTruthy();
   expect(store.getState().pc).toBe(avant);
+  expect(store.getState().tutoAArmer(new Set())).not.toBe('relache');
   expect(store.getState().relacherLot(['x', 'y'])).toBeNull();
+  expect(store.getState().tutoAArmer(new Set())).toBe('relache');
+  store.getState().marquerTutoVu('relache');
+  expect(store.getState().tutoAArmer(new Set())).not.toBe('relache');
   expect(store.getState().pc.map(p => p.uid)).toEqual(['f']);
   const sauvegarde = JSON.parse(stockage.lire('pokiclicker:region:test:kanto')!).donnees as DonneesRegion;
   expect(sauvegarde.inventaire.everstone).toBe(3);

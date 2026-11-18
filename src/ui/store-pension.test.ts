@@ -109,6 +109,9 @@ it('pond après une victoire, retire l’œuf, avance et éclot à la 50e victoi
   expect(p.store.getState().especesShiny).toContain(25);
   expect(p.store.getState().pension.especesEclosesShiny).toContain(25);
   expect(p.store.getState().equipe.find(p => p?.pokemon.uid === oeuf.uid)?.pokemon.marqueEclosion).toBe(true);
+  expect(p.store.getState().tutoAArmer(new Set())).toBe('eclosion');
+  p.store.getState().marquerTutoVu('eclosion');
+  expect(p.store.getState().tutoAArmer(new Set())).not.toBe('eclosion');
   p.store.getState().fermerEclosion();
   expect(p.store.getState().eclosion).toBeNull();
 });

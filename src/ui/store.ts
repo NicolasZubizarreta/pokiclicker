@@ -388,6 +388,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         }
         const eclosionsGardees = r.eclosions.filter(e => region.equipe.some(p => p.uid === e.uid));
         emettreGain({ type: 'butin', lignes: [`+${r.or.toLocaleString('fr-FR')} ₽`, `+${r.xp.toLocaleString('fr-FR')} XP`] });
+        if (r.eclosions.length > 0) evenementsTuto.add('eclosion');
         if (r.montees.length > 0 || r.eclosions.length > 0) emettreSon('up'); // le ton « up » de la V1 sonne aussi à l'éclosion
         if (!preferences.passerEclosions) fileEclosions.push(...construireEclosions(especesAvant, region, eclosionsGardees));
         if (pension.accesPension(kanto, etatMondeDe(region)).ouvert) {
@@ -737,7 +738,10 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     else journal?.reprendre();
   };
   const quitter = () => { journal?.pauser('rechargement'); signaler(true); };
+  /** Premiers événements de la session qui arment un mini-tuto (évolution, éclosion, relâche) : en mémoire seulement. */
+  const evenementsTuto = new Set<string>();
   const demarrerEvolution = (evolution: { uid: string; de: number; vers: number }) => {
+    evenementsTuto.add('evolution');
     emettreSon('up');
     finEvolutionMs = tempsJeuMs + reglages.evolution.animationMs;
     if (coeur) coeur = suspendreDps(coeur, reglages.evolution.animationMs);
@@ -770,6 +774,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     afficher();
     return null;
   };
+  const noterRelache = (message: string | null): string | null => { if (message === null) evenementsTuto.add('relache'); return message; };
   const modifierPension = (action: (region: DonneesRegion) => equipe.ResultatEquipe & {
     destination?: 'equipe' | 'pc'; numero?: number;
   }, noter = false): string | null => modifierEquipe(courante => {
@@ -976,7 +981,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     tutosVus: [],
     eliminations: 0,
     tutoAArmer(visibles) {
-      return initialise ? tutoAArmer(region, deblocagesAtteints(region, kanto), visibles)?.id ?? null : null;
+      return initialise ? tutoAArmer(region, deblocagesAtteints(region, kanto), visibles, evenementsTuto)?.id ?? null : null;
     },
     marquerTutoVu(id) {
       if (!initialise) return;
@@ -1241,8 +1246,8 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     },
     renommer: (uid, texte) => modifierEquipe(region => equipe.renommer(region, uid, texte)),
     basculerFavori: uid => modifierEquipe(region => equipe.basculerFavori(region, uid)),
-    relacher: uid => modifierEquipe(region => equipe.relacherPokemon(region, uid)),
-    relacherLot: uids => modifierEquipe(region => equipe.relacherLot(region, uids)),
+    relacher: uid => noterRelache(modifierEquipe(region => equipe.relacherPokemon(region, uid))),
+    relacherLot: uids => noterRelache(modifierEquipe(region => equipe.relacherLot(region, uids))),
     envoyerAuPc: uid => modifierEquipe(region => equipe.envoyerAuPc(region, uid), undefined, false, 'pc'),
     placerDansEquipe: uid => modifierEquipe(region => equipe.placerDansEquipe(region, uid), uid, false, 'pc'),
     echanger: (uidPc, uidEquipe) => modifierEquipe(region => equipe.echanger(region, uidPc, uidEquipe), undefined, true, 'pc'),

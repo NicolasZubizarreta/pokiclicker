@@ -6,7 +6,10 @@ import type { DonneesRegion } from './sauvegarde-types';
 
 export type ActionTuto = 'clic' | 'vaincu' | 'equipe' | 'sac' | 'ok';
 export type EtapeTuto = { cible: string | null; texte: string; geste?: string; action: ActionTuto };
-export type DeclencheurTuto = { debut: 'nouvelle-partie' } | { cible: string; deblocage: string };
+/** Événement de jeu qui arme un mini-tuto la première fois : retenu en mémoire par la partie, jamais sauvegardé. */
+export const EVENEMENTS_TUTO = ['evolution', 'eclosion', 'relache'] as const;
+export type EvenementTuto = (typeof EVENEMENTS_TUTO)[number];
+export type DeclencheurTuto = { debut: 'nouvelle-partie' } | { cible: string; deblocage: string } | { evenement: EvenementTuto };
 export type EcranTuto = 'Combat' | 'Carte' | 'PC' | 'Casino' | 'Pension';
 export type Tutoriel = { id: string; titre: string; ecran: EcranTuto; declencheur: DeclencheurTuto; etapes: EtapeTuto[] };
 
@@ -28,6 +31,7 @@ export function validerTutoriels(liste: Tutoriel[]): void {
     const d = tuto.declencheur;
     if (!d || typeof d !== 'object' || !(
       ('debut' in d && Object.keys(d).length === 1 && d.debut === 'nouvelle-partie')
+      || ('evenement' in d && Object.keys(d).length === 1 && EVENEMENTS_TUTO.includes(d.evenement))
       || ('cible' in d && Object.keys(d).length === 2 && texteNonVide(d.cible) && deblocages.some(element => element.id === d.deblocage))
     )) throw new Error(`Déclencheur de tutoriel invalide : ${tuto.id}`);
   }
@@ -54,16 +58,20 @@ export function tutosDejaDepasses(region: DonneesRegion): string[] {
     if (id === 'pension') return pensionVisitee(region);
     if (id === 'casino') return region.casinoVu === true || region.jetons > 0;
     // Une fonction déjà annoncée avant la mise à jour est déjà connue du joueur.
-    return !('debut' in declencheur) && (region.annoncesVues ?? []).includes(declencheur.deblocage);
+    if ('evenement' in declencheur) return declencheur.evenement === 'eclosion' && [...region.equipe, ...region.pc].some(p => p.marqueEclosion);
+    return 'deblocage' in declencheur && (region.annoncesVues ?? []).includes(declencheur.deblocage);
   }).map(tuto => tuto.id);
 }
 
 /** « visibles » peut être une fonction : le DOM n'est interrogé qu'une fois, et seulement si un tutoriel non vu a déjà son déblocage. */
-export function tutoAArmer(region: DonneesRegion, atteints: readonly string[], visibles: ReadonlySet<string> | (() => ReadonlySet<string>)): Tutoriel | null {
+export function tutoAArmer(region: DonneesRegion, atteints: readonly string[], visibles: ReadonlySet<string> | (() => ReadonlySet<string>),
+  evenements: ReadonlySet<string> = new Set()): Tutoriel | null {
   let lues: ReadonlySet<string> | undefined;
   const vues = () => lues ??= typeof visibles === 'function' ? visibles() : visibles;
   return tutoriels.find(({ id, declencheur, etapes }) => !(region.tutosVus ?? []).includes(id) && (
-    'debut' in declencheur
+    'evenement' in declencheur
+      ? evenements.has(declencheur.evenement)
+      : 'debut' in declencheur
       ? region.evenementsJoues.includes('kanto.intro') && region.starterId !== null && region.statistiques.eliminations === 0 && vues().has(etapes[0]!.cible ?? '')
       : atteints.includes(declencheur.deblocage) && vues().has(declencheur.cible)
   )) ?? null;

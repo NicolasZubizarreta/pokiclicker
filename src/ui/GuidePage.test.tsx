@@ -7,13 +7,13 @@ import { lancerTuto } from './tuto/store-tuto';
 vi.mock('./useTelephone', () => ({ useTelephone: () => true }));
 vi.mock('./tuto/store-tuto', () => ({ lancerTuto: vi.fn() }));
 afterEach(cleanup);
-it('liste les huit tutoriels et permet leur rejeu', () => {
+it('liste les onze tutoriels et permet leur rejeu', () => {
   render(<GuidePage retour={vi.fn()} />);
   const nav = screen.queryByRole('navigation', { name: 'Sections du guide' });
   if (nav) fireEvent.click(within(nav).getByRole('button', { name: 'Tutoriels' }));
   const section = within(screen.getByRole('region', { name: 'Tutoriels' }));
   const boutons = section.getAllByRole('button', { name: 'Rejouer le tuto' });
-  expect(boutons).toHaveLength(8);
+  expect(boutons).toHaveLength(11);
   tutoriels.forEach((t, i) => {
     expect(section.getByText(t.titre)).toBeTruthy();
     fireEvent.click(boutons[i]!); expect(lancerTuto).toHaveBeenLastCalledWith(t.id, true);

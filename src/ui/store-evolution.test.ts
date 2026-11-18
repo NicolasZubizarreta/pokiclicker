@@ -106,7 +106,11 @@ describe('annonceEvolution', () => {
 describe('évolution dans le store', () => {
   it('évolue, annonce, expose les sprites et recharge la cible et le Pokédex', () => {
     const { store, stockage } = preparer();
+    expect(store.getState().tutoAArmer(new Set())).not.toBe('evolution');
     expect(store.getState().evoluer('bulbi')).toBeNull();
+    expect(store.getState().tutoAArmer(new Set())).toBe('evolution');
+    store.getState().marquerTutoVu('evolution');
+    expect(store.getState().tutoAArmer(new Set())).not.toBe('evolution');
     expect(store.getState().equipe[0]!.pokemon.numero).toBe(2);
     expect(store.getState().annonce).toBe('Évolution !');
     expect(store.getState().evolution).toEqual({ uid: 'bulbi', ancien: 1, nouveau: 2 });

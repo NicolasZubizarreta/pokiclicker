@@ -61,6 +61,33 @@ it('reconnaît seulement les tutoriels déjà dépassés', () => {
   expect(tutosDejaDepasses({ ...region, pensionVue: true })).toEqual(['pension']);
 });
 
+it('arme les mini-tutos d’événement une fois, sans DOM, et ne les rejoue pas', () => {
+  const region = { ...depart(), tutosVus: ['route-1'] };
+  for (const [id, evenement] of [['evolution', 'evolution'], ['eclosion', 'eclosion'], ['relache', 'relache']] as const) {
+    expect(tutoriel(id).declencheur).toEqual({ evenement });
+    expect(tutoriel(id).etapes).toHaveLength(1);
+    expect(tutoAArmer(region, [], new Set(), new Set())?.id).not.toBe(id);
+    expect(tutoAArmer(region, [], new Set(), new Set([evenement]))?.id).toBe(id);
+    expect(tutoAArmer(avecTutoVu(region, id), [], new Set(), new Set([evenement]))).toBeNull();
+  }
+  expect(tutoriel('evolution').etapes[0]!.texte).toContain('Évolution automatique');
+  expect(tutoriel('eclosion').etapes[0]!.texte).toContain('Passer les éclosions');
+  expect(tutoriel('relache').etapes[0]!.texte).toContain('Relâcher automatiquement les doublons');
+});
+
+it('refuse un déclencheur d’événement inconnu ou mêlé à un autre', () => {
+  const base = tutoriel('evolution');
+  expect(() => validerTutoriels([{ ...base, declencheur: { evenement: 'autre' } } as unknown as Tutoriel])).toThrowError();
+  expect(() => validerTutoriels([{ ...base, declencheur: { evenement: 'evolution', debut: 'nouvelle-partie' } } as unknown as Tutoriel])).toThrowError();
+});
+
+it('migre sans perte : une ancienne liste « vus » garde ses entrées et seule l’éclosion déjà vécue est dérivée', () => {
+  expect(tutosDejaDepasses(depart())).toEqual([]);
+  const ecloseur = { ...depart().equipe[0]!, marqueEclosion: true };
+  expect(tutosDejaDepasses({ ...depart(), pc: [ecloseur] })).toEqual(['pc', 'eclosion']);
+  expect(avecTutoVu({ ...depart(), tutosVus: ['pc', 'casino'] }, 'relache').tutosVus).toEqual(['pc', 'casino', 'relache']);
+});
+
 it('dérive un tutoriel de déblocage depuis l’annonce déjà vue, sans toucher à la Route 1', () => {
   const region = { ...depart(), annoncesVues: ['poke-radar', 'route-1'] };
   const declencheur = tutoriel('poke-radar').declencheur;
