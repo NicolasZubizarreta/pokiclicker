@@ -35,7 +35,7 @@ async function demarrer(page: Page, options: { rempli?: boolean; vide?: boolean;
 }
 
 async function menu(page: Page, nom: RegExp) {
-  await page.keyboard.press('7');
+  await page.keyboard.press('8');
   await page.getByRole('button', { name: nom }).first().click();
 }
 
@@ -135,11 +135,11 @@ test('États PC : notification fixe en bas à droite (notifications)', async ({ 
   });
 });
 
-test('États PC : les touches 1 à 7 sont visibles dans la barre latérale à 1440 px et masquées à 1100 px (touches)', async ({ page }) => {
+test('États PC : les touches 1 à 8 sont visibles dans la barre latérale à 1440 px et masquées à 1100 px (touches)', async ({ page }) => {
   await demarrer(page);
   const touches = page.locator('.barre-laterale kbd.touche-pc');
-  await expect(touches).toHaveCount(7);
-  for (let i = 0; i < 7; i++) await expect(touches.nth(i)).toBeVisible();
+  await expect(touches).toHaveCount(8);
+  for (let i = 0; i < 8; i++) await expect(touches.nth(i)).toBeVisible();
   await page.setViewportSize({ width: 1100, height: 800 });
   await expect(touches.first()).toBeHidden();
 });

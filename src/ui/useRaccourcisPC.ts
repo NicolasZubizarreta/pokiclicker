@@ -4,7 +4,7 @@ import { useTelephone } from './useTelephone';
 import { storeJeu } from './store';
 
 const visible = (element: HTMLElement) => !element.closest('[hidden], [inert]') && element.getClientRects().length > 0;
-const pages: Page[] = ['Combat', 'Équipe', 'PC', 'Shop', 'Carte', 'Pokédex', 'Menu'];
+const pages: Page[] = ['Combat', 'Équipe', 'PC', 'Shop', 'Carte', 'Pokédex', 'Pension', 'Menu'];
 const actions: Record<string, string> = { ' ': 'attaquer', Enter: 'attaquer', c: 'capturer', b: 'balle', a: 'auto', t: 'arret', r: 'reglage', s: 'sac', f: 'fauchage', p: 'radar' };
 
 export function useRaccourcisPC({ page, aller, raccourcisOuverts, basculerRaccourcis, actif }: {
@@ -34,7 +34,10 @@ export function useRaccourcisPC({ page, aller, raccourcisOuverts, basculerRaccou
       }
       if (event.key === '?') { basculerRaccourcis(); return; }
       const destination = pages[Number(event.key) - 1];
-      if (/^[1-7]$/.test(event.key) && destination) { aller(destination); return; }
+      if (/^[1-8]$/.test(event.key) && destination) {
+        if (destination !== 'Pension' || storeJeu.getState().pension.acces.ouvert) aller(destination);
+        return;
+      }
       const contenu = document.getElementById('contenu');
       if (event.key === '/') {
         const recherche = [...(contenu?.querySelectorAll<HTMLInputElement>('input[type="search"]') ?? [])].find(visible);
