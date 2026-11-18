@@ -25,7 +25,7 @@ test('applications successives, annulation, fermeture, navigation et épuisement
   for (const [index, nom] of ['Bulbizarre', 'Salamèche'].entries()) {
     const carte = page.getByRole('button', { name: `${nom}, niveau 16`, exact: true });
     await carte.click();
-    await page.getByRole('button', { name: 'Valider', exact: true }).click();
+    await page.getByRole('button', { name: 'Utiliser', exact: true }).click();
     await expect(page.getByRole('status').filter({ hasText: 'touche un Pokémon' })).toHaveText(`Super Bonbon ×${2 - index} : touche un Pokémon`);
     await expect(page.getByRole('button', { name: `${nom}, niveau 17`, exact: true })).toBeFocused();
   }
@@ -40,7 +40,7 @@ test('applications successives, annulation, fermeture, navigation et épuisement
   await expect(page.getByText(/touche un Pokémon/)).toHaveCount(0);
   await (await ouvrirSac(page)).getByRole('button', { name: 'Super Bonbon ×1', exact: true }).click();
   await page.getByRole('button', { name: 'Bulbizarre, niveau 17', exact: true }).click();
-  await page.getByRole('button', { name: 'Valider', exact: true }).click();
+  await page.getByRole('button', { name: 'Utiliser', exact: true }).click();
   await expect(page.getByText(/touche un Pokémon/)).toHaveCount(0);
   await expect(page.locator('[data-notifications]')).toContainText('Plus de Super Bonbon.');
 });

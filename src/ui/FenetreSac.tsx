@@ -33,7 +33,7 @@ function FenetreOuverte() {
         if (!entree.utilisable || entree.quantite <= 0) return;
         if (entree.utilisable === 'direct') { annoncer(utiliserObjetActif(entree.id)); return; }
         choisirObjet({ type: entree.utilisable, cle: entree.id, nom: entree.nom });
-      }} />
+      }} annoncer={annoncer} />
       <p role="status">{message ?? ''}</p>
     </div>
   </dialog>;

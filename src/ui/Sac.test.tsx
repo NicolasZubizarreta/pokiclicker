@@ -117,7 +117,7 @@ it.each([
   expect(screen.queryByText('UTILISER')).toBeNull();
 });
 
-it.each(['stase', 'jeton', 'direct'] as const)('transmet le nouvel usage %s sans bouton imbriqué ni action principale', utilisable => {
+it.each(['stase', 'jeton'] as const)('transmet le nouvel usage %s sans bouton imbriqué ni action principale', utilisable => {
   const utiliser = vi.fn();
   const entree = { ...sac.entrees[1]!, utilisable };
   const { container } = render(<Sac sac={{ ...sac, entrees: [entree] }} utiliser={utiliser} />);
@@ -129,6 +129,44 @@ it.each(['stase', 'jeton', 'direct'] as const)('transmet le nouvel usage %s sans
   expect(container.querySelectorAll('.bg-action')).toHaveLength(0);
 });
 
+it('ouvre un sélecteur de quantité pour un objet direct et l’utilise n fois', () => {
+  const avant = storeJeu.getState();
+  const entree = { ...sac.entrees[1]!, id: 'repel', nom: 'Repousse', quantite: 120, utilisable: 'direct' as const };
+  const contenu: AffichageSac = { ...sac, entrees: [entree] };
+  const utiliserObjetActif = vi.fn(() => {
+    const etat = storeJeu.getState();
+    storeJeu.setState({ sac: { ...etat.sac, entrees: etat.sac.entrees.map(e => ({ ...e, quantite: e.quantite - 1 })) } });
+    return null;
+  });
+  storeJeu.setState({ sac: contenu, utiliserObjetActif });
+  try {
+    const utiliser = vi.fn();
+    render(<Sac sac={contenu} utiliser={utiliser} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Repousse ×120' }));
+    expect(utiliser).not.toHaveBeenCalled();
+    const valeur = () => screen.getByLabelText('Quantité', { selector: 'output' }).textContent;
+    expect(valeur()).toBe('1');
+    fireEvent.click(screen.getByRole('button', { name: 'Moins' }));
+    expect(valeur()).toBe('99');
+    fireEvent.click(screen.getByRole('button', { name: 'Plus' }));
+    expect(valeur()).toBe('1');
+    fireEvent.click(screen.getByRole('button', { name: 'Plus dix' }));
+    expect(valeur()).toBe('11');
+    fireEvent.click(screen.getByRole('button', { name: 'Maximum possible' }));
+    expect(valeur()).toBe('99');
+    fireEvent.click(screen.getByRole('button', { name: 'Moins' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Moins' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Utiliser' }));
+    expect(utiliserObjetActif).toHaveBeenCalledTimes(97);
+    expect(utiliserObjetActif).toHaveBeenCalledWith('repel');
+    expect(valeur()).toBe('1');
+    fireEvent.click(screen.getByRole('button', { name: 'Annuler' }));
+    expect(screen.queryByRole('group', { name: 'Quantité de Repousse' })).toBeNull();
+  } finally {
+    cleanup();
+    storeJeu.setState(avant);
+  }
+});
 describe('objets clés', () => {
   let avant: ReturnType<typeof storeJeu.getState>;
   beforeEach(() => {

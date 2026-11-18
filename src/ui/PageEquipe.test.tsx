@@ -251,7 +251,7 @@ it.each(['bouton', 'Échap', 'extérieur', 'validation', 'déclencheur disparu']
     expect(storeSac.getState().objet).not.toBeNull();
     fireEvent.keyDown(document, { key: 'Escape' });
   }
-  else if (moyen === 'validation') fireEvent.click(screen.getByRole('button', { name: 'Valider' }));
+  else if (moyen === 'validation') fireEvent.click(screen.getByRole('button', { name: 'Utiliser' }));
   else fireEvent.keyDown(document, { key: 'Escape' });
   expect(declencheur.isConnected).toBe(true);
   expect(document.activeElement).toBe(moyen === 'validation' || moyen === 'bouton' ? screen.getByRole('button', { name: 'Bourgeon, niveau 16' }) : screen.getByRole('button', { name: 'Fermer' }));
@@ -278,7 +278,7 @@ it('utilise deux Bonbons pour gagner exactement deux niveaux sans changer l’XP
   expect(screen.queryByRole('dialog')).toBeNull();
   expect(document.querySelectorAll('button.bg-action')).toHaveLength(1);
   fireEvent.click(screen.getByRole('button', { name: 'Plus' }));
-  fireEvent.click(screen.getByRole('button', { name: 'Valider' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Utiliser' }));
   expect(utiliserObjet).toHaveBeenCalledWith('bonbon', 'premier', 2);
   expect(storeJeu.getState().equipe[0]?.pokemon.niveau).toBe(18);
   expect(storeJeu.getState().equipe[0]?.pokemon.xp).toBe(30);
@@ -296,7 +296,7 @@ it('enchaîne deux cibles puis ferme à stock zéro avec une notification', () =
   const cartes = document.querySelectorAll<HTMLButtonElement>('button[data-uid]');
   for (let i = 0; i < 2; i++) {
     fireEvent.click(cartes[i]!);
-    fireEvent.click(screen.getByRole('button', { name: 'Valider' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Utiliser' }));
     if (i === 0) {
       expect(screen.getByText('Bonbon ×1 : touche un Pokémon')).toBeTruthy();
       expect(document.activeElement).toBe(cartes[i]);
@@ -325,7 +325,6 @@ it('laisse les œufs et les niveaux maximum inertes et borne les Bonbons au nive
   expect(screen.queryByRole('menu')).toBeNull();
   fireEvent.click(screen.getByRole('button', { name: 'Bourgeon, niveau 98' }));
   fireEvent.click(screen.getByRole('button', { name: 'Plus' }));
-  expect((screen.getByRole('button', { name: 'Plus' }) as HTMLButtonElement).disabled).toBe(true);
   expect(screen.getByLabelText('Quantité', { selector: 'output' }).textContent).toBe('2');
 });
 
@@ -338,8 +337,7 @@ it('borne la Baie Grena au plafond et permet une utilisation en série', () => {
   fireEvent.click(screen.getByRole('button', { name: 'Bourgeon, niveau 16' }));
   fireEvent.click(screen.getByRole('button', { name: 'Plus' }));
   fireEvent.click(screen.getByRole('button', { name: 'Plus' }));
-  expect((screen.getByRole('button', { name: 'Plus' }) as HTMLButtonElement).disabled).toBe(true);
-  fireEvent.click(screen.getByRole('button', { name: 'Valider' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Utiliser' }));
   expect(storeJeu.getState().utiliserObjet).toHaveBeenCalledWith('baie', 'premier', 3);
   expect(message()).toBe('+6 de bonheur');
 });
@@ -351,8 +349,7 @@ it('borne le Calcium au stock et à la limite et affiche une erreur du store', (
   preparerObjet('calcium', 1);
   expect((screen.getByRole('button', { name: 'Limite, niveau 16' }) as HTMLButtonElement).disabled).toBe(true);
   fireEvent.click(screen.getByRole('button', { name: 'Bourgeon, niveau 16' }));
-  expect((screen.getByRole('button', { name: 'Plus' }) as HTMLButtonElement).disabled).toBe(true);
-  fireEvent.click(screen.getByRole('button', { name: 'Valider' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Utiliser' }));
   expect(storeJeu.getState().utiliserObjet).toHaveBeenCalledWith('calcium', 'premier', 1);
   expect(message()).toBe('Quantité invalide.');
 });
@@ -552,6 +549,7 @@ function preparerActif(type: 'stase' | 'jeton' | 'direct', p: PokemonPossede = p
   fireEvent.click(screen.getByRole('button', { name: 'Sac' }));
   const declencheur = screen.getByRole('button', { name: `${nom} ×2` });
   fireEvent.click(declencheur);
+  if (type === 'direct') fireEvent.click(screen.getByRole('button', { name: 'Utiliser' }));
   return declencheur;
 }
 
@@ -640,7 +638,7 @@ it('fait pulser aussi les chromatiques et les œufs pour le Jeton', () => {
 it('annonce le message direct en pop-up sans rien ajouter à la page', () => {
   storeJeu.setState({ utiliserObjetActif: vi.fn(() => 'Boss non vaincu !') });
   preparerActif('direct');
-  expect(within(screen.getByRole('dialog', { name: 'Ton Sac' })).getByRole('status').textContent).toBe('Boss non vaincu !');
+  expect(within(screen.getByRole('dialog', { name: 'Ton Sac' })).getAllByRole('status').find(z => z.tagName === 'P')!.textContent).toBe('Boss non vaincu !');
   expect(within(screen.getAllByRole('list')[0]!).queryByText('Boss non vaincu !')).toBeNull();
   expect(screen.getAllByRole('status')[0]!.textContent).toBe('');
 });
@@ -656,7 +654,7 @@ it.each([null, 'Boss non vaincu !'])('utilise directement le Sac et annonce le r
   storeJeu.setState({ utiliserObjetActif });
   preparerActif('direct');
   expect(utiliserObjetActif).toHaveBeenCalledWith('repel');
-  expect(within(screen.getByRole('dialog', { name: 'Ton Sac' })).getByRole('status').textContent).toBe(refus ?? '');
+  expect(within(screen.getByRole('dialog', { name: 'Ton Sac' })).getAllByRole('status').find(z => z.tagName === 'P')!.textContent).toBe(refus ?? '');
   expect(screen.getAllByRole('status')[0]!.textContent).toBe('');
   expect(screen.queryByRole('group', { name: /^Utiliser/ })).toBeNull();
   expect(storeJeu.getState().sac.entrees[0]?.quantite).toBe(refus ? 2 : 1);

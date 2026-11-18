@@ -315,7 +315,7 @@ export function PageEquipe({ ouvrirPC }: { ouvrirPC?: () => void }) {
           }
           annoncerObjet(null);
           selectionner({ type: entree.utilisable, cle: entree.id, nom: entree.nom });
-        }} />
+        }} annoncer={annoncerObjet} />
       </div>}
       </div>}
     </div>

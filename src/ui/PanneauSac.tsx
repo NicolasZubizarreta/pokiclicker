@@ -35,7 +35,7 @@ export function PanneauSac({ sac, utiliserObjetActif, choisirObjet, fermer, decl
         }
         choisirObjet({ type: entree.utilisable, cle: entree.id, nom: entree.nom });
         clore();
-      }} />
+      }} annoncer={annoncer} />
       <p role="status">{message ?? ''}</p>
     </div>
   </dialog>;

@@ -627,3 +627,15 @@ En tant que joueur, je veux que le Charme Chroma aide aussi à trouver des shiny
 - [x] Étant donné le Jeton Shiny au centre commercial, quand j'ai des badges, alors son prix suit l'inflation comme les autres consommables (`sansInflation:false`).
 - [x] Étant donné les textes du Charme (objet et palier), alors ils disent « x3 au combat, x2 pour les œufs ».
 - [x] Étant donné les tests, quand vitest tourne, alors le cœur pension, les fidélités V1 (adaptées aux deux écarts voulus) sont verts.
+
+## AC. `feat(ui): quantité d'utilisation façon Shop pour les objets du Sac et de l'équipe`
+
+`type:feat`, `etat:fait`, `est:0.5`, `prio:1` · branche : `v2` · demandé par Nicolas le 18/11
+
+### Histoire
+En tant que joueur, je veux choisir combien d'objets j'utilise d'un coup, comme au Shop, sans cliquer vingt fois.
+
+### Critères d'acceptation
+- [x] Étant donné un objet à appliquer sur un Pokémon (bonbon, calcium, baie), quand je le choisis, alors le sélecteur propose − / + qui bouclent de 1 au plafond (99 au plus) et inversement, +10, Max et « Utiliser » à la place d'« Acheter ».
+- [x] Étant donné un objet direct empilable du Sac (Repousse, X-objets…), quand je le touche, alors la même rangée de commandes s'ouvre dans le cadre de l'objet et « Utiliser » l'emploie n fois ; Poké Poupée reste en un clic.
+- [x] Étant donné un écran étroit, alors les commandes passent à la ligne et ne sortent pas du cadre.
