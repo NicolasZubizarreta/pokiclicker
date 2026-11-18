@@ -97,14 +97,14 @@ test('Shop PC : onglet Tout par défaut, grille d’au moins 2 colonnes, titres 
 
 test('Protéine unique conservée au rechargement', async ({ page }) => {
   await demarrer(page);
-  await rayon(page, 'Accessoires').click();
+  await rayon(page, 'Équipements').click();
   const proteine = page.getByRole('article').filter({ has: page.getByRole('heading', { name: 'Protéine', exact: true }) });
   await proteine.getByRole('button', { name: /^Acheter ×1/ }).click();
   await expect(proteine.getByText('Possédé', { exact: true })).toBeVisible();
   await expect(proteine.getByRole('button', { name: /^Acheter/ })).toHaveCount(0);
   await page.reload();
   await page.getByRole('button', { name: 'Shop', exact: true }).click();
-  await rayon(page, 'Accessoires').click();
+  await rayon(page, 'Équipements').click();
   await expect(proteine.getByText('Possédé', { exact: true })).toBeVisible();
   await expect(proteine.getByRole('button', { name: /^Acheter/ })).toHaveCount(0);
 });

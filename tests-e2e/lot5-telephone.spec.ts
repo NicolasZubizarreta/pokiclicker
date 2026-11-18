@@ -64,7 +64,7 @@ test.describe('lot 5 : Shop, Pokédex, Badges téléphone', () => {
       });
       await page.reload();
       await page.getByRole('button', { name: 'Shop', exact: true }).click();
-      for (const nom of ['Poké Ball', 'Objets', 'Accessoires']) {
+      for (const nom of ['Poké Ball', 'Objets', 'Équipements']) {
         await page.getByRole('button', { name: nom, exact: true }).click();
         await expect(page.getByRole('button', { name: nom, exact: true })).toHaveAttribute('aria-pressed', 'true');
         await expect(page.getByRole('button', { name: 'Soin', exact: true })).toHaveCount(0);

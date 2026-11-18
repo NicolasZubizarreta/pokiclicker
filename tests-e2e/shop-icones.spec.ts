@@ -29,7 +29,7 @@ test('Shop : toutes les catégories sans icône de repli, sauf les objets en att
   await page.getByRole('button', { name: 'Shop', exact: true }).click();
   await mkdir('design/captures', { recursive: true });
   const repli: string[] = [];
-  for (const categorie of ['Poké Ball', 'Objets', 'Accessoires']) {
+  for (const categorie of ['Poké Ball', 'Objets', 'Équipements']) {
     await rayon(page, categorie).click();
     await expect(page.getByRole('article').first()).toBeVisible();
     await page.evaluate(() => Promise.all([...document.images].map(image => image.decode().catch(() => undefined))));
@@ -37,7 +37,7 @@ test('Shop : toutes les catégories sans icône de repli, sauf les objets en att
     // Toute image affichée est réellement chargée.
     const cassees = await page.locator('article[data-objet] img').evaluateAll(images => (images as HTMLImageElement[]).filter(i => !i.naturalWidth).length);
     expect(cassees, `${categorie} : image non chargée`).toBe(0);
-    if (categorie === 'Accessoires') {
+    if (categorie === 'Équipements') {
       const fauchage = page.locator('article[data-objet="falseSwipe"]');
       await fauchage.scrollIntoViewIfNeeded();
       await expect(fauchage.locator('svg[role="img"]')).toBeVisible();

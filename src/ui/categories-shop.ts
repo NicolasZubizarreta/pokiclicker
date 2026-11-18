@@ -5,5 +5,5 @@ export function categorieShop(objet: { categorie: string; unique: boolean }): 'b
 export const categoriesShop = [
   { cle: 'balles', nom: 'Poké Ball' },
   { cle: 'objets', nom: 'Objets' },
-  { cle: 'accessoires', nom: 'Accessoires' },
+  { cle: 'accessoires', nom: 'Équipements' },
 ];

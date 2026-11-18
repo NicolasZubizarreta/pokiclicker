@@ -138,7 +138,7 @@ it('affiche Possédé pour une amélioration déjà acquise', () => {
     image: null, categorie: 'equipement' as const, prix: 1000, stock: 0, possede: true, unique: true, abordable: false };
   storeJeu.setState({ boutique: { ...storeJeu.getState().boutique, objets: [objet] } });
   render(<PageShop />);
-  fireEvent.click(screen.getByRole('tab', { name: 'Accessoires' }));
+  fireEvent.click(screen.getByRole('tab', { name: 'Équipements' }));
   const carte = screen.getByRole('heading', { name: objet.nom }).closest('article')!;
   expect(within(carte).getByText('Possédé')).toBeTruthy();
   expect(within(carte).queryByRole('button')).toBeNull();

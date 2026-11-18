@@ -73,7 +73,7 @@ for (const largeur of LARGEURS) {
       const d = await sansDefilementHorizontal(page);
       expect(d.defile, `${nom} : scrollWidth ≤ clientWidth`).toBeLessThanOrEqual(d.largeur);
     };
-    for (const categorie of ['Poké Ball', 'Objets', 'Accessoires']) {
+    for (const categorie of ['Poké Ball', 'Objets', 'Équipements']) {
       await rayon(page, categorie).click();
       await verifier(`Shop ${categorie}`);
     }
