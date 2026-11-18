@@ -335,13 +335,13 @@ function mettreAuPc(taille = 1) {
   })) });
 }
 
-it('ne propose pas « Évoluer » pour un Pokémon du PC sur téléphone (l’évolution ne vaut que pour l’équipe)', () => {
+it('propose « Évoluer » pour un Pokémon du PC sur téléphone', () => {
   vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() })));
   mettreAuPc();
   storeJeu.setState({ pc: [{ ...pokemon, pierreEternelle: false }] });
   afficher();
   expect(screen.getByText('Dans le PC')).toBeTruthy();
-  expect(screen.queryByRole('button', { name: /Faire évoluer/ })).toBeNull();
+  expect(screen.getByRole('button', { name: /Faire évoluer/ })).toBeTruthy();
   vi.unstubAllGlobals();
 });
 

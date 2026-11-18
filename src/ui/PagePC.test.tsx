@@ -149,18 +149,18 @@ it.each([0, 1, 2])('compte %i Pokémon', nombre => {
   expect(screen.getByText(`${nombre} Pokémon`)).toBeTruthy();
 });
 
-it('ne présente que le retour, le titre et la raison quand le PC est verrouillé', () => {
+it('garde l’équipe avec le retour, le titre et la raison quand le PC est verrouillé', () => {
   const raison = "Le PC de Léo s'ouvre à l'Arène d'Argenta.";
   storeJeu.setState({ accesPc: { ouvert: false, raison } });
   enTelephone();
   const { container } = render(<PagePC retour={vi.fn()} />);
-  expect(screen.getByRole('heading').textContent).toBe('PC de Léo');
+  expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('PC de Léo');
   expect(screen.getByText(raison).tagName).toBe('P');
-  expect(screen.getAllByRole('button')).toHaveLength(1);
-  expect(container.textContent).toBe(`RetourPC de Léo${raison}`);
+  expect(screen.getByRole('button', { name: 'Retour' })).toBeTruthy();
+  expect(screen.getByRole('group', { name: 'Équipe mobile' })).toBeTruthy();
   expect(screen.queryByRole('list')).toBeNull();
   expect(screen.queryByRole('searchbox')).toBeNull();
-  expect(container.querySelector('img')).toBeNull();
+  expect(container.querySelector('button[data-uid]')).toBeTruthy();
 });
 
 it('ouvre la fiche d’un œuf sans DPS ni statistiques', () => {
@@ -419,18 +419,13 @@ it('ouvre une seule fiche depuis la carte et restaure le focus', () => {
   expect(document.activeElement).toBe(bouton);
 });
 
-it('échange en choisissant le partenaire avant le Pokémon du PC au clavier', () => {
+it('ouvre la fiche du membre de l’équipe au clavier', () => {
   render(<PagePC />);
   const partenaire = within(screen.getByRole('complementary')).getAllByRole('button', { name: /niveau/ })[0]!;
   partenaire.focus();
   fireEvent.click(partenaire, { detail: 0 });
-  expect(partenaire.getAttribute('aria-pressed')).toBe('true');
-  const carte = within(screen.getByRole('list')).getByRole('button', { name: 'Zéphyr, niveau 30' });
-  carte.focus();
-  fireEvent.click(carte, { detail: 0 });
-  expect(echanger).toHaveBeenCalledWith('autre', 'e1');
-  expect(storeJeu.getState().equipe[0]?.pokemon.uid).toBe('autre');
-  expect(screen.queryByRole('dialog')).toBeNull();
+  expect(screen.getByRole('dialog', { name: 'Pikachu' })).toBeTruthy();
+  expect(echanger).not.toHaveBeenCalled();
 });
 
 it('garde le focus clavier dans le mode échange puis le rend à l’action', () => {

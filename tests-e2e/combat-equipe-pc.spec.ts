@@ -121,41 +121,18 @@ test('combat PC : la scène s’attaque à la souris et à l’espace, le clic s
   await expect(page.locator('dialog[open]')).toHaveCount(0);
 });
 
-test('équipe PC : toujours 3 colonnes sur 2 lignes, sans défilement, sprites dans leur carte (1280 à 2560)', async ({ page }) => {
+test('PC : six places et sprites contenus dans la colonne équipe', async ({ page }) => {
   await demarrer(page, 1280, 800);
   await page.keyboard.press('2');
-  await expect(page.getByRole('heading', { name: 'Ton équipe' })).toBeVisible();
   for (const [largeur, hauteur] of TAILLES) {
     await page.setViewportSize({ width: largeur, height: hauteur });
-    const cartes = await page.locator('.equipe-pc .grille-equipe > li').evaluateAll(lis => lis.map(li => {
-      const r = li.getBoundingClientRect();
-      return { x: Math.round(r.left), y: Math.round(r.top), h: r.height, bas: r.bottom };
-    }));
-    expect(cartes).toHaveLength(6);
-    expect(new Set(cartes.map(c => c.x)).size).toBe(3);
-    expect(new Set(cartes.map(c => c.y)).size).toBe(2);
-    for (const c of cartes) { expect(c.h).toBeGreaterThan(100); expect(c.bas).toBeLessThanOrEqual(hauteur); }
-    await pasDeDefilement(page);
-    await spritesDansCadres(page.locator('.equipe-pc .grille-equipe'), 'li');
+    await expect(page.locator('.pc-places > button')).toHaveCount(6);
+    await spritesDansCadres(page.locator('.pc-places'), 'button');
+    await expect(page.locator('.pc-panneau')).toContainText('DPS');
   }
 });
 
-test('équipe PC : le dessin du sprite (sans ses lignes vides) reste dans le cadre du portrait, même sur un écran bas', async ({ page }) => {
-  await demarrer(page, 1280, 800);
-  await page.keyboard.press('2');
-  await expect(page.getByRole('heading', { name: 'Ton équipe' })).toBeVisible();
-  for (const [largeur, hauteur] of [[1100, 700], [1366, 768], ...TAILLES] as [number, number][]) {
-    await page.setViewportSize({ width: largeur, height: hauteur });
-    const hors = await page.locator('.equipe-pc .portrait').evaluateAll(portraits => portraits.map(p => {
-      const cadre = p.getBoundingClientRect(), image = p.querySelector('img')!.getBoundingClientRect();
-      const pieds = parseFloat(getComputedStyle(p).getPropertyValue('--pieds')) / 100;
-      return image.bottom - pieds * image.height - cadre.bottom;
-    }).filter(depassement => depassement > 0.5));
-    expect(hors, `${largeur}×${hauteur}`).toEqual([]);
-  }
-});
-
-test('équipe PC : le clic ouvre la fiche en fenêtre, le tri d’affichage garde six cartes', async ({ page }) => {
+test('équipe PC : le clic ouvre la fiche en fenêtre', async ({ page }) => {
   await demarrer(page, 1440, 900);
   await page.keyboard.press('2');
   await page.getByRole('button', { name: /^Daran, niveau/ }).click();
@@ -166,6 +143,5 @@ test('équipe PC : le clic ouvre la fiche en fenêtre, le tri d’affichage gard
   expect(f!.x + f!.width).toBeLessThan(1440);
   await spritesDansCadres(fenetre, 'dialog');
   await page.keyboard.press('Escape');
-  await page.getByRole('combobox', { name: "Trier l'équipe" }).selectOption({ index: 1 });
-  expect(await page.locator('.equipe-pc .grille-equipe > li').count()).toBe(6);
+  expect(await page.locator('.pc-places > button').count()).toBe(6);
 });

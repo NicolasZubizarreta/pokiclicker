@@ -39,9 +39,9 @@ afterEach(() => {
   reinitialiserSac();
   localStorage.clear();
 });
-const noms = ['Combat', 'Équipe', 'Shop', 'Carte', 'Menu'];
+const noms = ['Combat', 'PC', 'Shop', 'Carte', 'Menu'];
 
-// Sur PC la page Équipe n'a plus de ligne « PC de Léo » (l'onglet PC suffit) : seul le retour vers Menu reste.
+// Le PC ouvert depuis Menu conserve son onglet actif.
 it.each(['Menu'] as const)('revient du PC vers %s et garde son onglet actif', origine => {
   render(<Coquille />);
   fireEvent.click(screen.getByRole('button', { name: origine }));
@@ -114,7 +114,7 @@ it('Annuler garde le mode puis Fermer rouvre le Sac et restitue le focus', () =>
   expect(document.activeElement).toBe(declencheur);
 });
 
-it('une sortie de l’Équipe sans la barre du bas désarme l’objet du Sac', () => {
+it('une sortie du PC sans la barre du bas désarme l’objet du Sac', () => {
   render(<Coquille />);
   act(() => storeSac.setState({ objet: { type: 'bonbon', cle: 'candy', nom: 'Bonbon rare' } }));
   expect(screen.getByText('Bonbon rare ×0 : touche un Pokémon')).toBeTruthy();
@@ -255,7 +255,7 @@ it('annonce un achat formaté au Shop et retire la notification expirée', () =>
     expect(calque.classList.contains('fixed')).toBe(true);
     expect(calque.classList.contains('pointer-events-none')).toBe(true);
     expect(document.getElementById('contenu')!.textContent).not.toContain('dépensés');
-    for (const page of ['Équipe', 'Combat', 'Shop']) {
+    for (const page of ['PC', 'Combat', 'Shop']) {
       fireEvent.click(screen.getByRole('button', { name: page }));
       expect(document.querySelector('[data-notifications] div[aria-live]:not([data-annonce-deblocage])')?.textContent).toBe(message);
       expect(document.getElementById('contenu')!.textContent).not.toContain('dépensés');
@@ -318,10 +318,10 @@ describe('Coquille', () => {
     expect(carte.classList.contains('rebond-signal')).toBe(false);
   });
 
-  it('présente les huit destinations dans l’ordre et active seulement Combat', () => {
+  it('présente les sept destinations dans l’ordre et active seulement Combat', () => {
     render(<Coquille />);
     const boutons = within(screen.getByRole('navigation')).getAllByRole('button');
-    expect(boutons.map((bouton) => bouton.querySelector('span:not([aria-hidden])')?.textContent)).toEqual(['Combat', 'Équipe', 'PC', 'Shop', 'Carte', 'Pokédex', 'Pension', 'Menu']);
+    expect(boutons.map((bouton) => bouton.querySelector('span:not([aria-hidden])')?.textContent)).toEqual(['Combat', 'PC', 'Shop', 'Carte', 'Pokédex', 'Pension', 'Menu']);
     expect(boutons.filter((bouton) => bouton.getAttribute('aria-current') === 'page')).toEqual([boutons[0]]);
     expect(within(screen.getByRole('main')).getByRole('heading', { level: 1 }).textContent).toBe('Route 1');
     expect(screen.getByRole('button', { name: /^Attaquer / })).toBeTruthy();
@@ -332,12 +332,10 @@ describe('Coquille', () => {
     render(<Coquille />);
     for (const nom of noms.slice(1)) {
       await utilisateur.click(screen.getByRole('button', { name: nom }));
-      expect(within(screen.getByRole('main')).getByRole('heading', { level: 1 }).textContent).toBe(nom === 'Équipe' ? 'Ton équipe' : nom === 'Carte' ? 'Carte de Kanto' : nom);
+      expect(within(screen.getByRole('main')).getByRole('heading', { level: 1 }).textContent).toBe(nom === 'PC' ? 'PC de Léo' : nom === 'Carte' ? 'Carte de Kanto' : nom);
       if (nom === 'Carte') expect(screen.getByRole('button', { name: 'Route 1 (Zone 1)' })).toBeTruthy();
-      else if (nom === 'Équipe') {
-        expect(screen.queryByText('Cette page arrive bientôt.')).toBeNull();
-        // Six cases d'équipe : le Sac est une fenêtre sur PC.
-        expect(screen.getAllByRole('listitem')).toHaveLength(6);
+      else if (nom === 'PC') {
+        expect(screen.getByText(storeJeu.getState().accesPc.raison!)).toBeTruthy();
       } else if (nom === 'Menu') {
         expect(screen.queryByText('Cette page arrive bientôt.')).toBeNull();
         expect(screen.getByRole('button', { name: 'PC de Léo' })).toBeTruthy();
@@ -418,14 +416,11 @@ describe('Coquille', () => {
       await utilisateur.click(screen.getByRole('button', { name: nom }));
       const equipe = storeJeu.getState().equipe;
       const nomPokemon = (c: NonNullable<typeof equipe[number]>) => c.pokemon.surnom ?? chargerPokemon().parNumero(c.pokemon.numero).nom;
-      if (nom === 'Équipe') {
-        // Sur PC : titre, pastille n / 6, DPS, tri d'affichage et Sac, puis six cartes (nom, DPS, niveau, types) ; plus de panneau latéral ni de ligne PC.
-        const texte = screen.getByRole('main').textContent ?? '';
-        expect(texte.startsWith(`Mon compteTon équipe${equipe.filter(Boolean).length} / 6${formaterDps(storeJeu.getState().dps)} DPSOrdre de l'équipeDPS, du plus grand au plus petitSac`)).toBe(true);
-        for (const c of equipe) if (c) expect(texte).toContain(`${nomPokemon(c)}${formaterDps(c.dps)} DPSNiv. ${c.pokemon.niveau}`);
-        expect(texte.match(/Emplacement libre/g)).toHaveLength(equipe.filter(c => !c).length);
-        expect(texte).not.toContain('PC de Léo');
-        expect(texte).not.toContain('Ouvre la fiche');
+      if (nom === 'PC') {
+        expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('PC de Léo');
+        expect(screen.getByText(storeJeu.getState().accesPc.raison!)).toBeTruthy();
+        for (const c of equipe) if (c) expect(screen.getByRole('button', { name: `${nomPokemon(c)}, niveau ${c.pokemon.niveau}` })).toBeTruthy();
+        continue;
       }
       // Prépare le balayage de la page visible sans la boîte fermée, montée en permanence.
       container.replaceChildren(rendu.cloneNode(true));
@@ -435,8 +430,6 @@ describe('Coquille', () => {
       while (parcours.nextNode()) {
         const texte = parcours.currentNode.textContent?.trim();
         if (parcours.currentNode.parentElement?.closest('[aria-hidden="true"]')) continue; // décor masqué aux lecteurs d'écran
-        // Le texte entier de la page Équipe est vérifié exactement ci-dessus.
-        if (nom === 'Équipe' && parcours.currentNode.parentElement?.closest('main')) continue;
         const voyage = parcours.currentNode.parentElement?.closest('section')?.querySelector('h2')?.textContent === 'Ton voyage';
         if (voyage) {
           // Les fragments de la barre « Ton voyage » (nombres, « badges sur ») sont vérifiés en bloc.
@@ -459,15 +452,7 @@ describe('Coquille', () => {
             : element.tagName.toLowerCase() === 'progress' ? 'Badges obtenus'
               : element.tagName.toLowerCase() === 'section' && ['Ton voyage', 'Zone sélectionnée', 'Partie en cours'].includes(element.getAttribute('aria-label') ?? '')
                 ? element.getAttribute('aria-label')
-                : nom === 'Équipe' && element.tagName.toLowerCase() === 'button'
-                  ? equipe.filter(c => c).flatMap(c => [`${nomPokemon(c!)}, niveau ${c!.pokemon.niveau}`, `Renommer ${nomPokemon(c!)}`]).find(n => n === element.getAttribute('aria-label'))
-                  : nom === 'Équipe' && element.getAttribute('role') === 'progressbar'
-                    ? equipe.filter(c => c).map(c => `XP de ${nomPokemon(c!)}`).find(n => n === element.getAttribute('aria-label'))
-                    : nom === 'Équipe' && element.tagName.toLowerCase() === 'select' ? "Trier l'équipe"
-                    : element.tagName.toLowerCase() === 'header' ? 'Chiffres clés' : 'Navigation principale';
-        if (nom === 'Équipe' && ['Mâle', 'Femelle', 'Favori'].includes(element.getAttribute('aria-label') ?? '')) continue; // icônes de sexe et de favori des cartes PC
-        // Le Sac de l'onglet Équipe : région, filtre, liste et pastilles « <objet> ×n ».
-        if (nom === 'Équipe' && ['Sac', 'Catégories', 'Objets du Sac', 'Pokéball ×0', 'Bonbon ×0'].includes(element.getAttribute('aria-label') ?? '')) continue;
+                : element.tagName.toLowerCase() === 'header' ? 'Chiffres clés' : 'Navigation principale';
         expect(element.getAttribute('aria-label')).toBe(attendu);
       }
     }

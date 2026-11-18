@@ -46,7 +46,7 @@ async function demarrer(page: Page, numero: number, niveau = 16, auto = false) {
     localStorage.setItem(cleCompte, JSON.stringify(compte));
   }, { numero, niveau, auto });
   await page.reload();
-  if (!auto) await page.getByRole('button', { name: 'Équipe', exact: true }).click();
+  if (!auto) await page.getByRole('button', { name: 'PC', exact: true }).click();
 }
 
 async function choisirPierre(page: Page, pierre: string) {
@@ -79,10 +79,10 @@ test('Bulbizarre : animation, largeur, sauvegarde et Pokédex', async ({ page },
   });
   expect(couleurs.reelle).toBe(couleurs.attendue);
   await evoluer.click();
+  await page.keyboard.press('Escape');
   await page.clock.runFor(1000);
   const ligne = page.getByRole('button', { name: 'Herbizarre, niveau 16', exact: true });
   await expect(ligne.locator('[class*="evolution-flash"]')).toBeVisible();
-  await expect(evoluer).toHaveCount(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
   await mkdir('design/captures', { recursive: true });
   await page.evaluate(() => Promise.all([...document.images].map(i => i.decode().catch(() => undefined))));
@@ -91,7 +91,7 @@ test('Bulbizarre : animation, largeur, sauvegarde et Pokédex', async ({ page },
   await expect(ligne).toBeVisible();
   await expect(page.locator('[class*="evolution-flash"]')).toHaveCount(0);
   await page.reload();
-  await page.getByRole('button', { name: 'Équipe', exact: true }).click();
+  await page.getByRole('button', { name: 'PC', exact: true }).click();
   await expect(ligne).toBeVisible();
   await page.getByRole('button', { name: 'Menu', exact: true }).click();
   await page.locator('#contenu').getByRole('button', { name: /^Pokédex/ }).click();
@@ -111,8 +111,8 @@ for (const [numero, nom, pierre, cible] of [
     await expect(confirmation).toBeVisible();
     await confirmation.getByRole('button', { name: 'Valider', exact: true }).click();
     await page.clock.runFor(3000);
-    // Téléphone et PC : l'objet appliqué ramène au Combat, l'Équipe se rouvre à part.
-    await page.getByRole('button', { name: 'Équipe', exact: true }).click();
+    // L'application garde la page PC ouverte.
+    await page.getByRole('button', { name: 'PC', exact: true }).click();
     await expect(page.getByRole('button', { name: `${cible}, niveau 16`, exact: true })).toBeVisible();
     const stock = (await ouvrirSac(page)).getByRole('button', { name: new RegExp(`^${pierre} ×`) });
     if (await stock.count()) await expect(stock).toHaveAccessibleName(`${pierre} ×0`);
@@ -136,6 +136,7 @@ test('Animations réduites : remplacement immédiat sans animation', async ({ pa
   await demarrer(page, 1);
   await page.getByRole('button', { name: 'Bulbizarre, niveau 16', exact: true }).click();
   await page.getByRole('button', { name: 'Faire évoluer Bulbizarre en Herbizarre', exact: true }).click();
+  await page.keyboard.press('Escape');
   const ligne = page.getByRole('button', { name: 'Herbizarre, niveau 16', exact: true });
   await expect(ligne).toBeVisible();
   expect(await ligne.evaluate(element => [...element.querySelectorAll('*')]
@@ -157,7 +158,7 @@ test('Évolution automatique : Plus tard, fiche, Confirmer, animation dans la fe
   await page.clock.runFor(5000);
   await expect(fenetre).toHaveCount(0);
   await page.screenshot({ path: `design/captures/evolution-auto-plus-tard-${largeur}.png` });
-  await page.getByRole('button', { name: 'Équipe', exact: true }).click();
+  await page.getByRole('button', { name: 'PC', exact: true }).click();
   await page.getByRole('button', { name: 'Bulbizarre, niveau 16', exact: true }).click();
   await page.getByRole('button', { name: 'Faire évoluer Bulbizarre en Herbizarre', exact: true }).click();
   await expect(fenetre).toBeVisible();
@@ -187,9 +188,10 @@ test('Évolution automatique : option coupée dans les Réglages, plus de fenêt
   await page.screenshot({ path: `design/captures/evolution-auto-reglages-${page.viewportSize()!.width}.png` });
   await interrupteur.click();
   await expect(interrupteur).toHaveAttribute('aria-checked', 'false');
-  await page.getByRole('button', { name: 'Équipe', exact: true }).click();
+  await page.getByRole('button', { name: 'PC', exact: true }).click();
   await page.getByRole('button', { name: 'Bulbizarre, niveau 16', exact: true }).click();
   await page.getByRole('button', { name: 'Faire évoluer Bulbizarre en Herbizarre', exact: true }).click();
+  await page.keyboard.press('Escape');
   await expect(page.getByRole('dialog', { name: /Bulbizarre/ })).toHaveCount(0);
   await page.clock.runFor(1000);
   await expect(page.getByRole('button', { name: 'Herbizarre, niveau 16', exact: true }).locator('[class*="evolution-flash"]')).toBeVisible();

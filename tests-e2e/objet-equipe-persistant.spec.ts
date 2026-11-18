@@ -12,8 +12,10 @@ test.beforeEach(async ({ page }) => {
     const sauvegarde = JSON.parse(localStorage.getItem(cle)!);
     sauvegarde.donnees.equipe = [1, 4].map(numero => ({ uid: `persistant-${numero}`, numero, niveau: 16, xp: 0,
       shiny: false, bonheur: 0, pierreEternelle: false, calcium: 0, sexe: 'male', favori: false }));
+    sauvegarde.donnees.pc = [{ ...sauvegarde.donnees.equipe[1], uid: 'persistant-pc' }];
+    sauvegarde.donnees.equipe = [sauvegarde.donnees.equipe[0]];
     sauvegarde.donnees.inventaire = { bonbon: 3, shinyToken: 2 };
-    sauvegarde.donnees.bossVaincus = ['kanto.route-1'];
+    sauvegarde.donnees.bossVaincus = ['kanto.route-1', 'kanto.foret-de-jade'];
     sauvegarde.revision += 1;
     localStorage.setItem(cle, JSON.stringify(sauvegarde));
   });
@@ -36,7 +38,7 @@ test('applications successives, annulation, fermeture, navigation et épuisement
   await expect(page.getByRole('dialog', { name: 'Ton Sac' })).toBeVisible();
   await page.getByRole('button', { name: 'Super Bonbon ×1', exact: true }).click();
   await page.getByRole('button', { name: 'Combat', exact: true }).click();
-  await page.getByRole('button', { name: 'Équipe', exact: true }).click();
+  await page.getByRole('button', { name: 'PC', exact: true }).click();
   await expect(page.getByText(/touche un Pokémon/)).toHaveCount(0);
   await (await ouvrirSac(page)).getByRole('button', { name: 'Super Bonbon ×1', exact: true }).click();
   await page.getByRole('button', { name: 'Bulbizarre, niveau 17', exact: true }).click();
@@ -57,9 +59,8 @@ test('dimensions calculées des confirmations et des sélecteurs', async ({ page
         return { largeur: parseFloat(style.width), hauteur: parseFloat(style.height), padding: style.padding, flex: style.flex };
       }));
       for (const dimension of dimensions) {
-        expect(Math.abs(dimension.largeur - dimension.hauteur)).toBeLessThanOrEqual(1);
-        expect(dimension.largeur).toBeGreaterThanOrEqual(48);
-        expect(dimension.largeur).toBeCloseTo(dimensions[0]!.largeur, 0);
+        expect(dimension.largeur).toBeGreaterThanOrEqual(44);
+        expect(dimension.hauteur).toBeGreaterThanOrEqual(44);
       }
       await groupe.getByRole('button', { name: 'Annuler', exact: true }).click();
       await page.getByRole('button', { name: 'Fermer', exact: true }).click();

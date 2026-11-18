@@ -12,7 +12,7 @@ async function ouvrir(page: Page) {
 }
 
 async function allerABourgPalette(page: Page) {
-  await page.keyboard.press('5');
+  await page.keyboard.press('4');
   await expect(page.locator('svg[aria-label="Carte de Kanto"]')).toBeVisible();
   await voyagerVers(page, 'Bourg Palette');
   await expect(page.getByRole('button', { name: 'Chez Maman' })).toBeVisible({ timeout: 20_000 });
@@ -73,7 +73,7 @@ test('Chez Blue : la sortie en losange ne réagit qu’à l’intérieur du losa
 test('Carte : survol et clic sans carré, rond vert de même taille que les autres, focus clavier sur le rond', async ({ page }) => {
   test.skip(telephone(page), 'Carte cliquable : profil PC seulement');
   await ouvrir(page);
-  await page.keyboard.press('5');
+  await page.keyboard.press('4');
   await expect(page.locator('svg[aria-label="Carte de Kanto"]')).toBeVisible();
   const repere = page.locator('g[data-forme="Route 1"]');
   await repere.hover({ force: true });

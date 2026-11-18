@@ -77,9 +77,9 @@ for (const largeur of LARGEURS) {
       await rayon(page, categorie).click();
       await verifier(`Shop ${categorie}`);
     }
-    await page.getByRole('button', { name: 'Équipe', exact: true }).click();
-    await expect(page.getByRole('heading', { name: 'Ton équipe' })).toBeVisible();
-    await verifier('Équipe');
+    await page.getByRole('button', { name: 'PC', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'PC de Léo' })).toBeVisible();
+    await verifier('PC');
     await page.getByRole('button', { name: 'Menu', exact: true }).click();
     await verifier('Menu');
     await page.getByRole('button', { name: /^Statistiques/ }).click();
@@ -97,7 +97,7 @@ for (const largeur of LARGEURS) {
       present: document.querySelectorAll('[data-notifications] div[aria-live]:not([data-annonce-deblocage]) p').length > 0,
       rect: (() => { const r = document.querySelector(selecteur)!.getBoundingClientRect(); return { x: r.x, y: r.y, l: r.width, h: r.height }; })(),
     }), selecteur);
-    for (const [bouton, titre, selecteur] of [['Équipe', 'Ton équipe', 'h1'], ['Menu', 'Menu', 'main']] as const) {
+    for (const [bouton, titre, selecteur] of [['PC', 'PC de Léo', 'h1'], ['Menu', 'Menu', 'main']] as const) {
       await achat();
       await page.getByRole('button', { name: bouton, exact: true }).click();
       if (bouton === 'Menu') await page.getByRole('button', { name: /^Statistiques/ }).click();

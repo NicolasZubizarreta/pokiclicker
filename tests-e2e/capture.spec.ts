@@ -46,7 +46,7 @@ test('capture certaine : équipe, Pokédex, stock et largeur', async ({ page }, 
   await page.evaluate(() => Promise.all([...document.images].map(image => image.decode().catch(() => undefined))));
   const largeur = informations.project.name === 'mobile' ? 390 : 1440;
   await page.screenshot({ path: `design/captures/j-capture-${largeur}.png`, animations: 'disabled' });
-  await page.getByRole('button', { name: 'Équipe', exact: true }).click();
+  await page.getByRole('button', { name: 'PC', exact: true }).click();
   await expect(page.getByText(/(?:· |^)4 \/ 6$/)).toBeVisible();
   await expect(page.getByRole('button', { name: new RegExp(`^${nom}, niveau`) }).last()).toBeVisible();
   await page.getByRole('button', { name: 'Menu', exact: true }).click();

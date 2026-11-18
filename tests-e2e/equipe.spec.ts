@@ -1,6 +1,7 @@
 import { mkdir } from 'node:fs/promises';
 import { test as base, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
+import { ouvrirSac } from './aide-sac';
 
 const test = base.extend<{ surveillance: void }>({
   surveillance: [async ({ page }, utiliser) => {
@@ -20,15 +21,14 @@ const test = base.extend<{ surveillance: void }>({
 async function ouvrirEquipe(page: Page) {
   await page.goto('/');
   await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
-  await page.getByRole('button', { name: 'Équipe', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Ton équipe', level: 1 })).toBeVisible();
+  await page.getByRole('button', { name: 'PC', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'PC de Léo', level: 1 })).toBeVisible();
   await page.evaluate(() => Promise.all([...document.images].map(image => image.decode().catch(() => undefined))));
 }
 
 async function ouvrirFiche(page: Page, nom: RegExp) {
   await page.getByRole('button', { name: nom }).first().click();
   const fiche = page.locator('dialog[open]').first();
-  if (!(await fiche.isVisible())) await page.getByRole('button', { name: 'Ouvre la fiche' }).click();
   await expect(fiche).toBeVisible();
   return fiche;
 }
@@ -36,7 +36,7 @@ async function ouvrirFiche(page: Page, nom: RegExp) {
 test('Équipe : six cases, fiche en fenêtre et captures', async ({ page }, informations) => {
   await ouvrirEquipe(page);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
-  await expect(page.getByText('Emplacement libre')).toHaveCount(3);
+  await expect(page.locator('[aria-label="Équipe mobile"], .pc-places').getByText('Emplacement libre')).toHaveCount(3);
   await mkdir('design/captures', { recursive: true });
   const largeur = informations.project.name === 'mobile' ? 390 : 1440;
   await page.screenshot({ path: `design/captures/h-equipe-${largeur}.png`, animations: 'disabled' });
@@ -92,7 +92,7 @@ test('Équipe : renommer, favori et reprise après rechargement', async ({ page 
   await expect(page.locator('dialog[open]')).toHaveCount(0);
   // Les actions s'enregistrent tout de suite : rechargement.
   await page.reload();
-  await page.getByRole('button', { name: 'Équipe', exact: true }).click();
+  await page.getByRole('button', { name: 'PC', exact: true }).click();
   fiche = await ouvrirFiche(page, /^Flammèche, niveau/);
   await expect(fiche.getByRole('button', { name: 'Retire des favoris' })).toHaveAttribute('aria-pressed', 'true');
 });
@@ -103,4 +103,30 @@ test('Équipe : le clic droit propose le résumé', async ({ page }, information
   await page.getByRole('button', { name: /^Carapuce, niveau/ }).first().click({ button: 'right' });
   await page.getByRole('menuitem', { name: 'Résumé' }).click();
   await expect(page.locator('dialog[open]').first()).toContainText('Carapuce');
+});
+
+test('PC : appliquer un objet à l’équipe puis à un Pokémon stocké', async ({ page }) => {
+  await ouvrirEquipe(page);
+  await page.evaluate(() => {
+    const cle = Object.keys(localStorage).find(c => c.startsWith('pokiclicker:region:') && c.endsWith(':kanto'))!;
+    const sauvegarde = JSON.parse(localStorage.getItem(cle)!);
+    sauvegarde.donnees.pc = [{ ...sauvegarde.donnees.equipe[0], uid: 'objet-pc', surnom: 'Stocké' }];
+    sauvegarde.donnees.inventaire.bonbon = 2;
+    sauvegarde.donnees.bossVaincus = ['kanto.route-1', 'kanto.foret-de-jade'];
+    sauvegarde.revision += 1;
+    localStorage.setItem(cle, JSON.stringify(sauvegarde));
+  });
+  await page.reload();
+  await (await ouvrirSac(page)).getByRole('button', { name: 'Super Bonbon ×2', exact: true }).click();
+  for (const uid of ['depart-1', 'objet-pc']) {
+    const cible = uid === 'depart-1'
+      ? page.getByRole('button', { name: /^Bulbizarre, niveau/ })
+      : page.locator('button[data-uid="objet-pc"]');
+    const nom = await cible.getAttribute('aria-label');
+    const niveau = Number(nom!.match(/niveau (\d+)/)![1]);
+    await cible.click();
+    await page.getByRole('button', { name: 'Utiliser', exact: true }).click();
+    await expect(cible).toHaveAccessibleName(new RegExp(`niveau ${niveau + 1}$`));
+  }
+  await expect(page.getByText(/touche un Pokémon/)).toHaveCount(0);
 });

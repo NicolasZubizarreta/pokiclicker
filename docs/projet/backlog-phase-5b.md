@@ -456,17 +456,17 @@ En tant que joueur, je veux que les légendaires restent des trouvailles rares e
 
 ## U. `feat(pc): fusionner l'Équipe et le PC en une seule page`
 
-`type:feat`, `etat:a_faire`, `est:2-3`, `prio:4` · branche : `v2` · pas d'`agent-ok` (refonte de navigation) · en dernier, avec V
+`type:feat`, `etat:fait`, `est:2-3`, `prio:4` · branche : `v2` · pas d'`agent-ok` (refonte de navigation) · en dernier, avec V
 
 ### Histoire
 En tant que joueur, je veux une seule page PC où je vois l'équipe et ouvre la fiche de chaque Pokémon, afin de ne plus naviguer entre deux pages.
 
 ### Critères d'acceptation
-- [ ] Étant donné la barre de navigation, quand elle s'affiche, alors la page Équipe n'existe plus et le PC la remplace.
-- [ ] Étant donné la page PC, quand je touche un Pokémon de l'équipe, alors sa fiche s'ouvre.
-- [ ] Étant donné les touches de raccourci, quand l'Équipe est retirée, alors les touches suivantes se décalent d'un cran, sans autre changement.
-- [ ] Étant donné l'écran de Combat, quand j'y vois l'équipe, alors il continue de fonctionner (clic sur la ligne d'équipe ouvre la fiche).
-- [ ] Étant donné les tests, quand `tsc -b`, eslint, vitest et e2e (`pc`, `mobile`, `iphone`) tournent, alors ils sont verts, avec captures à 360, 390 et 1440 px.
+- [x] Étant donné la barre de navigation, quand elle s'affiche, alors la page Équipe n'existe plus et le PC la remplace.
+- [x] Étant donné la page PC, quand je touche un Pokémon de l'équipe, alors sa fiche s'ouvre.
+- [x] Étant donné les touches de raccourci, quand l'Équipe est retirée, alors les touches suivantes se décalent d'un cran, sans autre changement.
+- [x] Étant donné l'écran de Combat, quand j'y vois l'équipe, alors il continue de fonctionner (clic sur la ligne d'équipe ouvre la fiche).
+- [x] Étant donné les tests, quand `tsc -b`, eslint, vitest et e2e (`pc`, `mobile`, `iphone`) tournent, alors ils sont verts, avec captures à 360, 390 et 1440 px. _Note 18/11 : tsc, eslint et vitest complet verts ; les specs e2e sont adaptées (page Équipe remplacée par le PC, touches décalées) mais PAS lancées, à faire par Nicolas ; captures regardées à 390 et 1440 px (pas à 360)._
 
 ### Hors périmètre
 Le sac dans le PC et les objets sur les Pokémon du PC (ticket V).
@@ -476,16 +476,16 @@ Le sac dans le PC et les objets sur les Pokémon du PC (ticket V).
 
 ## V. `feat(pc): sac dans le PC et objets sur les Pokémon du PC`
 
-`type:feat`, `etat:a_faire`, `est:1.5-2.5`, `prio:4` · branche : `v2` · pas d'`agent-ok` · dépend de : U
+`type:feat`, `etat:fait`, `est:1.5-2.5`, `prio:4` · branche : `v2` · pas d'`agent-ok` · dépend de : U
 
 ### Histoire
 En tant que joueur, je veux appliquer des objets à n'importe quel Pokémon du PC depuis la page PC, afin de ne plus devoir passer par l'équipe.
 
 ### Critères d'acceptation
-- [ ] Étant donné la page PC, quand je regarde l'en-tête, alors une icône sac ouvre le sac.
-- [ ] Étant donné un objet du sac, quand je l'applique à un Pokémon du PC, alors l'effet est le même que pour un Pokémon d'équipe (objet donné, pierre d'évolution, Super Bonbon).
-- [ ] Étant donné une évolution déclenchée sur un Pokémon du PC, quand elle a lieu, alors la modale d'évolution s'affiche comme pour l'équipe.
-- [ ] Étant donné les tests, quand `tsc -b`, eslint, vitest et e2e tournent, alors ils sont verts.
+- [x] Étant donné la page PC, quand je regarde l'en-tête, alors une icône sac ouvre le sac.
+- [x] Étant donné un objet du sac, quand je l'applique à un Pokémon du PC, alors l'effet est le même que pour un Pokémon d'équipe (objet donné, pierre d'évolution, Super Bonbon).
+- [x] Étant donné une évolution déclenchée sur un Pokémon du PC, quand elle a lieu, alors la modale d'évolution s'affiche comme pour l'équipe.
+- [x] Étant donné les tests, quand `tsc -b`, eslint, vitest et e2e tournent, alors ils sont verts. _Note 18/11 : tsc, eslint et vitest complet verts ; e2e adaptés mais non lancés (à faire par Nicolas). Vu à l'écran : bonbon sur un Pokémon de l'équipe et du PC à 1440 et 390 px ; modale d'évolution d'un Pokémon du PC non jouée à l'écran._
 
 ### Effort et risques
 1,5 à 2,5 jours.

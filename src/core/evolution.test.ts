@@ -125,18 +125,27 @@ describe('évolution par pierre', () => {
   });
 });
 
-it('refuse en priorité les œufs, le PC et les uid absents pour les deux méthodes', () => {
+it('refuse en priorité les œufs et les uid absents pour les deux méthodes', () => {
   const oeuf = region(pokemon({ pierreEternelle: true, oeuf: { pasRestants: 1, pasMax: 10 } }));
-  const pc = region();
-  pc.pc = [pc.equipe[0]!];
-  pc.equipe = [];
-  for (const entree of [oeuf, pc, region(pokemon({ uid: 'autre' }))]) {
+  for (const entree of [oeuf, region(pokemon({ uid: 'autre' }))]) {
     const avant = structuredClone(entree);
     expect(evoluer(entree, 'cible')).toEqual({ ok: false, raison: 'Pokémon invalide !' });
     expect(evoluerParPierre(entree, 'cible', 'thunderStone'))
       .toEqual({ ok: false, raison: 'Pokémon invalide !' });
     expect(entree).toEqual(avant);
   }
+});
+
+it.each(['niveau', 'pierre'])('fait évoluer un Pokémon du PC par %s sans modifier l’équipe ni l’entrée', methode => {
+  const entree = region(pokemon({ uid: 'autre' }), { thunderStone: 1 });
+  entree.pc = [pokemon({ numero: methode === 'pierre' ? 25 : 1 })];
+  const avant = structuredClone(entree);
+  const resultat = methode === 'pierre' ? evoluerParPierre(entree, 'cible', 'thunderStone') : evoluer(entree, 'cible');
+  expect(resultat.ok).toBe(true);
+  if (!resultat.ok) return;
+  expect(resultat.region.pc[0]?.numero).toBe(methode === 'pierre' ? 26 : 2);
+  expect(resultat.region.equipe).toEqual(avant.equipe);
+  expect(entree).toEqual(avant);
 });
 
 it('configure la durée et l’alternance de l’animation', () => {

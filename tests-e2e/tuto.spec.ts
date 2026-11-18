@@ -153,7 +153,7 @@ test('Route 1 : les 8 bulles se valident par l’action du joueur, puis le tuto 
   await etape(4);
   await cibler(page, 'arret').click();
   await etape(5);
-  await cibler(page, 'onglet-equipe').click();
+  await cibler(page, 'onglet-pc').click();
   await etape(6);
   await cibler(page, 'sac').click();
   await page.keyboard.press('Escape');

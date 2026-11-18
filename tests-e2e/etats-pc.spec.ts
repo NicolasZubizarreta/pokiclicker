@@ -35,24 +35,24 @@ async function demarrer(page: Page, options: { rempli?: boolean; vide?: boolean;
 }
 
 async function menu(page: Page, nom: RegExp) {
-  await page.keyboard.press('8');
+  await page.keyboard.press('7');
   await page.getByRole('button', { name: nom }).first().click();
 }
 
 const etats: { id: string; nom: string; options?: Parameters<typeof demarrer>[1]; aller(page: Page): Promise<void> }[] = [
   { id: 'pc-vide', nom: 'PC vide', aller: async page => {
-    await page.keyboard.press('3');
+    await page.keyboard.press('2');
     await expect(page.getByRole('heading', { name: 'PC de Léo' })).toBeVisible();
     await expect(page.getByText('Ton PC est vide. Capture des Pokémon pour les ranger ici.', { exact: true })).toBeVisible();
   } },
   { id: 'pc-sans-resultat', nom: 'recherche sans résultat', options: { rempli: true }, aller: async page => {
-    await page.keyboard.press('3'); await page.keyboard.press('/');
+    await page.keyboard.press('2'); await page.keyboard.press('/');
     await page.getByRole('searchbox').fill('introuvable-i4');
     await expect(page.getByRole('status')).toContainText('introuvable-i4');
   } },
   { id: 'pc-fiche-dernier', nom: 'fiche du dernier Pokémon actif', aller: async page => {
     await page.keyboard.press('2');
-    const fiches = page.locator('#contenu').getByRole('button', { name: /, niveau / });
+    const fiches = page.locator('.pc-places').getByRole('button', { name: /, niveau / });
     while (await fiches.count() > 1) {
       await fiches.last().click();
       await page.getByRole('dialog').getByRole('button', { name: 'Envoyer au PC', exact: true }).click();
@@ -112,7 +112,7 @@ for (const nom of ['Daran', 'Gabriel']) {
 }
 
 test('États PC : notification fixe en bas à droite (notifications)', async ({ page }) => {
-  await demarrer(page); await page.keyboard.press('4');
+  await demarrer(page); await page.keyboard.press('3');
   const rect = () => page.locator('#contenu').evaluate(e => e.getBoundingClientRect().toJSON());
   const avant = await rect();
   await page.getByRole('article').first().getByRole('button', { name: /^Acheter/ }).click();

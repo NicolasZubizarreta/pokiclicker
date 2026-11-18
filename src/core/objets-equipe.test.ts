@@ -76,7 +76,7 @@ describe('Stase et Jeton Shiny', () => {
     const avant = structuredClone(entree);
     expect(poserStase(entree, 'cible').message).toBe('Pokémon invalide !');
     expect(poserStase(entree, 'absent').message).toBe('Pokémon invalide !');
-    expect(poserStase(entree, 'pc').message).toBe('Pokémon invalide !');
+    expect(poserStase(entree, 'pc').message).toBe('Plus de Pierre Stase !');
     expect(poserStase(region(pokemon({ pierreEternelle: true })), 'cible').message).toBe('Retire-la via le menu !');
     expect(poserStase(region(pokemon({ numero: 128 })), 'cible').message).toBe('Plus de Pierre Stase !');
     expect(cibleValideStase(pokemon({ oeuf: { pasRestants: 1, pasMax: 1 } }))).toBe(false);
@@ -108,7 +108,7 @@ describe('Stase et Jeton Shiny', () => {
     const entree = region(pokemon({ shiny: true }));
     const avant = structuredClone(entree);
     expect(utiliserJetonShiny(entree, 'absent').message).toBe('Pokémon invalide !');
-    expect(utiliserJetonShiny(entree, 'pc').message).toBe('Pokémon invalide !');
+    expect(utiliserJetonShiny(entree, 'pc').message).toBe('Quantité invalide.');
     expect(utiliserJetonShiny(entree, 'cible').message).toBe('Déjà chromatique !');
     expect(utiliserJetonShiny(region(), 'cible').message).toBe('Quantité invalide.');
     expect(entree).toEqual(avant);
@@ -197,9 +197,24 @@ describe('objets sur les Pokémon de l’équipe', () => {
     expect(entree).toEqual(avant);
   });
 
-  it.each(['pc', 'absent'])('refuse une cible hors équipe : %s', (uid) => {
+  it.each(['absent'])('refuse une cible absente : %s', (uid) => {
     expect(utiliserSurPokemon(region(), 'bonbon', 'bonbon', uid, 1)).toEqual({
       ok: false, raison: 'Pokémon invalide !', message: 'Pokémon invalide !',
     });
   });
+});
+
+it.each(['bonbon', 'calcium', 'baie', 'stase', 'jeton'] as const)('applique %s à un Pokémon du PC sans mutation', type => {
+  const entree = region();
+  entree.inventaire = { bonbon: 2, calcium: 2, pomegBerry: 2, everstone: 2, shinyToken: 2 };
+  const avant = structuredClone(entree);
+  const resultat = type === 'stase' ? poserStase(entree, 'pc') : type === 'jeton' ? utiliserJetonShiny(entree, 'pc')
+    : utiliserSurPokemon(entree, type, type === 'baie' ? 'pomegBerry' : type, 'pc', 1);
+  expect(resultat.ok).toBe(true);
+  if (!resultat.ok) return;
+  const attendu = type === 'bonbon' ? { niveau: 99, xp: 42 } : type === 'calcium' ? { calcium: 10 }
+    : type === 'baie' ? { bonheur: 2 } : type === 'stase' ? { pierreEternelle: true } : { shiny: true };
+  expect(resultat.region.pc[0]).toMatchObject(attendu);
+  expect(resultat.region.equipe).toEqual(avant.equipe);
+  expect(entree).toEqual(avant);
 });

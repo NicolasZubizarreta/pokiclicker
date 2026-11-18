@@ -2,11 +2,9 @@ import { mkdir } from 'node:fs/promises';
 import { test as base, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
 
-// Téléphone seulement : le Sac est une fenêtre ouverte depuis le Combat. Sur grand écran il reste dans l'Équipe
-// (couvert par objets-actifs.spec.ts).
+// Le Sac est une fenêtre sur tous les écrans.
 const test = base.extend<{ surveillance: void }>({
-  surveillance: [async ({ page }, utiliser, informations) => {
-    informations.skip(informations.project.name !== 'mobile', 'Le Sac en fenêtre existe sur téléphone seulement');
+  surveillance: [async ({ page }, utiliser) => {
     const erreurs: string[] = [];
     page.on('console', message => { if (message.type() === 'error') erreurs.push(message.text()); });
     page.on('pageerror', erreur => erreurs.push(erreur.message));
@@ -48,22 +46,22 @@ test('Sac : fenêtre depuis le Combat, objet vers un Pokémon, annulation et ret
   await page.getByRole('button', { name: 'Sac', exact: true }).click();
   await expect(fenetreSac(page)).toBeVisible();
   await capturer(page, 'sac');
-  // L'onglet Sac a disparu de l'Équipe.
+  // Choisir un objet ouvre le PC.
   await fenetreSac(page).getByRole('button', { name: 'Pierre Stase ×1', exact: true }).click();
   await expect(page.locator('dialog[open]')).toHaveCount(0);
-  await expect(page.getByRole('heading', { name: 'Ton équipe', level: 1 })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'PC de Léo', level: 1 })).toBeVisible();
   const bandeau = page.getByRole('status').filter({ hasText: /Pierre Stase ×\d+ : touche un Pokémon/ });
   await expect(bandeau).toBeVisible();
   await expect(page.getByRole('region', { name: 'Sac', exact: true })).toHaveCount(0);
   await capturer(page, 'choix');
-  // Fermer rouvre le Sac, là où l'on était (Combat).
+  // Fermer rouvre le Sac sur le PC.
   await page.getByRole('button', { name: 'Fermer', exact: true }).click();
   await expect(fenetreSac(page)).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Ton équipe', level: 1 })).toHaveCount(0);
-  // Appliquer l'objet : retour sur le Combat, fenêtre fermée, Pierre Stase posée.
+  await expect(page.getByRole('heading', { name: 'PC de Léo', level: 1 })).toBeVisible();
+  // Appliquer l'objet garde le PC ouvert et pose la Pierre Stase.
   await fenetreSac(page).getByRole('button', { name: 'Pierre Stase ×1', exact: true }).click();
   await page.getByRole('button', { name: 'Bulbizarre, niveau 16', exact: true }).click();
-  await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'PC de Léo' })).toBeVisible();
   await expect(page.locator('dialog[open]')).toHaveCount(0);
   await page.reload();
   const equipe = await page.evaluate(() => {
@@ -74,18 +72,13 @@ test('Sac : fenêtre depuis le Combat, objet vers un Pokémon, annulation et ret
   expect(equipe.inventaire.everstone ?? 0).toBe(0);
 });
 
-test('Équipe : accès au PC et retour à l’équipe', async ({ page }) => {
+test('PC : onglet direct et accès depuis le Menu', async ({ page }) => {
   await demarrer(page);
-  await page.getByRole('button', { name: 'Équipe', exact: true }).click();
-  const ligne = page.getByRole('button', { name: /PC de Léo/ });
-  await expect(ligne).toContainText('Pokémon rangés');
-  await ligne.click();
-  await expect(page.getByRole('heading', { name: 'PC de Léo', level: 1 })).toBeVisible();
-  await expect(page.getByRole('navigation').getByRole('button', { name: 'Équipe', exact: true })).toHaveAttribute('aria-current', 'page');
-  await page.getByRole('button', { name: 'Retour à l\'équipe', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Ton équipe', level: 1 })).toBeVisible();
-  // Le Menu mène toujours au PC, et revient au Menu.
+  await page.getByRole('button', { name: 'PC', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'PC de Léo' })).toBeVisible();
+  await expect(page.getByRole('navigation').getByRole('button', { name: 'PC', exact: true })).toHaveAttribute('aria-current', 'page');
+  await expect(page.locator('[aria-label="Équipe mobile"], .pc-places')).toBeVisible();
   await page.getByRole('button', { name: 'Menu', exact: true }).click();
   await page.getByRole('button', { name: 'PC de Léo', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'Retour au menu', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'PC de Léo' })).toBeVisible();
 });

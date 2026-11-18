@@ -61,9 +61,9 @@ test('PC : verrouillé avec sa raison tant que l’Arène d’Argenta est fermé
   await demarrer(page);
   await page.getByRole('navigation').getByRole('button', { name: 'Menu', exact: true }).click();
   const entree = page.getByRole('button', { name: 'PC de Léo', exact: true });
-  await expect(entree).toHaveClass(/opacity-60/);
   await entree.click();
   await expect(page.getByText('Le PC de Léo s\'ouvre à l\'Arène d\'Argenta.')).toBeVisible();
+  await expect(page.locator('[aria-label="Équipe mobile"], .pc-places')).toBeVisible();
 });
 
 test('PC : tris, recherche, captures et pas de défilement horizontal', async ({ page }, informations) => {
@@ -129,7 +129,7 @@ test('PC : placer jusqu’à six, échanger, et tout survit au rechargement', as
   await page.evaluate(() => Promise.all([...document.images].map(image => image.decode().catch(() => undefined))));
   const largeur = pc ? 390 : 1440;
   await page.screenshot({ path: `design/captures/i-pc-echange-${largeur}.png`, animations: 'disabled' });
-  const equipeEchange = pc ? page.getByRole('group', { name: 'Équipe mobile' }) : page.locator('aside');
+  const equipeEchange = pc ? page.getByRole('group', { name: 'Équipe mobile' }) : page.locator('.pc-places');
   await equipeEchange.getByRole('button', { name: /^Bulbizarre, niveau/ }).first().click();
   await expect(page.getByText('9 Pokémon')).toBeVisible();
   await expect(page.getByRole('status').filter({ hasText: 'Choisis le Pokémon à remplacer par' })).toHaveCount(0);
@@ -137,7 +137,7 @@ test('PC : placer jusqu’à six, échanger, et tout survit au rechargement', as
   await page.reload();
   await ouvrirPc(page);
   await expect(page.getByText(apres!)).toBeVisible();
-  await page.getByRole('button', { name: 'Équipe', exact: true }).click();
+  await page.getByRole('button', { name: 'PC', exact: true }).click();
   await expect(page.getByText(/(?:· |^)6 \/ 6$/)).toBeVisible();
 });
 

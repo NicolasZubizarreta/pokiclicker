@@ -67,9 +67,9 @@ it('transmet un objet visant un Pokémon et ferme sans rendre le focus', () => {
   expect(document.activeElement).not.toBe(bouton);
 });
 
-it('ouvre le Sac dans la coque sur Combat puis Équipe', () => {
+it('ouvre le Sac dans la coque sur Combat puis PC', () => {
   render(<Coquille />);
-  for (const onglet of ['Combat', 'Équipe']) {
+  for (const onglet of ['Combat', 'PC']) {
     fireEvent.click(screen.getByRole('button', { name: onglet }));
     act(ouvrirSac);
     expect(screen.getByRole('dialog', { name: 'Ton Sac' })).toBeTruthy();

@@ -6,8 +6,8 @@ async function ouvrirEquipe(page: Page) {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
   await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
-  await page.getByRole('button', { name: 'Équipe', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Ton équipe', level: 1 })).toBeVisible();
+  await page.getByRole('button', { name: 'PC', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'PC de Léo', level: 1 })).toBeVisible();
 }
 
 async function renommer(page: Page, ancien: string, nouveau: string) {
@@ -38,7 +38,7 @@ test('Easter eggs : chaque nom déclencheur change le sprite, le surnom suivant 
   await page.screenshot({ path: `design/captures/w-easter-eggs-${largeur}.png`, animations: 'disabled' });
 
   await page.reload();
-  await page.getByRole('button', { name: 'Équipe', exact: true }).click();
+  await page.getByRole('button', { name: 'PC', exact: true }).click();
   await expect(sprite(page, 'jeb_')).toHaveClass(/ee-arc-en-ciel/);
   await expect(sprite(page, 'DinnerBone')).toHaveClass(/ee-retourne/);
   await expect(sprite(page, 'caca')).toHaveClass(/ee-caca/);

@@ -76,7 +76,7 @@ it('une victoire pendant un changement de page valide quand même l’étape « 
   const { rerender } = render(<Tutoriel page="Combat" aller={vi.fn()} />);
   expect(storeTuto.getState().actif?.etape).toBe(i);
   act(() => { storeJeu.setState({ eliminations: 1 }); });
-  rerender(<Tutoriel page="Équipe" aller={vi.fn()} />);
+  rerender(<Tutoriel page="PC" aller={vi.fn()} />);
   expect(storeTuto.getState().actif?.etape).not.toBe(i);
 });
 

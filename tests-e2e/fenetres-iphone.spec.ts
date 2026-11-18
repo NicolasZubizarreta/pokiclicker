@@ -37,7 +37,7 @@ async function verifierFenetre(page: Page, nom: string, contenuVisible: RegExp) 
 test.describe('fenêtres sur iPhone (WebKit)', () => {
   test('fiche Pokémon', async ({ page }) => {
     await demarrer(page);
-    await page.getByRole('button', { name: 'Équipe', exact: true }).click();
+    await page.getByRole('button', { name: 'PC', exact: true }).click();
     await page.getByRole('button', { name: /niveau \d+/ }).first().click();
     await verifierFenetre(page, 'fiche-pokemon', /Base/);
   });

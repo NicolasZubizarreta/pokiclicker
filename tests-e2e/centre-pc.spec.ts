@@ -24,7 +24,7 @@ for (const [width, height, colonnes] of [[1280, 800, 3], [1440, 900, 4], [1920, 
     await page.reload();
     await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
     await page.locator('body').click({ position: { x: 5, y: 5 } });
-    await page.keyboard.press('5');
+    await page.keyboard.press('4');
     await page.getByRole('button', { name: /Céladopole/ }).last().click();
     await page.getByRole('dialog', { name: 'Céladopole', exact: true }).getByRole('button', { name: 'Centre commercial' }).click();
 

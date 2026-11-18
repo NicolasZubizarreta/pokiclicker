@@ -40,7 +40,7 @@ function ouvrir(stockage: Stockage) {
   return { store, avancer: () => { horloge.avancer(100); store.getState().tick(); } };
 }
 
-function preparer(numero = 1, niveau = 16, inventaire: DonneesRegion['inventaire'] = {}, pierreEternelle = false) {
+function preparer(numero = 1, niveau = 16, inventaire: DonneesRegion['inventaire'] = {}, pierreEternelle = false, dansPc = false) {
   const stockage = creerStockageMemoire();
   const horloge = creerHorlogeSimulee();
   const gestionnaire = creerGestionnaire({ stockage, horloge, genererId: () => 'test' });
@@ -52,9 +52,33 @@ function preparer(numero = 1, niveau = 16, inventaire: DonneesRegion['inventaire
   const region = { ...initial, zoneId: 'kanto.route-1', etape: 1, inventaire,
     bossVaincus: kanto.zones.map(zone => zone.id),
     equipe: [{ ...initial.equipe[0]!, uid: 'bulbi', numero, niveau, pierreEternelle }] };
+  if (dansPc) {
+    region.pc = region.equipe;
+    region.equipe = initial.equipe;
+  }
   gestionnaire.ecrireRegion('test', 'kanto', region);
   return { ...ouvrir(stockage), stockage, region };
 }
+
+it('demande et anime l’évolution d’un Pokémon du PC', () => {
+  const { store } = preparer(1, 16, {}, false, true);
+  store.getState().reglerEvolutionAuto(false);
+  const equipe = store.getState().equipe;
+  expect(store.getState().demanderEvolution('bulbi')).toBeNull();
+  expect(store.getState().evolution).toEqual({ uid: 'bulbi', ancien: 1, nouveau: 2 });
+  expect(store.getState().pc.find(p => p.uid === 'bulbi')?.numero).toBe(2);
+  expect(store.getState().equipe).toEqual(equipe);
+});
+
+it('propose la modale d’évolution pour un Pokémon du PC avec le mode automatique', () => {
+  const { store } = preparer(1, 16, {}, false, true);
+  store.getState().reglerEvolutionAuto(true);
+  expect(store.getState().demanderEvolution('bulbi')).toBeNull();
+  expect(store.getState().modalEvolution).toMatchObject({ phase: 'proposition', pokemon: { uid: 'bulbi' }, vers: 2 });
+  store.getState().confirmerEvolution();
+  expect(store.getState().pc.find(p => p.uid === 'bulbi')?.numero).toBe(2);
+  expect(store.getState().modalEvolution?.phase).toBe('animation');
+});
 
 describe('annonceEvolution', () => {
   it('ignore une équipe vide et les annonces déjà vues, puis choisit le premier non vu', () => {

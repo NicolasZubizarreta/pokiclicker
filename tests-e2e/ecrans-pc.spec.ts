@@ -37,21 +37,21 @@ async function demarrer(page: Page, largeur: number, hauteur: number, lieu: fals
 }
 
 const menu = async (page: Page, tuile: string | RegExp) => {
-  await page.keyboard.press('8');
+  await page.keyboard.press('7');
   await page.getByRole('button', { name: tuile }).first().click();
 };
 
 const ECRANS: { nom: string; titre: string | RegExp; lieu?: 'centre' | 'bourg'; aller: (page: Page) => Promise<void> }[] = [
   { nom: 'Pension', titre: 'Pension', lieu: 'bourg', aller: async page => { await page.getByRole('button', { name: 'Pension Pokémon', exact: true }).click(); } },
   { nom: 'Centre commercial', titre: /./, lieu: 'centre', aller: async page => {
-    await page.keyboard.press('5');
+    await page.keyboard.press('4');
     await page.getByRole('button', { name: /Céladopole/ }).last().click();
     await page.getByRole('dialog', { name: 'Céladopole', exact: true }).getByRole('button', { name: 'Centre commercial' }).click();
   } },
-  { nom: 'PC', titre: 'PC de Léo', aller: async page => { await page.keyboard.press('3'); } },
-  { nom: 'Shop', titre: 'Shop', aller: async page => { await page.keyboard.press('4'); } },
-  { nom: 'Carte', titre: /^Carte/, aller: async page => { await page.keyboard.press('5'); } },
-  { nom: 'Menu', titre: 'Menu', aller: async page => { await page.keyboard.press('8'); } },
+  { nom: 'PC', titre: 'PC de Léo', aller: async page => { await page.keyboard.press('2'); } },
+  { nom: 'Shop', titre: 'Shop', aller: async page => { await page.keyboard.press('3'); } },
+  { nom: 'Carte', titre: /^Carte/, aller: async page => { await page.keyboard.press('4'); } },
+  { nom: 'Menu', titre: 'Menu', aller: async page => { await page.keyboard.press('7'); } },
   { nom: 'Monde', titre: 'Monde', aller: page => menu(page, /^Monde/) },
   { nom: 'Réglages', titre: 'Réglages', aller: page => menu(page, /^Réglages/) },
   { nom: 'Pokédex', titre: 'Pokédex', aller: page => menu(page, /^Pokédex/) },
@@ -132,7 +132,7 @@ for (const [largeur, hauteur] of TAILLES) {
 test.describe('détails PC', () => {
   test('« / » met le focus dans la recherche du PC et du Pokédex', async ({ page }) => {
     await demarrer(page, 1440, 900);
-    await page.keyboard.press('3');
+    await page.keyboard.press('2');
     await expect(page.getByRole('heading', { name: 'PC de Léo', level: 1 })).toBeVisible();
     await page.keyboard.press('/');
     await expect(page.locator('#recherche-pc')).toBeFocused();
@@ -145,7 +145,7 @@ test.describe('détails PC', () => {
 
   test('le Menu a trois colonnes et les Badges quatre', async ({ page }) => {
     await demarrer(page, 1440, 900);
-    await page.keyboard.press('8');
+    await page.keyboard.press('7');
     await expect(page.getByRole('heading', { name: 'Menu', level: 1 })).toBeVisible();
     const colonnes = (selecteur: string) => page.locator(selecteur).first().evaluate(e => getComputedStyle(e).gridTemplateColumns.split(' ').length);
     expect(await colonnes('.menu-pc-tuiles')).toBe(3);
@@ -156,7 +156,7 @@ test.describe('détails PC', () => {
 
   test('Carte : la zone actuelle clignote, sans animation en mouvement réduit, et le dresseur n’apparaît qu’en vol', async ({ page }) => {
     await demarrer(page, 1440, 900, false, false);
-    await page.keyboard.press('5');
+    await page.keyboard.press('4');
     const repere = page.locator('circle[data-actuelle]');
     await expect(repere).toHaveCount(1);
     expect(await repere.evaluate(e => getComputedStyle(e).animationName)).toContain('carte-pc-clignote');
@@ -171,7 +171,7 @@ test.describe('détails PC', () => {
 
   test('Carte : Céladopole ouvre une fenêtre à trois choix', async ({ page }) => {
     await demarrer(page, 1440, 900, 'centre');
-    await page.keyboard.press('5');
+    await page.keyboard.press('4');
     await page.getByRole('button', { name: /Céladopole/ }).last().click();
     const fenetre = page.getByRole('dialog', { name: 'Céladopole', exact: true });
     await expect(fenetre).toBeVisible();

@@ -48,7 +48,7 @@ for (const largeur of [390, 1440]) {
 
     await page.getByRole('button', { name: 'Sortie', exact: true }).click();
     await expect(page.getByRole('region', { name: 'Bourg Palette' })).toBeVisible();
-    await page.getByRole('button', { name: 'Équipe', exact: true }).click();
+    await page.getByRole('button', { name: 'PC', exact: true }).click();
     await expect(page.getByRole('button', { name: /^Carapuce, niveau 5/ })).toBeVisible();
     await expect(page.getByRole('button', { name: /niveau/ })).toHaveCount(1);
     // Téléphone : pas de Sac avant la Route 1 ; les cinq balles de Chen se lisent sur la plaque de balle, une fois en Route 1.

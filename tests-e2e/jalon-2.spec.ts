@@ -23,7 +23,7 @@ test.describe('Trois départs', () => {
       await page.getByRole('button', { name: new RegExp(`^${starter}`) }).click();
       await page.getByRole('button', { name: bouton }).click();
       await page.getByRole('button', { name: 'Sortie', exact: true }).click();
-      await page.getByRole('button', { name: 'Équipe', exact: true }).click();
+      await page.getByRole('button', { name: 'PC', exact: true }).click();
       await expect(page.getByRole('button', { name: new RegExp(`^${starter}, niveau 5`) })).toBeVisible();
       await expect(page.getByRole('button', { name: /niveau/ })).toHaveCount(1);
     });
@@ -86,9 +86,8 @@ for (const largeur of [390, 1440, 1915]) {
     page.on('pageerror', e => erreurs.push(e.message));
     page.on('console', m => { if (m.type() === 'error') erreurs.push(m.text()); });
     await charger(page, 'kanto.arene-de-jadielle', 7);
-    for (const onglet of ['Combat', 'Équipe', 'Shop', 'Carte', 'Menu', 'PC']) {
-      if (onglet === 'PC') await page.getByRole('button', { name: 'PC de Léo', exact: true }).click();
-      else await page.getByRole('button', { name: onglet, exact: true }).click();
+    for (const onglet of ['Combat', 'PC', 'Shop', 'Carte', 'Menu']) {
+      await page.getByRole('button', { name: onglet, exact: true }).click();
       await expect(page.getByRole('main')).toBeVisible();
       await page.evaluate(() => Promise.all([...document.images].map(image => image.decode().catch(() => undefined))));
       expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth), `${onglet} défile en largeur`).toBeLessThanOrEqual(1);

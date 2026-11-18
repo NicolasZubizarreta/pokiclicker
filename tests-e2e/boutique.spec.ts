@@ -130,12 +130,12 @@ test('Super Bonbon : annulation puis deux niveaux', async ({ page }, information
   await expect(message).toBeVisible();
   const bulbizarre = page.getByRole('button', { name: 'Bulbizarre, niveau 5', exact: true });
   await bulbizarre.click();
-  const ligne = page.getByRole('listitem').filter({ has: bulbizarre });
-  await ligne.locator('button').filter({ hasText: /^\+$/ }).click();
+  const ligne = page.getByRole('group', { name: 'Quantité', exact: true });
+  await ligne.getByRole('button', { name: 'Plus', exact: true }).click();
   await expect(ligne.locator('output')).toHaveText('2');
-  await ligne.locator('button').filter({ hasText: /^✓$/ }).click();
+  await ligne.getByRole('button', { name: 'Utiliser', exact: true }).click();
   // Le mode reste actif après l'application ; le Sac permet de vérifier le stock.
-  await page.getByRole('button', { name: 'Équipe', exact: true }).click();
+  await page.getByRole('button', { name: 'PC', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Bulbizarre, niveau 7', exact: true })).toBeVisible();
   const sacApres = await ouvrirSac(page);
   await expect(sacApres.getByRole('button', { name: 'Super Bonbon ×3', exact: true })).toBeVisible();

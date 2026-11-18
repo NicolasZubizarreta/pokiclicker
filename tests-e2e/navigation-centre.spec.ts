@@ -36,7 +36,7 @@ test('garde Pension verrouillée visible et explique son accès', async ({ page 
   for (const largeur of informations.project.name === 'pc' ? [1440] : [360, 390]) {
     await page.setViewportSize({ width: largeur, height: 900 });
     const navigation = page.getByRole('navigation', { name: 'Navigation principale' });
-    for (const nom of ['Pension', 'Équipe']) {
+    for (const nom of ['Pension', 'PC']) {
       const entree = navigation.getByRole('button', { name: nom, exact: true });
       const dimensions = await entree.boundingBox();
       expect(dimensions!.width).toBeGreaterThanOrEqual(44);

@@ -4,7 +4,6 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import type { PokemonPossede } from '../core/sauvegarde';
 import { compteInitial, creerGestionnaire, creerStockageMemoire } from '../core/sauvegarde';
 import { creerHorlogeSimulee } from '../core/clock';
-import { PageEquipe } from './PageEquipe';
 import { PagePC } from './PagePC';
 import { FichePokemon } from './FichePokemon';
 import { creerStoreJeu, storeJeu } from './store';
@@ -40,7 +39,7 @@ it('masque le nom et le sprite jusqu’à l’éclosion, puis retrouve le surnom
 });
 
 it.each(['équipe', 'PC', 'fiche'])('cache l’espèce dans %s et garde le ratio carré de l’œuf', page => {
-  const { container } = render(page === 'équipe' ? <PageEquipe /> : page === 'PC' ? <PagePC retour={vi.fn()} />
+  const { container } = render(page !== 'fiche' ? <PagePC retour={vi.fn()} />
     : <FichePokemon uid={oeuf.uid} ouvert fermer={vi.fn()} declencheur={{ current: null }} />);
   expect(container.innerHTML).not.toMatch(/Bulbizarre|sprites\/pokemon\/1\.png/);
   expect(screen.getAllByText('Œuf').length).toBeGreaterThan(0);

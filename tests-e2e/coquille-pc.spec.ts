@@ -3,7 +3,7 @@ import type { Page } from '@playwright/test';
 import { telephone } from './aide-carte';
 
 // Ticket I, lot I1 : coquille PC (barre latérale, bandeau, légende, clavier, fenêtres, notifications).
-const ONGLETS = ['Combat', 'Équipe', 'PC', 'Shop', 'Carte', 'Pokédex', 'Pension', 'Menu'];
+const ONGLETS = ['Combat', 'PC', 'Shop', 'Carte', 'Pokédex', 'Pension', 'Menu'];
 const nav = (page: Page) => page.getByRole('navigation', { name: 'Navigation principale' });
 const bouton = (page: Page, nom: string) => nav(page).getByRole('button', { name: nom, exact: true });
 
@@ -48,13 +48,13 @@ test('1 à 8 changent d\'onglet au clavier, la page ne défile jamais (1280, 144
   }
 });
 
-test('Espace attaque et 3 ouvre le PC', async ({ page }) => {
+test('Espace attaque et 2 ouvre le PC', async ({ page }) => {
   await demarrer(page);
   const barre = page.getByRole('progressbar', { name: /^PV de / });
   const avant = [await barre.getAttribute('aria-label'), await barre.getAttribute('aria-valuenow')];
   await page.keyboard.press('Space');
   await expect.poll(async () => [await barre.getAttribute('aria-label'), await barre.getAttribute('aria-valuenow')]).not.toEqual(avant);
-  await page.keyboard.press('3');
+  await page.keyboard.press('2');
   await expect(bouton(page, 'PC')).toHaveAttribute('aria-current', 'page');
 });
 

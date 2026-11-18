@@ -49,17 +49,15 @@ test('les sprites restent entièrement dans leurs cadres', async ({ page }, info
   await preparer(page);
   // Les cartes de la ligne d'équipe (la scène de combat est exclue : son ennemi a sa propre règle).
   await verifierSprites(page.locator('.cadre[aria-label$=" DPS"], .rang-equipe'));
-  await page.getByRole('button', { name: 'Équipe', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Ton équipe' })).toBeVisible();
+  await page.getByRole('button', { name: 'PC', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'PC de Léo' })).toBeVisible();
   await verifierSprites(page.locator('main'));
   await page.getByRole('button', { name: /^Daran, niveau/ }).first().click();
   if (!await page.locator('dialog[open]').isVisible()) await page.getByRole('button', { name: 'Ouvre la fiche' }).click();
   await expect(page.locator('dialog[open]')).toBeVisible();
   await verifierSprites(page.locator('dialog[open]'));
   await page.keyboard.press('Escape');
-  // PC : l'onglet PC (plus de ligne « PC de Léo » dans la page Équipe) ; téléphone : la ligne de la page Équipe.
-  if (informations.project.name === 'pc') await page.getByRole('button', { name: 'PC', exact: true }).click();
-  else await page.getByRole('button', { name: /PC de Léo/ }).click();
+  await page.getByRole('button', { name: 'PC', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'PC de Léo' })).toBeVisible();
   await verifierSprites(page.locator('main'));
   if (informations.project.name === 'mobile') {

@@ -12,7 +12,7 @@ import type { StoreJeu } from './store';
 import { ERREUR_CHARGEMENT } from './persistance';
 import * as chargement from './precharger';
 import { FenetreSac } from './FenetreSac';
-import { PageEquipe } from './PageEquipe';
+import { PagePC } from './PagePC';
 import { reinitialiserSac, storeSac } from './sacContexte';
 
 let store: StoreJeu;
@@ -97,7 +97,7 @@ it('ferme le Sac global, marque les Pokémon éligibles et applique la Pierre St
   fireEvent.click(screen.getByRole('button', { name: 'Pierre Stase ×1' }));
   expect(screen.queryByRole('dialog')).toBeNull();
   expect(storeSac.getState().objet?.type).toBe('stase');
-  const page = render(<PageEquipe />);
+  const page = render(<PagePC />);
   const choix = within(page.container).getByRole('button', { name: 'Bulbizarre, niveau 5' });
   expect(choix.className).toContain('cible-valide');
   fireEvent.click(choix);
@@ -120,7 +120,7 @@ it('abandonne le choix du Pokémon avec Fermer', () => {
   render(<FenetreSac />);
   fireEvent.click(within(screen.getByRole('group', { name: 'Actions du combat' })).getByRole('button', { name: 'Sac' }));
   fireEvent.click(screen.getByRole('button', { name: 'Pierre Stase ×1' }));
-  const page = render(<PageEquipe />);
+  const page = render(<PagePC />);
   const choix = within(page.container).getByRole('button', { name: 'Bulbizarre, niveau 5' });
   expect(choix.className).toContain('cible-valide');
   fireEvent.click(screen.getByRole('button', { name: /^Fermer/ }));
