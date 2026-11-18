@@ -6,8 +6,8 @@ Quand une fonction ou un lieu s'ouvre, une annonce en haut de l'écran le dit et
 
 | Fonction | Déclencheur | Texte affiché |
 | --- | --- | --- |
-| Sac | Route 1 ouverte (le Sac s'ouvre à la Route 1) | Sac débloqué ! Il est dans l'onglet Équipe. |
-| PC | Arène d'Argenta ouverte (boss de la Forêt de Jade battu) | PC débloqué ! Il est dans la barre de navigation. |
+| Sac | Route 1 ouverte (le Sac s'ouvre à la Route 1) | Sac débloqué ! Il est dans l'onglet PC. |
+| PC | Arène d'Argenta ouverte (boss de la Forêt de Jade battu) | PC débloqué ! Il a son propre onglet. |
 | Pension | Boss de la Tour Pokémon battu | Pension débloquée ! Elle est à Bourg Palette. |
 | Centre commercial | Boss de la Tour Pokémon battu | Centre commercial débloqué ! Il est sur la Carte, dans la fiche de Céladopole. |
 | Casino | Boss de la Tour Pokémon battu | Casino débloqué ! Il est sur la Carte, dans la fiche de Céladopole. |

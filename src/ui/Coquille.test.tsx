@@ -196,8 +196,8 @@ it('affiche l’annonce de déblocage sur toutes les pages, en aria-live sans se
   const { container } = render(<Coquille />);
   const region = () => container.querySelector('[data-annonce-deblocage]')!;
   expect(region().textContent).toBe('');
-  act(() => storeJeu.setState({ deblocage: 'PC débloqué ! Il est dans le Menu.' }));
-  expect(region().textContent).toBe('PC débloqué ! Il est dans le Menu.');
+  act(() => storeJeu.setState({ deblocage: 'PC débloqué ! Il a son propre onglet.' }));
+  expect(region().textContent).toBe('PC débloqué ! Il a son propre onglet.');
   expect(region().getAttribute('role')).toBeNull();
   expect(screen.queryAllByRole('status').filter(zone => zone.textContent?.includes('PC débloqué'))).toHaveLength(0);
   await userEvent.click(screen.getByRole('button', { name: 'Shop' }));

@@ -4,12 +4,12 @@
       "id": "sac",
       "declencheur": { "zone": "kanto.route-1" },
       "dejaAnnonceSi": "sac-ouvert",
-      "texte": "Sac débloqué ! Il est dans l'onglet Équipe."
+      "texte": "Sac débloqué ! Il est dans l'onglet PC."
     },
     {
       "id": "pc",
       "declencheur": { "zone": "kanto.arene-d-argenta" },
-      "texte": "PC débloqué ! Il est dans le Menu."
+      "texte": "PC débloqué ! Il a son propre onglet."
     },
     {
       "id": "pension",

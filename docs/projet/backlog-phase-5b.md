@@ -492,7 +492,7 @@ En tant que joueur, je veux appliquer des objets à n'importe quel Pokémon du P
 
 ## W. `feat(combat): un objectif permanent pour le jeu austère du début`
 
-`type:feat`, `etat:a_faire`, `est:1-2`, `prio:5` · branche : `v2` · pas d'`agent-ok` (idée à cadrer avec Nicolas) · à traiter quand il ne reste plus que ce ticket
+`type:feat`, `etat:fait`, `est:1-2`, `prio:5` · branche : `v2` · pas d'`agent-ok` (idée à cadrer avec Nicolas) · à traiter quand il ne reste plus que ce ticket
 
 ### Histoire
 En tant que nouveau joueur, je veux toujours voir ce que je dois viser, afin de ne pas trouver le début du jeu austère et de ne pas sauter le tuto (point 14 du testeur).
@@ -501,11 +501,17 @@ En tant que nouveau joueur, je veux toujours voir ce que je dois viser, afin de 
 Décision de Nicolas (17/11) : on fait ce ticket, mais plus tard ; tout le reste passe avant. Piste à valider avec lui avant de coder : un objectif permanent affiché dans l'écran de Combat (prochain badge, prochaine zone, prochain palier du Pokédex), qui change quand il est atteint.
 
 ### Critères d'acceptation
-- [ ] Étant donné la maquette, quand Nicolas l'ouvre, alors 3 variantes de l'objectif (texte seul, icône + texte, avec progression) sont navigables sur l'écran de Combat à 390 et 1440 px, et il en choisit une.
-- [ ] Étant donné la variante choisie, quand je joue, alors une ligne transparente en haut à droite de la zone de combat affiche le prochain objectif et change quand il est atteint (liste des objectifs et ordre à valider avec lui).
-- [ ] Étant donné téléphone et PC, alors l'objectif ne cache ni le Pokémon sauvage ni ses PV, ne déplace rien, et suit la charte.
+- [x] Étant donné la maquette (`design/variantes/objectif-w/`), Nicolas a choisi la variante A (texte seul) le 18/11.
+- [x] Étant donné le combat, quand je joue, alors une ligne de texte transparente, sans fond ni icône, en haut à droite de la zone de combat, dit toujours de quoi il s'agit (« Boss : Pierre, étape 10 »), jamais un simple « objectif » : battre un Pokémon sauvage ne le complète pas et le texte le dit.
+- [x] Étant donné des objectifs « fonctionnalité » (premier équipement acheté, bonus des paliers du Pokédex, Pension débloquée, Poké-Radar, Fauchage…), quand l'un d'eux s'applique, alors la ligne alterne toutes les 8 s entre le boss et lui, et un objectif fait ou sans objet n'est plus proposé.
+- [x] Étant donné la ligne, quand je clique dessus, alors une fenêtre « Objectifs » liste le boss, les équipements, les paliers du Pokédex, la Pension, etc., avec leur état (fait / à faire) et un bouton « Y aller » vers l'écran concerné (Shop, Pokédex, Pension…) ; la croix en haut à droite la ferme.
+- [x] Étant donné un joueur qui a passé le tuto et ne fait que cliquer, quand il se retrouve bloqué, alors la ligne ou la fenêtre lui a dit d'acheter des équipements, de faire la Pension et de viser un palier du Pokédex (liste et ordre des objectifs validés par Nicolas avant le code).
+- [x] Étant donné les données, alors les objectifs, leurs conditions et leurs textes vivent dans `data/` (pas en dur), sans changer aucune règle de jeu ni valeur.
+- [x] Étant donné téléphone et PC, alors l'objectif ne cache ni le Pokémon sauvage ni ses PV, ne déplace rien, et suit la charte.
 
 Décisions de Nicolas (18/11) : contenu = le prochain objectif de progression, une seule ligne ; place = en haut à droite de la zone de combat, au-dessus du Pokémon sauvage, petit et transparent (pas sous le titre de la zone, trop étroit) ; méthode = maquette HTML navigable validée par lui avant tout code dans le projet.
+
+Livré le 18/11 : data/objectifs.json, src/core/objectifs.ts, src/ui/ObjectifPermanent.tsx. Le boss d'une arène donne son badge à la victoire : la ligne passe de « Boss » à « Zone suivante ». Sur téléphone le texte est à 14 px (le coin ne fait qu'environ 103 px), sur PC à 16 px ; les phrases sont raccourcies pour tenir sur 3 lignes. La ligne est un bouton : un clic dessus ouvre la fenêtre, le reste de la scène attaque.
 
 ### Effort et risques
 1 à 2 jours. Risque : un écran de plus dans un combat déjà dense ; la maquette sert à le vérifier avant de coder.

@@ -30,6 +30,8 @@ import { ERREUR_CHARGEMENT } from './persistance';
 import { cheminDecor, cheminSprite, precharger, prechargerZone } from './precharger';
 import { storeJeu } from './store';
 import { ReglagesCombat } from './ReglagesCombat';
+import { ObjectifPermanent } from './ObjectifPermanent';
+import type { Page } from './Navigation';
 import { PastillesEffets } from './PastillesEffets';
 import { OutilsCombat } from './OutilsCombat';
 import { FenetreRadar } from './FenetreRadar';
@@ -65,7 +67,7 @@ function Entete({ store }: { store: StoreJeu }) {
   </header>;
 }
 
-function Scene({ store, ouvrirPension }: { store: StoreJeu; ouvrirPension(): void }) {
+function Scene({ store, ouvrirPension, aller }: { store: StoreJeu; ouvrirPension(): void; aller?: (page: Page) => void }) {
   const secousse = useRef<HTMLDivElement>(null);
   const attaquer = () => {
     if (!store.getState().attaquer()) return;
@@ -132,6 +134,7 @@ function Scene({ store, ouvrirPension }: { store: StoreJeu; ouvrirPension(): voi
   const nom = nomAdversaire ?? catalogue.parNumero(ennemi.numero).nom;
   return <section aria-label={enRecherche ? 'Combat contre un Pokémon en approche' : `Combat contre ${nom}`} className="scene-limitee relative isolate h-76 bg-surface-2 lg:col-span-3 lg:aspect-video lg:h-auto">
     <Image src={cheminDecor(zone)} genre="decor" alt="" couvrir className="absolute inset-0 -z-10 size-full" />
+    <ObjectifPermanent store={store} aller={aller} />
     <div aria-hidden={cache} className={`pointer-events-none cadre absolute top-4 left-4 z-10 w-3/5 bg-surface/82 p-3 ${cache ? 'opacity-0' : ''}`}>
       <div className="flex flex-wrap items-center justify-between gap-1">
         <h2 className="font-titre text-xl">{nom}{nomAdversaire === null && pokedex.includes(ennemi.numero) && <PastilleCapture />} {ennemi.shiny && <IconeShiny />}{ennemi.boss && nomAdversaire === null ? ' (Géant)' : ''}</h2><span>Niv. {ennemi.niveau}</span>
@@ -307,7 +310,7 @@ function Equipe({ store }: { store: StoreJeu }) {
   </section>;
 }
 
-function CombatPC({ store, cadre, ouvrirPension }: { store: StoreJeu; cadre: RefObject<HTMLDivElement | null>; ouvrirPension(): void }) {
+function CombatPC({ store, cadre, ouvrirPension, aller }: { store: StoreJeu; cadre: RefObject<HTMLDivElement | null>; ouvrirPension(): void; aller?: (page: Page) => void }) {
   const lieu = useStore(store, etat => etat.lieu);
   const etape = useStore(store, etat => etat.etape);
   const zone = useStore(store, etat => etat.zone);
@@ -325,7 +328,7 @@ function CombatPC({ store, cadre, ouvrirPension }: { store: StoreJeu; cadre: Ref
     <h1 className="sr-only">{lieu?.nom}</h1>
     <div className="combat-pc-gauche">
       <ZoneLigne nom={lieu?.nom} etape={zone ? etape : null} precedente={zonePrecedente} suivante={zoneSuivante} aller={allerVers} />
-      <div className="scene-boite"><Scene store={store} ouvrirPension={ouvrirPension} /></div>
+      <div className="scene-boite"><Scene store={store} ouvrirPension={ouvrirPension} aller={aller} /></div>
       <ActionsTelephone store={store} />
     </div>
     <div className="combat-pc-droite">
@@ -344,7 +347,7 @@ function CombatPC({ store, cadre, ouvrirPension }: { store: StoreJeu; cadre: Ref
   </div>;
 }
 
-export function EcranCombat({ store = storeJeu }: { store?: StoreJeu }) {
+export function EcranCombat({ store = storeJeu, aller }: { store?: StoreJeu; aller?: (page: Page) => void }) {
   const [pensionOuverte, ouvrirPension] = useState(false);
   const cadre = useRef<HTMLDivElement>(null);
   const rendreFocus = useRef(false);
@@ -366,7 +369,7 @@ export function EcranCombat({ store = storeJeu }: { store?: StoreJeu }) {
   }} />;
   if (!telephone && (combatActif || (horsZone && !sceneRonflex)) && !fatale) return <>
     {erreur && <div role="alert" className="cadre bg-surface p-4"><p>{erreur.split('\n')[0]}</p></div>}
-    <CombatPC store={store} cadre={cadre} ouvrirPension={() => ouvrirPension(true)} />
+    <CombatPC store={store} cadre={cadre} ouvrirPension={() => ouvrirPension(true)} aller={aller} />
   </>;
   return <div ref={cadre}>
     {erreur && <div role="alert" className="cadre mb-4 bg-surface p-4">
@@ -376,7 +379,7 @@ export function EcranCombat({ store = storeJeu }: { store?: StoreJeu }) {
     {/* Sur PC, la colonne équipe remonte presque jusqu'en haut : on reprend 24 px du remplissage de <main> (haut et bas) pour que les 6 cartes tiennent sans défilement dès 768 px de haut. */}
     {!fatale && <div className="lg:-my-6 lg:grid lg:grid-cols-4 lg:gap-x-4 lg:gap-y-2">
       <Entete store={store} /><div className={`${sceneRonflex ? '' : `combat-grille${telephone ? ' combat-grille-tel' : ''}`} grid gap-2 lg:contents`}>
-        <Scene store={store} ouvrirPension={() => ouvrirPension(true)} />
+        <Scene store={store} ouvrirPension={() => ouvrirPension(true)} aller={aller} />
         {telephone && <ActionsTelephone store={store} />}
         <Equipe store={store} />
       </div></div>}
