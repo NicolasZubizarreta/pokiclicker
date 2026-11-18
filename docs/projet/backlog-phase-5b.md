@@ -639,3 +639,14 @@ En tant que joueur, je veux choisir combien d'objets j'utilise d'un coup, comme 
 - [x] Étant donné un objet à appliquer sur un Pokémon (bonbon, calcium, baie), quand je le choisis, alors le sélecteur propose − / + qui bouclent de 1 au plafond (99 au plus) et inversement, +10, Max et « Utiliser » à la place d'« Acheter ».
 - [x] Étant donné un objet direct empilable du Sac (Repousse, X-objets…), quand je le touche, alors la même rangée de commandes s'ouvre dans le cadre de l'objet et « Utiliser » l'emploie n fois ; Poké Poupée reste en un clic.
 - [x] Étant donné un écran étroit, alors les commandes passent à la ligne et ne sortent pas du cadre.
+
+## AD. `feat(pension): parents shiny, plus de chance de shiny pour l'œuf`
+
+`type:feat`, `etat:fait`, `est:0.25`, `prio:1` · branche : `v2` · demandé par Nicolas le 18/11 (valeur proposée : +2,5 points par parent shiny)
+
+### Histoire
+En tant que joueur, je veux que des parents shiny donnent plus souvent des œufs shiny, sans que ça devienne abusé.
+
+### Critères d'acceptation
+- [x] Étant donné un parent shiny, quand un œuf est pondu, alors sa chance shiny passe de 6,25 % à 8,75 % ; deux parents shiny : 11,25 % (valeur `pension.bonusParentShiny` = 0,025 dans `data/reglages.json`, à ajuster).
+- [x] Étant donné le Charme Chroma, alors il double le total : 17,5 % avec un parent shiny, 22,5 % avec deux.

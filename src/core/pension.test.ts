@@ -191,6 +191,24 @@ describe('pension', () => {
     expect(seuil * 2).toBe(0.125);
   });
 
+  it('un parent shiny ajoute 2,5 points, deux parents shiny 5 points, avant le Charme Chroma', () => {
+    const base = preparer().pension.parents;
+    const avec = (nombre: number) => base.map((p, i) => ({ ...p, shiny: i < nombre }));
+    const seuil = reglages.pension.chanceShiny;
+    const n = reglages.pension.bonusParentShiny;
+    const tirage = (parents: typeof base, actifs: string[], valeur: number) => {
+      const valeurs = [0, valeur];
+      return tirerOeuf(parents, () => valeurs.shift()!, actifs)!.shiny;
+    };
+    expect(n).toBe(0.025);
+    expect(tirage(avec(0), [], seuil + n / 2)).toBe(false);
+    expect(tirage(avec(1), [], seuil + n / 2)).toBe(true);
+    expect(tirage(avec(1), [], seuil + n)).toBe(false);
+    expect(tirage(avec(2), [], seuil + n * 1.5)).toBe(true);
+    expect(tirage(avec(2), [], seuil + n * 2)).toBe(false);
+    expect(tirage(avec(2), ['objet:shinyCharm'], (seuil + n * 2) * 2 - 0.001)).toBe(true);
+  });
+
   it.each([0, 1])('choisit la mère quel que soit son emplacement (%i)', (index) => {
     const parents = [parent(1, 'male'), parent(43, 'femelle')];
     if (index === 0) parents.reverse();

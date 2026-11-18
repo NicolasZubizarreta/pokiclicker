@@ -26,6 +26,8 @@ export type ReglagesPension = {
   chanceShiny: number;
   /** Multiplicateurs de la chance shiny d'un œuf (le premier objet actif de la liste compte). */
   bonusShiny: { cle: string; x: number }[];
+  /** Points de chance shiny ajoutés par parent shiny (0,025 = +2,5 points ; deux parents shiny = le double), avant le Charme Chroma. */
+  bonusParentShiny: number;
   /** Métamorph + Métamorph : chaque espèce listée pèse `poids` fois une espèce normale dans le tirage. */
   legendaires: { numeros: number[]; poids: number };
   /** Bonus de dégâts propres d'un Pokémon né d'un œuf (0,05 = +5 %). */
@@ -182,7 +184,8 @@ if ([pension.emplacementsMax, pension.prixParEmplacement, pension.pasEclosion,
   || new Set(pension.legendaires.numeros).size !== pension.legendaires.numeros.length
   || pension.legendaires.numeros.some(numero => !Number.isSafeInteger(numero) || numero < 1 || numero > pension.especesTirees)
   || pension.bonusShiny.some(bonus => !bonus.cle || !Number.isFinite(bonus.x) || bonus.x < 1
-    || pension.chanceShiny * bonus.x > 1)
+    || (pension.chanceShiny + 2 * pension.bonusParentShiny) * bonus.x > 1)
+  || !Number.isFinite(pension.bonusParentShiny) || pension.bonusParentShiny < 0
   || [pension.chanceShiny, pension.chances.metamorph, pension.chances.memeEspece, pension.chances.typePartage]
     .some(valeur => !Number.isFinite(valeur) || valeur < 0 || valeur > 1)
   || [pension.messages.pleine, pension.messages.envoyePc, pension.messages.eclosion]

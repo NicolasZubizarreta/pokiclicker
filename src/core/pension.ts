@@ -161,7 +161,9 @@ export function tirerOeuf(
     numero = premier.sexe === 'femelle' ? premier.numero : second.numero;
   }
   const bonus = pension.bonusShiny.find(b => actifs.includes(b.cle));
-  return { numero: formeDeBase(numero), shiny: alea() < pension.chanceShiny * (bonus?.x ?? 1) };
+  const parentsShiny = parents.filter(parent => parent.shiny).length;
+  const chanceShiny = (pension.chanceShiny + pension.bonusParentShiny * parentsShiny) * (bonus?.x ?? 1);
+  return { numero: formeDeBase(numero), shiny: alea() < chanceShiny };
 }
 
 export function pondre(region: DonneesRegion, alea: () => number, genererId: () => string): DonneesRegion {
