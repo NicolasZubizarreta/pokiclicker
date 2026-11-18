@@ -42,6 +42,7 @@ export function ouvrirPartie(options: Parameters<typeof creerGestionnaire>[0],
     evolutionAuto: compte.preferences.evolutionAuto ?? reglages.depart.preferences.evolutionAuto,
     passerEclosions: compte.preferences.passerEclosions ?? reglages.depart.preferences.passerEclosions,
     relacherDoublons: compte.preferences.relacherDoublons ?? reglages.depart.preferences.relacherDoublons,
+    notifications: compte.preferences.notifications ?? reglages.depart.preferences.notifications,
   };
   const balle: unknown = compte.preferences.balleChoisie;
   if (typeof balle === 'string' && reglages.capture.balles.some(b => b.cle === balle)) preferences.balleChoisie = balle;

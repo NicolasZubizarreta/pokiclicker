@@ -650,3 +650,14 @@ En tant que joueur, je veux que des parents shiny donnent plus souvent des œufs
 ### Critères d'acceptation
 - [x] Étant donné un parent shiny, quand un œuf est pondu, alors sa chance shiny passe de 6,25 % à 8,75 % ; deux parents shiny : 11,25 % (valeur `pension.bonusParentShiny` = 0,025 dans `data/reglages.json`, à ajuster).
 - [x] Étant donné le Charme Chroma, alors il double le total : 17,5 % avec un parent shiny, 22,5 % avec deux.
+
+## AE. `feat(ui): réglage pour désactiver les notifications`
+
+`type:feat`, `etat:fait`, `est:0.25`, `prio:1` · branche : `v2` · demandé par Nicolas le 18/11
+
+### Histoire
+En tant que joueur, je veux couper les notifications du bas de l'écran (niveau gagné, éclosion, relâche automatique…).
+
+### Critères d'acceptation
+- [x] Étant donné les Réglages, quand je désactive « Notifications », alors plus aucun message n'apparaît en bas à droite ; réactivées, ils reviennent.
+- [x] Étant donné la préférence, alors elle est sauvegardée avec le compte (activée par défaut).

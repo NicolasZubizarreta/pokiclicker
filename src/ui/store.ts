@@ -104,6 +104,7 @@ export type AffichageJeu = ActionsCasino & {
   evolutionAuto: boolean; reglerEvolutionAuto(actif: boolean): void;
   passerEclosions: boolean; reglerPasserEclosions(actif: boolean): void;
   relacherDoublons: boolean; reglerRelacherDoublons(actif: boolean): void;
+  notifications: boolean; reglerNotifications(actif: boolean): void;
   modalEvolution: ModalEvolution | null;
   /** Bouton « Évoluer » : ouvre la fenêtre si l'option est active, sinon évolue tout de suite (animation dans le cadre). */
   demanderEvolution(uid: string, pierre?: string): string | null;
@@ -640,7 +641,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       evolution: afficherEvolution(evolutionEnCours, finEvolutionMs, tempsJeuMs),
       modalEvolution, evolutionAuto: preferences.evolutionAuto,
       passerEclosions: preferences.passerEclosions,
-      relacherDoublons: preferences.relacherDoublons,
+      relacherDoublons: preferences.relacherDoublons, notifications: preferences.notifications,
       eclosion: fileEclosions[0] ?? null,
       argent: region.argent, enRecherche: (coeur?.attenteMs ?? 0) > 0 && !coeur?.attenteCapture, cache: (coeur?.attenteMs ?? 0) > 0, annonce, banniere,
       deblocage: deblocageEnCours?.texte ?? null, deblocageCarte: deblocageEnCours?.carte ?? null, sonActive, echange,
@@ -1073,7 +1074,12 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     },
     evolutionAuto: preferences.evolutionAuto, modalEvolution: null,
     passerEclosions: preferences.passerEclosions,
-    relacherDoublons: preferences.relacherDoublons,
+    relacherDoublons: preferences.relacherDoublons, notifications: preferences.notifications,
+    reglerNotifications(actif) {
+      if (!initialise) return;
+      preferences = { ...preferences, notifications: actif };
+      enregistrer(); afficher();
+    },
     reglerRelacherDoublons(actif) {
       if (!initialise) return;
       preferences = { ...preferences, relacherDoublons: actif };

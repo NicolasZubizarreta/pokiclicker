@@ -49,6 +49,9 @@ async function demarrer(page: Page) {
 async function utiliser(page: Page, nom: string, stock = 1) {
   const sac = await ouvrirSac(page);
   await sac.getByRole('button', { name: `${nom} ×${stock}`, exact: true }).click();
+  // Les objets empilables ouvrent un sélecteur de quantité : « Utiliser » l'emploie une fois (quantité 1 par défaut).
+  const confirmer = sac.getByRole('button', { name: 'Utiliser', exact: true });
+  if (await confirmer.count()) await confirmer.click();
 }
 
 async function combat(page: Page) {

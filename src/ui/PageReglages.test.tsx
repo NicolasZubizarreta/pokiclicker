@@ -30,7 +30,17 @@ it('bascule Passer les éclosions, désactivé par défaut', () => {
   expect(reglerPasserEclosions).toHaveBeenCalledWith(true);
   expect(interrupteur.getAttribute('aria-checked')).toBe('true');
 });
-it('affiche les réglages sans bouton Retour dans la zone compte', () => {
+it('bascule les notifications, activées par défaut', () => {
+  expect(initial.notifications).toBe(true);
+  const reglerNotifications = vi.fn((actif: boolean) => storeJeu.setState({ notifications: actif }));
+  storeJeu.setState({ reglerNotifications });
+  render(<PageReglages />);
+  const interrupteur = screen.getByRole('switch', { name: 'Notifications' });
+  expect(interrupteur.getAttribute('aria-checked')).toBe('true');
+  fireEvent.click(interrupteur);
+  expect(reglerNotifications).toHaveBeenCalledWith(false);
+  expect(interrupteur.getAttribute('aria-checked')).toBe('false');
+});it('affiche les réglages sans bouton Retour dans la zone compte', () => {
   const { container } = render(<PageReglages />);
   expect(container.querySelectorAll('.reglages-pc')).toHaveLength(1);
   expect(screen.getByRole('heading', { name: 'Son' })).toBeTruthy();

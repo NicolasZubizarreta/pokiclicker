@@ -32,6 +32,7 @@ export function PageReglages({ retour }: { retour?(): void }) {
   const evolutionAuto = useStore(storeJeu, e => e.evolutionAuto);
   const passerEclosions = useStore(storeJeu, e => e.passerEclosions);
   const relacherDoublons = useStore(storeJeu, e => e.relacherDoublons);
+  const notifications = useStore(storeJeu, e => e.notifications);
   const journalActif = useStore(storeJeu, e => e.journalActif);
   const exporterReleve = () => {
     const releve = storeJeu.getState().exporterJournal();
@@ -109,6 +110,16 @@ export function PageReglages({ retour }: { retour?(): void }) {
         <Interrupteur nom="Relâcher automatiquement les doublons" actif={relacherDoublons} basculer={() => storeJeu.getState().reglerRelacherDoublons(!relacherDoublons)} />
       </div>
       <p className="mt-2 text-sm text-texte-doux">Un Pokémon capturé dont l'espèce est déjà dans ton Pokédex est relâché aussitôt. Un Pokémon éclos dont l'espèce est déjà dans ta collection d'éclos est relâché aussitôt. Les chromatiques ne sont jamais relâchés, et les récompenses de capture sont versées comme d'habitude.</p>
+    </section>
+    </PanneauPC>
+    <PanneauPC telephone={telephone} titre="Affichage">
+    <section className="cadre bg-surface p-4">
+      <div className="flex items-center justify-between gap-4">
+        <div><h3 className="font-titre font-semibold">Notifications</h3>
+          <p className="text-sm text-texte-doux">{notifications ? 'Activées' : 'Désactivées'}</p></div>
+        <Interrupteur nom="Notifications" actif={notifications} basculer={() => storeJeu.getState().reglerNotifications(!notifications)} />
+      </div>
+      <p className="mt-2 text-sm text-texte-doux">Les messages en bas à droite : niveau gagné, éclosion, relâche automatique, objet utilisé… Désactivées, ils ne s'affichent plus.</p>
     </section>
     {!import.meta.env.PROD && <details className="cadre mt-4 space-y-4 bg-surface p-4">
       <summary className="min-h-12 cursor-pointer py-2">Relevé de partie (développement)</summary>

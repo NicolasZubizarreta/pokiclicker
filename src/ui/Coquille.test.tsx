@@ -75,7 +75,7 @@ it('revient du choix au Combat, rouvre le Sac après annulation et respecte Shop
   utiliser();
   const premier = storeJeu.getState().equipe.find(c => c)!;
   fireEvent.click(document.querySelector<HTMLButtonElement>(`button[data-uid="${premier.pokemon.uid}"]`)!);
-  fireEvent.click(screen.getByRole('button', { name: 'Valider' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Utiliser' }));
   expect(utiliserObjet).toHaveBeenCalledWith('bonbon', premier.pokemon.uid, 1);
   expect(screen.getByText('Bonbon rare ×2 : touche un Pokémon')).toBeTruthy();
   fireEvent.click(screen.getByRole('button', { name: 'Combat' }));

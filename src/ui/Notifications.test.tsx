@@ -7,7 +7,7 @@ import { notifier, viderNotifications } from './pileNotifications';
 import { storeJeu } from './store';
 
 beforeEach(() => vi.useFakeTimers());
-afterEach(() => { cleanup(); viderNotifications(); storeJeu.setState({ annonce: null }); vi.useRealTimers(); });
+afterEach(() => { cleanup(); viderNotifications(); storeJeu.setState({ annonce: null, notifications: true }); vi.useRealTimers(); });
 
 const textes = (conteneur: HTMLElement) => [...conteneur.querySelectorAll('[data-notifications] [aria-live="polite"] p')].map(p => p.textContent);
 
@@ -29,6 +29,14 @@ it('affiche l’annonce du store, puis la retire seule', () => {
   expect(textes(container)).toEqual([]);
 });
 
+it('n’affiche rien quand les notifications sont désactivées dans les réglages', () => {
+  const { container } = render(<Notifications />);
+  act(() => storeJeu.setState({ notifications: false }));
+  act(() => { notifier('Niveau 21 !'); storeJeu.setState({ annonce: 'Éclosion !' }); });
+  expect(textes(container)).toEqual([]);
+  act(() => storeJeu.setState({ notifications: true }));
+  expect(textes(container)).toContain('Niveau 21 !');
+});
 it('empile au plus trois messages : les plus anciens sortent', () => {
   const { container } = render(<Notifications />);
   act(() => { for (const n of ['un', 'deux', 'trois', 'quatre']) notifier(n); });
