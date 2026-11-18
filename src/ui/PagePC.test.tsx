@@ -36,17 +36,15 @@ it.each([false, true])('repère sur les cartes marquées du PC : %s', marqueEclo
   expect(!!within(screen.getByRole('list')).queryByRole('img', { name: "Marque d'éclosion" })).toBe(marqueEclosion);
 });
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
-it.each([[false, false], [true, false], [false, true], [true, true]])('pose le tag shiny à côté du tag œuf sur la carte du PC (shiny %s, marque %s)', (shiny, marqueEclosion) => {
+it.each([[false, false], [true, false], [false, true], [true, true]])("pose l’étoile à droite du nom puis l’icône d’œuf, sans cercle sur le sprite (shiny %s, marque %s)", (shiny, marqueEclosion) => {
   storeJeu.setState({ pc: [{ ...base, shiny, marqueEclosion }] });
   render(<PagePC />);
   const liste = within(screen.getByRole('list'));
-  expect(!!liste.queryByRole('img', { name: 'Chromatique' })).toBe(shiny);
-  expect(!!liste.queryByRole('img', { name: "Marque d'éclosion" })).toBe(marqueEclosion);
-  if (shiny || marqueEclosion) {
-    const tags = liste.getAllByRole('img', { name: /Chromatique|Marque d'éclosion/ }).map(tag => tag.parentElement!);
-    expect(new Set(tags).size).toBe(1);
-    expect(tags[0]!.classList.contains('repere-marque-sur-portrait')).toBe(true);
-  }
+  expect(liste.queryAllByRole('img', { name: 'Chromatique' })).toHaveLength(shiny ? 1 : 0);
+  expect(liste.queryAllByRole('img', { name: "Marque d'éclosion" })).toHaveLength(marqueEclosion ? 1 : 0);
+  const tags = liste.queryAllByRole('img', { name: /Chromatique|Marque d'éclosion/ });
+  for (const tag of tags) expect(tag.closest('strong')).toBeTruthy();
+  if (shiny && marqueEclosion) expect(tags[0]!.compareDocumentPosition(tags[1]!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 });
 
 it('structure le PC en trois colonnes et garde six places dans son cadre', () => {
@@ -135,7 +133,8 @@ it('présente le titre focalisable, le compteur et des cartes en français', () 
   expect(screen.getAllByRole('img', { name: 'Mâle' })).toHaveLength(3);
   const boule = screen.getByRole('button', { name: 'Boule, niveau 20' });
   const bulbizarre = screen.getByRole('button', { name: 'Bulbizarre, niveau 12' });
-  expect(within(boule).getByText('Shiny').className).toBe('sr-only');
+  expect(within(boule).getByRole('img', { name: 'Chromatique' }).closest('strong')).toBeTruthy();
+  expect(within(boule).getAllByRole('img', { name: 'Chromatique' })).toHaveLength(1);
   expect(bulbizarre.querySelector('svg.text-lien')).toBeTruthy();
   expect(boule.querySelector('strong svg path')).toBeTruthy();
   expect(boule.querySelector('img.halo-shiny')?.getAttribute('src')).toBe('img/sprites/pokemon-shiny/101.png');
@@ -164,15 +163,17 @@ it('ne présente que le retour, le titre et la raison quand le PC est verrouill�
 });
 
 it('ouvre la fiche d’un œuf sans DPS ni statistiques', () => {
-  storeJeu.setState({ pc: [{ ...base, uid: 'oeuf', oeuf: { pasRestants: 10, pasMax: 10 } }] });
+  storeJeu.setState({ pc: [{ ...base, uid: 'oeuf', shiny: true, sexe: 'femelle', oeuf: { pasRestants: 10, pasMax: 10 } }] });
   render(<PagePC />);
   const carte = within(screen.getByRole('list')).getByRole('button');
   expect(within(carte).queryByText(/DPS/)).toBeNull();
-  expect(carte.textContent).toContain('Éclosion');
+  expect(carte.textContent).toContain('0/10');
   fireEvent.click(carte);
   const fiche = screen.getByRole('dialog');
   expect(within(fiche).queryByText(/DPS/)).toBeNull();
   expect(fiche.querySelector('dl')).toBeNull();
+  expect(fiche.textContent).not.toMatch(/Shiny|Plante|Poison|Femelle|Chromatique/);
+  expect(within(carte).queryByRole('img', { name: /Femelle|Mâle|Chromatique/ })).toBeNull();
 });
 
 it.each<[TriPc, string]>([

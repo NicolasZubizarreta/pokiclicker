@@ -50,11 +50,11 @@ describe('Récompenses de victoire', () => {
     expect(resultat.montees).toEqual([]);
   });
 
-  it('donne du bonheur aux œufs sans leur donner d’XP', () => {
+  it('ne donne ni XP ni bonheur aux œufs : seul leur compteur d’éclosion avance', () => {
     const resultat = appliquerVictoire(region([pokemon({
-      xp: 7, oeuf: { pasRestants: 10, pasMax: 20 },
-    })]), victoire);
-    expect(resultat.region.equipe[0]).toMatchObject({ niveau: 1, xp: 7, bonheur: 1 });
+      xp: 7, bonheur: 3, oeuf: { pasRestants: 10, pasMax: 20 },
+    })]), victoire, ['objet:expShare', 'objet:luckyEgg', 'objet:omniExp']);
+    expect(resultat.region.equipe[0]).toMatchObject({ niveau: 1, xp: 7, bonheur: 3, oeuf: { pasRestants: 9, pasMax: 20 } });
     expect(resultat.montees).toEqual([]);
   });
 

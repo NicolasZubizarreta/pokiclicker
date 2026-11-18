@@ -9,7 +9,6 @@ import { BarreXp } from './BarreXp';
 import { BoutonRenommer } from './BoutonRenommer';
 import { dpsSansType } from './dps-pc';
 import { Image } from './Image';
-import { IconeShiny } from './IconeShiny';
 import { IconeSexe } from './IconeSexe';
 import { RepereTags } from './RepereMarque';
 import { formaterDps } from './nombres';
@@ -147,7 +146,7 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: 
   const entete = <header>
           <div className="flex min-w-0 flex-wrap items-center gap-2">
             {telephone && <h2 id={titre} className="min-w-0 break-words font-titre text-2xl">{nom}</h2>}
-            {telephone && pokemon && <RepereTags pokemon={pokemon} enLigne />}
+            {telephone && pokemon && <RepereTags pokemon={pokemon} />}
             {!telephone && favori}
             {pokemon && !pokemon.oeuf && <BoutonRenommer ref={crayon} nom={nom} ouvrir={ouvrirEdition} />}
           </div>
@@ -178,17 +177,17 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: 
             <Image src={spriteAffiche(pokemon)} genre="sprite" alt={pokemon.oeuf ? nom : espece.nom} className={`size-full max-h-full max-w-full ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(pokemon)}`} />
           </div>;
   const identite = pokemon && espece && <div className="flex flex-wrap items-center gap-2">
-            {(pokemon.sexe === 'male' || pokemon.sexe === 'femelle') && <IconeSexe sexe={pokemon.sexe} />}
-            {pokemon.shiny && <span className="h-7 inline-flex items-center gap-1 px-2 font-bold"><IconeShiny />Shiny</span>}
+            {!pokemon.oeuf && (pokemon.sexe === 'male' || pokemon.sexe === 'femelle') && <IconeSexe sexe={pokemon.sexe} />}
+            {pokemon.shiny && !pokemon.oeuf && <span className="h-7 inline-flex items-center gap-1 px-2 font-bold">Shiny</span>}
             {telephone && favori}
-            {(telephone || !pokemon.oeuf) && espece.types.map(type => <span key={type} className={`h-7 inline-flex items-center gap-1 px-2 font-bold pastille-type pastille-type-${type}`}>{nomType(type)}</span>)}
+            {!pokemon.oeuf && espece.types.map(type => <span key={type} className={`h-7 inline-flex items-center gap-1 px-2 font-bold pastille-type pastille-type-${type}`}>{nomType(type)}</span>)}
           </div>;
   const statistiques = pokemon && membre && detail && <>
           {!pokemon.oeuf && <div>
             <p>XP : {pokemon.niveau >= 100 ? <span>MAX</span> : <span>{Math.floor(pokemon.xp)} / {membre.xpMax}</span>}</p>
             <BarreXp xp={pokemon.xp} maximum={membre.xpMax} nom={nom} />
           </div>}
-          {(telephone || !pokemon.oeuf) && <><p className="text-xl text-region-accent">{formaterDps(membre.dps)} DPS</p>
+          {!pokemon.oeuf && <><p className="text-xl text-region-accent">{formaterDps(membre.dps)} DPS</p>
           {telephone ? <dl className="grid grid-cols-2 gap-2">{facteurs.map(([libelle, valeur]) => <Fragment key={libelle}><dt>{libelle}</dt><dd>{valeur}</dd></Fragment>)}</dl>
             : <dl className="fiche-pc-facteurs">{facteurs.map(([libelle, valeur]) => <div key={libelle}><dt>{libelle}</dt><dd>{valeur}</dd></div>)}</dl>}
           {!pokemon.oeuf && peutEvoluer(pokemon.numero) && <p>{pokemon.pierreEternelle
@@ -236,7 +235,7 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: 
         {fermeture}{entete}{boutonEvolution}{pokemonPc && <p>Dans le PC</p>}
         {pokemon && espece && membre && detail && <>{portrait}{identite}{statistiques}{actions}</>}
       </div> : <>
-        <div className="fiche-pc-titre"><h2 id={titre} className="min-w-0 break-words font-titre text-2xl">{nom}{pokemon && <RepereTags pokemon={pokemon} enLigne />}</h2>{fermeture}</div>
+        <div className="fiche-pc-titre"><h2 id={titre} className="min-w-0 break-words font-titre text-2xl">{nom}{pokemon && <RepereTags pokemon={pokemon} />}</h2>{fermeture}</div>
         <div className="fiche-pc-corps">
           <div className="fiche-pc-portrait">{portrait}{identite}</div>
           <div className="fiche-pc-detail">{entete}{statistiques}{boutonEvolution}<div className="fiche-pc-actions">{actions}</div></div>

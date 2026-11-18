@@ -35,8 +35,10 @@ describe('Fidélité stricte des récompenses à la V1', () => {
     expect(calculerOr(victoire, scenario.actifs)).toEqual(scenario.or * MULTIPLICATEUR_OR);
     expect(calculerXp(victoire, scenario.actifs)).toEqual(scenario.xpMembre);
     const { region, bonbons } = appliquerVictoire(regionAvant, victoire, scenario.actifs);
+    // Écart assumé avec la V1 (ticket Y) : un œuf ne gagne plus de bonheur, il garde celui d'avant le combat.
     expect(region.equipe.map(({ niveau, xp, bonheur }) => ({ niveau, xp, bonheur })))
-      .toEqual(scenario.equipeApres);
+      .toEqual(scenario.equipeApres.map((apres, index) => scenario.equipeAvant[index]!.oeuf
+        ? { ...apres, bonheur: scenario.equipeAvant[index]!.bonheur } : apres));
     expect(region.argent).toEqual(scenario.or * MULTIPLICATEUR_OR);
     expect(bonbons).toEqual(bonbonsAttendus(scenario.bonbons));
     expect(region.inventaire.bonbon ?? 0).toEqual(bonbonsAttendus(scenario.bonbons));

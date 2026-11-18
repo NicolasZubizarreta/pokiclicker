@@ -2,13 +2,12 @@ import { chargerObjets } from '../core/boutique';
 import { BarreXp } from './BarreXp';
 import { BoutonRenommer } from './BoutonRenommer';
 import { Image } from './Image';
-import { IconeShiny } from './IconeShiny';
-import { RepereTags } from './RepereMarque';
+import { RepereMarque, RepereTags } from './RepereMarque';
 import { IconeObjet } from './icones';
 import { SpriteEvolution } from './SpriteEvolution';
 import type { EvolutionAffichee } from './store-evolution';
 import { formaterDps } from './nombres';
-import { classeSprite, nomAffiche, progressionOeuf, spriteAffiche } from './affichage-pokemon';
+import { classeSprite, libelleOeuf, nomAffiche, progressionOeuf, spriteAffiche } from './affichage-pokemon';
 import type { CaseEquipe } from './store';
 import { useTelephone } from './useTelephone';
 
@@ -30,12 +29,13 @@ export function CarteEquipe({ membre, renommer, retirerObjet, evolution, evoluer
   const telephone = useTelephone();
   const nom = membre ? nomAffiche(membre.pokemon) : '';
   const oeuf = membre?.pokemon.oeuf;
-  const niveau = oeuf ? progressionOeuf(oeuf) : membre ? `niveau ${membre.pokemon.niveau}` : '';
+  const niveau = oeuf ? libelleOeuf(oeuf) : membre ? `niveau ${membre.pokemon.niveau}` : '';
   const forme = membre && evolution ? { ...membre.pokemon, numero: evolution.vers, surnom: undefined } : null;
-  return <div aria-label={membre ? `${nom}, ${niveau}, ${formaterDps(membre.dps)} DPS` : 'Case libre'}
+  return <div aria-label={membre ? oeuf ? `${nom}, ${niveau}` : `${nom}, ${niveau}, ${formaterDps(membre.dps)} DPS` : 'Case libre'}
     className={`cadre relative isolate grid h-14 min-w-0 place-items-center overflow-hidden bg-surface lg:h-26 ${membre ? 'lg:grid-cols-[auto_minmax(0,1fr)] lg:pb-1 lg:pe-4' : ''} ${forme ? telephone ? 'pret-evoluer' : 'carte-evo cadre-alerte' : ''} ${cible ? cible.valide ? 'motion-safe:cible-valide' : 'grayscale opacity-50' : ''}`}>
     {membre ? <>
-      <RepereTags pokemon={membre.pokemon} />
+      {/* Petite carte (pas de nom) : l'icône d'œuf seule dans le coin, car le nom qui la porte n'est pas affiché. */}
+      {membre.pokemon.marqueEclosion && !oeuf && <span className="absolute right-0 top-0 z-[1] lg:hidden"><RepereMarque /></span>}
       {animation ? <span className="carte-evo-sprite grid size-full max-h-full max-w-full overflow-hidden place-items-center lg:size-24 lg:row-span-3 [&_span]:max-h-full [&_span]:max-w-full [&_img]:max-h-full [&_img]:max-w-full">
         <SpriteEvolution ancien={spriteAffiche({ ...membre.pokemon, numero: animation.ancien })}
           nouveau={spriteAffiche({ ...membre.pokemon, numero: animation.nouveau })} nom={nom} actif shiny={membre.pokemon.shiny} />
@@ -44,7 +44,7 @@ export function CarteEquipe({ membre, renommer, retirerObjet, evolution, evoluer
       {!oeuf && <span className="absolute bottom-1 left-1 contour-texte px-1 text-base tabular-nums lg:hidden">{membre.pokemon.niveau}</span>}
       <div className="carte-equipe-identite hidden min-w-0 justify-self-stretch self-end lg:block">
         <div className="flex min-w-0 items-center justify-between gap-1">
-          <strong className="block min-w-0 break-words">{nom}{membre.pokemon.shiny && !oeuf && <IconeShiny />}</strong>
+          <strong className="block min-w-0 break-words">{nom}<RepereTags pokemon={membre.pokemon} /></strong>
           <span className="flex shrink-0 items-center">
             {membre.pokemon.pierreEternelle && retirerObjet && stase && <button type="button" aria-label={`Retirer ${stase.nom} de ${nom}`}
               title={`Retirer ${stase.nom}`} className="relative grid place-items-center p-1 hover:bg-selection after:absolute after:top-1/2 after:left-1/2 after:size-11 after:-translate-x-1/2 after:-translate-y-1/2 after:content-['']"
@@ -55,7 +55,7 @@ export function CarteEquipe({ membre, renommer, retirerObjet, evolution, evoluer
           </span>
         </div><span>{oeuf ? progressionOeuf(oeuf) : `Niv. ${membre.pokemon.niveau}`}</span>
       </div>
-      <span className="hidden justify-self-start self-start text-region-accent lg:block">{formaterDps(membre.dps)} DPS</span>
+      {!oeuf && <span className="hidden justify-self-start self-start text-region-accent lg:block">{formaterDps(membre.dps)} DPS</span>}
       {!oeuf && <div className="absolute inset-x-0 bottom-0 mx-1 mb-1 lg:static lg:mx-0 lg:mb-0 lg:col-start-2 lg:w-full lg:self-start">
         <BarreXp xp={membre.pokemon.xp} maximum={membre.xpMax} nom={nom} />
       </div>}

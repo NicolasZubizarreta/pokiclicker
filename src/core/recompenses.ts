@@ -78,7 +78,7 @@ export function appliquerVictoire(region: DonneesRegion, v: Victoire, actifs: re
         montees.push({ uid: membre.uid, niveau: membre.niveau });
       }
     }
-    if (membre.bonheur < t.bonheur.max && membre.niveau - v.niveau <= t.bonheur.ecartMax) {
+    if (membre.oeuf === undefined && membre.bonheur < t.bonheur.max && membre.niveau - v.niveau <= t.bonheur.ecartMax) {
       membre.bonheur += t.bonheur.gain;
     }
     const apres = avancerOeuf(membre);

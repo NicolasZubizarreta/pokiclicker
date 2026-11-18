@@ -84,7 +84,8 @@ describe('fidélité des mouvements et éclosions V1', () => {
       region = resultat.region;
       for (const [pokemon, reference] of [[region.equipe[0]!, etape.equipe], [region.pc[0]!, etape.pc]] as const) {
         expect(pokemon).toMatchObject({ numero: reference.id, niveau: reference.level, xp: reference.xp,
-          bonheur: reference.happiness, shiny: reference.isShiny });
+          // Écart assumé avec la V1 (ticket Y) : un œuf ne gagne pas de bonheur avant d'éclore.
+          bonheur: reference.isEgg ? 0 : reference.happiness, shiny: reference.isShiny });
         expect(pokemon.oeuf !== undefined).toBe(reference.isEgg);
         if (reference.isEgg) expect(pokemon.oeuf?.pasRestants).toBe(reference.maxSteps - reference.hatchSteps);
       }

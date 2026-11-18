@@ -2,7 +2,6 @@ import type { ComponentProps, CSSProperties } from 'react';
 import { Image } from './Image';
 import { SpriteEvolution } from './SpriteEvolution';
 import { IconeSexe } from './IconeSexe';
-import { IconeShiny } from './IconeShiny';
 import { RepereTags } from './RepereMarque';
 import { BarreXp } from './BarreXp';
 import { classeSprite, nomAffiche, progressionOeuf, spriteAffiche, spriteEstPhoto } from './affichage-pokemon';
@@ -21,19 +20,18 @@ export function EquipePC({ pokemon, dps, xpMax, pret, animation }: {
   const pieds = { '--pieds': spriteEstPhoto(pokemon) ? '9%' : `${(piedsSprites[pokemon.numero - 1] ?? 0) / 96 * 100}%` } as CSSProperties;
   return <>
     <span className="portrait relative" style={pieds}>
-      <RepereTags pokemon={pokemon} />
       <span className="socle bg-region-socle" aria-hidden="true" />
       {animation ? <SpriteEvolution {...animation} /> : <Image genre="sprite" src={spriteAffiche(pokemon)} alt=""
         className={`object-contain max-h-full max-w-full ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(pokemon)}`} />}
     </span>
     <span className="corps">
-      <strong className="flex items-center justify-center gap-2 break-words">{nom}
+      <strong className="flex items-center justify-center gap-2 break-words"><span>{nom}<RepereTags pokemon={pokemon} /></span>
         {!pokemon.oeuf && (pokemon.sexe === 'male' || pokemon.sexe === 'femelle') && <IconeSexe sexe={pokemon.sexe} />}
-        {pokemon.favori && <span aria-label="Favori">★</span>}{pokemon.shiny && !pokemon.oeuf && <IconeShiny />}
+        {pokemon.favori && <span aria-label="Favori">★</span>}
       </strong>
-      <span className="text-region-accent">{formaterDps(dps)} DPS</span>
+      {!pokemon.oeuf && <span className="text-region-accent">{formaterDps(dps)} DPS</span>}
       {pokemon.oeuf ? <span>{progressionOeuf(pokemon.oeuf)}</span> : <>
-        <span>Niv. {pokemon.niveau}{xpMax === 0 ? ' · XP max' : ''}</span>
+        <span>Niv. {pokemon.niveau}</span>
         {xpMax > 0 && <BarreXp xp={pokemon.xp} maximum={xpMax} nom={nom} />}
         <span className="flex flex-wrap justify-center gap-1">
           {chargerPokemon().parNumero(pokemon.numero)?.types.map(type => <span key={type} className={`pastille-type pastille-type-${type}`}>{nomType(type)}</span>)}

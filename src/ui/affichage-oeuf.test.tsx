@@ -44,7 +44,7 @@ it.each(['équipe', 'PC', 'fiche'])('cache l’espèce dans %s et garde le ratio
     : <FichePokemon uid={oeuf.uid} ouvert fermer={vi.fn()} declencheur={{ current: null }} />);
   expect(container.innerHTML).not.toMatch(/Bulbizarre|sprites\/pokemon\/1\.png/);
   expect(screen.getAllByText('Œuf').length).toBeGreaterThan(0);
-  expect(screen.getAllByText('Éclosion : 7/25').length).toBeGreaterThan(0);
+  expect(screen.getAllByText('7/25').length).toBeGreaterThan(0);
   expect(container.textContent).not.toMatch(/Niv\.|Niveau 1|N° 1/);
   const images = [...container.querySelectorAll('img[src="img/objets/lucky-egg.png"]')];
   expect(images.length).toBeGreaterThan(0);

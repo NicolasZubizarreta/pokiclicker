@@ -168,3 +168,44 @@ describe('sauvegarde', () => {
     expect(ECLOSION.paliers).toEqual(registreSucces.filter(s => s.mesure === 'eclosions').map(s => s.seuil));
   });
 });
+
+describe('œuf sans effet ni bonus avant l’éclosion (ticket Y)', () => {
+  const ennemiFort = { numero: 19, niveau: 100, shiny: false, boss: true, rarete: null } as const;
+  const pondreUn = () => {
+    const region = regionAvec([pokemon(25, { uid: 'fort', niveau: 100 })]);
+    region.bossVaincus = ['kanto.tour-pokemon'];
+    region.pension.parents = [pokemon(25, { sexe: 'femelle' }), pokemon(25, { uid: 'm', sexe: 'male' })];
+    const oeufPondu = pondre(region, () => 0, () => 'oeuf-neuf').pension.oeufs[0]!;
+    return { region, oeufPondu };
+  };
+
+  it('de la ponte à l’éclosion, seul le compteur avance puis le Pokémon naît niveau 1, sans XP, au bonheur de naissance', () => {
+    const { region, oeufPondu } = pondreUn();
+    let courante = { ...region, equipe: [...region.equipe, oeufPondu] };
+    for (let victoires = 1; victoires < reglages.pension.pasEclosion; victoires++) {
+      courante = appliquerVictoire(courante, ennemiFort, ['objet:expShare', 'objet:luckyEgg', 'objet:omniExp']).region;
+      expect(courante.equipe[1]).toMatchObject({ niveau: 1, xp: 0, bonheur: 0,
+        oeuf: { pasRestants: reglages.pension.pasEclosion - victoires } });
+    }
+    const final = appliquerVictoire(courante, ennemiFort);
+    expect(final.eclosions).toHaveLength(1);
+    expect(final.region.equipe[1]).toMatchObject({ niveau: 1, xp: 0, bonheur: reglages.pension.bonheurNaissance, marqueEclosion: true });
+    expect(final.region.equipe[1]).not.toHaveProperty('oeuf');
+  });
+
+  it('un œuf d’ancienne sauvegarde au niveau, à l’XP ou au bonheur non nuls naît quand même niveau 1, sans XP', () => {
+    const ancien = oeuf(4, 1);
+    const resultat = appliquerVictoire(regionAvec([{ ...ancien, niveau: 37, xp: 120, bonheur: 80 }]), victoire);
+    expect(resultat.region.equipe[0]).toMatchObject({ niveau: 1, xp: 0, bonheur: reglages.pension.bonheurNaissance });
+  });
+
+  it('vaut 0 dans le DPS de l’équipe, quelle que soit l’espèce cachée (shiny, type) ; le Pokémon éclos, lui, compte', () => {
+    const cible = { numero: 19 };
+    const sansOeuf = calculerDpsEquipe([versMembreEquipe(pokemon(25))], cible);
+    const oeufs = [oeuf(6), { ...oeuf(150), shiny: true, bonheur: 200 }, oeuf(130)];
+    expect(calculerDpsEquipe(oeufs.map(versMembreEquipe), cible)).toBe(0);
+    for (const o of oeufs) expect(calculerDpsEquipe([versMembreEquipe(o)], cible)).toBe(0);
+    expect(calculerDpsEquipe([versMembreEquipe(pokemon(25)), ...oeufs.map(versMembreEquipe)], cible)).toBe(sansOeuf);
+    expect(calculerDpsEquipe([versMembreEquipe(avancerOeuf(oeuf(6)))], cible)).toBeGreaterThan(0);
+  });
+});
