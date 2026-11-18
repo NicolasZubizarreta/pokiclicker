@@ -14,6 +14,7 @@ import { useTelephone } from './useTelephone';
 import './PagePension.css';
 
 const nombre = (n: number) => n.toLocaleString('fr-FR');
+const videActeur = (numero?: number) => ({ '--vide': (piedsSprites[(numero ?? 1) - 1] ?? 0) / 96 }) as CSSProperties;
 const sexe = (p: PokemonPossede) => p.sexe === 'femelle' ? 'Femelle' : p.sexe === 'male' ? 'Mâle' : 'Sans sexe';
 const raisons: Record<RaisonPonte, string> = { incomplet: 'couple incomplet', metamorph: 'avec Métamorph', memeSexe: 'même sexe', sansSexe: 'sans sexe', memeEspece: 'même espèce', typePartage: 'type partagé', aucunType: 'aucun type commun' };
 function Coeur() {
@@ -69,7 +70,7 @@ export function PagePension({ retour, libelleRetour, store = storeJeu }: { retou
         <Image src="img/decors/pension.webp" genre="decor" alt="" className="pension-decor" />
         <div className="pension-chance cadre"><Coeur /><div><strong>{nombre(pension.chance * 100)} % par élimination</strong><p>{phrase}</p></div></div>
         <p className="pension-compteur cadre">Œufs · {pension.oeufs.length} / {pension.emplacements}</p>
-        <div className="pension-acteurs">{Array.from({ length: 2 }, (_, i) => <div key={i} className={`pension-acteur pension-acteur-${i}`} style={{ '--vide': (piedsSprites[(pension.parents[i]?.numero ?? 1) - 1] ?? 0) / 96 } as CSSProperties}>
+        <div className="pension-acteurs">{Array.from({ length: 2 }, (_, i) => <div key={i} className={`pension-acteur pension-acteur-${i}`} style={videActeur(pension.parents[i]?.numero)}>
           {pension.parents[i] ? <Image src={spriteAffiche(pension.parents[i])} genre="sprite" alt="" className={`${i ? 'pension-miroir' : ''} ${pension.parents[i].shiny ? 'halo-shiny' : ''} ${classeSprite(pension.parents[i])}`} /> : <button aria-label="Déposer un parent" className="pension-place-decor" onClick={e => ouvrir(e.currentTarget)}>+</button>}
         </div>)}{pension.chance > 0 && <span className="pension-coeurs"><Coeur /></span>}</div>
         <div className="pension-reperes" aria-hidden="true">{Array.from({ length: pension.emplacementsMax }, (_, i) => <span className="cadre" key={i}>{pension.oeufs[i] ? 'Œuf' : i < pension.emplacements ? 'Libre' : 'Fermé'} · {i + 1}</span>)}</div>
