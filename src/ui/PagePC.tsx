@@ -1,9 +1,18 @@
-import { useEffect, useMemo, useRef, useState, type DragEvent } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type DragEvent, type MouseEvent } from 'react';
 import { useStore } from 'zustand';
 import { dpsPc, filtrerParAttributs, filtrerPc, trierPc, type FiltrePc, type TriPc } from '../core/pc';
 import { chargerPokemon } from '../core/pokemon';
 import type { PokemonPossede } from '../core/sauvegarde';
 import { calculerMaxXp } from '../core/recompenses';
+import { cibleValide, cibleValideStase, quantiteMax } from '../core/objets-equipe';
+import { cibleValidePierre } from '../core/evolution';
+import { ConfirmationObjet } from './ConfirmationObjet';
+import { SelecteurQuantite } from './SelecteurQuantite';
+import { MenuPokemon } from './MenuPokemon';
+import { SpriteEvolution } from './SpriteEvolution';
+import { Sac as IconeSac } from './icones';
+import { cheminSprite, precharger } from './precharger';
+import { annulerChoix, ouvrirSac, storeSac, terminerChoix, useSacContexte } from './sacContexte';
 import { BarreXp } from './BarreXp';
 import { useTelephone } from './useTelephone';
 import { IconeSexe } from './IconeSexe';
@@ -44,8 +53,15 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
   const accesPc = useStore(storeJeu, etat => etat.accesPc);
   const equipe = useStore(storeJeu, etat => etat.equipe);
   const echange = useStore(storeJeu, etat => etat.echange);
+  const sac = useStore(storeJeu, etat => etat.sac);
+  const evolution = useStore(storeJeu, etat => etat.evolution);
+  const objetContexte = useSacContexte(etat => etat.objet);
+  // Objet choisi dans la fenêtre du Sac : il s'applique à un Pokémon de l'équipe ou du PC. L'échange reste prioritaire.
+  const mode = echange ? null : objetContexte;
+  const [cible, cibler] = useState<string | null>(null);
+  const [quantite, changerQuantite] = useState(1);
+  const [menu, placerMenu] = useState<{ uid: string; x: number; y: number; carte: HTMLButtonElement } | null>(null);
   const [fiche, ouvrir] = useState<string | null>(null);
-  const [partenaire, selectionnerPartenaire] = useState<string | null>(null);
   const [ouvert, afficher] = useState(false);
   const [glisse, glisser] = useState<string | null>(null);
   const [survol, survoler] = useState<number | null>(null);
@@ -53,6 +69,8 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
   const glisseDepuisEquipe = glisse !== null && equipe.some(membre => membre?.pokemon.uid === glisse);
   const declencheur = useRef<HTMLButtonElement>(null);
   const panneau = useRef<HTMLElement>(null);
+  const boutonSac = useRef<HTMLButtonElement>(null);
+  const zoneEquipe = useRef<HTMLDivElement>(null);
   const [tri, trier] = useState<TriPc>('dps');
   const [recherche, rechercher] = useState('');
   const [filtre, filtrer] = useState<FiltrePc>('tous');
@@ -73,6 +91,12 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
 
   useEffect(() => () => storeJeu.getState().annulerEchange(), []);
 
+  useEffect(() => {
+    for (const membre of equipe) {
+      if (typeof membre?.evolution === 'number') void precharger([cheminSprite(membre.evolution, membre.pokemon.shiny)]);
+    }
+  }, [equipe]);
+
   // Le mode échange (message dans les notifications) place le focus sur « Annuler » ; à sa fin, le focus revient à l'action ou au titre.
   const placer = useRef<HTMLButtonElement>(null);
   const titre = useRef<HTMLHeadingElement>(null);
@@ -91,6 +115,107 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
     afficher(true);
   }
 
+  // --- Objets du Sac sur un Pokémon, de l'équipe ou du PC. La fenêtre d'utilisation s'affiche dans la zone équipe. ---
+  const stock = mode ? sac.entrees.find(entree => entree.id === mode.cle)?.quantite ?? 0 : 0;
+  const objetAQuantite = mode?.type === 'bonbon' || mode?.type === 'calcium' || mode?.type === 'baie';
+  function etatObjet(pokemon: PokemonPossede) {
+    if (!mode) return { valide: false, maximum: 0 };
+    const maximum = mode.type === 'bonbon' || mode.type === 'calcium' || mode.type === 'baie' ? quantiteMax(mode.type, pokemon, stock) : 0;
+    const valide = mode.type === 'pierre' ? cibleValidePierre(pokemon, mode.cle)
+      : mode.type === 'stase' ? cibleValideStase(pokemon) : mode.type === 'jeton' ? true
+        : cibleValide(mode.type, pokemon) && maximum > 0;
+    return { valide, maximum };
+  }
+  const classeObjet = (pokemon: PokemonPossede) => mode ? etatObjet(pokemon).valide ? ' border-info-base motion-safe:cible-valide' : ' grayscale opacity-50' : '';
+  const focaliser = (uid: string) => document.querySelector<HTMLButtonElement>(`#contenu button[data-uid="${uid}"]`)?.focus();
+
+  function annulerObjet() {
+    terminerChoix();
+    cibler(null);
+    notifier(null);
+  }
+
+  function terminerApplication(uid: string) {
+    cibler(null);
+    focaliser(uid);
+    if (mode && (storeJeu.getState().sac.entrees.find(e => e.id === mode.cle)?.quantite ?? 0) <= 0) {
+      annulerObjet();
+      notifier(`Plus de ${mode.nom}.`);
+    }
+  }
+
+  function abandonnerObjet() {
+    const uid = cible;
+    cibler(null);
+    if (uid) focaliser(uid);
+  }
+
+  function toucherAvecObjet(pokemon: PokemonPossede) {
+    if (!mode) return;
+    const { valide } = etatObjet(pokemon);
+    notifier(null);
+    if (mode.type === 'stase') {
+      const message = storeJeu.getState().poserStase(pokemon.uid);
+      if (!message) terminerApplication(pokemon.uid);
+      else { cibler(null); notifier(message); }
+      return;
+    }
+    if (mode.type === 'jeton' && pokemon.shiny) { cibler(null); notifier('Déjà chromatique !'); return; }
+    if (mode.type === 'pierre' && !valide) {
+      cibler(null);
+      notifier(pokemon.oeuf ? 'Pokémon invalide !' : pokemon.pierreEternelle ? 'Pierre Stase équipée !' : 'Pokémon incompatible !');
+      return;
+    }
+    if (valide) {
+      cibler(pokemon.uid);
+      changerQuantite(1);
+      // Sur téléphone, la fenêtre est dans la zone équipe, en haut de la page.
+      zoneEquipe.current?.scrollIntoView?.({ block: 'nearest' });
+    }
+  }
+
+  const cibleObjet = mode && cible ? [...equipe.map(membre => membre?.pokemon), ...pc].find(p => p?.uid === cible) : undefined;
+
+  function fenetreObjet() {
+    if (!mode || !cibleObjet) return null;
+    const nom = nomDe(cibleObjet);
+    const { valide, maximum } = etatObjet(cibleObjet);
+    if (!valide || mode.type === 'stase') return null;
+    const uid = cibleObjet.uid;
+    if (mode.type === 'pierre' || mode.type === 'jeton') return <ConfirmationObjet objet={mode.nom} nom={nom} annuler={abandonnerObjet}
+      valider={() => {
+        const message = mode.type === 'pierre' ? storeJeu.getState().utiliserPierre(uid, mode.cle) : storeJeu.getState().utiliserJeton(uid);
+        if (message) notifier(message); else terminerApplication(uid);
+      }} />;
+    const type = mode.type;
+    return <SelecteurQuantite titre={`Utiliser ${mode.nom} sur ${nom}`} valeur={Math.min(quantite, maximum)} max={maximum}
+      changer={changerQuantite} annuler={abandonnerObjet} valider={() => {
+        const message = storeJeu.getState().utiliserObjet(type, uid, Math.min(quantite, maximum));
+        if (message) notifier(message); else terminerApplication(uid);
+      }} />;
+  }
+
+  useEffect(() => {
+    if (!mode) return;
+    function clavier(event: KeyboardEvent) { if (event.key === 'Escape') annulerChoix(); }
+    document.addEventListener('keydown', clavier);
+    return () => document.removeEventListener('keydown', clavier);
+  }, [mode]);
+
+  // Fin du choix (objet épuisé, fenêtre fermée) : le focus revient à l'icône Sac, ou au titre.
+  const modeAvant = useRef(mode);
+  useLayoutEffect(() => {
+    if (modeAvant.current && !mode && !storeSac.getState().ouvert) (boutonSac.current?.isConnected ? boutonSac.current : titre.current)?.focus();
+    modeAvant.current = mode;
+  }, [mode]);
+
+  const ouvrirMenu = (pokemon: PokemonPossede) => (event: MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    if (echange || mode || selectionLot !== null) return;
+    placerMenu({ uid: pokemon.uid, x: event.clientX, y: event.clientY, carte: event.currentTarget });
+  };
+  const glissable = !telephone && selectionLot === null && !mode;
+
   // Glisser-déposer (PC seulement, toujours actif) : on glisse un Pokémon du PC sur une place de l'équipe.
   // Place occupée : échange ; place libre : il entre dans l'équipe.
   function deposer(index: number, event: DragEvent<HTMLElement>) {
@@ -103,7 +228,7 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
     const message = membre ? storeJeu.getState().echanger(uid, membre.pokemon.uid) : storeJeu.getState().placerDansEquipe(uid);
     signaler(message ? { message, echange } : null);
   }
-  const cibleDepot = (index: number) => !telephone && selectionLot === null ? {
+  const cibleDepot = (index: number) => glissable ? {
     onDragOver: (event: DragEvent<HTMLElement>) => { event.preventDefault(); survoler(index); },
     onDragLeave: () => survoler(null),
     onDrop: (event: DragEvent<HTMLElement>) => deposer(index, event),
@@ -118,7 +243,7 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
     if (!uid || !equipe.some(membre => membre?.pokemon.uid === uid)) return;
     notifier(storeJeu.getState().envoyerAuPc(uid));
   }
-  const cibleGrille = !telephone && selectionLot === null ? {
+  const cibleGrille = glissable ? {
     onDragOver: (event: DragEvent<HTMLElement>) => { event.preventDefault(); survoler(-1); },
     onDragLeave: () => survoler(null),
     onDrop: deposerSurPc,
@@ -128,45 +253,69 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
   function places(mobile: boolean) {
     return Array.from({ length: 6 }, (_, index) => {
       const membre = equipe[index];
-      const classe = mobile ? 'flex min-w-0 items-center gap-2 border border-bordure bg-surface text-left' : 'flex min-h-14 w-full items-center gap-2 bg-surface-2 text-left';
+      const classe = mobile ? 'flex min-h-16 min-w-0 items-center gap-2 border border-bordure bg-surface text-left' : 'flex min-h-14 w-full items-center gap-2 bg-surface-2 text-left';
       if (!membre) return <div key={index} {...cibleDepot(index)} className={telephone ? classe : `${classe} pc-libre`}>
-        <span className={mobile ? 'sr-only' : 'p-2 text-texte-doux'}>Emplacement libre</span>
+        <span className="p-2 text-texte-doux">Emplacement libre</span>
       </div>;
       const { pokemon, dps } = membre;
       const nom = nomDe(pokemon);
+      const taille = mobile ? 'size-16' : 'size-14';
+      const classeImage = `${taille} shrink-0 ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(pokemon)}`;
       const contenu = <>
-        <Image src={spriteAffiche(pokemon)} genre="sprite" alt="" className={`${mobile ? 'size-16' : 'size-14'} shrink-0 ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(pokemon)}`} />
+        {evolution?.uid === pokemon.uid
+          ? <span className={`grid ${taille} shrink-0 max-w-full place-items-center overflow-hidden [&_img]:max-h-full [&_img]:max-w-full`}><SpriteEvolution ancien={spriteAffiche({ ...pokemon, numero: evolution.ancien })}
+            nouveau={spriteAffiche({ ...pokemon, numero: evolution.nouveau })} nom={nom} actif shiny={pokemon.shiny} /></span>
+          : <Image src={spriteAffiche(pokemon)} genre="sprite" alt="" className={classeImage} />}
         <span className="grid min-w-0 gap-1 break-words">
           <strong>{nom}<RepereTags pokemon={pokemon} /></strong><span>{pokemon.oeuf ? progressionOeuf(pokemon.oeuf) : `Niv. ${pokemon.niveau}`}</span>{!mobile && !pokemon.oeuf && <span>{formaterDps(dps)} DPS</span>}
         </span>
       </>;
-      return echange || !telephone ? <button key={index} type="button" aria-label={pokemon.oeuf ? `${nom}, ${libelleOeuf(pokemon.oeuf)}` : `${nom}, niveau ${pokemon.niveau}`}
-        aria-pressed={!telephone ? partenaire === pokemon.uid : undefined} {...cibleDepot(index)}
-        {...(!telephone && selectionLot === null ? {
+      const { valide } = etatObjet(pokemon);
+      return <button key={index} type="button" data-uid={pokemon.uid} aria-label={pokemon.oeuf ? `${nom}, ${libelleOeuf(pokemon.oeuf)}` : `${nom}, niveau ${pokemon.niveau}`}
+        disabled={objetAQuantite && !valide} {...cibleDepot(index)}
+        {...(glissable ? {
           draggable: true,
           onDragStart: (event: DragEvent<HTMLElement>) => { event.dataTransfer.setData('text/plain', pokemon.uid); event.dataTransfer.effectAllowed = 'move'; glisser(pokemon.uid); },
           onDragEnd: () => { glisser(null); survoler(null); },
         } : {})}
-        className={`${classe} hover:bg-selection${!telephone ? ' cursor-grab' : ''}`} onClick={() => {
+        onContextMenu={ouvrirMenu(pokemon)}
+        className={`${classe} ${!mode && !echange && typeof membre.evolution === 'number' ? 'pret-evoluer ' : ''}relative hover:bg-selection${glissable ? ' cursor-grab' : ''}${classeObjet(pokemon)}`}
+        onClick={event => {
           if (selectionLot !== null) return;
-          if (!echange) { selectionnerPartenaire(partenaire === pokemon.uid ? null : pokemon.uid); return; }
+          if (mode) { toucherAvecObjet(pokemon); return; }
+          if (!echange) { ouvrirFiche(pokemon.uid, event.currentTarget); return; }
           const message = storeJeu.getState().echanger(echange.uid, pokemon.uid);
           signaler(message ? { message, echange } : null);
-        }}>{contenu}</button> : <div key={index} className={classe}>{contenu}</div>;
+        }}>{contenu}</button>;
     });
   }
+
+  const bandeauObjet = mode && <div className={`cadre sticky top-0 z-10 flex items-center justify-between gap-4 bg-surface p-4${telephone ? '' : ' bandeau-choix'}`}>
+    <p role="status">{mode.nom} ×{stock} : touche un Pokémon</p>
+    <button type="button" autoFocus className="min-h-11 shrink-0 bg-surface-2 px-4 py-2" onClick={annulerChoix}>Fermer</button>
+  </div>;
 
   return <section className={telephone ? 'mx-auto max-w-screen-xl text-base' : 'pc-pc text-base'}>
     {retour && telephone && <button type="button" aria-label={libelleRetour} className="mb-4 min-h-11 bg-surface-2 px-4 py-2 hover:bg-selection" onClick={retour}>Retour</button>}
     <h1 ref={titre} data-tuto="page-pc" tabIndex={-1} className="font-titre text-2xl font-semibold">PC de Léo</h1>
-    {!accesPc.ouvert ? <p className="mt-4">{accesPc.raison}</p> : <>
-      <div className={telephone ? 'mt-2' : 'pc-compteur'}>
-        <p className="text-region-accent">{liste.length < pc.length ? `${liste.length} sur ${pc.length}` : pc.length} Pokémon</p>
-      </div>
-      {telephone && echange && <div role="group" aria-label="Équipe mobile" className="mt-4 lg:hidden"><p>Ton équipe · {equipe.filter(Boolean).length} / 6</p><div className="grid grid-cols-2 gap-2">{places(true)}</div></div>}
-      {erreur && erreur.echange === echange && <p role="alert" className="mt-4 text-erreur-base">{erreur.message}</p>}
-      <div className={`mt-4 grid min-w-0 items-start gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]${telephone ? '' : ' pc-corps'}`}>
+    <div className={telephone ? 'mt-2 flex items-center justify-between gap-4' : 'pc-compteur'}>
+      {accesPc.ouvert ? <p className="text-region-accent">{liste.length < pc.length ? `${liste.length} sur ${pc.length}` : pc.length} Pokémon</p> : <span />}
+      {sac.acces.ouvert && selectionLot === null && <button ref={boutonSac} data-tuto="sac" type="button" aria-label="Sac" title="Sac" disabled={!!echange}
+        className="cadre relative grid min-h-11 min-w-11 place-items-center bg-surface hover:bg-selection disabled:opacity-50" onClick={ouvrirSac}>
+        <IconeSac />
+        {sac.entrees.some(entree => entree.quantite > 0) && <span aria-hidden="true"
+          className="absolute -right-2 -top-2 rounded-full bg-selection px-1 text-xs tabular-nums text-texte">
+          {sac.entrees.reduce((total, entree) => total + entree.quantite, 0)}
+        </span>}
+      </button>}
+    </div>
+    {telephone && <div ref={zoneEquipe} role="group" aria-label="Équipe mobile" className="relative mt-4">
+      <p>Ton équipe · {equipe.filter(Boolean).length} / 6</p><div className="mt-2 grid grid-cols-2 gap-2">{places(true)}</div>{fenetreObjet()}
+    </div>}
+    {erreur && erreur.echange === echange && <p role="alert" className="mt-4 text-erreur-base">{erreur.message}</p>}
+    <div className={`mt-4 grid min-w-0 items-start gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]${telephone ? '' : ' pc-corps'}`}>
       <div className={`grid min-w-0 gap-4${telephone ? '' : ' pc-liste'}`}>
+        {!accesPc.ouvert ? <>{bandeauObjet}<p className="mt-4">{accesPc.raison}</p></> : <>
         <div className={telephone ? 'grid min-w-0 gap-4' : 'pc-barre'}>
           <div className={!telephone ? 'pc-tri' : undefined}>
             <ListeDeroulante<TriPc> id="tri-pc" libelle="Trie par" valeur={tri} options={optionsTri} changer={trier} compacte={!telephone} />
@@ -179,10 +328,11 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
             <input id="recherche-pc" type="search" aria-label={!telephone ? 'Nom ou numéro' : undefined} value={recherche} onChange={event => rechercher(event.target.value)}
               className="min-h-11 min-w-0 w-full border border-bordure bg-surface px-4 py-2 text-texte" />
           </div>
-          {pc.length > 0 && selectionLot === null && <button type="button" className="min-h-11 bg-surface-2 px-3 text-erreur-base" onClick={() => {
-            selectionnerLot(new Set()); selectionnerPartenaire(null); glisser(null); survoler(null); storeJeu.getState().annulerEchange();
+          {pc.length > 0 && selectionLot === null && !mode && <button type="button" className="min-h-11 bg-surface-2 px-3 text-erreur-base" onClick={() => {
+            selectionnerLot(new Set()); glisser(null); survoler(null); storeJeu.getState().annulerEchange();
           }}>Relâcher</button>}
         </div>
+        {bandeauObjet}
         {selectionLot !== null && <div className="bandeau-choix flex flex-wrap items-center gap-2 p-4">
           <p role="status">{nombre === 0 ? 'Aucun Pokémon sélectionné' : `${nombre} Pokémon sélectionné${nombre > 1 ? 's' : ''}`}</p>
           <button type="button" className="min-h-11 bg-surface-2 px-3" onClick={() => selectionnerLot(tousCoches ? new Set() : new Set(eligibles.map(p => p.uid)))}>{tousCoches ? 'Tout désélectionner' : 'Tout sélectionner'}</button>
@@ -196,15 +346,16 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
             : <ul {...cibleGrille} className={telephone ? 'grid min-w-0 auto-rows-fr grid-cols-2 lg:grid-cols-[repeat(auto-fill,minmax(calc(var(--spacing)*36),1fr))] gap-4' : 'pc-grille cadre'}>
               {liste.map(pokemon => {
                 const nom = nomDe(pokemon);
+                const { valide } = etatObjet(pokemon);
                 return <li key={pokemon.uid} className="min-w-0">
-                  <button type="button" aria-label={pokemon.oeuf ? `${nom}, ${libelleOeuf(pokemon.oeuf)}` : `${nom}, niveau ${pokemon.niveau}`} aria-pressed={selectionLot !== null ? effectifs.some(p => p.uid === pokemon.uid) : selection === pokemon.uid}
+                  <button type="button" data-uid={pokemon.uid} disabled={objetAQuantite && !valide} onContextMenu={ouvrirMenu(pokemon)} aria-label={pokemon.oeuf ? `${nom}, ${libelleOeuf(pokemon.oeuf)}` : `${nom}, niveau ${pokemon.niveau}`} aria-pressed={selectionLot !== null ? effectifs.some(p => p.uid === pokemon.uid) : selection === pokemon.uid}
                     aria-disabled={selectionLot !== null && pokemon.favori ? true : undefined}
-                    {...(!telephone && selectionLot === null ? {
+                    {...(glissable ? {
                       draggable: true,
                       onDragStart: (event: DragEvent<HTMLElement>) => { event.dataTransfer.setData('text/plain', pokemon.uid); event.dataTransfer.effectAllowed = 'move'; glisser(pokemon.uid); },
                       onDragEnd: () => { glisser(null); survoler(null); },
                     } : {})}
-                    className={`${!telephone && selectionLot === null ? 'cursor-grab ' : ''}cadre relative flex overflow-hidden h-full min-h-11 w-full items-center gap-2 p-2 text-left lg:grid lg:grid-rows-[auto_1fr_auto] lg:justify-items-center lg:p-4 lg:text-center hover:bg-selection ${(selectionLot !== null ? effectifs.some(p => p.uid === pokemon.uid) : selection === pokemon.uid) ? 'bg-selection' : 'bg-surface'}`}
+                    className={`${glissable ? 'cursor-grab ' : ''}cadre relative flex overflow-hidden h-full min-h-11 w-full items-center gap-2 p-2 text-left lg:grid lg:grid-rows-[auto_1fr_auto] lg:justify-items-center lg:p-4 lg:text-center hover:bg-selection ${(selectionLot !== null ? effectifs.some(p => p.uid === pokemon.uid) : selection === pokemon.uid) ? 'bg-selection' : 'bg-surface'}${classeObjet(pokemon)}`}
                     onClick={event => {
                       if (selectionLot !== null) {
                         if (pokemon.favori) return;
@@ -213,16 +364,16 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
                         selectionnerLot(prochaine);
                         return;
                       }
+                      if (mode) { toucherAvecObjet(pokemon); return; }
                       choisir(pokemon.uid);
-                      if (!telephone && partenaire) {
-                        const message = storeJeu.getState().echanger(pokemon.uid, partenaire);
-                        signaler(message ? { message, echange } : null);
-                        if (!message) selectionnerPartenaire(null);
-                      } else if (!telephone || !panneau.current?.getClientRects().length) ouvrirFiche(pokemon.uid, event.currentTarget);
+                      if (!telephone || !panneau.current?.getClientRects().length) ouvrirFiche(pokemon.uid, event.currentTarget);
                     }}>
                     <span className="relative isolate grid size-12 shrink-0 max-w-full overflow-hidden place-items-center lg:size-24">
                       {telephone && <span aria-hidden="true" className="socle absolute bottom-2 -z-10 hidden h-4 w-20 bg-region-socle lg:block" />}
-                      <Image src={spriteAffiche(pokemon)} genre="sprite" alt="" className={`size-12 lg:size-24 max-h-full max-w-full ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(pokemon)}`} />
+                      {evolution?.uid === pokemon.uid
+                        ? <SpriteEvolution ancien={spriteAffiche({ ...pokemon, numero: evolution.ancien })}
+                          nouveau={spriteAffiche({ ...pokemon, numero: evolution.nouveau })} nom={nom} actif shiny={pokemon.shiny} />
+                        : <Image src={spriteAffiche(pokemon)} genre="sprite" alt="" className={`size-12 lg:size-24 max-h-full max-w-full ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(pokemon)}`} />}
                     </span>
                     <span className="grid min-w-0 gap-1 lg:contents"><strong className="flex min-w-0 max-w-full flex-wrap items-center gap-x-1 lg:justify-center">
                       <span className="min-w-0 break-words">{nom}</span><RepereTags pokemon={pokemon} decoratif={false} />
@@ -238,10 +389,11 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
                 </li>;
               })}
             </ul>}
+        </>}
       </div>
       <aside ref={panneau} className="pc-panneau cadre sticky top-8 hidden min-w-0 space-y-4 bg-surface p-4 lg:block">
         <h2 className={`font-titre text-xl font-semibold${telephone ? '' : ' text-region-accent'}`}>{telephone ? 'Équipe' : 'Ton équipe'} · {equipe.filter(Boolean).length} / 6</h2>
-        <div className={!telephone ? 'pc-places grid gap-2' : 'grid gap-2'}>{places(false)}</div>
+        {!telephone && <div className="pc-places grid gap-2">{places(false)}</div>}
         {telephone && (pokemon ? <>
           <Image src={spriteAffiche(pokemon)} genre="sprite" alt="" className={`mx-auto size-24 max-w-full ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(pokemon)}`} />
           <h2 className="break-words font-titre text-xl font-semibold">{nomDe(pokemon)}<RepereTags pokemon={pokemon} /></h2>
@@ -263,9 +415,13 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
           }}>Placer dans l'équipe</button>}
         {telephone && pokemon && <button type="button" className="min-h-11 bg-surface-2 px-4 py-2 text-lien hover:bg-selection"
           onClick={event => ouvrirFiche(pokemon.uid, event.currentTarget)}>Ouvre la fiche</button>}
+        {!telephone && fenetreObjet()}
       </aside>
       </div>
-    </>}
+    {!mode && !echange && menu && <MenuPokemon x={menu.x} y={menu.y} declencheur={menu.carte} fermer={() => placerMenu(null)}
+      retirerObjet={[...equipe.map(membre => membre?.pokemon), ...pc].find(p => p?.uid === menu.uid)?.pierreEternelle
+        ? () => notifier(storeJeu.getState().retirerStase(menu.uid)) : undefined}
+      resumer={() => { choisir(menu.uid); ouvrirFiche(menu.uid, menu.carte); }} />}
     {fiche !== null && <FichePokemon uid={fiche} ouvert={ouvert} fermer={() => afficher(false)} declencheur={declencheur} />}
     {selectionLot !== null && <dialog ref={confirmation} aria-labelledby="titre-relacher-lot" className="fiche-pokemon cadre w-full max-w-xl bg-surface p-4 text-base text-texte lg:p-8">
       <h2 id="titre-relacher-lot">Relâcher {nombre} Pokémon ?</h2>

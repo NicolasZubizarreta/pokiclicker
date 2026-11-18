@@ -75,7 +75,7 @@ export function Tutoriel({ page, aller }: { page: Page; aller(page: Page): void 
     const verifier = () => {
       if (avance) return;
       if ((etape.action === 'vaincu' && storeJeu.getState().eliminations > debut)
-        || (etape.action === 'equipe' && page === 'Équipe') || (etape.action === 'sac' && storeSac.getState().ouvert)) {
+        || (etape.action === 'equipe' && page === 'PC') || (etape.action === 'sac' && storeSac.getState().ouvert)) {
         avance = true; avancer();
       }
     };

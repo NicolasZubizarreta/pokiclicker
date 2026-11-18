@@ -44,7 +44,7 @@ Valeurs exactes : `tokens.css` et `regions.css`. Sémantiques : `--succes-*`, `-
 - **Étapes** : 10 marques ; la 10e = boss (Poké Ball / cachet / cachet de cire).
 - **Carte de Pokémon** : sprite sur socle `--region-socle`, nom, niveau, DPS.
 - **Boîte de dialogue** : en bas de la scène, sprite du Prof. Chen, flèche qui rebondit.
-- **Navigation** : 5 entrées (Combat, Équipe, Shop, Carte, Plus), 56 px ; active = forme et couleur. Mobile en bas, PC en colonne à gauche.
+- **Navigation** : téléphone, 6 entrées (Combat, PC, Shop, Carte, Pension, Menu), 56 px ; PC, barre latérale 7 entrées (Combat, PC, Shop, Carte, Pokédex, Pension, Menu), touches 1 à 7. La page Équipe est fusionnée dans le PC (tickets U et V, 18/11) ; active = forme et couleur. Mobile en bas, PC en colonne à gauche.
 - **Feuille basse** (mobile) : compacte (nom, état, bouton), jamais plus d'une demi-hauteur.
 - **Pin de carte** : terminé = cachet à étoile, actuel = épingle dorée, verrouillé = cachet cadenas. Position en %, cible ≥ 44 px.
 

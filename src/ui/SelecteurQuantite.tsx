@@ -28,14 +28,16 @@ export function CommandesQuantite({ nom, valeur, max, changer, utiliser, annuler
 }
 
 /** Fenêtre de quantité posée sur la carte d'un Pokémon (équipe) : mêmes commandes que le Shop. */
-export function SelecteurQuantite({ valeur, max, changer, valider, annuler }: {
+export function SelecteurQuantite({ titre, valeur, max, changer, valider, annuler }: {
+  titre?: string;
   valeur: number;
   max: number;
   changer(n: number): void;
   valider(): void;
   annuler(): void;
 }) {
-  return <div className="cadre absolute inset-0 z-20 grid place-items-center overflow-auto bg-surface p-3 text-texte">
+  return <div className="cadre absolute inset-0 z-20 grid place-content-center place-items-center gap-2 overflow-auto bg-surface p-3 text-texte">
+    {titre && <p className="text-center">{titre}</p>}
     <CommandesQuantite valeur={valeur} max={max} changer={changer} utiliser={valider} annuler={annuler} />
   </div>;
 }

@@ -66,10 +66,8 @@ export function cibleValidePierre(pokemon: PokemonPossede, pierre: string): bool
 type ResultatEvolution = ResultatEquipe & { evolution?: { uid: string; de: number; vers: number } };
 
 function appliquer(region: DonneesRegion, pokemon: PokemonPossede, vers: number): ResultatEvolution {
-  const evolue = {
-    ...region,
-    equipe: region.equipe.map((p) => p.uid === pokemon.uid ? { ...p, numero: vers } : p),
-  };
+  const changer = (p: PokemonPossede) => p.uid === pokemon.uid ? { ...p, numero: vers } : p;
+  const evolue = { ...region, equipe: region.equipe.map(changer), pc: region.pc.map(changer) };
   return {
     ok: true,
     // Un Pokémon à marque d'éclosion fait entrer chaque espèce atteinte dans la liste des éclos.
@@ -79,7 +77,7 @@ function appliquer(region: DonneesRegion, pokemon: PokemonPossede, vers: number)
 }
 
 export function evoluer(region: DonneesRegion, uid: string): ResultatEvolution {
-  const pokemon = region.equipe.find((p) => p.uid === uid);
+  const pokemon = region.equipe.find((p) => p.uid === uid) ?? region.pc.find((p) => p.uid === uid);
   if (!pokemon || pokemon.oeuf) return { ok: false, raison: 'Pokémon invalide !' };
   if (pokemon.pierreEternelle) return { ok: false, raison: 'Évolution bloquée !' };
   const vers = evolutionDisponible(pokemon);
@@ -88,7 +86,7 @@ export function evoluer(region: DonneesRegion, uid: string): ResultatEvolution {
 }
 
 export function evoluerParPierre(region: DonneesRegion, uid: string, pierre: string): ResultatEvolution {
-  const pokemon = region.equipe.find((p) => p.uid === uid);
+  const pokemon = region.equipe.find((p) => p.uid === uid) ?? region.pc.find((p) => p.uid === uid);
   if (!pokemon || pokemon.oeuf) return { ok: false, raison: 'Pokémon invalide !' };
   if (pokemon.pierreEternelle) return { ok: false, raison: 'Pierre Stase équipée !' };
   const stock = region.inventaire[pierre] ?? 0;

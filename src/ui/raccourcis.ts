@@ -6,7 +6,7 @@ const combat: [string, string, string][] = [
   ['Flèche gauche', 'Zone précédente', 'zone-precedente'], ['Flèche droite', 'Zone suivante', 'zone-suivante'],
 ];
 const partout: [string, string, string][] = [
-  ['1', 'Combat', 'combat'], ['2', 'Équipe', 'equipe'], ['3', 'PC', 'pc'], ['4', 'Shop', 'shop'], ['5', 'Carte', 'carte'], ['6', 'Pokédex', 'pokedex'], ['7', 'Pension', 'pension'], ['8', 'Menu', 'menu'], ['Échap', 'Fermer la fenêtre', 'fermer'], ['Tab', 'Élément suivant', 'suivant'], ['Maj Tab', 'Élément précédent', 'precedent'],
+  ['1', 'Combat', 'combat'], ['2', 'PC', 'pc'], ['3', 'Shop', 'shop'], ['4', 'Carte', 'carte'], ['5', 'Pokédex', 'pokedex'], ['6', 'Pension', 'pension'], ['7', 'Menu', 'menu'], ['Échap', 'Fermer la fenêtre', 'fermer'], ['Tab', 'Élément suivant', 'suivant'], ['Maj Tab', 'Élément précédent', 'precedent'],
   ['/', 'Chercher (PC, Pokédex)', 'chercher'], ['?', 'Cette liste', 'raccourcis'],
 ];
 export const raccourcis: Raccourci[] = [

@@ -1098,7 +1098,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     demanderEvolution(uid, pierre) {
       if (!initialise) return 'La partie n’est pas démarrée.';
       if (!preferences.evolutionAuto) return modifierEquipe(courante => pierre ? evoluerParPierre(courante, uid, pierre) : evoluerEquipe(courante, uid));
-      const pokemon = region.equipe.find(p => p.uid === uid);
+      const pokemon = region.equipe.find(p => p.uid === uid) ?? region.pc.find(p => p.uid === uid);
       if (!pokemon || pokemon.oeuf) return 'Pokémon invalide !';
       if (pokemon.pierreEternelle) return pierre ? 'Pierre Stase équipée !' : 'Évolution bloquée !';
       const vers = pierre ? evolutionParPierre(pokemon.numero, pierre) : evolutionDisponible(pokemon);

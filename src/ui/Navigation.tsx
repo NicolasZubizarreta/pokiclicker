@@ -1,14 +1,14 @@
 import { useAccesPension } from './useAccesPension';
 import { useTelephone } from './useTelephone';
 import { BarreLaterale, type InfosPartie } from './BarreLaterale';
-import { Carte, Combat, Equipe, Menu, Shop } from './icones';
+import { Carte, Combat, Menu, PC, Shop } from './icones';
 import { IconePension } from './icones-menu';
 import { PastilleCasino, useCasinoNouveau } from './PastilleCasino';
 import { PastillePension, usePensionNouveau } from './PastillePension';
 
 const entrees = [
   { titre: 'Combat', Icone: Combat },
-  { titre: 'Équipe', Icone: Equipe },
+  { titre: 'PC', Icone: PC },
   { titre: 'Shop', Icone: Shop },
   { titre: 'Carte', Icone: Carte },
   { titre: 'Pension', Icone: IconePension },
@@ -16,19 +16,18 @@ const entrees = [
 ] as const;
 
 /** `Pokédex` n'a d'entrée que dans la barre latérale du PC (le téléphone le garde dans le Menu). `Pension` a une entrée entre `Carte` (ou `Pokédex` sur PC) et `Menu` même verrouillée. `Casino` n'a pas d'onglet : il s'ouvre depuis le Menu, la Carte ou l'annonce de déblocage, et l'onglet Menu reste actif. */
-export type Page = 'Combat' | 'Équipe' | 'PC' | 'Shop' | 'Carte' | 'Pokédex' | 'Menu' | 'Monde' | 'Casino' | 'Pension' | 'Centre';
+export type Page = 'Combat' | 'PC' | 'Shop' | 'Carte' | 'Pokédex' | 'Menu' | 'Monde' | 'Casino' | 'Pension' | 'Centre';
 
-export function Navigation({ page, choisir, signalCarte = false, inerte = false, origineMonde = 'Menu', originePC = 'Menu', ...infos }:  {
+export function Navigation({ page, choisir, signalCarte = false, inerte = false, origineMonde = 'Menu', ...infos }:  {
   page: Page; choisir: (page: Page) => void; signalCarte?: boolean; inerte?: boolean;
   origineMonde?: 'Menu' | 'Carte';
-  originePC?: 'Menu' | 'Équipe';
 } & InfosPartie) {
   const telephone = useTelephone();
   const casinoNouveau = useCasinoNouveau();
   const pensionNouveau = usePensionNouveau();
   const pension = useAccesPension();
   if (!telephone) return <BarreLaterale page={page} choisir={choisir} signalCarte={signalCarte} inerte={inerte} origineMonde={origineMonde} {...infos} />;
-  const active = page === 'Centre' ? 'Combat' : page === 'PC' ? originePC : page === 'Monde' ? origineMonde : page === 'Casino' || page === 'Pokédex' ? 'Menu' : page;
+  const active = page === 'Centre' ? 'Combat' : page === 'Monde' ? origineMonde : page === 'Casino' || page === 'Pokédex' ? 'Menu' : page;
   return (
     <nav aria-label="Navigation principale" inert={inerte}
       className="fixed inset-x-0 bottom-0 z-10 box-content border-t border-bordure bg-surface pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pt-1 pb-[env(safe-area-inset-bottom)] lg:rounded-cadre lg:border-t-0 lg:after:pointer-events-none lg:after:absolute lg:after:inset-0 lg:after:rounded-cadre lg:after:border lg:after:border-bordure lg:after:inset-ring lg:after:inset-ring-region-argent lg:inset-x-auto lg:inset-y-0 lg:left-0 lg:h-auto lg:w-24 lg:p-0">
@@ -37,7 +36,7 @@ export function Navigation({ page, choisir, signalCarte = false, inerte = false,
       <div className="flex h-full gap-0 lg:flex-col lg:gap-0">
         {entrees.map(({ titre, Icone }) => (
           <button key={titre} type="button" aria-current={active === titre ? 'page' : undefined}
-            data-tuto={titre === 'Équipe' ? 'onglet-equipe' : undefined}
+            data-tuto={titre === 'PC' ? 'onglet-pc' : undefined}
             data-signal={titre === 'Carte' && signalCarte ? 'true' : undefined}
             aria-disabled={titre === 'Pension' && !pension.ouverte ? true : undefined}
             aria-describedby={titre === 'Pension' && !pension.ouverte ? pension.description : undefined}

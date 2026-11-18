@@ -6,6 +6,14 @@ import type { DonneesRegion, PokemonPossede } from './sauvegarde-types';
 
 export type TypeObjetEquipe = 'bonbon' | 'calcium' | 'baie';
 
+// Un objet s'applique à n'importe quel Pokémon possédé, de l'équipe comme du PC.
+const trouver = (region: DonneesRegion, uid: string): PokemonPossede | undefined =>
+  region.equipe.find((p) => p.uid === uid) ?? region.pc.find((p) => p.uid === uid);
+const modifier = (region: DonneesRegion, uid: string, changer: (p: PokemonPossede) => PokemonPossede): Pick<DonneesRegion, 'equipe' | 'pc'> => {
+  const appliquer = (p: PokemonPossede) => p.uid === uid ? changer(p) : p;
+  return { equipe: region.equipe.map(appliquer), pc: region.pc.map(appliquer) };
+};
+
 function refusStase(pokemon: PokemonPossede | undefined): string | undefined {
   if (!pokemon || pokemon.oeuf) return 'Pokémon invalide !';
   if (pokemon.pierreEternelle) return 'Retire-la via le menu !';
@@ -16,7 +24,7 @@ export function cibleValideStase(pokemon: PokemonPossede): boolean {
 }
 
 export function poserStase(region: DonneesRegion, uid: string): ResultatEquipe & { message: string } {
-  const pokemon = region.equipe.find((p) => p.uid === uid);
+  const pokemon = trouver(region, uid);
   const stock = region.inventaire.everstone ?? 0;
   const raison = refusStase(pokemon) ?? (stock <= 0 ? 'Plus de Pierre Stase !'
     : pokemon && !cibleValideStase(pokemon) ? 'Pokémon incompatible !' : undefined);
@@ -26,28 +34,27 @@ export function poserStase(region: DonneesRegion, uid: string): ResultatEquipe &
     region: {
       ...region,
       inventaire: { ...region.inventaire, everstone: stock - 1 },
-      equipe: region.equipe.map((p) => p.uid === uid ? { ...p, pierreEternelle: true } : p),
+      ...modifier(region, uid, (p) => ({ ...p, pierreEternelle: true })),
     },
   };
 }
 
 export function retirerStase(region: DonneesRegion, uid: string): ResultatEquipe & { message: string } {
-  const pokemon = region.equipe.find((p) => p.uid === uid) ?? region.pc.find((p) => p.uid === uid);
+  const pokemon = trouver(region, uid);
   const raison = !pokemon ? 'Pokémon invalide !' : !pokemon.pierreEternelle ? 'Aucun objet à retirer !' : undefined;
   if (raison) return { ok: false, raison, message: raison };
-  const retirer = (p: PokemonPossede): PokemonPossede => p.uid === uid ? { ...p, pierreEternelle: false } : p;
   return {
     ok: true, message: 'Objet retiré !',
     region: {
       ...region,
       inventaire: { ...region.inventaire, everstone: (region.inventaire.everstone ?? 0) + 1 },
-      equipe: region.equipe.map(retirer), pc: region.pc.map(retirer),
+      ...modifier(region, uid, (p) => ({ ...p, pierreEternelle: false })),
     },
   };
 }
 
 export function utiliserJetonShiny(region: DonneesRegion, uid: string): ResultatEquipe & { message: string } {
-  const pokemon = region.equipe.find((p) => p.uid === uid);
+  const pokemon = trouver(region, uid);
   const stock = region.inventaire.shinyToken ?? 0;
   const raison = !pokemon ? 'Pokémon invalide !' : pokemon.shiny ? 'Déjà chromatique !'
     : stock <= 0 ? 'Quantité invalide.' : undefined;
@@ -57,7 +64,7 @@ export function utiliserJetonShiny(region: DonneesRegion, uid: string): Resultat
     region: noterObtention({
       ...region,
       inventaire: { ...region.inventaire, shinyToken: stock - 1 },
-      equipe: region.equipe.map((p) => p.uid === uid ? { ...p, shiny: true } : p),
+      ...modifier(region, uid, (p) => ({ ...p, shiny: true })),
     }, pokemon!.numero, { shiny: !pokemon!.oeuf, eclos: !pokemon!.oeuf && pokemon!.marqueEclosion }),
   };
 }
@@ -83,7 +90,7 @@ export function quantiteMax(type: TypeObjetEquipe, pokemon: PokemonPossede, stoc
 export function utiliserSurPokemon(
   region: DonneesRegion, type: TypeObjetEquipe, cle: string, uid: string, n: number,
 ): ResultatEquipe & { message: string } {
-  const pokemon = region.equipe.find((p) => p.uid === uid);
+  const pokemon = trouver(region, uid);
   const raison = refusCible(type, pokemon);
   if (raison) return { ok: false, raison, message: raison };
   const stock = region.inventaire[cle] ?? 0;
@@ -97,11 +104,11 @@ export function utiliserSurPokemon(
     region: {
       ...region,
       inventaire: { ...region.inventaire, [cle]: stock - n },
-      equipe: region.equipe.map((p) => p.uid !== uid ? p : {
+      ...modifier(region, uid, (p) => ({
         ...p,
         ...(type === 'bonbon' ? { niveau: p.niveau + n } : type === 'calcium' ? { calcium: p.calcium + n }
           : { bonheur: Math.min(reglages.recompenses.bonheur.max, p.bonheur + n * reglages.recompenses.bonheur.gainBaie) }),
-      }),
+      })),
     },
   };
 }

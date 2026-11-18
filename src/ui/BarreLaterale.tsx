@@ -1,6 +1,6 @@
 import { useStore } from 'zustand';
 import { useAccesPension } from './useAccesPension';
-import { Carte, Combat, Equipe, Menu, PC, Shop } from './icones';
+import { Carte, Combat, Menu, PC, Shop } from './icones';
 import { IconePension, IconePokedex, IconeSortie } from './icones-menu';
 import type { Page } from './Navigation';
 import type { EtatSynchro } from './synchro';
@@ -12,7 +12,7 @@ import { PastillePension, usePensionNouveau } from './PastillePension';
 import { evolutionProposee } from './evolution-proposee';
 import { erreurRetourMenu, useRetourMenuPrincipal } from './useRetourMenuPrincipal';
 
-const entrees = [ ['Combat', Combat], ['Équipe', Equipe], ['PC', PC], ['Shop', Shop], ['Carte', Carte], ['Pokédex', IconePokedex], ['Pension', IconePension], ['Menu', Menu] ] as const;
+const entrees = [ ['Combat', Combat], ['PC', PC], ['Shop', Shop], ['Carte', Carte], ['Pokédex', IconePokedex], ['Pension', IconePension], ['Menu', Menu] ] as const;
 
 export type InfosPartie = { nomPartie?: string; etatSynchro?: EtatSynchro; quandMenuPrincipal?: () => Promise<boolean> };
 
@@ -33,12 +33,12 @@ export function BarreLaterale({ page, choisir, signalCarte, inerte, origineMonde
       {entrees.map(([titre, Icone], index) => <button key={titre} type="button" aria-current={active === titre ? 'page' : undefined}
         aria-disabled={titre === 'Pension' && !pension.ouverte ? true : undefined}
         aria-describedby={titre === 'Pension' && !pension.ouverte ? pension.description : undefined}
-        data-tuto={titre === 'Équipe' ? 'onglet-equipe' : undefined}
+        data-tuto={titre === 'PC' ? 'onglet-pc' : undefined}
         data-signal={titre === 'Carte' && signalCarte ? 'true' : undefined} onClick={() => titre === 'Pension' && !pension.ouverte ? pension.expliquer() : choisir(titre)}
         className={`entree-pc relative flex min-h-14 items-center gap-3 border border-transparent px-3 text-left text-lg ${titre === 'Pension' && !pension.ouverte ? 'opacity-60 ' : ''}${active === titre ? 'bg-selection font-bold text-region-accent' : 'text-texte-doux'}${titre === 'Carte' && signalCarte ? ' ring-4 ring-succes-base rebond-signal' : ''}`}>
         {active === titre && <span aria-hidden="true" className="absolute inset-y-0 left-0 w-1 bg-region-accent" />}
         <Icone /><span>{titre}</span><kbd aria-hidden="true" className="touche-pc ml-auto">{index + 1}</kbd>
-        {titre === 'Équipe' && evolution && <span aria-hidden="true" className="h-2 w-2 rounded-full bg-succes-base" />}
+        {titre === 'PC' && evolution && <span aria-hidden="true" className="h-2 w-2 rounded-full bg-succes-base" />}
         {(titre === 'Menu' || titre === 'Carte') && (casinoNouveau ? <PastilleCasino /> : pensionNouveau && <PastillePension />)}
       </button>)}
     </nav>

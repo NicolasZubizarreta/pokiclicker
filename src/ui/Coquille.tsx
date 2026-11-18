@@ -13,7 +13,6 @@ import { AccueilCasino } from './AccueilCasino';
 import { PagePension } from './PagePension';
 import { FenetreEclosion } from './FenetreEclosion';
 import { FenetreEvolution } from './FenetreEvolution';
-import { PageEquipe } from './PageEquipe';
 import { PagePC } from './PagePC';
 import { PagePlus } from './PagePlus';
 import { Pokedex } from './Pokedex';
@@ -47,7 +46,6 @@ export function Coquille({ region = 'kanto', theme = 'dark', quandMenuPrincipal,
   // Lien d'essai (dev seulement) : ?onglet=carte ouvre directement l'onglet Carte.
   const [page, choisir] = useState<Page>(() => import.meta.env.DEV && new URLSearchParams(window.location.search).get('onglet') === 'carte' ? 'Carte' : 'Combat');
   const [origineMonde, fixerOrigineMonde] = useState<'Menu' | 'Carte'>('Menu');
-  const [originePC, fixerOriginePC] = useState<'Menu' | 'Équipe'>('Menu');
   const retourChoix = useRef<Page | null>(null);
   const pageCourante = useRef(page);
   useLayoutEffect(() => { pageCourante.current = page; });
@@ -57,7 +55,6 @@ export function Coquille({ region = 'kanto', theme = 'dark', quandMenuPrincipal,
     retourChoix.current = null;
     if (storeSac.getState().objet) terminerChoix();
     if (destination === 'Monde') fixerOrigineMonde(page === 'Carte' ? 'Carte' : 'Menu');
-    if (destination === 'PC') fixerOriginePC(page === 'Équipe' ? 'Équipe' : 'Menu');
     choisir(destination);
   }
   const compte = useStore(storeJeu, e => e.compte);
@@ -68,14 +65,14 @@ export function Coquille({ region = 'kanto', theme = 'dark', quandMenuPrincipal,
   const obtentionBadge = useStore(storeJeu, etat => etat.obtentionBadge);
   const badges = useStore(storeJeu, etat => etat.progression.badges);
   const [declencheur, memoriserDeclencheur] = useState<HTMLElement | null>(null);
-  // Toute sortie de l'Équipe (même hors barre du bas) désarme l'objet venu du Sac : pas de bandeau fantôme au retour.
+  // Toute sortie du PC (même hors barre du bas) désarme l'objet venu du Sac : pas de bandeau fantôme au retour.
   useEffect(() => {
-    if (page !== 'Équipe' && storeSac.getState().objet) { retourChoix.current = null; terminerChoix(); }
+    if (page !== 'PC' && storeSac.getState().objet) { retourChoix.current = null; terminerChoix(); }
   }, [page]);
   useEffect(() => storeSac.subscribe((etat, avant) => {
     if (etat.objet !== null && avant.objet === null) {
       retourChoix.current = pageCourante.current;
-      choisir('Équipe');
+      choisir('PC');
     } else if (etat.objet === null && retourChoix.current !== null) {
       const destination = retourChoix.current;
       retourChoix.current = null;
@@ -133,13 +130,13 @@ export function Coquille({ region = 'kanto', theme = 'dark', quandMenuPrincipal,
       <a href="#contenu" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-20 focus:bg-surface focus:p-4 focus:text-lien">
         Aller au contenu
       </a>
-      {(telephone || (!introActive && !introVue)) && <Navigation nomPartie={nomPartie} etatSynchro={etatSynchro} quandMenuPrincipal={quandMenuPrincipal} page={page} choisir={aller} origineMonde={origineMonde} originePC={originePC} signalCarte={tutorielRoute1 && page !== 'Carte' && !introActive && !introVue} inerte={introActive || introVue || credits || !!pantheon?.ouvert || compteOuvert} />}
+      {(telephone || (!introActive && !introVue)) && <Navigation nomPartie={nomPartie} etatSynchro={etatSynchro} quandMenuPrincipal={quandMenuPrincipal} page={page} choisir={aller} origineMonde={origineMonde} signalCarte={tutorielRoute1 && page !== 'Carte' && !introActive && !introVue} inerte={introActive || introVue || credits || !!pantheon?.ouvert || compteOuvert} />}
       <div className="lg:flex lg:min-h-0 lg:min-w-0 lg:flex-col">
       {!introActive && !introVue && <BandeauHaut combat={page === 'Combat'} ouvrirRaccourcis={() => ouvrirRaccourcis(true)} />}
       <main id="contenu" tabIndex={-1} inert={compteOuvert} className="min-w-0 px-4 pb-[calc(var(--spacing)*20+env(safe-area-inset-bottom))] pt-2 lg:flex-1 lg:min-h-0 lg:overflow-y-auto lg:p-8">
         {/* Avec un compte, le résumé du compte (diamants, succès, skins) est dans la zone compte, par Menu principal. */}
         {!quandMenuPrincipal && <button ref={boutonCompte} className="min-h-11 p-2 text-lien underline" onClick={() => fixerCompteOuvert(true)}>Mon compte</button>}
-        {page === 'Combat' ? introVue || introActive ? <PageIntro quandTerminee={() => fixerIntroVue(false)} /> : <EcranCombat /> : page === 'Centre' ? <PageCentre retour={() => choisir('Combat')} navigationZones versCombat={() => choisir('Combat')} /> : page === 'Carte' ? <PageCarte quandArrive={() => choisir('Combat')} /> : page === 'Équipe' ? <PageEquipe ouvrirPC={() => aller('PC')} /> : page === 'PC' ? <PagePC retour={() => choisir(originePC)} libelleRetour={originePC === 'Équipe' ? "Retour à l'équipe" : 'Retour au menu'} /> : page === 'Monde' ? <PageMonde retour={() => choisir(origineMonde)} jouerKanto={() => choisir('Combat')} /> : page === 'Casino' ? <AccueilCasino retour={() => choisir('Menu')} /> : page === 'Pension' ? <PagePension retour={() => choisir('Menu')} libelleRetour="Retour au menu" /> : page === 'Pokédex' ? (telephone ? <PokedexTelephone retour={() => choisir('Menu')} /> : <Pokedex retour={() => choisir('Menu')} />) : page === 'Menu' ? <PagePlus ouvrirPC={() => aller('PC')} ouvrirMonde={() => aller('Monde')} ouvrirCasino={() => aller('Casino')} ouvrirPension={() => aller('Pension')}menuPrincipal={quandMenuPrincipal} attendreEnvoi={attendreEnvoi} etatSynchro={quandMenuPrincipal ? etatSynchro : undefined} /> : <PageShop />}
+        {page === 'Combat' ? introVue || introActive ? <PageIntro quandTerminee={() => fixerIntroVue(false)} /> : <EcranCombat /> : page === 'Centre' ? <PageCentre retour={() => choisir('Combat')} navigationZones versCombat={() => choisir('Combat')} /> : page === 'Carte' ? <PageCarte quandArrive={() => choisir('Combat')} /> : page === 'PC' ? <PagePC /> : page === 'Monde' ? <PageMonde retour={() => choisir(origineMonde)} jouerKanto={() => choisir('Combat')} /> : page === 'Casino' ? <AccueilCasino retour={() => choisir('Menu')} /> : page === 'Pension' ? <PagePension retour={() => choisir('Menu')} libelleRetour="Retour au menu" /> : page === 'Pokédex' ? (telephone ? <PokedexTelephone retour={() => choisir('Menu')} /> : <Pokedex retour={() => choisir('Menu')} />) : page === 'Menu' ? <PagePlus ouvrirPC={() => aller('PC')} ouvrirMonde={() => aller('Monde')} ouvrirCasino={() => aller('Casino')} ouvrirPension={() => aller('Pension')}menuPrincipal={quandMenuPrincipal} attendreEnvoi={attendreEnvoi} etatSynchro={quandMenuPrincipal ? etatSynchro : undefined} /> : <PageShop />}
       </main>
       </div>
       {raccourcisOuverts && <FenetreRaccourcis fermer={() => ouvrirRaccourcis(false)} />}

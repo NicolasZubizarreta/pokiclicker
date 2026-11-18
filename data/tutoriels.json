@@ -11,7 +11,7 @@
         { "cible": "capturer", "texte": "Capture-le avec une Poké Ball avant qu'il parte.", "geste": "Touche Capturer", "action": "clic" },
         { "cible": "auto", "texte": "Attaque auto fait attaquer ton équipe seule.", "geste": "Touche Attaque auto", "action": "clic" },
         { "cible": "arret", "texte": "Arrêt auto coupe l'attaque auto sur les raretés choisies.", "geste": "Touche Arrêt auto", "action": "clic" },
-        { "cible": "onglet-equipe", "texte": "Tes Pokémon attaquent seuls : regarde ton équipe.", "geste": "Ouvre l'onglet Équipe", "action": "equipe" },
+        { "cible": "onglet-pc", "texte": "Tes Pokémon attaquent seuls : regarde ton équipe dans le PC.", "geste": "Ouvre l'onglet PC", "action": "equipe" },
         { "cible": "sac", "texte": "Les objets sont dans le Sac.", "geste": "Ouvre le Sac", "action": "sac" },
         { "cible": null, "texte": "Bats les champions pour avancer vers la Ligue.", "action": "ok" }
       ]
