@@ -10,6 +10,11 @@ import badges from '../../data/badges.json';
 import jalons from '../../data/jalons.json';
 import objetsCles from '../../data/objets-cles.json';
 import objets from '../../data/objets.json';
+import evenementsIntro from '../../data/evenements/intro.json';
+import evenementsRival from '../../data/evenements/rival.json';
+import evenementsRonflex from '../../data/evenements/ronflex.json';
+import evenementsFin from '../../data/evenements/fin.json';
+import evenementsChenBoss from '../../data/evenements/chen-boss.json';
 import { LISTE_MAX } from './plafonds';
 import type { DonneesCompte, DonneesPartie, DonneesRegion, Enveloppe, MainBlackjack, MainBlackjackAncienne, Niveau, PokemonPossede } from './sauvegarde-types';
 
@@ -21,9 +26,11 @@ export function chaineBornee(v: unknown, min = 0, max = 200): asserts v is strin
 }
 const cataloguePokemon = () => chargerPokemon().liste.length;
 const regions = [monde.region, ...catalogueMonde.regionsVerrouillees.map(id => id.toLowerCase())];
-const fichiersEvenements = import.meta.glob<{ evenements: { id: string; etapes: unknown[] }[] }>(
-  '../../data/evenements/{intro,rival,ronflex,fin,chen-boss}.json', { eager: true, import: 'default' });
-const evenements = Object.values(fichiersEvenements).flatMap(f => f.evenements);
+// Imports statiques : le cœur reste utilisable hors Vite (serveur, tests Node).
+const evenements: { id: string; etapes: unknown[] }[] = [
+  ...evenementsIntro.evenements, ...evenementsRival.evenements, ...evenementsRonflex.evenements,
+  ...evenementsFin.evenements, ...evenementsChenBoss.evenements,
+];
 function uniques(pokemon: PokemonPossede[]): void {
   exiger(new Set(pokemon.map(p => p.uid)).size === pokemon.length, 'Uid dupliqué');
 }
