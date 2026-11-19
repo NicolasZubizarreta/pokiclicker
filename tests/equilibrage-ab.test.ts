@@ -179,7 +179,8 @@ describe('multiplicateur d’argent et sauvegarde existante (tickets AB et J)', 
       { numero: 19, niveau: 10, rarete: null, shiny: false, boss: true },
       { numero: 19, niveau: 10, rarete: 'commun' as const, shiny: true, boss: false },
     ]) {
-      expect(recompenses.calculerOr(victoire, [])).toBe(recompenses.calculerOr(victoire, [], sansMultiplicateur) * reglages.reglages.recompenses.or.multiplicateur);
+      // L’or est un entier (B-core-10) : le produit est arrondi à l’inférieur.
+      expect(recompenses.calculerOr(victoire, [])).toBe(Math.floor(recompenses.calculerOr(victoire, [], sansMultiplicateur) * reglages.reglages.recompenses.or.multiplicateur));
     }
   });
 });

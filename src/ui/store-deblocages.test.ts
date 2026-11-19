@@ -8,17 +8,20 @@ import { compteInitial, creerGestionnaire, creerStockageMemoire, type DonneesReg
 import { creerStoreJeu, type StoreJeu } from './store';
 
 const stores: StoreJeu[] = [];
-beforeEach(() => vi.useFakeTimers());
+// Le calcium est plafonné par la validation : le boss est affaibli ici pour qu'une équipe de test le batte dans le temps imparti.
+const pvBossReel = reglages.combat.pvBoss;
+beforeEach(() => { vi.useFakeTimers(); reglages.combat.pvBoss = 0.001; });
 afterEach(() => {
   stores.forEach(store => store.getState().arreter());
   stores.length = 0;
   vi.useRealTimers();
+  reglages.combat.pvBoss = pvBossReel;
 });
 
 const toutesLesZones = kanto.zones.map(zone => zone.id);
 const texte = (id: string) => deblocages.find(d => d.id === id)!.texte;
 const equipe = [{ uid: 'fort', numero: 6, niveau: 100, xp: 0, shiny: false, bonheur: 0, pierreEternelle: false,
-  calcium: 100000, sexe: 'male' as const, favori: false }];
+  calcium: reglages.degats.calciumMax, sexe: 'male' as const, favori: false }];
 
 function preparer(modifier: (region: DonneesRegion) => DonneesRegion) {
   const stockage = creerStockageMemoire();
@@ -70,7 +73,7 @@ function suivre(p: ReturnType<typeof preparer>, store: StoreJeu, ms: number) {
 const tousSauf = (...retires: string[]) => deblocages.map(d => d.id).filter(id => !retires.includes(id));
 
 it('arme les tutoriels avec la région courante et les cibles visibles', () => {
-  const p = preparer(region => ({ ...region, zoneId: 'kanto.route-1', evenementsJoues: ['kanto.intro'], starterId: 6,
+  const p = preparer(region => ({ ...region, zoneId: 'kanto.route-1', evenementsJoues: ['kanto.intro'], starterId: 4,
     tutosVus: [], statistiques: { ...region.statistiques, eliminations: 0 } }));
   const store = p.ouvrir();
   expect(store.getState().eliminations).toBe(0);
@@ -83,7 +86,7 @@ it('arme les tutoriels avec la région courante et les cibles visibles', () => {
   expect(store.getState().eliminations).toBe(p.lire().statistiques.eliminations);
   expect(store.getState().eliminations).toBeGreaterThan(0);
   const pc = preparer(region => ({ ...region, tutosVus: ['route-1'], bossVaincus: toutesLesZones,
-    evenementsJoues: ['kanto.intro'], starterId: 6 })).ouvrir();
+    evenementsJoues: ['kanto.intro'], starterId: 4 })).ouvrir();
   expect(pc.getState().tutoAArmer(new Set(['page-pc']))).toBe('pc');
   expect(pc.getState().tutoAArmer(new Set())).toBeNull();
 });

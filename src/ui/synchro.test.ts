@@ -141,7 +141,10 @@ it('aligne le nom local sur la liste serveur sans toucher aux parties absentes',
   const locale = t.g.renommerPartie(t.p.id, 'Ancien');
   const autre = creerGestionnaire({ stockage: t.stockage, horloge: t.horloge, genererId: () => 'autre' }).creerPartie('Locale');
   await t.synchro.lister();
-  expect(t.g.chargerPartie(t.p.id)).toEqual({ ...locale, donnees: { ...locale.donnees, nom: 'Test' } });
+  // Le renommage passe par l'écriture normale (B-core-17) : la révision avance.
+  const alignee = t.g.chargerPartie(t.p.id)!;
+  expect(alignee.donnees).toEqual({ ...locale.donnees, nom: 'Test' });
+  expect(alignee.revision).toBeGreaterThan(locale.revision);
   expect(t.g.chargerPartie(autre.id)).toEqual(autre);
 });
 it.each([

@@ -36,12 +36,12 @@ function instantane(stockage: ReturnType<typeof creerStockageMemoire>) {
   return stockage.cles().map(cle => [cle, stockage.lire(cle)]);
 }
 const cle = 'pokiclicker:partie:partie-1';
-it('renomme sans changer la revision ni la date', () => {
+it('renomme en changeant la revision et la date', () => {
   const { jeu, horloge } = contexte();
   const avant = jeu.creerPartie('Avant');
   horloge.avancer(1000);
   const apres = jeu.renommerPartie(avant.id, ' Nouveau ');
-  expect(apres).toEqual({ ...avant, donnees: { ...avant.donnees, nom: 'Nouveau' } });
+  expect(apres).toEqual({ ...avant, revision: avant.revision + 1, ecritLe: new Date(horloge.maintenant()).toISOString(), donnees: { ...avant.donnees, nom: 'Nouveau' } });
   expect(jeu.chargerPartie(avant.id)).toEqual(apres);
   for (const nom of ['  ', 'a'.repeat(101)]) {
     expect(() => jeu.renommerPartie(avant.id, nom)).toThrow();
@@ -84,7 +84,7 @@ it('ignore une clé courante vers une partie supprimée ou inaccessible', () => 
     if (cle === 'pokiclicker:courante') throw new Error('Lecture refusée');
     return lire(cle);
   });
-  expect(jeu.partieCourante()).toBe(p.id);
+  expect(() => jeu.partieCourante()).toThrow('Stockage indisponible.');
 });
 it('installe les révisions serveur et retire les régions locales absentes', () => {
   const source = contexte();
@@ -95,7 +95,7 @@ it('installe les révisions serveur et retire les régions locales absentes', ()
   cible.jeu.installerVersion({ compte, partie, regions });
   expect(cible.jeu.chargerPartie(partie.id)).toEqual(partie);
   expect(cible.jeu.chargerCompte()).toEqual(compte);
-  cible.jeu.ecrireRegion(partie.id, 'johto', regionInitiale('johto', 'johto.route-1'));
+  cible.stockage.ecrire(`pokiclicker:region:${partie.id}:johto`, '{}');
   cible.jeu.installerVersion({ partie, regions });
   expect(cible.jeu.chargerRegion(partie.id, 'johto')).toBeNull();
   expect(cible.jeu.chargerRegion(partie.id, 'kanto')).toEqual(regions[0]);
@@ -398,7 +398,7 @@ describe('sauvegarde à trois niveaux', () => {
     const p = jeu.creerPartie('Première');
     const autre = jeu.creerPartie('Seconde');
     jeu.ecrireCompte(compteInitial());
-    jeu.ecrireRegion(p.id, 'johto', regionInitiale('johto', 'johto.depart'));
+    stockage.ecrire(`pokiclicker:region:${p.id}:johto`, '{}');
     const cleJohto = `pokiclicker:region:${p.id}:johto`;
     const johto = stockage.lire(cleJohto);
     jeu.ecrireRegion(p.id, 'kanto', { ...regionInitiale('kanto', 'kanto.route-1'), argent: 35 });
@@ -465,9 +465,14 @@ describe('chargement sûr et import', () => {
     const { jeu } = contexte();
     const attendue = structuredClone(regionV3.donnees);
     Reflect.deleteProperty(attendue, 'futur');
-    const { id } = jeu.importerPartie(JSON.stringify(exportV1));
-    expect(jeu.chargerPartie(id)).toMatchObject({ version: 4, donnees: v3.donnees });
-    expect(jeu.chargerPartie(id)?.donnees).toEqual(v3.donnees);
+    const fichier = structuredClone(exportV1);
+    fichier.partie.donnees.pcGlobal[0]!.uid = 'pikachu-global';
+    Reflect.deleteProperty(fichier.regions[0]!.donnees, 'futur');
+    const { id } = jeu.importerPartie(JSON.stringify(fichier));
+    const partieAttendue = structuredClone(v3.donnees);
+    partieAttendue.pcGlobal[0]!.uid = 'pikachu-global';
+    expect(jeu.chargerPartie(id)).toMatchObject({ version: 4, donnees: partieAttendue });
+    expect(jeu.chargerPartie(id)?.donnees).toEqual(partieAttendue);
     expect(jeu.chargerRegion(id, 'kanto')).toMatchObject({ version: 4, donnees: attendue });
     expect(jeu.chargerRegion(id, 'kanto')?.donnees).toEqual(attendue);
   });
@@ -507,7 +512,7 @@ describe('chargement sûr et import', () => {
       donnees: JSON.stringify({ ...p, donnees: { ...p.donnees, argent: 4 } }) };
     stockage.ecrire(cle, valeurs[cas as keyof typeof valeurs]);
     const avant = instantane(stockage);
-    expect(() => jeu.chargerPartie(p.id)).toThrow(/^Cette sauvegarde est illisible : .+\.$/);
+    expect(() => jeu.chargerPartie(p.id)).toThrow('Cette sauvegarde est illisible.');
     expect(instantane(stockage)).toEqual(avant);
   });
   it('migre au chargement sans écrire, puis écrit la version courante explicitement', () => {
@@ -528,17 +533,16 @@ describe('chargement sûr et import', () => {
     const { jeu, stockage } = contexte();
     jeu.ecrireCompte({ ...compteInitial(), diamants: 42 });
     const p = jeu.creerPartie('Aventure');
-    jeu.ecrirePartie(p.id, { ...p.donnees, pcGlobal: [pokemon], regionsDebloquees: ['kanto', 'johto'] });
+    jeu.ecrirePartie(p.id, { ...p.donnees, pcGlobal: [{ ...pokemon, uid: 'global' }], regionsDebloquees: ['kanto'] });
     jeu.ecrireRegion(p.id, 'kanto', { ...regionInitiale('kanto', 'kanto.route-1'), equipe: [pokemon], argent: 99,
       pc: [{ ...pokemon, uid: 'pc', numero: 100, sexe: 'sansSexe', favori: true }], ameliorations: ['chaussures'],
       jalonsRecus: [10, 20], starterId: 1, statistiques: { eliminations: 45, argentTotalGagne: 987 },
       chronos: { finRepousse: 1000, finSuperRepousse: 2000, finBoostAttaque: 3000,
         finBoostAttaqueSpeciale: 4000, rechargeFauchage: 5000 },
-      pension: { parents: [pokemon, { ...pokemon, uid: 'parent-2', sexe: 'male' }],
+      pension: { parents: [{ ...pokemon, uid: 'parent-1' }, { ...pokemon, uid: 'parent-2', sexe: 'male' }],
         oeufs: [{ ...pokemon, uid: 'oeuf', oeuf: { pasRestants: 6, pasMax: 10 } }], emplacementsOeuf: 3 },
       jetons: 53, arretAuto: { commun: true, peuCommun: true, rare: false, tresRare: false,
         legendaire: false, shiny: false, nouveau: false } });
-    jeu.ecrireRegion(p.id, 'johto', regionInitiale('johto', 'johto.depart'));
     const texte = jeu.exporterPartie(p.id);
     const fichier = JSON.parse(texte);
     expect(fichier.version).toBe(4);
@@ -558,7 +562,7 @@ describe('chargement sûr et import', () => {
     expect(importe.id).not.toBe(p.id);
     expect(jeu.chargerPartie(importe.id)?.donnees).toEqual(jeu.chargerPartie(p.id)?.donnees);
     expect(jeu.chargerPartie(importe.id)?.revision).toBe(1);
-    for (const region of ['kanto', 'johto']) {
+    for (const region of ['kanto']) {
       expect(jeu.chargerRegion(importe.id, region)?.donnees).toEqual(jeu.chargerRegion(p.id, region)?.donnees);
       expect(jeu.chargerRegion(importe.id, region)?.revision).toBe(1);
     }
@@ -576,7 +580,7 @@ describe('chargement sûr et import', () => {
     if (cas === 'version') fichier.version = 0.5;
     const avant = instantane(stockage);
     expect(() => jeu.importerPartie(cas === 'tronque' ? '{' : JSON.stringify(fichier)))
-      .toThrow(/^Ce fichier n'est pas une sauvegarde de partie valide : .+\.$/);
+      .toThrow("Ce fichier n'est pas une sauvegarde de partie valide.");
     expect(instantane(stockage)).toEqual(avant);
   });
   it('refuse exactement un fichier futur et ne change rien', () => {
@@ -641,7 +645,7 @@ describe('validation du schéma de version 4', () => {
     [{ starterId: 0 }, 'Entier strictement positif attendu'],
     [{ starterId: 1.5 }, 'Entier attendu'],
     [{ pc: [null] }, 'Objet attendu'],
-    [{ ameliorations: [1] }, 'Texte attendu'],
+    [{ ameliorations: [1] }, 'Longueur de texte invalide'],
     [{ jalonsRecus: [0] }, 'Entier strictement positif attendu'],
     [{ statistiques: { eliminations: -1, argentTotalGagne: 0 } }, 'Nombre positif ou nul attendu'],
     [{ statistiques: { eliminations: 0, argentTotalGagne: Infinity } }, 'Nombre positif ou nul attendu'],

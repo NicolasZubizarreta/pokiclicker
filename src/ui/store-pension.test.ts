@@ -28,11 +28,14 @@ it('saute la fenêtre, conserve la collection et crédite le palier avec la pré
   expect(p.gestionnaire.chargerCompte()!.donnees.succes).toContain('eclosions-10');
   expect(p.gestionnaire.chargerCompte()!.donnees.diamants).toBeGreaterThanOrEqual(10);
 });
-beforeEach(() => vi.useFakeTimers());
+// Le calcium est plafonné par la validation : le boss est affaibli pour qu'une équipe de test le batte dans le temps imparti.
+const pvBossReel = reglages.combat.pvBoss;
+beforeEach(() => { vi.useFakeTimers(); reglages.combat.pvBoss = 0.001; });
 afterEach(() => {
   stores.forEach(store => store.getState().arreter());
   stores.length = 0;
   vi.useRealTimers();
+  reglages.combat.pvBoss = pvBossReel;
 });
 
 const pokemon = (uid: string, numero = 25, sexe: PokemonPossede['sexe'] = 'femelle'): PokemonPossede => ({
@@ -51,7 +54,7 @@ function preparer(modifier: (region: DonneesRegion) => DonneesRegion = region =>
   gestionnaire.creerPartie('Test', 'kanto.bourg-palette');
   const lire = () => gestionnaire.chargerRegion('test', 'kanto')!.donnees;
   gestionnaire.ecrireRegion('test', 'kanto', modifier({ ...lire(), argent: 600000,
-    equipe: [{ ...pokemon('fort', 6), calcium: 100000 }], pc: [pokemon('mere', 26), pokemon('pere', 26, 'male')],
+    equipe: [{ ...pokemon('fort', 6), calcium: reglages.degats.calciumMax }], pc: [pokemon('mere', 26), pokemon('pere', 26, 'male')],
     bossVaincus: ['kanto.tour-pokemon'] }));
   const ouvrir = () => {
     const store = creerStoreJeu({ stockage, horloge, alea: () => 0, genererId: () => `oeuf-${++id}`,
@@ -137,7 +140,7 @@ it('persiste les parents, les œufs et les emplacements et garde une référence
 });
 
 it('bloque la ponte avant la Tour Pokémon et annonce le déblocage une seule fois', () => {
-  const p = preparer(region => ({ ...region, bossVaincus: [], zoneId: 'kanto.tour-pokemon',
+  const p = preparer(region => ({ ...region, pc: [], bossVaincus: [], zoneId: 'kanto.tour-pokemon',
     etape: reglages.combat.etapeBoss, pension: { ...region.pension, parents: [pokemon('mere'), pokemon('pere', 25, 'male')] } }));
   expect(p.store.getState().pension.acces).toEqual({ ouvert: false, raison: 'Bats le boss de Tour Pokémon.' });
   p.victoire();
@@ -193,7 +196,7 @@ it('affiche le refus du prochain achat puis la limite des cinq emplacements', ()
 });
 
 it('retire vers le PC quand l’équipe est pleine et annonce la destination', () => {
-  const p = preparer(region => ({ ...region, equipe: Array.from({ length: 6 }, (_, i) => pokemon(`equipe-${i}`, 6)),
+  const p = preparer(region => ({ ...region, pc: [], equipe: Array.from({ length: 6 }, (_, i) => pokemon(`equipe-${i}`, 6)),
     pension: { ...region.pension, parents: [pokemon('mere')],
       oeufs: [{ ...pokemon('oeuf'), niveau: 1, bonheur: 0, oeuf: { pasRestants: 25, pasMax: 25 } }] } }));
   expect(p.store.getState().retirerParent('mere')).toBeNull();

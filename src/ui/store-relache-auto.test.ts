@@ -8,7 +8,7 @@ import { creerStoreJeu, type StoreJeu } from './store';
 const stores: StoreJeu[] = [];
 beforeEach(() => vi.useFakeTimers());
 afterEach(() => { stores.forEach(s => s.getState().arreter()); stores.length = 0; vi.useRealTimers(); });
-const pokemon = (uid: string): PokemonPossede => ({ uid, numero: 6, niveau: 100, calcium: 100000,
+const pokemon = (uid: string): PokemonPossede => ({ uid, numero: 6, niveau: 100, calcium: reglages.degats.calciumMax,
   xp: 0, shiny: false, sexe: 'male', bonheur: 0, pierreEternelle: false, favori: false });
 function preparer({ actif = true, connue = true, shiny = false, pleine = false, oeufs = 0, dexOeuf = true, ancienOeuf = false } = {}) {
   const stockage = creerStockageMemoire(), horloge = creerHorlogeSimulee();

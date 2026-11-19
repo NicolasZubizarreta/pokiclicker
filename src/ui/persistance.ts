@@ -15,7 +15,8 @@ export function detailErreur(erreur: unknown): string {
   if (message.includes('Conflit')) return ERREUR_CONFLIT;
   if (message.includes('récente')) return 'Cette partie nécessite une version plus récente du jeu.';
   if (/stockage|quota|SecurityError/i.test(`${erreur instanceof Error ? erreur.name : ''} ${message}`)) return 'Le navigateur empêche l’accès à la sauvegarde ou manque de place.';
-  if (/JSON|illisible|enveloppe|Région de la partie introuvable/i.test(message)) return 'Les données de cette partie ne peuvent pas être lues.';
+  // « déjà utilisé » : l'identifiant d'une partie illisible, que `listerParties()` ne montre plus (B-core-01).
+  if (/JSON|illisible|enveloppe|Région de la partie introuvable|déjà utilisé/i.test(message)) return 'Les données de cette partie ne peuvent pas être lues.';
   console.error(erreur);
   return `Une erreur inattendue est survenue.\n${erreur instanceof Error ? `${erreur.name}: ${erreur.message}` : String(erreur)}`;
 }
@@ -87,6 +88,11 @@ export function ouvrirPartie(options: Parameters<typeof creerGestionnaire>[0],
       if (bloquee || suivante === derniere) return;
       try {
         const actuelle = gestionnaire.chargerPartie(partie.id);
+        // Un renommage depuis un autre écran change la révision (B-core-17) mais pas le reste : on repart de sa révision.
+        if (actuelle && actuelle.revision !== partie.revision
+          && JSON.stringify({ ...actuelle.donnees, nom: '' }) === JSON.stringify({ ...partie.donnees, nom: '' })) {
+          partie = { ...partie, revision: actuelle.revision };
+        }
         if (actuelle?.revision !== partie.revision) throw new Error('Conflit de partie');
         const base = JSON.stringify([region, pokedex]);
         if (base !== derniereBase) {

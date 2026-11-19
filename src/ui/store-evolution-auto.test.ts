@@ -35,7 +35,7 @@ function preparer(numero = 1, niveau = 16, inventaire: DonneesRegion['inventaire
     arretAuto: { ...reglages.depart.preferences.arretAuto, actif: false } } });
   ouvrir(stockage).store.getState().arreter();
   const initial = gestionnaire.chargerRegion('test', 'kanto')!.donnees;
-  const region = { ...initial, zoneId: 'kanto.route-1', etape: 1, inventaire, starterId: 6, evenementsJoues: ['kanto.intro'],
+  const region = { ...initial, zoneId: 'kanto.route-1', etape: 1, inventaire, starterId: 4, evenementsJoues: ['kanto.intro'],
     bossVaincus: kanto.zones.map(zone => zone.id),
     equipe: [{ ...initial.equipe[0]!, uid: 'bulbi', numero, niveau, pierreEternelle: false }] };
   gestionnaire.ecrireRegion('test', 'kanto', { ...region, annoncesVues: deblocagesAtteints(region, kanto) });
