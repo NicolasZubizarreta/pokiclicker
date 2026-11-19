@@ -135,7 +135,7 @@ test('suppression : cascades, archives, autre partie, compte et recréation', as
     body.partie.revisionBase = 1;
     body.regions[0]!.revisionBase = 1;
     expect((await put({ partieId: body.partieId, partie: body.partie, regions: body.regions }, token)).status).toBe(200);
-    expect((await contexte.pool.query('SELECT * FROM versions WHERE objet_id = $1 OR objet_id LIKE $1 || \':%\'', [body.partieId])).rows).toHaveLength(2);
+    expect((await contexte.pool.query('SELECT * FROM versions WHERE objet_id = $1 OR objet_id LIKE $1 || \':%\'', [body.partieId])).rows).toHaveLength(0);
   }
   const compteAvant = await (await request(`${chemin}/compte`, undefined, token)).json();
   const autreAvant = await lire(seconde.partieId, token);
@@ -155,7 +155,7 @@ test('suppression : cascades, archives, autre partie, compte et recréation', as
   expect((await lire(premiere.partieId, token)).partie.revision).toBe(1);
 });
 
-test('versions : session, isolation et validation', async () => {
+test('versions : session, isolation et validation, sans archive de rotation', async () => {
   const body = corps();
   expect((await archiver('partie', body.partieId, body.partie.enveloppe)).status).toBe(401);
   const premier = await signup();
@@ -186,10 +186,7 @@ test('versions : session, isolation et validation', async () => {
     expect(await response.json()).toEqual({ ok: true });
     const { rows } = await contexte.pool.query(`SELECT v.* FROM versions v JOIN "user" u ON u.id = v.compte_id
       WHERE u.email = $1 AND v.niveau = $2`, [email, niveau]);
-    expect(rows).toHaveLength(1);
-    expect(rows[0]).toMatchObject({ objet_id: niveau === 'compte' ? rows[0].compte_id : id,
-      revision: enveloppe.revision, version: enveloppe.version, donnees: enveloppe.donnees });
-    expect(rows[0].ecrit_le.toISOString()).toBe(enveloppe.ecritLe);
+    expect(rows).toEqual([]);
   }
 });
 
@@ -208,28 +205,15 @@ test('versions : refuse une partie inexistante sans créer d’archive', async (
   }
 });
 
-test('versions : purge par insertion puis remplacement PUT', async () => {
+test('versions : aucune rotation écrite, ni par la route ni par un PUT', async () => {
   const { token } = await signup();
   const body = corps();
   expect((await put(body, token)).status).toBe(200);
-  for (const revision of [900, 800, 700, 600, 500, 400]) {
+  for (const revision of [900, 800, 700]) {
     expect((await archiver('partie', body.partieId, { ...body.partie.enveloppe, revision }, token)).status).toBe(200);
   }
-  const revisions = async () => (await contexte.pool.query('SELECT revision FROM versions WHERE objet_id = $1 ORDER BY id DESC', [body.partieId])).rows;
-  expect(await revisions()).toEqual([400, 500, 600, 700, 800].map(revision => ({ revision })));
   expect((await put({ partieId: body.partieId, partie: { ...body.partie, revisionBase: 1 } }, token)).status).toBe(200);
-  expect(await revisions()).toEqual([1, 400, 500, 600, 700].map(revision => ({ revision })));
-});
-
-test("versions : plafond d'historique par compte", async () => {
-  const { token, email } = await signup();
-  const id = (await contexte.pool.query('SELECT id FROM "user" WHERE email = $1', [email])).rows[0].id;
-  await contexte.pool.query(`INSERT INTO versions(compte_id, niveau, objet_id, revision, version, ecrit_le, donnees)
-    SELECT $1, 'partie', gen_random_uuid()::text, 1, 1, now(), '{}' FROM generate_series(1, 205)`, [id]);
-  const body = corps();
-  expect((await put(body, token)).status).toBe(200);
-  expect((await archiver('partie', body.partieId, body.partie.enveloppe, token)).status).toBe(200);
-  expect(Number((await contexte.pool.query('SELECT count(*) FROM versions WHERE compte_id = $1', [id])).rows[0].count)).toBe(200);
+  expect((await contexte.pool.query('SELECT * FROM versions WHERE objet_id = $1', [body.partieId])).rows).toEqual([]);
 });
 
 test('versions : limites de taille', async () => {
@@ -247,7 +231,7 @@ async function lire(id: string, token: string) {
 test('migration idempotente', async () => {
   const db = await contexte.pool.connect();
   try { await migrerSauvegarde(db); await migrerSauvegarde(db); } finally { db.release(); }
-  expect((await contexte.pool.query('SELECT version FROM migrations_sauvegarde ORDER BY version')).rows).toEqual([{ version: 1 }, { version: 2 }, { version: 3 }, { version: 4 }]);
+  expect((await contexte.pool.query('SELECT version FROM migrations_sauvegarde ORDER BY version')).rows).toEqual([{ version: 1 }, { version: 2 }, { version: 3 }, { version: 4 }, { version: 5 }]);
 });
 
 test('appareil : session, isolation et validation', async () => {
@@ -336,7 +320,7 @@ test('création, relecture et mise à jour historisée', async () => {
   expect((await lire(body.partieId, token)).partie).toEqual({
     ...partie.enveloppe, donnees: { ...partie.enveloppe.donnees, nom: body.partie.enveloppe.donnees.nom }, revision: 2 });
   const versions = (await contexte.pool.query('SELECT revision, donnees FROM versions WHERE objet_id = $1', [body.partieId])).rows;
-  expect(versions).toEqual([{ revision: 1, donnees: body.partie.enveloppe.donnees }]);
+  expect(versions).toEqual([]);
 });
 
 test('version 4 (liste des vus) : acceptée et renvoyée intacte, la version 3 reste lisible telle quelle', async () => {
@@ -444,7 +428,7 @@ test('limites de taille de l’enveloppe et du corps', async () => {
   expect((await put({ compte: objet('compte', 'local', 0, { texte: 'x'.repeat(150_000) }) }, token)).status).toBe(200);
 });
 
-test('historique limité aux cinq dernières révisions remplacées', async () => {
+test('les révisions remplacées ne sont plus archivées', async () => {
   const { token } = await signup();
   const body = corps();
   expect((await put(body, token)).status).toBe(200);
@@ -454,7 +438,7 @@ test('historique limité aux cinq dernières révisions remplacées', async () =
     expect(await response.json()).toEqual({ partie: { id: body.partieId, revision: revision + 1 } });
   }
   expect((await contexte.pool.query('SELECT revision FROM versions WHERE objet_id = $1 ORDER BY revision DESC', [body.partieId])).rows)
-    .toEqual([7, 6, 5, 4, 3].map(revision => ({ revision })));
+    .toEqual([]);
 });
 
 test('préflight CORS autorise PUT', async () => {

@@ -8,12 +8,6 @@ import { LIMITES } from './limites.js';
 import { transaction, annulerTransaction } from './transaction.js';
 import { objet, entier, texte, uuid, champs, valider, type Objet, type Enveloppe, type Envoi, type Corps, type Ligne } from './validation.js';
 
-async function purgerVersions(db: PoolClient, compteId: string, niveau: string, objetId: string) {
-  await db.query(`DELETE FROM versions WHERE origine = 'rotation' AND compte_id = $1 AND niveau = $2 AND objet_id = $3
-    AND id NOT IN (SELECT id FROM versions WHERE origine = 'rotation' AND compte_id = $1 AND niveau = $2 AND objet_id = $3 ORDER BY id DESC LIMIT $4)`,
-  [compteId, niveau, objetId, LIMITES.versionsParObjet]);
-}
-
 export async function purgerLots(db: PoolClient, compteId: string, partieId: string) {
   await db.query(`DELETE FROM versions WHERE compte_id = $1 AND origine IN ('divergence', 'restauration')
     AND (objet_id = $2 OR objet_id LIKE $2 || ':%') AND lot IN (
@@ -139,8 +133,6 @@ export function routesSauvegarde(pool: Pool, auth: Auth): Hono<{ Variables: { co
         SELECT compte_id,'partie',id::text,revision,version,ecrit_le,donnees,'suppression',$2 FROM parties WHERE id=$1`, [id, lot]);
       await db.query(`INSERT INTO versions(compte_id,niveau,objet_id,revision,version,ecrit_le,donnees,origine,lot)
         SELECT $3,'region',$1::text || ':' || region_id,revision,version,ecrit_le,donnees,'suppression',$2 FROM regions WHERE partie_id=$1::uuid`, [id, lot, compteId]);
-      await db.query(`DELETE FROM versions WHERE compte_id = $2 AND origine = 'rotation'
-        AND ((niveau = 'partie' AND objet_id = $1) OR (niveau = 'region' AND objet_id LIKE $1 || ':%'))`, [id, compteId]);
       await db.query('DELETE FROM parties WHERE id = $1 AND compte_id = $2', [id, compteId]);
       return c.json({ ok: true });
     });
@@ -301,9 +293,7 @@ export function routesSauvegarde(pool: Pool, auth: Auth): Hono<{ Variables: { co
       }
     } catch { erreur = { message: 'Sauvegarde invalide.', statut: 400 as const }; }
     if (erreur) return c.json({ message: erreur.message }, erreur.statut);
-    const e = brut.enveloppe as Enveloppe;
     const compteId = c.get('compteId');
-    const id = niveau === 'compte' ? compteId : objetId;
     return transaction(pool, async db => {
       if (niveau !== 'compte') {
         const partie = (await db.query('SELECT compte_id FROM parties WHERE id = $1 AND compte_id = $2 FOR UPDATE', [partieId, compteId])).rows[0];
@@ -311,11 +301,7 @@ export function routesSauvegarde(pool: Pool, auth: Auth): Hono<{ Variables: { co
           return annulerTransaction(c.json({ message: 'Partie introuvable.' }, 404));
         }
       }
-      await db.query(`INSERT INTO versions(compte_id, niveau, objet_id, revision, version, ecrit_le, donnees)
-        VALUES ($1,$2,$3,$4,$5,LEAST($6::timestamptz, now() + make_interval(mins => $8)),$7)`, [compteId, niveau, id, e.revision, e.version, new Date(e.ecritLe).toISOString(), e.donnees, LIMITES.toleranceHorlogeMinutes]);
-      await purgerVersions(db, compteId, niveau, id);
-      await db.query(`DELETE FROM versions WHERE origine = 'rotation' AND compte_id = $1 AND id NOT IN (SELECT id FROM versions WHERE origine = 'rotation' AND compte_id = $1 ORDER BY id DESC LIMIT $2)`,
-        [compteId, LIMITES.maxVersions]);
+      // Plus d’historique de rotation : la route reste pour les clients qui l’appellent encore.
       return c.json({ ok: true });
     });
   });
@@ -386,15 +372,12 @@ export function routesSauvegarde(pool: Pool, auth: Auth): Hono<{ Variables: { co
         const base = o.envoi.revisionBase;
         let modifie;
         if (o.ligne) {
-          await db.query(`INSERT INTO versions(compte_id, niveau, objet_id, revision, version, ecrit_le, donnees)
-            VALUES ($1,$2,$3,$4,$5,$6,$7)`, [compteId, o.niveau, o.id, o.ligne.revision, o.ligne.version, o.ligne.ecrit_le, o.ligne.donnees]);
           const n = o.valeurs.length;
           modifie = await db.query(`UPDATE ${o.table} SET revision = $${n + 1} + 1,
             version = $${n + 2}, ecrit_le = LEAST($${n + 3}::timestamptz, now() + make_interval(mins => $${n + 5})), donnees = ${o.niveau === 'partie'
               ? `jsonb_set($${n + 4}::jsonb, '{nom}', to_jsonb(nom))` : `$${n + 4}`}
             WHERE ${o.cle} AND revision = $${n + 1} RETURNING revision`,
           [...o.valeurs, base, e.version, new Date(e.ecritLe).toISOString(), e.donnees, LIMITES.toleranceHorlogeMinutes]);
-          await purgerVersions(db, compteId, o.niveau, o.id);
         } else {
           const colonnes = o.niveau === 'compte' ? 'compte_id' : o.niveau === 'partie' ? 'id, compte_id, nom' : 'partie_id, region_id';
           const valeurs = o.niveau === 'compte' ? [compteId] : o.niveau === 'partie' ? [corps.partieId, compteId, e.donnees.nom] : o.valeurs;

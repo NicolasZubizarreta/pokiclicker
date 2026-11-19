@@ -76,15 +76,20 @@ test('migration depuis N-1, adoption des checksums et détection des modificatio
     await migrerSauvegarde(db, { jusqua: 3 });
     await db.query("INSERT INTO parties VALUES ($1,'compte','Nom',1,1,now(),'{}')", [id]);
     await db.query("INSERT INTO regions VALUES ($1,'kanto',1,1,now(),'{}')", [id]);
+    await db.query(`INSERT INTO versions(compte_id,niveau,objet_id,revision,version,ecrit_le,donnees,origine,lot)
+      VALUES ('compte','partie',$1,1,1,now(),'{}','divergence',gen_random_uuid())`, [id]);
     await db.query(`INSERT INTO versions(compte_id,niveau,objet_id,revision,version,ecrit_le,donnees)
-      VALUES ('compte','partie',$1,1,1,now(),'{}')`, [id]);
+      VALUES ('compte','partie',$1,2,1,now(),'{}')`, [id]);
     const avant = await Promise.all(['parties', 'regions', 'versions'].map(async table => (await db.query(`SELECT * FROM ${table}`)).rows));
+    // La migration 0005 supprime l’ancienne rotation, jamais lisible ; le reste est intact.
+    avant[2] = avant[2]!.filter(ligne => ligne.origine !== 'rotation');
     await db.query('UPDATE migrations_sauvegarde SET checksum=NULL');
     await migrerSauvegarde(db);
     await migrerSauvegarde(db);
     const apres = await Promise.all(['parties', 'regions', 'versions'].map(async table => (await db.query(`SELECT * FROM ${table}`)).rows));
     expect(apres).toEqual(avant);
-    expect(apres[2]![0].origine).toBe('rotation');
+    expect(apres[2]).toHaveLength(1);
+    expect(apres[2]![0].origine).toBe('divergence');
     expect((await db.query('SELECT * FROM regions_supprimees')).rows).toEqual([]);
     expect((await db.query('SELECT * FROM envois_reinitialisation')).rows).toEqual([]);
     await db.query("UPDATE versions SET origine='suppression'");
@@ -133,8 +138,6 @@ test('lots conservés, résumés, rotations et suppression isolée', async () =>
     expect((await s.request(chemin, { partieId: t.id, partie: { revisionBase: revision, enveloppe: t.body.partie } },
       t.token, undefined, 'PUT')).status).toBe(200);
   }
-  await s.pool.query(`INSERT INTO versions(compte_id,niveau,objet_id,revision,version,ecrit_le,donnees)
-    SELECT compte_id,'partie',gen_random_uuid()::text,1,1,now(),'{}' FROM parties,generate_series(1,205) WHERE id=$1`, [t.id]);
   expect((await s.request(`${chemin}/versions`, { niveau: 'partie', objetId: t.id, enveloppe: t.body.partie }, t.token)).status).toBe(200);
   expect((await s.pool.query('SELECT * FROM versions WHERE lot IS NOT NULL AND (objet_id=$1 OR objet_id LIKE $1 || \':%\')', [t.id])).rows).toHaveLength(10);
   await s.pool.query("DELETE FROM versions WHERE lot=$1 AND niveau='region'", [lots[0]]);

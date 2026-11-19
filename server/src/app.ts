@@ -49,6 +49,8 @@ export function createApp(config: Config, pool: Pool, mailer?: Mailer) {
         await send({ to: user.email, url });
       },
     },
+    // Session glissante : 30 jours depuis la dernière visite, renouvelée au plus une fois par jour d’usage.
+    session: { expiresIn: 30 * 24 * 3600, updateAge: 24 * 3600 },
     user: { deleteUser: { enabled: true } },
     plugins: [bearer({ requireSignature: true })],
     rateLimit: { enabled: true, storage: 'database', customRules: Object.fromEntries(

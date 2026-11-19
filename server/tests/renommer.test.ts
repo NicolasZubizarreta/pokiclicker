@@ -83,7 +83,7 @@ it('conserve le nouveau nom au PUT de l’appareil actif avec son ancien nom', a
   expect((await s.pool.query('SELECT nom, donnees, revision FROM parties WHERE id = $1', [id])).rows[0])
     .toEqual({ nom: 'Nouveau nom', donnees: { nom: 'Nouveau nom', progression: 42 }, revision: 2 });
   expect((await s.pool.query("SELECT donnees FROM versions WHERE niveau = 'partie' AND objet_id = $1", [id])).rows)
-    .toEqual([{ donnees: { nom: 'Nouveau nom' } }]);
+    .toEqual([]);
 });
 
 it('garde le nom envoye au PUT d’une partie neuve', async () => {

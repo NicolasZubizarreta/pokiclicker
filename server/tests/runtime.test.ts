@@ -108,6 +108,12 @@ test('essais : reprise puis succès, et abandon après trois tentatives', async 
   expect(echec).toHaveBeenCalledTimes(3);
 });
 
+test('session : 30 jours glissants, renouvelée à l’usage', () => {
+  const { auth } = createApp(readConfig(env), pool);
+  expect(auth.options.session).toEqual({ expiresIn: 30 * 24 * 3600, updateAge: 24 * 3600 });
+  expect(auth.options.emailAndPassword).toMatchObject({ revokeSessionsOnPasswordReset: true });
+});
+
 test('SMTP : trois envois puis journal nettoyé ; injection appelée une seule fois', async () => {
   vi.useFakeTimers();
   const error = vi.spyOn(console, 'error').mockImplementation(() => {});

@@ -1,7 +1,6 @@
 export const LIMITES = {
   maxParties: 20,
   maxRegions: 20,
-  maxVersions: 200,
   corpsSauvegardeOctets: 3 * 1024 * 1024,
   corpsArchiveOctets: 22 * 1024 * 1024,
   corpsParDefautOctets: 100 * 1024,
@@ -15,6 +14,5 @@ export const LIMITES = {
   debitRequetes: 60,
   debitFenetreMs: 60_000,
   debitSeuilPurge: 1000,
-  versionsParObjet: 5,
   lotsParPartie: 5,
 } as const;
