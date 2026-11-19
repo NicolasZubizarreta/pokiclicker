@@ -15,12 +15,6 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "extraire:boss": "node scripts/extraire-boss-v1.mjs",
-    "extraire:capture": "node scripts/extraire-capture-v1.mjs",
-    "extraire:repousses": "node scripts/extraire-repousses-v1.mjs",
-    "extraire:evolutions": "node scripts/extraire-evolutions-v1.mjs",
-    "extraire:objets": "node scripts/extraire-objets-v1.mjs",
-    "extraire:progression": "node scripts/extraire-progression-v1.mjs",
     "ci": "npm run typecheck && npm run lint && npm test && npm run build",
     "ci:serveur": "npm --prefix server run typecheck && npm --prefix server test && npm --prefix server run build"
   },
