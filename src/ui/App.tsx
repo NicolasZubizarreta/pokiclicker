@@ -11,6 +11,7 @@ import { departNouvellePartie, storeJeu } from './store';
 import { creerGestionnaire } from '../core/sauvegarde';
 import { creerStockageLocal } from './stockage-local';
 import { creerSynchro, type PartieListee } from './synchro';
+import { envoiEnEchec } from './etat-synchro';
 import { ZoneCompte } from './compte/ZoneCompte';
 import { useStore } from 'zustand';
 import { registreSucces } from '../core/succes';
@@ -164,7 +165,7 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
       fixerDeco('chargement');
       if (jeuMonte) storeJeu.getState().sauvegarder();
       await synchro.envoyerMaintenant({ fermeture: true });
-      if (synchro.enAttente() || ['hors-ligne', 'refuse', 'divergence'].includes(synchro.etat())) {
+      if (synchro.enAttente() || envoiEnEchec(synchro.etat())) {
         fixerDeco('echec'); return;
       }
     }
@@ -179,7 +180,7 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
   // envoyerMaintenant ne rejette jamais : l'état de la synchro dit si la partie est vraiment partie.
   const attendreEnvoi = async () => {
     await synchro.envoyerMaintenant({ fermeture: true });
-    return !['hors-ligne', 'refuse', 'divergence'].includes(synchro.etat());
+    return !envoiEnEchec(synchro.etat());
   };
   async function jouer(id: string) {
     if (occupe) return;

@@ -3,7 +3,10 @@ import { creerGestionnaire, creerStockageMemoire, type DonneesCompte, type Donne
 import { creerPartieNommee } from './persistance';
 import { genererIdentifiant } from './identifiants';
 
-export type EtatSynchro = 'inactif' | 'ok' | 'hors-ligne' | 'refuse' | 'ailleurs' | 'divergence';
+import { bloque as estBloque, suivant as transition } from './etat-synchro';
+import type { EtatSynchro } from './etat-synchro';
+
+export type { EtatSynchro } from './etat-synchro';
 export type PartieListee = { id: string; nom: string; regionCourante: string; zoneId: string; tempsJeuMs: number | null;
   ecritLe: string; surServeur: boolean; courante: boolean; ailleurs?: boolean };
 export type VersionArchivee = { lot: string; origine: 'divergence' | 'restauration'; remplaceLe: string; ecritLe: string;
@@ -70,7 +73,6 @@ export function creerSynchro(options: {
   } catch { /* Une mémoire illisible ne bloque pas le jeu. */ }
   let statut: EtatSynchro = 'inactif';
   let arrete = false;
-  let bloque = false;
   let suppressionCourante = false;
   let intervalle: ReturnType<typeof setInterval> | undefined;
   let rattrapage: ReturnType<typeof setTimeout> | undefined;
@@ -139,8 +141,7 @@ export function creerSynchro(options: {
     stockage.ecrire(cle, JSON.stringify(memoire));
   }
   function retenirSuppression(id: string) {
-    bloque = true;
-    statut = 'divergence';
+    statut = transition(statut, 'conflit');
     suppressionEnAttente = { id, local: resumer(lireLocal()) };
     options.quandChange?.();
   }
@@ -151,7 +152,7 @@ export function creerSynchro(options: {
       if (arrete || options.enPause?.() || suppressionEnAttente) return 'echec';
       const plan = decider(local, serveur, memoire);
       const divergence = plan.compte === 'diverge' || plan.partie === 'diverge';
-      if (divergence) { bloque = true; statut = 'divergence'; }
+      if (divergence) statut = transition(statut, 'conflit');
       const archiver = async (niveau: string, objetId: string, enveloppe: Enveloppe<unknown>) => {
         const reponse = await requete('/versions', 'POST', { niveau, objetId, enveloppe });
         if (!reponse.ok || arrete) throw new Error('Archivage impossible');
@@ -174,12 +175,11 @@ export function creerSynchro(options: {
       if (divergence) {
         try { stockage.ecrire('pokiclicker:synchro-avis', JSON.stringify({ divergence: true })); } catch { /* Avis facultatif. */ }
       }
-      bloque = false;
-      statut = 'inactif';
+      statut = transition(statut, 'resolu');
       options.quandChange?.();
       return charge ? 'charge' : 'rien';
     } catch {
-      if (statut !== 'divergence') statut = 'hors-ligne';
+      statut = transition(statut, 'reseau-coupe');
       options.quandChange?.();
       return 'echec';
     }
@@ -192,10 +192,7 @@ export function creerSynchro(options: {
   async function ouvrir(): Promise<'rien' | 'charge' | 'hors-ligne'> {
     arrete = false;
     if (options.enPause?.()) return 'rien';
-    if (statut !== 'divergence') {
-      bloque = false;
-      statut = 'inactif';
-    }
+    statut = transition(statut, 'ouverture');
     if (!options.jeton()) return 'rien';
     const resultat = await resoudre();
     return resultat === 'echec' ? 'hors-ligne' : resultat;
@@ -215,11 +212,10 @@ export function creerSynchro(options: {
       }
       stockage.ecrire(cle, JSON.stringify(memoire));
       suppressionEnAttente = null;
-      bloque = false;
-      statut = 'inactif';
+      statut = transition(statut, 'resolu');
       options.quandChange?.();
       if (cote === 'garder') await envoyer();
-      return bloque || (statut as EtatSynchro) === 'hors-ligne' ? 'echec' : 'ok';
+      return estBloque(statut as EtatSynchro) || (statut as EtatSynchro) === 'hors-ligne' ? 'echec' : 'ok';
     } catch { return 'echec'; }
   }
   function modifications() {
@@ -233,7 +229,7 @@ export function creerSynchro(options: {
       regionModifiee: region && region.revision !== memoire.regions[`${partie?.id}:${region.id}`]?.local };
   }
   async function envoyer(fermeture = false): Promise<void> {
-    if (arrete || bloque || suppressionCourante) return;
+    if (arrete || estBloque(statut) || suppressionCourante) return;
     if (options.enPause?.()) return;
     if (enCours) {
       suivant = true;
@@ -278,28 +274,28 @@ export function creerSynchro(options: {
             if (retourRegion) memoire.regions[`${partie!.id}:${region.id}`] = { serveur: retourRegion.revision, local: region.revision };
           }
           try { stockage.ecrire(cle, JSON.stringify(memoire)); } catch { /* Mémoire facultative. */ }
-          if (!arrete) statut = 'ok';
+          if (!arrete) statut = transition(statut, 'envoi-accepte');
         } else if (arrete) return;
         else if (reponse.status === 409) {
           const corps = await reponse.json().catch(() => null);
           if (corps?.code === 'ailleurs') {
-            statut = 'ailleurs'; bloque = true; options.quandAilleurs?.(); options.quandChange?.(); return;
+            statut = transition(statut, 'serveur-ailleurs'); options.quandAilleurs?.(); options.quandChange?.(); return;
           }
           const supprimee = partie && (memoire.parties[partie.id]?.serveur ?? 0) > 0 && Array.isArray(corps?.conflits)
             && corps.conflits.some((c: { niveau?: unknown; id?: unknown; revisionServeur?: unknown } | null) =>
               c?.niveau === 'partie' && c.id === partie.id && c.revisionServeur === 0);
           if (supprimee) retenirSuppression(partie.id);
-          else { statut = 'divergence'; bloque = true; options.quandChange?.(); }
+          else { statut = transition(statut, 'conflit'); options.quandChange?.(); }
         }
         else if (reponse.status === 404 && partie && !partieModifiee && regions.length > 0
           && (memoire.parties[partie.id]?.serveur ?? 0) > 0) retenirSuppression(partie.id);
         else if (reponse.status === 400 && (await reponse.json().catch(() => null))?.code === 'appareil-requis') {
           // Serveur à jour, client trop ancien : plus rien ne part tant que le jeu n'est pas rechargé.
-          statut = 'refuse'; bloque = true; options.quandMiseAJourRequise?.(); options.quandChange?.();
+          statut = transition(statut, 'client-trop-ancien'); options.quandMiseAJourRequise?.(); options.quandChange?.();
         }
-        else if (reponse.status >= 400 && reponse.status < 500 && ![408, 429].includes(reponse.status)) { statut = 'refuse'; bloque = true; }
-        else statut = 'hors-ligne';
-      } catch { if (!arrete) statut = 'hors-ligne'; }
+        else if (reponse.status >= 400 && reponse.status < 500 && ![408, 429].includes(reponse.status)) statut = transition(statut, 'refus');
+        else statut = transition(statut, 'reseau-coupe');
+      } catch { if (!arrete) statut = transition(statut, 'reseau-coupe'); }
     };
     enCours = effectuer();
     await enCours;
@@ -469,14 +465,14 @@ export function creerSynchro(options: {
     },
     demarrer() {
       if (intervalle !== undefined) return;
-      if (arrete && statut !== 'divergence' && statut !== 'ailleurs') bloque = false;
+      if (arrete) statut = transition(statut, 'redemarrage');
       arrete = false;
       intervalle = setInterval(enLigne, options.intervalleMs ?? 45_000);
       if (typeof window !== 'undefined') window.addEventListener('online', enLigne);
     },
     arreter,
     envoyerMaintenant({ fermeture = false }: { fermeture?: boolean } = {}): Promise<void> {
-      if (arrete || bloque) return Promise.resolve();
+      if (arrete || estBloque(statut)) return Promise.resolve();
       if (fermeture || enCours) {
         clearTimeout(rattrapage);
         rattrapage = undefined;
