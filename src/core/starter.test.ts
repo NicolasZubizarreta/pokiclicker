@@ -3,6 +3,16 @@ import { chargerEvenements, commandeCourante, type CatalogueEvenements, type Eta
 import { kanto } from './regions';
 import type { DonneesRegion } from './sauvegarde-types';
 import { choisirStarter, creerStarter, tirerStarters } from './starter';
+import { nomAdversaireEvenement } from './combat-evenement';
+
+it('refuse un starter hors liste et replie le combat sur Bulbizarre', () => {
+  const region = { equipe: [], starterId: null, drapeaux: [] } as unknown as DonneesRegion;
+  const pokemon = creerStarter(25, false, () => 0, () => 'invalide');
+  expect(choisirStarter(region, pokemon)).toBe(region);
+  const membre = { pokemon: 4, niveau: 5, nom: 'Salamèche' };
+  expect(nomAdversaireEvenement({ type: 'combat', evenement: 'test', etape: 0, dresseur: 'Rival',
+    equipes: { 1: [membre], 4: [membre], 7: [membre] } }, 25, 1)).toBe('Rival (Salamèche)');
+});
 
 describe('starters', () => {
   it('tire une fois le shiny de chacun des trois starters avec la chance injectée', () => {

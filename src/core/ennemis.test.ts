@@ -1,6 +1,24 @@
 import { describe, expect, it, vi } from 'vitest';
 import { creerEnnemi } from './ennemis';
 import { reglages } from './reglages';
+import { kanto } from './regions';
+
+it('respecte les proportions restantes sur la route 1 avec chaque Repousse', () => {
+  const route = kanto.zone('kanto.route-1');
+  if (!('sauvages' in route)) throw new Error('Route sans rencontres');
+  for (const repousse of reglages.objetsActifs.repousses) {
+    const pool = route.sauvages.filter(s => !repousse.exclues.includes(s.rarete));
+    const total = pool.reduce((somme, s) => somme + s.apparition, 0);
+    const comptes = new Map<number, number>();
+    const n = 10000;
+    for (let i = 0; i < n; i++) {
+      const valeurs = [1, (i + 0.5) / n, 0];
+      const ennemi = creerEnnemi(route, 1, () => valeurs.shift()!, reglages.combat, [repousse.cle]);
+      comptes.set(ennemi.numero, (comptes.get(ennemi.numero) ?? 0) + 1);
+    }
+    for (const s of pool) expect(Math.abs((comptes.get(s.pokemon) ?? 0) / n - s.apparition / total)).toBeLessThan(0.0002);
+  }
+});
 
 const zone: Parameters<typeof creerEnnemi>[0] = {
   id: 'test', nom: 'Test', decor: '', etapes: 10, liens: [], ancienId: 0,

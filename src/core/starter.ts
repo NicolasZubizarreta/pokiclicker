@@ -19,6 +19,7 @@ export function creerStarter(
 }
 
 export function choisirStarter(region: DonneesRegion, pokemon: Pokemon): DonneesRegion {
+  if (![1, 4, 7].includes(pokemon.numero)) return region;
   return noterObtention({
     ...region,
     equipe: [pokemon],

@@ -6,7 +6,7 @@ import type { DonneesRegion } from './sauvegarde-types';
 type Combat = Extract<Commande, { type: 'combat' }>;
 
 function equipeDe(commande: Combat, starterId: number | null): MembreEquipe[] {
-  if ('equipes' in commande) return commande.equipes[(starterId ?? 1) as 1 | 4 | 7];
+  if ('equipes' in commande) return commande.equipes[starterId as 1 | 4 | 7] ?? commande.equipes[1];
   return [{ pokemon: commande.pokemon, niveau: commande.niveau,
     nom: commande.nom ?? chargerPokemon().parNumero(commande.pokemon).nom }];
 }

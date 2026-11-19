@@ -1,7 +1,7 @@
 import { evaluer } from './conditions';
 import type { EtatMonde } from './conditions';
 import { formeDeBase } from './evolution';
-import { relacher } from './equipe';
+import { envoyerAuPc } from './equipe';
 import type { ResultatEquipe } from './equipe';
 import type { chargerMonde } from './monde';
 import { chargerPokemon } from './pokemon';
@@ -24,9 +24,11 @@ export function deposerParent(region: DonneesRegion, uid: string): ResultatEquip
   if (region.pension.parents.length >= 2) return { ok: false, raison: pension.messages.pleine };
   const pokemon = [...region.equipe, ...region.pc].find(p => p.uid === uid);
   if (!pokemon) return absent;
-  const retrait = relacher(region, uid);
+  if (pokemon.oeuf) return { ok: false, raison: 'Un œuf ne peut pas être parent.' };
+  const retrait = region.equipe.some(p => p.uid === uid) ? envoyerAuPc(region, uid) : { ok: true, region } as const;
   if (!retrait.ok) return retrait;
   return { ok: true, region: { ...retrait.region,
+    pc: retrait.region.pc.filter(p => p.uid !== uid),
     pension: { ...region.pension, parents: [...region.pension.parents, pokemon] },
   } };
 }
@@ -102,7 +104,7 @@ export type RaisonPonte = 'incomplet' | 'metamorph' | 'memeSexe' | 'sansSexe' | 
 
 export function couplePonte(parents: readonly PokemonPossede[]): { chance: number; raison: RaisonPonte } {
   const [premier, second] = parents;
-  if (!premier || !second) return { chance: 0, raison: 'incomplet' };
+  if (!premier || !second || premier.oeuf || second.oeuf) return { chance: 0, raison: 'incomplet' };
   if (premier.numero === pension.metamorph || second.numero === pension.metamorph) return { chance: pension.chances.metamorph, raison: 'metamorph' };
   if (premier.sexe === second.sexe) return { chance: 0, raison: 'memeSexe' };
   if (premier.sexe === 'sansSexe' || second.sexe === 'sansSexe') return { chance: 0, raison: 'sansSexe' };

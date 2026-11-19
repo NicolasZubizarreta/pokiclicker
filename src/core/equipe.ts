@@ -9,6 +9,8 @@ export type ResultatEquipe =
 const dernier = "C'est ton dernier Pokémon : garde-le dans l'équipe.";
 const actif = "Il faut au moins 1 Pokémon actif dans l'équipe.";
 const absent = { ok: false, raison: 'Ce Pokémon est introuvable.' } as const;
+const refusFavori = (pokemon: PokemonPossede) => pokemon.favori
+  ? { ok: false, raison: "Les favoris ne se relâchent pas : retire d'abord le favori." } as const : undefined;
 
 function listeDuPokemon(region: DonneesRegion, uid: string) {
   return (['equipe', 'pc'] as const).find((liste) => region[liste].some((p) => p.uid === uid));
@@ -46,6 +48,8 @@ export function relacher(region: DonneesRegion, uid: string): ResultatEquipe {
   const liste = listeDuPokemon(region, uid);
   if (!liste) return absent;
   const pokemon = region[liste].find((p) => p.uid === uid)!;
+  const refus = refusFavori(pokemon);
+  if (refus) return refus;
   if (liste === 'equipe') {
     if (region.equipe.length <= 1) return { ok: false, raison: dernier };
     if (dernierActif(region, pokemon)) return { ok: false, raison: actif };
@@ -66,7 +70,10 @@ export function relacherLot(region: DonneesRegion, uids: readonly string[]): Res
   if (!uniques.size) return { ok: false, raison: 'Aucun Pokémon sélectionné.' };
   const selection = region.pc.filter(p => uniques.has(p.uid));
   if (selection.length !== uniques.size) return absent;
-  if (selection.some(p => p.favori)) return { ok: false, raison: "Les favoris ne se relâchent pas : retire d'abord le favori." };
+  for (const pokemon of selection) {
+    const refus = refusFavori(pokemon);
+    if (refus) return refus;
+  }
   const pierres = selection.filter(p => p.pierreEternelle === true).length;
   return { ok: true, region: { ...region, pc: region.pc.filter(p => !uniques.has(p.uid)),
     inventaire: pierres ? { ...region.inventaire, everstone: (region.inventaire.everstone ?? 0) + pierres } : region.inventaire } };

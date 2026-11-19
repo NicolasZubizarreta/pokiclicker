@@ -1,5 +1,6 @@
 import { calculerOr, type Victoire } from './recompenses';
 import { reglages } from './reglages';
+import { relacher } from './equipe';
 import type { DonneesRegion } from './sauvegarde-types';
 
 export function estDoublonCapture(pokedex: readonly number[], numero: number, shiny: boolean): boolean {
@@ -21,7 +22,10 @@ export function doublonsEclos(especesAvant: readonly number[], eclosions: readon
 }
 
 export function retirerDeLEquipe(region: DonneesRegion, uids: readonly string[]): DonneesRegion {
-  const equipe = region.equipe.filter(p => !uids.includes(p.uid));
-  if (equipe.length === 0 && region.equipe.length > 0) equipe.push(region.equipe[region.equipe.length - 1]!);
-  return { ...region, equipe };
+  for (const pokemon of region.equipe) {
+    if (!uids.includes(pokemon.uid)) continue;
+    const resultat = relacher(region, pokemon.uid);
+    if (resultat.ok) region = resultat.region;
+  }
+  return region;
 }

@@ -15,6 +15,7 @@ export function creerEnnemi(zone: Zone, etape: number, alea: () => number,
   const boss = ligue || etape === options.etapeBoss;
   const adversaire = ligue && etape < zone.etapes ? zone.adversaires![etape - 1]! : zone.boss;
   let pool = zone.sauvages;
+  let repousseActive = false;
   // La V1 tire le shiny avant l'espèce et le niveau ; le boss ne consomme aucun tirage.
   const bonusShiny = options.shiny.find(bonus => actifs.includes(bonus.cle));
   const shiny = !boss && alea() < options.chanceShiny * (bonusShiny?.x ?? 1);
@@ -22,12 +23,14 @@ export function creerEnnemi(zone: Zone, etape: number, alea: () => number,
     const repousse = reglages.objetsActifs.repousses.find(r => actifs.includes(r.cle));
     if (repousse) {
       const filtre = pool.filter(s => !repousse.exclues.includes(s.rarete));
-      if (filtre.length > 0) pool = filtre;
+      if (filtre.length > 0) { pool = filtre; repousseActive = true; }
     }
   }
   let rencontre = pool[0]!;
   if (!boss) {
-    const tirage = alea();
+    // Repousse : le pool filtré ne totalise plus 1, le tirage se normalise sur sa somme (B-core-03).
+    // Hors Repousse, le comportement de la zone (repli sur le premier) ne change pas.
+    const tirage = alea() * (repousseActive ? pool.reduce((somme, sauvage) => somme + sauvage.apparition, 0) : 1);
     let cumul = 0;
     for (const sauvage of pool) {
       cumul += sauvage.apparition;

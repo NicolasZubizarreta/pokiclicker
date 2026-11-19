@@ -56,7 +56,7 @@ export function retirerStase(region: DonneesRegion, uid: string): ResultatEquipe
 export function utiliserJetonShiny(region: DonneesRegion, uid: string): ResultatEquipe & { message: string } {
   const pokemon = trouver(region, uid);
   const stock = region.inventaire.shinyToken ?? 0;
-  const raison = !pokemon ? 'Pokémon invalide !' : pokemon.shiny ? 'Déjà chromatique !'
+  const raison = !pokemon || pokemon.oeuf ? 'Pokémon invalide !' : pokemon.shiny ? 'Déjà chromatique !'
     : stock <= 0 ? 'Quantité invalide.' : undefined;
   if (raison) return { ok: false, raison, message: raison };
   return {

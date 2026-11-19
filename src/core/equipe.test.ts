@@ -31,6 +31,12 @@ function figer(objet: object) {
 const dernier = "C'est ton dernier Pokémon : garde-le dans l'équipe.";
 const actif = "Il faut au moins 1 Pokémon actif dans l'équipe.";
 
+it('refuse de relâcher un favori isolé comme en lot', () => {
+  const entree = region(undefined, [{ ...pokemon('f'), favori: true }]);
+  expect(relacher(entree, 'f')).toEqual(relacherLot(entree, ['f']));
+  expect(relacher(entree, 'f').ok).toBe(false);
+});
+
 it('relâche un lot atomiquement et rend les pierres sans compter les doublons', () => {
   const entree = region(undefined, [{ ...pokemon('x'), pierreEternelle: true }, pokemon('y'), { ...pokemon('f'), favori: true }]);
   figer(entree);

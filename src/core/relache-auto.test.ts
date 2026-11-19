@@ -8,6 +8,10 @@ const pokemon = (uid: string): PokemonPossede => ({ uid, numero: 1, niveau: 1, x
   bonheur: 0, pierreEternelle: false, calcium: 0, sexe: 'male', favori: false });
 const region = { ...structuredClone(reglages.depart.region), regionId: 'kanto', zoneId: 'kanto.route-1',
   equipe: [pokemon('a'), pokemon('b')], argent: 10 } as DonneesRegion;
+it('garde le dernier actif même si un œuf reste dans l’équipe', () => {
+  const entree = { ...region, equipe: [pokemon('a'), { ...pokemon('oeuf'), oeuf: { pasRestants: 2, pasMax: 2 } }] };
+  expect(retirerDeLEquipe(entree, ['a']).equipe).toEqual(entree.equipe);
+});
 it('reconnaît une capture déjà au Pokédex non shiny', () => expect(estDoublonCapture([1], 1, false)).toBe(true));
 it('garde une capture nouvelle', () => expect(estDoublonCapture([], 1, false)).toBe(false));
 it('garde une capture shiny', () => expect(estDoublonCapture([1], 1, true)).toBe(false));

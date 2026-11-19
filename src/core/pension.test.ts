@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { accesPension, chancePonte, pondre, tirerOeuf } from './pension';
+import { accesPension, chancePonte, couplePonte, pondre, tirerOeuf } from './pension';
 import { kanto } from './regions';
 import { reglages } from './reglages';
 import { etatMondeDe, regionInitiale, validerPokemonPossede } from './sauvegarde';
@@ -24,6 +24,20 @@ const creerOeuf = (): PokemonPossede => ({
 });
 
 describe('mouvements et éclosion', () => {
+  it('refuse un œuf comme parent au dépôt', () => {
+    const region = preparer();
+    region.pension.parents = [];
+    region.pc = [creerOeuf()];
+    expect(deposerParent(region, 'oeuf').ok).toBe(false);
+  });
+
+  it('ignore un œuf parent même avec Métamorph et un numéro invalide', () => {
+    const oeuf = { ...creerOeuf(), numero: -1 };
+    for (const parents of [[parent(132, 'sansSexe'), oeuf], [oeuf, parent(132, 'sansSexe')]]) {
+      expect(couplePonte(parents)).toEqual({ chance: 0, raison: 'incomplet' });
+      expect(tirerOeuf(parents, () => 0)).toBeNull();
+    }
+  });
   it('garde les refus dernier puis actif de l’équipe et la limite de parents', () => {
     const region = preparer();
     region.pension.parents = [];
@@ -38,11 +52,11 @@ describe('mouvements et éclosion', () => {
     expect(deposerParent(region, 'oeuf')).toEqual({ ok: false, raison: 'La pension est pleine.' });
   });
 
-  it.each(['equipe', 'pc'] as const)('dépose depuis %s sans muter et autorise un œuf parent', (source) => {
+  it.each(['equipe', 'pc'] as const)('dépose un favori depuis %s sans muter', (source) => {
     const region = preparer();
     region.pension.parents = [];
     region.equipe = [parent(1, 'male')];
-    const oeuf = creerOeuf();
+    const oeuf = parent(25, 'femelle');
     region[source].push(oeuf);
     const avant = structuredClone(region);
     const resultat = deposerParent(region, oeuf.uid);
