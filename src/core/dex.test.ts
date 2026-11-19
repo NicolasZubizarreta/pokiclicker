@@ -4,7 +4,7 @@ import { regionInitiale, validerDonneesRegion } from './sauvegarde';
 import { choisirStarter, creerStarter } from './starter';
 import { utiliserJetonShiny } from './objets-equipe';
 
-it('inscrit le jeton shiny sur un éclos et attend l’éclosion pour un œuf', () => {
+it('inscrit le jeton shiny sur un éclos et le refuse sur un œuf', () => {
   const pokemon = { ...creerStarter(4, false, () => 0, () => 's'), marqueEclosion: true };
   const region = { ...regionInitiale('kanto', 'kanto.route-1'), equipe: [pokemon], inventaire: { shinyToken: 1 } };
   const resultat = utiliserJetonShiny(region, 's');
@@ -14,8 +14,7 @@ it('inscrit le jeton shiny sur un éclos et attend l’éclosion pour un œuf', 
     expect(resultat.region.especesEclosesShiny).toEqual([4]);
   }
   const oeuf = utiliserJetonShiny({ ...region, equipe: [{ ...pokemon, oeuf: { pasRestants: 1, pasMax: 50 } }] }, 's');
-  expect(oeuf.ok).toBe(true);
-  if (oeuf.ok) expect(oeuf.region.especesShiny).toBeUndefined();
+  expect(oeuf.ok).toBe(false);
 });
 
 it('inscrit les collections dans leur ordre, sans doublon ni mutation', () => {

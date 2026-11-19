@@ -38,18 +38,14 @@ describe('mouvements et éclosion', () => {
     expect(deposerParent(region, 'oeuf')).toEqual({ ok: false, raison: 'La pension est pleine.' });
   });
 
-  it.each(['equipe', 'pc'] as const)('dépose depuis %s sans muter et autorise un œuf parent', (source) => {
+  it.each(['equipe', 'pc'] as const)('refuse un œuf comme parent depuis %s, sans muter (B-core-05)', (source) => {
     const region = preparer();
     region.pension.parents = [];
     region.equipe = [parent(1, 'male')];
     const oeuf = creerOeuf();
     region[source].push(oeuf);
     const avant = structuredClone(region);
-    const resultat = deposerParent(region, oeuf.uid);
-    expect(resultat.ok).toBe(true);
-    if (!resultat.ok) throw new Error(resultat.raison);
-    expect(resultat.region.pension.parents).toEqual([oeuf]);
-    expect(resultat.region[source]).not.toContainEqual(oeuf);
+    expect(deposerParent(region, oeuf.uid)).toEqual({ ok: false, raison: 'Un œuf ne peut pas être parent.' });
     expect(region).toEqual(avant);
   });
 

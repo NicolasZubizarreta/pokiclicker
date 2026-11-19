@@ -28,6 +28,8 @@ describe('couplePonte', () => {
   });
 
   it('un seul parent ou aucun : pas de chance, raison « incomplet »', () => {
+    const oeuf = { ...pokemon(25, 'femelle'), oeuf: { pasRestants: 5, pasMax: 5 } };
+    expect(couplePonte([oeuf, pokemon(25, 'male')])).toEqual({ chance: 0, raison: 'incomplet' });
     expect(couplePonte([])).toEqual({ chance: 0, raison: 'incomplet' });
     expect(couplePonte([pokemon(25, 'femelle')])).toEqual({ chance: 0, raison: 'incomplet' });
   });

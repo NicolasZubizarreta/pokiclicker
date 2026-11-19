@@ -114,8 +114,16 @@ describe('Stase et Jeton Shiny', () => {
     expect(entree).toEqual(avant);
   });
 
-  it.each([undefined, { pasRestants: 1, pasMax: 10 }])('rend chromatique même un œuf : %j', (oeuf) => {
-    const entree = region(pokemon({ oeuf }));
+  it('refuse un œuf (B-core-36)', () => {
+    const entree = region(pokemon({ oeuf: { pasRestants: 1, pasMax: 10 } }));
+    entree.inventaire.shinyToken = 1;
+    const avant = structuredClone(entree);
+    expect(utiliserJetonShiny(entree, 'cible')).toMatchObject({ ok: false, raison: 'Pokémon invalide !' });
+    expect(entree).toEqual(avant);
+  });
+
+  it('rend chromatique un Pokémon éclos', () => {
+    const entree = region(pokemon());
     entree.inventaire.shinyToken = 1;
     const avant = structuredClone(entree);
     Object.freeze(entree.equipe[0]);

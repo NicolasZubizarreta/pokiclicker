@@ -257,14 +257,15 @@ it('annonce les résultats non nuls du store sans quitter le mode', () => {
   expect(storeSac.getState().objet?.type).toBe('baie');
 });
 
-it('refuse le jeton sur un chromatique et accepte un œuf', () => {
+it('refuse le jeton sur un chromatique et sur un œuf', () => {
   storeJeu.setState({ pc: [{ ...pokemon, uid: 'pc', shiny: true }], equipe: [membre({ ...pokemon, oeuf: { pasRestants: 1, pasMax: 10 } })] });
   preparer('jeton');
   fireEvent.click(cible('pc'));
   expect(message()).toBe('Déjà chromatique !');
   fireEvent.click(cible('equipe'));
   fireEvent.click(screen.getByRole('button', { name: 'Valider' }));
-  expect(lire('equipe').shiny).toBe(true);
+  expect(message()).toBe('Pokémon invalide !');
+  expect(lire('equipe').shiny).toBe(false);
 });
 
 it('relaie un refus d’évolution depuis la fiche', () => {
