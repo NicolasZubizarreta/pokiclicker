@@ -10,6 +10,11 @@ it('inscrit seulement les captures shiny au dex shiny', () => {
   expect(appliquerCapture(region(), prise, [], () => 0, () => 's').region.especesShiny).toBeUndefined();
 });
 const prise: Victoire = { numero: 19, niveau: 30, shiny: false, boss: false, rarete: 'commun' };
+it('B-core-10 conserve un solde entier après une capture de niveau cinq', () => {
+  const resultat = appliquerCapture(region(), { ...prise, niveau: 5 }, [], () => 0, () => 'prise');
+  expect(resultat.region.argent).toBe(100 + 46 * reglages.recompenses.or.capture);
+  expect(Number.isInteger(resultat.region.argent)).toBe(true);
+});
 const membre: PokemonPossede = {
   uid: 'ancien', numero: 1, niveau: 5, xp: 12, shiny: false, bonheur: 7,
   calcium: 1, pierreEternelle: true, favori: true, sexe: 'male',
@@ -155,7 +160,7 @@ describe('capture réussie', () => {
     const shiny = { ...prise, shiny: true };
     const actifs = ['badge:prisme', 'objet:amuletCoin'];
     const resultat = appliquerCapture(avant, shiny, actifs, () => 0, () => 'shiny');
-    expect(resultat.region.argent).toBe(100 + calculerOr(prise, actifs) * 2 * 5);
+    expect(resultat.region.argent).toBe(100 + calculerOr(shiny, actifs) * 2);
     expect(resultat.bonbons).toBe(2);
     expect(resultat.region.inventaire.bonbon).toBe(5);
     expect(resultat.region.equipe.slice(0, 5)).toEqual(avant.equipe);
@@ -175,7 +180,7 @@ describe('argent de la capture (ticket AB)', () => {
     const sansMultiplicateur = { ...reglages.recompenses, or: { ...reglages.recompenses.or, multiplicateur: 1 } };
     const base = calculerOr(prise, [], sansMultiplicateur);
     const resultat = appliquerCapture(region(), prise, [], () => 0.9, () => 'capture-1');
-    expect(resultat.region.argent - 100).toBe(base * 2 * reglages.recompenses.or.multiplicateur);
+    expect(resultat.region.argent - 100).toBe(Math.floor(base * reglages.recompenses.or.multiplicateur) * 2);
     expect(reglages.recompenses.or.capture).toBe(2);
   });
 });

@@ -4,7 +4,7 @@ import references from '../../tests/fixtures/v1-combat.json';
 import matrice from '../../tests/fixtures/v1-multiplicateurs.json';
 import statsV1 from '../../tests/fixtures/v1-stats.json';
 import { avancerCombat, calculerClic, calculerDpsEquipe, cliquer, creerCombat,
-  creerEnnemi, creerLimiteurClics, multiplicateurType, viderEvenements } from './combat';
+  creerEnnemi, creerLimiteurClics, motifArret, multiplicateurType, viderEvenements } from './combat';
 import { creerHorlogeSimulee } from './clock';
 import { creerBoucle } from './loop';
 import { chargerPokemon } from './pokemon';
@@ -12,6 +12,13 @@ import { kanto } from './regions';
 import { reglages } from './reglages';
 
 const route = kanto.zoneDeCombat('kanto.route-1');
+it('B-core-12 annonce la rareté lorsque l’arrêt shiny est désactivé', () => {
+  const ennemi = { ...creerCombat(route, [], () => .5).ennemi, shiny: true, rarete: 'rare' as const };
+  expect(motifArret(ennemi, false, {
+    actif: true, commun: false, peuCommun: false, rare: true, tresRare: false,
+    legendaire: false, shiny: false, nouveau: false,
+  }, true)).toBe('rare');
+});
 const equipe = [{ numero: 19, niveau: 5 }];
 const catalogue = chargerPokemon();
 const constant = () => 0.5;

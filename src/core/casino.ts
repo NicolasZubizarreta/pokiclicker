@@ -87,7 +87,7 @@ export function acheterAuCasino<R extends RegionBoutiqueCasino>(region: R, id: s
   }
   if (article.type === 'upgrade') {
     return { ok: true, region: { ...copie, ameliorations: [...region.ameliorations, article.key] },
-      message: casino.messages.achat.replace('{nom}', casino.noms.ctJackpot) };
+      message: casino.messages.achat.replace('{nom}', article.name) };
   }
   const cle = objets.find(o => o.id === article.itemKey)!.inventaire!;
   return { ok: true, region: { ...copie, inventaire: { ...region.inventaire, [cle]: (region.inventaire[cle] ?? 0) + 1 } },
@@ -128,6 +128,9 @@ export const valeurJeton = () => casino.jetons.rachat.money / casino.jetons.rach
 export function acheterJetons<R extends RegionCasino & { argent: number }>(region: R, jetons: number = casino.jetons.achat.tokens): Resultat<R> {
   if (!Number.isInteger(jetons) || jetons < 1) return { ok: false, raison: casino.messages.miseInvalide };
   const cout = jetons * prixJeton();
+  if (!Number.isSafeInteger(cout) || !Number.isSafeInteger(region.jetons + jetons)) {
+    return { ok: false, raison: casino.messages.miseInvalide };
+  }
   if (region.argent < cout) return { ok: false, raison: casino.messages.argentInsuffisant };
   return { ok: true, region: { ...region, argent: region.argent - cout, jetons: region.jetons + jetons },
     message: casino.messages.achatJetons.replace('{jetons}', espaces(jetons)) };

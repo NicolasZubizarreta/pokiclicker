@@ -13,6 +13,24 @@ const membre: PokemonPossede = {
   bonheur: 0, calcium: 0, pierreEternelle: false, favori: false,
 };
 const region = () => ({ ...regionInitiale('kanto', 'kanto.bourg-palette'), jetons: 1000000 });
+it('B-core-20 annonce le nom de l’amélioration achetée', async () => {
+  vi.resetModules();
+  vi.doMock('../../data/casino.json', async importOriginal => {
+    const original = await importOriginal<{ default: ReturnType<typeof chargerCasino> }>();
+    const donnees = structuredClone(original.default);
+    donnees.boutique.find(a => a.type === 'upgrade')!.name = 'Amélioration de test';
+    return { default: donnees };
+  });
+  try {
+    const module = await import('./casino');
+    const article = module.chargerCasino().boutique.find(a => a.type === 'upgrade')!;
+    const achat = module.acheterAuCasino(region(), article.key, () => 0, () => 'id');
+    expect(achat.ok && achat.message).toBe('+Amélioration de test !');
+  } finally {
+    vi.doUnmock('../../data/casino.json');
+    vi.resetModules();
+  }
+});
 
 describe('boutique du casino', () => {
   it.each(fixture.boutique.achats)('reproduit $cle avec $equipeAvant membres', cas => {
@@ -77,7 +95,7 @@ describe('boutique du casino', () => {
     expect(acheterAuCasino(achat.region, 'ctJackpot', effet, effet)).toEqual({ ok: false, raison: 'Déjà acquis !' });
     const victoire = { numero: 1, niveau: 25, shiny: false, boss: false, rarete: null };
     expect(calculerOr(victoire, objetsActifs(achat.region)))
-      .toBe(Math.floor((25 * 4 + Math.pow(25, 1.4)) * 1.2) * reglages.recompenses.or.multiplicateur);
+      .toBe(Math.floor(Math.floor((25 * 4 + Math.pow(25, 1.4)) * 1.2) * reglages.recompenses.or.multiplicateur));
     expect(effet).not.toHaveBeenCalled();
   });
 

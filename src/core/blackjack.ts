@@ -99,7 +99,14 @@ export function actionsPossibles(main: MainBlackjack): ActionsBlackjack {
 type Brouillon = { main: MainBlackjack; sabot: string[]; jetons: number; alea: Alea };
 
 function piocher(b: Brouillon): string {
-  if (!b.sabot.length) b.sabot.push(...construireSabot(b.alea));
+  if (!b.sabot.length) {
+    const sabot = construireSabot(b.alea);
+    for (const carte of [...b.main.croupier, ...b.main.mains.flatMap(m => m.cartes)]) {
+      const index = sabot.indexOf(carte);
+      if (index !== -1) sabot.splice(index, 1);
+    }
+    b.sabot.push(...sabot);
+  }
   return b.sabot.shift()!;
 }
 
@@ -289,13 +296,17 @@ export function separer<R extends RegionBlackjack>(region: R, alea: Alea): Resul
   const [a, c] = o.m.cartes as [string, string];
   const as = rangDe(a) === 'A';
   const nouvelle = (carte: string): MainJoueurBlackjack => {
-    const cartes = [carte, piocher(o.b)];
-    // Un as séparé ne reçoit qu'une carte ; un 21 s'arrête de lui-même.
+    const cartes = [carte];
     return { cartes, mise: o.m.mise, separee: true, doublee: false,
-      statut: as || valeurMain(cartes) === 21 ? 'reste' : 'en-cours' };
+      statut: 'en-cours' };
   };
   const premiere = nouvelle(a), seconde = nouvelle(c);
   o.b.main.mains.splice(o.b.main.active, 1, premiere, seconde);
+  for (const main of [premiere, seconde]) {
+    main.cartes.push(piocher(o.b));
+    // Un as séparé ne reçoit qu'une carte ; un 21 s'arrête de lui-même.
+    if (as || valeurMain(main.cartes) === 21) main.statut = 'reste';
+  }
   return avancer(region, o.b);
 }
 

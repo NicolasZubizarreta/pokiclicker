@@ -8,6 +8,14 @@ import type { DonneesRegion, PokemonPossede } from './sauvegarde-types';
 
 const victoire: Victoire = { numero: 1, niveau: 2, shiny: false, boss: false, rarete: 'commun' };
 
+it('B-core-10 arrondit le gain final et garde les soldes entiers après victoire', () => {
+  const v = { ...victoire, niveau: 5 };
+  expect(calculerOr(v)).toBe(46);
+  const resultat = appliquerVictoire(region([]), v);
+  expect(Number.isInteger(resultat.region.argent)).toBe(true);
+  expect(Number.isInteger(resultat.region.statistiques.argentTotalGagne)).toBe(true);
+});
+
 function pokemon(champs: Partial<PokemonPossede> = {}): PokemonPossede {
   return {
     uid: 'bulbizarre', numero: 1, niveau: 1, xp: 0, shiny: false,
@@ -141,8 +149,8 @@ describe('Multiplicateur global d’argent (tickets AB et J)', () => {
     { nom: 'un boss chromatique avec bonus', v: { ...victoire, niveau: 40, boss: true, shiny: true, rarete: null } },
   ])('multiplie l’or pour $nom, bonus compris', ({ v }) => {
     const actifs = ['objet:amuletCoin', 'objet:ctJackpot', 'badge:prisme'];
-    expect(calculerOr(v, [])).toBe(calculerOr(v, [], sansMultiplicateur) * reglages.recompenses.or.multiplicateur);
-    expect(calculerOr(v, actifs)).toBe(calculerOr(v, actifs, sansMultiplicateur) * reglages.recompenses.or.multiplicateur);
+    expect(calculerOr(v, [])).toBe(Math.floor(calculerOr(v, [], sansMultiplicateur) * reglages.recompenses.or.multiplicateur));
+    expect(calculerOr(v, actifs)).toBe(Math.floor(calculerOr(v, actifs, sansMultiplicateur) * reglages.recompenses.or.multiplicateur));
   });
 
   it('crédite l’or multiplié dans la région et dans les statistiques', () => {

@@ -17,6 +17,11 @@ it('reprend directement le boss sans tirage aléatoire superflu', () => {
   expect(reprendreCombat(zone, [], alea, 10).ennemi.boss).toBe(true);
   expect(alea).not.toHaveBeenCalled();
 });
-it.each([0, 11, 1.5, NaN])('refuse une étape invalide : %s', etape => {
+it.each([1.5, NaN])('refuse une étape invalide : %s', etape => {
   expect(() => reprendreCombat(zone, [], () => .1, etape)).toThrow('Étape de reprise invalide');
+});
+
+it('B-core-07 ramène les étapes hors zone dans les bornes', () => {
+  expect(reprendreCombat(zone, [], () => .1, 11).etape).toBe(zone.etapes);
+  expect(reprendreCombat(zone, [], () => .1, 0).etape).toBe(1);
 });

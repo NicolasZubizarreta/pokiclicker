@@ -68,7 +68,7 @@ export function motifArret(ennemi: Ennemi, nouveau: boolean, arret: ReglagesArre
     : ennemi.rarete === 'tres-rare' ? 'tresRare' : ennemi.rarete;
   if (!(cle !== null && arret[cle])
     && !(ennemi.shiny && arret.shiny) && !(nouveau && arret.nouveau)) return null;
-  if (ennemi.shiny) return 'shiny';
+  if (ennemi.shiny && arret.shiny) return 'shiny';
   if (nouveau && arret.nouveau) return 'nouveau';
   return ennemi.rarete;
 }
@@ -101,7 +101,8 @@ export function creerCombat(zone: Zone, equipe: readonly MembreEquipe[], alea: (
 export function reprendreCombat(zone: Zone, equipe: readonly MembreEquipe[], alea: () => number,
   etape: number, actifs: readonly string[] = [],
   { autoAttaque = true, arret = null, pokedex = [], autoClic = false }: OptionsCombat = {}): EtatCombat {
-  if (!Number.isInteger(etape) || etape < 1 || etape > zone.etapes) throw new Error('Étape de reprise invalide');
+  if (!Number.isInteger(etape)) throw new Error('Étape de reprise invalide');
+  etape = Math.max(1, Math.min(etape, zone.etapes));
   const ennemi = creerEnnemi(zone, etape, alea, reglages.combat, actifs);
   return apparaitre({ zoneId: zone.id, etape, ennemi, autoAttaque, autoClic, avantArret: null, interrompu: false, arret, pokedex,
     equipe, actifs, evenements: [], zone, alea, attenteMs: 0, pauseDpsMs: 0, capture: null, attenteCapture: false,

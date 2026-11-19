@@ -33,6 +33,17 @@ function donne(cartes: string[], mise: number, jetons = 100) {
   return { alea, r: ok(distribuer<Region>({ jetons }, mise, alea, cartes)) };
 }
 const cartesDe = (r: Reussite) => r.fin!.mains.map(m => m.cartes);
+it('B-core-15 retire les cartes en main du sabot reconstruit', () => {
+  const r = donne(['2-S', '3-H', '2-S', '4-D'], 10).r;
+  const suite = ok(tirerCarte(r.region, () => .5));
+  const en = suite.region.blackjackEnCours!;
+  expect('mains' in en).toBe(true);
+  if (!('mains' in en)) return;
+  const cartes = [...suite.region.sabotBlackjack!, ...en.croupier, ...en.mains.flatMap(m => m.cartes)];
+  expect(cartes).toHaveLength(312);
+  expect(cartes.filter(c => c === '2-S')).toHaveLength(6);
+  expect(cartes.filter(c => c === '3-H')).toHaveLength(6);
+});
 
 describe('sabot', () => {
   it('compte 312 cartes : 6 exemplaires de chacune des 52, 96 cartes de 10 et 24 as', () => {
@@ -73,7 +84,7 @@ describe('sabot', () => {
     const vide = vi.fn(graine(1));
     const f = ok(distribuer<Region>({ jetons: 100 }, 1, vide, ['2-S', '3-D', '2-H', '4-C']));
     expect(f.region.blackjackEnCours).toBeDefined();
-    expect(ok(tirerCarte(f.region, vide)).region.sabotBlackjack).toHaveLength(311);
+    expect(ok(tirerCarte(f.region, vide)).region.sabotBlackjack).toHaveLength(307);
   });
 
   it('calcule la valeur d’une main (as souple, doublons permis dans un sabot)', () => {
