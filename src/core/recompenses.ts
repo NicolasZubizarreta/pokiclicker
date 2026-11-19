@@ -1,3 +1,4 @@
+import { ajouterArgent } from './plafonds';
 import type { Rarete } from './monde';
 import { chargerPokemon } from './pokemon';
 import { avancerOeuf } from './pension';
@@ -88,7 +89,7 @@ export function appliquerVictoire(region: DonneesRegion, v: Victoire, actifs: re
   const inventaire = { ...region.inventaire };
   if (v.shiny) inventaire[t.shiny.objet] = (inventaire[t.shiny.objet] ?? 0) + bonbons;
   const suivante: DonneesRegion = {
-    ...region, equipe, inventaire, argent: region.argent + or,
+    ...region, equipe, inventaire, argent: ajouterArgent(region.argent, or),
     statistiques: {
       ...region.statistiques,
       eliminations: region.statistiques.eliminations + 1,

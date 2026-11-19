@@ -44,10 +44,12 @@ function strategieDeBase(vue: VueBlackjack): 'tirer' | 'rester' | 'doubler' {
 it('la banque garde son avantage : le rendement de la stratégie de base reste sous 100 %', () => {
   const mains = Number(process.env.SIMULATION_BLACKJACK ?? 100_000);
   const alea = graine(11112026);
-  let region: Region = { jetons: 1_000_000_000 };
+  let region: Region = { jetons: 500_000 };
   let engage = 0, rendu = 0;
   const actions = { tirer: tirerCarte, rester, doubler };
   for (let i = 0; i < mains; i++) {
+    // Chaque main mesure le rendement avec un solde suffisant, loin du plafond de jeu.
+    region = { ...region, jetons: 500_000 };
     let r = ok(distribuer(region, MISE, alea));
     while (!r.termine) {
       const vue = r.vue!;

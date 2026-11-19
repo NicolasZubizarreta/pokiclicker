@@ -1,3 +1,4 @@
+import { ajouterJetons } from './plafonds';
 import donnees from '../../data/casino.json';
 import type { MainBlackjack, MainBlackjackAncienne, MainJoueurBlackjack } from './sauvegarde-types';
 
@@ -175,7 +176,7 @@ function regler<R extends RegionBlackjack>(region: R, b: Brouillon): ResultatBla
   const gainAssurance = bj ? main.assurance * regles.retourAssurance : 0;
   const gain = mains.reduce((s, m) => s + m.gain, 0) + gainAssurance;
   const engage = main.mains.reduce((s, m) => s + m.mise, 0) + main.assurance;
-  b.jetons += gain;
+  b.jetons = ajouterJetons(b.jetons, gain);
   const fin: FinBlackjack = { mains, croupier: [...main.croupier], valeurCroupier: vc, blackjackCroupier: bj,
     assurance: main.assurance, gainAssurance, engage, gain };
   const un = mains[0]!;

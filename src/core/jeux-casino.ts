@@ -1,3 +1,4 @@
+import { ajouterJetons } from './plafonds';
 import donnees from '../../data/casino-jeux.json';
 
 /**
@@ -97,7 +98,7 @@ export function jouerRoulette<R extends RegionJetons>(region: R, mise: number, p
   const couleur = couleurRoulette(numero);
   const gain = pariGagnant(pari, numero) ? mise * multiplicateur : 0;
   const sortie = { numero, couleur: roulette.couleurs[couleur].toLowerCase() };
-  return { ok: true, region: { ...debit.region, jetons: debit.region.jetons + gain }, numero, couleur, gain,
+  return { ok: true, region: { ...debit.region, jetons: ajouterJetons(debit.region.jetons, gain) }, numero, couleur, gain,
     message: gain === 0 ? `${remplir(messages.rouletteSortie, sortie)} ${messages.perdu}`
       : remplir(messages.rouletteGagne, { ...sortie, multiplicateur }) };
 }
@@ -148,7 +149,7 @@ export function jouerPlusOuMoins<R extends RegionJetons>(region: R, mise: number
   const gagne = choix === 'plus' ? nouvelleCarte > carteVisible : nouvelleCarte < carteVisible;
   const gain = gagne ? gainPlusOuMoins(mise, carteVisible, choix) : 0;
   const cartes = { visible: nomCarte(carteVisible), nouvelle: nomCarte(nouvelleCarte), gain };
-  return { ok: true, region: { ...debit.region, jetons: debit.region.jetons + gain }, carteVisible, nouvelleCarte, gain,
+  return { ok: true, region: { ...debit.region, jetons: ajouterJetons(debit.region.jetons, gain) }, carteVisible, nouvelleCarte, gain,
     message: remplir(gagne ? messages.plusOuMoinsGagne : nouvelleCarte === carteVisible
       ? messages.plusOuMoinsEgalite : messages.plusOuMoinsPerdu, cartes) };
 }
@@ -233,7 +234,7 @@ export function gratter<R extends RegionJetons>(region: R, mise: number, alea: A
   const combinaison = combinaisonGratter(symboles);
   const gain = gainGratter(symboles, mise);
   const nom = regleGratter.symboles.find(s => s.id === combinaison?.symbole)?.nom ?? '';
-  return { ok: true, region: { ...debit.region, jetons: debit.region.jetons + gain }, symboles, combinaison, gain,
+  return { ok: true, region: { ...debit.region, jetons: ajouterJetons(debit.region.jetons, gain) }, symboles, combinaison, gain,
     message: combinaison ? remplir(messages.gratterGagne, { nombre: combinaison.nombre, symbole: nom,
       multiplicateur: combinaison.multiplicateur }) : messages.gratterPerdu };
 }

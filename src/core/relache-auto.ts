@@ -1,3 +1,4 @@
+import { ajouterArgent } from './plafonds';
 import { calculerOr, type Victoire } from './recompenses';
 import { reglages } from './reglages';
 import { relacher } from './equipe';
@@ -8,7 +9,7 @@ export function estDoublonCapture(pokedex: readonly number[], numero: number, sh
 }
 
 export function capturerDoublon(region: DonneesRegion, prise: Victoire, actifs: readonly string[]): DonneesRegion {
-  return { ...region, argent: region.argent + calculerOr(prise, actifs) * reglages.recompenses.or.capture };
+  return { ...region, argent: ajouterArgent(region.argent, calculerOr(prise, actifs) * reglages.recompenses.or.capture) };
 }
 
 export function doublonsEclos(especesAvant: readonly number[], eclosions: readonly { uid: string; numero: number; shiny: boolean }[]): string[] {

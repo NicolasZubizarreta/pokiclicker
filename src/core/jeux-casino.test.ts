@@ -312,7 +312,7 @@ describe('conservation des jetons et simulations', () => {
   for (const [nom, jouer] of Object.entries(jeuxTests)) {
     it(`${nom} : jetons finaux = départ − mises + gains sur 10 000 coups`, () => {
       const alea = graine(42);
-      let courant: { jetons: number } = { jetons: 1_000_000 };
+      let courant: { jetons: number } = { jetons: 500_000 };
       let mises = 0;
       let gains = 0;
       for (let i = 0; i < 10_000; i++) {
@@ -327,7 +327,7 @@ describe('conservation des jetons et simulations', () => {
         gains += r.gain;
         courant = r.region;
       }
-      expect(courant.jetons).toBe(1_000_000 - mises + gains);
+      expect(courant.jetons).toBe(500_000 - mises + gains);
     });
 
     it(`${nom} : 200 000 coups à graine fixée, rendement mesuré sous 100 %`, () => {

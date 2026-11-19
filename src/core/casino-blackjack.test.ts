@@ -444,7 +444,7 @@ describe('conservation des jetons', () => {
 
   it('rejoue 10 000 mains aléatoires : jetons finaux = départ − mises + gains', () => {
     const alea = graine(2026);
-    const depart = 1_000_000;
+    const depart = 900_000;
     let region: Region = { jetons: depart };
     let engage = 0, gains = 0, mains = 0, naturels = 0, separations = 0, doublements = 0, assurances = 0;
     for (let i = 0; i < 10_000; i++) {

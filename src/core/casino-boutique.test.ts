@@ -64,6 +64,14 @@ describe('boutique du casino', () => {
     expect(avant).toEqual(copie);
   });
 
+  it('B-core-21 laisse racheter un Pokémon déjà possédé, sans indicateur « possédé »', () => {
+    const article = chargerCasino().boutique.find(a => a.type === 'pokemon')!;
+    const possedant = { ...region(), equipe: [{ ...membre, numero: article.id! }] };
+    expect(objetsDuCasino(possedant).find(o => o.id === article.key)).toMatchObject({ possede: false, abordable: true });
+    const achat = acheterAuCasino(possedant, article.key, () => 0, () => 'id');
+    expect(achat.ok).toBe(true);
+  });
+
   it('expose les prix, la possession et les raisons, sans bloquer les achats répétables', () => {
     const avant = { ...region(), jetons: 500, ameliorations: ['ctJackpot'], inventaire: { bonbon: 2 } };
     const lignes = objetsDuCasino(avant);

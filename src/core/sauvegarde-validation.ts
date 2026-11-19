@@ -15,7 +15,7 @@ import evenementsRival from '../../data/evenements/rival.json';
 import evenementsRonflex from '../../data/evenements/ronflex.json';
 import evenementsFin from '../../data/evenements/fin.json';
 import evenementsChenBoss from '../../data/evenements/chen-boss.json';
-import { LISTE_MAX } from './plafonds';
+import { LISTE_MAX, PLAFOND_ARGENT, PLAFOND_JETONS } from './plafonds';
 import type { DonneesCompte, DonneesPartie, DonneesRegion, Enveloppe, MainBlackjack, MainBlackjackAncienne, Niveau, PokemonPossede } from './sauvegarde-types';
 
 type Validateur = (valeur: unknown) => void;
@@ -254,6 +254,8 @@ export function validerDonneesRegion(v: unknown): asserts v is DonneesRegion {
     if (region.evenementsJoues.includes(courant.id)) delete region.evenementEnCours;
     else bornerIdentifiants(courant, {});
   }
+  region.argent = Math.min(PLAFOND_ARGENT, region.argent);
+  region.jetons = Math.min(PLAFOND_JETONS, region.jetons);
   region.argent = Math.floor(region.argent);
   region.statistiques.argentTotalGagne = Math.floor(region.statistiques.argentTotalGagne);
 }

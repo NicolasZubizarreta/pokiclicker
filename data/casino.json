@@ -28,6 +28,8 @@
   ],
   "noms": { "candy": "Super Bonbon", "ctJackpot": "CT Jackpot", "masterball": "Master Ball" },
   "messages": {
+    "plafondJetons": "Tu ne peux pas dépasser 999 999 jetons.",
+    "plafondArgent": "Tu ne peux pas dépasser 999 999 999 ₽.",
     "argentInsuffisant": "Pas assez d'argent.", "jetonsInsuffisants": "Pas assez de jetons.",
     "miseInvalide": "Mise invalide.", "choixInvalide": "Choix invalide.",
     "achatJetons": "+{jetons} jetons !", "rachatJetons": "+{argent} ₽ !", "perdu": "Perdu…",

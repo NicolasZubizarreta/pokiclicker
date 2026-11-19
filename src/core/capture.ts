@@ -1,3 +1,4 @@
+import { ajouterArgent } from './plafonds';
 import type { ResultatCondition } from './conditions';
 import { calculerOr, type Victoire } from './recompenses';
 import { reglages } from './reglages';
@@ -75,7 +76,7 @@ export function appliquerCapture(
   return {
     region: noterObtention({
       ...region, [destination]: [...region[destination], pokemon], inventaire,
-      argent: region.argent + calculerOr(prise, actifs) * reglages.recompenses.or.capture,
+      argent: ajouterArgent(region.argent, calculerOr(prise, actifs) * reglages.recompenses.or.capture),
     }, pokemon.numero, { shiny: pokemon.shiny }),
     destination, bonbons,
   };

@@ -1,3 +1,4 @@
+import { ajouterArgent, ajouterJetons, PLAFOND_ARGENT, PLAFOND_JETONS } from './plafonds';
 import donnees from '../../data/casino.json';
 import objets from '../../data/objets.json';
 import { evaluer } from './conditions';
@@ -59,7 +60,8 @@ export function objetsDuCasino(region: RegionBoutiqueCasino) {
   return casino.boutique.map(article => {
     const inventaire = objets.find(o => o.id === article.itemKey)?.inventaire;
     const possede = article.type === 'upgrade' ? region.ameliorations.includes(article.key)
-      : article.type === 'pokemon' ? [...region.equipe, ...region.pc].some(p => p.numero === article.id)
+      // Un Pokémon déjà possédé reste rachetable à l'infini (décision B-core-21) : pas d'indicateur « possédé ».
+      : article.type === 'pokemon' ? false
         : inventaire != null && (region.inventaire[inventaire] ?? 0) > 0;
     const raison = article.type === 'upgrade' && possede ? casino.messages.dejaAcquis
       : region.jetons < article.price ? casino.messages.jetonsInsuffisants : null;
@@ -114,7 +116,7 @@ const espaces = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 export function entrerAuCasino<R extends RegionCasino & { readonly casinoVu?: boolean }>(region: R): { region: R; offerts: number } {
   if (region.casinoVu === true) return { region, offerts: 0 };
   const offerts = casino.premiereEntree.jetons;
-  return { region: { ...region, casinoVu: true, jetons: region.jetons + offerts }, offerts };
+  return { region: { ...region, casinoVu: true, jetons: ajouterJetons(region.jetons, offerts) }, offerts };
 }
 /** Message de bienvenue affiché dans la page du casino quand le cadeau vient d'être donné. */
 export const messageBienvenue = (offerts: number) => casino.premiereEntree.message.replace('{jetons}', espaces(offerts));
@@ -132,7 +134,8 @@ export function acheterJetons<R extends RegionCasino & { argent: number }>(regio
     return { ok: false, raison: casino.messages.miseInvalide };
   }
   if (region.argent < cout) return { ok: false, raison: casino.messages.argentInsuffisant };
-  return { ok: true, region: { ...region, argent: region.argent - cout, jetons: region.jetons + jetons },
+  if (region.jetons + jetons > PLAFOND_JETONS) return { ok: false, raison: casino.messages.plafondJetons };
+  return { ok: true, region: { ...region, argent: region.argent - cout, jetons: ajouterJetons(region.jetons, jetons) },
     message: casino.messages.achatJetons.replace('{jetons}', espaces(jetons)) };
 }
 
@@ -141,7 +144,11 @@ export function echangerJetons<R extends RegionCasino & { argent: number }>(regi
   if (!Number.isInteger(jetons) || jetons < 1) return { ok: false, raison: casino.messages.miseInvalide };
   if (region.jetons < jetons) return { ok: false, raison: casino.messages.jetonsInsuffisants };
   const argent = jetons * valeurJeton();
-  return { ok: true, region: { ...region, argent: region.argent + argent, jetons: region.jetons - jetons },
+  if (!Number.isSafeInteger(argent) || !Number.isSafeInteger(region.argent + argent)) {
+    return { ok: false, raison: casino.messages.miseInvalide };
+  }
+  if (region.argent + argent > PLAFOND_ARGENT) return { ok: false, raison: casino.messages.plafondArgent };
+  return { ok: true, region: { ...region, argent: ajouterArgent(region.argent, argent), jetons: region.jetons - jetons },
     message: casino.messages.rachatJetons.replace('{argent}', espaces(argent)) };
 }
 
@@ -174,7 +181,7 @@ export function jouerMachine<R extends RegionCasino>(region: R, mise: number, al
   const symboles: Triplet = [tirerSymbole(alea), tirerSymbole(alea), tirerSymbole(alea)];
   const gain = gainMachine(symboles, mise);
   const deuxBaies = symboles.filter(s => s === casino.deuxBaies.symbole).length === casino.deuxBaies.nombre;
-  return { ok: true, region: { ...debit.region, jetons: debit.region.jetons + gain }, symboles, gain,
+  return { ok: true, region: { ...debit.region, jetons: ajouterJetons(debit.region.jetons, gain) }, symboles, gain,
     message: gain === 0 ? casino.messages.perdu : deuxBaies ? casino.messages.baies
       : casino.messages.gagne.replace('{gain}', String(gain / mise)) };
 }
@@ -185,7 +192,7 @@ export function jouerPileOuFace<R extends RegionCasino>(region: R, mise: number,
   if (!debit.ok) return debit;
   const resultat = alea() < casino.pileOuFace.seuilFace ? 'face' : 'pile';
   const gain = choix === resultat ? mise * casino.pileOuFace.gain : 0;
-  return { ok: true, region: { ...debit.region, jetons: debit.region.jetons + gain }, resultat, gain,
+  return { ok: true, region: { ...debit.region, jetons: ajouterJetons(debit.region.jetons, gain) }, resultat, gain,
     message: gain === 0 ? casino.messages.perdu : casino.messages.gagne.replace('{gain}', String(casino.pileOuFace.gain)) };
 }
 

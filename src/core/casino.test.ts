@@ -4,7 +4,8 @@ import zones from '../../data/regions/kanto/zones.json';
 it('B-core-16 refuse les dépassements techniques du solde et du coût', () => {
   expect(acheterJetons({ jetons: Number.MAX_SAFE_INTEGER, argent: 100 }, 1).ok).toBe(false);
   expect(acheterJetons({ jetons: 0, argent: Number.MAX_VALUE }, Number.MAX_SAFE_INTEGER).ok).toBe(false);
-  expect(acheterJetons({ jetons: Number.MAX_SAFE_INTEGER - 1, argent: 20 }, 1).ok).toBe(true);
+  expect(acheterJetons({ jetons: 999_998, argent: 20 }, 1).ok).toBe(true);
+  expect(acheterJetons({ jetons: Number.MAX_SAFE_INTEGER - 1, argent: 20 }, 1).ok).toBe(false);
 });
 import { chargerMonde } from './monde';
 import {

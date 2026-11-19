@@ -1,3 +1,4 @@
+import { ajouterArgent } from './plafonds';
 import donneesBadges from '../../data/badges.json';
 import donneesJalons from '../../data/jalons.json';
 import { objetsActifs } from './boutique';
@@ -52,7 +53,7 @@ export function accorderJalons(region: DonneesRegion, nombre: number): {
   const ameliorations = [...region.ameliorations];
   let argent = region.argent;
   for (const { recompense } of recus) {
-    argent += recompense.argent ?? 0;
+    argent = ajouterArgent(argent, recompense.argent ?? 0);
     for (const [cle, quantite] of Object.entries(recompense.inventaire ?? {})) {
       inventaire[cle] = (inventaire[cle] ?? 0) + (quantite ?? 0);
     }
