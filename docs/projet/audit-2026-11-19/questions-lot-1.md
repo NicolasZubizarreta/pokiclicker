@@ -1,22 +1,23 @@
 # Questions du lot 1 (ticket A, cœur de jeu)
 
-Ces éléments ne sont pas codés : ils changent une règle de jeu ou un comportement que les tests actuels décrivent comme voulu. Les 28 autres éléments du ticket A sont faits ou sans objet (voir `docs/projet/backlog-phase-audit.md`).
+Décisions de Nicolas du 19/11/2026 sur les cinq points qui attendaient une réponse. Tout est appliqué dans `src/core`, sauf B-core-11 (lot 3).
 
-## À décider avant de coder
+## Décisions prises
 
-1. **B-core-21 : casino, Pokémon déjà possédé.** Le casino revend-il à l'infini un Pokémon déjà possédé (ex. Abra à 250 jetons) ? Options : (a) oui, voulu, on retire l'indicateur « possédé » ; (b) un seul achat par Pokémon ; (c) autre.
-2. **B-core-05 et B-core-37 : un œuf peut-il être parent à la pension ?** Aujourd'hui `deposerParent` accepte un œuf et `couplePonte` le lit comme parent. Les tests de `pension.test.ts` décrivent ce comportement comme voulu, je l'ai laissé. Options : (a) voulu, rien à faire ; (b) refuser un œuf comme parent et l'ignorer dans `couplePonte`.
-3. **B-core-36 : Jeton Shiny sur un œuf.** `utiliserJetonShiny` accepte un œuf, et `objets-equipe.test.ts` comme `dex.test.ts` l'affirment (l'œuf éclôt chromatique). Options : (a) voulu, rien à faire ; (b) refuser un œuf.
-4. **B-core-11 : le temps hors ligne compte-t-il pour les boosts et la recharge du Fauchage ?** Ces durées reposent sur l'horloge système, donc reculer l'horloge les prolonge et l'avancer les raccourcit. Options : (a) durées décrémentées par le tick du jeu (le temps hors ligne ne compte pas) ; (b) garder l'horloge et ajouter une garde contre le recul. Dans les deux cas il faut toucher `src/ui/store.ts` et le format de sauvegarde, donc ce correctif est à faire avec le ticket C.
-5. **Plafond de jeu pour l'argent et les jetons (S-core-02, B-core-16).** Seuls des plafonds techniques ont été codés (`Number.MAX_SAFE_INTEGER`). Faut-il un plafond de jeu (par exemple 999 999 999 Pokédollars et un maximum de jetons) ? Cela change la règle de jeu.
+1. **B-core-21 : casino, Pokémon déjà possédé.** Voulu : un Pokémon déjà possédé reste rachetable à l'infini. Fait : `objetsDuCasino` renvoie `possede: false` pour les Pokémon. L'indicateur n'apparaît pas dans `src/ui` (le champ n'y sert qu'aux objets uniques), rien à retirer pour le lot 4.
+2. **B-core-05 et B-core-37 : un œuf ne peut pas être parent.** Fait : `deposerParent` refuse un œuf (« Un œuf ne peut pas être parent. ») et `couplePonte` ignore un œuf déjà présent (raison « incomplet »). Tests mis à jour.
+3. **B-core-36 : Jeton Shiny refusé sur un œuf.** Fait : `utiliserJetonShiny` renvoie « Pokémon invalide ! ». Tests de `objets-equipe`, `dex` et `PagePC-objets` mis à jour : l'œuf n'éclôt plus chromatique par ce moyen.
+4. **S-core-02 et B-core-16 : plafonds de jeu.** 999 999 999 Pokédollars et 999 999 jetons (`src/core/plafonds.ts`). Les gains (combat, capture, relâchement auto, jalons, machines, blackjack, roulette, plus ou moins, grattage, cadeau d'entrée) sont tronqués au plafond. Achat de jetons et échange de jetons contre de l'argent : refusés avec un message s'ils dépasseraient le plafond (le joueur ne paie pas pour des jetons perdus). Une sauvegarde chargée ou importée au-dessus est ramenée au plafond, sans rejet. `argentTotalGagne` n'est pas plafonné.
+5. **B-core-11 : le temps hors ligne ne compte pas** pour les boosts ni la recharge du Fauchage : durées décrémentées par le tick du jeu. **Décidé, à faire avec le lot 3** (touche `src/ui/store.ts` et le format de sauvegarde). Non codé ici.
 
-## À confirmer (déjà codé, réversible)
+## Confirmés tels quels
 
-6. **B-core-10 : l'or est arrondi à l'entier inférieur.** 29 × 1,6 = 46,4 donne 46. Les anciennes sauvegardes à virgule sont arrondies au chargement (inférieur).
-7. **B-core-35 : un favori n'est jamais relâché**, ni à la main, ni par le relâchement automatique.
+- **B-core-10** : l'or est arrondi à l'entier inférieur (29 × 1,6 = 46,4 donne 46) ; les anciennes sauvegardes à virgule sont arrondies au chargement.
+- **B-core-35** : un favori n'est jamais relâché, ni à la main, ni par le relâchement automatique.
 
 ## Pour les tickets suivants
 
+- Les écrans doivent afficher le plafond atteint (argent à 999 999 999, jetons à 999 999) et les deux nouveaux messages de refus du casino (`plafondJetons`, `plafondArgent` dans `data/casino.json`) : lots 3 et 4.
 - `src/ui` doit attraper `ErreurStockage` (stockage plein ou indisponible) et afficher son message : tickets C et D.
 - `listerParties()` ne renvoie plus les parties illisibles ; l'écran des parties doit afficher `listerPartiesIllisibles()` et proposer l'export de secours (`exporterPartie`, `exporterCompte`). Sans cela une partie abîmée disparaît silencieusement de la liste.
 - Le catalogue d'événements est injecté par le store ; la validation des sauvegardes ne juge donc que ce qui n'en dépend pas (S-core-12 en partie, S-core-31 sans objet car le moteur ignore déjà un état hors catalogue).
