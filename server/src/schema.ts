@@ -1,47 +1,28 @@
 import type { Pool } from 'pg';
+import { readdir, readFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 
-const migrations = [`
-  CREATE TABLE donnees_compte (
-    compte_id text PRIMARY KEY REFERENCES "user"(id) ON DELETE CASCADE,
-    revision integer NOT NULL CHECK (revision >= 1), version integer NOT NULL,
-    ecrit_le timestamptz NOT NULL, donnees jsonb NOT NULL
-  );
-  CREATE TABLE parties (
-    id uuid PRIMARY KEY, compte_id text NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
-    nom text NOT NULL, revision integer NOT NULL CHECK (revision >= 1),
-    version integer NOT NULL, ecrit_le timestamptz NOT NULL, donnees jsonb NOT NULL
-  );
-  CREATE INDEX ON parties(compte_id);
-  CREATE TABLE regions (
-    partie_id uuid NOT NULL REFERENCES parties(id) ON DELETE CASCADE, region_id text NOT NULL,
-    revision integer NOT NULL CHECK (revision >= 1), version integer NOT NULL,
-    ecrit_le timestamptz NOT NULL, donnees jsonb NOT NULL, PRIMARY KEY(partie_id, region_id)
-  );
-  CREATE TABLE versions (
-    id bigserial PRIMARY KEY, compte_id text NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
-    niveau text NOT NULL, objet_id text NOT NULL, revision integer NOT NULL,
-    version integer NOT NULL, ecrit_le timestamptz NOT NULL, donnees jsonb NOT NULL,
-    remplace_le timestamptz NOT NULL DEFAULT now()
-  );
-  CREATE INDEX ON versions(compte_id, niveau, objet_id, revision DESC);
-`, `
-  CREATE TABLE appareil_actif (partie_id uuid PRIMARY KEY REFERENCES parties(id) ON DELETE CASCADE, appareil_id text NOT NULL, battement_le timestamptz NOT NULL);
-`, `
-  ALTER TABLE versions
-    ADD COLUMN origine text NOT NULL DEFAULT 'rotation' CHECK (origine IN ('rotation', 'divergence', 'restauration')),
-    ADD COLUMN lot uuid;
-  CREATE INDEX ON versions(compte_id, lot) WHERE lot IS NOT NULL;
-`];
-
-export async function migrerSauvegarde(db: Pick<Pool, 'query'>) {
+export async function migrerSauvegarde(db: Pick<Pool, 'query'>, options: { jusqua?: number } = {}) {
+  const dossier = new URL('../migrations/', import.meta.url);
+  const fichiers = (await readdir(dossier)).filter(f => /^\d{4}-.+\.sql$/.test(f)).sort();
   await db.query('CREATE TABLE IF NOT EXISTS migrations_sauvegarde(version int PRIMARY KEY, applique_le timestamptz DEFAULT now())');
-  for (const [index, sql] of migrations.entries()) {
+  await db.query('ALTER TABLE migrations_sauvegarde ADD COLUMN IF NOT EXISTS checksum text');
+  for (const fichier of fichiers) {
+    const version = Number(fichier.slice(0, 4));
+    if (options.jusqua !== undefined && version > options.jusqua) continue;
+    const sql = await readFile(new URL(fichier, dossier), 'utf8');
+    // fins de ligne normalisées : même somme sous Windows et Linux
+    const checksum = createHash('sha256').update(sql.replaceAll('\r\n', '\n')).digest('hex');
     await db.query('BEGIN');
     try {
-      const appliquee = await db.query('SELECT version FROM migrations_sauvegarde WHERE version = $1', [index + 1]);
+      const appliquee = await db.query('SELECT checksum FROM migrations_sauvegarde WHERE version=$1', [version]);
       if (!appliquee.rowCount) {
         await db.query(sql);
-        await db.query('INSERT INTO migrations_sauvegarde(version) VALUES ($1)', [index + 1]);
+        await db.query('INSERT INTO migrations_sauvegarde(version,checksum) VALUES ($1,$2)', [version, checksum]);
+      } else if (appliquee.rows[0].checksum === null) {
+        await db.query('UPDATE migrations_sauvegarde SET checksum=$2 WHERE version=$1', [version, checksum]);
+      } else if (appliquee.rows[0].checksum !== checksum) {
+        throw new Error(`Checksum différent pour la migration ${fichier}.`);
       }
       await db.query('COMMIT');
     } catch (error) { await db.query('ROLLBACK'); throw error; }

@@ -23,6 +23,36 @@ async function preparer() {
 const poster = (id: string, body: object, token?: string) => s.request(`${chemin}/parties/${id}/archives`, body, token);
 const lire = (id: string, token?: string) => s.request(`${chemin}/parties/${id}/versions`, undefined, token);
 
+test('archive de quatre Mo, suppression protégée et lots masqués', async () => {
+  const t = await preparer();
+  const regions = Array.from({ length: 5 }, (_, i) => objet('region', `r${i}`, { regionId: `r${i}`, texte: 'x'.repeat(800_000) }));
+  expect((await poster(t.id, { partie: t.body.partie, regions }, t.token)).status).toBe(200);
+  expect((await s.request(`${chemin}/parties/${t.id}`, { revisionBase: 0 }, t.token, undefined, 'DELETE')).status).toBe(409);
+  expect((await s.request(`${chemin}/parties/${t.id}`, undefined, t.token)).status).toBe(200);
+  expect((await s.request(`${chemin}/parties/${t.id}`, undefined, t.token, undefined, 'DELETE')).status).toBe(200);
+  const lignes = (await s.pool.query("SELECT * FROM versions WHERE objet_id=$1 AND origine='suppression'", [t.id])).rows;
+  expect(lignes).toHaveLength(1);
+  expect(lignes[0].lot).toEqual(expect.any(String));
+  await s.request(chemin, { partieId: t.id, partie: { revisionBase: 0, enveloppe: t.body.partie } }, t.token, undefined, 'PUT');
+  expect((await (await lire(t.id, t.token)).json()).versions.every((v: { origine: string }) => v.origine !== 'suppression')).toBe(true);
+});
+
+test('borne temporelle, validation avant SQL et en-têtes obligatoires', async () => {
+  const t = await preparer();
+  const futur = { ...t.body.partie, ecritLe: '9999-12-31T23:59:59Z' };
+  expect((await s.request(chemin, { partieId: t.id, partie: { revisionBase: 1, enveloppe: futur } }, t.token, undefined, 'PUT')).status).toBe(200);
+  const parties = (await (await s.request(`${chemin}/parties`, undefined, t.token)).json()).parties;
+  expect(Date.parse(parties.find((p: { id: string }) => p.id === t.id).ecritLe)).toBeLessThanOrEqual(Date.now() + 300_000);
+  const regions = Array.from({ length: 25 }, (_, i) => ({ revisionBase: 0, enveloppe: objet('region', `r${i}`, { regionId: `r${i}` }) }));
+  const { routesSauvegarde } = await import('../src/sauvegarde.js');
+  const app = routesSauvegarde({ connect: () => { throw new Error('SQL interdit'); } } as unknown as typeof s.pool,
+    { api: { getSession: async ({ headers }) => { expect(headers.has('cookie')).toBe(false); return { user: { id: 'test' } }; } } });
+  expect((await app.request('/', { method: 'PUT', headers: { authorization: 'Bearer test', 'content-type': 'application/json' },
+    body: JSON.stringify({ partieId: t.id, regions }) })).status).toBe(413);
+  expect((await app.request('/parties', { headers: { cookie: 'session=valide' } })).status).toBe(401);
+  expect((await app.request('/', { method: 'PUT', headers: { authorization: 'Bearer test', 'content-type': 'text/plain' }, body: '{}' })).status).toBe(415);
+});
+
 test('migration additive et idempotente', async () => {
   const t = await preparer();
   const db = await s.pool.connect();
@@ -31,6 +61,41 @@ test('migration additive et idempotente', async () => {
     SELECT compte_id,'partie',id,1,1,now(),'{}' FROM parties WHERE id=$1 RETURNING origine`;
   expect((await s.pool.query(sql, [t.id])).rows[0].origine).toBe('rotation');
   await expect(s.pool.query("UPDATE versions SET origine='invalide' WHERE objet_id=$1", [t.id])).rejects.toThrow();
+});
+
+test('migration depuis N-1, adoption des checksums et détection des modifications', async () => {
+  const db = await s.pool.connect();
+  const schema = `migration_${randomUUID().replaceAll('-', '')}`;
+  const id = randomUUID();
+  const precedent = (await db.query('SHOW search_path')).rows[0].search_path;
+  try {
+    await db.query(`CREATE SCHEMA "${schema}"`);
+    await db.query(`SET search_path TO "${schema}"`);
+    await db.query('CREATE TABLE "user"(id text PRIMARY KEY)');
+    await db.query("INSERT INTO \"user\" VALUES ('compte')");
+    await migrerSauvegarde(db, { jusqua: 3 });
+    await db.query("INSERT INTO parties VALUES ($1,'compte','Nom',1,1,now(),'{}')", [id]);
+    await db.query("INSERT INTO regions VALUES ($1,'kanto',1,1,now(),'{}')", [id]);
+    await db.query(`INSERT INTO versions(compte_id,niveau,objet_id,revision,version,ecrit_le,donnees)
+      VALUES ('compte','partie',$1,1,1,now(),'{}')`, [id]);
+    const avant = await Promise.all(['parties', 'regions', 'versions'].map(async table => (await db.query(`SELECT * FROM ${table}`)).rows));
+    await db.query('UPDATE migrations_sauvegarde SET checksum=NULL');
+    await migrerSauvegarde(db);
+    await migrerSauvegarde(db);
+    const apres = await Promise.all(['parties', 'regions', 'versions'].map(async table => (await db.query(`SELECT * FROM ${table}`)).rows));
+    expect(apres).toEqual(avant);
+    expect(apres[2]![0].origine).toBe('rotation');
+    expect((await db.query('SELECT * FROM regions_supprimees')).rows).toEqual([]);
+    expect((await db.query('SELECT * FROM envois_reinitialisation')).rows).toEqual([]);
+    await db.query("UPDATE versions SET origine='suppression'");
+    expect((await db.query('SELECT checksum FROM migrations_sauvegarde')).rows.every(r => /^[a-f0-9]{64}$/.test(r.checksum))).toBe(true);
+    await db.query("UPDATE migrations_sauvegarde SET checksum='modifié' WHERE version=1");
+    await expect(migrerSauvegarde(db)).rejects.toThrow('Checksum différent');
+  } finally {
+    await db.query('SELECT set_config(\'search_path\', $1, false)', [precedent]);
+    await db.query(`DROP SCHEMA "${schema}" CASCADE`);
+    db.release();
+  }
 });
 
 test('archives : validation, session et isolation', async () => {
@@ -79,7 +144,8 @@ test('lots conservés, résumés, rotations et suppression isolée', async () =>
   await s.request(chemin, { partieId: autreId, partie: { revisionBase: 0, enveloppe: autre.partie } }, t.token, undefined, 'PUT');
   await poster(autreId, autre, t.token);
   expect((await s.request(`${chemin}/parties/${t.id}`, undefined, t.token, undefined, 'DELETE')).status).toBe(200);
-  expect((await s.pool.query('SELECT * FROM versions WHERE objet_id=$1 OR objet_id LIKE $1 || \':%\'', [t.id])).rows).toHaveLength(0);
+  expect((await s.pool.query("SELECT * FROM versions WHERE origine='rotation' AND (objet_id=$1 OR objet_id LIKE $1 || ':%')", [t.id])).rows).toHaveLength(0);
+  expect((await s.pool.query("SELECT * FROM versions WHERE origine='suppression' AND (objet_id=$1 OR objet_id LIKE $1 || ':%')", [t.id])).rows).toHaveLength(2);
   expect((await (await lire(autreId, t.token)).json()).versions).toHaveLength(1);
 });
 

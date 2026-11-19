@@ -17,6 +17,18 @@ async function preparer() {
   return { id, token, appareilId, partie, regions, lot: (await archive.json()).lot as string };
 }
 const restaurer = (id: string, body: object, token?: string) => s.request(`${chemin}/parties/${id}/restaurer`, body, token);
+
+test('une région recréée ne réutilise pas sa révision supprimée', async () => {
+  const t = await preparer();
+  const archive = await s.request(`${chemin}/parties/${t.id}/archives`, { partie: t.partie, regions: [t.regions[0]] }, t.token);
+  expect((await restaurer(t.id, { appareilId: t.appareilId, lot: (await archive.json()).lot }, t.token)).status).toBe(200);
+  const put = (revisionBase: number) => s.request(chemin, { partieId: t.id, appareilId: t.appareilId,
+    regions: [{ revisionBase, enveloppe: t.regions[1] }] }, t.token, undefined, 'PUT');
+  const creation = await put(0);
+  expect(creation.status).toBe(200);
+  expect((await creation.json()).regions[0].revision).toBeGreaterThan(1);
+  expect((await put(1)).status).toBe(409);
+});
 async function etat(id: string) {
   return Promise.all(['SELECT * FROM parties WHERE id=$1', 'SELECT * FROM regions WHERE partie_id=$1 ORDER BY region_id',
     'SELECT * FROM appareil_actif WHERE partie_id=$1', "SELECT * FROM versions WHERE objet_id=$1 OR objet_id LIKE $1 || ':%' ORDER BY id"]

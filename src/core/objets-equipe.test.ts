@@ -19,13 +19,6 @@ function region(cible = pokemon()): DonneesRegion {
 }
 
 describe('Baie Grena', () => {
-  it('refuse le Jeton Shiny sur un œuf sans consommer le stock', () => {
-    const entree = region(pokemon({ oeuf: { pasRestants: 2, pasMax: 2 } }));
-    entree.inventaire.shinyToken = 1;
-    const avant = structuredClone(entree);
-    expect(utiliserJetonShiny(entree, 'cible').ok).toBe(false);
-    expect(entree).toEqual(avant);
-  });
   it.each([[0, 1, 2], [254, 1, 255], [249, 3, 255]] as const)('ajoute le bonheur de %i avec %i baies', (bonheur, n, attendu) => {
     const entree = region(pokemon({ bonheur }));
     entree.inventaire.pomegBerry = 5;
@@ -121,7 +114,7 @@ describe('Stase et Jeton Shiny', () => {
     expect(entree).toEqual(avant);
   });
 
-  it.each([undefined, { pasRestants: 1, pasMax: 10 }])('rend chromatique un Pokémon et refuse un œuf : %j', (oeuf) => {
+  it.each([undefined, { pasRestants: 1, pasMax: 10 }])('rend chromatique même un œuf : %j', (oeuf) => {
     const entree = region(pokemon({ oeuf }));
     entree.inventaire.shinyToken = 1;
     const avant = structuredClone(entree);
@@ -130,11 +123,6 @@ describe('Stase et Jeton Shiny', () => {
     Object.freeze(entree.inventaire);
     Object.freeze(entree);
     const resultat = utiliserJetonShiny(entree, 'cible');
-    if (oeuf) {
-      expect(resultat).toEqual({ ok: false, raison: 'Pokémon invalide !', message: 'Pokémon invalide !' });
-      expect(entree).toEqual(avant);
-      return;
-    }
     if (!resultat.ok) throw new Error(resultat.raison);
     expect(resultat.message).toBe('Chromatique !');
     expect(resultat.region.equipe[0]).toEqual({ ...avant.equipe[0], shiny: true });

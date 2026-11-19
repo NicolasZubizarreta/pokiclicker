@@ -146,7 +146,7 @@ test('suppression : cascades, archives, autre partie, compte et recréation', as
   expect((await request(`${chemin}/parties/${premiere.partieId}`, undefined, token)).status).toBe(404);
   expect((await contexte.pool.query('SELECT * FROM regions WHERE partie_id = $1', [premiere.partieId])).rows).toEqual([]);
   expect((await contexte.pool.query('SELECT * FROM appareil_actif WHERE partie_id = $1', [premiere.partieId])).rows).toEqual([]);
-  expect((await contexte.pool.query('SELECT * FROM versions WHERE objet_id = $1 OR objet_id LIKE $1 || \':%\'', [premiere.partieId])).rows).toEqual([]);
+  expect((await contexte.pool.query("SELECT * FROM versions WHERE origine='suppression' AND (objet_id = $1 OR objet_id LIKE $1 || ':%')", [premiere.partieId])).rows).toHaveLength(2);
   expect(await lire(seconde.partieId, token)).toEqual(autreAvant);
   expect((await contexte.pool.query('SELECT * FROM versions WHERE objet_id = $1 OR objet_id LIKE $1 || \':%\' ORDER BY id', [seconde.partieId])).rows).toEqual(archivesAvant);
   expect(await (await request(`${chemin}/compte`, undefined, token)).json()).toEqual(compteAvant);
@@ -247,7 +247,7 @@ async function lire(id: string, token: string) {
 test('migration idempotente', async () => {
   const db = await contexte.pool.connect();
   try { await migrerSauvegarde(db); await migrerSauvegarde(db); } finally { db.release(); }
-  expect((await contexte.pool.query('SELECT version FROM migrations_sauvegarde')).rows).toEqual([{ version: 1 }, { version: 2 }, { version: 3 }]);
+  expect((await contexte.pool.query('SELECT version FROM migrations_sauvegarde ORDER BY version')).rows).toEqual([{ version: 1 }, { version: 2 }, { version: 3 }, { version: 4 }]);
 });
 
 test('appareil : session, isolation et validation', async () => {
@@ -397,13 +397,16 @@ test('isolation entre comptes en lecture et en écriture', async () => {
   const avant = await lire(body.partieId, premier.token);
   expect((await request(`${chemin}/compte`, undefined, second.token)).status).toBe(404);
   for (const response of [await request(`${chemin}/parties/${body.partieId}`, undefined, second.token),
-    await put({ partieId: body.partieId, partie: { ...body.partie, revisionBase: 1 } }, second.token),
     await put({ partieId: body.partieId, compte: body.compte, regions: body.regions }, second.token),
     await put({ partieId: randomUUID(), regions: body.regions }, second.token),
     await request(`${chemin}/parties/invalide`, undefined, second.token)]) {
     expect(response.status).toBe(404);
     expect(await response.json()).toEqual({ message: 'Partie introuvable.' });
   }
+  expect(await lire(body.partieId, premier.token)).toEqual(avant);
+  const collision = await put({ partieId: body.partieId, partie: body.partie }, second.token);
+  expect(collision.status).toBe(409);
+  expect(await collision.json()).toEqual({ message: 'Cette sauvegarde a changé depuis ta dernière lecture.', conflits: [] });
   expect(await lire(body.partieId, premier.token)).toEqual(avant);
   expect((await request(`${chemin}/compte`, undefined, second.token)).status).toBe(404);
 });
@@ -468,7 +471,7 @@ test('refuse en 400 ce que Postgres refuserait (caractère nul, date impossible)
   const nul = await put({ compte: objet('compte', 'local', 0, { a: '\u0000' }) }, token);
   expect(nul.status).toBe(400);
   const jour = await put({ compte: { revisionBase: 0, enveloppe: { ...objet('compte', 'local').enveloppe, ecritLe: '2024-02-31T00:00:00Z' } } }, token);
-  expect(jour.status).toBeLessThan(500);
+  expect(jour.status).toBe(400);
 });
 
 test('plafonne les parties par compte et les régions par partie', async () => {
