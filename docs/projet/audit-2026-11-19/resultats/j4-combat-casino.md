@@ -1,0 +1,12 @@
+CORRIGÉ B-core-07 : src/core/combat.ts et reprendre-combat.test.ts bornent les étapes entières dans [1, zone.etapes] ; les anciens cas 0 et 11 sont remplacés par les assertions de bornage, les fractions et NaN restent refusés.
+A VALIDER B-core-07 : Le repli d’une zone inconnue nécessite le code appelant qui résout zoneId, car reprendreCombat reçoit une Zone déjà résolue sans région ; options : (a) autoriser ce fichier dans un prochain job ; (b) confier ce repli au job de chargement.
+CORRIGÉ B-core-10 : src/core/recompenses.ts arrondit le gain final ; les tests de récompenses et capture vérifient 46 au niveau 5 et des soldes entiers, capture.ts multiplie seulement par le facteur entier de capture existant et ne nécessite pas de modification.
+CORRIGÉ B-core-12 : src/core/combat.ts et combat.test.ts annoncent shiny uniquement lorsque son arrêt est activé.
+CORRIGÉ B-core-15 : src/core/blackjack.ts et casino-blackjack.test.ts retirent chaque exemplaire en main du sabot reconstruit, y compris pendant une séparation ; l’assertion existante de taille passe de 311 à 307 pour exclure les quatre cartes distribuées.
+CORRIGÉ B-core-16 : src/core/casino.ts et casino.test.ts refusent un coût ou un solde de jetons non représentable comme entier sûr, sans plafond de jeu.
+CORRIGÉ B-core-20 : src/core/casino.ts et casino-boutique.test.ts utilisent article.name pour l’amélioration ; le test modifie uniquement le nom en mémoire via un mock.
+A VALIDER B-core-21 : Le casino revend-il à l'infini un Pokémon déjà possédé (ex. Abra à 250 jetons) ? Options : (a) oui, voulu, on retire l'indicateur « possédé » ; (b) limiter à un achat par Pokémon ; (c) autre
+
+Vérifications : avant correctifs, 7 failed | 185 passed (192), reproduisant les six défauts codés. Après correctifs : 1 failed | 191 passed (192), 6 fichiers passent et combat.test.ts échoue sur le test existant « respecte les cumuls inclusifs et le repli sur le premier » (16 attendu, 19 obtenu), laissé intact car hors correctifs demandés.
+Les assertions existantes des récompenses, captures et du bonus Jackpot ont été adaptées à l’arrondi final : le facteur shiny est appliqué avant cet arrondi. Aucun test affaibli ni aucune valeur de jeu modifiée.
+Commandes exécutées avec npx.cmd : npx.ps1 est bloqué par la politique PowerShell. tsc --noEmit -p tsconfig.app.json filtré sur les fichiers du job : aucun diagnostic dans ces fichiers ; des diagnostics hors périmètre sont ignorés.
