@@ -7,6 +7,7 @@ import { createHmac, randomUUID } from 'node:crypto';
 import type { Pool } from 'pg';
 import type { Config } from './config.js';
 import { routesSauvegarde } from './sauvegarde.js';
+import { LIMITES } from './limites.js';
 import { routesCompte } from './compte.js';
 import { creerEnvoi, type Mailer } from './mail.js';
 import { journal, messageNettoye } from './journal.js';
@@ -90,7 +91,7 @@ export function createApp(config: Config, pool: Pool, mailer?: Mailer) {
   app.use('*', cors({ origin: origin => config.origins.includes(origin) ? origin : undefined,
     allowHeaders: ['Authorization', 'Content-Type'], exposeHeaders: ['set-auth-token', 'X-Request-Id'],
     allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'] }));
-  const limite = bodyLimit({ maxSize: 100 * 1024, onError: c => c.json({ message: 'Requête trop volumineuse.' }, 413) });
+  const limite = bodyLimit({ maxSize: LIMITES.corpsParDefautOctets, onError: c => c.json({ message: 'Requête trop volumineuse.' }, 413) });
   // Ces routes portent une partie entière et ont leur propre limite (3 Mo) dans sauvegarde.ts.
   app.use('*', (c, next) => (c.req.method === 'PUT' && c.req.path === '/api/sauvegarde') ||
     (c.req.method === 'POST' && (c.req.path === '/api/sauvegarde/versions' || /^\/api\/sauvegarde\/parties\/[^/]+\/archives$/.test(c.req.path))) ? next() : limite(c, next));
