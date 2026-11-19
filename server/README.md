@@ -21,9 +21,31 @@ Pour un environnement Docker local : `docker compose up --build` dans ce dossier
 
 ## Authentification
 
+La surface publique est limitée à POST `sign-up/email`, `sign-in/email`, `sign-out`, `request-password-reset`, `reset-password`, `delete-user`, et GET `get-session`, `reset-password/:token`, `error`. Toute autre route d’authentification renvoie 404. Les jetons Bearer doivent être signés. À l’inscription, le nom est tronqué à 50 caractères et une image dépassant 2048 caractères est retirée.
+
+Les demandes de réinitialisation sont limitées à trois envois par destinataire et par heure, indépendamment de l’IP, avec une réponse neutre inchangée. Seule une empreinte HMAC de l’adresse est conservée dans le compteur ; les entrées de plus de 24 heures sont purgées lors des demandes suivantes.
+
+`POST /api/auth/delete-user` accepte `{ password }` et supprime le compte et ses sauvegardes par cascade. Better Auth exige un mot de passe valide ou, en son absence, une session fraîche. `GET /api/compte/export` exige un Bearer et renvoie `{ exporteLe, compte, parties: [{ partie, regions }] }`, avec les enveloppes de sauvegarde et `compte: null` en l’absence de données. L’export exclut les autres comptes et l’historique des versions ; sa réponse porte `Cache-Control: no-store` et la limite de corps est de 100 Ko.
+
 Les routes Better Auth sont sous `/api/auth/` : `sign-up/email`, `sign-in/email`, `get-session`, `sign-out`, `request-password-reset`, `reset-password`. Les inscriptions utilisent les champs `name`, `email`, `password` ; `name` est requis par Better Auth et peut être la valeur générique « Joueur ». Le mot de passe doit compter au moins dix caractères ; le maximum par défaut est conservé. Aucune vérification d’e-mail à l’inscription.
 
-Le client lit `set-auth-token` après inscription/connexion puis transmet `Authorization: Bearer <jeton>`. Il n’a pas besoin de cookies entre domaines. Ne jamais mettre ces jetons dans des URL ou journaux. Pour demander un lien, envoyer `email` et `redirectTo` (une URL du jeu autorisée), puis transmettre `token` et `newPassword` à `reset-password`. Le lien expire après une heure ; sa consommation et la révocation des sessions sont assurées par Better Auth. Le mailer est injectable dans les tests. Sans SMTP en développement, le lien est affiché dans la console ; les journaux Better Auth sont désactivés pour éviter toute donnée personnelle dans les erreurs. Les erreurs HTTP d’authentification ont un message français ; les codes machine restent ceux de Better Auth.
+Le client lit `set-auth-token` après inscription/connexion puis transmet `Authorization: Bearer <jeton>`. Il n’a pas besoin de cookies entre domaines. Ne jamais mettre ces jetons dans des URL ou journaux. Pour demander un lien, envoyer `email` et `redirectTo` (une URL du jeu autorisée), puis transmettre `token` et `newPassword` à `reset-password`. Le lien expire après une heure ; sa consommation et la révocation des sessions sont assurées par Better Auth. Le mailer est injectable dans les tests. Sans SMTP en développement, le lien est affiché dans la console (jamais en production). Better Auth conserve son niveau de journalisation `warn`. Les journaux applicatifs sont des lignes JSON : refus HTTP et actions d’authentification avec identifiant `X-Request-Id`, sans corps, paramètres de requête ni jetons. Les erreurs SMTP et de tâches de fond masquent les adresses électroniques. L’envoi SMTP fait trois tentatives (attentes de 1 puis 3 secondes) ; le mailer injecté reste appelé une seule fois. Les erreurs HTTP d’authentification ont un message français ; les codes machine restent ceux de Better Auth.
+
+En production, générer le secret avec `openssl rand -base64 48` ; les valeurs d’exemple sont refusées. `TRUSTED_PROXIES` vide produit un avertissement ; `TRUSTED_PROXIES=none` indique explicitement aucun proxy. SMTP impose TLS avec validation du certificat, par TLS direct sur 465 / `smtps:` ou STARTTLS sur les autres transports, y compris `smtp:`.
+
+`DATABASE_MIGRATION_URL` est optionnelle et vaut `DATABASE_URL` par défaut. Pour séparer les droits, utiliser un rôle propriétaire des tables pour les migrations et un rôle DML pour l’API (`DATABASE_URL`). Après migration, accorder au rôle API, dans le schéma utilisé :
+
+```sql
+GRANT USAGE ON SCHEMA public TO pokiclicker_api;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO pokiclicker_api;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO pokiclicker_api;
+ALTER DEFAULT PRIVILEGES FOR ROLE pokiclicker_proprietaire IN SCHEMA public
+  GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO pokiclicker_api;
+ALTER DEFAULT PRIVILEGES FOR ROLE pokiclicker_proprietaire IN SCHEMA public
+  GRANT USAGE ON SEQUENCES TO pokiclicker_api;
+```
+
+Les deux URL exigent un paramètre `sslmode` (préférer `require` ou `verify-full`) ou `ssl` pour un hôte public contenant un point. `sslmode=disable` reste accepté avec avertissement. Le démarrage retente dix fois la connexion avant de quitter avec le code 1 ; les erreurs du pool et rejets de promesses sont journalisés. Toutes les réponses portent CSP, CORP, Permissions-Policy et COOP ; en production HSTS inclut les sous-domaines.
 
 La limite est persistée en base et active dans tous les environnements. Le proxy HTTPS doit supprimer les en-têtes IP fournis par le client et écrire une adresse client unique fiable dans `X-Forwarded-For`. Ne pas exposer directement le port de l’application sur Internet : un client direct pourrait forger cet en-tête. Sans adresse reconnue, Better Auth utilise un compteur partagé par route. Configurer et vérifier ce point sur le proxy Coolify avant ouverture publique. Ne pas ajouter d’origines génériques ou de joker CORS.
 

@@ -6,8 +6,10 @@ import { support } from './support.js';
 const contexte = support();
 const { mails, origin, password, request, signup } = contexte;
 async function reset(email: string) {
+  const avant = mails.filter(mail => mail.to === email).length;
   const response = await request('/api/auth/request-password-reset', { email, redirectTo: `${origin}/reset` });
   expect(response.status).toBe(200);
+  await expect.poll(() => mails.filter(mail => mail.to === email).length).toBe(avant + 1);
   const mail = mails.at(-1)!;
   expect(mail.to).toBe(email);
   return new URL(mail.url).pathname.split('/').at(-1)!;
@@ -70,6 +72,10 @@ test('6b. le lien reçu par e-mail redirige vers le jeu avec le jeton', async ()
   const location = new URL(response.headers.get('location')!);
   expect(location.origin).toBe(origin);
   expect(location.searchParams.get('token')).toBe(resetToken);
+  expect((await request('/api/auth/reset-password', {
+    token: location.searchParams.get('token'), newPassword: 'DepuisLeLien123!',
+  })).status).toBe(200);
+  expect((await request('/api/auth/sign-in/email', { email, password: 'DepuisLeLien123!' })).status).toBe(200);
   const invalid = await request(`/api/auth/reset-password/invalide?callbackURL=${encodeURIComponent(origin)}`);
   expect(invalid.status).toBe(302);
   expect(new URL(invalid.headers.get('location')!).searchParams.get('error')).toBe('INVALID_TOKEN');

@@ -5,7 +5,7 @@ import { createApp } from './app.js';
 import { migrerSauvegarde } from './schema.js';
 
 const config = readConfig();
-const pool = new Pool({ connectionString: config.databaseURL });
+const pool = new Pool({ connectionString: config.migrationURL });
 try {
   const { auth } = createApp(config, pool);
   // Verrou : deux instances démarrées ensemble ne migrent pas en même temps.
