@@ -23,22 +23,22 @@ Cœur : sauvegardes corrompues, import, pension, casino, validation des données
 - [x] `B-core-02` Une sauvegarde corrompue ne peut plus jamais être réécrite ni réparée (effort M)
 - [x] `B-core-03` Le Repousse fausse la distribution des rencontres (effort S)
 - [x] `B-core-04` Le relâchement automatique peut laisser une équipe composée uniquement d'œufs (effort S)
-- [ ] `B-core-05` Un œuf peut être déposé comme parent à la pension (effort S) — à valider, voir questions-lot-1.md
+- [x] `B-core-05` Un œuf peut être déposé comme parent à la pension (effort S)
 - [x] `B-core-06` Un `starterId` autre que 1, 4 ou 7 fait planter le combat d'événement (effort S)
 - [x] `B-core-07` `reprendreCombat` plante si l'étape dépasse celles de la zone (effort M)
 - [x] `B-core-08` Création, import et installation de version ne sont pas atomiques (effort M)
 - [x] `B-core-09` L'export de secours échoue dès qu'une région est illisible, et n'emporte pas le compte (effort M)
 - [x] `B-core-10` L'argent devient flottant à chaque victoire (effort S)
-- [ ] `B-core-11` Boosts et recharge du Fauchage reposent sur l'horloge système (effort M) — à valider, voir questions-lot-1.md
+- [ ] `B-core-11` Boosts et recharge du Fauchage reposent sur l'horloge système (effort M) — décidé, lot 3 (temps hors ligne ne compte pas)
 - [x] `B-core-12` L'arrêt automatique annonce « shiny » alors que le shiny n'est pas la cause (effort S)
 - [x] `B-core-15` Le sabot de blackjack est reconstruit en pleine main avec des cartes déjà sorties (effort S)
 - [x] `B-core-16` `acheterJetons` n'a pas de plafond : des jetons au-delà de 2^53 rendent la région non sauvegardable (effort S)
 - [x] `B-core-17` `renommerPartie` ne change ni la révision ni la date d'écriture (effort S)
 - [x] `B-core-20` Le message d'achat d'une amélioration affiche toujours « CT Jackpot » (effort S)
-- [ ] `B-core-21` Le casino revend sans limite un Pokémon déjà possédé (effort S) — à valider, voir questions-lot-1.md
+- [x] `B-core-21` Le casino revend sans limite un Pokémon déjà possédé (effort S)
 - [x] `B-core-35` `relacher` isolé ne contrôle pas le favori (effort S)
-- [ ] `B-core-36` Le Jeton Shiny serait applicable à un œuf (effort S) — à valider, voir questions-lot-1.md
-- [ ] `B-core-37` `couplePonte` : l'espèce du parent sert de clé sans filtrer les œufs (effort S) — à valider, voir questions-lot-1.md
+- [x] `B-core-36` Le Jeton Shiny serait applicable à un œuf (effort S)
+- [x] `B-core-37` `couplePonte` : l'espèce du parent sert de clé sans filtrer les œufs (effort S)
 - [x] `B-core-38` Un Pokémon de pension éclot avec une chance chromatique non bornée par 1 (effort S) — sans objet : `reglages.ts` rejette déjà un réglage qui ferait dépasser 1
 - [x] `S-core-01` Validation de région incomplète : une sauvegarde « valide » peut planter le chargement (effort M)
 - [x] `S-core-02` Aucun plafond numérique : `Infinity` et débordements atteignables (effort M)
@@ -58,13 +58,13 @@ Cœur : sauvegardes corrompues, import, pension, casino, validation des données
 
 ## B. `fix(serveur): bugs, sécurité des comptes, déploiement et CI`
 
-`etat:en_cours` `est:13-24` `prio:1` · branche : `v2` · périmètre : server/, scripts/, .github/ · 40 éléments
+`etat:fait` `est:13-24` `prio:1` · branche : `v2` · périmètre : server/, scripts/, .github/ · 40 éléments
 
 ### Histoire
 Serveur : comptes, limites d'envoi, en-têtes, Docker, CI, scripts. Éléments choisis par Nicolas le 19/11/2026.
 
 ### Critères d'acceptation
-- [ ] `B-srv-01` Historique « de rotation » écrit à chaque envoi mais jamais lisible par aucune route (effort M) — À VALIDER, non codé (questions-lot-2.md)
+- [x] `B-srv-01` Historique « de rotation » écrit à chaque envoi mais jamais lisible par aucune route (effort M) — décidé : rotation supprimée
 - [x] `B-srv-03` `DELETE /parties/:id` sans `revisionBase` : détruit aussi toutes les versions, donc irréversible (effort M) — serveur fait ; le client doit encore envoyer `revisionBase` (questions-lot-2.md, point 7)
 - [x] `B-srv-04` Date impossible silencieusement déplacée (`2024-02-31` devient le 2 mars) (effort S)
 - [x] `B-srv-05` `ecrit_le` est choisi par le client : futur lointain accepté, ordre et comparaisons dépendants de l'horloge de l'appareil (effort M)
@@ -72,15 +72,15 @@ Serveur : comptes, limites d'envoi, en-têtes, Docker, CI, scripts. Éléments c
 - [x] `B-srv-08` Le gestionnaire de tâches de fond avale toutes les erreurs : un e-mail de réinitialisation perdu n'est ni tracé ni signalé (effort M)
 - [x] `B-srv-10` Une divergence de plus de 3 Mo ne peut pas être archivée : le client reste bloqué en « divergence » (effort M)
 - [x] `B-srv-14` Risque d'écrasement sans conflit après suppression puis recréation d'une région (révision 1 réutilisée) (effort M)
-- [ ] `S-srv-01` Inscription ouverte, sans vérification d'e-mail, avec un stockage par compte quasi illimité (effort M) — À VALIDER, non codé (questions-lot-2.md)
+- [x] `S-srv-01` Inscription ouverte, sans vérification d'e-mail, avec un stockage par compte quasi illimité (effort M) — sans objet : Nicolas laisse l’inscription ouverte (questions-lot-2.md)
 - [x] `S-srv-02` `PUT /api/sauvegarde` : nombre de régions non borné avant la boucle SQL (amplification) (effort S)
-- [ ] `S-srv-03` Énumération de comptes à l'inscription (effort M) — À VALIDER, non codé (questions-lot-2.md)
+- [x] `S-srv-03` Énumération de comptes à l'inscription (effort M) — sans objet : décision identique à S-srv-01
 - [x] `S-srv-04` `TRUSTED_PROXIES` vide en production n'est ni refusé ni signalé (effort S) — avertissement au démarrage, pas de refus (questions-lot-2.md, point 8)
 - [x] `S-srv-05` Pas de limite par adresse e-mail pour la réinitialisation : bombardement d'un tiers et épuisement du quota SMTP (effort M)
 - [x] `S-srv-07` Aucune route de suppression ni d'export de compte (droit à l'effacement) (effort M)
 - [x] `S-srv-08` `bearer()` sans `requireSignature` (effort S)
 - [x] `S-srv-09` Surface `/api/auth/*` non réduite (effort S)
-- [x] `S-srv-10` Pas de révocation des autres sessions au changement de mot de passe, session de 7 jours (effort M) — `change-password` n’est plus exposé ; durée de session à trancher (questions-lot-2.md, point 6)
+- [x] `S-srv-10` Pas de révocation des autres sessions au changement de mot de passe, session de 7 jours (effort M) — `change-password` n’est plus exposé ; session de 30 jours glissants
 - [x] `S-srv-12` SMTP en clair accepté en production ; STARTTLS non exigé (effort S)
 - [x] `S-srv-13` Secrets factices acceptés en production (effort S)
 - [x] `S-srv-15` Pas de contrôle d'origine ni de type de contenu sur `/api/sauvegarde` alors que le cookie de session est accepté (effort S)
@@ -96,15 +96,15 @@ Serveur : comptes, limites d'envoi, en-têtes, Docker, CI, scripts. Éléments c
 - [x] `S-srv-25` `debug.log` versionné (effort S)
 - [x] `S-srv-27` API : CSP et en-têtes d'isolement absents ; HSTS sans `includeSubDomains` (effort S)
 - [x] `Q-srv-01` Le serveur n'est pas dans la CI : ni typecheck, ni tests, ni build (effort M)
-- [ ] `Q-srv-02` 16 scripts `extraire-*-v1` recopient le même chargeur `vm`, sans module partagé (effort M) — À VALIDER, non codé (questions-lot-2.md)
+- [x] `Q-srv-02` 16 scripts `extraire-*-v1` recopient le même chargeur `vm`, sans module partagé (effort M) — scripts supprimés
 - [x] `Q-srv-03` `sauvegarde.ts` : 500 lignes mélangeant validation, routes et SQL ; sept copies du motif connect/BEGIN/COMMIT/ROLLBACK/release (effort M)
 - [x] `Q-srv-04` Plafonds et durées codés en dur, dispersés dans trois fichiers et quatre requêtes SQL (effort S)
 - [x] `Q-srv-05` Tests absents pour `index.ts`, `migrate.ts`, arrêt, transport SMTP et en-têtes de production ; aucune mesure de couverture (effort M)
-- [ ] `Q-srv-07` Stockage : tout en `jsonb` dans Postgres, copies complètes à chaque envoi, aucune stratégie S3 ni compression (effort L) — À VALIDER, non codé (questions-lot-2.md)
+- [x] `Q-srv-07` Stockage : tout en `jsonb` dans Postgres, copies complètes à chaque envoi, aucune stratégie S3 ni compression (effort L) — reporté par Nicolas (hors de ce lot)
 - [x] `Q-srv-12` Migrations en tableau de chaînes, sans somme de contrôle ni test depuis un état réel N-1 ; SQL documenté en double (effort M) — `docs/migrations/0003-versions-origine.sql` laissé en copie documentaire
 - [x] `Q-srv-16` Deux versions de TypeScript et de `@types/node`, plages `^` côté serveur, préversion en devDependency (effort S)
 - [x] `Q-srv-17` Deux dépôts npm séparés, sans espace de travail ; le serveur est invisible depuis la racine (effort S)
-- [ ] Les vérifications du dépôt passent (tsc, eslint, vitest ciblé) et le diff est relu.
+- [x] Les vérifications du dépôt passent (tsc, eslint, vitest ciblé) et le diff est relu.
 
 ---
 

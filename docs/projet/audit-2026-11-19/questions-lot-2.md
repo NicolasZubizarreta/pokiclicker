@@ -2,14 +2,12 @@
 
 Ces éléments n'ont pas été codés : ils changent une règle ou un comportement visible, demandent une décision, ou touchent `src/`. Les 40 autres éléments du ticket B sont faits ou sans objet (voir `docs/projet/backlog-phase-audit.md`).
 
-## À décider avant de coder
+## Décisions de Nicolas (transmises le 19/11/2026)
 
-1. **B-srv-01 : historique de rotation.** Le serveur écrit les 5 dernières versions à chaque envoi, mais aucune route ne les lit. Deux choix : (a) exposer et restaurer des instantanés espacés (un par heure ou par jour) ; (b) arrêter d'écrire la rotation. Elle coûte du stockage pour rien tant que (a) n'existe pas. Je n'ai rien changé.
-2. **S-srv-01 : inscription ouverte.** Faut-il vérifier l'e-mail à l'inscription ou limiter les inscriptions (invitation, liste d'amis) ? Cela change le parcours d'inscription visible dans le jeu.
-3. **S-srv-03 : énumération de comptes à l'inscription.** Répondre pareil que l'e-mail existe ou non oblige à passer par une confirmation par e-mail (message « vérifiez votre boîte »). Même décision que S-srv-01.
-4. **Q-srv-07 : stockage.** Compression, instantanés espacés et copie des archives vers S3 : chantier L qui dépend de la décision 1 et du budget S3 (ticket de sauvegardes S3 déjà prévu).
-5. **Q-srv-02 : 16 scripts `extraire-*-v1`.** `CLAUDE.md` dit que la V1 n'est plus une référence. Lesquels garder ? Mutualiser les 16 chargeurs dans `scripts/lib/legacy.mjs` avant ce tri risquerait de changer en silence les données extraites. Rien n'a été touché.
-6. **Durée de session (S-srv-10).** `change-password` n'est plus exposé (liste blanche `/api/auth/*`) et la réinitialisation révoque les autres sessions. Reste la durée de 7 jours de Better Auth : la réduire déconnecte les joueurs plus souvent.
+1. **B-srv-01** : la rotation des 5 dernières versions n’est plus écrite (PUT et `POST /versions`). Les archives de divergence, de restauration et de suppression restent. La migration 0005 efface les anciennes lignes de rotation, que nulle route ne lisait.
+2. **S-srv-10** : session de 30 jours, glissante (`updateAge` 1 jour : chaque visite espacée de plus d’un jour repousse l’expiration). Un joueur actif n’est jamais déconnecté ; l’inactif l’est après 30 jours. La révocation des autres sessions à la réinitialisation est conservée.
+3. **Q-srv-02** : les 16 scripts `extraire-*-v1`, les 7 tests `*-fraicheur` qui les exécutaient et les 6 commandes `extraire:*` de `package.json` sont supprimés. Les données déjà extraites (`data/`, `tests/fixtures/v1-*.json`, utilisées par des tests de `src/`) ne bougent pas. Aucun script restant n’en dépend.
+4. **S-srv-01 et S-srv-03** : inscription laissée ouverte, e-mail non vérifié, rien à coder. **S-srv-04** : avertissement seul. **S-srv-12, S-srv-19, S-srv-20, Q-srv-07** : rien maintenant. **B-srv-03** : la part client revient au lot 3.
 
 ## Demande un changement dans `src/` (non fait)
 
