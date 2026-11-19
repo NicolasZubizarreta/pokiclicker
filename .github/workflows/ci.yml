@@ -6,15 +6,19 @@ on:
   push:
     branches: [v2]
 
+# Droits minimaux du jeton : lecture du dépôt seulement.
+permissions:
+  contents: read
+
 jobs:
   verification:
     name: Vérifier le socle
     runs-on: ubuntu-latest
     steps:
       - name: Récupérer le dépôt
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Installer Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -28,3 +32,47 @@ jobs:
         run: npm test
       - name: Construire le jeu
         run: npm run build
+      - name: Auditer les dépendances de production
+        run: npm audit --omit=dev --audit-level=high
+  serveur:
+    name: Vérifier le serveur
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
+    services:
+      postgres:
+        image: postgres:18@sha256:e754b839f447639b7004895f4d8a4bfcb4e9dbe3a1bc035f27f646562a16fd61
+        env:
+          POSTGRES_DB: pokiclicker_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: mot-de-passe-ci-factice
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d pokiclicker_test"
+          --health-interval 5s --health-timeout 3s --health-retries 20
+    env:
+      DATABASE_URL: postgresql://postgres:mot-de-passe-ci-factice@127.0.0.1:5432/pokiclicker_test
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Installer Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+      - name: Installer les dépendances
+        run: npm ci --ignore-scripts
+      - name: Vérifier les types
+        run: npm run typecheck
+      - name: Exécuter les tests
+        run: npm test
+      - name: Construire le serveur
+        run: npm run build
+      - name: Auditer les dépendances de production
+        run: npm audit --omit=dev --audit-level=high
+      - name: Construire l'image Docker
+        working-directory: .
+        run: docker build --tag pokiclicker-serveur:ci server

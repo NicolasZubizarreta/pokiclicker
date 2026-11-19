@@ -13,7 +13,7 @@ design/references/hgss/
 dev-dist/
 .vitest/
 
-# G�n�rique des cr�dits : droits r�serv�s, usage priv� (docs/projet/musiques.md)
+# Générique des crédits : droits réservés, usage privé (docs/projet/musiques.md)
 public/audio/PokemonCreditKanto.mp3
 
 server/node_modules/
@@ -25,3 +25,9 @@ dist-compte/
 dist-audit/
 dist-audit-compte/
 .partie-test/
+
+# variables d'environnement et journaux locaux
+.env
+.env.*
+!.env.example
+*.log
