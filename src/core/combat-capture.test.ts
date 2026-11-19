@@ -38,7 +38,9 @@ describe('Auto-attaque et arrêt automatique', () => {
   it('respecte les conditions et la priorité shiny, nouveau, rareté', () => {
     const cible = { ...ennemi, rarete: 'rare' as const, shiny: true };
     const options = { ...arret, rare: true, nouveau: true };
-    expect(motifArret(cible, true, options, true)).toBe('shiny');
+    // B-core-12 : le shiny n'est le motif que si l'arrêt shiny est activé.
+    expect(motifArret(cible, true, options, true)).toBe('nouveau');
+    expect(motifArret(cible, true, { ...options, shiny: true }, true)).toBe('shiny');
     expect(motifArret({ ...cible, shiny: false }, true, options, true)).toBe('nouveau');
     expect(motifArret({ ...cible, shiny: false }, true, { ...options, nouveau: false }, true)).toBe('rare');
     expect(motifArret(cible, false, { ...arret, shiny: true }, true)).toBe('shiny');
