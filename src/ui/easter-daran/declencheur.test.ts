@@ -34,7 +34,7 @@ it.each([
 });
 
 it('échoue sans compte configuré', () => {
-  const { autorise: _, ...deps } = dependances();
+  const deps = { ...dependances(), autorise: undefined };
   declencherAnniversaire('Daran', deps);
   expect(deps.appliquerRegion).not.toHaveBeenCalled();
   expect(deps.ouvrir).not.toHaveBeenCalled();
