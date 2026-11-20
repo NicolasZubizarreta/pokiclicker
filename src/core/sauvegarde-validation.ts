@@ -31,15 +31,33 @@ const evenements: { id: string; etapes: unknown[] }[] = [
   ...evenementsIntro.evenements, ...evenementsRival.evenements, ...evenementsRonflex.evenements,
   ...evenementsFin.evenements, ...evenementsChenBoss.evenements,
 ];
+/**
+ * Un uid partagé par deux Pokémon (défaut d'une ancienne version) est réparé, pas refusé : le deuxième reçoit un uid
+ * distinct. Refuser ici rendrait toute la partie illisible pour un défaut que le joueur ne peut pas corriger.
+ */
 function uniques(pokemon: PokemonPossede[]): void {
-  exiger(new Set(pokemon.map(p => p.uid)).size === pokemon.length, 'Uid dupliqué');
+  const vus = new Set<string>();
+  for (const p of pokemon) {
+    let uid = p.uid;
+    for (let n = 2; vus.has(uid); n++) uid = `${p.uid.slice(0, 56)}~${n}`;
+    p.uid = uid;
+    vus.add(uid);
+  }
 }
+/**
+ * Listes d'identifiants : doublons retirés, puis coupées à la taille du catalogue. Une liste plus longue que le catalogue
+ * ne peut contenir que des doublons ou des restes d'une ancienne version : la couper ne fait rien perdre au joueur, et
+ * refuser la partie lui ferait tout perdre. Les listes de Pokémon (pc, équipe) ne sont jamais coupées : seule leur taille
+ * maximale (`liste`) les borne.
+ */
 function bornerIdentifiants(v: Record<string, unknown>, bornes: Record<string, number> = {}): void {
   for (const [cle, valeur] of Object.entries(v)) {
     if (!Array.isArray(valeur)) continue;
-    exiger(valeur.length <= (bornes[cle] ?? LISTE_MAX), `Liste trop longue : ${cle}`);
+    exiger(valeur.length <= LISTE_MAX, `Liste trop longue : ${cle}`);
     // Le sabot de blackjack contient légitimement des doublons (6 paquets) : il ne se dédoublonne pas.
-    if (cle !== 'sabotBlackjack' && valeur.every(e => typeof e === 'string' || typeof e === 'number')) v[cle] = [...new Set(valeur)];
+    if (cle !== 'sabotBlackjack' && valeur.every(e => typeof e === 'string' || typeof e === 'number')) {
+      v[cle] = [...new Set(valeur)].slice(0, bornes[cle] ?? LISTE_MAX);
+    }
   }
 }
 function validerCollectionShiny(valeur: unknown): void {
@@ -106,9 +124,10 @@ export function validerPokemonPossede(v: unknown): asserts v is PokemonPossede {
     }
   } });
   const pokemon = v as PokemonPossede;
-  exiger(pokemon.niveau <= reglages.recompenses.niveauMax, 'Niveau trop élevé');
-  exiger(pokemon.calcium <= reglages.degats.calciumMax, 'Calcium trop élevé');
-  exiger(pokemon.bonheur <= reglages.recompenses.bonheur.max, 'Bonheur trop élevé');
+  // Valeurs au-delà du maximum du jeu : ramenées au maximum (la partie reste lisible), jamais refusées.
+  pokemon.niveau = Math.min(pokemon.niveau, reglages.recompenses.niveauMax);
+  pokemon.calcium = Math.min(pokemon.calcium, reglages.degats.calciumMax);
+  pokemon.bonheur = Math.min(pokemon.bonheur, reglages.recompenses.bonheur.max);
   const sexe = sexeEspece(pokemon.numero);
   exiger(sexe === 'aleatoire' ? pokemon.sexe !== 'sansSexe' : pokemon.sexe === sexe,
     'Sexe incompatible avec l’espèce');

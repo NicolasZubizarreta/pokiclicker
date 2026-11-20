@@ -18,14 +18,18 @@ describe('validation des sauvegardes auditées', () => {
     expect(() => validerDonneesPartie(p)).toThrow();
     expect(() => validerEnveloppe({ version: 4, niveau: 'partie', id: 'a', revision: Number.MAX_SAFE_INTEGER, ecritLe: '2026-11-19T00:00:00Z', donnees: partieInitiale('Test') }, 'partie')).toThrow();
   });
-  it('S-core-03 refuse les statistiques au-delà des données du jeu', () => {
+  it('S-core-03 ramène les statistiques au maximum du jeu au lieu de refuser la partie (incident du 20/11)', () => {
     for (const [cle, max] of Object.entries({ niveau: reglages.recompenses.niveauMax, calcium: reglages.degats.calciumMax, bonheur: reglages.recompenses.bonheur.max })) {
-      expect(() => validerPokemonPossede({ ...pokemon(), [cle]: max + 1 })).toThrow();
+      const p = { ...pokemon(), [cle]: max + 1 };
+      validerPokemonPossede(p);
+      expect((p as Record<string, unknown>)[cle]).toBe(max);
     }
   });
-  it('S-core-04 refuse les uid partagés entre équipe et pension', () => {
+  it('S-core-04 répare les uid partagés entre équipe et pension au lieu de refuser la partie (incident du 20/11)', () => {
     const r = region(); r.equipe = [pokemon() as never]; r.pension.parents = [pokemon() as never];
-    expect(() => validerDonneesRegion(r)).toThrow();
+    validerDonneesRegion(r);
+    expect(new Set([...r.equipe, ...r.pension.parents].map(p => p.uid)).size).toBe(2);
+    expect(r.equipe[0]!.uid).toBe('a');
   });
   it('S-core-05 dédoublonne les identifiants et borne les listes', () => {
     const p = partieInitiale('Test'); p.vus = [1, 1]; validerDonneesPartie(p); expect(p.vus).toEqual([1]);
