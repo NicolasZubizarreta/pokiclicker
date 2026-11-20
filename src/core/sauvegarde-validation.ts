@@ -18,6 +18,13 @@ import evenementsChenBoss from '../../data/evenements/chen-boss.json';
 import { LISTE_MAX, PLAFOND_ARGENT, PLAFOND_JETONS } from './plafonds';
 import type { DonneesCompte, DonneesPartie, DonneesRegion, Enveloppe, MainBlackjack, MainBlackjackAncienne, Niveau, PokemonPossede } from './sauvegarde-types';
 
+/**
+ * Politique (incident de production du 20/11) : une vraie sauvegarde n'est jamais refusée pour une règle « douce ».
+ * On répare (valeur ramenée au maximum, doublon retiré, champ inconnu ou facultatif illisible retiré) ; on ne refuse que
+ * ce qui est réellement corrompu (JSON, types, champs obligatoires absents, taille absurde).
+ */
+/** Au-delà, une liste n'est plus une sauvegarde mais un fichier abîmé ou hostile. Les PC de plusieurs milliers de Pokémon passent. */
+const LISTE_ABSOLUE = 200_000;
 type Validateur = (valeur: unknown) => void;
 export const NOM_PARTIE_MIN = 1;
 export const NOM_PARTIE_MAX = 100;
@@ -53,19 +60,24 @@ function uniques(pokemon: PokemonPossede[]): void {
 function bornerIdentifiants(v: Record<string, unknown>, bornes: Record<string, number> = {}): void {
   for (const [cle, valeur] of Object.entries(v)) {
     if (!Array.isArray(valeur)) continue;
-    exiger(valeur.length <= LISTE_MAX, `Liste trop longue : ${cle}`);
     // Le sabot de blackjack contient légitimement des doublons (6 paquets) : il ne se dédoublonne pas.
     if (cle !== 'sabotBlackjack' && valeur.every(e => typeof e === 'string' || typeof e === 'number')) {
-      v[cle] = [...new Set(valeur)].slice(0, bornes[cle] ?? LISTE_MAX);
+      // Un texte plus long qu'un identifiant n'en est pas un : il est écarté, pas la partie.
+      const gardes = valeur.filter(e => typeof e !== 'string' || e.length <= 200);
+      v[cle] = [...new Set(gardes)].slice(0, bornes[cle] ?? LISTE_MAX);
     }
   }
 }
-function validerCollectionShiny(valeur: unknown): void {
-  liste(positif)(valeur);
-  const especes = valeur as number[];
-  exiger(new Set(especes).size === especes.length, 'Espèces chromatiques : doublon');
-  exiger(especes.length <= reglages.pension.especesTirees, 'Liste chromatique trop longue');
-  exiger(especes.every(n => n <= reglages.pension.especesTirees), 'Espèces chromatiques : numéro inconnu');
+/** Espèces d'une collection (chromatiques, écloses) : seuls les numéros du catalogue restent, sans doublon. */
+function reparerEspeces(region: Record<string, unknown>, cle: string): void {
+  const valeur = region[cle];
+  if (!Array.isArray(valeur)) return;
+  region[cle] = [...new Set(valeur.filter((n): n is number => Number.isSafeInteger(n) && n >= 1 && n <= reglages.pension.especesTirees))];
+}
+/** Entier positif ou nul le plus proche : décimal arrondi vers le bas, négatif ramené à zéro. */
+function entierPositif(parent: Record<string, unknown>, cle: string, max = Number.MAX_SAFE_INTEGER): void {
+  const valeur = parent[cle];
+  if (typeof valeur === 'number') parent[cle] = Math.min(max, Math.max(0, Math.floor(valeur)));
 }
 export function exiger(condition: unknown, raison: string): asserts condition {
   if (!condition) throw new Error(raison);
@@ -87,17 +99,18 @@ const nombre: Validateur = v => exiger(typeof v === 'number' && Number.isFinite(
 const entier: Validateur = v => { nombre(v); exiger(Number.isSafeInteger(v), 'Entier attendu'); };
 const positif: Validateur = v => { entier(v); exiger((v as number) > 0, 'Entier strictement positif attendu'); };
 const booleen: Validateur = v => exiger(typeof v === 'boolean', 'Booléen attendu');
+/** Un nombre fini : le signe et les décimales se réparent après coup (`entierPositif`), ils ne font pas refuser la partie. */
+const reel: Validateur = v => exiger(typeof v === 'number' && Number.isFinite(v), 'Nombre attendu');
 const liste = (valider: Validateur): Validateur => v => {
   exiger(Array.isArray(v), 'Tableau attendu');
-  exiger(v.length <= LISTE_MAX, 'Liste trop longue');
+  exiger(v.length <= LISTE_ABSOLUE, 'Liste trop longue');
   for (const element of v) valider(element);
 };
-const textes = liste(chaine);
-/** Identifiants de tutoriels vus : au plus 64 textes de 40 caractères (le jeu en compte une dizaine). */
-const tutosVus: Validateur = v => {
-  exiger(Array.isArray(v) && v.length <= 64, 'Liste de tutoriels trop longue');
-  for (const element of v) { chaine(element); exiger((element as string).length <= 40, 'Identifiant de tutoriel trop long'); }
-};
+const texte: Validateur = v => exiger(typeof v === 'string', 'Texte attendu');
+const textes = liste(texte);
+/** Identifiants de tutoriels vus : au plus 64 (le jeu en compte une dizaine) ; la coupe se fait dans `bornerIdentifiants`. */
+const tutosVus: Validateur = textes;
+/** Forme stricte, pour les données du jeu (événements, scènes) : un champ inconnu ou manquant est une erreur d'auteur. */
 export function forme(v: unknown, requis: Record<string, Validateur>, facultatifs: Record<string, Validateur> = {}) {
   objet(v);
   exiger(Object.keys(v).every(cle => Object.hasOwn(requis, cle) || Object.hasOwn(facultatifs, cle)), 'Champ inconnu');
@@ -107,50 +120,79 @@ export function forme(v: unknown, requis: Record<string, Validateur>, facultatif
   }
   for (const [cle, valider] of Object.entries(facultatifs)) if (Object.hasOwn(v, cle)) valider(v[cle]);
 }
+/**
+ * Forme des sauvegardes : champs inconnus retirés (reste d'une autre version), jamais un refus. Avec `tolerer`, un champ
+ * facultatif illisible est retiré (la partie se charge comme une ancienne sauvegarde qui ne l'avait pas) au lieu de faire
+ * refuser le tout. Les champs obligatoires absents ou mal typés restent une vraie corruption.
+ */
+function formeSouple(v: unknown, requis: Record<string, Validateur>, facultatifs: Record<string, Validateur> = {}, tolerer = false) {
+  objet(v);
+  for (const cle of Object.keys(v)) if (!Object.hasOwn(requis, cle) && !Object.hasOwn(facultatifs, cle)) delete v[cle];
+  for (const [cle, valider] of Object.entries(requis)) {
+    exiger(Object.hasOwn(v, cle), `Champ manquant : ${cle}`);
+    valider(v[cle]);
+  }
+  for (const [cle, valider] of Object.entries(facultatifs)) {
+    if (!Object.hasOwn(v, cle)) continue;
+    if (!tolerer) { valider(v[cle]); continue; }
+    try { valider(v[cle]); } catch { delete v[cle]; }
+  }
+}
 export function validerPokemonPossede(v: unknown): asserts v is PokemonPossede {
-  forme(v, { uid: identifiant, numero: positif, niveau: positif, xp: nombre, shiny: booleen,
-    bonheur: nombre, pierreEternelle: booleen, calcium: entier, favori: booleen,
+  formeSouple(v, { uid: identifiant, numero: positif, niveau: reel, xp: reel, shiny: booleen,
+    bonheur: reel, pierreEternelle: booleen, calcium: reel, favori: booleen,
     sexe: s => exiger(s === 'male' || s === 'femelle' || s === 'sansSexe', `Sexe invalide : ${String(s)}`) },
-  { marqueEclosion: booleen, surnom: s => {
-    chaine(s);
-    exiger(s.trim().length > 0 && s.trim().length <= reglages.equipe.surnomMax, 'Surnom invalide');
-  }, oeuf: o => {
+  { marqueEclosion: booleen, surnom: texte, oeuf: o => {
     try {
-      forme(o, { pasRestants: entier, pasMax: positif });
-      const oeuf = o as NonNullable<PokemonPossede['oeuf']>;
-      exiger(oeuf.pasRestants <= oeuf.pasMax, 'les pas restants dépassent le maximum');
+      formeSouple(o, { pasRestants: reel, pasMax: positif });
     } catch (erreur) {
       throw new Error(`Œuf invalide : ${(erreur as Error).message}`);
     }
   } });
   const pokemon = v as PokemonPossede;
-  // Valeurs au-delà du maximum du jeu : ramenées au maximum (la partie reste lisible), jamais refusées.
-  pokemon.niveau = Math.min(pokemon.niveau, reglages.recompenses.niveauMax);
-  pokemon.calcium = Math.min(pokemon.calcium, reglages.degats.calciumMax);
-  pokemon.bonheur = Math.min(pokemon.bonheur, reglages.recompenses.bonheur.max);
+  // Valeurs hors des bornes du jeu : ramenées dans les bornes (la partie reste lisible), jamais refusées.
+  pokemon.niveau = Math.min(reglages.recompenses.niveauMax, Math.max(1, Math.floor(pokemon.niveau)));
+  pokemon.calcium = Math.min(reglages.degats.calciumMax, Math.max(0, Math.floor(pokemon.calcium)));
+  pokemon.bonheur = Math.min(reglages.recompenses.bonheur.max, Math.max(0, pokemon.bonheur));
+  pokemon.xp = Math.max(0, pokemon.xp);
+  if (pokemon.oeuf) pokemon.oeuf.pasRestants = Math.min(pokemon.oeuf.pasMax, Math.max(0, Math.floor(pokemon.oeuf.pasRestants)));
+  if (pokemon.surnom !== undefined) {
+    const surnom = pokemon.surnom.trim().slice(0, reglages.equipe.surnomMax).trim();
+    if (surnom) pokemon.surnom = surnom; else delete pokemon.surnom;
+  }
+  // Sexe incompatible avec l'espèce (table de sexes corrigée depuis l'écriture de la partie) : remis à celui de l'espèce.
   const sexe = sexeEspece(pokemon.numero);
-  exiger(sexe === 'aleatoire' ? pokemon.sexe !== 'sansSexe' : pokemon.sexe === sexe,
-    'Sexe incompatible avec l’espèce');
+  if (sexe !== 'aleatoire') pokemon.sexe = sexe;
+  else if (pokemon.sexe === 'sansSexe') pokemon.sexe = 'male';
 }
 export function validerDonneesCompte(v: unknown): asserts v is DonneesCompte {
-  forme(v, { diamants: entier, succes: textes, skins: textes,
-    preferences: p => forme(p, {}, { sombre: booleen, sonActive: booleen, autoAttaque: booleen, autoClicLie: booleen, evolutionAuto: booleen, passerEclosions: booleen, relacherDoublons: booleen, notifications: booleen,
-      // Lue avec indulgence : une balle inconnue ou illisible retombe sur la balle par défaut, jamais sur un compte refusé.
+  formeSouple(v, { diamants: reel, succes: textes, skins: textes,
+    // Préférences lues avec indulgence : une option illisible retombe sur sa valeur par défaut, jamais sur un compte refusé.
+    preferences: p => formeSouple(p, {}, { sombre: booleen, sonActive: booleen, autoAttaque: booleen, autoClicLie: booleen, evolutionAuto: booleen, passerEclosions: booleen, relacherDoublons: booleen, notifications: booleen,
       balleChoisie: b => { if (typeof b === 'string') chaine(b); },
-      arretAuto: a => forme(a, { actif: booleen, commun: booleen, peuCommun: booleen, rare: booleen,
-        tresRare: booleen, legendaire: booleen, shiny: booleen, nouveau: booleen }) }) });
+      arretAuto: a => formeSouple(a, { actif: booleen, commun: booleen, peuCommun: booleen, rare: booleen,
+        tresRare: booleen, legendaire: booleen, shiny: booleen, nouveau: booleen }) }, true) });
+  entierPositif(v as Record<string, unknown>, 'diamants');
   bornerIdentifiants(v as Record<string, unknown>);
 }
 export function validerDonneesPartie(v: unknown): asserts v is DonneesPartie {
-  forme(v, { nom: n => { chaineBornee(n, NOM_PARTIE_MIN, NOM_PARTIE_MAX); exiger(n.trim().length > 0, 'Nom vide'); }, regionCourante: identifiant, regionsDebloquees: liste(identifiant),
-    pokedexNational: liste(positif), vus: liste(positif), pcGlobal: liste(validerPokemonPossede), drapeaux: textes,
-    statistiques: s => forme(s, { victoires: entier, argentTotalGagne: nombre }, { tempsJeuMs: entier }) });
+  formeSouple(v, { nom: texte, regionCourante: texte, regionsDebloquees: textes,
+    pokedexNational: liste(reel), vus: liste(reel), pcGlobal: liste(validerPokemonPossede), drapeaux: textes,
+    statistiques: s => formeSouple(s, { victoires: reel, argentTotalGagne: reel }, { tempsJeuMs: reel }, true) });
   const partie = v as DonneesPartie;
+  // Nom hors bornes : coupé ou remplacé, la partie reste ouvrable.
+  partie.nom = partie.nom.trim().slice(0, NOM_PARTIE_MAX).trim() || 'Ma partie';
+  const entiersDuCatalogue = (nombres: number[]) => nombres.filter(n => Number.isSafeInteger(n) && n >= 1);
+  partie.pokedexNational = entiersDuCatalogue(partie.pokedexNational);
+  partie.vus = entiersDuCatalogue(partie.vus);
   bornerIdentifiants(v as Record<string, unknown>, { regionsDebloquees: regions.length, pokedexNational: cataloguePokemon(), vus: cataloguePokemon() });
-  exiger(partie.regionsDebloquees.every(id => regions.includes(id)), 'Région inconnue');
+  // Régions : seules les connues restent, la région de départ reste toujours, la région courante est toujours débloquée.
+  partie.regionsDebloquees = [...new Set([monde.region, ...partie.regionsDebloquees.filter(id => regions.includes(id))])];
+  if (!partie.regionsDebloquees.includes(partie.regionCourante)) partie.regionCourante = monde.region;
   uniques(partie.pcGlobal);
-  partie.statistiques.argentTotalGagne = Math.floor(partie.statistiques.argentTotalGagne);
-  exiger(partie.regionsDebloquees.includes(partie.regionCourante), 'Région courante non débloquée');
+  entierPositif(partie.statistiques as Record<string, unknown>, 'victoires');
+  entierPositif(partie.statistiques as Record<string, unknown>, 'argentTotalGagne');
+  entierPositif(partie.statistiques as Record<string, unknown>, 'tempsJeuMs');
 }
 const CARTE_BLACKJACK = /^(A|[2-9]|10|J|Q|K)-[SHDC]$/;
 const carteBlackjack: Validateur = c => {
@@ -176,16 +218,16 @@ function validerSabot(s: unknown): void {
 function validerBlackjackEnCours(b: unknown): void {
   const cartes = liste(carteBlackjack);
   if (b !== null && typeof b === 'object' && Object.hasOwn(b, 'joueur')) {
-    forme(b, { mise: positif, paquet: cartes, joueur: cartes, croupier: cartes });
+    formeSouple(b, { mise: positif, paquet: cartes, joueur: cartes, croupier: cartes });
     const main = b as MainBlackjackAncienne;
     const toutes = [...main.paquet, ...main.joueur, ...main.croupier];
     exiger(toutes.length === 52 && new Set(toutes).size === 52, 'Paquet blackjack invalide');
     exiger(main.joueur.length >= 2 && main.croupier.length >= 1, 'Main blackjack invalide');
     return;
   }
-  forme(b, {
+  formeSouple(b, {
     phase: p => exiger(p === 'assurance' || p === 'jeu', 'Phase blackjack invalide'),
-    mains: liste(m => forme(m, { cartes, mise: positif, separee: booleen, doublee: booleen,
+    mains: liste(m => formeSouple(m, { cartes, mise: positif, separee: booleen, doublee: booleen,
       statut: s => exiger(s === 'en-cours' || s === 'reste' || s === 'depasse' || s === 'abandon', 'Statut blackjack invalide') })),
     active: entier, croupier: cartes, assurance: entier,
   });
@@ -200,27 +242,18 @@ function validerBlackjackEnCours(b: unknown): void {
   compterCartes([...main.mains.flatMap(m => m.cartes), ...main.croupier]);
 }
 export function validerDonneesRegion(v: unknown): asserts v is DonneesRegion {
-  forme(v, { regionId: identifiant, zoneId: chaine, etape: e => exiger(Number.isSafeInteger(e), 'Étape entière attendue'), equipe: liste(validerPokemonPossede),
+  formeSouple(v, { regionId: identifiant, zoneId: texte, etape: reel, equipe: liste(validerPokemonPossede),
     badges: textes, bossVaincus: textes, objetsCles: textes, quetes: textes, drapeaux: textes,
-    evenementsJoues: textes, argent: nombre, ligueGagnee: entier,
-    inventaire: i => { objet(i); exiger(Object.keys(i).length <= LISTE_MAX, 'Inventaire trop long'); Object.entries(i).forEach(([cle, valeur]) => { identifiant(cle); entier(valeur); }); },
-    pc: liste(validerPokemonPossede), ameliorations: textes, jalonsRecus: liste(positif),
+    evenementsJoues: textes, argent: reel, ligueGagnee: reel,
+    inventaire: i => { objet(i); Object.values(i).forEach(reel); },
+    pc: liste(validerPokemonPossede), ameliorations: textes, jalonsRecus: liste(reel),
     starterId: s => { if (s !== null) positif(s); },
-    statistiques: s => forme(s, { eliminations: entier, argentTotalGagne: nombre }),
-    chronos: c => forme(c, { finRepousse: entier, finSuperRepousse: entier, finBoostAttaque: entier,
-      finBoostAttaqueSpeciale: entier, rechargeFauchage: entier }),
-    pension: p => {
-      forme(p, { parents: liste(validerPokemonPossede), oeufs: liste(o => {
-        validerPokemonPossede(o);
-        exiger(o.oeuf !== undefined, 'Œuf invalide : état d’œuf manquant dans la pension');
-      }), emplacementsOeuf: positif });
-      exiger((p as DonneesRegion['pension']).parents.length <= 2, 'Pension invalide : au plus deux parents');
-      const pension = p as DonneesRegion['pension'];
-      exiger(pension.emplacementsOeuf <= reglages.pension.emplacementsMax, 'Pension invalide : trop d’emplacements');
-      exiger(pension.oeufs.length <= pension.emplacementsOeuf, 'Pension invalide : trop d’œufs');
-    },
-    jetons: entier,
-    arretAuto: a => forme(a, { commun: booleen, peuCommun: booleen, rare: booleen, tresRare: booleen,
+    statistiques: s => formeSouple(s, { eliminations: reel, argentTotalGagne: reel }),
+    chronos: c => formeSouple(c, { finRepousse: reel, finSuperRepousse: reel, finBoostAttaque: reel,
+      finBoostAttaqueSpeciale: reel, rechargeFauchage: reel }),
+    pension: p => formeSouple(p, { parents: liste(validerPokemonPossede), oeufs: liste(validerPokemonPossede), emplacementsOeuf: reel }),
+    jetons: reel,
+    arretAuto: a => formeSouple(a, { commun: booleen, peuCommun: booleen, rare: booleen, tresRare: booleen,
       legendaire: booleen, shiny: booleen, nouveau: booleen }) }, {
     diplomeLe: dateUtc,
     annoncesVues: textes,
@@ -228,25 +261,39 @@ export function validerDonneesRegion(v: unknown): asserts v is DonneesRegion {
     casinoVu: booleen,
     pensionVue: booleen,
     zonesAtteintes: textes,
-    evenementEnCours: e => forme(e, { id: identifiant,
+    evenementEnCours: e => formeSouple(e, { id: identifiant,
       etape: i => { entier(i); exiger((i as number) >= 0, 'Étape invalide'); },
       file: liste(identifiant) }),
     blackjackEnCours: validerBlackjackEnCours,
     sabotBlackjack: s => validerSabot(s),
-    especesShiny: validerCollectionShiny,
-    especesEclosesShiny: validerCollectionShiny,
-    especesEcloses: e => {
-      liste(positif)(e);
-      const especes = e as number[];
-      exiger(new Set(especes).size === especes.length, 'Espèces écloses : doublon');
-      exiger(especes.length <= reglages.pension.especesTirees, 'Liste des espèces écloses trop longue');
-      exiger(especes.every(n => n <= reglages.pension.especesTirees), 'Espèces écloses : numéro inconnu');
-    },
+    especesShiny: liste(reel),
+    especesEclosesShiny: liste(reel),
+    especesEcloses: liste(reel),
     plusOuMoinsCarte: c => { entier(c); exiger((c as number) >= 1 && (c as number) <= donneesJeuxCasino.plusOuMoins.rangs, 'Carte du plus ou moins invalide'); },
-  });
+  }, true);
   const region = v as DonneesRegion;
   exiger(regions.includes(region.regionId), 'Région inconnue');
-  exiger(region.starterId === null || [1, 4, 7].includes(region.starterId), 'Starter inconnu');
+  // Starter inconnu des trois de départ (ancienne version, partie de test) : conservé, il n'y a rien à réparer.
+  for (const cle of ['etape', 'ligueGagnee', 'jetons']) entierPositif(region as unknown as Record<string, unknown>, cle);
+  for (const cle of Object.keys(region.chronos)) entierPositif(region.chronos as Record<string, unknown>, cle);
+  entierPositif(region.statistiques as Record<string, unknown>, 'eliminations');
+  entierPositif(region.statistiques as Record<string, unknown>, 'argentTotalGagne');
+  region.argent = Math.max(0, region.argent);
+  // Inventaire : une entrée illisible (nom hors normes) est écartée, les quantités deviennent des entiers positifs.
+  region.inventaire = Object.fromEntries(Object.entries(region.inventaire).slice(0, LISTE_MAX).filter(([cle]) => {
+    try { identifiant(cle); return true; } catch { return false; }
+  }).map(([cle, quantite]) => [cle, Math.min(Number.MAX_SAFE_INTEGER, Math.max(0, Math.floor(quantite)))]));
+  // Pension : au plus deux parents, des œufs en cours seulement, pas plus d'œufs que d'emplacements. Ce qui dépasse
+  // retourne au PC : un Pokémon n'est jamais perdu pour mettre la pension en règle.
+  const pension = region.pension;
+  entierPositif(pension as unknown as Record<string, unknown>, 'emplacementsOeuf', reglages.pension.emplacementsMax);
+  const sansEtatDOeuf = pension.oeufs.filter(o => o.oeuf === undefined);
+  pension.oeufs = pension.oeufs.filter(o => o.oeuf !== undefined);
+  region.pc.push(...sansEtatDOeuf, ...pension.parents.splice(2));
+  pension.emplacementsOeuf = Math.min(reglages.pension.emplacementsMax, Math.max(1, pension.emplacementsOeuf, pension.oeufs.length));
+  region.pc.push(...pension.oeufs.splice(pension.emplacementsOeuf));
+  for (const cle of ['especesShiny', 'especesEclosesShiny', 'especesEcloses']) reparerEspeces(region as unknown as Record<string, unknown>, cle);
+  if (region.tutosVus) region.tutosVus = region.tutosVus.filter(t => t.length <= 40);
   // Seule la région jouable (Kanto) a ses zones chargées : les régions verrouillées ne sont pas réparées.
   if (region.regionId === monde.region) {
     // Lieux (`kanto.labo`) et zones d'événement (`evenement:…`) sont des zones valides qui ne sont pas dans `monde.zones`.
@@ -264,7 +311,7 @@ export function validerDonneesRegion(v: unknown): asserts v is DonneesRegion {
     // Zones + lieux : le Centre commercial (un lieu, pas une zone) y est noté dès la première visite.
     zonesAtteintes: monde.zones.length + monde.lieux.length,
     especesShiny: reglages.pension.especesTirees, especesEcloses: reglages.pension.especesTirees,
-    especesEclosesShiny: reglages.pension.especesTirees,
+    especesEclosesShiny: reglages.pension.especesTirees, tutosVus: 64,
   });
   uniques([...region.equipe, ...region.pc, ...region.pension.parents, ...region.pension.oeufs]);
   const courant = region.evenementEnCours;
@@ -286,7 +333,7 @@ export function dateUtc(v: unknown): void {
   'Date UTC invalide');
 }
 export function validerEnveloppe(v: unknown, niveau: Niveau): Enveloppe<unknown> {
-  forme(v, { version: entier, niveau: chaine, id: identifiant, revision: positif,
+  formeSouple(v, { version: entier, niveau: chaine, id: identifiant, revision: positif,
     ecritLe: dateUtc, donnees: () => {} });
   const enveloppe = v as Enveloppe<unknown>;
   exiger(enveloppe.revision < Number.MAX_SAFE_INTEGER, 'Révision trop élevée');

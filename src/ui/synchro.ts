@@ -3,7 +3,18 @@ import { ErreurStockage, creerGestionnaire, creerStockageMemoire, type DonneesCo
 import { creerPartieNommee } from './persistance';
 import { genererIdentifiant } from './identifiants';
 
-export type EtatSynchro = 'inactif' | 'ok' | 'hors-ligne' | 'refuse' | 'ailleurs' | 'divergence';
+/** Sauvegarde reçue du serveur que la validation du cœur refuse : la raison (courte) remonte jusqu'au bandeau. */
+export class SauvegardeIllisible extends Error {
+  readonly raison: string;
+  constructor(cause: unknown) {
+    const brut = cause instanceof Error ? cause.message : String(cause);
+    const raison = brut.replace(/\s+/g, ' ').trim().slice(0, 120) || 'raison inconnue';
+    super(`Sauvegarde illisible : ${raison}`);
+    this.name = 'SauvegardeIllisible';
+    this.raison = raison;
+  }
+}
+export type EtatSynchro ='inactif' | 'ok' | 'hors-ligne' | 'refuse' | 'ailleurs' | 'divergence';
 export type PartieListee = { id: string; revision?: number; nom: string; regionCourante: string; zoneId: string; tempsJeuMs: number | null;
   ecritLe: string; surServeur: boolean; courante: boolean; ailleurs?: boolean };
 export type VersionArchivee = { lot: string; origine: 'divergence' | 'restauration'; remplaceLe: string; ecritLe: string;
@@ -70,7 +81,10 @@ export function creerSynchro(options: {
   } catch { /* Une mémoire illisible ne bloque pas le jeu. */ }
   let statut: EtatSynchro = 'inactif';
   let erreurStockage: ErreurStockage | undefined;
+  /** Raison courte de la dernière sauvegarde reçue du serveur et jugée illisible ; vide pour un autre échec (réseau, refus). */
+  let raisonIllisible = '';
   function echecOperation(erreur: unknown): 'stockage' | 'echec' {
+    raisonIllisible = erreur instanceof SauvegardeIllisible ? erreur.raison : '';
     if (!(erreur instanceof ErreurStockage)) return 'echec';
     erreurStockage = erreur;
     return 'stockage';
@@ -134,7 +148,13 @@ export function creerSynchro(options: {
       || (compte.status !== 404 && !enveloppe)) throw new Error('Version invalide');
     const version: VersionServeur = { compte: enveloppe, partie: donnees.partie, regions: donnees.regions };
     // La même validation que l'installation, dans un stockage isolé, avant tout choix ou archivage.
-    creerGestionnaire({ stockage: creerStockageMemoire(), horloge, genererId: () => 'x' }).installerVersion(version);
+    try {
+      creerGestionnaire({ stockage: creerStockageMemoire(), horloge, genererId: () => 'x' }).installerVersion(version);
+    } catch (erreur) {
+      if (erreur instanceof ErreurStockage) throw erreur;
+      console.error('Sauvegarde reçue du serveur illisible', id, erreur);
+      throw new SauvegardeIllisible(erreur);
+    }
     return version;
   }
   function memoriserVersion(version: VersionServeur, unite: Unite) {
@@ -428,7 +448,11 @@ export function creerSynchro(options: {
       if (!gestionnaire.chargerPartie(id)) {
         // Sans le compte : une copie locale non envoyée ne doit jamais être écrasée en changeant de partie.
         const version = { ...await lireVersion(id), compte: null };
-        gestionnaire.installerVersion(version);
+        try { gestionnaire.installerVersion(version); } catch (erreur) {
+          if (erreur instanceof ErreurStockage) throw erreur;
+          console.error('Installation de la sauvegarde impossible', id, erreur);
+          throw new SauvegardeIllisible(erreur);
+        }
         memoriserVersion(version, 'partie');
       }
       gestionnaire.choisirPartie(id);
@@ -490,6 +514,7 @@ export function creerSynchro(options: {
   }
   return {
     derniereErreurStockage: () => erreurStockage,
+    derniereRaisonIllisible: () => raisonIllisible,
     ouvrir,
     lister,
     listerVersions,

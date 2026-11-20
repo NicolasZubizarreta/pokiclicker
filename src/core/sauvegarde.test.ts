@@ -180,7 +180,7 @@ describe('sauvegarde du blackjack', () => {
     expect(fin.ok && fin.termine).toBe(true);
     if (fin.ok) expect(() => validerDonneesRegion(fin.region)).not.toThrow();
   });
-  it('rejette cartes inconnues, doublons de l’ancien format, paquet incomplet, mise invalide et champs inconnus', () => {
+  it('supprime une ancienne main illisible et retire ses champs inconnus', () => {
     const cartes = construirePaquet(() => 0.5);
     const main = { mise: 1, paquet: cartes.slice(3), joueur: cartes.slice(0, 2), croupier: cartes.slice(2, 3) };
     for (const invalide of [
@@ -192,11 +192,14 @@ describe('sauvegarde du blackjack', () => {
       { ...main, joueur: [] }, { ...main, croupier: [] },
       { ...main, inconnu: true },
     ]) {
-      expect(() => validerDonneesRegion({ ...regionInitiale('kanto', 'kanto.route-1'),
-        blackjackEnCours: invalide })).toThrow();
+      const region = { ...regionInitiale('kanto', 'kanto.route-1'), blackjackEnCours: invalide };
+      const champInconnu = 'inconnu' in invalide;
+      validerDonneesRegion(region);
+      if (champInconnu) expect(region.blackjackEnCours).toEqual(main);
+      else expect(region).not.toHaveProperty('blackjackEnCours');
     }
   });
-  it('rejette une main ou un sabot de blackjack invalide (nouveau format)', () => {
+  it('supprime une main ou un sabot illisible et retire les champs inconnus (nouveau format)', () => {
     const donne = distribuer(depart(), 10, () => 0.5, ['8-S', '6-C', '8-H', '10-D', ...remplissage]);
     if (!donne.ok) throw new Error(donne.raison);
     const main = donne.region.blackjackEnCours as MainBlackjack;
@@ -211,12 +214,18 @@ describe('sauvegarde du blackjack', () => {
       { ...main, mains: [{ ...main.mains[0]!, statut: 'reste' }] },
       { ...main, phase: 'assurance', assurance: 3 }, { ...main, inconnu: true },
     ]) {
-      expect(() => validerDonneesRegion({ ...donne.region, blackjackEnCours: invalide })).toThrow();
+      const region = { ...donne.region, blackjackEnCours: invalide };
+      const champInconnu = 'inconnu' in invalide;
+      validerDonneesRegion(region);
+      if (champInconnu) expect(region.blackjackEnCours).toEqual(main);
+      else expect(region).not.toHaveProperty('blackjackEnCours');
     }
     const sabot = construireSabot(() => 0.5);
     expect(() => validerDonneesRegion({ ...donne.region, sabotBlackjack: sabot })).not.toThrow();
     for (const invalide of [[...sabot, '2-S'], ['X-S'], sept, [1], 'sabot']) {
-      expect(() => validerDonneesRegion({ ...donne.region, sabotBlackjack: invalide })).toThrow();
+      const region = { ...donne.region, sabotBlackjack: invalide };
+      validerDonneesRegion(region);
+      expect(region).not.toHaveProperty('sabotBlackjack');
     }
   });
 });
@@ -237,9 +246,10 @@ describe('sauvegarde des evenements', () => {
     { id: 'kanto.essai', etape: 0, file: [3] },
     { id: '', etape: 0, file: [] },
     { id: 'kanto.essai', etape: 0, file: [''] },
-  ])('refuse un evenement en cours invalide : %j', evenementEnCours => {
-    expect(() => validerDonneesRegion({ ...regionInitiale('kanto', 'kanto.route-1'),
-      evenementEnCours })).toThrow();
+  ])('supprime un evenement en cours invalide : %j', evenementEnCours => {
+    const region = { ...regionInitiale('kanto', 'kanto.route-1'), evenementEnCours };
+    validerDonneesRegion(region);
+    expect(region).not.toHaveProperty('evenementEnCours');
   });
   it('conserve les drapeaux, les evenements joues et la reprise apres export et import', () => {
     const { jeu } = contexte();
@@ -268,24 +278,31 @@ describe('préférences de combat du compte', () => {
     session.enregistrerPreferences(structuredClone(session.preferences));
     expect(instantane(stockage)).toEqual(avant);
   });
-  it('exige chaque booléen du bloc arrêt et refuse les champs inconnus', () => {
+  it('supprime les préférences illisibles et retire les champs inconnus du bloc arrêt', () => {
     const arretAuto = reglages.depart.preferences.arretAuto;
     for (const cle of Object.keys(arretAuto)) {
       const incomplet = { ...arretAuto };
       Reflect.deleteProperty(incomplet, cle);
-      expect(() => validerDonneesCompte({ ...compteInitial(), preferences: { arretAuto: incomplet } }))
-        .toThrow(`Champ manquant : ${cle}`);
-      expect(() => validerDonneesCompte({ ...compteInitial(), preferences: { arretAuto: { ...arretAuto, [cle]: 1 } } }))
-        .toThrow('Booléen attendu');
+      for (const valeur of [incomplet, { ...arretAuto, [cle]: 1 }]) {
+        const compte = { ...compteInitial(), preferences: { arretAuto: valeur } };
+        validerDonneesCompte(compte);
+        expect(compte.preferences).not.toHaveProperty('arretAuto');
+      }
     }
-    expect(() => validerDonneesCompte({ ...compteInitial(), preferences: { autoAttaque: 1 } }))
-      .toThrow('Booléen attendu');
-    expect(() => validerDonneesCompte({ ...compteInitial(), preferences: { arretAuto: { ...arretAuto, inconnu: true } } }))
-      .toThrow('Champ inconnu');
+    const illisible = { ...compteInitial(), preferences: { autoAttaque: 1 } };
+    validerDonneesCompte(illisible);
+    expect(illisible.preferences).not.toHaveProperty('autoAttaque');
+    const inconnu = { ...compteInitial(), preferences: { arretAuto: { ...arretAuto, inconnu: true } } };
+    validerDonneesCompte(inconnu);
+    expect(inconnu.preferences.arretAuto).toEqual(arretAuto);
   });
-  it('exige des diamants entiers', () => {
+  it('répare les diamants en entiers positifs ou nuls', () => {
     for (const diamants of [0, 15]) expect(() => validerDonneesCompte({ ...compteInitial(), diamants })).not.toThrow();
-    for (const diamants of [1.5, 1e300, -1]) expect(() => validerDonneesCompte({ ...compteInitial(), diamants })).toThrow();
+    for (const [diamants, attendu] of [[1.5, 1], [1e300, Number.MAX_SAFE_INTEGER], [-1, 0]]) {
+      const compte = { ...compteInitial(), diamants };
+      validerDonneesCompte(compte);
+      expect(compte.diamants).toBe(attendu);
+    }
   });
   it.each(['autoAttaque', 'autoClicLie', 'arretAuto'] as const)('résout séparément le champ facultatif %s', cle => {
     const { stockage, horloge, jeu } = contexte();
@@ -501,7 +518,7 @@ describe('chargement sûr et import', () => {
     expect(() => jeu.ecrirePartie(p.id, p.donnees)).toThrowError(new Error("Cette sauvegarde vient d'une version plus récente du jeu."));
     expect(stockage.lire(cle)).toBe(texte);
   });
-  it.each(['tronque', 'sans-donnees', 'niveau', 'version', 'date', 'identifiant', 'donnees'])('refuse une sauvegarde corrompue (%s) sans la modifier', cas => {
+  it.each(['tronque', 'sans-donnees', 'niveau', 'version', 'date', 'identifiant', 'donnees'])('répare le champ inconnu ou refuse la corruption (%s), sans écriture', cas => {
     const { jeu, stockage } = contexte();
     const p = jeu.creerPartie('Test');
     const sansDonnees: Partial<typeof p> = { ...p };
@@ -512,7 +529,8 @@ describe('chargement sûr et import', () => {
       donnees: JSON.stringify({ ...p, donnees: { ...p.donnees, argent: 4 } }) };
     stockage.ecrire(cle, valeurs[cas as keyof typeof valeurs]);
     const avant = instantane(stockage);
-    expect(() => jeu.chargerPartie(p.id)).toThrow('Cette sauvegarde est illisible.');
+    if (cas === 'donnees') expect(jeu.chargerPartie(p.id)?.donnees).toEqual(p.donnees);
+    else expect(() => jeu.chargerPartie(p.id)).toThrow('Cette sauvegarde est illisible.');
     expect(instantane(stockage)).toEqual(avant);
   });
   it('migre au chargement sans écrire, puis écrit la version courante explicitement', () => {
@@ -620,17 +638,22 @@ describe('chargement sûr et import', () => {
 describe('validation du schéma de version 5', () => {
   it.each([
     [{ sexe: 'inconnu' }, 'Sexe invalide : inconnu'],
-    [{ oeuf: { pasRestants: 11, pasMax: 10 } }, 'Œuf invalide : les pas restants dépassent le maximum'],
+    [{ oeuf: { pasRestants: 11, pasMax: 10 } }, { oeuf: { pasRestants: 10, pasMax: 10 } }],
     [{ oeuf: { pasRestants: 0, pasMax: 0 } }, 'Œuf invalide : Entier strictement positif attendu'],
-    [{ oeuf: { pasRestants: -1, pasMax: 10 } }, 'Œuf invalide : Nombre positif ou nul attendu'],
-    [{ oeuf: { pasRestants: 0.5, pasMax: 10 } }, 'Œuf invalide : Entier attendu'],
+    [{ oeuf: { pasRestants: -1, pasMax: 10 } }, { oeuf: { pasRestants: 0, pasMax: 10 } }],
+    [{ oeuf: { pasRestants: 0.5, pasMax: 10 } }, { oeuf: { pasRestants: 0, pasMax: 10 } }],
     [{ oeuf: { pasRestants: 0, pasMax: 1.5 } }, 'Œuf invalide : Entier attendu'],
-    [{ oeuf: { pasRestants: 0, pasMax: 1, inconnu: true } }, 'Œuf invalide : Champ inconnu'],
+    [{ oeuf: { pasRestants: 0, pasMax: 1, inconnu: true } }, { oeuf: { pasRestants: 0, pasMax: 1 } }],
     [{ oeuf: { pasRestants: 0 } }, 'Œuf invalide : Champ manquant : pasMax'],
     [{ favori: 'oui' }, 'Booléen attendu'],
-    [{ inconnu: true }, 'Champ inconnu'],
-  ])('refuse un Pokémon invalide (%j)', (modification, message) => {
-    expect(() => validerPokemonPossede({ ...pokemon, ...modification })).toThrowError(new Error(message));
+    [{ inconnu: true }, {}],
+  ])('répare le Pokémon ou conserve le refus de corruption (%j)', (modification, attendu) => {
+    const copie = structuredClone({ ...pokemon, ...modification });
+    if (typeof attendu === 'string') expect(() => validerPokemonPossede(copie)).toThrow(attendu);
+    else {
+      validerPokemonPossede(copie);
+      expect(copie).toEqual({ ...pokemon, ...attendu });
+    }
   });
   it.each(['male', 'femelle', 'sansSexe'])('accepte le sexe %s et les bornes des pas d’œuf', sexe => {
     for (const pasRestants of [0, 10]) {
@@ -639,31 +662,42 @@ describe('validation du schéma de version 5', () => {
     }
   });
   it.each([
-    [{ jetons: -1 }, 'Nombre positif ou nul attendu'],
-    [{ jetons: 0.5 }, 'Entier attendu'],
+    [{ jetons: -1 }, { jetons: 0 }],
+    [{ jetons: 0.5 }, { jetons: 0 }],
     [{ starterId: '1' }, 'Nombre positif ou nul attendu'],
     [{ starterId: 0 }, 'Entier strictement positif attendu'],
     [{ starterId: 1.5 }, 'Entier attendu'],
     [{ pc: [null] }, 'Objet attendu'],
-    [{ ameliorations: [1] }, 'Longueur de texte invalide'],
-    [{ jalonsRecus: [0] }, 'Entier strictement positif attendu'],
-    [{ statistiques: { eliminations: -1, argentTotalGagne: 0 } }, 'Nombre positif ou nul attendu'],
-    [{ statistiques: { eliminations: 0, argentTotalGagne: Infinity } }, 'Nombre positif ou nul attendu'],
-    [{ pension: { parents: [pokemon, pokemon, pokemon], oeufs: [], emplacementsOeuf: 1 } }, 'Pension invalide : au plus deux parents'],
-    [{ pension: { parents: [], oeufs: [pokemon], emplacementsOeuf: 1 } }, 'Œuf invalide : état d’œuf manquant dans la pension'],
-    [{ pension: { parents: [], oeufs: [], emplacementsOeuf: 0 } }, 'Entier strictement positif attendu'],
-    [{ pension: { parents: [], oeufs: [], emplacementsOeuf: 1.5 } }, 'Entier attendu'],
-    [{ pension: { parents: [], oeufs: [], emplacementsOeuf: 6 } }, 'Pension invalide : trop d’emplacements'],
+    [{ ameliorations: [1] }, 'Texte attendu'],
+    [{ jalonsRecus: [0] }, { jalonsRecus: [0] }],
+    [{ statistiques: { eliminations: -1, argentTotalGagne: 0 } }, { statistiques: { eliminations: 0, argentTotalGagne: 0 } }],
+    [{ statistiques: { eliminations: 0, argentTotalGagne: Infinity } }, 'Nombre attendu'],
+    [{ pension: { parents: [{ ...pokemon }, { ...pokemon }, { ...pokemon }], oeufs: [], emplacementsOeuf: 1 } }, {
+      pension: { parents: [{ ...pokemon, uid: `${pokemon.uid}~2` }, { ...pokemon, uid: `${pokemon.uid}~3` }], oeufs: [], emplacementsOeuf: 1 },
+      pc: [pokemon] }],
+    [{ pension: { parents: [], oeufs: [pokemon], emplacementsOeuf: 1 } }, {
+      pension: { parents: [], oeufs: [], emplacementsOeuf: 1 }, pc: [pokemon] }],
+    [{ pension: { parents: [], oeufs: [], emplacementsOeuf: 0 } }, { pension: { parents: [], oeufs: [], emplacementsOeuf: 1 } }],
+    [{ pension: { parents: [], oeufs: [], emplacementsOeuf: 1.5 } }, { pension: { parents: [], oeufs: [], emplacementsOeuf: 1 } }],
+    [{ pension: { parents: [], oeufs: [], emplacementsOeuf: 6 } }, { pension: { parents: [], oeufs: [], emplacementsOeuf: reglages.pension.emplacementsMax } }],
     [{ pension: { parents: [], oeufs: [
       { ...pokemon, oeuf: { pasRestants: 25, pasMax: 25 } },
       { ...pokemon, uid: 'autre-oeuf', oeuf: { pasRestants: 25, pasMax: 25 } },
-    ], emplacementsOeuf: 1 } }, 'Pension invalide : trop d’œufs'],
-    [{ inconnu: true }, 'Champ inconnu'],
+    ], emplacementsOeuf: 1 } }, { pension: { parents: [], oeufs: [
+      { ...pokemon, oeuf: { pasRestants: 25, pasMax: 25 } },
+      { ...pokemon, uid: 'autre-oeuf', oeuf: { pasRestants: 25, pasMax: 25 } },
+    ], emplacementsOeuf: 2 } }],
+    [{ inconnu: true }, {}],
     [{ arretAuto: {} }, 'Champ manquant : commun'],
     [{ chronos: {} }, 'Champ manquant : finRepousse'],
-  ])('refuse une région invalide (%j)', (modification, message) => {
-    expect(() => validerDonneesRegion({ ...regionInitiale('kanto', 'kanto.route-1'), ...modification }))
-      .toThrowError(new Error(message));
+  ])('répare la région ou conserve le refus de corruption (%j)', (modification, attendu) => {
+    const depart = regionInitiale('kanto', 'kanto.route-1');
+    const copie = structuredClone({ ...depart, ...modification });
+    if (typeof attendu === 'string') expect(() => validerDonneesRegion(copie)).toThrow(attendu);
+    else {
+      validerDonneesRegion(copie);
+      expect(copie).toEqual({ ...depart, ...attendu });
+    }
   });
   it('exige tous les champs du schéma et isole profondément les valeurs de départ', () => {
     const region = regionInitiale('kanto', 'kanto.route-1');
@@ -685,18 +719,24 @@ describe('validation du schéma de version 5', () => {
     expect(autre).toMatchObject(reglages.depart.region);
     expect(autre.pension.emplacementsOeuf).toBe(1);
   });
-  it('valide chaque chrono et chaque critère d’arrêt, sans accepter de champ supplémentaire', () => {
+  it('répare les chronos finis, refuse les types corrompus et retire les champs supplémentaires', () => {
     const region = regionInitiale('kanto', 'kanto.route-1');
     for (const cle of Object.keys(region.chronos)) {
       for (const valeur of [-1, 0.5, Infinity, '0']) {
-        expect(() => validerDonneesRegion({ ...region, chronos: { ...region.chronos, [cle]: valeur } })).toThrow(/attendu/);
+        const copie = { ...region, chronos: { ...region.chronos, [cle]: valeur } };
+        if (typeof valeur === 'number' && Number.isFinite(valeur)) {
+          validerDonneesRegion(copie);
+          expect(copie.chronos).toHaveProperty(cle, 0);
+        } else expect(() => validerDonneesRegion(copie)).toThrow(/attendu/);
       }
     }
     for (const cle of Object.keys(region.arretAuto)) {
       expect(() => validerDonneesRegion({ ...region, arretAuto: { ...region.arretAuto, [cle]: 1 } })).toThrow('Booléen attendu');
     }
     for (const cle of ['chronos', 'arretAuto', 'pension', 'statistiques'] as const) {
-      expect(() => validerDonneesRegion({ ...region, [cle]: { ...region[cle], inconnu: true } })).toThrow('Champ inconnu');
+      const copie = { ...region, [cle]: { ...region[cle], inconnu: true } };
+      validerDonneesRegion(copie);
+      expect(copie[cle]).toEqual(region[cle]);
     }
     expect(() => validerDonneesRegion({ ...region, starterId: 1 })).not.toThrow();
   });

@@ -596,6 +596,41 @@ it.each([false, true])('ouvre une partie distante sans altérer le compte (rése
   }
 });
 
+it('une partie distante vraiment corrompue est refusée avec sa raison, sans toucher au local', async () => {
+  const t = preparer();
+  const { serveur } = versions(t);
+  serveur.partie.id = 'distante';
+  (serveur.partie.donnees as unknown as Record<string, unknown>).regionCourante = 12;
+  t.g.choisirPartie(t.p.id);
+  await t.synchro.envoyerMaintenant();
+  const avant = t.contenu();
+  const erreur = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+  expect(await t.synchro.ouvrirPartie('distante')).toBe('echec');
+  expect(t.synchro.derniereRaisonIllisible()).not.toBe('');
+  expect(erreur).toHaveBeenCalled();
+  expect(t.contenu()).toEqual(avant);
+  erreur.mockRestore();
+  t.fetch.mockRejectedValue(new Error('Réseau'));
+  expect(await t.synchro.ouvrirPartie('distante')).toBe('echec');
+  expect(t.synchro.derniereRaisonIllisible()).toBe('');
+});
+
+it('une partie distante de joueur intensif (PC énorme, doublons, espèces en double) s’ouvre', async () => {
+  const t = preparer();
+  const { serveur } = versions(t);
+  serveur.partie.id = 'distante';
+  const region = serveur.regions[0]!.donnees as unknown as Record<string, unknown>;
+  const numeros = Array.from({ length: 151 }, (_, i) => i + 1);
+  region.especesShiny = [...numeros, ...numeros];
+  region.especesEclosesShiny = [...numeros, 400];
+  region.pc = Array.from({ length: 12_000 }, (_, i) => ({ uid: `pc${i % 11_000}`, numero: (i % 151) + 1, niveau: 9999, xp: 0, shiny: false,
+    bonheur: 100, pierreEternelle: false, calcium: 5, favori: false, sexe: 'male' }));
+  t.g.choisirPartie(t.p.id);
+  await t.synchro.envoyerMaintenant();
+  expect(await t.synchro.ouvrirPartie('distante')).toBe('ok');
+  expect(t.synchro.derniereRaisonIllisible()).toBe('');
+});
+
 it('garde un compte local non envoyé quand on ouvre une partie distante et que l’envoi échoue', async () => {
   const t = preparer();
   const { serveur } = versions(t);

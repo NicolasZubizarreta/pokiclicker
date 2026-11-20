@@ -42,7 +42,9 @@ it('inscrit le starter shiny', () => {
 it.each(['especesShiny', 'especesEclosesShiny'])('valide %s', champ => {
   const region = regionInitiale('kanto', 'kanto.route-1');
   expect(() => validerDonneesRegion({ ...region, [champ]: [1, 151] })).not.toThrow();
-  for (const liste of [[1, 1], [152], [0], [1.5]]) {
-    expect(() => validerDonneesRegion({ ...region, [champ]: liste })).toThrow();
+  for (const [liste, attendue] of [[[1, 1], [1]], [[152], []], [[0], []], [[1.5], []]]) {
+    const copie = { ...region, [champ]: liste };
+    validerDonneesRegion(copie);
+    expect(copie).toHaveProperty(champ, attendue);
   }
 });

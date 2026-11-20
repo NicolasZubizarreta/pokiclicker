@@ -13,9 +13,10 @@ describe('validation des sauvegardes auditées', () => {
     const e = validerEnveloppe({ version: 4, niveau: 'region', id: 'kanto', revision: 1, ecritLe: '2026-11-19T00:00:00Z', donnees: r }, 'region');
     expect(e.donnees).toMatchObject({ zoneId: 'kanto.bourg-palette', etape: 1 });
   });
-  it('S-core-02 refuse les nombres et révisions débordants', () => {
+  it('S-core-02 borne les nombres et refuse les révisions débordantes', () => {
     const p = partieInitiale('Test'); p.statistiques.argentTotalGagne = Number.MAX_VALUE;
-    expect(() => validerDonneesPartie(p)).toThrow();
+    validerDonneesPartie(p);
+    expect(p.statistiques.argentTotalGagne).toBe(Number.MAX_SAFE_INTEGER);
     expect(() => validerEnveloppe({ version: 4, niveau: 'partie', id: 'a', revision: Number.MAX_SAFE_INTEGER, ecritLe: '2026-11-19T00:00:00Z', donnees: partieInitiale('Test') }, 'partie')).toThrow();
   });
   it('S-core-03 ramène les statistiques au maximum du jeu au lieu de refuser la partie (incident du 20/11)', () => {
@@ -33,10 +34,13 @@ describe('validation des sauvegardes auditées', () => {
   });
   it('S-core-05 dédoublonne les identifiants et borne les listes', () => {
     const p = partieInitiale('Test'); p.vus = [1, 1]; validerDonneesPartie(p); expect(p.vus).toEqual([1]);
-    p.drapeaux = Array.from({ length: 10001 }, (_, i) => String(i)); expect(() => validerDonneesPartie(p)).toThrow();
+    p.drapeaux = Array.from({ length: 10001 }, (_, i) => String(i));
+    validerDonneesPartie(p);
+    expect(p.drapeaux).toEqual(Array.from({ length: 10000 }, (_, i) => String(i)));
   });
-  it('S-core-07 refuse une région inconnue', () => {
-    const p = partieInitiale('Test'); p.regionsDebloquees.push('inconnue'); expect(() => validerDonneesPartie(p)).toThrow();
+  it('S-core-07 retire une région inconnue', () => {
+    const p = partieInitiale('Test'); p.regionsDebloquees.push('inconnue');
+    validerDonneesPartie(p); expect(p.regionsDebloquees).toEqual(['kanto']);
   });
   it('S-core-12 abandonne l’événement en cours déjà joué (le catalogue, injecté par le store, est jugé par le moteur)', () => {
     const r = region(); r.evenementEnCours = { id: 'kanto.intro', etape: 0, file: [] }; r.evenementsJoues = ['kanto.intro'];
@@ -64,11 +68,13 @@ describe('validation des sauvegardes auditées', () => {
     }
   });
   it('S-core-15 borne noms et identifiants', () => {
-    expect(() => validerDonneesPartie(partieInitiale('a'.repeat(101)))).toThrow();
+    const p = partieInitiale('a'.repeat(101));
+    validerDonneesPartie(p); expect(p.nom).toBe('a'.repeat(100));
     const r = region(); r.regionId = 'a'.repeat(65); expect(() => validerDonneesRegion(r)).toThrow();
   });
-  it('B-core-06 refuse un starter hors catalogue', () => {
-    const r = region(); r.starterId = 25; expect(() => validerDonneesRegion(r)).toThrow();
+  it('B-core-06 conserve un starter hors catalogue', () => {
+    const r = region(); r.starterId = 25;
+    validerDonneesRegion(r); expect(r.starterId).toBe(25);
   });
   it('B-core-10 arrondit les anciens montants vers le bas', () => {
     const r = region(); r.argent = 12.9; r.statistiques.argentTotalGagne = 15.8;

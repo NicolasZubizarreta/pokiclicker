@@ -9,7 +9,7 @@ import { DialogueDeconnexion } from './compte/DialogueDeconnexion';
 import { useSessionCompte } from './compte/session-compte';
 import { creerHorlogeSysteme } from '../core/clock';
 import { departNouvellePartie, storeJeu } from './store';
-import { creerGestionnaire } from '../core/sauvegarde';
+import { creerGestionnaire, ErreurStockage } from '../core/sauvegarde';
 import { detailErreur } from './persistance';
 import { exporterPartieOuBrut } from './export-secours';
 import { creerStockageLocal } from './stockage-local';
@@ -28,6 +28,23 @@ function ZoneCompteConnectee(props: Omit<ComponentProps<typeof ZoneCompte>, 'com
   return <ZoneCompte {...props} compte={compte} registre={registreSucces} />;
 }
 
+/** Relit compte, partie courante et région comme le fera le jeu ; `null` si tout est lisible, sinon la raison courte du refus. */
+function lireCourante(gestionnaire: ReturnType<typeof creerGestionnaire>): { raison: string; cause: unknown } | null {
+  try {
+    gestionnaire.chargerCompte();
+    const id = gestionnaire.partieCourante();
+    const partie = id ? gestionnaire.chargerPartie(id) : null;
+    if (id && !partie) return { raison: 'partie introuvable', cause: new Error('partie introuvable') };
+    if (id && partie && !gestionnaire.chargerRegion(id, partie.donnees.regionCourante)) {
+      return { raison: 'région de la partie introuvable', cause: new Error('région introuvable') };
+    }
+    return null;
+  } catch (cause) {
+    if (cause instanceof ErreurStockage) return null;
+    return { raison: cause instanceof Error ? cause.message.replace(/\s+/g, ' ').trim().slice(0, 120) : 'raison inconnue', cause };
+  }
+}
+
 // Le store du jeu est un singleton : un jeu déjà monté dans cette page garde sa région en mémoire.
 let jeuDejaMonte = false;
 
@@ -36,6 +53,7 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
   const [, rafraichir] = useState(0);
   const [phase, fixerPhase] = useState<'verification' | 'creation' | 'jeu'>('verification');
   const [ecranParties, fixerEcranParties] = useState(false);
+  const [couranteIllisible, fixerCouranteIllisible] = useState(false);
   const [liste, fixerListe] = useState<{ parties: PartieListee[]; horsConnexion: boolean; illisibles: { id: string; raison: string }[] }>({ parties: [], horsConnexion: false, illisibles: [] });
   const [chargement, fixerChargement] = useState(false);
   const [jeuMonte, fixerJeuMonte] = useState(false);
@@ -71,6 +89,16 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
         if (gestionnaire.listerParties().length === 0) {
           fixerPhase('creation');
           fixerChargement(true);
+          const liste = await synchro.lister();
+          if (actif) { fixerListe(liste); fixerChargement(false); }
+          return;
+        }
+        // Une sauvegarde locale que le cœur refuse ne doit jamais mener à un écran vide : écran des parties, avec l'export de secours.
+        const refus = lireCourante(gestionnaire);
+        if (refus !== null) {
+          console.error('Sauvegarde locale illisible à l\'ouverture du jeu :', refus.cause);
+          fixerCouranteIllisible(true); fixerErreur(`Sauvegarde illisible : ${refus.raison}. Exporte-la pour la garder.`);
+          fixerEcranParties(true); fixerPhase('jeu'); fixerChargement(true);
           const liste = await synchro.lister();
           if (actif) { fixerListe(liste); fixerChargement(false); }
           return;
@@ -193,7 +221,9 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
     if (jeuMonte) storeJeu.getState().arreter();
     const resultat = await synchro.ouvrirPartie(id);
     if (resultat === 'ok') { window.location.reload(); return; }
-    fixerErreur(resultat === 'stockage' ? detailErreur(synchro.derniereErreurStockage()) : "Connexion impossible. Rien n'a changé, réessaie.");
+    const illisible = synchro.derniereRaisonIllisible();
+    fixerErreur(resultat === 'stockage' ? detailErreur(synchro.derniereErreurStockage())
+      : illisible ? `Sauvegarde illisible : ${illisible}. Rien n'a changé.` : "Connexion impossible. Rien n'a changé, réessaie.");
     if (jeuMonte && !appareil.ailleurs()) storeJeu.getState().demarrer();
     fixerOccupe(false);
   }
@@ -264,6 +294,11 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
     const partie = id ? gestionnaire.chargerPartie(id) : null;
     lecture = { gestionnaire, partie, zoneId: id && partie ? gestionnaire.chargerRegion(id, partie.donnees.regionCourante)?.donnees.zoneId ?? '' : '' };
   } catch (e) {
+    // Sauvegarde refusée par le cœur : pas d'écran de secours muet, l'écran des parties propose l'export.
+    if (!(e instanceof ErreurStockage)) {
+      console.error('Lecture de la partie courante impossible', e);
+      lecture = { gestionnaire: creerGestionnaire({ stockage: creerStockageLocal(), horloge: creerHorlogeSysteme(), genererId: () => 'x' }), partie: null, zoneId: '' };
+    } else
     // Stockage plein ou inaccessible : un écran de secours plutôt qu'un arbre planté.
     return <main data-theme="dark" className="grid min-h-dvh place-content-center justify-items-center gap-4 bg-fond p-4 text-center font-texte text-texte">
       <p role="alert" className="font-titre text-2xl font-bold">{detailErreur(e)}</p>
@@ -290,7 +325,7 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
         quandExporterPartie={id => exporterPartieOuBrut(() => gestionnaire.exporterPartie(id), creerStockageLocal(), id)} quandExporterCompte={() => gestionnaire.exporterCompte()}
         quandRenommer={renommer} quandListerVersions={id => synchro.listerVersions(id)} quandRestaurer={restaurer}
         quandJouer={id => { void jouer(id); }} quandCreer={nom => { void creer(nom); }} quandSupprimer={id => { void supprimer(id); }}
-        quandRetourJeu={phase === 'creation' || ailleurs || repriseEnAttente ? undefined : () => fixerEcranParties(false)}
+        quandRetourJeu={phase === 'creation' || couranteIllisible || ailleurs || repriseEnAttente ? undefined : () => fixerEcranParties(false)}
         etatSynchro={synchro.etat()} quandDeconnecter={() => fixerDeco(synchro.enAttente() ? 'confirmer-attente' : 'confirmer')} />
     </div>}
     {avis && <div role="status" className="avis-divergence compte-message info fixed inset-x-0 top-0 z-50">{avis}<button className="plaque min-h-12 min-w-12" onClick={() => fixerAvis(null)}>OK</button></div>}

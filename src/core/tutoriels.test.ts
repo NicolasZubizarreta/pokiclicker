@@ -139,12 +139,22 @@ it('valide la liste sauvegardée et accepte les anciennes sauvegardes', () => {
   const region = regionInitiale('kanto', 'kanto.route-1');
   expect(() => validerDonneesRegion(region)).not.toThrow();
   expect(() => validerDonneesRegion({ ...region, tutosVus: ['pc'] })).not.toThrow();
-  expect(() => validerDonneesRegion({ ...region, tutosVus: 'pc' })).toThrow();
-  expect(() => validerDonneesRegion({ ...region, tutosVus: [1] })).toThrow();
-  expect(() => validerDonneesRegion({ ...region, tutosVus: [{}] })).toThrow();
-  expect(() => validerDonneesRegion({ ...region, tutosVus: Array(100_000).fill('pc') })).toThrow();
-  expect(() => validerDonneesRegion({ ...region, tutosVus: Array(65).fill('pc') })).toThrow();
-  expect(() => validerDonneesRegion({ ...region, tutosVus: ['x'.repeat(41)] })).toThrow();
+  for (const tutosVus of ['pc', [1], [{}]]) {
+    const copie = { ...region, tutosVus };
+    validerDonneesRegion(copie);
+    expect(copie).not.toHaveProperty('tutosVus');
+  }
+  for (const tutosVus of [Array(100_000).fill('pc'), Array(65).fill('pc')]) {
+    const copie = { ...region, tutosVus };
+    validerDonneesRegion(copie);
+    expect(copie.tutosVus).toEqual(['pc']);
+  }
+  const tropLong = { ...region, tutosVus: ['x'.repeat(41)] };
+  validerDonneesRegion(tropLong);
+  expect(tropLong.tutosVus).toEqual([]);
+  const tronquee = { ...region, tutosVus: Array.from({ length: 65 }, (_, i) => `tuto-${i}`) };
+  validerDonneesRegion(tronquee);
+  expect(tronquee.tutosVus).toEqual(Array.from({ length: 64 }, (_, i) => `tuto-${i}`));
   expect(() => validerDonneesRegion({ ...region, tutosVus: Array(64).fill('x'.repeat(40)) })).not.toThrow();
 });
 

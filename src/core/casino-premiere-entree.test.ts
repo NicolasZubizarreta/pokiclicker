@@ -35,11 +35,13 @@ it('refuse un nombre de jetons offerts invalide dans les données', () => {
   expect(() => chargerCasino({ ...donnees, premiereEntree: { jetons: 100, message: ' ' } })).toThrow();
 });
 
-it('valide casinoVu : booléen accepté, absent accepté (ancienne sauvegarde), texte refusé', () => {
+it('valide casinoVu : booléen accepté, absent accepté, texte supprimé', () => {
   expect(() => validerDonneesRegion(depart())).not.toThrow();
   expect(() => validerDonneesRegion({ ...depart(), casinoVu: true })).not.toThrow();
   expect(() => validerDonneesRegion({ ...depart(), casinoVu: false })).not.toThrow();
-  expect(() => validerDonneesRegion({ ...depart(), casinoVu: 'oui' })).toThrowError('Booléen attendu');
+  const region = { ...depart(), casinoVu: 'oui' };
+  validerDonneesRegion(region);
+  expect(region).not.toHaveProperty('casinoVu');
 });
 
 it('garde casinoVu à l’écriture, la lecture, l’export et l’import : le cadeau ne se rejoue pas', () => {

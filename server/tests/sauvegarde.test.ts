@@ -218,7 +218,7 @@ test('versions : aucune rotation écrite, ni par la route ni par un PUT', async 
 
 test('versions : limites de taille', async () => {
   const { token } = await signup();
-  for (const [taille, statut] of [[200_000, 200], [1_100_000, 413], [3_200_000, 413]] as const) {
+  for (const [taille, statut] of [[200_000, 200], [2_900_000, 200], [3_100_000, 413], [12_500_000, 413]] as const) {
     expect((await archiver('compte', 'local', objet('compte', 'local', 0, { texte: 'x'.repeat(taille) }).enveloppe, token)).status).toBe(statut);
   }
 });
@@ -419,10 +419,10 @@ test('validation de la forme et des champs inconnus', async () => {
 
 test('limites de taille de l’enveloppe et du corps', async () => {
   const { token } = await signup();
-  expect((await put({ compte: objet('compte', 'local', 0, { texte: 'é'.repeat(500_001) }) }, token)).status).toBe(413);
+  expect((await put({ compte: objet('compte', 'local', 0, { texte: 'é'.repeat(1_500_001) }) }, token)).status).toBe(413);
   const id = randomUUID();
-  const regions = Array.from({ length: 4 }, (_, i) => objet('region', `region-${i}`, 0,
-    { regionId: `region-${i}`, texte: 'x'.repeat(800_000) }));
+  const regions = Array.from({ length: 5 }, (_, i) => objet('region', `region-${i}`, 0,
+    { regionId: `region-${i}`, texte: 'x'.repeat(2_800_000) }));
   expect((await put({ partieId: id, partie: objet('partie', id, 0, { nom: 'Nom' }), regions }, token)).status).toBe(413);
   // La limite globale de 100 ko est bien sautée pour cette route.
   expect((await put({ compte: objet('compte', 'local', 0, { texte: 'x'.repeat(150_000) }) }, token)).status).toBe(200);

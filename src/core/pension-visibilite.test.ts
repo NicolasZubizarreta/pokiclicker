@@ -68,9 +68,11 @@ describe('première entrée dans la pension', () => {
     expect(entrerALaPension(avecEspeces).region.pensionVue).toBe(true);
   });
 
-  it('la sauvegarde accepte pensionVue, la refuse mal typé, et son absence reste valide', () => {
+  it('la sauvegarde accepte pensionVue, la supprime mal typée, et son absence reste valide', () => {
     expect(() => validerDonneesRegion(region())).not.toThrow();
     expect(() => validerDonneesRegion({ ...region(), pensionVue: true })).not.toThrow();
-    expect(() => validerDonneesRegion({ ...region(), pensionVue: 'oui' })).toThrow();
+    const illisible = { ...region(), pensionVue: 'oui' };
+    validerDonneesRegion(illisible);
+    expect(illisible).not.toHaveProperty('pensionVue');
   });
 });

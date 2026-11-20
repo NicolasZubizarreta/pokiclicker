@@ -73,10 +73,12 @@ it('ne rejoue pas le Sac quand l’intro l’a déjà annoncé', () => {
   expect(nouveauxDeblocages(intro, kanto, [])).toEqual({ annoncer: [], silencieux: ['sac'] });
 });
 
-it('accepte une sauvegarde sans annoncesVues et refuse un champ mal formé', () => {
+it('accepte une sauvegarde sans annoncesVues et supprime un champ mal formé', () => {
   const region = depart();
   expect(region.annoncesVues).toBeUndefined();
   expect(() => validerDonneesRegion(region)).not.toThrow();
   expect(() => validerDonneesRegion({ ...region, annoncesVues: ['pc'] })).not.toThrow();
-  expect(() => validerDonneesRegion({ ...region, annoncesVues: 'pc' })).toThrow();
+  const illisible = { ...region, annoncesVues: 'pc' };
+  validerDonneesRegion(illisible);
+  expect(illisible).not.toHaveProperty('annoncesVues');
 });

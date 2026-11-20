@@ -83,7 +83,7 @@ it('S-core-06 refuse les imports démesurés avant validation', () => {
     expect((erreur as { detail: Error }).detail.message).toBe('Trop de régions');
   }
 });
-it('S-core-04 refuse les uid partagés entre partie et région', () => {
+it('S-core-04 répare les uid partagés entre partie et région à l’installation et à l’import', () => {
   const { jeu } = contexte();
   const partie = jeu.creerPartie('Test');
   const region = jeu.chargerRegion('test', 'kanto')!;
@@ -91,9 +91,17 @@ it('S-core-04 refuse les uid partagés entre partie et région', () => {
     pierreEternelle: false, calcium: 0, sexe: 'femelle' as const, favori: false };
   partie.donnees.pcGlobal = [p];
   region.donnees.equipe = [p];
-  expect(() => jeu.installerVersion({ partie, regions: [region] })).toThrow('Cette sauvegarde est illisible.');
+  jeu.installerVersion({ partie, regions: [region] });
+  const uids = [jeu.chargerPartie('test')!.donnees.pcGlobal[0]!.uid,
+    jeu.chargerRegion('test', 'kanto')!.donnees.equipe[0]!.uid];
+  expect(uids).toEqual(['unique', 'unique~2']);
+  expect(new Set(uids).size).toBe(uids.length);
   const fichier = JSON.parse(jeu.exporterPartie('test'));
   fichier.partie = partie;
   fichier.regions = [region];
-  expect(() => jeu.importerPartie(JSON.stringify(fichier))).toThrow("Ce fichier n'est pas une sauvegarde de partie valide.");
+  const destination = contexte().jeu;
+  const copie = destination.importerPartie(JSON.stringify(fichier));
+  const importes = [destination.chargerPartie(copie.id)!.donnees.pcGlobal[0]!.uid,
+    destination.chargerRegion(copie.id, 'kanto')!.donnees.equipe[0]!.uid];
+  expect(importes).toEqual(['unique', 'unique~2']);
 });

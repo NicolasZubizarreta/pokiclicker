@@ -152,14 +152,17 @@ describe('sauvegarde', () => {
     expect(() => validerDonneesRegion({ ...ancienne, equipe: [pokemon(25)] })).not.toThrow();
   });
 
-  it('accepte et relit la marque et la liste, refuse les valeurs invalides', () => {
+  it('accepte et relit la marque, répare la liste et refuse une marque mal typée', () => {
     const region = { ...regionInitiale('kanto', 'kanto.route-1'), equipe: [pokemon(25, { marqueEclosion: true })],
       especesEcloses: [4, 25] };
     const relue = JSON.parse(JSON.stringify(region));
     expect(() => validerDonneesRegion(relue)).not.toThrow();
     expect(relue.equipe[0].marqueEclosion).toBe(true);
-    expect(() => validerDonneesRegion({ ...region, especesEcloses: [4, 4] })).toThrow();
-    expect(() => validerDonneesRegion({ ...region, especesEcloses: [152] })).toThrow();
+    for (const [liste, attendue] of [[[4, 4], [4]], [[152], []]]) {
+      const copie = { ...region, especesEcloses: liste };
+      validerDonneesRegion(copie);
+      expect(copie.especesEcloses).toEqual(attendue);
+    }
     expect(() => validerDonneesRegion({ ...region, equipe: [pokemon(25, { marqueEclosion: 'oui' as never })] })).toThrow();
   });
 

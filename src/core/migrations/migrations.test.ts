@@ -68,7 +68,10 @@ describe('marche 4 → 5', () => {
       const source = { ...regionV4.donnees, chronos: { ...regionV4.donnees.chronos, finRepousse: valeur } };
       const resultat = migrerV4versV5(source, 'region', regionV4.ecritLe);
       expect(resultat).toMatchObject({ chronos: { finRepousse: valeur } });
-      expect(() => validerEnveloppe({ ...regionV4, version: 5, donnees: resultat }, 'region')).toThrow();
+      const valider = () => validerEnveloppe({ ...regionV4, version: 5, donnees: resultat }, 'region');
+      if (typeof valeur !== 'number' || !Number.isFinite(valeur)) expect(valider).toThrow();
+      else expect(valider().donnees).toMatchObject({ chronos: {
+        finRepousse: Math.min(Number.MAX_SAFE_INTEGER, Math.max(0, Math.floor(valeur))) } });
     }
   });
 });
@@ -120,16 +123,21 @@ describe('validation du sexe et du surnom', () => {
   it.each([
     [100, 'male'], [100, 'femelle'], [29, 'male'], [29, 'sansSexe'],
     [32, 'femelle'], [32, 'sansSexe'], [25, 'sansSexe'],
-  ])('refuse le sexe %s / %s incompatible avec l’espèce', (numero, sexe) => {
-    expect(() => validerPokemonPossede({ ...pokemon, numero, sexe })).toThrow(/sexe/i);
+  ])('répare le sexe %s / %s incompatible avec l’espèce', (numero, sexe) => {
+    const copie = { ...pokemon, numero, sexe };
+    validerPokemonPossede(copie);
+    expect(copie.sexe).toBe(numero === 100 ? 'sansSexe' : numero === 29 ? 'femelle' : 'male');
   });
   it.each([[100, 'sansSexe'], [29, 'femelle'], [32, 'male'], [25, 'male'], [25, 'femelle']])(
     'accepte le sexe %s / %s compatible', (numero, sexe) => {
       expect(() => validerPokemonPossede({ ...pokemon, numero, sexe })).not.toThrow();
     },
   );
-  it.each(['', '   ', 'abcdefghijklm', '😀'.repeat(7)])('refuse le surnom invalide %j', surnom => {
-    expect(() => validerPokemonPossede({ ...pokemon, surnom })).toThrow(/surnom/i);
+  it.each(['', '   ', 'abcdefghijklm', '😀'.repeat(7)])('répare le surnom invalide %j', surnom => {
+    const copie = { ...pokemon, surnom };
+    validerPokemonPossede(copie);
+    if (surnom.trim()) expect(copie.surnom).toBe(surnom.trim().slice(0, 12));
+    else expect(copie).not.toHaveProperty('surnom');
   });
   it.each(['a', 'abcdefghijkl', '  abcdefghijkl  ', '😀'.repeat(6)])('accepte le surnom %j', surnom => {
     expect(() => validerPokemonPossede({ ...pokemon, surnom })).not.toThrow();

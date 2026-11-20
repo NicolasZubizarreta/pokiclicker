@@ -58,11 +58,22 @@ function nomValide(nom: string) {
   exiger(nom.length >= NOM_PARTIE_MIN && nom.length <= NOM_PARTIE_MAX, 'Nom invalide');
   return nom;
 }
-function uidsDistincts(partie: Enveloppe<DonneesPartie>, regions: Enveloppe<DonneesRegion>[]) {
-  const pokemon = [...partie.donnees.pcGlobal, ...regions.flatMap(({ donnees: r }) =>
-    [...r.equipe, ...r.pc, ...r.pension.parents, ...r.pension.oeufs])];
-  if (new Set(pokemon.map(p => p.uid)).size !== pokemon.length)
-    erreurSure('Uid dupliqué', 'Cette sauvegarde est illisible');
+/**
+ * Un uid partagé entre le PC global et une région (ou deux régions) est réparé, pas refusé : le doublon reçoit un uid
+ * distinct (la validation de chaque niveau a déjà fait de même à l'intérieur d'un niveau). Agit sur les copies validées.
+ * Renvoie vrai si un uid a changé.
+ */
+function dedoublerUids(partie: Enveloppe<DonneesPartie>, regions: Enveloppe<DonneesRegion>[]): boolean {
+  const vus = new Set<string>();
+  let change = false;
+  for (const p of [...partie.donnees.pcGlobal, ...regions.flatMap(({ donnees: r }) =>
+    [...r.equipe, ...r.pc, ...r.pension.parents, ...r.pension.oeufs])]) {
+    let uid = p.uid;
+    for (let n = 2; vus.has(uid); n++) { uid = `${p.uid.slice(0, 56)}~${n}`; change = true; }
+    p.uid = uid;
+    vus.add(uid);
+  }
+  return change;
 }
 const cleCompte = 'pokiclicker:compte:local';
 const cleCourante = 'pokiclicker:courante';
@@ -163,26 +174,30 @@ export function creerGestionnaire({ stockage, horloge, genererId }: {
       compte?: Enveloppe<DonneesCompte> | null; partie?: Enveloppe<DonneesPartie>; regions: Enveloppe<DonneesRegion>[];
     }) {
       return atomique(() => {
-      if (partie) validerEnveloppe(partie, 'partie');
+      // Les contrôles portent sur les copies migrées et réparées (celles que le jeu lira), pas sur le texte brut du serveur.
+      const partieValidee = partie ? validerEnveloppe(partie, 'partie') as Enveloppe<DonneesPartie> : undefined;
       if (compte) {
         validerEnveloppe(compte, 'compte');
         exiger(compte.id === 'local', 'Identifiant de compte incohérent');
       }
-      if (!partie) {
+      if (!partie || !partieValidee) {
         exiger(regions.length === 0, 'Partie absente');
         if (compte) stockage.ecrire(cleCompte, JSON.stringify(compte));
         return;
       }
-      const ids = regions.map(region => {
-        validerEnveloppe(region, 'region');
-        exiger(region.id === region.donnees.regionId && partie.donnees.regionsDebloquees.includes(region.id), 'Région incohérente');
-        return region.id;
+      const validees = regions.map(region => {
+        const validee = validerEnveloppe(region, 'region') as Enveloppe<DonneesRegion>;
+        exiger(validee.id === validee.donnees.regionId && partieValidee.donnees.regionsDebloquees.includes(validee.id), 'Région incohérente');
+        return validee;
       });
+      const ids = validees.map(region => region.id);
       exiger(new Set(ids).size === ids.length, 'Région en double');
-      exiger(ids.includes(partie.donnees.regionCourante), 'Région courante absente');
-      uidsDistincts(partie, regions);
-      for (const region of regions) stockage.ecrire(cleRegion(partie.id, region.id), JSON.stringify(region));
-      stockage.ecrire(clePartie(partie.id), JSON.stringify(partie));
+      exiger(ids.includes(partieValidee.donnees.regionCourante), 'Région courante absente');
+      // Uid en double entre niveaux : on écrit les copies réparées ; sinon le texte reçu, tel quel (même contenu que le serveur).
+      const reparee = dedoublerUids(partieValidee, validees);
+      const aEcrire = reparee ? { partie: partieValidee, regions: validees } : { partie, regions };
+      for (const region of aEcrire.regions) stockage.ecrire(cleRegion(partie.id, region.id), JSON.stringify(region));
+      stockage.ecrire(clePartie(partie.id), JSON.stringify(aEcrire.partie));
       if (compte) stockage.ecrire(cleCompte, JSON.stringify(compte));
       for (const cle of stockage.cles().filter(cle => cle.startsWith(prefixeRegions(partie.id)))) {
         if (!ids.includes(cle.slice(prefixeRegions(partie.id).length))) stockage.supprimer(cle);
@@ -280,7 +295,7 @@ export function creerGestionnaire({ stockage, horloge, genererId }: {
         for (const region of regions) {
           exiger(region.id === region.donnees.regionId && partie.donnees.regionsDebloquees.includes(region.id), 'Région incohérente');
         }
-        uidsDistincts(partie, regions);
+        dedoublerUids(partie, regions);
       } catch (erreur) { erreurSure(erreur, "Ce fichier n'est pas une sauvegarde de partie valide"); }
       return atomique(() => {
       const id = nouvelId();

@@ -8,12 +8,13 @@ const mocks = vi.hoisted(() => ({
   ailleurs: false, changer: () => {},
   ouvrir: vi.fn(), reprendre: vi.fn(), arreter: vi.fn(), demarrer: vi.fn(),
   arreterSynchro: vi.fn(), arreterAppareil: vi.fn(),
-  listerLocales: vi.fn(), lister: vi.fn(), creer: vi.fn(), erreurStockage: undefined as unknown,
+  listerLocales: vi.fn(), lister: vi.fn(), creer: vi.fn(), erreurStockage: undefined as unknown, refusPartie: '',
 }));
 vi.mock('./Coquille', () => ({ Coquille: () => <p>Jeu monté</p> }));
 vi.mock('./compte/session-compte', () => ({ useSessionCompte: () => ({ valide: true, jeton: 'test' }) }));
 vi.mock('../core/sauvegarde', async importOriginal => ({ ...await importOriginal<typeof import('../core/sauvegarde')>(), creerGestionnaire: () => ({ listerParties: mocks.listerLocales,
-  partieCourante: () => 'test', chargerPartie: () => ({ donnees: { nom: 'Test', regionCourante: 'kanto' }, ecritLe: '2026-11-04' }),
+  partieCourante: () => 'test', chargerCompte: () => null,
+  chargerPartie: () => { if (mocks.refusPartie) throw new Error(mocks.refusPartie); return { donnees: { nom: 'Test', regionCourante: 'kanto' }, ecritLe: '2026-11-04' }; },
   chargerRegion: () => ({ donnees: { zoneId: '' } }),
 }) }));
 vi.mock('./store', () => ({ departNouvellePartie: vi.fn(), storeJeu: {
@@ -37,6 +38,7 @@ beforeEach(() => {
   vi.stubEnv('VITE_API_URL', window.location.origin);
   vi.clearAllMocks();
   mocks.ailleurs = false;
+  mocks.refusPartie = '';
   mocks.listerLocales.mockReturnValue([{ id: 'test' }]);
   mocks.lister.mockResolvedValue({ parties: [], horsConnexion: false, illisibles: [] });
   mocks.ouvrir.mockResolvedValue('rien');
@@ -57,6 +59,19 @@ it('affiche une erreur de stockage pendant la création sans planter', async () 
   render(<App />);
   fireEvent.click(await screen.findByText('Créer'));
   expect((await screen.findByRole('alert')).textContent).toContain("Ton appareil n'a plus de place");
+});
+
+it('une partie courante refusée par le cœur mène à l’écran des parties avec la raison, jamais à un écran vide', async () => {
+  mocks.refusPartie = 'Champ manquant : nom';
+  const erreur = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+  render(<App />);
+  const alerte = await screen.findByRole('alert');
+  expect(alerte.textContent).toContain('Sauvegarde illisible : Champ manquant : nom');
+  expect(screen.getByRole('button', { name: 'Créer' })).toBeTruthy();
+  expect(screen.queryByText('Jeu monté')).toBeNull();
+  expect(erreur).toHaveBeenCalled();
+  expect(mocks.lister).toHaveBeenCalled();
+  erreur.mockRestore();
 });
 
 it('arrête une seule fois le jeu repris ailleurs et ne reprend jamais la main automatiquement', async () => {

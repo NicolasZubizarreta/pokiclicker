@@ -160,7 +160,7 @@ function simulerParties() {
   const partie = { id: 'test', nom: 'Test', regionCourante: 'kanto', zoneId: '', tempsJeuMs: null, ecritLe: '2026-11-04T12:00:00Z', surServeur: true, courante: true };
   const synchro = { etat: vi.fn().mockReturnValue('ok'), ouvrir: vi.fn().mockResolvedValue('rien'), suppression: vi.fn().mockReturnValue(null), lireAvis: vi.fn().mockReturnValue(null), enAttente: vi.fn().mockReturnValue(false), resoudre: vi.fn().mockResolvedValue('rien'), arreter: vi.fn(), demarrer: vi.fn(), envoyerMaintenant: vi.fn(),
     lister: vi.fn().mockResolvedValue({ parties: [partie, { ...partie, id: 'autre', nom: 'Autre', courante: false }], horsConnexion: false }),
-    ouvrirPartie: vi.fn().mockResolvedValue('ok'), creerPartie: vi.fn().mockResolvedValue('ok'), supprimerPartie: vi.fn().mockResolvedValue('ok'),
+    derniereRaisonIllisible: vi.fn().mockReturnValue(''), ouvrirPartie: vi.fn().mockResolvedValue('ok'), creerPartie: vi.fn().mockResolvedValue('ok'), supprimerPartie: vi.fn().mockResolvedValue('ok'),
     renommerPartie: vi.fn().mockResolvedValue('ok') };
   vi.spyOn(synchronisation, 'creerSynchro').mockReturnValue(synchro as unknown as ReturnType<typeof synchronisation.creerSynchro>);
   const recharger = vi.fn();
