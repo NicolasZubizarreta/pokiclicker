@@ -1,4 +1,6 @@
 import react from '@vitejs/plugin-react';
+import { loadEnv } from 'vite';
+import { construireCsp } from './csp';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vitest/config';
 import { createHash } from 'node:crypto';
@@ -32,7 +34,8 @@ export default defineConfig(({ command, mode, isPreview }) => ({
   },
   plugins: [react(), tailwindcss(), {
     name: 'metadonnees-jeu',
-    transformIndexHtml: html => ({ html: html.replace('%NOM_JEU%', jeu.nom), tags: [
+    transformIndexHtml: (html, ctx) => ({ html: html.replace('%NOM_JEU%', jeu.nom), tags: [
+      ...(!ctx.server ? [{ tag: 'meta', attrs: { 'http-equiv': 'Content-Security-Policy', content: construireCsp(loadEnv(mode, process.cwd(), 'VITE_').VITE_API_URL) }, injectTo: 'head-prepend' as const }] : []),
       { tag: 'meta', attrs: { name: 'theme-color', content: jetons.fond } },
       { tag: 'meta', attrs: { name: 'description', content: jeu.description } },
       { tag: 'meta', attrs: { name: 'apple-mobile-web-app-title', content: jeu.nomCourt } },

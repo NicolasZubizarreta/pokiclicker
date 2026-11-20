@@ -45,6 +45,18 @@ function preparer() {
   storeJeu.setState({ centre: { acces: { ouvert: true, raison: null }, objets }, argent: 15000, annonce: null });
 }
 
+it('explique la possession et remet la quantité à un au changement d’objet', () => {
+  preparer();
+  const centre = storeJeu.getState().centre;
+  storeJeu.setState({ centre: { ...centre, objets: centre.objets.map((o, i) => i === 1 ? { ...o, unique: true, possede: true, abordable: false } : o) } });
+  const { container } = render(<PageCentre retour={vi.fn()} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Plus' }));
+  expect(screen.getByLabelText('Quantité').textContent).toBe('2');
+  fireEvent.click(container.querySelectorAll('[data-objet]')[1]!);
+  expect(screen.getByLabelText('Quantité').textContent).toBe('1');
+  expect(screen.getByRole<HTMLButtonElement>('button', { name: /^Acheter/, description: "Tu l'as déjà." }).disabled).toBe(true);
+});
+
 it('affiche le catalogue dans l’ordre, le décor, la sélection et un seul statut', () => {
   preparer();
   const { container } = render(<PageCentre retour={vi.fn()} />);

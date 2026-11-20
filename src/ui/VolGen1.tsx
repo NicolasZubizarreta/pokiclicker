@@ -31,13 +31,20 @@ export function useVol(allerVers: (zone: string) => void, quandArrive: () => voi
       vol.poseMs, vol.poseMs + vol.delaiOuvertureMs, changement, fin,
     ];
     minuteurs.current = [...new Set(seuils)].map(ms => setTimeout(() => {
-      const etape = etapeVol(ms);
-      if (!ouvrirLieu && ms === changement && (reduit || etape.changerZone)) allerVers(cible);
-      if (ms === fin && (reduit || etape.fini)) {
+      try {
+        const etape = etapeVol(ms);
+        if (!ouvrirLieu && ms === changement && (reduit || etape.changerZone)) allerVers(cible);
+        if (ms === fin && (reduit || etape.fini)) {
+          actif.current = false;
+          changer(inactif);
+          (ouvrirLieu ?? quandArrive)();
+        } else changer({ actif: true, ms, cible, depart });
+      } catch (erreur) {
+        minuteurs.current.forEach(clearTimeout);
         actif.current = false;
         changer(inactif);
-        (ouvrirLieu ?? quandArrive)();
-      } else changer({ actif: true, ms, cible, depart });
+        throw erreur;
+      }
     }, ms));
   }
   return { etat, reduit, lancer };

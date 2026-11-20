@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
+import { ErreurRendu } from './ErreurRendu';
 import { nettoyerCachesImages } from '../pwa/nettoyer-caches';
 import { brancherSons } from './sons';
 import { musique } from './musique';
@@ -29,6 +30,6 @@ if (!racine) {
 
 createRoot(racine).render(
   <StrictMode>
-    <App />
+    <ErreurRendu><App /></ErreurRendu>
   </StrictMode>,
 );

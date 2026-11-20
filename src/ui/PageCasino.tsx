@@ -64,7 +64,7 @@ export function PageCasino({ retour, store = storeJeu, offerts = 0 }: { retour()
   };
   const pastille = <span className="cs-pastille"><Jeton /><b data-jetons>{nombre(jetons)}</b></span>;
   const entete = (v: Vue) => v === 'salle' ? null : <div className="cs-jeu-entete">
-    <button type="button" className="plaque" onClick={() => changer('salle')}>Salle</button>
+    <button type="button" className="plaque" disabled={cache !== null} onClick={() => changer('salle')}>Salle</button>
     <h1 ref={titre} tabIndex={-1}>{titres[v]}</h1>{pastille}</div>;
   const rappel = <p className="cs-rappel">{donnees.rappel}</p>;
 

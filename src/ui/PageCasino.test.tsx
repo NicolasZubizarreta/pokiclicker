@@ -57,6 +57,7 @@ it('résout immédiatement mais arrête les rouleaux à 700, 950 et 1200 ms', ()
   expect(jouer).toHaveBeenCalledTimes(1); expect(store.getState().casino.jetons).toBe(1001);
   const actifs = () => container.querySelectorAll('[data-tourne="true"]').length;
   expect(actifs()).toBe(3);
+  expect(screen.getByRole<HTMLButtonElement>('button', { name: 'Salle' }).disabled).toBe(true);
   decoratif.mockClear();
   act(() => { vi.advanceTimersByTime(79); }); expect(decoratif).not.toHaveBeenCalled();
   act(() => { vi.advanceTimersByTime(1); }); expect(decoratif).toHaveBeenCalledTimes(3);
@@ -65,6 +66,7 @@ it('résout immédiatement mais arrête les rouleaux à 700, 950 et 1200 ms', ()
   act(() => { vi.advanceTimersByTime(250); }); expect(actifs()).toBe(1);
   act(() => { vi.advanceTimersByTime(250); }); expect(actifs()).toBe(0);
   expect(screen.getByRole('status').textContent).toBe('Gagné ×2 !');
+  expect(screen.getByRole<HTMLButtonElement>('button', { name: 'Salle' }).disabled).toBe(false);
   clic('Lancer'); unmount(); store.getState().arreter(); vi.runAllTicks(); expect(vi.getTimerCount()).toBe(0);
 });
 it('anime la pièce pendant 500 ms puis annonce son résultat', () => {

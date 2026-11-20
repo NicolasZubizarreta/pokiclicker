@@ -31,8 +31,11 @@ it('présente le PC sans compteur et termine en le marquant vu', () => {
 it('enchaîne les deux étapes de la pension', () => {
   lancerTuto('pension', true); render(<Tutoriel page="Pension" aller={vi.fn()} />);
   expect(screen.getByText('1/2')).toBeTruthy();
+  expect(document.activeElement).toBe(screen.getByRole('region'));
+  screen.getByText('Suivant').focus();
   fireEvent.click(screen.getByText('Suivant'));
   expect(screen.getByText('2/2')).toBeTruthy();
+  expect(document.activeElement).toBe(screen.getByRole('region'));
   fireEvent.click(screen.getByText('Compris'));
   expect(storeTuto.getState().actif).toBeNull();
 });
@@ -42,6 +45,19 @@ it('permet de passer avec une annonce', () => {
   expect(storeTuto.getState().actif).toBeNull();
   expect(storeJeu.getState().marquerTutoVu).toHaveBeenCalledWith('route-1');
   expect(screen.getByText('Tuto passé. Rejoue-le depuis le Guide.')).toBeTruthy();
+});
+
+it('passe avec Échap sauf si une fenêtre est ouverte', () => {
+  lancerTuto('pc'); render(<Tutoriel page="PC" aller={vi.fn()} />);
+  const carte = screen.getByRole('region');
+  const dialogue = document.createElement('dialog');
+  dialogue.open = true; document.body.append(dialogue);
+  expect(fireEvent.keyDown(carte, { key: 'Escape' })).toBe(true);
+  expect(storeTuto.getState().actif?.id).toBe('pc');
+  dialogue.remove();
+  expect(fireEvent.keyDown(document, { key: 'Escape' })).toBe(false);
+  expect(storeTuto.getState().actif).toBeNull();
+  expect(storeJeu.getState().marquerTutoVu).toHaveBeenCalledWith('pc');
 });
 it('avance uniquement au clic sur la cible', () => {
   const i = tutoriel('route-1').etapes.findIndex(e => e.action === 'clic');

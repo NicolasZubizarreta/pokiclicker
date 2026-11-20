@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { tutoriel, tutoriels } from '../../core/tutoriels';
 import type { Page } from '../Navigation';
 import { armementTutoAutorise, storeJeu } from '../store';
@@ -37,6 +37,22 @@ export function Tutoriel({ page, aller }: { page: Page; aller(page: Page): void 
     if (tuto && etape && actif) annoncer(`${tuto.titre}, étape ${actif.etape + 1} sur ${tuto.etapes.length} : ${etape.texte}${etape.geste ? ` À faire : ${etape.geste}` : ''}`);
   }
   const avancer = () => { if (actif && etapeSuivanteTuto()) { storeJeu.getState().marquerTutoVu(actif.id); rendreLeFocus(); } };
+  const passer = useCallback(() => {
+    if (!actif) return;
+    storeJeu.getState().marquerTutoVu(actif.id); fermerTuto(); rendreLeFocus(); annoncer('Tuto passé. Rejoue-le depuis le Guide.');
+  }, [actif]);
+
+  useEffect(() => {
+    if (!etape) return;
+    if (!modaleOuverte()) carte.current?.focus({ preventScroll: true });
+    const clavier = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && !event.defaultPrevented && !couche.current?.hidden && !modaleOuverte()) {
+        event.preventDefault(); passer();
+      }
+    };
+    document.addEventListener('keydown', clavier, true);
+    return () => document.removeEventListener('keydown', clavier, true);
+  }, [etape, passer]);
 
   useEffect(() => {
     if (actif?.rejeu && (rejeu.current as { id?: string } | null)?.id !== actif.id) {
@@ -153,13 +169,13 @@ export function Tutoriel({ page, aller }: { page: Page; aller(page: Page): void 
   return <>{<div ref={couche} className="tuto-couche">
     <div ref={voile} className="voile" hidden />
     <div ref={repere} className="repere" hidden />
-    <div ref={carte} className="tuto" role="region" aria-label={`Tutoriel ${tuto.titre}${compteur ? `, étape ${compteur}` : ''}`}>
+    <div ref={carte} tabIndex={-1} className="tuto" role="region" aria-label={`Tutoriel ${tuto.titre}${compteur ? `, étape ${compteur}` : ''}`}>
       <div className="tuto-corps">
         <p className="tuto-entete"><span className="qui">Prof. Chen</span>{compteur && <span className="compteur">{compteur}</span>}{n > 1 && <span className="segs" aria-hidden="true">{tuto.etapes.map((_, i) => <i key={i} className={i < actif.etape ? 'fait' : i === actif.etape ? 'ici' : ''} />)}</span>}</p>
         <p className="tuto-texte" id="tuto-texte"><span className="lu">{etape.texte}</span></p>
         {etape.geste && <p className="geste"><span>À faire</span> {etape.geste}</p>}
         <div className="tuto-actions">{(etape.action === 'ok' || cibleInactive) && <button type="button" className="plaque action tuto-ok min-h-11 min-w-11" onClick={avancer}>{actif.etape === n - 1 ? 'Compris' : 'Suivant'}</button>}
-          <button type="button" className="tuto-passer min-h-11 min-w-11" onClick={() => { storeJeu.getState().marquerTutoVu(actif.id); fermerTuto(); rendreLeFocus(); annoncer('Tuto passé. Rejoue-le depuis le Guide.'); }}>Passer le tuto</button></div>
+          <button type="button" className="tuto-passer min-h-11 min-w-11" onClick={passer}>Passer le tuto</button></div>
       </div>
     </div>
   </div>}{regionLive}</>;

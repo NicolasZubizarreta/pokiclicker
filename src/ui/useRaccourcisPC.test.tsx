@@ -7,6 +7,14 @@ import { useRaccourcisPC } from './useRaccourcisPC';
 import { storeJeu } from './store';
 
 const aller = vi.fn(), clic = vi.fn();
+
+it.each([' ', 'Enter'])('%s sur un bouton focalisé ne déclenche aucune attaque', async key => {
+  const utilisateur = userEvent.setup();
+  render(<Essai />);
+  screen.getByText('capturer').focus();
+  await utilisateur.keyboard(key === 'Enter' ? '{Enter}' : ' ');
+  expect(clic).toHaveBeenCalledExactlyOnceWith('capturer');
+});
 function Essai({ actif = true }: { actif?: boolean }) {
   const [ouvert, ouvrir] = useState(false);
   useRaccourcisPC({ page: 'Combat', aller, actif, raccourcisOuverts: ouvert, basculerRaccourcis: () => ouvrir(v => !v) });

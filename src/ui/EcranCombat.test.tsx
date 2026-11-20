@@ -602,7 +602,7 @@ it('emploie des textes et libellés français dans tout l’écran', () => {
   expect(screen.getByRole('heading', { name: 'Effets actifs' })).toBeTruthy();
   for (const image of container.querySelectorAll('img')) expect(image.getAttribute('src')).toMatch(/^img\//);
 });
-it('affiche et journalise la cause technique d’une erreur inconnue', () => {
+it('journalise la cause technique d’une erreur inconnue sans l’afficher', () => {
   const cause = new TypeError('Panne inattendue de test');
   const journal = vi.spyOn(console, 'error').mockImplementation(() => {});
   try {
@@ -611,7 +611,7 @@ it('affiche et journalise la cause technique d’une erreur inconnue', () => {
     store.getState().demarrer();
     render(<EcranCombat store={store} />);
     expect(screen.getByText('Une erreur inattendue est survenue.')).toBeTruthy();
-    expect(screen.getByText('TypeError: Panne inattendue de test').className).toContain('text-sm');
+    expect(screen.queryByText(/Panne inattendue de test/)).toBeNull();
     expect(screen.getByRole('alert').textContent).toContain('Recharge la page ; ta partie est gardée.');
     expect(journal).toHaveBeenCalledWith(cause);
   } finally { journal.mockRestore(); }

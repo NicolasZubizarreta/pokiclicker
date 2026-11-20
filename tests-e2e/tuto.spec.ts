@@ -47,7 +47,7 @@ async function demarrer(page: Page, region: Record<string, unknown>) {
 
 /** Début de partie : intro jouée, starter choisi, 5 Poké Balls, aucun tutoriel vu. */
 const debutDePartie = (page: Page) => demarrer(page, {
-  zoneId: 'kanto.route-1', etape: 1, starterId: 25, drapeaux: ['sac-ouvert'], evenementsJoues: ['kanto.intro'],
+  zoneId: 'kanto.route-1', etape: 1, starterId: 1, drapeaux: ['sac-ouvert'], evenementsJoues: ['kanto.intro'],
   inventaire: { pokeball: 5 }, tutosVus: [],
 });
 /** Partie avancée où tout est débloqué ; les tutoriels listés (par défaut tous) restent à voir. */
@@ -184,12 +184,15 @@ test('« Passer le tuto » ferme sans pénalité et ne revient pas au rechargeme
 
 /** Luminance moyenne (0 à 255) d'une capture PNG, calculée dans la page. */
 const luminance = (page: Page, png: Buffer) => page.evaluate(async base64 => {
-  const image = await createImageBitmap(await (await fetch(`data:image/png;base64,${base64}`)).blob());
+  // `fetch` d'une adresse data: est refusé par la CSP (connect-src 'self') : une image passe par img-src.
+  const image = new Image();
+  image.src = `data:image/png;base64,${base64}`;
+  await image.decode();
   const toile = document.createElement('canvas');
-  toile.width = image.width; toile.height = image.height;
+  toile.width = image.naturalWidth; toile.height = image.naturalHeight;
   const contexte = toile.getContext('2d')!;
   contexte.drawImage(image, 0, 0);
-  const { data } = contexte.getImageData(0, 0, image.width, image.height);
+  const { data } = contexte.getImageData(0, 0, toile.width, toile.height);
   let somme = 0;
   for (let i = 0; i < data.length; i += 4) somme += 0.2126 * data[i]! + 0.7152 * data[i + 1]! + 0.0722 * data[i + 2]!;
   return somme / (data.length / 4);

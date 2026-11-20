@@ -24,6 +24,25 @@ afterEach(() => {
 });
 const avancer = (ms: number) => act(() => { vi.advanceTimersByTime(ms); });
 
+it('libère le vol et annule ses minuteurs si le déplacement échoue', () => {
+  const erreur = new Error('Déplacement impossible');
+  const aller = vi.fn().mockImplementationOnce(() => { throw erreur; });
+  const arrive = vi.fn();
+  const { result } = renderHook(() => useVol(aller, arrive));
+  act(() => result.current.lancer('premiere'));
+  act(() => {
+    expect(() => vi.advanceTimersByTime(reglages.interface.vol.poseMs + reglages.interface.vol.volMs)).toThrow(erreur);
+  });
+  expect(result.current.etat.actif).toBe(false);
+  avancer(reglages.interface.vol.fermetureMs);
+  expect(arrive).not.toHaveBeenCalled();
+  act(() => result.current.lancer('seconde'));
+  expect(result.current.etat.cible).toBe('seconde');
+  avancer(reglages.interface.vol.poseMs + reglages.interface.vol.volMs + reglages.interface.vol.fermetureMs);
+  expect(aller).toHaveBeenLastCalledWith('seconde');
+  expect(arrive).toHaveBeenCalledOnce();
+});
+
 it.each([false, true])('vole vers un lieu sans changer de zone (réduit : %s)', reduit => {
   vi.stubGlobal('matchMedia', vi.fn((requete: string) => ({ matches: reduit && requete.includes('reduce') })));
   const aller = vi.fn(), arrive = vi.fn(), ouvrir = vi.fn();

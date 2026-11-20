@@ -53,7 +53,7 @@ export function PageCentre({ retour, navigationZones = false, versCombat = retou
   const [nombre, changerQuantite] = useState(1);
   const raisonId = useId(), choixId = useId();
   const objet = centre.objets.find(o => o.id === selection) ?? centre.objets[0];
-  const raison = objet && (!objet.abordable || objet.prix * nombre > argent) ? "Pas assez d'argent." : null;
+  const raison = objet?.possede ? "Tu l'as déjà." : objet && (!objet.abordable || objet.prix * nombre > argent) ? "Pas assez d'argent." : null;
   const bouton = 'min-h-11 min-w-11 p-2';
   // Éléments posés sur le décor : fond à 80 % d'opacité pour qu'on le voie derrière.
   const voile = 'bg-surface/80';
@@ -79,7 +79,7 @@ export function PageCentre({ retour, navigationZones = false, versCombat = retou
       <div className={telephone ? 'mt-4 grid items-start gap-4 lg:grid-cols-3' : 'commercial-contenu'}>
         <div role="group" aria-label="Choisis un objet" className={telephone ? 'grid grid-cols-2 gap-2 md:grid-cols-3 lg:col-span-2 lg:col-start-2' : 'commercial-grille'}>
           {centre.objets.map(o => <button type="button" key={o.id} data-objet={o.id} aria-pressed={o.id === objet.id}
-            onClick={() => selectionner(o.id)}
+            onClick={() => { selectionner(o.id); changerQuantite(1); }}
             className={`${bouton} cadre grid content-start gap-2 text-left ${o.id === objet.id ? 'border-focus bg-selection/80' : `${voile} hover:bg-selection/80`}`}>
             <IconeObjet image={o.image} nom={o.nom} taille="petite" />
             <strong>{o.id === objet.id && '✓ '}{o.nom}</strong>
