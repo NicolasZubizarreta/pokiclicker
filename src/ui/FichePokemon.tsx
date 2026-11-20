@@ -14,8 +14,6 @@ import { RepereTags } from './RepereMarque';
 import { formaterDps } from './nombres';
 import { classeSprite, nomAffiche, progressionOeuf, spriteAffiche } from './affichage-pokemon';
 import { storeJeu } from './store';
-// DARAN-TEMP
-import { lancerAnniversaireDaran } from './easter-daran/declencheur';
 import { niveauRequis, peutEvoluer, pierresPour } from '../core/evolution';
 import { chargerObjets } from '../core/boutique';
 import './FichePokemon.css';
@@ -102,8 +100,6 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: 
     if (!membre || surnom === nomAffiche(membre.pokemon)) { fermerEdition(); return; }
     const raison = storeJeu.getState().renommer(uid, surnom);
     signalerSurnom(raison);
-    // DARAN-TEMP
-    if (raison === null) lancerAnniversaireDaran(surnom);
     if (raison === null) fermerEdition();
   };
 
