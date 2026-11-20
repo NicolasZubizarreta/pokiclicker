@@ -1,4 +1,5 @@
 import { Coquille } from './Coquille';
+import { extraireJetonUrl } from './jeton-url';
 import { MiseAJour } from './MiseAJour';
 import { useCallback, useEffect, useMemo, useRef, useState, type ComponentProps } from 'react';
 import { EcranCompte } from './compte/EcranCompte';
@@ -9,6 +10,8 @@ import { useSessionCompte } from './compte/session-compte';
 import { creerHorlogeSysteme } from '../core/clock';
 import { departNouvellePartie, storeJeu } from './store';
 import { creerGestionnaire } from '../core/sauvegarde';
+import { detailErreur } from './persistance';
+import { exporterPartieOuBrut } from './export-secours';
 import { creerStockageLocal } from './stockage-local';
 import { creerSynchro, type PartieListee } from './synchro';
 import { ZoneCompte } from './compte/ZoneCompte';
@@ -33,7 +36,7 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
   const [, rafraichir] = useState(0);
   const [phase, fixerPhase] = useState<'verification' | 'creation' | 'jeu'>('verification');
   const [ecranParties, fixerEcranParties] = useState(false);
-  const [liste, fixerListe] = useState<{ parties: PartieListee[]; horsConnexion: boolean }>({ parties: [], horsConnexion: false });
+  const [liste, fixerListe] = useState<{ parties: PartieListee[]; horsConnexion: boolean; illisibles: { id: string; raison: string }[] }>({ parties: [], horsConnexion: false, illisibles: [] });
   const [chargement, fixerChargement] = useState(false);
   const [jeuMonte, fixerJeuMonte] = useState(false);
   const [occupe, fixerOccupe] = useState(false);
@@ -77,6 +80,8 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
         if (resultatAppareil === 'libre') fixerJeuMonte(true);
       }
       fixerPhase('jeu');
+    }).catch(erreur => {
+      if (actif) { fixerErreur(detailErreur(erreur)); fixerChargement(false); fixerPhase('creation'); }
     });
     return () => { actif = false; synchro.arreter(); appareil.arreter(); };
   }, [synchro, appareil, lireAvis]);
@@ -154,8 +159,9 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
   }
   async function listerParties() {
     fixerChargement(true);
-    fixerListe(await synchro.lister());
-    fixerChargement(false);
+    try { fixerListe(await synchro.lister()); }
+    catch (erreur) { fixerErreur(detailErreur(erreur)); }
+    finally { fixerChargement(false); }
   }
   function voirParties() { fixerApresAilleurs(true); fixerEcranParties(true); void listerParties(); }
   async function deconnecter() {
@@ -185,8 +191,9 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
     if (occupe) return;
     fixerOccupe(true); fixerErreur('');
     if (jeuMonte) storeJeu.getState().arreter();
-    if (await synchro.ouvrirPartie(id) === 'ok') { window.location.reload(); return; }
-    fixerErreur("Connexion impossible. Rien n'a changé, réessaie.");
+    const resultat = await synchro.ouvrirPartie(id);
+    if (resultat === 'ok') { window.location.reload(); return; }
+    fixerErreur(resultat === 'stockage' ? detailErreur(synchro.derniereErreurStockage()) : "Connexion impossible. Rien n'a changé, réessaie.");
     if (jeuMonte && !appareil.ailleurs()) storeJeu.getState().demarrer();
     fixerOccupe(false);
   }
@@ -195,7 +202,7 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
     fixerOccupe(true); fixerErreur('');
     const resultat = await synchro.creerPartie(nom, departNouvellePartie());
     if (resultat === 'ok') { window.location.reload(); return; }
-    fixerErreur(resultat === 'plein' ? 'Tu as déjà 20 parties. Supprime-en une pour en créer une autre.'
+    fixerErreur(resultat === 'stockage' ? detailErreur(synchro.derniereErreurStockage()) : resultat === 'plein' ? 'Tu as déjà 20 parties. Supprime-en une pour en créer une autre.'
       : resultat === 'nom-invalide' ? 'Donne un nom à ta partie (100 caractères au plus).'
         : "La partie n'a pas pu être créée. Réessaie.");
     fixerOccupe(false);
@@ -205,7 +212,7 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
     fixerOccupe(true); fixerErreur('');
     const r = await synchro.renommerPartie(id, nom);
     if (r === 'ok') await listerParties();
-    else fixerErreur(r === 'nom-invalide' ? 'Donne un nom à ta partie (100 caractères au plus).'
+    else fixerErreur(r === 'stockage' ? detailErreur(synchro.derniereErreurStockage()) : r === 'nom-invalide' ? 'Donne un nom à ta partie (100 caractères au plus).'
       : "Connexion impossible. Le nom n'a pas changé, réessaie.");
     fixerOccupe(false);
     return r === 'ok';
@@ -219,8 +226,9 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
     const resultat = await synchro.restaurerVersion(id, lot);
     if (resultat === 'ok') {
       synchro.arreter();
-      if (await synchro.ouvrirPartie(id) === 'ok') { window.location.reload(); return 'ok'; }
-      fixerErreur('La sauvegarde est restaurée. Ouvre la partie pour la reprendre.');
+      const ouverture = await synchro.ouvrirPartie(id);
+      if (ouverture === 'ok') { window.location.reload(); return 'ok'; }
+      fixerErreur(ouverture === 'stockage' ? detailErreur(synchro.derniereErreurStockage()) : 'La sauvegarde est restaurée. Ouvre la partie pour la reprendre.');
       await listerParties();
     } else if (arrete && !appareil.ailleurs()) { storeJeu.getState().demarrer(); }
     fixerOccupe(false);
@@ -232,11 +240,15 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
     const courante = liste.parties.some(p => p.id === id && p.courante);
     const arrete = courante && jeuMonte;
     if (arrete) storeJeu.getState().arreter();
-    if (await synchro.supprimerPartie(id) === 'ok') {
+    const resultat = await synchro.supprimerPartie(id);
+    if (resultat === 'ok') {
       if (courante) { window.location.reload(); return; }
       await listerParties();
     } else {
-      fixerErreur("Connexion impossible. La partie n'est pas supprimée, réessaie.");
+      fixerErreur(resultat === 'stockage' ? detailErreur(synchro.derniereErreurStockage()) : resultat === 'conflit'
+        ? "Cette partie a changé depuis ta dernière lecture (un autre appareil l'a fait avancer). La liste est mise à jour ; vérifie puis réessaie."
+        : "Connexion impossible. La partie n'est pas supprimée, réessaie.");
+      if (resultat === 'conflit') await listerParties();
       if (arrete && !appareil.ailleurs()) { storeJeu.getState().demarrer(); synchro.demarrer(); }
     }
     fixerOccupe(false);
@@ -245,11 +257,21 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
     : <main data-theme="dark" className="grid min-h-dvh place-content-center justify-items-center gap-4 bg-fond font-texte text-texte">
       <span className="zc-rond-charge" aria-hidden="true" /><p role="status" className="font-titre text-2xl font-bold">Vérification de la sauvegarde…</p><div className="zc-barre-ind" aria-hidden="true"><i /></div>
     </main>;
-  const gestionnaire = creerGestionnaire({ stockage: creerStockageLocal(), horloge: creerHorlogeSysteme(), genererId: () => 'x' });
-  const id = suppression?.id ?? gestionnaire.partieCourante();
-  const partie = id ? gestionnaire.chargerPartie(id) : null;
+  let lecture: { gestionnaire: ReturnType<typeof creerGestionnaire>; partie: ReturnType<ReturnType<typeof creerGestionnaire>['chargerPartie']>; zoneId: string };
+  try {
+    const gestionnaire = creerGestionnaire({ stockage: creerStockageLocal(), horloge: creerHorlogeSysteme(), genererId: () => 'x' });
+    const id = suppression?.id ?? gestionnaire.partieCourante();
+    const partie = id ? gestionnaire.chargerPartie(id) : null;
+    lecture = { gestionnaire, partie, zoneId: id && partie ? gestionnaire.chargerRegion(id, partie.donnees.regionCourante)?.donnees.zoneId ?? '' : '' };
+  } catch (e) {
+    // Stockage plein ou inaccessible : un écran de secours plutôt qu'un arbre planté.
+    return <main data-theme="dark" className="grid min-h-dvh place-content-center justify-items-center gap-4 bg-fond p-4 text-center font-texte text-texte">
+      <p role="alert" className="font-titre text-2xl font-bold">{detailErreur(e)}</p>
+      <button type="button" className="plaque min-h-12" onClick={() => window.location.reload()}>Recharger la page</button>
+    </main>;
+  }
+  const { gestionnaire, partie, zoneId } = lecture;
   const regionId = partie?.donnees.regionCourante ?? '';
-  const zoneId = id ? gestionnaire.chargerRegion(id, regionId)?.donnees.zoneId ?? '' : '';
   return <>
     {jeuMonte && <Coquille quandMenuPrincipal={menuPrincipal} attendreEnvoi={attendreEnvoi} nomPartie={partie?.donnees.nom} etatSynchro={etatSynchro} />}
     {!suppression && !jeuMonte && !ecranParties && (ailleurs || repriseEnAttente) && <div>
@@ -265,6 +287,7 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
     </div>}
     {(phase === 'creation' || (ecranParties && (!ailleurs || !jeuMonte || apresAilleurs))) && <div className={jeuMonte ? 'fixed inset-0 z-50 overflow-y-auto' : undefined}>
       <ZoneCompteConnectee {...liste} chargement={chargement} occupe={occupe} erreur={erreur}
+        quandExporterPartie={id => exporterPartieOuBrut(() => gestionnaire.exporterPartie(id), creerStockageLocal(), id)} quandExporterCompte={() => gestionnaire.exporterCompte()}
         quandRenommer={renommer} quandListerVersions={id => synchro.listerVersions(id)} quandRestaurer={restaurer}
         quandJouer={id => { void jouer(id); }} quandCreer={nom => { void creer(nom); }} quandSupprimer={id => { void supprimer(id); }}
         quandRetourJeu={phase === 'creation' || ailleurs || repriseEnAttente ? undefined : () => fixerEcranParties(false)}
@@ -277,17 +300,7 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
 
 function JeuAvecCompte() {
   const session = useSessionCompte();
-  const [token, fixerToken] = useState(() => {
-    const parametres = new URLSearchParams(window.location.search);
-    return parametres.get('token') ?? (parametres.get('error') === 'INVALID_TOKEN' ? '' : null);
-  });
-  useEffect(() => {
-    const adresse = new URL(window.location.href);
-    if (adresse.searchParams.has('token')) {
-      adresse.searchParams.delete('token');
-      window.history.replaceState(window.history.state, '', adresse.pathname + adresse.search + adresse.hash);
-    }
-  }, []);
+  const [token, fixerToken] = useState(extraireJetonUrl);
   if (token !== null || !session.valide) {
     if (token === null && session.attente) return <p role="status">Vérification du compte…</p>;
     return <EcranCompte token={token} sessionExpiree={session.expiree} quandConnecte={jeton => { fixerToken(null); session.memoriser(jeton); }} quandReinitialise={() => { fixerToken(null); session.memoriser(null); }} />;

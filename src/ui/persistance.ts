@@ -1,4 +1,4 @@
-import { compteInitial, creerGestionnaire } from '../core/sauvegarde';
+import { compteInitial, creerGestionnaire, ErreurStockage } from '../core/sauvegarde';
 import type { DonneesRegion } from '../core/sauvegarde';
 import type { DonneesCompte, PreferencesCombat } from '../core/sauvegarde-types';
 import { mesuresDe, registreSucces, succesAccordes } from '../core/succes';
@@ -11,6 +11,9 @@ export const ERREUR_CHARGEMENT = 'Une erreur est survenue. Recharge la page ; ta
 export const ERREUR_CONFLIT = 'Cette partie est ouverte ailleurs. Recharge la page.';
 
 export function detailErreur(erreur: unknown): string {
+  if (erreur instanceof ErreurStockage) return erreur.code === 'stockage-plein'
+    ? "Ton appareil n'a plus de place pour sauvegarder. Libère de l'espace puis réessaie."
+    : "Le navigateur empêche l'accès à la sauvegarde. Vérifie qu'il n'est pas en navigation privée.";
   const message = erreur instanceof Error ? erreur.message : '';
   if (message.includes('Conflit')) return ERREUR_CONFLIT;
   if (message.includes('récente')) return 'Cette partie nécessite une version plus récente du jeu.';
@@ -18,7 +21,7 @@ export function detailErreur(erreur: unknown): string {
   // « déjà utilisé » : l'identifiant d'une partie illisible, que `listerParties()` ne montre plus (B-core-01).
   if (/JSON|illisible|enveloppe|Région de la partie introuvable|déjà utilisé/i.test(message)) return 'Les données de cette partie ne peuvent pas être lues.';
   console.error(erreur);
-  return `Une erreur inattendue est survenue.\n${erreur instanceof Error ? `${erreur.name}: ${erreur.message}` : String(erreur)}`;
+  return 'Une erreur inattendue est survenue.';
 }
 
 export function creerPartieNommee(options: Parameters<typeof creerGestionnaire>[0], nom: string,
@@ -70,13 +73,12 @@ export function ouvrirPartie(options: Parameters<typeof creerGestionnaire>[0],
     /** Vrai après un échec d'écriture de la partie : plus rien n'est écrit tant que la partie n'est pas rechargée. */
     estBloquee: () => bloquee,
     enregistrerSon(actif: boolean) {
-      if (bloquee) return;
       const actuel = gestionnaire.chargerCompte()?.donnees ?? compteInitial();
       gestionnaire.ecrireCompte({ ...actuel, preferences: { ...actuel.preferences, sonActive: actif } });
     },
     enregistrerPreferences(p: PreferencesCombat) {
       const suivantes = JSON.stringify(p);
-      if (bloquee || suivantes === dernieresPreferences) return;
+      if (suivantes === dernieresPreferences) return;
       const actuel = gestionnaire.chargerCompte()?.donnees ?? compteInitial();
       gestionnaire.ecrireCompte({ ...actuel, preferences: { ...actuel.preferences, ...structuredClone(p) } });
       dernieresPreferences = suivantes;
@@ -98,6 +100,7 @@ export function ouvrirPartie(options: Parameters<typeof creerGestionnaire>[0],
         if (base !== derniereBase) {
           enveloppe = gestionnaire.ecrireRegion(partie.id, region.regionId, region,
             { revisionAttendue: enveloppe!.revision });
+          derniereBase = base;
         }
         const donnees = { ...partie.donnees, nom: actuelle.donnees.nom, pokedexNational: [...pokedex], vus: [...vusComplets],
           statistiques: { ...partie.donnees.statistiques, tempsJeuMs: tempsBase + Math.floor(tempsSessionMs) } };
@@ -105,7 +108,7 @@ export function ouvrirPartie(options: Parameters<typeof creerGestionnaire>[0],
         derniere = suivante;
         derniereBase = base;
       } catch (erreur) {
-        bloquee = true;
+        bloquee = !(erreur instanceof ErreurStockage) && erreur instanceof Error && /Conflit|revisionAttendue/.test(erreur.message);
         throw erreur;
       }
       try {

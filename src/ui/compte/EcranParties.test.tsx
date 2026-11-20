@@ -2,6 +2,35 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { Parties } from './EcranParties';
+import { telechargerTexte } from '../telecharger';
+import { ErreurStockage } from '../../core/sauvegarde';
+vi.mock('../telecharger', () => ({ telechargerTexte: vi.fn() }));
+
+it('affiche les parties abîmées seulement si elles existent', () => {
+  const { rerender } = render(<Parties {...props()} />);
+  expect(screen.queryByText('Parties abîmées')).toBeNull();
+  rerender(<Parties {...props()} illisibles={[{ id: 'abimee', raison: 'invalide' }]} />);
+  expect(screen.getByRole('heading', { name: 'Parties abîmées' })).toBeTruthy();
+});
+it('exporte et télécharge une partie abîmée', () => {
+  const exporter = vi.fn(() => 'partie brute');
+  render(<Parties {...props()} illisibles={[{ id: 'abimee', raison: 'invalide' }]} quandExporterPartie={exporter} />);
+  fireEvent.click(screen.getByText('Exporter cette partie'));
+  expect(exporter).toHaveBeenCalledExactlyOnceWith('abimee');
+  expect(telechargerTexte).toHaveBeenCalledWith('pokiclicker-partie-abimee.json', 'partie brute');
+});
+it('exporte et télécharge le compte', () => {
+  const exporter = vi.fn(() => 'compte brut');
+  render(<Parties {...props()} illisibles={[{ id: 'abimee', raison: 'invalide' }]} quandExporterCompte={exporter} />);
+  fireEvent.click(screen.getByText('Exporter mon compte'));
+  expect(exporter).toHaveBeenCalledExactlyOnceWith();
+  expect(telechargerTexte).toHaveBeenCalledWith('pokiclicker-compte.json', 'compte brut');
+});
+it('affiche une alerte quand un export échoue', () => {
+  render(<Parties {...props()} illisibles={[{ id: 'abimee', raison: 'invalide' }]} quandExporterCompte={() => { throw new ErreurStockage(new Error()); }} />);
+  fireEvent.click(screen.getByText('Exporter mon compte'));
+  expect(screen.getByRole('alert').textContent).toContain("Le navigateur empêche l'accès");
+});
 const affichage = vi.hoisted(() => ({ telephone: false }));
 vi.mock('../useTelephone', () => ({ useTelephone: () => affichage.telephone }));
 afterEach(() => { affichage.telephone = false; });

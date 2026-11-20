@@ -9,6 +9,34 @@ function ouvrir(stockage = creerStockageMemoire()) {
   return { stockage, p: ouvrirPartie(options, { equipe: [], drapeaux: [] }), g: creerGestionnaire(options) };
 }
 const temps = (g: ReturnType<typeof ouvrir>['g']) => g.chargerPartie('test')!.donnees.statistiques.tempsJeuMs;
+it('reprend après un quota dépassé lors de la seconde écriture', () => {
+  const { p, g, stockage } = ouvrir();
+  const ecrire = stockage.ecrire.bind(stockage);
+  let plein = true;
+  vi.spyOn(stockage, 'ecrire').mockImplementation((cle, valeur) => {
+    if (plein && cle === 'pokiclicker:partie:test') throw new DOMException('Plein', 'QuotaExceededError');
+    ecrire(cle, valeur);
+  });
+  const region = { ...p.region, argent: p.region.argent + 1 };
+  expect(() => p.enregistrer(region, [25])).toThrow();
+  expect(p.estBloquee()).toBe(false);
+  plein = false;
+  p.enregistrer(region, [25]);
+  expect(g.chargerRegion('test', region.regionId)!.donnees).toEqual(region);
+  expect(g.chargerPartie('test')!.donnees.pokedexNational).toEqual([25]);
+});
+
+it('continue de sauvegarder le compte après un conflit de partie', () => {
+  const { p, g } = ouvrir();
+  const partie = g.chargerPartie('test')!;
+  g.ecrirePartie('test', { ...partie.donnees, pokedexNational: [25] });
+  expect(() => p.enregistrer({ ...p.region, argent: 1 }, [])).toThrow('Conflit');
+  expect(p.estBloquee()).toBe(true);
+  p.enregistrerSon(false);
+  const preferences = { ...p.preferences, autoAttaque: !p.preferences.autoAttaque };
+  p.enregistrerPreferences(preferences);
+  expect(g.chargerCompte()!.donnees.preferences).toMatchObject({ ...preferences, sonActive: false });
+});
 it('écrit un nouveau vu une fois, complète les capturés et conserve les vus à la réouverture', () => {
   const { p, g, stockage } = ouvrir();
   const ecrire = vi.spyOn(stockage, 'ecrire');

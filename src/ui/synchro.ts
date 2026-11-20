@@ -1,10 +1,10 @@
 import type { Horloge } from '../core/clock';
-import { creerGestionnaire, creerStockageMemoire, type DonneesCompte, type DonneesPartie, type DonneesRegion, type Enveloppe, type Stockage } from '../core/sauvegarde';
+import { ErreurStockage, creerGestionnaire, creerStockageMemoire, type DonneesCompte, type DonneesPartie, type DonneesRegion, type Enveloppe, type Stockage } from '../core/sauvegarde';
 import { creerPartieNommee } from './persistance';
 import { genererIdentifiant } from './identifiants';
 
 export type EtatSynchro = 'inactif' | 'ok' | 'hors-ligne' | 'refuse' | 'ailleurs' | 'divergence';
-export type PartieListee = { id: string; nom: string; regionCourante: string; zoneId: string; tempsJeuMs: number | null;
+export type PartieListee = { id: string; revision?: number; nom: string; regionCourante: string; zoneId: string; tempsJeuMs: number | null;
   ecritLe: string; surServeur: boolean; courante: boolean; ailleurs?: boolean };
 export type VersionArchivee = { lot: string; origine: 'divergence' | 'restauration'; remplaceLe: string; ecritLe: string;
   tempsJeuMs: number | null; regionCourante: string; zoneId: string; niveauEquipe: number | null };
@@ -15,6 +15,8 @@ type VersionServeur = Version & { partie: Enveloppe<DonneesPartie> };
 export type Resume = { regionId: string; zoneId: string; ecritLe: string; tempsJeuMs: number | null };
 type Unite = 'compte' | 'partie';
 type Verdict = 'rien' | 'charger' | 'envoyer' | 'diverge';
+const canonique = (v: unknown): string => JSON.stringify(v, (_, x: unknown) => x && typeof x === 'object' && !Array.isArray(x)
+  ? Object.fromEntries(Object.entries(x).sort(([p], [q]) => p < q ? -1 : 1)) : x);
 export function decider(local: Version, serveur: Version | null, memoire: Memoire): Record<Unite, Verdict> {
   const verdict = (sc: boolean, lc: boolean): Verdict => sc ? lc ? 'diverge' : 'charger' : lc ? 'envoyer' : 'rien';
   const changePartie = (v: Version | null, cote: keyof Revision) => !!v && !!(
@@ -22,8 +24,6 @@ export function decider(local: Version, serveur: Version | null, memoire: Memoir
     || v.regions.some(r => r.revision !== memoire.regions[`${v.partie?.id}:${r.id}`]?.[cote]));
   // Un envoi parti juste avant un rechargement : le serveur a commit, pas la mémoire locale. Mêmes dates d'écriture = même contenu, pas de divergence.
   // Le serveur (jsonb) peut réordonner les clés : on compare le contenu avec des clés triées.
-  const canonique = (v: unknown): string => JSON.stringify(v, (_, x: unknown) => x && typeof x === 'object' && !Array.isArray(x)
-    ? Object.fromEntries(Object.entries(x).sort(([p], [q]) => p < q ? -1 : 1)) : x);
   const identiques = (a: Enveloppe<unknown> | null | undefined, b: Enveloppe<unknown> | null | undefined) => !!a && !!b
     && a.id === b.id && a.ecritLe === b.ecritLe && canonique(a.donnees) === canonique(b.donnees);
   const memePartie = !!local.partie && !!serveur?.partie && identiques(local.partie, serveur.partie)
@@ -69,6 +69,15 @@ export function creerSynchro(options: {
       && (!('compte' in valeur) || revisionValide(valeur.compte))) memoire = valeur as Memoire;
   } catch { /* Une mémoire illisible ne bloque pas le jeu. */ }
   let statut: EtatSynchro = 'inactif';
+  let erreurStockage: ErreurStockage | undefined;
+  function echecOperation(erreur: unknown): 'stockage' | 'echec' {
+    if (!(erreur instanceof ErreurStockage)) return 'echec';
+    erreurStockage = erreur;
+    return 'stockage';
+  }
+  const revisionsListees = new Map<string, number>();
+  type Envoi = { partieId?: string; unites: { niveau: 'compte' | 'partie' | 'region'; id: string; revision: number; ecritLe: string; contenu: string }[] };
+  let incertain: Envoi | undefined;
   let arrete = false;
   let bloque = false;
   let suppressionCourante = false;
@@ -104,7 +113,8 @@ export function creerSynchro(options: {
     return contenu.parties.map((p: Record<string, unknown> | null) => {
       if (!p || typeof p.id !== 'string' || typeof p.nom !== 'string'
         || !Number.isSafeInteger(p.revision) || typeof p.ecritLe !== 'string') throw new Error('Partie invalide');
-      return { id: p.id, nom: p.nom, ecritLe: p.ecritLe, ailleurs: p.appareilActif === 'autre',
+      revisionsListees.set(p.id, p.revision as number);
+      return { id: p.id, revision: p.revision as number, nom: p.nom, ecritLe: p.ecritLe, ailleurs: p.appareilActif === 'autre',
         regionCourante: typeof p.regionCourante === 'string' ? p.regionCourante : '',
         zoneId: typeof p.zoneId === 'string' ? p.zoneId : '',
         tempsJeuMs: typeof p.tempsJeuMs === 'number' && Number.isFinite(p.tempsJeuMs) ? p.tempsJeuMs : null };
@@ -263,6 +273,14 @@ export function creerSynchro(options: {
           ...(regions.length > 0 && { regions: regions.map(r => ({ revisionBase: memoire.regions[`${partie!.id}:${r.id}`]?.serveur ?? 0, enveloppe: r })) }),
         });
         dernier = horloge.maintenant();
+        const precedent = incertain;
+        const unites: Envoi['unites'] = [];
+        const retenir = (niveau: Envoi['unites'][number]['niveau'], e: Enveloppe<unknown>) =>
+          unites.push({ niveau, id: e.id, revision: e.revision, ecritLe: e.ecritLe, contenu: canonique(e.donnees) });
+        if (compteModifie) retenir('compte', compte);
+        if (partieModifiee) retenir('partie', partie);
+        for (const r of regions) retenir('region', r);
+        incertain = { partieId: partie?.id, unites };
         const reponse = await (options.fetch ?? globalThis.fetch)(`${options.urlApi.replace(/\/+$/, '')}/api/sauvegarde`, {
           method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${jeton}` },
           credentials: 'omit', cache: 'no-store', referrerPolicy: 'no-referrer', signal: AbortSignal.timeout(8000),
@@ -270,7 +288,10 @@ export function creerSynchro(options: {
         });
         // Un envoi accepté par le serveur est toujours mémorisé, même si la synchro a été arrêtée entre-temps (sinon la révision de départ serait périmée).
         if (reponse.status === 200) {
-          const resultat = await reponse.json() as { compte?: { revision: number }; partie?: { id: string; revision: number }; regions?: { id: string; revision: number }[] };
+          let resultat: { compte?: { revision: number }; partie?: { id: string; revision: number }; regions?: { id: string; revision: number }[] };
+          try { resultat = await reponse.json(); }
+          catch { if (!arrete) statut = 'ok'; return; }
+          incertain = undefined;
           if (compteModifie && resultat.compte) memoire.compte = { serveur: resultat.compte.revision, local: compte.revision };
           if (partieModifiee && resultat.partie?.id === partie.id) memoire.parties[partie.id] = { serveur: resultat.partie.revision, local: partie.revision };
           for (const region of regions) {
@@ -281,6 +302,7 @@ export function creerSynchro(options: {
           if (!arrete) statut = 'ok';
         } else if (arrete) return;
         else if (reponse.status === 409) {
+          incertain = precedent;
           const corps = await reponse.json().catch(() => null);
           if (corps?.code === 'ailleurs') {
             statut = 'ailleurs'; bloque = true; options.quandAilleurs?.(); options.quandChange?.(); return;
@@ -289,7 +311,25 @@ export function creerSynchro(options: {
             && corps.conflits.some((c: { niveau?: unknown; id?: unknown; revisionServeur?: unknown } | null) =>
               c?.niveau === 'partie' && c.id === partie.id && c.revisionServeur === 0);
           if (supprimee) retenirSuppression(partie.id);
-          else { statut = 'divergence'; bloque = true; options.quandChange?.(); }
+          else {
+            if (precedent && precedent.partieId === partie?.id) {
+              const serveur = await lireServeur(partie?.id ?? null);
+              const correspondances = precedent.unites.map(u => ({ u, e: u.niveau === 'compte' ? serveur?.compte
+                : u.niveau === 'partie' ? serveur?.partie : serveur?.regions.find(r => r.id === u.id) }));
+              if (correspondances.every(({ u, e }) => e && e.id === u.id && e.ecritLe === u.ecritLe && canonique(e.donnees) === u.contenu)) {
+                for (const { u, e } of correspondances) {
+                  const revision = { serveur: e!.revision, local: u.revision };
+                  if (u.niveau === 'compte') memoire.compte = revision;
+                  else if (u.niveau === 'partie') memoire.parties[u.id] = revision;
+                  else memoire.regions[`${precedent.partieId}:${u.id}`] = revision;
+                }
+                incertain = undefined;
+                try { stockage.ecrire(cle, JSON.stringify(memoire)); } catch { /* Mémoire facultative. */ }
+                statut = 'ok'; return;
+              }
+            }
+            statut = 'divergence'; bloque = true; options.quandChange?.();
+          }
         }
         else if (reponse.status === 404 && partie && !partieModifiee && regions.length > 0
           && (memoire.parties[partie.id]?.serveur ?? 0) > 0) retenirSuppression(partie.id);
@@ -297,7 +337,7 @@ export function creerSynchro(options: {
           // Serveur à jour, client trop ancien : plus rien ne part tant que le jeu n'est pas rechargé.
           statut = 'refuse'; bloque = true; options.quandMiseAJourRequise?.(); options.quandChange?.();
         }
-        else if (reponse.status >= 400 && reponse.status < 500 && ![408, 429].includes(reponse.status)) { statut = 'refuse'; bloque = true; }
+        else if (reponse.status >= 400 && reponse.status < 500 && ![401, 408, 429].includes(reponse.status)) { statut = 'refuse'; bloque = true; }
         else statut = 'hors-ligne';
       } catch { if (!arrete) statut = 'hors-ligne'; }
     };
@@ -322,10 +362,11 @@ export function creerSynchro(options: {
     fermetureSuivante = false;
     if (typeof window !== 'undefined') window.removeEventListener('online', enLigne);
   }
-  async function lister(): Promise<{ parties: PartieListee[]; horsConnexion: boolean }> {
+  async function lister(): Promise<{ parties: PartieListee[]; horsConnexion: boolean; illisibles: { id: string; raison: string }[] }> {
     const courante = gestionnaire.partieCourante();
     let parties: PartieListee[] = [];
     let horsConnexion = false;
+    const inaccessibles: { id: string; raison: string }[] = [];
     try {
       if (!options.jeton()) throw new Error('Sans connexion');
       parties = (await listerServeur()).map(p => ({ ...p, surServeur: true, courante: p.id === courante }));
@@ -338,13 +379,16 @@ export function creerSynchro(options: {
     } catch { horsConnexion = true; }
     for (const p of gestionnaire.listerParties()) {
       if (parties.some(serveur => serveur.id === p.id)) continue;
+      try {
       const partie = gestionnaire.chargerPartie(p.id)!;
       const region = gestionnaire.chargerRegion(p.id, p.regionCourante);
       parties.push({ ...p, zoneId: region?.donnees.zoneId ?? '', tempsJeuMs: partie.donnees.statistiques.tempsJeuMs ?? null,
         surServeur: false, courante: p.id === courante, ailleurs: false });
+      } catch { inaccessibles.push({ id: p.id, raison: 'lecture-impossible' }); }
     }
     parties.sort((a, b) => Date.parse(b.ecritLe) - Date.parse(a.ecritLe));
-    return { parties, horsConnexion };
+    const illisibles = gestionnaire.listerPartiesIllisibles();
+    return { parties, horsConnexion, illisibles: [...illisibles, ...inaccessibles.filter(p => !illisibles.some(i => i.id === p.id))] };
   }
   async function listerVersions(id: string): Promise<VersionArchivee[] | null> {
     try {
@@ -378,7 +422,7 @@ export function creerSynchro(options: {
       return reponse.status === 200 ? 'ok' : reponse.status === 404 ? 'introuvable' : 'echec';
     } catch { return 'echec'; }
   }
-  async function ouvrirPartie(id: string): Promise<'ok' | 'echec'> {
+  async function ouvrirPartie(id: string): Promise<'ok' | 'echec' | 'stockage'> {
     try {
       await envoyer();
       if (!gestionnaire.chargerPartie(id)) {
@@ -389,9 +433,9 @@ export function creerSynchro(options: {
       }
       gestionnaire.choisirPartie(id);
       return 'ok';
-    } catch { return 'echec'; }
+    } catch (erreur) { return echecOperation(erreur); }
   }
-  async function creerPartie(nom: string, depart: Pick<DonneesRegion, 'equipe' | 'drapeaux'>): Promise<'ok' | 'echec' | 'plein' | 'nom-invalide'> {
+  async function creerPartie(nom: string, depart: Pick<DonneesRegion, 'equipe' | 'drapeaux'>): Promise<'ok' | 'echec' | 'stockage' | 'plein' | 'nom-invalide'> {
     nom = nom.trim();
     if (!nom.length || nom.length > 100) return 'nom-invalide';
     try {
@@ -400,9 +444,9 @@ export function creerSynchro(options: {
       creerPartieNommee({ stockage, horloge, genererId: genererIdentifiant }, nom, depart);
       await envoyer();
       return 'ok';
-    } catch { return 'echec'; }
+    } catch (erreur) { return echecOperation(erreur); }
   }
-  async function renommerPartie(id: string, nom: string): Promise<'ok' | 'echec' | 'nom-invalide'> {
+  async function renommerPartie(id: string, nom: string): Promise<'ok' | 'echec' | 'stockage' | 'nom-invalide'> {
     nom = nom.trim();
     if (!nom.length || nom.length > 100) return 'nom-invalide';
     try {
@@ -417,16 +461,19 @@ export function creerSynchro(options: {
       if (reponse.status !== 200) return 'echec';
       if (local) gestionnaire.renommerPartie(id, nom);
       return 'ok';
-    } catch { return 'echec'; }
+    } catch (erreur) { return echecOperation(erreur); }
   }
-  async function supprimerPartie(id: string): Promise<'ok' | 'echec'> {
-    const courante = gestionnaire.partieCourante() === id;
-    if (courante) suppressionCourante = true;
+  async function supprimerPartie(id: string): Promise<'ok' | 'echec' | 'conflit' | 'stockage'> {
+    let courante = false;
     let succes = false;
     try {
+      courante = gestionnaire.partieCourante() === id;
+      if (courante) suppressionCourante = true;
       if (courante) await enCours;
       try {
-        const reponse = await requete(`/parties/${encodeURIComponent(id)}`, 'DELETE');
+        const revisionBase = (memoire.parties[id]?.serveur ?? 0) > 0 ? memoire.parties[id]!.serveur : revisionsListees.get(id);
+        const reponse = await requete(`/parties/${encodeURIComponent(id)}`, 'DELETE', revisionBase === undefined ? undefined : { revisionBase });
+        if (reponse.status === 409) return 'conflit';
         if (reponse.status !== 200 && reponse.status !== 404) throw new Error('Suppression impossible');
       } catch (erreur) {
         // L'échec n'est toléré que pour une partie purement locale, jamais envoyée.
@@ -438,10 +485,11 @@ export function creerSynchro(options: {
       stockage.ecrire(cle, JSON.stringify(memoire));
       succes = true;
       return 'ok';
-    } catch { return 'echec'; }
+    } catch (erreur) { return echecOperation(erreur); }
     finally { if (courante && !succes) suppressionCourante = false; }
   }
   return {
+    derniereErreurStockage: () => erreurStockage,
     ouvrir,
     lister,
     listerVersions,

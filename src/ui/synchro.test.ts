@@ -2,11 +2,87 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { creerHorlogeSimulee } from '../core/clock';
 import { reglages } from '../core/reglages';
-import { compteInitial, creerGestionnaire, creerStockageMemoire } from '../core/sauvegarde';
+import { ErreurStockage, compteInitial, creerGestionnaire, creerStockageMemoire } from '../core/sauvegarde';
 import { creerStoreJeu } from './store';
 import { creerSynchro, decider, type Memoire } from './synchro';
 
 const arrets: (() => void)[] = [];
+it('signale le stockage indisponible pendant la création', async () => {
+  const t = preparer();
+  const erreur = new ErreurStockage(new Error('interdit'));
+  vi.spyOn(t.stockage, 'cles').mockImplementation(() => { throw erreur; });
+  expect(await t.synchro.creerPartie('Nouvelle', { equipe: [], drapeaux: [] })).toBe('stockage');
+  expect(t.synchro.derniereErreurStockage()).toMatchObject({ code: erreur.code });
+});
+it('conserve les autres parties et signale les parties illisibles', async () => {
+  const t = preparer();
+  t.stockage.ecrire('pokiclicker:partie:abimee', '{');
+  const resultat = await t.synchro.lister();
+  expect(resultat.parties.map(p => p.id)).toContain(t.p.id);
+  expect(resultat.illisibles).toContainEqual({ id: 'abimee', raison: 'donnees-invalides' });
+});
+it('isole une lecture de région qui lève sans perdre les autres parties', async () => {
+  const t = preparer(() => null);
+  creerGestionnaire({ stockage: t.stockage, horloge: t.horloge, genererId: () => 'copie' }).creerPartie('Copie');
+  const lire = t.stockage.lire.bind(t.stockage);
+  vi.spyOn(t.stockage, 'lire').mockImplementation(cle => {
+    if (cle === `pokiclicker:region:${t.p.id}:kanto`) throw new Error('lecture impossible');
+    return lire(cle);
+  });
+  const resultat = await t.synchro.lister();
+  expect(resultat.parties).toHaveLength(1);
+  expect(resultat.parties[0]!.id).not.toBe(t.p.id);
+  expect(resultat.illisibles).toContainEqual({ id: t.p.id, raison: 'lecture-impossible' });
+});
+it.each(['timeout', 'json', 'conflit'])('rattrape un envoi accepté sans réponse : %s', async cause => {
+  const t = preparer();
+  const { serveur, local } = versions(t);
+  Object.assign(serveur.compte, local.compte, { revision: 10 });
+  Object.assign(serveur.partie, local.partie, { revision: 20 });
+  Object.assign(serveur.regions[0]!, local.regions[0], { revision: 30 });
+  if (cause === 'json') t.fetch.mockResolvedValueOnce(new Response('illisible'));
+  else t.fetch.mockRejectedValueOnce(new DOMException('Délai dépassé', 'TimeoutError'));
+  await t.synchro.envoyerMaintenant({ fermeture: true });
+  expect(t.synchro.etat()).toBe(cause === 'json' ? 'ok' : 'hors-ligne');
+  t.g.renommerPartie(t.p.id, 'Progression récente');
+  t.modifier();
+  const avant = t.contenu();
+  if (cause === 'conflit') serveur.partie.donnees = { ...serveur.partie.donnees, nom: 'Autre appareil' };
+  t.fetch.mockResolvedValueOnce(new Response('{}', { status: 409 }));
+  await t.synchro.envoyerMaintenant({ fermeture: true });
+  expect(t.synchro.etat()).toBe(cause === 'conflit' ? 'divergence' : 'ok');
+  expect(t.contenu()).toEqual(avant);
+  if (cause !== 'conflit') {
+    await t.synchro.envoyerMaintenant({ fermeture: true });
+    expect(t.corps().partie.revisionBase).toBe(20);
+    expect(t.corps().regions[0].revisionBase).toBe(30);
+    expect(t.corps().partie.enveloppe.donnees.nom).toBe('Progression récente');
+    expect(t.synchro.etat()).toBe('ok');
+  }
+});
+it.each([false, true])('protège la suppression avec la révision connue : mémoire %s', async memorisee => {
+  const t = preparer();
+  versions(t);
+  if (memorisee) await t.synchro.envoyerMaintenant({ fermeture: true });
+  await t.synchro.lister();
+  const avant = t.contenu();
+  const memoire = t.stockage.lire('pokiclicker:synchro');
+  t.fetch.mockResolvedValueOnce(new Response('{}', { status: 409 }));
+  expect(await t.synchro.supprimerPartie(t.p.id)).toBe('conflit');
+  expect(t.corps()).toEqual({ revisionBase: memorisee ? 21 : 20 });
+  expect(t.contenu()).toEqual(avant);
+  expect(t.stockage.lire('pokiclicker:synchro')).toBe(memoire);
+});
+it('reprend un envoi après une session expirée', async () => {
+  const t = preparer();
+  t.fetch.mockResolvedValueOnce(new Response('{}', { status: 401 }));
+  await t.synchro.envoyerMaintenant({ fermeture: true });
+  expect(t.synchro.etat()).toBe('hors-ligne');
+  t.fetch.mockResolvedValueOnce(new Response('{}', { status: 200 }));
+  await t.synchro.envoyerMaintenant({ fermeture: true });
+  expect(t.synchro.etat()).toBe('ok');
+  expect(t.fetch).toHaveBeenCalledTimes(2);
+});
 it.each(['autre', 'cet-appareil', null, undefined, 42, 'inconnu'])('liste appareil actif : %s', async appareilActif => {
   const t = preparer();
   const synchro = creerSynchro({ ...t.options, appareilId: () => 'a/b' });
@@ -432,7 +508,7 @@ it('liste les résumés serveur et les parties locales non envoyées par date', 
   const resultat = await t.synchro.lister();
   expect(resultat.horsConnexion).toBe(false);
   expect(resultat.parties).toEqual([
-    { id: 'distante', nom: 'Test', regionCourante: 'kanto', zoneId: serveur.regions[0]!.donnees.zoneId,
+    { id: 'distante', revision: 20, nom: 'Test', regionCourante: 'kanto', zoneId: serveur.regions[0]!.donnees.zoneId,
       tempsJeuMs: 123, ecritLe: serveur.partie.ecritLe, surServeur: true, courante: false, ailleurs: false },
     { id: t.p.id, nom: 'Test', regionCourante: 'kanto', zoneId: t.g.chargerRegion(t.p.id, 'kanto')!.donnees.zoneId,
       tempsJeuMs: 456, ecritLe: t.p.ecritLe, surServeur: false, courante: true, ailleurs: false },
@@ -768,7 +844,7 @@ it('reprend la dernière version après une panne sans modifier le jeu', async (
   expect(t.corps().regions[0].enveloppe).toEqual(t.g.chargerRegion(t.p.id, 'kanto'));
 });
 
-it.each([401, 400, 403, 404, 413, 422])('bloque après %s et reprend après arrêt et démarrage', async statut => {
+it.each([400, 403, 404, 413, 422])('bloque après %s et reprend après arrêt et démarrage', async statut => {
   const t = preparer();
   t.synchro.demarrer();
   t.fetch.mockResolvedValueOnce(new Response(null, { status: statut }));

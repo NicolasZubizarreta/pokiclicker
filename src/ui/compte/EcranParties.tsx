@@ -4,8 +4,12 @@ import { duree, nomRegion, nomZone } from './format-partie';
 import { IconeAjout, IconeCorbeille, IconeCrayon } from './icones-compte';
 import { IconeRetour } from '../icones-menu';
 import { useTelephone } from '../useTelephone';
+import { detailErreur } from '../persistance';
+import { telechargerTexte } from '../telecharger';
 
-export function Parties({ parties, horsConnexion, chargement, occupe, erreur, quandJouer, quandCreer, quandSupprimer, quandRenommer, quandRetourJeu, quandListerVersions, quandRestaurer }: {
+export function Parties({ parties, illisibles = [], quandExporterPartie, quandExporterCompte, horsConnexion, chargement, occupe, erreur, quandJouer, quandCreer, quandSupprimer, quandRenommer, quandRetourJeu, quandListerVersions, quandRestaurer }: {
+  illisibles?: { id: string; raison: string }[];
+  quandExporterPartie?(id: string): string; quandExporterCompte?(): string;
   parties: PartieListee[]; horsConnexion: boolean; chargement: boolean; occupe: boolean; erreur: string;
   quandJouer(id: string): void; quandCreer(nom: string): void; quandSupprimer(id: string): void; quandRetourJeu?: () => void;
   quandRenommer?(id: string, nom: string): Promise<boolean>;
@@ -13,6 +17,14 @@ export function Parties({ parties, horsConnexion, chargement, occupe, erreur, qu
   quandRestaurer?(id: string, lot: string): Promise<'ok' | 'introuvable' | 'echec'>;
 }) {
   const telephone = useTelephone();
+  const [erreurExport, fixerErreurExport] = useState('');
+  function exporter(id?: string) {
+    fixerErreurExport('');
+    try {
+      const texte = id === undefined ? quandExporterCompte!() : quandExporterPartie!(id);
+      telechargerTexte(id === undefined ? 'pokiclicker-compte.json' : `pokiclicker-partie-${id.slice(0, 8)}.json`, texte);
+    } catch (e) { fixerErreurExport(detailErreur(e)); }
+  }
   const Grille = telephone ? Fragment : 'div';
   const BarreTitre = telephone ? Fragment : 'header';
   const [nouvelle, fixerNouvelle] = useState(false);
@@ -148,6 +160,16 @@ export function Parties({ parties, horsConnexion, chargement, occupe, erreur, qu
         </article>)}
         <button type="button" className="plaque min-h-14 w-full" disabled={occupe} onClick={() => fixerNouvelle(true)}><IconeAjout />Nouvelle partie</button>
       </Grille>}
+      {illisibles.length > 0 && <section className="cadre flex flex-col gap-4 p-4">
+        <h2 className="font-titre text-xl font-bold">Parties abîmées</h2>
+        <p>Ces parties n'ont pas pu être lues et n'apparaissent plus dans la liste. Exporte-les pour les garder, ou envoie le fichier au support.</p>
+        {illisibles.map(p => <div key={p.id} className="flex flex-wrap items-center gap-2">
+          <span>Partie illisible {p.id.slice(0, 8)}</span>
+          <button className="plaque min-h-12" onClick={() => exporter(p.id)}>Exporter cette partie</button>
+        </div>)}
+        <button className="plaque min-h-12" onClick={() => exporter()}>Exporter mon compte</button>
+        {erreurExport && <p className="compte-message erreur" role="alert">{erreurExport}</p>}
+      </section>}
     </div>
     {suppression && <dialog ref={dialogue} className="cadre zc-dialogue" role="dialog" aria-modal="true" aria-labelledby="zc-suppression-titre"
       onCancel={e => { e.preventDefault(); if (!occupe) fixerSuppression(null); }}
