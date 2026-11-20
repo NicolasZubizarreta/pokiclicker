@@ -1,0 +1,31 @@
+.daran-modal {
+  width: calc(100% - var(--spacing) * 8);
+  max-width: calc(var(--spacing) * 160);
+  max-height: calc(100dvh - var(--spacing) * 8);
+  margin: auto;
+  padding: 0;
+  border: 2px solid var(--bordure);
+  border-radius: var(--rayon);
+  overflow: hidden;
+}
+.daran-modal[open] { display: flex; flex-direction: column; }
+.daran-modal::backdrop { background: var(--fond); opacity: 0.8; }
+.daran-contenu {
+  position: relative;
+  z-index: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  overflow-wrap: anywhere;
+}
+.daran-confettis { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.daran-confettis span { position: absolute; transform: rotate(var(--rotation)); }
+@media (prefers-reduced-motion: no-preference) {
+  .daran-confettis span { top: 0 !important; animation: daran-chute var(--duree) var(--delai) linear infinite; }
+  @keyframes daran-chute {
+    from { transform: translateY(calc(var(--spacing) * -8)) rotate(var(--rotation)); opacity: 0; }
+    10% { opacity: 1; }
+    85% { opacity: 1; }
+    to { transform: translateY(100dvh) rotate(calc(var(--rotation) + 360deg)); opacity: 0; }
+  }
+}

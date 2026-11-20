@@ -1,6 +1,8 @@
 import { Coquille } from './Coquille';
 import { extraireJetonUrl } from './jeton-url';
 import { MiseAJour } from './MiseAJour';
+// DARAN-TEMP
+import { ModalDaran } from './easter-daran/ModalDaran';
 import { useCallback, useEffect, useMemo, useRef, useState, type ComponentProps } from 'react';
 import { EcranCompte } from './compte/EcranCompte';
 import { EcranRepriseAilleurs } from './compte/EcranRepriseAilleurs';
@@ -313,6 +315,8 @@ export default function App() {
   // Le service worker s'enregistre dès le premier écran, connexion comprise : le jeu doit être en cache même avant la première connexion.
   return <>
     <MiseAJour />
+    {/* DARAN-TEMP */}
+    <ModalDaran />
     {import.meta.env.VITE_API_URL ? <JeuAvecCompte /> : <Coquille />}
   </>;
 }
