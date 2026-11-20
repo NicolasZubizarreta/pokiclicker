@@ -43,6 +43,7 @@ describe('nettoyage anniversaire de Daran', () => {
     expect(nettoyee.inventaire).toEqual({ pokeball: 22, calcium: 22, 'pierre-stase': 22, vide: 22 });
     const tous = [nettoyee.equipe[0], ...nettoyee.pc, ...nettoyee.pension.parents, ...nettoyee.pension.oeufs];
     for (const p of tous) {
+      if (!p) throw new Error('Pokémon attendu');
       const original = [...region.equipe, ...region.pc, ...region.pension.parents, ...region.pension.oeufs].find(source => source.uid === p.uid)!;
       expect(p).toEqual({ ...original, niveau: reglages.recompenses.niveauMax, xp: 0,
         calcium: reglages.degats.calciumMax, bonheur: reglages.recompenses.bonheur.max });
