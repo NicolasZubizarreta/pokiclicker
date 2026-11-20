@@ -261,7 +261,8 @@ export function validerDonneesRegion(v: unknown): asserts v is DonneesRegion {
     badges: badges.length, bossVaincus: monde.zones.length,
     objetsCles: objetsCles.objets.length, ameliorations: objets.filter(o => o.type === 'amelioration').length,
     evenementsJoues: evenements.length, jalonsRecus: jalons.paliers.length,
-    zonesAtteintes: monde.zones.length,
+    // Zones + lieux : le Centre commercial (un lieu, pas une zone) y est noté dès la première visite.
+    zonesAtteintes: monde.zones.length + monde.lieux.length,
     especesShiny: reglages.pension.especesTirees, especesEcloses: reglages.pension.especesTirees,
     especesEclosesShiny: reglages.pension.especesTirees,
   });

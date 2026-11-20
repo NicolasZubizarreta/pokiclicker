@@ -39,6 +39,14 @@ describe('parties de début de jeu', () => {
     expect(resultat.ameliorations.length).toBeLessThan(60);
   });
 
+  it('incident du 20/11 : toutes les zones visitées plus le Centre commercial (24 entrées) restent intactes', () => {
+    const visitees = [...kanto.zones.map(z => z.id), 'centre-commercial'];
+    expect(visitees.length).toBeGreaterThan(kanto.zones.length);
+    const region = { ...regionInitiale('kanto', kanto.depart), zonesAtteintes: visitees };
+    const resultat = validerEnveloppe(enveloppe('region', 'kanto', region), 'region').donnees as DonneesRegion;
+    expect(resultat.zonesAtteintes).toEqual(visitees);
+  });
+
   it('chaque zone et chaque lieu de Kanto est un point de sauvegarde valide', () => {
     const zones = kanto.zones.map(z => z.id);
     const lieux = (kanto as unknown as { lieux?: { id?: string; lieu?: string }[] }).lieux ?? [];
