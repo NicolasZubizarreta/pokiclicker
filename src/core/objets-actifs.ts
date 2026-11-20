@@ -8,17 +8,17 @@ type ResultatObjet = (ResultatEquipe & { ok: true; message: string }) | { ok: fa
 const effets = Object.entries(reglages.objetsActifs.temporises).map(([id, effet]) =>
   [id, effet] as const);
 
-export function clesActives(chronos: Chronos, maintenant: number): string[] {
-  return effets.filter(([, effet]) => maintenant < chronos[effet.chrono]).map(([, effet]) => effet.cle);
+export function clesActives(chronos: Chronos): string[] {
+  return effets.filter(([, effet]) => chronos[effet.chrono] > 0).map(([, effet]) => effet.cle);
 }
 
-export function restants(chronos: Chronos, maintenant: number): { id: string; pastille: string; restantS: number }[] {
-  return effets.filter(([, effet]) => maintenant < chronos[effet.chrono]).map(([id, effet]) => ({
-    id, pastille: effet.pastille, restantS: Math.ceil((chronos[effet.chrono] - maintenant) / 1000),
+export function restants(chronos: Chronos): { id: string; pastille: string; restantS: number }[] {
+  return effets.filter(([, effet]) => chronos[effet.chrono] > 0).map(([id, effet]) => ({
+    id, pastille: effet.pastille, restantS: Math.ceil(chronos[effet.chrono] / 1000),
   }));
 }
 
-export function utiliserTemporise(region: DonneesRegion, id: string, maintenant: number): ResultatObjet {
+export function utiliserTemporise(region: DonneesRegion, id: string): ResultatObjet {
   const effet = effets.find(([cle]) => cle === id)?.[1];
   if (!effet) return { ok: false, raison: 'Objet invalide !' };
   const stock = region.inventaire[id] ?? 0;
@@ -30,7 +30,7 @@ export function utiliserTemporise(region: DonneesRegion, id: string, maintenant:
       inventaire: { ...region.inventaire, [id]: stock - 1 },
       chronos: {
         ...region.chronos,
-        [effet.chrono]: Math.max(region.chronos[effet.chrono], maintenant) + reglages.objetsActifs.dureeMs,
+        [effet.chrono]: region.chronos[effet.chrono] + reglages.objetsActifs.dureeMs,
       },
     },
   };
@@ -50,21 +50,21 @@ export function utiliserPoupee(region: DonneesRegion, zoneId: string): ResultatO
   };
 }
 
-export function etatFauchage(region: DonneesRegion, boss: boolean, maintenant: number): {
+export function etatFauchage(region: DonneesRegion, boss: boolean): {
   possede: boolean; raison: string | undefined; rechargeS: number;
 } {
   const possede = region.ameliorations.includes('falseSwipe');
   // Plafonné à la durée actuelle : une sauvegarde faite avec une recharge plus longue n'attend pas l'ancien délai.
-  const restantMs = Math.min(region.chronos.rechargeFauchage - maintenant, reglages.objetsActifs.rechargeFauchageMs);
+  const restantMs = Math.min(region.chronos.rechargeFauchage, reglages.objetsActifs.rechargeFauchageMs);
   const rechargeS = Math.max(0, Math.ceil(restantMs / 1000));
   const raison = !possede ? 'Nécessite la CT Fauchage.'
     : boss ? 'Inutile sur un boss !' : rechargeS > 0 ? `Recharge : ${rechargeS} s` : undefined;
   return { possede, raison, rechargeS };
 }
 
-export function declencherRecharge(region: DonneesRegion, maintenant: number): DonneesRegion {
+export function declencherRecharge(region: DonneesRegion): DonneesRegion {
   return {
     ...region,
-    chronos: { ...region.chronos, rechargeFauchage: maintenant + reglages.objetsActifs.rechargeFauchageMs },
+    chronos: { ...region.chronos, rechargeFauchage: reglages.objetsActifs.rechargeFauchageMs },
   };
 }

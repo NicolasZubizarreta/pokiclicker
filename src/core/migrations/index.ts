@@ -4,7 +4,7 @@ import { lignee } from '../evolution';
 import { reglages } from '../reglages';
 import { sexeEspece } from '../sexe';
 
-export type TableMigrations = Record<number, (donnees: unknown, niveau: Niveau) => unknown>;
+export type TableMigrations = Record<number, (donnees: unknown, niveau: Niveau, ecritLe: string) => unknown>;
 
 export function migrerV1versV2(donnees: unknown, niveau: Niveau): unknown {
   if (niveau === 'compte') return donnees;
@@ -53,7 +53,22 @@ export function migrerV3versV4(donnees: unknown, niveau: Niveau): unknown {
   }
   return { ...source, vus };
 }
-export const migrationsParDefaut: TableMigrations = { 1: migrerV1versV2, 2: migrerV2versV3, 3: migrerV3versV4 };
+export function migrerV4versV5(donnees: unknown, niveau: Niveau, ecritLe: string): unknown {
+  if (niveau !== 'region' || donnees === null || typeof donnees !== 'object' || Array.isArray(donnees)) return donnees;
+  const source = donnees as Record<string, unknown>;
+  if (source.chronos === null || typeof source.chronos !== 'object' || Array.isArray(source.chronos)) return donnees;
+  const chronos = { ...source.chronos } as Record<string, unknown>;
+  const referenceMs = Date.parse(ecritLe);
+  for (const cle of ['finRepousse', 'finSuperRepousse', 'finBoostAttaque', 'finBoostAttaqueSpeciale', 'rechargeFauchage']) {
+    const fin = chronos[cle];
+    // Les valeurs mal formées restent à la charge de la validation.
+    if (typeof fin !== 'number' || !Number.isSafeInteger(fin) || fin < 0) continue;
+    const restant = Number.isFinite(referenceMs) ? Math.max(0, fin - referenceMs) : 0;
+    chronos[cle] = Math.floor(cle === 'rechargeFauchage' ? Math.min(restant, reglages.objetsActifs.rechargeFauchageMs) : restant);
+  }
+  return { ...source, chronos };
+}
+export const migrationsParDefaut: TableMigrations = { 1: migrerV1versV2, 2: migrerV2versV3, 3: migrerV3versV4, 4: migrerV4versV5 };
 
 export function migrer(enveloppe: Enveloppe<unknown>, table = migrationsParDefaut): Enveloppe<unknown> {
   if (!Number.isInteger(enveloppe.version) || enveloppe.version < 0) {
@@ -66,7 +81,7 @@ export function migrer(enveloppe: Enveloppe<unknown>, table = migrationsParDefau
     if (!migration) {
       throw new Error(`Migration manquante : de la version ${resultat.version} à la version ${resultat.version + 1}.`);
     }
-    resultat = { ...resultat, version: resultat.version + 1, donnees: migration(resultat.donnees, resultat.niveau) };
+    resultat = { ...resultat, version: resultat.version + 1, donnees: migration(resultat.donnees, resultat.niveau, resultat.ecritLe) };
   }
   if (resultat.niveau === 'region' && resultat.donnees !== null && typeof resultat.donnees === 'object') {
     const source = resultat.donnees as Record<string, unknown>;

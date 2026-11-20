@@ -10,15 +10,15 @@ export type FauchageAffiche = {
   possede: boolean; disponible: boolean; raison: string | null; rechargeS: number; actif: boolean;
 };
 
-export function afficherEffets(region: DonneesRegion, maintenant: number,
+export function afficherEffets(region: DonneesRegion,
   precedent: EffetsAffiches | null): EffetsAffiches {
-  const effets = restants(region.chronos, maintenant);
+  const effets = restants(region.chronos);
   return JSON.stringify(effets) === JSON.stringify(precedent) ? precedent! : effets;
 }
 
-export function afficherFauchage(region: DonneesRegion, coeur: EtatCombat | null, maintenant: number,
+export function afficherFauchage(region: DonneesRegion, coeur: EtatCombat | null,
   precedent: FauchageAffiche | null): FauchageAffiche {
-  const etat = etatFauchage(region, coeur?.ennemi.boss ?? false, maintenant);
+  const etat = etatFauchage(region, coeur?.ennemi.boss ?? false);
   const raison = etat.raison ?? (!coeur ? 'Aucun Pokémon ici.'
     : coeur.attenteMs > 0 ? '' : null);
   const fauchage = { possede: etat.possede, disponible: raison === null, raison,

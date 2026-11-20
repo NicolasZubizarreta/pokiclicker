@@ -14,7 +14,7 @@ function region(): DonneesRegion {
 afterEach(() => vi.useRealTimers());
 
 describe('objets actifs', () => {
-  it('prolonge la Repousse et respecte la borne exacte avec une horloge simulée', () => {
+  it('cumule la Repousse sans dépendre de l’horloge système', () => {
     vi.useFakeTimers();
     vi.setSystemTime(1000);
     const entree = region();
@@ -22,25 +22,26 @@ describe('objets actifs', () => {
     Object.freeze(entree.chronos);
     Object.freeze(entree.inventaire);
     Object.freeze(entree);
-    const premier = utiliserTemporise(entree, 'repel', Date.now());
+    const premier = utiliserTemporise(entree, 'repel');
     if (!premier.ok) throw new Error(premier.raison);
     expect(premier.message).toBe('Repousse active !');
     expect(premier.region.inventaire.repel).toBe(1);
-    expect(premier.region.chronos.finRepousse).toBe(31000);
+    expect(premier.region.chronos.finRepousse).toBe(30000);
     vi.setSystemTime(30999);
-    expect(clesActives(premier.region.chronos, Date.now())).toEqual(['repousse:commun']);
-    expect(restants(premier.region.chronos, Date.now())).toEqual([
-      { id: 'repel', pastille: reglages.objetsActifs.temporises.repel.pastille, restantS: 1 },
+    expect(clesActives(premier.region.chronos)).toEqual(['repousse:commun']);
+    expect(restants(premier.region.chronos)).toEqual([
+      { id: 'repel', pastille: reglages.objetsActifs.temporises.repel.pastille, restantS: 30 },
     ]);
-    vi.setSystemTime(31000);
-    expect(clesActives(premier.region.chronos, Date.now())).toEqual([]);
-    expect(restants(premier.region.chronos, Date.now())).toEqual([]);
+    vi.setSystemTime(30000);
+    expect(clesActives(premier.region.chronos)).toEqual(['repousse:commun']);
+    expect(restants({ ...premier.region.chronos, finRepousse: 0 })).toEqual([]);
+    expect(clesActives({ ...premier.region.chronos, finRepousse: 0 })).toEqual([]);
     vi.setSystemTime(11000);
-    const second = utiliserTemporise(premier.region, 'repel', Date.now());
+    const second = utiliserTemporise(premier.region, 'repel');
     if (!second.ok) throw new Error(second.raison);
-    expect(second.region.chronos.finRepousse).toBe(61000);
+    expect(second.region.chronos.finRepousse).toBe(60000);
     expect(second.region.inventaire.repel).toBe(0);
-    expect(premier.region.chronos.finRepousse).toBe(31000);
+    expect(premier.region.chronos.finRepousse).toBe(30000);
     expect(entree).toEqual(avant);
   });
 
@@ -48,25 +49,25 @@ describe('objets actifs', () => {
     ['xAttack', 'finBoostAttaque', 'boost:attaque', 'Attaque + active !'],
     ['xSpecial', 'finBoostAttaqueSpeciale', 'boost:dps', 'DPS ×1,5 actif !'],
     ['superRepel', 'finSuperRepousse', 'repousse:peu-commun', 'Superepousse active !'],
-  ] as const)('active %s et repart de maintenant si le chrono est expiré', (id, chrono, cle, message) => {
+  ] as const)('active %s et ajoute la durée au restant', (id, chrono, cle, message) => {
     const entree = region();
     entree.chronos[chrono] = 500;
-    const resultat = utiliserTemporise(entree, id, 1000);
+    const resultat = utiliserTemporise(entree, id);
     if (!resultat.ok) throw new Error(resultat.raison);
     expect(resultat.message).toBe(message);
-    expect(resultat.region.chronos[chrono]).toBe(31000);
+    expect(resultat.region.chronos[chrono]).toBe(30500);
     expect(resultat.region.inventaire[id]).toBe(0);
-    expect(clesActives(resultat.region.chronos, 1000)).toEqual([cle]);
+    expect(clesActives(resultat.region.chronos)).toEqual([cle]);
   });
 
   it('garde l’ordre des pastilles des réglages', () => {
     const entree = region();
     for (const id of Object.keys(reglages.objetsActifs.temporises)) {
-      const resultat = utiliserTemporise(entree, id, 1000);
+      const resultat = utiliserTemporise(entree, id);
       if (!resultat.ok) throw new Error(resultat.raison);
       Object.assign(entree.chronos, resultat.region.chronos);
     }
-    expect(restants(entree.chronos, 1001)).toEqual(
+    expect(restants(entree.chronos)).toEqual(
       Object.entries(reglages.objetsActifs.temporises).map(([id, effet]) => ({ id, pastille: effet.pastille, restantS: 30 })),
     );
   });
@@ -76,7 +77,7 @@ describe('objets actifs', () => {
     entree.inventaire = {};
     const avant = structuredClone(entree);
     for (const id of ['repel', 'inconnu', 'toString']) {
-      expect(utiliserTemporise(entree, id, 1000)).toMatchObject({ ok: false });
+      expect(utiliserTemporise(entree, id)).toMatchObject({ ok: false });
     }
     expect(entree).toEqual(avant);
   });
@@ -99,24 +100,26 @@ describe('objets actifs', () => {
 
   it('ordonne les refus Fauchage et conserve la recharge sans mutation', () => {
     const entree = region();
-    entree.chronos.rechargeFauchage = 21000;
-    expect(etatFauchage(entree, true, 1000)).toEqual({ possede: false, raison: 'Nécessite la CT Fauchage.', rechargeS: 20 });
+    entree.chronos.rechargeFauchage = 20000;
+    expect(etatFauchage(entree, true)).toEqual({ possede: false, raison: 'Nécessite la CT Fauchage.', rechargeS: 20 });
     entree.ameliorations = ['falseSwipe'];
-    expect(etatFauchage(entree, true, 1000)).toEqual({ possede: true, raison: 'Inutile sur un boss !', rechargeS: 20 });
-    expect(etatFauchage(entree, false, 20999)).toEqual({ possede: true, raison: 'Recharge : 1 s', rechargeS: 1 });
-    expect(etatFauchage(entree, false, 21000)).toEqual({ possede: true, raison: undefined, rechargeS: 0 });
+    expect(etatFauchage(entree, true)).toEqual({ possede: true, raison: 'Inutile sur un boss !', rechargeS: 20 });
+    entree.chronos.rechargeFauchage = 1;
+    expect(etatFauchage(entree, false)).toEqual({ possede: true, raison: 'Recharge : 1 s', rechargeS: 1 });
+    entree.chronos.rechargeFauchage = 0;
+    expect(etatFauchage(entree, false)).toEqual({ possede: true, raison: undefined, rechargeS: 0 });
     const avant = structuredClone(entree);
     Object.freeze(entree.chronos);
     Object.freeze(entree);
-    const resultat = declencherRecharge(entree, 40000);
-    expect(resultat.chronos.rechargeFauchage).toBe(60000);
+    const resultat = declencherRecharge(entree);
+    expect(resultat.chronos.rechargeFauchage).toBe(20000);
     expect(entree).toEqual(avant);
   });
 
   it('plafonne la recharge d’une ancienne sauvegarde à 20 s', () => {
     const entree = region();
     entree.ameliorations = ['falseSwipe'];
-    entree.chronos.rechargeFauchage = 31000;
-    expect(etatFauchage(entree, false, 1000)).toEqual({ possede: true, raison: 'Recharge : 20 s', rechargeS: 20 });
+    entree.chronos.rechargeFauchage = 30000;
+    expect(etatFauchage(entree, false)).toEqual({ possede: true, raison: 'Recharge : 20 s', rechargeS: 20 });
   });
 });

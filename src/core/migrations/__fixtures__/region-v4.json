@@ -1,0 +1,96 @@
+{
+  "version": 4,
+  "niveau": "region",
+  "id": "kanto",
+  "revision": 9,
+  "ecritLe": "2026-11-19T12:00:00.000Z",
+  "donnees": {
+    "pc": [],
+    "ameliorations": [],
+    "jalonsRecus": [],
+    "starterId": null,
+    "statistiques": {
+      "eliminations": 0,
+      "argentTotalGagne": 0
+    },
+    "chronos": {
+      "finRepousse": 1795089660000,
+      "finSuperRepousse": 1795089599000,
+      "finBoostAttaque": 0,
+      "finBoostAttaqueSpeciale": 1795089600001,
+      "rechargeFauchage": 1795089660000
+    },
+    "pension": {
+      "parents": [],
+      "oeufs": [],
+      "emplacementsOeuf": 1
+    },
+    "jetons": 0,
+    "arretAuto": {
+      "commun": false,
+      "peuCommun": false,
+      "rare": true,
+      "tresRare": true,
+      "legendaire": true,
+      "shiny": true,
+      "nouveau": true
+    },
+    "regionId": "kanto",
+    "zoneId": "kanto.route-1",
+    "etape": 7,
+    "equipe": [
+      {
+        "uid": "bulbizarre",
+        "numero": 1,
+        "niveau": 15,
+        "xp": 120,
+        "shiny": false,
+        "bonheur": 30,
+        "pierreEternelle": false,
+        "calcium": 0,
+        "sexe": "male",
+        "favori": false
+      },
+      {
+        "uid": "pikachu",
+        "numero": 25,
+        "niveau": 12,
+        "xp": 45,
+        "shiny": true,
+        "bonheur": 8,
+        "pierreEternelle": true,
+        "calcium": 2,
+        "surnom": "Éclair",
+        "sexe": "femelle",
+        "favori": false
+      }
+    ],
+    "badges": [
+      "roche"
+    ],
+    "bossVaincus": [
+      "pierre"
+    ],
+    "objetsCles": [
+      "carte"
+    ],
+    "quetes": [
+      "chen"
+    ],
+    "drapeaux": [
+      "intro"
+    ],
+    "evenementsJoues": [
+      "depart"
+    ],
+    "argent": 750,
+    "inventaire": {
+      "pokeball": 8,
+      "repousse": 2
+    },
+    "ligueGagnee": 0,
+    "futur": {
+      "valeur": 42
+    }
+  }
+}

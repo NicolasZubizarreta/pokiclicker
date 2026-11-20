@@ -19,10 +19,10 @@ const noms = new Map([
 const catalogue = chargerPokemon();
 
 /** Chiffres neutres de la V1, sans avantage de type contre l'ennemi courant. */
-export function calculerStatistiques(source: Source = {}, maintenant = 0): Statistique[] {
+export function calculerStatistiques(source: Source = {}): Statistique[] {
   const region = { ...regionInitiale('kanto', 'kanto.bourg-palette'), ...source,
     statistiques: { eliminations: 0, argentTotalGagne: 0, ...source.statistiques } };
-  const actifs = [...actifsDe(region), ...clesActives(region.chronos, maintenant)];
+  const actifs = [...actifsDe(region), ...clesActives(region.chronos)];
   const selection = (bonus: readonly Bonus[]) => bonus.filter(b => actifs.includes(b.cle));
   const boosts = (bonus: readonly Bonus[]) => selection(bonus).map(b => `${noms.get(b.cle) ?? b.cle} (x${b.x})`);
   const produit = (bonus: readonly Bonus[]) => selection(bonus).reduce((n, b) => n * b.x, 1);

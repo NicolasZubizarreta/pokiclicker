@@ -6,9 +6,10 @@ import v2 from './__fixtures__/partie-v2.json';
 import v3 from './__fixtures__/partie-v3.json';
 import regionV1 from './__fixtures__/region-v1.json';
 import regionV2 from './__fixtures__/region-v2.json';
+import regionV4 from './__fixtures__/region-v4.json';
 import compteV1 from './__fixtures__/compte-v1.json';
 import compteV2 from './__fixtures__/compte-v2.json';
-import { migrer, rattraperEspecesEcloses, migrerV1versV2, migrerV2versV3, migrerV3versV4, migrationsParDefaut } from './index';
+import { migrer, rattraperEspecesEcloses, migrerV1versV2, migrerV2versV3, migrerV3versV4, migrerV4versV5, migrationsParDefaut } from './index';
 import { VERSION_ACTUELLE } from '../sauvegarde-types';
 import { rattraperDex } from './index';
 
@@ -34,6 +35,44 @@ import type { Enveloppe } from '../sauvegarde-types';
 import { validerEnveloppe, validerPokemonPossede } from '../sauvegarde-validation';
 import { reglages } from '../reglages';
 
+describe('marche 4 → 5', () => {
+  it('convertit les dates depuis l’écriture, annule les dates passées et borne Fauchage', () => {
+    const avant = structuredClone(regionV4);
+    const resultat = migrer(regionV4 as Enveloppe<unknown>);
+    expect(resultat).toMatchObject({ version: 5, donnees: { chronos: {
+      finRepousse: 60000, finSuperRepousse: 0, finBoostAttaque: 0,
+      finBoostAttaqueSpeciale: 1, rechargeFauchage: reglages.objetsActifs.rechargeFauchageMs,
+    } } });
+    expect(regionV4).toEqual(avant);
+    expect(migrer(resultat)).toEqual(resultat);
+  });
+
+  it('enchaîne les marches 3 → 4 → 5 pour une région', () => {
+    expect(migrer({ ...regionV4, version: 3 } as Enveloppe<unknown>))
+      .toEqual(migrer(regionV4 as Enveloppe<unknown>));
+  });
+
+  it('annule les chronos valides si la date d’écriture est illisible', () => {
+    const resultat = migrerV4versV5(regionV4.donnees, 'region', 'illisible') as typeof regionV4.donnees;
+    expect(Object.values(resultat.chronos)).toEqual([0, 0, 0, 0, 0]);
+  });
+
+  it('laisse les autres niveaux et les données mal formées à la validation', () => {
+    for (const niveau of ['compte', 'partie'] as const) {
+      expect(migrerV4versV5(regionV4.donnees, niveau, regionV4.ecritLe)).toBe(regionV4.donnees);
+    }
+    for (const source of [null, [], 3, {}, { chronos: null }, { chronos: [] }]) {
+      expect(migrerV4versV5(source, 'region', regionV4.ecritLe)).toBe(source);
+    }
+    for (const valeur of [-1, 0.5, Infinity, Number.MAX_SAFE_INTEGER + 1, '0', null]) {
+      const source = { ...regionV4.donnees, chronos: { ...regionV4.donnees.chronos, finRepousse: valeur } };
+      const resultat = migrerV4versV5(source, 'region', regionV4.ecritLe);
+      expect(resultat).toMatchObject({ chronos: { finRepousse: valeur } });
+      expect(() => validerEnveloppe({ ...regionV4, version: 5, donnees: resultat }, 'region')).toThrow();
+    }
+  });
+});
+
 describe('marche 2 → 3', () => {
   it.each(['equipe', 'pc', 'pension.parents', 'pension.oeufs', 'pcGlobal'] as const)(
     'corrige les sexes fixes dans %s et conserve le sexe aléatoire sans mutation', liste => {
@@ -56,7 +95,7 @@ describe('marche 2 → 3', () => {
       const obtenu = (liste.startsWith('pension.')
         ? (donnees.pension as Record<string, unknown>)[cle]
         : donnees[liste]) as typeof pokemons;
-      expect(resultat.version).toBe(4);
+      expect(resultat.version).toBe(5);
       expect(obtenu).toEqual(pokemons.map((p, i) => ({ ...p,
         sexe: ['sansSexe', 'femelle', 'male', 'femelle'][i] })));
       obtenu.forEach(p => expect(() => validerPokemonPossede(p)).not.toThrow());
@@ -68,7 +107,7 @@ describe('marche 2 → 3', () => {
     const source = { ...regionV1, donnees: { ...regionInitiale('kanto', 'kanto.route-1'),
       equipe: [{ uid: 'b', numero: 100, niveau: 1, xp: 0, shiny: false,
         bonheur: 0, pierreEternelle: false, calcium: 0 }] } };
-    expect(validerEnveloppe(source, 'region')).toMatchObject({ version: 4,
+    expect(validerEnveloppe(source, 'region')).toMatchObject({ version: 5,
       donnees: { equipe: [{ numero: 100, sexe: 'sansSexe' }] } });
   });
 });
@@ -108,10 +147,10 @@ const ancienne = v0 as Enveloppe<unknown>;
 describe('marche 3 vers 4', () => {
   it('complète les vus sans œuf, doublon, perte ni mutation', () => {
     const avant = structuredClone(v3);
-    expect(migrer(v3 as Enveloppe<unknown>)).toEqual({ ...v3, version: 4,
+    expect(migrer(v3 as Enveloppe<unknown>)).toEqual({ ...v3, version: 5,
       donnees: { ...v3.donnees, vus: [1, 25, 16] } });
     expect(v3).toEqual(avant);
-    expect(validerEnveloppe(v3, 'partie').version).toBe(4);
+    expect(validerEnveloppe(v3, 'partie').version).toBe(5);
     expect(partieInitiale('Neuve').vus).toEqual([]);
   });
   it('conserve les références des autres niveaux et des données mal formées', () => {
@@ -126,7 +165,7 @@ describe('marche 3 vers 4', () => {
 describe('migrations de sauvegarde', () => {
   it('transforme la fixture fictive sans perdre les autres champs ni modifier la source', () => {
     const avant = structuredClone(v0);
-    expect(migrer(ancienne, { ...migrationsParDefaut, 0: migrerV0versV1 })).toEqual({ ...v2, version: 4, donnees: { ...v2.donnees, vus: [1, 25] } });
+    expect(migrer(ancienne, { ...migrationsParDefaut, 0: migrerV0versV1 })).toEqual({ ...v2, version: 5, donnees: { ...v2.donnees, vus: [1, 25] } });
     expect(v0).toEqual(avant);
     const donnees = { ...v0.donnees, futur: { valeur: 42 } };
     expect(migrer({ ...ancienne, donnees }, { ...migrationsParDefaut, 0: migrerV0versV1 }).donnees)
@@ -135,10 +174,10 @@ describe('migrations de sauvegarde', () => {
   it('signale exactement une marche manquante', () => {
     expect(() => migrer(ancienne)).toThrowError(new Error('Migration manquante : de la version 0 à la version 1.'));
   });
-  it('déclare la version 4 et laisse intacte une sauvegarde actuelle', () => {
-    expect(VERSION_ACTUELLE).toBe(4);
-    expect(migrationsParDefaut).toEqual({ 1: migrerV1versV2, 2: migrerV2versV3, 3: migrerV3versV4 });
-    const actuelle = { ...v2, version: 4, donnees: { ...v2.donnees, vus: [1, 25] } } as Enveloppe<unknown>;
+  it('déclare la version 5 et laisse intacte une sauvegarde actuelle', () => {
+    expect(VERSION_ACTUELLE).toBe(5);
+    expect(migrationsParDefaut).toEqual({ 1: migrerV1versV2, 2: migrerV2versV3, 3: migrerV3versV4, 4: migrerV4versV5 });
+    const actuelle = { ...v2, version: 5, donnees: { ...v2.donnees, vus: [1, 25] } } as Enveloppe<unknown>;
     expect(migrer(actuelle)).toEqual(actuelle);
   });
   it('ne mute pas les données même si une migration travaille sur son argument', () => {
@@ -153,7 +192,7 @@ describe('migrations de sauvegarde', () => {
     expect(() => migrer({ ...ancienne, version })).toThrow('Version invalide');
   });
   it('refuse exactement une version future', () => {
-    expect(() => migrer({ ...ancienne, version: 5 })).toThrowError(
+    expect(() => migrer({ ...ancienne, version: 6 })).toThrowError(
       new Error("Cette sauvegarde vient d'une version plus récente du jeu."));
   });
 });
@@ -175,7 +214,7 @@ describe('marche 1 → 2', () => {
   ] as const)('migre exactement la fixture %s sans perte ni mutation et de façon reproductible', (niveau, source, attendu) => {
     const avant = structuredClone(source);
     const resultat = migrer(source as Enveloppe<unknown>);
-    expect(resultat).toEqual({ ...attendu, version: 4,
+    expect(resultat).toEqual({ ...attendu, version: 5,
       donnees: niveau === 'partie' ? { ...attendu.donnees, vus: [1, 25] }
         : niveau === 'region' ? { ...attendu.donnees, especesShiny: [25] } : attendu.donnees });
     const fichier = readFileSync(new URL(`./__fixtures__/${niveau}-v2.json`, import.meta.url), 'utf8');
@@ -215,7 +254,7 @@ describe('marche 1 → 2', () => {
   it('passe le niveau à la migration et signale une marche absente', () => {
     const marche = vi.fn(migrerV1versV2);
     migrer(v1 as Enveloppe<unknown>, { ...migrationsParDefaut, 1: marche });
-    expect(marche).toHaveBeenCalledWith(v1.donnees, 'partie');
+    expect(marche).toHaveBeenCalledWith(v1.donnees, 'partie', v1.ecritLe);
     expect(() => migrer(v1 as Enveloppe<unknown>, {})).toThrowError(new Error('Migration manquante : de la version 1 à la version 2.'));
   });
   it('isole les valeurs ajoutées et préserve les champs présents même s’ils recouvrent les défauts', () => {
@@ -227,7 +266,7 @@ describe('marche 1 → 2', () => {
     resultat.arretAuto.rare = false;
     resultat.pc.length = 1;
     expect(source).toEqual(avant);
-    expect(migrer(regionV1 as Enveloppe<unknown>)).toEqual({ ...regionV2, version: 4, donnees: { ...regionV2.donnees, especesShiny: [25] } });
+    expect(migrer(regionV1 as Enveloppe<unknown>)).toEqual({ ...regionV2, version: 5, donnees: { ...regionV2.donnees, especesShiny: [25] } });
     expect(migrerV1versV2(compteV1.donnees, 'compte')).toBe(compteV1.donnees);
   });
 });
@@ -243,7 +282,7 @@ describe('migration 1 → 2 : données mal formées', () => {
 
 describe('rattrapage des espèces écloses', () => {
   const marque = (numero: number) => ({ ...v2.donnees.pcGlobal[0], uid: `m${numero}`, numero, marqueEclosion: true });
-  const enveloppe = (donnees: Record<string, unknown>) => ({ ...regionV2, version: 4, donnees: { ...regionV2.donnees, ...donnees } }) as Enveloppe<unknown>;
+  const enveloppe = (donnees: Record<string, unknown>) => ({ ...regionV2, version: 5, donnees: { ...regionV2.donnees, ...donnees } }) as Enveloppe<unknown>;
 
   it('ajoute la lignée des Pokémon à marque (équipe, PC, parents), sans perte ni mutation', () => {
     const source = enveloppe({ especesEcloses: [1], equipe: [marque(3)], pc: [marque(5)],
@@ -266,7 +305,7 @@ describe('rattrapage des espèces écloses', () => {
 
   it('produit une sauvegarde que la validation accepte', () => {
     const region = { ...regionInitiale('kanto', 'kanto.route-1'), especesEcloses: [], equipe: [{ ...marque(3), sexe: 'femelle', favori: false }] };
-    const valide = validerEnveloppe({ ...regionV2, version: 4, donnees: region }, 'region');
+    const valide = validerEnveloppe({ ...regionV2, version: 5, donnees: region }, 'region');
     expect((valide.donnees as { especesEcloses: number[] }).especesEcloses).toEqual([1, 2, 3]);
   });
 });

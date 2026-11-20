@@ -41,6 +41,42 @@ function preparer(partiel: Partial<DonneesRegion> = {}) {
 }
 
 describe('objets du store', () => {
+  it('conserve boost et recharge quand l’horloge recule ou avance sans pas de jeu', () => {
+    const { store, horloge } = preparer({ ameliorations: ['falseSwipe'] });
+    store.getState().utiliserObjetActif('xAttack');
+    store.getState().faucher();
+    for (const sautMs of [-86400000, 172800000]) {
+      horloge.avancer(sautMs);
+      // Une action recalcule aussi les affichages avec la nouvelle heure.
+      store.getState().allerVers('kanto.route-1');
+      expect(store.getState().effets[0]!.restantS).toBe(30);
+      expect(store.getState().fauchage.rechargeS).toBe(20);
+    }
+  });
+
+  it('fige les cinq chronos à l’arrêt, y compris après fermeture et reprise', () => {
+    const { store, horloge, ouvrir, sauvee } = preparer({ chronos: {
+      finRepousse: 1001, finSuperRepousse: 1001, finBoostAttaque: 1001,
+      finBoostAttaqueSpeciale: 1001, rechargeFauchage: 1001,
+    } });
+    store.getState().arreter();
+    horloge.avancer(86400000);
+    store.getState().tick();
+    store.getState().sauvegarder();
+    expect(Object.values(sauvee().chronos)).toEqual([1001, 1001, 1001, 1001, 1001]);
+    const reprise = ouvrir();
+    expect(reprise.getState().effets.every(e => e.restantS === 2)).toBe(true);
+    horloge.avancer(100);
+    reprise.getState().tick();
+    reprise.getState().sauvegarder();
+    expect(Object.values(sauvee().chronos)).toEqual([901, 901, 901, 901, 901]);
+    horloge.avancer(1000);
+    reprise.getState().tick();
+    reprise.getState().sauvegarder();
+    expect(Object.values(sauvee().chronos)).toEqual([0, 0, 0, 0, 0]);
+    expect(reprise.getState().effets).toEqual([]);
+  });
+
   it('liste les neuf adversaires de la Ligue avec les raretés V1, sans le boss final', () => {
     const zone = kanto.zone('kanto.ligue-pokemon');
     if (zone.sansCombat) throw new Error('Zone sans combat');
@@ -58,7 +94,7 @@ describe('objets du store', () => {
     const zone = kanto.zone(region.zoneId);
     if (zone.sansCombat) throw new Error('Zone sans combat');
     const coeur = creerCombat(zone, [], () => 0.5);
-    const etat = afficherFauchage(region, { ...coeur, attenteMs: 100 }, 1000, null);
+    const etat = afficherFauchage(region, { ...coeur, attenteMs: 100 }, null);
     expect(etat.disponible).toBe(false);
     expect(etat.raison).toBe('');
   });
@@ -108,19 +144,20 @@ describe('objets du store', () => {
       s.getState().attaquer();
       expect(coups[0]).toBe(Math.floor(calculerClic(s.getState().dps) * 1.5) * 1.5);
     }
-    expect(sauvee().chronos.finBoostAttaque).toBe(31000);
+    expect(sauvee().chronos.finBoostAttaque).toBe(30000);
   });
 
-  it('reprend Repousse à 15 s après 10 s de jeu et 5 s fermé', () => {
+  it('reprend Repousse à 20 s après 10 s de jeu et 5 s fermé', () => {
     const { store, avancer, horloge, ouvrir } = preparer();
     expect(store.getState().utiliserObjetActif('repel')).toBeNull();
     const effets = store.getState().effets;
     avancer(1);
     expect(store.getState().effets).toBe(effets);
     avancer(99);
+    store.getState().sauvegarder();
     store.getState().arreter();
     horloge.avancer(5000);
-    expect(ouvrir().getState().effets).toEqual([{ id: 'repel', pastille: 'Repousse', restantS: 15 }]);
+    expect(ouvrir().getState().effets).toEqual([{ id: 'repel', pastille: 'Repousse', restantS: 20 }]);
   });
 
   it('fauche, sauvegarde la recharge et la retrouve après rechargement', () => {
@@ -129,13 +166,14 @@ describe('objets du store', () => {
     expect(store.getState().faucher()).toBeNull();
     expect(store.getState().fauchage).toEqual({ possede: true, disponible: false,
       raison: 'Recharge : 20 s', rechargeS: 20, actif: true });
-    expect(sauvee().chronos.rechargeFauchage).toBe(21000);
+    expect(sauvee().chronos.rechargeFauchage).toBe(20000);
     const recharge = ouvrir();
     expect(recharge.getState().fauchage.rechargeS).toBe(20);
     expect(recharge.getState().fauchage.actif).toBe(false);
     avancer(200);
     expect(store.getState().fauchage.rechargeS).toBe(0);
     expect(store.getState().fauchage.disponible).toBe(true);
+    store.getState().sauvegarder();
     expect(ouvrir().getState().fauchage.rechargeS).toBe(0);
   });
 
@@ -196,10 +234,10 @@ describe('objets du store', () => {
   it('mémorise les affichages purs et liste uniquement les sauvages du radar', () => {
     const { region } = preparer();
     const avant = structuredClone(region);
-    const effets = afficherEffets(region, 1000, null);
-    expect(afficherEffets(region, 1000, effets)).toBe(effets);
-    const fauchage = afficherFauchage(region, null, 1000, null);
-    expect(afficherFauchage(region, null, 1000, fauchage)).toBe(fauchage);
+    const effets = afficherEffets(region, null);
+    expect(afficherEffets(region, effets)).toBe(effets);
+    const fauchage = afficherFauchage(region, null, null);
+    expect(afficherFauchage(region, null, fauchage)).toBe(fauchage);
     const zone = kanto.zone(region.zoneId);
     if (zone.sansCombat) throw new Error('Zone sans combat');
     const radar = entreesRadar(zone, []);

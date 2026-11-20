@@ -52,6 +52,7 @@ import { estDoublonCapture, capturerDoublon, doublonsEclos, retirerDeLEquipe } f
 import { afficherCasino, signalerPremiereEntreeCasino, type ActionsCasino, type AffichageCasino } from './store-casino';
 import { detailErreur, ouvrirPartie } from './persistance';
 import { creerStockageLocal } from './stockage-local';
+import { modeDeveloppeur } from './mode-dev';
 import { CLE_ACTIVATION_JOURNAL, creerJournalLocal, instantaneDe } from './journal-zones';
 import { genererIdentifiant } from './identifiants';
 import { equipeDeDepart } from './equipe-de-depart';
@@ -174,8 +175,8 @@ export type AffichageJeu = ActionsCasino & {
   allerVers(zoneId: string): void; attaquer(): boolean; demarrer(): void; arreter(): void; fermer(): void; tick(): void;
 };
 
-function actifsCourants(region: DonneesRegion, maintenant: number): string[] {
-  return [...actifsDe(region), ...clesActives(region.chronos, maintenant)];
+function actifsCourants(region: DonneesRegion): string[] {
+  return [...actifsDe(region), ...clesActives(region.chronos)];
 }
 
 const DRAPEAU_DEFI_RESERVE = 'defi-chen-reserve';
@@ -249,7 +250,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
   const limiteur = creerLimiteurClics(horloge);
   const actualiserActifs = () => {
     if (!coeur) return;
-    const actifs = actifsCourants(region, horloge.maintenant());
+    const actifs = actifsCourants(region);
     if (JSON.stringify(actifs) !== JSON.stringify(coeur.actifs)) coeur = { ...coeur, actifs };
   };
   const actualiserCompte = () => {
@@ -536,8 +537,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         marquerAnnoncesVues([prochaine.id]);
       }
     }
-    const maintenant = horloge.maintenant();
-    const actifs = actifsCourants(region, maintenant);
+    const actifs = actifsCourants(region);
     const lieu = lieuDe(region.zoneId);
     const lien = kanto.lienSuivant(lieu.liens, etatMondeDe(region));
     const destination = (zone: ZoneMonde | undefined): Destination | null => {
@@ -622,8 +622,8 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       progression: afficherProgression(region, pokedex),
       obtentionBadge: obtentionBadge ? { id: obtentionBadge.id,
         phase: phaseObtention(obtentionBadge.debutMs, tempsJeuMs) } : null,
-      effets: afficherEffets(region, maintenant, precedent.effets),
-      fauchage: afficherFauchage(region, coeur, maintenant, precedent.fauchage),
+      effets: afficherEffets(region, precedent.effets),
+      fauchage: afficherFauchage(region, coeur, precedent.fauchage),
       radar: region.ameliorations.includes('pokeradar'),
       capture: afficherCapture(coeur, region.inventaire, precedent.capture, preferences.balleChoisie ?? null),
       boutique: afficherBoutique(region, precedent.boutique), centre, sac,
@@ -640,7 +640,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       carte: JSON.stringify(carte) === JSON.stringify(precedent.carte) ? precedent.carte : carte,
       equipe: JSON.stringify(equipe) === JSON.stringify(precedent.equipe) ? precedent.equipe : equipe,
       dps: coeur ? calculerDpsEquipe(coeur.equipe, coeur.ennemi, actifs) : 0, erreur,
-      statistiques: calculerStatistiques(region, maintenant),
+      statistiques: calculerStatistiques(region),
       evolution: afficherEvolution(evolutionEnCours, finEvolutionMs, tempsJeuMs),
       modalEvolution, evolutionAuto: preferences.evolutionAuto,
       passerEclosions: preferences.passerEclosions,
@@ -669,7 +669,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       if (defiEnCombat()) {
         if (coeur?.zone.id === 'kanto.labo') return;
         coeur = reprendreCombat(zoneDuDefi(region.starterId), region.equipe.map(versMembreEquipe), alea,
-          region.etape, actifsCourants(region, horloge.maintenant()), optionsCombat());
+          region.etape, actifsCourants(region), optionsCombat());
       } else coeur = null;
       resteAutoClicMs = 0;
       return;
@@ -681,11 +681,11 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       const zone = zoneDeCombatEvenement(commande, origine, region.starterId);
       if (coeur?.zone.id === zone.id) return;
       coeur = creerCombat(zone, region.equipe.map(versMembreEquipe), alea,
-        actifsCourants(region, horloge.maintenant()), { ...optionsCombat(), autoClic: coeur?.autoClic ?? false });
+        actifsCourants(region), { ...optionsCombat(), autoClic: coeur?.autoClic ?? false });
     } else if (coeur?.zone.id.startsWith('evenement:')) {
       coeur = lieu.sansCombat ? null : reprendreCombat(zoneDeLigue(lieu, region.starterId),
         region.equipe.map(versMembreEquipe), alea, region.etape,
-        actifsCourants(region, horloge.maintenant()), { ...optionsCombat(), autoClic: coeur.autoClic });
+        actifsCourants(region), { ...optionsCombat(), autoClic: coeur.autoClic });
     } else return;
     resteAutoClicMs = 0;
     if (coeur && tempsJeuMs < finEvolutionMs) coeur = suspendreDps(coeur, finEvolutionMs - tempsJeuMs);
@@ -698,7 +698,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     const lieu = lieuDe(zoneId);
     journal?.synchroniser(lieu, null, region.bossVaincus.includes(zoneId));
     const autoClic = coeur?.autoClic ?? false;
-    coeur = lieu.sansCombat ? null : creerCombat(zoneDeLigue(lieu, region.starterId), region.equipe.map(versMembreEquipe), alea, actifsCourants(region, horloge.maintenant()), { ...optionsCombat(), autoClic });
+    coeur = lieu.sansCombat ? null : creerCombat(zoneDeLigue(lieu, region.starterId), region.equipe.map(versMembreEquipe), alea, actifsCourants(region), { ...optionsCombat(), autoClic });
     resteAutoClicMs = 0;
     if (coeur && tempsJeuMs < finEvolutionMs) coeur = suspendreDps(coeur, finEvolutionMs - tempsJeuMs);
     region = { ...region, zoneId, etape: 1, zonesAtteintes: atteindre(zoneId) };
@@ -925,7 +925,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       const actif = !journal;
       try { stockage.ecrire(CLE_ACTIVATION_JOURNAL, actif ? '1' : '0'); } catch { /* Choix limité à cette session. */ }
       if (actif) {
-        journal = creerJournalLocal(horloge, stockage, true, () => instantaneDe(region, pokedex, horloge.maintenant()));
+        journal = creerJournalLocal(horloge, stockage, true, () => instantaneDe(region, pokedex));
         journal?.synchroniser(lieuDe(region.zoneId), coeur);
       } else { journal?.pauser('pause'); journal = null; }
       if (typeof window !== 'undefined') {
@@ -1009,7 +1009,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         if (raison) return raison;
       }
       const resultat = id === 'pokeDoll' ? utiliserPoupee(region, coeur!.zoneId)
-        : utiliserTemporise(region, id, horloge.maintenant());
+        : utiliserTemporise(region, id);
       if (!resultat.ok) return resultat.raison;
       region = resultat.region;
       journal?.action({ type: 'objet', objet: id, quantite: 1, soldeApres: region.argent });
@@ -1026,11 +1026,11 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     },
     faucher() {
       if (!initialise) return 'La partie n’est pas démarrée.';
-      const etat = afficherFauchage(region, coeur, horloge.maintenant(), null);
+      const etat = afficherFauchage(region, coeur, null);
       if (etat.raison) return etat.raison;
       if (!coeur) return 'Aucun Pokémon ici.';
       coeur = faucherCombat(coeur);
-      region = declencherRecharge(region, horloge.maintenant());
+      region = declencherRecharge(region);
       annonce = 'Fauchage actif !';
       finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs;
       enregistrer(); afficher();
@@ -1311,10 +1311,10 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
           vus = completerVus(completerVus(persistance.vus, persistance.pokedex), pokedex);
           zonesVues = new Set(kanto.zonesOuvertes(etatMondeDe(region)).map(zone => zone.id));
           const lieu = lieuDe(region.zoneId);
-          coeur = lieu.sansCombat ? null : reprendreCombat(zoneDeLigue(lieu, region.starterId), region.equipe.map(versMembreEquipe), alea, region.etape, actifsCourants(region, horloge.maintenant()), optionsCombat());
+          coeur = lieu.sansCombat ? null : reprendreCombat(zoneDeLigue(lieu, region.starterId), region.equipe.map(versMembreEquipe), alea, region.etape, actifsCourants(region), optionsCombat());
           synchroniserCombatEvenement();
           initialise = true;
-          journal = creerJournalLocal(horloge, stockage, undefined, () => instantaneDe(region, pokedex, horloge.maintenant()));
+          journal = creerJournalLocal(horloge, stockage, undefined, () => instantaneDe(region, pokedex));
           store.setState({ journalActif: !!journal });
           if (typeof window !== 'undefined') {
             if (journal) window.pokiJournal = { exporter: journal.exporter, effacer: journal.effacer };
@@ -1332,7 +1332,14 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         afficher();
         if (typeof document !== 'undefined' && document.visibilityState === 'hidden') journal?.pauser('onglet-masque');
         else journal?.reprendre();
-        boucle = creerBoucle({ horloge, etat: null, avancer: () => {
+        boucle = creerBoucle({ horloge, etat: null, avancer: (_, pasMs) => {
+          if (Object.values(region.chronos).some(restant => restant > 0)) {
+            const chronos = { ...region.chronos };
+            for (const cle of Object.keys(chronos) as (keyof typeof chronos)[]) {
+              chronos[cle] = Math.max(0, chronos[cle] - pasMs);
+            }
+            region = { ...region, chronos };
+          }
           if (journal) {
             journal.synchroniser(lieuDe(region.zoneId), coeur);
             journal.avancer(reglages.boucle.pasMs);
@@ -1421,11 +1428,13 @@ export const storeJeu = creerStoreJeu({ horloge: creerHorlogeSysteme(), stockage
 
 /** Tests et mode développeur : aucun tuto ne s'arme tout seul, sauf si la clé `pokiclicker-dev:tuto` est posée (le rejeu depuis le Guide marche toujours). */
 export function armementTutoAutorise(): boolean {
+  if (!modeDeveloppeur()) return true;
   if (import.meta.env.MODE !== 'test' && !equipeDeDeveloppement()) return true;
   try { return localStorage.getItem('pokiclicker-dev:tuto') !== null; } catch { return false; }
 }
 
 function equipeDeDeveloppement(): boolean {
+  if (!modeDeveloppeur()) return false;
   try { return typeof localStorage !== 'undefined' && localStorage.getItem('pokiclicker-dev:equipe-de-depart') !== null; }
   catch { return false; }
 }

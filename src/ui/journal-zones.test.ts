@@ -76,7 +76,7 @@ it('compare le cœur final et toutes les récompenses sur le même parcours avec
     const { horloge, stockage } = preparer(actif);
     let region = { ...regionInitiale('kanto', zone.id), equipe: equipeDeDepart() };
     let coeur = reprendreCombat(zone, region.equipe.map(versMembreEquipe), alea, reglages.combat.etapeBoss);
-    const journal = creerJournalLocal(horloge, stockage, actif, () => instantaneDe(region, coeur.pokedex, horloge.maintenant()));
+    const journal = creerJournalLocal(horloge, stockage, actif, () => instantaneDe(region, coeur.pokedex));
     const recompenses = [];
     for (let pas = 0; pas < 400; pas++) {
       journal?.synchroniser(zone, coeur);
@@ -166,7 +166,7 @@ it('écarte la version 1, accepte la version 2 et rejette un instantané incompl
 it('prend les instantanés seulement aux transitions et mesure boss, retours et rattrapage masqué', () => {
   const { horloge, stockage } = preparer(true);
   const region = { ...regionInitiale('kanto', zone.id), equipe: equipeDeDepart() };
-  const capture = vi.fn(() => instantaneDe(region, [1, 4, 7], horloge.maintenant()));
+  const capture = vi.fn(() => instantaneDe(region, [1, 4, 7]));
   const journal = creerJournalLocal(horloge, stockage, true, capture)!;
   const coeur = reprendreCombat(zone, region.equipe.map(versMembreEquipe), () => .2, reglages.combat.etapeBoss);
   journal.synchroniser(zone, coeur, true);

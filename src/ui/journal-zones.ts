@@ -16,12 +16,12 @@ import { avancerJournal, creerJournal, debuterEssai, entrerZone, finirEssai, pau
   type Action, type Instantane, type Issue, type JournalZones } from '../core/journal-zones';
 
 const catalogue = chargerPokemon();
-export function instantaneDe(region: DonneesRegion, pokedex: readonly number[], maintenant: number): Instantane {
+export function instantaneDe(region: DonneesRegion, pokedex: readonly number[]): Instantane {
   const dex = pokedexDeKanto(pokedex, catalogue);
   return { argent: region.argent, argentTotalGagne: region.statistiques.argentTotalGagne,
     badges: region.badges.length, pokedexCaptures: dex.nombre, pokedexTotal: dex.total,
     palierPokedex: chargerJalons().filter(jalon => jalon.palier <= dex.nombre).at(-1)?.palier ?? 0,
-    bonusActifs: [...actifsDe(region), ...clesActives(region.chronos, maintenant)],
+    bonusActifs: [...actifsDe(region), ...clesActives(region.chronos)],
     ameliorations: [...region.ameliorations], inventaire: { ...region.inventaire },
     equipe: region.equipe.map(({ numero, niveau, bonheur, calcium, shiny }) => ({ numero, niveau, bonheur, calcium, shiny })) };
 }

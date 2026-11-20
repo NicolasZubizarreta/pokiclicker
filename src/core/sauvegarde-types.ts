@@ -1,4 +1,4 @@
-export const VERSION_ACTUELLE = 4;
+export const VERSION_ACTUELLE = 5;
 export const ERREUR_VERSION = "Cette sauvegarde vient d'une version plus récente du jeu.";
 
 export type Niveau = 'compte' | 'partie' | 'region';
@@ -70,6 +70,7 @@ export type DonneesRegion = {
   inventaire: Record<string, number>; ligueGagnee: number;
   pc: PokemonPossede[]; ameliorations: string[]; jalonsRecus: number[]; starterId: number | null;
   statistiques: { eliminations: number; argentTotalGagne: number };
+  /** Durée restante en ms, décrémentée par le tick. */
   chronos: {
     finRepousse: number; finSuperRepousse: number; finBoostAttaque: number;
     finBoostAttaqueSpeciale: number; rechargeFauchage: number;

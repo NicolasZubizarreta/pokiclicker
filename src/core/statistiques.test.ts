@@ -29,7 +29,7 @@ describe('statistiques V1', () => {
     region.jalonsRecus = [10, 30];
     region.inventaire.omniExp = 1;
     region.chronos.finBoostAttaque = 2000;
-    const stats = calculerStatistiques(region, 1000);
+    const stats = calculerStatistiques(region);
     expect(stats.slice(0, 2).map(s => s.valeur)).toEqual([123, 4567]);
     expect(stats[2]!.boosts).toContain('Attaque + (x1.5)');
     expect(stats[3]!.boosts).toEqual(['Collectionneur (x1.5)', 'Badge Cascade (x1.3)']);
@@ -37,7 +37,8 @@ describe('statistiques V1', () => {
     expect(stats[4]!.total).toBe(`x${(1.3 * 1.2 * reglages.recompenses.or.multiplicateur).toFixed(2)}`);
     expect(stats[5]!.total).toBe('x3.00');
     expect(stats[6]!.boosts).toEqual(['Badge Marais (x1.3)']);
-    expect(calculerStatistiques(region, 2000)[2]!.boosts).not.toContain('Attaque + (x1.5)');
+    region.chronos.finBoostAttaque = 0;
+    expect(calculerStatistiques(region)[2]!.boosts).not.toContain('Attaque + (x1.5)');
     region.equipe[0]!.oeuf = { pasRestants: 10, pasMax: 10 };
     expect(calculerStatistiques(region)[3]!.total).toBe('0.0');
   });
