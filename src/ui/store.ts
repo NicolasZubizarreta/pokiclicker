@@ -163,6 +163,8 @@ export type AffichageJeu = ActionsCasino & {
   effacerJournal(): void;
   echange: { uid: string; nom: string } | null;
   renommer(uid: string, texte: string): string | null;
+  // DARAN-TEMP
+  appliquerRegionTemp(transformer: (region: DonneesRegion) => DonneesRegion): void;
   basculerFavori(uid: string): string | null;
   relacher(uid: string): string | null;
   relacherLot(uids: string[]): string | null;
@@ -1252,6 +1254,8 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       afficher();
     },
     renommer: (uid, texte) => modifierEquipe(region => equipe.renommer(region, uid, texte)),
+    // DARAN-TEMP
+    appliquerRegionTemp: transformer => { if (!initialise) return; region = transformer(region); if (coeur) coeur = { ...coeur, equipe: region.equipe.map(versMembreEquipe) }; actualiserActifs(); enregistrer(); afficher(); },
     basculerFavori: uid => modifierEquipe(region => equipe.basculerFavori(region, uid)),
     relacher: uid => noterRelache(modifierEquipe(region => equipe.relacherPokemon(region, uid))),
     relacherLot: uids => noterRelache(modifierEquipe(region => equipe.relacherLot(region, uids))),
