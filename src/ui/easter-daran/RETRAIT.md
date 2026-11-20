@@ -2,10 +2,11 @@
 
 Fonctionnalité jetable. Rien d'autre n'est à toucher : pas de migration, pas de version de sauvegarde, pas de donnée dans `data/`.
 
-## Avant de commencer : renseigner le compte
-Le nettoyage ne se lance que si `COMPTE_DARAN` (dans `compte-daran.ts`) est renseigné. Vide, il ne fait rien.
-- Dans le jeu connecté avec le compte de Daran : console du navigateur, `localStorage.getItem('pokiclicker.proprietaire')` donne l'identifiant.
-- Ou dans la base : `SELECT id, email FROM "user" WHERE email = '<e-mail de Daran>';` (la colonne `id` est aussi `donnees_compte.compte_id`). Copier cette valeur dans `COMPTE_DARAN` (la casse n'a pas d'importance).
+## Avant de commencer
+La constante `COMPTE_DARAN` est déjà renseignée avec le hash SHA-256 de l'e-mail du compte (aucune adresse en clair dans le dépôt).
+L'e-mail est lu au moment du renommage auprès du serveur (`/api/auth/get-session`) : il faut être connecté et en ligne. Hors ligne ou autre compte = rien ne se passe.
+
+un hash d'e-mail se retrouve par essai d'adresses : il évite l'adresse en clair, il ne la protège pas contre quelqu'un qui la devine
 
 ## Retrait en deux étapes
 1. Supprimer le dossier :
@@ -20,3 +21,9 @@ Le nettoyage ne se lance que si `COMPTE_DARAN` (dans `compte-daran.ts`) est rens
 
 ## Ce qui reste dans les parties déjà nettoyées
 Le drapeau `daran-anniversaire-22` dans `drapeaux` de la région. C'est un texte libre sans effet : on peut le laisser.
+
+Pour vérifier ou recalculer le hash (e-mail sans espaces, en minuscules) :
+```
+node -e "console.log(require('crypto').createHash('sha256').update(process.argv[1].replace(/\s/g,'').toLowerCase()).digest('hex'))" "<e-mail>"
+```
+Test avec la vraie adresse, sans l'écrire dans un fichier : `DARAN_EMAIL_TEST=<e-mail> npx vitest run src/ui/easter-daran/compte-daran.test.ts`.

@@ -5,6 +5,7 @@ import { compteInitial, creerGestionnaire, creerStockageMemoire, validerDonneesR
 import { creerStoreJeu } from '../store';
 import type { StoreJeu } from '../store';
 import { declencherAnniversaire } from './declencheur';
+import { hasherEmail } from './compte-daran';
 import { DRAPEAU_DARAN } from './nettoyage';
 
 let store: StoreJeu | undefined;
@@ -12,7 +13,7 @@ beforeEach(() => vi.useFakeTimers());
 afterEach(() => { store?.getState().arreter(); vi.useRealTimers(); });
 
 // Le vrai store du jeu : l'action `appliquerRegionTemp` remplace la région, la sauvegarde l'écrit et la validation l'accepte.
-it('nettoie la région du store, sauvegarde, et la sauvegarde reste valide', () => {
+it('nettoie la région du store, sauvegarde, et la sauvegarde reste valide', async () => {
   const stockage = creerStockageMemoire();
   const horloge = creerHorlogeSimulee();
   creerGestionnaire({ stockage, horloge, genererId: () => 'test' }).ecrireCompte(compteInitial());
@@ -25,8 +26,8 @@ it('nettoie la région du store, sauvegarde, et la sauvegarde reste valide', () 
     equipe: region.equipe.map(p => ({ ...p, niveau: absurde, calcium: absurde, bonheur: absurde, shiny: true })),
   }));
   const ouvrir = vi.fn();
-  declencherAnniversaire(' DARAN ', {
-    lireIdentifiant: () => 'Compte-Daran', autorise: 'compte-daran',
+  await declencherAnniversaire(' DARAN ', {
+    lireEmail: async () => 'Dresseur@Exemple.test', autorise: await hasherEmail('dresseur@exemple.test'),
     appliquerRegion: f => store!.getState().appliquerRegionTemp(f), ouvrir,
   });
   expect(ouvrir).toHaveBeenCalledTimes(1);
