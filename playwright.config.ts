@@ -17,7 +17,7 @@ export default defineConfig({
     { name: 'iphone', testMatch: ['**/fenetres-iphone.spec.ts', '**/pension-visibilite.spec.ts', '**/tuto.spec.ts'], use: { ...devices['iPhone 15'], browserName: 'webkit', storageState: 'tests-e2e/etat-equipe-de-depart.json' } },
   ],
   webServer: {
-    command: 'npm run build && npm run preview -- --port 4173 --strictPort',
+    command: 'npx.cmd tsc -b && npx vite build --mode e2e && npm run preview -- --port 4173 --strictPort',
     url: 'http://localhost:4173',
     reuseExistingServer: false,
     timeout: 120_000,

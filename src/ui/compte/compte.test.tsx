@@ -1,8 +1,10 @@
 // @vitest-environment jsdom
-import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, renderHook, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import App from '../App';
-import { CLE_SESSION } from './session-compte';
+import { CLE_SESSION, CLE_REVOCATION, CLE_PROPRIETAIRE, useSessionCompte } from './session-compte';
+import { inscrire, lireSession, ErreurCompte } from './api-compte';
+import { reinitialiserPourTest } from '../jeton-url';
 import { creerGestionnaire, creerStockageMemoire } from '../../core/sauvegarde';
 import * as sauvegardes from '../../core/sauvegarde';
 import { creerHorlogeSimulee } from '../../core/clock';
@@ -16,6 +18,7 @@ function reponse(donnees: unknown = {}, statut = 200, jeton?: string) {
   return new Response(JSON.stringify(donnees), { status: statut, headers: jeton ? { 'set-auth-token': jeton } : {} });
 }
 beforeEach(() => {
+  reinitialiserPourTest();
   HTMLDialogElement.prototype.showModal = function () { this.setAttribute('open', ''); };
   HTMLDialogElement.prototype.close = function () { this.removeAttribute('open'); };
   localStorage.clear();
@@ -43,6 +46,112 @@ function remplir(motDePasse = 'abcdefghij', email = 'joueur@exemple.fr') {
   fireEvent.change(screen.getByLabelText('E-mail'), { target: { value: email } });
   fireEvent.change(screen.getByLabelText('Mot de passe'), { target: { value: motDePasse } });
 }
+
+it.each([200, 401, 0])('révoque ou conserve le jeton pour le prochain démarrage : %s', async statut => {
+  localStorage.setItem(CLE_SESSION, 'ancien');
+  const hook = renderHook(useSessionCompte);
+  await waitFor(() => expect(hook.result.current.valide).toBe(true));
+  if (statut === 0) reseau.mockRejectedValue(new TypeError('Réseau indisponible'));
+  else reseau.mockResolvedValue(reponse({}, statut));
+  await act(() => hook.result.current.quitter());
+  expect(localStorage.getItem(CLE_SESSION)).toBeNull();
+  expect(JSON.parse(localStorage.getItem(CLE_REVOCATION)!)).toEqual(statut === 0 ? ['ancien'] : []);
+  hook.unmount();
+  reseau.mockResolvedValue(reponse());
+  renderHook(useSessionCompte);
+  await waitFor(() => expect(JSON.parse(localStorage.getItem(CLE_REVOCATION)!)).toEqual([]));
+  expect(reseau).toHaveBeenLastCalledWith(expect.stringContaining('/sign-out'), expect.objectContaining({ headers: expect.objectContaining({ Authorization: 'Bearer ancien' }) }));
+});
+
+it('rejoue les révocations au retour du réseau', async () => {
+  localStorage.setItem(CLE_REVOCATION, '["ancien"]');
+  reseau.mockRejectedValue(new TypeError());
+  renderHook(useSessionCompte);
+  await waitFor(() => expect(reseau).toHaveBeenCalledTimes(1));
+  reseau.mockResolvedValue(reponse());
+  fireEvent.online(window);
+  await waitFor(() => expect(localStorage.getItem(CLE_REVOCATION)).toBe('[]'));
+});
+
+it.each([401, 403, 429, 500])('validation de session : statut %s', async statut => {
+  localStorage.setItem(CLE_SESSION, 'ancien');
+  reseau.mockResolvedValue(reponse({}, statut));
+  const { result } = renderHook(useSessionCompte);
+  await waitFor(() => expect(result.current.attente).toBe(false));
+  expect(result.current.valide).toBe(statut >= 429);
+  expect(result.current.expiree).toBe(statut < 429);
+  expect(localStorage.getItem(CLE_SESSION)).toBe(statut >= 429 ? 'ancien' : null);
+});
+
+it.each([null, 'nouveau', 'ancien'])('adopte ou archive les données du propriétaire %s', async proprietaire => {
+  const { recharger } = simulerParties();
+  if (proprietaire) localStorage.setItem(CLE_PROPRIETAIRE, proprietaire);
+  const cles = Object.keys(localStorage).filter(c => c.startsWith('pokiclicker:'));
+  const valeurs = cles.map(c => localStorage.getItem(c));
+  reseau.mockResolvedValue(reponse({ session: {}, user: { id: 'nouveau' } }));
+  renderHook(useSessionCompte);
+  await waitFor(() => expect(localStorage.getItem(CLE_PROPRIETAIRE)).toBe('nouveau'));
+  cles.forEach((cle, i) => {
+    expect(localStorage.getItem(cle)).toBe(proprietaire === 'ancien' ? null : valeurs[i]);
+    expect(localStorage.getItem(`pokiclicker.archive.ancien.${cle}`)).toBe(proprietaire === 'ancien' ? valeurs[i] : null);
+  });
+  if (proprietaire !== 'ancien') expect(recharger).not.toHaveBeenCalled();
+});
+
+it('recharge après un changement de compte lorsque le jeu a déjà été autorisé', async () => {
+  const { recharger } = simulerParties();
+  reseau.mockResolvedValue(reponse({ session: {}, user: { id: 'ancien' } }));
+  const { result } = renderHook(useSessionCompte);
+  await waitFor(() => expect(result.current.valide).toBe(true));
+  reseau.mockResolvedValue(reponse({ session: {}, user: { id: 'nouveau' } }));
+  act(() => result.current.memoriser('nouveau-jeton'));
+  await waitFor(() => expect(recharger).toHaveBeenCalledOnce());
+  expect(result.current.valide).toBe(false);
+  expect(localStorage.getItem(CLE_PROPRIETAIRE)).toBe('nouveau');
+  expect(Object.keys(localStorage).filter(c => c.startsWith('pokiclicker:'))).toEqual([]);
+});
+
+it('conserve les originaux et le propriétaire si une copie échoue', async () => {
+  localStorage.setItem(CLE_SESSION, 'jeton');
+  localStorage.setItem(CLE_PROPRIETAIRE, 'ancien');
+  const cles = Object.keys(localStorage).filter(c => c.startsWith('pokiclicker:'));
+  const ecrire = Storage.prototype.setItem;
+  vi.spyOn(Storage.prototype, 'setItem').mockImplementation(function (this: Storage, cle, valeur) {
+    if (cle.startsWith('pokiclicker.archive.')) throw new Error('Quota');
+    ecrire.call(this, cle, valeur);
+  });
+  reseau.mockResolvedValue(reponse({ session: {}, user: { id: 'nouveau' } }));
+  const { result } = renderHook(useSessionCompte);
+  await waitFor(() => expect(result.current.attente).toBe(false));
+  expect(result.current.valide).toBe(false);
+  expect(localStorage.getItem(CLE_PROPRIETAIRE)).toBe('ancien');
+  cles.forEach(cle => expect(localStorage.getItem(cle)).not.toBeNull());
+});
+
+it.each([undefined, 42])('un identifiant inconnu ne touche pas au propriétaire : %s', async id => {
+  localStorage.setItem(CLE_SESSION, 'jeton');
+  localStorage.setItem(CLE_PROPRIETAIRE, 'ancien');
+  reseau.mockResolvedValue(reponse({ session: {}, user: { id } }));
+  const { result } = renderHook(useSessionCompte);
+  await waitFor(() => expect(result.current.valide).toBe(true));
+  expect(localStorage.getItem(CLE_PROPRIETAIRE)).toBe('ancien');
+});
+
+it.each([undefined, 'invalide', 'ftp://exemple.fr'])('refuse une URL API incorrecte : %s', async adresse => {
+  vi.stubEnv('VITE_API_URL', adresse);
+  await expect(lireSession('jeton')).rejects.toMatchObject({ statut: 0 });
+  await expect(lireSession('jeton')).rejects.toBeInstanceOf(ErreurCompte);
+  expect(reseau).not.toHaveBeenCalled();
+});
+
+it('nettoie l’URL API et envoie un nom neutre', async () => {
+  vi.stubEnv('VITE_API_URL', 'https://exemple.fr///');
+  reseau.mockResolvedValue(reponse({}, 200, 'jeton'));
+  await inscrire('prive@exemple.fr', 'abcdefghij');
+  expect(reseau).toHaveBeenCalledWith('https://exemple.fr/api/auth/sign-up/email', expect.objectContaining({
+    body: JSON.stringify({ email: 'prive@exemple.fr', password: 'abcdefghij', name: 'Dresseur' }),
+  }));
+});
 function cliquer(nom: string) { fireEvent.click(screen.getByRole('button', { name: nom })); }
 // La déconnexion se fait dans la zone compte : Menu principal, onglet Compte, Se déconnecter.
 async function deconnecter() { cliquer('Mes parties'); await screen.findByRole('heading', { name: 'Mes parties' }); cliquer('Compte'); cliquer('Se déconnecter'); }
@@ -224,7 +333,7 @@ it('inscrit, mémorise le jeton de l’en-tête et ouvre le jeu', async () => {
   cliquer('Créer mon compte');
   await screen.findByText('Jeu ouvert');
   expect(localStorage.getItem(CLE_SESSION)).toBe('session-inscription');
-  expect(reseau.mock.calls[0]).toEqual([`${adresseServeur}/api/auth/sign-up/email`, expect.objectContaining({ method: 'POST', body: JSON.stringify({ email: 'joueur@exemple.fr', password: 'abcdefghij', name: 'joueur' }) })]);
+  expect(reseau.mock.calls[0]).toEqual([`${adresseServeur}/api/auth/sign-up/email`, expect.objectContaining({ method: 'POST', body: JSON.stringify({ email: 'joueur@exemple.fr', password: 'abcdefghij', name: 'Dresseur' }) })]);
 });
 
 it('refuse neuf caractères sans appel réseau', () => {

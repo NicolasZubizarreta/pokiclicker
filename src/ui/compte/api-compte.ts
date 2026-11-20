@@ -11,9 +11,17 @@ export class ErreurCompte extends Error {
   }
 }
 
+function urlApi() {
+  const valeur = import.meta.env.VITE_API_URL;
+  try {
+    if (!valeur || !['http:', 'https:'].includes(new URL(valeur).protocol)) throw new Error();
+    return valeur.replace(/\/+$/, '');
+  } catch { throw new ErreurCompte(0); }
+}
+
 async function requete(route: string, corps?: object, jeton?: string) {
   try {
-    const reponse = await fetch(`${import.meta.env.VITE_API_URL?.replace(/\/$/, '')}/api/auth/${route}`, {
+    const reponse = await fetch(`${urlApi()}/api/auth/${route}`, {
       method: corps ? 'POST' : 'GET',
       headers: { ...(corps ? { 'Content-Type': 'application/json' } : {}),
         ...(jeton ? { Authorization: `Bearer ${jeton}` } : {}) },
@@ -37,12 +45,15 @@ async function authentifier(route: string, corps: object) {
   return resultat.jeton;
 }
 
-export const inscrire = (email: string, password: string) => authentifier('sign-up/email', { email, password, name: email.split('@')[0] });
+export const inscrire = (email: string, password: string) => authentifier('sign-up/email', { email, password, name: 'Dresseur' });
 export const connecter = (email: string, password: string) => authentifier('sign-in/email', { email, password });
 export const deconnecter = (jeton: string) => requete('sign-out', {}, jeton);
 export async function lireSession(jeton: string) {
   const { donnees } = await requete('get-session', undefined, jeton);
-  return !!(donnees && typeof donnees === 'object' && 'session' in donnees && donnees.session);
+  const valide = !!(donnees && typeof donnees === 'object' && 'session' in donnees && donnees.session);
+  const user = donnees && typeof donnees === 'object' && 'user' in donnees ? donnees.user : null;
+  const compteId = user && typeof user === 'object' && 'id' in user && typeof user.id === 'string' ? user.id : null;
+  return { valide, compteId };
 }
 export const demanderReinitialisation = (email: string) => requete('request-password-reset', { email, redirectTo: window.location.origin });
 export const reinitialiser = (newPassword: string, token: string) => requete('reset-password', { newPassword, token });

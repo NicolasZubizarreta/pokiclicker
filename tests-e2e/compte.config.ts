@@ -8,7 +8,7 @@ export default defineConfig({
     { name: 'bureau', use: { viewport: { width: 1440, height: 900 } } },
   ],
   webServer: {
-    command: 'npx vite build --outDir dist-compte --emptyOutDir && npx vite preview --outDir dist-compte --port 4175 --strictPort',
+    command: 'npx vite build --mode e2e --outDir dist-compte --emptyOutDir && npx vite preview --outDir dist-compte --port 4175 --strictPort',
     cwd: '..', env: { VITE_API_URL: 'http://api.test' }, url: 'http://localhost:4175',
     reuseExistingServer: false, timeout: 180_000,
   },

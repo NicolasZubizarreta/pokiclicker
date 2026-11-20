@@ -9,6 +9,7 @@ import { storeJeu } from './store';
 import { PastilleCasino, useCasinoNouveau } from './PastilleCasino';
 import { PastillePension, usePensionNouveau } from './PastillePension';
 import type { EtatForme } from './store';
+import { modeDeveloppeur } from './mode-dev';
 import { kanto } from '../core/regions';
 import type { FormeCarte } from '../core/monde';
 import { reglages } from '../core/reglages';
@@ -59,7 +60,7 @@ export function CarteKanto({ quandArrive, quandCentre, quandCasino, quandPension
   const origine = useRef<Point | null>(null);
   const zoneTouchee = useRef<string | null>(null);
   const glissement = useRef(false);
-  const debug = new URLSearchParams(window.location.search).get('debug') === 'carte';
+  const debug = new URLSearchParams(window.location.search).get('debug') === 'carte' && modeDeveloppeur();
   const pxParUnite = largeur > 0 ? largeur / (telephone ? 16 : vue.largeur) : 1;
   const choisie = carte.formes.find(f => f.zone === selection && selection !== null);
   const actuelle = carte.formes.find(f => f.actuelle);

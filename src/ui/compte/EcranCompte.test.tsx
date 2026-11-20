@@ -14,6 +14,20 @@ afterEach(() => { cleanup(); vi.unstubAllGlobals(); vi.unstubAllEnvs(); });
 function ouvrir(token: string | null = null) {
   render(<EcranCompte token={token} quandConnecte={vi.fn()} quandReinitialise={vi.fn()} />);
 }
+
+it('borne les champs de connexion, inscription, oubli et réinitialisation', () => {
+  ouvrir();
+  expect(screen.getByLabelText('E-mail').getAttribute('maxlength')).toBe('254');
+  expect(screen.getByLabelText('Mot de passe').getAttribute('maxlength')).toBe('128');
+  fireEvent.click(screen.getByRole('button', { name: 'Créer un compte' }));
+  expect(screen.getByLabelText('E-mail').getAttribute('maxlength')).toBe('254');
+  expect(screen.getByLabelText('Mot de passe').getAttribute('maxlength')).toBe('128');
+  cleanup(); ouvrir('jeton');
+  expect(screen.getByLabelText('Nouveau mot de passe', { selector: 'input' }).getAttribute('maxlength')).toBe('128');
+  cleanup(); ouvrir();
+  fireEvent.click(screen.getByRole('button', { name: 'Mot de passe oublié' }));
+  expect(screen.getByLabelText('E-mail').getAttribute('maxlength')).toBe('254');
+});
 function remplir(mot = 'abcdefghij') {
   fireEvent.change(screen.getByLabelText('E-mail'), { target: { value: 'test@example.fr' } });
   fireEvent.change(screen.getByLabelText('Mot de passe'), { target: { value: mot } });

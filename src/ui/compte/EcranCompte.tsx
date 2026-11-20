@@ -110,11 +110,11 @@ return <main data-theme="dark" className={`${telephone ? '' : 'compte-pc auth-pc
         ? "Pas de réseau. Connecte-toi une première fois avec une connexion internet : ensuite, ta partie s'ouvre aussi sans réseau."
         : 'Pas de réseau. Cette étape demande une connexion internet.'}</span></p>}
       {sessionExpiree && etat === 'connexion' && <p role="status" className="compte-message alerte"><IconeAlerte /><span>Ta session a expiré. Reconnecte-toi : ta partie sur cet appareil est conservée.</span></p>}
-        {etat !== 'nouveau' && <Champ id="email" libelle="E-mail" type="email"
+        {etat !== 'nouveau' && <Champ id="email" libelle="E-mail" type="email" maxLength={254}
           autoComplete={etat === 'connexion' ? 'username' : 'email'} value={email}
           onChange={e => fixerEmail(e.target.value)} erreur={erreur?.champ === 'email' ? erreur.texte : undefined} />}
         {etat !== 'oubli' && <Champ id="motDePasse" libelle={etat === 'nouveau' ? 'Nouveau mot de passe' : 'Mot de passe'}
-          type={visible ? 'text' : 'password'} autoComplete={etat === 'connexion' ? 'current-password' : 'new-password'} value={motDePasse}
+          type={visible ? 'text' : 'password'} maxLength={128} autoComplete={etat === 'connexion' ? 'current-password' : 'new-password'} value={motDePasse}
           onChange={e => fixerMotDePasse(e.target.value)} erreur={erreur?.champ === 'motDePasse' ? erreur.texte : undefined}
           aide={etat === 'nouveau' || etat === 'inscription' ? 'Au moins 10 caractères.' : undefined}>
           <button type="button" className="plaque min-h-12" aria-label={visible ? 'Masquer le mot de passe' : 'Afficher le mot de passe'} aria-pressed={visible} onClick={() => fixerVisible(!visible)}><IconeOeil /></button>
