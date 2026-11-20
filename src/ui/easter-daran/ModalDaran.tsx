@@ -1,6 +1,7 @@
 import { useId, useLayoutEffect, useRef } from 'react';
 import { Confettis } from './Confettis';
 import { fermerModalDaran, useModalDaran } from './etat-modal';
+import { VALEUR_ANNIVERSAIRE } from './nettoyage';
 import './ModalDaran.css';
 
 export function ModalDaran() {
@@ -33,12 +34,12 @@ export function ModalDaran() {
       </header>
       <div className="grid gap-3">
         <p>Pour tes 22 ans, et pour te remercier d'avoir autant joué aux tests, on fait un grand nettoyage sur tes parties.</p>
-        <p>Tu peux dire adieu à tes montagnes de ressources : tout est redevenu normal.</p>
+        <p>Tes montagnes de ressources ont fondu : tout est ramené à {VALEUR_ANNIVERSAIRE}, comme tes {VALEUR_ANNIVERSAIRE} ans.</p>
       </div>
       <ul className="daran-liste grid gap-3 bg-fond p-4">
-        <li>Pokédollars : {nombre(resume.argent)} ₽ → 0 ₽</li>
-        <li>Jetons de casino : {nombre(resume.jetons)} → 0</li>
-        <li>Sac vidé : {nombre(resume.objetsVides)} {resume.objetsVides > 1 ? 'sortes d’objets retirées' : 'sorte d’objet retirée'}. Tes accessoires et objets clés sont gardés.</li>
+        <li>Pokédollars : {nombre(resume.argent)} ₽ → {VALEUR_ANNIVERSAIRE} ₽</li>
+        <li>Jetons de casino : {nombre(resume.jetons)} → {VALEUR_ANNIVERSAIRE}</li>
+        <li>Sac : {nombre(resume.objetsRamenes)} {resume.objetsRamenes > 1 ? 'sortes d’objets ramenées' : 'sorte d’objet ramenée'} à {VALEUR_ANNIVERSAIRE} chacune. Tes accessoires et objets clés sont gardés.</li>
         <li>Niveau maximum : 100{resume.pokemonNiveauRamene > 0 && <> — {nombre(resume.pokemonNiveauRamene)} Pokémon ramenés au niveau 100</>}</li>
         <li>Calcium maximum : 10{resume.pokemonCalciumRamene > 0 && <> — {nombre(resume.pokemonCalciumRamene)} Pokémon ramenés à 10</>}</li>
         <li>Bonheur maximum : 255{resume.pokemonBonheurRamene > 0 && <> — {nombre(resume.pokemonBonheurRamene)} Pokémon ramenés à 255</>}</li>

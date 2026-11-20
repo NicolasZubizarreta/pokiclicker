@@ -31,10 +31,10 @@ it('nettoie la région du store, sauvegarde, et la sauvegarde reste valide', asy
     appliquerRegion: f => store!.getState().appliquerRegionTemp(f), ouvrir,
   });
   expect(ouvrir).toHaveBeenCalledTimes(1);
-  expect(store.getState().argent).toBe(0);
+  expect(store.getState().argent).toBe(22);
   store.getState().arreter();
   const region = creerGestionnaire({ stockage, horloge, genererId: () => 'test' }).chargerRegion('test', 'kanto')!.donnees;
-  expect(region).toMatchObject({ argent: 0, jetons: 0, inventaire: { pokeball: 0, calcium: 0 }, ameliorations: ['bicycle'], objetsCles: ['pokeflute'] });
+  expect(region).toMatchObject({ argent: 22, jetons: 22, inventaire: { pokeball: 22, calcium: 22 }, ameliorations: ['bicycle'], objetsCles: ['pokeflute'] });
   expect(region.drapeaux).toContain(DRAPEAU_DARAN);
   expect(region.equipe.length).toBeGreaterThan(0);
   for (const p of region.equipe) expect([p.niveau, p.calcium, p.bonheur, p.shiny]).toEqual([100, 10, 255, true]);

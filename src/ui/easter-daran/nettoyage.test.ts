@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { regionInitiale, validerDonneesRegion } from '../../core/sauvegarde';
 import type { PokemonPossede } from '../../core/sauvegarde-types';
 import { reglages } from '../../core/reglages';
-import { DRAPEAU_DARAN, nettoyerRegionDaran } from './nettoyage';
+import { DRAPEAU_DARAN, VALEUR_ANNIVERSAIRE, nettoyerRegionDaran } from './nettoyage';
 
 describe('nettoyage anniversaire de Daran', () => {
   it('nettoie tous les emplacements une seule fois sans modifier l’entrée ni les possessions conservées', () => {
@@ -35,12 +35,12 @@ describe('nettoyage anniversaire de Daran', () => {
     if (!resultat) throw new Error('Nettoyage attendu');
     const { region: nettoyee, resume } = resultat;
     expect(resume).toEqual({
-      argent: absurde, jetons: absurde, objetsVides: 3,
+      argent: absurde, jetons: absurde, objetsRamenes: 4,
       pokemonNiveauRamene: 4, pokemonCalciumRamene: 4, pokemonBonheurRamene: 4,
     });
-    expect(nettoyee.argent).toBe(0);
-    expect(nettoyee.jetons).toBe(0);
-    expect(nettoyee.inventaire).toEqual({ pokeball: 0, calcium: 0, 'pierre-stase': 0, vide: 0 });
+    expect(nettoyee.argent).toBe(VALEUR_ANNIVERSAIRE);
+    expect(nettoyee.jetons).toBe(VALEUR_ANNIVERSAIRE);
+    expect(nettoyee.inventaire).toEqual({ pokeball: 22, calcium: 22, 'pierre-stase': 22, vide: 22 });
     const tous = [nettoyee.equipe[0], ...nettoyee.pc, ...nettoyee.pension.parents, ...nettoyee.pension.oeufs];
     for (const p of tous) {
       const original = [...region.equipe, ...region.pc, ...region.pension.parents, ...region.pension.oeufs].find(source => source.uid === p.uid)!;
@@ -58,12 +58,12 @@ describe('nettoyage anniversaire de Daran', () => {
     expect(() => validerDonneesRegion(nettoyee)).not.toThrow();
   });
 
-  it('ne compte aucun changement pour une région déjà normale', () => {
+  it('ne compte aucun Pokémon pour une région déjà à 22', () => {
     const region = regionInitiale('kanto', 'kanto.route-1');
-    region.argent = 0;
-    region.jetons = 0;
-    region.inventaire = { pokeball: 0 };
-    expect(nettoyerRegionDaran(region)?.resume).toEqual({ argent: 0, jetons: 0,
-      objetsVides: 0, pokemonNiveauRamene: 0, pokemonCalciumRamene: 0, pokemonBonheurRamene: 0 });
+    region.argent = 22;
+    region.jetons = 22;
+    region.inventaire = { pokeball: 22 };
+    expect(nettoyerRegionDaran(region)?.resume).toEqual({ argent: 22, jetons: 22,
+      objetsRamenes: 1, pokemonNiveauRamene: 0, pokemonCalciumRamene: 0, pokemonBonheurRamene: 0 });
   });
 });

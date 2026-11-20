@@ -19,10 +19,10 @@ it('affiche le bilan, ferme et rend le focus', () => {
   render(<><button>Déclencheur</button><ModalDaran /></>);
   const declencheur = screen.getByRole('button', { name: 'Déclencheur' });
   declencheur.focus();
-  act(() => ouvrirModalDaran({ argent: Number.MAX_SAFE_INTEGER, jetons: 1200, objetsVides: 3, pokemonNiveauRamene: 151, pokemonCalciumRamene: 2, pokemonBonheurRamene: 1 }));
+  act(() => ouvrirModalDaran({ argent: Number.MAX_SAFE_INTEGER, jetons: 1200, objetsRamenes: 3, pokemonNiveauRamene: 151, pokemonCalciumRamene: 2, pokemonBonheurRamene: 1 }));
   expect(screen.getByRole('heading', { name: /Joyeux anniversaire Daran/ })).toBeTruthy();
   expect(screen.getAllByRole('listitem')).toHaveLength(6);
-  expect(screen.getByText(`Pokédollars : ${Number.MAX_SAFE_INTEGER.toLocaleString('fr-FR')} ₽ → 0 ₽`, { exact: true, normalizer: texte => texte })).toBeTruthy();
+  expect(screen.getByText(`Pokédollars : ${Number.MAX_SAFE_INTEGER.toLocaleString('fr-FR')} ₽ → 22 ₽`, { exact: true, normalizer: texte => texte })).toBeTruthy();
   expect(screen.getByText(/151 Pokémon ramenés au niveau 100/)).toBeTruthy();
   fireEvent.click(screen.getByRole('button', { name: 'Fermer' }));
   expect(screen.queryByRole('dialog')).toBeNull();

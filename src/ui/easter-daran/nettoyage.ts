@@ -2,10 +2,12 @@ import type { DonneesRegion, PokemonPossede } from '../../core/sauvegarde-types'
 import { reglages } from '../../core/reglages';
 
 export const DRAPEAU_DARAN = 'daran-anniversaire-22';
+/** Valeur de remise à niveau : l’âge de Daran. */
+export const VALEUR_ANNIVERSAIRE = 22;
 export type ResumeNettoyage = {
   argent: number;
   jetons: number;
-  objetsVides: number;
+  objetsRamenes: number;
   pokemonNiveauRamene: number;
   pokemonCalciumRamene: number;
   pokemonBonheurRamene: number;
@@ -17,7 +19,7 @@ export function nettoyerRegionDaran(region: DonneesRegion): { region: DonneesReg
 
   const resume: ResumeNettoyage = {
     argent: region.argent, jetons: region.jetons,
-    objetsVides: Object.values(region.inventaire).filter(quantite => quantite > 0).length,
+    objetsRamenes: Object.keys(region.inventaire).length,
     pokemonNiveauRamene: 0, pokemonCalciumRamene: 0, pokemonBonheurRamene: 0,
   };
   function nettoyerPokemon(pokemon: PokemonPossede): PokemonPossede {
@@ -34,8 +36,8 @@ export function nettoyerRegionDaran(region: DonneesRegion): { region: DonneesReg
 
   return {
     region: {
-      ...region, argent: 0, jetons: 0,
-      inventaire: Object.fromEntries(Object.keys(region.inventaire).map(cle => [cle, 0])),
+      ...region, argent: VALEUR_ANNIVERSAIRE, jetons: VALEUR_ANNIVERSAIRE,
+      inventaire: Object.fromEntries(Object.keys(region.inventaire).map(cle => [cle, VALEUR_ANNIVERSAIRE])),
       equipe: region.equipe.map(nettoyerPokemon),
       pc: region.pc.map(nettoyerPokemon),
       pension: { ...region.pension,
