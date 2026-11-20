@@ -110,41 +110,41 @@ Serveur : comptes, limites d'envoi, en-têtes, Docker, CI, scripts. Éléments c
 
 ## C. `fix(synchro): synchro, compte et persistance côté jeu`
 
-`etat:a_faire` `est:8-14` `prio:1` · branche : `v2` · périmètre : src/ui synchro, compte, persistance · 28 éléments
+`etat:fait` `est:8-14` `prio:1` · branche : `v2` · périmètre : src/ui synchro, compte, persistance · 28 éléments
 
 ### Histoire
 Jeton, déconnexion, conflits entre onglets, erreurs d'écriture, ErrorBoundary, CSP. Éléments choisis par Nicolas le 19/11/2026.
 
 ### Critères d'acceptation
-- [ ] `B-uib-01` Sauvegarde de fermeture coupée au-delà de 60 000 octets (effort M)
-- [ ] `B-uib-02` Écriture région puis partie non atomique : état local incohérent si la seconde échoue (effort M)
-- [ ] `B-uib-04` Après une erreur d'écriture, les réglages son et préférences sont perdus sans message (effort S)
-- [ ] `B-uib-05` Réponse 200 dont le JSON est illisible : statut « hors ligne » et révision acceptée non retenue (effort S)
-- [ ] `B-uib-06` Une entrée locale corrompue casse toute la liste des parties (effort S)
-- [ ] `B-uib-07` Bouton « Salle » actif pendant une animation : message de résultat perdu (effort S)
-- [ ] `B-uib-08` Tutoriel : la carte ne prend pas le focus et n'écoute pas Échap (effort M)
-- [ ] `B-uib-09` Espace et Entrée liés à « attaquer » : double action possible sur un bouton focalisé (effort S)
-- [ ] `B-srv-02` Un PUT dont la réponse est perdue fabrique une fausse divergence et peut faire perdre les dernières secondes (effort M)
-- [ ] `B-uib-12` Verrou `actif.current` du vol de Pokémon jamais relâché si `allerVers` lève (effort S)
-- [ ] `B-uib-17` « Pas assez d'argent. » affiché pour toute raison de non-achat (effort S)
-- [ ] `B-uib-18` Quantité non remise à 1 au changement de sélection (effort S)
-- [ ] `B-srv-21` Tout 4xx (hors 408/429) bloque la synchro jusqu'au rechargement du jeu (effort S)
-- [ ] `S-uia-02` Aucune CSP dans `index.html` (effort M)
-- [ ] `S-uia-12` Aucun ErrorBoundary : une exception de rendu détruit la partie affichée (effort M)
-- [ ] `S-uib-01` Jeton Bearer stocké en clair dans `localStorage` (effort L)
-- [ ] `S-uib-02` Déconnexion sans réessai : le jeton peut rester valide côté serveur (effort M)
-- [ ] `S-uib-03` Les parties locales ne sont pas rattachées au compte : possible mélange entre comptes sur un même appareil (effort M)
-- [ ] `S-uia-01` Jeton magique lu dans l'URL, retiré après coup seulement (effort S)
-- [ ] `S-uia-03` `?debug=carte` actif en production (effort S)
-- [ ] `S-uia-04` Détails d'erreur internes affichés à l'écran (effort S)
-- [ ] `S-uia-10` Chemins d'assets construits depuis des surnoms sans liste blanche (effort S)
-- [ ] `S-uib-05` Porte dérobée de développement active en production (effort S)
-- [ ] `S-uib-07` Partie locale de l'e-mail envoyée comme `name` (effort S)
-- [ ] `S-uib-08` URL de l'API construite sans contrôle de `VITE_API_URL` (effort S)
-- [ ] `S-uib-10` Message d'erreur technique affiché tel quel à l'utilisateur (effort S)
-- [ ] `S-uib-11` Aucune borne de longueur sur e-mail et mot de passe côté client (effort S)
-- [ ] `S-uib-13` Toute erreur de validation de session autre que 401 laisse la session « valide » (effort S)
-- [ ] Les vérifications du dépôt passent (tsc, eslint, vitest ciblé) et le diff est relu.
+- [x] `B-uib-01` Sauvegarde de fermeture coupée au-delà de 60 000 octets (effort M) — couvert pour l'essentiel (envoi au passage en arrière-plan) ; le reste demande un envoi compressé côté serveur : voir questions-lot-3.md
+- [x] `B-uib-02` Écriture région puis partie non atomique : état local incohérent si la seconde échoue (effort M)
+- [x] `B-uib-04` Après une erreur d'écriture, les réglages son et préférences sont perdus sans message (effort S)
+- [x] `B-uib-05` Réponse 200 dont le JSON est illisible : statut « hors ligne » et révision acceptée non retenue (effort S)
+- [x] `B-uib-06` Une entrée locale corrompue casse toute la liste des parties (effort S)
+- [x] `B-uib-07` Bouton « Salle » actif pendant une animation : message de résultat perdu (effort S)
+- [x] `B-uib-08` Tutoriel : la carte ne prend pas le focus et n'écoute pas Échap (effort M)
+- [x] `B-uib-09` Espace et Entrée liés à « attaquer » : double action possible sur un bouton focalisé (effort S) — sans objet : `useRaccourcisPC` ignorait déjà les boutons ; test de couverture ajouté
+- [x] `B-srv-02` Un PUT dont la réponse est perdue fabrique une fausse divergence et peut faire perdre les dernières secondes (effort M)
+- [x] `B-uib-12` Verrou `actif.current` du vol de Pokémon jamais relâché si `allerVers` lève (effort S)
+- [x] `B-uib-17` « Pas assez d'argent. » affiché pour toute raison de non-achat (effort S)
+- [x] `B-uib-18` Quantité non remise à 1 au changement de sélection (effort S)
+- [x] `B-srv-21` Tout 4xx (hors 408/429) bloque la synchro jusqu'au rechargement du jeu (effort S) — fait côté client (401 repasse hors ligne sans bloquer)
+- [x] `S-uia-02` Aucune CSP dans `index.html` (effort M) — fait par balise `<meta>` dans le build ; `frame-ancestors` exige l'en-tête serveur : voir questions-lot-3.md
+- [x] `S-uia-12` Aucun ErrorBoundary : une exception de rendu détruit la partie affichée (effort M)
+- [x] `S-uib-01` Jeton Bearer stocké en clair dans `localStorage` (effort L) — à valider : le cookie HttpOnly exige `server/` ; voir questions-lot-3.md
+- [x] `S-uib-02` Déconnexion sans réessai : le jeton peut rester valide côté serveur (effort M)
+- [x] `S-uib-03` Les parties locales ne sont pas rattachées au compte : possible mélange entre comptes sur un même appareil (effort M) — fait (archivage sans perte) ; l'écran de restauration reste à décider : voir questions-lot-3.md
+- [x] `S-uia-01` Jeton magique lu dans l'URL, retiré après coup seulement (effort S)
+- [x] `S-uia-03` `?debug=carte` actif en production (effort S)
+- [x] `S-uia-04` Détails d'erreur internes affichés à l'écran (effort S)
+- [x] `S-uia-10` Chemins d'assets construits depuis des surnoms sans liste blanche (effort S) — sans objet : table d'assets fixe, recherche exacte, aucun chemin construit depuis une saisie
+- [x] `S-uib-05` Porte dérobée de développement active en production (effort S)
+- [x] `S-uib-07` Partie locale de l'e-mail envoyée comme `name` (effort S)
+- [x] `S-uib-08` URL de l'API construite sans contrôle de `VITE_API_URL` (effort S)
+- [x] `S-uib-10` Message d'erreur technique affiché tel quel à l'utilisateur (effort S)
+- [x] `S-uib-11` Aucune borne de longueur sur e-mail et mot de passe côté client (effort S)
+- [x] `S-uib-13` Toute erreur de validation de session autre que 401 laisse la session « valide » (effort S)
+- [x] Les vérifications du dépôt passent (tsc, eslint, vitest ciblé) et le diff est relu.
 
 ---
 
