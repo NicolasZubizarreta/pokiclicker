@@ -48,8 +48,13 @@ const jeux = chargerJeuxCasino();
 const { roulette, plusOuMoins, gratter: regleGratter, messages } = jeux;
 
 const rouges = new Set(roulette.rouges);
+const formatNombre = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 2, useGrouping: 'min2' });
+// Les nombres sont écrits à la française (virgule, espaces entre les milliers), comme partout dans l'interface.
 export const remplir = (modele: string, valeurs: Record<string, string | number>) =>
-  modele.replace(/\{(\w+)\}/g, (_, cle: string) => String(valeurs[cle] ?? ''));
+  modele.replace(/\{(\w+)\}/g, (_, cle: string) => {
+    const valeur = valeurs[cle];
+    return typeof valeur === 'number' ? formatNombre.format(valeur) : String(valeur ?? '');
+  });
 
 export function debiter<R extends RegionJetons>(region: R, mise: number): { ok: true; region: R } | { ok: false; raison: string } {
   if (!Number.isInteger(mise) || mise < 1) return { ok: false, raison: messages.miseInvalide };
