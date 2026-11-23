@@ -1,18 +1,42 @@
 import { expect, it } from 'vitest';
 import { compteInitial, regionInitiale } from './sauvegarde';
-import { chargerSucces, mesuresDe, registreSucces, succesAccordes, validerSucces } from './succes';
+import { chargerSucces, MESURES_SUCCES, mesuresDe, mesuresVides, registreSucces, succesAccordes, validerSucces } from './succes';
+import { suiviVide } from './suivi';
 import type { DefinitionSucces, Mesures } from './succes';
 
 const premiersPas: DefinitionSucces = {
   id: 'premiers-pas', nom: 'Premiers pas', description: 'Attrape ton premier Pokémon.',
   diamants: 5, mesure: 'pokedex', seuil: 1,
 };
-const mesures: Mesures = { pokedex: 1, badges: 0, eliminations: 0, eclosions: 0 };
+const mesures: Mesures = { ...mesuresVides(), pokedex: 1 };
 
-it('charge les sept succès du registre réel', () => {
-  expect(chargerSucces().map(succes => succes.id)).toEqual(['premiers-pas', 'premier-badge', 'collectionneur',
+it('charge les succès du registre réel : les sept d’origine, puis les nouveaux', () => {
+  const ids = chargerSucces().map(succes => succes.id);
+  expect(ids.slice(0, 7)).toEqual(['premiers-pas', 'premier-badge', 'collectionneur',
     'eclosions-10', 'eclosions-50', 'eclosions-100', 'eclosions-151']);
+  expect(ids.length - 7).toBeGreaterThanOrEqual(10);
+  expect(ids.length - 7).toBeLessThanOrEqual(30);
   expect(chargerSucces()).toEqual(registreSucces);
+});
+
+it('chaque mesure des nouveaux succès est lue dans la partie', () => {
+  const region = { ...regionInitiale('kanto', 'kanto.route-1'), badges: ['roche', 'cascade'], bossVaincus: ['a', 'b', 'c'],
+    statistiques: { eliminations: 5, argentTotalGagne: 250000 }, equipe: [], pc: [] };
+  const suivi = { ...suiviVide(), captures: 12, capturesShiny: 2, evolutions: 3, serieVictoires: 9,
+    jetons: { gagnes: 40, perdus: 0 }, hall: [{ date: '2026-01-01T00:00:00.000Z', tempsJeuMs: 1, equipe: [] }],
+    records: { ...suiviVide().records, serieVictoiresMax: 33 }, casino: { machine: { parties: 4, meilleurGain: 0, meilleureSerie: 0, serieActuelle: 0 },
+      roulette: { parties: 6, meilleurGain: 0, meilleureSerie: 0, serieActuelle: 0 } } };
+  const mesuresLues = mesuresDe({ ...region, suivi }, [1, 2]);
+  expect(mesuresLues).toMatchObject({ captures: 12, capturesShiny: 2, evolutions: 3, zonesFinies: 3, argentTotal: 250000,
+    jetonsGagnes: 40, victoiresLigue: 1, serieVictoires: 33, casinoParties: 10, niveauMax: 0, lignees: 0 });
+  expect(Object.keys(mesuresLues).sort()).toEqual([...MESURES_SUCCES].sort());
+});
+
+it('toutes les mesures du registre existent et les seuils d’une même mesure sont distincts', () => {
+  for (const mesure of MESURES_SUCCES) {
+    const seuils = registreSucces.filter(s => s.mesure === mesure).map(s => s.seuil);
+    expect(new Set(seuils).size).toBe(seuils.length);
+  }
 });
 
 it.each([
@@ -51,9 +75,9 @@ it('accorde deux succès à la fois et additionne leurs diamants', () => {
 
 it('rend le même compte quand aucun seuil n’est atteint', () => {
   const compte = compteInitial();
-  expect(succesAccordes(registreSucces, compte, { pokedex: 0, badges: 0, eliminations: 0, eclosions: 0 }))
+  expect(succesAccordes(registreSucces, compte, mesuresVides()))
     .toEqual({ compte, nouveaux: [] });
-  expect(succesAccordes(registreSucces, compte, { pokedex: 0, badges: 0, eliminations: 0, eclosions: 0 }).compte).toBe(compte);
+  expect(succesAccordes(registreSucces, compte, mesuresVides()).compte).toBe(compte);
 });
 
 it('ne touche pas un compte ayant déjà le succès même avec des mesures supérieures', () => {
@@ -73,7 +97,7 @@ it('lit les compteurs existants sans modifier la région ni le Pokédex', () => 
     statistiques: { eliminations: 42, argentTotalGagne: 100 } };
   const pokedex = [1, 4, 7];
   const avant = structuredClone({ region, pokedex });
-  expect(mesuresDe(region, pokedex)).toEqual({ pokedex: 3, badges: 1, eliminations: 42, eclosions: 0 });
+  expect(mesuresDe(region, pokedex)).toMatchObject({ pokedex: 3, badges: 1, eliminations: 42, eclosions: 0, argentTotal: 100 });
   expect({ region, pokedex }).toEqual(avant);
 });
 

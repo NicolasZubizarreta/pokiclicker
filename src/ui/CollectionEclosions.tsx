@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useStore } from 'zustand';
 import { chargerPokemon } from '../core/pokemon';
 import { reglages } from '../core/reglages';
-import { paliersDeMesure, registreSucces } from '../core/succes';
+import { mesuresVides, paliersDeMesure, registreSucces } from '../core/succes';
 import { IconeDiamant } from './compte/icones-compte';
 import { storeJeu, type StoreJeu } from './store';
 
@@ -12,7 +12,7 @@ export function CollectionEclosions({ store = storeJeu }: { store?: StoreJeu }) 
   const compte = useStore(store, e => e.compte);
   const [filtre, filtrer] = useState('Toutes');
   const n = ecloses.length, total = reglages.pension.especesTirees;
-  const paliers = paliersDeMesure(registreSucces, 'eclosions', { pokedex: 0, badges: 0, eliminations: 0, eclosions: n }, compte);
+  const paliers = paliersDeMesure(registreSucces, 'eclosions', { ...mesuresVides(), eclosions: n }, compte);
   const prochain = paliers.find(p => !p.atteint && !p.obtenu);
   const transformation = { transform: `scaleX(${prochain ? n / prochain.seuil : 1})` };
   return <section className="cadre pension-collection" aria-label="Collection d’éclosions">

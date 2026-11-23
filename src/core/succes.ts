@@ -1,9 +1,14 @@
 import donnees from '../../data/succes.json';
 import type { DonneesCompte, DonneesRegion } from './sauvegarde-types';
+import { compterLignees } from './lignees';
+import { lireSuivi } from './suivi';
 
-export const MESURES_SUCCES = ['pokedex', 'badges', 'eliminations', 'eclosions'] as const;
+/** Les mesures `captures` à `lignees` viennent du suivi de la partie (vague 1 du lot 6) ; les sauvegardes anciennes les voient à zéro. */
+export const MESURES_SUCCES = ['pokedex', 'badges', 'eliminations', 'eclosions', 'captures', 'capturesShiny', 'evolutions',
+  'zonesFinies', 'argentTotal', 'jetonsGagnes', 'niveauMax', 'victoiresLigue', 'serieVictoires', 'casinoParties', 'lignees'] as const;
 export type MesureSucces = typeof MESURES_SUCCES[number];
 export type Mesures = Record<MesureSucces, number>;
+export const mesuresVides = (): Mesures => Object.fromEntries(MESURES_SUCCES.map(mesure => [mesure, 0])) as Mesures;
 export type DefinitionSucces = {
   id: string; nom: string; description: string; diamants: number; mesure: MesureSucces; seuil: number;
 };
@@ -57,9 +62,17 @@ export function succesAccordes(registre: readonly DefinitionSucces[], compte: Do
 }
 
 export function mesuresDe(region: DonneesRegion, pokedex: readonly number[]): Mesures {
+  const suivi = lireSuivi(region);
+  const niveaux = [...region.equipe, ...region.pc, ...region.pension.parents].map(pokemon => pokemon.niveau);
   return {
     pokedex: pokedex.length, badges: region.badges.length, eliminations: region.statistiques.eliminations,
     eclosions: region.especesEcloses?.length ?? 0,
+    captures: suivi.captures, capturesShiny: suivi.capturesShiny, evolutions: suivi.evolutions,
+    zonesFinies: region.bossVaincus.length, argentTotal: region.statistiques.argentTotalGagne,
+    jetonsGagnes: suivi.jetons.gagnes, niveauMax: niveaux.reduce((max, niveau) => Math.max(max, niveau), 0),
+    victoiresLigue: suivi.hall.length, serieVictoires: suivi.records.serieVictoiresMax,
+    casinoParties: Object.values(suivi.casino).reduce((total, jeu) => total + (jeu?.parties ?? 0), 0),
+    lignees: compterLignees(pokedex).completes,
   };
 }
 

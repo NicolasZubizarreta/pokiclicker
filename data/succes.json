@@ -6,6 +6,36 @@
     { "id": "eclosions-10", "nom": "Éleveur débutant", "description": "Fais éclore 10 espèces différentes à la pension.", "diamants": 10, "mesure": "eclosions", "seuil": 10 },
     { "id": "eclosions-50", "nom": "Éleveur confirmé", "description": "Fais éclore 50 espèces différentes à la pension.", "diamants": 25, "mesure": "eclosions", "seuil": 50 },
     { "id": "eclosions-100", "nom": "Maître éleveur", "description": "Fais éclore 100 espèces différentes à la pension.", "diamants": 50, "mesure": "eclosions", "seuil": 100 },
-    { "id": "eclosions-151", "nom": "Pension au complet", "description": "Fais éclore les 151 espèces de Kanto à la pension.", "diamants": 100, "mesure": "eclosions", "seuil": 151 }
+    { "id": "eclosions-151", "nom": "Pension au complet", "description": "Fais éclore les 151 espèces de Kanto à la pension.", "diamants": 100, "mesure": "eclosions", "seuil": 151 },
+
+    { "id": "pokedex-75", "nom": "Pokédex à moitié plein", "description": "Enregistre 75 Pokémon dans ton Pokédex.", "diamants": 20, "mesure": "pokedex", "seuil": 75 },
+    { "id": "pokedex-151", "nom": "Maître Pokédex", "description": "Enregistre les 151 Pokémon de Kanto.", "diamants": 100, "mesure": "pokedex", "seuil": 151 },
+    { "id": "badges-8", "nom": "Les huit badges", "description": "Gagne les 8 badges d'arène.", "diamants": 30, "mesure": "badges", "seuil": 8 },
+
+    { "id": "captures-100", "nom": "Apprenti dresseur", "description": "Capture 100 Pokémon.", "diamants": 5, "mesure": "captures", "seuil": 100 },
+    { "id": "captures-1000", "nom": "Dresseur chevronné", "description": "Capture 1 000 Pokémon.", "diamants": 20, "mesure": "captures", "seuil": 1000 },
+    { "id": "captures-5000", "nom": "Collecteur infatigable", "description": "Capture 5 000 Pokémon.", "diamants": 50, "mesure": "captures", "seuil": 5000 },
+    { "id": "shiny-1", "nom": "Éclat rare", "description": "Capture ton premier Pokémon chromatique.", "diamants": 10, "mesure": "capturesShiny", "seuil": 1 },
+    { "id": "shiny-10", "nom": "Chasseur d'éclats", "description": "Capture 10 Pokémon chromatiques.", "diamants": 25, "mesure": "capturesShiny", "seuil": 10 },
+    { "id": "shiny-50", "nom": "Trésor vivant", "description": "Capture 50 Pokémon chromatiques.", "diamants": 60, "mesure": "capturesShiny", "seuil": 50 },
+
+    { "id": "evolutions-50", "nom": "Évolutionniste", "description": "Fais évoluer 50 Pokémon.", "diamants": 15, "mesure": "evolutions", "seuil": 50 },
+    { "id": "evolutions-150", "nom": "Maître des évolutions", "description": "Fais évoluer 150 Pokémon.", "diamants": 40, "mesure": "evolutions", "seuil": 150 },
+    { "id": "lignees-10", "nom": "Dix lignées complètes", "description": "Possède les trois stades de 10 lignées.", "diamants": 15, "mesure": "lignees", "seuil": 10 },
+    { "id": "lignees-25", "nom": "Vingt-cinq lignées complètes", "description": "Possède les trois stades de 25 lignées.", "diamants": 30, "mesure": "lignees", "seuil": 25 },
+
+    { "id": "zones-15", "nom": "Quinze zones terminées", "description": "Bats le boss de 15 zones.", "diamants": 25, "mesure": "zonesFinies", "seuil": 15 },
+    { "id": "niveau-50", "nom": "Mi-parcours", "description": "Amène un Pokémon au niveau 50.", "diamants": 10, "mesure": "niveauMax", "seuil": 50 },
+    { "id": "niveau-100", "nom": "Au sommet", "description": "Amène un Pokémon au niveau 100.", "diamants": 40, "mesure": "niveauMax", "seuil": 100 },
+    { "id": "ligue-1", "nom": "Champion de la Ligue", "description": "Gagne la Ligue une première fois.", "diamants": 30, "mesure": "victoiresLigue", "seuil": 1 },
+    { "id": "ligue-5", "nom": "Habitué du Hall", "description": "Gagne la Ligue 5 fois.", "diamants": 50, "mesure": "victoiresLigue", "seuil": 5 },
+    { "id": "serie-250", "nom": "Série de 250", "description": "Enchaîne 250 victoires de combat sans échouer face à un boss.", "diamants": 30, "mesure": "serieVictoires", "seuil": 250 },
+
+    { "id": "argent-100k", "nom": "Premier magot", "description": "Gagne 100 000 ₽ au total.", "diamants": 5, "mesure": "argentTotal", "seuil": 100000 },
+    { "id": "argent-1m", "nom": "Millionnaire", "description": "Gagne 1 000 000 ₽ au total.", "diamants": 20, "mesure": "argentTotal", "seuil": 1000000 },
+    { "id": "argent-10m", "nom": "Fortune de Kanto", "description": "Gagne 10 000 000 ₽ au total.", "diamants": 50, "mesure": "argentTotal", "seuil": 10000000 },
+    { "id": "jetons-25000", "nom": "Habitué du casino", "description": "Gagne 25 000 jetons au casino.", "diamants": 20, "mesure": "jetonsGagnes", "seuil": 25000 },
+    { "id": "jetons-250000", "nom": "Roi du casino", "description": "Gagne 250 000 jetons au casino.", "diamants": 50, "mesure": "jetonsGagnes", "seuil": 250000 },
+    { "id": "casino-250", "nom": "Joueur assidu", "description": "Joue 250 parties au casino.", "diamants": 20, "mesure": "casinoParties", "seuil": 250 }
   ]
 }

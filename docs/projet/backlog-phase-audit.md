@@ -269,7 +269,7 @@ Doublons, découpage de store.ts, EcranCombat, CarteKanto, PagePC, serveur. Él�
 Vague 1 codée le 23/11/2026 (19 cases cochées, commits locaux non poussés) ; tests unitaires verts, écrans vus en dev (combat, mannequin, carte de dresseur, statistiques, PC et équipes, Pokédex, 390 et 1440 px) ; pas vus à l'écran : scores du casino, crédits, Hall, astuces, invitation PWA, Missingno, code Konami ; e2e et eslint complets à passer par Nicolas. Reste la vague 2 (14 cases). Questions ouvertes : `audit-2026-11-19/questions-lot-6.md`.
 
 ### Critères d'acceptation
-- [ ] `F-j1-01` Dix à trente succès de plus, avec leurs mesures (effort M)
+- [x] `F-j1-01` Dix à trente succès de plus, avec leurs mesures (effort M)
 - [x] `F-j1-02` Alerte d'arrêt auto : vibration, son et titre d'onglet (effort S)
 - [x] `F-j1-05` Avantage de type visible sur l'ennemi (effort M)
 - [x] `F-j1-06` Aperçu du boss avant le combat (effort M)
