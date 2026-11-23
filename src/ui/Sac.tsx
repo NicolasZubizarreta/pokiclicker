@@ -50,8 +50,8 @@ export function Sac({ sac, utiliser, annoncer: annoncerObjet }: {
         }}>
         <IconeObjet image={entree.image} nom={entree.nom} taille="petite" />
         <span className="min-w-0">
-          <span className="block truncate text-xs text-texte-doux">{entree.nom}</span>
-          <span className="line-clamp-2 text-xs font-normal text-texte-doux">{entree.description}</span>
+          <span className="block break-words text-xs text-texte-doux">{entree.nom}</span>
+          <span className="block break-words text-xs font-normal text-texte-doux">{entree.description}</span>
           <span className="flex items-center gap-1 whitespace-nowrap text-sm font-bold">
             ×{entree.quantite}
             {entree.utilisable !== null && entree.quantite > 0 && <span className="text-xs text-region-accent">UTILISER</span>}
