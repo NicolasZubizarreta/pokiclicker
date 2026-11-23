@@ -10,6 +10,7 @@ import { formaterDps } from './nombres';
 import { classeSprite, libelleOeuf, nomAffiche, progressionOeuf, spriteAffiche } from './affichage-pokemon';
 import type { CaseEquipe } from './store';
 import { useTelephone } from './useTelephone';
+import { couleursAvantage, libelleMultiplicateur, nature } from './avantage-type';
 
 /** `renommer` : affiche le crayon (grand écran, là où le nom est visible) ; il ouvre la fiche avec le champ de surnom. */
 const stase = chargerObjets().find(objet => objet.id === 'everstone');
@@ -42,6 +43,8 @@ export function CarteEquipe({ membre, renommer, retirerObjet, evolution, evoluer
       </span> : <Image src={spriteAffiche(membre.pokemon)} genre="sprite" alt=""
         className={`carte-evo-sprite size-auto min-h-0 min-w-0 max-h-full max-w-full lg:size-24 lg:row-span-3 ${membre.pokemon.shiny && !oeuf ? 'halo-shiny' : ''} ${classeSprite(membre.pokemon)}`} />}
       {!oeuf && <span className="absolute bottom-1 left-1 contour-texte px-1 text-base tabular-nums lg:hidden">{membre.pokemon.niveau}</span>}
+      {!oeuf && membre.multiplicateur !== 1 && <span aria-label={`Avantage de type : ${libelleMultiplicateur(membre.multiplicateur)}`}
+        className={`plaque absolute bottom-1 right-1 text-base tabular-nums lg:hidden ${couleursAvantage[nature(membre.multiplicateur)]}`}>{libelleMultiplicateur(membre.multiplicateur)}</span>}
       <div className="carte-equipe-identite hidden min-w-0 justify-self-stretch self-end lg:block">
         <div className="flex min-w-0 items-center justify-between gap-1">
           <strong className="block min-w-0 break-words">{nom}<RepereTags pokemon={membre.pokemon} /></strong>
@@ -54,6 +57,8 @@ export function CarteEquipe({ membre, renommer, retirerObjet, evolution, evoluer
             {renommer && !oeuf && <BoutonRenommer nom={nom} ouvrir={bouton => renommer(membre.pokemon.uid, bouton)} />}
           </span>
         </div><span>{oeuf ? progressionOeuf(oeuf) : `Niv. ${membre.pokemon.niveau}`}</span>
+        {!oeuf && membre.multiplicateur !== 1 && <span aria-label={`Avantage de type : ${libelleMultiplicateur(membre.multiplicateur)}`}
+          className={`plaque ml-1 tabular-nums ${couleursAvantage[nature(membre.multiplicateur)]}`}>{libelleMultiplicateur(membre.multiplicateur)}</span>}
       </div>
       {!oeuf && <span className="hidden justify-self-start self-start text-region-accent lg:block">{formaterDps(membre.dps)} DPS</span>}
       {!oeuf && <div className="absolute inset-x-0 bottom-0 mx-1 mb-1 lg:static lg:mx-0 lg:mb-0 lg:col-start-2 lg:w-full lg:self-start">

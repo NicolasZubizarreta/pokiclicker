@@ -6,6 +6,7 @@ import { SpriteEvolution } from './SpriteEvolution';
 import { RepereTags } from './RepereMarque';
 import { classeSprite, nomAffiche, progressionOeuf, spriteAffiche } from './affichage-pokemon';
 import { formaterDps } from './nombres';
+import { couleursAvantage, libelleMultiplicateur, nature } from './avantage-type';
 
 type Props = Pick<ComponentProps<typeof CarteEquipe>, 'membre' | 'evolution' | 'animation'> & { ouvrirFiche(bouton: HTMLButtonElement): void };
 export function RangEquipe({ membre, evolution, animation, ouvrirFiche }: Props) {
@@ -20,6 +21,8 @@ export function RangEquipe({ membre, evolution, animation, ouvrirFiche }: Props)
     </span>
     <span className="min-w-0 flex-1">
       <span className="flex flex-wrap justify-between gap-x-2"><strong>{nom}<RepereTags pokemon={pokemon} /></strong><span>{pokemon.oeuf ? progressionOeuf(pokemon.oeuf) : `Niv. ${pokemon.niveau}`}</span></span>
+      {!pokemon.oeuf && membre.multiplicateur !== 1 && <span aria-label={`Avantage de type : ${libelleMultiplicateur(membre.multiplicateur)}`}
+        className={`plaque tabular-nums ${couleursAvantage[nature(membre.multiplicateur)]}`}>{libelleMultiplicateur(membre.multiplicateur)}</span>}
       <span className="flex items-center justify-between gap-2">{!pokemon.oeuf && <span className="text-region-accent">{formaterDps(dps)} DPS</span>}
         {!pokemon.oeuf && (evolution ? <span className="texte-pret">Prêt à évoluer</span> : xpMax === 0 ? null : <span className="min-w-0 flex-1"><BarreXp xp={pokemon.xp} maximum={xpMax} nom={nom} /></span>)}
       </span>

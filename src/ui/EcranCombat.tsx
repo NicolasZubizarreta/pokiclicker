@@ -40,6 +40,8 @@ import { PanneauSac, type ObjetAChoisir } from './PanneauSac';
 import { entreesRadar } from './store-objets';
 import type { StoreJeu } from './store';
 import { useTelephone } from './useTelephone';
+import { couleursAvantage, libelleMultiplicateur, moyenneAvantage, nature } from './avantage-type';
+import { useAlerteArret } from './useAlerteArret';
 import { LigneCapture } from './LigneCapture';
 import { PluieBalles } from './PluieBalles';
 import { BoutonFauchage } from './BoutonFauchage';
@@ -93,6 +95,8 @@ function Scene({ store, ouvrirPension, aller }: { store: StoreJeu; ouvrirPension
   const enRecherche = useStore(store, etat => etat.enRecherche);
   const cache = useStore(store, etat => etat.cache);
   const banniere = useStore(store, etat => etat.banniere);
+  useAlerteArret(zone && ennemi ? banniere : null);
+  const avantage = useStore(store, etat => moyenneAvantage(etat.equipe));
   const accesPension = useStore(store, etat => etat.pension.acces);
   const captureEnCours = useStore(store, etat => etat.capture.enCours);
   const radar = useStore(store, etat => etat.radar);
@@ -142,6 +146,7 @@ function Scene({ store, ouvrirPension, aller }: { store: StoreJeu; ouvrirPension
         <h2 className="font-titre text-xl">{nom}{nomAdversaire === null && pokedex.includes(ennemi.numero) && <PastilleCapture />} {ennemi.shiny && <IconeShiny />}{ennemi.boss && nomAdversaire === null ? <> <abbr title="Boss de zone : il a plus de PV.">(Géant)</abbr></> : ''}</h2><span>Niv. {ennemi.niveau}</span>
       </div>
       {ennemi.shiny && <p>Chromatique</p>}
+      {!cache && avantage !== null && <p className={`text-sm tabular-nums ${couleursAvantage[nature(avantage)]}`}>Tes Pokémon font {libelleMultiplicateur(avantage)} en moyenne</p>}
       {ennemi.boss && <p className="text-sm text-texte-doux">Boss : non capturable</p>}
       <BarrePv tuto="pv-ennemi" key={`${ennemi.numero}-${ennemi.niveau}-${ennemi.boss}`} pv={ennemi.pv} maximum={ennemi.pvMax} nom={nom} />
       {telephone && effets.length > 0 && <PastillesEffets effets={effets} />}
