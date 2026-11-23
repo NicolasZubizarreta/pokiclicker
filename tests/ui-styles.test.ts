@@ -28,7 +28,8 @@ describe('Jetons et styles de l’interface', () => {
       expect(styles).toContain(`@fontsource/atkinson-hyperlegible-next/latin-${poids}.css`);
     }
     const fichiers = readdirSync(`${racine}/src`, { recursive: true, withFileTypes: true })
-      .filter((entree) => entree.isFile())
+      // Les fichiers de test ne sont jamais chargés par le navigateur : leurs URL d'exemple (CSP, API) ne sont pas des ressources externes.
+      .filter((entree) => entree.isFile() && !/\.test\.tsx?$/.test(entree.name))
       .map((entree) => `${entree.parentPath}/${entree.name}`);
     fichiers.push(`${racine}/index.html`);
     for (const fichier of fichiers) {

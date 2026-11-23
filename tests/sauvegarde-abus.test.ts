@@ -54,14 +54,24 @@ describe('sauvegarde : essais abusifs (lecture, version future, JSON cassé, imp
     const bon = JSON.parse(g.exporterPartie(p.id));
     const avant = instantane();
     journal.length = 0;
-    const casse = JSON.parse(JSON.stringify(bon));
-    casse.regions[0].donnees.argent = -5;
-    for (const texte of ['{"format":', '', 'null', '[]', JSON.stringify(casse), JSON.stringify({ ...bon, version: 99 }),
+    for (const texte of ['{"format":', '', 'null', '[]', JSON.stringify({ ...bon, version: 99 }),
       JSON.stringify({ ...bon, regions: [...bon.regions, { nimporte: 'quoi' }] })]) {
       expect(() => g.importerPartie(texte)).toThrow(/sauvegarde de partie valide|plus récente/);
     }
     expect(journal).toEqual([]);
     expect(instantane()).toBe(avant);
+  });
+
+  it('import avec argent négatif : réparé à 0 (plus refusé depuis le lot 3), la partie d\'origine reste intacte', () => {
+    const { g } = monde();
+    const p = g.creerPartie('A');
+    const casse = JSON.parse(g.exporterPartie(p.id));
+    casse.regions[0].donnees.argent = -5;
+    const avant = g.exporterPartie(p.id);
+    const importee = g.importerPartie(JSON.stringify(casse));
+    expect(importee.id).not.toBe(p.id);
+    expect(JSON.parse(g.exporterPartie(importee.id)).regions[0].donnees.argent).toBe(0);
+    expect(g.exporterPartie(p.id)).toBe(avant);
   });
 
   it('aller-retour complet avec équipe et inventaire, nouvel id', () => {
