@@ -2,7 +2,7 @@ import { Fragment, type ReactNode } from 'react';
 import { CATEGORIES_DEPENSE, JEUX_SUIVIS, type Suivi } from '../core/suivi';
 import { joursRecents } from './argent-jours';
 import { formaterDuree, formaterTempsBoss } from './duree';
-import { formaterNombre } from './nombres';
+import { formaterDps, formaterNombre } from './nombres';
 
 const depenses = { boutique: 'Boutique', centre: 'Centre commercial', casino: 'Casino (achats de jetons)', pension: 'Pension', safari: 'Parc Safari' };
 const jeux = { machine: 'Machine à sous', roulette: 'Roulette', plusOuMoins: 'Plus ou moins',
@@ -47,7 +47,7 @@ export function StatistiquesSuivi({ suivi, tempsJeuMs, aujourdhui = new Date() }
       ['Jetons gagnés', suivi.jetons.gagnes], ['Jetons perdus', suivi.jetons.perdus], ...parties,
     ]}>{!parties.length && <p>Aucune partie</p>}</Carte>
     <Carte titre="Records" lignes={[
-      ['Plus gros dégât de clic', records.degatsClicMax], ['DPS maximal', records.dpsMax],
+      ['Plus gros dégât de clic', records.degatsClicMax], ['DPS maximal', formaterDps(records.dpsMax)],
       ['Meilleure série de victoires', <>{formaterNombre(records.serieVictoiresMax)}
         <span className="block font-normal text-texte-doux">En cours : {formaterNombre(suivi.serieVictoires)}</span></>],
       ['Meilleur temps de boss', formaterTempsBoss(records.tempsBossMinMs)],
@@ -55,7 +55,7 @@ export function StatistiquesSuivi({ suivi, tempsJeuMs, aujourdhui = new Date() }
       ['Captures en une heure', records.capturesHeureMax],
       ['Plus longue chaîne de rencontres', records.chaineMax],
       ...(records.liguePlusMax > 0 ? [['Meilleur rang de la Ligue+', records.liguePlusMax] as [string, number]] : []),
-      ...(records.mannequinDpsMax > 0 ? [['Record du mannequin', records.mannequinDpsMax] as [string, number]] : []),
+      ...(records.mannequinDpsMax > 0 ? [['Record du mannequin', formaterDps(records.mannequinDpsMax)] as [string, string]] : []),
     ]} />
     <section className={cadre} aria-label="Argent gagné sur 7 jours">
       <h2 className={titreCarte}>Argent gagné sur 7 jours</h2>

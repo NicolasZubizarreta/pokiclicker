@@ -34,7 +34,7 @@ export function calculerStatistiques(source: Source = {}): Statistique[] {
   return [
     { libelle: 'Pokémon vaincus', valeur: region.statistiques.eliminations },
     { libelle: 'Argent total', valeur: region.statistiques.argentTotalGagne, unite: ' ₽' },
-    { libelle: 'Dégâts clic', libelleBase: 'Base (5+0.2% DPS)', base: String(reglages.combat.clicBase + Math.floor(dps * reglages.combat.clicPartDps)), boosts: boosts(reglages.bonus.clic), total: String(calculerClic(dps, actifs)) },
+    { libelle: 'Dégâts clic', libelleBase: 'Base (5 + 0,2 % du DPS)', base: String(reglages.combat.clicBase + Math.floor(dps * reglages.combat.clicPartDps)), boosts: boosts(reglages.bonus.clic), total: String(calculerClic(dps, actifs)) },
     { libelle: 'DPS équipe', base: baseDps.toFixed(1), boosts: boosts(reglages.bonus.dps), total: dps.toFixed(1) },
     { libelle: 'Gains argent', base: '100%', boosts: boosts(argent), total: `x${(produit(argent) * reglages.recompenses.or.multiplicateur).toFixed(2)}` },
     { libelle: 'Gains XP', base: '100%', boosts: boosts(reglages.recompenses.xp.bonus), total: `x${produit(reglages.recompenses.xp.bonus).toFixed(2)}` },
