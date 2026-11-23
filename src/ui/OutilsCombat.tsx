@@ -1,5 +1,6 @@
 import { Fauchage } from './icones';
 import { BoutonAction } from './BoutonAction';
+import { Mannequin } from './Mannequin';
 
 export function OutilsCombat({ fauchage, faucher }: {
   fauchage: { possede: boolean; disponible: boolean; raison: string | null; rechargeS: number; actif: boolean };
@@ -10,5 +11,6 @@ export function OutilsCombat({ fauchage, faucher }: {
   return <div className="bandeau-action-groupe">
     {fauchage.possede && <BoutonAction data-tuto="fauchage" data-raccourci="fauchage" icone={<Fauchage />} nom="Fauchage" actif={fauchage.actif}
       verrouille={!fauchage.disponible} infobulle={raison ?? undefined} onClick={faucher} />}
+    <Mannequin />
   </div>;
 }

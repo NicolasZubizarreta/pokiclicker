@@ -51,6 +51,7 @@
 }
 
 .zone-marque {
+  display: block;
   width: calc(var(--spacing) * 2);
   height: calc(var(--spacing) * 2);
   background: var(--surface-2);

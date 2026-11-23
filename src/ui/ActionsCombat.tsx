@@ -4,6 +4,7 @@ import { AutoAttaque, ArretAuto, ReglagesArret as IconeReglagesArret, Sac } from
 import { ContenuArret, type LienAutoClic } from './ReglagesCombat';
 import './Plaques.css';
 import './ActionsCombat.css';
+import { Mannequin } from './Mannequin';
 
 type Props = {
   autoAttaque: boolean; basculerAutoAttaque(): void;
@@ -17,7 +18,7 @@ export function ActionsCombat({ autoAttaque, basculerAutoAttaque, arret, reglerA
   const declencheur = useRef<HTMLButtonElement>(null);
   const titre = useId();
   const fermer = () => dialogue.current?.close();
-  return <div className="actions-combat" role="group" aria-label="Actions du combat">
+  return <><div className="actions-combat" role="group" aria-label="Actions du combat">
     <div className="actions-quatre">
       <button data-tuto="auto" data-raccourci="auto" type="button" className="plaque plaque-vertical" aria-pressed={autoAttaque} onClick={basculerAutoAttaque}><AutoAttaque />Attaque auto<span aria-hidden="true" className="etat-interrupteur">{autoAttaque ? 'Oui' : 'Non'}</span><kbd aria-hidden="true" className="touche-pc">A</kbd></button>
       <button data-tuto="arret" data-raccourci="arret" type="button" className="plaque plaque-vertical" aria-pressed={arret.actif} onClick={() => reglerArret({ actif: !arret.actif })}><ArretAuto />Arrêt auto<span aria-hidden="true" className="etat-interrupteur">{arret.actif ? 'Oui' : 'Non'}</span><kbd aria-hidden="true" className="touche-pc">T</kbd></button>
@@ -31,5 +32,5 @@ export function ActionsCombat({ autoAttaque, basculerAutoAttaque, arret, reglerA
       onPointerDown={event => { if (event.target === event.currentTarget) fermer(); }}>
       <ContenuArret id={titre} titre="Réglage de l'arrêt auto" arret={arret} regler={reglerArret} lienAutoClic={lienAutoClic} fermer={fermer} />
     </dialog>
-  </div>;
+  </div><Mannequin /></>;
 }

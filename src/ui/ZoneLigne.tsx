@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { reglages } from '../core/reglages';
 import type { Destination } from './store';
 import './ZoneLigne.css';
+import { ApercuBoss } from './ApercuBoss';
 
 // `etape` est null hors d'une zone de combat (labo, Bourg Palette) : la ligne ne garde alors que le titre et les boutons,
 // et « Suivant » nomme la zone où il mène. Sans destination, le bouton n'est pas affiché.
@@ -40,7 +41,8 @@ export function ZoneLigne({ nom, etape, precedente, suivante, aller }: Props) {
           <div className="zone-marques">
             {Array.from({ length: 10 }, (_, index) => {
               const numero = index + 1;
-              return <span key={numero} aria-hidden="true" className={`zone-marque${numero < etape ? ' zone-marque-passee' : ''}${numero === etape ? ' zone-marque-courante' : ''}${numero === 10 ? ' zone-marque-boss' : ''}`} />;
+              const marque = <span aria-hidden="true" className={`zone-marque${numero < etape ? ' zone-marque-passee' : ''}${numero === etape ? ' zone-marque-courante' : ''}${numero === 10 ? ' zone-marque-boss' : ''}`} />;
+              return numero === 10 ? <ApercuBoss key={numero}>{marque}</ApercuBoss> : <Fragment key={numero}>{marque}</Fragment>;
             })}
           </div>
           <span className="zone-etape-texte text-sm text-texte-doux">{etape}/10</span>
