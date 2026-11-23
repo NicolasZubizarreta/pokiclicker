@@ -6,6 +6,9 @@ import { IconeRetour } from './icones-menu';
 import { cheminSprite } from './precharger';
 import { Image } from './Image';
 import { formaterDuree } from './duree';
+import { chargerPokemon } from '../core/pokemon';
+const catalogue = chargerPokemon();
+const nomEspece = (numero: number) => catalogue.parNumero(numero).nom;
 const rangs = (suivant: number) => Array.from({ length: suivant + 1 }, (_, k) => k);
 
 /** Ligue+ : rejouer la Ligue avec plus de PV chez les adversaires ; ne s'ouvre qu'après une première victoire. */
@@ -40,8 +43,8 @@ export function HallDesFameux({ retour }: { retour(): void }) {
       <h2 className="font-titre text-lg font-semibold">Victoire n° {hall.length - i}</h2>
       <p><time dateTime={entree.date}>{new Date(entree.date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</time> · {formaterDuree(entree.tempsJeuMs)}</p>
       <ul className="flex flex-wrap gap-4">{entree.equipe.map((p, j) => <li key={j} className="text-center">
-        <Image src={cheminSprite(p.numero, p.shiny)} genre="sprite" alt={p.surnom ?? `Pokémon n° ${p.numero}`} className={`mx-auto size-24 ${p.shiny ? 'halo-shiny' : ''}`} />
-        {p.surnom && <p>{p.surnom}</p>}<p>Niveau {p.niveau}</p>{p.shiny && <p>Chromatique</p>}
+        <Image src={cheminSprite(p.numero, p.shiny)} genre="sprite" alt="" className={`mx-auto size-24 ${p.shiny ? 'halo-shiny' : ''}`} />
+        <p>{p.surnom ?? nomEspece(p.numero)}</p><p>Niveau {p.niveau}</p>{p.shiny && <p>Chromatique</p>}
       </li>)}</ul>
     </article>)}
   </section>;
