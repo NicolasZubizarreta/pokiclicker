@@ -122,7 +122,8 @@ export function PageReglages({ retour }: { retour?(): void }) {
       <p className="mt-2 text-sm text-texte-doux">Les messages en bas à droite : niveau gagné, éclosion, relâche automatique, objet utilisé… Désactivées, ils ne s'affichent plus.</p>
     </section>
     {!import.meta.env.PROD && <details className="cadre mt-4 space-y-4 bg-surface p-4">
-      <summary className="min-h-12 cursor-pointer py-2">Relevé de partie (développement)</summary>
+      <summary className="min-h-12 cursor-pointer py-2">Avancé</summary>
+      <h3 className="font-titre font-semibold">Relevé de partie</h3>
       <p className="text-texte-doux">Le relevé reste sur cet appareil. Active-le pour jouer, exporter ou effacer. Les temps actifs excluent les pauses et les onglets masqués, mais incluent les attentes visibles, captures et dialogues. Les clics et le hasard diffèrent du simulateur.</p>
       <button type="button" role="switch" aria-checked={journalActif} onClick={() => storeJeu.getState().basculerJournal()}
         className="flex min-h-12 w-full items-center justify-between gap-2 bg-surface-2 px-4 py-2 text-left hover:bg-selection">

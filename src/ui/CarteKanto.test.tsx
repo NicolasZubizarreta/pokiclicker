@@ -23,6 +23,26 @@ afterEach(() => {
   vi.useRealTimers();
 });
 const afficher = () => render(<CarteKanto quandArrive={vi.fn()} />);
+it('masque les zones lointaines et empêche leur consultation', () => {
+  afficher();
+  const liste = screen.getByRole('list', { name: 'Zones de Kanto' });
+  expect(within(liste).queryByRole('button', { name: /Céladopole/ })).toBeNull();
+  expect(within(liste).getAllByRole('button', { name: '?' }).length).toBeGreaterThan(0);
+  fireEvent.click(within(document.querySelector('.carte-support > svg') as unknown as HTMLElement).getAllByRole('button', { name: '?' })[0]!);
+  expect(screen.queryByRole('region', { name: 'Zone sélectionnée' })).toBeNull();
+});
+
+it('ouvre la scène de Bourg Palette depuis la liste, même sur place', () => {
+  const origine = storeJeu.getState().lieu!.id;
+  storeJeu.getState().allerVers(kanto.depart);
+  const arrivee = vi.fn();
+  render(<CarteKanto quandArrive={arrivee} />);
+  fireEvent.click(within(screen.getByRole('list')).getByRole('button', { name: /Bourg Palette/ }));
+  expect(storeJeu.getState().lieu?.id).toBe(kanto.depart);
+  expect(storeJeu.getState().zone).toBeNull();
+  expect(arrivee).toHaveBeenCalledTimes(1);
+  act(() => storeJeu.getState().allerVers(origine));
+});
 beforeEach(() => {
   Object.defineProperties(HTMLDialogElement.prototype, {
     showModal: { configurable: true, value: function (this: HTMLDialogElement) { this.open = true; } },
@@ -65,7 +85,7 @@ it('lance le vol avec Entrée sur une ligne ouverte', async () => {
 
 it('garde l’arène verrouillée quand Céladopole est consultée par son repère fermé', () => {
   const carte = storeJeu.getState().carte;
-  storeJeu.setState({ carte: { ...carte, formes: carte.formes.map(f => f.nom === 'Céladopole' ? { ...f, ouverte: false } : f) } });
+  storeJeu.setState({ carte: { ...carte, formes: carte.formes.map(f => ({ ...f, ouverte: f.nom !== 'Céladopole', terminee: false })) } });
   afficher();
   fireEvent.click(repere(/Céladopole/));
   expect((screen.getByRole('button', { name: 'Arène de Céladopole' }) as HTMLButtonElement).disabled).toBe(true);
@@ -123,7 +143,7 @@ it('liste les zones et l’interzone, avec les zones verrouillées grisées sans
     .sort((a, b) => kanto.zones.findIndex(z => z.id === a.zone) - kanto.zones.findIndex(z => z.id === b.zone));
   expect(options).toHaveLength(23);
   expect(options.map(option => option.getAttribute('aria-label')))
-    .toEqual(zones.map(f => `${f.numero !== null && f.numero > 0 ? `${f.nom} (Zone ${f.numero})` : f.nom}${f.actuelle ? ', tu es ici' : ''}`));
+    .toEqual(zones.map(f => `${f.ouverte || f.terminee || f === storeJeu.getState().carte.formes.find(f => f.zone && !f.ouverte && !f.terminee) ? f.numero !== null && f.numero > 0 ? `${f.nom} (Zone ${f.numero})` : f.nom : '?'}${f.actuelle ? ', tu es ici' : ''}`));
   expect(options[0]?.getAttribute('aria-label')).toBe('Bourg Palette');
   expect(zones.some(f => !f.ouverte)).toBe(true);
   zones.forEach((f, index) => {
@@ -132,7 +152,7 @@ it('liste les zones et l’interzone, avec les zones verrouillées grisées sans
     expect(option.className).toContain('min-h-14');
     expect(option.className).toContain(f.actuelle ? 'border-succes-base' : 'border-bordure');
     if (!f.ouverte) {
-      expect(option.textContent).toContain('verrouillée');
+      expect(option.textContent).toMatch(/verrouillée|\?/);
       expect(option.getAttribute('aria-disabled')).toBe('true');
       expect(option.querySelector('svg, img, i, button')).toBeNull();
     }
@@ -184,7 +204,7 @@ it('dessine un repère par zone dans l’ordre, marque la zone actuelle et ne po
   const zones = storeJeu.getState().carte.formes.filter(f => f.zone !== null)
     .sort((a, b) => kanto.zones.findIndex(z => z.id === a.zone) - kanto.zones.findIndex(z => z.id === b.zone));
   expect([...container.querySelectorAll('[data-forme]')].map(e => e.getAttribute('data-forme')))
-    .toEqual(zones.map(f => f.nom));
+    .toEqual(zones.map(f => f.ouverte || f.terminee || f === storeJeu.getState().carte.formes.find(f => f.zone && !f.ouverte && !f.terminee) ? f.nom : '?'));
   expect(container.querySelectorAll('[data-forme]')).toHaveLength(23);
   expect(container.querySelector('[data-actuelle]')?.getAttribute('data-actuelle'))
     .toBe(storeJeu.getState().carte.formes.find(f => f.actuelle)?.zone);
@@ -217,11 +237,12 @@ it('permet de sélectionner une zone fermée', () => {
 
 it('montre les noms et halos en debug seulement', () => {
   const { container, unmount } = afficher();
-  expect(container.querySelectorAll('text')).toHaveLength(0);
+  const inconnues = container.querySelectorAll('text').length;
+  expect(inconnues).toBeGreaterThan(0);
   unmount();
   window.history.replaceState(null, '', '/?debug=carte');
   const debug = afficher().container;
-  expect(debug.querySelectorAll('text')).toHaveLength(storeJeu.getState().carte.formes.length);
+  expect(debug.querySelectorAll('text')).toHaveLength(storeJeu.getState().carte.formes.length + inconnues);
   expect(debug.querySelector('[data-halos]')?.getAttribute('class')).toContain('stroke-focus');
 });
 
@@ -301,7 +322,7 @@ it('explique le verrouillage de la Forêt de Jade sans action', () => {
   afficher();
   fireEvent.click(repere(/Forêt de Jade/));
   expect(screen.getByText('Bloquée')).toBeTruthy();
-  expect(screen.getByText('Bats le boss de Route 1.')).toBeTruthy();
+  expect(within(screen.getByRole('region', { name: 'Zone sélectionnée' })).getByText('Bats le boss de Route 1.')).toBeTruthy();
   expect(screen.queryByRole('button', { name: 'Y aller' })).toBeNull();
 });
 
@@ -343,7 +364,8 @@ it('affiche la fiche seulement après sélection, sur la carte, et indique la zo
   expect(container.textContent).not.toMatch(/\b(locked|travel|current|coming soon|select a zone)\b/i);
 });
 
-it('ferme avec × et Échap depuis la fiche ou la carte, mais pas au clic dans la fiche', () => {
+it('ferme avec × et Échap depuis la fiche ou la carte, mais pas au clic dans la fiche', async () => {
+  const attendre = () => act(() => new Promise<void>(fini => setTimeout(fini, 450)));
   afficher();
   const route = repere('Route 1 (Zone 1)');
   fireEvent.click(route);
@@ -353,9 +375,11 @@ it('ferme avec × et Échap depuis la fiche ou la carte, mais pas au clic dans l
   expect(fermer.textContent).toBe('×');
   fireEvent.click(fermer);
   expect(screen.queryByRole('region', { name: 'Zone sélectionnée' })).toBeNull();
+  await attendre();
   fireEvent.click(route);
   fireEvent.keyDown(screen.getByRole('button', { name: 'Fermer' }), { key: 'Escape' });
   expect(screen.queryByRole('region', { name: 'Zone sélectionnée' })).toBeNull();
+  await attendre();
   fireEvent.click(route);
   fireEvent.keyDown(route, { key: 'Escape' });
   expect(screen.queryByRole('region', { name: 'Zone sélectionnée' })).toBeNull();
@@ -404,6 +428,8 @@ it('annule la prise en compte des déblocages si la carte est quittée avant la 
 });
 
 it.each([false, true])('range le Centre commercial entre Céladopole et la Centrale quand il est débloqué (%s)', ouvert => {
+  const carte = storeJeu.getState().carte;
+  storeJeu.setState({ carte: { ...carte, formes: carte.formes.map(f => ['Céladopole', 'Centrale'].includes(f.nom) ? { ...f, ouverte: true } : f) } });
   storeJeu.setState({ centre: { ...storeJeu.getState().centre, acces: { ouvert, raison: ouvert ? null : 'Pas encore.' } } });
   const arrivee = vi.fn();
   render(<CarteKanto quandArrive={vi.fn()} quandCentre={arrivee} />);
