@@ -1,12 +1,13 @@
 import { cheminSprite } from './precharger';
-export type DonneesCarte = { nom: string; titre: string; equipe: { numero: number; nom: string; niveau: number; shiny: boolean }[]; chiffres: { libelle: string; valeur: string }[] };
-export type JetonsCarte = { surface: string; texte: string; bordure: string; accent: string; police: string };
+export type DonneesCarte = { nom: string; titre: string; /** Variable de couleur du cadre de profil équipé (boutique de skins). */ cadre?: string; equipe: { numero: number; nom: string; niveau: number; shiny: boolean }[]; chiffres: { libelle: string; valeur: string }[] };
+export type JetonsCarte = { surface: string; texte: string; bordure: string; accent: string; police: string; /** Couleur du cadre de profil équipé, déjà lue. */ cadre?: string };
 export function dessinerCarte(ctx: CanvasRenderingContext2D, d: DonneesCarte, j: JetonsCarte, sprites: CanvasImageSource[] = []) {
   ctx.imageSmoothingEnabled = false;
   ctx.fillStyle = j.surface; ctx.fillRect(0, 0, 1200, 630);
   ctx.strokeStyle = j.bordure; ctx.lineWidth = 4; ctx.strokeRect(16, 16, 1168, 598);
   ctx.fillStyle = j.texte; ctx.font = `bold 40px ${j.police}`; ctx.fillText(d.nom.slice(0, 40), 40, 80, 1120);
   ctx.fillStyle = j.accent; ctx.font = `28px ${j.police}`; ctx.fillText(d.titre, 40, 125, 1120);
+  if (j.cadre) { ctx.strokeStyle = j.cadre; ctx.lineWidth = 12; ctx.strokeRect(6, 6, 1188, 618); ctx.strokeStyle = j.bordure; ctx.lineWidth = 4; }
   for (let i = 0; i < 6; i++) {
     const x = 40 + i * 188; const p = d.equipe[i];
     ctx.strokeRect(x, 160, 176, 270);
@@ -35,6 +36,6 @@ export async function genererCarte(donnees: DonneesCarte): Promise<Blob> {
   const lire = (nom: string) => style.getPropertyValue(nom).trim();
   const canvas = document.createElement('canvas'); canvas.width = 1200; canvas.height = 630;
   const ctx = canvas.getContext('2d'); if (!ctx) throw new Error('Image indisponible');
-  dessinerCarte(ctx, donnees, { surface: lire('--surface'), texte: lire('--texte'), bordure: lire('--bordure'), accent: lire('--region-accent'), police: lire('--font-titre') }, sprites);
+  dessinerCarte(ctx, donnees, { surface: lire('--surface'), texte: lire('--texte'), bordure: lire('--bordure'), accent: lire('--region-accent'), police: lire('--font-titre'), ...(donnees.cadre ? { cadre: lire(donnees.cadre) } : {}) }, sprites);
   return new Promise((resolve, reject) => canvas.toBlob(b => b ? resolve(b) : reject(new Error('Image indisponible')), 'image/png'));
 }

@@ -1,6 +1,9 @@
 import { useId, useRef, useState, type ReactNode } from 'react';
 import './Plaques.css';
 import './LigneCapture.css';
+import './Skins.css';
+import { attributsSkin } from './skins';
+import type { DefinitionSkin } from '../core/skins';
 
 type Props = {
   balles: { cle: string; nom: string; image: string; quantite: number }[];
@@ -13,9 +16,12 @@ type Props = {
   choisir?(cle: string): void;
   /** Bouton carré à droite de « Capturer » (Fauchage une fois débloqué). */
   outil?: ReactNode;
+  /** Contour de balle équipé (boutique de skins) : cosmétique seulement. */
+  skin?: DefinitionSkin;
 };
 
-export function LigneCapture({ balles, possible, raison, enCours, capturer, outil, choisie, choisir: memoriser }: Props) {
+export function LigneCapture({ balles, possible, raison, enCours, capturer, outil, choisie, choisir: memoriser, skin }: Props) {
+  const contour = attributsSkin(skin);
   const [local, fixerLocal] = useState<string | null>(null);
   const choix = local ?? choisie ?? null;
   const choisir = (cle: string) => { fixerLocal(cle); memoriser?.(cle); };
@@ -31,7 +37,8 @@ export function LigneCapture({ balles, possible, raison, enCours, capturer, outi
         <button
           type="button"
           data-raccourci="balle"
-          className="plaque ligne-capture-balle"
+          className={`plaque ligne-capture-balle ${contour.className}`}
+          style={contour.style}
           disabled={raison !== null}
           aria-label={`${selection.nom} ×${selection.quantite}, changer de balle`}
           onClick={() => dialogue.current?.showModal()}

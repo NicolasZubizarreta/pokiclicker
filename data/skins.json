@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "categories": [
+    { "id": "cadre-profil", "nom": "Cadres de profil", "ou": "Autour de ta carte de dresseur (l'image à partager)." },
+    { "id": "cadre-balle", "nom": "Contours de balle", "ou": "Autour de la balle choisie, près du bouton Capturer." },
+    { "id": "effet-capture", "nom": "Effets de capture", "ou": "Halo autour du Pokémon pendant la capture." },
+    { "id": "fond-scene", "nom": "Fonds de scène", "ou": "Vignette colorée sur les bords de la scène de combat." }
+  ],
+  "skins": [
+    { "id": "profil-or", "categorie": "cadre-profil", "nom": "Cadre doré", "description": "Un cadre jaune d'or autour de ta carte.", "prix": 60, "jeton": "--alerte-base" },
+    { "id": "profil-ocean", "categorie": "cadre-profil", "nom": "Cadre océan", "description": "Un cadre bleu autour de ta carte.", "prix": 60, "jeton": "--info-base" },
+    { "id": "profil-platine", "categorie": "cadre-profil", "nom": "Cadre platine", "description": "Un cadre gris clair, pour les habitués du casino.", "prix": 100, "jeton": "--color-neutre-300" },
+    { "id": "balle-or", "categorie": "cadre-balle", "nom": "Contour or", "description": "Un liseré jaune autour de ta balle.", "prix": 40, "jeton": "--alerte-base" },
+    { "id": "balle-glace", "categorie": "cadre-balle", "nom": "Contour glace", "description": "Un liseré bleu autour de ta balle.", "prix": 40, "jeton": "--info-base" },
+    { "id": "balle-feuille", "categorie": "cadre-balle", "nom": "Contour feuille", "description": "Un liseré vert autour de ta balle.", "prix": 40, "jeton": "--succes-base" },
+    { "id": "capture-or", "categorie": "effet-capture", "nom": "Éclat doré", "description": "Un halo jaune quand le Pokémon est capturé.", "prix": 80, "jeton": "--alerte-base" },
+    { "id": "capture-rubis", "categorie": "effet-capture", "nom": "Éclat rubis", "description": "Un halo rouge quand le Pokémon est capturé.", "prix": 80, "jeton": "--erreur-base" },
+    { "id": "scene-ocean", "categorie": "fond-scene", "nom": "Vignette océan", "description": "Des bords bleus sur la scène de combat.", "prix": 100, "jeton": "--info-base" },
+    { "id": "scene-foret", "categorie": "fond-scene", "nom": "Vignette forêt", "description": "Des bords verts sur la scène de combat.", "prix": 100, "jeton": "--succes-base" }
+  ]
+}

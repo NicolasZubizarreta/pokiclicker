@@ -43,6 +43,8 @@ import { useTelephone } from './useTelephone';
 import { couleursAvantage, libelleMultiplicateur, moyenneAvantage, nature } from './avantage-type';
 import { useAlerteArret } from './useAlerteArret';
 import { LigneCapture } from './LigneCapture';
+import './Skins.css';
+import { attributsSkin, useSkin } from './skins';
 import { PluieBalles } from './PluieBalles';
 import { BoutonFauchage } from './BoutonFauchage';
 import { ActionsCombat } from './ActionsCombat';
@@ -102,6 +104,8 @@ function Scene({ store, ouvrirPension, aller }: { store: StoreJeu; ouvrirPension
   const accesPension = useStore(store, etat => etat.pension.acces);
   const blue = useStore(store, etat => etat.blue);
   const chen = useStore(store, etat => etat.chen);
+  const skinFond = attributsSkin(useSkin('fond-scene', store));
+  const skinCapture = attributsSkin(useSkin('effet-capture', store));
   const captureEnCours = useStore(store, etat => etat.capture.enCours);
   const radar = useStore(store, etat => etat.radar);
   const [declencheurRadar, ouvrirRadar] = useState<HTMLButtonElement | null>(null);
@@ -149,6 +153,7 @@ function Scene({ store, ouvrirPension, aller }: { store: StoreJeu; ouvrirPension
     <PluieBalles store={store} />
     <JaugeCadence store={store} />
     <Image src={cheminDecor(zone)} genre="decor" alt="" couvrir className="absolute inset-0 -z-10 size-full" />
+    {skinFond.className && <div aria-hidden="true" className={`pointer-events-none absolute inset-0 ${skinFond.className}`} style={skinFond.style} />}
     <ObjectifPermanent store={store} aller={aller} />
     <div aria-hidden={cache} className={`pointer-events-none cadre absolute top-4 left-4 z-10 w-3/5 bg-surface/82 p-3 ${cache ? 'opacity-0' : ''}`}>
       <div className="flex flex-wrap items-center justify-between gap-1">
@@ -167,9 +172,9 @@ function Scene({ store, ouvrirPension, aller }: { store: StoreJeu; ouvrirPension
       <div aria-hidden="true" className="socle absolute -bottom-5 h-10 w-28 bg-region-socle lg:bottom-16 lg:h-16 lg:w-3/4" />
       <div className={captureEnCours ? '' : 'motion-safe:flottement'}>
         <div ref={secousse}>
-          {[['block size-32 max-lg:translate-y-(--pieds) lg:hidden', 128], ['hidden size-72 lg:block', 288]].map(([taille, largeur]) => <span key={largeur} style={piedsSprite(ennemi.numero)} className={`relative ${taille}`}>
+          {[['block size-32 max-lg:translate-y-(--pieds) lg:hidden', 128], ['hidden size-72 lg:block', 288]].map(([taille, largeur]) => <span key={largeur} style={captureEnCours ? { ...piedsSprite(ennemi.numero), ...skinCapture.style } : piedsSprite(ennemi.numero)} className={`relative ${taille}`}>
             <Image src={cheminSprite(ennemi.numero, ennemi.shiny)} genre="sprite" alt={nom} largeurDisponible={largeur as number}
-              className={`relative size-full max-w-none ${captureEnCours ? 'capture-en-cours' : ''} ${ennemi.shiny ? 'halo-shiny' : ''}`} />
+              className={`relative size-full max-w-none ${captureEnCours ? `capture-en-cours ${skinCapture.className}` : ''} ${ennemi.shiny ? 'halo-shiny' : ''}`} />
             <Image src={cheminSprite(ennemi.numero, ennemi.shiny)} genre="sprite" alt="" largeurDisponible={largeur as number}
               className="eclat-touche will-change-[opacity] absolute inset-0 size-full max-w-none" />
           </span>)}
@@ -205,6 +210,7 @@ function Scene({ store, ouvrirPension, aller }: { store: StoreJeu; ouvrirPension
 function ActionsTelephone({ store }: { store: StoreJeu }) {
   const zone = useStore(store, etat => etat.zone);
   const capture = useStore(store, etat => etat.capture);
+  const skinBalle = useSkin('cadre-balle', store);
   const capturer = useStore(store, etat => etat.capturer);
   const choisirBalle = useStore(store, etat => etat.choisirBalle);
   const autoAttaque = useStore(store, etat => etat.autoAttaque);
@@ -218,7 +224,7 @@ function ActionsTelephone({ store }: { store: StoreJeu }) {
   const reglerAutoClicLie = useStore(store, etat => etat.reglerAutoClicLie);
   if (!zone) return null;
   return <div className="actions-telephone">
-    <LigneCapture {...capture} capturer={capturer} choisir={choisirBalle}
+    <LigneCapture {...capture} capturer={capturer} choisir={choisirBalle} skin={skinBalle}
       outil={fauchage.possede ? <BoutonFauchage fauchage={fauchage} faucher={faucher} /> : undefined} />
     <ActionsCombat autoAttaque={autoAttaque} basculerAutoAttaque={basculerAutoAttaque} arret={arret} reglerArret={reglerArret}
       lienAutoClic={{ lie: autoClicLie, regler: reglerAutoClicLie }}

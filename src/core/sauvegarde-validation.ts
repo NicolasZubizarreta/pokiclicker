@@ -178,7 +178,8 @@ export function validerDonneesCompte(v: unknown): asserts v is DonneesCompte {
     preferences: p => formeSouple(p, {}, { sombre: booleen, sonActive: booleen, autoAttaque: booleen, autoClicLie: booleen, evolutionAuto: booleen, passerEclosions: booleen, relacherDoublons: booleen, notifications: booleen,
       balleChoisie: b => { if (typeof b === 'string') chaine(b); },
       arretAuto: a => formeSouple(a, { actif: booleen, commun: booleen, peuCommun: booleen, rare: booleen,
-        tresRare: booleen, legendaire: booleen, shiny: booleen, nouveau: booleen }) }, true) });
+        tresRare: booleen, legendaire: booleen, shiny: booleen, nouveau: booleen }) }, true) },
+  { skinsEquipes: e => { objet(e); for (const valeur of Object.values(e)) texte(valeur); } }, true);
   entierPositif(v as Record<string, unknown>, 'diamants');
   bornerIdentifiants(v as Record<string, unknown>);
 }

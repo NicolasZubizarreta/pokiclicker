@@ -28,6 +28,8 @@ export type PreferencesCombat = { autoAttaque: boolean; autoClicLie: boolean; ar
   evolutionAuto: boolean; passerEclosions: boolean; relacherDoublons: boolean; notifications: boolean; balleChoisie?: string };
 export type DonneesCompte = {
   diamants: number; succes: string[]; skins: string[];
+  /** Skin équipé par catégorie (absent = aucun). Le jeu ignore ceux qui ne sont plus possédés ou n'existent plus. */
+  skinsEquipes?: Record<string, string>;
   preferences: { sombre?: boolean; sonActive?: boolean } & Partial<PreferencesCombat>;
 };
 export type DonneesPartie = {

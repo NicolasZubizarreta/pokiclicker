@@ -6,6 +6,7 @@ import { reglages } from '../core/reglages';
 import { kanto } from '../core/regions';
 import { equipeDeDepart } from './equipe-de-depart';
 import { completerVus } from '../core/pokedex';
+import { acheterSkin, equiperSkin, type ResultatSkin } from '../core/skins';
 
 export const ERREUR_CHARGEMENT = 'Une erreur est survenue. Recharge la page ; ta partie est gardée.';
 export const ERREUR_CONFLIT = 'Cette partie est ouverte ailleurs. Recharge la page.';
@@ -76,6 +77,13 @@ export function ouvrirPartie(options: Parameters<typeof creerGestionnaire>[0],
     enregistrerSon(actif: boolean) {
       const actuel = gestionnaire.chargerCompte()?.donnees ?? compteInitial();
       gestionnaire.ecrireCompte({ ...actuel, preferences: { ...actuel.preferences, sonActive: actif } });
+    },
+    /** Achète un skin avec les diamants du compte, ou équipe/retire un skin (`id` null) ; rien n'est écrit si la règle refuse. */
+    changerSkins(action: { achat: string } | { categorie: string; id: string | null }): ResultatSkin {
+      const actuel = gestionnaire.chargerCompte()?.donnees ?? compteInitial();
+      const resultat = 'achat' in action ? acheterSkin(actuel, action.achat) : equiperSkin(actuel, action.categorie, action.id);
+      if (resultat.ok) gestionnaire.ecrireCompte(resultat.compte);
+      return resultat;
     },
     enregistrerPreferences(p: PreferencesCombat) {
       const suivantes = JSON.stringify(p);

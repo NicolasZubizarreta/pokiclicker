@@ -5,6 +5,7 @@ import { chargerPokemon } from '../core/pokemon';
 import { storeJeu } from './store';
 import { bilanJoueur } from './bilan-joueur';
 import { genererCarte, type DonneesCarte } from './carte-dresseur';
+import { useSkin } from './skins';
 
 const catalogue = chargerPokemon();
 const titres = chargerTitres();
@@ -14,11 +15,12 @@ export function CarteDresseur({ retour, nomPartie = 'Dresseur' }: { retour(): vo
   const pokedex = useStore(storeJeu, s => s.pokedex);
   const tempsJeuMs = useStore(storeJeu, s => s.tempsJeuMs);
   const progression = useStore(storeJeu, s => s.progression);
+  const cadre = useSkin('cadre-profil');
   const especesShiny = useStore(storeJeu, s => s.especesShiny);
   const obtenus = titresObtenus(compteursDe({ suivi, pokedexTotal: progression.pokedex.nombre, tempsJeuMs }));
   const titre = obtenus.find(t => t.id === suivi.titre) ?? titres[0]!;
   const bilan = bilanJoueur({ suivi, pokedex, tempsJeuMs, especesShiny, badges: { obtenus: progression.obtenus, total: progression.total } });
-  const donnees: DonneesCarte = { nom: nomPartie, titre: titre.nom,
+  const donnees: DonneesCarte = { nom: nomPartie, titre: titre.nom, ...(cadre ? { cadre: cadre.jeton } : {}),
     equipe: equipe.flatMap(c => c && !c.pokemon.oeuf ? [{ ...c.pokemon, nom: catalogue.liste.find(p => p.numero === c.pokemon.numero)?.nom ?? `Pokémon ${c.pokemon.numero}`, shiny: !!c.pokemon.shiny }] : []).slice(0, 6),
     chiffres: [bilan[1]!, bilan[2]!, bilan[0]!, bilan[3]!].map(c => ({ ...c, valeur: c.valeur.replace(' sur ', ' / ') })) };
   const cle = JSON.stringify(donnees);

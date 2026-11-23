@@ -74,7 +74,7 @@ import { creerMannequin, avancerMannequin, frapperMannequin, resultatMannequin, 
 export type Degat = { id: number; valeur: number };
 /** Signe visible d'un gain (ticket L) : `lignes` s'empilent dans un seul flottant, `type` fixe la place et la couleur. */
 export type Gain = { type: 'butin' | 'capture' | 'diamants'; lignes: string[] };
-export type ResumeCompte = { diamants: number; succes: string[]; skins: string[] };
+export type ResumeCompte = { diamants: number; succes: string[]; skins: string[]; skinsEquipes: Record<string, string> };
 export type CaseEquipe = { pokemon: PokemonPossede; dps: number; xpMax: number; multiplicateur: number; evolution?: number | null } | null;
 export type Destination = { id: string; nom: string; ouverte: boolean; raison: string | null; lieu?: 'centre-commercial' };
 export type EtatForme = {
@@ -92,6 +92,10 @@ export type AffichageJeu = ActionsCasino & {
   suivi: Suivi;
   tempsJeuMs: number;
   compte: ResumeCompte;
+  /** Boutique de skins : renvoie le message d'erreur, ou null quand c'est fait. */
+  acheterSkin(id: string): string | null;
+  /** Équipe un skin possédé dans sa catégorie, ou le retire (`id` null) ; renvoie le message d'erreur, ou null. */
+  equiperSkin(categorie: string, id: string | null): string | null;
   pantheon: { ouvert: boolean; premiereVictoire: boolean; equipe: PokemonPossede[]; defiChenEnAttente: boolean } | null;
   quitterPantheon(): void;
   lancerDefiChen(): void;
@@ -308,6 +312,15 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     const actifs = actifsCourants(region);
     if (JSON.stringify(actifs) !== JSON.stringify(coeur.actifs)) coeur = { ...coeur, actifs };
   };
+  const changerSkins = (action: Parameters<typeof persistance.changerSkins>[0]): string | null => {
+    if (!initialise) return 'Le jeu n’est pas prêt.';
+    try {
+      const resultat = persistance.changerSkins(action);
+      if (!resultat.ok) return resultat.raison;
+    } catch (cause) { return detailErreur(cause); }
+    actualiserCompte();
+    return null;
+  };
   const actualiserCompte = () => {
     const actuel = persistance.compte();
     const precedent = store.getState().compte;
@@ -316,8 +329,9 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     compteVu = true;
     if (precedent.diamants === actuel.diamants
       && precedent.succes.length === actuel.succes.length && precedent.succes.every((id, i) => id === actuel.succes[i])
-      && precedent.skins.length === actuel.skins.length && precedent.skins.every((id, i) => id === actuel.skins[i])) return;
-    store.setState({ compte: { diamants: actuel.diamants, succes: [...actuel.succes], skins: [...actuel.skins] } });
+      && precedent.skins.length === actuel.skins.length && precedent.skins.every((id, i) => id === actuel.skins[i])
+      && JSON.stringify(precedent.skinsEquipes) === JSON.stringify(actuel.skinsEquipes ?? {})) return;
+    store.setState({ compte: { diamants: actuel.diamants, succes: [...actuel.succes], skins: [...actuel.skins], skinsEquipes: { ...actuel.skinsEquipes } } });
   };
   const enregistrer = () => {
     if (!initialise) return;
@@ -1004,7 +1018,9 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       enregistrer(); afficher();
       return true;
     },
-    compte: { diamants: 0, succes: [], skins: [] },
+    compte: { diamants: 0, succes: [], skins: [], skinsEquipes: {} },
+    acheterSkin(id) { return changerSkins({ achat: id }); },
+    equiperSkin(categorie, id) { return changerSkins({ categorie, id }); },
     pantheon: null,
     fin: { diplome: null, credits: false },
     fermerCredits() {

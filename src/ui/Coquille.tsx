@@ -35,6 +35,7 @@ import { musique } from './musique';
 import { sceneMusicale } from '../core/musiques';
 import { registreSucces } from '../core/succes';
 import { EcranMonCompte } from './compte/EcranMonCompte';
+import { boutiqueJeu } from './skins';
 
 export function Coquille({ region = 'kanto', theme = 'dark', quandMenuPrincipal, attendreEnvoi, nomPartie, etatSynchro }: {
   quandMenuPrincipal?: () => Promise<boolean>;
@@ -164,7 +165,7 @@ export function Coquille({ region = 'kanto', theme = 'dark', quandMenuPrincipal,
       {pantheon?.ouvert && <Pantheon equipe={pantheon.equipe} premiereVictoire={pantheon.premiereVictoire}
         quitter={() => storeJeu.getState().quitterPantheon()} />}
       {compteOuvert && <div className="fixed inset-0 z-50 overflow-y-auto">
-        <EcranMonCompte compte={compte} registre={registreSucces} theme={theme} quandFermer={() => {
+        <EcranMonCompte compte={compte} registre={registreSucces} theme={theme} boutique={boutiqueJeu} quandFermer={() => {
           fixerCompteOuvert(false); boutonCompte.current?.focus();
         }} />
       </div>}

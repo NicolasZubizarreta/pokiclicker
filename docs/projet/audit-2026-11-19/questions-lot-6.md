@@ -112,3 +112,12 @@ Chaque valeur citée vit dans un fichier de `data/` et se change là sans touche
 - Effet sur l'équilibrage : un peu plus facile (de l'argent en plus, une seule fois par palier). Rien d'autre ne change.
 - Sauvegarde : un seul nouveau compteur (`records.defiChenVictoires`) dans le suivi, validé et réparé s'il est absent ou faux ; pas de version 7.
 - Question : +10 % de PV par palier et 25 000 ₽ par palier te conviennent-ils ? Veux-tu aussi un cadre de profil ou des diamants au dernier palier ?
+
+## F-j2-02 Boutique de skins (usage des diamants)
+- Où : Compte > Compte, nouvelle section « Boutique de skins » sous la liste des skins. Chaque skin a un aperçu avant achat (le même rendu que dans le jeu), son prix en diamants et un bouton Acheter / Équiper / Retirer. Un skin acheté s'équipe tout de suite si sa catégorie était vide. Un seul skin équipé par catégorie.
+- Premier lot (10 skins, `data/skins.json`, couleurs = jetons du design, aucune valeur inventée) : 3 cadres de profil (doré 60, océan 60, platine 100 : le « cadre VIP » de F-j2-16, non réservé aux niveaux VIP faute de règle), 3 contours de balle (or, glace, feuille, 40 chacun), 2 effets de capture (éclat doré, éclat rubis, 80), 2 fonds de scène (vignette océan, vignette forêt, 100). Total 700 diamants, à comparer aux 975 diamants que donnent les 32 succès.
+- Où ça se voit : le cadre de profil sur l'image « Carte de dresseur » ; le contour autour de la balle choisie près de « Capturer » ; le halo coloré autour du Pokémon pendant l'animation de capture ; la vignette sur les bords de la scène de combat.
+- Ce qui n'est pas fait : le « sprite de dresseur » (le jeu n'affiche aucun dresseur joueur : rien à habiller) et de vrais fonds d'écran dessinés (il faudrait des images ; la vignette colorée les remplace). Les noms, prix et couleurs se changent dans `data/skins.json`.
+- Aucun effet sur le jeu : pas de bonus, ni de gain, ni de difficulté. Les diamants dépensés ne reviennent pas (pas de remboursement ni de revente).
+- Sauvegarde : champ facultatif `skinsEquipes` sur le compte (catégorie → skin), validé et réparé (un skin non possédé ou inconnu est ignoré, jamais un compte refusé), pas de version 7.
+- Question : le lot et les prix te conviennent-ils ? Veux-tu réserver le cadre platine aux niveaux VIP du casino, et des fonds d'écran dessinés à la place des vignettes ?

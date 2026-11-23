@@ -289,7 +289,7 @@ Vague 1 codée le 23/11/2026 (19 cases cochées, commits locaux non poussés) ; 
 - [x] `F-j1-06` Aperçu du boss avant le combat (effort M)
 - [x] `F-j1-07` Équipes enregistrées (effort M)
 - [x] `F-j1-10` Compteur de rencontres et chasse au shiny (effort M)
-- [ ] `F-j2-02` Donner un usage aux diamants : boutique de skins (effort L)
+- [x] `F-j2-02` Donner un usage aux diamants : boutique de skins (effort L)
 - [ ] `F-j2-03` Quêtes quotidiennes et hebdomadaires (effort M)
 - [x] `F-j2-05` Page Statistiques complète (effort M)
 - [ ] `F-j2-06` Prestige : « Nouvelle partie+ » après le Panthéon (effort L)

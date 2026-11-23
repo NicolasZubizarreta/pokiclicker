@@ -11,7 +11,7 @@ const registre: readonly DefinitionSucces[] = [
   { id: 'collection', nom: 'Collection', description: 'Capture dix Pokémon.', diamants: 10, mesure: 'pokedex', seuil: 10 },
   { id: 'voyage', nom: 'Voyage', description: 'Explore les zones.', diamants: 20, mesure: 'badges', seuil: 3 },
 ];
-const compte: ResumeCompte = { diamants: 42, succes: ['collection'], skins: ['tenue-kanto'] };
+const compte: ResumeCompte = { diamants: 42, succes: ['collection'], skins: ['tenue-kanto'], skinsEquipes: {} };
 
 it('affiche le contenu seul sans navigation ni synchronisation implicite', () => {
   const { container } = render(<ContenuMonCompte compte={compte} registre={registre} />);

@@ -4,6 +4,7 @@ import type { ResumeCompte } from '../store';
 import type { DefinitionSucces } from '../../core/succes';
 import { Parties } from './EcranParties';
 import { ContenuMonCompte } from './EcranMonCompte';
+import { boutiqueJeu } from '../skins';
 import { PageReglages } from '../PageReglages';
 import { IconeParties, IconeCompte, IconeReglage } from './icones-compte';
 import '../Plaques.css';
@@ -41,7 +42,7 @@ export function ZoneCompte(props: ComponentProps<typeof Parties> & {
       </Entete>
       <div ref={contenu} {...(telephone ? {} : { className: 'compte-page' })}>
         {onglet === 'parties' && <Parties {...props} />}
-        {onglet === 'compte' && <ContenuMonCompte compte={props.compte} registre={props.registre} etatSynchro={props.etatSynchro} quandDeconnecter={props.quandDeconnecter} />}
+        {onglet === 'compte' && <ContenuMonCompte compte={props.compte} registre={props.registre} etatSynchro={props.etatSynchro} quandDeconnecter={props.quandDeconnecter} boutique={boutiqueJeu} />}
         {onglet === 'reglages' && <PageReglages />}
       </div>
     </div>

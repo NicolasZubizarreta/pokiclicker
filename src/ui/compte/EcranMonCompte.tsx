@@ -5,6 +5,8 @@ import { synchronisations } from '../synchronisations';
 import type { EtatSynchro } from '../synchro';
 import { IconeBadges } from '../icones-menu';
 import { IconeDiamant, IconeSortie } from './icones-compte';
+import { BoutiqueSkins, type ActionsBoutique } from './BoutiqueSkins';
+import { skinParId } from '../../core/skins';
 import '../Plaques.css';
 import './MonCompte.css';
 import './ComptePC.css';
@@ -12,20 +14,20 @@ import { useTelephone } from '../useTelephone';
 
 
 
-export function EcranMonCompte({ compte, registre, quandFermer, theme = 'dark' }: {
-  compte: ResumeCompte; registre: readonly DefinitionSucces[]; quandFermer: () => void; theme?: 'dark' | 'light';
+export function EcranMonCompte({ compte, registre, quandFermer, theme = 'dark', boutique }: {
+  compte: ResumeCompte; registre: readonly DefinitionSucces[]; quandFermer: () => void; theme?: 'dark' | 'light'; boutique?: ActionsBoutique;
 }) {
 return <div role="dialog" aria-modal="true" aria-labelledby="titre-mon-compte" data-theme={theme} className={`${useTelephone() ? '' : 'compte-pc mon-compte-pc '}min-h-dvh bg-fond text-texte font-texte p-4 lg:p-8 grid content-center`}>
     <section className="cadre bg-surface p-4 lg:p-8 w-full max-w-(--breakpoint-md) mx-auto">
       <button onClick={quandFermer} className="min-h-12 p-2 text-lien underline">Retour au jeu</button>
-      <ContenuMonCompte compte={compte} registre={registre} />
+      <ContenuMonCompte compte={compte} registre={registre} {...(boutique ? { boutique } : {})} />
     </section>
   </div>;
 }
 
-export function ContenuMonCompte({ compte, registre, etatSynchro, quandDeconnecter }: {
+export function ContenuMonCompte({ compte, registre, etatSynchro, quandDeconnecter, boutique }: {
   compte: ResumeCompte; registre: readonly DefinitionSucces[];
-  etatSynchro?: EtatSynchro; quandDeconnecter?: () => void;
+  etatSynchro?: EtatSynchro; quandDeconnecter?: () => void; boutique?: ActionsBoutique;
 }): JSX.Element {
   const telephone = useTelephone();
   const Colonne = telephone ? Fragment : 'div';
@@ -77,9 +79,10 @@ export function ContenuMonCompte({ compte, registre, etatSynchro, quandDeconnect
       <section>
         <h2 className="font-titre text-xl mb-4">Skins</h2>
         {compte.skins.length
-          ? <ul className="grid gap-4">{compte.skins.map(skin => <li key={skin} className="cadre mc-succes mc-obtenu">{skin}</li>)}</ul>
+          ? <ul className="grid gap-4">{compte.skins.map(skin => <li key={skin} className="cadre mc-succes mc-obtenu">{skinParId(skin)?.nom ?? skin}</li>)}</ul>
           : <p>Aucun skin débloqué pour l'instant.</p>}
       </section>
+      {boutique && <BoutiqueSkins compte={compte} actions={boutique} />}
       </Colonne>
   </div>;
 }
