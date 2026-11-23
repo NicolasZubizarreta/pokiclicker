@@ -280,7 +280,7 @@ Vague 1 codée le 23/11/2026 (19 cases cochées, commits locaux non poussés) ; 
 - [x] `F-j2-05` Page Statistiques complète (effort M)
 - [ ] `F-j2-06` Prestige : « Nouvelle partie+ » après le Panthéon (effort L)
 - [ ] `F-j1-13` Complétion de zone (effort M)
-- [ ] `F-j1-18` Chaînes de capture (règle à valider) (effort M)
+- [x] `F-j1-18` Chaînes de capture (règle à valider) (effort M)
 - [x] `F-j1-20` Collection de lignées complètes (effort M)
 - [x] `F-j1-21` Records personnels (effort S)
 - [x] `F-j1-22` Jauge de cadence (effort S)

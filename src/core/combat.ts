@@ -5,6 +5,7 @@ import { chargerPokemon } from './pokemon';
 import { calculerDps } from './stats';
 import { reglages } from './reglages';
 import { creerEnnemi } from './ennemis';
+import { avancerChaine, cleChaine, type Chaine } from './chaines';
 import type { Ennemi } from './ennemis';
 import type { ReglagesArret } from './sauvegarde-types';
 import { delaiEnnemiSuivant } from './recompenses';
@@ -51,6 +52,8 @@ export type EvenementCombat =
   | { type: 'reprise-auto' };
 type OptionsCombat = {
   autoAttaque?: boolean; arret?: ReglagesArret | null; pokedex?: readonly number[]; autoClic?: boolean;
+  /** Chaîne de capture en cours (reprise depuis le suivi de la partie). */
+  chaine?: Chaine;
 };
 export type EtatCombat = {
   zoneId: string; etape: number; ennemi: Ennemi; equipe: readonly MembreEquipe[];
@@ -59,7 +62,9 @@ export type EtatCombat = {
   autoAttaque: boolean; interrompu: boolean; arret: ReglagesArret | null; pokedex: readonly number[];
   autoClic: boolean; avantArret: { autoAttaque: boolean; autoClic: boolean } | null;
   capture: { chance: number; restantMs: number } | null; attenteCapture: boolean;
+  chaine?: Chaine;
 };
+const avecChaine = (actifs: readonly string[], chaine: Chaine | undefined) => [...actifs, ...cleChaine(chaine)];
 
 export function motifArret(ennemi: Ennemi, nouveau: boolean, arret: ReglagesArret | null,
   autoAttaque: boolean): Rarete | 'shiny' | 'nouveau' | null {
@@ -100,11 +105,11 @@ export function creerCombat(zone: Zone, equipe: readonly MembreEquipe[], alea: (
 
 export function reprendreCombat(zone: Zone, equipe: readonly MembreEquipe[], alea: () => number,
   etape: number, actifs: readonly string[] = [],
-  { autoAttaque = true, arret = null, pokedex = [], autoClic = false }: OptionsCombat = {}): EtatCombat {
+  { autoAttaque = true, arret = null, pokedex = [], autoClic = false, chaine }: OptionsCombat = {}): EtatCombat {
   if (!Number.isInteger(etape)) throw new Error('Étape de reprise invalide');
   etape = Math.max(1, Math.min(etape, zone.etapes));
-  const ennemi = creerEnnemi(zone, etape, alea, reglages.combat, actifs);
-  return apparaitre({ zoneId: zone.id, etape, ennemi, autoAttaque, autoClic, avantArret: null, interrompu: false, arret, pokedex,
+  const ennemi = creerEnnemi(zone, etape, alea, reglages.combat, avecChaine(actifs, chaine));
+  return apparaitre({ zoneId: zone.id, etape, ennemi, chaine, autoAttaque, autoClic, avantArret: null, interrompu: false, arret, pokedex,
     equipe, actifs, evenements: [], zone, alea, attenteMs: 0, pauseDpsMs: 0, capture: null, attenteCapture: false,
     minuteurMs: ennemi.boss ? reglages.combat.minuteurBossMs : null });
 }
@@ -135,8 +140,9 @@ function terminerEnnemi(etat: EtatCombat, capture: boolean): EtatCombat {
   if (etat.interrompu) evenements.push({ type: 'reprise-auto' });
   const etape = bossFinal ? 1 : etat.etape + 1;
   const attenteMs = capture ? reglages.capture.reapparitionMs : delaiEnnemiSuivant(etat.actifs);
-  const ennemi = creerEnnemi(etat.zone, etape, etat.alea, reglages.combat, etat.actifs);
-  const suivant: EtatCombat = { ...etat, etape, evenements, ennemi, attenteMs,
+  const chaine = avancerChaine(etat.chaine, etat.ennemi);
+  const ennemi = creerEnnemi(etat.zone, etape, etat.alea, reglages.combat, avecChaine(etat.actifs, chaine));
+  const suivant: EtatCombat = { ...etat, etape, evenements, ennemi, chaine, attenteMs,
     capture: null, attenteCapture: capture && attenteMs > 0,
     autoAttaque: etat.avantArret?.autoAttaque ?? etat.autoAttaque,
     autoClic: etat.avantArret?.autoClic ?? etat.autoClic, avantArret: null, interrompu: false,
@@ -189,7 +195,7 @@ export function avancerCombat(etat: EtatCombat, pasMs: number): EtatCombat {
     if (etat.minuteurMs === 0) {
       const etape = etat.zone.type !== 'ligue' ? reglages.combat.etapeBoss - 1
         : etat.zone.id === 'kanto.labo' || etat.zone.id.startsWith('evenement:') ? 1 : etapeDeReprise(etat.zone, etat.etape);
-      const ennemi = creerEnnemi(etat.zone, etape, etat.alea, reglages.combat, etat.actifs);
+      const ennemi = creerEnnemi(etat.zone, etape, etat.alea, reglages.combat, avecChaine(etat.actifs, etat.chaine));
       etat = apparaitre({ ...etat, etape, ennemi, attenteMs: 0, capture: null, attenteCapture: false,
         minuteurMs: ennemi.boss ? reglages.combat.minuteurBossMs : null,
         evenements: [...etat.evenements, { type: 'boss-echoue', zoneId: etat.zoneId }] });
@@ -210,7 +216,7 @@ export function faucher(etat: EtatCombat): EtatCombat {
 
 export function invoquerBoss(etat: EtatCombat): EtatCombat {
   const etape = reglages.combat.etapeBoss;
-  const ennemi = creerEnnemi(etat.zone, etape, etat.alea, reglages.combat, etat.actifs);
+  const ennemi = creerEnnemi(etat.zone, etape, etat.alea, reglages.combat, avecChaine(etat.actifs, etat.chaine));
   return apparaitre({ ...etat, etape, ennemi, attenteMs: 0, capture: null,
     attenteCapture: false, minuteurMs: reglages.combat.minuteurBossMs });
 }

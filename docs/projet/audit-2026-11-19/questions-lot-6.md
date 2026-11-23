@@ -49,3 +49,10 @@ Chaque valeur citÃ©e vit dans un fichier de `data/` et se change lÃ  sans to
 - Pas de succÃ¨s sur les Â« clics totaux Â» : compter chaque clic obligerait Ã  rÃ©Ã©crire la sauvegarde Ã  chaque clic. Ã€ dÃ©cider avec la refonte de la sauvegarde.
 - Les compteurs de suivi dÃ©marrent Ã  zÃ©ro pour les parties existantes (dÃ©jÃ  notÃ© en vague 1) : les succÃ¨s Â« captures Â», Â« Ã©volutions Â», Â« jetons Â», Â« victoires de Ligue Â» s'obtiennent depuis la vague 1, pas depuis le dÃ©but de la partie. Â« Zones finies Â», Â« argent total Â», Â« niveau max Â» et Â« lignÃ©es Â» se lisent sur la partie telle qu'elle est et peuvent tomber d'un coup.
 - Question : ces seuils et ces diamants te conviennent-ils ?
+
+## F-j1-18 Chaînes de capture
+- Règle choisie : la chaîne compte les Pokémon sauvages de la même espèce vaincus ou capturés à la suite. Une autre espèce la remet à 1, un boss ne la touche pas, un chromatique la clôt. Elle ne vaut que pour la chance chromatique de l'espèce de la chaîne (pas pour les autres) et se garde dans la sauvegarde (pas de gain d'argent, de XP ni de capture).
+- Paliers dans `data/reglages.json` (`combat.chaines`) : 5 de suite = ×1,25, 10 = ×1,5, 20 = ×2 (plafond). Ils se multiplient avec le Charme Chroma et le palier 151 du Pokédex.
+- Pourquoi prudent : la chance de base est 1/512 ; avec une chaîne de 20 elle devient 1/256 au mieux. Dans une zone qui mélange 5 espèces, une chaîne de 5 est déjà rare.
+- Effet sur l'équilibrage : chasser un chromatique devient un peu plus rapide dans les zones à une espèce dominante. C'est la seule accélération de la fonctionnalité.
+- Affichage : une ligne « Chaîne de N » sous le nom de l'ennemi dès 2, et le record dans Statistiques.

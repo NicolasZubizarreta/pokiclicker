@@ -47,6 +47,7 @@ import { PluieBalles } from './PluieBalles';
 import { BoutonFauchage } from './BoutonFauchage';
 import { ActionsCombat } from './ActionsCombat';
 import { JaugeCadence } from './JaugeCadence';
+import { multiplicateurChaine } from '../core/chaines';
 import { ouvrirSac as ouvrirSacFenetre } from './sacContexte';
 import './CombatTelephone.css';
 import './CombatPC.css';
@@ -105,6 +106,8 @@ function Scene({ store, ouvrirPension, aller }: { store: StoreJeu; ouvrirPension
   const telephone = useTelephone();
   const effets = useStore(store, etat => etat.effets);
   const pokedex = useStore(store, etat => etat.pokedex);
+  const chaine = useStore(store, etat => etat.suivi.chaine);
+  const facteurChaine = chaine ? multiplicateurChaine(chaine.longueur) : 1;
   const numeroEnnemi = ennemi?.numero;
   const shinyEnnemi = ennemi?.shiny;
   useEffect(() => {
@@ -149,6 +152,8 @@ function Scene({ store, ouvrirPension, aller }: { store: StoreJeu; ouvrirPension
       </div>
       {ennemi.shiny && <p>Chromatique</p>}
       {!cache && avantage !== null && <p className={`text-sm tabular-nums ${couleursAvantage[nature(avantage)]}`}>Tes Pokémon font {libelleMultiplicateur(avantage)} en moyenne</p>}
+      {!cache && !ennemi.boss && chaine && chaine.longueur >= 2 && chaine.numero === ennemi.numero
+        && <p className="text-sm tabular-nums">Chaîne de {chaine.longueur}{facteurChaine > 1 ? ` : chance chromatique ×${String(facteurChaine).replace('.', ',')}` : ''}</p>}
       {ennemi.boss && <p className="text-sm text-texte-doux">Boss : non capturable</p>}
       <BarrePv tuto="pv-ennemi" key={`${ennemi.numero}-${ennemi.niveau}-${ennemi.boss}`} pv={ennemi.pv} maximum={ennemi.pvMax} nom={nom} />
       {telephone && effets.length > 0 && <PastillesEffets effets={effets} />}

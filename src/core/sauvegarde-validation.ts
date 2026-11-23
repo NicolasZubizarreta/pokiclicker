@@ -317,6 +317,10 @@ export function validerSuivi(v: unknown): void {
       valeur.splice(0, valeur.length, ...entrees);
     },
     titre: valeur => chaineBornee(valeur, 0, 40),
+    chaine: valeur => {
+      formeSouple(valeur, { numero: reel, longueur: reel });
+      for (const cle of ['numero', 'longueur']) entierPositif(valeur as Record<string, unknown>, cle);
+    },
   }, true);
   for (const cle of ['captures', 'capturesShiny', 'evolutions', 'oeufsEclos', 'bossVaincus', 'serieVictoires']) entierPositif(v, cle);
   const fusion = { ...vide, ...v, records: { ...vide.records, ...v.records as object }, jetons: { ...vide.jetons, ...v.jetons as object } };

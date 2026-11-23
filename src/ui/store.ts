@@ -217,6 +217,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
   let persistance: ReturnType<typeof ouvrirPartie>;
   let preferences: PreferencesCombat = structuredClone(reglages.depart.preferences);
   const optionsCombat = () => ({ autoAttaque: preferences.autoAttaque, arret: preferences.arretAuto, pokedex,
+    chaine: lireSuivi(region).chaine,
     autoClic: preferences.autoClicLie && region.ameliorations.includes('leftovers') && preferences.autoAttaque });
   const lieuDe = (id: string): ZoneMonde => {
     if (id !== 'kanto.labo') return kanto.zone(id);

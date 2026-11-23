@@ -120,6 +120,8 @@ export const reglages: {
     clicBase: number; clicPartDps: number; pvParNiveau: number; pvBoss: number;
     chanceShiny: number; clicsMaxParSeconde: number; fenetreClicsMs: number; etapeBoss: number;
     shiny: { cle: string; x: number }[];
+    /** Paliers de la chaîne de capture : à `longueur` rencontres de la même espèce, la chance chromatique de cette espèce est multipliée par `x`. */
+    chaines: { longueur: number; x: number }[];
   };
   bonus: { dps: Bonus[]; clic: Bonus[] };
   recompenses: ReglagesRecompenses;
