@@ -8,6 +8,7 @@ import { PokedexTelephone } from './PokedexTelephone';
 import { BadgesTelephone } from './BadgesTelephone';
 import { StatistiquesPage } from './StatistiquesPage';
 import { HallDesFameux } from './HallDesFameux';
+import { CarteDresseur } from './CarteDresseur';
 import { GuidePage } from './GuidePage';
 import { erreurRetourMenu, useRetourMenuPrincipal } from './useRetourMenuPrincipal';
 import { useTelephone } from './useTelephone';
@@ -49,7 +50,8 @@ function LigneMenu({ icone, titre, titreVisible, sousTexte, children, entree, on
   </button>;
 }
 
-export function PagePlus({ ouvrirPC, ouvrirMonde, ouvrirCasino, ouvrirPension, menuPrincipal, attendreEnvoi, etatSynchro }: {
+export function PagePlus({ ouvrirPC, ouvrirMonde, ouvrirCasino, ouvrirPension, menuPrincipal, attendreEnvoi, etatSynchro, nomPartie }: {
+  nomPartie?: string;
   /** Affiché dans le Menu du téléphone seulement quand il y a un problème (sur PC : barre latérale). */
   etatSynchro?: EtatSynchro;
   ouvrirPC(): void;
@@ -71,7 +73,7 @@ export function PagePlus({ ouvrirPC, ouvrirMonde, ouvrirCasino, ouvrirPension, m
   const diplome = useStore(storeJeu, etat => etat.fin.diplome);
   const [diplomeOuvert, ouvrirDiplome] = useState(false);
   const victoires = useStore(storeJeu, etat => etat.suivi.hall.length);
-  const [sousPage, choisir] = useState<null | 'pokedex' | 'badges' | 'reglages' | 'stats' | 'guide' | 'hall'>(null);
+  const [sousPage, choisir] = useState<null | 'pokedex' | 'badges' | 'reglages' | 'stats' | 'guide' | 'hall' | 'carte'>(null);
   const telephone = useTelephone();
   const progression = useStore(storeJeu, etat => etat.progression);
   const lieu = useStore(storeJeu, etat => etat.lieu);
@@ -99,7 +101,7 @@ export function PagePlus({ ouvrirPC, ouvrirMonde, ouvrirCasino, ouvrirPension, m
   const conteneur = useRef<HTMLDivElement>(null);
 
   const monte = useRef(false);
-  const entree = useRef<'pokedex' | 'badges' | 'reglages' | 'stats' | 'guide' | 'hall'>('pokedex');
+  const entree = useRef<'pokedex' | 'badges' | 'reglages' | 'stats' | 'guide' | 'hall' | 'carte'>('pokedex');
   useEffect(() => {
     // Pas de déplacement du focus au premier rendu : seul le changement de sous-page compte.
     if (!monte.current) { monte.current = true; return; }
@@ -114,6 +116,7 @@ export function PagePlus({ ouvrirPC, ouvrirMonde, ouvrirCasino, ouvrirPension, m
         : <Pokedex retour={() => choisir(null)} />
         : sousPage === 'stats' ? <StatistiquesPage retour={() => choisir(null)} />
         : sousPage === 'hall' ? <HallDesFameux retour={() => choisir(null)} />
+        : sousPage === 'carte' ? <CarteDresseur nomPartie={nomPartie} retour={() => choisir(null)} />
         : sousPage === 'guide' ? <GuidePage retour={() => choisir(null)} />
         : sousPage === 'badges' && telephone ? <BadgesTelephone badges={progression.badges} retour={() => choisir(null)} />
         : sousPage === 'badges' ? <section className="mx-auto max-w-screen-xl space-y-4 text-base">
@@ -170,6 +173,8 @@ export function PagePlus({ ouvrirPC, ouvrirMonde, ouvrirCasino, ouvrirPension, m
           {diplome && !telephone && <LigneMenu icone={<IconePokedex />} titre="Diplôme du Pokédex" onClick={() => ouvrirDiplome(true)} />}
           {victoires > 0 && <LigneMenu icone={<IconeBadges />} titre="Hall des Fameux" sousTexte={`${victoires} victoire${victoires > 1 ? 's' : ''} à la Ligue`} entree="hall"
             onClick={() => { entree.current = 'hall'; choisir('hall'); }} />}
+          <LigneMenu icone={<IconeBadges />} titre="Carte de dresseur" sousTexte="Titre, équipe et statistiques à partager" entree="carte"
+            onClick={() => { entree.current = 'carte'; choisir('carte'); }} />
           <h2 className="font-titre text-lg text-region-accent">Aide et réglages</h2>
           <LigneMenu icone={<IconeGuide />} titre="Guide du jeu" entree="guide"
             onClick={() => { entree.current = 'guide'; choisir('guide'); }} />

@@ -422,7 +422,7 @@ describe('Coquille', () => {
       'Pension', storeJeu.getState().pension.acces.raison ?? 'Bientôt disponible.',
       'Pokédollars', 'Zone', storeJeu.getState().lieu!.nom, `${storeJeu.getState().argent.toLocaleString('fr-FR')}\u00a0₽`,
       'Ton aventure', 'Aide et réglages', 'Partie en cours', 'La partie se sauvegarde toute seule.', 'Sauvegarder maintenant',
-      'Monde Pokémon', 'Kanto jouable', 'Dégâts, DPS et gains', 'Statistiques', 'Région', `Kanto · ${storeJeu.getState().lieu!.nom}`, 'Badges', '0 / 8', '0 sur 8', 'DPS',
+      'Monde Pokémon', 'Kanto jouable', 'Dégâts, DPS et gains', 'Statistiques', 'Carte de dresseur', 'Titre, équipe et statistiques à partager', 'Région', `Kanto · ${storeJeu.getState().lieu!.nom}`, 'Badges', '0 / 8', '0 sur 8', 'DPS',
       formaterDps(storeJeu.getState().dps), 'Prochain palier : 10 (Débutant) · Encore 7 espèces.',
       'PC de Léo', 'Pokédex', 'Guide du jeu', "Le PC de Léo s'ouvre à l'Arène d'Argenta.", 'Réglages', 'Son', 'Activé',
       'Musique', 'Activée', 'Volume des effets', 'Volume de la musique', 'Crédits des musiques', ...Object.values(musiques.pistes).map(creditPiste),

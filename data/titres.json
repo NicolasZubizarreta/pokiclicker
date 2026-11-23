@@ -1,0 +1,12 @@
+{"version":1,"titres":[
+  {"id":"dresseur","nom":"Dresseur","description":"Commence ton aventure.","condition":{"compteur":"captures","seuil":0}},
+  {"id":"collectionneur","nom":"Collectionneur","description":"Capture 50 espèces.","condition":{"compteur":"especes","seuil":50}},
+  {"id":"pokedex-complet","nom":"Pokédex complet","description":"Capture toutes les espèces du catalogue.","condition":{"compteur":"especes","seuil":151}},
+  {"id":"oeufs","nom":"Maître des œufs","description":"Fais éclore 25 œufs.","condition":{"compteur":"oeufsEclos","seuil":25}},
+  {"id":"evolutions","nom":"Évolutionniste","description":"Fais évoluer 25 Pokémon.","condition":{"compteur":"evolutions","seuil":25}},
+  {"id":"chromatiques","nom":"Chasseur de chromatiques","description":"Capture un Pokémon chromatique.","condition":{"compteur":"capturesShiny","seuil":1}},
+  {"id":"ligue","nom":"Champion de la Ligue","description":"Remporte une victoire à la Ligue.","condition":{"compteur":"victoiresLigue","seuil":1}},
+  {"id":"casino","nom":"Roi du casino","description":"Gagne 10 000 jetons.","condition":{"compteur":"jetonsGagnes","seuil":10000}},
+  {"id":"marathonien","nom":"Marathonien","description":"Joue pendant 20 heures.","condition":{"compteur":"heuresDeJeu","seuil":20}},
+  {"id":"boss","nom":"Dompteur de boss","description":"Bats 8 boss.","condition":{"compteur":"bossVaincus","seuil":8}}
+]}

@@ -940,6 +940,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       return true;
     },
     arreterMannequin() {
+      if (!mannequin) return;
       noterResultatMannequin();
       mannequin = null;
       afficher();
