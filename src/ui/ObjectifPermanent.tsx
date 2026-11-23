@@ -33,7 +33,7 @@ export function ObjectifPermanent({ store, aller }: { store: StoreJeu; aller?: (
   if (!affiche) return null;
   return <>
     <button ref={bouton} type="button" aria-label={`Objectifs : ${affiche.texte}`}
-      className="cadre absolute top-4 right-4 z-20 min-h-11 max-w-1/2 bg-surface/82 px-3 py-2 text-right text-sm font-bold tabular-nums text-neutre-50 max-lg:top-auto max-lg:right-auto max-lg:bottom-2 max-lg:left-2 max-lg:flex max-lg:max-w-[calc(100%-5rem)] max-lg:items-center max-lg:gap-2 max-lg:text-left lg:text-base"
+      className="cadre absolute top-4 right-4 z-20 min-h-11 max-w-1/2 bg-surface/82 px-3 py-2 text-right text-sm font-bold tabular-nums text-neutre-50 max-lg:top-auto max-lg:right-20 max-lg:bottom-2 max-lg:left-2 max-lg:flex max-lg:w-fit max-lg:max-w-none max-lg:items-center max-lg:gap-2 max-lg:text-left lg:text-base"
       onClick={() => dialogue.current?.showModal()}><span aria-hidden="true" className="block text-xs font-normal text-texte-doux max-lg:shrink-0">Objectifs</span><span className="line-clamp-3 max-lg:line-clamp-1">{affiche.texte}</span></button>
     <dialog ref={dialogue} aria-labelledby={titre} className="fiche-pokemon cadre w-full max-w-3xl bg-surface p-0 text-base text-texte"
       onClose={() => bouton.current?.focus()} onCancel={e => { e.preventDefault(); fermer(); }}
