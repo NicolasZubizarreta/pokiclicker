@@ -10,7 +10,8 @@ export function useAlerteArret(banniere: string | null) {
     precedente.current = banniere;
     if (!nouvelArret) return;
     nettoyer.current?.();
-    if (!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+    // Chrome bloque la vibration (et journalise une erreur) tant que la personne n'a pas touché la page.
+    if (!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches && (navigator.userActivation?.hasBeenActive ?? true)) {
       navigator.vibrate?.([200, 100, 200]);
     }
     if (!document.hidden) return;
