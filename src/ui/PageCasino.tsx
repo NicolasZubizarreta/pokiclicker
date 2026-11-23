@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useStore } from 'zustand';
 import { chargerCasino, messageBienvenue, prixJeton, valeurJeton } from '../core/casino';
 import { storeJeu, type StoreJeu } from './store';
@@ -43,6 +43,32 @@ const vitrines: { vue: Exclude<Vue, 'salle'>; titre: string; texte: string; bout
 export function PageCasino({ retour, store = storeJeu, offerts = 0 }: { retour(): void; store?: StoreJeu; offerts?: number }) {
   const casino = useStore(store, e => e.casino), argent = useStore(store, e => e.argent);
   const actions = store.getState();
+  const [bilan, noter] = useState<Record<string, { net: number; parties: number; gagnees: number }>>({});
+  const actionsJeux = useMemo(() => {
+    function suivre<A extends unknown[], R extends { ok: boolean; gain?: number; fin?: { gain: number; engage: number } | null }>(nom: string, action: () => (...args: A) => R) {
+      return (...args: A): R => {
+        const r = action()(...args);
+        if (r.ok && (r.fin || (nom !== 'Blackjack' && r.gain !== undefined))) {
+          const net = r.fin ? r.fin.gain - r.fin.engage : r.gain! - Number(args[0]);
+          noter(avant => {
+            const b = avant[nom] ?? { net: 0, parties: 0, gagnees: 0 };
+            return { ...avant, [nom]: { net: b.net + net, parties: b.parties + 1, gagnees: b.gagnees + Number(net > 0) } };
+          });
+        }
+        return r;
+      };
+    }
+    const a = store.getState();
+    return { ...a,
+      jouerMachine: suivre('Machine à sous', () => store.getState().jouerMachine), jouerPileOuFace: suivre('Pile ou face', () => store.getState().jouerPileOuFace),
+      jouerRoulette: suivre('Roulette', () => store.getState().jouerRoulette), jouerPlusOuMoins: suivre('Plus ou moins', () => store.getState().jouerPlusOuMoins), gratter: suivre('Carte à gratter', () => store.getState().gratter),
+      distribuerBlackjack: suivre('Blackjack', () => store.getState().distribuerBlackjack), tirerBlackjack: suivre('Blackjack', () => store.getState().tirerBlackjack),
+      resterBlackjack: suivre('Blackjack', () => store.getState().resterBlackjack), doublerBlackjack: suivre('Blackjack', () => store.getState().doublerBlackjack),
+      separerBlackjack: suivre('Blackjack', () => store.getState().separerBlackjack), assurerBlackjack: suivre('Blackjack', () => store.getState().assurerBlackjack),
+      refuserAssuranceBlackjack: suivre('Blackjack', () => store.getState().refuserAssuranceBlackjack), abandonnerBlackjack: suivre('Blackjack', () => store.getState().abandonnerBlackjack),
+    };
+  }, [store]);
+  const total = Object.values(bilan).reduce((a, b) => ({ net: a.net + b.net, parties: a.parties + b.parties, gagnees: a.gagnees + b.gagnees }), { net: 0, parties: 0, gagnees: 0 });
   const [vue, aller] = useState<Vue>(casino.blackjackEnCours ? 'blackjack' : 'salle');
   const [message, ecrire] = useState(casino.blackjackEnCours ? 'À toi de jouer.' : ''), [ton, tonner] = useState<Ton | undefined>(undefined);
   /** Gain déjà crédité mais pas encore révélé par l'animation du jeu en cours : retiré de l'affichage des jetons. */
@@ -51,7 +77,9 @@ export function PageCasino({ retour, store = storeJeu, offerts = 0 }: { retour()
   const titre = useRef<HTMLHeadingElement>(null);
   useEffect(() => { titre.current?.focus(); }, [vue]);
   const signaler = useCallback((m: string, t?: Ton) => { ecrire(m); tonner(t); }, []);
-  const occuper = useCallback((gain: number | null) => cacher(gain), []);
+  const vueActive = useRef<Vue | null>(vue);
+  useEffect(() => { vueActive.current = vue; return () => { vueActive.current = null; }; }, [vue]);
+  const occuper = useCallback((gain: number | null) => { if (vueActive.current === vue) cacher(gain); }, [vue]);
   const changer = (v: Vue) => {
     cacher(null); aller(v); ecrire(v === 'blackjack' && casino.blackjackEnCours ? 'À toi de jouer.' : accueils[v]); tonner(undefined);
   };
@@ -75,6 +103,11 @@ export function PageCasino({ retour, store = storeJeu, offerts = 0 }: { retour()
   </section>;
 
   return <section className="casino cs-page" data-vue={vue}>
+    {cache === null && <details className="cs-gains"><summary>Session : {total.net > 0 ? '+' : ''}{nombre(total.net)} jetons · {total.parties} parties · {total.gagnees} gagnées</summary>
+      <ul>{Object.entries(bilan).map(([nom, b]) => <li key={nom}>{nom} : {b.net > 0 ? '+' : ''}{nombre(b.net)} jetons · {b.parties} parties · {b.gagnees} gagnées</li>)}</ul>
+      <p className="cs-rappel">Le bilan repart à zéro à la sortie du casino. Les achats et échanges sont exclus.</p>
+    </details>}
+    {cache === null && total.net < 0 && <p className="cs-rappel" role="note">Attention : tu as perdu {nombre(-total.net)} jetons pendant cette session. Pense à faire une pause.</p>}
     {vue === 'salle' && <div className="cs-salle-grille">
       <div className="cs-colonne">
         <figure className="cs-scene">
@@ -120,12 +153,12 @@ export function PageCasino({ retour, store = storeJeu, offerts = 0 }: { retour()
     </div>}
     {vue !== 'salle' && <>
       {entete(vue)}
-      {vue === 'machine' && <MachineASous actions={actions} signaler={signaler} occuper={occuper} jetons={jetons} verdict={verdict} />}
-      {vue === 'pile' && <PileOuFace actions={actions} signaler={signaler} occuper={occuper} jetons={jetons} verdict={verdict} />}
-      {vue === 'blackjack' && <TableBlackjack actions={actions} main={casino.blackjackEnCours} signaler={signaler} jetons={jetons} verdict={verdict} />}
-      {vue === 'roulette' && <Roulette actions={actions} signaler={signaler} occuper={occuper} jetons={jetons} verdict={verdict} />}
-      {vue === 'plusmoins' && <PlusOuMoins actions={actions} carte={casino.plusOuMoinsCarte} signaler={signaler} occuper={occuper} jetons={jetons} verdict={verdict} />}
-      {vue === 'gratter' && <CarteAGratter actions={actions} signaler={signaler} occuper={occuper} jetons={jetons} verdict={verdict} />}
+      {vue === 'machine' && <MachineASous actions={actionsJeux} signaler={signaler} occuper={occuper} jetons={jetons} verdict={verdict} />}
+      {vue === 'pile' && <PileOuFace actions={actionsJeux} signaler={signaler} occuper={occuper} jetons={jetons} verdict={verdict} />}
+      {vue === 'blackjack' && <TableBlackjack actions={actionsJeux} main={casino.blackjackEnCours} signaler={signaler} jetons={jetons} verdict={verdict} />}
+      {vue === 'roulette' && <Roulette actions={actionsJeux} signaler={signaler} occuper={occuper} jetons={jetons} verdict={verdict} />}
+      {vue === 'plusmoins' && <PlusOuMoins actions={actionsJeux} carte={casino.plusOuMoinsCarte} signaler={signaler} occuper={occuper} jetons={jetons} verdict={verdict} />}
+      {vue === 'gratter' && <CarteAGratter actions={actionsJeux} signaler={signaler} occuper={occuper} jetons={jetons} verdict={verdict} />}
       {vue === 'boutique' && <BoutiqueCasino actions={actions} objets={casino.objets} jetons={jetons} signaler={signaler} verdict={verdict} />}
       {rappel}
     </>}

@@ -22,10 +22,12 @@ export function PlusOuMoins({ actions, carte, signaler, occuper, jetons, verdict
   useEffect(() => () => delais.current.forEach(clearTimeout), []);
   const visible = revele ? revele.avant : carte;
   const miseLue = /^\d+$/.test(mise.trim()) ? Number(mise) : 0;
-  function jouer(choix: ChoixPlusOuMoins) {
+  const [dernier, retenir] = useState<{ mise: number; choix: ChoixPlusOuMoins } | null>(null);
+  function jouer(choix: ChoixPlusOuMoins, montant = lireMise(mise)) {
     if (actif.current || visible === null) return;
-    const resultat = actions.jouerPlusOuMoins(lireMise(mise), choix);
+    const resultat = actions.jouerPlusOuMoins(montant, choix);
     if (!resultat.ok) { signaler(resultat.raison, 'alerte'); return; }
+    retenir({ mise: montant, choix });
     const montrer = () => {
       signaler(resultat.message, resultat.gain > 0 ? 'gain' : 'perte');
       if (resultat.gain > 0) { actions.sonnerCasino(); pluie.lancer(piecesPourGain(resultat.gain, lireMise(mise))); }
@@ -64,6 +66,7 @@ export function PlusOuMoins({ actions, carte, signaler, occuper, jetons, verdict
     <div className="cs-commandes">
       <MiseCasino valeur={mise} changer={changer} bloque={revele !== null} jetons={jetons} />
       <div className="cs-pm-boutons">{bouton('plus', 'Plus haut')}{bouton('moins', 'Plus bas')}</div>
+      {dernier && <button type="button" className="plaque" disabled={revele !== null || visible === null || rangsGagnants(visible, dernier.choix) === 0} onClick={() => { changer(String(dernier.mise)); jouer(dernier.choix, dernier.mise); }}>Rejouer la même mise · {dernier.mise} · {dernier.choix === 'plus' ? 'Plus haut' : 'Plus bas'}</button>}
       <p className="cs-rappel">As = 1, Roi = 13. Égalité : tu perds.</p>
     </div>
   </div>;

@@ -3,7 +3,8 @@ import { IconeObjet } from './icones';
 import { cheminSprite } from './precharger';
 
 export const mouvementReduit = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
-export const nombre = (n: number) => n.toLocaleString('fr-FR');
+export { formaterNombre as nombre } from './nombres';
+import { formaterNombre as nombre } from './nombres';
 
 /** Ton d'un verdict : toujours accompagné de son texte, jamais la couleur seule. */
 export type Ton = 'gain' | 'perte' | 'info' | 'alerte';
@@ -41,6 +42,8 @@ export function MiseCasino({ valeur, changer, bloque = false, jetons }: { valeur
   const courante = /^\d+$/.test(valeur.trim()) ? Number(valeur) : 0;
   const borne = Math.max(1, jetons);
   return <div className="cs-mise">
+    <p className="cs-rappel">Attention : toute mise peut être perdue.</p>
+    {courante > jetons / 2 && <p className="cs-rappel" role="note">Attention : cette mise dépasse la moitié de tes jetons.</p>}
     <div className="cs-mise-libelle"><label htmlFor={id}>Mise en jetons</label><span>Tu as {nombre(jetons)}</span></div>
     <div className="cs-pas">
       <button type="button" className="plaque" disabled={bloque} aria-label="Un jeton de moins" onClick={() => changer(String(Math.max(1, courante - 1)))}>−</button>

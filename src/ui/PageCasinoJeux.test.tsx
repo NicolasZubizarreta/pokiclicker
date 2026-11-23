@@ -30,6 +30,50 @@ function preparer(reduit: boolean, alea: number) {
 const clic = (name: string | RegExp) => fireEvent.click(screen.getByRole('button', { name }));
 const jetonsAffiches = () => document.querySelector('.cs-jeu-entete [data-jetons]')!.textContent!.replace(/\s/g, '');
 
+it('bilan par jeu, reprise de la mise et remise à zéro à la sortie', () => {
+  const { store } = preparer(true, .999);
+  const page = render(<PageCasino store={store} retour={vi.fn()} />);
+  clic('Lancer la bille');
+  fireEvent.change(screen.getByLabelText('Mise en jetons'), { target: { value: '10' } });
+  clic('Lancer la bille');
+  expect(screen.getByText('Session : +10 jetons · 1 parties · 1 gagnées')).toBeTruthy();
+  fireEvent.change(screen.getByLabelText('Mise en jetons'), { target: { value: '500' } });
+  clic('Rejouer la même mise · 10');
+  expect(store.getState().casino.jetons).toBe(1020);
+  clic('Salle');
+  expect(screen.getByText('Session : +20 jetons · 2 parties · 2 gagnées')).toBeTruthy();
+  page.unmount();
+  render(<PageCasino store={store} retour={vi.fn()} />);
+  expect(screen.getByText('Session : 0 jetons · 0 parties · 0 gagnées')).toBeTruthy();
+});
+
+it('avertit sans bloquer une mise qui dépasse la moitié du solde', () => {
+  const { store } = preparer(true, .999);
+  render(<PageCasino store={store} retour={vi.fn()} />);
+  clic('Lancer la bille');
+  fireEvent.change(screen.getByLabelText('Mise en jetons'), { target: { value: '600' } });
+  expect(screen.getByRole('note').textContent).toContain('moitié');
+  clic('Lancer la bille');
+  expect(store.getState().casino.jetons).toBe(1600);
+});
+
+it.each(['Jouer à la machine', 'Lancer la pièce', 'Jouer', 'Gratter'])('annule les minuteurs au démontage : %s', nom => {
+  const { store } = preparer(false, .999);
+  const minuteursStore = vi.getTimerCount();
+  const page = render(<PageCasino store={store} retour={vi.fn()} />);
+  clic(nom);
+  if (nom === 'Jouer à la machine') clic('Lancer');
+  else if (nom === 'Lancer la pièce') clic('Lancer la pièce');
+  else if (nom === 'Jouer') clic(/Plus bas/);
+  else { clic('Acheter une carte'); clic('Tout gratter'); }
+  const avant = store.getState().casino.jetons;
+  store.getState().arreter();
+  page.unmount();
+  expect(vi.getTimerCount()).toBe(minuteursStore);
+  act(() => vi.advanceTimersByTime(5000));
+  expect(store.getState().casino.jetons).toBe(avant);
+});
+
 it('l’ordre de la roue est une permutation des 37 numéros', () => {
   expect(roue.ordre).toHaveLength(37);
   expect([...roue.ordre].sort((a, b) => a - b)).toEqual(Array.from({ length: 37 }, (_, i) => i));

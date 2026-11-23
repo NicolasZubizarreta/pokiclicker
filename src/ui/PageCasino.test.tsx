@@ -98,12 +98,14 @@ it('reprend une main après rechargement, cache la carte du croupier, permet de 
   const p = preparer(true, true, sabotDe('K-C', 'K-D', 'K-H', 'K-S', '10-S', '6-D', '9-H', '7-C', '10-D'));
   const vue = render(<PageCasino store={p.store} retour={vi.fn()} />);
   clic(/table/); clic('Distribuer'); expect(p.store.getState().casino.jetons).toBe(999);
+  expect(screen.getByText('Session : 0 jetons · 0 parties · 0 gagnées')).toBeTruthy();
   vue.unmount(); p.store.getState().arreter(); const reprise = p.ouvrir();
   render(<PageCasino store={reprise} retour={vi.fn()} />);
   expect(screen.getByText('Ta main · 20')).toBeTruthy();
   expect(screen.getByRole('img', { name: 'Carte cachée' })).toBeTruthy();
   expect(screen.queryByRole('img', { name: 'Roi de pique' })).toBeNull();
   expect(screen.queryByRole('button', { name: 'Distribuer' })).toBeNull();
+  expect(screen.getByRole('button', { name: 'Tirer' }).className).toBe(screen.getByRole('button', { name: 'Rester' }).className);
   clic('Rester'); expect(screen.getByRole('status').textContent).toBe('Égalité. Mise rendue.');
   expect(screen.queryByRole('img', { name: 'Carte cachée' })).toBeNull();
   expect(screen.getByText('Croupier Rocket · 20')).toBeTruthy();
@@ -141,6 +143,8 @@ it('propose l’assurance seulement face à un As, avant tout autre choix', () =
 it('ouvre le casino depuis la Carte puis rend le focus à son entrée', () => {
   const { store } = preparer(true);
   const ancien = storeJeu.getState(); storeJeu.setState(store.getState());
+  const carte = storeJeu.getState().carte;
+  storeJeu.setState({ carte: { ...carte, formes: carte.formes.map(f => f.nom === 'Céladopole' ? { ...f, ouverte: true } : f) } });
   try {
     render(<PageCarte quandArrive={vi.fn()} />);
     fireEvent.click(screen.getAllByRole('button', { name: /Céladopole/ }).at(-1)!); clic('Casino'); act(() => { vi.advanceTimersByTime(10_000); });

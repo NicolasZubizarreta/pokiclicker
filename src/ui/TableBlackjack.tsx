@@ -1,4 +1,4 @@
-import { useRef, useState, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { lireMise } from '../core/casino';
 import type { FinBlackjack } from '../core/casino';
 import type { ActionsCasino, AffichageCasino } from './store-casino';
@@ -43,15 +43,16 @@ type Props = { actions: ActionsCasino; main: AffichageCasino['blackjackEnCours']
 export function TableBlackjack({ actions, main, signaler, jetons, verdict }: Props) {
   const [mise, changer] = useState('1');
   const [fin, garder] = useState<FinBlackjack | null>(null);
-  const miseJouee = useRef(1);
+  const [miseJouee, fixerMiseJouee] = useState(main?.mains[0]?.mise ?? 1);
   const pluie = usePluie();
   function jouer(action: () => ResultatAction, nouvelle = false) {
     const resultat = action();
     if (!resultat.ok) { signaler(resultat.raison, 'alerte'); return; }
-    if (nouvelle) miseJouee.current = lireMise(mise);
+    const miseCourante = nouvelle ? lireMise(mise) : miseJouee;
+    if (nouvelle) fixerMiseJouee(miseCourante);
     if (resultat.fin) {
       garder(resultat.fin);
-      if (resultat.fin.gain > resultat.fin.engage) { actions.sonnerCasino(); pluie.lancer(piecesPourGain(resultat.fin.gain, miseJouee.current)); }
+      if (resultat.fin.gain > resultat.fin.engage) { actions.sonnerCasino(); pluie.lancer(piecesPourGain(resultat.fin.gain, miseCourante)); }
     } else garder(null);
     signaler(resultat.message, resultat.fin ? (resultat.fin.gain > resultat.fin.engage ? 'gain' : resultat.fin.gain < resultat.fin.engage ? 'perte' : 'info') : 'info');
   }
@@ -81,18 +82,19 @@ export function TableBlackjack({ actions, main, signaler, jetons, verdict }: Pro
     <div className="cs-commandes">
       {!main && <>
         <MiseCasino valeur={mise} changer={changer} jetons={jetons} />
+        {fin && <button type="button" className="plaque" onClick={() => { changer(String(miseJouee)); jouer(() => actions.distribuerBlackjack(miseJouee)); }}>Rejouer la même mise · {miseJouee}</button>}
         <button type="button" className="plaque plaque-action cs-grand" onClick={() => jouer(() => actions.distribuerBlackjack(lireMise(mise)), true)}>Distribuer</button>
       </>}
       {main && <div className="cs-actions-bj">
         {main.phase === 'assurance' ? <>
-          {bouton('Assurance', permis?.assurer, actions.assurerBlackjack, true)}
+          {bouton('Assurance', permis?.assurer, actions.assurerBlackjack)}
           {bouton('Sans assurance', permis?.refuserAssurance, actions.refuserAssuranceBlackjack)}
         </> : <>
-          {bouton('Tirer', permis?.tirer, actions.tirerBlackjack, true)}
+          {bouton('Tirer', permis?.tirer, actions.tirerBlackjack)}
           {bouton('Rester', permis?.rester, actions.resterBlackjack)}
           {bouton('Doubler', permis?.doubler, actions.doublerBlackjack)}
           {bouton('Séparer', permis?.separer, actions.separerBlackjack)}
-          {bouton('Abandonner', permis?.abandonner, actions.abandonnerBlackjack, false, true)}
+          {bouton('Abandonner', permis?.abandonner, actions.abandonnerBlackjack, true, true)}
         </>}
       </div>}
       {main?.phase === 'jeu' && indisponibles.length > 0 && <p className="cs-rappel">Pas possible avec cette main : {indisponibles.join(', ')}.</p>}

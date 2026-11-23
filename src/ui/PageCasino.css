@@ -100,7 +100,6 @@
 .cs-gains li img { width: calc(var(--spacing) * 8); height: calc(var(--spacing) * 8); object-fit: contain; }
 .cs-gains .cs-mult { margin-left: auto; font-family: var(--font-titre); font-weight: 700; color: var(--region-argent); text-align: right; }
 .cs-gains > .cs-rappel { padding: 0 calc(var(--spacing) * 3) calc(var(--spacing) * 3); }
-.cs-gains-ouvert h3 { padding: calc(var(--spacing) * 3) calc(var(--spacing) * 3) var(--spacing); font-size: var(--text-base); }
 
 /* Rouleaux (sprites 96 px natifs ×1 téléphone, ×2 PC ; objets 30 px natifs ×3 / ×6) */
 .cs-reels { --cell: calc(var(--spacing) * 24 * var(--f)); display: grid; grid-template-columns: repeat(3, auto); gap: var(--spacing); justify-content: center; }

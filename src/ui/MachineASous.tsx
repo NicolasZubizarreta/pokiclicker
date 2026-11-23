@@ -19,6 +19,7 @@ export function MachineASous({ actions, signaler, occuper, jetons, verdict }: Pr
   useEffect(() => () => nettoyage.current(), []);
   function lancer() {
     if (actif.current) return;
+    nettoyage.current();
     const resultat = actions.jouerMachine(lireMise(mise));
     if (!resultat.ok) { signaler(resultat.raison, 'alerte'); return; }
     const verdictFinal = () => {
@@ -27,6 +28,7 @@ export function MachineASous({ actions, signaler, occuper, jetons, verdict }: Pr
       if (resultat.gain > 0) { actions.sonnerCasino(); pluie.lancer(piecesPourGain(resultat.gain, lireMise(mise))); }
     };
     gagner(false);
+    arreter([false, false, false]);
     if (mouvementReduit()) { afficher([...resultat.symboles]); verdictFinal(); return; }
     actif.current = true; occuper(resultat.gain); tourner([true, true, true]); signaler('Les rouleaux tournent…', 'info');
     const intervalles = donnees.animation.rouleaux.map((_, i) => setInterval(() => {
@@ -40,8 +42,7 @@ export function MachineASous({ actions, signaler, occuper, jetons, verdict }: Pr
       delais.push(setTimeout(() => arreter(avant => avant.map((b, j) => j === i ? false : b)), donnees.animationJeux.rouleauxArret));
       if (i === donnees.animation.rouleaux.length - 1) { actif.current = false; occuper(null); verdictFinal(); }
     }, ms));
-    const precedent = nettoyage.current;
-    nettoyage.current = () => { precedent(); intervalles.forEach(clearInterval); delais.forEach(clearTimeout); };
+    nettoyage.current = () => { intervalles.forEach(clearInterval); delais.forEach(clearTimeout); };
   }
   const enCours = tourne.some(Boolean);
   return <div className="cs-jeu">

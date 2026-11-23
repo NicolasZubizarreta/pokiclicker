@@ -30,11 +30,12 @@ export function CarteAGratter({ actions, signaler, occuper, jetons, verdict }: P
     signaler(ticket.message, ticket.gain > 0 ? 'gain' : 'perte');
     if (ticket.gain > 0) { actions.sonnerCasino(); pluie.lancer(piecesPourGain(ticket.gain, ticket.mise)); }
   }, [ticket, fini, occuper, signaler, actions, pluie]);
-  function acheter() {
+  function acheter(montant = lireMise(mise)) {
     if (ticket && !fini) return;
-    const resultat = actions.gratter(lireMise(mise));
+    const resultat = actions.gratter(montant);
     if (!resultat.ok) { signaler(resultat.raison, 'alerte'); return; }
-    garder({ symboles: resultat.symboles, gain: resultat.gain, mise: lireMise(mise), message: resultat.message, gagnant: resultat.combinaison?.symbole ?? null });
+    delais.current.forEach(clearTimeout); delais.current = [];
+    garder({ symboles: resultat.symboles, gain: resultat.gain, mise: montant, message: resultat.message, gagnant: resultat.combinaison?.symbole ?? null });
     grater(Array(regle.cases).fill(false));
     occuper(resultat.gain); signaler('Gratte les 6 cases.', 'info');
   }
@@ -67,11 +68,12 @@ export function CarteAGratter({ actions, signaler, occuper, jetons, verdict }: P
     </div>
     <div className="cs-commandes">
       <MiseCasino valeur={mise} changer={changer} bloque={!!ticket && !fini} jetons={jetons} />
-      <button type="button" className="plaque plaque-action cs-grand" disabled={!!ticket && !fini} onClick={acheter}>Acheter une carte</button>
-      <button type="button" className="plaque" disabled={!ticket || fini} onClick={toutGratter}>Tout gratter</button>
-      <div className="cs-gains cs-gains-ouvert"><h3>Tableau des gains</h3>
+      <details className="cs-gains"><summary>Tableau des gains</summary>
         <ul>{regle.symboles.map(s => <li key={s.id}><Illustration image={s.image} nom={s.nom} /><span>{s.nom}</span>
-          <span className="cs-mult">{s.gains.map((g, k) => `${regle.minimumIdentiques + k}→×${g}`).join(' · ')}</span></li>)}</ul></div>
+          <span className="cs-mult">{s.gains.map((g, k) => `${regle.minimumIdentiques + k}→×${g}`).join(' · ')}</span></li>)}</ul></details>
+      <button type="button" className="plaque plaque-action cs-grand" disabled={!!ticket && !fini} onClick={() => acheter()}>Acheter une carte</button>
+      {fini && <button type="button" className="plaque" onClick={() => { changer(String(ticket.mise)); acheter(ticket.mise); }}>Rejouer la même mise · {ticket.mise}</button>}
+      <button type="button" className="plaque" disabled={!ticket || fini} onClick={toutGratter}>Tout gratter</button>
     </div>
   </div>;
 }

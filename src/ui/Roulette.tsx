@@ -30,13 +30,15 @@ export function Roulette({ actions, signaler, occuper, jetons, verdict }: Props)
   useEffect(() => () => { clearTimeout(delai.current); animations.current.forEach(a => a.cancel()); }, []);
   const numeroLu = /^\d{1,2}$/.test(numero.trim()) ? Number(numero) : NaN;
   const poser = (n: number) => saisirNumero(String(Math.min(jeux.roulette.cases - 1, Math.max(0, n))));
-  function lancer() {
+  const [dernier, noterDernier] = useState<{ mise: number; choix: Choix; numero: string } | null>(null);
+  function lancer(montant = lireMise(mise), type = choix, chiffre = numero) {
     if (actif.current) return;
-    if (choix === 'plein' && !(numeroLu >= 0 && numeroLu < jeux.roulette.cases)) { signaler(`Choisis un numéro de 0 à ${jeux.roulette.cases - 1}.`, 'alerte'); return; }
-    const pari: PariRoulette = choix === 'plein' ? { type: 'numero', numero: numeroLu }
-      : choix === 'rouge' || choix === 'noir' ? { type: 'couleur', couleur: choix } : { type: 'parite', parite: choix };
-    const resultat = actions.jouerRoulette(lireMise(mise), pari);
+    if (type === 'plein' && !(/^\d+$/.test(chiffre) && Number(chiffre) >= 0 && Number(chiffre) < jeux.roulette.cases)) { signaler(`Choisis un numéro de 0 à ${jeux.roulette.cases - 1}.`, 'alerte'); return; }
+    const pari: PariRoulette = type === 'plein' ? { type: 'numero', numero: Number(chiffre) }
+      : type === 'rouge' || type === 'noir' ? { type: 'couleur', couleur: type } : { type: 'parite', parite: type };
+    const resultat = actions.jouerRoulette(montant, pari);
     if (!resultat.ok) { signaler(resultat.raison, 'alerte'); return; }
+    noterDernier({ mise: montant, choix: type, numero: chiffre });
     const angle = ordre.indexOf(resultat.numero) * pas;
     const terminer = () => {
       afficher({ numero: resultat.numero, couleur: resultat.couleur }); tourner(false); actif.current = false; occuper(null);
@@ -78,7 +80,8 @@ export function Roulette({ actions, signaler, occuper, jetons, verdict }: Props)
           <input id="cs-num-plein" className="cs-champ" inputMode="numeric" pattern="[0-9]*" autoComplete="off" value={numero} disabled={tourne} onChange={e => saisirNumero(e.target.value)} />
           <button type="button" className="plaque" disabled={tourne} aria-label="Numéro suivant" onClick={() => poser((Number.isNaN(numeroLu) ? 0 : numeroLu) + 1)}>+</button>
         </div></div>}
-      <button type="button" className="plaque plaque-action cs-grand" disabled={tourne} onClick={lancer}>Lancer la bille</button>
+      <button type="button" className="plaque plaque-action cs-grand" disabled={tourne} onClick={() => lancer()}>Lancer la bille</button>
+      {sortie && dernier && <button type="button" className="plaque" disabled={tourne} onClick={() => { changer(String(dernier.mise)); choisir(dernier.choix); saisirNumero(dernier.numero); lancer(dernier.mise, dernier.choix, dernier.numero); }}>Rejouer la même mise · {dernier.mise}</button>}
       <details className="cs-gains"><summary>Gains de la roulette</summary><ul>
         <li><span className="cs-puce" data-c="rouge" aria-hidden="true" /><span className="cs-puce" data-c="noir" aria-hidden="true" /><span>Rouge ou noir</span><span className="cs-mult">×{jeux.roulette.gains.couleur}</span></li>
         <li><span>Pair ou impair</span><span className="cs-mult">×{jeux.roulette.gains.parite}</span></li>
