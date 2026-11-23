@@ -143,7 +143,7 @@ export function validerPokemonPossede(v: unknown): asserts v is PokemonPossede {
   formeSouple(v, { uid: identifiant, numero: positif, niveau: reel, xp: reel, shiny: booleen,
     bonheur: reel, pierreEternelle: booleen, calcium: reel, favori: booleen,
     sexe: s => exiger(s === 'male' || s === 'femelle' || s === 'sansSexe', `Sexe invalide : ${String(s)}`) },
-  { marqueEclosion: booleen, surnom: texte, oeuf: o => {
+  { marqueEclosion: booleen, surnom: texte, objetTenu: () => undefined, oeuf: o => {
     try {
       formeSouple(o, { pasRestants: reel, pasMax: positif });
     } catch (erreur) {
@@ -156,6 +156,10 @@ export function validerPokemonPossede(v: unknown): asserts v is PokemonPossede {
   pokemon.calcium = Math.min(reglages.degats.calciumMax, Math.max(0, Math.floor(pokemon.calcium)));
   pokemon.bonheur = Math.min(reglages.recompenses.bonheur.max, Math.max(0, pokemon.bonheur));
   pokemon.xp = Math.max(0, pokemon.xp);
+  // Objet tenu illisible (ou sur un œuf) : retiré, la partie reste lisible. Un id inconnu du jeu reste sans effet.
+  if (pokemon.objetTenu !== undefined) {
+    try { identifiant(pokemon.objetTenu); if (pokemon.oeuf) throw new Error('œuf'); } catch { delete pokemon.objetTenu; }
+  }
   if (pokemon.oeuf) pokemon.oeuf.pasRestants = Math.min(pokemon.oeuf.pasMax, Math.max(0, Math.floor(pokemon.oeuf.pasRestants)));
   if (pokemon.surnom !== undefined) {
     const surnom = pokemon.surnom.trim().slice(0, reglages.equipe.surnomMax).trim();

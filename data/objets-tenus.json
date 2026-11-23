@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "prix": 20000,
+  "bonus": 0.05,
+  "objets": [
+    { "id": "charbon", "nom": "Charbon", "type": "fire" },
+    { "id": "eau-mystique", "nom": "Eau Mystique", "type": "water" },
+    { "id": "graine-miracle", "nom": "Graine Miracle", "type": "grass" },
+    { "id": "aimant", "nom": "Aimant", "type": "electric" },
+    { "id": "glacon-eternel", "nom": "Glaçon Éternel", "type": "ice" },
+    { "id": "ceinture-noire", "nom": "Ceinture Noire", "type": "fighting" },
+    { "id": "pic-venin", "nom": "Pic Venin", "type": "poison" },
+    { "id": "sable-doux", "nom": "Sable Doux", "type": "ground" },
+    { "id": "bec-pointu", "nom": "Bec Pointu", "type": "flying" },
+    { "id": "cuillere-tordue", "nom": "Cuillère Tordue", "type": "psychic" },
+    { "id": "poudre-argentee", "nom": "Poudre Argentée", "type": "bug" },
+    { "id": "pierre-dure", "nom": "Pierre Dure", "type": "rock" },
+    { "id": "rune-sort", "nom": "Rune Sort", "type": "ghost" },
+    { "id": "ecaille-draco", "nom": "Écaille Draco", "type": "dragon" },
+    { "id": "lunettes-noires", "nom": "Lunettes Noires", "type": "dark" },
+    { "id": "peau-metal", "nom": "Peau Métal", "type": "steel" },
+    { "id": "plume-fee", "nom": "Plume Fée", "type": "fairy" },
+    { "id": "mouchoir-soie", "nom": "Mouchoir Soie", "type": "normal" }
+  ]
+}

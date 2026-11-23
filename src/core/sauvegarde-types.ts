@@ -14,6 +14,8 @@ export type PokemonPossede = {
   oeuf?: { pasRestants: number; pasMax: number };
   /** Marque d'éclosion : posée à la naissance d'un œuf (jamais par capture ni achat), +5 % de dégâts propres. Absent = pas de marque. */
   marqueEclosion?: boolean;
+  /** Objet tenu selon le type (data/objets-tenus.json) : +bonus de dégâts si le type correspond. Absent = aucun. */
+  objetTenu?: string;
 };
 export type ReglagesArret = {
   actif: boolean; commun: boolean; peuCommun: boolean; rare: boolean; tresRare: boolean;

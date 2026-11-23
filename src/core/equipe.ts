@@ -1,5 +1,6 @@
 import { reglages } from './reglages';
 import type { DonneesRegion, PokemonPossede } from './sauvegarde-types';
+import { cleStock, facteurObjetTenuDe } from './objets-tenus';
 import { calculerDps } from './stats';
 
 export type ResultatEquipe =
@@ -61,8 +62,13 @@ export function relacherPokemon(region: DonneesRegion, uid: string): ResultatEqu
   const resultat = relacher(region, uid);
   if (!resultat.ok) return resultat;
   const liste = listeDuPokemon(region, uid)!;
-  if (!region[liste].find(p => p.uid === uid)?.pierreEternelle) return resultat;
-  return { ok: true, region: { ...resultat.region, inventaire: { ...region.inventaire, everstone: (region.inventaire.everstone ?? 0) + 1 } } };
+  const pokemon = region[liste].find(p => p.uid === uid);
+  // Les objets tenus retournent dans l'inventaire : relâcher ne fait rien perdre.
+  const rendus: Record<string, number> = {};
+  if (pokemon?.pierreEternelle) rendus.everstone = 1;
+  if (pokemon?.objetTenu) rendus[cleStock(pokemon.objetTenu)] = 1;
+  if (!Object.keys(rendus).length) return resultat;
+  return { ok: true, region: { ...resultat.region, inventaire: ajouter(region.inventaire, rendus) } };
 }
 
 export function relacherLot(region: DonneesRegion, uids: readonly string[]): ResultatEquipe {
@@ -74,10 +80,18 @@ export function relacherLot(region: DonneesRegion, uids: readonly string[]): Res
     const refus = refusFavori(pokemon);
     if (refus) return refus;
   }
-  const pierres = selection.filter(p => p.pierreEternelle === true).length;
+  const rendus: Record<string, number> = {};
+  for (const p of selection) {
+    if (p.pierreEternelle === true) rendus.everstone = (rendus.everstone ?? 0) + 1;
+    if (p.objetTenu) rendus[cleStock(p.objetTenu)] = (rendus[cleStock(p.objetTenu)] ?? 0) + 1;
+  }
   return { ok: true, region: { ...region, pc: region.pc.filter(p => !uniques.has(p.uid)),
-    inventaire: pierres ? { ...region.inventaire, everstone: (region.inventaire.everstone ?? 0) + pierres } : region.inventaire } };
+    inventaire: ajouter(region.inventaire, rendus) } };
 }
+
+const ajouter = (inventaire: DonneesRegion['inventaire'], ajout: Record<string, number>): DonneesRegion['inventaire'] =>
+  Object.keys(ajout).length ? Object.fromEntries([...Object.entries(inventaire),
+    ...Object.entries(ajout).map(([cle, n]) => [cle, (inventaire[cle] ?? 0) + n] as const)]) : inventaire;
 
 export function envoyerAuPc(region: DonneesRegion, uid: string): ResultatEquipe {
   const pokemon = region.equipe.find((p) => p.uid === uid);
@@ -125,5 +139,6 @@ export function detailDps(pokemon: PokemonPossede, multiplicateurType: number) {
     pierreEternelle: pokemon.pierreEternelle ? bonus.pierreEternelle : 1,
     calcium: 1 + pokemon.calcium * bonus.calciumParBoost,
     marqueEclosion: 1 + (pokemon.marqueEclosion ? reglages.pension.marqueEclosion : 0),
+    objetTenu: facteurObjetTenuDe(pokemon),
   };
 }

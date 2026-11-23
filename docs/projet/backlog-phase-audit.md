@@ -285,7 +285,7 @@ Vague 1 codée le 23/11/2026 (19 cases cochées, commits locaux non poussés) ; 
 - [x] `F-j1-21` Records personnels (effort S)
 - [x] `F-j1-22` Jauge de cadence (effort S)
 - [x] `F-j1-23` Carte de dresseur à partager (effort M)
-- [ ] `F-j1-24` Objets tenus selon le type (règle à valider) (effort M)
+- [x] `F-j1-24` Objets tenus selon le type (règle à valider) (effort M)
 - [ ] `F-j2-09` Chez Blue : revanches du rival (effort L)
 - [ ] `F-j2-14` Casino : Voltorbe Flip (effort M)
 - [x] `F-j2-15` Casino : tableau des meilleurs scores et séries (effort S)

@@ -21,6 +21,7 @@ import { nomAffiche } from './affichage-pokemon';
 import { issueDuPantheon } from '../core/pantheon';
 import donneesPantheon from '../../data/pantheon.json';
 import { clicsAutomatiques } from '../core/clics';
+import { cleStock, donnerObjetTenu, OBJETS_TENUS, retirerObjetTenu } from '../core/objets-tenus';
 import { type TypeObjetEquipe, utiliserSurPokemon, poserStase, retirerStase, utiliserJetonShiny } from '../core/objets-equipe';
 import { clesActives, utiliserTemporise, refusPoupee, utiliserPoupee, declencherRecharge } from '../core/objets-actifs';
 import { evoluer as evoluerEquipe, evoluerParPierre, evolutionDisponible, evolutionParPierre } from '../core/evolution';
@@ -108,7 +109,11 @@ export type AffichageJeu = ActionsCasino & {
   faucher(): string | null;
   poserStase(uid: string): string | null;
   retirerStase(uid: string): string | null;
+  donnerObjetTenu(uid: string, id: string): string | null;
+  retirerObjetTenu(uid: string): string | null;
   utiliserJeton(uid: string): string | null;
+  /** Objets tenus en stock (id → quantité), pour la fiche Pokémon. */
+  stockObjetsTenus: Readonly<Record<string, number>>;
   boutique: AffichageBoutique; centre: AffichageBoutique; sac: AffichageSac; autoClic: { possede: boolean; actif: boolean };
   acheter(id: string, quantite: number): string | null;
   utiliserObjet(type: TypeObjetEquipe, uid: string, n: number): string | null;
@@ -654,6 +659,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     const choixStarter = introJouee && region.starterId === null;
     if (choixStarter && !starters) starters = tirerStarters(alea, reglages.combat.chanceShiny);
     const sac = afficherSac(region, precedent.sac);
+    const stockObjetsTenus = Object.fromEntries(OBJETS_TENUS.map(o => [o.id, region.inventaire[cleStock(o.id)] ?? 0]));
     const intro: AffichageJeu['intro'] = {
       enCours, choixStarter,
       premiereLigneVue: introJouee || (enCours && region.evenementEnCours!.etape
@@ -686,6 +692,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       radar: region.ameliorations.includes('pokeradar'),
       capture: afficherCapture(coeur, region.inventaire, precedent.capture, preferences.balleChoisie ?? null),
       boutique: afficherBoutique(region, precedent.boutique), centre, sac,
+      stockObjetsTenus: JSON.stringify(stockObjetsTenus) === JSON.stringify(precedent.stockObjetsTenus) ? precedent.stockObjetsTenus : stockObjetsTenus,
       centreVoisines: JSON.stringify(centreVoisines) === JSON.stringify(precedent.centreVoisines) ? precedent.centreVoisines : centreVoisines,
       casino: afficherCasino(region, precedent.casino),
       autoClic: precedent.autoClic.possede === region.ameliorations.includes('leftovers')
@@ -1150,6 +1157,11 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       if (resultat.ok) { annonce = resultat.message; finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs; }
       return resultat;
     }),
+    donnerObjetTenu: (uid, id) => modifierEquipe(courante => {
+      const resultat = donnerObjetTenu(courante, uid, id);
+      return resultat.ok ? { ...resultat, region: suivreDepense(courante, resultat.region, 'boutique') } : resultat;
+    }, undefined, false, 'coin'),
+    retirerObjetTenu: uid => modifierEquipe(region => retirerObjetTenu(region, uid)),
     retirerStase: uid => modifierEquipe(region => {
       const resultat = retirerStase(region, uid);
       if (resultat.ok) { annonce = resultat.message; finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs; }
@@ -1164,6 +1176,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     centre: { acces: { ouvert: false, raison: null }, objets: [] },
     sac: { acces: { ouvert: false, raison: reglages.sac.raison }, entrees: [] },
     autoClic: { possede: false, actif: false },
+    stockObjetsTenus: {},
     acheter(id, quantite) {
       if (!initialise) return 'La partie n’est pas démarrée.';
       const enBoutique = afficherBoutique(region, null).objets.find(objet => objet.id === id);

@@ -17,6 +17,7 @@ const modifier = (region: DonneesRegion, uid: string, changer: (p: PokemonPossed
 function refusStase(pokemon: PokemonPossede | undefined): string | undefined {
   if (!pokemon || pokemon.oeuf) return 'Pokémon invalide !';
   if (pokemon.pierreEternelle) return 'Retire-la via le menu !';
+  if (pokemon.objetTenu) return 'Retire d’abord l’objet tenu !';
 }
 
 export function cibleValideStase(pokemon: PokemonPossede): boolean {

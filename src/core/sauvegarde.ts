@@ -27,6 +27,7 @@ export function regionInitiale(regionId: string, zoneDepart: string): DonneesReg
 export function versMembreEquipe(p: PokemonPossede): MembreEquipe {
   const { numero, niveau, shiny, bonheur, pierreEternelle, calcium } = p;
   return { numero, niveau, shiny, bonheur, pierreEternelle, calcium, ...(p.marqueEclosion ? { marqueEclosion: true } : {}),
+    ...(p.objetTenu ? { objetTenu: p.objetTenu } : {}),
     // Un œuf ne compte jamais dans le DPS (ni le sien ni celui de l'équipe) : sinon il trahit l'espèce cachée.
     ...(p.oeuf ? { oeuf: true } : {}) };
 }

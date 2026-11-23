@@ -2,6 +2,7 @@ import { Fragment, useEffect, useId, useRef, useState } from 'react';
 import type { RefObject } from 'react';
 import { useStore } from 'zustand';
 import { detailDps, envoyerAuPc as verifierEnvoi, relacher as verifierRelachement } from '../core/equipe';
+import { BONUS_OBJET_TENU, objetsCompatibles, objetTenu, PRIX_OBJET_TENU } from '../core/objets-tenus';
 import { calculerMaxXp } from '../core/recompenses';
 import { chargerPokemon, nomType } from '../core/pokemon';
 import { reglages } from '../core/reglages';
@@ -46,6 +47,8 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: 
   const equipe = useStore(storeJeu, etat => etat.equipe);
   const ennemi = useStore(storeJeu, etat => etat.ennemi);
   const pc = useStore(storeJeu, etat => etat.pc);
+  const argent = useStore(storeJeu, etat => etat.argent);
+  const stockTenus = useStore(storeJeu, etat => etat.stockObjetsTenus);
   const caseEquipe = equipe.find(c => c?.pokemon.uid === uid);
   const pokemonPc = !caseEquipe ? pc.find(p => p.uid === uid) : undefined;
   const membre = caseEquipe ?? (pokemonPc ? {
@@ -127,12 +130,16 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: 
   const verificationPc = verifierEnvoi(regionVerification, uid);
   const refusPc = caseEquipe && !verificationPc.ok ? verificationPc.raison : null;
   const detail = membre ? detailDps(membre.pokemon, membre.multiplicateur) : null;
+  const objetPose = objetTenu(pokemon?.objetTenu);
+  const objetActif = detail !== null && detail.objetTenu > 1;
+  const objetsPossibles = pokemon && !pokemon.oeuf && espece ? objetsCompatibles(espece.types) : [];
   const marque = pokemon?.marqueEclosion && detail ? `+${Math.round((detail.marqueEclosion - 1) * 100)} %` : null;
   // Un facteur n'apparaît que s'il s'applique : Shiny, Pierre Stase et Calcium restent cachés à × 1.
   const facteurs: [string, string][] = pokemon && detail ? [
     ['Dégâts de base', nombre(detail.base)], [caseEquipe && ennemi ? `Type contre ${catalogue.parNumero(ennemi.numero).nom}` : 'Bonus de type', caseEquipe && ennemi ? `× ${nombre(detail.multiplicateurType)}` : 'Non appliqué sans cible'],
     ...(pokemon.shiny ? [['Shiny', `× ${nombre(detail.shiny)}`] as [string, string]] : []),
     ...(pokemon.pierreEternelle ? [['Pierre Stase', `× ${nombre(detail.pierreEternelle)}`] as [string, string]] : []),
+    ...(objetActif && objetPose ? [[objetPose.nom, `× ${nombre(detail.objetTenu)}`] as [string, string]] : []),
     ...(pokemon.calcium > 0 ? [['Calcium', `× ${nombre(detail.calcium)}`] as [string, string]] : []),
     ...(marque ? [["Marque d'éclosion", marque] as [string, string]] : []),
   ] : [];
@@ -204,9 +211,21 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: 
               <p>Grâce au bonheur : +{nombre(pokemon.bonheur * reglages.degats.bonheurParPoint * 100)} % de dégâts</p></div>
           </div>
           {pokemon.calcium > 0 && <p>Calcium : {pokemon.calcium} · +{nombre(pokemon.calcium * reglages.degats.calciumParBoost * 100)} % de dégâts</p>}
-          <div className="flex flex-wrap items-center gap-2"><p>Objet tenu : {pokemon.pierreEternelle ? 'Pierre Stase' : 'aucun'}</p>
+          <div className="flex flex-wrap items-center gap-2"><p>Objet tenu : {pokemon.pierreEternelle ? 'Pierre Stase' : objetPose ? objetPose.nom : 'aucun'}</p>
             {pokemon.pierreEternelle && <button type="button" aria-label={`Retirer la Pierre Stase de ${nom}`} className={`${bouton}${telephone ? '' : ' plaque'}`}
-              onClick={() => signaler(storeJeu.getState().retirerStase(uid))}>Retirer</button>}</div></>}
+              onClick={() => signaler(storeJeu.getState().retirerStase(uid))}>Retirer</button>}
+            {objetPose && <button type="button" aria-label={`Retirer ${objetPose.nom} de ${nom}`} className={`${bouton}${telephone ? '' : ' plaque'}`}
+              onClick={() => signaler(storeJeu.getState().retirerObjetTenu(uid))}>Retirer</button>}</div>
+          {objetPose && !objetActif && <p>{objetPose.nom} est du type {nomType(objetPose.type)} : sans effet sur ce Pokémon.</p>}
+          {!pokemon.pierreEternelle && !objetPose && objetsPossibles.length > 0 && <div className="grid gap-2">
+            <p>Objets du type de {nom} : +{nombre(BONUS_OBJET_TENU * 100)} % de dégâts</p>
+            {objetsPossibles.map(objet => {
+              const stock = stockTenus[objet.id] ?? 0;
+              const manque = stock <= 0 && argent < PRIX_OBJET_TENU;
+              return <button key={objet.id} type="button" disabled={manque} className={`${bouton}${telephone ? '' : ' plaque'}`}
+                onClick={() => signaler(storeJeu.getState().donnerObjetTenu(uid, objet.id))}>
+                {stock > 0 ? `Donner : ${objet.nom} (en stock : ${stock})` : `Acheter et donner : ${objet.nom} (${nombre(PRIX_OBJET_TENU)} ₽)`}</button>;
+            })}</div>}</>}
           </>;
   const actions = pokemon && espece && membre && detail && <>
           {erreur && <p role="alert">{erreur}</p>}

@@ -1,4 +1,5 @@
 import surchargesParDefaut from '../../data/surcharges-stats.json';
+import { facteurObjetTenu } from './objets-tenus';
 import { chargerPokemon } from './pokemon';
 import type { Pokemon, StatsBase } from './pokemon';
 import { reglages } from './reglages';
@@ -31,6 +32,7 @@ type EntreeDps = {
   pierreEternelle?: boolean;
   calcium?: number;
   marqueEclosion?: boolean;
+  objetTenu?: string;
   multiplicateurType?: number;
 };
 
@@ -49,5 +51,6 @@ export function calculerDps(
     * (1 + (entree.bonheur ?? 0) * bonus.bonheurParPoint)
     * (entree.pierreEternelle ? bonus.pierreEternelle : 1)
     * (1 + (entree.calcium ?? 0) * bonus.calciumParBoost)
-    * (1 + (entree.marqueEclosion ? reglages.pension.marqueEclosion : 0));
+    * (1 + (entree.marqueEclosion ? reglages.pension.marqueEclosion : 0))
+    * facteurObjetTenu(entree.objetTenu, catalogue.parNumero(entree.numero).types);
 }
