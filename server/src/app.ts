@@ -119,8 +119,9 @@ export function createApp(config: Config, pool: Pool, mailer?: Mailer) {
       try { corps = await requete.clone().json(); }
       catch { return c.json({ message: 'JSON invalide.' }, 400); }
       if (corps && typeof corps === 'object' && !Array.isArray(corps)) {
-        if (typeof corps.name === 'string') corps.name = corps.name.slice(0, 50);
-        if (typeof corps.image === 'string' && corps.image.length > 2048) delete corps.image;
+        const champs = corps as Record<string, unknown>;
+        if (typeof champs.name === 'string') champs.name = champs.name.slice(0, 50);
+        if (typeof champs.image === 'string' && champs.image.length > 2048) delete champs.image;
         const headers = new Headers(requete.headers);
         headers.delete('content-length');
         requete = new Request(requete, { headers, body: JSON.stringify(corps) });
