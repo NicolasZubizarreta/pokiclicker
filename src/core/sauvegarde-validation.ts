@@ -3,6 +3,7 @@ import donneesJeuxCasino from '../../data/casino-jeux.json';
 import { migrer } from './migrations';
 import { reglages } from './reglages';
 import { sexeEspece } from './sexe';
+import { CATEGORIES_DEPENSE, JEUX_SUIVIS, suiviVide } from './suivi';
 import { chargerPokemon } from './pokemon';
 import monde from '../../data/regions/kanto/zones.json';
 import catalogueMonde from '../../data/monde.json';
@@ -241,6 +242,88 @@ function validerBlackjackEnCours(b: unknown): void {
     'Assurance blackjack invalide');
   compterCartes([...main.mains.flatMap(m => m.cartes), ...main.croupier]);
 }
+/** Le suivi est facultatif : chaque sous-champ illisible retrouve sa valeur vide. */
+export function validerSuivi(v: unknown): void {
+  objet(v);
+  const vide = suiviVide();
+  const compteur: Validateur = reel;
+  const compteurs = (cles: readonly string[]): Validateur => valeur => {
+    formeSouple(valeur, {}, Object.fromEntries(cles.map(cle => [cle, compteur])), true);
+    for (const cle of Object.keys(valeur as Record<string, unknown>)) entierPositif(valeur as Record<string, unknown>, cle);
+  };
+  const dictionnaire = (valider: Validateur, garder: (cle: string) => boolean, max: number): Validateur => valeur => {
+    objet(valeur);
+    for (const cle of Object.keys(valeur)) {
+      if (!garder(cle)) { delete valeur[cle]; continue; }
+      try { valider(valeur[cle]); } catch { delete valeur[cle]; }
+    }
+    for (const cle of Object.keys(valeur).sort().slice(0, Math.max(0, Object.keys(valeur).length - max))) delete valeur[cle];
+  };
+  const equipe: Validateur = valeur => {
+    exiger(Array.isArray(valeur), 'Équipe attendue');
+    const uids = valeur.filter(uid => { try { identifiant(uid); return true; } catch { return false; } });
+    valeur.splice(0, valeur.length, ...[...new Set(uids)].slice(0, 6));
+  };
+  const records: Validateur = valeur => {
+    formeSouple(valeur, {}, { ...Object.fromEntries(Object.keys(vide.records).map(cle => [cle, compteur])),
+      tempsBossMinMs: n => { if (n !== null) reel(n); } }, true);
+    const r = valeur as Record<string, unknown>;
+    for (const cle of Object.keys(r)) {
+      // Le DPS garde la précision au dixième prévue par noterDps.
+      if (cle === 'dpsMax') r[cle] = Math.min(Number.MAX_SAFE_INTEGER, Math.max(0, Math.round((r[cle] as number) * 10) / 10));
+      else if (r[cle] !== null) entierPositif(r, cle);
+    }
+  };
+  formeSouple(v, {}, {
+    ...Object.fromEntries(['captures', 'capturesShiny', 'evolutions', 'oeufsEclos', 'bossVaincus', 'serieVictoires'].map(cle => [cle, compteur])),
+    depenses: compteurs(CATEGORIES_DEPENSE), jetons: compteurs(['gagnes', 'perdus']), records,
+    casino: dictionnaire(compteurs(['parties', 'meilleurGain', 'meilleureSerie', 'serieActuelle']), cle => JEUX_SUIVIS.some(jeu => jeu === cle), JEUX_SUIVIS.length),
+    rencontres: dictionnaire(compteurs(['vus', 'captures', 'depuisShiny']), cle => /^[1-9]\d*$/.test(cle) && Number(cle) <= cataloguePokemon(), cataloguePokemon()),
+    argentJours: valeur => {
+      dictionnaire(reel, cle => /^\d{4}-\d{2}-\d{2}$/.test(cle), 7)(valeur);
+      for (const cle of Object.keys(valeur as Record<string, unknown>)) entierPositif(valeur as Record<string, unknown>, cle);
+    },
+    fenetreCaptures: valeur => {
+      if (valeur === null) return;
+      formeSouple(valeur, { debutMs: reel, n: reel });
+      for (const cle of ['debutMs', 'n']) entierPositif(valeur as Record<string, unknown>, cle);
+    },
+    equipes: valeur => {
+      exiger(Array.isArray(valeur), 'Équipes attendues');
+      const places = Array.from({ length: 3 }, (_, i) => {
+        try { equipe(valeur[i]); return valeur[i].length ? valeur[i] : null; } catch { return null; }
+      });
+      valeur.splice(0, valeur.length, ...places);
+    },
+    hall: valeur => {
+      exiger(Array.isArray(valeur), 'Hall attendu');
+      const entrees = valeur.filter(entree => {
+        try {
+          formeSouple(entree, { date: date => {
+            chaine(date);
+            exiger(/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(?:\.\d{3})?Z$/.test(date) && Number.isFinite(Date.parse(date)), 'Date UTC attendue');
+          }, tempsJeuMs: reel, equipe: liste(p => {
+            formeSouple(p, { numero: positif, niveau: reel, shiny: booleen }, { surnom: nom => chaineBornee(nom, 1, 200) }, true);
+            const pokemon = p as Record<string, unknown>;
+            exiger((pokemon.numero as number) <= cataloguePokemon(), 'Espèce inconnue');
+            entierPositif(pokemon, 'niveau');
+          }) });
+          entierPositif(entree, 'tempsJeuMs');
+          entree.equipe = entree.equipe.slice(0, 6);
+          return true;
+        } catch { return false; }
+      }).slice(0, 50);
+      valeur.splice(0, valeur.length, ...entrees);
+    },
+    titre: valeur => chaineBornee(valeur, 0, 40),
+  }, true);
+  for (const cle of ['captures', 'capturesShiny', 'evolutions', 'oeufsEclos', 'bossVaincus', 'serieVictoires']) entierPositif(v, cle);
+  const fusion = { ...vide, ...v, records: { ...vide.records, ...v.records as object }, jetons: { ...vide.jetons, ...v.jetons as object } };
+  for (const stats of Object.values(fusion.casino)) Object.assign(stats, Object.assign({ parties: 0, meilleurGain: 0, meilleureSerie: 0, serieActuelle: 0 }, stats));
+  for (const rencontre of Object.values(fusion.rencontres)) Object.assign(rencontre, Object.assign({ vus: 0, captures: 0, depuisShiny: 0 }, rencontre));
+  Object.assign(v, fusion);
+}
+
 export function validerDonneesRegion(v: unknown): asserts v is DonneesRegion {
   formeSouple(v, { regionId: identifiant, zoneId: texte, etape: reel, equipe: liste(validerPokemonPossede),
     badges: textes, bossVaincus: textes, objetsCles: textes, quetes: textes, drapeaux: textes,
@@ -261,6 +344,7 @@ export function validerDonneesRegion(v: unknown): asserts v is DonneesRegion {
     casinoVu: booleen,
     pensionVue: booleen,
     zonesAtteintes: textes,
+    suivi: validerSuivi,
     evenementEnCours: e => formeSouple(e, { id: identifiant,
       etape: i => { entier(i); exiger((i as number) >= 0, 'Étape invalide'); },
       file: liste(identifiant) }),

@@ -68,7 +68,12 @@ export function migrerV4versV5(donnees: unknown, niveau: Niveau, ecritLe: string
   }
   return { ...source, chronos };
 }
-export const migrationsParDefaut: TableMigrations = { 1: migrerV1versV2, 2: migrerV2versV3, 3: migrerV3versV4, 4: migrerV4versV5 };
+export function migrerV5versV6(donnees: unknown, _niveau: Niveau): unknown {
+  // Le champ suivi reste absent : les sauvegardes existantes démarrent leurs compteurs à zéro.
+  // Les données mal formées traversent telles quelles, à la charge de la validation.
+  return donnees;
+}
+export const migrationsParDefaut: TableMigrations = { 1: migrerV1versV2, 2: migrerV2versV3, 3: migrerV3versV4, 4: migrerV4versV5, 5: migrerV5versV6 };
 
 export function migrer(enveloppe: Enveloppe<unknown>, table = migrationsParDefaut): Enveloppe<unknown> {
   if (!Number.isInteger(enveloppe.version) || enveloppe.version < 0) {

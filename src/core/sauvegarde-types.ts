@@ -1,4 +1,6 @@
-export const VERSION_ACTUELLE = 5;
+import type { Suivi } from './suivi';
+
+export const VERSION_ACTUELLE = 6;
 export const ERREUR_VERSION = "Cette sauvegarde vient d'une version plus récente du jeu.";
 
 export type Niveau = 'compte' | 'partie' | 'region';
@@ -67,6 +69,8 @@ export type DonneesRegion = {
   pensionVue?: boolean;
   /** Zones où le joueur est déjà entré (objectif « Zone suivante »). Absent dans une sauvegarde ancienne : alors les zones au boss vaincu et la zone courante. */
   zonesAtteintes?: string[];
+  /** Compteurs, records et collections de suivi ; absent dans une ancienne sauvegarde = valeurs vides. */
+  suivi?: Suivi;
   inventaire: Record<string, number>; ligueGagnee: number;
   pc: PokemonPossede[]; ameliorations: string[]; jalonsRecus: number[]; starterId: number | null;
   statistiques: { eliminations: number; argentTotalGagne: number };
