@@ -44,7 +44,7 @@ export function CarteEquipe({ membre, renommer, retirerObjet, evolution, evoluer
         className={`carte-evo-sprite size-auto min-h-0 min-w-0 max-h-full max-w-full lg:size-24 lg:row-span-3 ${membre.pokemon.shiny && !oeuf ? 'halo-shiny' : ''} ${classeSprite(membre.pokemon)}`} />}
       {!oeuf && <span className="absolute bottom-1 left-1 contour-texte px-1 text-base tabular-nums lg:hidden">{membre.pokemon.niveau}</span>}
       {!oeuf && membre.multiplicateur !== 1 && <span aria-label={`Avantage de type : ${libelleMultiplicateur(membre.multiplicateur)}`}
-        className={`plaque absolute bottom-1 right-1 text-base tabular-nums lg:hidden ${couleursAvantage[nature(membre.multiplicateur)]}`}>{libelleMultiplicateur(membre.multiplicateur)}</span>}
+        className={`absolute right-0 top-0 contour-texte px-1 text-base tabular-nums lg:hidden ${couleursAvantage[nature(membre.multiplicateur)]}`}>{libelleMultiplicateur(membre.multiplicateur)}</span>}
       <div className="carte-equipe-identite hidden min-w-0 justify-self-stretch self-end lg:block">
         <div className="flex min-w-0 items-center justify-between gap-1">
           <strong className="block min-w-0 break-words">{nom}<RepereTags pokemon={membre.pokemon} /></strong>
