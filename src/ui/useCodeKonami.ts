@@ -28,14 +28,19 @@ export function useCodeKonami(store: StoreJeu) {
         position = 0;
         return;
       }
+      const avant = position;
       position = avancerCode(position, event.key);
+      // Les deux dernières touches (B, A) sont aussi des raccourcis du combat (choix de balle, attaque auto) :
+      // tant qu'elles prolongent le code, elles ne doivent rien déclencher d'autre.
+      if (position > avant && avant >= code.length - 2) event.stopPropagation();
       if (position === code.length) {
         position = 0;
         if (etat.noterCodeKonami()) montrer(true);
       }
     };
-    document.addEventListener('keydown', clavier);
-    return () => document.removeEventListener('keydown', clavier);
+    // Phase de capture : avant les raccourcis, qui ouvrent le choix de balle (touche B) et feraient repartir le code à zéro.
+    document.addEventListener('keydown', clavier, true);
+    return () => document.removeEventListener('keydown', clavier, true);
   }, [store, telephone]);
   useEffect(() => {
     if (!pluie) return;
