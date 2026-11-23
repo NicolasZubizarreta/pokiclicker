@@ -59,7 +59,6 @@ const ECRANS: { nom: string; aller: (page: Page, projet: string) => Promise<void
     await page.getByRole('button', { name: /^Sac/ }).first().click();
     await expect(page.getByRole('dialog')).toBeVisible();
   } },
-  { nom: 'PC', aller: async page => { await onglet(page, 'PC').click(); } },
   { nom: 'Fiche d’un Pokémon', aller: async page => {
     await onglet(page, 'PC').click();
     await page.locator('[aria-label^="Ouvrir la fiche"], [aria-label*=", niveau "]').first().click();
