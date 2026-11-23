@@ -42,6 +42,13 @@ describe('validation des sauvegardes auditées', () => {
     const p = partieInitiale('Test'); p.regionsDebloquees.push('inconnue');
     validerDonneesPartie(p); expect(p.regionsDebloquees).toEqual(['kanto']);
   });
+  it('abandonne une grille de Voltorbe Flip illisible sans refuser la région, garde une grille valide', () => {
+    const bonne = { niveau: 0, mise: 10, cases: '0'.repeat(25), vues: '0'.repeat(25) };
+    const r = { ...region(), voltorbeEnCours: bonne };
+    validerDonneesRegion(r); expect(r.voltorbeEnCours).toEqual(bonne);
+    const mauvaise = { ...region(), voltorbeEnCours: { ...bonne, cases: '9' } };
+    validerDonneesRegion(mauvaise); expect(mauvaise.voltorbeEnCours).toBeUndefined();
+  });
   it('S-core-12 abandonne l’événement en cours déjà joué (le catalogue, injecté par le store, est jugé par le moteur)', () => {
     const r = region(); r.evenementEnCours = { id: 'kanto.intro', etape: 0, file: [] }; r.evenementsJoues = ['kanto.intro'];
     validerDonneesRegion(r); expect(r.evenementEnCours).toBeUndefined();

@@ -17,6 +17,8 @@ export type PokemonPossede = {
   /** Objet tenu selon le type (data/objets-tenus.json) : +bonus de dégâts si le type correspond. Absent = aucun. */
   objetTenu?: string;
 };
+/** Grille de Voltorbe Flip : `cases` = une valeur par carte (0 Voltorbe, 1, 2 ou 3), `vues` = « 1 » quand la carte est retournée. */
+export type VoltorbeEnCours = { niveau: number; mise: number; cases: string; vues: string };
 export type ReglagesArret = {
   actif: boolean; commun: boolean; peuCommun: boolean; rare: boolean; tresRare: boolean;
   legendaire: boolean; shiny: boolean; nouveau: boolean;
@@ -88,6 +90,8 @@ export type DonneesRegion = {
   sabotBlackjack?: string[];
   /** « Plus ou moins » : rang (1 = as … 13 = roi) de la carte visible, gardé pour qu'un rechargement la retrouve. Aucune mise n'est engagée. */
   plusOuMoinsCarte?: number;
+  /** Voltorbe Flip en cours : la mise est déjà débitée. Absent = aucune grille. */
+  voltorbeEnCours?: VoltorbeEnCours;
   /** Numéros des espèces (forme de base) déjà écloses d'un œuf, chacune une seule fois. Absent = aucune connue. */
   especesEcloses?: number[];
   /** Espèces obtenues chromatiques, dans l'ordre de première obtention ; absente = vide. */

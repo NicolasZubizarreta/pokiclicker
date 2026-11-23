@@ -6,7 +6,7 @@ import { formaterNombre } from './nombres';
 
 const depenses = { boutique: 'Boutique', centre: 'Centre commercial', casino: 'Casino (achats de jetons)', pension: 'Pension' };
 const jeux = { machine: 'Machine à sous', roulette: 'Roulette', plusOuMoins: 'Plus ou moins',
-  pileOuFace: 'Pile ou face', gratter: 'Carte à gratter', blackjack: 'Blackjack' };
+  pileOuFace: 'Pile ou face', gratter: 'Carte à gratter', blackjack: 'Blackjack', voltorbe: 'Voltorbe Flip' };
 const cadre = 'cadre grid content-start gap-2 bg-surface p-4 text-base tabular-nums';
 const titreCarte = 'font-titre text-lg font-bold';
 

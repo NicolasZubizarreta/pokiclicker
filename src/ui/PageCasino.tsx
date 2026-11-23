@@ -12,15 +12,16 @@ import { PileOuFace } from './PileOuFace';
 import { PlusOuMoins } from './PlusOuMoins';
 import { Roulette } from './Roulette';
 import { TableBlackjack } from './TableBlackjack';
+import { VoltorbeFlip } from './VoltorbeFlip';
 import './PageCasino.css';
 
 const donnees = chargerCasino();
-type Vue = 'salle' | 'machine' | 'blackjack' | 'pile' | 'roulette' | 'plusmoins' | 'gratter' | 'boutique';
+type Vue = 'salle' | 'machine' | 'blackjack' | 'pile' | 'roulette' | 'plusmoins' | 'gratter' | 'voltorbe' | 'boutique';
 const titres: Record<Vue, string> = { salle: 'Casino', machine: 'Machine à sous', blackjack: 'Blackjack', pile: 'Pile ou face', roulette: 'Roulette',
-  plusmoins: 'Plus ou moins', gratter: 'Carte à gratter', boutique: 'Boutique de jetons' };
+  plusmoins: 'Plus ou moins', gratter: 'Carte à gratter', voltorbe: 'Voltorbe Flip', boutique: 'Boutique de jetons' };
 const accueils: Record<Vue, string> = { salle: '', machine: 'Choisis ta mise et lance.', blackjack: 'Choisis ta mise et distribue.', pile: 'Choisis ton côté, puis lance.',
   roulette: 'Choisis ta mise sur la table, puis lance la bille.', plusmoins: 'La suivante sera-t-elle plus haute ou plus basse ?',
-  gratter: 'Achète une carte, puis gratte les 6 cases.', boutique: '' };
+  gratter: 'Achète une carte, puis gratte les 6 cases.', voltorbe: 'Choisis un niveau et ta mise, puis retourne les cartes.', boutique: '' };
 
 /** Cartes de la salle (variante A) : un jeu par carte, avec trois images de vitrine décoratives. */
 const vitrines: { vue: Exclude<Vue, 'salle'>; titre: string; texte: string; bouton: string; vitrine: ReactNode }[] = [
@@ -38,6 +39,8 @@ const vitrines: { vue: Exclude<Vue, 'salle'>; titre: string; texte: string; bout
       <ul className="cs-cartes"><CarteJeu dos /></ul></> },
   { vue: 'gratter', titre: 'Carte à gratter', texte: 'Six cases à gratter : trois symboles identiques ou plus, tu gagnes.', bouton: 'Gratter',
     vitrine: <><span className="cs-mini"><Illustration image="pokemon/25" nom="" /></span><span className="cs-mini"><Illustration image="pokemon/25" nom="" /></span><span className="cs-mini cs-hachure" /></> },
+  { vue: 'voltorbe', titre: 'Voltorbe Flip', texte: 'Retourne des cartes ×2 et ×3 sans tomber sur un Voltorbe. Encaisse quand tu veux.', bouton: 'Retourner des cartes',
+    vitrine: <><span className="cs-vo-carte" data-v="2">×2</span><span className="cs-vo-carte cs-dos" /><span className="cs-vo-carte" data-v="3">×3</span></> },
   { vue: 'boutique', titre: 'Boutique de jetons', texte: 'Abra, Porygon, Master Ball… dès 250 jetons.', bouton: 'Voir la boutique',
     vitrine: ['pokemon/63', 'objets/master-ball.png', 'pokemon/137'].map(i => <span key={i} className="cs-produit-image"><Illustration image={i} nom="" /></span>) },
 ];
@@ -60,7 +63,18 @@ export function PageCasino({ retour, store = storeJeu, offerts = 0 }: { retour()
       };
     }
     const a = store.getState();
+    /** Voltorbe Flip : la partie se note à la fin de la grille (mise, gain total), pas à chaque carte. */
+    const finVoltorbe = <A extends unknown[], R extends { ok: boolean; fin?: { gain: number; mise: number } | null }>(action: () => (...args: A) => R) => (...args: A): R => {
+      const r = action()(...args);
+      if (r.ok && r.fin) {
+        const net = r.fin.gain - r.fin.mise;
+        noter(avant => { const b = avant['Voltorbe Flip'] ?? { net: 0, parties: 0, gagnees: 0 };
+          return { ...avant, 'Voltorbe Flip': { net: b.net + net, parties: b.parties + 1, gagnees: b.gagnees + Number(net > 0) } }; });
+      }
+      return r;
+    };
     return { ...a,
+      retournerVoltorbe: finVoltorbe(() => store.getState().retournerVoltorbe), encaisserVoltorbe: finVoltorbe(() => store.getState().encaisserVoltorbe),
       jouerMachine: suivre('Machine à sous', () => store.getState().jouerMachine), jouerPileOuFace: suivre('Pile ou face', () => store.getState().jouerPileOuFace),
       jouerRoulette: suivre('Roulette', () => store.getState().jouerRoulette), jouerPlusOuMoins: suivre('Plus ou moins', () => store.getState().jouerPlusOuMoins), gratter: suivre('Carte à gratter', () => store.getState().gratter),
       distribuerBlackjack: suivre('Blackjack', () => store.getState().distribuerBlackjack), tirerBlackjack: suivre('Blackjack', () => store.getState().tirerBlackjack),
@@ -70,8 +84,8 @@ export function PageCasino({ retour, store = storeJeu, offerts = 0 }: { retour()
     };
   }, [store]);
   const total = Object.values(bilan).reduce((a, b) => ({ net: a.net + b.net, parties: a.parties + b.parties, gagnees: a.gagnees + b.gagnees }), { net: 0, parties: 0, gagnees: 0 });
-  const [vue, aller] = useState<Vue>(casino.blackjackEnCours ? 'blackjack' : 'salle');
-  const [message, ecrire] = useState(casino.blackjackEnCours ? 'À toi de jouer.' : ''), [ton, tonner] = useState<Ton | undefined>(undefined);
+  const [vue, aller] = useState<Vue>(casino.blackjackEnCours ? 'blackjack' : casino.voltorbe ? 'voltorbe' : 'salle');
+  const [message, ecrire] = useState(casino.blackjackEnCours ? 'À toi de jouer.' : casino.voltorbe ? 'Une grille est en cours.' : ''), [ton, tonner] = useState<Ton | undefined>(undefined);
   /** Gain déjà crédité mais pas encore révélé par l'animation du jeu en cours : retiré de l'affichage des jetons. */
   const [cache, cacher] = useState<number | null>(null);
   const [nbJetons, saisir] = useState('50');
@@ -82,7 +96,7 @@ export function PageCasino({ retour, store = storeJeu, offerts = 0 }: { retour()
   useEffect(() => { vueActive.current = vue; return () => { vueActive.current = null; }; }, [vue]);
   const occuper = useCallback((gain: number | null) => { if (vueActive.current === vue) cacher(gain); }, [vue]);
   const changer = (v: Vue) => {
-    cacher(null); aller(v); ecrire(v === 'blackjack' && casino.blackjackEnCours ? 'À toi de jouer.' : accueils[v]); tonner(undefined);
+    cacher(null); aller(v); ecrire(v === 'blackjack' && casino.blackjackEnCours ? 'À toi de jouer.' : v === 'voltorbe' && casino.voltorbe ? 'Une grille est en cours.' : accueils[v]); tonner(undefined);
   };
   const jetons = Math.max(0, casino.jetons - (cache ?? 0));
   const verdict = <Verdict message={message} ton={ton} />;
@@ -161,6 +175,7 @@ export function PageCasino({ retour, store = storeJeu, offerts = 0 }: { retour()
       {vue === 'roulette' && <Roulette actions={actionsJeux} signaler={signaler} occuper={occuper} jetons={jetons} verdict={verdict} />}
       {vue === 'plusmoins' && <PlusOuMoins actions={actionsJeux} carte={casino.plusOuMoinsCarte} signaler={signaler} occuper={occuper} jetons={jetons} verdict={verdict} />}
       {vue === 'gratter' && <CarteAGratter actions={actionsJeux} signaler={signaler} occuper={occuper} jetons={jetons} verdict={verdict} />}
+      {vue === 'voltorbe' && <VoltorbeFlip actions={actionsJeux} grille={casino.voltorbe} signaler={signaler} jetons={jetons} verdict={verdict} />}
       {vue === 'boutique' && <BoutiqueCasino actions={actions} objets={casino.objets} jetons={jetons} signaler={signaler} verdict={verdict} />}
       {rappel}
     </>}

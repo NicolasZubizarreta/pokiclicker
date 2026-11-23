@@ -3,7 +3,7 @@ import { JEUX_SUIVIS } from '../core/suivi';
 import { storeJeu, type StoreJeu } from './store';
 import { formaterNombre } from './nombres';
 
-const noms = { machine: 'Machine à sous', roulette: 'Roulette', plusOuMoins: 'Plus ou moins', pileOuFace: 'Pile ou face', gratter: 'Carte à gratter', blackjack: 'Blackjack' };
+const noms = { machine: 'Machine à sous', roulette: 'Roulette', plusOuMoins: 'Plus ou moins', pileOuFace: 'Pile ou face', gratter: 'Carte à gratter', blackjack: 'Blackjack', voltorbe: 'Voltorbe Flip' };
 export function ScoresCasino({ store = storeJeu }: { store?: StoreJeu }) {
   const suivi = useStore(store, s => s.suivi);
   const joues = JEUX_SUIVIS.filter(jeu => (suivi.casino[jeu]?.parties ?? 0) > 0);

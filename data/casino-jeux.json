@@ -28,7 +28,25 @@
       { "id": "Magicarpe", "nom": "Magicarpe", "image": "pokemon/129", "poids": 19, "gains": [2, 3, 6, 20] }
     ]
   },
+  "voltorbe": {
+    "taille": 5,
+    "niveaux": [
+      { "nom": "Facile", "voltorbes": 8, "doubles": 4, "triples": 2 },
+      { "nom": "Moyen", "voltorbes": 10, "doubles": 4, "triples": 2 },
+      { "nom": "Difficile", "voltorbes": 12, "doubles": 4, "triples": 3 }
+    ],
+    "encaissementPourCent": 80,
+    "bonusDoublePourCent": 25,
+    "bonusTriplePourCent": 50
+  },
   "messages": {
+    "voltorbeEnCours": "Une grille est déjà en cours.",
+    "voltorbeAucune": "Aucune grille en cours.",
+    "voltorbeDeja": "Cette carte est déjà retournée.",
+    "voltorbePerdu": "Voltorbe ! Boum, la mise est perdue.",
+    "voltorbeEncaisse": "Tu encaisses {gain} jetons (×{multiplicateur}).",
+    "voltorbeFini": "Grille terminée : {gain} jetons (×{multiplicateur}).",
+    "voltorbeSur": "Carte ×{valeur}. Mise en jeu : ×{multiplicateur}.",
     "miseInvalide": "Mise invalide.",
     "jetonsInsuffisants": "Pas assez de jetons.",
     "choixInvalide": "Choix invalide.",

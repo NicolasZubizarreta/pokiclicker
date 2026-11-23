@@ -17,7 +17,8 @@ import evenementsRonflex from '../../data/evenements/ronflex.json';
 import evenementsFin from '../../data/evenements/fin.json';
 import evenementsChenBoss from '../../data/evenements/chen-boss.json';
 import { LISTE_MAX, PLAFOND_ARGENT, PLAFOND_JETONS } from './plafonds';
-import type { DonneesCompte, DonneesPartie, DonneesRegion, Enveloppe, MainBlackjack, MainBlackjackAncienne, Niveau, PokemonPossede } from './sauvegarde-types';
+import { grilleValide } from './voltorbe';
+import type { DonneesCompte, DonneesPartie, DonneesRegion, Enveloppe, MainBlackjack, MainBlackjackAncienne, Niveau, PokemonPossede, VoltorbeEnCours } from './sauvegarde-types';
 
 /**
  * Politique (incident de production du 20/11) : une vraie sauvegarde n'est jamais refusée pour une règle « douce ».
@@ -359,6 +360,7 @@ export function validerDonneesRegion(v: unknown): asserts v is DonneesRegion {
       file: liste(identifiant) }),
     blackjackEnCours: validerBlackjackEnCours,
     sabotBlackjack: s => validerSabot(s),
+    voltorbeEnCours: g => exiger(grilleValide(g as VoltorbeEnCours), 'Grille de Voltorbe Flip invalide'),
     especesShiny: liste(reel),
     especesEclosesShiny: liste(reel),
     especesEcloses: liste(reel),

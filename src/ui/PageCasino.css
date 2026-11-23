@@ -234,3 +234,21 @@
 }
 
 @media (prefers-reduced-motion: reduce) { .cs-page *, .cs-page *::before, .cs-page *::after { animation: none !important; transition: none !important; } }
+
+/* Voltorbe Flip : grille 5×5 avec les indices de ligne et de colonne dans la sixième case */
+.cs-vo-grille { --cote: min(calc(var(--spacing) * 14), calc((100vw - var(--spacing) * 24) / 6)); display: grid; gap: var(--spacing); }
+@media (min-width: 64rem) { .cs-vo-grille { --cote: calc(var(--spacing) * 18); } }
+.cs-vo-ligne { display: grid; grid-template-columns: repeat(6, var(--cote)); gap: var(--spacing); }
+.cs-vo-carte { display: grid; place-items: center; width: var(--cote, calc(var(--spacing) * 16)); height: var(--cote, calc(var(--spacing) * 16)); padding: 0; border: calc(var(--spacing) / 2) solid var(--fond); border-radius: var(--radius-md); font-family: var(--font-titre); font-weight: 700; font-size: var(--text-lg); background: var(--blanc); color: var(--fond); animation: cs-carte-arrive var(--duration-normal) var(--ease-sortie) both; }
+.cs-vo-carte.cs-dos { background-color: var(--region-accent-fort); border-color: var(--region-accent); background-image: repeating-linear-gradient(45deg, var(--region-accent) 0 var(--spacing), transparent var(--spacing) calc(var(--spacing) * 3)); }
+button.cs-vo-carte { cursor: pointer; animation: none; }
+.cs-vo-carte[data-v="2"] { background: var(--succes-fond); color: var(--succes-texte); border-color: var(--succes-base); }
+.cs-vo-carte[data-v="3"] { background: var(--region-argent); color: var(--fond); border-color: var(--alerte-base); }
+.cs-vo-indice { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--spacing); width: var(--cote); height: var(--cote); background: var(--fond); color: var(--texte); border: calc(var(--spacing) / 2) solid var(--bordure); border-radius: var(--radius-md); font-family: var(--font-titre); font-size: var(--text-lg); line-height: 1; }
+.cs-vo-v { display: grid; place-items: center; min-width: calc(var(--spacing) * 5); height: calc(var(--spacing) * 5); border-radius: var(--radius-plein); background: var(--action); color: var(--blanc); font-size: var(--text-base); font-weight: 700; line-height: 1; }
+.cs-vo-niveaux { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.cs-vo-etat { display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--spacing) * 2); }
+.cs-vo-etat div { display: grid; gap: var(--spacing); padding: calc(var(--spacing) * 2); background: var(--fond); border: calc(var(--spacing) / 2) solid var(--bordure); border-radius: var(--radius-md); }
+.cs-vo-etat dt { color: var(--texte-doux); font-size: var(--text-base); }
+.cs-vo-etat dd { font-family: var(--font-titre); font-weight: 700; font-size: var(--text-lg); }
+.cs-vo-niveaux .plaque[aria-pressed="true"] { border-color: var(--region-argent); }

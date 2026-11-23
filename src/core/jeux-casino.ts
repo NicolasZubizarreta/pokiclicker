@@ -28,11 +28,14 @@ function validerForme(valeur: unknown, modele: unknown): void {
 export function chargerJeuxCasino(source: unknown = donnees): JeuxCasino {
   validerForme(source, donnees);
   const jeux = structuredClone(source) as JeuxCasino;
-  const { roulette, plusOuMoins, gratter } = jeux;
+  const { roulette, plusOuMoins, gratter, voltorbe } = jeux;
+  const cases = voltorbe.taille * voltorbe.taille;
   const rouges = new Set(roulette.rouges);
   if (jeux.version !== 1 || rouges.size !== roulette.rouges.length || roulette.cases < 2
     || roulette.rouges.some(n => n < 1 || n >= roulette.cases)
     || plusOuMoins.rendementPourCent > 100
+    || voltorbe.taille < 2 || voltorbe.encaissementPourCent > 100 || voltorbe.bonusDoublePourCent < 1
+    || voltorbe.niveaux.some(n => n.voltorbes < voltorbe.taille || n.voltorbes + n.doubles + n.triples > cases)
     || gratter.minimumIdentiques < 1 || gratter.minimumIdentiques > gratter.cases
     || new Set(gratter.symboles.map(s => s.id)).size !== gratter.symboles.length
     || gratter.symboles.some(s => s.gains.length !== gratter.cases - gratter.minimumIdentiques + 1)) {
@@ -45,10 +48,10 @@ const jeux = chargerJeuxCasino();
 const { roulette, plusOuMoins, gratter: regleGratter, messages } = jeux;
 
 const rouges = new Set(roulette.rouges);
-const remplir = (modele: string, valeurs: Record<string, string | number>) =>
+export const remplir = (modele: string, valeurs: Record<string, string | number>) =>
   modele.replace(/\{(\w+)\}/g, (_, cle: string) => String(valeurs[cle] ?? ''));
 
-function debiter<R extends RegionJetons>(region: R, mise: number): { ok: true; region: R } | { ok: false; raison: string } {
+export function debiter<R extends RegionJetons>(region: R, mise: number): { ok: true; region: R } | { ok: false; raison: string } {
   if (!Number.isInteger(mise) || mise < 1) return { ok: false, raison: messages.miseInvalide };
   if (region.jetons < mise) return { ok: false, raison: messages.jetonsInsuffisants };
   return { ok: true, region: { ...region, jetons: region.jetons - mise } };

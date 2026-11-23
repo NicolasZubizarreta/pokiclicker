@@ -37,6 +37,7 @@ import { avecTutoVu, tutosDejaDepasses, tutoAArmer } from '../core/tutoriels';
 import * as pension from '../core/pension';
 import * as casino from '../core/casino';
 import * as jeuxCasino from '../core/jeux-casino';
+import * as voltorbe from '../core/voltorbe';
 import { ajouterAuPokedex, ajouterAuxVus, completerVus, completerPokedex, pokedexDeKanto } from '../core/pokedex';
 import { appliquerVictoire, calculerMaxXp, delaiEnnemiSuivant } from '../core/recompenses';
 import type { FormeCarte, Zone, ZoneMonde } from '../core/monde';
@@ -54,7 +55,7 @@ import { afficherEffets, afficherFauchage, type EffetsAffiches, type FauchageAff
 import { afficherBoutique, afficherCentre, afficherSac, type AffichageBoutique, type AffichageSac } from './store-boutique';
 import { construireEclosions, signalerPremiereEntreePension, type EclosionAffichee } from './store-pension';
 import { estDoublonCapture, capturerDoublon, doublonsEclos, retirerDeLEquipe } from '../core/relache-auto';
-import { afficherCasino, signalerPremiereEntreeCasino, suivrePartieCasino, type PartieSuivie, type ActionsCasino, type AffichageCasino } from './store-casino';
+import { afficherCasino, noterFinVoltorbe, signalerPremiereEntreeCasino, suivrePartieCasino, type PartieSuivie, type ActionsCasino, type AffichageCasino } from './store-casino';
 import { detailErreur, ouvrirPartie } from './persistance';
 import { creerStockageLocal } from './stockage-local';
 import { modeDeveloppeur } from './mode-dev';
@@ -897,7 +898,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
   };
   /** Coup d'un jeu du casino sans objet à gagner (roulette, plus ou moins, carte à gratter) : même accès, même annonce, sauvegarde immédiate. */
   const jouerAuCasino = <T extends { ok: true; region: DonneesRegion; message: string } | { ok: false; raison: string }>(
-    action: (region: DonneesRegion) => T, partie: PartieSuivie): T | { ok: false; raison: string } => {
+    action: (region: DonneesRegion) => T, partie?: PartieSuivie): T | { ok: false; raison: string } => {
     if (!initialise) return { ok: false, raison: 'La partie n’est pas démarrée.' };
     const acces = casino.accesCasino(kanto, etatMondeDe(region));
     if (!acces.ok) return { ok: false, raison: acces.raison! };
@@ -991,7 +992,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       afficher();
     },
     casino: { acces: { ouvert: false, raison: casino.chargerCasino().acces.raison },
-      jetons: 0, nouveau: false, blackjackEnCours: null, plusOuMoinsCarte: null, objets: [] },
+      jetons: 0, nouveau: false, blackjackEnCours: null, plusOuMoinsCarte: null, voltorbe: null, objets: [] },
     entrerAuCasino() {
       if (!initialise || !casino.accesCasino(kanto, etatMondeDe(region)).ok) return { offerts: 0 };
       const resultat = casino.entrerAuCasino(region);
@@ -1033,6 +1034,9 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       return resultat.ok ? { ...resultat, region: { ...resultat.region, plusOuMoinsCarte: resultat.nouvelleCarte } } : resultat;
     }, { jeu: 'plusOuMoins', mise }),
     gratter: mise => jouerAuCasino(region => jeuxCasino.gratter(region, mise, alea), { jeu: 'gratter', mise }),
+    commencerVoltorbe: (mise, niveau) => jouerAuCasino(region => voltorbe.commencerVoltorbe(region, mise, niveau, alea)),
+    retournerVoltorbe: index => jouerAuCasino(region => noterFinVoltorbe(voltorbe.retournerVoltorbe(region, index))),
+    encaisserVoltorbe: () => jouerAuCasino(region => noterFinVoltorbe(voltorbe.encaisserVoltorbe(region))),
     sonnerCasino: () => emettreSon('coin'),
     sonActive,
     journalActif: false,

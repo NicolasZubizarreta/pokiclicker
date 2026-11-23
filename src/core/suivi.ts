@@ -2,7 +2,7 @@ import type { EvenementCombat } from './combat';
 import { avancerChaine, type Chaine } from './chaines';
 
 export const CATEGORIES_DEPENSE = ['boutique', 'centre', 'casino', 'pension'] as const;
-export const JEUX_SUIVIS = ['machine', 'roulette', 'plusOuMoins', 'pileOuFace', 'gratter', 'blackjack'] as const;
+export const JEUX_SUIVIS = ['machine', 'roulette', 'plusOuMoins', 'pileOuFace', 'gratter', 'blackjack', 'voltorbe'] as const;
 export type StatsJeu = { parties: number; meilleurGain: number; meilleureSerie: number; serieActuelle: number };
 export type Rencontre = { vus: number; captures: number; depuisShiny: number };
 export type EntreeHall = { date: string; tempsJeuMs: number; equipe: { numero: number; niveau: number; shiny: boolean; surnom?: string }[] };

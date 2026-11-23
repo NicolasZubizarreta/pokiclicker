@@ -1,4 +1,5 @@
 import * as casino from '../core/casino';
+import * as voltorbe from '../core/voltorbe';
 import type * as jeux from '../core/jeux-casino';
 import { kanto } from '../core/regions';
 import { etatMondeDe, type DonneesRegion } from '../core/sauvegarde';
@@ -18,6 +19,14 @@ export function suivrePartieCasino(avant: DonneesRegion,
   if (!partie) return apres;
   const gain = apres.jetons - avant.jetons + partie.mise;
   return { ...apres, suivi: noterPartieCasino(lireSuivi(apres), partie.jeu, { mise: partie.mise, gain }) };
+}
+
+/** Fin d'une grille de Voltorbe Flip (perdue, encaissée ou terminée) : la partie entre dans le suivi (mise, gain total). */
+export function noterFinVoltorbe<R extends { ok: boolean }>(resultat: R): R {
+  const r = resultat as unknown as { ok: true; region: DonneesRegion; fin: voltorbe.FinVoltorbe | null } | { ok: false };
+  if (!r.ok || !r.fin) return resultat;
+  const suivi = noterPartieCasino(lireSuivi(r.region), 'voltorbe', { mise: r.fin.mise, gain: r.fin.gain });
+  return { ...r, region: { ...r.region, suivi } } as unknown as R;
 }
 
 export type ActionsCasino = {
@@ -43,6 +52,10 @@ export type ActionsCasino = {
   /** Joue la carte visible sauvegardée ; la carte tirée devient la nouvelle carte visible (sauvegardée avec le coup). */
   jouerPlusOuMoins(mise: number, choix: jeux.ChoixPlusOuMoins): ReturnType<typeof jeux.jouerPlusOuMoins<DonneesRegion>>;
   gratter(mise: number): ReturnType<typeof jeux.gratter<DonneesRegion>>;
+  /** Voltorbe Flip : la mise est débitée au départ, la grille est sauvegardée jusqu'à l'encaissement ou au Voltorbe. */
+  commencerVoltorbe(mise: number, niveau: number): ReturnType<typeof voltorbe.commencerVoltorbe<DonneesRegion>>;
+  retournerVoltorbe(index: number): ReturnType<typeof voltorbe.retournerVoltorbe<DonneesRegion>>;
+  encaisserVoltorbe(): ReturnType<typeof voltorbe.encaisserVoltorbe<DonneesRegion>>;
   /** Le ton « coin » de la V1, joué quand un gain est révélé (le casino de la V1 n'avait pas de son propre). Muet si le son est coupé. */
   sonnerCasino(): void;
   /**
@@ -76,6 +89,9 @@ export type AffichageCasino = {
   blackjackEnCours: casino.VueBlackjack | null;
   /** Carte visible du « plus ou moins » (1 à 13), `null` tant qu'aucune n'a été tirée. */
   plusOuMoinsCarte: number | null;
+  /** Grille de Voltorbe Flip en cours (cartes cachées non révélées), 
+ull sans partie. */
+  voltorbe: voltorbe.VueVoltorbe | null;
   objets: ReturnType<typeof casino.objetsDuCasino>;
 };
 
@@ -84,7 +100,7 @@ export function afficherCasino(region: DonneesRegion, precedent: AffichageCasino
   const affichage: AffichageCasino = {
     acces: { ouvert: acces.ok, raison: acces.ok ? null : acces.raison ?? null },
     jetons: region.jetons, nouveau: acces.ok && region.casinoVu !== true, blackjackEnCours: casino.vueBlackjack(region),
-    plusOuMoinsCarte: region.plusOuMoinsCarte ?? null,
+    plusOuMoinsCarte: region.plusOuMoinsCarte ?? null, voltorbe: voltorbe.vueVoltorbe(region),
     objets: casino.objetsDuCasino(region),
   };
   return JSON.stringify(affichage) === JSON.stringify(precedent) ? precedent! : affichage;
