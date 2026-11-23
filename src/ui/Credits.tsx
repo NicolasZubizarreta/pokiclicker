@@ -2,6 +2,8 @@ import { useEffect, useId, useMemo, useRef, useState, type CSSProperties } from 
 import { imageDesCredits, planCredits, tirerImageFlottante, type ImageFlottante } from '../core/credits';
 import taillesImages from '../../public/img/tailles.json';
 import './Credits.css';
+import { storeJeu } from './store';
+import { bilanJoueur } from './bilan-joueur';
 
 const bouton = 'cadre min-h-11 min-w-11 bg-surface px-4 py-2';
 const tailles: Record<string, { largeur: number; hauteur: number }> = taillesImages;
@@ -92,7 +94,13 @@ export function Credits({ fermerCredits, alea = Math.random }: {
     };
   }, [pages, sortie, plan, alea]);
 
-  const sections = pages ? [plan.pages[page]!.section] : plan.sections;
+  const [partie] = useState(() => {
+    const etat = storeJeu.getState();
+    return { titre: 'Ta partie', lignes: bilanJoueur({ ...etat, badges: etat.carte.badges })
+      .map(({ libelle, valeur }) => `${libelle} : ${valeur}`) };
+  });
+  const generique = [...plan.sections, partie];
+  const sections = pages ? [generique[page]!] : generique;
   const style = { '--credits-fondu': `${plan.temps.fonduMs}ms` } as CSSProperties;
   return <dialog ref={dialogue} aria-labelledby={titre} aria-modal="true" data-region="kanto" data-theme="dark"
     className={`credits bg-fond text-texte font-texte text-base ${sortie ? 'credits-sortie' : ''}`}
@@ -105,17 +113,17 @@ export function Credits({ fermerCredits, alea = Math.random }: {
           <h1 id={titre} className="font-titre text-2xl text-region-accent">{plan.titre}</h1>
           <p className="whitespace-pre-line">{plan.message}</p>
         </header>
-        {pages && <p className="py-4 text-center">Page {page + 1} / {plan.pages.length}</p>}
+        {pages && <p className="py-4 text-center tabular-nums">Page {page + 1} / {generique.length}</p>}
         {sections.map(section => <section key={section.titre} className="grid gap-3 pt-8 text-center">
           <h2 className="font-titre text-xl text-region-accent">{section.titre}</h2>
-          {section.lignes.map(ligne => <p key={ligne}>{ligne}</p>)}
+          {section.lignes.map(ligne => <p key={ligne} className="tabular-nums">{ligne}</p>)}
         </section>)}
       </div>
     </div>
     <div className="credits-commandes flex flex-wrap justify-center gap-4">
       {pages ? <>
         <button className={bouton} disabled={page === 0} onClick={() => choisirPage(page - 1)}>Précédent</button>
-        <button className={bouton} onClick={() => page === plan.pages.length - 1 ? sortir(true) : choisirPage(page + 1)}>{page === plan.pages.length - 1 ? 'Terminer' : 'Suivant'}</button>
+        <button className={bouton} onClick={() => page === generique.length - 1 ? sortir(true) : choisirPage(page + 1)}>{page === generique.length - 1 ? 'Terminer' : 'Suivant'}</button>
       </> : <button className={bouton} onClick={() => lireParPages(true)}>Lire par pages</button>}
       <button className={bouton} onClick={() => sortir(true)}>Passer</button>
     </div>

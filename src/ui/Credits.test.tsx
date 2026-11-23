@@ -37,11 +37,11 @@ it('défile sur fond noir puis passe aux pages et navigue dans les sections', ()
   act(() => vi.advanceTimersByTime(0));
   expect(vi.getTimerCount()).toBe(0);
   expect((screen.getByRole('button', { name: 'Précédent' }) as HTMLButtonElement).disabled).toBe(true);
-  expect(screen.getByText('Page 1 / 6')).toBeTruthy();
+  expect(screen.getByText('Page 1 / 7')).toBeTruthy();
   fireEvent.click(screen.getByRole('button', { name: 'Suivant' }));
   expect(screen.getByRole('heading', { level: 2 }).textContent).toBe(planCredits(true).pages[1]!.section.titre);
   fireEvent.click(screen.getByRole('button', { name: 'Précédent' }));
-  expect(screen.getByText('Page 1 / 6')).toBeTruthy();
+  expect(screen.getByText('Page 1 / 7')).toBeTruthy();
 });
 
 it('Passer et Échap lancent le fondu puis appellent fermerCredits une seule fois', () => {
@@ -70,7 +70,9 @@ it('démarre en pages avec mouvement réduit et se ferme sur Terminer', () => {
   render(<Credits fermerCredits={fermerCredits} />);
   expect(screen.queryByRole('button', { name: 'Lire par pages' })).toBeNull();
   expect(animer).not.toHaveBeenCalled();
-  for (let i = 1; i < planCredits(true).pages.length; i++) fireEvent.click(screen.getByRole('button', { name: 'Suivant' }));
+  for (let i = 0; i < planCredits(true).pages.length; i++) fireEvent.click(screen.getByRole('button', { name: 'Suivant' }));
+  expect(screen.getByRole('heading', { name: 'Ta partie' })).toBeTruthy();
+  expect(screen.getByText(/^Pokémon dans le Pokédex : \d+ sur \d+$/)).toBeTruthy();
   expect(fermerCredits).not.toHaveBeenCalled();
   fireEvent.click(screen.getByRole('button', { name: 'Terminer' }));
   act(() => vi.advanceTimersByTime(0));
