@@ -5,6 +5,7 @@ import { chargerEasterEggs, effetDe, stadeEvolution } from './easter-eggs';
 
 it('normalise les surnoms et respecte les effets inactifs', () => {
   expect(effetDe(' DinnerBone ')).toBe('retourne');
+  expect(effetDe(' MiSsInGnO ')).toBe('missingno');
   expect(effetDe('DARAN')).toBe('photo');
   expect(effetDe(' BJORN ')).toBe('photo');
   expect(effetDe('Pikachu')).toBeNull();

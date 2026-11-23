@@ -1,7 +1,7 @@
 import donnees from '../../data/easter-eggs.json';
 import evolutions from '../../data/evolutions.json';
 
-type Effet = 'retourne' | 'arc-en-ciel' | 'caca' | 'photo';
+type Effet = 'retourne' | 'arc-en-ciel' | 'caca' | 'photo' | 'missingno';
 type Fichier = Omit<typeof donnees, 'effets'> & { effets: (Omit<typeof donnees.effets[number], 'effet'> & { effet: Effet | null })[] };
 
 export function chargerEasterEggs(fichier: unknown = donnees): Fichier {
@@ -16,7 +16,7 @@ export function chargerEasterEggs(fichier: unknown = donnees): Fichier {
     verifier(effet && typeof effet.nom === 'string' && effet.nom.length > 0
       && typeof effet.inactif === 'boolean' && Array.isArray(effet.assets)
       && effet.assets.every(a => typeof a === 'string' && a.length > 0)
-      && (effet.inactif ? effet.effet === null : ['retourne', 'arc-en-ciel', 'caca', 'photo'].includes(effet.effet!))
+      && (effet.inactif ? effet.effet === null : ['retourne', 'arc-en-ciel', 'caca', 'photo', 'missingno'].includes(effet.effet!))
       && (effet.effet !== 'photo' || effet.assets.length === 3)
       && Array.isArray(effet.declencheurs) && effet.declencheurs.length > 0);
     for (const nom of effet.declencheurs) {

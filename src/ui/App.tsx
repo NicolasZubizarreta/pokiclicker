@@ -1,6 +1,9 @@
 import { Coquille } from './Coquille';
 import { extraireJetonUrl } from './jeton-url';
 import { MiseAJour } from './MiseAJour';
+import { FiltreMissingno } from './FiltreMissingno';
+import { InvitationInstallation } from './InvitationInstallation';
+import { AstuceChargement } from './AstuceChargement';
 import { useCallback, useEffect, useMemo, useRef, useState, type ComponentProps } from 'react';
 import { EcranCompte } from './compte/EcranCompte';
 import { EcranRepriseAilleurs } from './compte/EcranRepriseAilleurs';
@@ -283,9 +286,10 @@ function PartieConnectee({ jeton, quandDeconnecter }: { jeton: string; quandDeco
     }
     fixerOccupe(false);
   }
-  if (phase === 'verification') return telephone ? <p role="status">Vérification de la sauvegarde…</p>
+  if (phase === 'verification') return telephone ? <><p role="status">Vérification de la sauvegarde…</p><AstuceChargement /></>
     : <main data-theme="dark" className="grid min-h-dvh place-content-center justify-items-center gap-4 bg-fond font-texte text-texte">
       <span className="zc-rond-charge" aria-hidden="true" /><p role="status" className="font-titre text-2xl font-bold">Vérification de la sauvegarde…</p><div className="zc-barre-ind" aria-hidden="true"><i /></div>
+      <AstuceChargement />
     </main>;
   let lecture: { gestionnaire: ReturnType<typeof creerGestionnaire>; partie: ReturnType<ReturnType<typeof creerGestionnaire>['chargerPartie']>; zoneId: string };
   try {
@@ -348,6 +352,8 @@ export default function App() {
   // Le service worker s'enregistre dès le premier écran, connexion comprise : le jeu doit être en cache même avant la première connexion.
   return <>
     <MiseAJour />
+    <FiltreMissingno />
+    <InvitationInstallation />
     {import.meta.env.VITE_API_URL ? <JeuAvecCompte /> : <Coquille />}
   </>;
 }

@@ -9,7 +9,7 @@ export const nomAffiche = (pokemon: PokemonPossede): string => pokemon.oeuf
 
 export const spriteAffiche = (pokemon: PokemonPossede): string => apparenceSprite(pokemon).src;
 
-/** Classes de l'easter egg du surnom (retourné, arc-en-ciel, caca), à poser sur chaque image du Pokémon. */
+/** Classes de l'easter egg du surnom, à poser sur chaque image du Pokémon. */
 export const classeSprite = (pokemon: PokemonPossede): string => apparenceSprite(pokemon).classe;
 
 /** Vrai quand le surnom remplace le sprite par une image entière (Daran, Gabriel, Bjorn) : pas de lignes vides sous les pieds à compenser. */

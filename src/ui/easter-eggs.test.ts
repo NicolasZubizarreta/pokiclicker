@@ -24,6 +24,7 @@ describe('apparence des easter eggs', () => {
     ['GRUMM', 'ee-retourne'],
     ['Jeb_', 'ee-arc-en-ciel motion-safe:ee-arc-en-ciel-anime'],
     ['CACA', 'ee-caca'],
+    [' MiSsInGnO ', 'ee-missingno'],
     ['Pikachu', ''], ['', ''],
   ])('applique l’apparence de %s', (surnom, classe) => {
     const entree = Object.freeze({ ...pokemon, surnom });

@@ -6,6 +6,7 @@ const classes = {
   retourne: 'ee-retourne',
   'arc-en-ciel': 'ee-arc-en-ciel motion-safe:ee-arc-en-ciel-anime',
   caca: 'ee-caca',
+  missingno: 'ee-missingno',
 };
 
 export function apparenceSprite(pokemon: PokemonPossede): { src: string; classe: string; photo: boolean } {

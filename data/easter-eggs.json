@@ -2,6 +2,13 @@
   "version": 1,
   "effets": [
     {
+      "nom": "Missingno",
+      "declencheurs": ["missingno"],
+      "effet": "missingno",
+      "assets": [],
+      "inactif": false
+    },
+    {
       "nom": "Dinnerbone / Grumm",
       "declencheurs": [
         "dinnerbone",

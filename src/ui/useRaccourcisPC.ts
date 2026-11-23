@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import type { Page } from './Navigation';
 import { useTelephone } from './useTelephone';
 import { storeJeu } from './store';
+import { dansChampSaisie } from './champSaisie';
 
 const visible = (element: HTMLElement) => !element.closest('[hidden], [inert]') && element.getClientRects().length > 0;
 const pages: Page[] = ['Combat', 'PC', 'Shop', 'Carte', 'Pokédex', 'Pension', 'Menu'];
@@ -27,7 +28,7 @@ export function useRaccourcisPC({ page, aller, raccourcisOuverts, basculerRaccou
         }
         return;
       }
-      if (cible?.closest('input, textarea, select, [contenteditable]')) return;
+      if (dansChampSaisie(event.target)) return;
       if (fenetre) {
         if (event.key === '?' && raccourcisOuverts && fenetre.hasAttribute('data-raccourcis')) basculerRaccourcis();
         return;

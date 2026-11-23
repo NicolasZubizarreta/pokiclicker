@@ -41,6 +41,7 @@ import { entreesRadar } from './store-objets';
 import type { StoreJeu } from './store';
 import { useTelephone } from './useTelephone';
 import { LigneCapture } from './LigneCapture';
+import { PluieBalles } from './PluieBalles';
 import { BoutonFauchage } from './BoutonFauchage';
 import { ActionsCombat } from './ActionsCombat';
 import { ouvrirSac as ouvrirSacFenetre } from './sacContexte';
@@ -133,6 +134,7 @@ function Scene({ store, ouvrirPension, aller }: { store: StoreJeu; ouvrirPension
   if (!zone || !ennemi) return null;
   const nom = nomAdversaire ?? catalogue.parNumero(ennemi.numero).nom;
   return <section aria-label={enRecherche ? 'Combat contre un Pokémon en approche' : `Combat contre ${nom}`} className="scene-limitee relative isolate h-76 bg-surface-2 lg:col-span-3 lg:aspect-video lg:h-auto">
+    <PluieBalles store={store} />
     <Image src={cheminDecor(zone)} genre="decor" alt="" couvrir className="absolute inset-0 -z-10 size-full" />
     <ObjectifPermanent store={store} aller={aller} />
     <div aria-hidden={cache} className={`pointer-events-none cadre absolute top-4 left-4 z-10 w-3/5 bg-surface/82 p-3 ${cache ? 'opacity-0' : ''}`}>

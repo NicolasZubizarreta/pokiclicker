@@ -153,6 +153,7 @@ export type AffichageJeu = ActionsCasino & {
   deblocageCarte: { libelle: string; cible: string } | null;
   /** Ferme l'annonce « carte » affichée (geste du joueur) et la note comme vue. */
   fermerDeblocage(): void;
+  noterCodeKonami(): boolean;
   tutosVus: readonly string[];
   eliminations: number;
   tutoAArmer(visibles: ReadonlySet<string> | (() => ReadonlySet<string>)): string | null;
@@ -846,6 +847,14 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     return true;
   };
   const store = createStore<AffichageJeu>(() => ({
+    noterCodeKonami() {
+      if (!initialise || region.drapeaux.includes('konami')) return false;
+      region = { ...region, drapeaux: [...region.drapeaux, 'konami'] };
+      annonce = 'Code secret !';
+      finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs;
+      enregistrer(); afficher();
+      return true;
+    },
     compte: { diamants: 0, succes: [], skins: [] },
     pantheon: null,
     fin: { diplome: null, credits: false },
