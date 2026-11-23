@@ -36,8 +36,8 @@
   .pc-pc .pc-grille strong { justify-content: start; flex-wrap: wrap; }
   .pc-pc .pc-grille img { object-fit: contain; }
   .pc-pc .pc-grille button > span:first-child { width: 96px; height: 96px; flex-shrink: 1; }
-  .pc-pc .pc-panneau { grid-column: 10 / -1; position: relative; top: 0; display: flex; flex-direction: column; gap: calc(var(--spacing) * 2); min-height: 0; overflow: hidden; }
-  .pc-pc .pc-places { flex: 1; min-height: 0; grid-template-rows: repeat(6, minmax(0, 1fr)); }
+  .pc-pc .pc-panneau { grid-column: 10 / -1; position: relative; top: 0; display: flex; flex-direction: column; gap: calc(var(--spacing) * 2); min-height: 0; overflow-y: auto; }
+  .pc-pc .pc-places { flex: 1 0 auto; grid-template-rows: repeat(6, minmax(calc(var(--spacing) * 14), 1fr)); }
   .pc-pc .pc-places > * { overflow: hidden; border: 1px solid var(--bordure); padding: calc(var(--spacing) * 1); min-height: 0; }  .pc-pc .pc-places img { object-fit: contain; max-width: 100%; max-height: 100%; }
   .pc-pc .pc-places .pc-libre { border-style: dashed; }
   .pc-pc .pc-places .grid > span:last-child:not(:first-child) { color: var(--texte-doux); }
