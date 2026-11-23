@@ -7,8 +7,8 @@ const donnees = chargerCasino();
 const imageArticle = (article: (typeof donnees.boutique)[number]) =>
   article.type === 'pokemon' ? `pokemon/${article.id}` : article.key === 'masterball' ? 'objets/master-ball.png' : null;
 
-export function BoutiqueCasino({ actions, objets, jetons, signaler, verdict }: {
-  actions: ActionsCasino; objets: AffichageCasino['objets']; jetons: number; signaler: Signaler; verdict: ReactNode;
+export function BoutiqueCasino({ actions, objets, vip, jetons, signaler, verdict }: {
+  actions: ActionsCasino; objets: AffichageCasino['objets']; vip: AffichageCasino['vip']; jetons: number; signaler: Signaler; verdict: ReactNode;
 }) {
   function obtenir(id: string) {
     const r = actions.acheterAuCasino(id);
@@ -18,6 +18,7 @@ export function BoutiqueCasino({ actions, objets, jetons, signaler, verdict }: {
   return <div className="cs-jeu cs-jeu-boutique">
     <div className="cs-plateau">
       <p className="cs-doux">Tu as <b className="cs-chiffre">{nombre(jetons)}</b> jetons.</p>
+      {vip.remisePourCent > 0 && <p className="cs-doux">Remise de fidélité ({vip.niveau!.nom}) : −{vip.remisePourCent} % sur tous les prix.</p>}
       <ul className="cs-produits">{objets.map(objet => {
         const article = donnees.boutique.find(a => a.key === objet.id)!;
         return <li key={objet.id} className="cs-produit">

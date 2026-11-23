@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "niveaux": [
+    { "id": "bronze", "nom": "Bronze", "mises": 2000, "remisePourCent": 2 },
+    { "id": "argent", "nom": "Argent", "mises": 20000, "remisePourCent": 4 },
+    { "id": "or", "nom": "Or", "mises": 100000, "remisePourCent": 6 },
+    { "id": "platine", "nom": "Platine", "mises": 500000, "remisePourCent": 10 }
+  ]
+}

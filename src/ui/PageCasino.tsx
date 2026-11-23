@@ -164,6 +164,13 @@ export function PageCasino({ retour, store = storeJeu, offerts = 0 }: { retour()
             {verdict}</div>
           {rappel}
         </section>
+        <section className="cs-vip cadre" aria-labelledby="cs-t-vip"><h2 id="cs-t-vip">Fidélité</h2>
+          <p><b data-vip>{casino.vip.niveau ? `Niveau ${casino.vip.niveau.nom}` : 'Pas encore de niveau'}</b>
+            {casino.vip.remisePourCent > 0 && <> · remise de {casino.vip.remisePourCent} % dans la boutique de jetons</>}</p>
+          <p className="cs-doux">{casino.vip.suivant
+            ? `Encore ${nombre(casino.vip.restant)} jetons misés pour le niveau ${casino.vip.suivant.nom} (remise de ${casino.vip.suivant.remisePourCent} %).`
+            : 'Niveau maximal atteint.'}</p>
+        </section>
       </div>
     </div>}
     <ScoresCasino store={store} />
@@ -176,7 +183,7 @@ export function PageCasino({ retour, store = storeJeu, offerts = 0 }: { retour()
       {vue === 'plusmoins' && <PlusOuMoins actions={actionsJeux} carte={casino.plusOuMoinsCarte} signaler={signaler} occuper={occuper} jetons={jetons} verdict={verdict} />}
       {vue === 'gratter' && <CarteAGratter actions={actionsJeux} signaler={signaler} occuper={occuper} jetons={jetons} verdict={verdict} />}
       {vue === 'voltorbe' && <VoltorbeFlip actions={actionsJeux} grille={casino.voltorbe} signaler={signaler} jetons={jetons} verdict={verdict} />}
-      {vue === 'boutique' && <BoutiqueCasino actions={actions} objets={casino.objets} jetons={jetons} signaler={signaler} verdict={verdict} />}
+      {vue === 'boutique' && <BoutiqueCasino actions={actions} objets={casino.objets} vip={casino.vip} jetons={jetons} signaler={signaler} verdict={verdict} />}
       {rappel}
     </>}
   </section>;

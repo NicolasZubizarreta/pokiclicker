@@ -7,6 +7,8 @@ import type { chargerMonde } from './monde';
 import type { DonneesRegion, PokemonPossede } from './sauvegarde-types';
 import { reglages } from './reglages';
 import { tirerSexe } from './sexe';
+import { etatVip, prixAvecRemise } from './vip';
+import { lireSuivi } from './suivi';
 
 export type Casino = typeof donnees;
 export type Face = keyof Casino['pileOuFace']['faces'];
@@ -54,7 +56,11 @@ export function chargerCasino(source: unknown = donnees): Casino {
 
 const casino = chargerCasino();
 
-type RegionBoutiqueCasino = Pick<DonneesRegion, 'jetons' | 'equipe' | 'pc' | 'inventaire' | 'ameliorations'>;
+type RegionBoutiqueCasino = Pick<DonneesRegion, 'jetons' | 'equipe' | 'pc' | 'inventaire' | 'ameliorations'> & Pick<Partial<DonneesRegion>, 'suivi'>;
+
+/** Remise VIP de la boutique (0 sans niveau), selon le total misé du suivi. */
+export const remiseVip = (region: Pick<Partial<DonneesRegion>, 'suivi'>): number => etatVip(lireSuivi(region).jetons.mises).remisePourCent;
+const prixDe = (region: RegionBoutiqueCasino, article: { price: number }) => prixAvecRemise(article.price, remiseVip(region));
 
 export function objetsDuCasino(region: RegionBoutiqueCasino) {
   return casino.boutique.map(article => {
@@ -64,8 +70,8 @@ export function objetsDuCasino(region: RegionBoutiqueCasino) {
       : article.type === 'pokemon' ? false
         : inventaire != null && (region.inventaire[inventaire] ?? 0) > 0;
     const raison = article.type === 'upgrade' && possede ? casino.messages.dejaAcquis
-      : region.jetons < article.price ? casino.messages.jetonsInsuffisants : null;
-    return { id: article.key, nom: article.name, prix: article.price, possede, abordable: raison === null, raison };
+      : region.jetons < prixDe(region, article) ? casino.messages.jetonsInsuffisants : null;
+    return { id: article.key, nom: article.name, prix: prixDe(region, article), possede, abordable: raison === null, raison };
   });
 }
 
@@ -75,7 +81,7 @@ export function acheterAuCasino<R extends RegionBoutiqueCasino>(region: R, id: s
   if (!article) return { ok: false, raison: 'Objet inconnu.' };
   const ligne = objetsDuCasino(region).find(o => o.id === id)!;
   if (ligne.raison !== null) return { ok: false, raison: ligne.raison };
-  const copie = { ...region, jetons: region.jetons - article.price };
+  const copie = { ...region, jetons: region.jetons - prixDe(region, article) };
   if (article.type === 'pokemon') {
     const numero = article.id!;
     const sexe = tirerSexe(numero, alea);

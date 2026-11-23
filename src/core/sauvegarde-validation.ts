@@ -282,7 +282,7 @@ export function validerSuivi(v: unknown): void {
   };
   formeSouple(v, {}, {
     ...Object.fromEntries(['captures', 'capturesShiny', 'evolutions', 'oeufsEclos', 'bossVaincus', 'serieVictoires'].map(cle => [cle, compteur])),
-    depenses: compteurs(CATEGORIES_DEPENSE), jetons: compteurs(['gagnes', 'perdus']), records,
+    depenses: compteurs(CATEGORIES_DEPENSE), jetons: compteurs(['gagnes', 'perdus', 'mises']), records,
     casino: dictionnaire(compteurs(['parties', 'meilleurGain', 'meilleureSerie', 'serieActuelle']), cle => JEUX_SUIVIS.some(jeu => jeu === cle), JEUX_SUIVIS.length),
     rencontres: dictionnaire(compteurs(['vus', 'captures', 'depuisShiny']), cle => /^[1-9]\d*$/.test(cle) && Number(cle) <= cataloguePokemon(), cataloguePokemon()),
     argentJours: valeur => {

@@ -23,7 +23,7 @@ it('chaque mesure des nouveaux succès est lue dans la partie', () => {
   const region = { ...regionInitiale('kanto', 'kanto.route-1'), badges: ['roche', 'cascade'], bossVaincus: ['a', 'b', 'c'],
     statistiques: { eliminations: 5, argentTotalGagne: 250000 }, equipe: [], pc: [] };
   const suivi = { ...suiviVide(), captures: 12, capturesShiny: 2, evolutions: 3, serieVictoires: 9,
-    jetons: { gagnes: 40, perdus: 0 }, hall: [{ date: '2026-01-01T00:00:00.000Z', tempsJeuMs: 1, equipe: [] }],
+    jetons: { gagnes: 40, perdus: 0, mises: 0 }, hall: [{ date: '2026-01-01T00:00:00.000Z', tempsJeuMs: 1, equipe: [] }],
     records: { ...suiviVide().records, serieVictoiresMax: 33 }, casino: { machine: { parties: 4, meilleurGain: 0, meilleureSerie: 0, serieActuelle: 0 },
       roulette: { parties: 6, meilleurGain: 0, meilleureSerie: 0, serieActuelle: 0 } } };
   const mesuresLues = mesuresDe({ ...region, suivi }, [1, 2]);

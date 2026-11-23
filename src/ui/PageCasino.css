@@ -252,3 +252,7 @@ button.cs-vo-carte { cursor: pointer; animation: none; }
 .cs-vo-etat dt { color: var(--texte-doux); font-size: var(--text-base); }
 .cs-vo-etat dd { font-family: var(--font-titre); font-weight: 700; font-size: var(--text-lg); }
 .cs-vo-niveaux .plaque[aria-pressed="true"] { border-color: var(--region-argent); }
+
+/* Fidélité */
+.cs-vip { display: grid; gap: calc(var(--spacing) * 2); padding: calc(var(--spacing) * 4); }
+.cs-vip h2 { font-size: var(--text-lg); line-height: var(--text-lg--line-height); }

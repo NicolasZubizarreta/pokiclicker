@@ -9,7 +9,8 @@ export type EntreeHall = { date: string; tempsJeuMs: number; equipe: { numero: n
 export type Suivi = {
   captures: number; capturesShiny: number; evolutions: number; oeufsEclos: number; bossVaincus: number;
   depenses: Partial<Record<(typeof CATEGORIES_DEPENSE)[number], number>>;
-  jetons: { gagnes: number; perdus: number };
+  /** `mises` : total des jetons misés au casino (base du niveau VIP). */
+  jetons: { gagnes: number; perdus: number; mises: number };
   casino: Partial<Record<(typeof JEUX_SUIVIS)[number], StatsJeu>>;
   rencontres: Record<string, Rencontre>;
   serieVictoires: number;
@@ -25,7 +26,7 @@ export type Suivi = {
 
 export function suiviVide(): Suivi {
   return { captures: 0, capturesShiny: 0, evolutions: 0, oeufsEclos: 0, bossVaincus: 0,
-    depenses: {}, jetons: { gagnes: 0, perdus: 0 }, casino: {}, rencontres: {}, serieVictoires: 0,
+    depenses: {}, jetons: { gagnes: 0, perdus: 0, mises: 0 }, casino: {}, rencontres: {}, serieVictoires: 0,
     records: { degatsClicMax: 0, dpsMax: 0, serieVictoiresMax: 0, tempsBossMinMs: null, cadenceMax: 0, capturesHeureMax: 0, mannequinDpsMax: 0, chaineMax: 0 },
     fenetreCaptures: null, argentJours: {}, equipes: [null, null, null], hall: [] };
 }
@@ -87,7 +88,7 @@ export function noterPartieCasino(s: Suivi, jeu: (typeof JEUX_SUIVIS)[number], {
   const ancien = s.casino[jeu] ?? { parties: 0, meilleurGain: 0, meilleureSerie: 0, serieActuelle: 0 };
   const net = gain - mise;
   const serieActuelle = net > 0 ? ancien.serieActuelle + 1 : 0;
-  return { ...s, jetons: { gagnes: s.jetons.gagnes + Math.max(0, net), perdus: s.jetons.perdus + Math.max(0, -net) },
+  return { ...s, jetons: { gagnes: s.jetons.gagnes + Math.max(0, net), perdus: s.jetons.perdus + Math.max(0, -net), mises: s.jetons.mises + Math.max(0, mise) },
     casino: { ...s.casino, [jeu]: { parties: ancien.parties + 1, meilleurGain: Math.max(ancien.meilleurGain, net),
       serieActuelle, meilleureSerie: Math.max(ancien.meilleureSerie, serieActuelle) } } };
 }

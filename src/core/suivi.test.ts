@@ -62,7 +62,7 @@ it('suit le gain net, les pertes et les séries du casino', () => {
   s = noterPartieCasino(s, 'machine', { mise: 10, gain: 20 });
   s = noterPartieCasino(s, 'machine', { mise: 10, gain: 10 });
   s = noterPartieCasino(s, 'machine', { mise: 10, gain: 0 });
-  expect(s.jetons).toEqual({ gagnes: 30, perdus: 10 });
+  expect(s.jetons).toEqual({ gagnes: 30, perdus: 10, mises: 40 });
   expect(s.casino.machine).toEqual({ parties: 4, meilleurGain: 20, meilleureSerie: 2, serieActuelle: 0 });
   expect(vide).toEqual(suiviVide());
 });

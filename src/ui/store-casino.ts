@@ -3,6 +3,7 @@ import * as voltorbe from '../core/voltorbe';
 import type * as jeux from '../core/jeux-casino';
 import { kanto } from '../core/regions';
 import { etatMondeDe, type DonneesRegion } from '../core/sauvegarde';
+import { etatVip, type EtatVip } from '../core/vip';
 import { lireSuivi, noterPartieCasino, type JEUX_SUIVIS } from '../core/suivi';
 
 export type PartieSuivie = { jeu: (typeof JEUX_SUIVIS)[number]; mise: number };
@@ -89,10 +90,11 @@ export type AffichageCasino = {
   blackjackEnCours: casino.VueBlackjack | null;
   /** Carte visible du « plus ou moins » (1 à 13), `null` tant qu'aucune n'a été tirée. */
   plusOuMoinsCarte: number | null;
-  /** Grille de Voltorbe Flip en cours (cartes cachées non révélées), 
-ull sans partie. */
+  /** Grille de Voltorbe Flip en cours (cartes cachées non révélées), `null` sans partie. */
   voltorbe: voltorbe.VueVoltorbe | null;
   objets: ReturnType<typeof casino.objetsDuCasino>;
+  /** Niveau de fidélité (total misé) et remise sur la boutique de jetons. */
+  vip: EtatVip;
 };
 
 export function afficherCasino(region: DonneesRegion, precedent: AffichageCasino | null): AffichageCasino {
@@ -101,7 +103,7 @@ export function afficherCasino(region: DonneesRegion, precedent: AffichageCasino
     acces: { ouvert: acces.ok, raison: acces.ok ? null : acces.raison ?? null },
     jetons: region.jetons, nouveau: acces.ok && region.casinoVu !== true, blackjackEnCours: casino.vueBlackjack(region),
     plusOuMoinsCarte: region.plusOuMoinsCarte ?? null, voltorbe: voltorbe.vueVoltorbe(region),
-    objets: casino.objetsDuCasino(region),
+    objets: casino.objetsDuCasino(region), vip: etatVip(lireSuivi(region).jetons.mises),
   };
   return JSON.stringify(affichage) === JSON.stringify(precedent) ? precedent! : affichage;
 }

@@ -73,3 +73,11 @@ Chaque valeur citée vit dans un fichier de `data/` et se change là sans touche
 - Limite connue : un joueur parfait, qui exploite les chiffres de ligne et de colonne pour déduire les bombes, fait mieux que ce bot ; je n'ai pas simulé ce niveau d'habileté. Pour durcir : baisser `encaissementPourCent` ou les deux bonus. Les jetons s'achètent en ₽ à un prix qui ne se rachète pas à parité, donc le casino ne crée pas d'argent par cette voie.
 - Effet sur l'équilibrage : aucun gain garanti, un jeu de plus qui dépense des jetons. La grille est sauvegardée dans la région : fermer la page ne perd pas la mise, on retrouve la grille avec ses cartes retournées.
 - Question : le niveau de risque te convient-il (retenue de 20 %, bonus 25/50 %) ? Faut-il un plafond de mise propre à ce jeu ?
+
+## F-j2-16 Casino : niveau de fidélité (VIP)
+- Règle choisie : le total de jetons misés au casino (tous jeux confondus, gagnés ou perdus, compté dans le suivi) fait monter quatre niveaux : Bronze à 2 000 jetons misés, Argent à 20 000, Or à 100 000, Platine à 500 000. Chaque niveau donne une remise sur les prix de la boutique de jetons : 2 %, 4 %, 6 %, 10 %. Le prix remisé est arrondi au jeton supérieur (jamais sous 1). Seuils et remises dans `data/casino-vip.json`.
+- Ce qui n'est pas fait, faute de règle dans la proposition : le « jeu exclusif » (je n'invente pas de jeu de plus) et le « cadre de profil » (il dépend de la boutique de skins F-j2-02 ; il sera proposé là, voir sa section).
+- Pourquoi prudent : la remise maximale est de 10 %, elle ne touche que la boutique de jetons (pas les gains des jeux), et le seuil Platine demande 500 000 jetons misés, soit des milliers de parties. Les mises comptent même quand elles sont perdues : on ne gagne pas de niveau sans dépenser.
+- Effet sur l'équilibrage : un peu plus facile pour les joueurs assidus (Porygon à 5 000 jetons passe à 4 500 en Platine). C'est le seul effet.
+- Sauvegarde : champ facultatif `suivi.jetons.mises` (0 pour les anciennes parties, donc elles repartent de zéro au niveau VIP, sans version 7). Le niveau s'affiche dans la salle (carte « Fidélité ») et la boutique rappelle la remise.
+- Question : les seuils et remises te conviennent-ils ? Faut-il compter les mises passées d'une partie existante (impossible : elles n'étaient pas enregistrées) ?

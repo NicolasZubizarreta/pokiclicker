@@ -38,6 +38,7 @@ import * as pension from '../core/pension';
 import * as casino from '../core/casino';
 import * as jeuxCasino from '../core/jeux-casino';
 import * as voltorbe from '../core/voltorbe';
+import { etatVip } from '../core/vip';
 import { ajouterAuPokedex, ajouterAuxVus, completerVus, completerPokedex, pokedexDeKanto } from '../core/pokedex';
 import { appliquerVictoire, calculerMaxXp, delaiEnnemiSuivant } from '../core/recompenses';
 import type { FormeCarte, Zone, ZoneMonde } from '../core/monde';
@@ -992,7 +993,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       afficher();
     },
     casino: { acces: { ouvert: false, raison: casino.chargerCasino().acces.raison },
-      jetons: 0, nouveau: false, blackjackEnCours: null, plusOuMoinsCarte: null, voltorbe: null, objets: [] },
+      jetons: 0, nouveau: false, blackjackEnCours: null, plusOuMoinsCarte: null, voltorbe: null, objets: [], vip: etatVip(0) },
     entrerAuCasino() {
       if (!initialise || !casino.accesCasino(kanto, etatMondeDe(region)).ok) return { offerts: 0 };
       const resultat = casino.entrerAuCasino(region);
