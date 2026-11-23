@@ -46,7 +46,8 @@
       "coin": { "notes": ["B4"], "duree": "16n" },
       "catch": { "notes": ["C4", "E4", "G4"], "duree": "16n" },
       "up": { "notes": ["G3", "C4"], "duree": "16n" },
-      "pc": { "notes": ["E5", "C5"], "duree": "16n" }
+      "pc": { "notes": ["E5", "C5"], "duree": "16n" },
+      "alerte": { "notes": ["E4", "G4"], "duree": "32n" }
     }
   },
   "badges": { "ouvertureMs": 1200, "claqueDelaiMs": 800, "claqueMs": 1200 },
@@ -133,6 +134,7 @@
   "combat": {
     "autoClicIntervalleMs": 111,
     "minuteurBossMs": 30000,
+    "mannequinMs": 30000,
     "clicBase": 5,
     "clicPartDps": 0.002,
     "pvParNiveau": 2,

@@ -22,9 +22,9 @@ export function multiplicateurType(typesAttaquant: string[], typesDefenseur: str
     typesDefenseur.reduce((produit, defense) => produit * (efficacite[attaque]?.[defense] ?? 1), 1)), 0);
 }
 
-export function calculerDpsEquipe(equipe: readonly MembreEquipe[], cible: Pick<Ennemi, 'numero'>,
+export function calculerDpsEquipe(equipe: readonly MembreEquipe[], cible: Pick<Ennemi, 'numero'> | { types: readonly string[] },
   actifs: readonly string[] = []): number {
-  const defense = catalogue.parNumero(cible.numero).types;
+  const defense = 'types' in cible ? [...cible.types] : catalogue.parNumero(cible.numero).types;
   const somme = equipe.reduce((total, membre) => membre.oeuf ? total : total + calculerDps({ ...membre,
     multiplicateurType: multiplicateurType(catalogue.parNumero(membre.numero).types, defense),
   }), 0);

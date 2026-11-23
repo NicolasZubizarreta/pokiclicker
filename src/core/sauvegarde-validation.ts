@@ -271,6 +271,7 @@ export function validerSuivi(v: unknown): void {
     for (const cle of Object.keys(r)) {
       // Le DPS garde la précision au dixième prévue par noterDps.
       if (cle === 'dpsMax') r[cle] = Math.min(Number.MAX_SAFE_INTEGER, Math.max(0, Math.round((r[cle] as number) * 10) / 10));
+      else if (cle === 'mannequinDpsMax') r[cle] = Math.min(Number.MAX_SAFE_INTEGER, Math.max(0, r[cle] as number));
       else if (r[cle] !== null) entierPositif(r, cle);
     }
   };

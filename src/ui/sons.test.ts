@@ -111,6 +111,7 @@ it('tolère un contexte absent, une création ou une reprise refusée', async ()
     const sons = creerSons({ creerContexte, estActif: () => true });
     await expect(sons.deverrouiller()).resolves.toBeUndefined();
     expect(() => sons.jouer('pc')).not.toThrow();
+    expect(() => sons.jouer('alerte')).not.toThrow();
     await sons.fermer();
   }
   vi.stubGlobal('AudioContext', undefined);

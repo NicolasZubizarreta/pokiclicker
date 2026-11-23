@@ -1,5 +1,5 @@
 import { createStore } from 'zustand/vanilla';
-import { lireSuivi, noterCombat, noterEclosions, noterEvolution, noterRecordClic, noterDps, noterCadence,
+import { lireSuivi, noterCombat, noterEclosions, noterEvolution, noterRecordClic, noterDps, noterCadence, noterMannequin,
   enregistrerVictoireLigue as noterVictoireLigue, definirTitre, type Suivi } from '../core/suivi';
 import { enregistrerEquipeCourante, appliquerEquipeEnregistree } from '../core/equipes-enregistrees';
 import { dateLocale, creerLectureSuivi, suivreDepense } from './suivi-store';
@@ -62,6 +62,8 @@ import { genererIdentifiant } from './identifiants';
 import { equipeDeDepart } from './equipe-de-depart';
 import { imageConnue } from './Image';
 import { cheminDecor, precharger, prechargerZone } from './precharger';
+import { apercuBoss, type ApercuBoss } from '../core/apercu-boss';
+import { creerMannequin, avancerMannequin, frapperMannequin, resultatMannequin, type EtatMannequin } from '../core/mannequin';
 
 export type Degat = { id: number; valeur: number };
 /** Signe visible d'un gain (ticket L) : `lignes` s'empilent dans un seul flottant, `type` fixe la place et la couleur. */
@@ -75,6 +77,12 @@ export type EtatForme = {
   terminee?: boolean;
 };
 export type AffichageJeu = ActionsCasino & {
+  apercuBoss(): ApercuBoss | null;
+  lireCadence(): { actuelle: number; maximum: number };
+  mannequin: { restantMs: number; totalMs: number; degats: number; dpsEquipe: number; dpsClic: number; dpsTotal: number } | null;
+  lancerMannequin(): void;
+  frapperMannequin(): boolean;
+  arreterMannequin(): void;
   suivi: Suivi;
   tempsJeuMs: number;
   compte: ResumeCompte;
@@ -239,6 +247,18 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
   let tempsJeuMs = 0;
   let tempsBase = 0;
   let debutBossMs: number | null = null;
+  let mannequin: EtatMannequin | null = null;
+  const mannequinActif = () => mannequin !== null && mannequin.restantMs > 0;
+  const dpsMannequin = () => coeur ? calculerDpsEquipe(coeur.equipe, { types: [] }, coeur.actifs) : 0;
+  const noterResultatMannequin = () => {
+    if (!mannequin) return;
+    const { dpsTotal } = resultatMannequin(mannequin);
+    const suivi = lireSuivi(region);
+    if (dpsTotal > suivi.records.mannequinDpsMax) {
+      region = { ...region, suivi: noterMannequin(suivi, dpsTotal) };
+      enregistrer();
+    }
+  };
   const projeterSuivi = creerLectureSuivi();
   let resteAutoClicMs = 0;
   let evolutionEnCours: EvolutionAffichee | null = null;
@@ -376,6 +396,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         if (evenement.type !== 'capture-reussie') debutBossMs = null;
       }
       if (evenement.type === 'arret-auto') {
+        emettreSon('alerte');
         banniere = banniereArret(evenement.motif);
         finBanniereMs = tempsJeuMs + reglages.animations.banniereMs;
       }
@@ -676,6 +697,10 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         ? precedent.accesPc : accesAuPc,
       carte: JSON.stringify(carte) === JSON.stringify(precedent.carte) ? precedent.carte : carte,
       equipe: JSON.stringify(equipe) === JSON.stringify(precedent.equipe) ? precedent.equipe : equipe,
+      mannequin: mannequin ? precedent.mannequin?.restantMs === Math.ceil(mannequin.restantMs / 1000) * 1000
+        ? precedent.mannequin : { restantMs: Math.ceil(mannequin.restantMs / 1000) * 1000,
+          totalMs: mannequin.totalMs, degats: mannequin.degatsEquipe + mannequin.degatsClic,
+          ...resultatMannequin(mannequin) } : null,
       dps, erreur, suivi: projeterSuivi(region), tempsJeuMs: Math.floor((tempsBase + tempsJeuMs) / 1000) * 1000,
       statistiques: calculerStatistiques(region),
       evolution: afficherEvolution(evolutionEnCours, finEvolutionMs, tempsJeuMs),
@@ -876,7 +901,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     return { ...resultat, region };
   };
   const frapper = (): boolean => {
-    if (!coeur || minuteur === undefined || combatEnPause(evenements, region)) return false;
+    if (!coeur || minuteur === undefined || mannequinActif() || combatEnPause(evenements, region)) return false;
     journal?.synchroniser(lieuDe(region.zoneId), coeur);
     actualiserActifs();
     const avant = coeur;
@@ -898,6 +923,27 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     return true;
   };
   const store = createStore<AffichageJeu>(() => ({
+    mannequin: null,
+    apercuBoss: () => coeur && region.zoneId !== 'kanto.labo' && !region.evenementEnCours
+      ? apercuBoss(coeur.zone, coeur.equipe, actifsCourants(region), alea) : null,
+    lireCadence: () => ({ actuelle: limiteur.cadence(), maximum: reglages.combat.clicsMaxParSeconde }),
+    lancerMannequin() {
+      if (!coeur || minuteur === undefined || region.evenementEnCours || mannequinActif()) return;
+      mannequin = creerMannequin(reglages.combat.mannequinMs);
+      afficher();
+    },
+    frapperMannequin() {
+      if (!mannequin || !mannequinActif() || minuteur === undefined || !limiteur.essayer()) return false;
+      actualiserActifs();
+      mannequin = frapperMannequin(mannequin, calculerClic(dpsMannequin(), coeur?.actifs));
+      afficher();
+      return true;
+    },
+    arreterMannequin() {
+      noterResultatMannequin();
+      mannequin = null;
+      afficher();
+    },
     suivi: lireSuivi({}), tempsJeuMs: 0,
     noterCodeKonami() {
       if (!initialise || region.drapeaux.includes('konami')) return false;
@@ -1223,7 +1269,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     capture: { balles: [], possible: false, raison: 'Aucun Pokémon à capturer.', enCours: false, choisie: null },
     autoAttaque: preferences.autoAttaque, autoClicLie: preferences.autoClicLie, arretAuto: preferences.arretAuto,
     capturer(cle) {
-      if (!initialise || minuteur === undefined) return;
+      if (!initialise || minuteur === undefined || mannequinActif()) return;
       const condition = conditionCapture(coeur, region.inventaire, cle);
       if (!condition.ok) { annonce = condition.raison ?? null; finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs; }
       else if (coeur) {
@@ -1420,7 +1466,13 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
           actualiserActifs();
           detecterBossAtteint();
           // Une réplique à `pauseCombat` (Chen au premier boss) fige le combat : ni dégâts ni minuteur.
-          const enPause = combatEnPause(evenements, region);
+          const entrainement = mannequinActif();
+          const enPause = combatEnPause(evenements, region) || entrainement;
+          if (entrainement && mannequin) {
+            if (debutBossMs !== null) debutBossMs += pasMs;
+            mannequin = avancerMannequin(mannequin, pasMs, dpsMannequin());
+            if (!mannequinActif()) noterResultatMannequin();
+          }
           if (coeur?.autoClic && coeur.attenteMs === 0 && !enPause) {
             const resultat = clicsAutomatiques(resteAutoClicMs, reglages.boucle.pasMs, reglages.combat.autoClicIntervalleMs);
             resteAutoClicMs = resultat.resteMs;

@@ -5,7 +5,7 @@ import type { Rarete } from './monde';
 
 export type Bonus = { cle: string; x: number; arrondi?: boolean };
 
-export type Ton = 'hit' | 'coin' | 'catch' | 'up' | 'pc';
+export type Ton = 'hit' | 'coin' | 'catch' | 'up' | 'pc' | 'alerte';
 export type ReglagesSons = {
   actifParDefaut: boolean;
   volumeDb: number;
@@ -116,6 +116,7 @@ export const reglages: {
   combat: {
     autoClicIntervalleMs: number;
     minuteurBossMs: number;
+    mannequinMs: number;
     clicBase: number; clicPartDps: number; pvParNiveau: number; pvBoss: number;
     chanceShiny: number; clicsMaxParSeconde: number; fenetreClicsMs: number; etapeBoss: number;
     shiny: { cle: string; x: number }[];
@@ -161,7 +162,7 @@ if (!sons || typeof sons.actifParDefaut !== 'boolean' || !Number.isFinite(sons.v
   || [sons.enveloppe.attaque, sons.enveloppe.declin, sons.enveloppe.relachement]
     .some(valeur => !Number.isFinite(valeur) || valeur <= 0)
   || !Number.isFinite(sons.enveloppe.maintien) || sons.enveloppe.maintien <= 0 || sons.enveloppe.maintien > 1
-  || !sons.tons || ['hit', 'coin', 'catch', 'up', 'pc'].some(nom => {
+  || !sons.tons || ['hit', 'coin', 'catch', 'up', 'pc', 'alerte'].some(nom => {
     const ton = sons.tons[nom as Ton];
     return !ton || !Array.isArray(ton.notes) || !ton.notes.length
       || ton.notes.some(note => typeof note !== 'string' || !/^[A-G](?:#|b)?[0-8]$/.test(note))
@@ -209,6 +210,9 @@ if (!centre || centre.lieu !== 'centre-commercial' || !Array.isArray(centre.obje
 
 if (!Number.isFinite(reglages.combat.minuteurBossMs) || reglages.combat.minuteurBossMs <= 0) {
   throw new Error('Minuteur de boss invalide');
+}
+if (!Number.isFinite(reglages.combat.mannequinMs) || reglages.combat.mannequinMs <= 0) {
+  throw new Error('Durée du mannequin invalide');
 }
 
 for (const valeur of Object.values(reglages.interface.vol)) {
