@@ -15,6 +15,11 @@ import { TableBlackjack } from './TableBlackjack';
 import { VoltorbeFlip } from './VoltorbeFlip';
 import './PageCasino.css';
 
+/** « 1 partie · 1 gagnée », « 2 parties · 0 gagnée » : le pluriel commence à 2. */
+function libelleParties(parties: number, gagnees: number): string {
+  return `${parties} ${parties >= 2 ? 'parties' : 'partie'} · ${gagnees} ${gagnees >= 2 ? 'gagnées' : 'gagnée'}`;
+}
+
 const donnees = chargerCasino();
 type Vue = 'salle' | 'machine' | 'blackjack' | 'pile' | 'roulette' | 'plusmoins' | 'gratter' | 'voltorbe' | 'boutique';
 const titres: Record<Vue, string> = { salle: 'Casino', machine: 'Machine à sous', blackjack: 'Blackjack', pile: 'Pile ou face', roulette: 'Roulette',
@@ -118,8 +123,8 @@ export function PageCasino({ retour, store = storeJeu, offerts = 0 }: { retour()
   </section>;
 
   return <section className="casino cs-page" data-vue={vue}>
-    {cache === null && <details className="cs-gains"><summary>Session : {total.net > 0 ? '+' : ''}{nombre(total.net)} jetons · {total.parties} parties · {total.gagnees} gagnées</summary>
-      <ul>{Object.entries(bilan).map(([nom, b]) => <li key={nom}>{nom} : {b.net > 0 ? '+' : ''}{nombre(b.net)} jetons · {b.parties} parties · {b.gagnees} gagnées</li>)}</ul>
+    {cache === null && <details className="cs-gains"><summary>Session : {total.net > 0 ? '+' : ''}{nombre(total.net)} jetons · {libelleParties(total.parties, total.gagnees)}</summary>
+      <ul>{Object.entries(bilan).map(([nom, b]) => <li key={nom}>{nom} : {b.net > 0 ? '+' : ''}{nombre(b.net)} jetons · {libelleParties(b.parties, b.gagnees)}</li>)}</ul>
       <p className="cs-rappel">Le bilan repart à zéro à la sortie du casino. Les achats et échanges sont exclus.</p>
     </details>}
     {cache === null && total.net < 0 && <p className="cs-rappel" role="note">Attention : tu as perdu {nombre(-total.net)} jetons pendant cette session. Pense à faire une pause.</p>}

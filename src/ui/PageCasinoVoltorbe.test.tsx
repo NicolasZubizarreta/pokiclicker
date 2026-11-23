@@ -43,5 +43,5 @@ it('Voltorbe Flip : on commence, la grille survit à un rechargement, on encaiss
   clic(/Encaisser/);
   expect(suite.getState().casino.voltorbe).toBeNull();
   expect(suite.getState().casino.jetons).toBe(980 + 16);
-  expect(screen.getByText(/Session : .4 jetons · 1 parties · 0 gagnées/)).toBeTruthy();
+  expect(screen.getByText(/Session : .4 jetons · 1 partie · 0 gagnée/)).toBeTruthy();
 });

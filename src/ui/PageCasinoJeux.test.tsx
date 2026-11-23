@@ -36,7 +36,7 @@ it('bilan par jeu, reprise de la mise et remise à zéro à la sortie', () => {
   clic('Lancer la bille');
   fireEvent.change(screen.getByLabelText('Mise en jetons'), { target: { value: '10' } });
   clic('Lancer la bille');
-  expect(screen.getByText('Session : +10 jetons · 1 parties · 1 gagnées')).toBeTruthy();
+  expect(screen.getByText('Session : +10 jetons · 1 partie · 1 gagnée')).toBeTruthy();
   fireEvent.change(screen.getByLabelText('Mise en jetons'), { target: { value: '500' } });
   clic('Rejouer la même mise · 10');
   expect(store.getState().casino.jetons).toBe(1020);
@@ -44,7 +44,7 @@ it('bilan par jeu, reprise de la mise et remise à zéro à la sortie', () => {
   expect(screen.getByText('Session : +20 jetons · 2 parties · 2 gagnées')).toBeTruthy();
   page.unmount();
   render(<PageCasino store={store} retour={vi.fn()} />);
-  expect(screen.getByText('Session : 0 jetons · 0 parties · 0 gagnées')).toBeTruthy();
+  expect(screen.getByText('Session : 0 jetons · 0 partie · 0 gagnée')).toBeTruthy();
 });
 
 it('avertit sans bloquer une mise qui dépasse la moitié du solde', () => {
