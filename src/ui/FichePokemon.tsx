@@ -11,7 +11,7 @@ import { dpsSansType } from './dps-pc';
 import { Image } from './Image';
 import { IconeSexe } from './IconeSexe';
 import { RepereTags } from './RepereMarque';
-import { formaterDps } from './nombres';
+import { formaterDps, formaterNombre as nombre } from './nombres';
 import { classeSprite, nomAffiche, progressionOeuf, spriteAffiche } from './affichage-pokemon';
 import { storeJeu } from './store';
 import { niveauRequis, peutEvoluer, pierresPour } from '../core/evolution';
@@ -29,7 +29,6 @@ type Props = {
 };
 const catalogue = chargerPokemon();
 const bouton = 'min-h-11 px-4 py-2 bg-surface-2 disabled:text-texte-doux';
-const nombre = (valeur: number) => valeur.toLocaleString('fr-FR', { maximumFractionDigits: 2 });
 
 function Etoile() {
   return <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" className="size-5 shrink-0 fill-current">
@@ -45,6 +44,7 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: 
   const telephone = useTelephone();
   const sac = useStore(storeJeu, etat => etat.sac);
   const equipe = useStore(storeJeu, etat => etat.equipe);
+  const ennemi = useStore(storeJeu, etat => etat.ennemi);
   const pc = useStore(storeJeu, etat => etat.pc);
   const caseEquipe = equipe.find(c => c?.pokemon.uid === uid);
   const pokemonPc = !caseEquipe ? pc.find(p => p.uid === uid) : undefined;
@@ -130,9 +130,8 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: 
   const marque = pokemon?.marqueEclosion && detail ? `+${Math.round((detail.marqueEclosion - 1) * 100)} %` : null;
   // Un facteur n'apparaît que s'il s'applique : Shiny, Pierre Stase et Calcium restent cachés à × 1.
   const facteurs: [string, string][] = pokemon && detail ? [
-    ['Base', nombre(detail.base)], ['Type', `× ${nombre(detail.multiplicateurType)}`],
+    ['Dégâts de base', nombre(detail.base)], [caseEquipe && ennemi ? `Type contre ${catalogue.parNumero(ennemi.numero).nom}` : 'Bonus de type', caseEquipe && ennemi ? `× ${nombre(detail.multiplicateurType)}` : 'Non appliqué sans cible'],
     ...(pokemon.shiny ? [['Shiny', `× ${nombre(detail.shiny)}`] as [string, string]] : []),
-    ['Bonheur', `× ${nombre(detail.bonheur)}`],
     ...(pokemon.pierreEternelle ? [['Pierre Stase', `× ${nombre(detail.pierreEternelle)}`] as [string, string]] : []),
     ...(pokemon.calcium > 0 ? [['Calcium', `× ${nombre(detail.calcium)}`] as [string, string]] : []),
     ...(marque ? [["Marque d'éclosion", marque] as [string, string]] : []),
@@ -202,7 +201,7 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: 
                 strokeDasharray={`${pokemon.bonheur} 255`} className="stroke-alerte-base" />
             </svg>
             <div><p>Bonheur : <span>{pokemon.bonheur}/255</span></p>
-              <p>+{nombre(pokemon.bonheur * reglages.degats.bonheurParPoint * 100)} % de dégâts</p></div>
+              <p>Grâce au bonheur : +{nombre(pokemon.bonheur * reglages.degats.bonheurParPoint * 100)} % de dégâts</p></div>
           </div>
           {pokemon.calcium > 0 && <p>Calcium : {pokemon.calcium} · +{nombre(pokemon.calcium * reglages.degats.calciumParBoost * 100)} % de dégâts</p>}
           <div className="flex flex-wrap items-center gap-2"><p>Objet tenu : {pokemon.pierreEternelle ? 'Pierre Stase' : 'aucun'}</p>

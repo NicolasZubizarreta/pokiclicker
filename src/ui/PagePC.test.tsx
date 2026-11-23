@@ -29,7 +29,29 @@ const nomDe = (pokemon: PokemonPossede) => pokemon.surnom ?? catalogue.parNumero
 const enTelephone = () => vi.stubGlobal('matchMedia', vi.fn((requete: string) => ({ matches: requete.includes('max-width'), addEventListener: vi.fn(), removeEventListener: vi.fn() })));
 const cartes = () => within(screen.getByRole('list')).getAllByRole('button');
 
-beforeEach(() => storeJeu.setState({ pc: [...pc], accesPc: { ouvert: true, raison: '' } }));
+beforeEach(() => { localStorage.clear(); storeJeu.setState({ pc: [...pc], accesPc: { ouvert: true, raison: '' } }); });
+
+it('filtre par type, affiche les pastilles et mémorise les préférences', () => {
+  const vue = render(<PagePC />);
+  fireEvent.change(screen.getByLabelText('Type'), { target: { value: 'electric' } });
+  expect(cartes()).toHaveLength(2);
+  expect(within(cartes()[0]!).getByText('Électrik')).toBeTruthy();
+  fireEvent.change(screen.getByLabelText('Trie par'), { target: { value: 'numero' } });
+  vue.unmount();
+  render(<PagePC />);
+  expect((screen.getByLabelText('Type') as HTMLSelectElement).value).toBe('electric');
+  expect((screen.getByLabelText('Trie par') as HTMLSelectElement).value).toBe('numero');
+  expect(cartes()).toHaveLength(2);
+});
+
+it('inverse la sélection du filtre sans sélectionner les favoris ni les shiny', () => {
+  render(<PagePC />);
+  fireEvent.click(screen.getByRole('button', { name: 'Relâcher' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Tout sélectionner' }));
+  expect(screen.getByText('2 Pokémon sélectionnés')).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: 'Inverser' }));
+  expect(screen.getByText('Aucun Pokémon sélectionné')).toBeTruthy();
+});
 it.each([false, true])('repère sur les cartes marquées du PC : %s', marqueEclosion => {
   storeJeu.setState({ pc: [{ ...base, marqueEclosion }] });
   render(<PagePC />);
@@ -268,6 +290,7 @@ const relacherLot = vi.fn<(uids: string[]) => string | null>(() => null);
 it.each([false, true])('sélection et confirmation prudente, téléphone : %s', mobile => {
   if (mobile) enTelephone();
   render(<PagePC />);
+  if (mobile) fireEvent.click(screen.getByRole('button', { name: 'Filtres' }));
   fireEvent.click(screen.getByRole('button', { name: 'Relâcher' }));
   expect((screen.getByRole('button', { name: 'Relâcher la sélection' }) as HTMLButtonElement).disabled).toBe(true);
   const favori = cartes().find(c => c.getAttribute('aria-disabled') === 'true')!;
@@ -294,6 +317,8 @@ it('ne compte que les Pokémon visibles non favoris', () => {
   fireEvent.click(screen.getByRole('button', { name: 'Relâcher' }));
   fireEvent.change(screen.getByLabelText('Filtre'), { target: { value: 'shiny' } });
   fireEvent.click(screen.getByRole('button', { name: 'Tout sélectionner' }));
+  expect(screen.getByText('Aucun Pokémon sélectionné')).toBeTruthy();
+  fireEvent.click(cartes()[0]!);
   expect(screen.getByText('1 Pokémon sélectionné')).toBeTruthy();
   fireEvent.change(screen.getByLabelText('Filtre'), { target: { value: 'favori' } });
   expect(screen.getByText('Aucun Pokémon sélectionné')).toBeTruthy();

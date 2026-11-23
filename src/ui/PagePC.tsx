@@ -1,7 +1,8 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type DragEvent, type MouseEvent } from 'react';
 import { useStore } from 'zustand';
 import { dpsPc, filtrerParAttributs, filtrerPc, trierPc, type FiltrePc, type TriPc } from '../core/pc';
-import { chargerPokemon } from '../core/pokemon';
+import { chargerPokemon, nomType } from '../core/pokemon';
+import { creerStockageLocal } from './stockage-local';
 import type { PokemonPossede } from '../core/sauvegarde';
 import { calculerMaxXp } from '../core/recompenses';
 import { cibleValide, cibleValideStase, quantiteMax } from '../core/objets-equipe';
@@ -26,6 +27,16 @@ import { notifier } from './pileNotifications';
 import './PagePC.css';
 
 const catalogue = chargerPokemon();
+const typesPc = [...new Set(catalogue.liste.flatMap(p => p.types))];
+const stockagePc = creerStockageLocal();
+const clePreferencesPc = 'pokiclicker:preferences-pc';
+function lirePreferencesPc(): { tri: TriPc; filtre: FiltrePc; type: string } {
+  try {
+    const p = JSON.parse(stockagePc.lire(clePreferencesPc) ?? '{}');
+    return { tri: optionsTri.some(([cle]) => cle === p?.tri) ? p.tri : 'dps',
+      filtre: optionsFiltre.some(([cle]) => cle === p?.filtre) ? p.filtre : 'tous', type: typesPc.includes(p?.type) ? p.type : '' };
+  } catch { return { tri: 'dps', filtre: 'tous', type: '' }; }
+}
 const nomEspece = (pokemon: PokemonPossede) => pokemon.oeuf ? nomDe(pokemon) : catalogue.parNumero(pokemon.numero).nom;
 
 const optionsTri: [TriPc, string][] = [['dps', 'DPS'], ['numero', 'Numéro du Pokédex'], ['nom', 'Nom, de A à Z'], ['niveau', 'Niveau'], ['favori', "Favoris d'abord"], ['shiny', "Shiny d'abord"]];
@@ -71,19 +82,27 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
   const panneau = useRef<HTMLElement>(null);
   const boutonSac = useRef<HTMLButtonElement>(null);
   const zoneEquipe = useRef<HTMLDivElement>(null);
-  const [tri, trier] = useState<TriPc>('dps');
+  const [preferences] = useState(lirePreferencesPc);
+  const [tri, trier] = useState<TriPc>(preferences.tri);
+  const [type, filtrerType] = useState(preferences.type);
+  const [filtresOuverts, ouvrirFiltres] = useState(false);
   const [recherche, rechercher] = useState('');
-  const [filtre, filtrer] = useState<FiltrePc>('tous');
+  const [filtre, filtrer] = useState<FiltrePc>(preferences.filtre);
+  useEffect(() => {
+    try { stockagePc.ecrire(clePreferencesPc, JSON.stringify({ tri, filtre, type })); }
+    catch { notifier('Tes filtres restent disponibles jusqu’à la fermeture de ce PC. Le stockage local est bloqué.'); }
+  }, [tri, filtre, type]);
   const pokedex = useStore(storeJeu, etat => etat.pokedex);
-  const actif = filtre !== 'tous';
-  const liste = useMemo(() => trierPc(filtrerParAttributs(filtrerPc(pc, recherche, nomDe, nomEspece), filtre, new Set(pokedex)), tri, nomDe), [pc, tri, recherche, filtre, pokedex]);
+  const actif = filtre !== 'tous' || type !== '';
+  const liste = useMemo(() => trierPc(filtrerParAttributs(filtrerPc(pc, recherche, nomDe, nomEspece), filtre, new Set(pokedex)).filter(p => !type || !p.oeuf && catalogue.parNumero(p.numero).types.includes(type)), tri, nomDe), [pc, tri, recherche, filtre, type, pokedex]);
   const [choisi, choisir] = useState(() => liste[0]?.uid);
   const [selectionLot, selectionnerLot] = useState<Set<string> | null>(null);
   const confirmation = useRef<HTMLDialogElement>(null);
   const [erreurLot, signalerLot] = useState<string | null>(null);
   const eligibles = liste.filter(p => !p.favori);
   const effectifs = eligibles.filter(p => selectionLot?.has(p.uid));
-  const tousCoches = eligibles.length > 0 && effectifs.length === eligibles.length;
+  const automatiques = eligibles.filter(p => !p.shiny);
+  const tousCoches = automatiques.length > 0 && automatiques.every(p => selectionLot?.has(p.uid));
   const nombre = effectifs.length;
   const shiny = effectifs.filter(p => p.shiny).length;
   const selection = liste.find(pokemon => pokemon.uid === choisi)?.uid ?? liste[0]?.uid;
@@ -255,9 +274,13 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
       const membre = equipe[index];
       const classe = mobile ? 'flex min-h-16 min-w-0 items-center gap-2 border border-bordure bg-surface text-left' : 'flex min-h-14 w-full items-center gap-2 bg-surface-2 text-left';
       if (!membre) return <div key={index} {...cibleDepot(index)} className={telephone ? classe : `${classe} pc-libre`}>
-        <span className="p-2 text-texte-doux">Emplacement libre</span>
+        {mobile && !echange && !mode
+          ? <><span aria-hidden="true" className="w-full text-center text-texte-doux">—</span><span className="sr-only">Emplacement libre</span></>
+          : <span className="p-2 text-texte-doux">Emplacement libre</span>}
       </div>;
       const { pokemon, dps } = membre;
+      const entrant = echange ? pc.find(p => p.uid === echange.uid) : undefined;
+      const ecart = entrant ? dpsPc(entrant) - dpsPc(pokemon) : null;
       const nom = nomDe(pokemon);
       const taille = mobile ? 'size-16' : 'size-14';
       const classeImage = `${taille} shrink-0 ${pokemon.shiny && !pokemon.oeuf ? 'halo-shiny' : ''} ${classeSprite(pokemon)}`;
@@ -266,8 +289,12 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
           ? <span className={`grid ${taille} shrink-0 max-w-full place-items-center overflow-hidden [&_img]:max-h-full [&_img]:max-w-full`}><SpriteEvolution ancien={spriteAffiche({ ...pokemon, numero: evolution.ancien })}
             nouveau={spriteAffiche({ ...pokemon, numero: evolution.nouveau })} nom={nom} actif shiny={pokemon.shiny} /></span>
           : <Image src={spriteAffiche(pokemon)} genre="sprite" alt="" className={classeImage} />}
-        <span className="grid min-w-0 gap-1 break-words">
+        <span className={`grid min-w-0 gap-1 break-words${mobile && !echange && !mode ? ' sr-only' : ''}`}>
           <strong>{nom}<RepereTags pokemon={pokemon} /></strong><span>{pokemon.oeuf ? progressionOeuf(pokemon.oeuf) : `Niv. ${pokemon.niveau}`}</span>{!mobile && !pokemon.oeuf && <span>{formaterDps(dps)} DPS</span>}
+          {entrant && ecart !== null && <>
+            <span className={ecart < 0 ? 'text-erreur-base' : 'text-succes-base'}>{ecart < 0 ? '−' : '+'}{formaterDps(Math.abs(ecart))} DPS hors type</span>
+            <span>Types : {pokemon.oeuf ? 'Œuf' : catalogue.parNumero(pokemon.numero).types.map(nomType).join(' / ')} → {entrant.oeuf ? 'Œuf' : catalogue.parNumero(entrant.numero).types.map(nomType).join(' / ')}</span>
+          </>}
         </span>
       </>;
       const { valide } = etatObjet(pokemon);
@@ -310,15 +337,19 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
       </button>}
     </div>
     {telephone && <div ref={zoneEquipe} role="group" aria-label="Équipe mobile" className="relative mt-4">
-      <p>Ton équipe · {equipe.filter(Boolean).length} / 6</p><div className="mt-2 grid grid-cols-2 gap-2">{places(true)}</div>{fenetreObjet()}
+      <p>Ton équipe · {equipe.filter(Boolean).length} / 6</p><div className={`mt-2 grid gap-2 ${echange || mode ? 'grid-cols-2' : 'pc-miniatures grid-cols-6'}`}>{places(true)}</div>{fenetreObjet()}
     </div>}
     {erreur && erreur.echange === echange && <p role="alert" className="mt-4 text-erreur-base">{erreur.message}</p>}
     <div className={`mt-4 grid min-w-0 items-start gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]${telephone ? '' : ' pc-corps'}`}>
       <div className={`grid min-w-0 gap-4${telephone ? '' : ' pc-liste'}`}>
         {!accesPc.ouvert ? <>{bandeauObjet}<p className="mt-4">{accesPc.raison}</p></> : <>
-        <div className={telephone ? 'grid min-w-0 gap-4' : 'pc-barre'}>
+        <div className={telephone ? 'pc-outils-mobile' : 'pc-barre'}>
+          {telephone && <button type="button" aria-expanded={filtresOuverts} aria-controls="options-pc" className="min-h-11 bg-surface-2 px-3" onClick={() => ouvrirFiltres(!filtresOuverts)}>Filtres{actif ? ' actifs' : ''}</button>}
+          <div id="options-pc" className={telephone ? (filtresOuverts ? 'pc-options-mobile' : 'hidden') : 'contents'}>
           <div className={!telephone ? 'pc-tri' : undefined}>
             <ListeDeroulante<TriPc> id="tri-pc" libelle="Trie par" valeur={tri} options={optionsTri} changer={trier} compacte={!telephone} />
+          </div>
+          <ListeDeroulante id="type-pc" libelle="Type" valeur={type} options={[[ '', 'Tous les types' ], ...typesPc.map(t => [t, nomType(t)] as [string, string])]} changer={filtrerType} compacte={!telephone} />
           </div>
           <div className={!telephone ? 'pc-filtre' : undefined}>
             <ListeDeroulante<FiltrePc> id="filtre-pc" libelle="Filtre" valeur={filtre} options={optionsFiltre} changer={filtrer} compacte={!telephone} />
@@ -328,19 +359,21 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
             <input id="recherche-pc" type="search" aria-label={!telephone ? 'Nom ou numéro' : undefined} value={recherche} onChange={event => rechercher(event.target.value)}
               className="min-h-11 min-w-0 w-full border border-bordure bg-surface px-4 py-2 text-texte" />
           </div>
-          {pc.length > 0 && selectionLot === null && !mode && <button type="button" className="min-h-11 bg-surface-2 px-3 text-erreur-base" onClick={() => {
+          {pc.length > 0 && selectionLot === null && !mode && (!telephone || filtresOuverts) && <button type="button" className="min-h-11 bg-surface-2 px-3 text-erreur-base" onClick={() => {
             selectionnerLot(new Set()); glisser(null); survoler(null); storeJeu.getState().annulerEchange();
           }}>Relâcher</button>}
         </div>
         {bandeauObjet}
         {selectionLot !== null && <div className="bandeau-choix flex flex-wrap items-center gap-2 p-4">
           <p role="status">{nombre === 0 ? 'Aucun Pokémon sélectionné' : `${nombre} Pokémon sélectionné${nombre > 1 ? 's' : ''}`}</p>
-          <button type="button" className="min-h-11 bg-surface-2 px-3" onClick={() => selectionnerLot(tousCoches ? new Set() : new Set(eligibles.map(p => p.uid)))}>{tousCoches ? 'Tout désélectionner' : 'Tout sélectionner'}</button>
+          <p>Favoris exclus. Shiny exclus de la sélection automatique.</p>
+          <button type="button" className="min-h-11 bg-surface-2 px-3" onClick={() => selectionnerLot(tousCoches ? new Set() : new Set(automatiques.map(p => p.uid)))}>{tousCoches ? 'Tout désélectionner' : 'Tout sélectionner'}</button>
+          <button type="button" className="min-h-11 bg-surface-2 px-3" onClick={() => selectionnerLot(new Set(automatiques.filter(p => !selectionLot.has(p.uid)).map(p => p.uid)))}>Inverser</button>
           <button type="button" className="min-h-11 bg-surface-2 px-3 text-erreur-base" disabled={!nombre} aria-describedby={!nombre ? 'selection-vide' : undefined} onClick={() => { signalerLot(null); confirmation.current?.showModal(); }}>Relâcher la sélection</button>
           {!nombre && <p id="selection-vide">Sélectionne au moins un Pokémon non favori.</p>}
           <button type="button" className="min-h-11 bg-surface-2 px-3" onClick={() => { confirmation.current?.close(); selectionnerLot(null); }}>Annuler</button>
         </div>}
-        {(recherche || actif) && <button type="button" className="min-h-11 bg-surface-2 px-3" onClick={() => { rechercher(''); filtrer('tous'); }}>Effacer la recherche et les filtres</button>}
+        {(recherche || actif) && <button type="button" className="min-h-11 bg-surface-2 px-3" onClick={() => { rechercher(''); filtrer('tous'); filtrerType(''); }}>Effacer la recherche et les filtres</button>}
         {pc.length === 0 ? <p {...cibleGrille}>Ton PC est vide. Capture des Pokémon pour les ranger ici.</p>
           : liste.length === 0 ? <p role="status" {...cibleGrille}>{!recherche && actif ? 'Aucun Pokémon ne correspond à ces filtres.' : `Aucun Pokémon ne correspond à « ${recherche} ».`}</p>
             : <ul {...cibleGrille} className={telephone ? 'grid min-w-0 auto-rows-fr grid-cols-2 lg:grid-cols-[repeat(auto-fill,minmax(calc(var(--spacing)*36),1fr))] gap-4' : 'pc-grille cadre'}>
@@ -383,6 +416,7 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
                       </svg><span className="sr-only">Favori</span></>}
                     </strong>
                     {(!telephone || tri === 'dps') && !pokemon.oeuf && <span className="whitespace-nowrap text-region-accent font-bold">{formaterDps(dpsPc(pokemon))} DPS</span>}
+                    {!pokemon.oeuf && <span className="flex flex-wrap gap-1">{catalogue.parNumero(pokemon.numero).types.map(t => <span key={t} className={`pastille-type pastille-type-${t} px-1`}>{nomType(t)}</span>)}</span>}
                     {pokemon.oeuf ? <span>{progressionOeuf(pokemon.oeuf)}</span>
                       : <span className={telephone ? 'grid text-sm text-texte-doux' : 'text-sm text-texte-doux'}><span>N° {pokemon.numero}</span>{!telephone && ' · '}<span>Niv. {pokemon.niveau}</span></span>}{selectionLot !== null && (pokemon.favori ? <><svg aria-hidden="true" viewBox="0 0 24 24" className="absolute bottom-2 right-2 size-5" fill="none" stroke="currentColor"><rect x="5" y="10" width="14" height="11" /><path d="M8 10V6a4 4 0 0 1 8 0v4" /></svg><span className="sr-only">Favori verrouillé</span></> : selectionLot.has(pokemon.uid) && <svg aria-hidden="true" viewBox="0 0 24 24" className="absolute bottom-2 right-2 size-5" fill="none" stroke="currentColor"><path d="m4 12 5 5L20 6" /></svg>)}</span>
                   </button>

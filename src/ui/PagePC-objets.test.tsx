@@ -75,7 +75,7 @@ it.each(['equipe', 'pc'])('applique deux bonbons à %s sans changer son XP', uid
   expect(screen.getByText(`Utiliser Bonbon rare sur ${lire(uid).surnom}`)).toBeTruthy();
   expect(screen.getByRole('group', { name: 'Quantité' }).closest('.pc-panneau')).toBeTruthy();
   expect(cible(uid).draggable).toBe(false);
-  fireEvent.click(screen.getByRole('button', { name: 'Plus' }));
+  fireEvent.click(screen.getByRole('button', { name: '+ : augmenter' }));
   fireEvent.click(screen.getByRole('button', { name: 'Utiliser' }));
   expect(lire(uid)).toMatchObject({ niveau: 18, xp: 30 });
   expect(storeJeu.getState().sac.entrees[0]!.quantite).toBe(3);
@@ -231,7 +231,7 @@ it.each(['bonbon', 'calcium', 'baie'] as const)('borne %s au plafond et désacti
   expect(cible('pc').disabled).toBe(true);
   expect(cible('pc').className).toContain('grayscale');
   fireEvent.click(cible('equipe'));
-  fireEvent.click(screen.getByRole('button', { name: 'Plus' }));
+  fireEvent.click(screen.getByRole('button', { name: '+ : augmenter' }));
   expect(screen.getByLabelText('Quantité', { selector: 'output' }).textContent).toBe(type === 'bonbon' ? '2' : '1');
 });
 

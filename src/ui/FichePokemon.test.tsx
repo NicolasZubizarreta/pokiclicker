@@ -113,7 +113,7 @@ it('organise la fenêtre PC en portrait et détail avec les actions et leur rais
     expect(action.hasAttribute('disabled')).toBe(true);
     expect(detail.contains(document.getElementById(action.getAttribute('aria-describedby')!))).toBe(true);
   }
-  expect(fiche.querySelectorAll('.fiche-pc-facteurs > div')).toHaveLength(6);
+  expect(fiche.querySelectorAll('.fiche-pc-facteurs > div')).toHaveLength(5);
 });
 
 it('omet les types et l’évolution de l’œuf sur PC', () => {
@@ -244,7 +244,7 @@ it('affiche les données en français et bascule le favori', () => {
   expect(screen.getByText('Poison')).toBeTruthy();
   expect(screen.getByText('30 / 100')).toBeTruthy();
   expect(screen.getByText('128/255')).toBeTruthy();
-  expect(screen.getByText('+12,8 % de dégâts')).toBeTruthy();
+  expect(screen.getByText('Grâce au bonheur : +12,8 % de dégâts')).toBeTruthy();
   expect(container.querySelector('circle[pathLength="255"]')?.getAttribute('stroke-dasharray')).toBe('128 255');
   const favori = screen.getByRole('button', { name: 'Ajoute aux favoris' });
   expect(favori.getAttribute('aria-pressed')).toBe('false');
@@ -351,7 +351,7 @@ it('affiche la fiche du PC avec XP calculée, DPS sans bonus de type et une seul
   expect(screen.getByText('Dans le PC')).toBeTruthy();
   const detail = actions.detailDps(pokemon, 1);
   const dps = Object.values(detail).reduce((produit, facteur) => produit * facteur, 1);
-  expect(screen.getByText(/ DPS$/).textContent).toBe(`${dps.toLocaleString('fr-FR', { maximumFractionDigits: 1 })} DPS`);
+  expect(screen.getByText(/ DPS$/).textContent).toBe(`${Math.round(dps).toLocaleString('fr-FR')} DPS`);
   expect(screen.getByText(`30 / ${calculerMaxXp(pokemon.numero, pokemon.niveau)}`)).toBeTruthy();
   expect(screen.getByRole('button', { name: "Placer dans l'équipe" }).classList.contains('bg-action')).toBe(true);
   expect(screen.queryByRole('button', { name: 'Envoyer au PC' })).toBeNull();
@@ -445,7 +445,8 @@ it.each([false, true])('n’affiche Shiny, Pierre Stase et Calcium que si le Pok
   storeJeu.setState({ equipe: [{ pokemon: nu, dps: 42, xpMax: 100, multiplicateur: 1 }] });
   afficher();
   for (const libelle of ['Shiny', 'Pierre Stase', 'Calcium']) expect(screen.queryByText(libelle, { selector: 'dt' })).toBeNull();
-  expect(screen.getByText('Bonheur', { selector: 'dt' })).toBeTruthy();
+  expect(screen.queryByText('Bonheur', { selector: 'dt' })).toBeNull();
+  expect(screen.getByText('Dégâts de base', { selector: 'dt' })).toBeTruthy();
   act(() => storeJeu.setState({ equipe: [{ pokemon, dps: 42, xpMax: 100, multiplicateur: 1 }] }));
   for (const libelle of ['Shiny', 'Pierre Stase', 'Calcium']) expect(screen.getByText(libelle, { selector: 'dt' })).toBeTruthy();
   vi.unstubAllGlobals();
