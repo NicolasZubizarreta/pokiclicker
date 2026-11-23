@@ -14,6 +14,9 @@
   .combat-pc .combat-pc-equipe .rang-equipe { padding-block: var(--spacing); }
   .combat-pc .combat-pc-equipe .rang-equipe > span:last-child { white-space: nowrap; overflow: hidden; }
   .combat-pc .combat-pc-equipe .rang-equipe > span:last-child > span { flex-wrap: nowrap; }
+  /* Sur une seule ligne, c'est le nom qui s'abrège (…) ; le niveau reste toujours entier. */
+  .combat-pc .combat-pc-equipe .rang-equipe > span:last-child > span:first-child > strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .combat-pc .combat-pc-equipe .rang-equipe > span:last-child > span:first-child > span { flex-shrink: 0; white-space: nowrap; }
   .combat-pc .combat-pc-equipe .rang-equipe > span:first-child { height: 100%; width: auto; aspect-ratio: 1; max-height: calc(var(--spacing) * 14); }
   .combat-pc .zone-ligne { flex-shrink: 0; }
   /* La scène est toujours un 16:9 entier (les décors le sont) : la boîte prend la place restante, la scène s'y inscrit sans rien recadrer. */
