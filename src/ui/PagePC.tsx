@@ -19,6 +19,7 @@ import { useTelephone } from './useTelephone';
 import { IconeSexe } from './IconeSexe';
 import { FichePokemon } from './FichePokemon';
 import { Image } from './Image';
+import { EquipesEnregistrees } from './EquipesEnregistrees';
 import { formaterDps } from './nombres';
 import { classeSprite, libelleOeuf, nomAffiche as nomDe, progressionOeuf, spriteAffiche } from './affichage-pokemon';
 import { RepereTags } from './RepereMarque';
@@ -336,6 +337,7 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
         </span>}
       </button>}
     </div>
+    <EquipesEnregistrees />
     {telephone && <div ref={zoneEquipe} role="group" aria-label="Équipe mobile" className="relative mt-4">
       <p>Ton équipe · {equipe.filter(Boolean).length} / 6</p><div className={`mt-2 grid gap-2 ${echange || mode ? 'grid-cols-2' : 'pc-miniatures grid-cols-6'}`}>{places(true)}</div>{fenetreObjet()}
     </div>}

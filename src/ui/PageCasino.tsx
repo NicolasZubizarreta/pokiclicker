@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } fro
 import { useStore } from 'zustand';
 import { chargerCasino, messageBienvenue, prixJeton, valeurJeton } from '../core/casino';
 import { storeJeu, type StoreJeu } from './store';
+import { ScoresCasino } from './ScoresCasino';
 import { Image, imageConnue } from './Image';
 import { BoutiqueCasino } from './BoutiqueCasino';
 import { CarteAGratter } from './CarteAGratter';
@@ -151,6 +152,7 @@ export function PageCasino({ retour, store = storeJeu, offerts = 0 }: { retour()
         </section>
       </div>
     </div>}
+    <ScoresCasino store={store} />
     {vue !== 'salle' && <>
       {entete(vue)}
       {vue === 'machine' && <MachineASous actions={actionsJeux} signaler={signaler} occuper={occuper} jetons={jetons} verdict={verdict} />}

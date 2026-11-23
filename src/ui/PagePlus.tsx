@@ -7,6 +7,7 @@ import { Pokedex } from './Pokedex';
 import { PokedexTelephone } from './PokedexTelephone';
 import { BadgesTelephone } from './BadgesTelephone';
 import { StatistiquesPage } from './StatistiquesPage';
+import { HallDesFameux } from './HallDesFameux';
 import { GuidePage } from './GuidePage';
 import { erreurRetourMenu, useRetourMenuPrincipal } from './useRetourMenuPrincipal';
 import { useTelephone } from './useTelephone';
@@ -69,7 +70,8 @@ export function PagePlus({ ouvrirPC, ouvrirMonde, ouvrirCasino, ouvrirPension, m
   const pensionNouveau = usePensionNouveau();
   const diplome = useStore(storeJeu, etat => etat.fin.diplome);
   const [diplomeOuvert, ouvrirDiplome] = useState(false);
-  const [sousPage, choisir] = useState<null | 'pokedex' | 'badges' | 'reglages' | 'stats' | 'guide'>(null);
+  const victoires = useStore(storeJeu, etat => etat.suivi.hall.length);
+  const [sousPage, choisir] = useState<null | 'pokedex' | 'badges' | 'reglages' | 'stats' | 'guide' | 'hall'>(null);
   const telephone = useTelephone();
   const progression = useStore(storeJeu, etat => etat.progression);
   const lieu = useStore(storeJeu, etat => etat.lieu);
@@ -97,7 +99,7 @@ export function PagePlus({ ouvrirPC, ouvrirMonde, ouvrirCasino, ouvrirPension, m
   const conteneur = useRef<HTMLDivElement>(null);
 
   const monte = useRef(false);
-  const entree = useRef<'pokedex' | 'badges' | 'reglages' | 'stats' | 'guide'>('pokedex');
+  const entree = useRef<'pokedex' | 'badges' | 'reglages' | 'stats' | 'guide' | 'hall'>('pokedex');
   useEffect(() => {
     // Pas de déplacement du focus au premier rendu : seul le changement de sous-page compte.
     if (!monte.current) { monte.current = true; return; }
@@ -111,6 +113,7 @@ export function PagePlus({ ouvrirPC, ouvrirMonde, ouvrirCasino, ouvrirPension, m
         ? <PokedexTelephone retour={() => choisir(null)} ouvrirDiplome={diplome ? () => ouvrirDiplome(true) : undefined} />
         : <Pokedex retour={() => choisir(null)} />
         : sousPage === 'stats' ? <StatistiquesPage retour={() => choisir(null)} />
+        : sousPage === 'hall' ? <HallDesFameux retour={() => choisir(null)} />
         : sousPage === 'guide' ? <GuidePage retour={() => choisir(null)} />
         : sousPage === 'badges' && telephone ? <BadgesTelephone badges={progression.badges} retour={() => choisir(null)} />
         : sousPage === 'badges' ? <section className="mx-auto max-w-screen-xl space-y-4 text-base">
@@ -165,6 +168,8 @@ export function PagePlus({ ouvrirPC, ouvrirMonde, ouvrirCasino, ouvrirPension, m
           <LigneMenu icone={<IconeStats />} titre="Statistiques" sousTexte="Dégâts, DPS et gains" entree="stats"
             onClick={() => { entree.current = 'stats'; choisir('stats'); }} />
           {diplome && !telephone && <LigneMenu icone={<IconePokedex />} titre="Diplôme du Pokédex" onClick={() => ouvrirDiplome(true)} />}
+          {victoires > 0 && <LigneMenu icone={<IconeBadges />} titre="Hall des Fameux" sousTexte={`${victoires} victoire${victoires > 1 ? 's' : ''} à la Ligue`} entree="hall"
+            onClick={() => { entree.current = 'hall'; choisir('hall'); }} />}
           <h2 className="font-titre text-lg text-region-accent">Aide et réglages</h2>
           <LigneMenu icone={<IconeGuide />} titre="Guide du jeu" entree="guide"
             onClick={() => { entree.current = 'guide'; choisir('guide'); }} />
