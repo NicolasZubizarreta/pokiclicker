@@ -161,7 +161,7 @@ describe('Présentation de Blue (AI)', () => {
 
   it('montre le sprite de Blue dans chacune de ses répliques', () => {
     const blue = catalogue.liste.flatMap(e => e.etapes).filter(e => e.type === 'dialogue' && e.locuteur === 'Blue');
-    expect(blue).toHaveLength(12);
+    expect(blue).toHaveLength(24);
     for (const d of blue) expect(spriteDe('Blue', d.type === 'dialogue' ? d.pose : undefined)).not.toBeNull();
   });
 });

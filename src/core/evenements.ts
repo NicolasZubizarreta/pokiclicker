@@ -22,7 +22,9 @@ export type Declencheur =
   | { type: 'entree-zone'; zone: string }
   | { type: 'boss-vaincu'; zone: string }
   | { type: 'boss-atteint'; zone: string }
-  | { type: 'objet-utilise'; objet: string; zone?: string };
+  | { type: 'objet-utilise'; objet: string; zone?: string }
+  /** Visite voulue par le joueur dans un lieu de scène (Chez Blue) : `zone` est la zone où se joue le combat, `lieu` la scène visitée. */
+  | { type: 'visite'; zone: string; lieu: string };
 
 /** Objet montré en grand au centre de la scène pendant une réplique (diplôme, Charme Chroma) : arrivée, zoom ou envol vers le sac. */
 export type Vitrine = { image: string; animation: 'entree' | 'zoom' | 'envol'; annonce?: string };
@@ -45,7 +47,7 @@ export type Etape =
   | { type: 'poser-drapeau'; id: string }
   | { type: 'bloquer'; zone: string; sauf: string; raison: string }
   | { type: 'combat'; pokemon: number; niveau: number; capture?: number; nom?: string; zone?: string }
-  | { type: 'combat'; dresseur: string; equipes: Record<'1' | '4' | '7', MembreEquipe[]>;
+  | { type: 'combat'; dresseur: string; equipes: Record<'1' | '4' | '7', MembreEquipe[]>; zone?: string;
       pokemon?: never; niveau?: never; capture?: never; nom?: never }
   | { type: 'deplacer'; zone: string };
 
@@ -87,6 +89,7 @@ function correspond(declencheur: Declencheur, fait: Declencheur): boolean {
     case 'boss-vaincu': return 'zone' in fait && declencheur.zone === fait.zone;
     case 'objet-utilise': return fait.type === 'objet-utilise' && declencheur.objet === fait.objet
       && (declencheur.zone === undefined || declencheur.zone === fait.zone);
+    case 'visite': return fait.type === 'visite' && declencheur.zone === fait.zone && declencheur.lieu === fait.lieu;
   }
 }
 
@@ -254,6 +257,7 @@ export function chargerEvenements(
       case 'boss-atteint':
       case 'boss-vaincu': forme(v, { type: chaine, zone }); break;
       case 'objet-utilise': forme(v, { type: chaine, objet: objetConnu }, { zone }); break;
+      case 'visite': forme(v, { type: chaine, zone, lieu: chaine }); break;
       default: throw new Error(`Déclencheur inconnu : ${String(v.type)}`);
     }
   }
@@ -286,7 +290,7 @@ export function chargerEvenements(
         if (Object.hasOwn(v, 'equipes') || Object.hasOwn(v, 'dresseur')) {
           forme(v, { type: chaine, dresseur: chaine,
             equipes: e => forme(e, { '1': equipe, '4': equipe, '7': equipe }),
-          });
+          }, { zone: v => { zone(v); exiger(!monde.zone(v as string).sansCombat, 'Zone de combat attendue'); } });
           break;
         }
         forme(v, { type: chaine, pokemon: numeroPokemon, niveau }, {

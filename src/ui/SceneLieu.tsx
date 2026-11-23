@@ -19,9 +19,12 @@ type Props = {
   occupe?: boolean;
   /** PC : l'image remplit tout son conteneur (jamais de bande), les bords dépassants sont rognés ; textes en calques. */
   remplir?: boolean;
+  /** Remplace la bulle de la scène (texte qui dépend de l'état du jeu) et ajoute un bouton dans la bulle. */
+  bulle?: string;
+  action?: { libelle: string; desactive?: boolean; quand: () => void };
 };
 
-export function SceneLieu({ scene, nom, quandChoisir, raisons = {}, clignotements = [], occupe = false, remplir = false }: Props) {
+export function SceneLieu({ scene, nom, quandChoisir, raisons = {}, clignotements = [], occupe = false, remplir = false, bulle, action }: Props) {
   const [annonce, annoncer] = useState('');
   const [teleAllumee, allumer] = useState(false);
   // Repère de la zone (survol souris ou focus clavier) : il épouse la forme exacte du polygone, jamais sa boîte englobante.
@@ -108,7 +111,10 @@ export function SceneLieu({ scene, nom, quandChoisir, raisons = {}, clignotement
       </div>
     </div>
     <p role="status" aria-live="polite" className={remplir ? 'pointer-events-none absolute top-2 left-2 z-10 cadre bg-surface/90 p-2 empty:hidden' : 'min-h-11 bg-surface p-2'}>{annonce}</p>
-    {scene.bulle && <aside aria-label="Dialogue" className={remplir ? 'pointer-events-none absolute top-4 left-1/2 z-10 -translate-x-1/2 cadre bg-surface/90 p-3' : 'cadre bg-surface p-4'}>{scene.bulle}</aside>}
+    {(bulle ?? scene.bulle) && <aside aria-label="Dialogue" className={remplir ? 'pointer-events-none absolute top-4 left-1/2 z-10 -translate-x-1/2 cadre bg-surface/90 p-3 text-center' : 'cadre bg-surface p-4'}>
+      <p>{bulle ?? scene.bulle}</p>
+      {action && <button type="button" className="plaque plaque-action pointer-events-auto mt-2 min-h-11 px-4" disabled={action.desactive || occupe} onClick={action.quand}>{action.libelle}</button>}
+    </aside>}
     {scene.formes.map((f, index) => {
       const raison = f.zone ? raisons[f.zone] : 'Bientôt disponible.';
       return raison && <p key={f.nom} id={`${id}-${index}`} className={remplir ? 'sr-only' : 'text-texte-doux'}>{f.nom} : {raison}</p>;

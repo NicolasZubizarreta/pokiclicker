@@ -35,6 +35,6 @@ export function normaliserRonflex(region: DonneesRegion): DonneesRegion {
 }
 
 export const evenementsKanto = chargerEvenements(
-  import.meta.glob('../../data/evenements/{intro,rival,ronflex,fin,chen-boss}.json', { eager: true, import: 'default' }),
+  import.meta.glob('../../data/evenements/{intro,rival,ronflex,fin,chen-boss,blue-revanches}.json', { eager: true, import: 'default' }),
   { zone: id => id === 'kanto.labo' ? { ...kanto.lieu('labo'), id, sansCombat: true, liens: [] } : kanto.zone(id) },
 );

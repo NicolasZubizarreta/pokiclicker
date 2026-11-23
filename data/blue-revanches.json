@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "revanches": [
+    {
+      "evenement": "kanto.blue-revanche-1",
+      "badges": 2
+    },
+    {
+      "evenement": "kanto.blue-revanche-2",
+      "badges": 4
+    },
+    {
+      "evenement": "kanto.blue-revanche-3",
+      "badges": 6
+    },
+    {
+      "evenement": "kanto.blue-revanche-4",
+      "badges": 8
+    }
+  ],
+  "messages": {
+    "pret": "Blue t'attend, il veut sa revanche !",
+    "attente": "Blue est parti s'entraîner. Reviens avec {badges} badges.",
+    "termine": "Blue n'a plus rien à te prouver pour l'instant."
+  }
+}

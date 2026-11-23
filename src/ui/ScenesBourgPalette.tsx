@@ -5,6 +5,7 @@ import { kanto } from '../core/regions';
 import { evaluer } from '../core/conditions';
 import { SceneLieu } from './SceneLieu';
 import type { AffichageJeu } from './store';
+import type { EtatBlue } from '../core/blue';
 
 const scenes = chargerScenes();
 const bourg = 'kanto.bourg-palette';
@@ -25,12 +26,14 @@ type Props = {
   quandScene?: (id: string) => void;
   accesPension?: AffichageJeu['pension']['acces'];
   quandPension?: () => void;
+  blue?: EtatBlue;
+  quandBlue?: () => void;
   sceneInitiale?: string;
   bloquee?: boolean;
   remplir?: boolean;
 };
 
-export function ScenesBourgPalette({ laboAVisiter = false, sortieLaboClignote = false, quandLabo, quandSortieLabo, quandScene, accesPension = accesPensionParDefaut, quandPension, sceneInitiale = bourg, bloquee = false, remplir = false }: Props) {
+export function ScenesBourgPalette({ laboAVisiter = false, sortieLaboClignote = false, quandLabo, quandSortieLabo, quandScene, accesPension = accesPensionParDefaut, quandPension, blue, quandBlue, sceneInitiale = bourg, bloquee = false, remplir = false }: Props) {
   const [courante, changerScene] = useState(sceneInitiale);
   const [phase, changerPhase] = useState<'repos' | 'couvrir' | 'decouvrir'>('repos');
   const [sortieVue, noterSortie] = useState(false);
@@ -76,7 +79,9 @@ export function ScenesBourgPalette({ laboAVisiter = false, sortieLaboClignote = 
 
   return <div ref={cadre} className={remplir ? 'absolute inset-0' : 'relative'}>
     <SceneLieu key={courante} scene={scene} nom={noms[courante]!} quandChoisir={choisir} remplir={remplir}
-      raisons={raisons} clignotements={clignotements} occupe={phase !== 'repos' || bloquee} />
+      raisons={raisons} clignotements={clignotements} occupe={phase !== 'repos' || bloquee}
+      {...(courante === 'kanto.chez-blue' && blue && quandBlue ? { bulle: blue.message,
+        ...(blue.badgesRequis !== null ? { action: { libelle: 'Défier Blue', desactive: !blue.pret, quand: quandBlue } } : {}) } : {})} />
     <div data-voile aria-hidden="true" className={`pointer-events-none absolute inset-0 bg-texte motion-safe:intro-voile ${phase === 'couvrir' ? 'opacity-100' : 'opacity-0'}`} />
   </div>;
 }

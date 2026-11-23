@@ -17,6 +17,7 @@ import { nomAdversaireEvenement, zoneDeCombatEvenement, zoneDuCombat } from '../
 import { choisirStarter, creerStarter, tirerStarters } from '../core/starter';
 import { accorderBadge, accorderJalons, actifsDe } from '../core/progression';
 import { zoneDeLigue, estZoneDeLigue, messageDefaite, messageEnchainement, nomAdversaire, enregistrerVictoireLigue } from '../core/ligue';
+import { etatBlue, LIEU_BLUE, type EtatBlue } from '../core/blue';
 import { rangActif, meilleurRang, rangSuivantPossible, choisirRang, victoireLiguePlus, RANG_MAX_LIGUE_PLUS } from '../core/ligue-plus';
 import { nomAffiche } from './affichage-pokemon';
 import { issueDuPantheon } from '../core/pantheon';
@@ -93,6 +94,8 @@ export type AffichageJeu = ActionsCasino & {
   pantheon: { ouvert: boolean; premiereVictoire: boolean; equipe: PokemonPossede[]; defiChenEnAttente: boolean } | null;
   quitterPantheon(): void;
   lancerDefiChen(): void;
+  /** Chez Blue : lance la prochaine revanche du rival, si le nombre de badges demandé est atteint. */
+  defierBlue(): void;
   fin: { diplome: { nom: string; date: string } | null; credits: boolean };
   fermerCredits(): void;
   casino: AffichageCasino;
@@ -144,6 +147,7 @@ export type AffichageJeu = ActionsCasino & {
   statistiques: Statistique[];
   pc: PokemonPossede[]; pokedex: readonly number[]; vus: readonly number[]; especesShiny: readonly number[];
   accesPc: { ouvert: boolean; raison: string | null };
+  blue: EtatBlue;
   pension: {
     acces: { ouvert: boolean; raison: string | null }; parents: PokemonPossede[]; oeufs: PokemonPossede[];
     emplacements: number; emplacementsMax: number; chance: number;
@@ -723,6 +727,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         : { possede: region.ameliorations.includes('leftovers'), actif: coeur?.autoClic ?? false },
       autoAttaque: preferences.autoAttaque, autoClicLie: preferences.autoClicLie, arretAuto: preferences.arretAuto,
       pc: region.pc, pokedex, vus, especesShiny: dex.especesShiny(region),
+      blue: JSON.stringify(etatBlue(region)) === JSON.stringify(precedent.blue) ? precedent.blue : etatBlue(region),
       pension: JSON.stringify(affichagePension) === JSON.stringify(precedent.pension) ? precedent.pension : affichagePension,
       accesPc: accesAuPc.ouvert === precedent.accesPc.ouvert && accesAuPc.raison === precedent.accesPc.raison
         ? precedent.accesPc : accesAuPc,
@@ -992,6 +997,11 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       if (!initialise || !store.getState().fin.credits) return;
       region = { ...region, drapeaux: [...region.drapeaux, 'credits-vus'] };
       enregistrer(); afficher();
+    },
+    defierBlue() {
+      if (!initialise || region.evenementEnCours || region.zoneId !== kanto.depart || !etatBlue(region).pret) return;
+      executer({ type: 'visite', zone: kanto.depart, lieu: LIEU_BLUE });
+      afficher();
     },
     lancerDefiChen() {
       if (!initialise || region.evenementEnCours || defiEnCombat()
@@ -1370,6 +1380,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     versCentre: 0, centreVoisines: { precedente: null, suivante: null },
     evolution: null, argent: 0, enRecherche: false, cache: false, annonce: null, banniere: null, deblocage: null, deblocageCarte: null, echange: null,
     pc: [], pokedex, vus: [], especesShiny: [], accesPc: { ouvert: false, raison: reglages.pc.raison },
+    blue: { fait: 0, total: 0, badgesRequis: null, pret: false, message: '' },
     pension: { acces: { ouvert: false, raison: null }, parents: [], oeufs: [],
       emplacements: reglages.depart.region.pension.emplacementsOeuf, emplacementsMax: reglages.pension.emplacementsMax,
       chance: 0, prochainEmplacement: null, nouveau: false, especesEcloses: [], especesEclosesShiny: [] },

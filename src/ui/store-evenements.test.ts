@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import chenBoss from '../../data/evenements/chen-boss.json';
+import blueRevanches from '../../data/evenements/blue-revanches.json';
 import rivaux from '../../data/evenements/rival.json';
 import essai from '../../tests/fixtures/evenements/essai.json';
 import { creerHorlogeSimulee } from '../core/clock';
@@ -193,6 +194,21 @@ describe('événements du store de bout en bout', () => {
     }
     expect(store.getState().etape).toBe(reglages.combat.etapeBoss - 1);
     expect(store.getState().evenement).toBeNull();
+  });
+
+  it('Chez Blue : sans assez de badges rien ne se passe, avec deux badges la revanche démarre puis se bat en zone de combat', () => {
+    const sans = preparer(blueRevanches, region => ({ ...region, badges: ['roche'] }));
+    sans.store.getState().defierBlue();
+    expect(sans.store.getState().evenement).toBeNull();
+    expect(sans.store.getState().blue).toMatchObject({ pret: false, badgesRequis: 2 });
+    const partie = preparer(blueRevanches, region => ({ ...region, badges: ['roche', 'cascade'] }));
+    expect(partie.store.getState().blue).toMatchObject({ pret: true, fait: 0 });
+    partie.store.getState().defierBlue();
+    expect(partie.store.getState().evenement).toMatchObject({ type: 'dialogue', locuteur: 'Blue' });
+    partie.store.getState().terminerEtape();
+    expect(partie.store.getState().evenement).toMatchObject({ type: 'combat', dresseur: 'Blue' });
+    expect(partie.store.getState().ennemi).not.toBeNull();
+    expect(partie.store.getState().nomAdversaire).toMatch(/^Blue \(/);
   });
 
   it('Blue : présenté avant son premier défi, jamais présenté après coup à une ancienne sauvegarde', () => {

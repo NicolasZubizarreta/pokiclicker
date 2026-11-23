@@ -100,6 +100,7 @@ function Scene({ store, ouvrirPension, aller }: { store: StoreJeu; ouvrirPension
   useAlerteArret(zone && ennemi ? banniere : null);
   const avantage = useStore(store, etat => moyenneAvantage(etat.equipe));
   const accesPension = useStore(store, etat => etat.pension.acces);
+  const blue = useStore(store, etat => etat.blue);
   const captureEnCours = useStore(store, etat => etat.capture.enCours);
   const radar = useStore(store, etat => etat.radar);
   const [declencheurRadar, ouvrirRadar] = useState<HTMLButtonElement | null>(null);
@@ -120,8 +121,9 @@ function Scene({ store, ouvrirPension, aller }: { store: StoreJeu; ouvrirPension
   // Bourg Palette et le labo (retour de Chen) : scène carrée entière, jamais rognée, avec ses zones cliquables.
   // Le labo clignote sur sa « Sortie » (V1 : visitedLab && !hasExitedLab) et y ramène le joueur à Bourg Palette.
   const auLabo = lieu?.id === 'kanto.labo' && !zone && !ennemi;
-  if (lieu && (lieu.id === kanto.depart || auLabo)) {
+  if (lieu && ((lieu.id === kanto.depart && !ennemi) || auLabo)) {
     const scenes = <ScenesBourgPalette key={lieu.id} accesPension={accesPension} quandPension={ouvrirPension} remplir={!telephone}
+      blue={blue} quandBlue={() => store.getState().defierBlue()}
       sceneInitiale={auLabo ? lieu.id : undefined} sortieLaboClignote={auLabo}
       quandScene={auLabo ? id => { if (id === kanto.depart) store.getState().allerVers(id); } : undefined} />;
     const message = 'message' in lieu && lieu.message ? lieu.message : null;

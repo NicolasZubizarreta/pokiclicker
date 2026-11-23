@@ -1,0 +1,525 @@
+{
+  "version": 1,
+  "evenements": [
+    {
+      "id": "kanto.blue-revanche-1",
+      "declencheur": {
+        "type": "visite",
+        "zone": "kanto.bourg-palette",
+        "lieu": "kanto.chez-blue"
+      },
+      "priorite": 0,
+      "repetable": false,
+      "etapes": [
+        {
+          "type": "dialogue",
+          "locuteur": "Blue",
+          "pose": "blue-1",
+          "texte": "Tiens, le champion de Bourg Palette ! Deux badges déjà ? Pas mal. Mais mon équipe a progressé elle aussi : on se bat !"
+        },
+        {
+          "type": "combat",
+          "dresseur": "Blue",
+          "zone": "kanto.arene-d-azuria",
+          "equipes": {
+            "1": [
+              {
+                "pokemon": 17,
+                "niveau": 20,
+                "nom": "Roucoups"
+              },
+              {
+                "pokemon": 64,
+                "niveau": 22,
+                "nom": "Kadabra"
+              },
+              {
+                "pokemon": 111,
+                "niveau": 22,
+                "nom": "Rhinocorne"
+              },
+              {
+                "pokemon": 5,
+                "niveau": 24,
+                "nom": "Reptincel"
+              }
+            ],
+            "4": [
+              {
+                "pokemon": 17,
+                "niveau": 20,
+                "nom": "Roucoups"
+              },
+              {
+                "pokemon": 64,
+                "niveau": 22,
+                "nom": "Kadabra"
+              },
+              {
+                "pokemon": 111,
+                "niveau": 22,
+                "nom": "Rhinocorne"
+              },
+              {
+                "pokemon": 8,
+                "niveau": 24,
+                "nom": "Carabaffe"
+              }
+            ],
+            "7": [
+              {
+                "pokemon": 17,
+                "niveau": 20,
+                "nom": "Roucoups"
+              },
+              {
+                "pokemon": 64,
+                "niveau": 22,
+                "nom": "Kadabra"
+              },
+              {
+                "pokemon": 111,
+                "niveau": 22,
+                "nom": "Rhinocorne"
+              },
+              {
+                "pokemon": 2,
+                "niveau": 24,
+                "nom": "Herbizarre"
+              }
+            ]
+          }
+        },
+        {
+          "type": "dialogue",
+          "locuteur": "Blue",
+          "pose": "blue-1",
+          "texte": "Hmm. Tu me devances encore. Prends ça, je n'aime pas rester en dette. À la prochaine revanche !"
+        },
+        {
+          "type": "donner",
+          "objet": "hyperball",
+          "quantite": 10
+        },
+        {
+          "type": "dialogue",
+          "locuteur": "Blue",
+          "pose": "blue-1",
+          "texte": "Récompense : 10 Hyperballs."
+        },
+        {
+          "type": "poser-drapeau",
+          "id": "blue-revanche-1"
+        }
+      ]
+    },
+    {
+      "id": "kanto.blue-revanche-2",
+      "declencheur": {
+        "type": "visite",
+        "zone": "kanto.bourg-palette",
+        "lieu": "kanto.chez-blue"
+      },
+      "si": {
+        "type": "drapeau",
+        "id": "blue-revanche-1"
+      },
+      "priorite": 0,
+      "repetable": false,
+      "etapes": [
+        {
+          "type": "dialogue",
+          "locuteur": "Blue",
+          "pose": "blue-1",
+          "texte": "Quatre badges ! Ça commence à devenir sérieux. Cette fois, je ne retiens plus mes coups."
+        },
+        {
+          "type": "combat",
+          "dresseur": "Blue",
+          "zone": "kanto.arene-de-celadopole",
+          "equipes": {
+            "1": [
+              {
+                "pokemon": 18,
+                "niveau": 34,
+                "nom": "Roucarnage"
+              },
+              {
+                "pokemon": 65,
+                "niveau": 36,
+                "nom": "Alakazam"
+              },
+              {
+                "pokemon": 111,
+                "niveau": 36,
+                "nom": "Rhinocorne"
+              },
+              {
+                "pokemon": 130,
+                "niveau": 37,
+                "nom": "Léviator"
+              },
+              {
+                "pokemon": 5,
+                "niveau": 38,
+                "nom": "Reptincel"
+              }
+            ],
+            "4": [
+              {
+                "pokemon": 18,
+                "niveau": 34,
+                "nom": "Roucarnage"
+              },
+              {
+                "pokemon": 65,
+                "niveau": 36,
+                "nom": "Alakazam"
+              },
+              {
+                "pokemon": 111,
+                "niveau": 36,
+                "nom": "Rhinocorne"
+              },
+              {
+                "pokemon": 58,
+                "niveau": 37,
+                "nom": "Caninos"
+              },
+              {
+                "pokemon": 8,
+                "niveau": 38,
+                "nom": "Carabaffe"
+              }
+            ],
+            "7": [
+              {
+                "pokemon": 18,
+                "niveau": 34,
+                "nom": "Roucarnage"
+              },
+              {
+                "pokemon": 65,
+                "niveau": 36,
+                "nom": "Alakazam"
+              },
+              {
+                "pokemon": 111,
+                "niveau": 36,
+                "nom": "Rhinocorne"
+              },
+              {
+                "pokemon": 130,
+                "niveau": 37,
+                "nom": "Léviator"
+              },
+              {
+                "pokemon": 2,
+                "niveau": 38,
+                "nom": "Herbizarre"
+              }
+            ]
+          }
+        },
+        {
+          "type": "dialogue",
+          "locuteur": "Blue",
+          "pose": "blue-1",
+          "texte": "Encore perdu ! Je m'entraîne jour et nuit, et toi tu avances quand même. Tiens, un cadeau."
+        },
+        {
+          "type": "donner",
+          "objet": "bonbon",
+          "quantite": 3
+        },
+        {
+          "type": "dialogue",
+          "locuteur": "Blue",
+          "pose": "blue-1",
+          "texte": "Récompense : 3 Super Bonbons."
+        },
+        {
+          "type": "poser-drapeau",
+          "id": "blue-revanche-2"
+        }
+      ]
+    },
+    {
+      "id": "kanto.blue-revanche-3",
+      "declencheur": {
+        "type": "visite",
+        "zone": "kanto.bourg-palette",
+        "lieu": "kanto.chez-blue"
+      },
+      "si": {
+        "type": "drapeau",
+        "id": "blue-revanche-2"
+      },
+      "priorite": 0,
+      "repetable": false,
+      "etapes": [
+        {
+          "type": "dialogue",
+          "locuteur": "Blue",
+          "pose": "blue-1",
+          "texte": "Six badges. Tu te rapproches de la Ligue, et moi aussi. Voyons si tu tiens la distance !"
+        },
+        {
+          "type": "combat",
+          "dresseur": "Blue",
+          "zone": "kanto.arene-de-safrania",
+          "equipes": {
+            "1": [
+              {
+                "pokemon": 18,
+                "niveau": 42,
+                "nom": "Roucarnage"
+              },
+              {
+                "pokemon": 65,
+                "niveau": 43,
+                "nom": "Alakazam"
+              },
+              {
+                "pokemon": 111,
+                "niveau": 44,
+                "nom": "Rhinocorne"
+              },
+              {
+                "pokemon": 130,
+                "niveau": 45,
+                "nom": "Léviator"
+              },
+              {
+                "pokemon": 6,
+                "niveau": 46,
+                "nom": "Dracaufeu"
+              }
+            ],
+            "4": [
+              {
+                "pokemon": 18,
+                "niveau": 42,
+                "nom": "Roucarnage"
+              },
+              {
+                "pokemon": 65,
+                "niveau": 43,
+                "nom": "Alakazam"
+              },
+              {
+                "pokemon": 111,
+                "niveau": 44,
+                "nom": "Rhinocorne"
+              },
+              {
+                "pokemon": 58,
+                "niveau": 45,
+                "nom": "Caninos"
+              },
+              {
+                "pokemon": 9,
+                "niveau": 46,
+                "nom": "Tortank"
+              }
+            ],
+            "7": [
+              {
+                "pokemon": 18,
+                "niveau": 42,
+                "nom": "Roucarnage"
+              },
+              {
+                "pokemon": 65,
+                "niveau": 43,
+                "nom": "Alakazam"
+              },
+              {
+                "pokemon": 111,
+                "niveau": 44,
+                "nom": "Rhinocorne"
+              },
+              {
+                "pokemon": 130,
+                "niveau": 45,
+                "nom": "Léviator"
+              },
+              {
+                "pokemon": 3,
+                "niveau": 46,
+                "nom": "Florizarre"
+              }
+            ]
+          }
+        },
+        {
+          "type": "dialogue",
+          "locuteur": "Blue",
+          "pose": "blue-1",
+          "texte": "Grr ! Mon équipe était pourtant au top. Je la remets à l'entraînement dès demain. Garde ça."
+        },
+        {
+          "type": "donner",
+          "objet": "calcium",
+          "quantite": 2
+        },
+        {
+          "type": "dialogue",
+          "locuteur": "Blue",
+          "pose": "blue-1",
+          "texte": "Récompense : 2 Calciums."
+        },
+        {
+          "type": "poser-drapeau",
+          "id": "blue-revanche-3"
+        }
+      ]
+    },
+    {
+      "id": "kanto.blue-revanche-4",
+      "declencheur": {
+        "type": "visite",
+        "zone": "kanto.bourg-palette",
+        "lieu": "kanto.chez-blue"
+      },
+      "si": {
+        "type": "drapeau",
+        "id": "blue-revanche-3"
+      },
+      "priorite": 0,
+      "repetable": false,
+      "etapes": [
+        {
+          "type": "dialogue",
+          "locuteur": "Blue",
+          "pose": "blue-1",
+          "texte": "Huit badges ! Alors c'est le moment : mon vrai combat de revanche. Je donne tout !"
+        },
+        {
+          "type": "combat",
+          "dresseur": "Blue",
+          "zone": "kanto.arene-de-jadielle",
+          "equipes": {
+            "1": [
+              {
+                "pokemon": 18,
+                "niveau": 56,
+                "nom": "Roucarnage"
+              },
+              {
+                "pokemon": 65,
+                "niveau": 58,
+                "nom": "Alakazam"
+              },
+              {
+                "pokemon": 111,
+                "niveau": 59,
+                "nom": "Rhinocorne"
+              },
+              {
+                "pokemon": 102,
+                "niveau": 60,
+                "nom": "Noeunoeuf"
+              },
+              {
+                "pokemon": 130,
+                "niveau": 60,
+                "nom": "Léviator"
+              },
+              {
+                "pokemon": 6,
+                "niveau": 62,
+                "nom": "Dracaufeu"
+              }
+            ],
+            "4": [
+              {
+                "pokemon": 18,
+                "niveau": 56,
+                "nom": "Roucarnage"
+              },
+              {
+                "pokemon": 65,
+                "niveau": 58,
+                "nom": "Alakazam"
+              },
+              {
+                "pokemon": 111,
+                "niveau": 59,
+                "nom": "Rhinocorne"
+              },
+              {
+                "pokemon": 102,
+                "niveau": 60,
+                "nom": "Noeunoeuf"
+              },
+              {
+                "pokemon": 58,
+                "niveau": 60,
+                "nom": "Caninos"
+              },
+              {
+                "pokemon": 9,
+                "niveau": 62,
+                "nom": "Tortank"
+              }
+            ],
+            "7": [
+              {
+                "pokemon": 18,
+                "niveau": 56,
+                "nom": "Roucarnage"
+              },
+              {
+                "pokemon": 65,
+                "niveau": 58,
+                "nom": "Alakazam"
+              },
+              {
+                "pokemon": 111,
+                "niveau": 59,
+                "nom": "Rhinocorne"
+              },
+              {
+                "pokemon": 102,
+                "niveau": 60,
+                "nom": "Noeunoeuf"
+              },
+              {
+                "pokemon": 130,
+                "niveau": 60,
+                "nom": "Léviator"
+              },
+              {
+                "pokemon": 3,
+                "niveau": 62,
+                "nom": "Florizarre"
+              }
+            ]
+          }
+        },
+        {
+          "type": "dialogue",
+          "locuteur": "Blue",
+          "pose": "blue-1",
+          "texte": "J'ai tout donné, et tu m'as encore battu. Bravo. Cette fois, c'est un vrai cadeau de rival."
+        },
+        {
+          "type": "donner",
+          "objet": "bonbon",
+          "quantite": 5
+        },
+        {
+          "type": "dialogue",
+          "locuteur": "Blue",
+          "pose": "blue-1",
+          "texte": "Récompense : 5 Super Bonbons."
+        },
+        {
+          "type": "poser-drapeau",
+          "id": "blue-revanche-4"
+        }
+      ]
+    }
+  ]
+}

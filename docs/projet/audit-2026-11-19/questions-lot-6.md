@@ -92,3 +92,13 @@ Chaque valeur citée vit dans un fichier de `data/` et se change là sans touche
 - Effet sur l'équilibrage : un peu plus d'argent au total (1,375 M ₽ au maximum, une fois). Rien d'autre.
 - Sauvegarde : champ facultatif `liguePlus` (rang choisi) et record `suivi.records.liguePlusMax`, sans version 7.
 - Question : 15 % de PV par rang et 25 000 ₽ par rang te conviennent-ils ? Faut-il aussi des adversaires de niveau plus haut (impossible au-delà de 100) ou de nouveaux Pokémon au rang élevé ?
+
+## F-j2-09 Chez Blue : revanches du rival
+- Règle choisie : dans la scène « Chez Blue » (Bourg-Palette), un bouton « Défier Blue » lance une revanche à 2, 4, 6 puis 8 badges obtenus (une revanche à la fois, dans l'ordre, chacune une seule fois). Le combat se joue comme les autres combats de Blue (une équipe qui s'adapte au starter choisi, une fois battue elle ne se rejoue pas). Si tu perds au temps, le combat reprend, comme pour les rivaux de l'histoire.
+- Équipes : 4 Pokémon de niveau 20-24 (2 badges), 5 de niveau 34-38 (4 badges), 5 de niveau 42-46 (6 badges), 6 de niveau 56-62 (8 badges). Les PV viennent de l'arène du même rang (Azuria, Céladopole, Safrania, Jadielle). Les niveaux et équipes sont dans `data/evenements/blue-revanches.json`, les seuils (2, 4, 6, 8) et les textes d'attente dans `data/blue-revanches.json`.
+- Récompenses (une fois par revanche) : 10 Hyperballs, 3 Super Bonbons, 2 Calciums, 5 Super Bonbons. Valeur totale d'environ 90 000 ₽ au prix de boutique, très en dessous de ce qu'on gagne à ce stade. Pour changer : la ligne `donner` de chaque événement.
+- Pas fait : les diamants comme récompense (les événements ne savent pas encore en donner : le compte est séparé de la région) et le dialogue qui change selon l'équipe du joueur (seule l'équipe de Blue change, selon le starter). À trancher avec toi.
+- Effet sur l'équilibrage : un peu plus facile (une poignée d'objets, une seule fois). Rien d'autre ne change.
+- Après la revanche, on revient à l'écran de Bourg-Palette (pas à la pièce de Blue). Le combat se déroule dans l'écran de combat habituel, avec le décor de l'arène.
+- Sauvegarde : aucun nouveau champ (le drapeau `blue-revanche-N` et l'événement joué suffisent), pas de version 7.
+- Question : les seuils 2/4/6/8 badges et ces récompenses te conviennent-ils ? Veux-tu des diamants à la place des objets ?
