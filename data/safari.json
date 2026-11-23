@@ -54,6 +54,6 @@
     "finPas": "Plus de pas : la visite est terminée.",
     "finBalles": "Plus de Safari Balls : la visite est terminée.",
     "finSortie": "Tu quittes le parc.",
-    "bilan": "Visite terminée : {captures} Pokémon capturés."
+    "bilan": "Visite terminée. Pokémon capturés : {captures}."
   }
 }

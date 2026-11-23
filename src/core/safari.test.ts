@@ -113,7 +113,7 @@ describe('Parc Safari : capture', () => {
     const r = lancerBalleSafari(avecRencontre({}, { balles: 1, captures: 3 }), () => .999, id);
     expect(r.ok && r.fin).toEqual({ captures: 3, raison: 'balles' });
     expect(r.ok && r.region.safariEnCours).toBeUndefined();
-    expect(r.ok && messageBilanSafari(r.fin!)).toMatch(/3 Pokémon/);
+    expect(r.ok && messageBilanSafari(r.fin!)).toMatch(/Pokémon capturés : 3/);
   });
   it('les chances suivent l\'humeur et restent bornées', () => {
     const base = chanceBalleSafari({ numero: 115, humeur: 'neutre' });
