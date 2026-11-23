@@ -55,7 +55,7 @@ export function Sac({ sac, utiliser, annoncer: annoncerObjet }: {
           <span className="flex items-center gap-1 whitespace-nowrap text-sm font-bold">
             ×{entree.quantite}
             {entree.utilisable !== null && entree.quantite > 0 && <span className="text-xs text-region-accent">UTILISER</span>}
-            {entree.actif && <span className="text-xs text-succes-base">ACTIF</span>}
+            {entree.actif && <span className="text-xs text-succes-base">ACTIF · permanent</span>}
           </span>
         </span>
       </button>

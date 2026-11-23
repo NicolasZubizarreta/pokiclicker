@@ -326,7 +326,6 @@ function CombatPC({ store, cadre, ouvrirPension, aller }: { store: StoreJeu; cad
   const evolution = useStore(store, etat => etat.evolution);
   const entrees = useStore(store, etat => etat.sac.entrees);
   const effets = useStore(store, etat => etat.effets);
-  const permanents = entrees.filter(entree => entree.actif && entree.quantite > 0);
   const [fiche, ouvrirFiche] = useState<{ uid: string; ouverture: number } | null>(null);
   const [ouvert, afficher] = useState(false);
   const declencheur = useRef<HTMLButtonElement>(null);
@@ -346,11 +345,7 @@ function CombatPC({ store, cadre, ouvrirPension, aller }: { store: StoreJeu; cad
           ouvrirFiche={bouton => { if (!membre) return; declencheur.current = bouton; ouvrirFiche(ancienne => ({ uid: membre.pokemon.uid, ouverture: (ancienne?.ouverture ?? 0) + 1 })); afficher(true); }} /></li>)}</ul>
       </section>
       <section aria-label="Effets actifs" className="cadre bg-surface p-2"><h2 className="font-titre text-xl">Effets actifs</h2>
-        {effets.length > 0 && <PastillesEffets effets={effets} />}
-        {permanents.length > 0 && <ul aria-label="Objets permanents actifs" className="mt-2 flex flex-wrap gap-2 text-base text-texte">
-          {permanents.map(objet => <li key={objet.id} className="bg-surface-2 px-2 py-1">{objet.nom} : permanent</li>)}
-        </ul>}
-        {effets.length === 0 && permanents.length === 0 && <p className="text-texte-doux">Aucun effet actif.</p>}
+        {effets.length ? <PastillesEffets effets={effets} /> : <p className="text-texte-doux">Aucun effet actif.</p>}
       </section>
     </div>
     {fiche && <FichePokemon key={fiche.ouverture} uid={fiche.uid} ouvert={ouvert} fermer={() => afficher(false)} declencheur={declencheur} />}

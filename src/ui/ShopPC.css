@@ -17,10 +17,11 @@
   .shop-pc .produit > div:first-child { grid-column: 1; }
   .shop-pc .produit > strong { grid-column: 2; grid-row: 1; white-space: nowrap; }
   /* La ligne de l'effet absorbe la hauteur en trop : les boutons d'achat restent alignés en bas, d'une carte à l'autre. */
-  .shop-pc .produit { grid-template-rows: auto 1fr auto; }
+  .shop-pc .produit { grid-template-rows: auto auto 1fr auto; }
   .shop-pc .produit > p { grid-column: 1 / -1; grid-row: 2; align-self: start; }
-  /* Quantité (boutons, puis total) et bouton d'achat : trois rangées fixes, donc le même alignement dans toutes les cartes. */
-  .shop-pc .produit > div:last-child:not(:first-child) { grid-column: 1 / -1; grid-row: 3; align-self: end; display: grid; gap: calc(var(--spacing) * 2); margin-top: 0; }
+  .shop-pc .produit > p.produit-prix-base { grid-row: 3; }
+  /* Quantité (boutons, puis total) et bouton d'achat : quatre rangées fixes, donc le même alignement dans toutes les cartes. */
+  .shop-pc .produit > div:last-child:not(:first-child) { grid-column: 1 / -1; grid-row: 4; align-self: end; display: grid; gap: calc(var(--spacing) * 2); margin-top: 0; }
   .shop-pc .produit img { width: 30px; height: 30px; object-fit: contain; max-width: 100%; max-height: 100%; flex: none; background: none; }
   .shop-pc .produit button { flex-shrink: 0; }
   /* Le décor couvre toute la zone de jeu (main) : la page est le repère de position, pas la section. */

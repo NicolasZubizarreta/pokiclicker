@@ -29,7 +29,7 @@ export function CarteObjet({ id, nom, description, image, prix, prixBase, inflat
     : `Acheter ×${nombre} : ${formaterNombre(total)} ₽`;
   const achat = <button type="button" className={`${bouton}${compact && unique ? ' col-span-3' : ''}`} disabled={!abordable || total > argent}
     onClick={() => acheter(nombre)}>{libelleAchat}</button>;
-  const explicationPrix = prixBase !== undefined && <p className="text-sm text-texte-doux">
+  const explicationPrix = prixBase !== undefined && <p className="produit-prix-base text-sm text-texte-doux">
     Prix de base {formaterNombre(prixBase)} ₽ · {inflationParBadge
       ? `+${formaterNombre(inflationParBadge * 100)} % par badge` : 'sans inflation par badge'}
   </p>;

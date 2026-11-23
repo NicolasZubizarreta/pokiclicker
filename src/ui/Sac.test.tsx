@@ -81,7 +81,7 @@ it('présente une grille compacte, les stocks, les icônes locales et le repli S
   expect(Array.from(container.querySelectorAll('img')).every(img => img.width === 32 && img.height === 32)).toBe(true);
   expect(container.querySelectorAll('img')).toHaveLength(2);
   expect(screen.getByRole('img', { name: 'Chaussures' }).tagName).toBe('svg');
-  expect(screen.getByText('ACTIF').className).toContain('text-succes-base');
+  expect(screen.getByText('ACTIF · permanent').className).toContain('text-succes-base');
   expect(screen.getByText('UTILISER').className).toContain('text-region-accent');
   expect(screen.getByRole('button', { name: 'Pokéball ×0' }).className).toContain('opacity-50');
   expect(container.querySelectorAll('.bg-action')).toHaveLength(0);
