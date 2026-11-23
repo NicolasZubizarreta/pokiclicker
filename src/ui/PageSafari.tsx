@@ -24,7 +24,8 @@ const videSprite = (numero: number) => ({ '--vide': (piedsSprites[numero - 1] ??
 export function PageSafari({ retour, store = storeJeu }: { retour(): void; store?: StoreJeu }) {
   const safari = useStore(store, e => e.safari);
   const argent = useStore(store, e => e.argent);
-  const [message, signaler] = useState('Paie l’entrée pour commencer une visite.');
+  // Une visite reprise après rechargement ne doit pas redemander l'entrée.
+  const [message, signaler] = useState(safari.visite ? 'Visite reprise là où tu l’avais laissée.' : 'Paie l’entrée pour commencer une visite.');
   const [bilan, noterBilan] = useState<FinSafari | null>(null);
   const titre = useRef<HTMLHeadingElement>(null);
   useEffect(() => { titre.current?.focus(); }, []);
