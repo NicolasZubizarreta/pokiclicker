@@ -22,7 +22,7 @@ export function EquipesEnregistrees() {
           return p ? <Image key={uid} src={spriteAffiche(p)} genre="sprite" alt={nomAffiche(p)} className="size-12" /> : null;
         })}</div>
         {!equipes[i]?.length && <p className="text-texte-doux">Emplacement vide</p>}
-        <div className={telephone ? 'grid gap-2' : 'flex flex-wrap gap-2'}>
+        <div className={telephone ? 'grid grid-cols-2 gap-2' : 'flex flex-wrap gap-2'}>
           <button type="button" className="plaque min-h-11 px-4" onClick={() => {
             if (equipes[i]?.length && confirmation !== i) { confirmer(i); return; }
             confirmer(null);
