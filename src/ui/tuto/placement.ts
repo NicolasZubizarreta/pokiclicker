@@ -20,7 +20,8 @@ export function placerTuto(e: EntreePlacement): Placement {
   let meilleur: Placement | undefined;
   let scoreMinimal = Infinity;
   let rang = 0;
-  for (const carteEn of ['haut', 'bas'] as const) {
+  const ordre: ('haut' | 'bas')[] = cible && cible.y + cible.h / 2 < zone.y + zone.h / 2 ? ['bas', 'haut'] : ['haut', 'bas'];
+  for (const carteEn of ordre) {
     for (const cote of ['gauche', 'droite'] as const) {
       const w = Math.max(0, Math.min(e.carte.largeurMax, zone.w - 2 * marge));
       const h = e.carte.hauteur(w);

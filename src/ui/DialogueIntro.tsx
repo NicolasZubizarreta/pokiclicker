@@ -51,7 +51,7 @@ export function DialogueIntro({ commande, sacOuvert, carteOuverte, terminerEtape
         {annonce}
       </p>
       {ligne && boiteVisible && <BoiteDialogue key={ligne.etape} commande={ligne} reduit={reduit}
-        terminer={terminerEtape} />}
+        terminer={terminerEtape} passer />}
       {children}
     </div>
   </section>;

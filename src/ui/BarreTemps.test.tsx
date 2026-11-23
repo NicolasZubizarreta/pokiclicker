@@ -17,7 +17,7 @@ it.each([[30000, 30, '30 secondes'], [14501, 15, '15 secondes'], [1, 1, '1 secon
     expect(screen.getByText(texte).className).toContain('tabular-nums');
     expect(barre.className).toContain('bg-fond');
     const remplissage = barre.firstElementChild as HTMLElement;
-    expect(remplissage.className).toContain('bg-alerte-base');
+    expect(remplissage.className).toContain(restantMs <= 10000 && restantMs > 0 ? 'bg-erreur-base' : 'bg-alerte-base');
     expect(remplissage.className).toContain('barre-pv');
     expect(remplissage.style.transform).toBe(`scaleX(${restantMs / 30000})`);
   });

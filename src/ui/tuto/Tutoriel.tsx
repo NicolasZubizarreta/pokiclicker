@@ -143,6 +143,11 @@ export function Tutoriel({ page, aller }: { page: Page; aller(page: Page): void 
         }
       }
       const rect = r ? { x: r.left, y: r.top, w: r.width, h: r.height } : null;
+      const utile = zoneUtile();
+      carte.current.style.maxHeight = rect
+        ? `${Math.max(0, Math.max(rect.y - utile.y, utile.y + utile.h - rect.y - rect.h) - 32)}px`
+        : `${utile.h - 32}px`;
+      carte.current.style.overflowY = 'auto';
       const placement = placerTuto({ zone: zoneUtile(), cible: rect, obstacles: obstaclesVisibles(cible), marge: 16,
         carte: { largeurMax: 340, largeurMin: 240, hauteur: largeur => {
           carte.current!.style.width = `${largeur}px`; return carte.current!.offsetHeight;

@@ -17,6 +17,13 @@ const ligne = (etape = 0, locuteur = 'Blue', evenement = 'kanto.rival'): Extract
   ({ type: 'dialogue', locuteur, texte: 'Prêt pour un combat ?', evenement, etape });
 const reduire = (matches: boolean) => vi.stubGlobal('matchMedia', () => ({ matches }));
 
+it('permet de passer une réplique sans attendre son écriture', () => {
+  const terminer = vi.fn();
+  render(<DialogueScene commande={ligne()} terminerEtape={terminer} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Passer' }));
+  expect(terminer).toHaveBeenCalledOnce();
+});
+
 beforeEach(() => {
   vi.useFakeTimers();
   reduire(false);
@@ -43,7 +50,7 @@ it.each(['Blue', 'narration'])('affiche le locuteur %s sans sprite quand la pose
 it('écrit la ligne puis un toucher la complète et les suivants ne terminent qu’une fois', () => {
   const terminerEtape = vi.fn();
   render(<DialogueScene commande={ligne()} terminerEtape={terminerEtape} />);
-  const boite = screen.getByRole('button');
+  const boite = screen.getByRole('button', { name: / : |Blue :|Prof. Chen :/ });
   expect(document.activeElement).toBe(boite);
   expect(boite.textContent).not.toContain('Prêt');
   act(() => { vi.advanceTimersByTime(30); });
@@ -63,8 +70,8 @@ it('présente immédiatement le texte entier en mouvement réduit, avec la pose 
   const { container } = render(<DialogueScene commande={{ ...ligne(0, 'Prof. Chen'), pose: 'chen-2' }} terminerEtape={terminerEtape} />);
   expect(container.querySelector('img')?.getAttribute('src')).toBe('img/sprites/chen/chen-2.png');
   expect(container.querySelector('img')?.className).not.toContain('sprite-entree');
-  expect(screen.getByRole('button').textContent).toContain('Prêt pour un combat ?');
-  fireEvent.click(screen.getByRole('button'));
+  expect(screen.getByRole('button', { name: / : |Blue :|Prof. Chen :/ }).textContent).toContain('Prêt pour un combat ?');
+  fireEvent.click(screen.getByRole('button', { name: / : |Blue :|Prof. Chen :/ }));
   expect(terminerEtape).toHaveBeenCalledOnce();
 });
 
@@ -101,13 +108,13 @@ it('anime l’image de Chen sauf en mouvement réduit', () => {
 it('réinitialise écriture, focus et validation même si un autre événement réutilise le numéro d’étape', () => {
   const terminerEtape = vi.fn();
   const { rerender } = render(<DialogueScene commande={ligne()} terminerEtape={terminerEtape} />);
-  fireEvent.click(screen.getByRole('button'));
-  fireEvent.click(screen.getByRole('button'));
+  fireEvent.click(screen.getByRole('button', { name: / : |Blue :|Prof. Chen :/ }));
+  fireEvent.click(screen.getByRole('button', { name: / : |Blue :|Prof. Chen :/ }));
   rerender(<DialogueScene commande={ligne(0, 'narration', 'kanto.ronflex')} terminerEtape={terminerEtape} />);
-  expect(screen.getByRole('button').textContent).not.toContain('Prêt');
-  expect(document.activeElement).toBe(screen.getByRole('button'));
-  fireEvent.click(screen.getByRole('button'));
-  fireEvent.click(screen.getByRole('button'));
+  expect(screen.getByRole('button', { name: / : |Blue :|Prof. Chen :/ }).textContent).not.toContain('Prêt');
+  expect(document.activeElement).toBe(screen.getByRole('button', { name: / : |Blue :|Prof. Chen :/ }));
+  fireEvent.click(screen.getByRole('button', { name: / : |Blue :|Prof. Chen :/ }));
+  fireEvent.click(screen.getByRole('button', { name: / : |Blue :|Prof. Chen :/ }));
   expect(terminerEtape).toHaveBeenCalledTimes(2);
 });
 

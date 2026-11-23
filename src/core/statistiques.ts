@@ -1,7 +1,7 @@
 import { chargerObjets } from './boutique';
 import { calculerClic } from './combat';
 import { clesActives } from './objets-actifs';
-import { actifsDe, chargerBadges, chargerJalons } from './progression';
+import { actifsDe, chargerBadges, chargerJalons, chargerObjetsRecompense } from './progression';
 import { reglages, type Bonus } from './reglages';
 import { regionInitiale } from './sauvegarde';
 import type { DonneesRegion } from './sauvegarde-types';
@@ -12,6 +12,7 @@ export type Statistique = { libelle: string; valeur?: number; unite?: string; ba
 type Source = Omit<Partial<DonneesRegion>, 'statistiques'> & { statistiques?: Partial<DonneesRegion['statistiques']> };
 const noms = new Map([
   ...chargerObjets().map(o => [`objet:${o.id}`, o.nom] as const),
+  ...chargerObjetsRecompense().map(o => [`objet:${o.id}`, o.nom] as const),
   ...chargerBadges().map(b => [`badge:${b.id}`, `Badge ${b.nom}`] as const),
   ...chargerJalons().map(j => [`jalon:${j.palier}`, j.titre] as const),
   ['boost:attaque', 'Attaque +'], ['boost:dps', 'Attaque Spé +'],

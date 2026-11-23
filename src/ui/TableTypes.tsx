@@ -7,7 +7,7 @@ import './FichePokemon.css';
 import './TableTypes.css';
 
 const liste = typesDuJeu();
-const nombre = new Intl.NumberFormat('fr-FR');
+import { formateurArgent as nombre } from './nombres';
 
 function Pastille({ type }: { type: string }) {
   return <span className={`pastille-type pastille-type-${type}`}>{nomType(type)}</span>;

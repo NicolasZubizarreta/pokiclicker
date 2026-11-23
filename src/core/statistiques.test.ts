@@ -4,6 +4,12 @@ import { regionInitiale } from './sauvegarde';
 import { validerEnveloppe } from './sauvegarde-validation';
 import { reglages } from './reglages';
 
+it('nomme l’objet récompense Omni Exp sans exposer sa clé', () => {
+  const stats = calculerStatistiques({ inventaire: { omniExp: 1 } });
+  expect(stats.flatMap(s => s.boosts ?? [])).toContain('Omni Exp (x2)');
+  expect(stats.flatMap(s => s.boosts ?? []).join(' ')).not.toContain('objet:');
+});
+
 describe('statistiques V1', () => {
   it.each([undefined, {}, { eliminations: 12 }])('charge une sauvegarde aux compteurs incomplets : %j', statistiques => {
     const resultat = validerEnveloppe({ version: 3, niveau: 'region', id: 'kanto', revision: 1,

@@ -1,4 +1,4 @@
-import { useId, useState, type ReactNode } from 'react';
+import { useId, useRef, useState, type ReactNode } from 'react';
 import './Plaques.css';
 import './LigneCapture.css';
 
@@ -20,6 +20,7 @@ export function LigneCapture({ balles, possible, raison, enCours, capturer, outi
   const choix = local ?? choisie ?? null;
   const choisir = (cle: string) => { fixerLocal(cle); memoriser?.(cle); };
   const description = useId();
+  const dialogue = useRef<HTMLDialogElement>(null);
   const possedees = balles.filter(balle => balle.quantite > 0);
   const selection = possedees.find(balle => balle.cle === choix) ?? possedees[0];
   const explication = raison ?? (!selection ? "Tu n'as aucune balle." : null);
@@ -32,8 +33,8 @@ export function LigneCapture({ balles, possible, raison, enCours, capturer, outi
           data-raccourci="balle"
           className="plaque ligne-capture-balle"
           disabled={raison !== null}
-          aria-label={`Balle choisie : ${selection.nom}, ×${selection.quantite}. Toucher pour changer`}
-          onClick={() => choisir((possedees[(possedees.indexOf(selection) + 1) % possedees.length] ?? selection).cle)}
+          aria-label={`${selection.nom} ×${selection.quantite}, changer de balle`}
+          onClick={() => dialogue.current?.showModal()}
         >
           <kbd aria-hidden="true" className="touche-pc">B</kbd>
           <img src={selection.image} alt="" width={30} height={30} className="image-rendering-pixelated size-8" />
@@ -60,6 +61,14 @@ export function LigneCapture({ balles, possible, raison, enCours, capturer, outi
         </svg>Capturer<kbd aria-hidden="true" className="touche-pc">C</kbd>
       </button>
       {outil}
+      <dialog ref={dialogue} aria-label="Choisis une balle" className="fiche-pokemon cadre w-full max-w-xl bg-surface p-4 text-base text-texte">
+        <h2 className="font-titre text-xl">Choisis une balle</h2>
+        <div className="grid gap-2 py-4">{balles.map(balle => <button key={balle.cle} type="button" className="plaque" disabled={balle.quantite === 0}
+          aria-pressed={selection?.cle === balle.cle} onClick={() => { choisir(balle.cle); dialogue.current?.close(); }}>
+          <img src={balle.image} alt="" width={30} height={30} />{balle.nom} ×{balle.quantite}
+        </button>)}</div>
+        <button type="button" className="plaque" onClick={() => dialogue.current?.close()}>Fermer</button>
+      </dialog>
     </section>
   );
 }

@@ -51,7 +51,7 @@ it('transmet l’accès pension du store et garde Bourg Palette après le clic',
   const pension = screen.getByRole('button', { name: 'Pension Pokémon' });
   expect(pension.hasAttribute('aria-disabled')).toBe(false);
   fireEvent.click(pension);
-  fireEvent.click(screen.getByRole('button', { name: 'Retour à Bourg Palette' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Retour' }));
   act(() => vi.advanceTimersByTime(450));
   expect(screen.getByRole('region', { name: 'Bourg Palette' })).toBeTruthy();
   expect(store.getState().lieu?.id).toBe('kanto.bourg-palette');
@@ -288,8 +288,9 @@ it('branche la ligne de capture sous la scène et permet de changer de balle', (
   expect(screen.getByRole('region', { name: 'Ton équipe' }).contains(capture)).toBe(false);
   expect(container.querySelector('.dock-capture')).toBeNull();
   expect(container.querySelectorAll('[data-raccourci="capturer"]')).toHaveLength(1);
-  fireEvent.click(screen.getByRole('button', { name: 'Balle choisie : Pokéball, ×3. Toucher pour changer' }));
-  expect(screen.getByRole('button', { name: 'Balle choisie : Superball, ×2. Toucher pour changer' })).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: 'Pokéball ×3, changer de balle' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Superball ×2' }));
+  expect(screen.getByRole('button', { name: 'Superball ×2, changer de balle' })).toBeTruthy();
   fireEvent.click(screen.getByRole('button', { name: 'Capturer' }));
   expect(choisirBalle).toHaveBeenCalledWith('superball');
   expect(capturer).toHaveBeenCalledWith('superball');
@@ -514,7 +515,7 @@ it('explique le verrouillage et désactive la destination fermée', () => {
   const allerVers = vi.fn();
   act(() => store.setState({ allerVers }));
   const destination = store.getState().zoneSuivante!;
-  const bouton = screen.getByRole('button', { name: `Zone suivante : ${destination.nom}` });
+  const bouton = screen.getByRole('button', { name: `Suivant : ${destination.nom}` });
   expect(bouton.getAttribute('aria-disabled')).toBe('true');
   fireEvent.click(bouton);
   expect(screen.getByRole('status').textContent).toBe(destination.raison);
@@ -528,7 +529,7 @@ it('permet de choisir les destinations ouvertes', () => {
   const allerVers = vi.fn();
   act(() => store.setState({ allerVers }));
   for (const [libelle, destination] of [
-    ['Zone suivante', store.getState().zoneSuivante], ['Zone précédente', store.getState().zonePrecedente],
+    ['Suivant', store.getState().zoneSuivante], ['Précédent', store.getState().zonePrecedente],
   ] as const) {
     expect(destination).not.toBeNull();
     const bouton = screen.getByRole('button', { name: `${libelle} : ${destination!.nom}` });
@@ -570,8 +571,8 @@ it('affiche le lieu sans combat, son décor et son message en gardant l’équip
   // Plus de bloc « Prof. Chen » : « Suivant » (avec le nom de la zone) est dans la ligne de zone, sans « Précédent » ni 1/10.
   expect(screen.queryByText('Choisis une zone pour partir à l’aventure.')).toBeNull();
   expect(screen.getAllByText(lieu!.nom, { selector: 'strong' })).toHaveLength(1);
-  expect(screen.getByRole('button', { name: /^Zone suivante : / }).textContent).toBe(`Suivant : ${store.getState().zoneSuivante!.nom}`);
-  expect(screen.queryByRole('button', { name: /^Zone précédente/ })).toBeNull();
+  expect(screen.getByRole('button', { name: /^Suivant : / }).textContent).toBe(`Suivant : ${store.getState().zoneSuivante!.nom}`);
+  expect(screen.queryByRole('button', { name: /^Précédent/ })).toBeNull();
   expect(screen.queryByText(/\/10$/)).toBeNull();
   expect(screen.queryByText('La suite arrive bientôt.')).toBeNull();
 });

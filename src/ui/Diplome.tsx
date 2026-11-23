@@ -7,6 +7,8 @@ export function Diplome({ diplome, fermer }: {
 }) {
   const dialogue = useRef<HTMLDialogElement>(null);
   const titre = useId();
+  // Une date illisible (sauvegarde ancienne ou modifiée) ne doit pas faire planter l'affichage.
+  const dateValide = !Number.isNaN(new Date(diplome.date).getTime());
   useEffect(() => {
     const origine = document.activeElement;
     const fenetre = dialogue.current!;
@@ -39,9 +41,9 @@ export function Diplome({ diplome, fermer }: {
         alt="Diplôme officiel de Kanto : le Professeur Chen certifie que tu as complété le Pokédex." />
       <div className="diplome-identite mt-4 flex flex-wrap items-center justify-between gap-4 bg-selection p-4">
         <strong className="min-w-0 break-words text-2xl">{diplome.nom}</strong>
-        <span>Obtenu le <time dateTime={diplome.date}>{new Intl.DateTimeFormat('fr-FR', {
+        {dateValide && <span>Obtenu le <time dateTime={diplome.date}>{new Intl.DateTimeFormat('fr-FR', {
           day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC',
-        }).format(new Date(diplome.date))}</time> (UTC)</span>
+        }).format(new Date(diplome.date))}</time> (UTC)</span>}
       </div>
     </article>
     <footer className="my-4">

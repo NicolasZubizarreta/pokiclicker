@@ -29,9 +29,9 @@ export function ZoneLigne({ nom, etape, precedente, suivante, aller }: Props) {
     }
   };
 
-  return (
+  return (<>
     <div className="zone-ligne">
-      {precedente && <button type="button" className="zone-nav zone-nav-precedente" aria-label={`Zone précédente : ${precedente.nom}`} aria-disabled={!precedente.ouverte} onClick={() => naviguer(precedente)}>
+      {precedente && <button type="button" className="zone-nav zone-nav-precedente" aria-label={`Précédent : ${precedente.nom}`} aria-disabled={!precedente.ouverte} onClick={() => naviguer(precedente)}>
         <Chevron /><span>Précédent</span>
       </button>}
       {nom && <strong className="zone-titre font-titre text-lg">{nom}</strong>}
@@ -47,10 +47,11 @@ export function ZoneLigne({ nom, etape, precedente, suivante, aller }: Props) {
           <span className="sr-only">Étape {etape} sur 10</span>
         </>}
       </div>
-      {suivante && <button type="button" className="zone-nav zone-nav-suivante" data-guide="zone-suivante" aria-label={`Zone suivante : ${suivante.nom}`} aria-disabled={!suivante.ouverte} onClick={() => naviguer(suivante)}>
+      {suivante && <button type="button" className="zone-nav zone-nav-suivante" data-guide="zone-suivante" aria-label={`Suivant : ${suivante.nom}`} aria-disabled={!suivante.ouverte} onClick={() => naviguer(suivante)}>
         <span>Suivant{etape === null ? ` : ${suivante.nom}` : ''}</span><Chevron />
       </button>}
       {raison !== null && <p role="status" className="zone-raison cadre">{raison}</p>}
     </div>
-  );
+    {suivante && !suivante.ouverte && raison === null && <p className="text-center text-sm text-texte-doux">{suivante.raison ?? 'Bats le boss pour avancer.'}</p>}
+  </>);
 }

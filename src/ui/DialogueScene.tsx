@@ -31,6 +31,6 @@ export function DialogueScene({ commande, terminerEtape }: {
       className={`image-rendering-pixelated mx-auto h-56 w-auto max-w-full object-contain lg:h-96 ${reduit ? '' : 'sprite-entree'}`} />}
     {sprite?.type === 'silhouette' && <Silhouette key={commande.locuteur} animee={!reduit} />}
     <BoiteDialogue key={`${commande.evenement}:${commande.etape}`} commande={commande} reduit={reduit}
-      terminer={terminerEtape} />
+      terminer={terminerEtape} passer />
   </dialog>;
 }

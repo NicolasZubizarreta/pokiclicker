@@ -80,7 +80,8 @@ export function ReglagesCombat({ autoAttaque, arret, basculer, regler, autoClic,
     <dialog ref={dialogue} aria-labelledby={titre}
       className="fiche-pokemon cadre w-full max-w-3xl bg-surface p-0 text-base text-texte"
       onClose={() => declencheur.current?.focus()}
-      onCancel={event => { event.preventDefault(); fermer(); }}>
+      onCancel={event => { event.preventDefault(); fermer(); }}
+      onPointerDown={event => { if (event.target === event.currentTarget) fermer(); }}>
       <ContenuArret id={titre} titre="Réglages de l'arrêt" arret={arret} regler={regler} lienAutoClic={lienAutoClic} fermer={fermer} />
     </dialog>
   </div>;

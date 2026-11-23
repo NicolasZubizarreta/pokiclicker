@@ -1,5 +1,6 @@
 export type Raccourci = { touche: string; libelle: string; groupe: 'Combat' | 'Partout'; action: string };
 const combat: [string, string, string][] = [
+  ['M', 'Son : oui / muet', 'son'],
   ['Espace', 'Attaquer', 'attaquer'], ['Entrée', 'Attaquer', 'attaquer-entree'], ['C', 'Capturer', 'capturer'], ['B', 'Changer de balle', 'balle'],
   ['A', 'Attaque auto', 'auto'], ['T', 'Arrêt auto', 'arret'], ['R', "Réglage de l’arrêt auto", 'reglage'],
   ['S', 'Sac', 'sac'], ['F', 'Fauchage', 'fauchage'], ['P', 'Poké-Radar', 'radar'],

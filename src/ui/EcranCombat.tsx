@@ -137,9 +137,10 @@ function Scene({ store, ouvrirPension, aller }: { store: StoreJeu; ouvrirPension
     <ObjectifPermanent store={store} aller={aller} />
     <div aria-hidden={cache} className={`pointer-events-none cadre absolute top-4 left-4 z-10 w-3/5 bg-surface/82 p-3 ${cache ? 'opacity-0' : ''}`}>
       <div className="flex flex-wrap items-center justify-between gap-1">
-        <h2 className="font-titre text-xl">{nom}{nomAdversaire === null && pokedex.includes(ennemi.numero) && <PastilleCapture />} {ennemi.shiny && <IconeShiny />}{ennemi.boss && nomAdversaire === null ? ' (Géant)' : ''}</h2><span>Niv. {ennemi.niveau}</span>
+        <h2 className="font-titre text-xl">{nom}{nomAdversaire === null && pokedex.includes(ennemi.numero) && <PastilleCapture />} {ennemi.shiny && <IconeShiny />}{ennemi.boss && nomAdversaire === null ? <> <abbr title="Boss de zone : il a plus de PV.">(Géant)</abbr></> : ''}</h2><span>Niv. {ennemi.niveau}</span>
       </div>
       {ennemi.shiny && <p>Chromatique</p>}
+      {ennemi.boss && <p className="text-sm text-texte-doux">Boss : non capturable</p>}
       <BarrePv tuto="pv-ennemi" key={`${ennemi.numero}-${ennemi.niveau}-${ennemi.boss}`} pv={ennemi.pv} maximum={ennemi.pvMax} nom={nom} />
       {telephone && effets.length > 0 && <PastillesEffets effets={effets} />}
       {minuteur && <BarreTemps restantMs={minuteur.restantMs} totalMs={minuteur.totalMs} />}
@@ -229,7 +230,10 @@ function Equipe({ store }: { store: StoreJeu }) {
   const basculer = useStore(store, etat => etat.basculerAutoAttaque);
   const regler = useStore(store, etat => etat.reglerArretAuto);
   const [objet, choisirObjet] = useState<ObjetAChoisir | null>(null);
-  const [retour, signaler] = useState<string | null>(null);
+  // Objet, et non chaîne : deux messages identiques de suite doivent relancer le minuteur et être annoncés de nouveau.
+  const [retour, fixerRetour] = useState<{ texte: string; id: number } | null>(null);
+  const numeroRetour = useRef(0);
+  const signaler = (texte: string) => fixerRetour({ texte, id: ++numeroRetour.current });
   const telephone = useTelephone();
   useEffect(() => {
     if (!objet) return;
@@ -239,7 +243,7 @@ function Equipe({ store }: { store: StoreJeu }) {
   }, [objet]);
   useEffect(() => {
     if (retour === null) return;
-    const minuterie = setTimeout(() => signaler(null), reglages.interface.annonceMs);
+    const minuterie = setTimeout(() => fixerRetour(null), reglages.interface.annonceMs);
     return () => clearTimeout(minuterie);
   }, [retour]);
   const stockObjet = objet ? sac.entrees.find(entree => entree.id === objet.cle)?.quantite ?? 0 : 0;
@@ -258,14 +262,15 @@ function Equipe({ store }: { store: StoreJeu }) {
         : objet.type === 'jeton' ? etat.utiliserJeton(uid) : etat.utiliserObjet(objet.type, uid, 1);
     signaler(message ?? `${objet.nom} utilisé.`);
     const repetable = objet.type === 'bonbon' || objet.type === 'calcium' || objet.type === 'baie';
-    const reste = etat.sac.entrees.find(entree => entree.id === objet.cle)?.quantite ?? 0;
+    // Le stock se relit après l'action : `etat` date d'avant l'utilisation.
+    const reste = store.getState().sac.entrees.find(entree => entree.id === objet.cle)?.quantite ?? 0;
     if (message || !repetable || reste <= 0) choisirObjet(null);
   };
   return <section aria-label="Ton équipe" className="min-w-0 lg:col-start-4 lg:row-start-1 lg:row-end-4">
     {/* Téléphone : le titre « Ton équipe » et les DPS (déjà dans le bandeau du haut) ne s'affichent que pour choisir un Pokémon ou signaler un résultat. */}
     <div className={telephone && !objet && retour === null ? 'sr-only' : 'bandeau-action'}>
       <h2 aria-live="polite" className="flex items-center justify-between gap-2 font-titre text-xl">
-        <span className="min-w-0 truncate" title={objet ? objet.nom : undefined}>{objet ? 'Choisis un Pokémon' : retour ?? 'Ton équipe'}</span>
+        <span key={objet ? 'choix' : retour?.id ?? 'equipe'} className="min-w-0 truncate" title={objet ? objet.nom : undefined}>{objet ? 'Choisis un Pokémon' : retour?.texte ?? 'Ton équipe'}</span>
         {objet ? <button type="button" className="cadre min-h-11 bg-surface px-2 text-base text-texte lg:min-h-0" onClick={() => choisirObjet(null)}>Annuler</button>
           : !telephone && <span>{formaterDps(dps)} DPS</span>}
       </h2>
@@ -321,6 +326,7 @@ function CombatPC({ store, cadre, ouvrirPension, aller }: { store: StoreJeu; cad
   const evolution = useStore(store, etat => etat.evolution);
   const entrees = useStore(store, etat => etat.sac.entrees);
   const effets = useStore(store, etat => etat.effets);
+  const permanents = entrees.filter(entree => entree.actif && entree.quantite > 0);
   const [fiche, ouvrirFiche] = useState<{ uid: string; ouverture: number } | null>(null);
   const [ouvert, afficher] = useState(false);
   const declencheur = useRef<HTMLButtonElement>(null);
@@ -340,7 +346,11 @@ function CombatPC({ store, cadre, ouvrirPension, aller }: { store: StoreJeu; cad
           ouvrirFiche={bouton => { if (!membre) return; declencheur.current = bouton; ouvrirFiche(ancienne => ({ uid: membre.pokemon.uid, ouverture: (ancienne?.ouverture ?? 0) + 1 })); afficher(true); }} /></li>)}</ul>
       </section>
       <section aria-label="Effets actifs" className="cadre bg-surface p-2"><h2 className="font-titre text-xl">Effets actifs</h2>
-        {effets.length ? <PastillesEffets effets={effets} /> : <p className="text-texte-doux">Aucun effet actif.</p>}
+        {effets.length > 0 && <PastillesEffets effets={effets} />}
+        {permanents.length > 0 && <ul aria-label="Objets permanents actifs" className="mt-2 flex flex-wrap gap-2 text-base text-texte">
+          {permanents.map(objet => <li key={objet.id} className="bg-surface-2 px-2 py-1">{objet.nom} : permanent</li>)}
+        </ul>}
+        {effets.length === 0 && permanents.length === 0 && <p className="text-texte-doux">Aucun effet actif.</p>}
       </section>
     </div>
     {fiche && <FichePokemon key={fiche.ouverture} uid={fiche.uid} ouvert={ouvert} fermer={() => afficher(false)} declencheur={declencheur} />}

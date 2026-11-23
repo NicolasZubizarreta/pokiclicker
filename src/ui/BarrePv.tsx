@@ -1,3 +1,5 @@
+import { formaterNombre } from './nombres';
+
 export function BarrePv({ pv, maximum, nom, tuto }: { pv: number; maximum: number; nom: string; tuto?: string }) {
   const proportion = Math.max(0, Math.min(1, pv / maximum));
   // Seule la transformation sans unité varie ; dimensions et couleurs viennent des jetons.
@@ -9,6 +11,6 @@ export function BarrePv({ pv, maximum, nom, tuto }: { pv: number; maximum: numbe
       <span className={`barre-pv absolute inset-0 origin-left ${proportion <= .2 ? 'bg-erreur-base' : proportion <= .5 ? 'bg-alerte-base' : 'bg-succes-base'}`}
         style={transformation} />
     </div>
-    <p>PV {Math.ceil(pv)} / {maximum}</p>
+    <p>PV {formaterNombre(Math.ceil(pv))} / {formaterNombre(maximum)}</p>
   </div>;
 }

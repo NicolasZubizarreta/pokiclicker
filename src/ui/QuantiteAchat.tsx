@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { formaterNombre } from './nombres';
 import { quantiteMaximale, quantiteMoins, quantitePlus, quantitePlusDix } from '../core/boutique';
 
 /**
@@ -19,14 +20,14 @@ export function QuantiteAchat({ nom, quantite, changer, prix, argent, bouton, to
   const court = `${bouton} px-2`;
   return <div role="group" aria-label={`Quantité de ${nom}`} className="quantite-achat grid min-w-0 gap-2">
     <div className="flex min-w-0 items-center gap-2">
-      <button type="button" aria-label="Moins" className={bouton} onClick={() => changer(quantiteMoins(quantite))}>−</button>
+      <button type="button" aria-label="− : diminuer" className={bouton} onClick={() => changer(quantiteMoins(quantite))}>−</button>
       <output aria-label="Quantité" className="min-w-8 text-center">{quantite}</output>
-      <button type="button" aria-label="Plus" className={bouton} onClick={() => changer(quantitePlus(quantite))}>+</button>
-      <button type="button" aria-label="Plus dix" className={court} onClick={() => changer(quantitePlusDix(quantite))}>+10</button>
-      <button type="button" aria-label="Maximum possible" className={court} onClick={() => changer(quantiteMaximale(prix, argent))}>Max</button>
+      <button type="button" aria-label="+ : augmenter" className={bouton} onClick={() => changer(quantitePlus(quantite))}>+</button>
+      <button type="button" aria-label="+10 : ajouter dix" className={court} onClick={() => changer(quantitePlusDix(quantite))}>+10</button>
+      <button type="button" aria-label="Max : maximum possible" className={court} onClick={() => changer(quantiteMaximale(prix, argent))}>Max</button>
     </div>
     <div className="flex min-w-0 items-center justify-between gap-2">
-      <output aria-label="Total" className="text-region-accent">= {(prix * quantite).toLocaleString('fr-FR')}{'\u00a0₽'}</output>
+      <output aria-label="Total" className="text-region-accent">= {formaterNombre(prix * quantite)}{'\u00a0₽'}</output>
       {total}
     </div>
   </div>;

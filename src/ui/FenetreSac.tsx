@@ -25,7 +25,8 @@ function FenetreOuverte() {
   return <dialog ref={dialogue} aria-labelledby={titre}
     className="fiche-pokemon cadre w-full max-w-3xl bg-surface p-0 text-base text-texte"
     onClose={fermerSac}
-    onCancel={event => { event.preventDefault(); clore(); }}>
+    onCancel={event => { event.preventDefault(); clore(); }}
+    onPointerDown={event => { if (event.target === event.currentTarget) clore(); }}>
     <div className="fiche-contenu grid min-w-0 gap-4 p-4 lg:p-8">
       <button type="button" className="cadre min-h-11 min-w-11 justify-self-end bg-surface p-3" onClick={clore}>Fermer</button>
       <h2 id={titre} className="sr-only">Ton Sac</h2>

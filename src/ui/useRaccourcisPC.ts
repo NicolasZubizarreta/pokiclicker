@@ -5,7 +5,7 @@ import { storeJeu } from './store';
 
 const visible = (element: HTMLElement) => !element.closest('[hidden], [inert]') && element.getClientRects().length > 0;
 const pages: Page[] = ['Combat', 'PC', 'Shop', 'Carte', 'Pokédex', 'Pension', 'Menu'];
-const actions: Record<string, string> = { ' ': 'attaquer', Enter: 'attaquer', c: 'capturer', b: 'balle', a: 'auto', t: 'arret', r: 'reglage', s: 'sac', f: 'fauchage', p: 'radar' };
+const actions: Record<string, string> = { ' ': 'attaquer', Enter: 'attaquer', c: 'capturer', b: 'balle', a: 'auto', t: 'arret', r: 'reglage', s: 'sac', f: 'fauchage', p: 'radar', m: 'son' };
 
 export function useRaccourcisPC({ page, aller, raccourcisOuverts, basculerRaccourcis, actif }: {
   page: Page; aller(page: Page): void; raccourcisOuverts: boolean; basculerRaccourcis(): void; actif: boolean;

@@ -5,8 +5,8 @@ import { reglages } from '../core/reglages';
 export const mouvementReduit = () => typeof window !== 'undefined' && typeof window.matchMedia === 'function'
   && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-export function BoiteDialogue({ commande, reduit, terminer }: {
-  commande: Extract<Commande, { type: 'dialogue' }>; reduit: boolean; terminer(): void;
+export function BoiteDialogue({ commande, reduit, terminer, passer = false }: {
+  commande: Extract<Commande, { type: 'dialogue' }>; reduit: boolean; terminer(): void; passer?: boolean;
 }) {
   const { texte } = commande;
   const [lettres, ecrire] = useState(reduit ? texte.length : 0);
@@ -20,6 +20,11 @@ export function BoiteDialogue({ commande, reduit, terminer }: {
   }, [lettres, texte]);
   const fini = lettres >= texte.length;
   return <>
+    {passer && <button type="button" className="plaque min-h-11 px-4" onClick={() => {
+      if (rendue.current) return;
+      rendue.current = true;
+      terminer();
+    }}>Passer</button>}
     <button ref={bouton} type="button" aria-label={`${commande.locuteur} : ${texte}`}
       onClick={() => {
         if (!fini) { ecrire(texte.length); return; }

@@ -7,6 +7,11 @@ const entree = (cible: Rect | null): EntreePlacement => ({
 });
 const chevauche = (a: Rect, b: Rect) => a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
 
+it('préfère le côté opposé à la cible même quand les deux positions sont libres', () => {
+  expect(placerTuto(entree({ x: 20, y: 200, w: 40, h: 40 })).carteEn).toBe('bas');
+  expect(placerTuto(entree({ x: 20, y: 450, w: 40, h: 40 })).carteEn).toBe('haut');
+});
+
 it('place la carte en bas pour une cible en haut', () => {
   expect(placerTuto(entree({ x: 20, y: 20, w: 320, h: 40 })).carteEn).toBe('bas');
 });

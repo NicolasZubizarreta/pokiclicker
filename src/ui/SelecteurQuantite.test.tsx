@@ -8,17 +8,17 @@ afterEach(cleanup);
 it('boucle − et +, propose +10 et Max, puis Utiliser et Annuler', () => {
   const props = { valeur: 1, max: 7, changer: vi.fn(), valider: vi.fn(), annuler: vi.fn() };
   const vue = render(<SelecteurQuantite {...props} />);
-  fireEvent.click(screen.getByRole('button', { name: 'Moins' }));
+  fireEvent.click(screen.getByRole('button', { name: '− : diminuer' }));
   expect(props.changer).toHaveBeenLastCalledWith(7);
-  fireEvent.click(screen.getByRole('button', { name: 'Plus' }));
+  fireEvent.click(screen.getByRole('button', { name: '+ : augmenter' }));
   expect(props.changer).toHaveBeenLastCalledWith(2);
-  fireEvent.click(screen.getByRole('button', { name: 'Plus dix' }));
+  fireEvent.click(screen.getByRole('button', { name: '+10 : ajouter dix' }));
   expect(props.changer).toHaveBeenLastCalledWith(7);
-  fireEvent.click(screen.getByRole('button', { name: 'Maximum possible' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Max : maximum possible' }));
   expect(props.changer).toHaveBeenLastCalledWith(7);
   vue.rerender(<SelecteurQuantite {...props} valeur={7} />);
   expect(screen.getByLabelText('Quantité', { selector: 'output' }).textContent).toBe('7');
-  fireEvent.click(screen.getByRole('button', { name: 'Plus' }));
+  fireEvent.click(screen.getByRole('button', { name: '+ : augmenter' }));
   expect(props.changer).toHaveBeenLastCalledWith(1);
   fireEvent.click(screen.getByRole('button', { name: 'Utiliser' }));
   fireEvent.click(screen.getByRole('button', { name: 'Annuler' }));
@@ -30,6 +30,6 @@ it('boucle − et +, propose +10 et Max, puis Utiliser et Annuler', () => {
 it('plafonne à 99 même avec un gros stock', () => {
   const changer = vi.fn();
   render(<SelecteurQuantite valeur={1} max={281} changer={changer} valider={vi.fn()} annuler={vi.fn()} />);
-  fireEvent.click(screen.getByRole('button', { name: 'Maximum possible' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Max : maximum possible' }));
   expect(changer).toHaveBeenLastCalledWith(99);
 });

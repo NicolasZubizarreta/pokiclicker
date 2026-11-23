@@ -69,7 +69,7 @@ it('annonce une boîte vide et utilise une icône masquée aux lecteurs si image
 
 it('cache seulement le badge désigné puis le fait claquer sans rognage', () => {
   const { rerender } = render(<BoiteBadges badges={badges} cache="roche" />);
-  const boutons = screen.getAllByRole('button');
+  const boutons = screen.getAllByRole('button', { hidden: true });
   expect(boutons[0]!.classList.contains('opacity-0')).toBe(true);
   expect(boutons[1]!.classList.contains('opacity-0')).toBe(false);
   rerender(<BoiteBadges badges={badges} claque="roche" />);

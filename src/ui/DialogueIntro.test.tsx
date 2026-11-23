@@ -41,7 +41,7 @@ it('un toucher pendant l’écriture complète la ligne sans avancer ; le suivan
     terminerEtape={terminerEtape} />);
   act(() => { vi.advanceTimersByTime(1600); });
   for (let i = 0; i < 2; i++) act(() => { vi.advanceTimersByTime(30); });
-  const boite = screen.getByRole('button');
+  const boite = screen.getByRole('button', { name: /^Prof. Chen :/ });
   fireEvent.click(boite);
   expect(boite.textContent).toContain('Bienvenue dans le monde des Pokémon.');
   expect(terminerEtape).not.toHaveBeenCalled();

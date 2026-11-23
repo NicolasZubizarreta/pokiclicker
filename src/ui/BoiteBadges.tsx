@@ -27,6 +27,7 @@ export function BoiteBadges({ badges, cache, claque }: PropsBoiteBadges) {
     {!telephone && <p>{badges.some(b => b.obtenu) ? 'Clique un badge pour voir son effet.' : "Aucun badge obtenu. Bats les champions d'arène !"}</p>}
     <div className="grid grid-cols-4 gap-4 overflow-visible">
       {badges.map(badge => <button key={badge.id} type="button"
+        disabled={cache === badge.id} tabIndex={cache === badge.id ? -1 : undefined}
         onClick={() => choisir(badge.id)}
         aria-label={`Badge ${badge.nom}${badge.obtenu ? '' : `, à gagner : ${badge.arene}`}`}
         className={`flex aspect-square min-h-11 min-w-11 items-center justify-center rounded-plein p-2 ${badge.obtenu ? 'badge-obtenu' : 'badge-vide'} ${cache === badge.id ? 'opacity-0' : ''} ${claque === badge.id ? 'badge-slam overflow-visible' : ''}`}
