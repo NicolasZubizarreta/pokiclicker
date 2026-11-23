@@ -96,6 +96,20 @@
     ]
   },
   "messages": {
-    "echec": "Continue de t'entraîner pour réussir ton dernier défi..."
+    "echec": "Continue de t'entraîner pour réussir ton dernier défi...",
+    "bilanComplet": "Ton Pokédex est complet : {total} espèces sur {total}. Je n'ai plus rien à t'apprendre.",
+    "bilan": "Tu as {nombre} espèces sur {total} : il t'en manque {manquantes}.",
+    "bilanZones": "Cherche surtout du côté de : {zones}.",
+    "bilanSansZone": "{n} espèce(s) ne se trouvent pas à l'état sauvage : évolution, pierre, œuf ou événement.",
+    "defiJamais": "Le défi t'attend quand tu auras gagné la Ligue et rempli ton Pokédex.",
+    "defiRejouable": "Mon défi te manque ? Je le relève d'un cran : palier {palier} sur {max}, mes Pokémon ont {pv} % de PV en plus.",
+    "defiMaitrise": "Tu as réussi mes {max} paliers. Je ne peux plus monter la difficulté.",
+    "defiRecompense": "Palier {palier} réussi : +{argent} ₽ (première réussite de ce palier) !",
+    "defiVictoire": "Palier {palier} réussi !"
+  },
+  "rejeu": {
+    "paliersMax": 10,
+    "pvParPalierPourCent": 10,
+    "recompenseArgentParPalier": 25000
   }
 }

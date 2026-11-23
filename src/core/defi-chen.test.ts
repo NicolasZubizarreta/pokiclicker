@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import donnees from '../../data/defi-chen.json';
 import reference from '../../tests/fixtures/v1-fin.json';
 import { avancerCombat, cliquer, creerEnnemi, reprendreCombat } from './combat';
-import { chargerDefiChen, echec, peutLancer, victoire, zoneDuDefi } from './defi-chen';
+import { chargerDefiChen, compterVictoireDefi, echec, facteurPvDefi, messageDefi, PALIERS_MAX_DEFI, palierDefi, peutLancer, peutRejouer, rejouer, victoire, victoiresDefi, zoneDuDefi } from './defi-chen';
 import { kanto } from './regions';
 import { regionInitiale } from './sauvegarde';
 
@@ -86,5 +86,54 @@ describe('Défi de Chen', () => {
     const inactive = regionInitiale('kanto', 'kanto.route-1');
     expect(victoire({ ...inactive, etape: 6 })).toEqual({ ...inactive, etape: 6 });
     expect(echec(inactive)).toEqual({ region: inactive, message: null });
+  });
+  describe('rejeu', () => {
+    const gagnee = () => ({ ...regionInitiale('kanto', 'kanto.labo'), drapeaux: ['defi-chen-intro-vue', 'defi-chen-gagne'] });
+    it('ajoute 10 % de PV par défi déjà réussi, au plus jusqu’au dernier palier',() => {
+      expect(facteurPvDefi(0)).toBe(1);
+      expect(facteurPvDefi(1)).toBeCloseTo(1.1);
+      expect(facteurPvDefi(99)).toBeCloseTo(1 + 0.1 * (PALIERS_MAX_DEFI - 1));
+      expect(zoneDuDefi(1, 2).multiplicateurPv).toBeCloseTo(zoneDuDefi(1).multiplicateurPv * 1.2);
+      expect(zoneDuDefi(1).multiplicateurPv).toBe(donnees.multiplicateurPv);
+    });
+    it('ne se rejoue qu’une fois réussi, et sans refaire l’introduction', () => {
+      expect(peutRejouer(regionActive())).toBe(false);
+      expect(peutRejouer(gagnee())).toBe(true);
+      const r = rejouer(gagnee());
+      expect(r.drapeaux).toContain('defi-chen-actif');
+      expect(r.drapeaux).toContain('defi-chen-intro-vue');
+      expect(r.drapeaux).not.toContain('defi-chen-gagne');
+      expect(peutRejouer(r)).toBe(false);
+      expect(rejouer(regionActive())).toEqual(regionActive());
+    });
+    it('compte une réussite, paie le premier succès de chaque palier à partir du 2e', () => {
+      const premiere = compterVictoireDefi(gagnee());
+      expect(victoiresDefi(premiere.region)).toBe(1);
+      expect(premiere.region.argent).toBe(gagnee().argent);
+      let r = rejouer(premiere.region);
+      expect(palierDefi(r)).toBe(2);
+      r = { ...r, drapeaux: r.drapeaux.filter(d => d !== 'defi-chen-actif').concat('defi-chen-gagne') };
+      const seconde = compterVictoireDefi(r);
+      expect(seconde.region.argent).toBe(r.argent + donnees.rejeu.recompenseArgentParPalier);
+      expect(seconde.message).toMatch(/Palier 2/);
+      expect(victoiresDefi(seconde.region)).toBe(2);
+    });
+    it('au dernier palier, plus de gain ni de palier de plus', () => {
+      let r = gagnee();
+      for (let i = 0; i < PALIERS_MAX_DEFI + 2; i++) r = compterVictoireDefi(r).region;
+      const avant = r.argent;
+      expect(palierDefi(r)).toBe(PALIERS_MAX_DEFI);
+      expect(compterVictoireDefi(r).region.argent).toBe(avant);
+      expect(messageDefi(r)).toMatch(new RegExp(String(PALIERS_MAX_DEFI)));
+    });
+    it('Chen annonce le palier suivant et le bonus de PV', () => {
+      const r = compterVictoireDefi(gagnee()).region;
+      expect(messageDefi(r)).toMatch(/palier 2 sur 10.*10 %/);
+      expect(messageDefi(regionInitiale('kanto', 'kanto.labo'))).toMatch(/t'attend/);
+    });
+    it('refuse un rejeu mal réglé', () => {
+      expect(() => chargerDefiChen({ ...donnees, rejeu: { ...donnees.rejeu, paliersMax: 0 } })).toThrow();
+      expect(() => chargerDefiChen({ ...donnees, rejeu: undefined })).toThrow();
+    });
   });
 });

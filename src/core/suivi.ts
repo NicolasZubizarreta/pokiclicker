@@ -14,7 +14,7 @@ export type Suivi = {
   casino: Partial<Record<(typeof JEUX_SUIVIS)[number], StatsJeu>>;
   rencontres: Record<string, Rencontre>;
   serieVictoires: number;
-  records: { degatsClicMax: number; dpsMax: number; serieVictoiresMax: number; tempsBossMinMs: number | null; cadenceMax: number; capturesHeureMax: number; mannequinDpsMax: number; chaineMax: number; /** Meilleur rang de la Ligue+ réussi (0 = aucun). */ liguePlusMax: number };
+  records: { degatsClicMax: number; dpsMax: number; serieVictoiresMax: number; tempsBossMinMs: number | null; cadenceMax: number; capturesHeureMax: number; mannequinDpsMax: number; chaineMax: number; /** Meilleur rang de la Ligue+ réussi (0 = aucun). */ liguePlusMax: number; /** Défis de Chen réussis (première fois et rejeux). */ defiChenVictoires: number };
   fenetreCaptures: { debutMs: number; n: number } | null;
   argentJours: Record<string, number>;
   equipes: (string[] | null)[];
@@ -27,7 +27,7 @@ export type Suivi = {
 export function suiviVide(): Suivi {
   return { captures: 0, capturesShiny: 0, evolutions: 0, oeufsEclos: 0, bossVaincus: 0,
     depenses: {}, jetons: { gagnes: 0, perdus: 0, mises: 0 }, casino: {}, rencontres: {}, serieVictoires: 0,
-    records: { degatsClicMax: 0, dpsMax: 0, serieVictoiresMax: 0, tempsBossMinMs: null, cadenceMax: 0, capturesHeureMax: 0, mannequinDpsMax: 0, chaineMax: 0, liguePlusMax: 0 },
+    records: { degatsClicMax: 0, dpsMax: 0, serieVictoiresMax: 0, tempsBossMinMs: null, cadenceMax: 0, capturesHeureMax: 0, mannequinDpsMax: 0, chaineMax: 0, liguePlusMax: 0, defiChenVictoires: 0 },
     fenetreCaptures: null, argentJours: {}, equipes: [null, null, null], hall: [] };
 }
 
@@ -79,6 +79,7 @@ export function noterDepense(s: Suivi, categorie: (typeof CATEGORIES_DEPENSE)[nu
 function noterRecord(s: Suivi, cle: Exclude<keyof Suivi['records'], 'tempsBossMinMs'>, valeur: number): Suivi {
   return { ...s, records: { ...s.records, [cle]: Math.max(s.records[cle], valeur) } };
 }
+export const noterDefiChen = (s: Suivi): Suivi => noterRecord(s, 'defiChenVictoires', s.records.defiChenVictoires + 1);
 export const noterLiguePlus = (s: Suivi, rang: number): Suivi => noterRecord(s, 'liguePlusMax', rang);
 export const noterRecordClic = (s: Suivi, degats: number): Suivi => noterRecord(s, 'degatsClicMax', degats);
 export const noterDps = (s: Suivi, dps: number): Suivi => noterRecord(s, 'dpsMax', Math.round(dps * 10) / 10);

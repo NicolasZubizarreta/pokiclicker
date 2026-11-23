@@ -28,12 +28,14 @@ type Props = {
   quandPension?: () => void;
   blue?: EtatBlue;
   quandBlue?: () => void;
+  chen?: AffichageJeu['chen'];
+  quandRejouer?: () => void;
   sceneInitiale?: string;
   bloquee?: boolean;
   remplir?: boolean;
 };
 
-export function ScenesBourgPalette({ laboAVisiter = false, sortieLaboClignote = false, quandLabo, quandSortieLabo, quandScene, accesPension = accesPensionParDefaut, quandPension, blue, quandBlue, sceneInitiale = bourg, bloquee = false, remplir = false }: Props) {
+export function ScenesBourgPalette({ laboAVisiter = false, sortieLaboClignote = false, quandLabo, quandSortieLabo, quandScene, accesPension = accesPensionParDefaut, quandPension, blue, quandBlue, chen, quandRejouer, sceneInitiale = bourg, bloquee = false, remplir = false }: Props) {
   const [courante, changerScene] = useState(sceneInitiale);
   const [phase, changerPhase] = useState<'repos' | 'couvrir' | 'decouvrir'>('repos');
   const [sortieVue, noterSortie] = useState(false);
@@ -81,7 +83,9 @@ export function ScenesBourgPalette({ laboAVisiter = false, sortieLaboClignote = 
     <SceneLieu key={courante} scene={scene} nom={noms[courante]!} quandChoisir={choisir} remplir={remplir}
       raisons={raisons} clignotements={clignotements} occupe={phase !== 'repos' || bloquee}
       {...(courante === 'kanto.chez-blue' && blue && quandBlue ? { bulle: blue.message,
-        ...(blue.badgesRequis !== null ? { action: { libelle: 'Défier Blue', desactive: !blue.pret, quand: quandBlue } } : {}) } : {})} />
+        ...(blue.badgesRequis !== null ? { action: { libelle: 'Défier Blue', desactive: !blue.pret, quand: quandBlue } } : {}) } : {})}
+      {...(courante === 'kanto.labo' && chen && chen.bilan ? { bulle: `${chen.bilan} ${chen.defi}`,
+        ...(chen.rejouable && quandRejouer ? { action: { libelle: 'Rejouer le défi', quand: quandRejouer } } : {}) } : {})} />
     <div data-voile aria-hidden="true" className={`pointer-events-none absolute inset-0 bg-texte motion-safe:intro-voile ${phase === 'couvrir' ? 'opacity-100' : 'opacity-0'}`} />
   </div>;
 }

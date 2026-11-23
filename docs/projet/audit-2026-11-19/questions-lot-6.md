@@ -102,3 +102,13 @@ Chaque valeur citée vit dans un fichier de `data/` et se change là sans touche
 - Après la revanche, on revient à l'écran de Bourg-Palette (pas à la pièce de Blue). Le combat se déroule dans l'écran de combat habituel, avec le décor de l'arène.
 - Sauvegarde : aucun nouveau champ (le drapeau `blue-revanche-N` et l'événement joué suffisent), pas de version 7.
 - Question : les seuils 2/4/6/8 badges et ces récompenses te conviennent-ils ? Veux-tu des diamants à la place des objets ?
+
+## F-j2-31 Labo de Chen : défi rejouable et bilan
+- Bilan du Pokédex : dans la scène du labo (Bourg-Palette), la bulle de Chen donne le nombre d'espèces vues, combien il en manque, les 3 zones où il en manque le plus (première zone sauvage de chaque espèce manquante) et le nombre d'espèces qu'aucune zone sauvage ne donne (évolution, pierre, œuf, événement). Rien n'est modifié dans le jeu, c'est de la lecture. Textes dans `data/defi-chen.json` (`messages`).
+- Défi rejouable : une fois le défi gagné, le bouton « Rejouer le défi » le relance sans refaire l'introduction. Les combats sont les mêmes ; la variante à chaque palier est un bonus de PV : +10 % par défi déjà réussi, jusqu'à 10 paliers (+90 % au dernier). Valeurs dans `data/defi-chen.json` (`rejeu` : `paliersMax`, `pvParPalierPourCent`, `recompenseArgentParPalier`).
+- Récompense : 25 000 ₽ × (palier − 1), une seule fois par palier (première réussite), à partir du palier 2. Palier 10 : 225 000 ₽. Au-delà du 10e palier, on peut rejouer, sans gain. Total possible : 1 125 000 ₽ une fois dans la partie. Pas de diamants (les événements ne savent pas en donner).
+- Si tu perds au temps pendant un rejeu : tu reviens à Bourg-Palette comme au premier essai et le bouton ne revient qu'après une victoire ; le défi peut se relancer par le chemin habituel (Ligue gagnée + Pokédex complet) et reprend au même palier.
+- Une partie qui avait déjà gagné le défi avant ce compteur compte pour une réussite au premier rejeu.
+- Effet sur l'équilibrage : un peu plus facile (de l'argent en plus, une seule fois par palier). Rien d'autre ne change.
+- Sauvegarde : un seul nouveau compteur (`records.defiChenVictoires`) dans le suivi, validé et réparé s'il est absent ou faux ; pas de version 7.
+- Question : +10 % de PV par palier et 25 000 ₽ par palier te conviennent-ils ? Veux-tu aussi un cadre de profil ou des diamants au dernier palier ?

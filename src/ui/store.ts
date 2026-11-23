@@ -12,7 +12,8 @@ import { avancerCombat, calculerClic, calculerDpsEquipe, cliquer, creerCombat, c
 import { acheter, chargerObjets } from '../core/boutique';
 import { blocage, combatEnPause, commandeCourante, declencher, etapeTerminee, type CatalogueEvenements, type Commande, type Declencheur } from '../core/evenements';
 import { evenementsKanto, normaliserRonflex, routeRonflexTerminee } from '../core/evenements-kanto';
-import { peutLancer, zoneDuDefi, echec as echecDefi, victoire as victoireDefi } from '../core/defi-chen';
+import { peutLancer, peutRejouer, rejouer as rejouerDefi, compterVictoireDefi, messageDefi, victoiresDefi, zoneDuDefi, echec as echecDefi, victoire as victoireDefi } from '../core/defi-chen';
+import { bilanPokedex, messageBilan } from '../core/bilan-chen';
 import { nomAdversaireEvenement, zoneDeCombatEvenement, zoneDuCombat } from '../core/combat-evenement';
 import { choisirStarter, creerStarter, tirerStarters } from '../core/starter';
 import { accorderBadge, accorderJalons, actifsDe } from '../core/progression';
@@ -94,6 +95,8 @@ export type AffichageJeu = ActionsCasino & {
   pantheon: { ouvert: boolean; premiereVictoire: boolean; equipe: PokemonPossede[]; defiChenEnAttente: boolean } | null;
   quitterPantheon(): void;
   lancerDefiChen(): void;
+  /** Labo de Chen : relance le défi déjà réussi, un palier plus haut. */
+  rejouerDefiChen(): void;
   /** Chez Blue : lance la prochaine revanche du rival, si le nombre de badges demandé est atteint. */
   defierBlue(): void;
   fin: { diplome: { nom: string; date: string } | null; credits: boolean };
@@ -148,6 +151,8 @@ export type AffichageJeu = ActionsCasino & {
   pc: PokemonPossede[]; pokedex: readonly number[]; vus: readonly number[]; especesShiny: readonly number[];
   accesPc: { ouvert: boolean; raison: string | null };
   blue: EtatBlue;
+  /** Ce que dit Chen dans le labo : bilan du Pokédex, état du défi, et si on peut le rejouer. */
+  chen: { bilan: string; defi: string; rejouable: boolean };
   pension: {
     acces: { ouvert: boolean; raison: string | null }; parents: PokemonPossede[]; oeufs: PokemonPossede[];
     emplacements: number; emplacementsMax: number; chance: number;
@@ -240,6 +245,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     return { id, nom: labo.nom, decor: labo.decor, ancienId: labo.ancienId,
       sansCombat: true, liens: [{ vers: labo.depuis }] };
   };
+  const affichageChen = () => ({ bilan: messageBilan(bilanPokedex(pokedex, catalogue)), defi: messageDefi(region), rejouable: peutRejouer(region) });
   const defiEnCombat = () => region.zoneId === 'kanto.labo'
     && region.drapeaux.includes('defi-chen-actif') && region.drapeaux.includes('defi-chen-intro-vue')
     && !region.drapeaux.includes('defi-chen-gagne') && !commandeCourante(evenements, region);
@@ -488,7 +494,14 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       if (evenement.type === 'boss-vaincu') {
         journal?.issue('victoire', evenement.zoneId);
         if (coeur.zone.id === 'kanto.labo') {
+          const avantDefi = region;
           region = victoireDefi({ ...region, etape: coeur.zone.etapes });
+          if (region.drapeaux.includes('defi-chen-gagne') && !avantDefi.drapeaux.includes('defi-chen-gagne')) {
+            const compte = compterVictoireDefi(region);
+            region = compte.region;
+            annonce = compte.message;
+            finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs;
+          }
           coeur = null;
           executer({ type: 'boss-vaincu', zone: 'kanto.labo' });
           signaler();
@@ -727,6 +740,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         : { possede: region.ameliorations.includes('leftovers'), actif: coeur?.autoClic ?? false },
       autoAttaque: preferences.autoAttaque, autoClicLie: preferences.autoClicLie, arretAuto: preferences.arretAuto,
       pc: region.pc, pokedex, vus, especesShiny: dex.especesShiny(region),
+      chen: JSON.stringify(affichageChen()) === JSON.stringify(precedent.chen) ? precedent.chen : affichageChen(),
       blue: JSON.stringify(etatBlue(region)) === JSON.stringify(precedent.blue) ? precedent.blue : etatBlue(region),
       pension: JSON.stringify(affichagePension) === JSON.stringify(precedent.pension) ? precedent.pension : affichagePension,
       accesPc: accesAuPc.ouvert === precedent.accesPc.ouvert && accesAuPc.raison === precedent.accesPc.raison
@@ -758,7 +772,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     const lieu = lieuDe(region.zoneId);
     if (imageConnue(cheminDecor(lieu))) void precharger([cheminDecor(lieu)]);
     if (!lieu.sansCombat) void prechargerZone(zoneDeLigue(lieu, region.starterId, rangActif(region)));
-    else if (defiEnCombat()) void prechargerZone(zoneDuDefi(region.starterId));
+    else if (defiEnCombat()) void prechargerZone(zoneDuDefi(region.starterId, victoiresDefi(region)));
   };
   const synchroniserCombatEvenement = () => {
     const commande = commandeCourante(evenements, region);
@@ -766,7 +780,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     if (region.zoneId === 'kanto.labo') {
       if (defiEnCombat()) {
         if (coeur?.zone.id === 'kanto.labo') return;
-        coeur = reprendreCombat(zoneDuDefi(region.starterId), region.equipe.map(versMembreEquipe), alea,
+        coeur = reprendreCombat(zoneDuDefi(region.starterId, victoiresDefi(region)), region.equipe.map(versMembreEquipe), alea,
           region.etape, actifsCourants(region), optionsCombat());
       } else coeur = null;
       resteAutoClicMs = 0;
@@ -1002,6 +1016,13 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       if (!initialise || region.evenementEnCours || region.zoneId !== kanto.depart || !etatBlue(region).pret) return;
       executer({ type: 'visite', zone: kanto.depart, lieu: LIEU_BLUE });
       afficher();
+    },
+    rejouerDefiChen() {
+      if (!initialise || region.evenementEnCours || defiEnCombat() || !peutRejouer(region)) return;
+      region = rejouerDefi(region);
+      changerDeZone('kanto.labo');
+      executer({ type: 'entree-zone', zone: 'kanto.labo' });
+      enregistrer(); afficher();
     },
     lancerDefiChen() {
       if (!initialise || region.evenementEnCours || defiEnCombat()
@@ -1381,6 +1402,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     evolution: null, argent: 0, enRecherche: false, cache: false, annonce: null, banniere: null, deblocage: null, deblocageCarte: null, echange: null,
     pc: [], pokedex, vus: [], especesShiny: [], accesPc: { ouvert: false, raison: reglages.pc.raison },
     blue: { fait: 0, total: 0, badgesRequis: null, pret: false, message: '' },
+    chen: { bilan: '', defi: '', rejouable: false },
     pension: { acces: { ouvert: false, raison: null }, parents: [], oeufs: [],
       emplacements: reglages.depart.region.pension.emplacementsOeuf, emplacementsMax: reglages.pension.emplacementsMax,
       chance: 0, prochainEmplacement: null, nouveau: false, especesEcloses: [], especesEclosesShiny: [] },

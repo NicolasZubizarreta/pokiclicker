@@ -81,6 +81,30 @@ it('affiche la victoire puis les crédits une seule fois, même après rechargem
   store.getState().arreter();
   expect(ouvrir().getState().fin.credits).toBe(false);
 });
+it('Chen relance le défi un palier plus haut après la victoire, avec 10 % de PV en plus et une récompense au palier 2', () => {
+  const { store, lire, horloge } = preparer(6, true);
+  const cliquer = combat.cliquer;
+  vi.spyOn(combat, 'cliquer').mockImplementation((etat, limiteur) => cliquer({ ...etat, ennemi: { ...etat.ennemi, pv: 1 } }, limiteur));
+  store.getState().rejouerDefiChen();
+  expect(store.getState().chen.rejouable).toBe(false);
+  horloge.avancer(100); store.getState().attaquer(); store.getState().tick();
+  for (let i = 0; i < 3; i++) store.getState().terminerEtape();
+  store.getState().fermerCredits();
+  expect(lire().suivi?.records.defiChenVictoires).toBe(1);
+  expect(store.getState().chen.rejouable).toBe(true);
+  expect(store.getState().chen.defi).toMatch(/palier 2/);
+  const argent = lire().argent;
+  store.getState().rejouerDefiChen();
+  expect(lire().drapeaux).toContain('defi-chen-actif');
+  expect(lire().drapeaux).not.toContain('defi-chen-gagne');
+  expect(store.getState().ennemi?.pvMax).toBeGreaterThan(0);
+  for (let i = 0; i < 60 && !lire().drapeaux.includes('defi-chen-gagne'); i++) {
+    horloge.avancer(1000); store.getState().attaquer(); store.getState().tick();
+  }
+  expect(lire().drapeaux).toContain('defi-chen-gagne');
+  expect(lire().suivi?.records.defiChenVictoires).toBe(2);
+  expect(lire().argent).toBeGreaterThan(argent);
+});
 it('donne le diplôme après la cinquième ligne, avec le nom et la date fixes de la partie', () => {
   const { store, ouvrir, gestionnaire, horloge, lire } = preparer();
   store.getState().arreter();

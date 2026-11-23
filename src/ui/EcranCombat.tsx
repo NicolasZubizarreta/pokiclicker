@@ -101,6 +101,7 @@ function Scene({ store, ouvrirPension, aller }: { store: StoreJeu; ouvrirPension
   const avantage = useStore(store, etat => moyenneAvantage(etat.equipe));
   const accesPension = useStore(store, etat => etat.pension.acces);
   const blue = useStore(store, etat => etat.blue);
+  const chen = useStore(store, etat => etat.chen);
   const captureEnCours = useStore(store, etat => etat.capture.enCours);
   const radar = useStore(store, etat => etat.radar);
   const [declencheurRadar, ouvrirRadar] = useState<HTMLButtonElement | null>(null);
@@ -124,6 +125,7 @@ function Scene({ store, ouvrirPension, aller }: { store: StoreJeu; ouvrirPension
   if (lieu && ((lieu.id === kanto.depart && !ennemi) || auLabo)) {
     const scenes = <ScenesBourgPalette key={lieu.id} accesPension={accesPension} quandPension={ouvrirPension} remplir={!telephone}
       blue={blue} quandBlue={() => store.getState().defierBlue()}
+      chen={chen} quandRejouer={() => store.getState().rejouerDefiChen()}
       sceneInitiale={auLabo ? lieu.id : undefined} sortieLaboClignote={auLabo}
       quandScene={auLabo ? id => { if (id === kanto.depart) store.getState().allerVers(id); } : undefined} />;
     const message = 'message' in lieu && lieu.message ? lieu.message : null;
