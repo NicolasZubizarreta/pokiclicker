@@ -33,14 +33,14 @@ export function BandeauHaut({ combat = false, ouvrirRaccourcis }: { combat?: boo
   </header>;
   return <header aria-label="Chiffres clés" className="sticky top-0 z-10 border-b border-bordure bg-surface pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pt-[calc(env(safe-area-inset-top)+0.375rem)] pb-1.5 lg:hidden">
     <div className="flex items-start gap-2">
-    <dl data-tuto-evite className="grid min-w-0 flex-1 grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_minmax(0,1.3fr)] items-start gap-x-3">
+    <dl data-tuto-evite className="grid min-w-0 flex-1 grid-cols-[minmax(0,auto)_minmax(0,auto)_minmax(0,1fr)] items-start gap-x-3">
       {[
         ['Pokédollars', `${formateurArgent.format(argent)}\u00a0₽`],
         ['DPS', formaterDps(dps)],
         ['Zone', lieu?.nom ?? '—'],
       ].map(([libelle, valeur]) => <div key={libelle} className="min-w-0">
         <dt className="whitespace-nowrap text-sm text-texte-doux">{libelle}</dt>
-        {/* Le nom de la zone passe sur deux lignes au lieu d'être coupé ; les chiffres restent sur une ligne. */}
+        {/* Le nom de la zone passe sur deux lignes au lieu d'être coupé ; les chiffres restent sur une ligne et prennent la place dont ils ont besoin (colonnes au contenu), la zone prend le reste. */}
         <dd className={`font-titre text-region-accent ${libelle === 'Zone' ? 'line-clamp-2 break-words text-base leading-tight' : 'truncate whitespace-nowrap text-lg'}`}>{valeur}</dd>
       </div>)}
     </dl>
