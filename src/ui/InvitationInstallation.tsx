@@ -12,9 +12,10 @@ const autonome = () => window.matchMedia?.('(display-mode: standalone)').matches
 
 export function InvitationInstallation() {
   const [invitation, fixerInvitation] = useState<Invitation | null>(null);
-  const [ios, fixerIos] = useState(false);
+  const [ios] = useState(() => import.meta.env.PROD && !autonome() && /iPhone|iPad/.test(navigator.userAgent)
+    && /Safari/.test(navigator.userAgent) && !/CriOS|FxiOS|EdgiOS/.test(navigator.userAgent));
   const [pret, fixerPret] = useState(false);
-  const [termine, fixerTermine] = useState(false);
+  const [termine, fixerTermine] = useState(() => { try { return !!creerStockageLocal().lire(cle); } catch { return false; } });
   const [autreToast, fixerAutreToast] = useState(false);
   const [occupe, fixerOccupe] = useState(false);
   function terminer() {
@@ -22,17 +23,13 @@ export function InvitationInstallation() {
     try { creerStockageLocal().ecrire(cle, '1'); } catch { /* Le refus reste valable pour cet affichage. */ }
   }
   useEffect(() => {
-    try { if (creerStockageLocal().lire(cle)) fixerTermine(true); } catch { /* Stockage facultatif. */ }
     if (autonome()) return;
-    if (import.meta.env.PROD) fixerIos(/iPhone|iPad/.test(navigator.userAgent)
-      && /Safari/.test(navigator.userAgent) && !/CriOS|FxiOS|EdgiOS/.test(navigator.userAgent));
     const recevoir = (event: Event) => { event.preventDefault(); fixerInvitation(event as Invitation); };
     window.addEventListener('beforeinstallprompt', recevoir);
     window.addEventListener('appinstalled', terminer);
-    const minuteur = setTimeout(() => fixerPret(true), 20000);
+    const minuteur = setTimeout(() => { fixerAutreToast(!!document.querySelector('aside.toast[role="status"]:not([data-installation])')); fixerPret(true); }, 20000);
     const observer = new MutationObserver(() => fixerAutreToast(!!document.querySelector('aside.toast[role="status"]:not([data-installation])')));
     observer.observe(document.body, { childList: true, subtree: true });
-    fixerAutreToast(!!document.querySelector('aside.toast[role="status"]:not([data-installation])'));
     return () => {
       clearTimeout(minuteur); observer.disconnect();
       window.removeEventListener('beforeinstallprompt', recevoir);

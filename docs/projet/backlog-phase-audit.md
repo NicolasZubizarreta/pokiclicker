@@ -261,45 +261,47 @@ Doublons, découpage de store.ts, EcranCombat, CarteKanto, PagePC, serveur. Él�
 
 ## F. `feat: fonctionnalités validées par l'audit`
 
-`etat:a_faire` `est:17-31` `prio:1` · branche : `v2` · périmètre : selon la fonctionnalité · 33 éléments
+`etat:en_cours` `est:17-31` `prio:1` · branche : `v2` · périmètre : selon la fonctionnalité · 33 éléments
 
 ### Histoire
 33 fonctionnalités, une à la fois avec feu vert de Nicolas avant chaque début. Éléments choisis par Nicolas le 19/11/2026.
 
+Vague 1 codée le 23/11/2026 (19 cases cochées, commits locaux non poussés) ; tests unitaires verts, écrans vus en dev (combat, mannequin, carte de dresseur, statistiques, PC et équipes, Pokédex, 390 et 1440 px) ; pas vus à l'écran : scores du casino, crédits, Hall, astuces, invitation PWA, Missingno, code Konami ; e2e et eslint complets à passer par Nicolas. Reste la vague 2 (14 cases). Questions ouvertes : `audit-2026-11-19/questions-lot-6.md`.
+
 ### Critères d'acceptation
 - [ ] `F-j1-01` Dix à trente succès de plus, avec leurs mesures (effort M)
-- [ ] `F-j1-02` Alerte d'arrêt auto : vibration, son et titre d'onglet (effort S)
-- [ ] `F-j1-05` Avantage de type visible sur l'ennemi (effort M)
-- [ ] `F-j1-06` Aperçu du boss avant le combat (effort M)
-- [ ] `F-j1-07` Équipes enregistrées (effort M)
-- [ ] `F-j1-10` Compteur de rencontres et chasse au shiny (effort M)
+- [x] `F-j1-02` Alerte d'arrêt auto : vibration, son et titre d'onglet (effort S)
+- [x] `F-j1-05` Avantage de type visible sur l'ennemi (effort M)
+- [x] `F-j1-06` Aperçu du boss avant le combat (effort M)
+- [x] `F-j1-07` Équipes enregistrées (effort M)
+- [x] `F-j1-10` Compteur de rencontres et chasse au shiny (effort M)
 - [ ] `F-j2-02` Donner un usage aux diamants : boutique de skins (effort L)
 - [ ] `F-j2-03` Quêtes quotidiennes et hebdomadaires (effort M)
-- [ ] `F-j2-05` Page Statistiques complète (effort M)
+- [x] `F-j2-05` Page Statistiques complète (effort M)
 - [ ] `F-j2-06` Prestige : « Nouvelle partie+ » après le Panthéon (effort L)
 - [ ] `F-j1-13` Complétion de zone (effort M)
 - [ ] `F-j1-18` Chaînes de capture (règle à valider) (effort M)
-- [ ] `F-j1-20` Collection de lignées complètes (effort M)
-- [ ] `F-j1-21` Records personnels (effort S)
-- [ ] `F-j1-22` Jauge de cadence (effort S)
-- [ ] `F-j1-23` Carte de dresseur à partager (effort M)
+- [x] `F-j1-20` Collection de lignées complètes (effort M)
+- [x] `F-j1-21` Records personnels (effort S)
+- [x] `F-j1-22` Jauge de cadence (effort S)
+- [x] `F-j1-23` Carte de dresseur à partager (effort M)
 - [ ] `F-j1-24` Objets tenus selon le type (règle à valider) (effort M)
 - [ ] `F-j2-09` Chez Blue : revanches du rival (effort L)
 - [ ] `F-j2-14` Casino : Voltorbe Flip (effort M)
-- [ ] `F-j2-15` Casino : tableau des meilleurs scores et séries (effort S)
+- [x] `F-j2-15` Casino : tableau des meilleurs scores et séries (effort S)
 - [ ] `F-j2-16` Casino : niveau de fidélité (VIP) (effort M)
-- [ ] `F-j2-22` Hall des Fameux amélioré (effort M)
+- [x] `F-j2-22` Hall des Fameux amélioré (effort M)
 - [ ] `F-j2-23` Ligue : mode revanche de plus en plus dur (effort M)
 - [ ] `F-j2-28` Musique par zone et ambiance du casino (effort M)
 - [ ] `F-j2-31` Labo de Chen : défi rejouable et bilan (effort M)
 - [ ] `F-j2-33` Parc Safari (effort L)
-- [ ] `F-j1-39` Easter egg Missingno (effort S)
-- [ ] `F-j1-40` Code Konami sur PC (effort S)
-- [ ] `F-j1-42` Mannequin d'entraînement (effort M)
-- [ ] `F-j2-35` Titres de dresseur (effort S)
-- [ ] `F-j2-38` Astuces au chargement (effort S)
-- [ ] `F-j2-39` Crédits avec les statistiques du joueur (effort S)
-- [ ] `F-j2-41` Installation comme application (PWA) (effort M)
+- [x] `F-j1-39` Easter egg Missingno (effort S)
+- [x] `F-j1-40` Code Konami sur PC (effort S)
+- [x] `F-j1-42` Mannequin d'entraînement (effort M)
+- [x] `F-j2-35` Titres de dresseur (effort S)
+- [x] `F-j2-38` Astuces au chargement (effort S)
+- [x] `F-j2-39` Crédits avec les statistiques du joueur (effort S)
+- [x] `F-j2-41` Installation comme application (PWA) (effort M)
 - [ ] Les vérifications du dépôt passent (tsc, eslint, vitest ciblé) et le diff est relu.
 
 ---

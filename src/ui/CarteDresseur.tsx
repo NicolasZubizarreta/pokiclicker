@@ -26,7 +26,6 @@ export function CarteDresseur({ retour, nomPartie = 'Dresseur' }: { retour(): vo
   const [statut, fixerStatut] = useState('');
   useEffect(() => {
     let actif = true; let url: string | undefined;
-    fixerImage(undefined);
     genererCarte(JSON.parse(cle) as DonneesCarte).then(blob => {
       if (!actif) return;
       url = URL.createObjectURL(blob); fixerImage({ blob, url, cle });

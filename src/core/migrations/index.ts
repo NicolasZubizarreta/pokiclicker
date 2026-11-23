@@ -68,7 +68,7 @@ export function migrerV4versV5(donnees: unknown, niveau: Niveau, ecritLe: string
   }
   return { ...source, chronos };
 }
-export function migrerV5versV6(donnees: unknown, _niveau: Niveau): unknown {
+export function migrerV5versV6(donnees: unknown): unknown {
   // Le champ suivi reste absent : les sauvegardes existantes démarrent leurs compteurs à zéro.
   // Les données mal formées traversent telles quelles, à la charge de la validation.
   return donnees;
