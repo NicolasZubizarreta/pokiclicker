@@ -100,13 +100,13 @@ it('ouvre en zone 2, affiche seulement le catalogue disponible et filtre les cat
   for (const image of container.querySelectorAll('img')) expect(image.getAttribute('src')).toMatch(/^img\//);
 });
 
-it('désactive les achats sans argent sans message supplémentaire', () => {
+it('explique le montant manquant sur chaque achat sans argent', () => {
   preparer(['kanto.route-1'], 0);
   const { container } = render(<PageShop />);
-  const boutons = screen.getAllByRole('button', { name: /^Acheter ×/ }) as HTMLButtonElement[];
+  const boutons = screen.getAllByRole('button', { name: /^Il te manque .*₽$/ }) as HTMLButtonElement[];
   expect(boutons.length).toBeGreaterThan(0);
   expect(boutons.every(b => b.disabled)).toBe(true);
-  expect(container.textContent).not.toMatch(/manque|panier|Prépare ta route/i);
+  expect(container.querySelectorAll('article')).toHaveLength(boutons.length);
 });
 
 it('désactive le coût de deux unités puis réactive une unité après Moins', () => {
@@ -115,10 +115,10 @@ it('désactive le coût de deux unités puis réactive une unité après Moins',
   preparer(['kanto.route-1'], objet.prix);
   render(<PageShop />);
   const carte = within(screen.getByRole('heading', { name: objet.nom }).closest('article')!);
-  fireEvent.click(carte.getByRole('button', { name: 'Plus' }));
-  expect(carte.getByRole('button', { name: 'Acheter ×2' }).matches(':disabled')).toBe(true);
-  fireEvent.click(carte.getByRole('button', { name: 'Moins' }));
-  expect(carte.getByRole('button', { name: 'Acheter ×1' }).matches(':disabled')).toBe(false);
+  fireEvent.click(carte.getByRole('button', { name: '+ : augmenter' }));
+  expect(carte.getByRole('button', { name: /^Il te manque/ }).matches(':disabled')).toBe(true);
+  fireEvent.click(carte.getByRole('button', { name: '− : diminuer' }));
+  expect(carte.getByRole('button', { name: /^Acheter ×1 :/ }).matches(':disabled')).toBe(false);
 });
 
 it('achète la quantité choisie et actualise argent et stock', () => {
@@ -126,8 +126,8 @@ it('achète la quantité choisie et actualise argent et stock', () => {
   const objet = storeJeu.getState().boutique.objets.find(o => !o.unique)!;
   render(<PageShop />);
   const carte = screen.getByRole('heading', { name: objet.nom }).closest('article')!;
-  fireEvent.click(within(carte).getByRole('button', { name: 'Plus' }));
-  fireEvent.click(within(carte).getByRole('button', { name: 'Acheter ×2' }));
+  fireEvent.click(within(carte).getByRole('button', { name: '+ : augmenter' }));
+  fireEvent.click(within(carte).getByRole('button', { name: /^Acheter ×2 :/ }));
   expect(storeJeu.getState().argent).toBe(1000000 - objet.prix * 2);
   expect(within(carte).getByText(`×${objet.stock + 2}`)).toBeTruthy();
 });

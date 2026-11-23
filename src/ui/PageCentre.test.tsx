@@ -29,7 +29,7 @@ it('affiche sur PC la grille, le décor et le bloc d’achat commun', () => {
   fireEvent.click(carte);
   expect(carte.getAttribute('aria-pressed')).toBe('true');
   expect(screen.getByRole('heading', { name: 'calcium' })).toBeTruthy();
-  fireEvent.click(screen.getByRole('button', { name: 'Plus' }));
+  fireEvent.click(screen.getByRole('button', { name: '+ : augmenter' }));
   expect(screen.getByLabelText('Total').textContent).toMatch(/^= 15\s000\s₽$/);
   fireEvent.click(screen.getByRole('button', { name: /^Acheter ×2/ }));
   expect(acheter).toHaveBeenCalledExactlyOnceWith('calcium', 2);
@@ -50,7 +50,7 @@ it('explique la possession et remet la quantité à un au changement d’objet',
   const centre = storeJeu.getState().centre;
   storeJeu.setState({ centre: { ...centre, objets: centre.objets.map((o, i) => i === 1 ? { ...o, unique: true, possede: true, abordable: false } : o) } });
   const { container } = render(<PageCentre retour={vi.fn()} />);
-  fireEvent.click(screen.getByRole('button', { name: 'Plus' }));
+  fireEvent.click(screen.getByRole('button', { name: '+ : augmenter' }));
   expect(screen.getByLabelText('Quantité').textContent).toBe('2');
   fireEvent.click(container.querySelectorAll('[data-objet]')[1]!);
   expect(screen.getByLabelText('Quantité').textContent).toBe('1');
@@ -76,8 +76,8 @@ it('borne la quantité et expose le refus puis transmet l’achat et son annonce
     return 'Acheté.';
   });
   render(<PageCentre retour={vi.fn()} />);
-  const plus = screen.getByRole<HTMLButtonElement>('button', { name: 'Plus' });
-  const moins = screen.getByRole<HTMLButtonElement>('button', { name: 'Moins' });
+  const plus = screen.getByRole<HTMLButtonElement>('button', { name: '+ : augmenter' });
+  const moins = screen.getByRole<HTMLButtonElement>('button', { name: '− : diminuer' });
   // La quantité boucle : « Moins » à 1 donne le maximum, « Plus » au maximum revient à 1.
   const quantite = () => screen.getByLabelText('Quantité').textContent;
   fireEvent.click(moins);
@@ -85,9 +85,9 @@ it('borne la quantité et expose le refus puis transmet l’achat et son annonce
   fireEvent.click(plus);
   expect(quantite()).toBe('1');
   // « +10 » s'arrête au maximum ; « Max » suit l'argent (15 000 ₽ à 7 500 ₽ pièce : 2).
-  fireEvent.click(screen.getByRole('button', { name: 'Plus dix' }));
+  fireEvent.click(screen.getByRole('button', { name: '+10 : ajouter dix' }));
   expect(quantite()).toBe('11');
-  fireEvent.click(screen.getByRole('button', { name: 'Maximum possible' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Max : maximum possible' }));
   expect(quantite()).toBe('2');
   fireEvent.click(moins);
   fireEvent.click(plus);
@@ -117,6 +117,8 @@ it('ouvre après le vol sans changer la zone, puis rend le focus à la carte', (
   affichage.telephone = false;
   preparer();
   storeJeu.setState({ annonce: 'Combat en cours.' });
+  const carte = storeJeu.getState().carte;
+  storeJeu.setState({ carte: { ...carte, formes: carte.formes.map(f => f.nom === 'Céladopole' ? { ...f, ouverte: true } : f) } });
   vi.useFakeTimers();
   const aller = vi.spyOn(storeJeu.getState(), 'allerVers');
   const arrive = vi.fn();

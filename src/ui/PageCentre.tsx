@@ -11,6 +11,7 @@ import { useTelephone } from './useTelephone';
 import { useTuto } from './tuto/store-tuto';
 import { ZoneLigne } from './ZoneLigne';
 import './ShopPC.css';
+import { formaterNombre } from './nombres';
 
 export function PageCarte({ quandArrive }: { quandArrive: () => void }) {
   const telephone = useTelephone();
@@ -38,7 +39,7 @@ export function PageCarte({ quandArrive }: { quandArrive: () => void }) {
       <CarteKanto quandArrive={quandArrive} quandCentre={() => ouvrir('centre')} quandCasino={() => ouvrir('casino')} quandPension={() => ouvrir('pension')} />
     </div>
     {ouvert === 'centre' && <PageCentre retour={() => ouvrir(null)} />}
-    {ouvert === 'pension' && <PagePension retour={() => ouvrir(null)} libelleRetour="Retour à la carte" />}
+    {ouvert === 'pension' && <PagePension retour={() => ouvrir(null)} />}
     {ouvert === 'casino' && <AccueilCasino retour={() => ouvrir(null)} />}
   </div>;
 }
@@ -70,7 +71,7 @@ export function PageCentre({ retour, navigationZones = false, versCombat = retou
         <p>Objets exclusifs · {centre.objets.length} objets</p>
       </div>
       <div className="grid gap-2">
-        <strong className="text-region-accent">{argent.toLocaleString('fr-FR')}{'\u00a0₽'}</strong>
+        <strong className="text-region-accent">{formaterNombre(argent)}{'\u00a0₽'}</strong>
         <button type="button" onClick={retour}
           className={telephone ? `${bouton} cadre fixed inset-x-4 bottom-20 z-10 bg-surface text-lien shadow-md md:static` : `${bouton} plaque`}>{navigationZones ? 'Retour au combat' : 'Retour à la carte'}</button>
       </div>
@@ -83,7 +84,7 @@ export function PageCentre({ retour, navigationZones = false, versCombat = retou
             className={`${bouton} cadre grid content-start gap-2 text-left ${o.id === objet.id ? 'border-focus bg-selection/80' : `${voile} hover:bg-selection/80`}`}>
             <IconeObjet image={o.image} nom={o.nom} taille="petite" />
             <strong>{o.id === objet.id && '✓ '}{o.nom}</strong>
-            <span className="text-region-accent">{o.prix.toLocaleString('fr-FR')}{'\u00a0₽'}</span>
+            <span className="text-region-accent">{formaterNombre(o.prix)}{'\u00a0₽'}</span>
             <span aria-label={`En sac : ${o.stock}`}>×{o.stock}</span>
           </button>)}
         </div>

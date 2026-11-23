@@ -1,14 +1,17 @@
 import { useState } from 'react';
 import { IconeObjet } from './icones';
 import { QuantiteAchat } from './QuantiteAchat';
+import { formaterNombre } from './nombres';
 
-export function CarteObjet({ id, nom, description, image, prix, stock, possede, unique, abordable, argent, acheter, compact = false }: {
+export function CarteObjet({ id, nom, description, image, prix, prixBase, inflationParBadge, stock, possede, unique, abordable, argent, acheter, compact = false }: {
   compact?: boolean;
   id: string;
   nom: string;
   description: string;
   image: string | null;
   prix: number;
+  prixBase?: number;
+  inflationParBadge?: number;
   stock: number;
   possede: boolean;
   unique: boolean;
@@ -18,9 +21,20 @@ export function CarteObjet({ id, nom, description, image, prix, stock, possede, 
 }) {
   const [quantite, changer] = useState(1);
   const acquis = unique && possede;
-  const bouton = 'cadre min-h-11 min-w-11 bg-surface p-3';
+  const bouton = 'cadre min-h-11 min-w-11 bg-surface p-3 disabled:text-texte-doux';
+  const nombre = unique ? 1 : quantite;
+  const total = prix * nombre;
+  const libelleAchat = total > argent
+    ? `Il te manque ${formaterNombre(total - argent)} ₽`
+    : `Acheter ×${nombre} : ${formaterNombre(total)} ₽`;
+  const achat = <button type="button" className={`${bouton}${compact && unique ? ' col-span-3' : ''}`} disabled={!abordable || total > argent}
+    onClick={() => acheter(nombre)}>{libelleAchat}</button>;
+  const explicationPrix = prixBase !== undefined && <p className="text-sm text-texte-doux">
+    Prix de base {formaterNombre(prixBase)} ₽ · {inflationParBadge
+      ? `+${formaterNombre(inflationParBadge * 100)} % par badge` : 'sans inflation par badge'}
+  </p>;
 
-  const prixTexte = acquis ? 'Possédé' : `${prix.toLocaleString('fr-FR')} ₽`;
+  const prixTexte = acquis ? 'Possédé' : `${formaterNombre(prix)} ₽`;
   if (compact) {
     // Téléphone : une ligne icône | nom et effet | prix. Objet unique : le prix est le bouton d'achat.
     const achatUnique = unique && !acquis;
@@ -33,15 +47,14 @@ export function CarteObjet({ id, nom, description, image, prix, stock, possede, 
           {stock > 0 && <span className="shrink-0 text-sm text-texte-doux">×{stock}</span>}
         </div>
         <p className="break-words text-sm text-texte-doux">{description}</p>
+        {!acquis && explicationPrix}
       </div>
       {achatUnique
-        ? <button type="button" aria-label={`Acheter ×1, ${prixTexte}`} className={bouton} disabled={!abordable || prix > argent}
-          onClick={() => acheter(1)}>{prixTexte}</button>
+        ? achat
         : <strong className={acquis ? 'cadre border-dashed px-3 py-2 text-texte-doux' : ''}>{prixTexte}</strong>}
       {!unique && <div className="col-span-3 min-w-0">
         <QuantiteAchat nom={nom} quantite={quantite} changer={changer} prix={prix} argent={argent} bouton={bouton}
-          total={<button type="button" className={bouton} disabled={!abordable || prix * quantite > argent}
-            onClick={() => acheter(quantite)}>Acheter ×{quantite}</button>} />
+          total={achat} />
       </div>}
     </article>;
   }
@@ -53,11 +66,11 @@ export function CarteObjet({ id, nom, description, image, prix, stock, possede, 
       {stock > 0 && <span className="ml-auto shrink-0">×{stock}</span>}
     </div>
     <p>{description}</p>
-    <strong>{acquis ? 'Possédé' : `${prix.toLocaleString('fr-FR')}\u00a0₽`}</strong>
+    <strong>{acquis ? 'Possédé' : `${formaterNombre(prix)}\u00a0₽`}</strong>
+    {!acquis && explicationPrix}
     {!acquis && <div className="mt-auto grid gap-3">
       {!unique && <QuantiteAchat nom={nom} quantite={quantite} changer={changer} prix={prix} argent={argent} bouton={bouton} />}
-      <button type="button" className={bouton} disabled={!abordable || prix * (unique ? 1 : quantite) > argent}
-        onClick={() => acheter(unique ? 1 : quantite)}>Acheter ×{unique ? 1 : quantite}</button>
+      {achat}
     </div>}
   </article>;
 }

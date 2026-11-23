@@ -6,6 +6,7 @@ import { storeJeu } from './store';
 import { categorieShop, categoriesShop } from './categories-shop';
 import { useTelephone } from './useTelephone';
 import './ShopPC.css';
+import { formaterNombre } from './nombres';
 
 export function PageShop() {
   const boutique = useStore(storeJeu, etat => etat.boutique);
@@ -20,7 +21,7 @@ export function PageShop() {
   return <section className={`${telephone ? '' : 'shop-pc '}mx-auto grid max-w-screen-xl grid-cols-1 gap-4 text-base`}>
     <h1 tabIndex={-1} className="min-h-12 font-titre text-2xl font-semibold">Shop</h1>
     {!boutique.acces.ouvert ? <p className="text-texte-doux">{boutique.acces.raison}</p> : <>
-      <p className="hidden text-region-accent lg:block">{!telephone && 'Tu as '}{argent.toLocaleString('fr-FR')}{' ₽'}</p>
+      <p className="hidden text-region-accent lg:block">{!telephone && 'Tu as '}{formaterNombre(argent)}{' ₽'}</p>
       <FiltreCategories categories={rayons} choix={choix} choisir={choisir} onglets={!telephone} />
       {choix === 'objets' && <p className="text-texte-doux">Objets à acheter autant de fois que tu veux.</p>}
       {choix === 'accessoires' && <p className="text-texte-doux">Objets uniques : un seul achat, un bonus pour toujours.</p>}

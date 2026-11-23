@@ -58,7 +58,7 @@ it('transmet le bouton déclencheur avec l’objet utilisé', () => {
   expect(utiliser).toHaveBeenCalledWith(sac.entrees[1], bouton);
   expect(bouton.title).toBe('Ajoute un niveau.');
   expect(screen.queryByRole('button', { name: 'Utiliser' })).toBeNull();
-  expect(screen.queryByText('Ajoute un niveau.')).toBeNull();
+  expect(screen.getByText('Ajoute un niveau.')).toBeTruthy();
 });
 
 it('ne présente que la raison quand le Sac est verrouillé', () => {
@@ -146,16 +146,16 @@ it('ouvre un sélecteur de quantité pour un objet direct et l’utilise n fois'
     expect(utiliser).not.toHaveBeenCalled();
     const valeur = () => screen.getByLabelText('Quantité', { selector: 'output' }).textContent;
     expect(valeur()).toBe('1');
-    fireEvent.click(screen.getByRole('button', { name: 'Moins' }));
+    fireEvent.click(screen.getByRole('button', { name: '− : diminuer' }));
     expect(valeur()).toBe('99');
-    fireEvent.click(screen.getByRole('button', { name: 'Plus' }));
+    fireEvent.click(screen.getByRole('button', { name: '+ : augmenter' }));
     expect(valeur()).toBe('1');
-    fireEvent.click(screen.getByRole('button', { name: 'Plus dix' }));
+    fireEvent.click(screen.getByRole('button', { name: '+10 : ajouter dix' }));
     expect(valeur()).toBe('11');
-    fireEvent.click(screen.getByRole('button', { name: 'Maximum possible' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Max : maximum possible' }));
     expect(valeur()).toBe('99');
-    fireEvent.click(screen.getByRole('button', { name: 'Moins' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Moins' }));
+    fireEvent.click(screen.getByRole('button', { name: '− : diminuer' }));
+    fireEvent.click(screen.getByRole('button', { name: '− : diminuer' }));
     fireEvent.click(screen.getByRole('button', { name: 'Utiliser' }));
     expect(utiliserObjetActif).toHaveBeenCalledTimes(97);
     expect(utiliserObjetActif).toHaveBeenCalledWith('repel');

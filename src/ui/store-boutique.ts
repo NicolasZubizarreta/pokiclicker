@@ -13,7 +13,7 @@ type Acces = { ouvert: boolean; raison: string | null };
 type Description = { id: string; nom: string; description: string; image: string | null;
   categorie: 'balles' | 'soins' | 'equipement' };
 export type AffichageBoutique = { acces: Acces; objets: (Description & {
-  prix: number; stock: number; possede: boolean; unique: boolean; abordable: boolean;
+  prix: number; prixBase?: number; inflationParBadge?: number; stock: number; possede: boolean; unique: boolean; abordable: boolean;
 })[] };
 export type AffichageSac = { acces: Acces; entrees: (Description & {
   quantite: number; actif: boolean; utilisable: TypeObjetEquipe | 'pierre' | 'stase' | 'jeton' | 'direct' | null;
@@ -40,7 +40,9 @@ function afficherCatalogue(region: DonneesRegion, precedent: AffichageBoutique |
         palier: region.jalonsRecus.includes(reglages.boutique.palierRemise) });
       const possede = region.ameliorations.includes(objet.id);
       return { id: objet.id, nom: objet.nom, description: objet.description, image: objet.image,
-        categorie: objet.categorie, prix, stock: objet.inventaire ? region.inventaire[objet.inventaire] ?? 0 : 0,
+        categorie: objet.categorie, prix, prixBase: objet.prix,
+        inflationParBadge: objet.type === 'consommable' && !objet.sansInflation ? reglages.boutique.inflationParBadge : 0,
+        stock: objet.inventaire ? region.inventaire[objet.inventaire] ?? 0 : 0,
         possede, unique: objet.type === 'amelioration', abordable: !possede && region.argent >= prix };
     }) };
   return JSON.stringify(boutique) === JSON.stringify(precedent) ? precedent! : boutique;
