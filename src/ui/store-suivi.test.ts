@@ -6,9 +6,12 @@ import { kanto } from '../core/regions';
 import { reglages } from '../core/reglages';
 import { compteInitial, creerGestionnaire, creerStockageMemoire, type DonneesRegion } from '../core/sauvegarde';
 import { suiviVide } from '../core/suivi';
+import { construireSabot } from '../core/blackjack';
+import { PLAFOND_JETONS } from '../core/plafonds';
 import { creerStoreJeu, type StoreJeu } from './store';
 
 const stores: StoreJeu[] = [];
+const sabot = (...cartes: string[]) => [...cartes, ...construireSabot(() => .25).slice(0, 80)];
 beforeEach(() => vi.useFakeTimers());
 afterEach(() => { stores.splice(0).forEach(s => s.getState().arreter()); vi.restoreAllMocks(); vi.useRealTimers(); });
 
@@ -155,4 +158,82 @@ it('expose le temps cumulé arrondi et garde le suivi stable entre les ticks', (
   const reprise = p.ouvrir().getState();
   expect(reprise.tempsJeuMs).toBe(13000);
   expect(reprise.suivi.records.degatsClicMax).toBeGreaterThan(0);
+});
+
+it('compte chaque jeu atomique et son résultat net réel, sans compter les refus', () => {
+  const p = preparer({ jetons: 10000, plusOuMoinsCarte: 7 });
+  const etat = p.store.getState();
+  const jouer = (jeu: 'machine' | 'roulette' | 'plusOuMoins' | 'pileOuFace' | 'gratter', action: () => { ok: boolean }) => {
+    const avant = p.store.getState().casino.jetons;
+    const jetons = p.store.getState().suivi.jetons;
+    expect(action().ok).toBe(true);
+    const net = p.store.getState().casino.jetons - avant;
+    expect(p.store.getState().suivi.jetons).toEqual({ gagnes: jetons.gagnes + Math.max(0, net),
+      perdus: jetons.perdus + Math.max(0, -net) });
+    expect(p.store.getState().suivi.casino[jeu]?.parties).toBe(1);
+  };
+  jouer('machine', () => etat.jouerMachine(10));
+  jouer('roulette', () => etat.jouerRoulette(10, { type: 'numero', numero: 0 }));
+  jouer('plusOuMoins', () => etat.jouerPlusOuMoins(10, 'moins'));
+  jouer('pileOuFace', () => etat.jouerPileOuFace(10, 'pile'));
+  jouer('gratter', () => etat.gratter(10));
+  const suivi = p.store.getState().suivi;
+  expect(etat.jouerMachine(0).ok).toBe(false);
+  expect(p.store.getState().suivi).toBe(suivi);
+  expect(p.lire().suivi?.casino).toEqual(suivi.casino);
+});
+
+it('compte le blackjack une seule fois après séparation, doublement et reprise', () => {
+  const p = preparer({ jetons: 1000, sabotBlackjack: sabot('8-S', '6-C', '8-H', '10-D', '3-D', '9-S', '10-C', '10-H') });
+  p.store.getState().distribuerBlackjack(10);
+  p.store.getState().separerBlackjack();
+  expect(p.store.getState().suivi.casino.blackjack).toBeUndefined();
+  p.store.getState().arreter();
+  const reprise = p.ouvrir();
+  reprise.getState().doublerBlackjack();
+  expect(reprise.getState().suivi.casino.blackjack).toBeUndefined();
+  expect(reprise.getState().resterBlackjack()).toMatchObject({ ok: true, termine: true, fin: { engage: 30, gain: 60 } });
+  expect(reprise.getState().suivi.jetons).toEqual({ gagnes: 30, perdus: 0 });
+  expect(reprise.getState().suivi.casino.blackjack?.parties).toBe(1);
+  expect(reprise.getState().resterBlackjack().ok).toBe(false);
+  expect(p.lire().suivi?.casino.blackjack?.parties).toBe(1);
+});
+
+it('compte seulement les jetons réellement gagnés au plafond', () => {
+  const p = preparer({ jetons: PLAFOND_JETONS });
+  expect(p.store.getState().jouerPileOuFace(10, 'face')).toMatchObject({ ok: true, gain: 20 });
+  expect(p.store.getState().casino.jetons).toBe(PLAFOND_JETONS);
+  expect(p.store.getState().suivi.jetons).toEqual({ gagnes: 0, perdus: 0 });
+});
+
+it.each([
+  { cartes: ['10-S', 'A-D', '8-H', '9-C'], assurance: true, net: -15 },
+  { cartes: ['A-S', '10-D', 'K-H', '7-C'], assurance: false, net: 15 },
+  { cartes: ['10-S', '10-D', '6-H', '7-C'], assurance: false, net: -5 },
+])('compte l’assurance, la fin immédiate et l’abandon ($net)', ({ cartes, assurance, net }) => {
+  const p = preparer({ jetons: 1000, sabotBlackjack: sabot(...cartes) });
+  const etat = p.store.getState();
+  const debut = etat.distribuerBlackjack(10);
+  if (assurance) { etat.assurerBlackjack(); etat.resterBlackjack(); }
+  else if (debut.ok && !debut.termine) etat.abandonnerBlackjack();
+  expect(p.store.getState().casino.jetons - 1000).toBe(net);
+  expect(p.store.getState().suivi.jetons).toEqual({ gagnes: Math.max(0, net), perdus: Math.max(0, -net) });
+  expect(p.store.getState().suivi.casino.blackjack?.parties).toBe(1);
+});
+
+it('enregistre puis applique une équipe et sauvegarde le titre choisi ou retiré', () => {
+  const p = preparer();
+  const etat = p.store.getState();
+  expect(etat.enregistrerEquipe(0)).toBeNull();
+  etat.capturer('masterball'); p.avancer(2000);
+  expect(etat.envoyerAuPc('fort')).toBeNull();
+  expect(etat.appliquerEquipe(0)).toBeNull();
+  expect(p.lire().equipe.map(p => p.uid)).toEqual(['fort']);
+  expect(p.lire().pc.map(p => p.uid)).toContain('capture');
+  expect(etat.appliquerEquipe(1)).toBeTruthy();
+  etat.choisirTitre('Dresseur');
+  expect(p.store.getState().suivi.titre).toBe('Dresseur');
+  expect(p.lire().suivi?.titre).toBe('Dresseur');
+  etat.choisirTitre(undefined);
+  expect(p.lire().suivi?.titre).toBeUndefined();
 });

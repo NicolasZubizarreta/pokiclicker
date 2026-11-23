@@ -2,6 +2,23 @@ import * as casino from '../core/casino';
 import type * as jeux from '../core/jeux-casino';
 import { kanto } from '../core/regions';
 import { etatMondeDe, type DonneesRegion } from '../core/sauvegarde';
+import { lireSuivi, noterPartieCasino, type JEUX_SUIVIS } from '../core/suivi';
+
+export type PartieSuivie = { jeu: (typeof JEUX_SUIVIS)[number]; mise: number };
+
+export function suivrePartieCasino(avant: DonneesRegion,
+  resultat: { region: DonneesRegion; termine?: boolean; fin?: casino.FinBlackjack | null }, partie?: PartieSuivie): DonneesRegion {
+  const apres = resultat.region;
+  if (resultat.termine && resultat.fin) {
+    const mise = resultat.fin.engage;
+    const dejaEngage = casino.vueBlackjack(avant)?.engage ?? 0;
+    const gain = apres.jetons - avant.jetons + mise - dejaEngage;
+    return { ...apres, suivi: noterPartieCasino(lireSuivi(apres), 'blackjack', { mise, gain }) };
+  }
+  if (!partie) return apres;
+  const gain = apres.jetons - avant.jetons + partie.mise;
+  return { ...apres, suivi: noterPartieCasino(lireSuivi(apres), partie.jeu, { mise: partie.mise, gain }) };
+}
 
 export type ActionsCasino = {
   acheterJetons(jetons?: number): ReturnType<typeof casino.acheterJetons<DonneesRegion>>;

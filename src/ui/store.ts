@@ -1,6 +1,7 @@
 import { createStore } from 'zustand/vanilla';
 import { lireSuivi, noterCombat, noterEclosions, noterEvolution, noterRecordClic, noterDps, noterCadence,
-  enregistrerVictoireLigue as noterVictoireLigue, type Suivi } from '../core/suivi';
+  enregistrerVictoireLigue as noterVictoireLigue, definirTitre, type Suivi } from '../core/suivi';
+import { enregistrerEquipeCourante, appliquerEquipeEnregistree } from '../core/equipes-enregistrees';
 import { dateLocale, creerLectureSuivi, suivreDepense } from './suivi-store';
 import * as dex from '../core/dex';
 import { creerHorlogeSysteme } from '../core/clock';
@@ -52,7 +53,7 @@ import { afficherEffets, afficherFauchage, type EffetsAffiches, type FauchageAff
 import { afficherBoutique, afficherCentre, afficherSac, type AffichageBoutique, type AffichageSac } from './store-boutique';
 import { construireEclosions, signalerPremiereEntreePension, type EclosionAffichee } from './store-pension';
 import { estDoublonCapture, capturerDoublon, doublonsEclos, retirerDeLEquipe } from '../core/relache-auto';
-import { afficherCasino, signalerPremiereEntreeCasino, type ActionsCasino, type AffichageCasino } from './store-casino';
+import { afficherCasino, signalerPremiereEntreeCasino, suivrePartieCasino, type PartieSuivie, type ActionsCasino, type AffichageCasino } from './store-casino';
 import { detailErreur, ouvrirPartie } from './persistance';
 import { creerStockageLocal } from './stockage-local';
 import { modeDeveloppeur } from './mode-dev';
@@ -175,6 +176,9 @@ export type AffichageJeu = ActionsCasino & {
   envoyerAuPc(uid: string): string | null;
   placerDansEquipe(uidPc: string): string | null;
   echanger(uidPc: string, uidEquipe: string): string | null;
+  enregistrerEquipe(emplacement: number): string | null;
+  appliquerEquipe(emplacement: number): string | null;
+  choisirTitre(titre: string | undefined): void;
   annulerEchange(): void;
   carte: { formes: EtatForme[]; badges: { obtenus: number; total: number }; nouvelles: string[]; tutorielRoute1: boolean };
   voirCarte(): void;
@@ -796,6 +800,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
   };
   const modifierEquipe = (action: (region: DonneesRegion) => equipe.ResultatEquipe & {
     evolution?: { uid: string; de: number; vers: number };
+    message?: string;
   },
     uidPc?: string, fermerEchange = false, ton?: Ton): string | null => {
     if (!initialise) return 'La partie n’est pas démarrée.';
@@ -806,6 +811,10 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       echange = { uid: uidPc, nom: nomAffiche(pokemon) };
     } else {
       region = resultat.region;
+      if (resultat.message) {
+        annonce = resultat.message;
+        finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs;
+      }
       if (ton) emettreSon(ton);
       if (resultat.evolution) demarrerEvolution(resultat.evolution);
       if (coeur) coeur = { ...coeur, equipe: region.equipe.map(versMembreEquipe) };
@@ -838,13 +847,14 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     return resultat;
   });
   const modifierCasino = <T extends ReturnType<typeof casino.acheterAuCasino<DonneesRegion>>>(
-    action: (region: DonneesRegion) => T, depense = false): T | { ok: false; raison: string } => {
+    action: (region: DonneesRegion) => T, depense = false, partie?: PartieSuivie): T | { ok: false; raison: string } => {
     if (!initialise) return { ok: false, raison: 'La partie n’est pas démarrée.' };
     const acces = casino.accesCasino(kanto, etatMondeDe(region));
     if (!acces.ok) return { ok: false, raison: acces.raison! };
     const resultat = action(region);
     if (!resultat.ok) return resultat;
-    region = depense ? suivreDepense(region, resultat.region, 'casino') : resultat.region;
+    const apres = suivrePartieCasino(region, resultat, partie);
+    region = depense ? suivreDepense(region, apres, 'casino') : apres;
     // Pas de notification : la page du casino annonce chaque résultat dans sa propre phrase d'état (après l'animation du jeu).
     if (resultat.numero !== undefined) noterDansPokedex(resultat.numero);
     if (coeur) coeur = { ...coeur, equipe: region.equipe.map(versMembreEquipe) };
@@ -854,13 +864,13 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
   };
   /** Coup d'un jeu du casino sans objet à gagner (roulette, plus ou moins, carte à gratter) : même accès, même annonce, sauvegarde immédiate. */
   const jouerAuCasino = <T extends { ok: true; region: DonneesRegion; message: string } | { ok: false; raison: string }>(
-    action: (region: DonneesRegion) => T): T | { ok: false; raison: string } => {
+    action: (region: DonneesRegion) => T, partie: PartieSuivie): T | { ok: false; raison: string } => {
     if (!initialise) return { ok: false, raison: 'La partie n’est pas démarrée.' };
     const acces = casino.accesCasino(kanto, etatMondeDe(region));
     if (!acces.ok) return { ok: false, raison: acces.raison! };
     const resultat = action(region);
     if (!resultat.ok) return resultat;
-    region = resultat.region;
+    region = suivrePartieCasino(region, resultat, partie);
     // Pas de notification : le résultat est révélé par l'animation du jeu, puis annoncé par sa page (une notification le montrerait avant).
     enregistrer(); afficher();
     return { ...resultat, region };
@@ -940,8 +950,8 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     },
     acheterJetons: jetons => modifierCasino(region => casino.acheterJetons(region, jetons), true),
     echangerJetons: jetons => modifierCasino(region => casino.echangerJetons(region, jetons)),
-    jouerMachine: mise => modifierCasino(region => casino.jouerMachine(region, mise, alea)),
-    jouerPileOuFace: (mise, choix) => modifierCasino(region => casino.jouerPileOuFace(region, mise, choix, alea)),
+    jouerMachine: mise => modifierCasino(region => casino.jouerMachine(region, mise, alea), false, { jeu: 'machine', mise }),
+    jouerPileOuFace: (mise, choix) => modifierCasino(region => casino.jouerPileOuFace(region, mise, choix, alea), false, { jeu: 'pileOuFace', mise }),
     distribuerBlackjack: mise => modifierCasino(region => casino.distribuer(region, mise, alea)),
     tirerBlackjack: () => modifierCasino(region => casino.tirerCarte(region, alea)),
     resterBlackjack: () => modifierCasino(region => casino.rester(region, alea)),
@@ -951,7 +961,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     refuserAssuranceBlackjack: () => modifierCasino(region => casino.refuserAssurance(region, alea)),
     abandonnerBlackjack: () => modifierCasino(region => casino.abandonner(region, alea)),
     acheterAuCasino: id => modifierCasino(region => casino.acheterAuCasino(region, id, alea, genererId)),
-    jouerRoulette: (mise, pari) => jouerAuCasino(region => jeuxCasino.jouerRoulette(region, mise, pari, alea)),
+    jouerRoulette: (mise, pari) => jouerAuCasino(region => jeuxCasino.jouerRoulette(region, mise, pari, alea), { jeu: 'roulette', mise }),
     carteVisiblePlusOuMoins() {
       if (!initialise) return { ok: false, raison: 'La partie n’est pas démarrée.' };
       const acces = casino.accesCasino(kanto, etatMondeDe(region));
@@ -966,8 +976,8 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       if (region.plusOuMoinsCarte === undefined) return { ok: false as const, raison: 'Tire d’abord une carte.' };
       const resultat = jeuxCasino.jouerPlusOuMoins(region, mise, region.plusOuMoinsCarte, choix, alea);
       return resultat.ok ? { ...resultat, region: { ...resultat.region, plusOuMoinsCarte: resultat.nouvelleCarte } } : resultat;
-    }),
-    gratter: mise => jouerAuCasino(region => jeuxCasino.gratter(region, mise, alea)),
+    }, { jeu: 'plusOuMoins', mise }),
+    gratter: mise => jouerAuCasino(region => jeuxCasino.gratter(region, mise, alea), { jeu: 'gratter', mise }),
     sonnerCasino: () => emettreSon('coin'),
     sonActive,
     journalActif: false,
@@ -1309,6 +1319,13 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     envoyerAuPc: uid => modifierEquipe(region => equipe.envoyerAuPc(region, uid), undefined, false, 'pc'),
     placerDansEquipe: uid => modifierEquipe(region => equipe.placerDansEquipe(region, uid), uid, false, 'pc'),
     echanger: (uidPc, uidEquipe) => modifierEquipe(region => equipe.echanger(region, uidPc, uidEquipe), undefined, true, 'pc'),
+    enregistrerEquipe: emplacement => modifierEquipe(region => enregistrerEquipeCourante(region, emplacement)),
+    appliquerEquipe: emplacement => modifierEquipe(region => appliquerEquipeEnregistree(region, emplacement), undefined, true, 'pc'),
+    choisirTitre(titre) {
+      if (!initialise) return;
+      region = { ...region, suivi: definirTitre(lireSuivi(region), titre) };
+      enregistrer(); afficher();
+    },
     annulerEchange() { echange = null; afficher(); },
     carte: { formes: [], badges: { obtenus: 0, total: totalBadges }, nouvelles: [], tutorielRoute1: false },
     voirCarte() {
