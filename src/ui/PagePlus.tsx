@@ -21,7 +21,7 @@ import { EtatSynchronisation } from './EtatSynchronisation';
 import { estProbleme } from './synchronisations';
 import { PastilleCasino, useCasinoNouveau } from './PastilleCasino';
 import { PastillePension, usePensionNouveau } from './PastillePension';
-import { IconeCasino, IconePension, IconeMonde, IconePokedex, IconeBadges, IconeStats, IconeGuide, IconeReglages, IconeDisque, IconeSortie, IconeChevron } from './icones-menu';
+import { IconeCasino, IconePension, IconeSafari, IconeMonde, IconePokedex, IconeBadges, IconeStats, IconeGuide, IconeReglages, IconeDisque, IconeSortie, IconeChevron } from './icones-menu';
 
 function GroupeMenu({ telephone, children }: { telephone: boolean; children: ReactNode }) {
   return telephone ? <>{children}</> : <div className="menu-pc-tuiles grid-cols-3">{children}</div>;
@@ -50,7 +50,7 @@ function LigneMenu({ icone, titre, titreVisible, sousTexte, children, entree, on
   </button>;
 }
 
-export function PagePlus({ ouvrirPC, ouvrirMonde, ouvrirCasino, ouvrirPension, menuPrincipal, attendreEnvoi, etatSynchro, nomPartie }: {
+export function PagePlus({ ouvrirPC, ouvrirMonde, ouvrirCasino, ouvrirPension, ouvrirSafari, menuPrincipal, attendreEnvoi, etatSynchro, nomPartie }: {
   nomPartie?: string;
   /** Affiché dans le Menu du téléphone seulement quand il y a un problème (sur PC : barre latérale). */
   etatSynchro?: EtatSynchro;
@@ -60,6 +60,8 @@ export function PagePlus({ ouvrirPC, ouvrirMonde, ouvrirCasino, ouvrirPension, m
   ouvrirCasino?(): void;
   /** Accès direct à la pension (une fois débloquée). */
   ouvrirPension?(): void;
+  /** Accès au Parc Safari (une fois l'Arène de Parmanie battue). */
+  ouvrirSafari?(): void;
   /** Sauvegarde puis ouvre les parties ; absent hors ligne. */
   menuPrincipal?: () => Promise<boolean>;
   /** Attend l'envoi après la sauvegarde locale ; false si la partie n'est partie nulle part (hors ligne, refus, conflit). */
@@ -70,6 +72,7 @@ export function PagePlus({ ouvrirPC, ouvrirMonde, ouvrirCasino, ouvrirPension, m
   const casinoNouveau = useCasinoNouveau();
   const pensionOuverte = useStore(storeJeu, etat => etat.pension.acces.ouvert);
   const pensionNouveau = usePensionNouveau();
+  const safariOuvert = useStore(storeJeu, etat => etat.safari.acces.ouvert);
   const diplome = useStore(storeJeu, etat => etat.fin.diplome);
   const [diplomeOuvert, ouvrirDiplome] = useState(false);
   const victoires = useStore(storeJeu, etat => etat.suivi.hall.length);
@@ -161,6 +164,8 @@ export function PagePlus({ ouvrirPC, ouvrirMonde, ouvrirCasino, ouvrirPension, m
           {pensionOuverte && ouvrirPension && <LigneMenu icone={<span className="relative inline-flex menu-icone"><IconePension />
             {pensionNouveau && <PastillePension className="absolute -right-1 -top-1" />}</span>} titre="Pension" entree="pension"
             sousTexte={pensionNouveau ? 'Nouveau ! Parents, œufs et collection d’éclosions' : 'Parents, œufs et collection'} onClick={ouvrirPension} />}
+          {safariOuvert && ouvrirSafari && <LigneMenu icone={<IconeSafari />} titre="Parc Safari" entree="safari"
+            sousTexte="Visite payante, Pokémon du parc" onClick={ouvrirSafari} />}
           <LigneMenu icone={<IconePokedex />} titre="Pokédex" sousTexte={`${nombre} / ${total}`}
             entree="pokedex" compteurDansNom
             onClick={() => { entree.current = 'pokedex'; choisir('pokedex'); }}>

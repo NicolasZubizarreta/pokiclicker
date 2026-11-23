@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "acces": {
+    "si": { "type": "boss", "zone": "kanto.arene-de-parmanie" },
+    "raison": "Le Parc Safari ouvre quand tu as battu l’Arène de Parmanie."
+  },
+  "visite": { "prix": 5000, "pas": 30, "balles": 15 },
+  "rencontre": {
+    "chanceParPas": 0.4,
+    "niveaux": [22, 32],
+    "chanceMax": 0.9,
+    "multiplicateurBalle": 1,
+    "fuiteMax": 0.9
+  },
+  "humeurs": {
+    "appat": { "capture": 0.5, "fuite": 0.5 },
+    "colere": { "capture": 2, "fuite": 2 }
+  },
+  "especes": [
+    { "pokemon": 29, "poids": 12, "capture": 235, "fuite": 0.15 },
+    { "pokemon": 32, "poids": 12, "capture": 235, "fuite": 0.15 },
+    { "pokemon": 30, "poids": 8, "capture": 120, "fuite": 0.2 },
+    { "pokemon": 33, "poids": 8, "capture": 120, "fuite": 0.2 },
+    { "pokemon": 46, "poids": 10, "capture": 190, "fuite": 0.15 },
+    { "pokemon": 47, "poids": 6, "capture": 75, "fuite": 0.25 },
+    { "pokemon": 48, "poids": 10, "capture": 190, "fuite": 0.15 },
+    { "pokemon": 49, "poids": 6, "capture": 75, "fuite": 0.25 },
+    { "pokemon": 102, "poids": 8, "capture": 90, "fuite": 0.2 },
+    { "pokemon": 84, "poids": 8, "capture": 190, "fuite": 0.25 },
+    { "pokemon": 111, "poids": 6, "capture": 120, "fuite": 0.25 },
+    { "pokemon": 113, "poids": 2, "capture": 30, "fuite": 0.3 },
+    { "pokemon": 115, "poids": 3, "capture": 45, "fuite": 0.3 },
+    { "pokemon": 123, "poids": 3, "capture": 45, "fuite": 0.3 },
+    { "pokemon": 127, "poids": 3, "capture": 45, "fuite": 0.3 },
+    { "pokemon": 128, "poids": 3, "capture": 45, "fuite": 0.3 }
+  ],
+  "messages": {
+    "dejaDansLaVisite": "Une visite est déjà en cours.",
+    "pasDeVisite": "Aucune visite en cours.",
+    "rencontreEnCours": "Un Pokémon te barre la route : lance une balle, jette un appât ou une roche.",
+    "pasDeRencontre": "Aucun Pokémon en vue.",
+    "argentInsuffisant": "Il te manque {manque} ₽ pour l’entrée du parc.",
+    "entree": "Tu paies {prix} ₽ : {pas} pas et {balles} Safari Balls.",
+    "rien": "Rien dans les herbes hautes.",
+    "apparition": "Un {nom} sauvage apparaît !",
+    "apparitionShiny": "Un {nom} sauvage apparaît, et il brille !",
+    "capture": "{nom} est capturé !",
+    "captureEquipe": "{nom} rejoint ton équipe.",
+    "capturePc": "{nom} part au PC (équipe pleine).",
+    "libere": "{nom} s’est libéré de la balle.",
+    "fuite": "{nom} s’est enfui.",
+    "appat": "{nom} mange l’appât. Il sera plus dur à capturer, mais il restera plus longtemps.",
+    "roche": "{nom} se met en colère. Il sera plus facile à capturer, mais il peut s’enfuir.",
+    "finPas": "Plus de pas : la visite est terminée.",
+    "finBalles": "Plus de Safari Balls : la visite est terminée.",
+    "finSortie": "Tu quittes le parc.",
+    "bilan": "Visite terminée : {captures} Pokémon capturés."
+  }
+}

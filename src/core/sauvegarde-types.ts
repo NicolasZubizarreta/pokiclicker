@@ -19,6 +19,11 @@ export type PokemonPossede = {
 };
 /** Grille de Voltorbe Flip : `cases` = une valeur par carte (0 Voltorbe, 1, 2 ou 3), `vues` = « 1 » quand la carte est retournée. */
 export type VoltorbeEnCours = { niveau: number; mise: number; cases: string; vues: string };
+/** Visite du Parc Safari en cours : pas et Safari Balls restants, captures de la visite, et le Pokémon rencontré s'il y en a un. */
+export type SafariEnCours = {
+  pas: number; balles: number; captures: number;
+  rencontre?: { numero: number; niveau: number; shiny: boolean; humeur: 'neutre' | 'appat' | 'colere' };
+};
 export type ReglagesArret = {
   actif: boolean; commun: boolean; peuCommun: boolean; rare: boolean; tresRare: boolean;
   legendaire: boolean; shiny: boolean; nouveau: boolean;
@@ -94,6 +99,8 @@ export type DonneesRegion = {
   plusOuMoinsCarte?: number;
   /** Voltorbe Flip en cours : la mise est déjà débitée. Absent = aucune grille. */
   voltorbeEnCours?: VoltorbeEnCours;
+  /** Visite du Parc Safari en cours (l'entrée est déjà payée). Absent = aucune visite. */
+  safariEnCours?: SafariEnCours;
   /** Ligue+ : rang choisi pour la prochaine traversée de la Ligue (absent ou 0 = Ligue normale). */
   liguePlus?: number;
   /** Numéros des espèces (forme de base) déjà écloses d'un œuf, chacune une seule fois. Absent = aucune connue. */

@@ -280,7 +280,7 @@ Doublons, découpage de store.ts, EcranCombat, CarteKanto, PagePC, serveur. Él�
 ### Histoire
 33 fonctionnalités, une à la fois avec feu vert de Nicolas avant chaque début. Éléments choisis par Nicolas le 19/11/2026.
 
-Vague 1 codée le 23/11/2026 (19 cases cochées, commits locaux non poussés) ; tests unitaires verts, écrans vus en dev (combat, mannequin, carte de dresseur, statistiques, PC et équipes, Pokédex, 390 et 1440 px) ; pas vus à l'écran : scores du casino, crédits, Hall, astuces, invitation PWA, Missingno, code Konami ; e2e et eslint complets à passer par Nicolas. Reste la vague 2 (14 cases). Questions ouvertes : `audit-2026-11-19/questions-lot-6.md`.
+Vague 1 codée le 23/11/2026 (19 cases cochées, commits locaux non poussés) ; tests unitaires verts, écrans vus en dev (combat, mannequin, carte de dresseur, statistiques, PC et équipes, Pokédex, 390 et 1440 px) ; pas vus à l'écran : scores du casino, crédits, Hall, astuces, invitation PWA, Missingno, code Konami ; e2e et eslint complets à passer par Nicolas. Vague 2 codée le 23/11/2026 (10 cases cochées : succès de plus, chaînes de capture, objets tenus, Voltorbe Flip, fidélité VIP, Ligue+, revanches de Blue, bilan et rejeu du défi de Chen, boutique de skins, Parc Safari ; commits locaux non poussés) ; build vert et vitest complet vert sauf 4 échecs déjà présents avant (ObjectifPermanent valeur en dur, URL dans ErreurRendu.test et compte.test, sauvegarde-abus argent négatif) ; non vus à l'écran en vrai jeu : combats de revanche de Blue, Ligue+, rejeu du défi de Chen, effets de skins en combat. Restent 4 cases décidées « pas faites » (quêtes, prestige, complétion de zone, musique par zone). Questions ouvertes : `audit-2026-11-19/questions-lot-6.md`.
 
 ### Critères d'acceptation
 - [x] `F-j1-01` Dix à trente succès de plus, avec leurs mesures (effort M)
@@ -308,7 +308,7 @@ Vague 1 codée le 23/11/2026 (19 cases cochées, commits locaux non poussés) ; 
 - [x] `F-j2-23` Ligue : mode revanche de plus en plus dur (effort M)
 - [ ] `F-j2-28` Musique par zone et ambiance du casino (effort M)
 - [x] `F-j2-31` Labo de Chen : défi rejouable et bilan (effort M)
-- [ ] `F-j2-33` Parc Safari (effort L)
+- [x] `F-j2-33` Parc Safari (effort L)
 - [x] `F-j1-39` Easter egg Missingno (effort S)
 - [x] `F-j1-40` Code Konami sur PC (effort S)
 - [x] `F-j1-42` Mannequin d'entraînement (effort M)

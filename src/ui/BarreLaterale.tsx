@@ -26,7 +26,7 @@ export function BarreLaterale({ page, choisir, signalCarte, inerte, origineMonde
   const casinoNouveau = useCasinoNouveau();
   const pensionNouveau = usePensionNouveau();
   const pension = useAccesPension();
-  const active = page === 'Centre' ? 'Combat' : page === 'Monde' ? origineMonde : page === 'Casino' ? 'Menu' : page;
+  const active = page === 'Centre' ? 'Combat' : page === 'Monde' ? origineMonde : page === 'Casino' || page === 'Safari' ? 'Menu' : page;
   return <aside inert={inerte} className="barre-laterale hidden min-h-0 flex-col gap-4 border-r border-bordure bg-surface p-4 lg:flex">
     <div className="marque-pc py-4"><b className="font-titre text-xl text-region-accent">PokiClicker</b><span className="sous-titre-pc block text-sm text-texte-doux">Kanto</span></div>
     <nav aria-label="Navigation principale" className="grid gap-1">

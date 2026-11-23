@@ -4,7 +4,7 @@ import { joursRecents } from './argent-jours';
 import { formaterDuree, formaterTempsBoss } from './duree';
 import { formaterNombre } from './nombres';
 
-const depenses = { boutique: 'Boutique', centre: 'Centre commercial', casino: 'Casino (achats de jetons)', pension: 'Pension' };
+const depenses = { boutique: 'Boutique', centre: 'Centre commercial', casino: 'Casino (achats de jetons)', pension: 'Pension', safari: 'Parc Safari' };
 const jeux = { machine: 'Machine à sous', roulette: 'Roulette', plusOuMoins: 'Plus ou moins',
   pileOuFace: 'Pile ou face', gratter: 'Carte à gratter', blackjack: 'Blackjack', voltorbe: 'Voltorbe Flip' };
 const cadre = 'cadre grid content-start gap-2 bg-surface p-4 text-base tabular-nums';

@@ -76,9 +76,9 @@ it('charge le compte à l’ouverture avec des listes indépendantes dans leur o
   gestionnaire.ecrireCompte(compte);
   const store = creerStoreJeu({ stockage, horloge: creerHorlogeSimulee(), genererId: () => 'test', alea: () => .1 });
   stores.push(store);
-  expect(store.getState().compte).toEqual({ diamants: 0, succes: [], skins: [] });
+  expect(store.getState().compte).toEqual({ diamants: 0, succes: [], skins: [], skinsEquipes: {} });
   store.getState().demarrer();
-  expect(store.getState().compte).toEqual({ diamants: 12, succes: compte.succes, skins: compte.skins });
+  expect(store.getState().compte).toEqual({ diamants: 12, succes: compte.succes, skins: compte.skins, skinsEquipes: {} });
   expect(store.getState().compte.succes).not.toBe(compte.succes);
   expect(store.getState().compte.skins).not.toBe(compte.skins);
 });

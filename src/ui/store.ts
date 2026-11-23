@@ -59,6 +59,8 @@ import { afficherEffets, afficherFauchage, type EffetsAffiches, type FauchageAff
 import { afficherBoutique, afficherCentre, afficherSac, type AffichageBoutique, type AffichageSac } from './store-boutique';
 import { construireEclosions, signalerPremiereEntreePension, type EclosionAffichee } from './store-pension';
 import { estDoublonCapture, capturerDoublon, doublonsEclos, retirerDeLEquipe } from '../core/relache-auto';
+import * as safari from '../core/safari';
+import { afficherSafari, type ActionsSafari, type AffichageSafari, type ResultatActionSafari } from './store-safari';
 import { afficherCasino, noterFinVoltorbe, signalerPremiereEntreeCasino, suivrePartieCasino, type PartieSuivie, type ActionsCasino, type AffichageCasino } from './store-casino';
 import { detailErreur, ouvrirPartie } from './persistance';
 import { creerStockageLocal } from './stockage-local';
@@ -82,7 +84,7 @@ export type EtatForme = {
   ouverte: boolean; actuelle: boolean; raison: string | null;
   terminee?: boolean;
 };
-export type AffichageJeu = ActionsCasino & {
+export type AffichageJeu = ActionsCasino & ActionsSafari & {
   apercuBoss(): ApercuBoss | null;
   lireCadence(): { actuelle: number; maximum: number };
   mannequin: { restantMs: number; totalMs: number; degats: number; dpsEquipe: number; dpsClic: number; dpsTotal: number } | null;
@@ -106,6 +108,8 @@ export type AffichageJeu = ActionsCasino & {
   fin: { diplome: { nom: string; date: string } | null; credits: boolean };
   fermerCredits(): void;
   casino: AffichageCasino;
+  /** Parc Safari : accès, prix d'entrée et visite en cours. */
+  safari: AffichageSafari;
   intro: { enCours: boolean; premiereLigneVue: boolean; choixStarter: boolean;
     sacOuvert: boolean; carteOuverte: boolean; starters: { numero: number; nom: string; shiny: boolean }[] };
   choisirStarter(numero: number): string | null;
@@ -749,6 +753,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       stockObjetsTenus: JSON.stringify(stockObjetsTenus) === JSON.stringify(precedent.stockObjetsTenus) ? precedent.stockObjetsTenus : stockObjetsTenus,
       centreVoisines: JSON.stringify(centreVoisines) === JSON.stringify(precedent.centreVoisines) ? precedent.centreVoisines : centreVoisines,
       casino: afficherCasino(region, precedent.casino),
+      safari: afficherSafari(region, precedent.safari),
       autoClic: precedent.autoClic.possede === region.ameliorations.includes('leftovers')
         && precedent.autoClic.actif === (coeur?.autoClic ?? false) ? precedent.autoClic
         : { possede: region.ameliorations.includes('leftovers'), actif: coeur?.autoClic ?? false },
@@ -964,6 +969,20 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     enregistrer(); afficher();
     return { ...resultat, region };
   };
+  /** Action du Parc Safari : même accès que la page, sauvegarde immédiate ; l'entrée est une dépense, une capture entre au Pokédex. */
+  const jouerAuSafari = (action: (region: DonneesRegion) => safari.ResultatSafari, depense = false): ResultatActionSafari => {
+    if (!initialise) return { ok: false, raison: 'La partie n’est pas démarrée.' };
+    const acces = safari.accesSafari(etatMondeDe(region));
+    if (!acces.ok) return { ok: false, raison: acces.raison! };
+    const resultat = action(region);
+    if (!resultat.ok) return resultat;
+    region = depense ? suivreDepense(region, resultat.region, 'safari') : resultat.region;
+    if (resultat.numero !== undefined) noterDansPokedex(resultat.numero);
+    if (coeur) coeur = { ...coeur, equipe: region.equipe.map(versMembreEquipe) };
+    actualiserActifs();
+    enregistrer(); afficher();
+    return { ok: true, message: resultat.message, fin: resultat.fin, numero: resultat.numero };
+  };
   const frapper = (): boolean => {
     if (!coeur || minuteur === undefined || mannequinActif() || combatEnPause(evenements, region)) return false;
     journal?.synchroniser(lieuDe(region.zoneId), coeur);
@@ -1073,6 +1092,13 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       signalerPremiereEntreeCasino(resultat.offerts);
       return { offerts: resultat.offerts };
     },
+    safari: { acces: { ouvert: false, raison: null }, prix: safari.prixEntreeSafari(), visite: null },
+    entrerAuSafari: () => jouerAuSafari(region => safari.entrerAuSafari(region), true),
+    avancerSafari: () => jouerAuSafari(region => safari.avancerSafari(region, alea)),
+    lancerBalleSafari: () => jouerAuSafari(region => safari.lancerBalleSafari(region, alea, genererId)),
+    jeterAppatSafari: () => jouerAuSafari(region => safari.jeterAppatSafari(region, alea)),
+    jeterRocheSafari: () => jouerAuSafari(region => safari.jeterRocheSafari(region, alea)),
+    quitterSafari: () => jouerAuSafari(region => safari.quitterSafari(region)),
     acheterJetons: jetons => modifierCasino(region => casino.acheterJetons(region, jetons), true),
     echangerJetons: jetons => modifierCasino(region => casino.echangerJetons(region, jetons)),
     jouerMachine: mise => modifierCasino(region => casino.jouerMachine(region, mise, alea), false, { jeu: 'machine', mise }),

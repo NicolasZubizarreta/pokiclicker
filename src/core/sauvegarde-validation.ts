@@ -19,7 +19,8 @@ import evenementsChenBoss from '../../data/evenements/chen-boss.json';
 import { LISTE_MAX, PLAFOND_ARGENT, PLAFOND_JETONS } from './plafonds';
 import { RANG_MAX_LIGUE_PLUS } from './ligue-plus';
 import { grilleValide } from './voltorbe';
-import type { DonneesCompte, DonneesPartie, DonneesRegion, Enveloppe, MainBlackjack, MainBlackjackAncienne, Niveau, PokemonPossede, VoltorbeEnCours } from './sauvegarde-types';
+import { visiteValide } from './safari';
+import type { DonneesCompte, DonneesPartie, DonneesRegion, Enveloppe, MainBlackjack, MainBlackjackAncienne, Niveau, PokemonPossede, SafariEnCours, VoltorbeEnCours } from './sauvegarde-types';
 
 /**
  * Politique (incident de production du 20/11) : une vraie sauvegarde n'est jamais refusée pour une règle « douce ».
@@ -363,6 +364,7 @@ export function validerDonneesRegion(v: unknown): asserts v is DonneesRegion {
     blackjackEnCours: validerBlackjackEnCours,
     sabotBlackjack: s => validerSabot(s),
     liguePlus: n => { entier(n); exiger((n as number) >= 0 && (n as number) <= RANG_MAX_LIGUE_PLUS, 'Rang de la Ligue+ invalide'); },
+    safariEnCours: v => exiger(visiteValide(v as SafariEnCours), 'Visite du Parc Safari invalide'),
     voltorbeEnCours: g => exiger(grilleValide(g as VoltorbeEnCours), 'Grille de Voltorbe Flip invalide'),
     especesShiny: liste(reel),
     especesEclosesShiny: liste(reel),
