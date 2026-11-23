@@ -49,6 +49,12 @@ describe('validation des sauvegardes auditées', () => {
     const mauvaise = { ...region(), voltorbeEnCours: { ...bonne, cases: '9' } };
     validerDonneesRegion(mauvaise); expect(mauvaise.voltorbeEnCours).toBeUndefined();
   });
+  it('abandonne un rang de Ligue+ hors bornes sans refuser la région, garde un rang valide', () => {
+    const bonne = { ...region(), liguePlus: 3 };
+    validerDonneesRegion(bonne); expect(bonne.liguePlus).toBe(3);
+    const mauvaise = { ...region(), liguePlus: 99 };
+    validerDonneesRegion(mauvaise); expect(mauvaise.liguePlus).toBeUndefined();
+  });
   it('S-core-12 abandonne l’événement en cours déjà joué (le catalogue, injecté par le store, est jugé par le moteur)', () => {
     const r = region(); r.evenementEnCours = { id: 'kanto.intro', etape: 0, file: [] }; r.evenementsJoues = ['kanto.intro'];
     validerDonneesRegion(r); expect(r.evenementEnCours).toBeUndefined();

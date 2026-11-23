@@ -17,6 +17,7 @@ import { nomAdversaireEvenement, zoneDeCombatEvenement, zoneDuCombat } from '../
 import { choisirStarter, creerStarter, tirerStarters } from '../core/starter';
 import { accorderBadge, accorderJalons, actifsDe } from '../core/progression';
 import { zoneDeLigue, estZoneDeLigue, messageDefaite, messageEnchainement, nomAdversaire, enregistrerVictoireLigue } from '../core/ligue';
+import { rangActif, meilleurRang, rangSuivantPossible, choisirRang, victoireLiguePlus, RANG_MAX_LIGUE_PLUS } from '../core/ligue-plus';
 import { nomAffiche } from './affichage-pokemon';
 import { issueDuPantheon } from '../core/pantheon';
 import donneesPantheon from '../../data/pantheon.json';
@@ -137,6 +138,8 @@ export type AffichageJeu = ActionsCasino & {
   capturer(cle: string): void; choisirBalle(cle: string): void; basculerAutoAttaque(): void; reglerArretAuto(partiel: Partial<ReglagesArret>): void;
   lieu: ZoneMonde | null; zone: Zone | null; etape: number; ennemi: Omit<Ennemi, 'capture'> | null; pv: number;
   nomAdversaire: string | null; ligueGagnee: number;
+  /** Ligue+ : rang choisi, meilleur rang réussi, plus haut rang proposé (0 tant que la Ligue n'est pas gagnée). */
+  liguePlus: { rang: number; meilleur: number; suivant: number; max: number };
   equipe: CaseEquipe[]; dps: number; erreur: string | null;
   statistiques: Statistique[];
   pc: PokemonPossede[]; pokedex: readonly number[]; vus: readonly number[]; especesShiny: readonly number[];
@@ -194,6 +197,7 @@ export type AffichageJeu = ActionsCasino & {
   enregistrerEquipe(emplacement: number): string | null;
   appliquerEquipe(emplacement: number): string | null;
   choisirTitre(titre: string | undefined): void;
+  choisirLiguePlus(rang: number): { ok: true } | { ok: false; raison: string };
   annulerEchange(): void;
   carte: { formes: EtatForme[]; badges: { obtenus: number; total: number }; nouvelles: string[]; tutorielRoute1: boolean };
   voirCarte(): void;
@@ -391,6 +395,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     let sauvegarder = false;
     let terminerCombatEvenement = false;
     let ouvrirPantheon = false;
+    let liguePlusTerminee = false;
     let important = false;
     const bossBattus: string[] = [];
     const messagesCapture: string[] = [];
@@ -491,8 +496,16 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
           continue;
         }
         if (coeur.zone.id === 'kanto.ligue-pokemon' && evenement.zoneId === 'kanto.ligue-pokemon') {
-          region = enregistrerVictoireLigue(region);
-          ouvrirPantheon = true;
+          if (rangActif(region) > 0) {
+            // Ligue+ : ni Panthéon ni victoire de Ligue de plus (Hall, Défi de Chen) ; record et récompense du premier succès.
+            const plus = victoireLiguePlus(region);
+            region = plus.region;
+            messagesCapture.push(plus.message);
+            liguePlusTerminee = true;
+          } else {
+            region = enregistrerVictoireLigue(region);
+            ouvrirPantheon = true;
+          }
         }
         const resultat = accorderBadge(region, evenement.zoneId);
         region = resultat.region;
@@ -557,6 +570,13 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       coeur = null;
       resteAutoClicMs = 0;
       prechargerLieu();
+    }
+    if (liguePlusTerminee) {
+      region = { ...region, zoneId: 'kanto.bourg-palette', etape: 1 };
+      coeur = null;
+      resteAutoClicMs = 0;
+      prechargerLieu();
+      sauvegarder = true;
     }
     if (sauvegarder) enregistrer();
     if (terminerCombatEvenement && commande) appliquerEvenement(etapeTerminee(evenements, region, commande));
@@ -683,6 +703,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       nomAdversaire: coeur ? evenement?.type === 'combat' && zoneDuCombat(evenements, region) === region.zoneId
         ? nomAdversaireEvenement(evenement, region.starterId, coeur.etape)
         : nomAdversaire(coeur.zone, coeur.etape) : null, ligueGagnee: region.ligueGagnee,
+        liguePlus: { rang: rangActif(region), meilleur: meilleurRang(region), suivant: region.ligueGagnee >= 1 ? rangSuivantPossible(region) : 0, max: RANG_MAX_LIGUE_PLUS },
       objetsCles: region.objetsCles,
       intro: JSON.stringify(intro) === JSON.stringify(precedent.intro) ? precedent.intro : intro,
       evenement: JSON.stringify(evenement) === JSON.stringify(precedent.evenement) ? precedent.evenement : evenement,
@@ -731,7 +752,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
   const prechargerLieu = () => {
     const lieu = lieuDe(region.zoneId);
     if (imageConnue(cheminDecor(lieu))) void precharger([cheminDecor(lieu)]);
-    if (!lieu.sansCombat) void prechargerZone(zoneDeLigue(lieu, region.starterId));
+    if (!lieu.sansCombat) void prechargerZone(zoneDeLigue(lieu, region.starterId, rangActif(region)));
     else if (defiEnCombat()) void prechargerZone(zoneDuDefi(region.starterId));
   };
   const synchroniserCombatEvenement = () => {
@@ -755,7 +776,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       coeur = creerCombat(zone, region.equipe.map(versMembreEquipe), alea,
         actifsCourants(region), { ...optionsCombat(), autoClic: coeur?.autoClic ?? false });
     } else if (coeur?.zone.id.startsWith('evenement:')) {
-      coeur = lieu.sansCombat ? null : reprendreCombat(zoneDeLigue(lieu, region.starterId),
+      coeur = lieu.sansCombat ? null : reprendreCombat(zoneDeLigue(lieu, region.starterId, rangActif(region)),
         region.equipe.map(versMembreEquipe), alea, region.etape,
         actifsCourants(region), { ...optionsCombat(), autoClic: coeur.autoClic });
     } else return;
@@ -770,7 +791,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     const lieu = lieuDe(zoneId);
     journal?.synchroniser(lieu, null, region.bossVaincus.includes(zoneId));
     const autoClic = coeur?.autoClic ?? false;
-    coeur = lieu.sansCombat ? null : creerCombat(zoneDeLigue(lieu, region.starterId), region.equipe.map(versMembreEquipe), alea, actifsCourants(region), { ...optionsCombat(), autoClic });
+    coeur = lieu.sansCombat ? null : creerCombat(zoneDeLigue(lieu, region.starterId, rangActif(region)), region.equipe.map(versMembreEquipe), alea, actifsCourants(region), { ...optionsCombat(), autoClic });
     resteAutoClicMs = 0;
     if (coeur && tempsJeuMs < finEvolutionMs) coeur = suspendreDps(coeur, finEvolutionMs - tempsJeuMs);
     region = { ...region, zoneId, etape: 1, zonesAtteintes: atteindre(zoneId) };
@@ -1344,7 +1365,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     },
     lieu: null, zone: null, etape: 1, ennemi: null, pv: 0, equipe: [], dps: 0, minuteur: null,
     statistiques: calculerStatistiques(),
-    nomAdversaire: null, ligueGagnee: 0,
+    nomAdversaire: null, ligueGagnee: 0, liguePlus: { rang: 0, meilleur: 0, suivant: 0, max: RANG_MAX_LIGUE_PLUS },
     erreur: null, erreurChargement: false, zonePrecedente: null, zoneSuivante: null, zonesAtteintes: [], evenementsDegats: [],
     versCentre: 0, centreVoisines: { precedente: null, suivante: null },
     evolution: null, argent: 0, enRecherche: false, cache: false, annonce: null, banniere: null, deblocage: null, deblocageCarte: null, echange: null,
@@ -1387,6 +1408,14 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     echanger: (uidPc, uidEquipe) => modifierEquipe(region => equipe.echanger(region, uidPc, uidEquipe), undefined, true, 'pc'),
     enregistrerEquipe: emplacement => modifierEquipe(region => enregistrerEquipeCourante(region, emplacement)),
     appliquerEquipe: emplacement => modifierEquipe(region => appliquerEquipeEnregistree(region, emplacement), undefined, true, 'pc'),
+    choisirLiguePlus(rang) {
+      if (!initialise) return { ok: false, raison: 'Jeu non chargé.' };
+      if (region.zoneId === 'kanto.ligue-pokemon') return { ok: false, raison: 'Quitte la Ligue avant de changer de rang.' };
+      const r = choisirRang(region, rang);
+      if (!r.ok) return r;
+      region = r.region; enregistrer(); afficher();
+      return { ok: true };
+    },
     choisirTitre(titre) {
       if (!initialise) return;
       region = { ...region, suivi: definirTitre(lireSuivi(region), titre) };
@@ -1446,7 +1475,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
           vus = completerVus(completerVus(persistance.vus, persistance.pokedex), pokedex);
           zonesVues = new Set(kanto.zonesOuvertes(etatMondeDe(region)).map(zone => zone.id));
           const lieu = lieuDe(region.zoneId);
-          coeur = lieu.sansCombat ? null : reprendreCombat(zoneDeLigue(lieu, region.starterId), region.equipe.map(versMembreEquipe), alea, region.etape, actifsCourants(region), optionsCombat());
+          coeur = lieu.sansCombat ? null : reprendreCombat(zoneDeLigue(lieu, region.starterId, rangActif(region)), region.equipe.map(versMembreEquipe), alea, region.etape, actifsCourants(region), optionsCombat());
           synchroniserCombatEvenement();
           initialise = true;
           journal = creerJournalLocal(horloge, stockage, undefined, () => instantaneDe(region, pokedex));

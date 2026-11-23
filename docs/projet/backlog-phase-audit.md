@@ -305,7 +305,7 @@ Vague 1 codée le 23/11/2026 (19 cases cochées, commits locaux non poussés) ; 
 - [x] `F-j2-15` Casino : tableau des meilleurs scores et séries (effort S)
 - [x] `F-j2-16` Casino : niveau de fidélité (VIP) (effort M)
 - [x] `F-j2-22` Hall des Fameux amélioré (effort M)
-- [ ] `F-j2-23` Ligue : mode revanche de plus en plus dur (effort M)
+- [x] `F-j2-23` Ligue : mode revanche de plus en plus dur (effort M)
 - [ ] `F-j2-28` Musique par zone et ambiance du casino (effort M)
 - [ ] `F-j2-31` Labo de Chen : défi rejouable et bilan (effort M)
 - [ ] `F-j2-33` Parc Safari (effort L)

@@ -92,6 +92,8 @@ export type DonneesRegion = {
   plusOuMoinsCarte?: number;
   /** Voltorbe Flip en cours : la mise est déjà débitée. Absent = aucune grille. */
   voltorbeEnCours?: VoltorbeEnCours;
+  /** Ligue+ : rang choisi pour la prochaine traversée de la Ligue (absent ou 0 = Ligue normale). */
+  liguePlus?: number;
   /** Numéros des espèces (forme de base) déjà écloses d'un œuf, chacune une seule fois. Absent = aucune connue. */
   especesEcloses?: number[];
   /** Espèces obtenues chromatiques, dans l'ordre de première obtention ; absente = vide. */

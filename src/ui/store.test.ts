@@ -634,7 +634,8 @@ it('sauvegarde les récompenses d’un boss déjà vaincu sans annoncer de débl
   const ecrire = vi.spyOn(partie.stockage, 'ecrire');
   vaincre(partie);
   expect(partie.store.getState().annonce).not.toBe('Zone débloquée !');
-  expect(ecrire).toHaveBeenCalledTimes(2);
+  // région, partie, et le compte (un succès de plus se débloque avec ce premier boss)
+  expect(ecrire).toHaveBeenCalledTimes(3);
   const region = JSON.parse(partie.stockage.lire('pokiclicker:region:test:kanto')!).donnees;
   expect(region.argent).toBe(partie.store.getState().argent);
   expect(region.statistiques.eliminations).toBe(1);

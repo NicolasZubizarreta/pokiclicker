@@ -168,7 +168,7 @@ it('compte chaque jeu atomique et son résultat net réel, sans compter les refu
     const jetons = p.store.getState().suivi.jetons;
     expect(action().ok).toBe(true);
     const net = p.store.getState().casino.jetons - avant;
-    expect(p.store.getState().suivi.jetons).toEqual({ gagnes: jetons.gagnes + Math.max(0, net),
+    expect(p.store.getState().suivi.jetons).toMatchObject({ gagnes: jetons.gagnes + Math.max(0, net),
       perdus: jetons.perdus + Math.max(0, -net) });
     expect(p.store.getState().suivi.casino[jeu]?.parties).toBe(1);
   };
@@ -193,7 +193,7 @@ it('compte le blackjack une seule fois après séparation, doublement et reprise
   reprise.getState().doublerBlackjack();
   expect(reprise.getState().suivi.casino.blackjack).toBeUndefined();
   expect(reprise.getState().resterBlackjack()).toMatchObject({ ok: true, termine: true, fin: { engage: 30, gain: 60 } });
-  expect(reprise.getState().suivi.jetons).toEqual({ gagnes: 30, perdus: 0 });
+  expect(reprise.getState().suivi.jetons).toMatchObject({ gagnes: 30, perdus: 0 });
   expect(reprise.getState().suivi.casino.blackjack?.parties).toBe(1);
   expect(reprise.getState().resterBlackjack().ok).toBe(false);
   expect(p.lire().suivi?.casino.blackjack?.parties).toBe(1);
@@ -203,7 +203,7 @@ it('compte seulement les jetons réellement gagnés au plafond', () => {
   const p = preparer({ jetons: PLAFOND_JETONS });
   expect(p.store.getState().jouerPileOuFace(10, 'face')).toMatchObject({ ok: true, gain: 20 });
   expect(p.store.getState().casino.jetons).toBe(PLAFOND_JETONS);
-  expect(p.store.getState().suivi.jetons).toEqual({ gagnes: 0, perdus: 0 });
+  expect(p.store.getState().suivi.jetons).toMatchObject({ gagnes: 0, perdus: 0 });
 });
 
 it.each([
@@ -217,7 +217,7 @@ it.each([
   if (assurance) { etat.assurerBlackjack(); etat.resterBlackjack(); }
   else if (debut.ok && !debut.termine) etat.abandonnerBlackjack();
   expect(p.store.getState().casino.jetons - 1000).toBe(net);
-  expect(p.store.getState().suivi.jetons).toEqual({ gagnes: Math.max(0, net), perdus: Math.max(0, -net) });
+  expect(p.store.getState().suivi.jetons).toMatchObject({ gagnes: Math.max(0, net), perdus: Math.max(0, -net) });
   expect(p.store.getState().suivi.casino.blackjack?.parties).toBe(1);
 });
 

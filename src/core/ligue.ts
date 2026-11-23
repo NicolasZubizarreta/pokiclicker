@@ -3,6 +3,7 @@ import type { Zone } from './monde';
 import { kanto } from './regions';
 import { reglages } from './reglages';
 import type { DonneesRegion } from './sauvegarde-types';
+import { zoneLiguePlus } from './ligue-plus';
 
 export type FichierLigue = typeof donnees;
 type ZoneLigue = string | Pick<Zone, 'id' | 'type'>;
@@ -59,10 +60,10 @@ function combatDe(zone: ZoneLigue, etape: number) {
   return idDe(zone) === ligue.zone ? ligue.combats.find(combat => combat.etape === etape) : undefined;
 }
 
-export function zoneDeLigue(zone: Zone, starterId: number | null): Zone {
+export function zoneDeLigue(zone: Zone, starterId: number | null, rang = 0): Zone {
   const counter = ligue.counter.find(counter => counter.starter === starterId);
   if (zone.id !== ligue.zone || !estZoneDeLigue(zone) || !counter) return zone;
-  return { ...zone, boss: { ...zone.boss, pokemon: counter.pokemon, nom: counter.nom } };
+  return zoneLiguePlus({ ...zone, boss: { ...zone.boss, pokemon: counter.pokemon, nom: counter.nom } }, rang);
 }
 
 export function dresseurDe(zone: ZoneLigue, etape: number): FichierLigue['dresseurs'][number] | null {

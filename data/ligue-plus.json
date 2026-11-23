@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "rangMax": 10,
+  "pvParRangPourCent": 15,
+  "recompenseArgentParRang": 25000,
+  "messages": {
+    "victoire": "Ligue+ rang {rang} terminée !",
+    "recompense": "Ligue+ rang {rang} terminée : +{argent} ₽ (premier succès de ce rang) !",
+    "record": "Nouveau record : rang {rang}."
+  }
+}

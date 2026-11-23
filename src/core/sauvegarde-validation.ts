@@ -17,6 +17,7 @@ import evenementsRonflex from '../../data/evenements/ronflex.json';
 import evenementsFin from '../../data/evenements/fin.json';
 import evenementsChenBoss from '../../data/evenements/chen-boss.json';
 import { LISTE_MAX, PLAFOND_ARGENT, PLAFOND_JETONS } from './plafonds';
+import { RANG_MAX_LIGUE_PLUS } from './ligue-plus';
 import { grilleValide } from './voltorbe';
 import type { DonneesCompte, DonneesPartie, DonneesRegion, Enveloppe, MainBlackjack, MainBlackjackAncienne, Niveau, PokemonPossede, VoltorbeEnCours } from './sauvegarde-types';
 
@@ -360,6 +361,7 @@ export function validerDonneesRegion(v: unknown): asserts v is DonneesRegion {
       file: liste(identifiant) }),
     blackjackEnCours: validerBlackjackEnCours,
     sabotBlackjack: s => validerSabot(s),
+    liguePlus: n => { entier(n); exiger((n as number) >= 0 && (n as number) <= RANG_MAX_LIGUE_PLUS, 'Rang de la Ligue+ invalide'); },
     voltorbeEnCours: g => exiger(grilleValide(g as VoltorbeEnCours), 'Grille de Voltorbe Flip invalide'),
     especesShiny: liste(reel),
     especesEclosesShiny: liste(reel),

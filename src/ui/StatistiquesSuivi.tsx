@@ -54,6 +54,7 @@ export function StatistiquesSuivi({ suivi, tempsJeuMs, aujourdhui = new Date() }
       ['Cadence maximale', `${formaterNombre(records.cadenceMax)} clic${records.cadenceMax > 1 ? 's' : ''} par seconde`],
       ['Captures en une heure', records.capturesHeureMax],
       ['Plus longue chaîne de rencontres', records.chaineMax],
+      ...(records.liguePlusMax > 0 ? [['Meilleur rang de la Ligue+', records.liguePlusMax] as [string, number]] : []),
       ...(records.mannequinDpsMax > 0 ? [['Record du mannequin', records.mannequinDpsMax] as [string, number]] : []),
     ]} />
     <section className={cadre} aria-label="Argent gagné sur 7 jours">

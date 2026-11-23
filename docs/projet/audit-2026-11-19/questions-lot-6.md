@@ -81,3 +81,14 @@ Chaque valeur citée vit dans un fichier de `data/` et se change là sans touche
 - Effet sur l'équilibrage : un peu plus facile pour les joueurs assidus (Porygon à 5 000 jetons passe à 4 500 en Platine). C'est le seul effet.
 - Sauvegarde : champ facultatif `suivi.jetons.mises` (0 pour les anciennes parties, donc elles repartent de zéro au niveau VIP, sans version 7). Le niveau s'affiche dans la salle (carte « Fidélité ») et la boutique rappelle la remise.
 - Question : les seuils et remises te conviennent-ils ? Faut-il compter les mises passées d'une partie existante (impossible : elles n'étaient pas enregistrées) ?
+
+## F-j2-23 Ligue+ (mode revanche de plus en plus dur)
+- Règle choisie : une fois la Ligue gagnée, la page « Hall des Fameux » propose un rang de Ligue+, de 1 à 10 (« Ligue normale » reste possible). On choisit un rang, puis on refait la Ligue normalement. Chaque rang ajoute 15 % de PV à tous les adversaires, boss compris (rang 10 : 2,5 fois les PV). Les niveaux restent ceux de la Ligue (ils sont déjà au plafond de 100, la proposition parlait de niveaux +10, +20 : impossible sans dépasser 100).
+- Un rang n'est proposé que si le précédent a été réussi (rang 1 d'abord, puis le suivant du meilleur rang réussi). Le rang choisi reste actif jusqu'à ce qu'on en choisisse un autre. Changer de rang est refusé pendant qu'on est dans la Ligue.
+- Récompense : la première réussite d'un rang rapporte 25 000 ₽ × le rang (25 000 au rang 1, 250 000 au rang 10) ; rejouer un rang déjà réussi ne rapporte rien. Le meilleur rang est un record, affiché dans Statistiques.
+- Une victoire en Ligue+ ne passe pas par le Panthéon et ne compte pas comme victoire de Ligue (pas d'entrée au Hall, pas de pas vers le Défi de Chen) ; on revient à Bourg-Palette.
+- Valeurs dans `data/ligue-plus.json` : `rangMax` 10, `pvParRangPourCent` 15, `recompenseArgentParRang` 25 000. Pour changer : modifier ces trois nombres.
+- Pourquoi prudent : opt-in (la Ligue normale n'est jamais plus dure), récompense en argent une seule fois par rang, au total 1,375 M ₽ sur les 10 rangs. Je n'ai pas simulé la difficulté réelle d'un rang 10 : à tester à la main.
+- Effet sur l'équilibrage : un peu plus d'argent au total (1,375 M ₽ au maximum, une fois). Rien d'autre.
+- Sauvegarde : champ facultatif `liguePlus` (rang choisi) et record `suivi.records.liguePlusMax`, sans version 7.
+- Question : 15 % de PV par rang et 25 000 ₽ par rang te conviennent-ils ? Faut-il aussi des adversaires de niveau plus haut (impossible au-delà de 100) ou de nouveaux Pokémon au rang élevé ?
