@@ -63,6 +63,7 @@ export function ouvrirPartie(options: Parameters<typeof creerGestionnaire>[0],
   return {
     region: enveloppe.donnees,
     nom: partie.donnees.nom,
+    tempsBase,
     pokedex: partie.donnees.pokedexNational,
     vus: partie.donnees.vus,
     preferences,

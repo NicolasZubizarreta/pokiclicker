@@ -4,6 +4,7 @@ import { creerHorlogeSimulee } from '../core/clock';
 import { compteInitial, creerGestionnaire, creerStockageMemoire, etatMondeDe } from '../core/sauvegarde';
 import type { DonneesRegion } from '../core/sauvegarde';
 import { calculerMaxXp } from '../core/recompenses';
+import { suiviVide } from '../core/suivi';
 import { reglages } from '../core/reglages';
 import { creerStoreJeu } from './store';
 import type { StoreJeu } from './store';
@@ -755,7 +756,10 @@ it('restaure la zone, l’étape et toute l’équipe avec un nouvel ennemi', ()
   expect(second.store.getState().pv).toBe(second.store.getState().ennemi?.pvMax);
 });
 it('n’écrit rien pour les seuls PV modifiés et sauvegarde un changement après trente secondes', () => {
-  const { store, stockage, avancer } = preparer();
+  // Les records sont déjà établis : le clic de ce test ne change que les PV.
+  const suivi = suiviVide();
+  suivi.records = { ...suivi.records, degatsClicMax: 1000, dpsMax: 1000, cadenceMax: 10 };
+  const { store, stockage, avancer } = preparerRegion(region => ({ ...region, suivi }));
   const ecrire = vi.spyOn(stockage, 'ecrire');
   store.getState().attaquer();
   store.getState().fermer();

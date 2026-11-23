@@ -14,11 +14,15 @@ export function creerLimiteurClics(horloge: Horloge, config: Pick<typeof reglage
     throw new Error('Réglages du limiteur de clics invalides');
   }
   let clics: number[] = [];
+  const compter = (maintenant: number): number => {
+    clics = clics.filter((instant) => maintenant - instant < fenetreClicsMs);
+    return clics.length;
+  };
   return {
+    cadence: () => compter(horloge.maintenant()),
     essayer(): boolean {
       const maintenant = horloge.maintenant();
-      clics = clics.filter((instant) => maintenant - instant < fenetreClicsMs);
-      if (clics.length >= clicsMaxParSeconde) return false;
+      if (compter(maintenant) >= clicsMaxParSeconde) return false;
       clics.push(maintenant);
       return true;
     },

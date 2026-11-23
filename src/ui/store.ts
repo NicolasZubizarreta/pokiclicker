@@ -1,4 +1,7 @@
 import { createStore } from 'zustand/vanilla';
+import { lireSuivi, noterCombat, noterEclosions, noterEvolution, noterRecordClic, noterDps, noterCadence,
+  enregistrerVictoireLigue as noterVictoireLigue, type Suivi } from '../core/suivi';
+import { dateLocale, creerLectureSuivi, suivreDepense } from './suivi-store';
 import * as dex from '../core/dex';
 import { creerHorlogeSysteme } from '../core/clock';
 import type { Horloge } from '../core/clock';
@@ -71,6 +74,8 @@ export type EtatForme = {
   terminee?: boolean;
 };
 export type AffichageJeu = ActionsCasino & {
+  suivi: Suivi;
+  tempsJeuMs: number;
   compte: ResumeCompte;
   pantheon: { ouvert: boolean; premiereVictoire: boolean; equipe: PokemonPossede[]; defiChenEnAttente: boolean } | null;
   quitterPantheon(): void;
@@ -228,6 +233,9 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
   let finDeblocageMs = 0;
   // Temps effectivement simulé par la boucle utilisant l'horloge injectée.
   let tempsJeuMs = 0;
+  let tempsBase = 0;
+  let debutBossMs: number | null = null;
+  const projeterSuivi = creerLectureSuivi();
   let resteAutoClicMs = 0;
   let evolutionEnCours: EvolutionAffichee | null = null;
   let modalEvolution: ModalEvolution | null = null;
@@ -356,6 +364,13 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     const messagesCapture: string[] = [];
     let doublonsRelaches = 0;
     for (const evenement of coeur.evenements) {
+      if (evenement.type === 'capture-reussie' || evenement.type === 'boss-vaincu' || evenement.type === 'boss-echoue') {
+        region = { ...region, suivi: noterCombat(lireSuivi(region), evenement, {
+          tempsJeuMs: tempsBase + tempsJeuMs, dateLocale: dateLocale(horloge.maintenant()),
+          tempsBossMs: evenement.type === 'boss-vaincu' && debutBossMs !== null ? tempsJeuMs - debutBossMs : undefined,
+        }) };
+        if (evenement.type !== 'capture-reussie') debutBossMs = null;
+      }
       if (evenement.type === 'arret-auto') {
         banniere = banniereArret(evenement.motif);
         finBanniereMs = tempsJeuMs + reglages.animations.banniereMs;
@@ -383,6 +398,10 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         const especesAvant = pension.especesEcloses(region);
         const r = appliquerVictoire(region, evenement, coeur.actifs);
         region = r.region;
+        region = { ...region, suivi: noterCombat(lireSuivi(region), evenement, {
+          tempsJeuMs: tempsBase + tempsJeuMs, dateLocale: dateLocale(horloge.maintenant()), or: r.or,
+        }) };
+        if (r.eclosions.length) region = { ...region, suivi: noterEclosions(lireSuivi(region), r.eclosions.length) };
         if (preferences.relacherDoublons) {
           const uids = doublonsEclos(especesAvant, r.eclosions);
           const avant = region.equipe.length;
@@ -488,6 +507,11 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       coeur = viderEvenements(coeur);
     }
     if (ouvrirPantheon) {
+      region = { ...region, suivi: noterVictoireLigue(lireSuivi(region), {
+        date: new Date(horloge.maintenant()).toISOString(), tempsJeuMs: tempsBase + tempsJeuMs,
+        equipe: region.equipe.filter(p => !p.oeuf).map(({ numero, niveau, shiny, surnom }) =>
+          ({ numero, niveau, shiny, ...(surnom ? { surnom } : {}) })),
+      }) };
       // V1 (combat.js l.317-319) : le défi suit une victoire à la Ligue qui n'est pas la première (hadLeagueWin),
       // quand le Pokédex est complet et la fin vue.
       const defiChenEnAttente = region.ligueGagnee >= 2
@@ -515,6 +539,10 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
   };
   const afficher = () => {
     if (!initialise) return;
+    if (coeur?.ennemi.boss && coeur.attenteMs <= 0 && coeur.zoneId !== 'kanto.labo'
+      && !coeur.zoneId.startsWith('evenement:') && commandeCourante(evenements, region)?.type !== 'combat') {
+      debutBossMs ??= tempsJeuMs;
+    } else debutBossMs = null;
     // Un Pokémon sauvage qui apparaît est « vu » : une seule fois, capturé ou non (les boss sont des dresseurs).
     if (coeur && !coeur.ennemi.boss) {
       const suivants = ajouterAuxVus(vus, coeur.ennemi.numero);
@@ -539,6 +567,10 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       }
     }
     const actifs = actifsCourants(region);
+    const dps = coeur ? calculerDpsEquipe(coeur.equipe, coeur.ennemi, actifs) : 0;
+    if (Math.round(dps * 10) / 10 > projeterSuivi(region).records.dpsMax) {
+      region = { ...region, suivi: noterDps(lireSuivi(region), dps) };
+    }
     const lieu = lieuDe(region.zoneId);
     const lien = kanto.lienSuivant(lieu.liens, etatMondeDe(region));
     const destination = (zone: ZoneMonde | undefined): Destination | null => {
@@ -640,7 +672,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         ? precedent.accesPc : accesAuPc,
       carte: JSON.stringify(carte) === JSON.stringify(precedent.carte) ? precedent.carte : carte,
       equipe: JSON.stringify(equipe) === JSON.stringify(precedent.equipe) ? precedent.equipe : equipe,
-      dps: coeur ? calculerDpsEquipe(coeur.equipe, coeur.ennemi, actifs) : 0, erreur,
+      dps, erreur, suivi: projeterSuivi(region), tempsJeuMs: Math.floor((tempsBase + tempsJeuMs) / 1000) * 1000,
       statistiques: calculerStatistiques(region),
       evolution: afficherEvolution(evolutionEnCours, finEvolutionMs, tempsJeuMs),
       modalEvolution, evolutionAuto: preferences.evolutionAuto,
@@ -749,6 +781,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
   /** Premiers événements de la session qui arment un mini-tuto (évolution, éclosion, relâche) : en mémoire seulement. */
   const evenementsTuto = new Set<string>();
   const demarrerEvolution = (evolution: { uid: string; de: number; vers: number }) => {
+    region = { ...region, suivi: noterEvolution(lireSuivi(region)) };
     evenementsTuto.add('evolution');
     emettreSon('up');
     finEvolutionMs = tempsJeuMs + reglages.evolution.animationMs;
@@ -785,11 +818,12 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
   const noterRelache = (message: string | null): string | null => { if (message === null) evenementsTuto.add('relache'); return message; };
   const modifierPension = (action: (region: DonneesRegion) => equipe.ResultatEquipe & {
     destination?: 'equipe' | 'pc'; numero?: number;
-  }, noter = false): string | null => modifierEquipe(courante => {
+  }, noter = false, depense = false): string | null => modifierEquipe(courante => {
     const acces = pension.accesPension(kanto, etatMondeDe(courante));
     if (!acces.ouvert) return { ok: false, raison: acces.raison! };
     const resultat = action(courante);
     if (resultat.ok) {
+      if (depense) resultat.region = suivreDepense(courante, resultat.region, 'pension');
       if (resultat.destination === 'pc') {
         annonce = reglages.pension.messages.envoyePc.replace('{nom}', nomAffiche(resultat.region.pc.at(-1)!));
         finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs;
@@ -804,13 +838,13 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     return resultat;
   });
   const modifierCasino = <T extends ReturnType<typeof casino.acheterAuCasino<DonneesRegion>>>(
-    action: (region: DonneesRegion) => T): T | { ok: false; raison: string } => {
+    action: (region: DonneesRegion) => T, depense = false): T | { ok: false; raison: string } => {
     if (!initialise) return { ok: false, raison: 'La partie n’est pas démarrée.' };
     const acces = casino.accesCasino(kanto, etatMondeDe(region));
     if (!acces.ok) return { ok: false, raison: acces.raison! };
     const resultat = action(region);
     if (!resultat.ok) return resultat;
-    region = resultat.region;
+    region = depense ? suivreDepense(region, resultat.region, 'casino') : resultat.region;
     // Pas de notification : la page du casino annonce chaque résultat dans sa propre phrase d'état (après l'animation du jeu).
     if (resultat.numero !== undefined) noterDansPokedex(resultat.numero);
     if (coeur) coeur = { ...coeur, equipe: region.equipe.map(versMembreEquipe) };
@@ -838,15 +872,23 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     const avant = coeur;
     coeur = cliquer(coeur, limiteur);
     if (avant === coeur) return false;
+    const degatsClic = calculerClic(calculerDpsEquipe(avant.equipe, avant.ennemi, avant.actifs), avant.actifs);
+    const ancienSuivi = projeterSuivi(region);
+    let suivi = ancienSuivi;
+    if (degatsClic > suivi.records.degatsClicMax) suivi = noterRecordClic(suivi, degatsClic);
+    const cadence = limiteur.cadence();
+    if (cadence > suivi.records.cadenceMax) suivi = noterCadence(suivi, cadence);
+    if (suivi !== ancienSuivi) region = { ...region, suivi };
     journal?.clic();
     const degat = { id: ++identifiantDegat,
-      valeur: Math.min(avant.ennemi.pv, calculerClic(calculerDpsEquipe(avant.equipe, avant.ennemi, avant.actifs), avant.actifs)) };
+      valeur: Math.min(avant.ennemi.pv, degatsClic) };
     degats.push(degat);
     abonnesDegats.forEach(abonne => abonne(degat));
     traiter();
     return true;
   };
   const store = createStore<AffichageJeu>(() => ({
+    suivi: lireSuivi({}), tempsJeuMs: 0,
     noterCodeKonami() {
       if (!initialise || region.drapeaux.includes('konami')) return false;
       region = { ...region, drapeaux: [...region.drapeaux, 'konami'] };
@@ -896,7 +938,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       signalerPremiereEntreeCasino(resultat.offerts);
       return { offerts: resultat.offerts };
     },
-    acheterJetons: jetons => modifierCasino(region => casino.acheterJetons(region, jetons)),
+    acheterJetons: jetons => modifierCasino(region => casino.acheterJetons(region, jetons), true),
     echangerJetons: jetons => modifierCasino(region => casino.echangerJetons(region, jetons)),
     jouerMachine: mise => modifierCasino(region => casino.jouerMachine(region, mise, alea)),
     jouerPileOuFace: (mise, choix) => modifierCasino(region => casino.jouerPileOuFace(region, mise, choix, alea)),
@@ -1066,13 +1108,13 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     autoClic: { possede: false, actif: false },
     acheter(id, quantite) {
       if (!initialise) return 'La partie n’est pas démarrée.';
-      const disponible = afficherBoutique(region, null).objets.find(objet => objet.id === id)
-        ?? afficherCentre(region, null).objets.find(objet => objet.id === id);
+      const enBoutique = afficherBoutique(region, null).objets.find(objet => objet.id === id);
+      const disponible = enBoutique ?? afficherCentre(region, null).objets.find(objet => objet.id === id);
       if (!disponible) return 'Objet indisponible.';
       const objet = objets.find(objet => objet.id === id)!;
       const resultat = acheter(region, objet, quantite, disponible.prix);
       if (!resultat.ok) return resultat.raison;
-      region = resultat.region;
+      region = suivreDepense(region, resultat.region, enBoutique ? 'boutique' : 'centre');
       journal?.action({ type: objet.type === 'amelioration' ? 'amelioration' : 'achat',
         objet: id, quantite, prix: disponible.prix * quantite, soldeApres: region.argent });
       actualiserActifs();
@@ -1253,7 +1295,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     deposerParent: uid => modifierPension(region => pension.deposerParent(region, uid)),
     retirerParent: uid => modifierPension(region => pension.retirerParent(region, uid)),
     prendreOeuf: uid => modifierPension(region => pension.prendreOeuf(region, uid), true),
-    acheterEmplacementOeuf: () => modifierPension(pension.acheterEmplacementOeuf),
+    acheterEmplacementOeuf: () => modifierPension(pension.acheterEmplacementOeuf, false, true),
     noterEspece(numero) {
       if (!initialise || !Number.isSafeInteger(numero) || numero <= 0) return;
       if (pokedex.includes(numero)) return;
@@ -1300,6 +1342,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
           persistance = ouvrirPartie({ stockage, horloge, genererId }, nouvellePartie === 'intro'
             ? { equipe: [], drapeaux: ['nouvelle-partie'] } : { equipe: equipeDeDepart(), drapeaux: [] });
           actualiserCompte();
+          tempsBase = persistance.tempsBase ?? 0;
           region = normaliserRonflex(persistance.region);
           // Ancienne sauvegarde sans le champ : tout ce qui est déjà ouvert compte comme vu, rien ne se rejoue.
           if (region.annoncesVues === undefined) region = { ...region, annoncesVues: deblocagesAtteints(region, kanto) };
