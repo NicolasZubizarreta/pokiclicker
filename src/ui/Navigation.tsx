@@ -4,7 +4,7 @@ import { BarreLaterale, type InfosPartie } from './BarreLaterale';
 import { Carte, Combat, Menu, PC, Shop } from './icones';
 import { IconePension } from './icones-menu';
 import { PastilleCasino, useCasinoNouveau } from './PastilleCasino';
-import { PastillePension, usePensionNouveau } from './PastillePension';
+import { PastillePension, PastilleOeufsPension, usePensionNouveau } from './PastillePension';
 
 const entrees = [
   { titre: 'Combat', Icone: Combat },
@@ -47,6 +47,7 @@ export function Navigation({ page, choisir, signalCarte = false, inerte = false,
             <span>{titre}</span>
             {(titre === 'Menu' || titre === 'Carte') && (casinoNouveau ? <PastilleCasino className="absolute right-4 top-2" />
               : pensionNouveau && <PastillePension className="absolute right-4 top-2" />)}
+            {titre === 'Pension' && <PastilleOeufsPension className="absolute right-4 top-2" />}
           </button>
         ))}
       </div>

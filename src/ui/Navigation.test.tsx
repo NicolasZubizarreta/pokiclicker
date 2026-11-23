@@ -15,6 +15,17 @@ it('conserve les six entrées téléphone et l’onglet PC actif', () => {
 });
 
 const pensionOuverte = (ouvert: boolean) => storeJeu.setState({ pension: { ...storeJeu.getState().pension, acces: { ouvert, raison: null } } });
+it('compte les œufs prêts et enlève la pastille après leur retrait', () => {
+  const pension = storeJeu.getState().pension;
+  storeJeu.setState({ pension: { ...pension, oeufs: [{ uid: 'oeuf-test' } as typeof pension.oeufs[number]] } });
+  const { unmount } = render(<Navigation page="Combat" choisir={vi.fn()} />);
+  expect(screen.getByLabelText('1 œuf prêt').textContent).toBe('1');
+  unmount();
+  storeJeu.setState({ pension: { ...pension, oeufs: [] } });
+  render(<Navigation page="Combat" choisir={vi.fn()} />);
+  expect(screen.queryByLabelText('1 œuf prêt')).toBeNull();
+  storeJeu.setState({ pension });
+});
 it.each([false, true])('ajoute « Pension » entre Carte et Menu même verrouillée (%s)', ouvert => {
   vi.stubGlobal('matchMedia', vi.fn((requete: string) => ({ matches: requete === '(max-width: 1023px)', addEventListener: vi.fn(), removeEventListener: vi.fn() })));
   pensionOuverte(ouvert);

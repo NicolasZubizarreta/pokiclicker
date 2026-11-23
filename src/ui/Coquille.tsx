@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useStore } from 'zustand';
 import { useTelephone } from './useTelephone';
 import { useRaccourcisPC } from './useRaccourcisPC';
@@ -45,11 +45,16 @@ export function Coquille({ region = 'kanto', theme = 'dark', quandMenuPrincipal,
   const telephone = useTelephone();
   const [raccourcisOuverts, ouvrirRaccourcis] = useState(false);
   // Lien d'essai (dev seulement) : ?onglet=carte ouvre directement l'onglet Carte.
-  const [page, choisir] = useState<Page>(() => import.meta.env.DEV && new URLSearchParams(window.location.search).get('onglet') === 'carte' ? 'Carte' : 'Combat');
+  const [page, fixerPage] = useState<Page>(() => import.meta.env.DEV && new URLSearchParams(window.location.search).get('onglet') === 'carte' ? 'Carte' : 'Combat');
+  const originePension = useRef<Page>('Combat');
   const [origineMonde, fixerOrigineMonde] = useState<'Menu' | 'Carte'>('Menu');
   const retourChoix = useRef<Page | null>(null);
   const pageCourante = useRef(page);
   useLayoutEffect(() => { pageCourante.current = page; });
+  const choisir = useCallback((destination: Page) => {
+    if (destination === 'Pension' && pageCourante.current !== 'Pension') originePension.current = pageCourante.current;
+    fixerPage(destination);
+  }, []);
   // Point d'entrée du Monde Pokémon : le bouton de la Carte (lot 6) appellera aller('Monde').
   function aller(destination: Page) {
     // Navigation volontaire pendant le choix d'un Pokémon : l'objet est désarmé, sans retour forcé.
@@ -79,14 +84,14 @@ export function Coquille({ region = 'kanto', theme = 'dark', quandMenuPrincipal,
       retourChoix.current = null;
       choisir(destination);
     }
-  }), []);
+  }), [choisir]);
   useEffect(() => storeJeu.subscribe((etat, avant) => {
     if (etat.versCentre !== avant.versCentre) {
       retourChoix.current = null;
       if (storeSac.getState().objet) terminerChoix();
       choisir('Centre');
     }
-  }), []);
+  }), [choisir]);
   useEffect(() => storeJeu.subscribe((etat, avant) => {
     if (etat.obtentionBadge !== null && avant.obtentionBadge === null) {
       memoriserDeclencheur(document.activeElement instanceof HTMLElement ? document.activeElement : null);
@@ -137,7 +142,7 @@ export function Coquille({ region = 'kanto', theme = 'dark', quandMenuPrincipal,
       <main id="contenu" tabIndex={-1} inert={compteOuvert} className="min-w-0 px-4 pb-[calc(var(--spacing)*20+env(safe-area-inset-bottom))] pt-2 lg:flex-1 lg:min-h-0 lg:overflow-y-auto lg:p-8">
         {/* Avec un compte, le résumé du compte (diamants, succès, skins) est dans la zone compte, par Menu principal. */}
         {!quandMenuPrincipal && <button ref={boutonCompte} className="min-h-11 p-2 text-lien underline" onClick={() => fixerCompteOuvert(true)}>Mon compte</button>}
-        {page === 'Combat' ? introVue || introActive ? <PageIntro quandTerminee={() => fixerIntroVue(false)} /> : <EcranCombat aller={aller} /> : page === 'Centre' ? <PageCentre retour={() => choisir('Combat')} navigationZones versCombat={() => choisir('Combat')} /> : page === 'Carte' ? <PageCarte quandArrive={() => choisir('Combat')} /> : page === 'PC' ? <PagePC /> : page === 'Monde' ? <PageMonde retour={() => choisir(origineMonde)} jouerKanto={() => choisir('Combat')} /> : page === 'Casino' ? <AccueilCasino retour={() => choisir('Menu')} /> : page === 'Pension' ? <PagePension retour={() => choisir('Menu')} libelleRetour="Retour au menu" /> : page === 'Pokédex' ? (telephone ? <PokedexTelephone retour={() => choisir('Menu')} /> : <Pokedex retour={() => choisir('Menu')} />) : page === 'Menu' ? <PagePlus ouvrirPC={() => aller('PC')} ouvrirMonde={() => aller('Monde')} ouvrirCasino={() => aller('Casino')} ouvrirPension={() => aller('Pension')}menuPrincipal={quandMenuPrincipal} attendreEnvoi={attendreEnvoi} etatSynchro={quandMenuPrincipal ? etatSynchro : undefined} /> : <PageShop />}
+        {page === 'Combat' ? introVue || introActive ? <PageIntro quandTerminee={() => fixerIntroVue(false)} /> : <EcranCombat aller={aller} /> : page === 'Centre' ? <PageCentre retour={() => choisir('Combat')} navigationZones versCombat={() => choisir('Combat')} /> : page === 'Carte' ? <PageCarte quandArrive={() => choisir('Combat')} /> : page === 'PC' ? <PagePC /> : page === 'Monde' ? <PageMonde retour={() => choisir(origineMonde)} jouerKanto={() => choisir('Combat')} /> : page === 'Casino' ? <AccueilCasino retour={() => choisir('Menu')} /> : page === 'Pension' ? <PagePension retour={() => choisir(originePension.current)} /> : page === 'Pokédex' ? (telephone ? <PokedexTelephone retour={() => choisir('Menu')} /> : <Pokedex retour={() => choisir('Menu')} />) : page === 'Menu' ? <PagePlus ouvrirPC={() => aller('PC')} ouvrirMonde={() => aller('Monde')} ouvrirCasino={() => aller('Casino')} ouvrirPension={() => aller('Pension')}menuPrincipal={quandMenuPrincipal} attendreEnvoi={attendreEnvoi} etatSynchro={quandMenuPrincipal ? etatSynchro : undefined} /> : <PageShop />}
       </main>
       </div>
       {raccourcisOuverts && <FenetreRaccourcis fermer={() => ouvrirRaccourcis(false)} />}

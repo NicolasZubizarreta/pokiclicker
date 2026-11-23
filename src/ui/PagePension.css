@@ -88,7 +88,7 @@
   .pension-parents h2, .pension-parent > .pension-portrait, .pension-parent > .pension-place, .pension-parent > p { display:none; }
   .pension-parent { justify-self:center; width:max-content; max-width:100%; padding:var(--spacing); gap:var(--spacing); background:var(--surface); }
   .pension-parent:has(.pension-place) { visibility:hidden; }
-  .pension-oeufs { position:absolute; bottom:2%; left:2%; right:2%; gap:var(--spacing); }
+  .pension-oeufs { gap:var(--spacing); }
   .pension-monde { width:min(100%, calc((100dvh - 19.5rem) * 16 / 9)); margin-inline:auto; }
   .pension-oeufs > p { justify-self:start; max-width:100%; padding:var(--spacing) calc(var(--spacing) * 2); font-size:var(--text-sm); background:var(--surface); border:calc(var(--spacing) / 2) solid var(--bordure); border-radius:var(--radius-md); }
   .pension-fentes { grid-template-columns:repeat(5,minmax(0,1fr)); gap:calc(var(--spacing) * 2); }

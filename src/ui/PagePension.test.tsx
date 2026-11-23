@@ -18,14 +18,14 @@ afterEach(() => { cleanup(); stores.splice(0).forEach(s => s.getState().arreter(
 const pokemon = (uid: string, sexe: PokemonPossede['sexe'] = 'femelle'): PokemonPossede => ({
   uid, numero: 1, sexe, niveau: 15, xp: 0, shiny: false, bonheur: 0, calcium: 0, favori: false, pierreEternelle: false,
 });
-function preparer(ouvert = true, pleine = false, nouvelle = false) {
+function preparer(ouvert = true, pleine = false, nouvelle = false, incompatible = false) {
   const stockage = creerStockageMemoire(), horloge = creerHorlogeSimulee();
   const gestionnaire = creerGestionnaire({ stockage, horloge, genererId: () => 'test' });
   gestionnaire.ecrireCompte(compteInitial());
   gestionnaire.creerPartie('Test', 'kanto.bourg-palette');
   const region = gestionnaire.chargerRegion('test', 'kanto')!.donnees;
   gestionnaire.ecrireRegion('test', 'kanto', { ...region, argent: 62500,
-    equipe: pleine ? Array.from({ length: 6 }, (_, i) => pokemon(`actif-${i}`)) : [pokemon('actif')], pc: [pokemon('mere'), { ...pokemon('pere', 'male'), shiny: true }],
+    equipe: pleine ? Array.from({ length: 6 }, (_, i) => pokemon(`actif-${i}`)) : [pokemon('actif')], pc: [pokemon('mere'), ...(incompatible ? [pokemon('incompatible')] : []), { ...pokemon('pere', 'male'), shiny: true }],
     bossVaincus: ouvert ? ['kanto.tour-pokemon'] : [],
     pension: { parents: [], emplacementsOeuf: 1, oeufs: nouvelle ? [] : [{ ...pokemon('oeuf'), numero: 150, sexe: 'sansSexe', oeuf: { pasRestants: 25, pasMax: 25 } }] },
   });
@@ -61,6 +61,7 @@ it('cache l’espèce de l’œuf, le prend et achète le prochain emplacement',
   const store = preparer();
   render(<PagePension store={store} retour={vi.fn()} />);
   expect(screen.queryByText(/Mewtwo/)).toBeNull();
+  expect(screen.getByRole('status').textContent).toContain('Ton œuf est prêt');
   expect(within(screen.getByRole('group', { name: 'Emplacements des œufs' })).getAllByRole('listitem')).toHaveLength(5);
   fireEvent.click(screen.getByRole('button', { name: 'Prendre l’œuf' }));
   expect(store.getState().pension.oeufs).toHaveLength(0);
@@ -76,7 +77,7 @@ it('présente la raison d’accès fermé et la sortie', () => {
   render(<PagePension store={preparer(false)} retour={retour} />);
   expect(screen.getByRole('status').textContent).toBe('Bats le boss de Tour Pokémon.');
   expect(screen.queryByRole('button', { name: 'Déposer un parent' })).toBeNull();
-  fireEvent.click(screen.getByRole('button', { name: 'Retour à Bourg Palette' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Retour' }));
   expect(retour).toHaveBeenCalledOnce();
 });
 
@@ -87,6 +88,16 @@ it('signale une seule entrée au montage', () => {
   render(<PagePension store={store} retour={vi.fn()} />);
   expect(entrer).toHaveBeenCalledOnce();
   expect(store.getState().pension.nouveau).toBe(false);
+});
+
+it('place les parents compatibles avant les incompatibles du PC', () => {
+  const store = preparer(true, false, false, true);
+  store.getState().deposerParent('mere');
+  render(<PagePension store={store} retour={vi.fn()} />);
+  fireEvent.click(screen.getAllByRole('button', { name: 'Déposer un parent' })[0]!);
+  const candidats = within(screen.getByRole('region', { name: 'PC' })).getAllByRole('button');
+  expect(candidats[0]!.textContent).toContain('✔ Compatible avec Bulbizarre');
+  expect(candidats[1]!.textContent).toContain('0 % · même sexe');
 });
 
 it('recherche, montre les chances du cœur et rend le focus après dépôt et annulation', () => {
@@ -105,7 +116,9 @@ it('recherche, montre les chances du cœur et rend le focus après dépôt et an
   expect(screen.queryByRole('dialog')).toBeNull();
   const second = screen.getAllByRole('button', { name: 'Déposer un parent' })[0]!;
   fireEvent.click(second);
-  expect(screen.getByText('2 % · même espèce')).toBeTruthy();
+  expect(screen.getByText(/2 % · même espèce/)).toBeTruthy();
+  const candidats = within(screen.getByRole('region', { name: 'PC' })).getAllByRole('button');
+  expect(candidats[0]!.textContent).toContain('✔ Compatible avec Bulbizarre');
   expect(screen.getByText('0 % · même sexe')).toBeTruthy();
   fireEvent.click(screen.getByRole('button', { name: 'Annuler' }));
   expect(document.activeElement).toBe(second);
@@ -132,7 +145,7 @@ it('ouvre depuis Bourg Palette et rend le focus au bouton Pension à la sortie',
   render(<EcranCombat store={store} />);
   fireEvent.click(screen.getByRole('button', { name: 'Pension Pokémon' }));
   expect(screen.getByRole('heading', { name: 'Pension' })).toBeTruthy();
-  fireEvent.click(screen.getByRole('button', { name: 'Retour à Bourg Palette' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Retour' }));
   expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Pension Pokémon' }));
   expect(store.getState().lieu?.id).toBe('kanto.bourg-palette');
 });

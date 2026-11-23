@@ -41,6 +41,22 @@ afterEach(() => {
 });
 const noms = ['Combat', 'PC', 'Shop', 'Carte', 'Menu'];
 
+it('revient au PC après une ouverture de la Pension depuis la navigation', () => {
+  const { unmount } = render(<Coquille />);
+  unmount();
+  const cle = Object.keys(localStorage).find(cle => cle.startsWith('pokiclicker:region:') && cle.endsWith(':kanto'))!;
+  const sauvegarde = JSON.parse(localStorage.getItem(cle)!);
+  sauvegarde.donnees.bossVaincus = ['kanto.tour-pokemon'];
+  localStorage.setItem(cle, JSON.stringify(sauvegarde));
+  nouvellePartie();
+  render(<Coquille />);
+  const navigation = within(screen.getByRole('navigation'));
+  fireEvent.click(navigation.getByRole('button', { name: 'PC' }));
+  fireEvent.click(navigation.getByRole('button', { name: 'Pension' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Retour' }));
+  expect(navigation.getByRole('button', { name: 'PC' }).getAttribute('aria-current')).toBe('page');
+});
+
 // Le PC ouvert depuis Menu conserve son onglet actif.
 it.each(['Menu'] as const)('revient du PC vers %s et garde son onglet actif', origine => {
   render(<Coquille />);
@@ -243,11 +259,11 @@ it('annonce un achat formaté au Shop et retire la notification expirée', () =>
   fireEvent.click(screen.getByRole('button', { name: 'Shop' }));
   const objet = storeJeu.getState().boutique.objets.find(o => !o.unique)!;
   const carte = within(screen.getByRole('heading', { name: objet.nom }).closest('article')!);
-  for (let i = 1; i < 10; i++) fireEvent.click(carte.getByRole('button', { name: 'Plus' }));
+  for (let i = 1; i < 10; i++) fireEvent.click(carte.getByRole('button', { name: '+ : augmenter' }));
   vi.useFakeTimers();
   viderNotifications(); // L'arrivée du Pokémon de départ a pu en laisser une.
   try {
-    fireEvent.click(carte.getByRole('button', { name: 'Acheter ×10' }));
+    fireEvent.click(carte.getByRole('button', { name: /^Acheter ×10 :/ }));
     // Calque unique en position fixe, hors de la page : l'annonce n'est plus dans le flux du Shop.
     const calque = document.querySelector('[data-notifications]')!;
     const message = `${objet.nom} ×10 acheté. ${(objet.prix * 10).toLocaleString('fr-FR')}\u00a0₽ dépensés.`;
@@ -410,7 +426,7 @@ describe('Coquille', () => {
       formaterDps(storeJeu.getState().dps), 'Prochain palier : 10 (Débutant) · Encore 7 espèces.',
       'PC de Léo', 'Pokédex', 'Guide du jeu', "Le PC de Léo s'ouvre à l'Arène d'Argenta.", 'Réglages', 'Son', 'Activé',
       'Musique', 'Activée', 'Volume des effets', 'Volume de la musique', 'Crédits des musiques', ...Object.values(musiques.pistes).map(creditPiste),
-      'Relevé de partie (développement)', 'Relevé de partie', 'Désactivé', 'Exporter le relevé', 'Effacer le relevé',
+      'Avancé', 'Relevé de partie', 'Désactivé', 'Exporter le relevé', 'Effacer le relevé', 'Bats le boss de Route 1.',
       'Le relevé reste sur cet appareil. Active-le pour jouer, exporter ou effacer. Les temps actifs excluent les pauses et les onglets masqués, mais incluent les attentes visibles, captures et dialogues. Les clics et le hasard diffèrent du simulateur.']);
     for (const nom of noms.slice(1)) {
       await utilisateur.click(screen.getByRole('button', { name: nom }));
@@ -442,7 +458,7 @@ describe('Coquille', () => {
       }
       for (const element of container.querySelectorAll('[aria-label]')) {
         const forme = storeJeu.getState().carte.formes.find(f => f.nom === element.getAttribute('data-forme'));
-        const attendu = forme ? (forme.numero === null || forme.numero <= 0 ? forme.nom : `${forme.nom} (Zone ${forme.numero})`)
+        const attendu = nom === 'Carte' && element.getAttribute('aria-label') === '?' ? '?' : forme ? (forme.numero === null || forme.numero <= 0 ? forme.nom : `${forme.nom} (Zone ${forme.numero})`)
           : element.getAttribute('role') === 'listbox' || (nom === 'Carte' && element.tagName === 'UL') ? 'Zones de Kanto'
             : element.getAttribute('role') === 'option'
               ? storeJeu.getState().carte.formes.map(f => f.numero === null || f.numero <= 0 ? f.nom : `${f.nom} (Zone ${f.numero})`).find(n => n === element.getAttribute('aria-label'))

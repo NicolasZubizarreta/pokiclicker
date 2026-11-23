@@ -13,7 +13,7 @@ import { storeJeu, type StoreJeu } from './store';
 import { useTelephone } from './useTelephone';
 import './PagePension.css';
 
-const nombre = (n: number) => n.toLocaleString('fr-FR');
+import { formaterNombre as nombre } from './nombres';
 const videActeur = (numero?: number) => ({ '--vide': (piedsSprites[(numero ?? 1) - 1] ?? 0) / 96 }) as CSSProperties;
 const sexe = (p: PokemonPossede) => p.sexe === 'femelle' ? 'Femelle' : p.sexe === 'male' ? 'Mâle' : 'Sans sexe';
 const raisons: Record<RaisonPonte, string> = { incomplet: 'couple incomplet', metamorph: 'avec Métamorph', memeSexe: 'même sexe', sansSexe: 'sans sexe', memeEspece: 'même espèce', typePartage: 'type partagé', aucunType: 'aucun type commun' };
@@ -26,12 +26,12 @@ function Portrait({ pokemon }: { pokemon: PokemonPossede }) {
     <span className="pension-detail">{pokemon.oeuf ? progressionOeuf(pokemon.oeuf) : `${sexe(pokemon)} · Niveau ${pokemon.niveau}`}</span></>;
 }
 
-export function PagePension({ retour, libelleRetour, store = storeJeu }: { retour(): void; libelleRetour?: string; store?: StoreJeu }) {
+export function PagePension({ retour, store = storeJeu }: { retour(): void; store?: StoreJeu }) {
   const telephone = useTelephone();
   const pension = useStore(store, e => e.pension);
   const equipe = useStore(store, e => e.equipe);
   const pc = useStore(store, e => e.pc);
-  const [message, signaler] = useState('Confie deux parents à la pension. Les œufs avancent seulement dans ton équipe.');
+  const [message, signaler] = useState(() => pension.oeufs.length ? 'Ton œuf est prêt. Prends-le pour le faire éclore dans ton équipe.' : 'Confie deux parents à la pension. Les œufs avancent seulement dans ton équipe.');
   const [choix, choisir] = useState(false);
   const [recherche, rechercher] = useState('');
   const titre = useRef<HTMLHeadingElement>(null);
@@ -64,7 +64,7 @@ export function PagePension({ retour, libelleRetour, store = storeJeu }: { retou
   }
   return <section className={`${telephone ? '' : 'pension-pc '}page-pension`}>
     <header className="pension-entete"><div><p>Bourg Palette · Kanto</p><h1 ref={titre} tabIndex={-1}>{telephone ? 'La pension' : 'Pension'}</h1></div>
-      <button className="plaque" onClick={retour}>{libelleRetour ?? (telephone ? 'Sortir de la pension' : 'Retour à Bourg Palette')}</button></header>
+      <button className="plaque" onClick={retour}>Retour</button></header>
     {pension.acces.ouvert && <>
       <div className="pension-monde"><div className="pension-scene cadre">
         <Image src="img/decors/pension.webp" genre="decor" alt="" className="pension-decor" />
@@ -104,11 +104,11 @@ export function PagePension({ retour, libelleRetour, store = storeJeu }: { retou
         <label htmlFor="recherche-parent">Nom ou numéro</label><input ref={champ} id="recherche-parent" type="search" value={recherche} onChange={e => rechercher(e.target.value)} />
         <p className="pension-detail">{nombre(chances.memeEspece * 100)} % : même espèce de sexes opposés · {nombre(chances.metamorph * 100)} % : avec Métamorph · {nombre(chances.typePartage * 100)} % : un type en commun · 0 % sinon.</p>
         {([['Équipe', equipe.flatMap(m => m ? [m.pokemon] : [])], ['PC', pc]] as const).map(([nom, liste]) => <section key={nom} aria-label={nom}>
-          <h3>{nom} · {liste.length}</h3><ul className="pension-candidats">{trierPc(filtrerPc([...liste], recherche, nomAffiche), 'numero', nomAffiche).map(p => {
+          <h3>{nom} · {liste.length}</h3><ul className="pension-candidats">{trierPc(filtrerPc([...liste], recherche, nomAffiche), 'numero', nomAffiche).sort((a, b) => premier ? couplePonte([premier, b]).chance - couplePonte([premier, a]).chance : 0).map(p => {
             const compat = premier ? couplePonte([premier, p]) : null;
             return <li key={p.uid}><button aria-label={`Déposer ${nomAffiche(p)}`} className="plaque pension-candidat" onClick={() => {
               if (agir(() => store.getState().deposerParent(p.uid), `${nomAffiche(p)} rejoint la pension.`)) { focusParent.current = p.uid; fermer(); }
-            }}><Portrait pokemon={p} />{compat && <span className={`pension-compat ${compat.chance === maximum ? 'pension-compatible' : compat.chance > 0 ? 'pension-intermediaire' : ''}`}>{nombre(compat.chance * 100)} % · {raisons[compat.raison]}</span>}</button></li>;
+            }}><Portrait pokemon={p} />{compat && <span className={`pension-compat ${compat.chance === maximum ? 'pension-compatible' : compat.chance > 0 ? 'pension-intermediaire' : ''}`}>{compat.chance > 0 && premier && <>✔ Compatible avec {nomAffiche(premier)} · </>}{nombre(compat.chance * 100)} % · {raisons[compat.raison]}</span>}</button></li>;
           })}</ul>{!liste.length && <p>Aucun Pokémon.</p>}</section>)}
       </div>
     </dialog>}

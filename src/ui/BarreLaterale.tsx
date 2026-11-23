@@ -8,7 +8,7 @@ import { EtatSynchronisation } from './EtatSynchronisation';
 import { estProbleme } from './synchronisations';
 import { storeJeu } from './store';
 import { PastilleCasino, useCasinoNouveau } from './PastilleCasino';
-import { PastillePension, usePensionNouveau } from './PastillePension';
+import { PastillePension, PastilleOeufsPension, usePensionNouveau } from './PastillePension';
 import { evolutionProposee } from './evolution-proposee';
 import { erreurRetourMenu, useRetourMenuPrincipal } from './useRetourMenuPrincipal';
 
@@ -40,6 +40,7 @@ export function BarreLaterale({ page, choisir, signalCarte, inerte, origineMonde
         <Icone /><span>{titre}</span><kbd aria-hidden="true" className="touche-pc ml-auto">{index + 1}</kbd>
         {titre === 'PC' && evolution && <span aria-hidden="true" className="h-2 w-2 rounded-full bg-succes-base" />}
         {(titre === 'Menu' || titre === 'Carte') && (casinoNouveau ? <PastilleCasino /> : pensionNouveau && <PastillePension />)}
+        {titre === 'Pension' && <PastilleOeufsPension />}
       </button>)}
     </nav>
     <span id={pension.description} className="sr-only">{pension.raison}</span>
