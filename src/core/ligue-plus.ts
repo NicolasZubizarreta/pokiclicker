@@ -3,6 +3,7 @@ import type { Zone } from './monde';
 import { ajouterArgent } from './plafonds';
 import type { DonneesRegion } from './sauvegarde-types';
 import { lireSuivi, noterLiguePlus } from './suivi';
+import { sansCle } from './sans-cle';
 
 /**
  * Ligue+ (ticket F) : une fois la Ligue gagnée, on peut la rejouer à un rang de 1 à `rangMax`. Chaque rang ajoute `pvParRangPourCent` %
@@ -53,7 +54,7 @@ export function choisirRang(region: DonneesRegion, rang: number): ResultatRang {
   if (!Number.isInteger(rang) || rang < 0) return { ok: false, raison: 'Rang invalide.' };
   if (region.ligueGagnee < 1) return { ok: false, raison: 'Gagne d’abord la Ligue.' };
   if (rang > rangSuivantPossible(region)) return { ok: false, raison: 'Réussis d’abord le rang précédent.' };
-  if (rang === 0) { const { liguePlus: _non, ...reste } = region; return { ok: true, region: reste as DonneesRegion }; }
+  if (rang === 0) return { ok: true, region: sansCle(region, 'liguePlus') as DonneesRegion };
   return { ok: true, region: { ...region, liguePlus: rang } };
 }
 

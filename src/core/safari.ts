@@ -6,6 +6,7 @@ import { chargerPokemon } from './pokemon';
 import { reglages } from './reglages';
 import type { DonneesRegion, PokemonPossede, SafariEnCours } from './sauvegarde-types';
 import { tirerSexe } from './sexe';
+import { sansCle } from './sans-cle';
 
 /**
  * Parc Safari (ticket F-j2-33) : visite payante de `visite.pas` pas et `visite.balles` Safari Balls. Chaque pas peut faire
@@ -103,12 +104,9 @@ function tirerEspece(alea: Alea): number {
   return safari.especes[safari.especes.length - 1]!.pokemon;
 }
 
-const sansVisite = (region: DonneesRegion): DonneesRegion => {
-  const { safariEnCours: _visite, ...reste } = region;
-  return reste;
-};
+const sansVisite = (region: DonneesRegion): DonneesRegion => sansCle(region, 'safariEnCours');
 
-const sansRencontre = (visite: SafariEnCours): SafariEnCours => { const { rencontre: _r, ...reste } = visite; return reste; };
+const sansRencontre = (visite: SafariEnCours): SafariEnCours => sansCle(visite, 'rencontre');
 
 /** Termine la visite si plus rien n'est possible (plus de pas sans rencontre, ou plus de balles). */
 function conclure(region: DonneesRegion, visite: SafariEnCours, message: string, numero?: number): ResultatSafari {

@@ -2,6 +2,7 @@ import donnees from '../../data/objets-tenus.json';
 import type { ResultatEquipe } from './equipe';
 import { chargerPokemon } from './pokemon';
 import type { DonneesRegion, PokemonPossede } from './sauvegarde-types';
+import { sansCle } from './sans-cle';
 
 /** Objet tenu qui renforce les dégâts d'un Pokémon du même type (un par Pokémon, hors Pierre Stase). */
 export type ObjetTenu = { id: string; nom: string; type: string };
@@ -86,7 +87,7 @@ export function retirerObjetTenu(region: DonneesRegion, uid: string): Retour {
     region: {
       ...region,
       inventaire: { ...region.inventaire, [cle]: (region.inventaire[cle] ?? 0) + 1 },
-      ...modifier(region, uid, ({ objetTenu: _retire, ...reste }) => reste),
+      ...modifier(region, uid, (pokemon) => sansCle(pokemon, 'objetTenu')),
     },
   };
 }

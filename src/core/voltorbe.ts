@@ -2,6 +2,7 @@ import donneesJeux from '../../data/casino-jeux.json';
 import { type Alea, chargerJeuxCasino, debiter, remplir } from './jeux-casino';
 import { ajouterJetons } from './plafonds';
 import type { VoltorbeEnCours } from './sauvegarde-types';
+import { sansCle } from './sans-cle';
 
 /**
  * Voltorbe Flip (ticket F) : grille de cartes cachées valant ×0 (Voltorbe), ×1, ×2 ou ×3. La mise est débitée au départ ;
@@ -103,7 +104,7 @@ export function vueVoltorbe(region: { voltorbeEnCours?: VoltorbeEnCours }): VueV
     ...indices(g), multiple: multipleVoltorbe(g), gainSiEncaisse: gainVoltorbe(g), restantes: cartesRestantes(g) };
 }
 
-const sansGrille = <R extends RegionVoltorbe>(region: R): R => { const { voltorbeEnCours: _fini, ...reste } = region; return reste as R; };
+const sansGrille = <R extends RegionVoltorbe>(region: R): R => sansCle(region, 'voltorbeEnCours') as R;
 const multiple = (produit: number) => Number(produit.toFixed(2));
 
 export function commencerVoltorbe<R extends RegionVoltorbe>(region: R, mise: number, niveau: number, alea: Alea): ResultatVoltorbe<R> {

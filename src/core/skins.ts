@@ -1,5 +1,6 @@
 import donnees from '../../data/skins.json';
 import type { DonneesCompte } from './sauvegarde-types';
+import { sansCle } from './sans-cle';
 
 /**
  * Boutique de skins (ticket F, F-j2-02) : cosmétiques payés en diamants du compte, aucun effet sur le jeu.
@@ -63,6 +64,6 @@ export function equiperSkin(compte: DonneesCompte, categorie: string, id: string
     if (!compte.skins.includes(id)) return { ok: false, raison: 'Tu n’as pas ce skin.' };
     equipes[categorie] = id;
   }
-  const { skinsEquipes: _anciens, ...reste } = compte;
+  const reste = sansCle(compte, 'skinsEquipes');
   return { ok: true, compte: Object.keys(equipes).length ? { ...reste, skinsEquipes: equipes } : reste };
 }
