@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState, type CSSProperties } from 'react';
 import { createPortal } from 'react-dom';
 import { useStore } from 'zustand';
+import { LigneesDex, RencontresDex } from './CollectionDex';
 import { chargerPokemon, nomType } from '../core/pokemon';
 import { reglages } from '../core/reglages';
 import { statsDeCombat } from '../core/stats';
@@ -47,6 +48,7 @@ export function PokedexTelephone({ retour, ouvrirDiplome }: { retour(): void; ou
         className="flex min-h-11 min-w-11 items-center justify-center bg-surface-2 hover:bg-selection"><IconeRetour /></button>
       <h1 tabIndex={-1} className="font-titre text-2xl font-semibold">Pokédex</h1>
     </header>
+    <LigneesDex pokedex={pokedex} />
     <BoutonsDex listes={listes} dex={dex} choisir={cle => { choisirDex(cle); filtrer('tous'); }} />
     <section aria-label="Progression" className="cadre grid gap-2 bg-surface p-4">
       <p className="font-titre text-3xl font-bold text-region-accent">{nombre} / {total}</p>
@@ -146,6 +148,7 @@ function DetailEspece({ numero, etat, fermer }: { numero: number; etat: ReturnTy
       </div>
       {etat !== 'inconnu' && <ZonesEspeceFiche numero={numero} />}
       {capture ? <>
+        <RencontresDex numero={numero} />
         <div className="flex flex-wrap items-center justify-center gap-2">
           {espece.types.map(type => <span key={type}
             className={`h-7 inline-flex items-center gap-1 px-2 font-bold pastille-type pastille-type-${type}`}>

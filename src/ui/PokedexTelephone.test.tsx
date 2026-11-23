@@ -52,6 +52,17 @@ function rechercher(value: string) {
   fireEvent.change(screen.getByRole('searchbox', { name: 'Nom ou numéro' }), { target: { value } });
 }
 
+it('présente les lignées et les compteurs dans la fiche mobile', () => {
+  const suivi = storeJeu.getState().suivi;
+  storeJeu.setState({ suivi: { ...suivi, rencontres: { '1': { vus: 37, captures: 4, depuisShiny: 211 } } } });
+  render(<PokedexTelephone retour={() => {}} />);
+  expect(screen.getByRole('region', { name: 'Lignées complètes' }).textContent).toContain('Lignées complètes : 0 sur');
+  fireEvent.click(screen.getByRole('button', { name: /Bulbizarre, numéro 1/ }));
+  const bloc = screen.getByRole('region', { name: 'Rencontres' });
+  expect(within(bloc).getByText('211')).toBeTruthy();
+  expect(within(bloc).getByText('Rencontrés :')).toBeTruthy();
+});
+
 it('montre un vu, le recherche et le garde à trouver sans changer la progression', () => {
   const { container } = render(<PokedexTelephone retour={vi.fn()} />);
   const paliers = container.querySelector('details')!.textContent;

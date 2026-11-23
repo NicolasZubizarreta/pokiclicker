@@ -1,4 +1,5 @@
 import { useStore } from 'zustand';
+import { LigneesDex, RencontresDex } from './CollectionDex';
 import { useState } from 'react';
 import { chargerPokemon, nomType } from '../core/pokemon';
 import { statsDeCombat } from '../core/stats';
@@ -43,6 +44,7 @@ export function Pokedex({ retour }: { retour(): void }) {
       <h1 tabIndex={-1} className="font-titre text-2xl font-semibold">Pokédex</h1>
       <p className="text-region-accent">{`${nombre} / ${total}`}</p>
     </header>
+    <LigneesDex pokedex={pokedex} />
     <BoutonsDex listes={listes} dex={dex} choisir={cle => { choisirDex(cle); filtrer('tous'); }} />
     <div className="dex-outils"><label>Nom ou numéro <kbd>/</kbd><input type="search" value={saisie} onChange={e => saisir(e.target.value)} className="cadre min-h-11 bg-surface px-3" /></label>
       <FiltreDex dex={dex} filtre={filtre} filtrer={filtrer} /></div>
@@ -89,7 +91,7 @@ function Fiche({ numero, etat, fermer }: { numero: number; etat: ReturnType<type
   return <><header className="flex items-center justify-between gap-2"><h2 className="font-titre text-xl font-bold">{etat !== 'inconnu' ? espece.nom : '???'} · N° {numero}</h2><button type="button" aria-label="Revenir aux paliers" onClick={fermer} className="flex min-h-11 min-w-11 items-center justify-center">×</button></header>
     <div className="dex-sprite"><Image genre="sprite" src={cheminSprite(numero)} alt={etat !== 'inconnu' ? espece.nom : 'Pokémon inconnu'} className={`object-contain max-h-full max-w-full ${capture ? '' : etat === 'vu' ? 'grayscale opacity-60' : 'brightness-0 opacity-50'}`} /></div>
     {etat !== 'inconnu' && <ZonesEspeceFiche numero={numero} />}
-    {capture ? <><div className="flex flex-wrap gap-2">{espece.types.map(t => <span key={t} className={`pastille-type pastille-type-${t} px-2`}>{nomType(t)}</span>)}<span>Déjà capturé</span></div>
+    {capture ? <><RencontresDex numero={numero} /><div className="flex flex-wrap gap-2">{espece.types.map(t => <span key={t} className={`pastille-type pastille-type-${t} px-2`}>{nomType(t)}</span>)}<span>Déjà capturé</span></div>
       <p>{equipe.some(c => c?.pokemon.numero === numero) ? 'Dans ton équipe' : pc.some(p => p.numero === numero) ? 'Rangé dans ton PC' : 'Enregistré au Pokédex'}</p>
       <dl aria-label="Dégâts de base"><dt>Dégâts de base</dt><dd>{statsDeCombat(espece).puissance}</dd></dl>
       <p>DPS = dégâts de base × niveau ÷ {reglages.degats.diviseurNiveau}, avant les bonus.</p></> : etat === 'vu' ? <><p className="text-texte-doux">Vu, pas encore capturé</p><p role="status">Capture ce Pokémon pour découvrir ses types et ses dégâts de base.</p></> : <p role="status">Capture ce Pokémon pour découvrir son nom, ses types et ses dégâts de base.</p>}

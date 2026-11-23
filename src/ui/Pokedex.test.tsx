@@ -6,6 +6,7 @@ import { Pokedex } from './Pokedex';
 import { cheminSprite } from './precharger';
 import { storeJeu } from './store';
 import { afficherProgression } from './store-progression';
+import { compterLignees } from '../core/lignees';
 
 vi.mock('./store', async original => {
   const module = await original<typeof import('./store')>();
@@ -15,6 +16,23 @@ vi.mock('./store', async original => {
 
 beforeEach(() => { storeJeu.setState({ pokedex: [1, 25, 25, 200], vus: [1, 25] }); });
 afterEach(cleanup);
+
+it('affiche les lignées et les rencontres uniquement pour les espèces capturées', () => {
+  const suivi = storeJeu.getState().suivi;
+  storeJeu.setState({ pokedex: [1, 2, 3], vus: [4], especesShiny: [1],
+    suivi: { ...suivi, rencontres: { '1': { vus: 37, captures: 4, depuisShiny: 211 } } } });
+  render(<Pokedex retour={() => {}} />);
+  expect(screen.getByText(`Lignées complètes : 1 sur ${compterLignees([]).total}`)).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: /Bulbizarre, numéro 1/ }));
+  const bloc = screen.getByRole('region', { name: 'Rencontres' });
+  expect(bloc.querySelector('dl')).toBeTruthy();
+  for (const valeur of ['37', '4', '211', 'Chromatique capturé']) expect(within(bloc).getByText(valeur)).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: /Herbizarre, numéro 2/ }));
+  expect(screen.getByText("Aucune rencontre notée pour l'instant.")).toBeTruthy();
+  expect(screen.queryByText('Chromatique capturé')).toBeNull();
+  fireEvent.click(screen.getByRole('button', { name: /Salamèche, numéro 4/ }));
+  expect(screen.queryByRole('region', { name: 'Rencontres' })).toBeNull();
+});
 
 it('montre les espèces vues et conserve les silhouettes inconnues et le compteur', () => {
   const { container } = render(<Pokedex retour={() => {}} />);
