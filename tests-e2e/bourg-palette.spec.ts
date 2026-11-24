@@ -47,8 +47,8 @@ for (const largeur of [390, 1440]) {
         // Plus de bloc « Prof. Chen » sous la scène : la ligne de zone du haut porte « Suivant : Route 1 ».
         if (nom === 'Bourg Palette') await expect(page.getByRole('complementary', { name: 'Dialogue', exact: true })).toHaveCount(0);
         await expect(page.getByText('Choisis une zone pour partir à l’aventure.')).toHaveCount(0);
-        await expect(page.getByRole('button', { name: 'Zone suivante : Route 1' })).toHaveText('Suivant : Route 1');
-        await expect(page.getByRole('button', { name: /^Zone précédente/ })).toHaveCount(0);
+        await expect(page.getByRole('button', { name: 'Suivant : Route 1', exact: true })).toHaveText('Suivant : Route 1');
+        await expect(page.getByRole('button', { name: /^Précédent : / })).toHaveCount(0);
         await expect(page.locator('.zone-ligne strong')).toHaveCount(1);
         await expect(page.locator('.zone-ligne')).not.toContainText('/10');
         // Une seule phrase d'état dans la scène (les notifications ont leur propre calque, hors de la page).
@@ -72,7 +72,12 @@ for (const largeur of [390, 1440]) {
       await page.getByRole('button', { name: nom, exact: true }).focus();
       await page.keyboard.press('Enter');
       if (nom === 'Chez Maman') await expect(page.getByText("Il n'y a rien à faire ici, sortons.")).toBeVisible();
-      if (nom === 'Chez Blue') await expect(page.getByRole('region', { name: 'Chez Blue', exact: true }).getByLabel('Dialogue', { exact: true })).toHaveCount(0);
+      // Ticket F (revanches de Blue) : Chez Blue porte une bulle de Blue et « Défier Blue », grisé sans les badges demandés.
+      if (nom === 'Chez Blue') {
+        const chezBlue = page.getByRole('region', { name: 'Chez Blue', exact: true });
+        await expect(chezBlue.getByLabel('Dialogue', { exact: true })).toContainText("Blue est parti s'entraîner. Reviens avec 2 badges.");
+        await expect(chezBlue.getByRole('button', { name: 'Défier Blue', exact: true })).toBeDisabled();
+      }
       await capturer(nom);
       await page.getByRole('button', { name: 'Sortie', exact: true }).press('Enter');
       await expect(page.getByRole('img', { name: 'Bourg Palette' })).toBeVisible();

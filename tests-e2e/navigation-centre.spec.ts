@@ -17,15 +17,15 @@ test('parcourt arène, centre et Centrale dans les deux sens', async ({ page }) 
     localStorage.setItem(cle, JSON.stringify(enveloppe));
   });
   await page.reload();
-  await page.getByRole('button', { name: 'Zone suivante : Centre commercial', exact: true }).click();
+  await page.getByRole('button', { name: 'Suivant : Centre commercial', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Centre commercial', exact: true })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Zone suivante : Centrale', exact: true })).toHaveText('Suivant : Centrale');
-  await page.getByRole('button', { name: 'Zone suivante : Centrale', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Suivant : Centrale', exact: true })).toHaveText('Suivant : Centrale');
+  await page.getByRole('button', { name: 'Suivant : Centrale', exact: true }).click();
   await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
-  await page.getByRole('button', { name: 'Zone précédente : Centre commercial', exact: true }).click();
+  await page.getByRole('button', { name: 'Précédent : Centre commercial', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Centre commercial', exact: true })).toBeVisible();
-  await page.getByRole('button', { name: /Zone précédente : .*Céladopole/ }).click();
-  await expect(page.getByRole('button', { name: 'Zone suivante : Centre commercial', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: /^Précédent : .*Céladopole/ }).click();
+  await expect(page.getByRole('button', { name: 'Suivant : Centre commercial', exact: true })).toBeVisible();
 });
 
 test('garde Pension verrouillée visible et explique son accès', async ({ page }, informations) => {

@@ -56,7 +56,7 @@ async function atteindre(page: Page, etape: number) {
 async function lireDialogues(page: Page) {
   const scene = page.getByRole('dialog', { name: 'Dialogue de scène' });
   for (let i = 0; i < 40 && await scene.isVisible(); i++) {
-    await scene.getByRole('button').click({ timeout: 1000 }).catch(() => {});
+    await scene.getByRole('button', { name: /^[^:]+ : / }).click({ timeout: 1000 }).catch(() => {});
   }
   await expect(scene).toHaveCount(0);
 }
@@ -98,7 +98,7 @@ test('Parcours : dix étapes, boss, fin de route et captures', async ({ page }, 
   await page.screenshot({ path: `design/captures/h-combat-${largeur}-boss.png`, animations: 'disabled' });
   await atteindre(page, 1);
   await expect(page.getByText('La suite arrive bientôt.')).toHaveCount(0);
-  await expect(page.getByRole('button', { name: /^Zone suivante/ })).toBeEnabled();
+  await expect(page.getByRole('button', { name: /^Suivant : / })).toBeEnabled();
   await verifierFenetre(page);
   if (informations.project.name === 'pc') {
     await page.setViewportSize({ width: 1915, height: 1007 });
@@ -109,15 +109,15 @@ test('Parcours : dix étapes, boss, fin de route et captures', async ({ page }, 
 test('Boss et zones : barre de temps, zone suivante, retour et reprise', async ({ page }) => {
   await ouvrir(page);
   await expect(page.getByRole('progressbar', { name: 'Temps restant' })).toHaveCount(0);
-  const fermee = page.getByRole('button', { name: /^Zone suivante/ });
+  const fermee = page.getByRole('button', { name: /^Suivant : / });
   await expect(fermee).toBeDisabled();
   // Téléphone et PC : la raison n'apparaît qu'au clic sur la flèche verrouillée.
   await fermee.click({ force: true });
   await expect(page.getByText('Bats le boss de Route 1.')).toBeVisible();
-  await page.getByRole('button', { name: /^Zone précédente/ }).click();
+  await page.getByRole('button', { name: /^Précédent : / }).click();
   await expect(page.getByText('Pas de Pokémon sauvage ici. Va sur la Route 1 pour combattre.')).toBeVisible();
   await expect(page.getByRole('button', { name: /^Attaquer/ })).toHaveCount(0);
-  await page.getByRole('button', { name: /^Zone suivante/ }).click();
+  await page.getByRole('button', { name: /^Suivant : / }).click();
   await expect(page.getByRole('heading', { name: 'Route 1', exact: true })).toBeVisible();
   await atteindre(page, 10);
   await page.clock.runFor(2500); // le boss apparaît, Chen parle
@@ -126,7 +126,7 @@ test('Boss et zones : barre de temps, zone suivante, retour et reprise', async (
   await expect(temps).toBeVisible();
   await expect(temps).toHaveAttribute('aria-valuemax', '30');
   await atteindre(page, 1);
-  const suivante = page.getByRole('button', { name: /^Zone suivante/ });
+  const suivante = page.getByRole('button', { name: /^Suivant : / });
   await expect(suivante).toBeEnabled();
   await suivante.click();
   await expect(page.getByRole('heading', { name: 'Forêt de Jade', exact: true })).toBeVisible();
@@ -139,7 +139,7 @@ test('Boss et zones : barre de temps, zone suivante, retour et reprise', async (
   await expect(scene).toBeVisible();
   // Blue se présente (2 répliques) puis lance son défi (1 réplique) avant le combat.
   await lireDialogues(page);
-  await page.getByRole('button', { name: /^Zone précédente/ }).click();
+  await page.getByRole('button', { name: /^Précédent : / }).click();
   await expect(page.getByRole('heading', { name: 'Route 1', exact: true })).toBeVisible();
 });
 
@@ -230,10 +230,19 @@ test('Reprise : même étape, même équipe et sauvegarde stable', async ({ page
 
 test('Erreur de données : message français et données intactes', async ({ page }) => {
   const invalide = '{ JSON invalide : éè\\u0000';
-  await page.addInitScript(valeur => localStorage.setItem('pokiclicker:partie:abc', valeur), invalide);
+  // Les données de la partie courante sont illisibles : l'écran « Cette sauvegarde ne peut pas être lue » les garde telles quelles.
   await page.goto('/');
-  await expect(page.getByRole('alert')).toContainText('Une erreur est survenue. Recharge la page ; ta partie est gardée.');
-  expect(await page.evaluate(() => localStorage.getItem('pokiclicker:partie:abc'))).toBe(invalide);
+  await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
+  await page.addInitScript(valeur => {
+    if (sessionStorage.getItem('donnees-abimees')) return;
+    sessionStorage.setItem('donnees-abimees', '1');
+    for (const cle of Object.keys(localStorage)) if (cle.startsWith('pokiclicker:region:')) localStorage.setItem(cle, valeur);
+  }, invalide);
+  await page.reload();
+  await expect(page.getByRole('alert')).toContainText('Cette sauvegarde ne peut pas être lue.');
+  await expect(page.getByRole('alert')).toContainText('rien n’a été effacé');
+  const regions = await page.evaluate(() => Object.keys(localStorage).filter(cle => cle.startsWith('pokiclicker:region:')).map(cle => localStorage.getItem(cle)));
+  expect(regions).toEqual([invalide]);
 });
 
 test('Mise en page : scène, navigation, équipe et langue', async ({ page }, informations) => {
@@ -261,7 +270,7 @@ test('Mise en page : scène, navigation, équipe et langue', async ({ page }, in
   const bouton = (await page.getByRole('button', { name: /^Attaquer / }).boundingBox())!;
   expect(bouton).toEqual(boiteScene);
   await expect(page.getByRole('button', { name: 'Attaque', exact: true })).toHaveCount(0);
-  await expect(page.getByRole('button', { name: /^Zone suivante/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /^Suivant : / })).toBeVisible();
   if (informations.project.name !== 'mobile') {
     // PC (I2) : la scène s'étire entre les colonnes et le décor la couvre (object-fit cover) ; plus de ratio 16/9 imposé.
     expect(boiteScene.width / boiteScene.height).toBeGreaterThan(1.2);

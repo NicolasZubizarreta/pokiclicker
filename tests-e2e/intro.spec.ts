@@ -58,7 +58,7 @@ for (const largeur of [390, 1440]) {
     }
 
     await page.getByRole('button', { name: 'Combat', exact: true }).click();
-    await page.getByRole('button', { name: 'Zone suivante : Route 1' }).click();
+    await page.getByRole('button', { name: 'Suivant : Route 1', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Route 1', exact: true })).toBeVisible();
     await expect(page.getByRole('region', { name: /^Combat contre/ })).toBeVisible();
     if (largeur < 1024) await expect(balle(page, 'Pokéball', 5)).toBeVisible();
