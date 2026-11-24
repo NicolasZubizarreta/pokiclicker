@@ -251,7 +251,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     return { id, nom: labo.nom, decor: labo.decor, ancienId: labo.ancienId,
       sansCombat: true, liens: [{ vers: labo.depuis }] };
   };
-  const affichageChen = () => ({ bilan: messageBilan(bilanPokedex(pokedex, catalogue)), defi: messageDefi(region), rejouable: peutRejouer(region) });
+  const affichageChen = () => ({ bilan: messageBilan(bilanPokedex(pokedex, catalogue)), defi: messageDefi(region, { especes: pokedexDeKanto(pokedex, catalogue).nombre, total: pokedexDeKanto(pokedex, catalogue).total, finVue: region.evenementsJoues.includes('kanto.fin-pokedex') }), rejouable: peutRejouer(region) });
   const defiEnCombat = () => region.zoneId === 'kanto.labo'
     && region.drapeaux.includes('defi-chen-actif') && region.drapeaux.includes('defi-chen-intro-vue')
     && !region.drapeaux.includes('defi-chen-gagne') && !commandeCourante(evenements, region);

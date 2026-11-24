@@ -10,6 +10,7 @@ const alea = () => { throw new Error('Aléa inattendu'); };
 const regionActive = (etape = 1) => ({ ...regionInitiale('kanto', 'kanto.labo'),
   etape, drapeaux: ['defi-chen-actif', 'defi-chen-intro-vue'] });
 
+const DEX_COMPLET = { especes: 151, total: 151, finVue: true };
 describe('Défi de Chen', () => {
   it('charge une copie indépendante des données', () => {
     const avant = structuredClone(donnees);
@@ -124,12 +125,28 @@ describe('Défi de Chen', () => {
       const avant = r.argent;
       expect(palierDefi(r)).toBe(PALIERS_MAX_DEFI);
       expect(compterVictoireDefi(r).region.argent).toBe(avant);
-      expect(messageDefi(r)).toMatch(new RegExp(String(PALIERS_MAX_DEFI)));
+      expect(messageDefi(r, DEX_COMPLET)).toMatch(new RegExp(String(PALIERS_MAX_DEFI)));
     });
     it('Chen annonce le palier suivant et le bonus de PV', () => {
       const r = compterVictoireDefi(gagnee()).region;
-      expect(messageDefi(r)).toMatch(/palier 2 sur 10.*10 %/);
-      expect(messageDefi(regionInitiale('kanto', 'kanto.labo'))).toMatch(/t'attend/);
+      expect(messageDefi(r, DEX_COMPLET)).toMatch(/palier 2 sur 10.*10 %/);
+    });
+    it('avant la première réussite, Chen nomme la condition qui manque vraiment', () => {
+      const neuve = regionInitiale('kanto', 'kanto.labo');
+      const dire = (ligueGagnee: number, especes: number, finVue = true) =>
+        messageDefi({ ...neuve, ligueGagnee }, { especes, total: 151, finVue });
+      expect(dire(0, 100)).toBe("Pour le défi, complète ton Pokédex (il t'en manque 51) et gagne la Ligue deux fois en tout.");
+      expect(dire(1, 150)).toBe("Pour le défi, complète ton Pokédex (il t'en manque 1), puis gagne la Ligue : il se lance à cette victoire.");
+      expect(dire(0, 151)).toMatch(/^Ton Pokédex est complet. Pour le défi, gagne la Ligue deux fois en tout/);
+      expect(dire(1, 151)).toBe('Le défi est disponible : il se lance à ta prochaine victoire à la Ligue.');
+      expect(dire(4, 151)).toBe('Le défi est disponible : il se lance à ta prochaine victoire à la Ligue.');
+    });
+    it('le message du défi disponible correspond à la règle de lancement', () => {
+      const r = { ...regionInitiale('kanto', 'kanto.labo'), ligueGagnee: 1 };
+      expect(peutLancer(r, 151, true)).toBe(true);
+      expect(messageDefi(r, { especes: 151, total: 151, finVue: true })).toMatch(/disponible/);
+      expect(peutLancer({ ...r, ligueGagnee: 0 }, 151, true)).toBe(false);
+
     });
     it('refuse un rejeu mal réglé', () => {
       expect(() => chargerDefiChen({ ...donnees, rejeu: { ...donnees.rejeu, paliersMax: 0 } })).toThrow();

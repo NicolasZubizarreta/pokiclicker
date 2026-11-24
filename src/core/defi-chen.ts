@@ -109,9 +109,23 @@ export function compterVictoireDefi(region: DonneesRegion): { region: DonneesReg
   return { region: suivante, message: modele.replace('{palier}', String(palier)).replace('{argent}', argent.toLocaleString('fr-FR')) };
 }
 
-/** Ce que dit Chen dans le labo sur le défi (jamais commencé, rejouable, ou maîtrisé). */
-export function messageDefi(region: Pick<DonneesRegion, 'drapeaux' | 'suivi'>): string {
-  if (!region.drapeaux.includes('defi-chen-gagne') && !region.drapeaux.includes('defi-chen-actif')) return defi.messages.defiJamais;
+/** État du Pokédex lu par le message : espèces obtenues, total de Kanto, fin du Pokédex vue. */
+export type EtatPokedexDefi = { especes: number; total: number; finVue: boolean };
+
+/**
+ * Ce que dit Chen dans le labo sur le défi. Avant la première réussite, le message nomme la condition qui manque
+ * vraiment : Pokédex complet, et une victoire de Ligue qui n'est pas la première (le défi se lance à cette victoire,
+ * voir `peutLancer` et le Panthéon). Une fois réussi : rejouable ou maîtrisé.
+ */
+export function messageDefi(region: Pick<DonneesRegion, 'drapeaux' | 'suivi' | 'ligueGagnee'>, pokedex: EtatPokedexDefi): string {
+  if (!region.drapeaux.includes('defi-chen-gagne') && !region.drapeaux.includes('defi-chen-actif')) {
+    const manquantes = Math.max(0, pokedex.total - pokedex.especes);
+    const pokedexComplet = manquantes === 0;
+    if (peutLancer(region, pokedex.especes, pokedex.finVue)) return defi.messages.defiDisponible;
+    if (!pokedexComplet && region.ligueGagnee >= 1) return defi.messages.defiManquePokedex.replace('{manquantes}', String(manquantes));
+    if (!pokedexComplet) return defi.messages.defiManqueTout.replace('{manquantes}', String(manquantes));
+    return defi.messages.defiManqueLigue;
+  }
   const palier = palierDefi(region);
   if (victoiresDefi(region) >= PALIERS_MAX_DEFI) return defi.messages.defiMaitrise.replace('{max}', String(PALIERS_MAX_DEFI));
   return defi.messages.defiRejouable.replace('{palier}', String(palier)).replace('{max}', String(PALIERS_MAX_DEFI))
