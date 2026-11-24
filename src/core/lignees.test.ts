@@ -1,5 +1,6 @@
 import { expect, it } from 'vitest';
-import { compterLignees, lignees } from './lignees';
+import { compterLignees, lignees, PALIERS_LIGNEES, validerPaliersLignees } from './lignees';
+import { registreSucces } from './succes';
 
 it('inclut les chemins par niveau et pierre et exclut les familles à deux stades', () => {
   const familles = lignees();
@@ -16,6 +17,21 @@ it('compte uniquement les chemins complets sans compter les doublons', () => {
   const resultat = compterLignees(familles.flat());
   expect(resultat.total).toBe(familles.length);
   expect(resultat.completes).toBe(familles.length);
-  expect(resultat.paliers).toEqual([10, 25, 50].map(seuil => ({ seuil, atteint: familles.length >= seuil })));
-  expect(compterLignees(familles.slice(0, 10).flat()).paliers[0]?.atteint).toBe(true);
+  expect(resultat.paliers.map(p => p.atteint)).toEqual(PALIERS_LIGNEES.map(() => true));
+  expect(compterLignees(familles.slice(0, 5).flat()).paliers.map(p => p.atteint)).toEqual([true, false, false]);
+});
+
+it('fixe des paliers atteignables, avec un libellé, dont le dernier est le maximum réel', () => {
+  const seuils = PALIERS_LIGNEES.map(p => p.seuil);
+  expect(seuils).toEqual([...seuils].sort((a, b) => a - b));
+  expect(seuils.at(-1)).toBe(lignees().length);
+  PALIERS_LIGNEES.forEach(p => expect(p.libelle.trim()).not.toBe(''));
+  // Chaque palier de la mesure « lignees » du registre des succès reste atteignable.
+  registreSucces.filter(s => s.mesure === 'lignees').forEach(s => expect(s.seuil).toBeLessThanOrEqual(lignees().length));
+});
+
+it('refuse des paliers invalides', () => {
+  expect(() => validerPaliersLignees([])).toThrow();
+  expect(() => validerPaliersLignees([{ seuil: 5, libelle: 'a' }, { seuil: 5, libelle: 'b' }])).toThrow();
+  expect(() => validerPaliersLignees([{ seuil: 5, libelle: ' ' }])).toThrow();
 });

@@ -22,7 +22,7 @@
     { "id": "evolutions-50", "nom": "Évolutionniste", "description": "Fais évoluer 50 Pokémon.", "diamants": 15, "mesure": "evolutions", "seuil": 50 },
     { "id": "evolutions-150", "nom": "Maître des évolutions", "description": "Fais évoluer 150 Pokémon.", "diamants": 40, "mesure": "evolutions", "seuil": 150 },
     { "id": "lignees-10", "nom": "Dix lignées complètes", "description": "Possède les trois stades de 10 lignées.", "diamants": 15, "mesure": "lignees", "seuil": 10 },
-    { "id": "lignees-25", "nom": "Vingt-cinq lignées complètes", "description": "Possède les trois stades de 25 lignées.", "diamants": 30, "mesure": "lignees", "seuil": 25 },
+    { "id": "lignees-16", "nom": "Seize lignées complètes", "description": "Possède les trois stades des 16 lignées du jeu.", "diamants": 30, "mesure": "lignees", "seuil": 16 },
 
     { "id": "zones-15", "nom": "Quinze zones terminées", "description": "Bats le boss de 15 zones.", "diamants": 25, "mesure": "zonesFinies", "seuil": 15 },
     { "id": "niveau-50", "nom": "Mi-parcours", "description": "Amène un Pokémon au niveau 50.", "diamants": 10, "mesure": "niveauMax", "seuil": 50 },

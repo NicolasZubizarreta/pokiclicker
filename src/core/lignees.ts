@@ -1,7 +1,23 @@
+import donneesPaliers from '../../data/lignees.json';
 import { chargerEvolutions, evolutionsDirectes, lignee } from './evolution';
 
 export type Lignee = [number, number, number];
-export const SEUILS_LIGNEES = [10, 25, 50] as const;
+export type PalierLignees = { seuil: number; libelle: string };
+
+export function validerPaliersLignees(liste: unknown): PalierLignees[] {
+  if (!Array.isArray(liste) || !liste.length) throw new Error('Paliers de lignées invalides');
+  let precedent = 0;
+  return liste.map((entree: unknown) => {
+    const { seuil, libelle } = (entree ?? {}) as Record<string, unknown>;
+    if (typeof seuil !== 'number' || !Number.isInteger(seuil) || seuil <= precedent) throw new Error(`Seuil de palier de lignées invalide : ${seuil}`);
+    if (typeof libelle !== 'string' || !libelle.trim()) throw new Error(`Libellé du palier de lignées manquant : ${seuil}`);
+    precedent = seuil;
+    return { seuil, libelle };
+  });
+}
+
+/** Paliers et libellés dans `data/lignees.json` ; le dernier palier est le nombre de lignées complètes possibles. */
+export const PALIERS_LIGNEES = validerPaliersLignees(donneesPaliers.paliers);
 
 export function lignees(): Lignee[] {
   const donnees = chargerEvolutions();
@@ -18,5 +34,5 @@ export function compterLignees(pokedex: readonly number[]) {
   const captures = new Set(pokedex);
   const completes = familles.filter(famille => famille.every(numero => captures.has(numero))).length;
   return { completes, total: familles.length,
-    paliers: SEUILS_LIGNEES.map(seuil => ({ seuil, atteint: completes >= seuil })) };
+    paliers: PALIERS_LIGNEES.map(({ seuil, libelle }) => ({ seuil, libelle, atteint: completes >= seuil })) };
 }

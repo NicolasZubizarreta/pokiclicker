@@ -6,7 +6,7 @@ import { Pokedex } from './Pokedex';
 import { cheminSprite } from './precharger';
 import { storeJeu } from './store';
 import { afficherProgression } from './store-progression';
-import { compterLignees } from '../core/lignees';
+import { compterLignees, PALIERS_LIGNEES } from '../core/lignees';
 
 vi.mock('./store', async original => {
   const module = await original<typeof import('./store')>();
@@ -16,6 +16,14 @@ vi.mock('./store', async original => {
 
 beforeEach(() => { storeJeu.setState({ pokedex: [1, 25, 25, 200], vus: [1, 25] }); });
 afterEach(cleanup);
+
+it('nomme chaque palier de lignées et dit s’il est atteint', () => {
+  storeJeu.setState({ pokedex: [1, 2, 3], vus: [] });
+  render(<Pokedex retour={() => {}} />);
+  const bloc = screen.getByRole('region', { name: 'Lignées complètes' });
+  for (const palier of PALIERS_LIGNEES) expect(within(bloc).getByText(palier.libelle, { exact: false })).toBeTruthy();
+  expect(bloc.textContent).toContain(`${PALIERS_LIGNEES.at(-1)!.libelle} : pas encore atteint`);
+});
 
 it('affiche les lignées et les rencontres uniquement pour les espèces capturées', () => {
   const suivi = storeJeu.getState().suivi;

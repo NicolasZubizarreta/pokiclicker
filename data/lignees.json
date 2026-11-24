@@ -1,0 +1,7 @@
+{
+  "paliers": [
+    { "seuil": 5, "libelle": "Cinq lignées" },
+    { "seuil": 10, "libelle": "Dix lignées" },
+    { "seuil": 16, "libelle": "Toutes les lignées" }
+  ]
+}

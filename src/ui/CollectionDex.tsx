@@ -7,9 +7,9 @@ export function LigneesDex({ pokedex }: { pokedex: readonly number[] }) {
   const { completes, total, paliers } = compterLignees(pokedex);
   return <section aria-label="Lignées complètes" className="cadre space-y-2 bg-surface p-3 tabular-nums">
     <p>Lignées complètes : {completes} sur {total}</p>
-    <div className="flex gap-2">{paliers.map(({ seuil, atteint }) => <span key={seuil}
+    <div className="flex flex-wrap gap-2">{paliers.map(({ seuil, libelle, atteint }) => <span key={seuil}
       className={`cadre px-3 py-2 ${atteint ? 'bg-selection text-region-accent' : 'text-texte-doux'}`}>
-      {seuil}<span className="sr-only">{atteint ? ' : atteint' : ' : pas encore atteint'}</span>
+      {libelle}<span className="sr-only">{atteint ? ' : atteint' : ' : pas encore atteint'}</span>
     </span>)}</div>
   </section>;
 }

@@ -132,3 +132,8 @@ Chaque valeur citée vit dans un fichier de `data/` et se change là sans touche
 - Les dépenses du parc ont leur ligne « Parc Safari » dans les statistiques (catégorie `safari` du suivi).
 - Sauvegarde : champ facultatif `safariEnCours` sur la région (pas, balles, captures, rencontre), validé et réparé (une visite illisible est retirée, jamais refusée) ; pas de version 7. Fermer le jeu en pleine visite la reprend au même endroit.
 - Question : 5 000 ₽, 30 pas et 15 balles te conviennent-ils ? Veux-tu que Kangourex, Scarabrute, Tauros et Insécateur ne tombent plus dans l'Arène de Parmanie, pour que le parc soit vraiment leur seul endroit ?
+
+## Recette du 24/11 : paliers de lignées (décision de Nicolas)
+- Le jeu compte 16 lignées complètes à trois stades (vérifié dans `data/evolutions.json` par `lignees()`). Les paliers 25 et 50 et le succès « Vingt-cinq lignées complètes » ne pouvaient donc pas être atteints.
+- Choix : paliers 5, 10 et 16 (16 = le maximum réel, un test le vérifie). Ils sont dans `data/lignees.json` avec leur libellé (« Cinq lignées », « Dix lignées », « Toutes les lignées »), affichés dans le Pokédex.
+- Succès : « Dix lignées complètes » (`lignees-10`) ne change pas. « Vingt-cinq lignées complètes » (`lignees-25`) devient « Seize lignées complètes » (`lignees-16`, seuil 16, 30 diamants comme avant). Personne ne pouvait avoir `lignees-25` (inatteignable) : aucune partie n'est touchée, et un identifiant absent du registre reste conservé dans le compte. Pas de nouveau succès à 5 lignées (non demandé) : le palier 5 n'existe que dans le Pokédex.
