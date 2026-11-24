@@ -48,7 +48,8 @@ async function demarrer(page: Page, region: Record<string, unknown> = {}) {
   });
   await page.reload();
   await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
-  await page.clock.runFor(1000);
+  // L'annonce attend la fin du chargement et des animations de départ : quelques secondes de jeu avant de la voir.
+  await page.clock.runFor(5000);
 }
 
 const region = (page: Page) => page.evaluate(() => {

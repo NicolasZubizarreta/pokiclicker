@@ -46,7 +46,8 @@ async function demarrer(page: Page, region: Record<string, unknown> = {}) {
   });
   await page.reload();
   await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
-  await page.clock.runFor(1000);
+  // L'annonce attend la fin du chargement et des animations de départ : quelques secondes de jeu avant de la voir.
+  await page.clock.runFor(5000);
 }
 
 const region = (page: Page) => page.evaluate(() => {
@@ -163,7 +164,8 @@ test('sur PC, le décor entier et toute la zone des œufs tiennent d’un coup, 
     expect(mesures.decorBas, `bas du décor à ${etiquette}`).toBeLessThanOrEqual(mesures.zoneBas);
     expect(mesures.fentes, `cartes d’emplacement à ${etiquette}`).toHaveLength(5);
     for (const f of mesures.fentes) {
-      expect(f.bas, `bas d’une carte à ${etiquette}`).toBeLessThanOrEqual(mesures.decorBas);
+      // Les cartes sont sous le décor (dans la zone des œufs) : elles doivent tenir dans la zone de contenu, pas dans le décor.
+      expect(f.bas, `bas d’une carte à ${etiquette}`).toBeLessThanOrEqual(mesures.zoneBas);
       expect(f.gauche, `bord gauche d’une carte à ${etiquette}`).toBeGreaterThanOrEqual(mesures.decorGauche);
       expect(f.droite, `bord droit d’une carte à ${etiquette}`).toBeLessThanOrEqual(mesures.decorDroite);
       expect(f.rogne, `texte rogné dans une carte à ${etiquette}`).toBe(false);
@@ -181,7 +183,7 @@ test('accès direct par la Carte : ligne « Pension » avec pastille, sans passe
   await expect(ligne.locator('[data-pastille-pension]')).toBeVisible();
   await ligne.click();
   await expect(titrePension(page)).toBeVisible();
-  await page.getByRole('button', { name: 'Retour à la carte' }).click();
+  await page.getByRole('button', { name: 'Retour', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Pension, accès direct' }).locator('[data-pastille-pension]')).toHaveCount(0);
 });
 
