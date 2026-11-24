@@ -578,8 +578,10 @@ it('affiche le lieu sans combat, son décor et son message en gardant l’équip
 });
 it('affiche une erreur française sans toucher au stockage corrompu', () => {
   const { stockage } = preparer(true);
-  expect(screen.getByRole('alert').textContent).toContain(ERREUR_CHARGEMENT);
-  expect(screen.getByText('Les données de cette partie ne peuvent pas être lues.')).toBeTruthy();
+  // Données illisibles : texte honnête (recharger n'y change rien) et sortie, pas l'ancien « Recharge la page ».
+  expect(screen.getByRole('alert').textContent).not.toContain(ERREUR_CHARGEMENT);
+  expect(screen.getByRole('alert').textContent).toContain('recharger la page ne les réparera pas');
+  expect(screen.getByRole('button', { name: 'Commencer une nouvelle partie' })).toBeTruthy();
   expect(screen.queryByRole('button', { name: /^Attaquer / })).toBeNull();
   expect(stockage.lire('pokiclicker:partie:test')).toBe('{abîmée');
 });

@@ -20,7 +20,7 @@ it('affiche un secours et recharge après une erreur de rendu', () => {
   function Enfant(): never { throw erreur; }
   render(<ErreurRendu><Enfant /></ErreurRendu>);
   expect(screen.getByRole('alert').textContent).toContain("Oups, l'affichage a planté.");
-  expect(screen.getByText('Ta partie est gardée. Recharge la page pour reprendre.')).toBeTruthy();
+  expect(screen.getByText('Ta partie n’a pas été effacée. Recharge la page pour réessayer ; si l’écran replante, la sauvegarde est peut-être en cause.')).toBeTruthy();
   expect(screen.queryByText('Erreur technique')).toBeNull();
   expect(journal).toHaveBeenCalledWith(erreur);
   fireEvent.click(screen.getByRole('button', { name: 'Recharger la page' }));

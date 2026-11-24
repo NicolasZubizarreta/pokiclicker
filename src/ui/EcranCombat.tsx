@@ -26,7 +26,8 @@ import { kanto } from '../core/regions';
 import { Etapes } from './Etapes';
 import { Image, imageConnue } from './Image';
 import { formaterDps } from './nombres';
-import { ERREUR_CHARGEMENT } from './persistance';
+import { ERREUR_CHARGEMENT, ERREUR_DONNEES } from './persistance';
+import { PartieIllisible } from './PartieIllisible';
 import { cheminDecor, cheminSprite, precharger, prechargerZone } from './precharger';
 import { storeJeu } from './store';
 import { ReglagesCombat } from './ReglagesCombat';
@@ -401,7 +402,8 @@ export function EcranCombat({ store = storeJeu, aller }: { store?: StoreJeu; all
     <CombatPC store={store} cadre={cadre} ouvrirPension={() => ouvrirPension(true)} aller={aller} />
   </>;
   return <div ref={cadre}>
-    {erreur && <div role="alert" className="cadre mb-4 bg-surface p-4">
+    {fatale && erreur === ERREUR_DONNEES && <div className="mb-4"><PartieIllisible /></div>}
+    {erreur && !(fatale && erreur === ERREUR_DONNEES) && <div role="alert" className="cadre mb-4 bg-surface p-4">
       {fatale && <p>{ERREUR_CHARGEMENT}</p>}<p>{erreur.split('\n')[0]}</p>
     </div>}
     {/* Sur PC, la colonne équipe remonte presque jusqu'en haut : on reprend 24 px du remplissage de <main> (haut et bas) pour que les 6 cartes tiennent sans défilement dès 768 px de haut. */}

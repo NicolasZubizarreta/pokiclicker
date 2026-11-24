@@ -11,7 +11,7 @@ export class ErreurRendu extends Component<{ children: ReactNode }, { erreur: bo
     if (!this.state.erreur) return this.props.children;
     return <main data-theme="dark" role="alert" className="grid min-h-dvh place-content-center justify-items-center gap-4 bg-fond font-texte text-texte">
       <h1 className="font-titre text-2xl font-semibold">Oups, l'affichage a planté.</h1>
-      <p>Ta partie est gardée. Recharge la page pour reprendre.</p>
+      <p>Ta partie n’a pas été effacée. Recharge la page pour réessayer ; si l’écran replante, la sauvegarde est peut-être en cause.</p>
       <button type="button" className="plaque min-h-11 min-w-11 p-2" onClick={() => window.location.reload()}>Recharger la page</button>
     </main>;
   }

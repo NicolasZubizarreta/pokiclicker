@@ -10,6 +10,8 @@ import { acheterSkin, equiperSkin, type ResultatSkin } from '../core/skins';
 
 export const ERREUR_CHARGEMENT = 'Une erreur est survenue. Recharge la page ; ta partie est gardée.';
 export const ERREUR_CONFLIT = 'Cette partie est ouverte ailleurs. Recharge la page.';
+/** Les données de la sauvegarde sont refusées par le cœur : recharger la page n'y change rien (voir `PartieIllisible`). */
+export const ERREUR_DONNEES = 'Les données de cette partie ne peuvent pas être lues.';
 
 export function detailErreur(erreur: unknown): string {
   if (erreur instanceof ErreurStockage) return erreur.code === 'stockage-plein'
@@ -20,7 +22,7 @@ export function detailErreur(erreur: unknown): string {
   if (message.includes('récente')) return 'Cette partie nécessite une version plus récente du jeu.';
   if (/stockage|quota|SecurityError/i.test(`${erreur instanceof Error ? erreur.name : ''} ${message}`)) return 'Le navigateur empêche l’accès à la sauvegarde ou manque de place.';
   // « déjà utilisé » : l'identifiant d'une partie illisible, que `listerParties()` ne montre plus (B-core-01).
-  if (/JSON|illisible|enveloppe|Région de la partie introuvable|déjà utilisé/i.test(message)) return 'Les données de cette partie ne peuvent pas être lues.';
+  if (/JSON|illisible|enveloppe|Région de la partie introuvable|déjà utilisé/i.test(message)) return ERREUR_DONNEES;
   console.error(erreur);
   return 'Une erreur inattendue est survenue.';
 }
