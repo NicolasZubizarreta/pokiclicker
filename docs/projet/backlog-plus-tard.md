@@ -27,3 +27,7 @@ Exigence de Nicolas (07/11/2026) : « il faut tout ce qui est possible de tracer
 ## Refaire le système d'objectifs du combat
 
 `[backlog]` · 24/11/2026 : Refaire le système d'objectifs du combat (carte tronquée à 390 px, Nicolas n'aime pas l'actuel). Décision de Nicolas lors de la recette du 24/11 : aucun correctif sur l'existant, pas de code avant un ticket validé. À cadrer avec lui (ce qu'il attend d'un objectif, où il s'affiche) avant toute maquette ; interface : design/DESIGN.md, trois variantes d'abord.
+
+## Revoir les succès en profondeur
+
+`[backlog]` · 24/11/2026 : Revoir les succès en profondeur : leur donner un vrai intérêt (skins, revêtements, icônes, skins de Pokémon, avantages cosmétiques façon Discord Nitro, etc.). Décision de Nicolas lors de la recette du 24/11 : pas de code avant un ticket validé. À cadrer avec lui (quelles récompenses, lesquelles se débloquent par quel succès, où elles s'affichent) ; interface : design/DESIGN.md, trois variantes d'abord.
