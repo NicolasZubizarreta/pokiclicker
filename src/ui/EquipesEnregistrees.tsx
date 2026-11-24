@@ -12,9 +12,12 @@ export function EquipesEnregistrees() {
   const telephone = useTelephone();
   const [confirmation, confirmer] = useState<number | null>(null);
   const [message, annoncer] = useState('');
+  const [ouvert, ouvrir] = useState(false);
   const disponibles = new Map([...equipe.flatMap(m => m ? [m.pokemon] : []), ...pc].map(p => [p.uid, p]));
-  return <section aria-label="Équipes enregistrées" className="space-y-2 py-4 text-base">
-    <div className={`grid gap-4 ${telephone ? 'grid-cols-1' : 'grid-cols-3'}`}>
+  const annonce = message && <p role="status" className="col-span-full">{message}</p>;
+  return <section aria-label="Équipes enregistrées" className={telephone ? 'space-y-2 py-2 text-base' : 'text-base'} onKeyDown={event => { if (event.key === 'Escape') ouvrir(false); }}>
+    <button type="button" aria-expanded={ouvert} aria-controls="equipes-enregistrees-liste" className="plaque min-h-11 px-4" onClick={() => ouvrir(!ouvert)}>Équipes enregistrées</button>
+    {ouvert && <div id="equipes-enregistrees-liste" className={telephone ? 'grid grid-cols-1 gap-4' : 'cadre absolute right-0 top-full z-20 mt-2 grid w-max max-w-[90vw] grid-cols-3 gap-4 bg-surface p-4'}>
       {['A', 'B', 'C'].map((lettre, i) => <section key={lettre} aria-label={`Équipe ${lettre}`} className="cadre space-y-2 bg-surface p-4">
         <h2 className="font-titre font-semibold">Équipe {lettre}</h2>
         <div className="flex flex-wrap">{equipes[i]?.map(uid => {
@@ -35,7 +38,8 @@ export function EquipesEnregistrees() {
           }}>Appliquer</button>
         </div>
       </section>)}
-    </div>
-    <p role={message ? 'status' : undefined}>{message}</p>
+      {!telephone && annonce}
+    </div>}
+    {telephone && annonce}
   </section>;
 }

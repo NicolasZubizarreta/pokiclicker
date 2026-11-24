@@ -9,6 +9,7 @@ it('affiche les emplacements, confirme le remplacement et applique une équipe',
   const suivi = suiviVide(); suivi.equipes[0] = ['absent'];
   vi.spyOn(storeJeu, 'getState').mockReturnValue({ ...storeJeu.getState(), suivi, equipe: [], pc: [], enregistrerEquipe: vi.fn(() => null), appliquerEquipe: vi.fn(() => 'Indisponible') });
   render(<EquipesEnregistrees />);
+  fireEvent.click(screen.getByRole('button', { name: 'Équipes enregistrées' }));
   const a = within(screen.getByRole('region', { name: 'Équipe A' }));
   fireEvent.click(a.getByText('Enregistrer'));
   expect(storeJeu.getState().enregistrerEquipe).not.toHaveBeenCalled();
@@ -26,6 +27,7 @@ it('dit quels Pokémon ont été laissés de côté quand l’équipe est appliq
   vi.spyOn(storeJeu, 'getState').mockReturnValue({ ...storeJeu.getState(), suivi, equipe: [], pc: [],
     appliquerEquipe: vi.fn(() => null), avertissementEquipe: phrase });
   render(<EquipesEnregistrees />);
+  fireEvent.click(screen.getByRole('button', { name: 'Équipes enregistrées' }));
   fireEvent.click(within(screen.getByRole('region', { name: 'Équipe A' })).getByText('Appliquer'));
   expect(screen.getByRole('status').textContent).toBe(phrase);
 });

@@ -327,6 +327,7 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
     {retour && telephone && <button type="button" aria-label={libelleRetour} className="mb-4 min-h-11 bg-surface-2 px-4 py-2 hover:bg-selection" onClick={retour}>Retour</button>}
     <h1 ref={titre} data-tuto="page-pc" tabIndex={-1} className="font-titre text-2xl font-semibold">PC de Léo</h1>
     <div className={telephone ? 'mt-2 flex items-center justify-between gap-4' : 'pc-compteur'}>
+      {!telephone && <EquipesEnregistrees />}
       {accesPc.ouvert ? <p className="text-region-accent">{liste.length < pc.length ? `${liste.length} sur ${pc.length}` : pc.length} Pokémon</p> : <span />}
       {sac.acces.ouvert && selectionLot === null && <button ref={boutonSac} data-tuto="sac" type="button" aria-label="Sac" title="Sac" disabled={!!echange}
         className="cadre relative grid min-h-11 min-w-11 place-items-center bg-surface hover:bg-selection disabled:opacity-50" onClick={ouvrirSac}>
@@ -337,7 +338,7 @@ export function PagePC({ retour, libelleRetour }: { retour?(): void; libelleReto
         </span>}
       </button>}
     </div>
-    <EquipesEnregistrees />
+    {telephone && <EquipesEnregistrees />}
     {telephone && <div ref={zoneEquipe} role="group" aria-label="Équipe mobile" className="relative mt-4">
       <p>Ton équipe · {equipe.filter(Boolean).length} / 6</p><div className={`mt-2 grid gap-2 ${echange || mode ? 'grid-cols-2' : 'pc-miniatures grid-cols-6'}`}>{places(true)}</div>{fenetreObjet()}
     </div>}
