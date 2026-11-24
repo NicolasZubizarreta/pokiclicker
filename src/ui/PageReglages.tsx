@@ -33,20 +33,6 @@ export function PageReglages({ retour }: { retour?(): void }) {
   const passerEclosions = useStore(storeJeu, e => e.passerEclosions);
   const relacherDoublons = useStore(storeJeu, e => e.relacherDoublons);
   const notifications = useStore(storeJeu, e => e.notifications);
-  const journalActif = useStore(storeJeu, e => e.journalActif);
-  const exporterReleve = () => {
-    const releve = storeJeu.getState().exporterJournal();
-    if (!releve) return;
-    const url = URL.createObjectURL(new Blob([JSON.stringify(releve, null, 2)], { type: 'application/json' }));
-    const lien = document.createElement('a');
-    lien.href = url;
-    lien.download = `poki-releve-${new Date().toISOString().slice(0, 10)}.json`;
-    document.body.append(lien);
-    try { lien.click(); } finally {
-      lien.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 0);
-    }
-  };
 
   return <section className={telephone ? 'mx-auto max-w-screen-xl space-y-4 text-base' : 'reglages-pc'}>
     <header className="flex items-center gap-2">
@@ -121,20 +107,6 @@ export function PageReglages({ retour }: { retour?(): void }) {
       </div>
       <p className="mt-2 text-sm text-texte-doux">Les messages en bas à droite : niveau gagné, éclosion, relâche automatique, objet utilisé… Désactivées, ils ne s'affichent plus.</p>
     </section>
-    {!import.meta.env.PROD && <details className="cadre mt-4 space-y-4 bg-surface p-4">
-      <summary className="min-h-12 cursor-pointer py-2">Avancé</summary>
-      <h3 className="font-titre font-semibold">Relevé de partie</h3>
-      <p className="text-texte-doux">Le relevé reste sur cet appareil. Active-le pour jouer, exporter ou effacer. Les temps actifs excluent les pauses et les onglets masqués, mais incluent les attentes visibles, captures et dialogues. Les clics et le hasard diffèrent du simulateur.</p>
-      <button type="button" role="switch" aria-checked={journalActif} onClick={() => storeJeu.getState().basculerJournal()}
-        className="flex min-h-12 w-full items-center justify-between gap-2 bg-surface-2 px-4 py-2 text-left hover:bg-selection">
-        <span>Relevé de partie</span><span className="text-region-accent">{journalActif ? 'Activé' : 'Désactivé'}</span>
-      </button>
-      <button type="button" disabled={!journalActif} onClick={exporterReleve}
-        className="min-h-12 bg-surface-2 px-4 py-2 hover:bg-selection">Exporter le relevé</button>
-      <button type="button" disabled={!journalActif} onClick={() => {
-        if (window.confirm('Effacer le relevé de partie sur cet appareil ?')) storeJeu.getState().effacerJournal();
-      }} className="min-h-12 bg-surface-2 px-4 py-2 hover:bg-selection">Effacer le relevé</button>
-    </details>}
     </PanneauPC>
   </section>;
 }

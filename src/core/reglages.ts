@@ -80,7 +80,6 @@ export type ReglagesDelais = {
 };
 
 export const reglages: {
-  journal: { actif: boolean };
   ronflex: { souffle: {
     dureeCumuleeS: number; largeurCible: number; centreCible: number; amplitudeCible: number;
     facteurNiveau: number; facteurCible: number; plafondPas: number;
@@ -146,9 +145,6 @@ export const reglages: {
   };
 } = donnees as typeof reglages;
 
-if (!reglages.journal || typeof reglages.journal.actif !== 'boolean') {
-  throw new Error('Réglages du journal invalides');
-}
 
 if (!Number.isSafeInteger(reglages.recompenses.bonheur.gainBaie) || reglages.recompenses.bonheur.gainBaie <= 0) {
   throw new Error('Gain de bonheur des baies invalide');

@@ -66,7 +66,6 @@ import { afficherCasino, noterFinVoltorbe, signalerPremiereEntreeCasino, suivreP
 import { detailErreur, ouvrirPartie } from './persistance';
 import { creerStockageLocal } from './stockage-local';
 import { modeDeveloppeur } from './mode-dev';
-import { CLE_ACTIVATION_JOURNAL, creerJournalLocal, instantaneDe } from './journal-zones';
 import { genererIdentifiant } from './identifiants';
 import { equipeDeDepart } from './equipe-de-depart';
 import { imageConnue } from './Image';
@@ -201,9 +200,6 @@ export type AffichageJeu = ActionsCasino & ActionsSafari & {
   tutoAArmer(visibles: ReadonlySet<string> | (() => ReadonlySet<string>)): string | null;
   marquerTutoVu(id: string): void;
   sonActive: boolean; basculerSon(): void;
-  journalActif: boolean; basculerJournal(): void;
-  exporterJournal(): ReturnType<NonNullable<ReturnType<typeof creerJournalLocal>>['exporter']>;
-  effacerJournal(): void;
   echange: { uid: string; nom: string } | null;
   renommer(uid: string, texte: string): string | null;
   basculerFavori(uid: string): string | null;
@@ -236,7 +232,6 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
 }) {
   let coeur: EtatCombat | null = null;
   let initialise = false;
-  let journal: ReturnType<typeof creerJournalLocal> = null;
   let zonesVues = new Set<string>();
   const totalBadges = kanto.zones.filter(zone => !zone.sansCombat && zone.type === 'arene').length;
   let region: DonneesRegion;
@@ -517,7 +512,6 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         messagesCapture.push(...messages);
       }
       if (evenement.type === 'boss-vaincu') {
-        journal?.issue('victoire', evenement.zoneId);
         if (coeur.zone.id === 'kanto.labo') {
           const avantDefi = region;
           region = victoireDefi({ ...region, etape: coeur.zone.etapes });
@@ -571,7 +565,6 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         bossBattus.push(evenement.zoneId);
       }
       if (evenement.type === 'boss-echoue') {
-        journal?.issue('echec', evenement.zoneId);
         if (coeur.zone.id === 'kanto.labo') {
           const resultat = echecDefi(region);
           region = resultat.region;
@@ -646,7 +639,6 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         enregistrer();
       }
     }
-    journal?.synchroniser(lieuDe(region.zoneId), coeur);
     detecterDeblocages();
     avancerDeblocages();
     modalEvolution = phaseModal(modalEvolution, finEvolutionMs, tempsJeuMs);
@@ -834,7 +826,6 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
   };
   const changerDeZone = (zoneId: string): void => {
     const lieu = lieuDe(zoneId);
-    journal?.synchroniser(lieu, null, region.bossVaincus.includes(zoneId));
     const autoClic = coeur?.autoClic ?? false;
     coeur = lieu.sansCombat ? null : creerCombat(zoneDeLigue(lieu, region.starterId, rangActif(region)), region.equipe.map(versMembreEquipe), alea, actifsCourants(region), { ...optionsCombat(), autoClic });
     resteAutoClicMs = 0;
@@ -879,10 +870,9 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     }
   };
   const cacher = () => {
-    if (document.visibilityState === 'hidden') { journal?.pauser('onglet-masque'); signaler(true); }
-    else journal?.reprendre();
+    if (document.visibilityState === 'hidden') signaler(true);
   };
-  const quitter = () => { journal?.pauser('rechargement'); signaler(true); };
+  const quitter = () => { signaler(true); };
   /** Premiers événements de la session qui arment un mini-tuto (évolution, éclosion, relâche) : en mémoire seulement. */
   const evenementsTuto = new Set<string>();
   const demarrerEvolution = (evolution: { uid: string; de: number; vers: number }) => {
@@ -992,7 +982,6 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
   };
   const frapper = (): boolean => {
     if (!coeur || minuteur === undefined || mannequinActif() || combatEnPause(evenements, region)) return false;
-    journal?.synchroniser(lieuDe(region.zoneId), coeur);
     actualiserActifs();
     const avant = coeur;
     coeur = cliquer(coeur, limiteur);
@@ -1004,7 +993,6 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     const cadence = limiteur.cadence();
     if (cadence > suivi.records.cadenceMax) suivi = noterCadence(suivi, cadence);
     if (suivi !== ancienSuivi) region = { ...region, suivi };
-    journal?.clic();
     const degat = { id: ++identifiantDegat,
       valeur: Math.min(avant.ennemi.pv, degatsClic) };
     degats.push(degat);
@@ -1141,23 +1129,6 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     encaisserVoltorbe: () => jouerAuCasino(region => noterFinVoltorbe(voltorbe.encaisserVoltorbe(region))),
     sonnerCasino: () => emettreSon('coin'),
     sonActive,
-    journalActif: false,
-    basculerJournal() {
-      if (import.meta.env.PROD) return;
-      const actif = !journal;
-      try { stockage.ecrire(CLE_ACTIVATION_JOURNAL, actif ? '1' : '0'); } catch { /* Choix limité à cette session. */ }
-      if (actif) {
-        journal = creerJournalLocal(horloge, stockage, true, () => instantaneDe(region, pokedex));
-        journal?.synchroniser(lieuDe(region.zoneId), coeur);
-      } else { journal?.pauser('pause'); journal = null; }
-      if (typeof window !== 'undefined') {
-        if (journal) window.pokiJournal = { exporter: journal.exporter, effacer: journal.effacer };
-        else delete window.pokiJournal;
-      }
-      store.setState({ journalActif: !!journal });
-    },
-    exporterJournal() { return journal?.exporter() ?? null; },
-    effacerJournal() { journal?.effacer(); },
     basculerSon() {
       if (!initialise) return;
       const suivant = !sonActive;
@@ -1234,7 +1205,6 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         : utiliserTemporise(region, id);
       if (!resultat.ok) return resultat.raison;
       region = resultat.region;
-      journal?.action({ type: 'objet', objet: id, quantite: 1, soldeApres: region.argent });
       actualiserActifs();
       if (id === 'pokeDoll' && coeur) {
         coeur = invoquerBoss(coeur);
@@ -1292,8 +1262,6 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       const resultat = acheter(region, objet, quantite, disponible.prix);
       if (!resultat.ok) return resultat.raison;
       region = suivreDepense(region, resultat.region, enBoutique ? 'boutique' : 'centre');
-      journal?.action({ type: objet.type === 'amelioration' ? 'amelioration' : 'achat',
-        objet: id, quantite, prix: disponible.prix * quantite, soldeApres: region.argent });
       actualiserActifs();
       annonce = `${objet.nom} ×${quantite} acheté. ${(disponible.prix * quantite).toLocaleString('fr-FR')}\u00a0₽ dépensés.`;
       finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs;
@@ -1303,8 +1271,6 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     utiliserObjet(type, uid, n) {
       return modifierEquipe(region => {
         const resultat = utiliserSurPokemon(region, type, type === 'baie' ? 'pomegBerry' : type, uid, n);
-        if (resultat.ok) journal?.action({ type: 'objet', objet: type === 'baie' ? 'pomegBerry' : type,
-          quantite: n, soldeApres: resultat.region.argent });
         if (resultat.ok) { annonce = resultat.message; finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs; }
         return resultat;
       }, undefined, false, type === 'bonbon' ? 'up' : undefined);
@@ -1560,12 +1526,6 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
           coeur = lieu.sansCombat ? null : reprendreCombat(zoneDeLigue(lieu, region.starterId, rangActif(region)), region.equipe.map(versMembreEquipe), alea, region.etape, actifsCourants(region), optionsCombat());
           synchroniserCombatEvenement();
           initialise = true;
-          journal = creerJournalLocal(horloge, stockage, undefined, () => instantaneDe(region, pokedex));
-          store.setState({ journalActif: !!journal });
-          if (typeof window !== 'undefined') {
-            if (journal) window.pokiJournal = { exporter: journal.exporter, effacer: journal.effacer };
-            else delete window.pokiJournal;
-          }
           // Rechargement (ou fermeture) pendant le Panthéon : le défi réservé repart comme à la sortie du Panthéon.
           if (region.drapeaux.includes(DRAPEAU_DEFI_RESERVE)) debutDefiChenMs = horloge.maintenant() + donneesPantheon.delais.defiChenMs;
           noterDansPokedex();
@@ -1578,8 +1538,6 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         }
         executer({ type: 'debut-partie' });
         afficher();
-        if (typeof document !== 'undefined' && document.visibilityState === 'hidden') journal?.pauser('onglet-masque');
-        else journal?.reprendre();
         boucle = creerBoucle({ horloge, etat: null, avancer: (_, pasMs) => {
           if (Object.values(region.chronos).some(restant => restant > 0)) {
             const chronos = { ...region.chronos };
@@ -1587,10 +1545,6 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
               chronos[cle] = Math.max(0, chronos[cle] - pasMs);
             }
             region = { ...region, chronos };
-          }
-          if (journal) {
-            journal.synchroniser(lieuDe(region.zoneId), coeur);
-            journal.avancer(reglages.boucle.pasMs);
           }
           tempsJeuMs += reglages.boucle.pasMs;
           if (annonce !== null && tempsJeuMs >= finAnnonceMs) annonce = null;
@@ -1629,7 +1583,6 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       }
     },
     arreter() {
-      journal?.pauser('pause');
       clearInterval(minuteur);
       clearInterval(sauvegarde);
       minuteur = undefined;

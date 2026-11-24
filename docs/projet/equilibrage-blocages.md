@@ -38,6 +38,8 @@ Part imputable au simulateur : il ne revient jamais en arrière, donc il n'a ni 
 
 ## Format du relevé v2
 
+> Historique : le relevé de partie a été retiré de l'interface et du code le 24/11/2026 (voir decisions-recette-24-11.md). Cette section décrit le format tel qu'il était.
+
 Le relevé reste local, désactivé par défaut et interdit en production. Export : `window.pokiJournal.exporter()`. Un relevé v1 est écarté ; aucun changement des sauvegardes de partie.
 
 - `version: 2` ; chaque visite conserve `entree`, chaque essai `debut` et `fin` : argent, gains cumulés, nombre de badges, captures/total du Pokédex, palier atteint, clés des bonus actifs (objets, badges, jalons et effets temporaires), améliorations, inventaire et équipe (numéro, niveau, bonheur, calcium, shiny). Les fonctions du jeu fournissent les paliers et bonus ; aucun instantané n'est calculé à chaque pas. L'inventaire complet inclut notamment Attaque +, Attaque spé +, bonbons, Calcium et Baie Grena.

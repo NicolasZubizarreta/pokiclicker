@@ -51,15 +51,6 @@ it('bascule les notifications, activées par défaut', () => {
 beforeEach(() => { audio.actif = true; audio.basculer.mockClear(); storeJeu.setState({ sonActive: true }); });
 afterEach(() => { cleanup(); storeJeu.setState(initial); });
 
-it('range le relevé sous Avancé, replié par défaut', () => {
-  render(<PageReglages retour={vi.fn()} />);
-  const avance = screen.getByText('Avancé').closest('details')!;
-  expect(avance.open).toBe(false);
-  avance.open = true;
-  expect(within(avance).getByRole('switch', { name: /Relevé de partie/ })).toBeTruthy();
-  expect(within(avance).getByRole('button', { name: 'Exporter le relevé' })).toBeTruthy();
-});
-
 it('bascule la préférence des effets sonores', () => {
   const basculerSon = vi.fn(() => storeJeu.setState({ sonActive: !storeJeu.getState().sonActive }));
   storeJeu.setState({ basculerSon });
