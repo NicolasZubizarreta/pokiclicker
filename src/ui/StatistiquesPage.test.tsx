@@ -36,7 +36,11 @@ it('présente les sept statistiques du store et le retour', () => {
   render(<StatistiquesPage retour={retour} />);
   expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Statistiques');
   expect(screen.getAllByRole('region')).toHaveLength(5 + storeJeu.getState().statistiques.length);
-  expect(screen.getAllByRole('region')[0]!.parentElement?.classList.contains('stats-grille')).toBe(true);
+  const grille = screen.getAllByRole('region')[0]!.parentElement!;
+  expect(grille.classList.contains('stats-grille')).toBe(true);
+  // Zone qui défile : atteignable au clavier (règle axe scrollable-region-focusable).
+  expect(grille.getAttribute('tabindex')).toBe('0');
+  expect(screen.getByRole('group', { name: 'Statistiques détaillées' })).toBe(grille);
   for (const stat of storeJeu.getState().statistiques) {
     expect(screen.getByRole('region', { name: stat.libelle })).toBeTruthy();
   }

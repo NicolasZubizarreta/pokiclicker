@@ -26,7 +26,7 @@ export function StatistiquesPage({ retour }: { retour(): void }) {
     </dl>}
   </section>);
   const contenu = <><StatistiquesSuivi suivi={suivi} tempsJeuMs={tempsJeuMs} />{cartes}</>;
-  if (!telephone) return <section className="stats-pc text-base"><header className="flex items-center gap-4"><button type="button" onClick={retour} className="plaque min-h-11 px-4">Retour au menu</button><h1 tabIndex={-1} className="font-titre text-2xl font-semibold">Statistiques</h1></header><div className="stats-grille">{contenu}</div></section>;
+  if (!telephone) return <section className="stats-pc text-base"><header className="flex items-center gap-4"><button type="button" onClick={retour} className="plaque min-h-11 px-4">Retour au menu</button><h1 tabIndex={-1} className="font-titre text-2xl font-semibold">Statistiques</h1></header><div className="stats-grille" role="group" aria-label="Statistiques détaillées" tabIndex={0}>{contenu}</div></section>;
 
   return <section className="mx-auto max-w-screen-xl space-y-4 text-base">
     <header className="flex items-center gap-2">
