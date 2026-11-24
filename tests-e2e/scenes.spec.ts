@@ -1,4 +1,4 @@
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect, type Locator, type Page } from '@playwright/test';
 import { telephone, voyagerVers } from './aide-carte';
 import { fermerSac, ouvrirSac } from './aide-sac';
 import type { DonneesRegion } from '../src/core/sauvegarde';
@@ -81,12 +81,15 @@ async function voyager(page: Page, nom: string) {
   await page.clock.runFor(reduit ? vol.fonduReduitMs : vol.poseMs + vol.volMs + vol.fermetureMs);
 }
 
+// La fenêtre porte deux boutons : « Passer » et la boîte de dialogue, dont le nom est « Locuteur : texte ».
+const boiteDialogue = (fenetre: Locator) => fenetre.getByRole('button', { name: /^[^:]+ : / });
+
 async function dialogue(page: Page, texte: string) {
   const fenetre = page.getByRole('dialog', { name: 'Dialogue de scène' });
   await expect(fenetre).toBeVisible();
-  if (!(await fenetre.textContent())?.includes(texte)) await fenetre.getByRole('button').click();
+  if (!(await fenetre.textContent())?.includes(texte)) await boiteDialogue(fenetre).click();
   await expect(fenetre).toContainText(texte);
-  await fenetre.getByRole('button').click();
+  await boiteDialogue(fenetre).click();
 }
 
 async function vaincre(page: Page, nom: string | RegExp) {
@@ -127,7 +130,7 @@ async function jouerSouffle(page: Page) {
   }
   await page.keyboard.up(touche);
   await expect(bouton).toHaveCount(0);
-  await expect(page.getByRole('dialog', { name: 'Dialogue de scène' }).getByRole('button'))
+  await expect(boiteDialogue(page.getByRole('dialog', { name: 'Dialogue de scène' })))
     .toHaveAccessibleName(/La mélodie de la Pokéflûte réveille Ronflex !/);
 }
 
@@ -171,7 +174,7 @@ for (const largeur of [390, 1440]) {
       await expect(fenetre).toContainText('Prof. Chen');
       const sprite = fenetre.locator('img[src="img/sprites/chen/chen-1.png"]');
       await expect(sprite).toBeVisible();
-      const boite = fenetre.getByRole('button');
+      const boite = boiteDialogue(fenetre);
       const [haut, bas] = await Promise.all([sprite.boundingBox(), boite.boundingBox()]);
       expect(haut!.y + haut!.height).toBeLessThanOrEqual(bas!.y + 1);
       expect(bas!.x + bas!.width).toBeLessThanOrEqual(largeur);
@@ -204,7 +207,7 @@ for (const largeur of [390, 1440]) {
       await expect(fenetre).toContainText('petit-fils du Prof. Chen');
       const sprite = fenetre.locator('img[src$="img/sprites/blue/blue-1.png"]');
       await expect(sprite).toBeVisible();
-      const [haut, bas] = await Promise.all([sprite.boundingBox(), fenetre.getByRole('button').boundingBox()]);
+      const [haut, bas] = await Promise.all([sprite.boundingBox(), boiteDialogue(fenetre).boundingBox()]);
       expect(haut!.y + haut!.height).toBeLessThanOrEqual(bas!.y + 1);
       await dialogue(page, 'petit-fils du Prof. Chen');
       await dialogue(page, 'Je suis ton rival');
@@ -224,7 +227,9 @@ for (const largeur of [390, 1440]) {
       const avant = await regionSauvee(page);
       expect(avant.bossVaincus).not.toContain('kanto.centrale');
       await expect(page.getByRole('dialog', { name: 'Dialogue de scène' })).toHaveCount(0);
-      await selectionner(page, 'Route de Ronflex');
+      // Tant que la Centrale n'est pas vaincue, la Route de Ronflex est inconnue sur la carte : son nom reste caché (« ? »).
+      await page.getByRole('button', { name: 'Carte', exact: true }).click();
+      await expect(page.locator('[data-zone="kanto.route-de-ronflex"]')).toHaveAttribute('data-forme', '?');
       const fiche = page.getByRole('region', { name: 'Zone sélectionnée' });
       await expect(page.getByRole('region', { name: 'Zone sélectionnée' }).getByRole('button', { name: 'Y aller', exact: true })).toHaveCount(0);
       await selectionner(page, 'Arène de Parmanie');
