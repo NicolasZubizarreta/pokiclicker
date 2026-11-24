@@ -17,6 +17,8 @@ const chemins = {
   Guide: 'M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4zM8 9h8M8 13h6',
   // Engrenage : huit dents, moyeu rond.
   Reglages: 'M10.08 4.85L10.44 2.12L13.56 2.12L13.92 4.85L15.7 5.59L17.88 3.91L20.09 6.12L18.41 8.3L19.15 10.08L21.88 10.44L21.88 13.56L19.15 13.92L18.41 15.7L20.09 17.88L17.88 20.09L15.7 18.41L13.92 19.15L13.56 21.88L10.44 21.88L10.08 19.15L8.3 18.41L6.12 20.09L3.91 17.88L5.59 15.7L4.85 13.92L2.12 13.56L2.12 10.44L4.85 10.08L5.59 8.3L3.91 6.12L6.12 3.91L8.3 5.59zM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z',
+  // Cible : le mannequin d'entraînement.
+  Cible: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM12 11.5v1',
   Disque: 'M4 3h13l3 3v15H4zM8 3v6h8V3M8 21v-7h8v7',
   Sortie: 'M10 3H4v18h6M15 7l5 5-5 5M20 12H9',
   Chevron: 'm9 4 8 8-8 8',
@@ -37,6 +39,7 @@ export const IconeBadges = faire(chemins.Badge);
 export const IconeStats = faire(chemins.Stats);
 export const IconeGuide = faire(chemins.Guide);
 export const IconeReglages = faire(chemins.Reglages);
+export const IconeCible = faire(chemins.Cible);
 export const IconeDisque = faire(chemins.Disque);
 export const IconeSortie = faire(chemins.Sortie);
 export const IconeChevron = faire(chemins.Chevron);

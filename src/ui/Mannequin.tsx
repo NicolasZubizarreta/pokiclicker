@@ -3,19 +3,25 @@ import { useStore } from 'zustand';
 import { storeJeu, type StoreJeu } from './store';
 import { formaterDps, formaterNombre } from './nombres';
 
-export function Mannequin({ store = storeJeu }: { store?: StoreJeu }) {
+/** Le mannequin se lance pendant un combat (la page Menu garde le combat en pause derrière elle). */
+export const useMannequinDisponible = (store: StoreJeu = storeJeu) => useStore(store, etat => Boolean(etat.zone && etat.ennemi && !etat.evenement));
+
+/** Fenêtre du mannequin d'entraînement ; le déclencheur est une ligne du Menu (PagePlus). */
+export function Mannequin({ ouvert, quandFerme, store = storeJeu }: { ouvert: boolean; quandFerme(): void; store?: StoreJeu }) {
   const mesure = useStore(store, etat => etat.mannequin);
-  const actif = useStore(store, etat => Boolean(etat.zone && etat.ennemi && !etat.evenement));
   const dialogue = useRef<HTMLDialogElement>(null);
-  const bouton = useRef<HTMLButtonElement>(null);
   const titre = useId();
-  const fermer = () => { store.getState().arreterMannequin(); dialogue.current?.close(); };
+  const fermer = () => dialogue.current?.close();
+  useEffect(() => {
+    const fenetre = dialogue.current;
+    if (!fenetre) return;
+    if (ouvert && !fenetre.open) fenetre.showModal();
+    if (!ouvert && fenetre.open) fenetre.close();
+  }, [ouvert]);
   useEffect(() => () => store.getState().arreterMannequin(), [store]);
   return <>
-    <button ref={bouton} type="button" className="plaque min-h-11 min-w-11 w-fit px-4 text-base" disabled={!actif} aria-describedby={!actif ? `${titre}-raison` : undefined} onClick={() => dialogue.current?.showModal()}>Mannequin</button>
-    {!actif && <span id={`${titre}-raison`} className="text-base text-texte-doux">Disponible pendant un combat.</span>}
     <dialog ref={dialogue} aria-labelledby={titre} className="fiche-pokemon cadre w-full max-w-lg bg-surface p-4 text-base open:grid open:gap-3 text-texte tabular-nums"
-      onClose={() => { store.getState().arreterMannequin(); bouton.current?.focus(); }} onCancel={event => { event.preventDefault(); fermer(); }} onPointerDown={event => { if (event.target === event.currentTarget) fermer(); }}>
+      onClose={() => { store.getState().arreterMannequin(); quandFerme(); }} onCancel={event => { event.preventDefault(); fermer(); }} onPointerDown={event => { if (event.target === event.currentTarget) fermer(); }}>
       <h2 id={titre} className="font-titre text-xl">Mannequin d'entraînement</h2>
       <p>Un sac de sable de 30 s pour mesurer tes dégâts. Le combat est en pause et rien ne compte pour ta progression.</p>
       {!mesure || mesure.restantMs === 0 ? <>

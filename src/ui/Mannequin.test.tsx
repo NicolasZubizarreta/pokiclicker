@@ -3,8 +3,9 @@ import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, expect, it } from 'vitest';
 import { Mannequin } from './Mannequin';
 afterEach(cleanup);
-it('désactive l’outil hors combat avec une raison', () => {
-  render(<Mannequin />);
-  expect((screen.getByRole('button', { name: 'Mannequin' }) as HTMLButtonElement).disabled).toBe(true);
-  expect(screen.getByText('Disponible pendant un combat.')).toBeTruthy();
+it('reste fermé tant que le Menu ne l’ouvre pas, avec son titre et son bouton de lancement', () => {
+  render(<Mannequin ouvert={false} quandFerme={() => undefined} />);
+  expect(screen.queryByRole('dialog')).toBeNull();
+  expect(screen.getByText("Mannequin d'entraînement")).toBeTruthy();
+  expect(screen.getByRole('button', { name: 'Lancer', hidden: true })).toBeTruthy();
 });

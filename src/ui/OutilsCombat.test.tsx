@@ -38,6 +38,6 @@ it('transmet Fauchage, avec une cible de 44 px sans bg-action', () => {
     fireEvent.click(bouton);
   }
   expect(faucher).toHaveBeenCalledOnce();
-  expect(boutons).toHaveLength(2);
+  expect(boutons).toHaveLength(1);
   expect(container.querySelector('.bg-action')).toBeNull();
 });

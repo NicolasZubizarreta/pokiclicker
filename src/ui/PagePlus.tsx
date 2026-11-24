@@ -14,6 +14,7 @@ import { erreurRetourMenu, useRetourMenuPrincipal } from './useRetourMenuPrincip
 import { useTelephone } from './useTelephone';
 import { storeJeu } from './store';
 import { PC } from './icones';
+import { Mannequin, useMannequinDisponible } from './Mannequin';
 import { formaterProchainPalier } from './store-progression';
 import { PageReglages } from './PageReglages';
 import type { EtatSynchro } from './synchro';
@@ -21,7 +22,7 @@ import { EtatSynchronisation } from './EtatSynchronisation';
 import { estProbleme } from './synchronisations';
 import { PastilleCasino, useCasinoNouveau } from './PastilleCasino';
 import { PastillePension, usePensionNouveau } from './PastillePension';
-import { IconeCasino, IconePension, IconeSafari, IconeMonde, IconePokedex, IconeBadges, IconeStats, IconeGuide, IconeReglages, IconeDisque, IconeSortie, IconeChevron } from './icones-menu';
+import { IconeCasino, IconePension, IconeSafari, IconeMonde, IconePokedex, IconeBadges, IconeStats, IconeCible, IconeGuide, IconeReglages, IconeDisque, IconeSortie, IconeChevron } from './icones-menu';
 
 function GroupeMenu({ telephone, children }: { telephone: boolean; children: ReactNode }) {
   return telephone ? <>{children}</> : <div className="menu-pc-tuiles grid-cols-3">{children}</div>;
@@ -75,6 +76,8 @@ export function PagePlus({ ouvrirPC, ouvrirMonde, ouvrirCasino, ouvrirPension, o
   const safariOuvert = useStore(storeJeu, etat => etat.safari.acces.ouvert);
   const diplome = useStore(storeJeu, etat => etat.fin.diplome);
   const [diplomeOuvert, ouvrirDiplome] = useState(false);
+  const [mannequinOuvert, setMannequinOuvert] = useState(false);
+  const mannequinDisponible = useMannequinDisponible();
   const victoires = useStore(storeJeu, etat => etat.suivi.hall.length);
   const [sousPage, choisir] = useState<null | 'pokedex' | 'badges' | 'reglages' | 'stats' | 'guide' | 'hall' | 'carte'>(null);
   const telephone = useTelephone();
@@ -175,6 +178,8 @@ export function PagePlus({ ouvrirPC, ouvrirMonde, ouvrirCasino, ouvrirPension, o
             entree="badges" onClick={() => { entree.current = 'badges'; choisir('badges'); }} />
           <LigneMenu icone={<IconeStats />} titre="Statistiques" sousTexte="Dégâts, DPS et gains" entree="stats"
             onClick={() => { entree.current = 'stats'; choisir('stats'); }} />
+          <LigneMenu icone={<IconeCible />} titre="Mannequin d'entraînement" grise={!mannequinDisponible} disabled={!mannequinDisponible}
+            sousTexte={mannequinDisponible ? 'Mesure tes dégâts pendant 30 s' : 'Disponible pendant un combat'} entree="mannequin" onClick={() => setMannequinOuvert(true)} />
           {diplome && !telephone && <LigneMenu icone={<IconePokedex />} titre="Diplôme du Pokédex" onClick={() => ouvrirDiplome(true)} />}
           {victoires > 0 && <LigneMenu icone={<IconeBadges />} titre="Hall des Fameux" sousTexte={`${victoires} victoire${victoires > 1 ? 's' : ''} à la Ligue`} entree="hall"
             onClick={() => { entree.current = 'hall'; choisir('hall'); }} />}
@@ -190,6 +195,7 @@ export function PagePlus({ ouvrirPC, ouvrirMonde, ouvrirCasino, ouvrirPension, o
             sousTexte="Sauvegarde, puis retour à tes parties" disabled={retourEnCours || sauvegarde === 'enCours'} onClick={revenirAuMenuPrincipal} />}
           {telephone && retourEchoue && <p role="alert">{erreurRetourMenu}</p>}
         </section>}
+    <Mannequin ouvert={mannequinOuvert} quandFerme={() => setMannequinOuvert(false)} />
     {diplomeOuvert && diplome && <Diplome diplome={diplome} fermer={() => ouvrirDiplome(false)} />}
   </div>;
 }

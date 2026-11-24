@@ -421,7 +421,7 @@ describe('Coquille', () => {
     const autorises = new Set(['PokiClicker', 'Kanto', 'PC', '1', '2', '3', '4', '5', '6', '7', '8', 'Espace', 'Attaquer', 'C', 'Capturer', 'B', 'Balle', 'A', 'Auto', 'T', 'Arrêt', 'S', 'Sac', '← →', 'Zone', '1–8', 'Onglets', '?', 'Tous', 'Tab', 'Naviguer', 'Échap', 'Fermer', 'Raccourcis', 'Raccourcis ?', 'Aller au contenu', 'Mon compte', 'Carte de Kanto', "Choisis une zone dans la liste pour t'y rendre. Tu es dans la zone qui clignote en vert.", ...noms, "Le Shop s'ouvre à la Forêt de Jade.",
       'Pension', storeJeu.getState().pension.acces.raison ?? 'Bientôt disponible.',
       'Pokédollars', 'Zone', storeJeu.getState().lieu!.nom, `${storeJeu.getState().argent.toLocaleString('fr-FR')}\u00a0₽`,
-      'Ton aventure', 'Aide et réglages', 'Partie en cours', 'La partie se sauvegarde toute seule.', 'Sauvegarder maintenant',
+      'Ton aventure', "Mannequin d'entraînement", 'Mesure tes dégâts pendant 30 s', 'Disponible pendant un combat', 'Aide et réglages', 'Partie en cours', 'La partie se sauvegarde toute seule.', 'Sauvegarder maintenant',
       'Monde Pokémon', 'Kanto jouable', 'Dégâts, DPS et gains', 'Statistiques', 'Carte de dresseur', 'Titre, équipe et statistiques à partager', 'Région', `Kanto · ${storeJeu.getState().lieu!.nom}`, 'Badges', '0 / 8', '0 sur 8', 'DPS',
       formaterDps(storeJeu.getState().dps), 'Prochain palier : 10 (Débutant) · Encore 7 espèces.',
       'PC de Léo', 'Pokédex', 'Guide du jeu', "Le PC de Léo s'ouvre à l'Arène d'Argenta.", 'Réglages', 'Son', 'Activé',
