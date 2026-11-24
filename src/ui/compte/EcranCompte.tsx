@@ -46,7 +46,8 @@ export function EcranCompte({ token, sessionExpiree = false, quandConnecte, quan
   const [etat, fixerEtat] = useState<Etat>(token !== null ? 'nouveau' : 'connexion');
   const [email, fixerEmail] = useState('');
   const [motDePasse, fixerMotDePasse] = useState('');
-  const [erreur, fixerErreur] = useState<Erreur | null>(token === '' ? { texte: 'Ce lien est invalide ou expiré. Demande un nouveau lien.', champ: 'formulaire' } : null);
+  const [erreur, fixerErreur] = useState<Erreur[]>(token === '' ? [{ texte: 'Ce lien est invalide ou expiré. Demande un nouveau lien.', champ: 'formulaire' }] : []);
+  const texteErreur = (champ: Erreur['champ']) => erreur.find(e => e.champ === champ)?.texte;
   const [visible, fixerVisible] = useState(false);
   const [message, fixerMessage] = useState('');
   const [envoi, fixerEnvoi] = useState(false);
@@ -57,7 +58,7 @@ export function EcranCompte({ token, sessionExpiree = false, quandConnecte, quan
 
   function changer(nouveau: Etat) {
     fixerEtat(nouveau);
-    fixerErreur(null);
+    fixerErreur([]);
     fixerVisible(false);
     fixerMessage('');
     fixerMotDePasse('');
@@ -66,15 +67,17 @@ export function EcranCompte({ token, sessionExpiree = false, quandConnecte, quan
   async function envoyer(evenement: FormEvent) {
     evenement.preventDefault();
     if (envoi) return;
-    fixerErreur(null);
+    fixerErreur([]);
     fixerMessage('');
     // Pas de bulle native (formulaire noValidate) : le message s'affiche près du champ et se lit au lecteur d'écran.
-    if (etat !== 'nouveau' && !email.trim()) { fixerErreur({ texte: 'Entre ton adresse e-mail.', champ: 'email' }); return; }
-    if (etat !== 'oubli' && etat !== 'nouveau' && !motDePasse) { fixerErreur({ texte: 'Entre ton mot de passe.', champ: 'motDePasse' }); return; }
-    if ((etat === 'inscription' || etat === 'nouveau') && motDePasse.length < 10) {
-      fixerErreur({ texte: 'Choisis un mot de passe d’au moins 10 caractères.', champ: 'motDePasse' });
-      return;
+    // Les deux champs sont contrôlés ensemble : un formulaire vide signale l'e-mail ET le mot de passe.
+    const manques: Erreur[] = [];
+    if (etat !== 'nouveau' && !email.trim()) manques.push({ texte: 'Entre ton adresse e-mail.', champ: 'email' });
+    if (etat !== 'oubli' && etat !== 'nouveau' && !motDePasse) manques.push({ texte: 'Entre ton mot de passe.', champ: 'motDePasse' });
+    else if ((etat === 'inscription' || etat === 'nouveau') && motDePasse.length < 10) {
+      manques.push({ texte: 'Choisis un mot de passe d’au moins 10 caractères.', champ: 'motDePasse' });
     }
+    if (manques.length) { fixerErreur(manques); return; }
     fixerEnvoi(true);
     try {
       if (etat === 'oubli') {
@@ -96,7 +99,7 @@ export function EcranCompte({ token, sessionExpiree = false, quandConnecte, quan
         if (etat !== 'nouveau' && ['INVALID_EMAIL', 'USER_ALREADY_EXISTS', 'USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL'].includes(cause.code ?? '')) champ = 'email';
         if (etat !== 'oubli' && ['INVALID_EMAIL_OR_PASSWORD', 'PASSWORD_TOO_SHORT'].includes(cause.code ?? '')) champ = 'motDePasse';
       }
-      fixerErreur({ texte: cause instanceof ErreurCompte ? cause.message : 'La demande a échoué. Réessaie plus tard.', champ });
+      fixerErreur([{ texte: cause instanceof ErreurCompte ? cause.message : 'La demande a échoué. Réessaie plus tard.', champ }]);
     } finally { fixerEnvoi(false); }
   }
 
@@ -112,14 +115,14 @@ return <main data-theme="dark" className={`${telephone ? '' : 'compte-pc auth-pc
       {sessionExpiree && etat === 'connexion' && <p role="status" className="compte-message alerte"><IconeAlerte /><span>Ta session a expiré. Reconnecte-toi : ta partie sur cet appareil est conservée.</span></p>}
         {etat !== 'nouveau' && <Champ id="email" libelle="E-mail" type="email" maxLength={254}
           autoComplete={etat === 'connexion' ? 'username' : 'email'} value={email}
-          onChange={e => fixerEmail(e.target.value)} erreur={erreur?.champ === 'email' ? erreur.texte : undefined} />}
+          onChange={e => fixerEmail(e.target.value)} erreur={texteErreur('email')} />}
         {etat !== 'oubli' && <Champ id="motDePasse" libelle={etat === 'nouveau' ? 'Nouveau mot de passe' : 'Mot de passe'}
           type={visible ? 'text' : 'password'} maxLength={128} autoComplete={etat === 'connexion' ? 'current-password' : 'new-password'} value={motDePasse}
-          onChange={e => fixerMotDePasse(e.target.value)} erreur={erreur?.champ === 'motDePasse' ? erreur.texte : undefined}
+          onChange={e => fixerMotDePasse(e.target.value)} erreur={texteErreur('motDePasse')}
           aide={etat === 'nouveau' || etat === 'inscription' ? 'Au moins 10 caractères.' : undefined}>
           <button type="button" className="plaque min-h-12" aria-label={visible ? 'Masquer le mot de passe' : 'Afficher le mot de passe'} aria-pressed={visible} onClick={() => fixerVisible(!visible)}><IconeOeil /></button>
         </Champ>}
-        {erreur?.champ === 'formulaire' && <p role="alert" className="compte-message erreur"><IconeAlerte /><span>{erreur.texte}</span></p>}
+        {texteErreur('formulaire') && <p role="alert" className="compte-message erreur"><IconeAlerte /><span>{texteErreur('formulaire')}</span></p>}
         {message && <p role="status" className="compte-message succes"><IconeValide /><span>{message}</span></p>}
         <button disabled={envoi} className="plaque plaque-action min-h-14 w-full">{envoi ? 'Envoi en cours…' : boutons[etat]}</button>
       </form>

@@ -57,7 +57,13 @@ it('signale un champ vide près du champ, sans appel réseau ni bulle native', a
   ouvrir();
   expect(document.querySelector('form')?.noValidate).toBe(true);
   fireEvent.click(screen.getByRole('button', { name: 'Se connecter' }));
-  await verifierChamp('E-mail');
+  // Formulaire entièrement vide : les deux champs signalent leur erreur.
+  expect(await screen.findAllByRole('alert')).toHaveLength(2);
+  for (const libelle of ['E-mail', 'Mot de passe']) {
+    const champ = screen.getByLabelText(libelle);
+    expect(champ.getAttribute('aria-invalid')).toBe('true');
+    expect(champ.closest('.compte-champ')?.querySelector('[role="alert"]')).toBeTruthy();
+  }
   fireEvent.change(screen.getByLabelText('E-mail'), { target: { value: 'test@example.fr' } });
   fireEvent.click(screen.getByRole('button', { name: 'Se connecter' }));
   await verifierChamp('Mot de passe');

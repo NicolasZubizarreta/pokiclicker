@@ -342,6 +342,15 @@ it('refuse neuf caractères sans appel réseau', () => {
   expect(reseau).not.toHaveBeenCalled();
 });
 
+it('connexion avec deux champs vides : l’e-mail et le mot de passe signalent l’erreur, sans appel réseau', () => {
+  render(<App />); cliquer('Se connecter');
+  const alertes = screen.getAllByRole('alert').map(e => e.textContent);
+  expect(alertes).toEqual(['Entre ton adresse e-mail.', 'Entre ton mot de passe.']);
+  expect(screen.getByLabelText('E-mail').getAttribute('aria-invalid')).toBe('true');
+  expect(screen.getByLabelText('Mot de passe').getAttribute('aria-invalid')).toBe('true');
+  expect(reseau).not.toHaveBeenCalled();
+});
+
 it.each(['connu@exemple.fr', 'inconnu@exemple.fr'])('masque les messages du serveur pour %s', async email => {
   reseau.mockResolvedValueOnce(reponse({ code: 'INVALID_EMAIL_OR_PASSWORD', message: 'Texte serveur interdit' }, 401));
   render(<App />); remplir('abcdefghij', email); cliquer('Se connecter');
