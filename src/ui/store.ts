@@ -24,7 +24,7 @@ import { nomAffiche } from './affichage-pokemon';
 import { issueDuPantheon } from '../core/pantheon';
 import donneesPantheon from '../../data/pantheon.json';
 import { clicsAutomatiques } from '../core/clics';
-import { cleStock, donnerObjetTenu, OBJETS_TENUS, retirerObjetTenu } from '../core/objets-tenus';
+import { acheterObjetTenu, cleStock, donnerObjetTenu, OBJETS_TENUS, retirerObjetTenu } from '../core/objets-tenus';
 import { type TypeObjetEquipe, utiliserSurPokemon, poserStase, retirerStase, utiliserJetonShiny } from '../core/objets-equipe';
 import { clesActives, utiliserTemporise, refusPoupee, utiliserPoupee, declencherRecharge } from '../core/objets-actifs';
 import { evoluer as evoluerEquipe, evoluerParPierre, evolutionDisponible, evolutionParPierre } from '../core/evolution';
@@ -128,6 +128,8 @@ export type AffichageJeu = ActionsCasino & ActionsSafari & {
   retirerStase(uid: string): string | null;
   donnerObjetTenu(uid: string, id: string): string | null;
   retirerObjetTenu(uid: string): string | null;
+  /** Achat d'objets tenus au Shop : ils vont dans le stock, la fiche Pokémon les donne ensuite. */
+  acheterObjetTenu(id: string, quantite: number): string | null;
   utiliserJeton(uid: string): string | null;
   /** Objets tenus en stock (id → quantité), pour la fiche Pokémon. */
   stockObjetsTenus: Readonly<Record<string, number>>;
@@ -1235,11 +1237,12 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
       if (resultat.ok) { annonce = resultat.message; finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs; }
       return resultat;
     }),
-    donnerObjetTenu: (uid, id) => modifierEquipe(courante => {
-      const resultat = donnerObjetTenu(courante, uid, id);
+    donnerObjetTenu: (uid, id) => modifierEquipe(courante => donnerObjetTenu(courante, uid, id), undefined, false, 'coin'),
+    retirerObjetTenu: uid => modifierEquipe(region => retirerObjetTenu(region, uid)),
+    acheterObjetTenu: (id, quantite) => modifierEquipe(courante => {
+      const resultat = acheterObjetTenu(courante, id, quantite);
       return resultat.ok ? { ...resultat, region: suivreDepense(courante, resultat.region, 'boutique') } : resultat;
     }, undefined, false, 'coin'),
-    retirerObjetTenu: uid => modifierEquipe(region => retirerObjetTenu(region, uid)),
     retirerStase: uid => modifierEquipe(region => {
       const resultat = retirerStase(region, uid);
       if (resultat.ok) { annonce = resultat.message; finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs; }

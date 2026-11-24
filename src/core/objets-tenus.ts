@@ -2,6 +2,7 @@ import donnees from '../../data/objets-tenus.json';
 import type { ResultatEquipe } from './equipe';
 import { chargerPokemon } from './pokemon';
 import type { DonneesRegion, PokemonPossede } from './sauvegarde-types';
+import { reglages } from './reglages';
 import { sansCle } from './sans-cle';
 
 /** Objet tenu qui renforce les dégâts d'un Pokémon du même type (un par Pokémon, hors Pierre Stase). */
@@ -54,7 +55,7 @@ const modifier = (region: DonneesRegion, uid: string, changer: (p: PokemonPossed
   return { equipe: region.equipe.map(appliquer), pc: region.pc.map(appliquer) };
 };
 
-/** Donne l'objet : pris dans le stock, sinon acheté au prix du fichier. Un seul objet par Pokémon, jamais avec la Pierre Stase. */
+/** Donne l'objet pris dans le stock (l'achat se fait au Shop). Un seul objet par Pokémon, jamais avec la Pierre Stase. */
 export function donnerObjetTenu(region: DonneesRegion, uid: string, id: string): Retour {
   const pokemon = trouver(region, uid);
   const objet = objetTenu(id);
@@ -64,15 +65,28 @@ export function donnerObjetTenu(region: DonneesRegion, uid: string, id: string):
   if (pokemon.objetTenu) return refus('Retire d’abord l’objet tenu !');
   if (!catalogueParDefaut.parNumero(pokemon.numero).types.includes(objet.type)) return refus('Pokémon incompatible !');
   const stock = region.inventaire[cleStock(id)] ?? 0;
-  if (stock <= 0 && region.argent < objets.prix) return refus('Pas assez d’argent !');
+  if (stock <= 0) return refus('Tu n’as pas cet objet : achète-le au Shop.');
   return {
     ok: true, message: `${objet.nom} équipé !`,
     region: {
       ...region,
-      argent: stock > 0 ? region.argent : region.argent - objets.prix,
-      inventaire: stock > 0 ? { ...region.inventaire, [cleStock(id)]: stock - 1 } : region.inventaire,
+      inventaire: { ...region.inventaire, [cleStock(id)]: stock - 1 },
       ...modifier(region, uid, p => ({ ...p, objetTenu: id })),
     },
+  };
+}
+
+/** Achat au Shop : au prix du fichier, sans inflation ni remise, dans le stock. */
+export function acheterObjetTenu(region: DonneesRegion, id: string, quantite: number): Retour {
+  const objet = objetTenu(id);
+  if (!objet) return refus('Objet inconnu !');
+  if (!Number.isInteger(quantite) || quantite < 1 || quantite > reglages.boutique.quantiteMax) return refus('Quantité invalide.');
+  const cout = objets.prix * quantite;
+  if (region.argent < cout) return refus('Pas assez d’argent !');
+  return {
+    ok: true, message: `${objet.nom} ×${quantite} acheté.`,
+    region: { ...region, argent: region.argent - cout,
+      inventaire: { ...region.inventaire, [cleStock(id)]: (region.inventaire[cleStock(id)] ?? 0) + quantite } },
   };
 }
 

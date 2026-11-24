@@ -2,7 +2,7 @@ import { Fragment, useEffect, useId, useRef, useState } from 'react';
 import type { RefObject } from 'react';
 import { useStore } from 'zustand';
 import { detailDps, envoyerAuPc as verifierEnvoi, relacher as verifierRelachement } from '../core/equipe';
-import { BONUS_OBJET_TENU, objetsCompatibles, objetTenu, PRIX_OBJET_TENU } from '../core/objets-tenus';
+import { BONUS_OBJET_TENU, objetsCompatibles, objetTenu } from '../core/objets-tenus';
 import { calculerMaxXp } from '../core/recompenses';
 import { chargerPokemon, nomType } from '../core/pokemon';
 import { reglages } from '../core/reglages';
@@ -30,6 +30,8 @@ type Props = {
 };
 const catalogue = chargerPokemon();
 const bouton = 'min-h-11 px-4 py-2 bg-surface-2 disabled:text-texte-doux';
+/** Action discrète en ligne avec un texte : cible de 44 px, aspect de lien. */
+const lienPetit = 'min-h-11 min-w-11 px-2 text-sm text-lien underline';
 
 function Etoile() {
   return <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" className="size-5 shrink-0 fill-current">
@@ -47,7 +49,6 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: 
   const equipe = useStore(storeJeu, etat => etat.equipe);
   const ennemi = useStore(storeJeu, etat => etat.ennemi);
   const pc = useStore(storeJeu, etat => etat.pc);
-  const argent = useStore(storeJeu, etat => etat.argent);
   const stockTenus = useStore(storeJeu, etat => etat.stockObjetsTenus);
   const caseEquipe = equipe.find(c => c?.pokemon.uid === uid);
   const pokemonPc = !caseEquipe ? pc.find(p => p.uid === uid) : undefined;
@@ -141,6 +142,7 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: 
   const objetPose = objetTenu(pokemon?.objetTenu);
   const objetActif = detail !== null && detail.objetTenu > 1;
   const objetsPossibles = pokemon && !pokemon.oeuf && espece ? objetsCompatibles(espece.types) : [];
+  const enStock = objetsPossibles.filter(objet => (stockTenus[objet.id] ?? 0) > 0);
   const marque = pokemon?.marqueEclosion && detail ? `+${Math.round((detail.marqueEclosion - 1) * 100)} %` : null;
   // Un facteur n'apparaît que s'il s'applique : Shiny, Pierre Stase et Calcium restent cachés à × 1.
   const facteurs: [string, string][] = pokemon && detail ? [
@@ -219,21 +221,21 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: 
               <p>Grâce au bonheur : +{nombre(pokemon.bonheur * reglages.degats.bonheurParPoint * 100)} % de dégâts</p></div>
           </div>
           {pokemon.calcium > 0 && <p>Calcium : {pokemon.calcium} · +{nombre(pokemon.calcium * reglages.degats.calciumParBoost * 100)} % de dégâts</p>}
-          <div className="flex flex-wrap items-center gap-2"><p>Objet tenu : {pokemon.pierreEternelle ? 'Pierre Stase' : objetPose ? objetPose.nom : 'aucun'}</p>
-            {pokemon.pierreEternelle && <button type="button" aria-label={`Retirer la Pierre Stase de ${nom}`} className={`${bouton}${telephone ? '' : ' plaque'}`}
+          <div className="flex flex-wrap items-center gap-x-3"><p>Objet tenu : {pokemon.pierreEternelle ? 'Pierre Stase' : objetPose ? objetPose.nom : 'aucun'}</p>
+            {pokemon.pierreEternelle && <button type="button" aria-label={`Retirer la Pierre Stase de ${nom}`} className={lienPetit}
               onClick={() => signaler(storeJeu.getState().retirerStase(uid))}>Retirer</button>}
-            {objetPose && <button type="button" aria-label={`Retirer ${objetPose.nom} de ${nom}`} className={`${bouton}${telephone ? '' : ' plaque'}`}
-              onClick={() => signaler(storeJeu.getState().retirerObjetTenu(uid))}>Retirer</button>}</div>
+            {objetPose && <button type="button" aria-label={`Retirer ${objetPose.nom} de ${nom}`} className={lienPetit}
+              onClick={() => signaler(storeJeu.getState().retirerObjetTenu(uid))}>Retirer</button>}
+            {!pokemon.pierreEternelle && !objetPose && enStock.length > 0 && <label className="text-sm text-texte-doux">
+              <span className="sr-only">Donner un objet à {nom}</span>
+              <select aria-label={`Donner un objet à ${nom}`} className="cadre min-h-11 bg-surface px-2 text-base text-texte" value=""
+                onChange={event => { if (event.target.value) signaler(storeJeu.getState().donnerObjetTenu(uid, event.target.value)); }}>
+                <option value="">Donner un objet…</option>
+                {enStock.map(objet => <option key={objet.id} value={objet.id}>{objet.nom} (×{stockTenus[objet.id]})</option>)}
+              </select></label>}</div>
           {objetPose && !objetActif && <p>{objetPose.nom} est du type {nomType(objetPose.type)} : sans effet sur ce Pokémon.</p>}
-          {!pokemon.pierreEternelle && !objetPose && objetsPossibles.length > 0 && <div className="grid gap-2">
-            <p>Objets du type de {nom} : +{nombre(BONUS_OBJET_TENU * 100)} % de dégâts</p>
-            {objetsPossibles.map(objet => {
-              const stock = stockTenus[objet.id] ?? 0;
-              const manque = stock <= 0 && argent < PRIX_OBJET_TENU;
-              return <button key={objet.id} type="button" disabled={manque} className={`${bouton}${telephone ? '' : ' plaque'}`}
-                onClick={() => signaler(storeJeu.getState().donnerObjetTenu(uid, objet.id))}>
-                {stock > 0 ? `Donner : ${objet.nom} (en stock : ${stock})` : `Acheter et donner : ${objet.nom} (${nombre(PRIX_OBJET_TENU)} ₽)`}</button>;
-            })}</div>}</>}
+          {!pokemon.pierreEternelle && !objetPose && objetsPossibles.length > 0 && enStock.length === 0 && <p className="text-sm text-texte-doux">
+            Objets du type de {nom} : +{nombre(BONUS_OBJET_TENU * 100)} % de dégâts, en vente au Shop.</p>}</>}
           </>;
   const actions = pokemon && espece && membre && detail && <>
           {erreur && <p role="alert">{erreur}</p>}

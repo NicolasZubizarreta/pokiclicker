@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { detailDps, relacherLot, relacherPokemon } from './equipe';
 import { poserStase } from './objets-equipe';
-import { chargerObjetsTenus, cleStock, donnerObjetTenu, facteurObjetTenu, objetsCompatibles, OBJETS_TENUS, PRIX_OBJET_TENU, retirerObjetTenu } from './objets-tenus';
+import { chargerObjetsTenus, cleStock, acheterObjetTenu, donnerObjetTenu, facteurObjetTenu, objetsCompatibles, OBJETS_TENUS, PRIX_OBJET_TENU, retirerObjetTenu } from './objets-tenus';
 import { chargerPokemon, nomType } from './pokemon';
 import { validerPokemonPossede } from './sauvegarde-validation';
 import type { DonneesRegion, PokemonPossede } from './sauvegarde-types';
@@ -50,13 +50,38 @@ describe('objets tenus : effet', () => {
 });
 
 describe('objets tenus : donner et retirer', () => {
-  it('achète l’objet quand le stock est vide', () => {
-    const r = donnerObjetTenu(region(), 'cible', 'graine-miracle');
+  it('donne l’objet du stock à ce Pokémon seulement', () => {
+    const r = donnerObjetTenu(region(pokemon(), 50_000, { [cleStock('graine-miracle')]: 1 }), 'cible', 'graine-miracle');
     expect(r.ok).toBe(true);
     if (!r.ok) return;
-    expect(r.region.argent).toBe(30_000);
     expect(r.region.equipe[0]?.objetTenu).toBe('graine-miracle');
     expect(r.region.equipe[1]?.objetTenu).toBeUndefined();
+    expect(r.region.argent).toBe(50_000);
+    expect(r.region.inventaire[cleStock('graine-miracle')]).toBe(0);
+  });
+  it('n’achète plus : sans stock, la fiche renvoie vers le Shop', () => {
+    const r = donnerObjetTenu(region(), 'cible', 'graine-miracle');
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.raison).toBe('Tu n’as pas cet objet : achète-le au Shop.');
+  });
+  it('achète au Shop : prix du fichier par objet, stock augmenté, rien d’équipé', () => {
+    const r = acheterObjetTenu(region(pokemon(), 50_000, { [cleStock('aimant')]: 1 }), 'aimant', 2);
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.region.argent).toBe(50_000 - 2 * PRIX_OBJET_TENU);
+    expect(r.region.inventaire[cleStock('aimant')]).toBe(3);
+    expect(r.region.equipe[0]?.objetTenu).toBeUndefined();
+    expect(r.message).toBe('Aimant ×2 acheté.');
+  });
+  it.each([
+    ['pas assez d’argent', 'aimant', 3, 'Pas assez d’argent !'],
+    ['objet inconnu', 'inconnu', 1, 'Objet inconnu !'],
+    ['quantité nulle', 'aimant', 0, 'Quantité invalide.'],
+    ['quantité décimale', 'aimant', 1.5, 'Quantité invalide.'],
+  ])('refuse l’achat : %s', (_nom, id, quantite, raison) => {
+    const r = acheterObjetTenu(region(), id, quantite);
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.raison).toBe(raison);
   });
   it('utilise le stock sans payer', () => {
     const r = donnerObjetTenu(region(pokemon(), 5, { [cleStock('aimant')]: 0, [cleStock('pic-venin')]: 2 }), 'cible', 'pic-venin');
@@ -68,7 +93,7 @@ describe('objets tenus : donner et retirer', () => {
   it.each([
     ['type incompatible', region(), 'charbon', 'Pokémon incompatible !'],
     ['objet inconnu', region(), 'rien', 'Objet inconnu !'],
-    ['pas assez d’argent', region(pokemon(), 19_999), 'pic-venin', 'Pas assez d’argent !'],
+    ['stock vide', region(pokemon(), 19_999), 'pic-venin', 'Tu n’as pas cet objet : achète-le au Shop.'],
     ['déjà un objet', region(pokemon({ objetTenu: 'pic-venin' })), 'graine-miracle', 'Retire d’abord l’objet tenu !'],
     ['Pierre Stase', region(pokemon({ pierreEternelle: true })), 'pic-venin', 'La Pierre Stase est déjà tenue !'],
     ['œuf', region(pokemon({ oeuf: { pasRestants: 1, pasMax: 2 } })), 'pic-venin', 'Pokémon invalide !'],
@@ -78,7 +103,7 @@ describe('objets tenus : donner et retirer', () => {
     if (!r.ok) expect(r.raison).toBe(raison);
   });
   it('rend l’objet à l’inventaire en le retirant', () => {
-    const donne = donnerObjetTenu(region(), 'cible', 'pic-venin');
+    const donne = donnerObjetTenu(region(pokemon(), 50_000, { [cleStock('pic-venin')]: 1 }), 'cible', 'pic-venin');
     if (!donne.ok) throw new Error('attendu');
     const r = retirerObjetTenu(donne.region, 'cible');
     expect(r.ok).toBe(true);

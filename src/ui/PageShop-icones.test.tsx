@@ -52,7 +52,8 @@ it('chaque objet du Shop (toutes catégories, tout débloqué) a une vraie icôn
   const { container } = render(<PageShop />);
   const vus: string[] = [];
   const repli: string[] = [];
-  for (const { nom } of categoriesShop) {
+  // Les objets tenus n'ont pas d'image : ils prennent l'icône de repli du jeu, hors de cette liste.
+  for (const { nom } of categoriesShop.filter(c => c.cle !== 'tenus')) {
     fireEvent.click(screen.getByRole('tab', { name: nom }));
     for (const carte of container.querySelectorAll('article[data-objet]')) {
       const id = carte.getAttribute('data-objet')!;

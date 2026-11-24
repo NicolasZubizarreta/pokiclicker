@@ -4,6 +4,10 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { PageShop } from './PageShop';
 import { categorieShop, categoriesShop } from './categories-shop';
 import { creerStoreJeu, storeJeu } from './store';
+import { OBJETS_TENUS, PRIX_OBJET_TENU } from '../core/objets-tenus';
+
+const idsTenus = new Set(OBJETS_TENUS.map(o => o.id));
+const sansTenus = (ids: (string | null)[]) => ids.filter(id => !idsTenus.has(id!)).sort();
 
 const contexte = vi.hoisted(() => ({ store: null as unknown as typeof storeJeu }));
 vi.mock('./store', async original => ({
@@ -65,14 +69,14 @@ it('ouvre en zone 2, affiche seulement le catalogue disponible et filtre les cat
   expect(container.querySelector('.produits')).toBeTruthy();
   expect(screen.getByRole('tablist', { name: 'Rayons' })).toBeTruthy();
   // Onglet Tout (par défaut) : tout le catalogue, un titre de rayon centré avant chaque groupe.
-  expect(Array.from(container.querySelectorAll('article')).map(c => c.getAttribute('data-objet')).sort())
+  expect(sansTenus(Array.from(container.querySelectorAll('article')).map(c => c.getAttribute('data-objet'))))
     .toEqual(objets.map(o => o.id).sort());
   expect(screen.getByRole('tab', { name: 'Tout' }).getAttribute('aria-selected')).toBe('true');
   const titres = Array.from(container.querySelectorAll('.separateur-rayon')).map(t => t.textContent);
-  expect(titres).toEqual(categoriesShop.filter(c => objets.some(o => categorieShop(o) === c.cle)).map(c => c.nom));
+  expect(titres).toEqual([...categoriesShop.filter(c => c.cle !== 'tenus' && objets.some(o => categorieShop(o) === c.cle)).map(c => c.nom), 'Objets tenus']);
   expect(container.querySelector('[data-objet="hyperball"]')).toBeNull();
   expect(screen.queryByRole('button', { name: 'Soins' })).toBeNull();
-  for (const { cle, nom } of categoriesShop) {
+  for (const { cle, nom } of categoriesShop.filter(c => c.cle !== 'tenus')) {
     fireEvent.click(screen.getByRole('tab', { name: nom }));
     expect(screen.getByRole('tab', { name: nom }).getAttribute('aria-selected')).toBe('true');
     expect(Array.from(container.querySelectorAll('article')).map(c => c.getAttribute('data-objet')).sort())
@@ -98,6 +102,21 @@ it('ouvre en zone 2, affiche seulement le catalogue disponible et filtre les cat
     expect(carte.classList.contains('flex-col')).toBe(true);
   }
   for (const image of container.querySelectorAll('img')) expect(image.getAttribute('src')).toMatch(/^img\//);
+});
+
+it('vend les 18 objets tenus au prix du fichier : l’achat va dans le stock et débite l’argent', () => {
+  preparer(['kanto.route-1'], 3 * PRIX_OBJET_TENU);
+  const { container } = render(<PageShop />);
+  fireEvent.click(screen.getByRole('tab', { name: 'Objets tenus' }));
+  expect(Array.from(container.querySelectorAll('article')).map(c => c.getAttribute('data-objet')).sort()).toEqual([...idsTenus].sort());
+  expect(screen.getByText(/depuis sa fiche/)).toBeTruthy();
+  const carte = container.querySelector('article[data-objet="charbon"]') as HTMLElement;
+  expect(within(carte).getByText(/Type Feu : \+5 % de dégâts/)).toBeTruthy();
+  fireEvent.click(within(carte).getByRole('button', { name: /^Acheter ×1 :/ }));
+  expect(storeJeu.getState().stockObjetsTenus.charbon).toBe(1);
+  expect(storeJeu.getState().argent).toBe(2 * PRIX_OBJET_TENU);
+  expect(storeJeu.getState().acheterObjetTenu('charbon', 3)).toBe('Pas assez d’argent !');
+  expect(storeJeu.getState().stockObjetsTenus.charbon).toBe(1);
 });
 
 it('explique le montant manquant sur chaque achat sans argent', () => {

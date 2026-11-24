@@ -6,4 +6,5 @@ export const categoriesShop = [
   { cle: 'balles', nom: 'Poké Ball' },
   { cle: 'objets', nom: 'Objets' },
   { cle: 'accessoires', nom: 'Équipements' },
+  { cle: 'tenus', nom: 'Objets tenus' },
 ];
