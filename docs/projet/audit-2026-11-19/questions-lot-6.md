@@ -85,11 +85,11 @@ Chaque valeur citée vit dans un fichier de `data/` et se change là sans touche
 ## F-j2-23 Ligue+ (mode revanche de plus en plus dur)
 - Règle choisie : une fois la Ligue gagnée, la page « Hall des Fameux » propose un rang de Ligue+, de 1 à 10 (« Ligue normale » reste possible). On choisit un rang, puis on refait la Ligue normalement. Chaque rang ajoute 15 % de PV à tous les adversaires, boss compris (rang 10 : 2,5 fois les PV). Les niveaux restent ceux de la Ligue (ils sont déjà au plafond de 100, la proposition parlait de niveaux +10, +20 : impossible sans dépasser 100).
 - Un rang n'est proposé que si le précédent a été réussi (rang 1 d'abord, puis le suivant du meilleur rang réussi). Le rang choisi reste actif jusqu'à ce qu'on en choisisse un autre. Changer de rang est refusé pendant qu'on est dans la Ligue.
-- Récompense : la première réussite d'un rang rapporte 25 000 ₽ × le rang (25 000 au rang 1, 250 000 au rang 10) ; rejouer un rang déjà réussi ne rapporte rien. Le meilleur rang est un record, affiché dans Statistiques.
+- Récompense : la première réussite d'un rang rapporte 125 000 ₽ × le rang (125 000 au rang 1, 1 250 000 au rang 10 ; montants ×5 depuis la décision du 24/11) ; rejouer un rang déjà réussi ne rapporte rien. Le meilleur rang est un record, affiché dans Statistiques.
 - Une victoire en Ligue+ ne passe pas par le Panthéon et ne compte pas comme victoire de Ligue (pas d'entrée au Hall, pas de pas vers le Défi de Chen) ; on revient à Bourg-Palette.
-- Valeurs dans `data/ligue-plus.json` : `rangMax` 10, `pvParRangPourCent` 15, `recompenseArgentParRang` 25 000. Pour changer : modifier ces trois nombres.
-- Pourquoi prudent : opt-in (la Ligue normale n'est jamais plus dure), récompense en argent une seule fois par rang, au total 1,375 M ₽ sur les 10 rangs. Je n'ai pas simulé la difficulté réelle d'un rang 10 : à tester à la main.
-- Effet sur l'équilibrage : un peu plus d'argent au total (1,375 M ₽ au maximum, une fois). Rien d'autre.
+- Valeurs dans `data/ligue-plus.json` : `rangMax` 10, `pvParRangPourCent` 15, `recompenseArgentParRang` 125 000. Pour changer : modifier ces trois nombres.
+- Pourquoi prudent : opt-in (la Ligue normale n'est jamais plus dure), récompense en argent une seule fois par rang, au total 6,875 M ₽ sur les 10 rangs. Je n'ai pas simulé la difficulté réelle d'un rang 10 : à tester à la main.
+- Effet sur l'équilibrage : un peu plus d'argent au total (6,875 M ₽ au maximum, une fois). Rien d'autre.
 - Sauvegarde : champ facultatif `liguePlus` (rang choisi) et record `suivi.records.liguePlusMax`, sans version 7.
 - Question : 15 % de PV par rang et 25 000 ₽ par rang te conviennent-ils ? Faut-il aussi des adversaires de niveau plus haut (impossible au-delà de 100) ou de nouveaux Pokémon au rang élevé ?
 
@@ -106,7 +106,7 @@ Chaque valeur citée vit dans un fichier de `data/` et se change là sans touche
 ## F-j2-31 Labo de Chen : défi rejouable et bilan
 - Bilan du Pokédex : dans la scène du labo (Bourg-Palette), la bulle de Chen donne le nombre d'espèces vues, combien il en manque, les 3 zones où il en manque le plus (première zone sauvage de chaque espèce manquante) et le nombre d'espèces qu'aucune zone sauvage ne donne (évolution, pierre, œuf, événement). Rien n'est modifié dans le jeu, c'est de la lecture. Textes dans `data/defi-chen.json` (`messages`).
 - Défi rejouable : une fois le défi gagné, le bouton « Rejouer le défi » le relance sans refaire l'introduction. Les combats sont les mêmes ; la variante à chaque palier est un bonus de PV : +10 % par défi déjà réussi, jusqu'à 10 paliers (+90 % au dernier). Valeurs dans `data/defi-chen.json` (`rejeu` : `paliersMax`, `pvParPalierPourCent`, `recompenseArgentParPalier`).
-- Récompense : 25 000 ₽ × (palier − 1), une seule fois par palier (première réussite), à partir du palier 2. Palier 10 : 225 000 ₽. Au-delà du 10e palier, on peut rejouer, sans gain. Total possible : 1 125 000 ₽ une fois dans la partie. Pas de diamants (les événements ne savent pas en donner).
+- Récompense : 125 000 ₽ × (palier − 1), une seule fois par palier (première réussite), à partir du palier 2. Palier 10 : 1 125 000 ₽. Au-delà du 10e palier, on peut rejouer, sans gain. Total possible : 5 625 000 ₽ une fois dans la partie. Pas de diamants (les événements ne savent pas en donner).
 - Si tu perds au temps pendant un rejeu : tu reviens à Bourg-Palette comme au premier essai et le bouton ne revient qu'après une victoire ; le défi peut se relancer par le chemin habituel (Ligue gagnée + Pokédex complet) et reprend au même palier.
 - Une partie qui avait déjà gagné le défi avant ce compteur compte pour une réussite au premier rejeu.
 - Effet sur l'équilibrage : un peu plus facile (de l'argent en plus, une seule fois par palier). Rien d'autre ne change.

@@ -113,6 +113,6 @@
   "rejeu": {
     "paliersMax": 10,
     "pvParPalierPourCent": 10,
-    "recompenseArgentParPalier": 25000
+    "recompenseArgentParPalier": 125000
   }
 }
