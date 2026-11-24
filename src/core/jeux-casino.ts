@@ -48,7 +48,9 @@ const jeux = chargerJeuxCasino();
 const { roulette, plusOuMoins, gratter: regleGratter, messages } = jeux;
 
 const rouges = new Set(roulette.rouges);
-const formatNombre = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 2, useGrouping: 'min2' });
+// « min2 » (pas de séparateur sous 10 000) existe à l'exécution mais pas dans les types de TypeScript 5.9 : d'où la conversion.
+const optionsNombre = { maximumFractionDigits: 2, useGrouping: 'min2' } as unknown as Intl.NumberFormatOptions;
+const formatNombre = new Intl.NumberFormat('fr-FR', optionsNombre);
 // Les nombres sont écrits à la française (virgule, espaces entre les milliers), comme partout dans l'interface.
 export const remplir = (modele: string, valeurs: Record<string, string | number>) =>
   modele.replace(/\{(\w+)\}/g, (_, cle: string) => {
