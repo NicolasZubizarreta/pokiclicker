@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { calculerClic } from './combat';
 import { calculerStatistiques } from './statistiques';
 import { regionInitiale } from './sauvegarde';
 import { validerEnveloppe } from './sauvegarde-validation';
@@ -23,6 +24,16 @@ describe('statistiques V1', () => {
     expect(stats.slice(2, 6).map(s => s.total)).toEqual(['5', '0.0', `x${reglages.recompenses.or.multiplicateur.toFixed(2)}`, 'x1.00']);
     expect(stats.slice(2).every(s => s.boosts?.length === 0)).toBe(true);
     expect(calculerStatistiques({ argent: 999, statistiques: { eliminations: 12 } })[1]!.valeur).toBe(0);
+  });
+
+  it('arrondit le total des dégâts de clic à l’entier sans changer calculerClic', () => {
+    const region = regionInitiale('kanto', 'kanto.bourg-palette');
+    region.equipe = [{ uid: 'test', numero: 1, niveau: 5, xp: 0, shiny: false, bonheur: 0,
+      pierreEternelle: false, calcium: 0, sexe: 'male', favori: false }];
+    region.chronos.finBoostAttaque = 2000;
+    // Attaque + : 5 × 1,5 = 7,5 pour le cœur ; l'écran affiche 8.
+    expect(calculerClic(0, ['boost:attaque'])).toBe(7.5);
+    expect(calculerStatistiques(region)[2]!.total).toBe('8');
   });
 
   it('lit les compteurs cumulés et calcule les bonus sauvegardés sans cible', () => {

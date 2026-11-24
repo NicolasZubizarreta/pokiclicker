@@ -47,7 +47,7 @@ export function StatistiquesSuivi({ suivi, tempsJeuMs, aujourdhui = new Date() }
       ['Jetons gagnés', suivi.jetons.gagnes], ['Jetons perdus', suivi.jetons.perdus], ...parties,
     ]}>{!parties.length && <p>Aucune partie</p>}</Carte>
     <Carte titre="Records" lignes={[
-      ['Plus gros dégât de clic', records.degatsClicMax], ['DPS maximal', formaterDps(records.dpsMax)],
+      ['Plus gros dégât de clic', formaterDps(records.degatsClicMax)], ['DPS maximal', formaterDps(records.dpsMax)],
       ['Meilleure série de victoires', <>{formaterNombre(records.serieVictoiresMax)}
         <span className="block font-normal text-texte-doux">En cours : {formaterNombre(suivi.serieVictoires)}</span></>],
       ['Meilleur temps de boss', formaterTempsBoss(records.tempsBossMinMs)],
