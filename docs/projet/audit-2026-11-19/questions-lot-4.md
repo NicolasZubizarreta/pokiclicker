@@ -9,3 +9,9 @@
 - Q-j1-17 : le nom de la zone passe sur deux lignes dans le bandeau à 390 px au lieu d'être coupé ; le bouton « Son » partage la ligne du bandeau (Q-j2-12).
 - Q-j2-32 : le Relevé de partie n'est pas supprimé malgré le commentaire de decisions.md (« tu peux le supprimer on s'en sert plus ») : le brief de la synthèse dit de le ranger. Il est sous un bloc « Avancé » replié. Dis-moi si tu veux le retirer pour de bon.
 - Non vérifié à l'écran : Casino, Pension et Réglages > Avancé (verrouillés dans la sauvegarde de test). Couverts par les tests unitaires seulement.
+
+## Décisions de Nicolas du 24/11/2026
+- Q-j1-28 : reporté à la refonte de la sauvegarde.
+- Q-j1-04, Q-j1-20, Q-j1-24, Q-j2-26 : laissés tels quels.
+- Q-j1-26 (chrono du boss en rouge sous le tiers du temps) : validé.
+- Q-j2-32 (Relevé de partie) : retiré de l'interface et du code, voir `docs/projet/decisions-recette-24-11.md`.
