@@ -26,14 +26,18 @@ describe('statistiques V1', () => {
     expect(calculerStatistiques({ argent: 999, statistiques: { eliminations: 12 } })[1]!.valeur).toBe(0);
   });
 
-  it('arrondit le total des dégâts de clic à l’entier sans changer calculerClic', () => {
+  it('arrondit le total des dégâts de clic à l’entier supérieur sans changer calculerClic', () => {
     const region = regionInitiale('kanto', 'kanto.bourg-palette');
     region.equipe = [{ uid: 'test', numero: 1, niveau: 5, xp: 0, shiny: false, bonheur: 0,
       pierreEternelle: false, calcium: 0, sexe: 'male', favori: false }];
     region.chronos.finBoostAttaque = 2000;
-    // Attaque + : 5 × 1,5 = 7,5 pour le cœur ; l'écran affiche 8.
+    // Attaque + : 5 × 1,5 = 7,5 pour le cœur ; l'écran affiche 8 (entier supérieur).
     expect(calculerClic(0, ['boost:attaque'])).toBe(7.5);
     expect(calculerStatistiques(region)[2]!.total).toBe('8');
+    // Avec le badge Volcan en plus : 5 × 1,5 × 1,5 = 11,25 ; l'écran affiche 12, pas 11.
+    region.badges = ['volcan'];
+    expect(calculerClic(0, ['boost:attaque', 'badge:volcan'])).toBeCloseTo(11.25);
+    expect(calculerStatistiques(region)[2]!.total).toBe('12');
   });
 
   it('lit les compteurs cumulés et calcule les bonus sauvegardés sans cible', () => {
