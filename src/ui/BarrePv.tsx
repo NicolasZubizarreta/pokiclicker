@@ -11,6 +11,7 @@ export function BarrePv({ pv, maximum, nom, tuto }: { pv: number; maximum: numbe
       <span className={`barre-pv absolute inset-0 origin-left ${proportion <= .2 ? 'bg-erreur-base' : proportion <= .5 ? 'bg-alerte-base' : 'bg-succes-base'}`}
         style={transformation} />
     </div>
-    <p>PV {formaterNombre(Math.ceil(pv))} / {formaterNombre(maximum)}</p>
+    {/* Les deux valeurs restent ensemble (jamais de retour à la ligne après la barre oblique) ; en 14 px sur téléphone, « PV 2 237 440 / 2 237 440 » tient dans les 188 px de la carte à 390 px. */}
+    <p className="tabular-nums max-lg:text-sm">PV <span className="whitespace-nowrap">{formaterNombre(Math.ceil(pv))} / {formaterNombre(maximum)}</span></p>
   </div>;
 }
