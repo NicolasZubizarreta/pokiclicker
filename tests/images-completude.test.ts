@@ -100,7 +100,8 @@ it('ne contient aucune URL externe dans le code et les données du jeu', async (
       const chemin = `${dossier}/${entree.name}`;
       if (chemin === 'data/schemas' || chemin === 'data/ressources-externes.json') continue;
       if (entree.isDirectory()) fichiers.push(...await parcourir(chemin));
-      else if (dossier.startsWith('src') ? /\.(ts|tsx|css|html)$/.test(entree.name) : entree.name.endsWith('.json')) fichiers.push(chemin);
+      // Les fichiers de test ne sont pas livrés : leurs URL d'exemple (exemple.fr) ne chargent rien.
+      else if (dossier.startsWith('src') ? /\.(ts|tsx|css|html)$/.test(entree.name) && !/\.test\.tsx?$/.test(entree.name) : entree.name.endsWith('.json')) fichiers.push(chemin);
     }
     return fichiers;
   }
