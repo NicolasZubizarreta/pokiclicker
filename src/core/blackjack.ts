@@ -1,4 +1,5 @@
 import { ajouterJetons } from './plafonds';
+import { libelleJetons } from './jeux-casino';
 import donnees from '../../data/casino.json';
 import type { MainBlackjack, MainBlackjackAncienne, MainJoueurBlackjack } from './sauvegarde-types';
 
@@ -181,7 +182,7 @@ function regler<R extends RegionBlackjack>(region: R, b: Brouillon): ResultatBla
     assurance: main.assurance, gainAssurance, engage, gain };
   const un = mains[0]!;
   const net = gain - engage;
-  const principal = mains.length > 1 ? messages.bilan.replace('{net}', net > 0 ? `+${net}` : String(net))
+  const principal = mains.length > 1 ? messages.bilan.replace('{net}', `${net > 0 ? '+' : ''}${libelleJetons(net)}`)
     : un.resultat === 'blackjack' ? messages.blackjack
       : un.resultat === 'egalite' ? (bj ? messages.blackjackEgalite : messages.egalite)
         : un.resultat === 'gagne' ? messages.gagne.replace('{gain}', String(regles.gainVictoire))

@@ -38,7 +38,7 @@
     "assurance": "Le croupier montre un As. Assurance ?", "blackjackEgalite": "Deux blackjacks. Égalité, mise rendue.",
     "croupierBlackjack": "Le croupier a un blackjack. Perdu.", "abandon": "Abandon. Moitié de la mise rendue.",
     "assurancePayee": "Assurance payée ×2.", "assurancePerdue": "Assurance perdue.",
-    "bilan": "Bilan : {net} jetons.", "actionImpossible": "Action impossible.",
+    "bilan": "Bilan : {net}.", "actionImpossible": "Action impossible.",
     "dejaAcquis": "Déjà acquis !", "achat": "+{nom} !", "croupier": "Croupier Rocket"
   },
   "rappel": "Argent virtuel uniquement : aucun paiement réel."

@@ -2,7 +2,7 @@ import { useState, type ReactNode } from 'react';
 import { lireMise } from '../core/casino';
 import { NIVEAUX_VOLTORBE, TAILLE_VOLTORBE, type IndiceLigne, type VueVoltorbe } from '../core/voltorbe';
 import type { ActionsCasino } from './store-casino';
-import { MiseCasino, nombre, type Signaler } from './casino-interface';
+import { MiseCasino, jetonsTexte, nombre, type Signaler } from './casino-interface';
 
 type Props = { actions: ActionsCasino; grille: VueVoltorbe | null; signaler: Signaler; jetons: number; verdict: ReactNode };
 const indices = Array.from({ length: TAILLE_VOLTORBE }, (_, k) => k);
@@ -76,7 +76,7 @@ export function VoltorbeFlip({ actions, grille, signaler, jetons, verdict }: Pro
         <div><dt>Encaisser</dt><dd>{nombre(grille.gainSiEncaisse)}</dd></div>
         <div><dt>Cartes ×2 et ×3 restantes</dt><dd>{grille.restantes}</dd></div>
       </dl>
-      <button type="button" className="plaque plaque-action cs-grand" onClick={encaisser}>Encaisser {nombre(grille.gainSiEncaisse)} jetons</button>
+      <button type="button" className="plaque plaque-action cs-grand" onClick={encaisser}>Encaisser {jetonsTexte(grille.gainSiEncaisse)}</button>
       <p className="cs-rappel">Encaisser avant la fin garde une partie du gain seulement. Si tu quittes la salle sans encaisser, la grille reste en cours.</p>
     </div>
   </div>;

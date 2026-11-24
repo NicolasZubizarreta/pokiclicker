@@ -44,7 +44,7 @@ it('bilan par jeu, reprise de la mise et remise à zéro à la sortie', () => {
   expect(screen.getByText('Session : +20 jetons · 2 parties · 2 gagnées')).toBeTruthy();
   page.unmount();
   render(<PageCasino store={store} retour={vi.fn()} />);
-  expect(screen.getByText('Session : 0 jetons · 0 partie · 0 gagnée')).toBeTruthy();
+  expect(screen.getByText('Session : 0 jeton · 0 partie · 0 gagnée')).toBeTruthy();
 });
 
 it('avertit sans bloquer une mise qui dépasse la moitié du solde', () => {

@@ -72,6 +72,13 @@ describe('Voltorbe Flip : partie', () => {
     expect(encaisse.region.jetons).toBe(90 + Math.floor(100 * (100 + 2 * bd) * retenue / 10000));
     expect(encaisse.region.voltorbeEnCours).toBeUndefined();
   });
+  it('accorde « jeton » dans le message d’encaissement : 0 jeton, pas 0 jetons', () => {
+    const encaisse = encaisserVoltorbe({ jetons: 0, voltorbeEnCours: grille('0221111111111111111111111', '0'.repeat(25), 1) });
+    expect(encaisse.ok).toBe(true);
+    if (!encaisse.ok) return;
+    expect(encaisse.fin!.gain).toBe(0);
+    expect(encaisse.message).toBe('Tu encaisses 0 jeton (×1).');
+  });
   it('retourner toutes les cartes ×2 et ×3 termine la grille sans retenue', () => {
     let region: R = { jetons: 0, voltorbeEnCours: grille('0221111111111111111111111', '0'.repeat(25), 10) };
     const a = retournerVoltorbe(region, 1);

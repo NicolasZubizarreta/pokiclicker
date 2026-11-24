@@ -100,7 +100,7 @@ export function utiliserSurPokemon(
   }
   return {
     ok: true,
-    message: type === 'bonbon' ? `+${n} niveaux !` : type === 'calcium' ? `+${2 * n} % DPS permanent`
+    message: type === 'bonbon' ? `+${n} ${n >= 2 ? 'niveaux' : 'niveau'} !` : type === 'calcium' ? `+${2 * n} % DPS permanent`
       : `+${reglages.recompenses.bonheur.gainBaie * n} de bonheur`,
     region: {
       ...region,

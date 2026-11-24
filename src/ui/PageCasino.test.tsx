@@ -98,7 +98,7 @@ it('reprend une main après rechargement, cache la carte du croupier, permet de 
   const p = preparer(true, true, sabotDe('K-C', 'K-D', 'K-H', 'K-S', '10-S', '6-D', '9-H', '7-C', '10-D'));
   const vue = render(<PageCasino store={p.store} retour={vi.fn()} />);
   clic(/table/); clic('Distribuer'); expect(p.store.getState().casino.jetons).toBe(999);
-  expect(screen.getByText('Session : 0 jetons · 0 partie · 0 gagnée')).toBeTruthy();
+  expect(screen.getByText('Session : 0 jeton · 0 partie · 0 gagnée')).toBeTruthy();
   vue.unmount(); p.store.getState().arreter(); const reprise = p.ouvrir();
   render(<PageCasino store={reprise} retour={vi.fn()} />);
   expect(screen.getByText('Ta main · 20')).toBeTruthy();

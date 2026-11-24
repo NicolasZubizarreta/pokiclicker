@@ -172,6 +172,7 @@ describe('objets sur les Pokémon de l’équipe', () => {
 
   it.each([
     ['bonbon', 2, 100, 9, '+2 niveaux !'],
+    ['bonbon', 1, 99, 9, '+1 niveau !'],
     ['calcium', 1, 98, 10, '+2 % DPS permanent'],
     ['calcium', 2, 98, 2, '+4 % DPS permanent'],
   ] as const)('utilise %s ×%i sans modifier les entrées ni l’XP', (type, n, niveau, calcium, message) => {

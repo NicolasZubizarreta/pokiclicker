@@ -6,7 +6,7 @@ import { ScoresCasino } from './ScoresCasino';
 import { Image, imageConnue } from './Image';
 import { BoutiqueCasino } from './BoutiqueCasino';
 import { CarteAGratter } from './CarteAGratter';
-import { CarteJeu, Illustration, Jeton, nombre, Verdict, type Ton } from './casino-interface';
+import { CarteJeu, Illustration, Jeton, jetonsTexte, nombre, Verdict, type Ton } from './casino-interface';
 import { MachineASous } from './MachineASous';
 import { PileOuFace } from './PileOuFace';
 import { PlusOuMoins } from './PlusOuMoins';
@@ -123,11 +123,11 @@ export function PageCasino({ retour, store = storeJeu, offerts = 0 }: { retour()
   </section>;
 
   return <section className="casino cs-page" data-vue={vue}>
-    {cache === null && <details className="cs-gains"><summary>Session : {total.net > 0 ? '+' : ''}{nombre(total.net)} jetons · {libelleParties(total.parties, total.gagnees)}</summary>
-      <ul>{Object.entries(bilan).map(([nom, b]) => <li key={nom}>{nom} : {b.net > 0 ? '+' : ''}{nombre(b.net)} jetons · {libelleParties(b.parties, b.gagnees)}</li>)}</ul>
+    {cache === null && <details className="cs-gains"><summary>Session : {total.net > 0 ? '+' : ''}{jetonsTexte(total.net)} · {libelleParties(total.parties, total.gagnees)}</summary>
+      <ul>{Object.entries(bilan).map(([nom, b]) => <li key={nom}>{nom} : {b.net > 0 ? '+' : ''}{jetonsTexte(b.net)} · {libelleParties(b.parties, b.gagnees)}</li>)}</ul>
       <p className="cs-rappel">Le bilan repart à zéro à la sortie du casino. Les achats et échanges sont exclus.</p>
     </details>}
-    {cache === null && total.net < 0 && <p className="cs-rappel" role="note">Attention : tu as perdu {nombre(-total.net)} jetons pendant cette session. Pense à faire une pause.</p>}
+    {cache === null && total.net < 0 && <p className="cs-rappel" role="note">Attention : tu as perdu {jetonsTexte(-total.net)} pendant cette session. Pense à faire une pause.</p>}
     {vue === 'salle' && <div className="cs-salle-grille">
       <div className="cs-colonne">
         <figure className="cs-scene">
@@ -136,7 +136,7 @@ export function PageCasino({ retour, store = storeJeu, offerts = 0 }: { retour()
         </figure>
         <div className="cs-accueil">
           <div><h1 ref={titre} tabIndex={-1}>Casino</h1><p>Céladopole · Kanto</p>
-            <span className="cs-pastille cs-solde-mobile"><Jeton /><b data-jetons>{nombre(jetons)} jetons</b></span></div>
+            <span className="cs-pastille cs-solde-mobile"><Jeton /><b data-jetons>{jetonsTexte(jetons)}</b></span></div>
           <button type="button" className="plaque" onClick={retour}>Retour à la Carte</button>
         </div>
         <div className="cs-jeux-grille">{vitrines.map((v, i) => <article key={v.vue} data-tuto={i === 0 ? "casino-jeux" : undefined} className="cs-carte-jeu">
@@ -158,7 +158,7 @@ export function PageCasino({ retour, store = storeJeu, offerts = 0 }: { retour()
               <input id="cs-nb-jetons" className="cs-champ" inputMode="numeric" pattern="[0-9]*" autoComplete="off" value={nbJetons} onChange={e => saisir(e.target.value)} />
               <button type="button" className="plaque" aria-label="10 jetons de plus" onClick={() => pas(10)}>+</button></div>
             <div className="cs-rapides">{[10, 50, 100, 500].map(n =>
-              <button key={n} type="button" className="plaque" aria-label={`${n} jetons`} onClick={() => saisir(String(n))}>{n}</button>)}</div>
+              <button key={n} type="button" className="plaque" aria-label={jetonsTexte(n)} onClick={() => saisir(String(n))}>{n}</button>)}</div>
             <p className="cs-prix"><span>{nombre(prixJeton())} ₽ le jeton.</span>
               <span>Achat : <b>{Number.isNaN(nombreLu) ? '—' : `${nombre(nombreLu * prixJeton())} ₽`}</b></span>
               <span>Rachat : <b>{Number.isNaN(nombreLu) ? '—' : `${nombre(nombreLu * valeurJeton())} ₽`}</b></span></p>
@@ -173,7 +173,7 @@ export function PageCasino({ retour, store = storeJeu, offerts = 0 }: { retour()
           <p><b data-vip>{casino.vip.niveau ? `Niveau ${casino.vip.niveau.nom}` : 'Pas encore de niveau'}</b>
             {casino.vip.remisePourCent > 0 && <> · remise de {casino.vip.remisePourCent} % dans la boutique de jetons</>}</p>
           <p className="cs-doux">{casino.vip.suivant
-            ? `Encore ${nombre(casino.vip.restant)} jetons misés pour le niveau ${casino.vip.suivant.nom} (remise de ${casino.vip.suivant.remisePourCent} %).`
+            ? `Encore ${jetonsTexte(casino.vip.restant)} ${Math.abs(casino.vip.restant) >= 2 ? 'misés' : 'misé'} pour le niveau ${casino.vip.suivant.nom} (remise de ${casino.vip.suivant.remisePourCent} %).`
             : 'Niveau maximal atteint.'}</p>
         </section>
       </div>

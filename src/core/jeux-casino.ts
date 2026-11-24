@@ -52,6 +52,8 @@ const rouges = new Set(roulette.rouges);
 const optionsNombre = { maximumFractionDigits: 2, useGrouping: 'min2' } as unknown as Intl.NumberFormatOptions;
 const formatNombre = new Intl.NumberFormat('fr-FR', optionsNombre);
 // Les nombres sont écrits à la française (virgule, espaces entre les milliers), comme partout dans l'interface.
+/** « 0 jeton », « 1 jeton », « 2 jetons » : le pluriel commence à 2 (valeur absolue). */
+export const libelleJetons = (n: number) => `${formatNombre.format(n)} ${Math.abs(n) >= 2 ? 'jetons' : 'jeton'}`;
 export const remplir = (modele: string, valeurs: Record<string, string | number>) =>
   modele.replace(/\{(\w+)\}/g, (_, cle: string) => {
     const valeur = valeurs[cle];
@@ -158,7 +160,7 @@ export function jouerPlusOuMoins<R extends RegionJetons>(region: R, mise: number
   const nouvelleCarte = tirerCarteVisible(alea);
   const gagne = choix === 'plus' ? nouvelleCarte > carteVisible : nouvelleCarte < carteVisible;
   const gain = gagne ? gainPlusOuMoins(mise, carteVisible, choix) : 0;
-  const cartes = { visible: nomCarte(carteVisible), nouvelle: nomCarte(nouvelleCarte), gain };
+  const cartes = { visible: nomCarte(carteVisible), nouvelle: nomCarte(nouvelleCarte), gain: libelleJetons(gain) };
   return { ok: true, region: { ...debit.region, jetons: ajouterJetons(debit.region.jetons, gain) }, carteVisible, nouvelleCarte, gain,
     message: remplir(gagne ? messages.plusOuMoinsGagne : nouvelleCarte === carteVisible
       ? messages.plusOuMoinsEgalite : messages.plusOuMoinsPerdu, cartes) };

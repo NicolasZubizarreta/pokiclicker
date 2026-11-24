@@ -17,7 +17,7 @@ export function CollectionEclosions({ store = storeJeu }: { store?: StoreJeu }) 
   const transformation = { transform: `scaleX(${prochain ? n / prochain.seuil : 1})` };
   return <section className="cadre pension-collection" aria-label="Collection d’éclosions">
     <header className="pension-entete"><div><h2>Collection d’éclosions</h2><p>Chaque espèce éclose compte une fois, pour toujours.</p></div><p><strong className="pension-total">{n}/{total}</strong> espèces écloses</p></header>
-    {prochain ? <><p>Encore {prochain.seuil - n} espèces pour « {prochain.seuil} espèces écloses » : +{prochain.diamants} diamants</p>
+    {prochain ? <><p>Encore {prochain.seuil - n} {prochain.seuil - n >= 2 ? 'espèces' : 'espèce'} pour « {prochain.seuil} espèces écloses » : +{prochain.diamants} diamants</p>
       <div role="progressbar" aria-label="Prochain palier d’éclosions" aria-valuenow={n} aria-valuemin={0} aria-valuemax={prochain.seuil} className="pension-progression"><span style={transformation} /></div></> : <p>Collection complète.</p>}
     <ul className="pension-paliers">{paliers.map(p => {
       const obtenu = p.obtenu || p.atteint, suivant = p.id === prochain?.id;

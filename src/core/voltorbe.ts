@@ -1,5 +1,5 @@
 import donneesJeux from '../../data/casino-jeux.json';
-import { type Alea, chargerJeuxCasino, debiter, remplir } from './jeux-casino';
+import { type Alea, chargerJeuxCasino, debiter, libelleJetons, remplir } from './jeux-casino';
 import { ajouterJetons } from './plafonds';
 import type { VoltorbeEnCours } from './sauvegarde-types';
 import { sansCle } from './sans-cle';
@@ -124,7 +124,7 @@ function terminer<R extends RegionVoltorbe>(region: R, g: VoltorbeEnCours, valeu
   const modele = complete ? messages.voltorbeFini : messages.voltorbeEncaisse;
   return { ok: true, valeur, fin,
     region: { ...sansGrille(region), jetons: ajouterJetons(region.jetons, gain) },
-    message: remplir(modele, { gain, multiplicateur: multiple(multiplicateur) }) };
+    message: remplir(modele, { gain: libelleJetons(gain), multiplicateur: multiple(multiplicateur) }) };
 }
 
 export function retournerVoltorbe<R extends RegionVoltorbe>(region: R, index: number): ResultatVoltorbe<R> {

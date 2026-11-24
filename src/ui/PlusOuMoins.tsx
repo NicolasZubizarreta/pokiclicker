@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { chargerCasino, lireMise } from '../core/casino';
 import { gainPlusOuMoins, multiplicateurPlusOuMoins, nomCarte, rangsGagnants, type ChoixPlusOuMoins } from '../core/jeux-casino';
 import type { ActionsCasino } from './store-casino';
-import { CarteJeu, MiseCasino, mouvementReduit, nombre, Pluie, piecesPourGain, rangAffiche, usePluie, type CouleurCarte, type Occuper, type Signaler } from './casino-interface';
+import { CarteJeu, MiseCasino, jetonsTexte, mouvementReduit, nombre, Pluie, piecesPourGain, rangAffiche, usePluie, type CouleurCarte, type Occuper, type Signaler } from './casino-interface';
 
 const animation = chargerCasino().animationJeux;
 const COULEURS: CouleurCarte[] = ['S', 'H', 'D', 'C'];
@@ -47,7 +47,7 @@ export function PlusOuMoins({ actions, carte, signaler, occuper, jetons, verdict
         <path d={choix === 'plus' ? 'M12 19V5M5 12l7-7 7 7' : 'M12 5v14M5 12l7 7 7-7'} /></svg>{nom}</span>
       {possible ? <>
         <b className="cs-gain">×{(Math.floor(multiplicateurPlusOuMoins(visible, choix) * 100) / 100).toLocaleString('fr-FR')}</b>
-        <small>{miseLue > 0 ? `Rend ${nombre(gainPlusOuMoins(miseLue, visible, choix))} jetons` : 'Mise à choisir'}</small></>
+        <small>{miseLue > 0 ? `Rend ${jetonsTexte(gainPlusOuMoins(miseLue, visible, choix))}` : 'Mise à choisir'}</small></>
         : <small>{visible === null ? 'Tirage…' : choix === 'plus' ? 'Impossible sur un Roi' : 'Impossible sur un As'}</small>}
     </button>;
   };

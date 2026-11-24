@@ -2,7 +2,7 @@ import { useState, type ReactNode } from 'react';
 import { lireMise } from '../core/casino';
 import type { FinBlackjack } from '../core/casino';
 import type { ActionsCasino, AffichageCasino } from './store-casino';
-import { CarteJeu, MiseCasino, Pictogramme, Pluie, piecesPourGain, usePluie, nomCouleur, type CouleurCarte, type Signaler } from './casino-interface';
+import { CarteJeu, MiseCasino, jetonsTexte, Pictogramme, Pluie, piecesPourGain, usePluie, nomCouleur, type CouleurCarte, type Signaler } from './casino-interface';
 
 const figures: Record<string, string> = { A: 'As', J: 'Valet', Q: 'Dame', K: 'Roi' };
 const issues = { blackjack: 'Blackjack', gagne: 'Gagné', egalite: 'Égalité', perdu: 'Perdu', depasse: 'Dépassé', abandon: 'Abandon' } as const;
@@ -35,7 +35,7 @@ function TableFinale({ fin }: { fin: FinBlackjack }) {
   return <>
     <Mains titre="Croupier Rocket" croupier mains={[{ cartes: fin.croupier, valeur: fin.valeurCroupier, mise: 0, active: false }]} />
     <Mains titre="Ta main" mains={mains} />
-    {fin.assurance > 0 && <p className="cs-rappel">Assurance {fin.assurance} jetons · {fin.gainAssurance > 0 ? `payée +${fin.gainAssurance - fin.assurance}` : 'perdue'}</p>}
+    {fin.assurance > 0 && <p className="cs-rappel">Assurance {jetonsTexte(fin.assurance)} · {fin.gainAssurance > 0 ? `payée +${fin.gainAssurance - fin.assurance}` : 'perdue'}</p>}
   </>;
 }
 
@@ -71,7 +71,7 @@ export function TableBlackjack({ actions, main, signaler, jetons, verdict }: Pro
           <Mains titre="Ta main" mains={main.mains.map((m, i) => ({ cartes: m.cartes, valeur: m.valeur, mise: m.mise,
             active: main.phase === 'jeu' && i === main.active && m.statut === 'en-cours',
             issue: m.statut === 'depasse' ? { texte: 'Dépassé', ton: 'perte' as const } : m.statut === 'reste' ? { texte: 'Reste', ton: 'nul' as const } : undefined }))} />
-          <p className="cs-rappel">Main en cours · {main.engage} jetons engagés. Elle sera conservée si tu quittes le casino.</p>
+          <p className="cs-rappel">Main en cours · {jetonsTexte(main.engage)} {main.engage >= 2 ? 'engagés' : 'engagé'}. Elle sera conservée si tu quittes le casino.</p>
         </> : <>
           {fin ? <TableFinale fin={fin} /> : <p>Approche-toi de 21 sans dépasser.</p>}
           {verdict}

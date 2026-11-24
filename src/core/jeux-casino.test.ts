@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import casino from '../../data/casino.json';
 import {
-  analyserGratter, chargerJeuxCasino, combinaisonGratter, couleurRoulette, gainGratter, gainPlusOuMoins, gainsSymboleGratter,
+  analyserGratter, libelleJetons, chargerJeuxCasino, combinaisonGratter, couleurRoulette, gainGratter, gainPlusOuMoins, gainsSymboleGratter,
   gratter, jouerPlusOuMoins, jouerRoulette, multiplicateurPlusOuMoins, multiplicateurRoulette, nomCarte, pariGagnant,
   rangsGagnants, tirerCarteVisible, tirerNumeroRoulette, tirerSymboleGratter,
 } from './jeux-casino';
@@ -343,4 +343,9 @@ describe('conservation des jetons et simulations', () => {
       expect(gains / mises).toBeLessThan(1);
     });
   }
+});
+
+describe('libellé des jetons', () => {
+  it.each([[0, '0 jeton'], [1, '1 jeton'], [-1, '-1 jeton'], [2, '2 jetons'], [12345, '12 345 jetons']])(
+    'écrit %i : « %s »', (n, texte) => { expect(libelleJetons(n)).toBe(texte); });
 });

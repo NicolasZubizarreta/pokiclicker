@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { chargerCasino } from '../core/casino';
 import type { ActionsCasino, AffichageCasino } from './store-casino';
-import { Illustration, nombre, type Signaler } from './casino-interface';
+import { Illustration, jetonsTexte, nombre, type Signaler } from './casino-interface';
 
 const donnees = chargerCasino();
 const imageArticle = (article: (typeof donnees.boutique)[number]) =>
@@ -24,7 +24,7 @@ export function BoutiqueCasino({ actions, objets, vip, jetons, signaler, verdict
         return <li key={objet.id} className="cs-produit">
           <span className="cs-produit-image"><Illustration image={imageArticle(article)} nom={objet.nom} /></span>
           <div className="cs-produit-texte"><h3 className="cs-produit-nom">{objet.nom}</h3>
-            <p className="cs-produit-prix"><span className="cs-jeton" aria-hidden="true" />{nombre(objet.prix)} jetons</p>
+            <p className="cs-produit-prix"><span className="cs-jeton" aria-hidden="true" />{jetonsTexte(objet.prix)}</p>
             {article.type === 'pokemon' && <p className="cs-produit-desc">Niveau 25 · Équipe ou PC</p>}</div>
           <button type="button" className="plaque" disabled={!objet.abordable} aria-describedby={objet.raison ? `casino-${objet.id}` : undefined}
             onClick={() => obtenir(objet.id)}>Obtenir {objet.nom}</button>

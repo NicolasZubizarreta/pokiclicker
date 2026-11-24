@@ -3,8 +3,8 @@ import { IconeObjet } from './icones';
 import { cheminSprite } from './precharger';
 
 export const mouvementReduit = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
-export { formaterNombre as nombre } from './nombres';
-import { formaterNombre as nombre } from './nombres';
+export { formaterNombre as nombre, jetonsTexte } from './nombres';
+import { formaterNombre as nombre, jetonsTexte } from './nombres';
 
 /** Ton d'un verdict : toujours accompagné de son texte, jamais la couleur seule. */
 export type Ton = 'gain' | 'perte' | 'info' | 'alerte';
@@ -51,7 +51,7 @@ export function MiseCasino({ valeur, changer, bloque = false, jetons }: { valeur
       <button type="button" className="plaque" disabled={bloque} aria-label="Un jeton de plus" onClick={() => changer(String(Math.min(borne, courante + 1)))}>+</button>
     </div>
     <div className="cs-rapides">
-      {[1, 5, 10, 50].map(m => <button key={m} type="button" className="plaque" disabled={bloque} aria-label={`Mise de ${m} ${m > 1 ? 'jetons' : 'jeton'}`} onClick={() => changer(String(m))}>{m}</button>)}
+      {[1, 5, 10, 50].map(m => <button key={m} type="button" className="plaque" disabled={bloque} aria-label={`Mise de ${jetonsTexte(m)}`} onClick={() => changer(String(m))}>{m}</button>)}
       <button type="button" className="plaque" disabled={bloque} aria-label="Miser tous tes jetons" onClick={() => changer(String(borne))}>Max</button>
     </div>
   </div>;
