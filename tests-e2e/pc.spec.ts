@@ -50,6 +50,9 @@ async function remplirPc(page: Page, total: number) {
 }
 
 async function ouvrirPc(page: Page) {
+  // Un Pokémon du PC placé dans l'équipe peut être évolvable : la proposition d'évolution s'ouvre alors au chargement.
+  const evolution = page.locator('dialog.fenetre-evolution[open]');
+  if (await evolution.count()) await evolution.getByRole('button', { name: 'Plus tard', exact: true }).click();
   await page.getByRole('navigation').getByRole('button', { name: 'Menu', exact: true }).click();
   await page.getByRole('button', { name: 'PC de Léo', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'PC de Léo', level: 1 })).toBeVisible();
@@ -73,6 +76,9 @@ test('PC : tris, recherche, captures et pas de défilement horizontal', async ({
   await expect(page.getByText('200 Pokémon')).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
   const premier = () => grille(page).getByRole('button').first();
+  // Téléphone : les listes de tri et de filtre sont repliées derrière le bouton « Filtres ».
+  const filtres = page.getByRole('button', { name: /^Filtres/ });
+  if (await filtres.count() && await filtres.getAttribute('aria-expanded') === 'false') await filtres.click();
   // Téléphone et PC : liste déroulante « Trie par ».
   const trier = async (_nom: string, valeur: string) => { await page.getByLabel('Trie par').selectOption(valeur); };
   // Tri par défaut : DPS décroissant, avec la ligne « DPS » sur chaque carte.
@@ -138,7 +144,8 @@ test('PC : placer jusqu’à six, échanger, et tout survit au rechargement', as
   await ouvrirPc(page);
   await expect(page.getByText(apres!)).toBeVisible();
   await page.getByRole('button', { name: 'PC', exact: true }).click();
-  await expect(page.getByText(/(?:· |^)6 \/ 6$/)).toBeVisible();
+  // « Équipe · 6 / 6 » (panneau PC) et « Ton équipe · 6 / 6 » (téléphone) existent ensemble : on prend celui qui s'affiche.
+  await expect(page.getByText(/(?:· |^)6 \/ 6$/).locator('visible=true')).toBeVisible();
 });
 
 test('PC (ordinateur) : pas de bouton Retour, équipe alignée, le glisser-déposer est toujours actif', async ({ page }, informations) => {

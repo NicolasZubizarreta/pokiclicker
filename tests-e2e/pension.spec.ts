@@ -85,7 +85,7 @@ for (const largeur of [390, 1440]) {
     const apres = await regionSauvee(page);
     expect(apres.equipe.find((p: { uid: string }) => p.uid === ponte.oeufs[0].uid).oeuf).toEqual({ pasRestants: 50, pasMax: 50 });
     expect(apres.pension.emplacementsOeuf).toBe(3);
-    await page.getByRole('button', { name: telephone(page) ? 'Sortir de la pension' : 'Retour à Bourg Palette' }).click();
+    await page.getByRole('button', { name: 'Retour', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Pension Pokémon', exact: true })).toBeFocused();
     await page.reload();
     expect((await regionSauvee(page)).pension).toEqual(apres.pension);

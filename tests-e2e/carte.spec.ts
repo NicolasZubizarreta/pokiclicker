@@ -66,18 +66,30 @@ test('Carte : image sans bande, cibles tactiles, zone fermée et captures', asyn
 });
 
 test('Carte : vol vers une zone, fiche fermée au départ, puis retour au combat', async ({ page }) => {
+  // Bourg Palette est la zone de départ : on y arrive sans vol. Le vol se teste vers la Forêt de Jade, ouverte par le boss de la Route 1.
   await ouvrirCarte(page);
+  await page.evaluate(() => {
+    const cle = Object.keys(localStorage).find(c => c.startsWith('pokiclicker:region:') && c.endsWith(':kanto'))!;
+    const enveloppe = JSON.parse(localStorage.getItem(cle)!);
+    enveloppe.donnees.bossVaincus = ['kanto.route-1'];
+    enveloppe.revision += 1;
+    localStorage.setItem(cle, JSON.stringify(enveloppe));
+  });
+  await page.reload();
+  await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
+  await page.getByRole('button', { name: 'Carte', exact: true }).click();
+  await page.evaluate(() => Promise.all([...document.images].map(image => image.decode().catch(() => undefined))));
   const allerVers = page.getByRole('button', { name: 'Y aller' });
-  await voyagerVers(page, 'Bourg Palette');
+  await voyagerVers(page, 'Forêt de Jade');
   await page.clock.runFor(900);
   await expect(page.locator('[data-vol-overlay]')).toBeAttached();
-  if (telephone(page)) await expect(ligneZone(page, 'Bourg Palette')).toBeVisible();
+  if (telephone(page)) await expect(ligneZone(page, 'Forêt de Jade')).toBeVisible();
   else await expect(allerVers).toHaveCount(0);
   await page.clock.runFor(2300);
   await expect(page.getByRole('button', { name: 'Carte', exact: true })).toHaveAttribute('aria-current', 'page');
   await page.clock.runFor(700);
-  await expect(page.getByRole('heading', { name: 'Bourg Palette', exact: true })).toBeVisible();
-  await expect(page.getByText('Pas de Pokémon sauvage ici. Va sur la Route 1 pour combattre.')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Forêt de Jade', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
 });
 
 test('Carte : mouvement réduit, changement de zone sans overlay', async ({ page }) => {

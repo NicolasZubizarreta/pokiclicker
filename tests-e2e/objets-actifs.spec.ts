@@ -47,6 +47,9 @@ async function demarrer(page: Page) {
 }
 
 async function utiliser(page: Page, nom: string, stock = 1) {
+  // Bulbizarre niveau 16 peut évoluer : la proposition d'évolution (automatique) passe devant la page, on la remet à plus tard.
+  const evolution = page.locator('dialog.fenetre-evolution[open]');
+  if (await evolution.count()) await evolution.getByRole('button', { name: 'Plus tard', exact: true }).click();
   const sac = await ouvrirSac(page);
   await sac.getByRole('button', { name: `${nom} ×${stock}`, exact: true }).click();
   // Les objets empilables ouvrent un sélecteur de quantité : « Utiliser » l'emploie une fois (quantité 1 par défaut).
@@ -80,7 +83,8 @@ test('Repousse : stock, durée sauvegardée et expiration ; Attaque + et radar',
   await page.clock.install({ time: new Date(instant.getTime() + 15000) });
   await page.clock.pauseAt(new Date(instant.getTime() + 15000));
   await page.goto('/');
-  await expect(effets).toContainText('Repousse : 15 s');
+  // Les durées d'objets ne courent plus hors ligne (B-core-11) : les 5 s passées page fermée ne comptent pas.
+  await expect(effets).toContainText('Repousse : 20 s');
   await utiliser(page, 'Attaque +');
   await combat(page);
   await expect(effets).toContainText('Attaque + ×1,5 : 30 s');
@@ -99,10 +103,10 @@ test('Repousse : stock, durée sauvegardée et expiration ; Attaque + et radar',
   await page.keyboard.press('Escape');
   await expect(fenetre).not.toBeVisible();
   await expect(radar).toBeFocused();
-  await page.clock.fastForward(15000);
+  await page.clock.fastForward(20000);
   await expect(effets).not.toContainText('Repousse');
-  await expect(effets).toContainText('Attaque + ×1,5 : 15 s');
-  await page.clock.fastForward(15000);
+  await expect(effets).toContainText('Attaque + ×1,5 : 10 s');
+  await page.clock.fastForward(10000);
   await expect(effets.getByRole('listitem')).toHaveCount(0);
 });
 
@@ -146,19 +150,21 @@ test('Pierre Stase : pose et retrait ; Jeton : confirmation et chromatique sauve
   await demarrer(page);
   await utiliser(page, 'Pierre Stase');
   const bulbizarre = page.getByRole('button', { name: 'Bulbizarre, niveau 16', exact: true });
+  // Choisir l'objet ouvre le PC, toucher le Pokémon la pose ; le bouton de retrait est dans la fiche.
   await bulbizarre.click();
-  const retirerStase = page.getByRole('button', { name: 'Retirer Pierre Stase de Bulbizarre', exact: true });
-  await expect(retirerStase).toBeVisible();
+  await expect(page.getByText('Pierre Stase équipée !')).toBeVisible();
+  const retirerStase = page.getByRole('button', { name: 'Retirer la Pierre Stase de Bulbizarre', exact: true });
   // Téléphone et PC : l'évolution se fait dans la fiche (fenêtre) ; la Pierre Stase la bloque.
   await bulbizarre.click();
+  await expect(retirerStase).toBeVisible();
   await expect(page.getByRole('button', { name: 'Faire évoluer Bulbizarre' })).toHaveCount(0);
   await page.keyboard.press('Escape');
   await bulbizarre.click({ button: 'right' });
   await page.getByRole('menuitem', { name: "Retirer l'objet", exact: true }).click();
-  await expect(retirerStase).toHaveCount(0);
   await expect((await ouvrirSac(page)).getByRole('button', { name: 'Pierre Stase ×1', exact: true })).toBeVisible();
   await page.keyboard.press('Escape');
   await bulbizarre.click();
+  await expect(retirerStase).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Faire évoluer Bulbizarre' })).toBeVisible();
   await page.keyboard.press('Escape');
   await utiliser(page, 'Jeton Shiny');

@@ -30,6 +30,9 @@ async function demarrer(page: Page) {
   });
   await page.reload();
   await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
+  // Bulbizarre niveau 16 peut évoluer : la proposition d'évolution (automatique) s'ouvre au chargement, on la remet à plus tard.
+  const evolution = page.locator('dialog.fenetre-evolution[open]');
+  if (await evolution.count()) await evolution.getByRole('button', { name: 'Plus tard', exact: true }).click();
 }
 
 const fenetreSac = (page: Page) => page.locator('dialog[open]').getByRole('region', { name: 'Sac', exact: true });
@@ -54,14 +57,16 @@ test('Sac : fenêtre depuis le Combat, objet vers un Pokémon, annulation et ret
   await expect(bandeau).toBeVisible();
   await expect(page.getByRole('region', { name: 'Sac', exact: true })).toHaveCount(0);
   await capturer(page, 'choix');
-  // Fermer rouvre le Sac sur le PC.
+  // Fermer ramène à la page d'où le Sac a été ouvert (le Combat) et rouvre le Sac.
   await page.getByRole('button', { name: 'Fermer', exact: true }).click();
   await expect(fenetreSac(page)).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'PC de Léo', level: 1 })).toBeVisible();
-  // Appliquer l'objet garde le PC ouvert et pose la Pierre Stase.
+  await expect(page.getByRole('heading', { name: 'PC de Léo', level: 1 })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
+  // Choisir de nouveau l'objet rouvre le PC ; appliquer l'objet pose la Pierre Stase et ramène à la page d'où le Sac a été ouvert.
   await fenetreSac(page).getByRole('button', { name: 'Pierre Stase ×1', exact: true }).click();
   await page.getByRole('button', { name: 'Bulbizarre, niveau 16', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'PC de Léo' })).toBeVisible();
+  await expect(page.getByRole('button', { name: /^Attaquer / })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'PC de Léo', level: 1 })).toHaveCount(0);
   await expect(page.locator('dialog[open]')).toHaveCount(0);
   await page.reload();
   const equipe = await page.evaluate(() => {
