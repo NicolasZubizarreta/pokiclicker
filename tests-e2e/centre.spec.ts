@@ -12,7 +12,7 @@ const test = base.extend<{ surveillance: void }>({
     page.on('console', message => { if (message.type() === 'error') erreurs.push(message.text()); });
     // Exécution sur le build local sans démarrer de serveur ni télécharger de ressource.
     if (process.env.CENTRE_SANS_SERVEUR) {
-      const racine = resolve('dist');
+      const racine = resolve('dist-e2e');
       const types: Record<string, string> = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css',
         '.json': 'application/json', '.png': 'image/png', '.webp': 'image/webp', '.gif': 'image/gif', '.svg': 'image/svg+xml', '.woff2': 'font/woff2' };
       await page.route('**/*', async route => {

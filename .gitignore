@@ -31,3 +31,4 @@ dist-audit-compte/
 .env.*
 !.env.example
 *.log
+dist-e2e/

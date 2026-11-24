@@ -5,7 +5,7 @@ import { resolve, sep, extname } from 'node:path';
 
 test.beforeEach(async ({ page, baseURL }) => {
   if (baseURL !== 'http://localhost:4179') return;
-  const racine = resolve('dist');
+  const racine = resolve('dist-e2e');
   const types: Record<string, string> = { '.html': 'text/html', '.js': 'application/javascript', '.css': 'text/css',
     '.json': 'application/json', '.png': 'image/png', '.webp': 'image/webp', '.svg': 'image/svg+xml', '.woff2': 'font/woff2' };
   await page.route('http://localhost:4179/**', async route => {
