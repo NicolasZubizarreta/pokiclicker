@@ -1,7 +1,7 @@
 @media (min-width: 1024px) {
   main#contenu:has(.menu-pc, .monde-pc, .reglages-pc) { display: flex; flex-direction: column; overflow: hidden; }
   main#contenu > section:has(.menu-pc, .monde-pc, .reglages-pc) { display: flex; flex: 1; min-height: 0; width: 100%; max-width: none; }
-  main#contenu > section > div:has(> .reglages-pc) { display: flex; flex: 1; min-height: 0; }
+  main#contenu > section > div:has(> .reglages-pc), main#contenu > div:has(> .reglages-pc) { display: flex; flex: 1; min-height: 0; }
   .menu-pc, .monde-pc, .reglages-pc { --u: var(--spacing); flex: 1; min-width: 0; min-height: 0; gap: calc(var(--u) * 4); }
   .menu-pc { display: flex; flex-direction: column; }
   .menu-pc > section { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); grid-template-rows: auto minmax(0, 1fr); gap: calc(var(--u) * 5); flex: 1; min-height: 0; max-width: none; width: 100%; }
@@ -25,9 +25,13 @@
   .monde-pc img { width: 100%; height: 100%; object-fit: contain; }
   .monde-pc-regions { display: flex; flex-direction: column; gap: calc(var(--u) * 4); padding: calc(var(--u) * 4); background: var(--surface); min-height: 0; }
   .monde-pc-regions > ul { min-height: 0; overflow-y: auto; align-content: start; }
-  .reglages-pc { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: auto minmax(0, 1fr); align-items: start; }
+  .reglages-pc { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: auto; grid-auto-rows: minmax(0, 1fr); align-items: start; }
   .reglages-pc > header { grid-column: 1 / -1; gap: calc(var(--u) * 4); }
   .reglages-pc > header > button { gap: calc(var(--u) * 2); padding-inline: calc(var(--u) * 4); }
   .reglages-pc-panneau { padding: calc(var(--u) * 4); background: var(--surface); min-height: 0; max-height: 100%; overflow-y: auto; }
   .reglages-pc-panneau > section { border: 0; box-shadow: none; border-top: 1px solid var(--bordure); }
+}
+@media (min-width: 1400px) {
+  /* Quatre panneaux (Son, Combat, Collection, Affichage) sur une seule ligne dès 1400 px. En dessous : trois colonnes, la zone de contenu ne défile pas et chaque panneau défile dans son cadre. */
+  .reglages-pc { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
