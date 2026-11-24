@@ -12,7 +12,7 @@ Décision du 07/11/2026 : « le casino faudra faire un ticket à part car on va 
 
 Décision du 07/11/2026 : en attendant, l'équilibrage se cale par requête SQL sur les sauvegardes du serveur (progression, temps de jeu, zone). L'envoi du relevé détaillé (clic par clic, gains, achats) est repoussé ici.
 
-Exigence de Nicolas (07/11/2026) : « il faut tout ce qui est possible de tracer ». Le suivi doit pouvoir répondre à des questions comme « d'où viennent mes 47 Super Bonbons ? » : chaque gain et chaque dépense d'objet, d'argent et de bonbons est tracé avec sa source (victoire sur un chromatique, capture, achat Shop, casino, palier du Pokédex, événement, utilisation), horodaté, avec la zone et le niveau d'équipe. Le relevé de partie de la version de développement (`journal-zones.ts`, désactivé en production) sert de point de départ.
+Exigence de Nicolas (07/11/2026) : « il faut tout ce qui est possible de tracer ». Le suivi doit pouvoir répondre à des questions comme « d'où viennent mes 47 Super Bonbons ? » : chaque gain et chaque dépense d'objet, d'argent et de bonbons est tracé avec sa source (victoire sur un chromatique, capture, achat Shop, casino, palier du Pokédex, événement, utilisation), horodaté, avec la zone et le niveau d'équipe. Le relevé de partie de la version de développement (`journal-zones.ts`) servait de point de départ ; il a été retiré le 24/11/2026 (décision de Nicolas, voir `decisions-recette-24-11.md`), le code est dans l'historique git.
 
 ### Critères d'acceptation
 - [ ] Étant donné un gain ou une dépense d'objet, d'argent ou de bonbons, quand il a lieu, alors il est tracé avec sa source, la zone, l'heure et le niveau d'équipe, et une requête SQL permet de lister les gains d'un objet par source pour un compte.
@@ -23,3 +23,7 @@ Exigence de Nicolas (07/11/2026) : « il faut tout ce qui est possible de tracer
 
 ### Effort et risques
 3 à 5 jours. Table serveur, consentement, mention RGPD (voir `docs/projet/risques.md`).
+
+## Refaire le système d'objectifs du combat
+
+`[backlog]` · 24/11/2026 : Refaire le système d'objectifs du combat (carte tronquée à 390 px, Nicolas n'aime pas l'actuel). Décision de Nicolas lors de la recette du 24/11 : aucun correctif sur l'existant, pas de code avant un ticket validé. À cadrer avec lui (ce qu'il attend d'un objectif, où il s'affiche) avant toute maquette ; interface : design/DESIGN.md, trois variantes d'abord.
