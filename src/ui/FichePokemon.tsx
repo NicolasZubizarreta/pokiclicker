@@ -70,7 +70,15 @@ function FenetrePokemon({ uid, ouvert, fermer, declencheur, renommer = false }: 
   const [edition, editer] = useState(renommer && !membre?.pokemon.oeuf);
   const [surnom, saisir] = useState(membre ? nomAffiche(membre.pokemon) : '');
   const [erreurSurnom, signalerSurnom] = useState<string | null>(null);
-  const [erreur, signaler] = useState<string | null>(null);
+  const [erreur, fixerErreur] = useState<string | null>(null);
+  const minuteurErreur = useRef<ReturnType<typeof setTimeout>>(undefined);
+  /** Comme les annonces du jeu : le message disparaît seul après `reglages.interface.annonceMs`. */
+  const signaler = (message: string | null) => {
+    clearTimeout(minuteurErreur.current);
+    fixerErreur(message);
+    if (message) minuteurErreur.current = setTimeout(() => fixerErreur(null), reglages.interface.annonceMs);
+  };
+  useEffect(() => () => clearTimeout(minuteurErreur.current), []);
   const [erreurConfirmation, signalerConfirmation] = useState<string | null>(null);
 
   useEffect(() => {

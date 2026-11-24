@@ -7,6 +7,7 @@ import type { DonneesRegion, PokemonPossede } from '../core/sauvegarde';
 import { FichePokemon } from './FichePokemon';
 import { storeJeu } from './store';
 import { calculerMaxXp } from '../core/recompenses';
+import { reglages } from '../core/reglages';
 
 vi.mock('./store', async (original) => {
   const module = await original<typeof import('./store')>();
@@ -462,4 +463,18 @@ it.each([false, true])('retire la Pierre Stase depuis la fiche, équipe ou PC, t
   fireEvent.click(screen.getByRole('button', { name: 'Retirer la Pierre Stase de Bourgeon' }));
   expect(retirerStase).toHaveBeenCalledWith('fiche');
   vi.unstubAllGlobals();
+});
+
+it('un refus affiché dans la fiche disparaît seul, comme les annonces du jeu', async () => {
+  vi.useFakeTimers();
+  try {
+    afficher();
+    vi.spyOn(storeJeu.getState(), 'basculerFavori').mockReturnValue('Retire d’abord l’objet tenu !');
+    fireEvent.click(screen.getByRole('button', { name: 'Ajoute aux favoris' }));
+    expect(screen.getByRole('alert').textContent).toBe('Retire d’abord l’objet tenu !');
+    await act(async () => { await vi.advanceTimersByTimeAsync(reglages.interface.annonceMs - 1); });
+    expect(screen.queryByRole('alert')).not.toBeNull();
+    await act(async () => { await vi.advanceTimersByTimeAsync(2); });
+    expect(screen.queryByRole('alert')).toBeNull();
+  } finally { vi.useRealTimers(); }
 });
