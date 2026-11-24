@@ -19,3 +19,13 @@ it('affiche les emplacements, confirme le remplacement et applique une équipe',
   expect(screen.getByRole('status').textContent).toBe('Indisponible');
   expect(within(screen.getByRole('region', { name: 'Équipe B' })).getByText('Appliquer').hasAttribute('disabled')).toBe(true);
 });
+
+it('dit quels Pokémon ont été laissés de côté quand l’équipe est appliquée', () => {
+  const suivi = suiviVide(); suivi.equipes[0] = ['absent'];
+  const phrase = 'Équipe A appliquée, mais Bulbizarre n’est plus disponible.';
+  vi.spyOn(storeJeu, 'getState').mockReturnValue({ ...storeJeu.getState(), suivi, equipe: [], pc: [],
+    appliquerEquipe: vi.fn(() => null), avertissementEquipe: phrase });
+  render(<EquipesEnregistrees />);
+  fireEvent.click(within(screen.getByRole('region', { name: 'Équipe A' })).getByText('Appliquer'));
+  expect(screen.getByRole('status').textContent).toBe(phrase);
+});

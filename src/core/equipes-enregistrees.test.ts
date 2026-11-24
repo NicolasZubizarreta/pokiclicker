@@ -63,3 +63,28 @@ it('refuse un emplacement vide, tous les absents ou un déplacement forcé des �
   r.suivi = enregistrerEquipe(suiviVide(), 0, ['b']);
   expect(appliquerEquipeEnregistree(r, 0).ok).toBe(false);
 });
+
+it('nomme dans le message les Pokémon de la Pension, compte les relâchés et dit quand la place manque', () => {
+  const r = region([pokemon('a')], [pokemon('b')]);
+  r.pension.parents = [{ ...pokemon('p'), numero: 1 }];
+  r.suivi = enregistrerEquipe(suiviVide(), 0, ['b', 'p', 'relache']);
+  const resultat = appliquerEquipeEnregistree(r, 0);
+  expect(resultat.ok && resultat.message).toBe('Équipe A appliquée, mais Bulbizarre et 1 Pokémon ne sont plus disponibles.');
+
+  const seul = region([pokemon('a')], [pokemon('b')]);
+  seul.suivi = enregistrerEquipe(suiviVide(), 1, ['b', 'relache']);
+  const un = appliquerEquipeEnregistree(seul, 1);
+  expect(un.ok && un.message).toBe('Équipe B appliquée, mais 1 Pokémon n’est plus disponible.');
+
+  const pleine = region([pokemon('a'), oeuf], ['b', 'c', 'd', 'e', 'f', 'g'].map(pokemon));
+  pleine.suivi = enregistrerEquipe(suiviVide(), 2, ['b', 'c', 'd', 'e', 'f', 'g']);
+  const limite = appliquerEquipeEnregistree(pleine, 2);
+  expect(limite.ok && limite.message).toBe('Équipe C appliquée, mais Pikachu reste au PC (équipe pleine).');
+});
+
+it('ne dit rien quand tous les Pokémon de l’équipe sont présents', () => {
+  const r = region([pokemon('a')], [pokemon('b')]);
+  r.suivi = enregistrerEquipe(suiviVide(), 0, ['b']);
+  const resultat = appliquerEquipeEnregistree(r, 0);
+  expect(resultat.ok && resultat.message).toBeUndefined();
+});

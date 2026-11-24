@@ -30,7 +30,8 @@ export function EquipesEnregistrees() {
           }}>{confirmation === i ? 'Remplacer ?' : 'Enregistrer'}</button>
           <button type="button" disabled={!equipes[i]?.length} className="plaque min-h-11 px-4" onClick={() => {
             confirmer(null);
-            annoncer(storeJeu.getState().appliquerEquipe(i) ?? `Équipe ${lettre} appliquée`);
+            const erreur = storeJeu.getState().appliquerEquipe(i);
+            annoncer(erreur ?? storeJeu.getState().avertissementEquipe ?? `Équipe ${lettre} appliquée`);
           }}>Appliquer</button>
         </div>
       </section>)}

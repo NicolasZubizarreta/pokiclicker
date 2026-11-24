@@ -210,6 +210,8 @@ export type AffichageJeu = ActionsCasino & ActionsSafari & {
   echanger(uidPc: string, uidEquipe: string): string | null;
   enregistrerEquipe(emplacement: number): string | null;
   appliquerEquipe(emplacement: number): string | null;
+  /** Phrase de la dernière application d'équipe quand des Pokémon ont été laissés de côté ; null sinon. */
+  avertissementEquipe: string | null;
   choisirTitre(titre: string | undefined): void;
   choisirLiguePlus(rang: number): { ok: true } | { ok: false; raison: string };
   annulerEchange(): void;
@@ -1455,7 +1457,17 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     placerDansEquipe: uid => modifierEquipe(region => equipe.placerDansEquipe(region, uid), uid, false, 'pc'),
     echanger: (uidPc, uidEquipe) => modifierEquipe(region => equipe.echanger(region, uidPc, uidEquipe), undefined, true, 'pc'),
     enregistrerEquipe: emplacement => modifierEquipe(region => enregistrerEquipeCourante(region, emplacement)),
-    appliquerEquipe: emplacement => modifierEquipe(region => appliquerEquipeEnregistree(region, emplacement), undefined, true, 'pc'),
+    avertissementEquipe: null,
+    appliquerEquipe(emplacement) {
+      let avertissement: string | null = null;
+      const erreur = modifierEquipe(region => {
+        const resultat = appliquerEquipeEnregistree(region, emplacement);
+        avertissement = resultat.ok ? resultat.message ?? null : null;
+        return resultat;
+      }, undefined, true, 'pc');
+      store.setState({ avertissementEquipe: erreur === null ? avertissement : null });
+      return erreur;
+    },
     choisirLiguePlus(rang) {
       if (!initialise) return { ok: false, raison: 'Jeu non chargé.' };
       if (region.zoneId === 'kanto.ligue-pokemon') return { ok: false, raison: 'Quitte la Ligue avant de changer de rang.' };
