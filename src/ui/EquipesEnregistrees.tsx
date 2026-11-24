@@ -17,7 +17,7 @@ export function EquipesEnregistrees() {
   const annonce = message && <p role="status" className="col-span-full">{message}</p>;
   return <section aria-label="Équipes enregistrées" className={telephone ? 'space-y-2 py-2 text-base' : 'text-base'} onKeyDown={event => { if (event.key === 'Escape') ouvrir(false); }}>
     <button type="button" aria-expanded={ouvert} aria-controls="equipes-enregistrees-liste" className="plaque min-h-11 px-4" onClick={() => ouvrir(!ouvert)}>Équipes enregistrées</button>
-    {ouvert && <div id="equipes-enregistrees-liste" className={telephone ? 'grid grid-cols-1 gap-4' : 'cadre absolute right-0 top-full z-20 mt-2 grid w-max max-w-[90vw] grid-cols-3 gap-4 bg-surface p-4'}>
+    {ouvert && <div id="equipes-enregistrees-liste" className={telephone ? 'grid grid-cols-1 gap-4' : 'cadre absolute right-0 top-full z-20 mt-2 grid w-max grid-cols-1 gap-4 xl:grid-cols-3 bg-surface p-4'}>
       {['A', 'B', 'C'].map((lettre, i) => <section key={lettre} aria-label={`Équipe ${lettre}`} className="cadre space-y-2 bg-surface p-4">
         <h2 className="font-titre font-semibold">Équipe {lettre}</h2>
         <div className="flex flex-wrap">{equipes[i]?.map(uid => {
