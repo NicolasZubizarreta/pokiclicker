@@ -57,8 +57,8 @@ test('Pokéball ×2 : prix, sauvegarde, filtre et largeur', async ({ page }, inf
   const carte = page.getByRole('article').filter({ has: page.getByRole('heading', { name: 'Pokéball', exact: true }) });
   const prix = Number((await carte.locator('strong').innerText()).replace(/\D/g, ''));
   const solde = `${(100000 - 2 * prix).toLocaleString('fr-FR')} ₽`;
-  await carte.getByRole('button', { name: 'Plus', exact: true }).click();
-  await carte.getByRole('button', { name: 'Acheter ×2', exact: true }).click();
+  await carte.getByRole('button', { name: '+ : augmenter', exact: true }).click();
+  await carte.getByRole('button', { name: /^Acheter ×2 : / }).click();
   await expect(page.getByText(solde).locator('visible=true').first()).toBeVisible();
   await page.reload();
   await page.getByRole('button', { name: 'Shop', exact: true }).click();
@@ -112,8 +112,11 @@ test('Protéine unique conservée au rechargement', async ({ page }) => {
 test('Objet trop cher : achat désactivé sans texte superflu', async ({ page }) => {
   await demarrer(page, 0);
   const carte = page.getByRole('article').filter({ has: page.getByRole('heading', { name: 'Pokéball', exact: true }) });
-  await expect(carte.getByRole('button', { name: /^Acheter ×1/ })).toBeDisabled();
-  await expect(page.getByText(/manque|panier|Prépare/)).toHaveCount(0);
+  // Audit du 19/11 : le bouton grisé porte lui-même « Il te manque X ₽ » ; aucun autre texte ni panier.
+  await expect(carte.getByRole('button', { name: /^Il te manque [\d\s  ]+₽$/ })).toBeDisabled();
+  await expect(carte.getByRole('button', { name: /^Acheter ×/ })).toHaveCount(0);
+  await expect(page.getByText(/panier|Prépare/)).toHaveCount(0);
+  await expect(page.getByText(/manque/)).toHaveCount(await page.locator('button', { hasText: /manque/ }).count());
 });
 
 test('Super Bonbon : annulation puis deux niveaux', async ({ page }, informations) => {
@@ -131,7 +134,7 @@ test('Super Bonbon : annulation puis deux niveaux', async ({ page }, information
   const bulbizarre = page.getByRole('button', { name: 'Bulbizarre, niveau 5', exact: true });
   await bulbizarre.click();
   const ligne = page.getByRole('group', { name: 'Quantité', exact: true });
-  await ligne.getByRole('button', { name: 'Plus', exact: true }).click();
+  await ligne.getByRole('button', { name: '+ : augmenter', exact: true }).click();
   await expect(ligne.locator('output')).toHaveText('2');
   await ligne.getByRole('button', { name: 'Utiliser', exact: true }).click();
   // Le mode reste actif après l'application ; le Sac permet de vérifier le stock.

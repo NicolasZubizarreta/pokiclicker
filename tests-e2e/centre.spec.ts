@@ -37,7 +37,7 @@ async function preparer(page: Page, ouvert: boolean) {
     sessionStorage.setItem('centre-prepare', '1');
     const enveloppe = JSON.parse(localStorage.getItem(cle)!);
     Object.assign(enveloppe.donnees, { argent: 50000, zoneId: 'kanto.tour-pokemon', etape: 1,
-      starterId: 1, evenementsJoues: ['kanto.intro'], drapeaux: ['sac-ouvert'],
+      starterId: 1, evenementsJoues: ['kanto.intro'], drapeaux: ['sac-ouvert', 'starter-choisi'],
       equipe: [{ uid: 'centre-starter', numero: 1, sexe: 'male', niveau: 5, xp: 0,
         shiny: false, bonheur: 0, pierreEternelle: false, calcium: 0, favori: false }],
       bossVaincus: [...boss, ...(ouvert ? ['kanto.tour-pokemon'] : [])],
@@ -84,7 +84,7 @@ test('Centre : vol, achat, Sac, retour et rechargement', async ({ page }, inform
   // Les messages d'achat sont des pop-up (calque de notifications) : la page elle-même n'a plus de ligne d'état.
   await expect(page.getByRole('status').and(page.locator(':not(output)'))).toHaveCount(0);
   // PC et téléphone : même présentation (« Ton achat », quantité, Acheter), l'objet sélectionné par défaut est Attaque +.
-  await page.getByRole('button', { name: 'Plus', exact: true }).click();
+  await page.getByRole('button', { name: '+ : augmenter', exact: true }).click();
   await page.getByRole('button', { name: /^Acheter ×2/ }).click();
   await expect(page.locator('[data-notifications]')).toContainText('Attaque + ×2 acheté.');
   await expect(page.locator('#contenu').getByText(/^26.000.₽$/)).toBeVisible();
