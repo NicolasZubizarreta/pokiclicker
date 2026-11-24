@@ -18,8 +18,9 @@ async function demarrer(page: Page, largeur: number, hauteur: number) {
     const enveloppe = JSON.parse(localStorage.getItem(cle)!);
     const pokemon = (numero: number, surnom?: string) => ({ uid: `i2-${numero}`, numero, surnom,
       niveau: 16, xp: 0, shiny: false, bonheur: 0, pierreEternelle: false, calcium: 0, sexe: 'male', favori: false });
-    enveloppe.donnees.equipe = [pokemon(1, 'Daran'), pokemon(4, 'Gabriel'), pokemon(7, 'DinnerBone'),
-      pokemon(10, 'jeb_'), pokemon(13, 'caca'), pokemon(6, 'Bjorn')];
+    // Espèces sans évolution possible : un Pokémon de niveau 16 encore évolutif ouvre la fenêtre d'évolution au chargement.
+    enveloppe.donnees.equipe = [pokemon(3, 'Daran'), pokemon(6, 'Gabriel'), pokemon(9, 'DinnerBone'),
+      pokemon(65, 'jeb_'), pokemon(94, 'caca'), pokemon(149, 'Bjorn')];
     enveloppe.revision += 1;
     localStorage.setItem(cle, JSON.stringify(enveloppe));
   });

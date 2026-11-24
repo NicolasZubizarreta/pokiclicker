@@ -83,11 +83,19 @@ test('Équipe : renommer, favori et reprise après rechargement', async ({ page 
   await expect(fiche.getByRole('button', { name: 'Renommer Flammèche' })).toBeFocused();
   await fiche.getByRole('button', { name: 'Ajoute aux favoris' }).click();
   await expect(fiche.getByRole('button', { name: 'Retire des favoris' })).toHaveAttribute('aria-pressed', 'true');
-  // Relâcher demande une confirmation, « Annuler » garde le Pokémon.
-  await fiche.getByRole('button', { name: 'Relâcher' }).click();
+  // Un favori ne se relâche pas : le bouton est grisé et dit pourquoi.
+  const relacher = fiche.getByRole('button', { name: 'Relâcher' });
+  await expect(relacher).toBeDisabled();
+  await expect(fiche).toContainText('Les favoris ne se relâchent pas');
+  // Sans le favori, Relâcher demande une confirmation, « Annuler » garde le Pokémon.
+  await fiche.getByRole('button', { name: 'Retire des favoris' }).click();
+  await expect(relacher).toBeEnabled();
+  await relacher.click();
   const confirmation = page.locator('dialog[open]').last();
   await expect(confirmation).toContainText('Veux-tu vraiment relâcher');
   await confirmation.getByRole('button', { name: 'Annuler' }).click();
+  await fiche.getByRole('button', { name: 'Ajoute aux favoris' }).click();
+  await expect(fiche.getByRole('button', { name: 'Retire des favoris' })).toHaveAttribute('aria-pressed', 'true');
   await page.keyboard.press('Escape');
   await expect(page.locator('dialog[open]')).toHaveCount(0);
   // Les actions s'enregistrent tout de suite : rechargement.
