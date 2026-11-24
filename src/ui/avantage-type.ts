@@ -5,8 +5,10 @@ export function moyenneAvantage(cases: CaseEquipe[]): number | null {
   return membres.length ? membres.reduce((total, membre) => total + membre!.multiplicateur, 0) / membres.length : null;
 }
 
+const formatMultiplicateur = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1 });
+
 export function libelleMultiplicateur(m: number): string {
-  return `×${m.toLocaleString('fr-FR', { maximumFractionDigits: 1 })}`;
+  return `×${formatMultiplicateur.format(m)}`;
 }
 
 export function nature(m: number): 'fort' | 'faible' | 'neutre' {

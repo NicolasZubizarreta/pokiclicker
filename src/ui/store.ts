@@ -253,7 +253,13 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
     return { id, nom: labo.nom, decor: labo.decor, ancienId: labo.ancienId,
       sansCombat: true, liens: [{ vers: labo.depuis }] };
   };
-  const affichageChen = () => ({ bilan: messageBilan(bilanPokedex(pokedex, catalogue)), defi: messageDefi(region, { especes: pokedexDeKanto(pokedex, catalogue).nombre, total: pokedexDeKanto(pokedex, catalogue).total, finVue: region.evenementsJoues.includes('kanto.fin-pokedex') }), rejouable: peutRejouer(region) });
+  // Le bilan balaie toutes les espèces et toutes les zones : il ne change qu'avec le Pokédex, pas à chaque tick.
+  let bilanMemo: { pokedex: readonly number[]; message: string } | undefined;
+  const messageBilanCourant = () => {
+    if (bilanMemo?.pokedex !== pokedex) bilanMemo = { pokedex, message: messageBilan(bilanPokedex(pokedex, catalogue)) };
+    return bilanMemo.message;
+  };
+  const affichageChen = () => ({ bilan: messageBilanCourant(), defi: messageDefi(region, { especes: pokedexDeKanto(pokedex, catalogue).nombre, total: pokedexDeKanto(pokedex, catalogue).total, finVue: region.evenementsJoues.includes('kanto.fin-pokedex') }), rejouable: peutRejouer(region) });
   const defiEnCombat = () => region.zoneId === 'kanto.labo'
     && region.drapeaux.includes('defi-chen-actif') && region.drapeaux.includes('defi-chen-intro-vue')
     && !region.drapeaux.includes('defi-chen-gagne') && !commandeCourante(evenements, region);
@@ -730,6 +736,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         numero, nom: catalogue.parNumero(numero).nom, shiny: starters![numero],
       })) : [],
     };
+    const chenCourant = affichageChen();
     const ennemi = coeur ? (({ numero, niveau, pv, pvMax, boss, shiny, rarete }) => ({ numero, niveau, pv, pvMax, boss, shiny, rarete }))(coeur.ennemi) : null;
     const fin: AffichageJeu['fin'] = {
       diplome: region.ameliorations.includes('diploma') && region.diplomeLe
@@ -762,7 +769,7 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
         : { possede: region.ameliorations.includes('leftovers'), actif: coeur?.autoClic ?? false },
       autoAttaque: preferences.autoAttaque, autoClicLie: preferences.autoClicLie, arretAuto: preferences.arretAuto,
       pc: region.pc, pokedex, vus, especesShiny: dex.especesShiny(region),
-      chen: JSON.stringify(affichageChen()) === JSON.stringify(precedent.chen) ? precedent.chen : affichageChen(),
+      chen: JSON.stringify(chenCourant) === JSON.stringify(precedent.chen) ? precedent.chen : chenCourant,
       blue: JSON.stringify(etatBlue(region)) === JSON.stringify(precedent.blue) ? precedent.blue : etatBlue(region),
       pension: JSON.stringify(affichagePension) === JSON.stringify(precedent.pension) ? precedent.pension : affichagePension,
       accesPc: accesAuPc.ouvert === precedent.accesPc.ouvert && accesAuPc.raison === precedent.accesPc.raison
