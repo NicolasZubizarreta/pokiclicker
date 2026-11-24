@@ -1,7 +1,7 @@
 import { compteInitial, creerGestionnaire, ErreurStockage } from '../core/sauvegarde';
 import type { DonneesRegion } from '../core/sauvegarde';
 import type { DonneesCompte, PreferencesCombat } from '../core/sauvegarde-types';
-import { mesuresDe, registreSucces, succesAccordes } from '../core/succes';
+import { mesuresDe, registreSucces, succesAccordes, type DefinitionSucces } from '../core/succes';
 import { reglages } from '../core/reglages';
 import { kanto } from '../core/regions';
 import { equipeDeDepart } from './equipe-de-depart';
@@ -60,6 +60,7 @@ export function ouvrirPartie(options: Parameters<typeof creerGestionnaire>[0],
   // Région et capturés tels qu'écrits en dernier : un simple nouveau « vu » ne réécrit pas la région (sa révision n'avance pas).
   let derniereBase = JSON.stringify([enveloppe.donnees, partie.donnees.pokedexNational]);
   let bloquee = false;
+  const rattrapage = new Set<string>();
   const tempsBase = partie.donnees.statistiques.tempsJeuMs ?? 0;
   return {
     region: enveloppe.donnees,
@@ -92,11 +93,24 @@ export function ouvrirPartie(options: Parameters<typeof creerGestionnaire>[0],
       gestionnaire.ecrireCompte({ ...actuel, preferences: { ...actuel.preferences, ...structuredClone(p) } });
       dernieresPreferences = suivantes;
     },
-    /** `tempsSessionMs` : temps de jeu écoulé depuis l'ouverture ; il s'ajoute au temps déjà gardé dans la partie et n'est écrit qu'avec une vraie modification. */
-    enregistrer(region: DonneesRegion, pokedex: readonly number[], tempsSessionMs = 0, vus?: readonly number[]) {
+    /**
+     * Succès déjà atteignables à l'ouverture de la partie mais pas encore crédités (sauvegarde ancienne) : ils sont crédités
+     * sans message, seuls les succès gagnés ensuite sont annoncés. À appeler une fois l'état de départ établi.
+     */
+    noterRattrapage(region: DonneesRegion, pokedex: readonly number[]) {
+      try {
+        const actuel = gestionnaire.chargerCompte()?.donnees ?? compteInitial();
+        succesAccordes(registreSucces, actuel, mesuresDe(region, pokedex)).nouveaux.forEach(succes => rattrapage.add(succes.id));
+      } catch { /* sans relevé, tout reste annoncé */ }
+    },
+    /**
+     * `tempsSessionMs` : temps de jeu écoulé depuis l'ouverture ; il s'ajoute au temps déjà gardé dans la partie et n'est écrit qu'avec une vraie modification.
+     * Renvoie les succès crédités par cet enregistrement (hors rattrapage silencieux).
+     */
+    enregistrer(region: DonneesRegion, pokedex: readonly number[], tempsSessionMs = 0, vus?: readonly number[]): DefinitionSucces[] {
       const vusComplets = completerVus(vus ?? partie.donnees.vus, pokedex);
       const suivante = JSON.stringify([region, pokedex, vusComplets]);
-      if (bloquee || suivante === derniere) return;
+      if (bloquee || suivante === derniere) return [];
       try {
         const actuelle = gestionnaire.chargerPartie(partie.id);
         // Un renommage depuis un autre écran change la révision (B-core-17) mais pas le reste : on repart de sa révision.
@@ -123,9 +137,12 @@ export function ouvrirPartie(options: Parameters<typeof creerGestionnaire>[0],
       try {
         const compteActuel = gestionnaire.chargerCompte()?.donnees ?? compteInitial();
         const resultat = succesAccordes(registreSucces, compteActuel, mesuresDe(region, pokedex));
-        if (resultat.nouveaux.length) gestionnaire.ecrireCompte(resultat.compte);
+        if (!resultat.nouveaux.length) return [];
+        gestionnaire.ecrireCompte(resultat.compte);
+        return resultat.nouveaux.filter(succes => !rattrapage.has(succes.id));
       } catch {
         // La partie est déjà sauvegardée ; un échec du compte ne doit pas la bloquer.
+        return [];
       }
     },
   };

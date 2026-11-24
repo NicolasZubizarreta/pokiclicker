@@ -47,6 +47,7 @@ import { appliquerVictoire, calculerMaxXp, delaiEnnemiSuivant } from '../core/re
 import type { FormeCarte, Zone, ZoneMonde } from '../core/monde';
 import { kanto } from '../core/regions';
 import { reglages, type Ton } from '../core/reglages';
+import { messageSuccesObtenus } from '../core/succes';
 import { etatMondeDe, versMembreEquipe } from '../core/sauvegarde';
 import type { DonneesRegion, PokemonPossede, Stockage } from '../core/sauvegarde';
 import type { PreferencesCombat, ReglagesArret } from '../core/sauvegarde-types';
@@ -340,8 +341,14 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
   const enregistrer = () => {
     if (!initialise) return;
     try {
-      persistance.enregistrer(region, pokedex, tempsJeuMs, vus);
+      const succes = persistance.enregistrer(region, pokedex, tempsJeuMs, vus);
       actualiserCompte();
+      // Le réglage « Notifications » coupe aussi cette annonce ; le crédit des diamants, lui, est inchangé.
+      const message = preferences.notifications ? messageSuccesObtenus(succes) : null;
+      if (message) {
+        annonce = annonce ? `${annonce} · ${message}` : message;
+        finAnnonceMs = tempsJeuMs + reglages.interface.annonceMs;
+      }
       persistance.enregistrerPreferences(preferences);
     }
     catch (cause) { erreur = detailErreur(cause); }
@@ -1562,6 +1569,8 @@ export function creerStoreJeu({ horloge, stockage, alea, genererId, evenements =
           // Rechargement (ou fermeture) pendant le Panthéon : le défi réservé repart comme à la sortie du Panthéon.
           if (region.drapeaux.includes(DRAPEAU_DEFI_RESERVE)) debutDefiChenMs = horloge.maintenant() + donneesPantheon.delais.defiChenMs;
           noterDansPokedex();
+          // Succès déjà atteints par une sauvegarde ancienne : crédités sans message.
+          persistance.noterRattrapage(region, pokedex);
           // Enregistre tout de suite la dérivation : un autre appareil ne la refera pas avec un état différent.
           if (tutosMigres) enregistrer();
           traiter();

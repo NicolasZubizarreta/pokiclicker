@@ -13,7 +13,8 @@ vi.mock('./persistance', () => ({
   ouvrirPartie: () => ({ region: structuredClone(persiste.region), pokedex: [1], vus: [1],
     preferences: { ...structuredClone(reglages.depart.preferences), autoAttaque: false,
       arretAuto: { ...reglages.depart.preferences.arretAuto, actif: false } },
-    enregistrer: (region: DonneesRegion) => { persiste.region = structuredClone(region); },
+    enregistrer: (region: DonneesRegion) => { persiste.region = structuredClone(region); return []; },
+    noterRattrapage: vi.fn(),
     compte: () => ({ diamants: 0, succes: [], skins: [], preferences: {} }),
     enregistrerPreferences: vi.fn() }),
 }));

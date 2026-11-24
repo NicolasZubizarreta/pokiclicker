@@ -88,7 +88,7 @@ describe('progression du store', () => {
       equipe: [{ ...membre, surnom: 'Bulbizarre', niveau: 99, xp: calculerMaxXp(1, 99) - 1 }] });
     store.getState().basculerAutoAttaque();
     for (let i = 0; i < 200 && store.getState().obtentionBadge === null; i++) avancer();
-    expect(store.getState().annonce).toBe('Bulbizarre passe au niveau 100 ! · Badge Roche obtenu ! · Zone débloquée !');
+    expect(store.getState().annonce).toBe('Bulbizarre passe au niveau 100 ! · Badge Roche obtenu ! · Zone débloquée ! · Succès obtenus : Premier badge, Au sommet');
   });
 
   it('formate le prochain palier au singulier, au pluriel et le Pokédex complet', () => {

@@ -1,6 +1,6 @@
 import { expect, it } from 'vitest';
 import { compteInitial, regionInitiale } from './sauvegarde';
-import { chargerSucces, MESURES_SUCCES, mesuresDe, mesuresVides, registreSucces, succesAccordes, validerSucces } from './succes';
+import { chargerSucces, MESURES_SUCCES, messageSuccesObtenus, mesuresDe, mesuresVides, registreSucces, succesAccordes, validerSucces } from './succes';
 import { suiviVide } from './suivi';
 import type { DefinitionSucces, Mesures } from './succes';
 
@@ -71,6 +71,14 @@ it('accorde deux succès à la fois et additionne leurs diamants', () => {
   const resultat = succesAccordes(registreSucces, compteInitial(), { ...mesures, badges: 1 });
   expect(resultat.nouveaux.map(succes => succes.id)).toEqual(['premiers-pas', 'premier-badge']);
   expect(resultat.compte.diamants).toBe(10);
+});
+
+it('résume les succès obtenus en un seul message lisible', () => {
+  expect(messageSuccesObtenus([])).toBeNull();
+  expect(messageSuccesObtenus([{ nom: 'A' }])).toBe('Succès obtenu : A');
+  expect(messageSuccesObtenus([{ nom: 'A' }, { nom: 'B' }])).toBe('Succès obtenus : A, B');
+  expect(messageSuccesObtenus([{ nom: 'A' }, { nom: 'B' }, { nom: 'C' }])).toBe('Succès obtenus : A, B et 1 autre');
+  expect(messageSuccesObtenus([{ nom: 'A' }, { nom: 'B' }, { nom: 'C' }, { nom: 'D' }])).toBe('Succès obtenus : A, B et 2 autres');
 });
 
 it('rend le même compte quand aucun seuil n’est atteint', () => {

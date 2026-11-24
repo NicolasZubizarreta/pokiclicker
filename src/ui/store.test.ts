@@ -94,6 +94,41 @@ it('rafraîchit le compte après un seuil enregistré et conserve son résumé s
   expect(store.getState().compte).toBe(apres);
 });
 
+it('annonce un succès gagné pendant la partie, avec son nom', () => {
+  const { store } = preparer();
+  // Nouvelle partie : le premier Pokémon de l'équipe est un vrai gain, il est annoncé.
+  expect(store.getState().compte.succes).toContain('premiers-pas');
+  expect(store.getState().annonce).toContain('Succès obtenu : Premiers pas');
+  for (let numero = 2; numero <= 25; numero++) store.getState().noterEspece(numero);
+  expect(store.getState().compte.succes).toContain('collectionneur');
+  expect(store.getState().annonce).toContain('Succès obtenu : Collectionneur');
+});
+
+it('n’annonce aucun succès quand les notifications sont coupées, mais le crédite quand même', () => {
+  const { store } = preparer();
+  store.getState().reglerNotifications(false);
+  for (let numero = 2; numero <= 25; numero++) store.getState().noterEspece(numero);
+  expect(store.getState().compte.succes).toContain('collectionneur');
+  expect(store.getState().annonce ?? '').not.toContain('Collectionneur');
+});
+
+it('rattrape sans message les succès déjà atteints par une sauvegarde ancienne', () => {
+  const { store, stockage } = preparer();
+  store.getState().noterEspece(2);
+  store.getState().arreter();
+  const gestionnaire = creerGestionnaire({ stockage, horloge: creerHorlogeSimulee(), genererId: () => 'test' });
+  // Ancienne sauvegarde : un Pokémon au Pokédex mais aucun succès encore crédité au compte.
+  gestionnaire.ecrireCompte({ ...gestionnaire.chargerCompte()!.donnees, succes: [], diamants: 0 });
+  const reprise = creerStoreJeu({ stockage, horloge: creerHorlogeSimulee(), genererId: () => 'test', alea: () => .1 });
+  stores.push(reprise);
+  reprise.getState().demarrer();
+  reprise.getState().noterEspece(3);
+  expect(reprise.getState().compte.succes).toContain('premiers-pas');
+  expect(reprise.getState().annonce ?? '').not.toContain('Succès');
+  for (let numero = 4; numero <= 25; numero++) reprise.getState().noterEspece(numero);
+  expect(reprise.getState().annonce).toContain('Succès obtenu : Collectionneur');
+});
+
 it('expose le dialogue initial, sauvegarde ses effets et reconstruit le combat après un déplacement', () => {
   const evenements = catalogueEvenements({ etapes: [
     { type: 'dialogue', locuteur: 'Chen', texte: 'Bonjour' },
@@ -166,7 +201,7 @@ it('conserve l’affichage et les écritures avec le catalogue vide et ignore un
   const ecrire = vi.spyOn(initial.stockage, 'ecrire');
   const vide = preparerEvenements(chargerEvenements({}, kanto), initial.stockage).store;
   const affichage = (store: StoreJeu) => Object.fromEntries(Object.entries(store.getState()).filter(([, valeur]) => typeof valeur !== 'function'));
-  expect(affichage(vide)).toEqual({ ...affichage(initial.store), evenement: null });
+  expect(affichage(vide)).toEqual({ ...affichage(initial.store), evenement: null, annonce: null });
   vide.getState().terminerEtape();
   expect(ecrire).not.toHaveBeenCalled();
   vide.getState().arreter();

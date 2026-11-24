@@ -61,6 +61,18 @@ export function succesAccordes(registre: readonly DefinitionSucces[], compte: Do
   };
 }
 
+/** Nombre de noms cités dans une notification de succès ; au-delà, « et N autres » garde le message court. */
+const NOMS_CITES_MAX = 2;
+
+/** Message d'obtention : un seul message pour tous les succès gagnés d'un coup (jamais une pile par succès). */
+export function messageSuccesObtenus(nouveaux: readonly Pick<DefinitionSucces, 'nom'>[]): string | null {
+  if (!nouveaux.length) return null;
+  if (nouveaux.length === 1) return `Succès obtenu : ${nouveaux[0]!.nom}`;
+  const cites = nouveaux.slice(0, NOMS_CITES_MAX).map(succes => succes.nom).join(', ');
+  const reste = nouveaux.length - NOMS_CITES_MAX;
+  return `Succès obtenus : ${cites}${reste > 0 ? ` et ${reste} autre${reste > 1 ? 's' : ''}` : ''}`;
+}
+
 export function mesuresDe(region: DonneesRegion, pokedex: readonly number[]): Mesures {
   const suivi = lireSuivi(region);
   const niveaux = [...region.equipe, ...region.pc, ...region.pension.parents].map(pokemon => pokemon.niveau);
