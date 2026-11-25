@@ -39,7 +39,7 @@ test.describe('fenêtres sur iPhone (WebKit)', () => {
     await demarrer(page);
     await page.getByRole('button', { name: 'PC', exact: true }).click();
     await page.getByRole('button', { name: /niveau \d+/ }).first().click();
-    await verifierFenetre(page, 'fiche-pokemon', /Base/);
+    await verifierFenetre(page, 'fiche-pokemon', /Dégâts de base/);
   });
 
   test('Sac', async ({ page }) => {

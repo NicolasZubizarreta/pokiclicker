@@ -61,6 +61,13 @@ test('les sprites restent entièrement dans leurs cadres', async ({ page }, info
   await expect(page.getByRole('heading', { name: 'PC de Léo' })).toBeVisible();
   await verifierSprites(page.locator('main'));
   if (informations.project.name === 'mobile') {
+    // L'équipe est au niveau 16 : la proposition d'évolution peut s'ouvrir et bloquer les clics.
+    const evolution = page.locator('dialog.fenetre-evolution[open]');
+    // Plusieurs Pokémon de l'équipe peuvent évoluer : les propositions se suivent.
+    for (let i = 0; i < 8; i++) {
+      if (!await evolution.first().waitFor({ state: 'visible', timeout: 1500 }).then(() => true, () => false)) break;
+      await evolution.first().getByRole('button', { name: 'Plus tard', exact: true }).click();
+    }
     await page.getByRole('button', { name: 'Menu', exact: true }).click();
     await page.getByRole('button', { name: /^Pokédex/ }).click();
     await verifierSprites(page.locator('main'));
